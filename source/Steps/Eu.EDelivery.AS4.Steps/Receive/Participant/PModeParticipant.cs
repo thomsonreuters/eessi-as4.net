@@ -38,9 +38,9 @@ namespace Eu.EDelivery.AS4.Steps.Receive.Participant
         /// </summary>
         /// <param name="visitor"></param>
         public void Accept(IPModeRuleVisitor visitor)
-        {
-            Logger.Debug($"Receiving PMode: {PMode.Id} has {Points} Points");
+        {            
             visitor.Visit(this);
+            Logger.Debug($"Receiving PMode: {PMode.Id} has {Points} Points");
         }
 
         /// <summary>

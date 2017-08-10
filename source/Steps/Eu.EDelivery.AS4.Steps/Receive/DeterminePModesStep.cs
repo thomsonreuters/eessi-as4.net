@@ -7,9 +7,11 @@ using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
+using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Steps.Receive.Participant;
+using Eu.EDelivery.AS4.Validators;
 using NLog;
 using ReceivePMode = Eu.EDelivery.AS4.Model.PMode.ReceivingProcessingMode;
 using SendPMode = Eu.EDelivery.AS4.Model.PMode.SendingProcessingMode;
@@ -29,7 +31,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// <summary>
         /// Initializes a new instance of the <see cref="DeterminePModesStep" /> class
         /// </summary>
-        public DeterminePModesStep() : this(Config.Instance, Registry.Instance.CreateDatastoreContext) {}
+        public DeterminePModesStep() : this(Config.Instance, Registry.Instance.CreateDatastoreContext) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DeterminePModesStep" /> class.
@@ -103,6 +105,14 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             ReceivePMode pmode = possibilities.First();
             Logger.Info($"Use '{pmode.Id}' as Receiving PMode");
 
+            var validationResult = ReceivingProcessingModeValidator.Instance.Validate(pmode);
+
+            if (validationResult.IsValid == false)
+            {
+                messagingContext.ErrorResult = new ErrorResult("The receiving PMode is not valid.", ErrorAlias.Other);
+                throw new InvalidPModeException($"The Receiving PMode {pmode.Id} is not valid.", validationResult);
+            }
+
             messagingContext.ReceivingPMode = pmode;
             messagingContext.SendingPMode = GetReferencedSendingPMode(pmode);
 
@@ -111,7 +121,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
         private static StepResult FailedStepResult(string description, MessagingContext context)
         {
-            context.ErrorResult = new ErrorResult(description, ErrorCode.Ebms0001, ErrorAlias.ProcessingModeMismatch);
+            context.ErrorResult = new ErrorResult(description, ErrorAlias.ProcessingModeMismatch);
             return StepResult.Failed(context);
         }
 

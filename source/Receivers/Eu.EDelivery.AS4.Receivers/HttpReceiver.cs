@@ -473,14 +473,23 @@ namespace Eu.EDelivery.AS4.Receivers
                 {
                     if (processorResult.Exception != null)
                     {
-                        return
-                            new ByteContentResult(
-                                processorResult.ErrorResult?.Code == ErrorCode.NotApplicable
-                                || processorResult.ErrorResult == null
-                                    ? HttpStatusCode.BadRequest
-                                    : HttpStatusCode.InternalServerError,
-                                "text/plain",
-                                Encoding.UTF8.GetBytes(processorResult.Exception.Message));
+                       
+
+                        string errorMessage = String.IsNullOrWhiteSpace(processorResult.ErrorResult?.Description) == false
+                            ? processorResult.ErrorResult.Description
+                            : processorResult.Exception.Message;
+
+                        if (processorResult.ErrorResult == null ||
+                            processorResult.ErrorResult.Code == ErrorCode.NotApplicable)                        
+                        {
+                            return new ByteContentResult(HttpStatusCode.BadRequest, "text/plain",
+                                                         Encoding.UTF8.GetBytes(errorMessage));
+                        }
+                        else
+                        {
+                            return new ByteContentResult(HttpStatusCode.InternalServerError, "text/plain",
+                                                         Encoding.UTF8.GetBytes(errorMessage));
+                        }
                     }
 
                     // Ugly hack until the Transformer is refactored.

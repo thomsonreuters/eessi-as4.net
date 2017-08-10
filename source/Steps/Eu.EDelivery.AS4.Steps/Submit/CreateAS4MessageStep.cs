@@ -23,7 +23,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         /// <summary>
         /// Initializes a new instance of the <see cref="CreateAS4MessageStep"/> class.
         /// </summary>
-        public CreateAS4MessageStep() : this(Registry.Instance.PayloadRetrieverProvider) {}
+        public CreateAS4MessageStep() : this(Registry.Instance.PayloadRetrieverProvider) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CreateAS4MessageStep" /> class.
@@ -47,7 +47,9 @@ namespace Eu.EDelivery.AS4.Steps.Submit
 
             await RetrieveAttachmentsForAS4Message(as4Message, messagingContext);
 
-            return StepResult.Success(messagingContext.CloneWith(as4Message));
+            messagingContext.ModifyContext(as4Message);
+
+            return StepResult.Success(messagingContext);
         }
 
         private static AS4Message CreateAS4MessageFromSubmit(MessagingContext messagingContext)
@@ -61,7 +63,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         private static UserMessage CreateUserMessage(MessagingContext messagingContext)
         {
             Logger.Debug("Map Submit Message to UserMessage");
-            
+
             return AS4Mapper.Map<UserMessage>(messagingContext.SubmitMessage);
         }
 

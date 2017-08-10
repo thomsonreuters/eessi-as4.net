@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -52,8 +51,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             string hrefs = string.Join(",", invalidPartInfos.Select(i => $"'{i.Href}'"));
 
             return new ErrorResult(
-                $"AS4Message only support embedded Payloads and: '{hrefs}' was given",
-                ErrorCode.Ebms0011,
+                $"AS4Message only support embedded Payloads and: '{hrefs}' was given",                
                 ErrorAlias.ExternalPayloadError);
         }
 
@@ -61,7 +59,6 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         {
             return new ErrorResult(
                 "No Attachment can be found for each UserMessage PartInfo",
-                ErrorCode.Ebms0009,
                 ErrorAlias.InvalidHeader);
         }
     }

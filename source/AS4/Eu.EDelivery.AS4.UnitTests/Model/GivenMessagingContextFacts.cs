@@ -1,7 +1,5 @@
 ﻿using System;
-using System.IO;
 using System.Linq;
-using System.Text;
 using Eu.EDelivery.AS4.Factories;
 using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Core;
@@ -36,20 +34,22 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
             {
                 // Arrange
                 var filledNotify = new NotifyMessageEnvelope(new AS4.Model.Notify.MessageInfo(), Status.Delivered, new byte[0], "type");
-                var expected = new MessagingContext(filledNotify)
+
+                var context = new MessagingContext(filledNotify)
                 {
                     SendingPMode = new SendingProcessingMode(),
                     ReceivingPMode = new ReceivingProcessingMode()
                 };
+
                 var anonymousNotify = new NotifyMessageEnvelope(null, default(Status), null, null);
 
                 // Act
-                MessagingContext actual = expected.CloneWith(anonymousNotify);
+                context.ModifyContext(anonymousNotify);
 
                 // Assert
-                Assert.NotEqual(expected.NotifyMessage, actual.NotifyMessage);
-                Assert.Equal(expected.SendingPMode, actual.SendingPMode);
-                Assert.Equal(expected.ReceivingPMode, actual.ReceivingPMode);
+                Assert.Equal(anonymousNotify, context.NotifyMessage);
+                Assert.NotNull(context.SendingPMode);
+                Assert.NotNull(context.ReceivingPMode);
             }
 
             [Fact]
@@ -57,7 +57,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
             {
                 // Arrange
                 var filledNotify = new DeliverMessageEnvelope(new MessageInfo(), new byte[0], "type");
-                var expected = new MessagingContext(filledNotify)
+                var context = new MessagingContext(filledNotify)
                 {
                     SendingPMode = new SendingProcessingMode(),
                     ReceivingPMode = new ReceivingProcessingMode()
@@ -66,31 +66,31 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
                 var anonymousDeliver = new DeliverMessageEnvelope(null, null, null);
 
                 // Act
-                MessagingContext actual = expected.CloneWith(anonymousDeliver);
+                context.ModifyContext(anonymousDeliver);
 
                 // Assert
-                Assert.NotEqual(expected.DeliverMessage, actual.DeliverMessage);
-                Assert.Equal(expected.SendingPMode, actual.SendingPMode);
-                Assert.Equal(expected.ReceivingPMode, actual.ReceivingPMode);
+                Assert.Equal(anonymousDeliver, context.DeliverMessage);
+                Assert.NotNull(context.SendingPMode);
+                Assert.NotNull(context.ReceivingPMode);
             }
 
             [Fact]
             public void OverrideMessageWithAS4Message()
             {
                 // Arrange
-                var expected = new MessagingContext(AS4MessageWithEbmsMessageId(), MessagingContextMode.Unknown)
+                var context = new MessagingContext(AS4MessageWithEbmsMessageId(), MessagingContextMode.Unknown)
                 {
                     ReceivingPMode = new ReceivingProcessingMode(),
                     SendingPMode = new SendingProcessingMode()
                 };
 
                 // Act
-                MessagingContext actual = expected.CloneWith(AS4MessageWithoutEbmsMessageId());
+                context.ModifyContext(AS4MessageWithoutEbmsMessageId());
 
                 // Assert
-                Assert.NotEqual(expected.AS4Message, actual.AS4Message);
-                Assert.Equal(expected.SendingPMode, actual.SendingPMode);
-                Assert.Equal(expected.ReceivingPMode, actual.ReceivingPMode);
+                Assert.Equal(AS4MessageWithoutEbmsMessageId(), context.AS4Message);
+                Assert.NotNull(context.SendingPMode);
+                Assert.NotNull(context.ReceivingPMode);
             }
 
             private static AS4Message AS4MessageWithEbmsMessageId()

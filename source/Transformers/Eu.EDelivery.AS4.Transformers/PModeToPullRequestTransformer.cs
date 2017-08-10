@@ -54,9 +54,8 @@ namespace Eu.EDelivery.AS4.Transformers
         {
             SendingProcessingMode pmode =
                 await AS4XmlSerializer.FromStreamAsync<SendingProcessingMode>(receivedMessage.UnderlyingStream);
-            var validator = new SendingProcessingModeValidator();
-
-            ValidationResult result = validator.Validate(pmode);
+            
+            ValidationResult result = SendingProcessingModeValidator.Instance.Validate(pmode);
 
             if (result.IsValid)
             {

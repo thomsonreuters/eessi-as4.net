@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <PMode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="eu:edelivery:as4:pmode">
-  <Id>ComponentTest_ReceiveAgent_Sample1</Id>
+  <Id>ComponentTest_ReceiveAgent_InvalidPMode</Id>
   <Mep>OneWay</Mep>
   <MepBinding>Push</MepBinding>
   <Reliability>
@@ -10,7 +10,7 @@
   </Reliability>
   <ReplyHandling>
     <ReplyPattern>Response</ReplyPattern>
-    <SendingPMode>unsigned-response-pmode</SendingPMode>
+    <SendingPMode></SendingPMode>
     <ReceiptHandling>
       <UseNNRFormat>false</UseNNRFormat>
     </ReceiptHandling>
@@ -59,9 +59,9 @@
       <AgreementReference>
         <Value>http://agreements.europa.org/agreement</Value>
       </AgreementReference>
-      <Action>eu:sample:01</Action>
+      <Action>Invalid_PMode_Test_Action</Action>
       <Service>
-        <Value>getting:started</Value>
+        <Value>Invalid_PMode_Test_Service</Value>
         <Type>eu:europa:services</Type>
       </Service>
     </CollaborationInfo>

@@ -43,6 +43,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
         }
 
         [Fact]
+        public void PModeIsNotValid_WhenReceiptHandlingSendingPModeIdIsEmpty()
+        {
+            TestReceivingPModeValidation(pmode => pmode.ReplyHandling.SendingPMode = string.Empty);
+        }
+
+        [Fact]
         public void PModeIsNotValid_IfNoReplyHandlingIsPresent()
         {
             TestReceivingPModeValidation(pmode => pmode.ReplyHandling = null);
@@ -60,7 +66,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
         }
 
         [Fact]
-        public void PModeIsNotValid_IfNoPayloadReferenceMethodIsPresentWhenDeliverIsEnabeld()
+        public void PModeIsNotValid_IfNoPayloadReferenceMethodIsPresentWhenDeliverIsEnabled()
         {
             TestReceivingPModeValidation(
                 pmode =>
@@ -120,7 +126,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
             ReceivingProcessingMode pmode = CreateValidPMode();
             arrangePMode(pmode);
 
-            var sut = new ReceivingProcessingModeValidator();
+            var sut = ReceivingProcessingModeValidator.Instance;
 
             // Act
             ValidationResult result = sut.Validate(pmode);

@@ -32,9 +32,9 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
         {
             DeliverMessageEnvelope deliverMessage = await CreateDeliverMessageEnvelope(messagingContext);
-            MessagingContext deliverContext = messagingContext.CloneWith(deliverMessage);
+            messagingContext.ModifyContext(deliverMessage);
 
-            return StepResult.Success(deliverContext);
+            return StepResult.Success(messagingContext);
         }
 
         private async Task<DeliverMessageEnvelope> CreateDeliverMessageEnvelope(MessagingContext messagingContext)

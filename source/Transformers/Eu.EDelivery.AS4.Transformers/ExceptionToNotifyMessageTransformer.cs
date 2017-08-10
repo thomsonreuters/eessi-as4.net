@@ -81,7 +81,7 @@ namespace Eu.EDelivery.AS4.Transformers
 
         private static Error CreateSignalErrorMessage(ExceptionEntity exceptionEntity)
         {
-            var errorResult = new ErrorResult(exceptionEntity.Exception, ErrorCode.Ebms0004, ErrorAlias.Other);
+            var errorResult = new ErrorResult(exceptionEntity.Exception, ErrorAlias.Other);
 
             return new ErrorBuilder()
                 .WithRefToEbmsMessageId(exceptionEntity.EbmsRefToMessageId)

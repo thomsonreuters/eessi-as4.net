@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
+using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Services;
@@ -58,7 +59,16 @@ namespace Eu.EDelivery.AS4.Steps.Submit
                 var service = new OutMessageService(new DatastoreRepository(context), _messageBodyStore);
 
                 await service.InsertAS4Message(messagingContext, Operation.ToBeProcessed, cancellation);
-                await context.SaveChangesAsync(cancellation).ConfigureAwait(false);
+
+                try
+                {
+                    await context.SaveChangesAsync(cancellation).ConfigureAwait(false);
+                }
+                catch
+                {
+                    messagingContext.ErrorResult = new ErrorResult("Unable to store the received message.", ErrorAlias.Other);
+                    throw;
+                }
             }
 
             return await StepResult.SuccessAsync(messagingContext);

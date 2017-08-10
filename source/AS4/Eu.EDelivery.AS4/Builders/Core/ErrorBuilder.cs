@@ -84,7 +84,7 @@ namespace Eu.EDelivery.AS4.Builders.Core
                 Severity = Severity.FAILURE,
                 ErrorCode = $"EBMS:{(int)error.Code:0000}",
                 Category = ErrorCodeUtils.GetCategory(error.Code),
-                ShortDescription = ErrorCodeUtils.GetShortDescription(error.Code)
+                ShortDescription = error.GetAliasDescription()
             };
         }
 

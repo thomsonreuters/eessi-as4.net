@@ -34,7 +34,9 @@ namespace Eu.EDelivery.AS4.Transformers
             MessagingContext context = await as4Transformer.TransformAsync(message, cancellationToken);
 
             NotifyMessageEnvelope notifyMessage = await CreateNotifyMessageEnvelope(context.AS4Message);
-            return context.CloneWith(notifyMessage);
+            context.ModifyContext(notifyMessage);
+
+            return context;
         }
 
         internal async Task<NotifyMessageEnvelope> CreateNotifyMessageEnvelope(AS4Message as4Message)

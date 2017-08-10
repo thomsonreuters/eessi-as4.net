@@ -109,15 +109,15 @@ namespace Eu.EDelivery.AS4.Model.Internal
             Mode = MessagingContextMode.Unknown;
         }
 
-        public ReceivedMessage ReceivedMessage { get; }
+        public ReceivedMessage ReceivedMessage { get; private set; }
 
-        public AS4Message AS4Message { get; }
+        public AS4Message AS4Message { get; private set; }
 
-        public SubmitMessage SubmitMessage { get; }
+        public SubmitMessage SubmitMessage { get; private set; }
 
-        public DeliverMessageEnvelope DeliverMessage { get; }
+        public DeliverMessageEnvelope DeliverMessage { get; private set; }
 
-        public NotifyMessageEnvelope NotifyMessage { get; }
+        public NotifyMessageEnvelope NotifyMessage { get; private set; }
 
         public ReceptionAwareness ReceptionAwareness { get; }
 
@@ -189,7 +189,7 @@ namespace Eu.EDelivery.AS4.Model.Internal
                 {
                     return NotifyMessage.MessageInfo.RefToMessageId;
                 }
-                
+
                 return string.Empty;
             }
         }
@@ -209,28 +209,32 @@ namespace Eu.EDelivery.AS4.Model.Internal
         }
 
         /// <summary>
-        /// Clones the message.
+        /// Modifies the MessagingContext
         /// </summary>
         /// <param name="as4Message">The as4 message.</param>
         /// <returns></returns>
-        public MessagingContext CloneWith(AS4Message as4Message)
+        public void ModifyContext(AS4Message as4Message)
         {
-            return CopyContextInfoTo(new MessagingContext(as4Message, Mode));
+            PrepareContextChange();
+            AS4Message = as4Message;
         }
 
-        public MessagingContext CloneWith(ReceivedMessage receivedMessage)
+        public void ModifyContext(ReceivedMessage receivedMessage)
         {
-            return CopyContextInfoTo(new MessagingContext(receivedMessage, Mode));
+            PrepareContextChange();
+            ReceivedMessage = receivedMessage;
         }
 
         /// <summary>
-        /// Clones the message.
+        /// Modifies the MessagingContext
         /// </summary>
         /// <param name="deliverMessage">The anonymous deliver.</param>
         /// <returns></returns>
-        public MessagingContext CloneWith(DeliverMessageEnvelope deliverMessage)
+        public void ModifyContext(DeliverMessageEnvelope deliverMessage)
         {
-            return CopyContextInfoTo(new MessagingContext(deliverMessage));
+            PrepareContextChange();
+            DeliverMessage = deliverMessage;
+            Mode = MessagingContextMode.Deliver;
         }
 
         /// <summary>
@@ -238,19 +242,19 @@ namespace Eu.EDelivery.AS4.Model.Internal
         /// </summary>
         /// <param name="notifyMessage">The notify message.</param>
         /// <returns></returns>
-        public MessagingContext CloneWith(NotifyMessageEnvelope notifyMessage)
+        public void ModifyContext(NotifyMessageEnvelope notifyMessage)
         {
-            return CopyContextInfoTo(new MessagingContext(notifyMessage));
+            PrepareContextChange();
+            NotifyMessage = notifyMessage;
+            Mode = MessagingContextMode.Notify;
         }
 
-        private MessagingContext CopyContextInfoTo(MessagingContext context)
+        private void PrepareContextChange()
         {
-            context.SendingPMode = SendingPMode;
-            context.ReceivingPMode = ReceivingPMode;
-            context.Mode = Mode;
-            context.ErrorResult = ErrorResult;
-
-            return context;
+            SubmitMessage = null;
+            AS4Message = null;
+            NotifyMessage = null;
+            DeliverMessage = null;
         }
 
         /// <summary>

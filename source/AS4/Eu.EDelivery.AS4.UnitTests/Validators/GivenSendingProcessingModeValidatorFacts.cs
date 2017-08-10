@@ -86,9 +86,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
         }
 
         private static ValidationResult ExerciseValidation(SendingProcessingMode pmode)
-        {
-            var sut = new SendingProcessingModeValidator();
-            return sut.Validate(pmode);
+        {            
+            return SendingProcessingModeValidator.Instance.Validate(pmode);
         }
     }
 }
