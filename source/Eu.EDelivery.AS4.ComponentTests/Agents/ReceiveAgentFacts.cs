@@ -50,6 +50,8 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                 "The URL where the receive agent is listening on, could not be retrieved.");
         }
 
+        #region Scenario's for received UserMessages that result in errors.
+
         [Fact]
         public async Task ThenAgentReturnsError_IfMessageHasNonExsistingAttachment()
         {
@@ -104,7 +106,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
 
             // Act
-            HttpResponseMessage response = await HttpClient.SendAsync(CreateSendMessage(message));
+            HttpResponseMessage response = await HttpClient.SendAsync(CreateSendAS4Message(message));
 
             // Assert
             Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
@@ -115,6 +117,10 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             Assert.Equal(InStatus.Exception, inMessageRecord.Status);
             Assert.NotNull(inExceptionRecord);
         }
+
+        #endregion
+
+        #region MessageHandling scenarios
 
         [Fact]
         public async Task ThenInMessageOperationIsToBeDelivered()
@@ -135,6 +141,34 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             InMessage receivedUserMessage = GetInsertedUserMessageFor(receivedAS4Message);
             Assert.NotNull(receivedUserMessage);
             Assert.Equal(Operation.ToBeDelivered, receivedUserMessage.Operation);
+        }
+
+        [Fact]
+        public async Task ThenInMessageOperationIsToBeForwarded()
+        {
+            const string messageId = "forwarding_message_id";
+
+            var as4Message = AS4Message.Create(new UserMessage()
+            {
+                MessageId = messageId,
+                CollaborationInfo = { AgreementReference = new AgreementReference()
+                {
+                    // Make sure that the forwarding receiving pmode is used; therefore
+                    // explicitly set the Id of the PMode that must be used by the receive-agent.
+                    PModeId = "ComponentTest_ReceiveAgent_Forward"
+                }}
+            });
+
+            // Act
+            HttpResponseMessage response = await HttpClient.SendAsync(CreateSendAS4Message(as4Message));
+
+            // Assert
+            Assert.Equal(HttpStatusCode.Accepted, response.StatusCode);
+            Assert.True(String.IsNullOrWhiteSpace(await response.Content.ReadAsStringAsync()));
+            
+            InMessage receivedUserMessage = _databaseSpy.GetInMessageFor(m => m.EbmsMessageId == messageId);
+            Assert.NotNull(receivedUserMessage);
+            Assert.Equal(Operation.ToBeForwarded, receivedUserMessage.Operation);
         }
 
         private HttpRequestMessage CreateSendAS4Message(byte[] content)
@@ -187,6 +221,10 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                     i => i.EbmsMessageId.Equals(receivedAS4Message.PrimarySignalMessage.RefToMessageId));
         }
 
+        #endregion
+
+        #region SignalMessage receive scenario's
+
         [Fact]
         public async Task ThenRelatedUserMessageIsAcked()
         {
@@ -197,7 +235,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             AS4Message as4Message = CreateAS4ReceiptMessage(expectedId);
 
             // Act
-            await HttpClient.SendAsync(CreateSendMessage(as4Message));
+            await HttpClient.SendAsync(CreateSendAS4Message(as4Message));
 
             // Assert
             AssertIfStatusOfOutMessageIs(expectedId, OutStatus.Ack);
@@ -221,7 +259,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             AS4Message as4Message = CreateAS4ErrorMessage(expectedId);
 
             // Act
-            await HttpClient.SendAsync(CreateSendMessage(as4Message));
+            await HttpClient.SendAsync(CreateSendAS4Message(as4Message));
 
             // Assert
             AssertIfStatusOfOutMessageIs(expectedId, OutStatus.Nack);
@@ -240,6 +278,8 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             _databaseSpy.InsertOutMessage(outMessage);
         }
 
+        #endregion
+
         private static SendingProcessingMode GetSendingPMode()
         {
             return new SendingProcessingMode
@@ -252,13 +292,13 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
         private static AS4Message CreateAS4ErrorMessage(string refToMessageId)
         {
-            var result = new ErrorResult("An error occurred", ErrorCode.Ebms0010, ErrorAlias.NonApplicable);
+            var result = new ErrorResult("An error occurred", ErrorAlias.NonApplicable);
             Error error = new ErrorBuilder().WithRefToEbmsMessageId(refToMessageId).WithErrorResult(result).Build();
 
             return AS4Message.Create(error, GetSendingPMode());
         }
 
-        private HttpRequestMessage CreateSendMessage(AS4Message message)
+        private HttpRequestMessage CreateSendAS4Message(AS4Message message)
         {
             var requestMessage = new HttpRequestMessage(HttpMethod.Post, _receiveAgentUrl);
 
@@ -293,7 +333,6 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             Assert.NotNull(outMessage);
             Assert.Equal(expectedStatus, outMessage.Status);
         }
-
 
         // TODO:
         // - Create a test that verifies if the Status for a received receipt/error is set to

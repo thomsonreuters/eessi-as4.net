@@ -16,6 +16,9 @@
         Sent,
         DeadLettered,
 
+        ToBeForwarded,
+        Forwarded,
+
         ToBeNotified,
         Notifying,
         Notified,
