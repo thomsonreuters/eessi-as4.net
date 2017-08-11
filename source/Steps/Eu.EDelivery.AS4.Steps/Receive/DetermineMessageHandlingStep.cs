@@ -37,6 +37,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
         {
+            // TODO: review!, what if the Multihop-signal message has reached its final destination here ?
             if (messagingContext.AS4Message.IsSignalMessage && messagingContext.AS4Message.IsMultiHopMessage == false)
             {
                 return StepResult.Success(messagingContext);
@@ -50,9 +51,11 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             if (messagingContext.ReceivingPMode.MessageHandling.MessageHandlingType == MessageHandlingChoiceType.Forward)
             {
                 using (var db = _createDatastoreContext())
-                {
+                {                    
                     var repository = new DatastoreRepository(db);
-                    repository.UpdateInMessage(messagingContext.EbmsMessageId, message => message.Operation = Operation.ToBeForwarded);
+
+                    repository.UpdateInMessages(messagingContext.AS4Message.MessageIds, 
+                                                message => message.Operation = Operation.ToBeForwarded);
 
                     await db.SaveChangesAsync(cancellationToken);
                 }
