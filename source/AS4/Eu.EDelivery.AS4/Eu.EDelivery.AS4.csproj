@@ -338,6 +338,7 @@
     <Compile Include="Exceptions\Handlers\SafeExceptionHandler.cs" />
     <Compile Include="Exceptions\IAgentExceptionHandler.cs" />
     <Compile Include="Exceptions\InvalidMessageException.cs" />
+    <Compile Include="Mappings\Core\RoutingInputUserMessageMap.cs" />
     <Compile Include="Model\PMode\InvalidPModeException.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="Extensions\XmlAttributeExtensions.cs" />
