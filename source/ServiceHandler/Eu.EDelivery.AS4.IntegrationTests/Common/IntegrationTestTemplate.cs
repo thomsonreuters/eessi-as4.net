@@ -39,8 +39,8 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
             CopyDirectory(@".\config\integrationtest-settings", @".\config\");
             CopyDirectory(@".\config\integrationtest-settings\integrationtest-pmodes\send-pmodes", @".\config\send-pmodes");
             CopyDirectory(@".\config\integrationtest-settings\integrationtest-pmodes\receive-pmodes", @".\config\receive-pmodes");
-            
-            CleanUpFiles(@".\database");
+
+            CleanUpFiles(@".\database", recursive: true);            
             CleanUpFiles(AS4FullInputPath);
             CleanUpFiles(AS4FullOutputPath);
             CleanUpFiles(AS4ReceiptsPath);
@@ -54,9 +54,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
             CleanUpFiles(Properties.Resources.holodeck_B_input_path);
 
             CleanUpFiles(Properties.Resources.holodeck_A_output_path);
-            CleanUpFiles(Properties.Resources.holodeck_B_output_path);
-            
-            CleanUpDirectory(Path.GetFullPath(@".\database\as4messages"));
+            CleanUpFiles(Properties.Resources.holodeck_B_output_path);       
         }
 
         #region Fixture Setup
@@ -113,7 +111,12 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
 
         private static void CleanUpDirectory(string directoryPath)
         {
-            EnsureDirectory(directoryPath);
+            if (Directory.Exists(directoryPath) == false)
+            {
+                return;
+            }
+
+            Console.WriteLine($"Deleting directory {directoryPath}");
             Try(() => Directory.Delete(directoryPath, recursive: true));
         }
 
@@ -145,13 +148,24 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
         /// </summary>
         /// <param name="directory"></param>
         /// <param name="predicateFile">The predicate File.</param>
+        /// <param name="recursive">Set to true if files in subdirectories must be removed as well.  Default is false</param>
         /// <exception cref="Exception">A delegate callback throws an exception.</exception>
-        protected void CleanUpFiles(string directory, Func<string, bool> predicateFile = null)
+        protected void CleanUpFiles(string directory, Func<string, bool> predicateFile = null, bool recursive = false)
         {
             EnsureDirectory(directory);
 
-            Console.WriteLine($@"Deleting files at location: {directory}");
-            
+            Console.WriteLine($@"Deleting files at location: {directory} (Recursive={recursive})");
+
+            if (recursive)
+            {
+                var subDirectories = Directory.GetDirectories(directory);
+
+                foreach (var subDirectory in subDirectories)
+                {
+                    CleanUpFiles(subDirectory, predicateFile, true);
+                }
+            }
+
             foreach (string file in Directory.EnumerateFiles(Path.GetFullPath(directory)))
             {
                 if (predicateFile == null || predicateFile(file))
@@ -297,6 +311,6 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
         /// <summary>
         /// Dispose custom resources in subclass implementation.
         /// </summary>
-        protected virtual void DisposeChild() {}
+        protected virtual void DisposeChild() { }
     }
 }
