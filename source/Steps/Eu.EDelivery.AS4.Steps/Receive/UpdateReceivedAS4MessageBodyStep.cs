@@ -71,7 +71,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             var repository = new DatastoreRepository(datastoreContext);
             var service = new InMessageService(repository);
 
-            await service.UpdateAS4MessageForDeliveryAndNotification(
+            await service.UpdateAS4MessageForMessageHandling(
                 messagingContext,
                 _messageBodyStore,
                 cancellationToken);

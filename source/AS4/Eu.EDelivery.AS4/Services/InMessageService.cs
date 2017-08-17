@@ -181,7 +181,7 @@ namespace Eu.EDelivery.AS4.Services
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns></returns>
         /// <exception cref="InvalidDataException"></exception>
-        public async Task UpdateAS4MessageForDeliveryAndNotification(
+        public async Task UpdateAS4MessageForMessageHandling(
             MessagingContext messageContext,
             IAS4MessageBodyStore messageBodyStore,
             CancellationToken cancellationToken)
