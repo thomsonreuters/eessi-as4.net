@@ -10,6 +10,7 @@ using NLog;
 
 namespace Eu.EDelivery.AS4.Steps.Send
 {
+    [Obsolete("This step is obsolete")]
     public class PullUpdateMessageStatusStep : IStep
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
