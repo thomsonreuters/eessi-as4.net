@@ -315,8 +315,8 @@
       <HintPath>..\..\packages\System.Xml.ReaderWriter.4.3.0\lib\net46\System.Xml.ReaderWriter.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Z.EntityFramework.Plus.EFCore, Version=1.5.1.0, Culture=neutral, PublicKeyToken=59b66d028979105b, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Z.EntityFramework.Plus.EFCore.1.5.1\lib\net451\Z.EntityFramework.Plus.EFCore.dll</HintPath>
+    <Reference Include="Z.EntityFramework.Plus.EFCore, Version=1.6.10.0, Culture=neutral, PublicKeyToken=59b66d028979105b, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Z.EntityFramework.Plus.EFCore.1.6.10\lib\net451\Z.EntityFramework.Plus.EFCore.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -328,6 +328,8 @@
     <Compile Include="Builders\Entities\OutMessageBuilder.cs" />
     <Compile Include="Builders\GenericTypeBuilder.cs" />
     <Compile Include="Builders\Internal\SoapEnvelopeBuilder.cs" />
+    <Compile Include="Common\TraceLogger.cs" />
+    <Compile Include="Common\TraceLoggerProvider.cs" />
     <Compile Include="Exceptions\ErrorResult.cs" />
     <Compile Include="Exceptions\Handlers\ExceptionHandlerRegistry.cs" />
     <Compile Include="Exceptions\Handlers\InboundExceptionHandler.cs" />
