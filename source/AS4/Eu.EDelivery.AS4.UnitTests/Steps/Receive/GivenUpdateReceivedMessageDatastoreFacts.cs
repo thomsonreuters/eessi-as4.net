@@ -44,7 +44,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 // Arrange
                 InsertOutMessage();
 
-                var receivedAS4Message = AS4Message.Create(new Receipt {RefToMessageId = EbmsMessageId});
+                var receivedAS4Message = AS4Message.Create(new Receipt { RefToMessageId = EbmsMessageId });
 
                 MessagingContext context = CreateMessageReceivedContext(receivedAS4Message, null);
                 // We need to mimick the retrieval of the SendingPMode.
@@ -114,7 +114,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
                 var context = CreateMessageReceivedContext(receivedError, null);
                 context.SendingPMode = GetSendingPMode();
-                
+
                 context = await ExecuteSaveReceivedMessage(context);
 
                 // Act
@@ -133,7 +133,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                     db.OutMessages.Add(await CreateOutMessage(messageId));
                     db.SaveChanges();
                 }
-            }           
+            }
         }
 
         private async Task<MessagingContext> ExecuteSaveReceivedMessage(MessagingContext context)
@@ -166,8 +166,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
             var receivedMessage = new ReceivedMessage(stream, as4Message.ContentType);
 
-            var messagingContext = new MessagingContext(receivedMessage, MessagingContextMode.Receive);
-            messagingContext.ReceivingPMode = receivingPMode;
+            var messagingContext = new MessagingContext(receivedMessage, MessagingContextMode.Receive) { ReceivingPMode = receivingPMode };
 
             return messagingContext;
         }
