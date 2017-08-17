@@ -36,11 +36,7 @@ namespace Eu.EDelivery.AS4.Model.Core
 
         private void PreConditionsParty(string role, PartyId partyId)
         {
-            if (role == null)
-            {
-                throw new ArgumentNullException(nameof(role));
-            }
-            if (role.Length == 0)
+            if (String.IsNullOrEmpty(role))
             {
                 throw new ArgumentException(@"Party Role cannot be empty", nameof(role));
             }
