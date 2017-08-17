@@ -152,6 +152,7 @@
     <Compile Include="Agents\DeliverAgentFacts.cs" />
     <Compile Include="Agents\PullSendAgentFacts.cs" />
     <Compile Include="Agents\ReceiveAgentFacts.cs" />
+    <Compile Include="Agents\SendAgentFacts.cs" />
     <Compile Include="Agents\SubmitAgentFacts.cs" />
     <Compile Include="Common\AS4Component.cs" />
     <Compile Include="Common\ComponentTestTemplate.cs" />

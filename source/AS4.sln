@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26430.14
+VisualStudioVersion = 15.0.26228.10
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Eu.EDelivery.AS4", "AS4\Eu.EDelivery.AS4\Eu.EDelivery.AS4.csproj", "{8B0BA38F-C3F7-46C1-9E68-A7291C7B16B1}"
 EndProject
@@ -32,6 +32,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Eu.EDelivery.AS4.ComponentTests", "Eu.EDelivery.AS4.ComponentTests\Eu.EDelivery.AS4.ComponentTests.csproj", "{E1B9AACB-46F1-4999-8384-E6413D7189BE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Eu.EDelivery.AS4.Fe", "Fe\Eu.EDelivery.AS4.Fe\Eu.EDelivery.AS4.Fe.csproj", "{1BEB12CD-AF85-48AF-BF39-B33B6B1D309E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Eu.EDelivery.AS4.TestUtils", "Eu.EDelivery.AS4.TestUtils\Eu.EDelivery.AS4.TestUtils.csproj", "{243CFD29-BB90-4A9E-9DD8-3C0228C845ED}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -91,6 +93,10 @@ Global
 		{1BEB12CD-AF85-48AF-BF39-B33B6B1D309E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1BEB12CD-AF85-48AF-BF39-B33B6B1D309E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1BEB12CD-AF85-48AF-BF39-B33B6B1D309E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{243CFD29-BB90-4A9E-9DD8-3C0228C845ED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{243CFD29-BB90-4A9E-9DD8-3C0228C845ED}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{243CFD29-BB90-4A9E-9DD8-3C0228C845ED}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{243CFD29-BB90-4A9E-9DD8-3C0228C845ED}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -102,5 +108,6 @@ Global
 		{A3BADCB2-1638-4C18-A1F8-0764C1FB0E30} = {9B817A6A-2DC2-4A74-B9AE-EA50D6E4A864}
 		{73016C9C-15FD-4051-A16F-7245A2267DEC} = {366569F7-B349-4BCE-9879-904A933BC73F}
 		{E1B9AACB-46F1-4999-8384-E6413D7189BE} = {366569F7-B349-4BCE-9879-904A933BC73F}
+		{243CFD29-BB90-4A9E-9DD8-3C0228C845ED} = {366569F7-B349-4BCE-9879-904A933BC73F}
 	EndGlobalSection
 EndGlobal
