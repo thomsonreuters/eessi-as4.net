@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
+using Z.EntityFramework.Plus;
 
 namespace Eu.EDelivery.AS4.UnitTests.Common
 {
@@ -30,6 +31,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
             GetDataStoreContext = () => new DatastoreContext(Options);
             Registry.Instance.CreateDatastoreContext = () => new DatastoreContext(Options);
 
+            BatchUpdateManager.InMemoryDbContextFactory = () => new DatastoreContext(Options);
+
             DatastoreRepository.ResetCaches();
         }
 
@@ -53,6 +56,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
             DatastoreRepository.DisposeCaches();
             GetDataStoreContext = null;
             Registry.Instance.CreateDatastoreContext = null;
+            BatchUpdateManager.InMemoryDbContextFactory = null;
         }
     }
 }
