@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Runtime.Remoting.Messaging;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Microsoft.Extensions.Caching.Memory;
 using NLog;
+using Z.EntityFramework.Plus;
 using ReceptionAwareness = Eu.EDelivery.AS4.Entities.ReceptionAwareness;
 
 namespace Eu.EDelivery.AS4.Repositories
@@ -131,6 +134,37 @@ namespace Eu.EDelivery.AS4.Repositories
                 message.ModificationTime = DateTimeOffset.Now;
             }
         }
+        
+        [Obsolete]
+        public void UpdateInMessages(IEnumerable<string> messageIds, Action<InMessage> updateAction)
+        {
+            Dictionary<string, long> idMap = GetMessageIdsForEbmsMessageIds(_datastoreContext.InMessages, _inMessageIdMap, messageIds.ToArray());
+
+            foreach (KeyValuePair<string, long> kvp in idMap)
+            {
+                InMessage msg = GetInMessageEntityFor(kvp.Key, kvp.Value);
+                UpdateMessageEntityIfNotNull(updateAction, msg);
+            }
+        }
+
+        public void UpdateInMessages(Expression<Func<InMessage, bool>> predicate, Action<InMessage> updateAction)
+        {
+            var inMessages = _datastoreContext.InMessages.Where(predicate);
+
+            if (inMessages.Any())
+            {
+                foreach (var m in inMessages)
+                {
+                    updateAction(m);
+                }
+            }
+        }
+
+        [Obsolete("Sqlite is not supported by this method.")]
+        public void UpdateInMessages(Expression<Func<InMessage, bool>> predicate, Expression<Func<InMessage, InMessage>> updateAction)
+        {
+            _datastoreContext.InMessages.Where(predicate).Update(updateAction);
+        }
 
         private InMessage GetInMessageEntityFor(string ebmsMessageId, long id)
         {
@@ -158,6 +192,11 @@ namespace Eu.EDelivery.AS4.Repositories
         #endregion
 
         #region OutMessage related functionality
+
+        public bool OutMessageExists(Func<OutMessage, bool> predicate)
+        {
+            return _datastoreContext.OutMessages.Any(predicate);
+        }
 
         /// <summary>
         /// Firsts the or default out message.
@@ -196,8 +235,6 @@ namespace Eu.EDelivery.AS4.Repositories
             }
 
             _datastoreContext.OutMessages.Add(outMessage);
-
-
         }
 
         /// <summary>
@@ -219,6 +256,7 @@ namespace Eu.EDelivery.AS4.Repositories
             }
         }
 
+        // TODO: can it be made obsolete ?
         public void UpdateOutMessages(IEnumerable<string> messageIds, Action<OutMessage> updateAction)
         {
             Dictionary<string, long> idMap = GetMessageIdsForEbmsMessageIds(_datastoreContext.OutMessages, _outMessageIdMap, messageIds.ToArray());
@@ -228,6 +266,22 @@ namespace Eu.EDelivery.AS4.Repositories
                 OutMessage msg = GetOutMessageEntityFor(kvp.Key, kvp.Value);
                 UpdateMessageEntityIfNotNull(updateAction, msg);
             }
+        }
+
+        public void UpdateOutMessages(Expression<Func<OutMessage, bool>> predicate, Action<OutMessage> updateAction)
+        {
+            var outMessages = _datastoreContext.OutMessages.Where(predicate);
+
+            foreach (var m in outMessages)
+            {
+                updateAction(m);
+            }
+        }
+
+        [Obsolete("Sqlite is not supported by this method")]
+        public void UpdateOutMessages(Expression<Func<OutMessage, bool>> predicate, Expression<Func<OutMessage, OutMessage>> updateAction)
+        {
+            _datastoreContext.OutMessages.Where(predicate).Update(updateAction);
         }
 
         private OutMessage GetOutMessageEntityFor(string ebmsMessageId, long id)
@@ -253,6 +307,15 @@ namespace Eu.EDelivery.AS4.Repositories
         }
 
         private static void UpdateMessageEntityIfNotNull(Action<OutMessage> updateAction, OutMessage msg)
+        {
+            if (msg != null)
+            {
+                updateAction(msg);
+                msg.ModificationTime = DateTimeOffset.Now;
+            }
+        }
+
+        private static void UpdateMessageEntityIfNotNull(Action<InMessage> updateAction, InMessage msg)
         {
             if (msg != null)
             {
@@ -389,6 +452,7 @@ namespace Eu.EDelivery.AS4.Repositories
 
         // TODO: encapsulate in an inner class which implements IDisposable.
         private static MemoryCache _outMessageIdMap = new MemoryCache(new MemoryCacheOptions());
+        private static MemoryCache _inMessageIdMap = new MemoryCache(new MemoryCacheOptions());
         private static MemoryCache _receptionAwarenessIdMap = new MemoryCache(new MemoryCacheOptions());
 
         private static readonly TimeSpan CacheLifeTime = TimeSpan.FromSeconds(30);
@@ -396,12 +460,14 @@ namespace Eu.EDelivery.AS4.Repositories
         internal static void ResetCaches()
         {
             _outMessageIdMap = new MemoryCache(new MemoryCacheOptions());
+            _inMessageIdMap = new MemoryCache(new MemoryCacheOptions());
             _receptionAwarenessIdMap = new MemoryCache(new MemoryCacheOptions());
         }
 
         public static void DisposeCaches()
         {
             _outMessageIdMap.Dispose();
+            _inMessageIdMap.Dispose();
             _receptionAwarenessIdMap.Dispose();
         }
 

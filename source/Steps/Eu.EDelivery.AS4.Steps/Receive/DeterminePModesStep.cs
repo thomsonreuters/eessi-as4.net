@@ -10,6 +10,7 @@ using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Serialization;
+using Eu.EDelivery.AS4.Singletons;
 using Eu.EDelivery.AS4.Steps.Receive.Participant;
 using Eu.EDelivery.AS4.Validators;
 using NLog;
@@ -52,54 +53,76 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
         {
-            if (messagingContext.AS4Message.IsSignalMessage)
+            var as4Message = messagingContext.AS4Message;
+
+            if (as4Message.IsSignalMessage)
             {
-                return await DetermineSendingPModeForSignalMessage(messagingContext);
+                var pmode = await DetermineSendingPModeForSignalMessage(as4Message.PrimarySignalMessage);
+
+                if (pmode != null)
+                {
+                    messagingContext.SendingPMode = pmode;
+                    return StepResult.Success(messagingContext);
+                }
+
+                if (as4Message.IsMultiHopMessage == false)
+                {
+                    throw new InvalidOperationException($"Unable to retrieve Sending PMode from Datastore for OutMessage with Id: {as4Message.PrimarySignalMessage.RefToMessageId}");
+                }
             }
 
-            return await DetermineReceivingPModeForUserMessage(messagingContext);
+            return await DetermineReceivingPMode(messagingContext);
         }
 
-        private async Task<StepResult> DetermineSendingPModeForSignalMessage(MessagingContext messagingContext)
+        private async Task<SendingProcessingMode> DetermineSendingPModeForSignalMessage(SignalMessage signalMessage)
         {
-            SendPMode pmode = GetPModeFromDatastore(messagingContext.AS4Message);
-            if (pmode == null)
+            using (DatastoreContext dbContext = _createContext())
             {
-                string description =
-                    $"Unable to retrieve Sending PMode from Datastore for OutMessage with Id: {messagingContext.AS4Message.PrimarySignalMessage.RefToMessageId}";
-                return FailedStepResult(description, messagingContext);
-            }
+                var repository = new DatastoreRepository(dbContext);
 
-            messagingContext.SendingPMode = pmode;
-            return await StepResult.SuccessAsync(messagingContext);
-        }
+                // We must take into account that it is possible that we have an OutMessage that has
+                // been forwarded; in that case, we must not retrieve the sending - pmode since we 
+                // will have to forward the signalmessage.
+                string pmodeString = repository.GetOutMessageData(m => m.EbmsMessageId == signalMessage.RefToMessageId && m.Intermediary == false,
+                                                                  m => m.PMode);
 
-        private SendPMode GetPModeFromDatastore(AS4Message as4Message)
-        {
-            using (DatastoreContext context = _createContext())
-            {
-                var repository = new DatastoreRepository(context);
-
-                return repository.GetOutMessageData(
-                    as4Message.PrimarySignalMessage.RefToMessageId,
-                    m => AS4XmlSerializer.FromString<SendPMode>(m.PMode));
+                return await AS4XmlSerializer.FromStringAsync<SendingProcessingMode>(pmodeString);
             }
         }
 
-        private async Task<StepResult> DetermineReceivingPModeForUserMessage(MessagingContext messagingContext)
+        private async Task<StepResult> DetermineReceivingPMode(MessagingContext messagingContext)
         {
-            IEnumerable<ReceivePMode> possibilities = GetPModeFromSettings(messagingContext.AS4Message);
+            var userMessage = RetrieveUserMessage(messagingContext.AS4Message);
+
+            IEnumerable<ReceivePMode> possibilities = GetPModeFromSettings(userMessage);
 
             if (possibilities.Any() == false)
             {
-                return FailedStepResult(
-                    $"No Receiving PMode was found with for UserMessage with Message Id: {messagingContext.AS4Message.GetPrimaryMessageId()}",
-                    messagingContext);
+                string description =
+                    $"No Receiving PMode was found with for UserMessage with Message Id: {messagingContext.AS4Message.GetPrimaryMessageId()}";
+
+                if (messagingContext.AS4Message.IsUserMessage)
+                {
+                    return FailedStepResult(description, messagingContext);
+                }
+                else
+                {
+                    throw new InvalidOperationException(description);
+                }
             }
 
             if (possibilities.Count() > 1)
             {
-                return FailedStepResult("More than one matching Receiving PMode was found", messagingContext);
+                string description = "More than one matching Receiving PMode was found";
+
+                if (messagingContext.AS4Message.IsUserMessage)
+                {
+                    return FailedStepResult(description, messagingContext);
+                }
+                else
+                {
+                    throw new InvalidOperationException(description);
+                }
             }
 
             ReceivePMode pmode = possibilities.First();
@@ -119,15 +142,29 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             return await StepResult.SuccessAsync(messagingContext);
         }
 
+        private static UserMessage RetrieveUserMessage(AS4Message as4Message)
+        {
+            // TODO: is this enough ?
+            // should we explictly check for multihop signals ?
+            if (as4Message.IsUserMessage)
+            {
+                return as4Message.PrimaryUserMessage;
+            }
+            else
+            {
+                return AS4Mapper.Map<UserMessage>(as4Message.PrimarySignalMessage.MultiHopRouting);
+            }
+        }
+
         private static StepResult FailedStepResult(string description, MessagingContext context)
         {
             context.ErrorResult = new ErrorResult(description, ErrorAlias.ProcessingModeMismatch);
             return StepResult.Failed(context);
         }
 
-        private IEnumerable<ReceivePMode> GetPModeFromSettings(AS4Message as4Message)
+        private IEnumerable<ReceivePMode> GetPModeFromSettings(UserMessage userMessage)
         {
-            List<PModeParticipant> participants = GetPModeParticipants(as4Message.PrimaryUserMessage);
+            List<PModeParticipant> participants = GetPModeParticipants(userMessage);
             participants.ForEach(p => p.Accept(new PModeRuleVisitor()));
 
             PModeParticipant winner = participants.Where(p => p.Points >= 10).Max();

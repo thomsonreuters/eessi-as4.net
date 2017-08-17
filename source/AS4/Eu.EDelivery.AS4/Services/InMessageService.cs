@@ -80,7 +80,6 @@ namespace Eu.EDelivery.AS4.Services
                                   .ToDictionary(k => k.Key, v => v.Value);
         }
 
-
         /// <summary>
         /// Inserts a received Message in the DataStore.
         /// For each message-unit that exists in the AS4Message,an InMessage record is created.
@@ -88,6 +87,7 @@ namespace Eu.EDelivery.AS4.Services
         /// </summary>
         /// <remarks>The received Message is parsed to an AS4 Message instance.</remarks>
         /// <param name="context"></param>
+        /// <param name="mep"></param>
         /// <param name="messageBodyStore"></param>
         /// <param name="cancellationToken"></param>
         /// <returns>A MessagingContext instance that contains the parsed AS4 Message.</returns>
@@ -186,34 +186,44 @@ namespace Eu.EDelivery.AS4.Services
             IAS4MessageBodyStore messageBodyStore,
             CancellationToken cancellationToken)
         {
-            AS4Message as4Message = messageContext.AS4Message;
-            string messageLocation = _repository.GetInMessageData(
-                as4Message.GetPrimaryMessageId(),
-                m => m.MessageLocation);
-
-            if (messageLocation == null)
+            if (MessageMustBeForwarded(messageContext))
             {
-                throw new InvalidDataException($"Unable to find an InMessage for {as4Message.GetPrimaryMessageId()}");
-            }
+                var pmodeString = messageContext.GetReceivingPModeString();
 
-            if (as4Message.IsUserMessage)
+                _repository.UpdateInMessages(m => messageContext.AS4Message.MessageIds.Contains(m.EbmsMessageId),
+                                             m =>
+                                             {
+                                                 m.Intermediary = true;
+                                                 m.PMode = pmodeString;
+                                                 m.Operation = Operation.ToBeForwarded;
+                                             });
+            }
+            else
             {
-                await messageBodyStore.UpdateAS4MessageAsync(messageLocation, as4Message, cancellationToken);
-                UpdateUserMessagesForDeliveryAndNotification(messageContext);
-            }
+                AS4Message as4Message = messageContext.AS4Message;
+                string messageLocation = _repository.GetInMessageData(
+                    as4Message.GetPrimaryMessageId(),
+                    m => m.MessageLocation);
 
-            UpdateSignalMessages(messageContext);
+                if (messageLocation == null)
+                {
+                    throw new InvalidDataException($"Cannot update received AS4Message: Unable to find an InMessage for {as4Message.GetPrimaryMessageId()}");
+                }
+
+                if (as4Message.IsUserMessage)
+                {
+                    await messageBodyStore.UpdateAS4MessageAsync(messageLocation, as4Message, cancellationToken);
+
+                    UpdateUserMessagesForDeliveryAndNotification(messageContext);
+                }
+
+                UpdateSignalMessages(messageContext);
+            }
         }
 
         private void UpdateUserMessagesForDeliveryAndNotification(MessagingContext messagingContext)
         {
             string receivingPModeString = messagingContext.GetReceivingPModeString();
-
-            bool userMessageNeedsToBeDelivered = UserMessageNeedsToBeDelivered(
-                messagingContext.ReceivingPMode,
-                messagingContext.AS4Message.PrimaryUserMessage);
-
-            Action<InMessage> updateOperation = NeedsToBeDeliveredIf()(userMessageNeedsToBeDelivered);
 
             foreach (UserMessage userMessage in messagingContext.AS4Message.UserMessages)
             {
@@ -222,23 +232,13 @@ namespace Eu.EDelivery.AS4.Services
                     message =>
                     {
                         message.PMode = receivingPModeString;
-                        updateOperation(message);
+
+                        if (UserMessageNeedsToBeDelivered(messagingContext.ReceivingPMode, userMessage) && message.Intermediary == false)
+                        {
+                            message.Operation = Operation.ToBeDelivered;
+                        }
                     });
             }
-        }
-
-        private static Func<bool, Action<InMessage>> NeedsToBeDeliveredIf()
-        {
-            return needsToBeNotified =>
-            {
-                return m =>
-                {
-                    if (needsToBeNotified)
-                    {
-                        m.Operation = Operation.ToBeDelivered;
-                    }
-                };
-            };
         }
 
         private void UpdateSignalMessages(MessagingContext messagingContext)
@@ -246,28 +246,34 @@ namespace Eu.EDelivery.AS4.Services
             AS4Message as4Message = messagingContext.AS4Message;
 
             // Improvement: I think it will be safer if we retrieve the sending-pmodes of the related usermessages ourselves here
-            // instead of relying on the SendingPMode that is available in the AS4Message object (which is set by another Step in the queueu).
-            foreach (SignalMessage signalMessage in as4Message.SignalMessages)
+            // instead of relying on the SendingPMode that is available in the AS4Message object (which is set by another Step in the queue).
+
+            var receipts = as4Message.SignalMessages.OfType<Receipt>();
+
+            UpdateSignalMessages(receipts, () => messagingContext.SendingPMode?.ReceiptHandling?.NotifyMessageProducer ?? false, OutStatus.Ack);
+
+            var errors = as4Message.SignalMessages.OfType<Error>();
+
+            UpdateSignalMessages(errors, () => messagingContext.SendingPMode?.ErrorHandling?.NotifyMessageProducer ?? false, OutStatus.Nack);
+        }
+
+        private void UpdateSignalMessages(IEnumerable<SignalMessage> signalMessages, Func<bool> signalsMustBeNotified, OutStatus outStatus)
+        {            
+            if (signalsMustBeNotified())
             {
-                if (signalMessage is Receipt)
-                {
-                    if (ReceiptMustBeNotified(messagingContext.SendingPMode) && signalMessage.IsDuplicate == false)
-                    {
-                        _repository.UpdateInMessage(signalMessage.MessageId, r => r.Operation = Operation.ToBeNotified);
-                    }
+                var signalsToNotify = signalMessages.Where(r => r.IsDuplicate == false);
 
-                    UpdateRefUserMessageStatus(signalMessage, OutStatus.Ack);
-                }
-                else if (signalMessage is Error)
+                if (signalsToNotify.Any())
                 {
-                    if (ErrorMustBeNotified(messagingContext.SendingPMode) && signalMessage.IsDuplicate == false)
-                    {
-                        _repository.UpdateInMessage(signalMessage.MessageId, r => r.Operation = Operation.ToBeNotified);
-                    }
-
-                    UpdateRefUserMessageStatus(signalMessage, OutStatus.Nack);
+                    _repository.UpdateInMessages(
+                        m => signalsToNotify.Select(s => s.MessageId).Contains(m.EbmsMessageId) && m.Intermediary == false,
+                        m => m.Operation = Operation.ToBeNotified);
                 }
             }
+
+            _repository.UpdateOutMessages(
+                m => signalMessages.Select(r => r.RefToMessageId).Contains(m.EbmsMessageId) && m.Intermediary == false,
+                m => m.Status = outStatus);
         }
 
         #region UserMessage related
@@ -381,27 +387,12 @@ namespace Eu.EDelivery.AS4.Services
             }
         }
 
-        private static bool ReceiptMustBeNotified(SendingProcessingMode sendingPMode)
-        {
-            return sendingPMode?.ReceiptHandling?.NotifyMessageProducer ?? false;
-        }
-
-        private static bool ErrorMustBeNotified(SendingProcessingMode sendingPMode)
-        {
-            return sendingPMode?.ErrorHandling?.NotifyMessageProducer ?? true;
-        }
-
-        private void UpdateRefUserMessageStatus(MessageUnit signalMessage, OutStatus status)
-        {
-            if (status == OutStatus.NotApplicable)
-            {
-                return;
-            }
-
-            _repository.UpdateOutMessage(signalMessage.RefToMessageId, outMessage => outMessage.Status = status);
-        }
-
         #endregion SignalMessage related
+
+        private static bool MessageMustBeForwarded(MessagingContext messagingContext)
+        {
+            return messagingContext.ReceivedMessageMustBeForwarded;
+        }
 
         private static bool UserMessageNeedsToBeDelivered(ReceivingProcessingMode pmode, UserMessage userMessage)
         {
