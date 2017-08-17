@@ -24,13 +24,13 @@ namespace Eu.EDelivery.AS4.Steps.Receive.Rules
 
         private static bool ServiceActionCondition(ReceivingProcessingMode pmode, UserMessage userMessage)
         {
-            if (pmode.MessagePackaging.CollaborationInfo == null)
+            CollaborationInfo pmodeCollaboration = pmode.MessagePackaging.CollaborationInfo;
+            CollaborationInfo messageCollaboration = userMessage.CollaborationInfo;
+
+            if (pmodeCollaboration == null || messageCollaboration == null)
             {
                 return false;
             }
-
-            CollaborationInfo pmodeCollaboration = pmode.MessagePackaging.CollaborationInfo;
-            CollaborationInfo messageCollaboration = userMessage.CollaborationInfo;
 
             return pmodeCollaboration.Action?.Equals(messageCollaboration.Action) == true &&
                    pmodeCollaboration.Service?.Equals(messageCollaboration.Service) == true;

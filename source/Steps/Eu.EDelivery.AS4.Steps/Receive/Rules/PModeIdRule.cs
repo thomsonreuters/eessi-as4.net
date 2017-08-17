@@ -24,7 +24,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive.Rules
 
         private static bool IsPModeIdEqual(ReceivingProcessingMode pmode, UserMessage userMessage)
         {
-            if (userMessage.CollaborationInfo.AgreementReference == null)
+            if (userMessage.CollaborationInfo?.AgreementReference == null)
             {
                 return false;
             }
