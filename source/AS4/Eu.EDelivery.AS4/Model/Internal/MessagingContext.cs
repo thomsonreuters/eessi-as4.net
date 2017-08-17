@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Deliver;
@@ -207,6 +206,8 @@ namespace Eu.EDelivery.AS4.Model.Internal
 
             return _receivingPModeString;
         }
+
+        public bool ReceivedMessageMustBeForwarded => ReceivingPMode?.MessageHandling?.MessageHandlingType == MessageHandlingChoiceType.Forward;
 
         /// <summary>
         /// Modifies the MessagingContext
