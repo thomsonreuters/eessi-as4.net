@@ -30,13 +30,19 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
         {
-            if (messagingContext.AS4Message.HasAttachments)
+            if (messagingContext.ReceivedMessageMustBeForwarded)
             {
-                return await TryDecompressAttachments(messagingContext).ConfigureAwait(false);
+                // When the message must be forwarded, no decompression must take place.
+                return StepResult.Success(messagingContext);
             }
 
-            Logger.Debug($"[{messagingContext.AS4Message.GetPrimaryMessageId()}] AS4Message hasn't got any Attachments to decompress");
-            return await StepResult.SuccessAsync(messagingContext);
+            if (messagingContext.AS4Message.HasAttachments == false)
+            {
+                Logger.Debug($"[{messagingContext.AS4Message.GetPrimaryMessageId()}] AS4Message hasn't got any Attachments to decompress");
+                return await StepResult.SuccessAsync(messagingContext);
+            }
+
+            return await TryDecompressAttachments(messagingContext).ConfigureAwait(false);
         }
 
         private static async Task<StepResult> TryDecompressAttachments(MessagingContext context)
@@ -45,10 +51,10 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             {
                 return await DecompressAttachments(context).ConfigureAwait(false);
             }
-            catch (Exception exception) 
+            catch (Exception exception)
             when (
-                exception is ArgumentException 
-                || exception is ObjectDisposedException 
+                exception is ArgumentException
+                || exception is ObjectDisposedException
                 || exception is InvalidDataException)
             {
                 return DecompressFailureResult(exception.Message, context);

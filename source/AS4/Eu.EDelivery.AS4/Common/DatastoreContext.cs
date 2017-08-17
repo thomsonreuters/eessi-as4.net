@@ -5,11 +5,10 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Entities;
-using Eu.EDelivery.AS4.Exceptions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.Extensions.Logging;
 using NLog;
 using Polly;
 using Polly.Retry;
@@ -105,11 +104,12 @@ namespace Eu.EDelivery.AS4.Common
             // Make sure no InvalidOperation is thrown when an ambient transaction is detected.
             optionsBuilder.ConfigureWarnings(x => x.Ignore(RelationalEventId.AmbientTransactionWarning));
 
-            ////var logger = new LoggerFactory();
-            ////logger.AddProvider(new ConsoleLoggerProvider((t, l) => l >= LogLevel.Trace, true));
+            var logger = new LoggerFactory();
+            logger.AddProvider(new TraceLoggerProvider());
 
-            ////optionsBuilder.UseLoggerFactory(logger);
+            optionsBuilder.UseLoggerFactory(logger);
         }
+
 
         private void ConfigureProviders(DbContextOptionsBuilder optionsBuilder)
         {
@@ -163,7 +163,7 @@ namespace Eu.EDelivery.AS4.Common
 
             modelBuilder.Entity<InMessage>().HasKey(im => im.Id);
             modelBuilder.Entity<InMessage>().Property(im => im.Id).UseSqlServerIdentityColumn();
-            modelBuilder.Entity<InMessage>().HasIndex(im => new { im.EbmsMessageId, im.IsDuplicate});
+            modelBuilder.Entity<InMessage>().HasIndex(im => new { im.EbmsMessageId, im.IsDuplicate });
             modelBuilder.Entity<InMessage>().HasIndex(im => im.OperationString);
             modelBuilder.Entity<InMessage>().HasIndex(im => im.EbmsRefToMessageId);
 
@@ -333,7 +333,7 @@ namespace Eu.EDelivery.AS4.Common
                 innerException = innerException.InnerException;
             }
 
-            return new DataException("Datastore unavailable", innerException);
+            return new DataException("Datastore unavailable", mostInnerException);
         }
     }
 }

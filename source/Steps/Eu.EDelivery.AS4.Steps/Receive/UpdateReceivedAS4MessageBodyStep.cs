@@ -1,9 +1,8 @@
 ﻿using System;
-using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
-using Eu.EDelivery.AS4.Exceptions;
+using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Services;
@@ -13,7 +12,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 {
     public class UpdateReceivedAS4MessageBodyStep : IStep
     {
-        private static ILogger Logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 
         private readonly Func<DatastoreContext> _createDatastoreContext;
         private readonly IAS4MessageBodyStore _messageBodyStore;
@@ -44,12 +43,21 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
         {
-            Logger.Info($"{messagingContext.AS4Message.GetPrimaryMessageId()} Update the received message for delivery and notification");
+            Logger.Info($"{messagingContext.AS4Message.GetPrimaryMessageId()} Update the received message");
 
             using (DatastoreContext datastoreContext = _createDatastoreContext())
             {
                 await UpdateReceivedMessage(messagingContext, datastoreContext, cancellationToken);
                 await datastoreContext.SaveChangesAsync(cancellationToken);
+            }
+
+            if (messagingContext.ReceivedMessageMustBeForwarded)
+            {
+                // When the Message has to be forwarded, the remaining Steps must not be executed.
+                // The MSH must answer with a HTTP Accepted status-code, so an empty context must be returned.
+                messagingContext.ModifyContext(AS4Message.Empty);
+
+                return StepResult.Success(messagingContext).AndStopExecution();
             }
 
             return StepResult.Success(messagingContext);
@@ -63,7 +71,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             var repository = new DatastoreRepository(datastoreContext);
             var service = new InMessageService(repository);
 
-            await service.UpdateAS4MessageForDeliveryAndNotification(
+            await service.UpdateAS4MessageForMessageHandling(
                 messagingContext,
                 _messageBodyStore,
                 cancellationToken);

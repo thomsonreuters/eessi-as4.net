@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -14,8 +15,14 @@ using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Serialization;
+using Eu.EDelivery.AS4.Xml;
 using Xunit;
 using static Eu.EDelivery.AS4.ComponentTests.Properties.Resources;
+using Error = Eu.EDelivery.AS4.Model.Core.Error;
+using Parameter = Eu.EDelivery.AS4.Model.PMode.Parameter;
+using PartyId = Eu.EDelivery.AS4.Model.Core.PartyId;
+using Receipt = Eu.EDelivery.AS4.Model.Core.Receipt;
+using UserMessage = Eu.EDelivery.AS4.Model.Core.UserMessage;
 
 namespace Eu.EDelivery.AS4.ComponentTests.Agents
 {
@@ -32,23 +39,28 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         /// </summary>
         public ReceiveAgentFacts()
         {
-            OverrideSettings("receiveagent_http_settings.xml");
+            string RetrieveReceiveAgentUrl(AS4Component as4Component)
+            {
+                AgentSettings receivingAgent =
+                    as4Component.GetConfiguration().GetSettingsAgents().FirstOrDefault(a => a.Name.Equals("Receive Agent"));
 
+                Assert.True(receivingAgent != null, "The Agent with name Receive Agent could not be found");
+
+                return receivingAgent.Receiver?.Setting?.FirstOrDefault(s => s.Key == "Url")?.Value;
+            }
+
+            OverrideSettings("receiveagent_http_settings.xml");
+            
             _as4Msh = AS4Component.Start(Environment.CurrentDirectory);
 
             _databaseSpy = new DatabaseSpy(_as4Msh.GetConfiguration());
 
-            AgentSettings receivingAgent =
-                _as4Msh.GetConfiguration().GetSettingsAgents().FirstOrDefault(a => a.Name.Equals("Receive Agent"));
-
-            Assert.True(receivingAgent != null, "The Agent with name Receive Agent could not be found");
-
-            _receiveAgentUrl = receivingAgent.Receiver?.Setting?.FirstOrDefault(s => s.Key == "Url")?.Value;
+            _receiveAgentUrl = RetrieveReceiveAgentUrl(_as4Msh);
 
             Assert.False(
                 string.IsNullOrWhiteSpace(_receiveAgentUrl),
                 "The URL where the receive agent is listening on, could not be retrieved.");
-        }
+        }        
 
         #region Scenario's for received UserMessages that result in errors.
 
@@ -103,7 +115,6 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                     }
                 }
             });
-
 
             // Act
             HttpResponseMessage response = await HttpClient.SendAsync(CreateSendAS4Message(message));
@@ -165,7 +176,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             // Assert
             Assert.Equal(HttpStatusCode.Accepted, response.StatusCode);
             Assert.True(String.IsNullOrWhiteSpace(await response.Content.ReadAsStringAsync()));
-            
+
             InMessage receivedUserMessage = _databaseSpy.GetInMessageFor(m => m.EbmsMessageId == messageId);
             Assert.NotNull(receivedUserMessage);
             Assert.Equal(Operation.ToBeForwarded, receivedUserMessage.Operation);
@@ -264,6 +275,133 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             // Assert
             AssertIfStatusOfOutMessageIs(expectedId, OutStatus.Nack);
             AssertIfInMessageExistsForSignalMessage(expectedId);
+        }
+
+        [Fact]
+        public async Task ThenReceivedNonMultihopSignalMessageWithoutRelatedUserMessageIsSetToException()
+        {
+            const string messageId = "message-id";
+
+            AS4Message as4Message = CreateAS4ErrorMessage(messageId);
+
+            // Act
+            await HttpClient.SendAsync(CreateSendAS4Message(as4Message));
+
+            // Assert
+            var inMessage = _databaseSpy.GetInMessageFor(m => m.EbmsRefToMessageId == messageId);
+
+            Assert.NotNull(inMessage);
+            Assert.Equal(InStatus.Exception, inMessage.Status);
+
+            var inException = _databaseSpy.GetInExceptions(e => e.EbmsRefToMessageId == inMessage.EbmsMessageId);
+            Assert.NotNull(inException);
+        }
+
+        [Fact]
+        public async Task ThenMultiHopSignalMessageIsToBeForwarded()
+        {
+            const string messageId = "multihop-signalmessage-id";
+            var as4Message = CreateMultihopSignalMessage(messageId, "someusermessageid");
+
+            // Act
+            await HttpClient.SendAsync(CreateSendAS4Message(as4Message));
+
+            // Assert
+
+            var inMessage = _databaseSpy.GetInMessageFor(m => m.EbmsMessageId == messageId);
+            Assert.NotNull(inMessage);
+            Assert.Equal(Operation.ToBeForwarded, inMessage.Operation);
+        }
+
+        [Fact]
+        public async Task ThenMultiHopSignalMessageThatHasReachedItsDestinationIsNotified()
+        {
+            const string messageId = "some-user-message-id";
+
+            var sendingPMode = new SendingProcessingMode()
+            {
+                ReceiptHandling = new SendHandling()
+                {
+                    NotifyMessageProducer = true,
+                    NotifyMethod = new Method()
+                    {
+                        Type = "FILE",
+                        Parameters = new List<Parameter>() { new Parameter { Name = "Location", Value = @".\messages\receipts" } }
+                    }
+                }
+            };
+
+            _databaseSpy.InsertOutMessage(new OutMessage()
+            {
+                EbmsMessageId = messageId,
+                Operation = Operation.Sent,
+                Status = OutStatus.Sent,
+                PMode = AS4XmlSerializer.ToString(sendingPMode)
+            });
+
+            var as4Message = CreateMultihopSignalMessage("multihop-signalmessage-id", messageId);
+
+            // Act
+            await HttpClient.SendAsync(CreateSendAS4Message(as4Message));
+
+            // Assert
+
+            var inMessage = _databaseSpy.GetInMessageFor(m => m.EbmsRefToMessageId == messageId);
+            Assert.NotNull(inMessage);
+            Assert.Equal(Operation.ToBeNotified, inMessage.Operation);
+
+            var outMessage = _databaseSpy.GetOutMessageFor(m => m.EbmsMessageId == messageId);
+            Assert.NotNull(outMessage);
+            Assert.Equal(OutStatus.Ack, outMessage.Status);
+        }
+
+        private static AS4Message CreateMultihopSignalMessage(string messageId, string refToMessageId)
+        {
+            var receipt = new Receipt(messageId)
+            {
+                RefToMessageId = refToMessageId
+            };
+
+            receipt.MultiHopRouting = new RoutingInputUserMessage()
+            {
+                mpc = "some-mpc",
+                PartyInfo = new Xml.PartyInfo()
+                {
+                    To = new To()
+                    {
+                        PartyId = new[]
+                        {
+                            new Xml.PartyId()
+                            {
+                                Value = "org:eu:europa:as4:example:accesspoint:B"
+                            },
+                        },
+                        Role = "Receiver"
+                    },
+                    From = new From()
+                    {
+                        PartyId = new[]
+                        {
+                            new Xml.PartyId()
+                            {
+                                Value = "org:eu:europa:as4:example:accesspoint:A",
+                            }
+                        },
+                        Role = "Sender"
+                    }
+                },
+                CollaborationInfo = new Xml.CollaborationInfo()
+                {
+                    Action = "Receive_Agent_Forwarding_Action",
+                    Service = new Xml.Service()
+                    {
+                        Value = "Receive_Agent_Forwarding_Service",
+                        type = "eu:europa:services"
+                    }
+                }
+            };
+
+            return AS4Message.Create(receipt);
         }
 
         private async Task CreateExistingOutMessage(string messageId)

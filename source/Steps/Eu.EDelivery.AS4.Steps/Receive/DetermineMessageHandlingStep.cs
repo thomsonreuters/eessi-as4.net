@@ -7,6 +7,7 @@ using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
+using Eu.EDelivery.AS4.Serialization;
 
 namespace Eu.EDelivery.AS4.Steps.Receive
 {
@@ -36,37 +37,8 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
-        {
-            if (messagingContext.AS4Message.IsSignalMessage && messagingContext.AS4Message.IsMultiHopMessage == false)
-            {
-                return StepResult.Success(messagingContext);
-            }
-
-            if (messagingContext.ReceivingPMode == null)
-            {
-                throw new InvalidOperationException("The Receiving PMode for this message has not been determined yet.");
-            }
-
-            if (messagingContext.ReceivingPMode.MessageHandling.MessageHandlingType == MessageHandlingChoiceType.Forward)
-            {
-                using (var db = _createDatastoreContext())
-                {
-                    var repository = new DatastoreRepository(db);
-                    repository.UpdateInMessage(messagingContext.EbmsMessageId, message => message.Operation = Operation.ToBeForwarded);
-
-                    await db.SaveChangesAsync(cancellationToken);
-                }
-
-                // When the Message has to be forwarded, the remaining Steps must not be executed.
-                // The MSH must answer with a HTTP Accepted status-code, so an empty context must be returned.
-                messagingContext.ModifyContext(AS4Message.Empty);
-
-                return StepResult.Success(messagingContext).AndStopExecution();
-            }
-
-            // When the message must be delivered, no further action needs to be done in this step.
-            return StepResult.Success(messagingContext);
-
+        {            
+            return StepResult.Success(messagingContext);          
         }
     }
 }

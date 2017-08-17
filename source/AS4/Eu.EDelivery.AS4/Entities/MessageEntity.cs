@@ -52,6 +52,12 @@ namespace Eu.EDelivery.AS4.Entities
         public bool IsTest { get; set; }
 
         /// <summary>
+        /// Flag that indicates whether or not we have treated this message 
+        /// as an Intermediary MSH
+        /// </summary>        
+        public bool Intermediary { get; set; }
+
+        /// <summary>
         /// Gets to the location where the AS4Message body can be found.
         /// </summary>
         [MaxLength(512)]

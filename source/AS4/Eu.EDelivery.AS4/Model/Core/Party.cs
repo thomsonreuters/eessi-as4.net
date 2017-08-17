@@ -13,37 +13,43 @@ namespace Eu.EDelivery.AS4.Model.Core
 
         public Party()
         {
-            this.PartyIds = new List<PartyId>();            
+            PartyIds = new List<PartyId>();
         }
 
         public Party(PartyId partyId) : this()
         {
             if (partyId == null)
+            {
                 throw new ArgumentNullException(nameof(partyId));
+            }
 
-            this.PartyIds.Add(partyId);
+            PartyIds.Add(partyId);
         }
 
         public Party(string role, PartyId partyId) : this()
         {
             PreConditionsParty(role, partyId);
 
-            this.Role = role;
-            this.PartyIds.Add(partyId);
+            Role = role;
+            PartyIds.Add(partyId);
         }
 
         private void PreConditionsParty(string role, PartyId partyId)
         {
-            if (role == null) throw new ArgumentNullException(nameof(role));
-            if (role.Length == 0) throw new ArgumentException("Party Role cannot be empty", nameof(role));
-            if (partyId == null) throw new ArgumentNullException(nameof(partyId));
+            if (String.IsNullOrEmpty(role))
+            {
+                throw new ArgumentException(@"Party Role cannot be empty", nameof(role));
+            }
+            if (partyId == null)
+            {
+                throw new ArgumentNullException(nameof(partyId));
+            }
         }
 
         public bool IsEmpty()
         {
-            return 
-                string.IsNullOrEmpty(this.Role) && 
-                this.PartyIds.Count == 0;
+            return
+                string.IsNullOrEmpty(this.Role) && PartyIds.Count == 0;
         }
 
         /// <summary>
@@ -74,7 +80,7 @@ namespace Eu.EDelivery.AS4.Model.Core
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
-            return obj.GetType() == GetType() && Equals((Party) obj);
+            return obj.GetType() == GetType() && Equals((Party)obj);
         }
 
         /// <summary>
