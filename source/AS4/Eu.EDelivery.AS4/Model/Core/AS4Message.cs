@@ -125,7 +125,7 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// <returns></returns>
         public static AS4Message Create(SendingProcessingMode pmode)
         {
-            return new AS4Message(pmode?.MessagePackaging?.IsMultiHop == true); // {Mep = DetermineMepOf(pmode)};
+            return new AS4Message(pmode?.MessagePackaging?.IsMultiHop == true);
         }
 
         

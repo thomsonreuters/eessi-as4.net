@@ -29,6 +29,8 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         {
             AS4Message receiptMessage = CreateReceiptAS4MessageFor(messagingContext);
 
+            // TODO: should we modify the existing messagingContext instead of creating a new one here ?
+
             var message = new MessagingContext(receiptMessage, MessagingContextMode.Receive)
             {
                 SendingPMode = messagingContext.SendingPMode,
