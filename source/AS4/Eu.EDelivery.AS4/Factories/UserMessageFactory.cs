@@ -9,9 +9,8 @@ namespace Eu.EDelivery.AS4.Factories
     /// </summary>
     public class UserMessageFactory
     {
-        private static readonly UserMessageFactory Signalton = new UserMessageFactory();
 
-        public static readonly UserMessageFactory Instance = Signalton;
+        public static readonly UserMessageFactory Instance = new UserMessageFactory();
 
         /// <summary>
         /// Create default <see cref="UserMessage"/>
@@ -23,11 +22,11 @@ namespace Eu.EDelivery.AS4.Factories
             {
                 Sender = new PModeSenderResolver().Resolve(pmode),
                 Receiver = new PModeReceiverResolver().Resolve(pmode),
-                CollaborationInfo = ResolveCollaborationInfo(pmode)                
+                CollaborationInfo = ResolveCollaborationInfo(pmode)
             };
 
             pmode.MessagePackaging.MessageProperties.ForEach(p => result.MessageProperties.Add(p));
-            
+
             return result;
         }
 
