@@ -46,8 +46,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 StepResult result = await _step.ExecuteAsync(messagingContext, CancellationToken.None);
 
                 // Assert
-                Assert.NotNull(result.MessagingContext.AS4Message);
-                Assert.NotEqual(result.MessagingContext, messagingContext);
+                Assert.NotNull(result.MessagingContext.AS4Message);                
                 Assert.IsType(typeof(Receipt), result.MessagingContext.AS4Message.PrimarySignalMessage);
             }
 

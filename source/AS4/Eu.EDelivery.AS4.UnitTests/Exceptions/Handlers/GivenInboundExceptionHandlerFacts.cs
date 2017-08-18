@@ -25,7 +25,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Exceptions.Handlers
         public async Task InsertInException_IfTransformException()
         {
             // Arrange
-            string expectedBody = Guid.NewGuid().ToString(), 
+            string expectedBody = Guid.NewGuid().ToString(),
                 expectedMessage = Guid.NewGuid().ToString();
 
             var sut = new InboundExceptionHandler(GetDataStoreContext);
@@ -38,7 +38,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Exceptions.Handlers
                 ex =>
                 {
                     Assert.Equal(expectedBody, Encoding.UTF8.GetString(ex.MessageBody));
-                    Assert.Equal(expectedMessage, ex.Exception);
+                    Assert.True(ex.Exception.IndexOf(expectedMessage, StringComparison.CurrentCultureIgnoreCase) > -1);
                 });
         }
 
@@ -48,7 +48,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Exceptions.Handlers
         public async Task InsertInException_IfErrorException(bool notifyConsumer, Operation expected)
         {
             await TestExecutionException(
-                expected, 
+                expected,
                 ContextWithAS4UserMessage(_expectedId, notifyConsumer),
                 sut => sut.HandleErrorException);
         }
@@ -59,7 +59,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Exceptions.Handlers
         public async Task InsertInException_IfExecutionException(bool notifyConsumer, Operation expected)
         {
             await TestExecutionException(
-                expected, 
+                expected,
                 ContextWithAS4UserMessage(_expectedId, notifyConsumer),
                 sut => sut.HandleExecutionException);
         }
@@ -105,7 +105,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Exceptions.Handlers
             Func<IAgentExceptionHandler, Func<Exception, MessagingContext, Task<MessagingContext>>> getExercise)
         {
             // Arrange
-            GetDataStoreContext.InsertInMessage(new InMessage {EbmsMessageId = _expectedId, Status = InStatus.Received});
+            GetDataStoreContext.InsertInMessage(new InMessage { EbmsMessageId = _expectedId, Status = InStatus.Received });
 
             var sut = new InboundExceptionHandler(GetDataStoreContext);
             var exercise = getExercise(sut);
@@ -131,7 +131,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Exceptions.Handlers
                 MessagingContextMode.Receive)
             {
                 ReceivingPMode =
-                    new ReceivingProcessingMode {ExceptionHandling = {NotifyMessageConsumer = notifyConsumer}}
+                    new ReceivingProcessingMode { ExceptionHandling = { NotifyMessageConsumer = notifyConsumer } }
             };
         }
     }
