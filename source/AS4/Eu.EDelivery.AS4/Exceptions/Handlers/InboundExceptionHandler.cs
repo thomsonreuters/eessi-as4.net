@@ -56,7 +56,7 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
         {
             return new InException
             {
-                Exception = exception.Message,
+                Exception = exception.ToString(),
                 InsertionTime = DateTimeOffset.Now,
                 ModificationTime = DateTimeOffset.Now
             };
