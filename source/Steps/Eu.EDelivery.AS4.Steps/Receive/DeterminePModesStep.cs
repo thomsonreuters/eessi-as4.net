@@ -99,7 +99,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             if (possibilities.Any() == false)
             {
                 string description =
-                    $"No Receiving PMode was found with for UserMessage with Message Id: {messagingContext.AS4Message.GetPrimaryMessageId()}";
+                    $"No Receiving PMode was found with for Message with Id: {messagingContext.AS4Message.GetPrimaryMessageId()}";
 
                 if (messagingContext.AS4Message.IsUserMessage)
                 {

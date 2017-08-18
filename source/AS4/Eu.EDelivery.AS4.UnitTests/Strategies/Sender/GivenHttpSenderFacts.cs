@@ -1,9 +1,8 @@
 ﻿using System.Net;
-using Eu.EDelivery.AS4.Http;
 using Eu.EDelivery.AS4.Model.Deliver;
 using Eu.EDelivery.AS4.Model.Notify;
 using Eu.EDelivery.AS4.Strategies.Sender;
-using Eu.EDelivery.AS4.UnitTests.Http;
+using Eu.EDelivery.AS4.TestUtils.Stubs;
 using Eu.EDelivery.AS4.UnitTests.Strategies.Method;
 using Xunit;
 using MessageInfo = Eu.EDelivery.AS4.Model.Common.MessageInfo;
@@ -36,7 +35,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Strategies.Sender
         }
 
         [Fact]
-        public async void ThenUploadPaloadSucceeds_IfNotifyMessage()
+        public async void ThenUploadPayloadSucceeds_IfNotifyMessage()
         {
             // Arrange
             StubHttpClient spyClient = StubHttpClient.ThatReturns(HttpStatusCode.OK);

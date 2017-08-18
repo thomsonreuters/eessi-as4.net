@@ -69,7 +69,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Exceptions.Handlers
             GetDataStoreContext.AssertOutException(
                 ex =>
                 {
-                    Assert.Equal(_expectedMessage, ex.Exception);
+                    Assert.True(ex.Exception.IndexOf(_expectedMessage, StringComparison.CurrentCultureIgnoreCase) > -1);
                     Assert.NotNull(ex.MessageBody);
                 });
         }

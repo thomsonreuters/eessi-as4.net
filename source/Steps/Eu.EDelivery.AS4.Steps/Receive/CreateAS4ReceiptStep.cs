@@ -29,13 +29,9 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         {
             AS4Message receiptMessage = CreateReceiptAS4MessageFor(messagingContext);
 
-            var message = new MessagingContext(receiptMessage, MessagingContextMode.Receive)
-            {
-                SendingPMode = messagingContext.SendingPMode,
-                ReceivingPMode = messagingContext.ReceivingPMode
-            };
+            messagingContext.ModifyContext(receiptMessage);
 
-            return await StepResult.SuccessAsync(message);
+            return await StepResult.SuccessAsync(messagingContext);
         }
 
         private static AS4Message CreateReceiptAS4MessageFor(MessagingContext messagingContext)

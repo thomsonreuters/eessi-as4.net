@@ -7,7 +7,7 @@ using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Serialization;
 using Moq;
 
-namespace Eu.EDelivery.AS4.UnitTests.Http
+namespace Eu.EDelivery.AS4.TestUtils.Stubs
 {
     /// <summary>
     /// <see cref="IHttpClient" /> implementation to return a <see cref="AS4Message" />.

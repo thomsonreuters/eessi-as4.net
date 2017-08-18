@@ -152,6 +152,7 @@
     <Compile Include="Agents\DeliverAgentFacts.cs" />
     <Compile Include="Agents\PullSendAgentFacts.cs" />
     <Compile Include="Agents\ReceiveAgentFacts.cs" />
+    <Compile Include="Agents\SendAgentFacts.cs" />
     <Compile Include="Agents\SubmitAgentFacts.cs" />
     <Compile Include="Common\AS4Component.cs" />
     <Compile Include="Common\ComponentTestTemplate.cs" />
@@ -181,6 +182,18 @@
     <ProjectReference Include="..\AS4\Eu.EDelivery.AS4\Eu.EDelivery.AS4.csproj">
       <Project>{8b0ba38f-c3f7-46c1-9e68-a7291c7b16b1}</Project>
       <Name>Eu.EDelivery.AS4</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Eu.EDelivery.AS4.TestUtils\Eu.EDelivery.AS4.TestUtils.csproj">
+      <Project>{243cfd29-bb90-4a9e-9dd8-3c0228c845ed}</Project>
+      <Name>Eu.EDelivery.AS4.TestUtils</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Receivers\Eu.EDelivery.AS4.Receivers\Eu.EDelivery.AS4.Receivers.csproj">
+      <Project>{b0be265a-8190-415c-8e46-2b85fe6bdbe7}</Project>
+      <Name>Eu.EDelivery.AS4.Receivers</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Steps\Eu.EDelivery.AS4.Steps\Eu.EDelivery.AS4.Steps.csproj">
+      <Project>{9208D4FA-018E-4DB4-A60D-EE475F5EC421}</Project>
+      <Name>Eu.EDelivery.AS4.Steps</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

@@ -14,7 +14,6 @@ using Eu.EDelivery.AS4.UnitTests.Model.Deliver;
 using Eu.EDelivery.AS4.UnitTests.Model.Notify;
 using Eu.EDelivery.AS4.UnitTests.Repositories;
 using Xunit;
-using MessageInfo = Eu.EDelivery.AS4.Model.Common.MessageInfo;
 
 namespace Eu.EDelivery.AS4.UnitTests.Exceptions.Handlers
 {
@@ -35,7 +34,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Exceptions.Handlers
             var sut = new OutboundExceptionHandler(GetDataStoreContext);
 
             // Act
-            MessagingContext context = 
+            MessagingContext context =
                 await sut.ExerciseTransformException(GetDataStoreContext, _expectedBody, _expectedException);
 
             // Assert
@@ -43,7 +42,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Exceptions.Handlers
             GetDataStoreContext.AssertOutException(
                 ex =>
                 {
-                    Assert.True(_expectedException.Message == ex.Exception, "Not equal message insterted");
+                    Assert.True(ex.Exception.IndexOf(_expectedException.Message, StringComparison.CurrentCultureIgnoreCase) > -1, "Not equal message insterted");
                     Assert.True(_expectedBody == Encoding.UTF8.GetString(ex.MessageBody), "Not equal body inserted");
                 });
         }
@@ -54,7 +53,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Exceptions.Handlers
         public async Task InsertOutException_IfStepExecutionException(bool notifyProducer, Operation expected)
         {
             await TestHandleExecutionException(
-                expected, 
+                expected,
                 ContextWithAS4UserMessage(notifyProducer, _expectedId),
                 sut => sut.HandleExecutionException);
         }
@@ -65,7 +64,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Exceptions.Handlers
         public async Task InsertOutException_IfErrorException(bool notifyProducer, Operation expected)
         {
             await TestHandleExecutionException(
-                expected, 
+                expected,
                 ContextWithAS4UserMessage(notifyProducer, _expectedId),
                 sut => sut.HandleErrorException);
         }
@@ -74,7 +73,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Exceptions.Handlers
         {
             return new MessagingContext(AS4Message.Create(new FilledUserMessage(id)), default(MessagingContextMode))
             {
-                SendingPMode = new SendingProcessingMode {ExceptionHandling = {NotifyMessageProducer = notifyProducer}}
+                SendingPMode = new SendingProcessingMode { ExceptionHandling = { NotifyMessageProducer = notifyProducer } }
             };
         }
 
@@ -84,8 +83,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Exceptions.Handlers
             var deliverEnvelope = new EmptyDeliverEnvelope(_expectedId);
 
             await TestHandleExecutionException(
-                default(Operation), 
-                new MessagingContext(deliverEnvelope), 
+                default(Operation),
+                new MessagingContext(deliverEnvelope),
                 sut => sut.HandleExecutionException);
         }
 
@@ -119,7 +118,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Exceptions.Handlers
             Func<IAgentExceptionHandler, Func<Exception, MessagingContext, Task<MessagingContext>>> getExercise)
         {
             // Arrange
-            GetDataStoreContext.InsertOutMessage(new OutMessage {EbmsMessageId = _expectedId, Status = OutStatus.Sent});
+            GetDataStoreContext.InsertOutMessage(new OutMessage { EbmsMessageId = _expectedId, Status = OutStatus.Sent });
 
             var sut = new OutboundExceptionHandler(GetDataStoreContext);
             Func<Exception, MessagingContext, Task<MessagingContext>> exercise = getExercise(sut);
@@ -133,7 +132,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Exceptions.Handlers
                 _expectedId,
                 exception =>
                 {
-                    Assert.True(_expectedException.Message == exception.Exception, "Not equal message inserted");
+                    Assert.True(exception.Exception.IndexOf(_expectedException.Message, StringComparison.CurrentCultureIgnoreCase) > -1, "Message does not contain expected message");
                     Assert.True(expected == exception.Operation, "Not equal 'Operation' inserted");
                     Assert.True(exception.MessageBody == null, "Inserted exception body is not empty");
                 });
