@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using Microsoft.Extensions.Logging;
@@ -9,16 +10,20 @@ namespace Eu.EDelivery.AS4.Common
 
     public class TraceLogger : ILogger
     {
-        private readonly string _categoryName;
-
         private static readonly TraceSwitch EntityFrameworkLogSwitch = new TraceSwitch("EfLoggingSwitch", "Entity Framework SQL logging switch");
-
-        public TraceLogger(string categoryName)
-        {
-            _categoryName = categoryName;
-        }
-
+        private static readonly TraceSource Tracer = new TraceSource("Eu.EDelivery.AS4.Common.DatastoreContext");
+        
         public IDisposable BeginScope<TState>(TState state) => null;
+
+        private static readonly Dictionary<LogLevel, TraceEventType> LogLevelMap = new Dictionary<LogLevel, TraceEventType>()
+        {
+            { LogLevel.Critical, TraceEventType.Critical },
+            { LogLevel.Debug, TraceEventType.Verbose },
+            { LogLevel.Error, TraceEventType.Error },
+            { LogLevel.Information, TraceEventType.Information },
+            { LogLevel.Trace, TraceEventType.Verbose },
+            { LogLevel.Warning, TraceEventType.Warning},
+        };
 
         /// <summary>Writes a log entry.</summary>
         /// <param name="logLevel">Entry will be written on this level.</param>
@@ -28,8 +33,18 @@ namespace Eu.EDelivery.AS4.Common
         /// <param name="formatter">Function to create a <c>string</c> message of the <paramref name="state" /> and <paramref name="exception" />.</param>
         public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
         {
-            Trace.WriteLineIf(EntityFrameworkLogSwitch.TraceVerbose, $"{DateTime.Now.ToString("o", CultureInfo.CurrentCulture)} {logLevel} {eventId.Id} {_categoryName}");
-            Trace.WriteLineIf(EntityFrameworkLogSwitch.TraceVerbose, formatter(state, exception));
+            if (IsEnabled(logLevel))
+            {
+                try
+                {
+                    Tracer.TraceEvent(LogLevelMap[logLevel], eventId.Id, $"{DateTime.Now.ToString("o", CultureInfo.CurrentCulture)} {logLevel} {formatter(state, exception)}");
+                }
+                catch (Exception ex)
+                {
+                    NLog.LogManager.GetCurrentClassLogger().Error(ex.Message);
+                    throw;
+                }
+            }
         }
 
         /// <summary>
@@ -39,7 +54,28 @@ namespace Eu.EDelivery.AS4.Common
         /// <returns><c>true</c> if enabled.</returns>
         public bool IsEnabled(LogLevel logLevel)
         {
-            return EntityFrameworkLogSwitch.TraceVerbose;
+            switch (logLevel)
+            {
+                case LogLevel.Critical:
+                case LogLevel.Error:
+                    return EntityFrameworkLogSwitch.TraceError;
+
+                case LogLevel.Warning:
+                    return EntityFrameworkLogSwitch.TraceWarning;
+
+                case LogLevel.Information:
+                    return EntityFrameworkLogSwitch.TraceInfo;
+
+                case LogLevel.Debug:
+                case LogLevel.Trace:
+                    return EntityFrameworkLogSwitch.TraceVerbose;
+
+                case LogLevel.None:
+                    return false;
+
+                default:
+                    return false;
+            }
         }
     }
 
