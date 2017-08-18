@@ -1,4 +1,5 @@
-﻿using Eu.EDelivery.AS4.Mappings.PMode;
+﻿using System;
+using Eu.EDelivery.AS4.Mappings.PMode;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.PMode;
 
@@ -18,6 +19,11 @@ namespace Eu.EDelivery.AS4.Factories
         /// <returns></returns>
         public UserMessage Create(SendingProcessingMode pmode)
         {
+            if (pmode == null)
+            {
+                throw new ArgumentNullException(nameof(pmode));
+            }
+
             var result = new UserMessage
             {
                 Sender = new PModeSenderResolver().Resolve(pmode),
@@ -25,7 +31,13 @@ namespace Eu.EDelivery.AS4.Factories
                 CollaborationInfo = ResolveCollaborationInfo(pmode)
             };
 
-            pmode.MessagePackaging.MessageProperties.ForEach(p => result.MessageProperties.Add(p));
+            if (pmode.MessagePackaging?.MessageProperties != null)
+            {
+                foreach (var messageProperty in pmode.MessagePackaging?.MessageProperties)
+                {
+                    result.MessageProperties.Add(messageProperty);
+                }
+            }
 
             return result;
         }
