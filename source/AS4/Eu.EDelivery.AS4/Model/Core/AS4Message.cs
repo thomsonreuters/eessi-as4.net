@@ -42,6 +42,7 @@ namespace Eu.EDelivery.AS4.Model.Core
 
         public XmlDocument EnvelopeDocument { get; set; }
 
+        // ReSharper disable once InconsistentNaming
         private bool? __hasMultiHopAttribute;
 
         /// <summary>
@@ -153,7 +154,7 @@ namespace Eu.EDelivery.AS4.Model.Core
         {
             AS4Message as4Message = Create(pmode);
             as4Message.UserMessages.Add(message);
-
+            
             return as4Message;
         }
 
