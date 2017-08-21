@@ -80,26 +80,6 @@ namespace Eu.EDelivery.AS4.Repositories
             }
 
             return entry.Value;
-        }
-        
-        private sealed class AS4MessageRepositoryEntry
-        {
-            /// <summary>
-            /// Initializes a new instance of the <see cref="AS4MessageRepositoryEntry" /> class.
-            /// </summary>
-            /// <param name="condition">The condition.</param>
-            /// <param name="persister">The persister.</param>
-            public AS4MessageRepositoryEntry(
-                Func<string, bool> condition,
-                IAS4MessageBodyStore persister)
-            {
-                Condition = condition;
-                Store = persister;
-            }
-
-            public IAS4MessageBodyStore Store { get; }
-
-            public Func<string, bool> Condition { get; }
-        }
+        }       
     }
 }
