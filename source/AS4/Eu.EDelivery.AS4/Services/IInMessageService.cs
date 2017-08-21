@@ -31,6 +31,7 @@ namespace Eu.EDelivery.AS4.Services
         /// </summary>
         /// <remarks>The received Message is parsed to an AS4 Message instance.</remarks>
         /// <param name="context"></param>
+        /// <param name="mep">The MessageExchangePattern by which the message has been received</param>
         /// <param name="as4MessageBodyPersister"></param>
         /// <param name="cancellationToken"></param>
         /// <returns>A MessagingContext instance that contains the parsed AS4 Message.</returns>
@@ -51,7 +52,5 @@ namespace Eu.EDelivery.AS4.Services
             MessagingContext messagingContext,
             IAS4MessageBodyStore as4MessageBodyPersister,
             CancellationToken cancellationToken);
-
-        
     }
 }
