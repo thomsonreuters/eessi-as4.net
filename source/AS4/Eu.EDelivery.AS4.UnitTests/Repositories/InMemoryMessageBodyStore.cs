@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Model.Core;
@@ -11,12 +13,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Repositories
     /// In-Memory Implementation to store the <see cref="AS4Message"/> instances.
     /// </summary>
     /// <seealso cref="IAS4MessageBodyStore" />
-    public class InMemoryMessageBodyStore : IAS4MessageBodyStore
+    public class InMemoryMessageBodyStore : IAS4MessageBodyStore, IDisposable
     {
-        private static readonly IAS4MessageBodyStore DefaultInstance = new InMemoryMessageBodyStore();
-        private AS4Message _message;
+        private readonly Dictionary<string, Stream> _store = new Dictionary<string, Stream>();
 
-        public static IAS4MessageBodyStore Default => DefaultInstance;
+        public static IAS4MessageBodyStore Default { get; } = new InMemoryMessageBodyStore();
 
         /// <summary>
         /// Loads a <see cref="Stream" /> at a given stored <paramref name="location" />.
@@ -25,13 +26,15 @@ namespace Eu.EDelivery.AS4.UnitTests.Repositories
         /// <returns></returns>
         public async Task<Stream> LoadMessageBodyAsync(string location)
         {
-            var messageStream = new MemoryStream();
+            if (_store.ContainsKey(location) == false)
+            {
+                throw new InvalidOperationException($"MessageBodyStore does not contain an entry for {location}");
+            }
 
-            var serializer = new SoapEnvelopeSerializer();
-            await serializer.SerializeAsync(_message, messageStream, CancellationToken.None);
+            var messageStream = _store[location];
             messageStream.Position = 0;
 
-            return messageStream;
+            return await Task.FromResult(messageStream);
         }
 
         /// <summary>
@@ -43,16 +46,26 @@ namespace Eu.EDelivery.AS4.UnitTests.Repositories
         /// <returns>
         /// Location where the <paramref name="message" /> is saved.
         /// </returns>
-        public Task<string> SaveAS4MessageAsync(string location, AS4Message message, CancellationToken cancellation)
+        public async Task<string> SaveAS4MessageAsync(string location, AS4Message message, CancellationToken cancellation)
         {
-            _message = message;
+            string id = Guid.NewGuid().ToString();
 
-            return Task.FromResult("not empty location");
+            var serializer = SerializerProvider.Default.Get(message.ContentType);
+            var stream = new MemoryStream();
+            await serializer.SerializeAsync(message, stream, cancellation);
+
+            _store.Add(id, stream);
+
+            return await Task.FromResult(id);
         }
 
         public Task<string> SaveAS4MessageStreamAsync(string location, Stream as4MessageStream, CancellationToken cancellation)
         {
-            throw new System.NotImplementedException();
+            string locationId = Guid.NewGuid().ToString();
+
+            _store.Add(locationId, as4MessageStream);
+
+            return Task.FromResult(locationId);
         }
 
         /// <summary>
@@ -66,6 +79,15 @@ namespace Eu.EDelivery.AS4.UnitTests.Repositories
         {
             return Task.CompletedTask;
         }
-       
+
+        /// <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</summary>
+        public void Dispose()
+        {
+            foreach (var kvp in _store)
+            {
+                kvp.Value.Dispose();
+            }
+            _store.Clear();
+        }
     }
 }
