@@ -190,13 +190,22 @@ namespace Eu.EDelivery.AS4.Services
             {
                 var pmodeString = messageContext.GetReceivingPModeString();
 
+                // Only set the Operation of the InMessage that represents the 
+                // Primary Message-Unit to 'ToBeForwarded' since we want to prevent
+                // that the same message is forwarded more than once (x number of messaging units 
+                // present in the AS4 Message).
+
                 _repository.UpdateInMessages(m => messageContext.AS4Message.MessageIds.Contains(m.EbmsMessageId),
                                              m =>
                                              {
                                                  m.Intermediary = true;
                                                  m.PMode = pmodeString;
-                                                 m.Operation = Operation.ToBeForwarded;
                                              });
+                _repository.UpdateInMessage(messageContext.AS4Message.GetPrimaryMessageId(),
+                                            m =>
+                                            {
+                                                m.Operation = Operation.ToBeForwarded;
+                                            });
             }
             else
             {
@@ -258,7 +267,7 @@ namespace Eu.EDelivery.AS4.Services
         }
 
         private void UpdateSignalMessages(IEnumerable<SignalMessage> signalMessages, Func<bool> signalsMustBeNotified, OutStatus outStatus)
-        {            
+        {
             if (signalsMustBeNotified())
             {
                 var signalsToNotify = signalMessages.Where(r => r.IsDuplicate == false);
