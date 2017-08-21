@@ -144,6 +144,7 @@ namespace Eu.EDelivery.AS4.Entities
                 if (signalMessage != null)
                 {
                     IsDuplicate = signalMessage.IsDuplicate;
+                    Mpc = signalMessage.MultiHopRouting.mpc;
                 }
             }
         }
