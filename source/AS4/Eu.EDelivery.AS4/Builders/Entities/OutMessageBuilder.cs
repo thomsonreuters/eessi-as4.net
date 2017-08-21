@@ -14,18 +14,19 @@ namespace Eu.EDelivery.AS4.Builders.Entities
     public class OutMessageBuilder
     {
         private readonly MessageUnit _messageUnit;
-        private readonly AS4Message _belongsToAS4Message;
+        private readonly string _contentType;
         private readonly SendingProcessingMode _sendingProcessingMode;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="OutMessageBuilder" /> class.
         /// </summary>
         /// <param name="messageUnit">The message unit.</param>
-        /// <param name="belongsToAS4Message">The AS4 message to which the <paramref name="messageUnit"/> belongs to.</param>
-        private OutMessageBuilder(MessageUnit messageUnit, AS4Message belongsToAS4Message, SendingProcessingMode sendingPMode)
+        /// <param name="contentType">The ContentType of the Message</param>        
+        /// <param name="sendingPMode">The Sending PMode that must is used to send this message</param>
+        private OutMessageBuilder(MessageUnit messageUnit, string contentType, SendingProcessingMode sendingPMode)
         {
             _messageUnit = messageUnit;
-            _belongsToAS4Message = belongsToAS4Message;
+            _contentType = contentType;
             _sendingProcessingMode = sendingPMode;
         }
 
@@ -33,11 +34,12 @@ namespace Eu.EDelivery.AS4.Builders.Entities
         /// For a given <paramref name="messageUnit"/>.
         /// </summary>
         /// <param name="messageUnit">The message unit.</param>
-        /// <param name="belongsToAS4Message">The AS4 Message to which the <paramref name="messageUnit"/> belongs to.</param>
+        /// <param name="contentType"></param>
+        /// <param name="sendingPMode">The Sending PMode that is used for this message</param>
         /// <returns></returns>
-        public static OutMessageBuilder ForMessageUnit(MessageUnit messageUnit, AS4Message belongsToAS4Message, SendingProcessingMode sendingPMode)
+        public static OutMessageBuilder ForMessageUnit(MessageUnit messageUnit, string contentType, SendingProcessingMode sendingPMode)
         {
-            return new OutMessageBuilder(messageUnit, belongsToAS4Message, sendingPMode);
+            return new OutMessageBuilder(messageUnit, contentType, sendingPMode);
         }
 
         /// <summary>
@@ -55,7 +57,7 @@ namespace Eu.EDelivery.AS4.Builders.Entities
             var outMessage = new OutMessage
             {
                 EbmsMessageId = _messageUnit.MessageId,
-                ContentType = _belongsToAS4Message.ContentType,
+                ContentType = _contentType,
                 Operation = Operation.NotApplicable,
                 ModificationTime = DateTimeOffset.Now,
                 InsertionTime = DateTimeOffset.Now,

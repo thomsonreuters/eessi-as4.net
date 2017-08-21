@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -100,7 +99,7 @@ namespace Eu.EDelivery.AS4.Services
             string location,
             Operation operation)
         {
-            OutMessage outMessage = OutMessageBuilder.ForMessageUnit(messageUnit, messageContext.AS4Message, sendingPMode)
+            OutMessage outMessage = OutMessageBuilder.ForMessageUnit(messageUnit, messageContext.AS4Message.ContentType, sendingPMode)
                                                      .Build(CancellationToken.None);
 
             outMessage.MessageLocation = location;

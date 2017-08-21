@@ -50,7 +50,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
 
             private OutMessage BuildForUserMessage(AS4Message as4Message)
             {
-                return OutMessageBuilder.ForMessageUnit(as4Message.PrimaryUserMessage, as4Message, ExpectedPMode())                                        
+                return OutMessageBuilder.ForMessageUnit(as4Message.PrimaryUserMessage, as4Message.ContentType, ExpectedPMode())                                        
                                         .Build(CancellationToken.None);
             }
 
@@ -86,7 +86,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
 
             private OutMessage BuildForSignalMessage(AS4Message as4Message)
             {
-                return OutMessageBuilder.ForMessageUnit(as4Message.PrimarySignalMessage, as4Message, ExpectedPMode())
+                return OutMessageBuilder.ForMessageUnit(as4Message.PrimarySignalMessage, as4Message.ContentType, ExpectedPMode())
                                         .Build(CancellationToken.None);
             }
         }

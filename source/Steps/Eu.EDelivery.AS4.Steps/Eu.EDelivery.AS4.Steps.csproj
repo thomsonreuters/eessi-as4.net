@@ -196,6 +196,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Forward\CreateForwardMessageStep.cs" />
     <Compile Include="Forward\DetermineRoutingStep.cs" />
     <Compile Include="Receive\DetermineMessageHandlingStep.cs" />
     <Compile Include="Receive\SendAS4SignalMessageStep.cs" />
