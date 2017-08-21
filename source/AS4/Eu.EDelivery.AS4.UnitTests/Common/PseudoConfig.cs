@@ -111,7 +111,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
         }
     }
 
-    public class PseudeConfigFacts : PseudoConfig
+    public class PseudoConfigFacts : PseudoConfig
     {
         [Fact]
         public void FailsToInitialize()
@@ -139,9 +139,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
         [Fact]
         public void FailsToGetSetting()
         {
-            Assert.ThrowsAny<Exception>(() => GetSetting("ignored string"));
-            Assert.ThrowsAny<Exception>(() => InMessageStoreLocation);
-            Assert.ThrowsAny<Exception>(() => OutMessageStoreLocation);
+            Assert.ThrowsAny<Exception>(() => GetSetting("ignored string"));            
         }
     }
 }

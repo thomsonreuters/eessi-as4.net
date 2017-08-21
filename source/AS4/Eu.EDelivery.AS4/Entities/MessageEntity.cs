@@ -135,8 +135,8 @@ namespace Eu.EDelivery.AS4.Entities
                 ConversationId = userMessage.CollaborationInfo.ConversationId;
                 Mpc = userMessage.Mpc;
                 IsTest = userMessage.IsTest;
-                IsDuplicate = userMessage.IsDuplicate;                
-                SoapEnvelope = AS4XmlSerializer.ToString(AS4Mapper.Map<Xml.UserMessage>(userMessage));                
+                IsDuplicate = userMessage.IsDuplicate;
+                SoapEnvelope = AS4XmlSerializer.ToString(AS4Mapper.Map<Xml.UserMessage>(userMessage));
             }
             else
             {
@@ -144,7 +144,7 @@ namespace Eu.EDelivery.AS4.Entities
                 if (signalMessage != null)
                 {
                     IsDuplicate = signalMessage.IsDuplicate;
-                    Mpc = signalMessage.MultiHopRouting.mpc;
+                    Mpc = signalMessage.MultiHopRouting?.mpc ?? Constants.Namespaces.EbmsDefaultMpc;
                 }
             }
         }
