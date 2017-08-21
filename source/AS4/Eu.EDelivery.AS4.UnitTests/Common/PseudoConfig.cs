@@ -89,7 +89,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
         /// <value>The in message store location.</value>
         public string InMessageStoreLocation
         {
-            get { throw new NotImplementedException(); }
+            get { return string.Empty; }
         }
 
         /// <summary>
@@ -98,7 +98,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
         /// <value>The out message store location.</value>
         public string OutMessageStoreLocation
         {
-            get { throw new NotImplementedException(); }
+            get { return string.Empty; }
         }
 
         /// <summary>

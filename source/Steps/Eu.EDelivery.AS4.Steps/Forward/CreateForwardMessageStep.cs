@@ -74,7 +74,7 @@ namespace Eu.EDelivery.AS4.Steps.Forward
                     outMessage.Mpc = messagingContext.SendingPMode.MessagePackaging.Mpc;
                 }
 
-                outMessage.Operation = Operation.ToBeProcessed;
+                outMessage.Operation = Operation.ToBeSent;
 
                 repository.InsertOutMessage(outMessage);
 
