@@ -117,7 +117,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Core
 
         private static UserMessage CreateDefaultUserMessage(string messageId)
         {
-            IdentifierFactory.Instance.SetContext(StubConfig.Instance);
+            IdentifierFactory.Instance.SetContext(StubConfig.Default);
             var userMessage = new UserMessage
             {
                 CollaborationInfo = { AgreementReference = new AgreementReference() },

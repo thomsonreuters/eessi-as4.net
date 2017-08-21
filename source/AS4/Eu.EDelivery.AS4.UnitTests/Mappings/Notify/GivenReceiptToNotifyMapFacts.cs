@@ -15,7 +15,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Notify
     {
         public GivenReceiptToNotifyMapFacts()
         {
-            IdentifierFactory.Instance.SetContext(StubConfig.Instance);
+            IdentifierFactory.Instance.SetContext(StubConfig.Default);
         }
 
         public class GivenValidArguments : GivenReceiptToNotifyMapFacts

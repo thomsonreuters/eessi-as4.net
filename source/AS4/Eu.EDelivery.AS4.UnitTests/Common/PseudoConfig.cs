@@ -10,14 +10,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
 {
     public class PseudoConfig : IConfig
     {
-        public static PseudoConfig Default => new PseudoConfig();
-
         /// <summary>
         /// Initialize Configuration
         /// </summary>
         public virtual void Initialize()
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -32,7 +30,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
         /// <returns></returns>
         public virtual string GetSetting(string key)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -42,7 +40,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
         /// <returns></returns>
         public virtual bool ContainsSendingPMode(string id)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -53,7 +51,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
         /// <returns></returns>
         public virtual SendingProcessingMode GetSendingPMode(string id)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -62,7 +60,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
         /// <returns></returns>
         public virtual IEnumerable<ReceivingProcessingMode> GetReceivingPModes()
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -72,7 +70,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
         /// <exception cref="System.NotImplementedException"></exception>
         public virtual IEnumerable<AgentSettings> GetSettingsAgents()
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -82,7 +80,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
         /// <remarks>For every SettingsMinderAgent that is returned, a special Minder-Agent will be instantiated.</remarks>
         public virtual IEnumerable<SettingsMinderAgent> GetEnabledMinderTestAgents()
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -91,7 +89,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
         /// <value>The in message store location.</value>
         public string InMessageStoreLocation
         {
-            get { throw new System.NotImplementedException(); }
+            get { throw new NotImplementedException(); }
         }
 
         /// <summary>
@@ -118,7 +116,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
         [Fact]
         public void FailsToInitialize()
         {
-            Assert.False(Default.IsInitialized);
+            Assert.False(new PseudoConfig().IsInitialized);
             Assert.ThrowsAny<Exception>(() => Initialize());
         }
 

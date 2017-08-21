@@ -30,7 +30,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
         /// </summary>
         public GivenResponseHandlerFacts()
         {
-            IdentifierFactory.Instance.SetContext(StubConfig.Instance);
+            IdentifierFactory.Instance.SetContext(StubConfig.Default);
         }
 
         public class GivenTailResponseHandlerFacts : GivenResponseHandlerFacts

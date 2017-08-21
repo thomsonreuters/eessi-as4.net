@@ -20,7 +20,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
     {
         public GivenZipAttachmentsStepFacts()
         {
-            IdentifierFactory.Instance.SetContext(StubConfig.Instance);
+            IdentifierFactory.Instance.SetContext(StubConfig.Default);
         }
 
         public class GivenValidArguments : GivenZipAttachmentsStepFacts

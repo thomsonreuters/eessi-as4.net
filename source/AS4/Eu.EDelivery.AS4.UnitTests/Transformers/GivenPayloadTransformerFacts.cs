@@ -19,7 +19,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
     {
         public GivenPayloadTransformerFacts()
         {
-            IdentifierFactory.Instance.SetContext(StubConfig.Instance);
+            IdentifierFactory.Instance.SetContext(StubConfig.Default);
         }
 
         public class GivenValidArguments : GivenPayloadTransformerFacts

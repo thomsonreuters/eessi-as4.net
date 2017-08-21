@@ -25,7 +25,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
     {
         public GivenAS4MessageFacts()
         {
-            IdentifierFactory.Instance.SetContext(StubConfig.Instance);
+            IdentifierFactory.Instance.SetContext(StubConfig.Default);
         }
        
         public class Empty

@@ -29,7 +29,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
         /// </summary>
         public GivenSendAS4MessageStepFacts()
         {
-            IdentifierFactory.Instance.SetContext(StubConfig.Instance);
+            IdentifierFactory.Instance.SetContext(StubConfig.Default);
         }
 
         [Fact]

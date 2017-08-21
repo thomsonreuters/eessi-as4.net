@@ -31,7 +31,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
         public GivenCreateAS4ReceiptStepFacts()
         {
             _step = new CreateAS4ReceiptStep();
-            IdentifierFactory.Instance.SetContext(StubConfig.Instance);
+            IdentifierFactory.Instance.SetContext(StubConfig.Default);
         }
 
         public class GivenValidArguments : GivenCreateAS4ReceiptStepFacts

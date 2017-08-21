@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Xml;
 using System.Xml.Serialization;
 using Eu.EDelivery.AS4.Agents;
-using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
@@ -119,7 +119,7 @@ namespace Eu.EDelivery.AS4.Common
 
             if (pmode == null)
             {
-                throw new KeyNotFoundException($"No Sending Processing Mode found for {id}");
+                throw new ConfigurationErrorsException($"No Sending Processing Mode found for {id}");
             }
 
             return pmode as SendingProcessingMode;

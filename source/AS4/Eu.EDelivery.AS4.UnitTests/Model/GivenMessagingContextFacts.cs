@@ -21,7 +21,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
     {
         public GivenMessagingContextFacts()
         {
-            IdentifierFactory.Instance.SetContext(StubConfig.Instance);
+            IdentifierFactory.Instance.SetContext(StubConfig.Default);
         }
 
         /// <summary>

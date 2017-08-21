@@ -15,7 +15,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Core
     {
         public GivenErrorMapFacts()
         {
-            IdentifierFactory.Instance.SetContext(StubConfig.Instance);
+            IdentifierFactory.Instance.SetContext(StubConfig.Default);
         }
 
         public class GivenValidArguments : GivenErrorMapFacts

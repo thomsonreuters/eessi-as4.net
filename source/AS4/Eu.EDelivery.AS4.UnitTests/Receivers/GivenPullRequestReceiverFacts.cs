@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -24,11 +25,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
             public void FailsWithMissingIntervalAttributes()
             {
                 // Arrange
-                var receiver = new PullRequestReceiver(StubConfig.Instance);
+                var receiver = new PullRequestReceiver(StubConfig.Default);
                 var invalidReceiverSetting = new Setting("01-send", value: string.Empty);
 
                 // Act
-                receiver.Configure(new[] {invalidReceiverSetting});
+                receiver.Configure(new[] { invalidReceiverSetting });
 
                 // Assert
                 AssertOnMessageReceived(receiver);
@@ -38,11 +39,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
             public void FailsWithMissingSendingPMode()
             {
                 // Arrange
-                var receiver = new PullRequestReceiver(StubConfig.Instance);
+                var receiver = new PullRequestReceiver(StubConfig.Default);
                 var receiverSetting = new Setting("unknown-pmode", string.Empty);
 
                 // Act
-                receiver.Configure(new[] {receiverSetting});
+                receiver.Configure(new[] { receiverSetting });
 
                 // Assert
                 AssertOnMessageReceived(receiver);
@@ -75,7 +76,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
                 return (message, token) =>
                 {
                     waitHandle.Set();
-                    return Task.FromResult((MessagingContext) new EmptyMessagingContext());
+                    return Task.FromResult((MessagingContext)new EmptyMessagingContext());
                 };
             }
         }
@@ -97,10 +98,22 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
             [Fact]
             public void StartReceiver()
             {
+                var stubConfig
+                    = new StubConfig(sendingPModes: new Dictionary<string, SendingProcessingMode>
+                                    {
+                                        ["01-send"] =
+                                                    AS4XmlSerializer.FromString<SendingProcessingMode>(Properties.Resources.send_01)
+                                    },
+                                    receivingPModes: new Dictionary<string, ReceivingProcessingMode>
+                                    {
+                                                    ["01-receive"] =
+                                                    AS4XmlSerializer.FromString<ReceivingProcessingMode>(Properties.Resources.receive_01)
+                                    });
+
                 // Arrange
-                var receiver = new PullRequestReceiver(StubConfig.Instance);
+                var receiver = new PullRequestReceiver(stubConfig);
                 Setting receiverSetting = CreateMockReceiverSetting();
-                receiver.Configure(new[] {receiverSetting});
+                receiver.Configure(new[] { receiverSetting });
 
                 // Act
                 receiver.StartReceiving(OnMessageReceived, CancellationToken.None);
@@ -116,7 +129,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
 
                 return new Setting("01-send", string.Empty)
                 {
-                    Attributes = new XmlAttribute[] {minTimeAttribute, maxTimeAttribute}
+                    Attributes = new XmlAttribute[] { minTimeAttribute, maxTimeAttribute }
                 };
             }
 

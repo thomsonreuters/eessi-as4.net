@@ -26,7 +26,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Core
     {
         public GivenReceiptMapFacts()
         {
-            IdentifierFactory.Instance.SetContext(StubConfig.Instance);
+            IdentifierFactory.Instance.SetContext(StubConfig.Default);
         }
 
         public class GivenValidArguments : GivenReceiptMapFacts

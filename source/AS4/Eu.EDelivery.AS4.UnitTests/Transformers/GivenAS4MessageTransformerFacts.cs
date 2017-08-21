@@ -21,7 +21,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
     {
         public GivenAS4MessageTransformerFacts()
         {
-            IdentifierFactory.Instance.SetContext(StubConfig.Instance);
+            IdentifierFactory.Instance.SetContext(StubConfig.Default);
         }
 
         /// <summary>
