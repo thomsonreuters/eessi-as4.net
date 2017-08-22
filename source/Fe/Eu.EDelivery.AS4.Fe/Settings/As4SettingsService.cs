@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -84,9 +84,11 @@ namespace Eu.EDelivery.AS4.Fe.Settings
 
             var file = await GetSettings();
             var agents = GetAgents(getAgents, file);
-            var existing = agents.FirstOrDefault(agent => agent.Name.ToLower() == settingsAgent.Name.ToLower());
+            var existing = agents.FirstOrDefault(agent => StringComparer.OrdinalIgnoreCase.Equals(agent.Name, settingsAgent.Name));
             if (existing != null)
+            {
                 throw new AlreadyExistsException($"Agent with name {settingsAgent.Name} already exists");
+            }
 
             agents.Add(settingsAgent);
             setAgents(file.Agents, agents.ToArray());
@@ -161,7 +163,7 @@ namespace Eu.EDelivery.AS4.Fe.Settings
             return await settingsSource.Get();
         }
 
-        private IList<AgentSettings> GetAgents(Func<SettingsAgents, AgentSettings[]> getAgents, Model.Internal.Settings settings)
+        private static IList<AgentSettings> GetAgents(Func<SettingsAgents, AgentSettings[]> getAgents, Model.Internal.Settings settings)
         {
             var get = getAgents(settings.Agents);
             return get?.ToList() ?? Enumerable.Empty<AgentSettings>().ToList();
