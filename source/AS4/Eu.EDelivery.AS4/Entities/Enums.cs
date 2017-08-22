@@ -17,6 +17,7 @@
         DeadLettered,
 
         ToBeForwarded,
+        Forwarding,
         Forwarded,
 
         ToBeNotified,

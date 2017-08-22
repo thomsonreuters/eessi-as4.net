@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using Eu.EDelivery.AS4.Agents;
 
 namespace Eu.EDelivery.AS4.Exceptions.Handlers
@@ -18,6 +19,7 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
                 [AgentType.PushSend] = () => new OutboundExceptionHandler(),
                 [AgentType.Receive] = () => new InboundExceptionHandler(),
                 [AgentType.Deliver] = () => new InboundExceptionHandler(),
+                [AgentType.Forward] = () => new InboundExceptionHandler(),
                 [AgentType.NotifyConsumer] = () => new InboundExceptionHandler(),
                 [AgentType.NotifyProducer] = () => new OutboundExceptionHandler(),
                 [AgentType.PullReceive] = () => new InboundExceptionHandler(),
@@ -34,7 +36,7 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
         {
             if (Handlers.ContainsKey(type) == false)
             {
-                throw new InvalidOperationException($"The Agent Type '{type}' is not supported to have a exception handler");
+                throw new ConfigurationErrorsException($"There is no Exception Handler defined for Agents of type '{type}'");
             }
 
             return new SafeExceptionHandler(Handlers[type]());

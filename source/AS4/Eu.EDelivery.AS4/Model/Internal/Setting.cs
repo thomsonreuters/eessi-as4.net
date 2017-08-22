@@ -86,16 +86,15 @@ namespace Eu.EDelivery.AS4.Model.Internal
 
         [XmlElement("DeliverAgent", IsNullable = false)]
         public AgentSettings[] DeliverAgents { get; set; }
-
-        [XmlElement("NotifyAgent", IsNullable = false)]
-        [Obsolete("We will use concrete notify agents 'NotifyConsumerAgent' and 'NotifyProducerAgent'")]
-        public AgentSettings[] NotifyAgents { get; set; }
-
+        
         [XmlElement("NotifyConsumerAgent", IsNullable = false)]
         public AgentSettings[] NotifyConsumerAgents { get; set; }
 
         [XmlElement("NotifyProducerAgent", IsNullable = false)]
         public AgentSettings[] NotifyProducerAgents { get; set; }
+
+        [XmlElement("ForwardAgent", IsNullable = false)]
+        public AgentSettings[] ForwardAgents { get; set; }
 
         [XmlElement("ReceptionAwarenessAgent", IsNullable = false)]
         public AgentSettings ReceptionAwarenessAgent { get; set; }
@@ -264,7 +263,7 @@ namespace Eu.EDelivery.AS4.Model.Internal
                 return null;
             var array = JArray.Load(reader);
             var doc = new XmlDocument();
-            var test = array.Select(x => (JObject) x).SelectMany(x => x.Properties()).ToDictionary(pair => pair.Name, pair => pair.Value.Value<string>());
+            var test = array.Select(x => (JObject)x).SelectMany(x => x.Properties()).ToDictionary(pair => pair.Name, pair => pair.Value.Value<string>());
             var result = test.Select(x =>
             {
                 var a = doc.CreateAttribute(x.Key);
@@ -276,8 +275,8 @@ namespace Eu.EDelivery.AS4.Model.Internal
 
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
-            var test = (XmlAttribute[]) value;
-            
+            var test = (XmlAttribute[])value;
+
             writer.WriteStartArray();
             foreach (var attribute in test)
             {
