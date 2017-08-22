@@ -43,7 +43,7 @@ namespace Eu.EDelivery.AS4.Steps.Forward
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
         {
-            var receivedInMessage = (messagingContext.ReceivedMessage as ReceivedEntityMessage)?.Entity as InMessage;
+            var receivedInMessage = (messagingContext.ReceivedMessage as ReceivedMessageEntityMessage)?.MessageEntity as InMessage;
 
             if (receivedInMessage == null)
             {
@@ -51,39 +51,38 @@ namespace Eu.EDelivery.AS4.Steps.Forward
             }
 
             // Forward message by creating an OutMessage and set operation to 'ToBeProcessed'.
-            var originalInMessage = await _messageStore.LoadMessageBodyAsync(receivedInMessage.MessageLocation);
-            string outLocation = await _messageStore.SaveAS4MessageStreamAsync(_configuration.OutMessageStoreLocation,
-                                                                               originalInMessage,
-                                                                               cancellationToken);
-
-            AS4Message msg = await SerializerProvider.Default.Get(receivedInMessage.ContentType).DeserializeAsync(originalInMessage, receivedInMessage.ContentType, cancellationToken);
-
-            using (var dbContext = _createDataStoreContext())
+            using (var originalInMessage = await _messageStore.LoadMessageBodyAsync(receivedInMessage.MessageLocation))
             {
-                var repository = new DatastoreRepository(dbContext);
+                string outLocation = await _messageStore.SaveAS4MessageStreamAsync(_configuration.OutMessageStoreLocation,
+                                                                                   originalInMessage,
+                                                                                   cancellationToken);
+                originalInMessage.Position = 0;
 
-                // Only create an OutMessage for the primary message-unit.
-                var outMessage = OutMessageBuilder.ForMessageUnit(GetPrimaryMessageUnit(msg),
-                                                                  receivedInMessage.ContentType,
-                                                                  messagingContext.SendingPMode).Build(cancellationToken);
+                AS4Message msg = await SerializerProvider.Default.Get(receivedInMessage.ContentType)
+                                                         .DeserializeAsync(originalInMessage, receivedInMessage.ContentType, cancellationToken);
 
-                outMessage.MessageLocation = outLocation;
-
-                if (!String.IsNullOrWhiteSpace(messagingContext.SendingPMode.MessagePackaging?.Mpc))
+                using (var dbContext = _createDataStoreContext())
                 {
-                    outMessage.Mpc = messagingContext.SendingPMode.MessagePackaging.Mpc;
+                    var repository = new DatastoreRepository(dbContext);
+
+                    // Only create an OutMessage for the primary message-unit.
+                    var outMessage = OutMessageBuilder.ForMessageUnit(GetPrimaryMessageUnit(msg),
+                                                                      receivedInMessage.ContentType,
+                                                                      messagingContext.SendingPMode).Build(cancellationToken);
+
+                    outMessage.MessageLocation = outLocation;
+                    outMessage.Mpc = messagingContext.SendingPMode.MessagePackaging?.Mpc ?? Constants.Namespaces.EbmsDefaultMpc;
+                    outMessage.Operation = Operation.ToBeSent;
+
+                    repository.InsertOutMessage(outMessage);
+
+                    // Set the InMessage to Forwarded.
+                    // We do this for all InMessages that are present in this AS4 Message
+                    repository.UpdateInMessages(m => msg.MessageIds.Contains(m.EbmsMessageId),
+                                                r => r.Operation = Operation.Forwarded);
+
+                    await dbContext.SaveChangesAsync(cancellationToken);
                 }
-
-                outMessage.Operation = Operation.ToBeSent;
-
-                repository.InsertOutMessage(outMessage);
-
-                // Set the InMessage to Forwarded.
-                // We do this for all InMessages that are present in this AS4 Message
-                repository.UpdateInMessages(m => msg.MessageIds.Contains(m.EbmsMessageId),
-                                            r => r.Operation = Operation.Forwarded);
-
-                await dbContext.SaveChangesAsync(cancellationToken);
             }
 
             return StepResult.Success(messagingContext);
