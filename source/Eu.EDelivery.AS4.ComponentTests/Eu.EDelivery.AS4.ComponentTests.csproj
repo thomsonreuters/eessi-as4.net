@@ -150,6 +150,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Agents\DeliverAgentFacts.cs" />
+    <Compile Include="Agents\ForwardAgentFacts.cs" />
     <Compile Include="Agents\PullSendAgentFacts.cs" />
     <Compile Include="Agents\ReceiveAgentFacts.cs" />
     <Compile Include="Agents\SendAgentFacts.cs" />

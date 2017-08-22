@@ -2,10 +2,10 @@
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.ComponentTests.Common;
+using Eu.EDelivery.AS4.TestUtils.Stubs;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.ComponentTests.Agents
@@ -14,7 +14,6 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
     public class SubmitAgentFacts : ComponentTestTemplate
     {
         private readonly AS4Component _as4Msh;
-        private readonly HttpClient _httpClient = new HttpClient();
 
         // It would be nice if this could be extracted from the configuration.
         private static readonly string HttpSubmitAgentUrl = "http://localhost:7070/msh/";
@@ -33,9 +32,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             [Fact]
             public async Task ThenAgentRespondsWithHttpAccepted()
             {
-                var request = CreateRequestMessage(HttpSubmitAgentUrl, HttpMethod.Post, GetValidSubmitMessage());
-
-                using (var response = await _httpClient.SendAsync(request))
+                using (var response = await StubSender.SendRequest(HttpSubmitAgentUrl, Encoding.UTF8.GetBytes(GetValidSubmitMessage()), "application/xml"))
                 {
                     Assert.Equal(HttpStatusCode.Accepted, response.StatusCode);
                     Assert.True(String.IsNullOrWhiteSpace(response.Content.Headers.ContentType?.ToString()));
@@ -49,9 +46,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                 await Task.Delay(1500);
                 File.Delete(@".\database\messages.db");
 
-                var request = CreateRequestMessage(HttpSubmitAgentUrl, HttpMethod.Post, GetValidSubmitMessage());
-
-                using (var response = await _httpClient.SendAsync(request))
+                using (var response = await StubSender.SendRequest(HttpSubmitAgentUrl, Encoding.UTF8.GetBytes(GetValidSubmitMessage()), "application/xml"))
                 {
                     Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
                     Assert.False(String.IsNullOrWhiteSpace(await response.Content.ReadAsStringAsync()));
@@ -77,9 +72,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             [Fact]
             public async Task ThenAgentRespondsWithHttpBadRequest()
             {
-                var request = CreateRequestMessage(HttpSubmitAgentUrl, HttpMethod.Post, "");
-
-                using (var response = await _httpClient.SendAsync(request))
+                using (var response = await StubSender.SendRequest(HttpSubmitAgentUrl, new byte[] { }, "application/xml"))
                 {
                     Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
                 }
@@ -90,9 +83,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             {
                 var invalidSubmitMessage = GetInvalidSubmitMessage();
 
-                var request = CreateRequestMessage(HttpSubmitAgentUrl, HttpMethod.Post, invalidSubmitMessage);
-
-                using (var response = await _httpClient.SendAsync(request))
+                using (var response = await StubSender.SendRequest(HttpSubmitAgentUrl, Encoding.UTF8.GetBytes(invalidSubmitMessage), "application/xml"))
                 {
                     Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
                 }
@@ -121,18 +112,9 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             }
         }
 
-        private static HttpRequestMessage CreateRequestMessage(string url, HttpMethod method, string requestContent)
-        {
-            var request = new HttpRequestMessage(method, url);
-
-            request.Content = new StringContent(requestContent);
-
-            return request;
-        }
-
         protected override void Disposing(bool isDisposing)
         {
-            _as4Msh.Dispose();            
+            _as4Msh.Dispose();
         }
 
     }
