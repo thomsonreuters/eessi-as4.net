@@ -75,11 +75,13 @@
     <Compile Include="ConformanceTestTransformers\ConformanceTestingNotifyMessageTransformer.cs" />
     <Compile Include="DeliverMessageTransformer.cs" />
     <Compile Include="ExceptionToNotifyMessageTransformer.cs" />
+    <Compile Include="ForwardMessageTransformer.cs" />
     <Compile Include="InteropTestTransformers\InteropTestingExceptionNotifyMessageTransformer.cs" />
     <Compile Include="InteropTestTransformers\InteropTestingNotifyMessageTransformer.cs" />
     <Compile Include="InteropTestTransformers\InteropTestingSubmitReceiveMessageTransformer.cs" />
     <Compile Include="ConformanceTestTransformers\ConformanceTestingSubmitReceiveMessageTransformer.cs" />
     <Compile Include="MinderNotifyMessageTransformer.cs" />
+    <Compile Include="OutMessageTransformer.cs" />
     <Compile Include="ReceiveMessageTransformer.cs" />
     <Compile Include="SignalMessageToNotifyMessageTransformer.cs" />
     <Compile Include="PayloadTransformer.cs" />
