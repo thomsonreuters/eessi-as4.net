@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
@@ -33,7 +32,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
 
             // Assert
             AS4Message as4Message = result.MessagingContext.AS4Message;
-            Assert.Equal(1, as4Message.UserMessages.Count);
+            Assert.Equal(1, as4Message.UserMessages.Count());
             Assert.Contains(attachmentId, as4Message.PrimaryUserMessage.PayloadInfo.First().Href);
         }
 

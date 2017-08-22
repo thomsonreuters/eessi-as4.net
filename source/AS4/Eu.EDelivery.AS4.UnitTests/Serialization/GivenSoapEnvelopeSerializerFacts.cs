@@ -83,7 +83,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                         .DeserializeAsync(memoryStream, Constants.ContentTypes.Soap, CancellationToken.None);
 
                     // Assert
-                    Assert.Equal(1, message.UserMessages.Count);
+                    Assert.Equal(1, message.UserMessages.Count());
                 }
             }
 
@@ -116,7 +116,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                     // Assert
                     UserMessage userMessage = message.UserMessages.First();
                     Assert.NotNull(message);
-                    Assert.Equal(1, message.UserMessages.Count);
+                    Assert.Equal(1, message.UserMessages.Count());
                     Assert.Equal(1472800326948, userMessage.Timestamp.ToUnixTimeMilliseconds());
                 }
             }

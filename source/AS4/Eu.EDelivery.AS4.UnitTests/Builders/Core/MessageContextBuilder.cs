@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using Eu.EDelivery.AS4.Factories;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
@@ -24,7 +22,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Core
             _messagingContext = new MessagingContext(AS4Message.Empty, MessagingContextMode.Receive);
 
             UserMessage userMessage = CreateDefaultUserMessage(messageId);
-            _messagingContext.AS4Message.UserMessages.Add(userMessage);
+            _messagingContext.AS4Message.MessageUnits.Add(userMessage);
         }
 
         /// <summary>
@@ -98,7 +96,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Core
         /// <returns></returns>
         public MessageContextBuilder WithSignalMessage(SignalMessage signalMessage)
         {
-            _messagingContext.AS4Message.SignalMessages = new List<SignalMessage> { signalMessage };
+            _messagingContext.AS4Message.MessageUnits.Add(signalMessage);
 
             return this;
         }
@@ -110,7 +108,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Core
         /// <returns></returns>
         public MessageContextBuilder WithUserMessage(UserMessage userMessage)
         {
-            _messagingContext.AS4Message.UserMessages = new List<UserMessage> { userMessage };
+            _messagingContext.AS4Message.MessageUnits.Add(userMessage);
 
             return this;
         }

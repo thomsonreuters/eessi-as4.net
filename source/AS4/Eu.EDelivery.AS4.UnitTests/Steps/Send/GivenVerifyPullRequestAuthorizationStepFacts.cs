@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
@@ -46,7 +45,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
         private static MessagingContext ContextWithPullRequest(string expectedMpc)
         {
             AS4Message message = AS4Message.Create(new SendingProcessingMode());
-            message.SignalMessages.Add(new PullRequest(expectedMpc));
+            message.MessageUnits.Add(new PullRequest(expectedMpc));
 
             return new MessagingContext(message, MessagingContextMode.Send);
         }
