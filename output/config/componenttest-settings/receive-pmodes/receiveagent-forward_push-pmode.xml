@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <PMode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="eu:edelivery:as4:pmode">
-  <Id>ComponentTest_ReceiveAgent_Forward</Id>
+  <Id>Forward_Push</Id>
   <Mep>OneWay</Mep>
   <MepBinding>Push</MepBinding>
   <Reliability>
@@ -51,16 +51,16 @@
       <AgreementReference>
         <Value>http://agreements.europa.org/agreement</Value>
       </AgreementReference>
-      <Action>Receive_Agent_Forwarding_Action</Action>
+      <Action>Forward_Push_Action</Action>
       <Service>
-        <Value>Receive_Agent_Forwarding_Service</Value>
+        <Value>Forward_Push_Service</Value>
         <Type>eu:europa:services</Type>
       </Service>
     </CollaborationInfo>
   </MessagePackaging>   
   <MessageHandling>
     <Forward>
-        <SendingPMode>PModeId_For_Forwarding</SendingPMode>
+        <SendingPMode>Forwarding_Push</SendingPMode>
     </Forward>
   </MessageHandling>
 </PMode>

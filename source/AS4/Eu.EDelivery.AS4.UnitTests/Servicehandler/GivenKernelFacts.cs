@@ -45,7 +45,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Servicehandler
         {
             // Arrange
             var spyAgent = new SpyAgent();
-            var kernel = new Kernel(new[] {spyAgent});
+            var kernel = new Kernel(new[] { spyAgent });
 
             // Act
             kernel.Dispose();
@@ -59,7 +59,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Servicehandler
         {
             // Arrange
             var spyAgent = new SpyAgent();
-            var kernel = new Kernel(new[] {spyAgent}, StubConfig.Instance);
+            var kernel = new Kernel(new[] { spyAgent }, StubConfig.Default);
             var cancellationSource = new CancellationTokenSource();
 
             // Act
@@ -77,8 +77,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Servicehandler
         {
             // Arrange
             var spyAgent = new SpyAgent();
-            var invalidConfig = new StubConfig(configuration: null);
-            var kernel = new Kernel(new[] {spyAgent}, invalidConfig);
+            var invalidConfig = new StubConfig(configSettings: null, sendingPModes: null, receivingPModes: null);
+            var kernel = new Kernel(new[] { spyAgent }, invalidConfig);
 
             // Act
             await kernel.StartAsync(CancellationToken.None);

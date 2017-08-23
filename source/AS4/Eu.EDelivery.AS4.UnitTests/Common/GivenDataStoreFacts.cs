@@ -53,10 +53,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
         /// <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</summary>
         public void Dispose()
         {
+            Disposing();
+
             DatastoreRepository.DisposeCaches();
             GetDataStoreContext = null;
             Registry.Instance.CreateDatastoreContext = null;
             BatchUpdateManager.InMemoryDbContextFactory = null;
         }
+
+        protected virtual void Disposing() { }
     }
 }

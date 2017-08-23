@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using Eu.EDelivery.AS4.Common;
-using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
-using Eu.EDelivery.AS4.Serialization;
 
 namespace Eu.EDelivery.AS4.UnitTests.Common
 {
@@ -12,37 +9,24 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
     /// </summary>
     public class StubConfig : PseudoConfig
     {
-        private static readonly StubConfig Singleton = new StubConfig();
-        private IDictionary<string, string> _configuration;
-        private IDictionary<string, ReceivingProcessingMode> _receivingPmodes;
-        private IDictionary<string, SendingProcessingMode> _sendingPModes;
+        private readonly IDictionary<string, string> _configuration;
+        private readonly IDictionary<string, ReceivingProcessingMode> _receivingPmodes;
+        private readonly IDictionary<string, SendingProcessingMode> _sendingPModes;
 
+        public static readonly StubConfig Default = new StubConfig();
+       
+        /// <summary>
+        /// Initializes a new instance of the <see cref="StubConfig"/> class.
+        /// </summary>
         private StubConfig()
+            : this(sendingPModes: new Dictionary<string, SendingProcessingMode>(),
+                   receivingPModes: new Dictionary<string, ReceivingProcessingMode>())
         {
-            SetupSendingPModes();
-            SetupReceivingPModes();
-            SetupConfiguration();
         }
 
-        private void SetupSendingPModes()
+        private static Dictionary<string, string> GetDefaultConfigSettings()
         {
-            _sendingPModes = new Dictionary<string, SendingProcessingMode>
-            {
-                ["01-send"] = AS4XmlSerializer.FromString<SendingProcessingMode>(Properties.Resources.send_01)
-            };
-        }
-
-        private void SetupReceivingPModes()
-        {
-            _receivingPmodes = new Dictionary<string, ReceivingProcessingMode>
-            {
-                ["01-receive"] = AS4XmlSerializer.FromString<ReceivingProcessingMode>(Properties.Resources.receive_01)
-            };
-        }
-
-        private void SetupConfiguration()
-        {
-            _configuration = new Dictionary<string, string>(StringComparer.CurrentCultureIgnoreCase)
+            return new Dictionary<string, string>(StringComparer.CurrentCultureIgnoreCase)
             {
                 ["IdFormat"] = "{GUID}",
                 ["Provider"] = "InMemory",
@@ -51,16 +35,28 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
             };
         }
 
+        public StubConfig(IDictionary<string, SendingProcessingMode> sendingPModes,
+                          IDictionary<string, ReceivingProcessingMode> receivingPModes) :
+            this(configSettings: GetDefaultConfigSettings(),
+                sendingPModes: sendingPModes,
+                receivingPModes: receivingPModes)
+        {
+        }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="StubConfig" /> class.
         /// </summary>
-        /// <param name="configuration">The configuration.</param>
-        public StubConfig(IDictionary<string, string> configuration)
+        /// <param name="configSettings"></param>
+        /// <param name="sendingPModes"></param>
+        /// <param name="receivingPModes"></param>
+        public StubConfig(IDictionary<string, string> configSettings,
+                          IDictionary<string, SendingProcessingMode> sendingPModes,
+                          IDictionary<string, ReceivingProcessingMode> receivingPModes)
         {
-            _configuration = configuration;
+            _configuration = configSettings;
+            _sendingPModes = sendingPModes;
+            _receivingPmodes = receivingPModes;
         }
-        
-        public static IConfig Instance => Singleton;
 
         /// <summary>
         /// Verify if the Configuration is IsInitialized
@@ -84,11 +80,16 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
         /// <returns></returns>
         public override SendingProcessingMode GetSendingPMode(string id)
         {
+            if (_sendingPModes.ContainsKey(id) == false)
+            {
+                return null;
+            }
+
             return _sendingPModes[id];
         }
-
+        
         /// <summary>
-        /// Verify if the <see cref="IConfig"/> implementation contains a <see cref="SendingProcessingMode"/> for a given <paramref name="id"/>
+        /// Verify if the configuration implementation contains a <see cref="SendingProcessingMode"/> for a given <paramref name="id"/>
         /// </summary>
         /// <param name="id">The Sending Processing Mode id for which the verification is done.</param>
         /// <returns></returns>

@@ -1,4 +1,5 @@
 ﻿using System;
+using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Deliver;
@@ -187,6 +188,22 @@ namespace Eu.EDelivery.AS4.Model.Internal
                 if (NotifyMessage != null)
                 {
                     return NotifyMessage.MessageInfo.RefToMessageId;
+                }
+
+                if (ReceivedMessage is ReceivedMessageEntityMessage entityMessage)
+                {
+                    return entityMessage.MessageEntity.EbmsMessageId;
+                }
+                if (ReceivedMessage is ReceivedEntityMessage e)
+                {
+                    if (e.Entity is MessageEntity me)
+                    {
+                        return me.EbmsMessageId;
+                    }
+                    if (e.Entity is ExceptionEntity ex)
+                    {
+                        return ex.EbmsRefToMessageId;
+                    }
                 }
 
                 return string.Empty;

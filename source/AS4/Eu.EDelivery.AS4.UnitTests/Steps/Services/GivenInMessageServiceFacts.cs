@@ -56,7 +56,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Services
                 IEnumerable<string> expectedMessageIds = new[] { "known-messsage-id", "unknown-message-id" };
                 Mock<IDatastoreRepository> mockedRepository = CreateMockedRepositoryThatHas(expectedMessageIds.ElementAt(0));
 
-                var sut = new InMessageService(StubConfig.Instance, mockedRepository.Object);
+                var sut = new InMessageService(StubConfig.Default, mockedRepository.Object);
 
                 // Act
                 IDictionary<string, bool> actualDuplicates = actAction(expectedMessageIds, sut);

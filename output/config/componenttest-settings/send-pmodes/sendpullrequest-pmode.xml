@@ -8,7 +8,7 @@
     <MepBinding>Push</MepBinding>
     <PushConfiguration>    
         <Protocol>
-            <Url>https://localhost:</Url>
+            <Url>http://localhost:9996/mpc/</Url>
         </Protocol>        
     </PushConfiguration>
     <ReceiptHandling>

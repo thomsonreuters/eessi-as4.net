@@ -22,7 +22,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
     {
         public GivenSubmitPayloadInfoResolverFacts()
         {
-            IdentifierFactory.Instance.SetContext(StubConfig.Instance);
+            IdentifierFactory.Instance.SetContext(StubConfig.Default);
         }
 
         public class GivenValidArguments : GivenSubmitPayloadInfoResolverFacts

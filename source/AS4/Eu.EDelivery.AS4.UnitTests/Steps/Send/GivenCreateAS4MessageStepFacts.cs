@@ -33,7 +33,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
     {
         public GivenCreateAS4MessageStepFacts()
         {
-            IdentifierFactory.Instance.SetContext(StubConfig.Instance);
+            IdentifierFactory.Instance.SetContext(StubConfig.Default);
         }
 
         public class GivenValidArguments : GivenCreateAS4MessageStepFacts

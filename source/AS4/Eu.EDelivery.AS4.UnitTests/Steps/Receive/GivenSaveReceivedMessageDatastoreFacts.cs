@@ -27,7 +27,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
         public GivenSaveReceivedMessageDatastoreFacts()
         {
-            IdentifierFactory.Instance.SetContext(StubConfig.Instance);
+            IdentifierFactory.Instance.SetContext(StubConfig.Default);
 
             _userMessageId = Guid.NewGuid().ToString();
 

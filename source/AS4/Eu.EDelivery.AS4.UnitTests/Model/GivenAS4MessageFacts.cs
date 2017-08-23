@@ -25,7 +25,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
     {
         public GivenAS4MessageFacts()
         {
-            IdentifierFactory.Instance.SetContext(StubConfig.Instance);
+            IdentifierFactory.Instance.SetContext(StubConfig.Default);
         }
        
         public class Empty
@@ -128,6 +128,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
             {
                 // Arrange
                 UserMessage userMessage = CreateUserMessage();
+
                 AS4Message message = BuildAS4Message(mpc, userMessage);
 
                 // Act
@@ -137,7 +138,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
 
                     // Assert
                     XmlAttribute mpcAttribute = GetMpcAttribute(document);
-                    Assert.Equal(mpc, mpcAttribute?.Value);
+                    Assert.NotNull(mpcAttribute);
+                    Assert.Equal(mpc, mpcAttribute.Value);
                 }
             }
 
@@ -231,7 +233,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
         protected AS4Message BuildAS4Message(string mpc, UserMessage userMessage)
         {
             AS4Message as4Message = AS4Message.Create(userMessage);
-            as4Message.SignalMessages.Add(new PullRequest(mpc));
+            as4Message.MessageUnits.Add(new PullRequest(mpc));
 
             return as4Message;
         }

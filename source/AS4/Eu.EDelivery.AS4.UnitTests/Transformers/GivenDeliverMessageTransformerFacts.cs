@@ -1,9 +1,9 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
@@ -11,7 +11,6 @@ using Eu.EDelivery.AS4.Transformers;
 using Eu.EDelivery.AS4.UnitTests.Extensions;
 using Eu.EDelivery.AS4.UnitTests.Model;
 using Xunit;
-using static Eu.EDelivery.AS4.UnitTests.Extensions.AS4MessageExtensions;
 
 namespace Eu.EDelivery.AS4.UnitTests.Transformers
 {
@@ -77,7 +76,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             const string expectedId = "usermessage-id";
 
             AS4Message as4Message = AS4Message.Create(new FilledUserMessage(expectedId));
-            as4Message.UserMessages.Add(new FilledUserMessage());
+            as4Message.MessageUnits.Add(new FilledUserMessage());
 
             ReceivedMessageEntityMessage receivedMessage = CreateReceivedMessage(m => m.EbmsMessageId = expectedId, as4Message);
             var sut = new DeliverMessageTransformer();
@@ -86,7 +85,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             MessagingContext actualMessage = await sut.TransformAsync(receivedMessage, CancellationToken.None);
 
             // Assert
-            Assert.Equal(1, actualMessage.AS4Message.UserMessages.Count);
+            Assert.Equal(1, actualMessage.AS4Message.UserMessages.Count());
             UserMessage actualUserMessage = actualMessage.AS4Message.PrimaryUserMessage;
             Assert.Equal(expectedId, actualUserMessage.MessageId);
         }

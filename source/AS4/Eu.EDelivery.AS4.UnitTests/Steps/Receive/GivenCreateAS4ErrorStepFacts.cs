@@ -23,7 +23,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
     {
         public GivenCreateAS4ErrorStepFacts()
         {
-            IdentifierFactory.Instance.SetContext(StubConfig.Instance);
+            IdentifierFactory.Instance.SetContext(StubConfig.Default);
         }
 
         public class GivenValidArguments : GivenCreateAS4ErrorStepFacts

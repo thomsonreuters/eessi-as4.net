@@ -5,8 +5,6 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Builders.Core;
-using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 
@@ -34,7 +32,7 @@ namespace Eu.EDelivery.AS4.Transformers
             // the one usermessage that should be delivered.
             MessagingContext transformedMessage = await RetrieveAS4Message(entityMessage, cancellationToken);
 
-            if (transformedMessage.AS4Message.UserMessages.Count != 1)
+            if (transformedMessage.AS4Message.UserMessages.Any() == false)
             {
                 throw new InvalidOperationException("The AS4Message should contain only one UserMessage.");
             }
@@ -82,9 +80,8 @@ namespace Eu.EDelivery.AS4.Transformers
             }
 
             // Remove all the user- and signalmessages from the AS4Message, except the userMessage that we're about to deliver.
-            as4Message.SignalMessages.Clear();
-            as4Message.UserMessages.Clear();
-            as4Message.UserMessages.Add(userMessage);
+            as4Message.MessageUnits.Clear();
+            as4Message.MessageUnits.Add(userMessage);
 
             return as4Message;
         }

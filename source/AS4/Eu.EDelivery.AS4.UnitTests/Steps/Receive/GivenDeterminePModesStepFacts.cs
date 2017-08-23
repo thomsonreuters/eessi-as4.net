@@ -30,7 +30,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
         public GivenDeterminePModesStepFacts()
         {
-            IdentifierFactory.Instance.SetContext(StubConfig.Instance);
+            IdentifierFactory.Instance.SetContext(StubConfig.Default);
             _mockedConfig = new Mock<IConfig>();
             _step = new DeterminePModesStep(_mockedConfig.Object, GetDataStoreContext);
         }

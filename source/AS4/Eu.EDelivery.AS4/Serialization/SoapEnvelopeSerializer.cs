@@ -76,16 +76,11 @@ namespace Eu.EDelivery.AS4.Serialization
 
         private static Messaging CreateMessagingHeader(AS4Message message)
         {
-            var messagingHeader = new Messaging {SecurityId = message.SigningId.HeaderSecurityId};
+            var messagingHeader = new Messaging { SecurityId = message.SigningId.HeaderSecurityId };
 
-            if (message.IsSignalMessage)
-            {
-                messagingHeader.SignalMessage = AS4Mapper.Map<Xml.SignalMessage[]>(message.SignalMessages);
-            }
-            else
-            {
-                messagingHeader.UserMessage = AS4Mapper.Map<Xml.UserMessage[]>(message.UserMessages);
-            }
+            messagingHeader.SignalMessage = AS4Mapper.Map<Xml.SignalMessage[]>(message.SignalMessages);
+
+            messagingHeader.UserMessage = AS4Mapper.Map<Xml.UserMessage[]>(message.UserMessages);
 
             if (message.IsMultiHopMessage)
             {
@@ -111,7 +106,7 @@ namespace Eu.EDelivery.AS4.Serialization
         {
             if (as4Message.IsSignalMessage && as4Message.PrimarySignalMessage.MultiHopRouting != null)
             {
-                var to = new To {Role = Constants.Namespaces.EbmsNextMsh};
+                var to = new To { Role = Constants.Namespaces.EbmsNextMsh };
                 builder.SetToHeader(to);
 
                 string actionValue = as4Message.PrimarySignalMessage.GetActionValue();
@@ -299,8 +294,12 @@ namespace Eu.EDelivery.AS4.Serialization
             }
 
             var messagingHeader = await AS4XmlSerializer.FromReaderAsync<Messaging>(reader);
-            as4Message.SignalMessages = GetSignalMessagesFromHeader(messagingHeader);
-            as4Message.UserMessages = GetUserMessagesFromHeader(messagingHeader);
+            var signalMessages = GetSignalMessagesFromHeader(messagingHeader);
+            var userMessages = GetUserMessagesFromHeader(messagingHeader);
+
+            signalMessages.ForEach(s => as4Message.MessageUnits.Add(s));
+            userMessages.ForEach(u => as4Message.MessageUnits.Add(u));
+
             as4Message.SigningId.HeaderSecurityId = messagingHeader.SecurityId;
         }
 
@@ -339,10 +338,10 @@ namespace Eu.EDelivery.AS4.Serialization
             }
         }
 
-        private static ICollection<UserMessage> GetUserMessagesFromHeader(Messaging header)
+        private static List<UserMessage> GetUserMessagesFromHeader(Messaging header)
         {
-            return header.UserMessage == null 
-                ? new List<UserMessage>() 
+            return header.UserMessage == null
+                ? new List<UserMessage>()
                 : AS4Mapper.Map<IEnumerable<UserMessage>>(header.UserMessage).ToList();
         }
 

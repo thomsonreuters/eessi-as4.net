@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.ComponentTests.Common;
@@ -15,6 +13,7 @@ using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Serialization;
+using Eu.EDelivery.AS4.TestUtils.Stubs;
 using Eu.EDelivery.AS4.Xml;
 using Xunit;
 using static Eu.EDelivery.AS4.ComponentTests.Properties.Resources;
@@ -27,9 +26,7 @@ using UserMessage = Eu.EDelivery.AS4.Model.Core.UserMessage;
 namespace Eu.EDelivery.AS4.ComponentTests.Agents
 {
     public class ReceiveAgentFacts : ComponentTestTemplate
-    {
-        private static readonly HttpClient HttpClient = new HttpClient();
-
+    {        
         private readonly AS4Component _as4Msh;
         private readonly DatabaseSpy _databaseSpy;
         private readonly string _receiveAgentUrl;
@@ -50,7 +47,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             }
 
             OverrideSettings("receiveagent_http_settings.xml");
-            
+
             _as4Msh = AS4Component.Start(Environment.CurrentDirectory);
 
             _databaseSpy = new DatabaseSpy(_as4Msh.GetConfiguration());
@@ -60,7 +57,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             Assert.False(
                 string.IsNullOrWhiteSpace(_receiveAgentUrl),
                 "The URL where the receive agent is listening on, could not be retrieved.");
-        }        
+        }
 
         #region Scenario's for received UserMessages that result in errors.
 
@@ -71,7 +68,8 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             byte[] content = receiveagent_message_nonexist_attachment;
 
             // Act
-            HttpResponseMessage response = await HttpClient.SendAsync(CreateSendAS4Message(content));
+            HttpResponseMessage response = await StubSender.SendRequest(_receiveAgentUrl, content,
+                                                                        "multipart/related; boundary=\"=-C3oBZDXCy4W2LpjPUhC4rw==\"; type=\"application/soap+xml\"; charset=\"utf-8\"");
 
             // Assert
             AS4Message as4Message = await response.DeserializeToAS4Message();
@@ -117,7 +115,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             });
 
             // Act
-            HttpResponseMessage response = await HttpClient.SendAsync(CreateSendAS4Message(message));
+            HttpResponseMessage response = await StubSender.SendAS4Message(_receiveAgentUrl, message);
 
             // Assert
             Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
@@ -140,7 +138,8 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             byte[] content = receiveagent_message;
 
             // Act
-            HttpResponseMessage response = await HttpClient.SendAsync(CreateSendAS4Message(content));
+            HttpResponseMessage response = await StubSender.SendRequest(_receiveAgentUrl, content,
+                                                                        "multipart/related; boundary=\"=-C3oBZDXCy4W2LpjPUhC4rw==\"; type=\"application/soap+xml\"; charset=\"utf-8\"");
 
             // Assert
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
@@ -159,19 +158,19 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         {
             const string messageId = "forwarding_message_id";
 
-            var as4Message = AS4Message.Create(new UserMessage()
+            var as4Message = AS4Message.Create(new UserMessage
             {
                 MessageId = messageId,
                 CollaborationInfo = { AgreementReference = new AgreementReference()
                 {
                     // Make sure that the forwarding receiving pmode is used; therefore
                     // explicitly set the Id of the PMode that must be used by the receive-agent.
-                    PModeId = "ComponentTest_ReceiveAgent_Forward"
+                    PModeId = "Forward_Push"
                 }}
             });
 
             // Act
-            HttpResponseMessage response = await HttpClient.SendAsync(CreateSendAS4Message(as4Message));
+            HttpResponseMessage response = await StubSender.SendAS4Message(_receiveAgentUrl, as4Message);
 
             // Assert
             Assert.Equal(HttpStatusCode.Accepted, response.StatusCode);
@@ -182,49 +181,18 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             Assert.Equal(Operation.ToBeForwarded, receivedUserMessage.Operation);
         }
 
-        private HttpRequestMessage CreateSendAS4Message(byte[] content)
-        {
-            var message = new HttpRequestMessage(HttpMethod.Post, _receiveAgentUrl)
-            {
-                Content = new ByteArrayContent(content)
-            };
-
-            message.Content.Headers.Add(
-                "Content-Type",
-                "multipart/related; boundary=\"=-C3oBZDXCy4W2LpjPUhC4rw==\"; type=\"application/soap+xml\"; charset=\"utf-8\"");
-
-            return message;
-        }
-
         [Fact]
         public async Task ReturnsEmptyMessageFromInvalidMessage_IfReceivePModeIsCallback()
         {
-            // Arrange
-            HttpRequestMessage request = WrongEncryptedAS4Message();
-
             // Act
-            HttpResponseMessage response = await HttpClient.SendAsync(request);
+            HttpResponseMessage response = await StubSender.SendRequest(_receiveAgentUrl, receiveagent_wrong_encrypted_message,
+                                                                        "multipart/related; boundary=\"=-WoWSZIFF06iwFV8PHCZ0dg==\"; type=\"application/soap+xml\"; charset=\"utf-8\"");
 
             // Assert
+            Assert.Equal(HttpStatusCode.Accepted, response.StatusCode);
             Assert.Empty(await response.Content.ReadAsStringAsync());
         }
-
-        private HttpRequestMessage WrongEncryptedAS4Message()
-        {
-            var messageContent = new ByteArrayContent(receiveagent_wrong_encrypted_message)
-            {
-                Headers =
-                    {
-                        {
-                            "Content-Type",
-                            "multipart/related; boundary=\"=-WoWSZIFF06iwFV8PHCZ0dg==\"; type=\"application/soap+xml\"; charset=\"utf-8\""
-                        }
-                    }
-            };
-
-            return new HttpRequestMessage(HttpMethod.Post, _receiveAgentUrl) { Content = messageContent };
-        }
-
+      
         private InMessage GetInsertedUserMessageFor(AS4Message receivedAS4Message)
         {
             return
@@ -246,7 +214,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             AS4Message as4Message = CreateAS4ReceiptMessage(expectedId);
 
             // Act
-            await HttpClient.SendAsync(CreateSendAS4Message(as4Message));
+            await StubSender.SendAS4Message(_receiveAgentUrl, as4Message);
 
             // Assert
             AssertIfStatusOfOutMessageIs(expectedId, OutStatus.Ack);
@@ -270,7 +238,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             AS4Message as4Message = CreateAS4ErrorMessage(expectedId);
 
             // Act
-            await HttpClient.SendAsync(CreateSendAS4Message(as4Message));
+            await StubSender.SendAS4Message(_receiveAgentUrl, as4Message);
 
             // Assert
             AssertIfStatusOfOutMessageIs(expectedId, OutStatus.Nack);
@@ -285,7 +253,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             AS4Message as4Message = CreateAS4ErrorMessage(messageId);
 
             // Act
-            await HttpClient.SendAsync(CreateSendAS4Message(as4Message));
+            await StubSender.SendAS4Message(_receiveAgentUrl, as4Message);
 
             // Assert
             var inMessage = _databaseSpy.GetInMessageFor(m => m.EbmsRefToMessageId == messageId);
@@ -304,7 +272,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             var as4Message = CreateMultihopSignalMessage(messageId, "someusermessageid");
 
             // Act
-            await HttpClient.SendAsync(CreateSendAS4Message(as4Message));
+            await StubSender.SendAS4Message(_receiveAgentUrl, as4Message);
 
             // Assert
 
@@ -342,7 +310,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             var as4Message = CreateMultihopSignalMessage("multihop-signalmessage-id", messageId);
 
             // Act
-            await HttpClient.SendAsync(CreateSendAS4Message(as4Message));
+            await StubSender.SendAS4Message(_receiveAgentUrl, as4Message);
 
             // Assert
 
@@ -392,10 +360,10 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                 },
                 CollaborationInfo = new Xml.CollaborationInfo()
                 {
-                    Action = "Receive_Agent_Forwarding_Action",
+                    Action = "Forward_Push_Action",
                     Service = new Xml.Service()
                     {
-                        Value = "Receive_Agent_Forwarding_Service",
+                        Value = "Forward_Push_Service",
                         type = "eu:europa:services"
                     }
                 }
@@ -435,27 +403,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
             return AS4Message.Create(error, GetSendingPMode());
         }
-
-        private HttpRequestMessage CreateSendAS4Message(AS4Message message)
-        {
-            var requestMessage = new HttpRequestMessage(HttpMethod.Post, _receiveAgentUrl);
-
-            byte[] serializedMessage;
-
-            using (var stream = new MemoryStream())
-            {
-                ISerializer serializer = SerializerProvider.Default.Get(message.ContentType);
-                serializer.Serialize(message, stream, CancellationToken.None);
-
-                serializedMessage = stream.ToArray();
-            }
-
-            requestMessage.Content = new ByteArrayContent(serializedMessage);
-            requestMessage.Content.Headers.Add("Content-Type", message.ContentType);
-
-            return requestMessage;
-        }
-
+       
         private void AssertIfInMessageExistsForSignalMessage(string expectedId)
         {
             InMessage inMessage = _databaseSpy.GetInMessageFor(m => m.EbmsRefToMessageId == expectedId);

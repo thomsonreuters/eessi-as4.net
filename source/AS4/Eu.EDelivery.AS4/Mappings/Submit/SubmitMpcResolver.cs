@@ -10,7 +10,7 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
     /// </summary>
     public class SubmitMpcResolver : ISubmitResolver<string>
     {
-     
+
         public static readonly SubmitMpcResolver Default = new SubmitMpcResolver();
 
         /// <summary>
@@ -20,12 +20,12 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
         /// <returns></returns>
         public string Resolve(SubmitMessage submitMessage)
         {
-            if (DoesSubmitMessageTriesToOverridePModeMpc(submitMessage))
+            if (submitMessage.PMode.AllowOverride == false && DoesSubmitMessageTriesToOverridePModeMpc(submitMessage))
             {
                 throw new InvalidOperationException($"Submit Message is not allowed by PMode {submitMessage.PMode.Id} to override Mpc");
             }
 
-            if (submitMessage.PMode.AllowOverride && submitMessage.MessageInfo.Mpc != null)
+            if (submitMessage.PMode.AllowOverride && IsDefaultMpc(submitMessage.MessageInfo.Mpc) == false)
             {
                 return submitMessage.MessageInfo.Mpc;
             }
@@ -33,11 +33,22 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
             return submitMessage.PMode.MessagePackaging.Mpc;
         }
 
+        private static bool IsDefaultMpc(string mpc)
+        {
+            if (mpc == null)
+            {
+                return true;
+            }
+
+            return StringComparer.OrdinalIgnoreCase.Equals(Constants.Namespaces.EbmsDefaultMpc, mpc);
+        }
+
         private static bool DoesSubmitMessageTriesToOverridePModeMpc(SubmitMessage submitMessage)
         {
             return
-                submitMessage.PMode.AllowOverride == false &&
-                !string.IsNullOrEmpty(submitMessage.MessageInfo.Mpc);
+                !string.IsNullOrWhiteSpace(submitMessage.MessageInfo.Mpc) &&
+                !IsDefaultMpc(submitMessage.MessageInfo.Mpc) &&                
+                !StringComparer.OrdinalIgnoreCase.Equals(submitMessage.MessageInfo.Mpc, submitMessage.PMode.MessagePackaging.Mpc);
         }
     }
 }

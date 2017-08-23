@@ -21,7 +21,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
     {
         public GivenAS4MessageTransformerFacts()
         {
-            IdentifierFactory.Instance.SetContext(StubConfig.Instance);
+            IdentifierFactory.Instance.SetContext(StubConfig.Default);
         }
 
         /// <summary>
@@ -41,7 +41,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
 
                 // Assert
                 Assert.NotNull(context?.AS4Message);
-                
+
                 // TearDown
                 context.Dispose();
             }
@@ -52,7 +52,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
                 var receivedMessage = new ReceivedMessage(stream, contentType);
 
                 return await Transform(receivedMessage);
-            }            
+            }
         }
 
         /// <summary>
@@ -73,7 +73,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             {
                 // Arrange
                 AS4Message as4Message = CreateAS4MessageWithoutAttachments();
-                as4Message.UserMessages = new[] { new UserMessage("message-id") };
+                as4Message.MessageUnits.Add(new UserMessage("message-id"));
                 MemoryStream memoryStream = as4Message.ToStream();
 
                 var receivedMessage = new ReceivedMessage(memoryStream, Constants.ContentTypes.Mime);

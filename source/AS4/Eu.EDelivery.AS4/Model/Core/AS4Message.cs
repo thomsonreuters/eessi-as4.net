@@ -32,8 +32,7 @@ namespace Eu.EDelivery.AS4.Model.Core
             SigningId = new SigningId();
             SecurityHeader = new SecurityHeader();
             Attachments = new List<Attachment>();
-            SignalMessages = new List<SignalMessage>();
-            UserMessages = new List<UserMessage>();
+            MessageUnits = new List<MessageUnit>();
         }
 
         public static AS4Message Empty => new AS4Message(serializeAsMultiHop: false);
@@ -77,9 +76,11 @@ namespace Eu.EDelivery.AS4.Model.Core
             return !string.IsNullOrWhiteSpace(role) && role.Equals(Constants.Namespaces.EbmsNextMsh);
         }
 
-        public ICollection<UserMessage> UserMessages { get; internal set; }
+        public ICollection<MessageUnit> MessageUnits { get; }
 
-        public ICollection<SignalMessage> SignalMessages { get; internal set; }
+        public IEnumerable<UserMessage> UserMessages => MessageUnits.OfType<UserMessage>();
+
+        public IEnumerable<SignalMessage> SignalMessages => MessageUnits.OfType<SignalMessage>();
 
         public ICollection<Attachment> Attachments { get; internal set; }
 
@@ -94,15 +95,15 @@ namespace Eu.EDelivery.AS4.Model.Core
 
         public SignalMessage PrimarySignalMessage => SignalMessages.FirstOrDefault();
 
-        public bool IsSignalMessage => SignalMessages.Count > 0;
+        public bool IsSignalMessage => MessageUnits.FirstOrDefault() is SignalMessage;
 
-        public bool IsUserMessage => UserMessages.Count > 0;
+        public bool IsUserMessage => MessageUnits.FirstOrDefault() is UserMessage;
 
         public bool IsSigned => SecurityHeader.IsSigned;
 
         public bool IsEncrypted => SecurityHeader.IsEncrypted;
 
-        public bool HasAttachments => Attachments?.Count != 0;
+        public bool HasAttachments => Attachments?.Any() ?? false;
 
         public bool IsEmpty => PrimarySignalMessage == null && PrimaryUserMessage == null;
 
@@ -129,33 +130,14 @@ namespace Eu.EDelivery.AS4.Model.Core
             return new AS4Message(pmode?.MessagePackaging?.IsMultiHop == true);
         }
 
-        
-        /// <summary>
-        /// Creates message with a <see cref="SignalMessage"/> and <see cref="SendingProcessingMode"/>.
-        /// </summary>
-        /// <param name="message">The message.</param>
-        /// <param name="pmode">The pmode.</param>
-        /// <returns></returns>
-        public static AS4Message Create(SignalMessage message, SendingProcessingMode pmode = null)
+        public static AS4Message Create(MessageUnit message, SendingProcessingMode pmode = null)
         {
             AS4Message as4Message = Create(pmode);
-            as4Message.SignalMessages.Add(message);
+
+            as4Message.MessageUnits.Add(message);
 
             return as4Message;
-        }
 
-        /// <summary>
-        /// Creates message with a <see cref="UserMessage"/> and <see cref="SendingProcessingMode"/>.
-        /// </summary>
-        /// <param name="message">The message.</param>
-        /// <param name="pmode">The pmode.</param>
-        /// <returns></returns>
-        public static AS4Message Create(UserMessage message, SendingProcessingMode pmode = null)
-        {
-            AS4Message as4Message = Create(pmode);
-            as4Message.UserMessages.Add(message);
-            
-            return as4Message;
         }
 
         /// <summary>

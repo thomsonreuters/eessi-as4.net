@@ -69,7 +69,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
             SendingProcessingMode pmode = GetDefaultPMode();
 
             UserMessage userMessage = UserMessageFactory.Instance.Create(pmode);
-            messagingContext.AS4Message.UserMessages.Add(userMessage);
+            messagingContext.AS4Message.MessageUnits.Add(userMessage);
             messagingContext.SendingPMode = pmode;
             AddPartInfos(messagingContext.AS4Message);
         }
