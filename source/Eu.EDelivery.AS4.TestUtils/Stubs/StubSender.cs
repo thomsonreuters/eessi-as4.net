@@ -13,14 +13,27 @@ namespace Eu.EDelivery.AS4.TestUtils.Stubs
 {
     public class StubSender
     {
-        private static readonly HttpClient _client = new HttpClient();
+        private static readonly HttpClient Client = new HttpClient();
 
+        /// <summary>
+        /// Sends an AS4 Message to the endpoint that listens at the specified url.
+        /// </summary>
+        /// <param name="url">The url of the endpoint to send the message to.</param>
+        /// <param name="as4Message">The AS4Message that must be sent.</param>
+        /// <returns></returns>
         public static async Task<HttpResponseMessage> SendAS4Message(string url, AS4Message as4Message)
         {
             var request = await CreatePostRequestMessage(url, as4Message);
-            return await _client.SendAsync(request);
+            return await Client.SendAsync(request);
         }
 
+        /// <summary>
+        /// Sends a request to the endpoint that listens at the specified url.
+        /// </summary>
+        /// <param name="url">The url of the endpoint to send the message to.</param>
+        /// <param name="content">A byte array that contains the content of the request.</param>
+        /// <param name="contentType">The contenttype.</param>
+        /// <returns></returns>
         public static async Task<HttpResponseMessage> SendRequest(string url, byte[] content, string contentType)
         {
             var message = new HttpRequestMessage(HttpMethod.Post, url)
@@ -30,7 +43,7 @@ namespace Eu.EDelivery.AS4.TestUtils.Stubs
 
             message.Content.Headers.Add("Content-Type", contentType);
 
-            return await _client.SendAsync(message);
+            return await Client.SendAsync(message);
         }
 
         private static async Task<HttpRequestMessage> CreatePostRequestMessage(string sendToUrl, AS4Message message)
