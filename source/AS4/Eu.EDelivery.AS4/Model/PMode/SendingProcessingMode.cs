@@ -432,6 +432,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
             UseAS4Compression = true;
             IsMultiHop = false;
             IncludePModeId = false;
+            Mpc = Constants.Namespaces.EbmsDefaultMpc;
         }
 
         public string Mpc { get; set; }
