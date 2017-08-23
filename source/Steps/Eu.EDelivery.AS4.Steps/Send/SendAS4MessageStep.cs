@@ -72,7 +72,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             {
                 throw new InvalidOperationException("The SendStep expects a PullRequest AS4 Message when the MessagingContext does not contain a ReceivedStream");
             }
-            
+
             var sendConfiguration = messagingContext.SendingPMode.PushConfiguration;
 
             var as4Message = await GetAS4MessageFromContext(messagingContext);
@@ -83,11 +83,15 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
                 HttpWebRequest request = CreateWebRequest(sendConfiguration, contentType);
 
-                await TryWriteToHttpRequestStreamAsync(request, messagingContext).ConfigureAwait(false);
+                if (await TryWriteToHttpRequestStreamAsync(request, messagingContext).ConfigureAwait(false))
+                {
 
-                messagingContext.ModifyContext(as4Message);
+                    messagingContext.ModifyContext(as4Message);
 
-                return await TryHandleHttpResponseAsync(request, messagingContext, cancellation).ConfigureAwait(false);
+                    return await TryHandleHttpResponseAsync(request, messagingContext, cancellation).ConfigureAwait(false);
+                }
+
+                return StepResult.Failed(messagingContext);
             }
             catch (Exception exception)
             {
@@ -113,7 +117,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             Logger.Info($"Creating WebRequest to {sendConfiguration.Protocol.Url}");
 
             HttpWebRequest request = _httpClient.Request(sendConfiguration.Protocol.Url, contentType);
-            
+
             AssignClientCertificate(sendConfiguration.TlsConfiguration, request);
 
             return request;
@@ -144,7 +148,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             request.ClientCertificates.Add(certificate);
         }
 
-        private static async Task TryWriteToHttpRequestStreamAsync(HttpWebRequest request, MessagingContext messagingContext)
+        private static async Task<bool> TryWriteToHttpRequestStreamAsync(HttpWebRequest request, MessagingContext messagingContext)
         {
             try
             {
@@ -154,18 +158,27 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 {
                     if (messagingContext.ReceivedMessage != null)
                     {
-                        await messagingContext.ReceivedMessage.UnderlyingStream.CopyToAsync(requestStream);                       
+                        await messagingContext.ReceivedMessage.UnderlyingStream.CopyToAsync(requestStream);
                     }
                     else
                     {
                         // Serialize the AS4 Message to the request-stream
                         var serializer = SerializerProvider.Default.Get(request.ContentType);
-                        await serializer.SerializeAsync(messagingContext.AS4Message, requestStream, CancellationToken.None);                        
+                        await serializer.SerializeAsync(messagingContext.AS4Message, requestStream, CancellationToken.None);
                     }
-                }                                
+                }
+
+                return true;
             }
             catch (WebException exception)
             {
+                if (exception.Status == WebExceptionStatus.ConnectFailure && (messagingContext.AS4Message?.IsPullRequest ?? false))
+                {
+                    Logger.Trace($"The PullRequest could not be send to {request.RequestUri}");
+                    Logger.Trace(exception.Message);
+                    return false;
+                }
+
                 Logger.Error(exception.Message);
                 if (exception.InnerException != null)
                 {
@@ -174,7 +187,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 throw CreateFailedSendException(request.RequestUri.ToString(), exception);
             }
         }
-       
+
         private static void SetAdditionalRequestHeaders(HttpWebRequest request, MessagingContext messagingContext)
         {
             long messageSize = TryGetMessageSize(messagingContext);
@@ -231,7 +244,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             CancellationToken cancellationToken)
         {
             Logger.Debug($"AS4 Message received from: {request.Address}");
-            
+
             (HttpWebResponse webResponse, WebException exception) response = await _httpClient.Respond(request);
 
             if (response.webResponse != null

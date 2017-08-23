@@ -151,6 +151,7 @@
   <ItemGroup>
     <Compile Include="Agents\DeliverAgentFacts.cs" />
     <Compile Include="Agents\ForwardAgentFacts.cs" />
+    <Compile Include="Agents\PullReceiveAgentFacts.cs" />
     <Compile Include="Agents\PullSendAgentFacts.cs" />
     <Compile Include="Agents\ReceiveAgentFacts.cs" />
     <Compile Include="Common\AS4MessageResponseHandler.cs" />
