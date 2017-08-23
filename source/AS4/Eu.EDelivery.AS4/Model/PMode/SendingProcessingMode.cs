@@ -434,7 +434,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
             IncludePModeId = false;
             Mpc = Constants.Namespaces.EbmsDefaultMpc;
         }
-
+        
         public string Mpc { get; set; }
 
         [DefaultValue(true)]

@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Entities;
@@ -65,13 +66,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Forward
            
             private MessagingContext SetupMessagingContext()
             {
-                ReceivedEntityMessage receivedMessage;
+                ReceivedMessageEntityMessage receivedMessage;
 
                 using (var db = GetDataStoreContext())
                 {
                     var inMessage = db.InMessages.First(m => m.Operation == Operation.ToBeForwarded);
 
-                    receivedMessage = new ReceivedEntityMessage(inMessage);
+                    receivedMessage = new ReceivedMessageEntityMessage(inMessage, Stream.Null, "");
                 }
 
                 var context = new MessagingContext(receivedMessage, MessagingContextMode.Forward)

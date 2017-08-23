@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 
 namespace Eu.EDelivery.AS4.Model.Common
 {
@@ -12,7 +13,7 @@ namespace Eu.EDelivery.AS4.Model.Common
         /// Initializes a new instance of the <see cref="MessageInfo"/> class. 
         /// Xml Serializer needs empty constructor
         /// </summary>
-        public MessageInfo() {}
+        public MessageInfo() : this(null, Constants.Namespaces.EbmsDefaultMpc) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MessageInfo"/> class. 
@@ -25,8 +26,8 @@ namespace Eu.EDelivery.AS4.Model.Common
         /// </param>
         public MessageInfo(string messageId, string mpc)
         {
-            this.MessageId = messageId;
-            this.Mpc = mpc;
+            MessageId = messageId;
+            Mpc = mpc;
         }
 
         /// <summary>
@@ -41,9 +42,9 @@ namespace Eu.EDelivery.AS4.Model.Common
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
             return
-                string.Equals(this.MessageId, other.MessageId, StringComparison.OrdinalIgnoreCase) &&
-                string.Equals(this.RefToMessageId, other.RefToMessageId, StringComparison.OrdinalIgnoreCase) &&
-                string.Equals(this.Mpc, other.Mpc, StringComparison.OrdinalIgnoreCase);
+                string.Equals(MessageId, other.MessageId, StringComparison.OrdinalIgnoreCase) &&
+                string.Equals(RefToMessageId, other.RefToMessageId, StringComparison.OrdinalIgnoreCase) &&
+                string.Equals(Mpc, other.Mpc, StringComparison.OrdinalIgnoreCase);
         }
 
         /// <summary>
@@ -55,9 +56,15 @@ namespace Eu.EDelivery.AS4.Model.Common
         /// <param name="obj">The object to compare with the current object. </param>
         public override bool Equals(object obj)
         {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            return obj.GetType() == GetType() && Equals((MessageInfo) obj);
+            if (ReferenceEquals(null, obj))
+            {
+                return false;
+            }
+            if (ReferenceEquals(this, obj))
+            {
+                return true;
+            }
+            return obj.GetType() == GetType() && Equals((MessageInfo)obj);
         }
 
         /// <summary>
