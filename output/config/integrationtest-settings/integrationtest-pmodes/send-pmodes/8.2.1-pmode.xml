@@ -15,13 +15,7 @@
       <TlsVersion>Tls12</TlsVersion>
       <ClientCertificateReference />
     </TlsConfiguration>
-  </PushConfiguration>
-  <PullConfiguration>
-    <SubChannel />
-    <Protocol>
-      <Url>http://localhost:9090/msh</Url>
-    </Protocol>
-  </PullConfiguration>
+  </PushConfiguration>  
   <Reliability>
     <ReceptionAwareness>
       <IsEnabled>false</IsEnabled>
@@ -55,7 +49,7 @@
     </Encryption>
   </Security>
   <MessagePackaging>
-    <Mpc>TestMpc</Mpc>
+    <Mpc>TestMpcDefinedInPMode</Mpc>
     <UseAS4Compression>false</UseAS4Compression>
     <IsMultiHop>false</IsMultiHop>
     <IncludePModeId>true</IncludePModeId>
