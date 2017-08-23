@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.ComponentTests.Common;
 using Eu.EDelivery.AS4.Entities;
@@ -76,15 +73,46 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         }
 
         [Fact]
-        public async Task OutMessageIsCreatedForPrimaryMessageUnitOfToBeForwardedAS4Message(object o)
+        public async Task OutMessageIsCreatedForPrimaryMessageUnitOfToBeForwardedAS4Message()
         {
+            const string messageId = "primary-message-id";
+            const string secondMessageId = "secondary-message-id";
+
+            // Send an AS4Message to the AS4 MSH which has a receive-agent configured.
+            var as4Message = CreateAS4Message(new UserMessage(messageId), new UserMessage(secondMessageId));
+
+            var response = await StubSender.SendAS4Message(_receiveAgentUrl, as4Message);
+
+            Assert.Equal(HttpStatusCode.Accepted, response.StatusCode);
+
+            await Task.Delay(TimeSpan.FromSeconds(3));
+
+            // Assert if an OutMessage is created with the correct status and operation.
+            var primaryInMessage = _databaseSpy.GetInMessageFor(m => m.EbmsMessageId == messageId);
+            var secondaryInMessage = _databaseSpy.GetInMessageFor(m => m.EbmsMessageId == secondMessageId);
+            var primaryOutMessage = _databaseSpy.GetOutMessageFor(m => m.EbmsMessageId == messageId);
+            var secondaryOutMessage = _databaseSpy.GetOutMessageFor(m => m.EbmsMessageId == secondMessageId);
+
+            Assert.NotNull(primaryInMessage);
+            Assert.Equal(Operation.Forwarded, primaryInMessage.Operation);
+            Assert.NotNull(AS4XmlSerializer.FromString<ReceivingProcessingMode>(primaryInMessage.PMode));
+
+            Assert.NotNull(secondaryInMessage);
+            Assert.Equal(Operation.Forwarded, primaryInMessage.Operation);
+            Assert.NotNull(AS4XmlSerializer.FromString<ReceivingProcessingMode>(primaryInMessage.PMode));
+
+            Assert.NotNull(primaryOutMessage);
+            Assert.Equal(Operation.ToBeSent, primaryOutMessage.Operation);
+            Assert.NotNull(AS4XmlSerializer.FromString<SendingProcessingMode>(primaryOutMessage.PMode));
+
+            Assert.Null(secondaryOutMessage);
         }
 
         private AS4Message CreateAS4Message(params MessageUnit[] messageUnits)
         {
             if (messageUnits.Any() == false)
             {
-                throw new ArgumentException("At least one messageUnit must be specified", nameof(messageUnits));
+                throw new ArgumentException(@"At least one messageUnit must be specified", nameof(messageUnits));
             }
 
             var as4Message = AS4Message.Create(messageUnits.First(), new SendingProcessingMode());
