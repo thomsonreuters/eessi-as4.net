@@ -25,7 +25,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Common
         /// </summary>
         /// <param name="expression">The expression to search for a single <see cref="InMessage"/>.</param>
         /// <returns></returns>
-        public InMessage GetInMessageFor(Func<InMessage, bool> expression)
+        public InMessage GetInMessageFor(Expression<Func<InMessage, bool>> expression)
         {
             using (var context = new DatastoreContext(_configuration))
             {
@@ -38,7 +38,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Common
         /// </summary>
         /// <param name="expression">The expression to search for a single <see cref="OutMessage"/>.</param>
         /// <returns></returns>
-        public OutMessage GetOutMessageFor(Func<OutMessage, bool> expression)
+        public OutMessage GetOutMessageFor(Expression<Func<OutMessage, bool>> expression)
         {
             using (var context = new DatastoreContext(_configuration))
             {

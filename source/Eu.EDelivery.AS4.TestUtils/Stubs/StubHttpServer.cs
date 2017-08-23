@@ -31,17 +31,22 @@ namespace Eu.EDelivery.AS4.TestUtils.Stubs
             request.ContinueWith(async t =>
 #pragma warning restore 1998
             {
-                responseHandler(t.Result.Response);
+                try
+                {
+                    responseHandler(t.Result.Response);
+                }
+                finally
+                {
+                    t.Result.Response.Close();
 
-                t.Result.Response.Close();
-                                
-                handledSignal?.Set();
+                    handledSignal?.Set();
 
-                await Task.Delay(TimeSpan.FromMilliseconds(50));
+                    await Task.Delay(TimeSpan.FromMilliseconds(50));
 
-                server.Stop();
+                    server.Stop();
+                }
             });
-            
+
         }
     }
 }
