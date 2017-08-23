@@ -360,10 +360,10 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                 },
                 CollaborationInfo = new Xml.CollaborationInfo()
                 {
-                    Action = "Receive_Agent_Forwarding_Action",
+                    Action = "Forward_Push_Action",
                     Service = new Xml.Service()
                     {
-                        Value = "Receive_Agent_Forwarding_Service",
+                        Value = "Forward_Push_Service",
                         type = "eu:europa:services"
                     }
                 }

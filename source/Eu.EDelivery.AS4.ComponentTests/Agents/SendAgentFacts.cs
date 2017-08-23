@@ -156,11 +156,11 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                     },
                     CollaborationInfo = new CollaborationInfo()
                     {
-                        Action = "Receive_Agent_Forwarding_Action",
+                        Action = "Forward_Push_Action",
                         Service = new Service()
                         {
                             Type = "eu:europa:services",
-                            Value = "Receive_Agent_Forwarding_Service"
+                            Value = "Forward_Push_Service"
                         }
                     }
                 }

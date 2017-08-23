@@ -51,9 +51,9 @@
       <AgreementReference>
         <Value>http://agreements.europa.org/agreement</Value>
       </AgreementReference>
-      <Action>Receive_Agent_Forwarding_Action</Action>
+      <Action>Forward_Push_Action</Action>
       <Service>
-        <Value>Receive_Agent_Forwarding_Service</Value>
+        <Value>Forward_Push_Service</Value>
         <Type>eu:europa:services</Type>
       </Service>
     </CollaborationInfo>
