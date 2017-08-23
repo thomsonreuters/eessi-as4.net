@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.ComponentTests.Common;
@@ -49,7 +48,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
             ManualResetEvent signal = new ManualResetEvent(false);
 
-            ResponseHandler r = new ResponseHandler(CreateMultiHopReceiptFor(as4Message));
+            AS4MessageResponseHandler r = new AS4MessageResponseHandler(CreateMultiHopReceiptFor(as4Message));
 
             StubHttpServer.StartServer(sendToUrl, r.WriteResponse, signal);
 
@@ -169,27 +168,6 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             };
 
             return pmode;
-        }
-
-        private sealed class ResponseHandler
-        {
-            private readonly AS4Message _responseMessage;
-
-            /// <summary>
-            /// Initializes a new instance of the <see cref="ResponseHandler"/> class.
-            /// </summary>
-            public ResponseHandler(AS4Message responseMessage)
-            {
-                _responseMessage = responseMessage;
-            }
-
-            public void WriteResponse(HttpListenerResponse response)
-            {
-                response.StatusCode = (int)HttpStatusCode.OK;
-                response.ContentType = _responseMessage.ContentType;
-
-                SerializerProvider.Default.Get(_responseMessage.ContentType).Serialize(_responseMessage, response.OutputStream, CancellationToken.None);
-            }
-        }
+        }        
     }
 }

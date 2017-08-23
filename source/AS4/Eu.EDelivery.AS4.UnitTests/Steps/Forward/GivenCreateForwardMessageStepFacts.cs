@@ -62,7 +62,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Forward
                     Assert.Equal(Operation.Forwarded, inMessage.Operation);
                 }
             }
-
+           
             private MessagingContext SetupMessagingContext()
             {
                 ReceivedEntityMessage receivedMessage;

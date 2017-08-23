@@ -153,6 +153,7 @@
     <Compile Include="Agents\ForwardAgentFacts.cs" />
     <Compile Include="Agents\PullSendAgentFacts.cs" />
     <Compile Include="Agents\ReceiveAgentFacts.cs" />
+    <Compile Include="Common\AS4MessageResponseHandler.cs" />
     <Compile Include="Agents\SendAgentFacts.cs" />
     <Compile Include="Agents\SubmitAgentFacts.cs" />
     <Compile Include="Common\AS4Component.cs" />
