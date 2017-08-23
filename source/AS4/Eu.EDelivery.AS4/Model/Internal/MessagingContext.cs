@@ -149,24 +149,7 @@ namespace Eu.EDelivery.AS4.Model.Internal
         }
 
         private string _receivingPModeString;
-
-        /// <summary>
-        /// Gets the prefix.
-        /// </summary>
-        /// <value>The prefix.</value>
-        public string Prefix
-        {
-            get
-            {
-                string corePrefix = AS4Message?.PrimaryUserMessage?.MessageId ?? AS4Message?.PrimarySignalMessage?.MessageId;
-
-                string extensionPrefix = SubmitMessage?.MessageInfo.MessageId
-                                         ?? DeliverMessage?.MessageInfo.MessageId ?? NotifyMessage?.MessageInfo.MessageId;
-
-                return $"[{corePrefix ?? extensionPrefix}]";
-            }
-        }
-
+       
         /// <summary>
         /// Gets the Id of the Message that is handled by this context.
         /// </summary>

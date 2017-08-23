@@ -45,7 +45,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// <exception cref="Exception">A delegate callback throws an exception.</exception>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken token)
         {
-            Logger.Info($"{messagingContext.Prefix} Insert received message in datastore");
+            Logger.Info($"{messagingContext.EbmsMessageId} Insert received message in datastore");
 
 
             if (messagingContext.ReceivedMessage == null)

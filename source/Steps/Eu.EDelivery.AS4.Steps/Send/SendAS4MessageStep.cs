@@ -92,7 +92,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             catch (Exception exception)
             {
                 Logger.Error(
-                    $"{messagingContext.Prefix} An error occured while trying to send the message: {exception.Message}");
+                    $"{messagingContext.EbmsMessageId} An error occured while trying to send the message: {exception.Message}");
                 Logger.Error(exception.StackTrace);
 
                 if (exception.InnerException != null)

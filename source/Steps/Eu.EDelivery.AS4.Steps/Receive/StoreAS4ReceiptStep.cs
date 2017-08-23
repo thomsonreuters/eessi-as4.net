@@ -65,7 +65,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
                 await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
-                Logger.Info($"{messagingContext.Prefix} Store AS4 Receipt into the Datastore");
+                Logger.Info($"{messagingContext.EbmsMessageId} Store AS4 Receipt into the Datastore");
             }
         }
     }

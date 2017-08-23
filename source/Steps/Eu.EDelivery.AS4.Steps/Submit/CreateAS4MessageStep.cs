@@ -73,17 +73,17 @@ namespace Eu.EDelivery.AS4.Steps.Submit
             {
                 if (context.SubmitMessage.HasPayloads)
                 {
-                    Logger.Info($"{context.Prefix} Retrieve Submit Message Payloads");
+                    Logger.Info($"{context.EbmsMessageId} Retrieve Submit Message Payloads");
 
                     await as4Message.AddAttachments(
                         context.SubmitMessage.Payloads,
                         async payload => await RetrieveAttachmentContent(payload));
 
-                    Logger.Info($"{context.Prefix} Number of Payloads retrieved: {as4Message.Attachments.Count}");
+                    Logger.Info($"{context.EbmsMessageId} Number of Payloads retrieved: {as4Message.Attachments.Count}");
                 }
                 else
                 {
-                    Logger.Info($"{context.Prefix} Submit Message has no Payloads to retrieve");
+                    Logger.Info($"{context.EbmsMessageId} Submit Message has no Payloads to retrieve");
                 }
             }
             catch (Exception exception)
@@ -101,7 +101,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         {
             const string description = "Failed to retrieve Submit Message Payloads";
             Logger.Error(description);
-            Logger.Error($"{messagingContext.Prefix} {exception.Message}");
+            Logger.Error($"{messagingContext.EbmsMessageId} {exception.Message}");
 
             return new ApplicationException(description, exception);
         }

@@ -42,7 +42,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
                 OverwriteAttachmentEntries(messagingContext.AS4Message, zipAttachment);
             }
 
-            LogManager.GetCurrentClassLogger().Info($"{messagingContext.Prefix} Zip the Attachments to a single file");
+            LogManager.GetCurrentClassLogger().Info($"{messagingContext.EbmsMessageId} Zip the Attachments to a single file");
 
             return await StepResult.SuccessAsync(messagingContext).ConfigureAwait(false);
         }

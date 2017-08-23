@@ -86,7 +86,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
             if (isIgnored)
             {
-                Logger.Info($"{messagingContext.Prefix} Decryption Receiving PMode {pmode.Id} is ignored");
+                Logger.Info($"{messagingContext.EbmsMessageId} Decryption Receiving PMode {pmode.Id} is ignored");
             }
 
             return isIgnored;
@@ -96,12 +96,12 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         {
             try
             {
-                Logger.Info($"{messagingContext.Prefix} Start decrypting AS4 Message ...");
+                Logger.Info($"{messagingContext.EbmsMessageId} Start decrypting AS4 Message ...");
 
                 IEncryptionStrategy strategy = CreateDecryptStrategy(messagingContext);
                 messagingContext.AS4Message.SecurityHeader.Decrypt(strategy);
 
-                Logger.Info($"{messagingContext.Prefix} AS4 Message is decrypted correctly");
+                Logger.Info($"{messagingContext.EbmsMessageId} AS4 Message is decrypted correctly");
 
                 return await StepResult.SuccessAsync(messagingContext);
             }

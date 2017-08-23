@@ -36,7 +36,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
         {
             _messagingContext = messagingContext;
-            _logger.Info($"{this._messagingContext.Prefix} Update AS4 UserMessages in Datastore");
+            _logger.Info($"{_messagingContext.EbmsMessageId} Update AS4 UserMessages in Datastore");
 
             await UpdateUserMessageAsync(messagingContext.DeliverMessage).ConfigureAwait(false);
             return await StepResult.SuccessAsync(messagingContext);
@@ -49,7 +49,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
                 var repository = new DatastoreRepository(context);
 
                 string messageId = deliverMessage.MessageInfo.MessageId;
-                _logger.Info($"{this._messagingContext.Prefix} Update InMessage with Delivered Status and Operation");
+                _logger.Info($"{_messagingContext.EbmsMessageId} Update InMessage with Delivered Status and Operation");
 
                 repository.UpdateInMessage(messageId, UpdateNotifiedInMessage);
 

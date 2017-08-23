@@ -56,7 +56,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
             if (messagingContext.SendingPMode?.Security.Signing.IsEnabled != true)
             {
-                Logger.Info($"{messagingContext.Prefix} Sending PMode {messagingContext.SendingPMode?.Id} Signing is disabled");
+                Logger.Info($"{messagingContext.EbmsMessageId} Sending PMode {messagingContext.SendingPMode?.Id} Signing is disabled");
                 return await StepResult.SuccessAsync(messagingContext);
             }
 
@@ -70,7 +70,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
         {
             try
             {
-                Logger.Info($"{message.Prefix} Sign AS4 Message with given Signing Information");
+                Logger.Info($"{message.EbmsMessageId} Sign AS4 Message with given Signing Information");
                 SignAS4Message(message, cancellationToken);
             }
             catch (Exception exception)
@@ -91,7 +91,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
             if (!certificate.HasPrivateKey)
             {
-                throw ThrowCommonSigningException($"{message.Prefix} Certificate hasn't a private key");
+                throw ThrowCommonSigningException($"{message.EbmsMessageId} Certificate hasn't a private key");
             }
 
             ISigningStrategy signingStrategy = CreateSignStrategy(message, certificate, cancellationToken);

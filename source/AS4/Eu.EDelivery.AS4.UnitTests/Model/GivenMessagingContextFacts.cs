@@ -177,7 +177,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
             }
 
             [Fact]
-            public void ThenInternalMessageHasPrefixFromSignalMessage()
+            public void ThenMessagingContextHasEbmsIdFromSignalMessage()
             {
                 // Arrange
                 var signalMessage = new Receipt("message-Id");
@@ -185,14 +185,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
                 var context = new MessagingContext(AS4Message.Create(signalMessage), MessagingContextMode.Unknown);
 
                 // Act
-                string prefix = context.Prefix;
+                string prefix = context.EbmsMessageId;
 
                 // Assert
-                Assert.Equal($"[{signalMessage.MessageId}]", prefix);
+                Assert.Equal($"{signalMessage.MessageId}", prefix);
             }
 
             [Fact]
-            public void ThenInternalMessageHasPrefixFromUserMessage()
+            public void ThenMessagingContextHasEbmsMessageIdFromUserMessage()
             {
                 // Arrange
                 var userMessage = new UserMessage("message-Id");
@@ -201,10 +201,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
                 var context = new MessagingContext(as4Message, MessagingContextMode.Unknown);
 
                 // Act
-                string prefix = context.Prefix;
+                string prefix = context.EbmsMessageId;
 
                 // Assert
-                Assert.Equal($"[{userMessage.MessageId}]", prefix);
+                Assert.Equal($"{userMessage.MessageId}", prefix);
             }
 
         }

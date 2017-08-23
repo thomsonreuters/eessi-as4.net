@@ -93,7 +93,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         {
             try
             {
-                _logger.Info($"{_messagingContext.Prefix} Start Uploading Attachment...");
+                _logger.Info($"{_messagingContext.EbmsMessageId} Start Uploading Attachment...");
                 await UploadAttachment(attachment, uploader).ConfigureAwait(false);
 
                 attachment.ResetContentPosition();
