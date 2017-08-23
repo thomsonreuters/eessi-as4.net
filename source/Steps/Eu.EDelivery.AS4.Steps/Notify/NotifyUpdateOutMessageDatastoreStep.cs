@@ -32,7 +32,7 @@ namespace Eu.EDelivery.AS4.Steps.Notify
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
         {
             var notifyMessage = messagingContext.NotifyMessage;
-            _logger.Info($"{messagingContext.Prefix} Update Notify Message {notifyMessage.MessageInfo.MessageId}");
+            _logger.Info($"{messagingContext.EbmsMessageId} Update Notify Message {notifyMessage.MessageInfo.MessageId}");
 
             await UpdateDatastoreAsync(notifyMessage).ConfigureAwait(false);
             return await StepResult.SuccessAsync(messagingContext);

@@ -93,7 +93,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         private static async Task<StepResult> CreateEmptySoapResult(MessagingContext messagingContext)
         {
             LogManager.GetCurrentClassLogger()
-                      .Info($"{messagingContext.Prefix} Empty SOAP Envelope will be send to requested party");
+                      .Info($"{messagingContext.EbmsMessageId} Empty SOAP Envelope will be send to requested party");
 
             AS4Message as4Message = AS4Message.Create(messagingContext.SendingPMode);
             var emptyContext = new MessagingContext(as4Message, MessagingContextMode.Receive)

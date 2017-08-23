@@ -81,7 +81,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 return InvalidSignatureResult(description, ErrorAlias.FailedAuthentication, messagingContext);
             }
 
-            Logger.Info($"{messagingContext.Prefix} AS4 Message has a valid Signature present");
+            Logger.Info($"{messagingContext.EbmsMessageId} AS4 Message has a valid Signature present");
 
             foreach (Attachment attachment in messagingContext.AS4Message.Attachments)
             {

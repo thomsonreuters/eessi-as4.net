@@ -50,7 +50,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             try
             {
                 Logger.Info(
-                    $"{_messagingContext.Prefix} Compress AS4 Message Attachments with GZip Compression");
+                    $"{_messagingContext.EbmsMessageId} Compress AS4 Message Attachments with GZip Compression");
                 await CompressAttachments(attachments);
             }
             catch (SystemException exception)

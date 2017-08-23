@@ -44,13 +44,13 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
         private static async Task<StepResult> ReturnSameResult(MessagingContext messagingContext, string description)
         {
-            Logger.Info($"{messagingContext.Prefix} {description}");
+            Logger.Info($"{messagingContext.EbmsMessageId} {description}");
             return await StepResult.SuccessAsync(messagingContext);
         }
 
         private static async Task InsertReceptionAwarenessAsync(MessagingContext messagingContext)
         {
-            Logger.Info($"{messagingContext.Prefix} Set Reception Awareness");
+            Logger.Info($"{messagingContext.EbmsMessageId} Set Reception Awareness");
             AS4Message as4Message = messagingContext.AS4Message;
 
             using (DatastoreContext context = Registry.Instance.CreateDatastoreContext())

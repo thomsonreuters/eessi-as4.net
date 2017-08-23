@@ -33,7 +33,7 @@ namespace Eu.EDelivery.AS4.Steps.Notify
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
         {
             var notifyMessageEnv = messagingContext.NotifyMessage;
-            _logger.Info($"{messagingContext.Prefix} Update Notify Message {notifyMessageEnv.MessageInfo.MessageId}");
+            _logger.Info($"{messagingContext.EbmsMessageId} Update Notify Message {notifyMessageEnv.MessageInfo.MessageId}");
 
             using (var context = Registry.Instance.CreateDatastoreContext())
             {

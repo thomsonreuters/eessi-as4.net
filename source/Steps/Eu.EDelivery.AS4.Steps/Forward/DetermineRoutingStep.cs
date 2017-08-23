@@ -4,12 +4,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Model.Internal;
+using NLog;
 
 namespace Eu.EDelivery.AS4.Steps.Forward
 {
     public class DetermineRoutingStep : IStep
     {
         private readonly IConfig _configuration;
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DetermineRoutingStep"/> class.
@@ -37,6 +39,8 @@ namespace Eu.EDelivery.AS4.Steps.Forward
             ValidateMessagingContext(messagingContext);
 
             string sendingPModeId = messagingContext.ReceivingPMode.MessageHandling.ForwardInformation.SendingPMode;
+
+            Logger.Trace($"Sending PMode {sendingPModeId} must be used to forward Message with Id {messagingContext.EbmsMessageId}");
 
             if (String.IsNullOrWhiteSpace(sendingPModeId))
             {

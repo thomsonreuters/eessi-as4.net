@@ -51,7 +51,7 @@ namespace Eu.EDelivery.AS4.Steps.Notify
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
         {
-            Logger.Info($"{messagingContext.Prefix} Start sending Notify Message...");
+            Logger.Info($"{messagingContext.EbmsMessageId} Start sending Notify Message...");
 
             if (messagingContext.SendingPMode == null)
             {
