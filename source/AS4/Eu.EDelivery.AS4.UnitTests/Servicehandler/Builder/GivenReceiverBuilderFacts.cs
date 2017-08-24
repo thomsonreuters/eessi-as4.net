@@ -31,7 +31,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Servicehandler.Builder
                 return new Receiver
                 {
                     Type = typeof(FileReceiver).AssemblyQualifiedName,
-                    Setting = new[] {new Setting(key: "Test", value: "Test")}
+                    Setting = new[] {new Setting(key: "FilePath", value: "Test")}
                 };
             }
         }
