@@ -21,9 +21,17 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.ReceptionAwareness
     /// </summary>
     public class GivenReceptionAwarenessUpdateDatastoreStepFacts : GivenDatastoreFacts
     {
+        private readonly InMemoryMessageBodyStore _messageBodyStore = new InMemoryMessageBodyStore();
+
         public GivenReceptionAwarenessUpdateDatastoreStepFacts()
         {
             IdentifierFactory.Instance.SetContext(StubConfig.Default);
+        }
+
+        protected override void Disposing()
+        {
+            _messageBodyStore.Dispose();
+            base.Disposing();
         }
 
         public class GivenValidArguments : GivenReceptionAwarenessUpdateDatastoreStepFacts
@@ -35,7 +43,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.ReceptionAwareness
                 EntityReceptionAwareness awareness = InsertAlreadyAnsweredMessage();
 
                 var internalMessage = new MessagingContext(awareness);
-                var step = new ReceptionAwarenessUpdateDatastoreStep(StubMessageBodyStore.Default, GetDataStoreContext);
+                var step = new ReceptionAwarenessUpdateDatastoreStep(_messageBodyStore, GetDataStoreContext);
 
                 // Act
                 await step.ExecuteAsync(internalMessage, CancellationToken.None);
@@ -78,7 +86,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.ReceptionAwareness
                 await InsertOutMessage(awareness.InternalMessageId);
 
                 var internalMessage = new MessagingContext(awareness);
-                var step = new ReceptionAwarenessUpdateDatastoreStep(StubMessageBodyStore.Default, GetDataStoreContext);
+                var step = new ReceptionAwarenessUpdateDatastoreStep(_messageBodyStore, GetDataStoreContext);
 
                 // Act
                 await step.ExecuteAsync(internalMessage, CancellationToken.None);
@@ -114,7 +122,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.ReceptionAwareness
                 await InsertOutMessage(awareness.InternalMessageId);
 
                 var internalMessage = new MessagingContext(awareness);
-                var step = new ReceptionAwarenessUpdateDatastoreStep(StubMessageBodyStore.Default, GetDataStoreContext);
+                var step = new ReceptionAwarenessUpdateDatastoreStep(_messageBodyStore, GetDataStoreContext);
 
                 // Act
                 await step.ExecuteAsync(internalMessage, CancellationToken.None);

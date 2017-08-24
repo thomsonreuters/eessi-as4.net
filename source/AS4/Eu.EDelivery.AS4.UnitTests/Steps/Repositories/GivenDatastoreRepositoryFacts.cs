@@ -43,7 +43,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Repositories
             public async Task ThenInsertOutMessageSucceedsAsync()
             {
                 // Arrange
-                var outMessage = new OutMessage {EbmsMessageId = "message-id"};
+                var outMessage = new OutMessage { EbmsMessageId = "message-id", MessageLocation = "location" };
 
                 // Act
                 using (DatastoreContext context = GetDataStoreContext())
@@ -81,7 +81,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Repositories
             private void InsertOutMessage(string ebmsMessageId, Operation operation = Operation.NotApplicable)
             {
                 GetDataStoreContext.InsertOutMessage(
-                    new OutMessage {EbmsMessageId = ebmsMessageId, Operation = operation});
+                    new OutMessage { EbmsMessageId = ebmsMessageId, Operation = operation });
             }
 
             private void AssertOutMessage(string messageId, Action<OutMessage> assertAction)
@@ -243,7 +243,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Repositories
 
             private void InsertInMessage(string messageId, Action<InMessage> arrangeMessage)
             {
-                var message = new InMessage {EbmsMessageId = messageId};
+                var message = new InMessage { EbmsMessageId = messageId };
                 arrangeMessage(message);
 
                 GetDataStoreContext.InsertInMessage(message);
