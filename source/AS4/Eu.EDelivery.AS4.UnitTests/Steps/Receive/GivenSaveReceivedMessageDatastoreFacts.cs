@@ -24,6 +24,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
     public class GivenSaveReceivedMessageDatastoreFacts : GivenDatastoreStepFacts
     {
         private readonly string _userMessageId;
+        private readonly InMemoryMessageBodyStore _messageBodyStore = new InMemoryMessageBodyStore();
 
         public GivenSaveReceivedMessageDatastoreFacts()
         {
@@ -31,7 +32,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
             _userMessageId = Guid.NewGuid().ToString();
 
-            Step = new SaveReceivedMessageStep(GetDataStoreContext, StubMessageBodyStore.Default);
+            Step = new SaveReceivedMessageStep(GetDataStoreContext, _messageBodyStore);
+        }
+
+        protected override void Disposing()
+        {
+            _messageBodyStore.Dispose();
+            base.Disposing();
         }
 
         /// <summary>
@@ -84,7 +91,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 UserMessage userMessage = CreateUserMessage();
                 AddTestableDataToUserMessage(userMessage);
 
-                var as4Message = AS4Message.Create(userMessage, null);
+                var as4Message = AS4Message.Create(userMessage);
 
                 var pmode = new ReceivingProcessingMode();
                 pmode.Reliability.DuplicateElimination.IsEnabled = true;
@@ -106,7 +113,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 SignalMessage signalMessage = new Receipt("message-id") { RefToMessageId = "ref-to-message-id" };
                 signalMessage.IsDuplicate = false;
 
-                using (var messagingContext = CreateReceivedMessagingContext(AS4Message.Create(signalMessage, null), null))
+                using (var messagingContext = CreateReceivedMessagingContext(AS4Message.Create(signalMessage), null))
                 {
                     // Act           
                     // Execute the step twice.     
@@ -114,7 +121,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                     Assert.False(stepResult.MessagingContext.AS4Message.PrimarySignalMessage.IsDuplicate);
                 }
 
-                using (var messagingContext = CreateReceivedMessagingContext(AS4Message.Create(signalMessage, null), null))
+                using (var messagingContext = CreateReceivedMessagingContext(AS4Message.Create(signalMessage), null))
                 {
                     StepResult stepResult = await Step.ExecuteAsync(messagingContext, CancellationToken.None);
 
@@ -133,14 +140,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 var pmode = new ReceivingProcessingMode();
                 pmode.Reliability.DuplicateElimination.IsEnabled = true;
 
-                using (var context = CreateReceivedMessagingContext(AS4Message.Create(userMessage, null), pmode))
+                using (var context = CreateReceivedMessagingContext(AS4Message.Create(userMessage), pmode))
                 {
                     // Act
                     await Step.ExecuteAsync(context, CancellationToken.None);
 
                     // Assert
                     await AssertUserInMessageAsync(userMessage, m => m.Operation == Operation.NotApplicable);
-                }                                
+                }
             }
 
             [Fact]

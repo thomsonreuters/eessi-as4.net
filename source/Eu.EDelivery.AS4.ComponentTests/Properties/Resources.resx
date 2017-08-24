@@ -127,6 +127,9 @@
   <data name="pullsendagent_submit" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\resources\pullsendagent_submit.xml;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
   </data>
+  <data name="receipt_with_invalid_signature" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\receipt_with_invalid_signature.as4;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
   <data name="receiveagent_message" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\receiveagent_message.as4;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>

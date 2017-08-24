@@ -8,19 +8,26 @@ using Eu.EDelivery.AS4.Steps.Receive;
 using Eu.EDelivery.AS4.UnitTests.Common;
 using Eu.EDelivery.AS4.UnitTests.Model;
 using Eu.EDelivery.AS4.UnitTests.Repositories;
-using Eu.EDelivery.AS4.UnitTests.Strategies.Sender;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 {
     public class GivenSendSignalMessageStepFacts : GivenDatastoreStepFacts
     {
+        private readonly InMemoryMessageBodyStore _messageBodyStore = new InMemoryMessageBodyStore();
+
         /// <summary>
         /// Initializes a new instance of the <see cref="GivenSendSignalMessageStepFacts"/> class.
         /// </summary>
         public GivenSendSignalMessageStepFacts()
         {
-            Step = new SendAS4SignalMessageStep(GetDataStoreContext, StubMessageBodyStore.Default);
+            Step = new SendAS4SignalMessageStep(GetDataStoreContext, _messageBodyStore);
+        }
+
+        protected override void Disposing()
+        {
+            _messageBodyStore.Dispose();
+            base.Disposing();
         }
 
         [Fact]

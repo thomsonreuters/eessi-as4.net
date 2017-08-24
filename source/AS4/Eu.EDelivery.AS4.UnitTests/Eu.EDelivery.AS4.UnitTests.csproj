@@ -395,7 +395,6 @@
     <Compile Include="Receivers\StubXmlAttribute.cs" />
     <Compile Include="Repositories\GivenAS4MessageStoreProviderFacts.cs" />
     <Compile Include="Repositories\SaboteurMessageBodyStore.cs" />
-    <Compile Include="Repositories\StubMessageBodyStore.cs" />
     <Compile Include="Resources\Samples.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.ComponentTests.Common;
@@ -26,7 +27,7 @@ using UserMessage = Eu.EDelivery.AS4.Model.Core.UserMessage;
 namespace Eu.EDelivery.AS4.ComponentTests.Agents
 {
     public class ReceiveAgentFacts : ComponentTestTemplate
-    {        
+    {
         private readonly AS4Component _as4Msh;
         private readonly DatabaseSpy _databaseSpy;
         private readonly string _receiveAgentUrl;
@@ -70,8 +71,8 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             // Act
             HttpResponseMessage response = await StubSender.SendRequest(_receiveAgentUrl, content,
                                                                         "multipart/related; boundary=\"=-C3oBZDXCy4W2LpjPUhC4rw==\"; type=\"application/soap+xml\"; charset=\"utf-8\"");
-
             // Assert
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
             AS4Message as4Message = await response.DeserializeToAS4Message();
             Assert.True(as4Message.IsSignalMessage);
             Assert.True(as4Message.PrimarySignalMessage is Error);
@@ -192,7 +193,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             Assert.Equal(HttpStatusCode.Accepted, response.StatusCode);
             Assert.Empty(await response.Content.ReadAsStringAsync());
         }
-      
+
         private InMessage GetInsertedUserMessageFor(AS4Message receivedAS4Message)
         {
             return
@@ -209,14 +210,17 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         {
             // Arrange
             const string expectedId = "message-id";
-            await CreateExistingOutMessage(expectedId);
+            await CreateExistingOutMessage(expectedId, CreateSendingPMode());
 
             AS4Message as4Message = CreateAS4ReceiptMessage(expectedId);
 
             // Act
-            await StubSender.SendAS4Message(_receiveAgentUrl, as4Message);
+            var response = await StubSender.SendAS4Message(_receiveAgentUrl, as4Message);
 
             // Assert
+            Assert.Equal(HttpStatusCode.Accepted, response.StatusCode);
+            Assert.True(String.IsNullOrWhiteSpace(await response.Content.ReadAsStringAsync()), "An empty response was expected");
+
             AssertIfStatusOfOutMessageIs(expectedId, OutStatus.Ack);
             AssertIfInMessageExistsForSignalMessage(expectedId);
         }
@@ -225,7 +229,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         {
             var r = new Receipt { RefToMessageId = refToMessageId };
 
-            return AS4Message.Create(r, GetSendingPMode());
+            return AS4Message.Create(r, CreateSendingPMode());
         }
 
         [Fact]
@@ -233,16 +237,46 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         {
             // Arrange
             const string expectedId = "message-id";
-            await CreateExistingOutMessage(expectedId);
+            await CreateExistingOutMessage(expectedId, CreateSendingPMode());
 
             AS4Message as4Message = CreateAS4ErrorMessage(expectedId);
 
             // Act
-            await StubSender.SendAS4Message(_receiveAgentUrl, as4Message);
+            var response = await StubSender.SendAS4Message(_receiveAgentUrl, as4Message);
 
             // Assert
+            Assert.Equal(HttpStatusCode.Accepted, response.StatusCode);
+            Assert.True(String.IsNullOrWhiteSpace(await response.Content.ReadAsStringAsync()), "An empty response was expected");
+
             AssertIfStatusOfOutMessageIs(expectedId, OutStatus.Nack);
             AssertIfInMessageExistsForSignalMessage(expectedId);
+        }
+
+        [Fact]
+        public async Task OnInvalidReceipt_ExceptionIsLogged()
+        {
+            string userMessageId = Guid.NewGuid().ToString();
+
+            var receiptString = Encoding.UTF8.GetString(receipt_with_invalid_signature).Replace("{{RefToMessageId}}", userMessageId);
+
+            await CreateExistingOutMessage(userMessageId, CreateSendingPMode());
+
+            var response = await StubSender.SendRequest(_receiveAgentUrl, Encoding.UTF8.GetBytes(receiptString), "application/soap+xml");
+
+            Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
+            Assert.Equal("text/plain", response.Content.Headers.ContentType.MediaType);
+
+            var inMessage = _databaseSpy.GetInMessageFor(m => m.EbmsRefToMessageId == userMessageId);
+            Assert.NotNull(inMessage);
+            Assert.Equal(MessageType.Receipt, inMessage.EbmsMessageType);
+            Assert.Equal(InStatus.Exception, inMessage.Status);
+
+            var inExceptions = _databaseSpy.GetInExceptions(m => m.EbmsRefToMessageId == inMessage.EbmsMessageId);
+            Assert.NotNull(inExceptions);
+            Assert.NotEmpty(inExceptions);
+
+            var outMessage = _databaseSpy.GetOutMessageFor(m => m.EbmsRefToMessageId == userMessageId);
+            Assert.True(outMessage == null, "No OutMessage should be created for the received SignalMessage");
         }
 
         [Fact]
@@ -253,7 +287,8 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             AS4Message as4Message = CreateAS4ErrorMessage(messageId);
 
             // Act
-            await StubSender.SendAS4Message(_receiveAgentUrl, as4Message);
+            var response = await StubSender.SendAS4Message(_receiveAgentUrl, as4Message);
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
 
             // Assert
             var inMessage = _databaseSpy.GetInMessageFor(m => m.EbmsRefToMessageId == messageId);
@@ -299,13 +334,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                 }
             };
 
-            _databaseSpy.InsertOutMessage(new OutMessage()
-            {
-                EbmsMessageId = messageId,
-                Operation = Operation.Sent,
-                Status = OutStatus.Sent,
-                PMode = AS4XmlSerializer.ToString(sendingPMode)
-            });
+            await CreateExistingOutMessage(messageId, sendingPMode);
 
             var as4Message = CreateMultihopSignalMessage("multihop-signalmessage-id", messageId);
 
@@ -313,7 +342,6 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             await StubSender.SendAS4Message(_receiveAgentUrl, as4Message);
 
             // Assert
-
             var inMessage = _databaseSpy.GetInMessageFor(m => m.EbmsRefToMessageId == messageId);
             Assert.NotNull(inMessage);
             Assert.Equal(Operation.ToBeNotified, inMessage.Operation);
@@ -372,13 +400,13 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             return AS4Message.Create(receipt);
         }
 
-        private async Task CreateExistingOutMessage(string messageId)
+        private async Task CreateExistingOutMessage(string messageId, SendingProcessingMode sendingPMode)
         {
             var outMessage = new OutMessage
             {
                 EbmsMessageId = messageId,
                 Status = OutStatus.Sent,
-                PMode = await AS4XmlSerializer.ToStringAsync(GetSendingPMode())
+                PMode = await AS4XmlSerializer.ToStringAsync(sendingPMode)
             };
 
             _databaseSpy.InsertOutMessage(outMessage);
@@ -386,7 +414,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
         #endregion
 
-        private static SendingProcessingMode GetSendingPMode()
+        private static SendingProcessingMode CreateSendingPMode()
         {
             return new SendingProcessingMode
             {
@@ -401,9 +429,9 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             var result = new ErrorResult("An error occurred", ErrorAlias.NonApplicable);
             Error error = new ErrorBuilder().WithRefToEbmsMessageId(refToMessageId).WithErrorResult(result).Build();
 
-            return AS4Message.Create(error, GetSendingPMode());
+            return AS4Message.Create(error, CreateSendingPMode());
         }
-       
+
         private void AssertIfInMessageExistsForSignalMessage(string expectedId)
         {
             InMessage inMessage = _databaseSpy.GetInMessageFor(m => m.EbmsRefToMessageId == expectedId);
@@ -412,6 +440,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             Assert.Equal(Operation.ToBeNotified, inMessage.Operation);
         }
 
+        // ReSharper disable once UnusedParameter.Local
         private void AssertIfStatusOfOutMessageIs(string expectedId, OutStatus expectedStatus)
         {
             OutMessage outMessage = _databaseSpy.GetOutMessageFor(m => m.EbmsMessageId == expectedId);
@@ -423,7 +452,6 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         // TODO:
         // - Create a test that verifies if the Status for a received receipt/error is set to
         // --> ToBeNotified when the receipt is valid
-        // --> Exception when the receipt is invalid (also, an InException should be created)
 
         // - Create a test that verifies if the Status for a received UserMessage is set to
         // - Exception when the UserMessage is not valid (an InException should be present).

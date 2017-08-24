@@ -35,7 +35,7 @@ namespace Eu.EDelivery.AS4.Transformers
 
             if (!ContentTypeSupporter.IsContentTypeSupported(message.ContentType))
             {
-                throw new InvalidDataException($"ContentType is not supported {nameof(message.ContentType)}");
+                throw new InvalidDataException($"ContentType is not supported {message.ContentType}");
             }
         }
 

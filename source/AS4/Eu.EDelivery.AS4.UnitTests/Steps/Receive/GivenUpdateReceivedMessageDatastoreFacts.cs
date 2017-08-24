@@ -1,4 +1,3 @@
-using System;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -21,12 +20,20 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 {
     public class GivenUpdateReceivedMessageDatastoreFacts : GivenDatastoreStepFacts
     {
+        private readonly InMemoryMessageBodyStore _messageBodyStore = new InMemoryMessageBodyStore();
+
         /// <summary>
         /// Initializes a new instance of the <see cref="GivenUpdateReceivedMessageDatastoreFacts" /> class.
         /// </summary>
         public GivenUpdateReceivedMessageDatastoreFacts()
         {
-            Step = new UpdateReceivedAS4MessageBodyStep(GetDataStoreContext, StubMessageBodyStore.Default);
+            Step = new UpdateReceivedAS4MessageBodyStep(GetDataStoreContext, _messageBodyStore);
+        }
+
+        protected override void Disposing()
+        {
+            _messageBodyStore.Dispose();
+            base.Disposing();
         }
 
         /// <summary>
@@ -106,7 +113,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 // Arrange
                 await InsertOutMessageWith(EbmsMessageId);
 
-                var error = new ErrorBuilder().WithErrorResult(new ErrorResult("Some Error", ErrorCode.Ebms0001, ErrorAlias.ConnectionFailure))
+                var error = new ErrorBuilder().WithErrorResult(new ErrorResult("Some Error", ErrorAlias.ConnectionFailure))
                                               .WithRefToEbmsMessageId(EbmsMessageId)
                                               .Build();
 
@@ -139,7 +146,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
         private async Task<MessagingContext> ExecuteSaveReceivedMessage(MessagingContext context)
         {
             // The receipt needs to be saved first, since we're testing the update-step.
-            var step = new SaveReceivedMessageStep(GetDataStoreContext, StubMessageBodyStore.Default);
+            var step = new SaveReceivedMessageStep(GetDataStoreContext, _messageBodyStore);
             var result = await step.ExecuteAsync(context, CancellationToken.None);
 
             return result.MessagingContext;

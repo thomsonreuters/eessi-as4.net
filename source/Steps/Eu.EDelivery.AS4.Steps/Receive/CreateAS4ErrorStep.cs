@@ -1,12 +1,19 @@
-﻿using System.Threading;
+﻿using System;
+using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Core;
+using Eu.EDelivery.AS4.Common;
+using Eu.EDelivery.AS4.Entities;
+using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
+using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Singletons;
 using Eu.EDelivery.AS4.Xml;
 using NLog;
 using Error = Eu.EDelivery.AS4.Model.Core.Error;
+using SignalMessage = Eu.EDelivery.AS4.Model.Core.SignalMessage;
 using UserMessage = Eu.EDelivery.AS4.Model.Core.UserMessage;
 
 namespace Eu.EDelivery.AS4.Steps.Receive
@@ -14,6 +21,22 @@ namespace Eu.EDelivery.AS4.Steps.Receive
     public class CreateAS4ErrorStep : IStep
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+        private readonly Func<DatastoreContext> _createDatastoreContext;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CreateAS4ErrorStep"/> class.
+        /// </summary>
+        public CreateAS4ErrorStep() : this(Registry.Instance.CreateDatastoreContext)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CreateAS4ErrorStep"/> class.
+        /// </summary>
+        public CreateAS4ErrorStep(Func<DatastoreContext> createDatastoreContext)
+        {
+            _createDatastoreContext = createDatastoreContext;
+        }
 
         /// <summary>
         /// Start creating <see cref="Error"/>
@@ -29,12 +52,58 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 return await StepResult.SuccessAsync(messagingContext);
             }
 
-            Logger.Info($"[{messagingContext.AS4Message?.GetPrimaryMessageId()}] Create AS4 Error Message");
+            Logger.Info($"[{messagingContext.EbmsMessageId}] Create AS4 Error Message");
 
             AS4Message errorMessage = CreateAS4Error(messagingContext);
+
+            await CreateExceptionForReceivedSignalMessages(messagingContext);
+
             messagingContext.ModifyContext(errorMessage);
-          
+
             return await StepResult.SuccessAsync(messagingContext);
+        }
+
+        private async Task CreateExceptionForReceivedSignalMessages(MessagingContext context)
+        {
+            var signalMessages = context.AS4Message.SignalMessages;
+
+            if (signalMessages.Any() == false)
+            {
+                return;
+            }
+
+            using (var dbContext = _createDatastoreContext())
+            {
+                var repository = new DatastoreRepository(dbContext);
+
+                var pmodeString = context.GetReceivingPModeString();
+
+                foreach (var signal in signalMessages)
+                {
+                    var inException = CreateInException(signal, context.ErrorResult);
+                    inException.PMode = pmodeString;
+
+                    repository.InsertInException(inException);
+                }
+
+                repository.UpdateInMessages(m => signalMessages.Select(s => s.MessageId).Contains(m.EbmsMessageId),
+                                            m => m.Status = InStatus.Exception);
+
+                await dbContext.SaveChangesAsync();
+            }
+        }
+
+        private static InException CreateInException(SignalMessage message, ErrorResult error)
+        {
+            var inException = new InException();
+            // TODO: what about notification ?
+
+            inException.EbmsRefToMessageId = message.MessageId;
+            inException.Exception = error.Description;
+            inException.ErrorAlias = error.Alias;
+            inException.Operation = Operation.NotApplicable;
+
+            return inException;
         }
 
         private static AS4Message CreateAS4Error(MessagingContext context)

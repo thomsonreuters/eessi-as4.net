@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Entities;
@@ -17,14 +18,15 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
     /// </summary>
     public class GivenStoreAS4MessageStepsFacts : GivenDatastoreFacts
     {
+        private readonly InMemoryMessageBodyStore _messageBodyStore = new InMemoryMessageBodyStore();
+
         [Fact]
         public async Task MessageGetsSavedWithOperationToBeProcessed()
         {
             // Arrange
-            string id = Guid.NewGuid().ToString(), 
-                expected = Guid.NewGuid().ToString();
+            string id = Guid.NewGuid().ToString();
 
-            var sut = new StoreAS4MessageStep(GetDataStoreContext, new StubMessageBodyStore(expected));
+            var sut = new StoreAS4MessageStep(GetDataStoreContext, _messageBodyStore);
 
             // Act
             await sut.ExecuteAsync(
@@ -34,11 +36,17 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
             // Assert
             GetDataStoreContext.AssertOutMessage(
                 id,
-                m =>
+                async m =>
                 {
                     Assert.Equal(Operation.ToBeProcessed, m.Operation);
-                    Assert.Equal(expected, m.MessageLocation);
+                    Assert.True(await _messageBodyStore.LoadMessageBodyAsync(m.MessageLocation) != Stream.Null);
                 });
+        }
+
+        protected override void Disposing()
+        {
+            _messageBodyStore.Dispose();
+            base.Disposing();
         }
     }
 }

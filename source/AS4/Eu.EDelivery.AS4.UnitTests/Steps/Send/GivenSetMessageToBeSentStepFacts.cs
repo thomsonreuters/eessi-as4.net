@@ -15,6 +15,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
 {
     public class GivenSetMessageToBeSentStepFacts : GivenDatastoreFacts
     {
+        private readonly InMemoryMessageBodyStore _messageBodyStore = new InMemoryMessageBodyStore();
+
         [Fact]
         public async Task StepSetsMessageToBeSent()
         {
@@ -22,7 +24,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             string messageId = Guid.NewGuid().ToString(),
                 expected = Guid.NewGuid().ToString();
 
-            var sut = new SetMessageToBeSentStep(GetDataStoreContext, new StubMessageBodyStore(expected));
+            var sut = new SetMessageToBeSentStep(GetDataStoreContext, _messageBodyStore);
 
             InsertOutMessageWith(messageId, Operation.Processing, expected);
 
@@ -57,6 +59,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             };
 
             GetDataStoreContext.InsertOutMessage(outMessage);
+        }
+
+        protected override void Disposing()
+        {
+            _messageBodyStore.Dispose();
+            base.Disposing();
         }
     }
 }
