@@ -23,8 +23,6 @@ namespace Eu.EDelivery.AS4.Entities
         [NotMapped]
         public Operation Operation { get; set; }
 
-        public string OperationMethod { get; set; }
-
         [Column("Operation")]
         public string OperationString
         {
