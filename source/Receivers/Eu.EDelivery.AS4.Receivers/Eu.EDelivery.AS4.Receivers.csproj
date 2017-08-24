@@ -57,6 +57,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DatastoreReceiver.cs" />
+    <Compile Include="FileReceiverSettings.cs" />
     <Compile Include="PullRequestReceiver.cs" />
     <Compile Include="FileReceiver.cs" />
     <Compile Include="HttpReceiver.cs" />

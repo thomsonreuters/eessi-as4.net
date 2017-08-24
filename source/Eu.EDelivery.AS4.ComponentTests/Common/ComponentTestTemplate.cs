@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using Eu.EDelivery.AS4.TestUtils;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.ComponentTests.Common

@@ -10,6 +10,7 @@ using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Serialization;
+using Eu.EDelivery.AS4.TestUtils;
 using Xunit;
 using static Eu.EDelivery.AS4.ComponentTests.Properties.Resources;
 using MessageExchangePattern = Eu.EDelivery.AS4.Entities.MessageExchangePattern;
