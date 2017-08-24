@@ -171,6 +171,7 @@
   <ItemGroup>
     <None Include="app.config" />
     <None Include="packages.config" />
+    <None Include="Resources\receipt_with_invalid_signature.as4" />
     <None Include="Resources\receiveagent-wrong-encrypted-message.as4" />
     <None Include="Resources\deliveragent-message.as4" />
     <None Include="Resources\receiveagent_message1.as4" />
@@ -207,7 +208,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Resources\deliveragent-pmode.xml" />
-    <Content Include="Resources\pullsendagent_pullrequest.txt" />
     <Content Include="Resources\pullsendagent_submit.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Runtime.Remoting.Messaging;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Microsoft.Extensions.Caching.Memory;
@@ -102,9 +102,12 @@ namespace Eu.EDelivery.AS4.Repositories
         /// <param name="inMessage"></param>
         public void InsertInMessage(InMessage inMessage)
         {
+            inMessage.InsertionTime = DateTimeOffset.UtcNow;
+            inMessage.ModificationTime = DateTimeOffset.UtcNow;
+
             if (String.IsNullOrWhiteSpace(inMessage.MessageLocation))
             {
-                // TODO: throw an exception.
+                throw new InvalidDataException("InMessage.MessageLocation has not been set.");
             }
 
             _datastoreContext.InMessages.Add(inMessage);
@@ -229,9 +232,12 @@ namespace Eu.EDelivery.AS4.Repositories
         /// <param name="outMessage"></param>        
         public void InsertOutMessage(OutMessage outMessage)
         {
+            outMessage.InsertionTime = DateTimeOffset.UtcNow;
+            outMessage.ModificationTime = DateTimeOffset.UtcNow;
+            
             if (String.IsNullOrWhiteSpace(outMessage.MessageLocation))
             {
-                // TODO: throw exception.
+                throw new InvalidDataException("OutMessage.MessageLocation has not been set.");
             }
 
             _datastoreContext.OutMessages.Add(outMessage);
@@ -395,6 +401,9 @@ namespace Eu.EDelivery.AS4.Repositories
         /// <param name="outException"></param>
         public void InsertOutException(OutException outException)
         {
+            outException.InsertionTime = DateTimeOffset.UtcNow;
+            outException.ModificationTime = DateTimeOffset.UtcNow;
+
             _datastoreContext.OutExceptions.Add(outException);
         }
 
@@ -426,6 +435,9 @@ namespace Eu.EDelivery.AS4.Repositories
         /// <param name="inException"></param>
         public void InsertInException(InException inException)
         {
+            inException.ModificationTime = DateTimeOffset.UtcNow;
+            inException.InsertionTime = DateTimeOffset.UtcNow;
+
             _datastoreContext.InExceptions.Add(inException);
         }
 

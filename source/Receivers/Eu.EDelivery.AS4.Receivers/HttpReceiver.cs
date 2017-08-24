@@ -471,14 +471,15 @@ namespace Eu.EDelivery.AS4.Receivers
 
                 protected override HttpListenerContentResult ExecuteCore(HttpListenerRequest request, MessagingContext processorResult)
                 {
-                    if (processorResult.Exception != null)
-                    {                       
+                    if (processorResult.Exception != null ||
+                       (processorResult.ErrorResult != null && (processorResult.AS4Message?.IsEmpty ?? true)))
+                    {
                         string errorMessage = String.IsNullOrWhiteSpace(processorResult.ErrorResult?.Description) == false
                             ? processorResult.ErrorResult.Description
-                            : processorResult.Exception.Message;
+                            : processorResult.Exception?.Message ?? string.Empty;
 
                         if (processorResult.ErrorResult == null ||
-                            processorResult.ErrorResult.Code == ErrorCode.NotApplicable)                        
+                            processorResult.ErrorResult.Code == ErrorCode.NotApplicable)
                         {
                             return new ByteContentResult(HttpStatusCode.BadRequest, "text/plain",
                                                          Encoding.UTF8.GetBytes(errorMessage));

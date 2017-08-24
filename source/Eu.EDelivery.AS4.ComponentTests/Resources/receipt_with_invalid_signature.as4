@@ -1,0 +1,79 @@
+<S12:Envelope xmlns:S12="http://www.w3.org/2003/05/soap-envelope" xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns:eb3="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/" xmlns:ebbp="http://docs.oasis-open.org/ebxml-bp/ebbp-signals-2.0" xmlns:ebint="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/multihop/200902/" xmlns:wsa="http://www.w3.org/2005/08/addressing" xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd">
+	<S12:Header>
+		<eb3:Messaging S12:mustUnderstand="true" id="_ebmessaging_N65631" wsu:Id="_2184be38-e888-47f7-9376-b068c1a370b0">
+			<eb3:SignalMessage>
+				<eb3:MessageInfo>
+					<eb3:Timestamp>2017-03-01T16:18:23.462Z</eb3:Timestamp>
+					<eb3:MessageId>ff424e3d-b88a-44ec-b9ec-d6ee4cc8a3d5@domibus.eu</eb3:MessageId>
+					<eb3:RefToMessageId>{{RefToMessageId}}</eb3:RefToMessageId>
+				</eb3:MessageInfo>
+				<eb3:Receipt>
+					<ebbp:NonRepudiationInformation>
+						<ebbp:MessagePartNRInformation>
+							<Reference xmlns="http://www.w3.org/2000/09/xmldsig#" xmlns:s12="http://www.w3.org/2003/05/soap-envelope" URI="#header-ab6e6224-a2d8-4a7a-887d-88eb4da9d6c0">
+								<Transforms>
+									<Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
+								</Transforms>
+								<DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/>
+								<DigestValue>MT10Lzir+UrxUdHuF4ftEzOU+ekxx/GRu4qwrlcZ9GI=</DigestValue>
+							</Reference>
+						</ebbp:MessagePartNRInformation>
+						<ebbp:MessagePartNRInformation>
+							<Reference xmlns="http://www.w3.org/2000/09/xmldsig#" xmlns:s12="http://www.w3.org/2003/05/soap-envelope" URI="#body-37f9fca9-5328-47be-890f-3b09b0338ac4">
+								<Transforms>
+									<Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
+								</Transforms>
+								<DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/>
+								<DigestValue>xpZFmTTEFv35k/tkzm3V7IVprV6BF/pnfvdZvabPhxI=</DigestValue>
+							</Reference>
+						</ebbp:MessagePartNRInformation>
+						<ebbp:MessagePartNRInformation>
+							<Reference xmlns="http://www.w3.org/2000/09/xmldsig#" xmlns:s12="http://www.w3.org/2003/05/soap-envelope" URI="cid:xmlpayload@minder">
+								<Transforms>
+									<Transform Algorithm="http://docs.oasis-open.org/wss/oasis-wss-SwAProfile-1.1#Attachment-Content-Signature-Transform"/>
+								</Transforms>
+								<DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/>
+								<DigestValue>/buTN8CcWPRv0v6b3+nGqxf8PcXlLNA4SRlZhzTTGKM=</DigestValue>
+							</Reference>
+						</ebbp:MessagePartNRInformation>
+						<ebbp:MessagePartNRInformation>
+							<Reference xmlns="http://www.w3.org/2000/09/xmldsig#" xmlns:s12="http://www.w3.org/2003/05/soap-envelope" URI="cid:custompayload@minder">
+								<Transforms>
+									<Transform Algorithm="http://docs.oasis-open.org/wss/oasis-wss-SwAProfile-1.1#Attachment-Content-Signature-Transform"/>
+								</Transforms>
+								<DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/>
+								<DigestValue>LzVsDTtS1cgQEZ5myKuvmC+k5oKF18bkL7MZg5lBbEs=</DigestValue>
+							</Reference>
+						</ebbp:MessagePartNRInformation>
+					</ebbp:NonRepudiationInformation>
+				</eb3:Receipt>
+			</eb3:SignalMessage>
+		</eb3:Messaging>
+		<wsse:Security xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd" S12:mustUnderstand="true">
+			<ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#" Id="SIG-1eafe0bd-0259-4b51-82d8-13ff8d2e2c94">
+				<ds:SignedInfo>
+					<ds:CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#">
+						<ec:InclusiveNamespaces xmlns:ec="http://www.w3.org/2001/10/xml-exc-c14n#" PrefixList="S12 ds eb3 ebbp ebint wsa wsse wsu"/>
+					</ds:CanonicalizationMethod>
+					<ds:SignatureMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#rsa-sha256"/>
+					<ds:Reference URI="#_2184be38-e888-47f7-9376-b068c1a370b0">
+						<ds:Transforms>
+							<ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#">
+								<ec:InclusiveNamespaces xmlns:ec="http://www.w3.org/2001/10/xml-exc-c14n#" PrefixList="ds ebbp ebint wsa wsse"/>
+							</ds:Transform>
+						</ds:Transforms>
+						<ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/>
+						<ds:DigestValue>VduQeJRNVoD/f52uNWeZYeynh+IhSOFXtea6WRm720U=</ds:DigestValue>
+					</ds:Reference>
+				</ds:SignedInfo>
+				<ds:SignatureValue>Z1dG1emx6nAYlEpc0FE3krRnbhDgDm7YUmH+LhLEMiX+lpdczaCZrBUJ91YP7YTwgbPBgXmvJenxeIQCEpHM3ElBQbjhnGbFSN7FGG7MM8Cov+X0MHvMW6VL86OZwbPISKh8IIBg9oYwjlBGN94Iprfz1qTnPM39LPV5J9uoKJEuDH1pPDqcmsYJZsEN0bYvk4ZlOZyInfczyigdO8wYDi0tpgnn8RxQo5/UU0yO90ns5jA1SwNBB6Q6fgI7BieZhbbse584CpOkfpj0RkUfE19UX0rqgRmxCM1L53XoAi9lPTt1ffeS3UeHQM1pKfBkwId9UYRPY/nWyfa7GKL5gQ==</ds:SignatureValue>
+				<ds:KeyInfo Id="KI-0ea4f1d0-7e50-47f9-988b-1dfc07d8b265">
+					<wsse:SecurityTokenReference xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" wsu:Id="STR-43e6ff45-a313-4d0b-b7fb-52e9bf050a46">
+						<wsse:KeyIdentifier EncodingType="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary" ValueType="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509SubjectKeyIdentifier">MOo0fahfgOzVAjt6aOsbY6+4G54=</wsse:KeyIdentifier>
+					</wsse:SecurityTokenReference>
+				</ds:KeyInfo>
+			</ds:Signature>
+		</wsse:Security>
+	</S12:Header>
+	<S12:Body wsu:Id="N65689"/>
+</S12:Envelope>
