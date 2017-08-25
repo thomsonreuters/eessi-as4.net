@@ -49,6 +49,12 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
         /// </summary>
         public void Start()
         {
+            if (!_settingsOverriden)
+            {
+                TryMoveConfigFile("settings.xml", "settings-original.xml", true);
+                TryCopyConfigFile(@"integrationtest-settings\settings.xml", @"settings.xml", true);
+            }
+
             _as4ComponentProcess = Process.Start("Eu.EDelivery.AS4.ServiceHandler.ConsoleHost.exe");
 
             if (_as4ComponentProcess != null)
@@ -57,21 +63,32 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
             }
         }
 
+        private bool _settingsOverriden = false;
+
         /// <summary>
         /// Override the default 'settings.xml' with a new file with the given <paramref name="newSettingsName"/>.
         /// </summary>
         /// <param name="newSettingsName">Name of the new 'settings' used in the Integration Test.</param>
         public void OverrideSettings(string newSettingsName)
         {
-            TryDeleteConfigFile("settings-temp.xml");
+            if (_as4ComponentProcess != null)
+            {
+                throw new InvalidOperationException("Cannot override config settings when AS4 MSH is already running.");
+            }
 
-            TryMoveConfigFile("settings.xml", "settings-temp.xml");
-            TryMoveConfigFile(newSettingsName, "settings.xml");
+            _settingsOverriden = true;
+
+            TryMoveConfigFile("settings.xml", "settings-original.xml", true);
+            TryMoveConfigFile(newSettingsName, "settings.xml", true);
         }
 
-        private static void TryMoveConfigFile(string sourceFile, string destFile)
+        private static void TryMoveConfigFile(string sourceFile, string destFile, bool overwriteExisting = false)
         {
-           TryFileOperation(() => File.Move, sourceFile, destFile);
+            if (overwriteExisting)
+            {
+                TryDeleteConfigFile(destFile);
+            }
+            TryFileOperation(() => File.Move, sourceFile, destFile);
         }
 
         /// <summary>
@@ -109,19 +126,26 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
             Assert.Equal(sendPayload.Length, receivedPayload.Length);
         }
 
+        private bool _isDisposed;
+
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
         public void Dispose()
         {
+            if (_isDisposed)
+            {
+                return;
+            }
+
+            _isDisposed = true;
+
             if (!_as4ComponentProcess.HasExited)
             {
                 _as4ComponentProcess.Kill();
             }
 
-            TryDeleteConfigFile("settings-temp.xml");
-            TryDeleteConfigFile("settings.xml");
-            TryCopyConfigFile(@"integrationtest-settings\settings.xml", @"settings.xml");
+            TryMoveConfigFile("settings-original.xml", "settings.xml", true);
         }
 
         private static void TryDeleteConfigFile(string fileName)
@@ -129,8 +153,12 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
             TryFileOperation(() => (source, dest) => File.Delete(source), fileName);
         }
 
-        private static void TryCopyConfigFile(string sourceFile, string destFile)
+        private static void TryCopyConfigFile(string sourceFile, string destFile, bool overwriteExisting)
         {
+            if (overwriteExisting)
+            {
+                TryDeleteConfigFile(destFile);
+            }
             TryFileOperation(() => File.Copy, sourceFile, destFile);
         }
 
