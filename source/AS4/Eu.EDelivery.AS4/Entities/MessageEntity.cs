@@ -132,9 +132,6 @@ namespace Eu.EDelivery.AS4.Entities
         [NotMapped]
         public MessageType EbmsMessageType { get; set; }
 
-        [NotMapped]
-        public ErrorAlias ErrorAlias { get; set; }
-
         [Column("MEP")]
         [MaxLength(25)]
         public string MEPString
@@ -149,14 +146,6 @@ namespace Eu.EDelivery.AS4.Entities
         {
             get { return EbmsMessageType.ToString(); }
             set { EbmsMessageType = (MessageType)Enum.Parse(typeof(MessageType), value, true); }
-        }
-
-        [Column("ExceptionType")]
-        [MaxLength(75)]
-        public string ExceptionTypeString
-        {
-            get { return ErrorAlias.ToString(); }
-            set { ErrorAlias = (ErrorAlias)Enum.Parse(typeof(ErrorAlias), value, true); }
         }
 
         [Column("Status")]
