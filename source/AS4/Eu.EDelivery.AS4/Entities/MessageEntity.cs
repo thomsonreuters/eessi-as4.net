@@ -172,9 +172,7 @@ namespace Eu.EDelivery.AS4.Entities
         /// <param name="cancellationToken">The cancellation token.</param>
         public void AssignAS4Properties(MessageUnit messageUnit, CancellationToken cancellationToken)
         {
-            var userMessage = messageUnit as UserMessage;
-
-            if (userMessage != null)
+            if (messageUnit is UserMessage userMessage)
             {
                 FromParty = userMessage.Sender.PartyIds.First().Id;
                 ToParty = userMessage.Receiver.PartyIds.First().Id;
@@ -188,8 +186,7 @@ namespace Eu.EDelivery.AS4.Entities
             }
             else
             {
-                var signalMessage = messageUnit as SignalMessage;
-                if (signalMessage != null)
+                if (messageUnit is SignalMessage signalMessage)
                 {
                     IsDuplicate = signalMessage.IsDuplicate;
                     Mpc = signalMessage.MultiHopRouting?.mpc ?? Constants.Namespaces.EbmsDefaultMpc;

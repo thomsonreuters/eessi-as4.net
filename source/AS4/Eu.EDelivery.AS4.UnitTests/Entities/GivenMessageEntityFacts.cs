@@ -1,5 +1,7 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Entities;
@@ -11,6 +13,7 @@ using Eu.EDelivery.AS4.UnitTests.Builders.Entities;
 using Eu.EDelivery.AS4.UnitTests.Model;
 using Eu.EDelivery.AS4.UnitTests.Repositories;
 using Xunit;
+using Eu.EDelivery.AS4.UnitTests.Common;
 
 namespace Eu.EDelivery.AS4.UnitTests.Entities
 {
@@ -166,6 +169,62 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
                 Assert.Equal(receivingPMode.Id, entity.PModeId);
                 Assert.Equal(entity.PMode, AS4XmlSerializer.ToString(receivingPMode));
 
+            }
+        }
+
+        public class Persistence : GivenDatastoreFacts
+        {
+            [Fact]
+            public async Task IdIsCorrectlyRetrieved()
+            {
+                const string messageId = "messageId";
+
+                using (var db = GetDataStoreContext())
+                {
+                    var inMessage = new InMessage();
+                    inMessage.EbmsMessageId = messageId;
+                    inMessage.MessageLocation = "test";
+
+                    Assert.Equal(default(int), inMessage.Id);
+
+                    db.InMessages.Add(inMessage);
+
+                    await db.SaveChangesAsync();
+                }
+
+                using (var db = GetDataStoreContext())
+                {
+                    var inMessage = db.InMessages.FirstOrDefault(m => m.EbmsMessageId == messageId);
+                    Assert.NotNull(inMessage);
+                    Assert.NotEqual(default(int), inMessage.Id);
+                }
+            }
+
+            [Fact]
+            public async Task PModeInformationIsCorrectlyRetrieved()
+            {
+                const string messageId = "messageId";
+                const string pmodeId = "TestPModeId";
+
+                using (var db = GetDataStoreContext())
+                {
+                    var inMessage = new InMessage();
+                    inMessage.EbmsMessageId = messageId;
+                    inMessage.SetPModeInformation(new SendingProcessingMode() { Id = pmodeId });
+                    inMessage.MessageLocation = "test";
+
+                    db.InMessages.Add(inMessage);
+
+                    await db.SaveChangesAsync();
+                }
+
+                using (var db = GetDataStoreContext())
+                {
+                    var inMessage = db.InMessages.FirstOrDefault(m => m.EbmsMessageId == messageId);
+                    Assert.NotNull(inMessage);
+                    Assert.False(String.IsNullOrWhiteSpace(inMessage.PModeId));
+                    Assert.False(String.IsNullOrWhiteSpace(inMessage.PMode));
+                }
             }
         }
 
