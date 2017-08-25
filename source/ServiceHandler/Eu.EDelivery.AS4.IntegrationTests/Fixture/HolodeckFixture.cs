@@ -48,15 +48,27 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Fixture
             p.StartInfo.WorkingDirectory = System.IO.Path.GetDirectoryName(executablePath);
             p.StartInfo.RedirectStandardError = true;
             p.StartInfo.RedirectStandardOutput = true;
-            
+
             p.ErrorDataReceived += delegate (object sender, DataReceivedEventArgs args)
             {
                 Console.WriteLine(args.Data);
             };
 
-            if (p.Start() == false)
+            try
             {
-                throw new InvalidOperationException($"Unable to start holodeck. Exitcode =  {p.ExitCode}");
+                if (p.Start() == false)
+                {
+                    throw new InvalidOperationException($"Unable to start holodeck. Exitcode = {p.ExitCode}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                if (ex.InnerException != null)
+                {
+                    Console.WriteLine(ex.InnerException);
+                }
+                throw;
             }
 
             return p;
