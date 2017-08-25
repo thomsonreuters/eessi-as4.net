@@ -7,7 +7,6 @@ using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Factories;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
-using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Steps.ReceptionAwareness;
 using Eu.EDelivery.AS4.UnitTests.Common;
 using Eu.EDelivery.AS4.UnitTests.Repositories;
@@ -68,7 +67,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.ReceptionAwareness
             {
                 using (var context = new DatastoreContext(Options))
                 {
-                    var outMessage = new OutMessage {EbmsMessageId = messageId, Status = OutStatus.Ack};
+                    var outMessage = new OutMessage { EbmsMessageId = messageId, Status = OutStatus.Ack };
                     context.OutMessages.Add(outMessage);
 
                     context.SaveChanges();
@@ -83,7 +82,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.ReceptionAwareness
                 awareness.CurrentRetryCount = awareness.TotalRetryCount;
 
                 InsertReceptionAwareness(awareness);
-                await InsertOutMessage(awareness.InternalMessageId);
+                InsertOutMessage(awareness.InternalMessageId);
 
                 var internalMessage = new MessagingContext(awareness);
                 var step = new ReceptionAwarenessUpdateDatastoreStep(_messageBodyStore, GetDataStoreContext);
@@ -119,7 +118,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.ReceptionAwareness
                 awareness.Status = ReceptionStatus.Busy;
 
                 InsertReceptionAwareness(awareness);
-                await InsertOutMessage(awareness.InternalMessageId);
+                InsertOutMessage(awareness.InternalMessageId);
 
                 var internalMessage = new MessagingContext(awareness);
                 var step = new ReceptionAwarenessUpdateDatastoreStep(_messageBodyStore, GetDataStoreContext);
@@ -167,12 +166,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.ReceptionAwareness
             }
         }
 
-        protected async Task InsertOutMessage(string messageId)
+        protected void InsertOutMessage(string messageId)
         {
             var pmode = new SendingProcessingMode();
-            string pmodeString = await AS4XmlSerializer.ToStringAsync(pmode);
-            var outMessage = new OutMessage { EbmsMessageId = messageId, PMode = pmodeString };
-
+            var outMessage = new OutMessage { EbmsMessageId = messageId };
+            outMessage.SetPModeInformation(pmode);
             GetDataStoreContext.InsertOutMessage(outMessage);
         }
 

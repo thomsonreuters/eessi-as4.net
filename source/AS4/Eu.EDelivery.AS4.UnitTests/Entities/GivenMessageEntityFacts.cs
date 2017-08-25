@@ -4,7 +4,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Core;
+using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
+using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.UnitTests.Builders.Entities;
 using Eu.EDelivery.AS4.UnitTests.Model;
 using Eu.EDelivery.AS4.UnitTests.Repositories;
@@ -94,7 +96,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
 
             private static AS4Message CreateAS4MessageWithReceiptMessage(bool isDuplicate)
             {
-                return AS4Message.Create(new FilledNRRReceipt {IsDuplicate = isDuplicate});
+                return AS4Message.Create(new FilledNRRReceipt { IsDuplicate = isDuplicate });
             }
 
             private static MessageEntity BuildForMessageUnit(MessageUnit expected)
@@ -137,6 +139,36 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
             }
         }
 
+        public class PMode : GivenMessageEntityFacts
+        {
+            [Fact]
+            public void SendingPModeInformationIsCorrectlySet()
+            {
+                var entity = new StubMessageEntity();
+
+                var sendingPMode = new SendingProcessingMode() { Id = "sending_pmode_id" };
+
+                entity.SetPModeInformation(sendingPMode);
+
+                Assert.Equal(sendingPMode.Id, entity.PModeId);
+                Assert.Equal(entity.PMode, AS4XmlSerializer.ToString(sendingPMode));
+            }
+
+            [Fact]
+            public void ReceivingPModeInformationIsCorrectlySet()
+            {
+                var entity = new StubMessageEntity();
+
+                var receivingPMode = new ReceivingProcessingMode() { Id = "sending_pmode_id" };
+
+                entity.SetPModeInformation(receivingPMode);
+
+                Assert.Equal(receivingPMode.Id, entity.PModeId);
+                Assert.Equal(entity.PMode, AS4XmlSerializer.ToString(receivingPMode));
+
+            }
+        }
+
         public class RetrieveMessageBody
         {
             [Fact]
@@ -171,7 +203,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
 
             private static StubMessageEntity CreateMessageEntity(string messageLocation)
             {
-                return new StubMessageEntity {MessageLocation = messageLocation};
+                return new StubMessageEntity { MessageLocation = messageLocation };
             }
         }
 

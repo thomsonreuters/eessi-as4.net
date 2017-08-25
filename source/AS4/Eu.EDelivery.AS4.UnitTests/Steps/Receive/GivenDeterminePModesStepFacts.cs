@@ -8,7 +8,6 @@ using Eu.EDelivery.AS4.Factories;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
-using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Steps.Receive;
 using Eu.EDelivery.AS4.UnitTests.Builders.Core;
@@ -63,9 +62,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 var outMessage = new OutMessage
                 {
                     EbmsMessageId = messageId,
-                    PMode = AS4XmlSerializer.ToString(pmode)
                 };
 
+                outMessage.SetPModeInformation(pmode);
                 GetDataStoreContext.InsertOutMessage(outMessage);
             }
 
@@ -168,7 +167,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 ReceivePMode partyInfoPMode = CreatePModeWithParties(fromParty, toParty);
                 partyInfoPMode.MessagePackaging.CollaborationInfo.AgreementReference.Value = "not-equal";
                 var idPMode = CreateDefaultPMode(sharedId);
-                
+
                 SetupPModes(partyInfoPMode, idPMode);
                 return idPMode;
             }
@@ -308,10 +307,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             {
                 Id = id,
                 MessagePackaging =
-                    new MessagePackaging { CollaborationInfo = new CollaborationInfo(), PartyInfo = new PartyInfo() }
+                    new MessagePackaging { CollaborationInfo = new CollaborationInfo(), PartyInfo = new PartyInfo() },
+                ReplyHandling = { SendingPMode = "response_pmode" }
             };
-
-            pmode.ReplyHandling.SendingPMode = "response_pmode";
 
             return pmode;
         }

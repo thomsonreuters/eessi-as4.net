@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
+using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Singletons;
@@ -26,7 +27,54 @@ namespace Eu.EDelivery.AS4.Entities
         [MaxLength(256)]
         public string ContentType { get; set; }
 
-        public string PMode { get; set; }
+        /// <summary>
+        /// Gets a string representation of the PMode that has been used to process this message.
+        /// </summary>
+        public string PMode { get; protected set; }
+
+        /// <summary>
+        /// Gets the ID of the PMode that is used to process this message.
+        /// </summary>
+        public string PModeId { get; protected set; }
+
+        /// <summary>
+        /// Set the Id & string represenation of the PMode that is used to process the message.
+        /// </summary>
+        /// <param name="pmodeId"></param>
+        /// <param name="pmodeContent"></param>
+        public void SetPModeInformation(string pmodeId, string pmodeContent)
+        {
+            PModeId = pmodeId;
+            PMode = pmodeContent;
+        }
+
+        /// <summary>
+        /// Set the PMode that is used to process the message.
+        /// </summary>
+        /// <param name="pmode"></param>
+        public void SetPModeInformation(IPMode pmode)
+        {
+            if (pmode != null)
+            {
+                PModeId = pmode.Id;
+
+                // The Xml Serializer is not able to serialize an interface, therefore
+                // the argument must first be cast to a correct implementation.
+
+                if (pmode is SendingProcessingMode sp)
+                {
+                    PMode = AS4XmlSerializer.ToString(sp);
+                }
+                else if (pmode is ReceivingProcessingMode rp)
+                {
+                    PMode = AS4XmlSerializer.ToString(rp);
+                }
+                else
+                {
+                    throw new NotImplementedException("Unable to serialize the the specified IPMode");
+                }
+            }
+        }
 
         [MaxLength(255)]
         public string FromParty { get; set; }

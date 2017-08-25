@@ -16,9 +16,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
     /// Testing <see cref="InMessageBuilder" />
     /// </summary>
     public class GivenInMessageBuilderFacts
-    {        
+    {
         public class GivenValidArguments : GivenInMessageBuilderFacts
-        {           
+        {
             [Fact]
             public async Task ThenBuildInMessageSucceedsWithAS4MessageAndMessageUnit()
             {
@@ -29,7 +29,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
                 // Act
                 InMessage inMessage =
                     InMessageBuilder.ForSignalMessage(receipt, as4Message, MessageExchangePattern.Push)
-                                    .WithPModeString(await AS4XmlSerializer.ToStringAsync(new ReceivingProcessingMode()))
+                                    .WithPMode(new ReceivingProcessingMode())
                                     .Build(CancellationToken.None);
 
                 // Assert
@@ -57,7 +57,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
             public void ThenBuildInMessageFailsWithMissingMessageUnit()
             {
                 // Arrange
-                AS4Message as4Message = AS4Message.Empty;                
+                AS4Message as4Message = AS4Message.Empty;
 
                 // Act / Assert
                 Assert.ThrowsAny<Exception>(

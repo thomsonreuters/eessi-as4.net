@@ -13,7 +13,6 @@ using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
-using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.TestUtils.Stubs;
 using Eu.EDelivery.AS4.Xml;
 using Xunit;
@@ -210,7 +209,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         {
             // Arrange
             const string expectedId = "message-id";
-            await CreateExistingOutMessage(expectedId, CreateSendingPMode());
+            CreateExistingOutMessage(expectedId, CreateSendingPMode());
 
             AS4Message as4Message = CreateAS4ReceiptMessage(expectedId);
 
@@ -237,7 +236,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         {
             // Arrange
             const string expectedId = "message-id";
-            await CreateExistingOutMessage(expectedId, CreateSendingPMode());
+            CreateExistingOutMessage(expectedId, CreateSendingPMode());
 
             AS4Message as4Message = CreateAS4ErrorMessage(expectedId);
 
@@ -259,7 +258,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
             var receiptString = Encoding.UTF8.GetString(receipt_with_invalid_signature).Replace("{{RefToMessageId}}", userMessageId);
 
-            await CreateExistingOutMessage(userMessageId, CreateSendingPMode());
+            CreateExistingOutMessage(userMessageId, CreateSendingPMode());
 
             var response = await StubSender.SendRequest(_receiveAgentUrl, Encoding.UTF8.GetBytes(receiptString), "application/soap+xml");
 
@@ -334,7 +333,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                 }
             };
 
-            await CreateExistingOutMessage(messageId, sendingPMode);
+            CreateExistingOutMessage(messageId, sendingPMode);
 
             var as4Message = CreateMultihopSignalMessage("multihop-signalmessage-id", messageId);
 
@@ -400,14 +399,15 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             return AS4Message.Create(receipt);
         }
 
-        private async Task CreateExistingOutMessage(string messageId, SendingProcessingMode sendingPMode)
+        private void CreateExistingOutMessage(string messageId, SendingProcessingMode sendingPMode)
         {
             var outMessage = new OutMessage
             {
                 EbmsMessageId = messageId,
-                Status = OutStatus.Sent,
-                PMode = await AS4XmlSerializer.ToStringAsync(sendingPMode)
+                Status = OutStatus.Sent
             };
+
+            outMessage.SetPModeInformation(sendingPMode);
 
             _databaseSpy.InsertOutMessage(outMessage);
         }

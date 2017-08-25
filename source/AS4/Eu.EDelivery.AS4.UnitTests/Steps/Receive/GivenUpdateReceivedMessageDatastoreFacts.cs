@@ -137,8 +137,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             {
                 using (DatastoreContext db = GetDataStoreContext())
                 {
-                    db.OutMessages.Add(await CreateOutMessage(messageId));
-                    db.SaveChanges();
+                    db.OutMessages.Add(CreateOutMessage(messageId));
+                    await db.SaveChangesAsync();
                 }
             }
         }
@@ -152,16 +152,19 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             return result.MessagingContext;
         }
 
-        private static async Task<OutMessage> CreateOutMessage(string messageId)
+        private static OutMessage CreateOutMessage(string messageId)
         {
-            return new OutMessage
+            var outMessage = new OutMessage
             {
                 EbmsMessageId = messageId,
                 Status = OutStatus.Sent,
                 Operation = Operation.NotApplicable,
                 EbmsMessageType = MessageType.UserMessage,
-                PMode = await AS4XmlSerializer.ToStringAsync(GetSendingPMode())
             };
+
+            outMessage.SetPModeInformation(GetSendingPMode());
+
+            return outMessage;
         }
 
         protected MessagingContext CreateMessageReceivedContext(AS4Message as4Message, ReceivingProcessingMode receivingPMode)
