@@ -62,9 +62,10 @@ namespace Eu.EDelivery.AS4.Builders.Entities
                 ModificationTime = DateTimeOffset.Now,
                 InsertionTime = DateTimeOffset.Now,
                 MEP = DetermineMepOf(_sendingProcessingMode),
-                EbmsMessageType = messageType,
-                PMode = AS4XmlSerializer.ToString(_sendingProcessingMode),
+                EbmsMessageType = messageType,                
             };
+
+            outMessage.SetPModeInformation(_sendingProcessingMode);
 
             if (string.IsNullOrWhiteSpace(_messageUnit.RefToMessageId) == false)
             {

@@ -163,7 +163,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                 return pmode;
             }
 
-            return new InMessage
+            var inMessage = new InMessage
             {
                 ContentType = as4Message.ContentType,
                 EbmsMessageId = as4Message.GetPrimaryMessageId(),
@@ -171,9 +171,12 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                 MEP = MessageExchangePattern.Push,
                 MessageLocation =
                     await Registry.Instance.MessageBodyStore.SaveAS4MessageAsync(Config.Instance.InMessageStoreLocation, as4Message, CancellationToken.None),
-                PMode = AS4XmlSerializer.ToString(CreateReceivedPMode()),
                 Operation = Operation.ToBeDelivered
             };
+
+            inMessage.SetPModeInformation(CreateReceivedPMode());
+
+            return inMessage;
         }
 
         protected override void Disposing(bool isDisposing)

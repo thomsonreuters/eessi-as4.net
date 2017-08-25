@@ -40,7 +40,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         public async Task CorrectHandlingOnSynchronouslyReceivedMultiHopReceipt(bool actAsIntermediaryMsh, OutStatus expectedOutStatus, Operation expectedSignalOperation)
         {
             const string messageId = "multihop-message-id";
-            string sendToUrl = $"http://localhost:9997/msh/";
+            const string sendToUrl = "http://localhost:9997/msh/";
 
             var pmode = CreateMultihopPMode(sendToUrl);
 
@@ -85,17 +85,20 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                 SerializerProvider.Default.Get(as4Message.ContentType).Serialize(as4Message, fs, CancellationToken.None);
             }
 
-            _databaseSpy.InsertOutMessage(new OutMessage()
+            var outMessage =new OutMessage()
             {
                 ContentType = as4Message.ContentType,
                 EbmsMessageId = as4Message.GetPrimaryMessageId(),
-                EbmsMessageType = MessageType.UserMessage,
-                PMode = AS4XmlSerializer.ToString(pmode),
+                EbmsMessageType = MessageType.UserMessage,                
                 MessageLocation = $"FILE:///{fileName}",
                 MEP = MessageExchangePattern.Push,
                 Intermediary = actAsIntermediaryMsh,
                 Operation = Operation.ToBeSent
-            });
+            };
+
+            outMessage.SetPModeInformation(pmode);
+
+            _databaseSpy.InsertOutMessage(outMessage);
         }
 
         private static AS4Message CreateMultiHopMessage(string messageId, SendingProcessingMode sendingPMode)

@@ -130,9 +130,11 @@ namespace Eu.EDelivery.AS4.Services
             {
                 Logger.Error(ex.Message);
 
-                InException inException = new InException();
-                inException.Exception = ex.Message;
-                inException.MessageBody = System.Text.Encoding.UTF8.GetBytes(location);
+                InException inException = new InException
+                {
+                    Exception = ex.Message,
+                    MessageBody = System.Text.Encoding.UTF8.GetBytes(location)
+                };
                 _repository.InsertInException(inException);
 
                 return new MessagingContext(ex);
@@ -189,6 +191,7 @@ namespace Eu.EDelivery.AS4.Services
             if (MessageMustBeForwarded(messageContext))
             {
                 var pmodeString = messageContext.GetReceivingPModeString();
+                var pmodeId = messageContext.ReceivingPMode?.Id;
 
                 // Only set the Operation of the InMessage that represents the 
                 // Primary Message-Unit to 'ToBeForwarded' since we want to prevent
@@ -199,7 +202,7 @@ namespace Eu.EDelivery.AS4.Services
                                              m =>
                                              {
                                                  m.Intermediary = true;
-                                                 m.PMode = pmodeString;
+                                                 m.SetPModeInformation(pmodeId, pmodeString);
                                              });
                 _repository.UpdateInMessage(messageContext.AS4Message.GetPrimaryMessageId(),
                                             m =>
@@ -232,6 +235,7 @@ namespace Eu.EDelivery.AS4.Services
 
         private void UpdateUserMessagesForDeliveryAndNotification(MessagingContext messagingContext)
         {
+            string receivingPModeId = messagingContext.ReceivingPMode?.Id;
             string receivingPModeString = messagingContext.GetReceivingPModeString();
 
             foreach (UserMessage userMessage in messagingContext.AS4Message.UserMessages)
@@ -240,7 +244,7 @@ namespace Eu.EDelivery.AS4.Services
                     userMessage.MessageId,
                     message =>
                     {
-                        message.PMode = receivingPModeString;
+                        message.SetPModeInformation(receivingPModeId, receivingPModeString);
 
                         if (UserMessageNeedsToBeDelivered(messagingContext.ReceivingPMode, userMessage) && message.Intermediary == false)
                         {

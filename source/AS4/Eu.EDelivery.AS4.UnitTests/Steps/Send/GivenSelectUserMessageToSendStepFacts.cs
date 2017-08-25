@@ -45,7 +45,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             const string expectedMpc = "message-mpc";
             await InsertUserMessage(expectedMpc, MessageExchangePattern.Push, Operation.ToBeSent);
             await InsertUserMessage("yet-another-mpc", MessageExchangePattern.Pull, Operation.DeadLettered);
-            await InsertUserMessage(expectedMpc, MessageExchangePattern.Pull, Operation.ToBeSent);
+            await InsertUserMessage(expectedMpc, MessageExchangePattern.Pull, Operation.ToBeSent); 
 
             // Act
             StepResult result = await ExerciseSelection(expectedMpc);

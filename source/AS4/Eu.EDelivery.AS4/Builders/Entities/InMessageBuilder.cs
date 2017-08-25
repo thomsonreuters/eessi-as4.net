@@ -3,6 +3,8 @@ using System.IO;
 using System.Threading;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Core;
+using Eu.EDelivery.AS4.Model.PMode;
+using MessageExchangePattern = Eu.EDelivery.AS4.Entities.MessageExchangePattern;
 
 namespace Eu.EDelivery.AS4.Builders.Entities
 {
@@ -14,7 +16,7 @@ namespace Eu.EDelivery.AS4.Builders.Entities
         private readonly MessageUnit _messageUnit;
         private readonly string _contentType;
         private readonly MessageExchangePattern _mep;
-        private string _pmodeString;
+        private IPMode _pmode;    
 
         /// <summary>
         /// Initializes a new instance of the <see cref="InMessageBuilder" /> class.
@@ -63,9 +65,9 @@ namespace Eu.EDelivery.AS4.Builders.Entities
             return new InMessageBuilder(signalMessage, belongsToAS4Message.ContentType, mep);
         }
 
-        public InMessageBuilder WithPModeString(string pmode)
+        public InMessageBuilder WithPMode(IPMode pmode)
         {
-            _pmodeString = pmode;
+            _pmode = pmode;
             return this;
         }
 
@@ -86,14 +88,15 @@ namespace Eu.EDelivery.AS4.Builders.Entities
                 EbmsMessageId = _messageUnit.MessageId,
                 EbmsRefToMessageId = _messageUnit.RefToMessageId,
                 EbmsMessageType = DetermineMessageType(_messageUnit),
-                ContentType = _contentType,
-                PMode = _pmodeString,
+                ContentType = _contentType,                
                 MEP = _mep,
                 Status = InStatus.Received,
                 Operation = Operation.NotApplicable,
                 InsertionTime = DateTimeOffset.Now,
                 ModificationTime = DateTimeOffset.Now
             };
+
+            inMessage.SetPModeInformation(_pmode);
 
             inMessage.AssignAS4Properties(_messageUnit, cancellationToken);
 

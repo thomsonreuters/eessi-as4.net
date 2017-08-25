@@ -14,7 +14,9 @@ using Xunit;
 using System;
 using System.Text;
 using Eu.EDelivery.AS4.Fe.Monitor.Model;
+using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
+using Eu.EDelivery.AS4.Serialization;
 
 namespace Eu.EDelivery.AS4.Fe.UnitTests
 {
@@ -29,7 +31,7 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
         private readonly string OutEbmsRefToMessageId1 = "OutEbmsRefToMessageId1";
         private readonly string OutEbmsRefToMessageId2 = "OutEbmsRefToMessageId2";
         private readonly string InException = "THIS IS EXCEPTION 1";
-        private readonly string pmodeString;
+        private readonly ReceivingProcessingMode pmode;
         private readonly string MessageBody1 = "TEST";
         private readonly string MessageBody2 = "TEST2";
         private DatastoreContext datastoreContext;
@@ -54,7 +56,7 @@ Failed to decrypt data element
 
         public MonitorServiceTests()
         {
-            pmodeString = File.ReadAllText(@"receivingpmode.xml");
+            pmode = new ReceivingProcessingMode() { Id = "monitorServiceTestPModeId" };            
         }
 
         private MonitorServiceTests Setup()
@@ -100,19 +102,20 @@ Failed to decrypt data element
         {
             using (datastoreContext = new DatastoreContext(options))
             {
+                string pmodeString = AS4XmlSerializer.ToString(pmode);
+
                 datastoreContext.InMessages.Add(new InMessage
                 {
                     EbmsMessageId = InEbmsMessageId1,
                     EbmsRefToMessageId = InEbmsRefToMessageId1,
-                    PMode = pmodeString,
                     Status = InStatus.Created,
                     InsertionTime = DateTime.UtcNow.AddMinutes(-1)
                 });
+
                 datastoreContext.InMessages.Add(new InMessage
                 {
                     EbmsMessageId = InEbmsMessageId2,
                     EbmsRefToMessageId = InEbmsRefToMessageId2,
-                    PMode = pmodeString,
                     Status = InStatus.Received,
                     InsertionTime = DateTime.UtcNow.AddMinutes(-1)
                 });
@@ -120,7 +123,6 @@ Failed to decrypt data element
                 {
                     EbmsMessageId = OutEbmsMessageId1,
                     EbmsRefToMessageId = OutEbmsRefToMessageId1,
-                    PMode = pmodeString,
                     Status = OutStatus.Created,
                     InsertionTime = DateTime.UtcNow.AddMinutes(-1)
                 });
@@ -128,7 +130,6 @@ Failed to decrypt data element
                 {
                     EbmsMessageId = OutEbmsMessageId2,
                     EbmsRefToMessageId = OutEbmsRefToMessageId2,
-                    PMode = pmodeString,
                     Status = OutStatus.Created,
                     InsertionTime = DateTime.UtcNow.AddMinutes(-1)
                 });
@@ -161,6 +162,19 @@ Failed to decrypt data element
                     Exception = Exception,
                     InsertionTime = DateTime.UtcNow.AddMinutes(-1)
                 });
+
+                datastoreContext.SaveChanges();
+
+                foreach (var inMessage in datastoreContext.InMessages)
+                {
+                    inMessage.SetPModeInformation(pmode);
+                }
+
+                foreach (var outMessage in datastoreContext.OutMessages)
+                {
+                    outMessage.SetPModeInformation(pmode);
+                }
+
                 datastoreContext.SaveChanges();
             }
         }
@@ -197,7 +211,7 @@ Failed to decrypt data element
 
                 var result = await Setup().monitorService.GetMessages(filter);
 
-                Assert.True(result.Messages.Count() == 4, "Cound should be 4");
+                Assert.True(result.Messages.Count() == 4, "Count should be 4");
                 Assert.True(result.Messages.Count(x => x.Direction == Direction.Inbound) == 2, "Expected 2 inbound messages");
                 Assert.True(result.Messages.Count(x => x.Direction == Direction.Outbound) == 2, "Expected 2 outbound messages");
             }
@@ -243,7 +257,11 @@ Failed to decrypt data element
             {
                 var result = await Setup().monitorService.GetMessages(new MessageFilter());
 
-                Assert.True(result.Messages.FirstOrDefault(x => x.EbmsRefToMessageId == InEbmsRefToMessageId1).PMode == "8.1.2-basePmode");
+                var message = result.Messages.FirstOrDefault(x => x.EbmsRefToMessageId == InEbmsRefToMessageId1);
+
+                Assert.NotNull(message);
+
+                Assert.True(message.PMode == pmode.Id);
 
                 Cleanup();
             }
@@ -406,28 +424,23 @@ Failed to decrypt data element
                         {
                             EbmsMessageId = InEbmsMessageId1,
                             EbmsRefToMessageId = InEbmsRefToMessageId1,
-                            PMode = pmodeString
                         });
                         datastoreContext.InMessages.Add(new InMessage
                         {
                             EbmsMessageId = InEbmsRefToMessageId1,
-                            PMode = pmodeString
                         });
                         datastoreContext.OutMessages.Add(new OutMessage
                         {
                             EbmsMessageId = InEbmsRefToMessageId1,
-                            PMode = pmodeString
                         });
                         datastoreContext.InMessages.Add(new InMessage
                         {
                             EbmsMessageId = "RANDOM",
                             EbmsRefToMessageId = InEbmsMessageId1,
-                            PMode = pmodeString
                         });
                         datastoreContext.InMessages.Add(new InMessage
                         {
                             EbmsMessageId = InEbmsMessageId2,
-                            PMode = pmodeString
                         });
 
                         datastoreContext.OutMessages.Add(new OutMessage
@@ -474,6 +487,15 @@ Failed to decrypt data element
                         {
                             EbmsMessageId = Guid.NewGuid().ToString()
                         });
+
+                        foreach (var inMessage in datastoreContext.InMessages)
+                        {
+                            inMessage.SetPModeInformation(pmode);
+                        }
+                        foreach (var outMessage in datastoreContext.OutMessages)
+                        {
+                            outMessage.SetPModeInformation(pmode);
+                        }
 
                         datastoreContext.SaveChanges();
                     }
