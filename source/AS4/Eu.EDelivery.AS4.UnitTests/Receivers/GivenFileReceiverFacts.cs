@@ -57,7 +57,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
 
             Task.Factory.StartNew(() => receiver.StartReceiving((m, c) => receiveProcessor.OnFileReceived(m, c), CancellationToken.None));
 
-            signal.WaitOne(TimeSpan.FromSeconds(1));
+            signal.WaitOne(TimeSpan.FromMilliseconds(1300));
             receiver.StopReceiving();
             return receiveProcessor.ReceivedFiles;
         }

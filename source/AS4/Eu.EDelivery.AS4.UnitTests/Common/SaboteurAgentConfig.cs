@@ -25,20 +25,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
         }
 
         /// <summary>
-        /// Gets the settings agents.
-        /// </summary>
-        /// <returns></returns>
-        public override IEnumerable<AgentSettings> GetSettingsAgents()
-        {
-            if (_exception != null)
-            {
-                throw _exception;
-            }
-
-            return new AgentSettings[] {null};
-        }
-
-        /// <summary>
         /// Gets the agent settings.
         /// </summary>
         /// <returns></returns>
@@ -56,17 +42,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
     public class SaboteurAgentConfigFacts
     {
         [Fact]
-        public void FailsToGetAgentSettings_WithException()
-        {
-            // Arrange
-            var expectedException = new Exception();
-            var sut = new SaboteurAgentConfig(expectedException);
-
-            // Act / Assert
-            Assert.Throws(expectedException.GetType(), () => sut.GetSettingsAgents());
-        }
-
-        [Fact]
         public void FailsToGetAgentConfiguration_WithException()
         {
             // Arrange
@@ -75,16 +50,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
 
             // Act / Assert
             Assert.Throws(expectedException.GetType(), () => sut.GetAgentsConfiguration());
-        }
-
-        [Fact]
-        public void ReturnsInvalid_IfNotDefined()
-        {
-            // Arrange
-            var sut = new SaboteurAgentConfig();
-
-            // Act / Assert
-            Assert.Collection(sut.GetSettingsAgents(), Assert.Null);
         }
 
         [Fact]
