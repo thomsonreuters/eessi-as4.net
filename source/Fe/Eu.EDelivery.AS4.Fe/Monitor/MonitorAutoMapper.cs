@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Fe.Monitor.Model;
 
@@ -19,14 +19,12 @@ namespace Eu.EDelivery.AS4.Fe.Monitor
         {
             CreateMap<InMessage, Message>()
                 .ForMember(x => x.Status, x => x.MapFrom(y => y.StatusString))
-                .ForMember(x => x.ExceptionType, x => x.MapFrom(y => y.ExceptionTypeString))
                 .ForMember(x => x.EbmsMessageType, x => x.MapFrom(y => y.EbmsMessageTypeString))
                 .ForMember(x => x.Operation, x => x.MapFrom(y => y.OperationString))
                 .ForMember(x => x.Direction, x => x.UseValue(Direction.Inbound))
                 .ForMember(x => x.Mep, x => x.MapFrom(y => y.MEPString));
             CreateMap<OutMessage, Message>()
                 .ForMember(x => x.Status, x => x.MapFrom(y => y.StatusString))
-                .ForMember(x => x.ExceptionType, x => x.MapFrom(y => y.ExceptionTypeString))
                 .ForMember(x => x.EbmsMessageType, x => x.MapFrom(y => y.EbmsMessageTypeString))
                 .ForMember(x => x.Operation, x => x.MapFrom(y => y.OperationString))
                 .ForMember(x => x.Direction, x => x.UseValue(Direction.Outbound))
