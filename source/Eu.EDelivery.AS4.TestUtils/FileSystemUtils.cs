@@ -1,8 +1,8 @@
 ﻿using System.IO;
 
-namespace Eu.EDelivery.AS4.ComponentTests.Common
+namespace Eu.EDelivery.AS4.TestUtils
 {
-    internal static class FileSystemUtils
+    public static class FileSystemUtils
     {
         public static void CopyDirectory(string sourceDirName, string destDirName)
         {

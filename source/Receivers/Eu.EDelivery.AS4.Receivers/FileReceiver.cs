@@ -24,8 +24,8 @@ namespace Eu.EDelivery.AS4.Receivers
         private readonly SynchronizedCollection<FileInfo> _pendingFiles = new SynchronizedCollection<FileInfo>();
         private readonly IMimeTypeRepository _repository;
 
-        private IDictionary<string, string> _properties;
-
+        private bool _isReceiving = false;
+        private FileReceiverSettings _settings;
         /// <summary>
         /// Initializes a new instance of the <see cref="FileReceiver" /> class
         /// </summary>
@@ -37,22 +37,22 @@ namespace Eu.EDelivery.AS4.Receivers
 
         [Info("File path", required: true)]
         [Description("Path to the folder to poll for new files")]
-        private string FilePath => _properties.ReadMandatoryProperty(SettingKeys.FilePath);
+        private string FilePath => _settings.FilePath;
 
         [Info("File mask", required: true, defaultValue: "*.*")]
         [Description("Mask used to match files.")]
-        private string FileMask => _properties.ReadOptionalProperty(SettingKeys.FileMask, "*.*");
+        private string FileMask => _settings.FileMask;
 
         [Info("Batch size", required: true, defaultValue: SettingKeys.BatchSizeDefault)]
         [Description("Indicates how many files should be processed per batch.")]
-        private int BatchSize { get; set; }
+        private int BatchSize => _settings.BatchSize;
 
-        private TimeSpan _pollingInterval;
+        [Info("Polling interval", defaultValue: SettingKeys.PollingIntervalDefault)]
+        protected override TimeSpan PollingInterval => _settings.PollingInterval;
 
         protected override ILogger Logger { get; }
 
-        [Info("Polling interval", defaultValue: SettingKeys.PollingIntervalDefault)]
-        protected override TimeSpan PollingInterval => _pollingInterval;
+        private static readonly string[] ExcludedExtensions = { ".pending", ".processing", ".accepted", ".exception", ".details" };
 
         #region Configuration
 
@@ -66,24 +66,30 @@ namespace Eu.EDelivery.AS4.Receivers
             public const string PollingIntervalDefault = "00:00:03";
         }
 
+        public void Configure(FileReceiverSettings settings)
+        {
+            _settings = settings;
+        }
+
         /// <summary>
         /// Configure the receiver with a given settings dictionary.
         /// </summary>
         /// <param name="settings"></param>
-        public void Configure(IEnumerable<Setting> settings)
+        void IReceiver.Configure(IEnumerable<Setting> settings)
         {
-            _properties = settings.ToDictionary(s => s.Key, s => s.Value, StringComparer.OrdinalIgnoreCase);
+            var properties = settings.ToDictionary(s => s.Key, s => s.Value, StringComparer.OrdinalIgnoreCase);
 
-            var configuredBatchSize = _properties.ReadOptionalProperty(SettingKeys.BatchSize, SettingKeys.BatchSizeDefault);
+            var configuredBatchSize = properties.ReadOptionalProperty(SettingKeys.BatchSize, SettingKeys.BatchSizeDefault);
 
             if (Int32.TryParse(configuredBatchSize, out var batchSize) == false)
             {
                 batchSize = 20;
             }
 
-            BatchSize = batchSize;
-
-            _pollingInterval = ReadPollingIntervalFromProperties();
+            _settings = new FileReceiverSettings(properties.ReadMandatoryProperty(SettingKeys.FilePath),
+                                                 properties.ReadOptionalProperty(SettingKeys.FileMask, "*.*"),
+                                                 batchSize,
+                                                 ReadPollingIntervalFromProperties(properties));
         }
 
         #endregion
@@ -95,12 +101,14 @@ namespace Eu.EDelivery.AS4.Receivers
         /// <param name="cancellationToken"></param>
         public void StartReceiving(Function messageCallback, CancellationToken cancellationToken)
         {
+            _isReceiving = true;
             Logger.Debug($"Start receiving on '{Path.GetFullPath(FilePath)}'...");
             StartPolling(messageCallback, cancellationToken);
         }
 
         public void StopReceiving()
         {
+            _isReceiving = false;
             Logger.Debug($"Stop receiving on '{Path.GetFullPath(FilePath)}'...");
         }
 
@@ -250,14 +258,14 @@ namespace Eu.EDelivery.AS4.Receivers
             return filename;
         }
 
-        private TimeSpan ReadPollingIntervalFromProperties()
+        private static TimeSpan ReadPollingIntervalFromProperties(Dictionary<string, string> properties)
         {
-            if (_properties.ContainsKey(SettingKeys.PollingInterval) == false)
+            if (properties.ContainsKey(SettingKeys.PollingInterval) == false)
             {
                 return TimeSpan.Parse(SettingKeys.PollingIntervalDefault);
             }
 
-            string pollingInterval = _properties[SettingKeys.PollingInterval];
+            string pollingInterval = properties[SettingKeys.PollingInterval];
             return pollingInterval.AsTimeSpan(TimeSpan.Parse(SettingKeys.PollingIntervalDefault));
         }
 
@@ -271,7 +279,15 @@ namespace Eu.EDelivery.AS4.Receivers
             var directoryInfo = new DirectoryInfo(FilePath);
             var resultedFiles = new List<FileInfo>();
 
-            FileInfo[] directoryFiles = directoryInfo.GetFiles(FileMask).Take(BatchSize).ToArray();
+            if (cancellationToken.IsCancellationRequested || _isReceiving == false)
+            {
+                return new FileInfo[] { };
+            }
+
+            FileInfo[] directoryFiles =
+                directoryInfo.GetFiles(FileMask)
+                             .Where(fi => ExcludedExtensions.Contains(fi.Extension) == false)
+                             .Take(BatchSize).ToArray();
 
             foreach (FileInfo file in directoryFiles)
             {
