@@ -15,18 +15,20 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
             Type = typeof(DummyTransformer).AssemblyQualifiedName
         };
 
-        private static Step[] ExpectedStep { get; } = {new Step {Type = typeof(DummyStep).AssemblyQualifiedName}};
+        private static Step[] ExpectedStep { get; } = { new Step { Type = typeof(DummyStep).AssemblyQualifiedName } };
+
+
 
         /// <summary>
-        /// Gets the settings agents.
+        /// Gets the agent settings.
         /// </summary>
         /// <returns></returns>
-        public override IEnumerable<AgentSettings> GetSettingsAgents()
+        public override IEnumerable<AgentConfig> GetAgentsConfiguration()
         {
-            yield return
+            var settings =
                 new AgentSettings
                 {
-                    Receiver = new Receiver {Type = typeof(StubReceiver).AssemblyQualifiedName},
+                    Receiver = new Receiver { Type = typeof(StubReceiver).AssemblyQualifiedName },
                     Transformer = TransformerConfig,
                     StepConfiguration = new StepConfiguration
                     {
@@ -34,15 +36,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
                         ErrorPipeline = ExpectedStep
                     }
                 };
-        }
 
-        /// <summary>
-        /// Gets the agent settings.
-        /// </summary>
-        /// <returns></returns>
-        public override IEnumerable<AgentConfig> GetAgentsConfiguration()
-        {
-            return GetSettingsAgents().Select(settings => new AgentConfig(null) {Settings = settings});
+            yield return new AgentConfig(null) { Settings = settings };
         }
 
         /// <summary>
@@ -56,27 +51,4 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
         }
     }
 
-    public class SingleAgentBaseConfig : SingleAgentConfig
-    {
-        /// <summary>
-        /// Gets the agent settings.
-        /// </summary>
-        /// <returns></returns>
-        public override IEnumerable<AgentConfig> GetAgentsConfiguration()
-        {
-            return
-                GetSettingsAgents()
-                    .Select(settings => new AgentConfig(null) {Settings = settings, Type = AgentType.Submit});
-        }
-
-        /// <summary>
-        /// Gets the configuration of the Minder Test-Agents that are enabled.
-        /// </summary>
-        /// <returns></returns>
-        /// <remarks>For every SettingsMinderAgent that is returned, a special Minder-Agent will be instantiated.</remarks>
-        public override IEnumerable<SettingsMinderAgent> GetEnabledMinderTestAgents()
-        {
-            return Enumerable.Empty<SettingsMinderAgent>();
-        }
-    }
 }

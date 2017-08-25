@@ -64,16 +64,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
         }
 
         /// <summary>
-        /// Gets the settings agents.
-        /// </summary>
-        /// <returns></returns>
-        /// <exception cref="System.NotImplementedException"></exception>
-        public virtual IEnumerable<AgentSettings> GetSettingsAgents()
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
         /// Gets the configuration of the Minder Test-Agents that are enabled.
         /// </summary>        
         /// <returns></returns>        
@@ -122,8 +112,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
 
         [Fact]
         public void FailsToGetAgents()
-        {
-            Assert.ThrowsAny<Exception>(GetSettingsAgents);
+        {            
             Assert.ThrowsAny<Exception>(GetEnabledMinderTestAgents);
             Assert.ThrowsAny<Exception>(GetAgentsConfiguration);
         }

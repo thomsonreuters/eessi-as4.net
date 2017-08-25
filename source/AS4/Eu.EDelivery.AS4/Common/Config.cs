@@ -134,12 +134,6 @@ namespace Eu.EDelivery.AS4.Common
         public string GetSetting(string key) => _configuration.ReadOptionalProperty(key);
 
         /// <summary>
-        /// Get the configured settings agents
-        /// </summary>
-        /// <returns></returns>
-        public IEnumerable<AgentSettings> GetSettingsAgents() => _agents;
-
-        /// <summary>
         /// Gets the agent settings.
         /// </summary>
         /// <returns></returns>
