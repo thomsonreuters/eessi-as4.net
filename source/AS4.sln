@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26228.10
+VisualStudioVersion = 15.0.26730.8
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Eu.EDelivery.AS4", "AS4\Eu.EDelivery.AS4\Eu.EDelivery.AS4.csproj", "{8B0BA38F-C3F7-46C1-9E68-A7291C7B16B1}"
 EndProject
@@ -109,5 +109,8 @@ Global
 		{73016C9C-15FD-4051-A16F-7245A2267DEC} = {366569F7-B349-4BCE-9879-904A933BC73F}
 		{E1B9AACB-46F1-4999-8384-E6413D7189BE} = {366569F7-B349-4BCE-9879-904A933BC73F}
 		{243CFD29-BB90-4A9E-9DD8-3C0228C845ED} = {366569F7-B349-4BCE-9879-904A933BC73F}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {FF0C851A-1A25-47A3-9206-43513B7E2071}
 	EndGlobalSection
 EndGlobal

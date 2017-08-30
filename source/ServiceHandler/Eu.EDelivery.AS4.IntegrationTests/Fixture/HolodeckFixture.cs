@@ -42,6 +42,8 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Fixture
 
         private static Process StartHolodeck(string executablePath)
         {
+            Console.WriteLine($@"Try starting Holodeck at {executablePath}");
+
             Process p = new Process();
 
             p.StartInfo.FileName = executablePath;
@@ -61,6 +63,9 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Fixture
                 {
                     throw new InvalidOperationException($"Unable to start holodeck. Exitcode = {p.ExitCode}");
                 }
+
+                Console.WriteLine($@"Holodeck {p.ProcessName} started.  Process Id: {p.Id}");
+
             }
             catch (Exception ex)
             {
