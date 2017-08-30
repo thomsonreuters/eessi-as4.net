@@ -44,7 +44,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
         /// <returns></returns>
         public override SendingProcessingMode GetSendingPMode(string id)
         {
-            SendingProcessingMode pmode = new ValidSendingPModeFactory().Create();
+            SendingProcessingMode pmode = ValidSendingPModeFactory.Create();
             pmode.MessagePackaging.MessageProperties = new List<MessageProperty>();
 
             return pmode;
