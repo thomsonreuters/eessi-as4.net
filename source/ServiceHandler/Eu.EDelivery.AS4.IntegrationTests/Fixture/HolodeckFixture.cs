@@ -80,11 +80,19 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Fixture
             return p;
         }
 
+        private bool _isDisposed = false;
+
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
         public void Dispose()
         {
+            if (_isDisposed)
+            {
+                return;
+            }
+
+            _isDisposed = true;
             _parentProcess.KillMeAndChildren();
             _parentProcess.Dispose();
         }
