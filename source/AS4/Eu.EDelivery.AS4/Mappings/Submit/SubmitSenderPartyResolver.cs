@@ -67,9 +67,9 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
                     s.PartyInfo.FromParty.PartyIds.Select(p => p.Id).OrderBy(p => p);
 
                 IOrderedEnumerable<string> pmodePartyInfo =
-                    s.PMode.MessagePackaging.PartyInfo.FromParty.PartyIds.Select(p => p.Id).OrderBy(p => p);
+                    s.PMode.MessagePackaging?.PartyInfo?.FromParty?.PartyIds.Select(p => p.Id).OrderBy(p => p);
 
-                if (messagePartyInfo.SequenceEqual(pmodePartyInfo) == false)
+                if (pmodePartyInfo != null && messagePartyInfo.SequenceEqual(pmodePartyInfo) == false)
                 {
                     throw new NotSupportedException(
                         $"Submit Message is not allowed by Sending PMode{s.PMode.Id} to override Sender Party");

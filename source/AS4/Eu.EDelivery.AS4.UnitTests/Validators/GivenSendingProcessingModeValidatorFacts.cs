@@ -19,7 +19,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
         public void ValidSendingPMode_IfKeySizeIs(int beforeKeySize, int afterKeySize)
         {
 
-            SendingProcessingMode pmode = new ValidSendingPModeFactory().Create();
+            SendingProcessingMode pmode = ValidSendingPModeFactory.Create();
             pmode.Security.Encryption.IsEnabled = true;
             pmode.Security.Encryption.AlgorithmKeySize = beforeKeySize;
 
