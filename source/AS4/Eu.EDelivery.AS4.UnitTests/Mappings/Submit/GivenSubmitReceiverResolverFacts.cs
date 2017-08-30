@@ -24,8 +24,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
             public void ThenResolverGetsDefaultParty()
             {
                 // Arrange
-                var submitMessage = new SubmitMessage {PMode = new SendingProcessingMode()};
-                var resolver = new SubmitReceiverResolver();
+                var submitMessage = new SubmitMessage { PMode = new SendingProcessingMode() };
+                var resolver = SubmitReceiverResolver.Default;
 
                 // Act
                 CoreParty party = resolver.Resolve(submitMessage);
@@ -44,10 +44,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
                     PMode =
                         new SendingProcessingMode
                         {
-                            MessagePackaging = {PartyInfo = new PartyInfo {ToParty = CreatePopulatedCoreParty()}}
+                            MessagePackaging = { PartyInfo = new PartyInfo { ToParty = CreatePopulatedCoreParty() } }
                         }
                 };
-                var resolver = new SubmitReceiverResolver();
+                var resolver = SubmitReceiverResolver.Default;
 
                 // Act
                 CoreParty party = resolver.Resolve(submitMessage);
@@ -62,10 +62,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
                 // Arrange
                 var submitMessage = new SubmitMessage
                 {
-                    PartyInfo = {ToParty = CreatePopulatedCommonParty()},
-                    PMode = new SendingProcessingMode {AllowOverride = true}
+                    PartyInfo = { ToParty = CreatePopulatedCommonParty() },
+                    PMode = new SendingProcessingMode { AllowOverride = true }
                 };
-                var resolver = new SubmitReceiverResolver();
+                var resolver = SubmitReceiverResolver.Default;
 
                 // Act
                 CoreParty party = resolver.Resolve(submitMessage);
@@ -84,15 +84,15 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
             public void ThenResolverFailsWhenOverrideIsNotAllowed()
             {
                 // Arrange
-                var submitMessage = new SubmitMessage {PartyInfo = {ToParty = CreatePopulatedCommonParty()}};
+                var submitMessage = new SubmitMessage { PartyInfo = { ToParty = CreatePopulatedCommonParty() } };
 
                 var pmode = new SendingProcessingMode
                 {
                     AllowOverride = false,
-                    MessagePackaging = {PartyInfo = new PartyInfo {ToParty = CreatePopulatedCoreParty()}}
+                    MessagePackaging = { PartyInfo = new PartyInfo { ToParty = CreatePopulatedCoreParty() } }
                 };
                 submitMessage.PMode = pmode;
-                var resolver = new SubmitReceiverResolver();
+                var resolver = SubmitReceiverResolver.Default;
 
                 // Act / Assert
                 Assert.ThrowsAny<Exception>(() => resolver.Resolve(submitMessage));
@@ -101,7 +101,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
 
         protected CommonParty CreatePopulatedCommonParty()
         {
-            return new CommonParty {Role = "submit-role", PartyIds = new[] {new PartyId("submit-id", "submit-type")}};
+            return new CommonParty { Role = "submit-role", PartyIds = new[] { new PartyId("submit-id", "submit-type") } };
         }
 
         protected CoreParty CreatePopulatedCoreParty()
@@ -109,7 +109,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
             return new CoreParty
             {
                 Role = "pmode-role",
-                PartyIds = new List<AS4.Model.Core.PartyId> {new AS4.Model.Core.PartyId("pmode-id")}
+                PartyIds = new List<AS4.Model.Core.PartyId> { new AS4.Model.Core.PartyId("pmode-id") }
             };
         }
     }

@@ -26,8 +26,8 @@ namespace Eu.EDelivery.AS4.Factories
 
             var result = new UserMessage
             {
-                Sender = new PModeSenderResolver().Resolve(pmode),
-                Receiver = new PModeReceiverResolver().Resolve(pmode),
+                Sender = PModeSenderResolver.Default.Resolve(pmode),
+                Receiver = PModeReceiverResolver.Default.Resolve(pmode),
                 CollaborationInfo = ResolveCollaborationInfo(pmode)
             };
 

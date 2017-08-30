@@ -26,7 +26,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
                 submitMessage.PMode = pmode;
 
                 // Act
-                MessageProperty[] properties = new SubmitMessagePropertiesResolver().Resolve(submitMessage);
+                MessageProperty[] properties = SubmitMessagePropertiesResolver.Default.Resolve(submitMessage);
 
                 // Assert
                 Assert.Equal(2, properties.Length);
@@ -45,7 +45,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
                 submitMessage.PMode = CreateaPopulatedSendingPMode();
 
                 // Act
-                MessageProperty[] properties = new SubmitMessagePropertiesResolver().Resolve(submitMessage);
+                MessageProperty[] properties = SubmitMessagePropertiesResolver.Default.Resolve(submitMessage);
 
                 // Assert
                 Assert.Equal(1, properties.Length);

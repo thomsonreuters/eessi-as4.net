@@ -26,7 +26,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
             const string pmodeId = "01-pmode";
             var internalMessage = new MessagingContext(GetStubSubmitMessage(pmodeId));
 
-            SendingProcessingMode invalidPMode = new ValidSendingPModeFactory().Create(pmodeId);
+            SendingProcessingMode invalidPMode = ValidSendingPModeFactory.Create(pmodeId);
             invalidPMode.MepBinding = MessageExchangePatternBinding.Push;
             invalidPMode.PushConfiguration.Protocol = null;
 

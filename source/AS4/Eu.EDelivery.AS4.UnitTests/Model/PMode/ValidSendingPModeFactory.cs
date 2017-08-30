@@ -6,13 +6,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Model.PMode
     /// <summary>
     /// Valid instance of the <see cref="SendingProcessingMode" />
     /// </summary>
-    public class ValidSendingPModeFactory : SendingProcessingMode
+    public static class ValidSendingPModeFactory
     {
         /// <summary>
         /// Create a valid <see cref="SendingProcessingMode"/> instance.
         /// </summary>        
         /// <param name="id">Optional PMode Id</param>
-        public SendingProcessingMode Create(string id = "default-id")
+        public static SendingProcessingMode Create(string id = "default-id")
         {
             return new SendingProcessingMode
             {

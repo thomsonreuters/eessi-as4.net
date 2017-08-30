@@ -11,6 +11,8 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
     /// </summary>
     public class SubmitMessagePropertiesResolver : ISubmitResolver<CoreMessageProperty[]>
     {
+        public static readonly SubmitMessagePropertiesResolver Default = new SubmitMessagePropertiesResolver();
+
         /// <summary>
         /// FOR EACH SubmitMessage / MessageProperties and PMode / Message Packaging / MessageProperties4 
         /// </summary>
@@ -28,17 +30,23 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
         private static void RetrieveCoreMessageProperties(SubmitMessage message, List<CoreMessageProperty> returnProperties)
         {
             if (message.MessageProperties != null)
+            {
                 MoveSubmitPropertiesToCoreProperties(returnProperties, message.MessageProperties);
+            }
 
             if (message.PMode.MessagePackaging.MessageProperties != null)
+            {
                 returnProperties.AddRange(message.PMode.MessagePackaging.MessageProperties);
+            }
         }
 
         private static void MoveSubmitPropertiesToCoreProperties(
             ICollection<CoreMessageProperty> returnProperties, IEnumerable<SubmitMessageProperty> submitProperties)
         {
             foreach (SubmitMessageProperty current in submitProperties)
+            {
                 MoveSubmitPropertyToCoreProperty(returnProperties, current);
+            }
         }
 
         private static void MoveSubmitPropertyToCoreProperty(

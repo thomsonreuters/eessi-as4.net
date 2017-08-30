@@ -14,12 +14,14 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
     {
         private readonly IPModeResolver<Party> _pmodeResolver;
 
+        public static readonly SubmitReceiverResolver Default = new SubmitReceiverResolver();
+
         /// <summary>
         /// Initializes a new instance of the <see cref="SubmitReceiverResolver" /> class
         /// </summary>
-        public SubmitReceiverResolver()
+        private SubmitReceiverResolver()
         {
-            _pmodeResolver = new PModeReceiverResolver();
+            _pmodeResolver = PModeReceiverResolver.Default;
         }
 
         /// <summary>
@@ -66,9 +68,9 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
                     message.PartyInfo.ToParty.PartyIds.Select(p => p.Id).OrderBy(p => p);
 
                 IOrderedEnumerable<string> pmodePartyInfo =
-                    message.PMode.MessagePackaging.PartyInfo.ToParty.PartyIds.Select(p => p.Id).OrderBy(p => p);
+                    message.PMode.MessagePackaging?.PartyInfo?.ToParty?.PartyIds?.Select(p => p.Id).OrderBy(p => p);
 
-                if (messagePartyInfo.SequenceEqual(pmodePartyInfo) == false)
+                if (pmodePartyInfo != null && messagePartyInfo.SequenceEqual(pmodePartyInfo) == false)
                 {
                     throw new NotSupportedException(
                         $"Submit Message is not allowed by the Sending PMode {message.PMode.Id} to override Receiver Party");

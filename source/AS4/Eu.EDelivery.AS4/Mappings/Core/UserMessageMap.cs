@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using System.Linq;
+using AutoMapper;
 using Eu.EDelivery.AS4.Singletons;
 using Eu.EDelivery.AS4.Xml;
 
@@ -25,11 +26,15 @@ namespace Eu.EDelivery.AS4.Mappings.Core
                 .AfterMap(
                     (modelUserMessage, xmlUserMessage) =>
                     {
-                        if (modelUserMessage.MessageProperties?.Count == 0)
+                        if (modelUserMessage.MessageProperties?.Any() == false)
+                        {
                             xmlUserMessage.MessageProperties = null;
+                        }
 
-                        if (modelUserMessage.PayloadInfo?.Count == 0)
+                        if (modelUserMessage.PayloadInfo?.Any() == false)
+                        {
                             xmlUserMessage.PayloadInfo = null;
+                        }
                     })
                 .ForAllOtherMembers(x => x.Ignore());
         }
@@ -45,15 +50,18 @@ namespace Eu.EDelivery.AS4.Mappings.Core
                 .ForMember(dest => dest.Receiver, src => src.MapFrom(t => t.PartyInfo.To))
                 .ForMember(dest => dest.CollaborationInfo, src => src.MapFrom(t => t.CollaborationInfo))
                 .ForMember(dest => dest.MessageProperties,
-                    src => src.MapFrom(t => t.MessageProperties ?? new Xml.Property[] {}))
-                .ForMember(dest => dest.PayloadInfo, src => src.MapFrom(t => t.PayloadInfo ?? new Xml.PartInfo[] {}))
+                    src => src.MapFrom(t => t.MessageProperties ?? new Xml.Property[] { }))
+                .ForMember(dest => dest.PayloadInfo, src => src.MapFrom(t => t.PayloadInfo ?? new Xml.PartInfo[] { }))
                 .ForMember(dest => dest.IsTest, src => src.Ignore())
                 .ForMember(dest => dest.IsDuplicate, src => src.Ignore())
                 .AfterMap((xmlUserMessage, modelUserMessage) =>
                 {
                     Model.Core.CollaborationInfo modelInfo = modelUserMessage.CollaborationInfo;
                     Xml.CollaborationInfo xmlInfo = xmlUserMessage.CollaborationInfo;
-                    if (xmlInfo == null) return;
+                    if (xmlInfo == null)
+                    {
+                        return;
+                    }
                     MapAgreementReference(modelInfo, xmlInfo);
 
                     modelUserMessage.CollaborationInfo.ConversationId = xmlUserMessage.CollaborationInfo.ConversationId;
@@ -64,7 +72,10 @@ namespace Eu.EDelivery.AS4.Mappings.Core
 
         private static void MapAgreementReference(Model.Core.CollaborationInfo modelInfo, Xml.CollaborationInfo xmlInfo)
         {
-            if (!IsAgreementReferenceEmpty(modelInfo)) return;
+            if (!IsAgreementReferenceEmpty(modelInfo))
+            {
+                return;
+            }
 
             modelInfo.AgreementReference = modelInfo.AgreementReference ?? new Model.Core.AgreementReference();
             modelInfo.AgreementReference.Value = xmlInfo.AgreementRef?.Value;
@@ -90,10 +101,14 @@ namespace Eu.EDelivery.AS4.Mappings.Core
                     (modelUserMessage, xmlUserMessage) =>
                     {
                         if (modelUserMessage.MessageProperties?.Count == 0)
+                        {
                             xmlUserMessage.MessageProperties = null;
+                        }
 
                         if (modelUserMessage.PayloadInfo?.Count == 0)
+                        {
                             xmlUserMessage.PayloadInfo = null;
+                        }
 
                         xmlUserMessage.PartyInfo.From = AS4Mapper.Map<Xml.From>(modelUserMessage.Receiver);
                         xmlUserMessage.PartyInfo.To = AS4Mapper.Map<Xml.To>(modelUserMessage.Sender);
@@ -107,13 +122,17 @@ namespace Eu.EDelivery.AS4.Mappings.Core
         private static void AssignAction(RoutingInputUserMessage xmlUserMessage)
         {
             if (xmlUserMessage.CollaborationInfo?.Action != null)
+            {
                 xmlUserMessage.CollaborationInfo.Action = $"{xmlUserMessage.CollaborationInfo.Action}.response";
+            }
         }
 
         private static void AssignMpc(RoutingInputUserMessage xmlUserMessage)
         {
             if (string.IsNullOrEmpty(xmlUserMessage.mpc))
+            {
                 xmlUserMessage.mpc = Constants.Namespaces.EbmsDefaultMpc;
+            }
         }
     }
 }

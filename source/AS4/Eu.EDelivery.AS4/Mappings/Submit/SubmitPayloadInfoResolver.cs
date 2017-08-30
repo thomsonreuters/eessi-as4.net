@@ -1,13 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.IO;
-using AutoMapper;
-using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Factories;
 using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Submit;
 using Eu.EDelivery.AS4.Singletons;
-using Eu.EDelivery.AS4.Utilities;
 
 namespace Eu.EDelivery.AS4.Mappings.Submit
 {
@@ -16,6 +13,8 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
     /// </summary>
     public class SubmitPayloadInfoResolver : ISubmitResolver<List<PartInfo>>
     {
+        public static readonly SubmitPayloadInfoResolver Default = new SubmitPayloadInfoResolver();
+
         /// <summary>
         /// Resolve the <see cref="PartyInfo"/>
         /// 1. SubmitMessage / Payloads / Payload[n] / Id

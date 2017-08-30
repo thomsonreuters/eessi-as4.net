@@ -15,7 +15,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
         public void ResolveSubmitMpc_IfPModeAllowsIt()
         {
             // Arrange
-            var sut = new SubmitMpcResolver();
+            var sut = SubmitMpcResolver.Default;
             const string expectedMpc = "submit mpc";
             var message = new SubmitMessage
             {
@@ -34,7 +34,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
         public void FailsToResolve_IfMessageTriesToOverrideMpc()
         {
             // Arrange
-            var sut = new SubmitMpcResolver();
+            var sut = SubmitMpcResolver.Default;
             var message = new SubmitMessage
             {
                 PMode = new SendingProcessingMode {AllowOverride = false, MessagePackaging = {Mpc = "not empty mpc"}},

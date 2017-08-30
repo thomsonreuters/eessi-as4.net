@@ -18,7 +18,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.PMode
             {
                 // Arrange
                 var pmode = new SendingProcessingMode();
-                var resolver = new PModeReceiverResolver();
+                var resolver = PModeReceiverResolver.Default;
 
                 // Act
                 Party party = resolver.Resolve(pmode);
@@ -39,7 +39,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.PMode
                         PartyInfo = new PartyInfo {ToParty = new Party("role", new PartyId("party-id"))}
                     }
                 };
-                var resolver = new PModeReceiverResolver();
+                var resolver = PModeReceiverResolver.Default;
 
                 // Act
                 Party party = resolver.Resolve(pmode);

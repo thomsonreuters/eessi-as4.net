@@ -25,7 +25,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
             {
                 // Arrange
                 var submitMessage = new SubmitMessage {PMode = new SendingProcessingMode()};
-                var resolver = new SubmitSenderPartyResolver();
+                var resolver = SubmitSenderPartyResolver.Default;
 
                 // Act
                 CoreParty party = resolver.Resolve(submitMessage);
@@ -47,7 +47,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
                             MessagePackaging = {PartyInfo = new PartyInfo {FromParty = CreatePopulatedCoreParty()}}
                         }
                 };
-                var resolver = new SubmitSenderPartyResolver();
+                var resolver = SubmitSenderPartyResolver.Default;
 
                 // Act
                 CoreParty party = resolver.Resolve(submitMessage);
@@ -65,7 +65,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
                     PartyInfo = {FromParty = CreatePopulatedCommonParty()},
                     PMode = new SendingProcessingMode {AllowOverride = true}
                 };
-                var resolver = new SubmitSenderPartyResolver();
+                var resolver = SubmitSenderPartyResolver.Default;
 
                 // Act
                 CoreParty party = resolver.Resolve(submitMessage);
@@ -95,7 +95,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
                         }
                 };
 
-                var resolver = new SubmitSenderPartyResolver();
+                var resolver = SubmitSenderPartyResolver.Default;
 
                 // Act / Assert
                 Assert.ThrowsAny<Exception>(() => resolver.Resolve(submitMessage));
