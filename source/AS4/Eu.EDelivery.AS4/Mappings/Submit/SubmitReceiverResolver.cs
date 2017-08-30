@@ -21,7 +21,7 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
         /// </summary>
         private SubmitReceiverResolver()
         {
-            _pmodeResolver = new PModeReceiverResolver();
+            _pmodeResolver = PModeReceiverResolver.Default;
         }
 
         /// <summary>

@@ -8,6 +8,9 @@ namespace Eu.EDelivery.AS4.Mappings.PMode
     /// </summary>
     public class PModeReceiverResolver : IPModeResolver<Party>
     {
+
+        public static readonly PModeReceiverResolver Default = new PModeReceiverResolver();
+        
         /// <summary>
         /// 2. PMode / Message Packaging / PartyInfo / Toparty
         /// </summary>
@@ -16,17 +19,19 @@ namespace Eu.EDelivery.AS4.Mappings.PMode
         public Party Resolve(SendingProcessingMode pmode)
         {
             if (IsPModeToPartyNotNull(pmode))
+            {
                 return pmode.MessagePackaging.PartyInfo.ToParty;
+            }
 
             return CreateDefaultParty();
         }
 
-        private bool IsPModeToPartyNotNull(SendingProcessingMode pmode)
+        private static bool IsPModeToPartyNotNull(SendingProcessingMode pmode)
         {
             return pmode.MessagePackaging.PartyInfo?.ToParty != null;
         }
 
-        private Party CreateDefaultParty()
+        private static Party CreateDefaultParty()
         {
             var partyId = new PartyId {Id = Constants.Namespaces.EbmsDefaultTo};
             return new Party(partyId) {Role = Constants.Namespaces.EbmsDefaultRole};
