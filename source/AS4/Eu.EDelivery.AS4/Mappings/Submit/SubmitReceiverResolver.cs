@@ -14,10 +14,12 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
     {
         private readonly IPModeResolver<Party> _pmodeResolver;
 
+        public static readonly SubmitReceiverResolver Default = new SubmitReceiverResolver();
+
         /// <summary>
         /// Initializes a new instance of the <see cref="SubmitReceiverResolver" /> class
         /// </summary>
-        public SubmitReceiverResolver()
+        private SubmitReceiverResolver()
         {
             _pmodeResolver = new PModeReceiverResolver();
         }

@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using Eu.EDelivery.AS4.Factories;
-using Eu.EDelivery.AS4.Utilities;
 
 namespace Eu.EDelivery.AS4.Mappings.Submit
 {
@@ -21,10 +20,10 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
                 // 1. Generated. In UTC and in XML schema Date Time format (ISO8601), with the ‘Z’ time zone indicator being optional.
                 .ForMember(dest => dest.Timestamp, src => src.Ignore())
 
-                .ForMember(dest => dest.Sender, src => src.ResolveUsing(new SubmitSenderPartyResolver().Resolve))
-                .ForMember(dest => dest.Receiver, src => src.ResolveUsing(new SubmitReceiverResolver().Resolve))
-                .ForMember(dest => dest.MessageProperties, src => src.ResolveUsing(new SubmitMessagePropertiesResolver().Resolve))
-                .ForMember(dest => dest.PayloadInfo, src => src.ResolveUsing(new SubmitPayloadInfoResolver().Resolve))
+                .ForMember(dest => dest.Sender, src => src.ResolveUsing(SubmitSenderPartyResolver.Default.Resolve))
+                .ForMember(dest => dest.Receiver, src => src.ResolveUsing(SubmitReceiverResolver.Default.Resolve))
+                .ForMember(dest => dest.MessageProperties, src => src.ResolveUsing(SubmitMessagePropertiesResolver.Default.Resolve))
+                .ForMember(dest => dest.PayloadInfo, src => src.ResolveUsing(SubmitPayloadInfoResolver.Default.Resolve))
 
                 .ForMember(dest => dest.CollaborationInfo, src => src.MapFrom(s => s.Collaboration))
                 .ForMember(dest => dest.IsTest, src => src.Ignore())

@@ -25,7 +25,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
                     MessagePackaging = {CollaborationInfo = new CollaborationInfo {Action = "pmode-action"}}
                 };
                 submitMessage.PMode = pmode;
-                var resolver = new SubmitActionResolver();
+                var resolver = SubmitActionResolver.Default;
 
                 // Act
                 string action = resolver.Resolve(submitMessage);
@@ -43,7 +43,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
                     PMode = new SendingProcessingMode(),
                     Collaboration = {Action = "submit-action"}
                 };
-                var resolver = new SubmitActionResolver();
+                var resolver = SubmitActionResolver.Default;
 
                 // Act
                 string action = resolver.Resolve(submitMessage);
@@ -57,7 +57,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
             {
                 // Arrange
                 var submitMessage = new SubmitMessage {PMode = new SendingProcessingMode()};
-                var resolver = new SubmitActionResolver();
+                var resolver = SubmitActionResolver.Default;
 
                 // Act
                 string action = resolver.Resolve(submitMessage);
@@ -83,7 +83,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
                             AllowOverride = false
                         }
                 };
-                var resolver = new SubmitActionResolver();
+                var resolver = SubmitActionResolver.Default;
 
                 // Act / Assert
                 Assert.ThrowsAny<Exception>(() => resolver.Resolve(submitMessage));

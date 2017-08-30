@@ -21,7 +21,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
             {
                 // Arrange
                 var submitMessage = new SubmitMessage {PMode = new SendingProcessingMode()};
-                var resolver = new SubmitServiceResolver();
+                var resolver = SubmitServiceResolver.Default;
 
                 // Act
                 CoreService service = resolver.Resolve(submitMessage);
@@ -43,7 +43,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
                     }
                 };
                 submitMessage.PMode = pmode;
-                var resolver = new SubmitServiceResolver();
+                var resolver = SubmitServiceResolver.Default;
 
                 // Act
                 CoreService service = resolver.Resolve(submitMessage);
@@ -61,7 +61,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
                     Collaboration = {Service = CreatePopulatedCommonService()},
                     PMode = new SendingProcessingMode()
                 };
-                var resolver = new SubmitServiceResolver();
+                var resolver = SubmitServiceResolver.Default;
 
                 // Act
                 CoreService service = resolver.Resolve(submitMessage);
@@ -92,7 +92,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
                         }
                 };
 
-                var resolver = new SubmitServiceResolver();
+                var resolver = SubmitServiceResolver.Default;
 
                 // Act / Assert
                 Assert.ThrowsAny<Exception>(() => resolver.Resolve(submitMessage));

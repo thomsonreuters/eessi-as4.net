@@ -1,6 +1,4 @@
 ﻿using System;
-using AutoMapper;
-using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Mappings.PMode;
 using Eu.EDelivery.AS4.Model.Submit;
 using Eu.EDelivery.AS4.Singletons;
@@ -22,7 +20,7 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
         /// </summary>
         public SubmitServiceResolver()
         {
-            this._pmodeResolver = new PModeServiceResolver();
+            _pmodeResolver = new PModeServiceResolver();
         }
 
         /// <summary>
@@ -40,13 +38,15 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
             }
 
             if (message.Collaboration.Service?.Value != null)
+            {
                 return AS4Mapper.Map<CoreService>(message.Collaboration.Service);
+            }
 
-            return this._pmodeResolver.Resolve(message.PMode);
+            return _pmodeResolver.Resolve(message.PMode);
         }
 
         private static bool DoesSubmitMessageTriesToOverridePModeValues(SubmitMessage message)
-        {            
+        {
             return
 
                 message.Collaboration.Service?.Value != null &&

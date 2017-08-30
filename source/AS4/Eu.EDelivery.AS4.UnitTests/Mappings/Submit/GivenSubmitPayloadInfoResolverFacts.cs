@@ -126,7 +126,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
 
         protected List<PartInfo> ExerciseResolve(SubmitMessage message)
         {
-            var sut = new SubmitPayloadInfoResolver();
+            var sut = SubmitPayloadInfoResolver.Default;
 
             return sut.Resolve(message);
         }
