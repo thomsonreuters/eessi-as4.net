@@ -60,6 +60,8 @@ namespace Eu.EDelivery.AS4.ServiceHandler.ConsoleHost
                 if (task.IsFaulted && task.Exception != null)
                 {
                     Console.WriteLine(task.Exception.ToString());
+                    Console.WriteLine("Press enter to terminate ...");
+                    Console.ReadLine();
                 }
             }
             finally
