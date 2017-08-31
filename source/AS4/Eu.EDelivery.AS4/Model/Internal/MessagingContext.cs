@@ -149,7 +149,7 @@ namespace Eu.EDelivery.AS4.Model.Internal
         }
 
         private string _receivingPModeString;
-       
+
         /// <summary>
         /// Gets the Id of the Message that is handled by this context.
         /// </summary>
@@ -220,10 +220,11 @@ namespace Eu.EDelivery.AS4.Model.Internal
             AS4Message = as4Message;
         }
 
-        public void ModifyContext(ReceivedMessage receivedMessage)
+        public void ModifyContext(ReceivedMessage receivedMessage, MessagingContextMode mode)
         {
             PrepareContextChange();
             ReceivedMessage = receivedMessage;
+            Mode = mode;
         }
 
         /// <summary>

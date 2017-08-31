@@ -5,8 +5,6 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Builders.Core;
-using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Streaming;
 using MimeKit;
@@ -47,7 +45,7 @@ namespace Eu.EDelivery.AS4.Serialization
         {
             try
             {
-                    SerializeToMimeStream(message, stream, cancellationToken);
+                SerializeToMimeStream(message, stream, cancellationToken);
             }
             catch (Exception exception)
             {
@@ -245,14 +243,14 @@ namespace Eu.EDelivery.AS4.Serialization
             }
             catch (Exception exception)
             {
-                throw ThrowAS4MimeInconsistencyException(exception);
+                throw CreateAS4MimeInconsistencyException(exception);
             }
         }
 
-        private static FormatException ThrowAS4MimeInconsistencyException(Exception exception)
+        private static FormatException CreateAS4MimeInconsistencyException(Exception exception)
         {
             return new FormatException(
-                "The use of MIME is not consistent with the required usage in this specification");
+                "The use of MIME is not consistent with the required usage in this specification", exception);
         }
 
         private static void AddBodyPartsAsAttachmentsToMessage(IReadOnlyList<MimePart> bodyParts, AS4Message message)
@@ -262,7 +260,7 @@ namespace Eu.EDelivery.AS4.Serialization
             {
                 MimePart bodyPart = bodyParts[i];
                 Attachment attachment = CreateAttachment(bodyPart);
-                
+
                 (bool hasValue, PartInfo value) partInfo = SelectReferencedPartInfo(attachment, message);
 
                 if (partInfo.hasValue)

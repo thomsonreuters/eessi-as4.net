@@ -12,6 +12,7 @@ using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
+using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Streaming;
 using Eu.EDelivery.AS4.Utilities;
@@ -203,10 +204,8 @@ namespace Eu.EDelivery.AS4.Receivers
             Logger.Info($"Received {context.Request.HttpMethod} request at {context.Request.RawUrl}");
 
             RequestHandler handler = RequestHandler.GetHandler(context.Request);
-            HttpListenerContentResult handleResult =
-                await handler.ExecuteAsync((_requestMeta, context.Request), messageCallback).ConfigureAwait(false);
 
-            await handleResult.ExecuteResultAsync(context.Response).ConfigureAwait(false);
+            await handler.ExecuteAsync(context, messageCallback, _requestMeta.UseLogging).ConfigureAwait(false);
 
             context.Response.Close();
         }
@@ -241,19 +240,20 @@ namespace Eu.EDelivery.AS4.Receivers
             /// <summary>
             /// Handle the <see cref="HttpListenerRequest"/>.
             /// </summary>
-            /// <param name="request"></param>
+            /// <param name="httpContext">The currently active HttpContext</param>
             /// <param name="processor"></param>
+            /// <param name="useLogging"></param>
             /// <returns></returns>
             /// <exception cref="Exception">A delegate callback throws an exception.</exception>
-            public async Task<HttpListenerContentResult> ExecuteAsync((HttpRequestMeta settings, HttpListenerRequest value) request, Function processor)
+            internal async Task ExecuteAsync(HttpListenerContext httpContext, Function processor, bool useLogging)
             {
                 MessagingContext processorResult = null;
 
                 try
                 {
-                    if (processor != null && request.value.HttpMethod == "POST")
+                    if (processor != null && StringComparer.OrdinalIgnoreCase.Equals(httpContext.Request.HttpMethod, "POST"))
                     {
-                        ReceivedMessage receivedMessage = await CreateReceivedMessage(request).ConfigureAwait(false);
+                        ReceivedMessage receivedMessage = await CreateReceivedMessage(httpContext.Request, useLogging).ConfigureAwait(false);
                         try
                         {
                             processorResult =
@@ -265,7 +265,9 @@ namespace Eu.EDelivery.AS4.Receivers
                         }
                     }
 
-                    return ExecuteCore(request.value, processorResult);
+                    var result = ExecuteCore(httpContext.Request, processorResult);
+
+                    await result.ExecuteResultAsync(httpContext.Response).ConfigureAwait(false);
                 }
                 finally
                 {
@@ -273,23 +275,21 @@ namespace Eu.EDelivery.AS4.Receivers
                 }
             }
 
-            private static async Task<ReceivedMessage> CreateReceivedMessage((HttpRequestMeta settings, HttpListenerRequest value) request)
+            private static async Task<ReceivedMessage> CreateReceivedMessage(HttpListenerRequest request, bool useLogging)
             {
-                HttpListenerRequest requestValue = request.value;
-
-                if (request.settings.UseLogging)
+                if (useLogging)
                 {
-                    VirtualStream.MemoryFlag flag = requestValue.ContentLength64 > VirtualStream.ThresholdMax
+                    VirtualStream.MemoryFlag flag = request.ContentLength64 > VirtualStream.ThresholdMax
                         ? VirtualStream.MemoryFlag.OnlyToDisk
                         : VirtualStream.MemoryFlag.AutoOverFlowToDisk;
 
-                    ReceivedMessage message = await RequestAsVirtualStreamMessage(requestValue, flag);
-                    await LogReceivedMessageMessage(message, request.settings.Hostname);
+                    ReceivedMessage message = await RequestAsVirtualStreamMessage(request, flag);
+                    await LogReceivedMessageMessage(message, request.Url).ConfigureAwait(false);
 
                     return message;
                 }
 
-                return new ReceivedMessage(requestValue.InputStream, requestValue.ContentType);
+                return new ReceivedMessage(request.InputStream, request.ContentType);
             }
 
             private static async Task<ReceivedMessage> RequestAsVirtualStreamMessage(
@@ -303,7 +303,7 @@ namespace Eu.EDelivery.AS4.Receivers
                 return new ReceivedMessage(destinationStream, request.ContentType);
             }
 
-            private static async Task LogReceivedMessageMessage(ReceivedMessage message, string hostname)
+            private static async Task LogReceivedMessageMessage(ReceivedMessage message, Uri url)
             {
                 const string logDir = @".\logs\receivedmessages\";
 
@@ -312,12 +312,11 @@ namespace Eu.EDelivery.AS4.Receivers
                     Directory.CreateDirectory(logDir);
                 }
 
-                string hostInformation = string.Empty;
+                string hostInformation;
 
                 try
                 {
-                    UriBuilder uriBuilder = new UriBuilder(hostname);
-                    hostInformation = $"{uriBuilder.Path}_{uriBuilder.Port}";
+                    hostInformation = $"{url.Host}_{url.Port}";
                 }
                 catch
                 {
@@ -503,6 +502,12 @@ namespace Eu.EDelivery.AS4.Receivers
                         return ByteContentResult.Empty(HttpStatusCode.Accepted);
                     }
 
+                    if (processorResult.Mode == MessagingContextMode.Send && processorResult.ReceivedMessage != null)
+                    {
+                        return new StreamContentResult(HttpStatusCode.OK,
+                                                       processorResult.ReceivedMessage.ContentType, processorResult.ReceivedMessage.UnderlyingStream);
+                    }
+
                     if (AreReceiptsOrErrorsSendInResponseMode(processorResult))
                     {
                         return new AS4MessageContentResult(
@@ -517,8 +522,8 @@ namespace Eu.EDelivery.AS4.Receivers
 
                 private static bool AreReceiptsOrErrorsSendInCallbackMode(MessagingContext processorResult)
                 {
-                    return (processorResult.AS4Message == null || processorResult.AS4Message.IsEmpty)
-                           && processorResult.Exception == null;
+                    return processorResult.ReceivingPMode != null &&
+                           processorResult.ReceivingPMode.ReplyHandling.ReplyPattern == ReplyPattern.Callback;
                 }
 
                 private static bool AreReceiptsOrErrorsSendInResponseMode(MessagingContext processorResult)
@@ -619,6 +624,29 @@ namespace Eu.EDelivery.AS4.Receivers
             {
                 response.ContentLength64 = _content.Length;
                 await response.OutputStream.WriteAsync(_content, 0, _content.Length).ConfigureAwait(false);
+            }
+        }
+
+        private class StreamContentResult : HttpListenerContentResult
+        {
+            private readonly Stream _stream;
+
+            /// <summary>
+            /// Initializes a new instance of the <see cref="StreamContentResult"/> class.
+            /// </summary>
+            public StreamContentResult(HttpStatusCode statusCode, string contentType, Stream stream) : base(statusCode, contentType)
+            {
+                _stream = stream;
+            }
+
+            /// <summary>
+            /// Specific <see cref="HttpListenerResponse"/> handling.
+            /// </summary>
+            /// <param name="response"></param>
+            protected override async Task ExecuteResultAsyncCore(HttpListenerResponse response)
+            {
+                StreamPositionMover.MovePositionToStreamStart(_stream);
+                await _stream.CopyToAsync(response.OutputStream);
             }
         }
 

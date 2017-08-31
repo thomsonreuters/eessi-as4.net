@@ -237,7 +237,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
                 StubMessageEntity sut = CreateMessageEntity(messageLocation: null);
 
                 // Act
-                using (Stream actualStream = await sut.RetrieveMessagesBody(store: null))
+                using (Stream actualStream = await sut.RetrieveMessageBody(store: null))
                 {
                     // Assert
                     Assert.Null(actualStream);
@@ -253,7 +253,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
                 stubProvider.Accept(condition: s => true, persister: new SaboteurMessageBodyStore());
 
                 // Act
-                using (Stream actualStream = await sut.RetrieveMessagesBody(stubProvider))
+                using (Stream actualStream = await sut.RetrieveMessageBody(stubProvider))
                 {
                     // Assert
                     Assert.Null(actualStream);

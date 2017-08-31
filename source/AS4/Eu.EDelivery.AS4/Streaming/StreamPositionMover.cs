@@ -21,19 +21,19 @@ namespace Eu.EDelivery.AS4.Streaming
 
             Stream streamToWorkOn = stream;
 
-            if (stream is NonCloseableStream)
+            if (stream is NonCloseableStream ncs)
             {
-                streamToWorkOn = ((NonCloseableStream)stream).InnerStream;
+                streamToWorkOn = ncs.InnerStream;
             }
-            else if (stream is FilteredStream)
+            else if (stream is FilteredStream fs)
             {
-                streamToWorkOn = ((FilteredStream)stream).Source;
+                streamToWorkOn = fs.Source;
             }
 
             if (streamToWorkOn.CanSeek && streamToWorkOn.Position != 0)
             {
-                streamToWorkOn.Position = 0;                
-            }            
+                streamToWorkOn.Position = 0;
+            }
         }
     }
 }

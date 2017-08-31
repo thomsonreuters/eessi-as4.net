@@ -85,7 +85,6 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
                 if (await TryWriteToHttpRequestStreamAsync(request, messagingContext).ConfigureAwait(false))
                 {
-
                     messagingContext.ModifyContext(as4Message);
 
                     return await TryHandleHttpResponseAsync(request, messagingContext, cancellation).ConfigureAwait(false);
