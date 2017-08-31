@@ -16,7 +16,7 @@ namespace Eu.EDelivery.AS4.Steps.Send.Response
         /// <returns></returns>
         public Task<StepResult> HandleResponse(IAS4Response response)
         {
-            response.OriginalRequest.ModifyContext(response.ReceivedStream);
+            response.OriginalRequest.ModifyContext(response.ReceivedStream, response.OriginalRequest.Mode);
             return StepResult.SuccessAsync(response.OriginalRequest);
         }
     }

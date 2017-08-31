@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
@@ -65,15 +64,25 @@ namespace Eu.EDelivery.AS4.Steps.Send
             if (selection.hasMatch)
             {
                 Logger.Info($"User Message found for Pull Request: '{messagingContext.AS4Message.GetPrimaryMessageId()}'");
-                AS4Message referencedMessage = await RetrieveAS4UserMessage(selection.match, cancellationToken);
+
+                // Retrieve the existing MessageBody and put that stream in the MessagingContext.
+                // The HttpReceiver processor will make sure that it gets serialized to the http response stream.
+
+                var messageBody = await selection.match.RetrieveMessageBody(_messageBodyStore);
+
+                messagingContext.ModifyContext(new ReceivedMessage(messageBody, selection.match.ContentType), MessagingContextMode.Send);
+
                 messagingContext.SendingPMode = AS4XmlSerializer.FromString<SendingProcessingMode>(selection.match.PMode);
 
-                return SuccessStepResult(referencedMessage, messagingContext);
+                return StepResult.Success(messagingContext);
             }
 
             Logger.Warn($"No User Message found for Pull Request: '{messagingContext.AS4Message.GetPrimaryMessageId()}'");
+
             AS4Message pullRequestWarning = AS4Message.Create(new PullRequestError());
-            return SuccessStepResult(pullRequestWarning, messagingContext).AndStopExecution();
+            messagingContext.ModifyContext(pullRequestWarning);
+
+            return StepResult.Success(messagingContext).AndStopExecution();
         }
 
         private (bool, OutMessage) RetrieveUserMessageForPullRequest(PullRequest pullRequestMessage)
@@ -81,25 +90,27 @@ namespace Eu.EDelivery.AS4.Steps.Send
             var options = new TransactionOptions { IsolationLevel = IsolationLevel.RepeatableRead };
 
             using (var scope = new TransactionScope(TransactionScopeOption.Required, options))
-            using (DatastoreContext context = _createContext())
             {
-                var repository = new DatastoreRepository(context);
-
-                OutMessage message =
-                    repository.GetOutMessageData(
-                        m => PullRequestQuery(m, pullRequestMessage),
-                        m => m);
-
-                if (message == null)
+                using (DatastoreContext context = _createContext())
                 {
-                    return (false, null);
+                    var repository = new DatastoreRepository(context);
+
+                    OutMessage message =
+                        repository.GetOutMessageData(
+                            m => PullRequestQuery(m, pullRequestMessage),
+                            m => m);
+
+                    if (message == null)
+                    {
+                        return (false, null);
+                    }
+
+                    repository.UpdateOutMessage(message.EbmsMessageId, m => m.Operation = Operation.Sent);
+                    context.SaveChanges();
+                    scope.Complete();
+
+                    return (true, message);
                 }
-
-                repository.UpdateOutMessage(message.EbmsMessageId, m => m.Operation = Operation.Sending);
-                context.SaveChanges();
-                scope.Complete();
-
-                return (true, message);
             }
         }
 
@@ -108,23 +119,6 @@ namespace Eu.EDelivery.AS4.Steps.Send
             return userMessage.Mpc == pullRequest.Mpc
                    && userMessage.Operation == Operation.ToBeSent
                    && userMessage.MEP == MessageExchangePattern.Pull;
-        }
-
-        private async Task<AS4Message> RetrieveAS4UserMessage(MessageEntity selection, CancellationToken cancellationToken)
-        {
-            // TODO: Attachment Contents are disposed?
-            using (Stream messageStream = await selection.RetrieveMessagesBody(_messageBodyStore))
-            {
-                ISerializer serializer = Registry.Instance.SerializerProvider.Get(selection.ContentType);
-                return await serializer.DeserializeAsync(messageStream, selection.ContentType, cancellationToken);
-            }
-        }
-
-        private static StepResult SuccessStepResult(AS4Message message, MessagingContext context)
-        {
-            context.ModifyContext(message);
-
-            return StepResult.Success(context);
         }
     }
 }

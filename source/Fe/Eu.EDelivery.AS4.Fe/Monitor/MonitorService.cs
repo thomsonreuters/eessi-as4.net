@@ -185,10 +185,10 @@ namespace Eu.EDelivery.AS4.Fe.Monitor
 
             if (direction == Direction.Inbound)
             {
-                return await datastoreRepository.GetInMessageData(messageId, x => x.RetrieveMessagesBody(Registry.Instance.MessageBodyStore));
+                return await datastoreRepository.GetInMessageData(messageId, x => x.RetrieveMessageBody(Registry.Instance.MessageBodyStore));
             }
 
-            return await datastoreRepository.GetOutMessageData(messageId, x => x.RetrieveMessagesBody(Registry.Instance.MessageBodyStore));
+            return await datastoreRepository.GetOutMessageData(messageId, x => x.RetrieveMessageBody(Registry.Instance.MessageBodyStore));
         }
 
         /// <summary>

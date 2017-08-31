@@ -216,7 +216,7 @@ namespace Eu.EDelivery.AS4.Entities
         /// <see cref="IAS4MessageBodyStore" /> that loads the <see cref="AS4Message" /> body.
         /// </param>
         /// <returns>A Stream which contains the MessageBody</returns>
-        public async Task<Stream> RetrieveMessagesBody(IAS4MessageBodyStore store)
+        public async Task<Stream> RetrieveMessageBody(IAS4MessageBodyStore store)
         {
             if (string.IsNullOrWhiteSpace(MessageLocation))
             {
