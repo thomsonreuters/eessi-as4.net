@@ -121,11 +121,7 @@ namespace Eu.EDelivery.AS4.Entities
             get { return Operation.ToString(); }
             set { Operation = (Operation)Enum.Parse(typeof(Operation), value, true); }
         }
-
-        public DateTimeOffset InsertionTime { get; set; }
-
-        public DateTimeOffset ModificationTime { get; set; }
-
+        
         [NotMapped]
         public MessageExchangePattern MEP { get; set; }
 

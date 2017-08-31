@@ -6,6 +6,10 @@ namespace Eu.EDelivery.AS4.Entities
     {
         public long Id { get; private set; }
 
+        public DateTimeOffset InsertionTime { get; set; }
+
+        public DateTimeOffset ModificationTime { get; set; }
+
         public void InitializeIdFromDatabase(long id)
         {
             Id = id;
