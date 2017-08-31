@@ -30,14 +30,54 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Fixture
 
             service.RemoveDirectory(holodeck_A_db_path);
             service.RemoveDirectory(holodeck_B_db_path);
-            
-            Process holodeckA = Process.Start(@"C:\Program Files\Java\holodeck\holodeck-b2b-A\bin\startServer.bat");
-            Process holodeckB = Process.Start(@"C:\Program Files\Java\holodeck\holodeck-b2b-B\bin\startServer.bat");
+
+            Process holodeckA = StartHolodeck(@"C:\Program Files\Java\holodeck\holodeck-b2b-A\bin\startServer.bat");
+            Process holodeckB = StartHolodeck(@"C:\Program Files\Java\holodeck\holodeck-b2b-B\bin\startServer.bat");
 
             _parentProcess = new ParentProcess(holodeckA, holodeckB);
 
             // Make sure the Holodeck MSH's are started before continuing.
             System.Threading.Thread.Sleep(6000);
+        }
+
+        private static Process StartHolodeck(string executablePath)
+        {
+            Console.WriteLine($@"Try starting Holodeck at {executablePath}");
+
+            Process p = new Process();
+
+            p.StartInfo.FileName = executablePath;
+            p.StartInfo.UseShellExecute = false;
+            p.StartInfo.WorkingDirectory = System.IO.Path.GetDirectoryName(executablePath);
+            p.StartInfo.RedirectStandardError = true;
+            p.StartInfo.RedirectStandardOutput = true;
+
+            p.ErrorDataReceived += delegate (object sender, DataReceivedEventArgs args)
+            {
+                Console.WriteLine(args.Data);
+            };
+
+            try
+            {
+                if (p.Start() == false)
+                {
+                    throw new InvalidOperationException($"Unable to start holodeck. Exitcode = {p.ExitCode}");
+                }
+
+                Console.WriteLine($@"Holodeck {p.ProcessName} started.  Process Id: {p.Id}");
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                if (ex.InnerException != null)
+                {
+                    Console.WriteLine(ex.InnerException);
+                }
+                throw;
+            }
+
+            return p;
         }
 
         /// <summary>
