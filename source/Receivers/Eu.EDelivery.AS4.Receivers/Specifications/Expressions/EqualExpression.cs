@@ -102,7 +102,7 @@ namespace Eu.EDelivery.AS4.Receivers.Specifications.Expressions
                 PropertyInfo filterPropertyInfo = _databaseSet.GetType().GetProperty(_columnName);
 
                 object propertyValue = filterPropertyInfo.GetValue(_databaseSet);
-                object configuredValue = Conversion.Convert(propertyValue, _columnValue);
+                object configuredValue = Conversion.Convert(filterPropertyInfo.PropertyType, _columnValue);
 
                 return propertyValue?.Equals(configuredValue) == true || propertyValue == configuredValue;
             }

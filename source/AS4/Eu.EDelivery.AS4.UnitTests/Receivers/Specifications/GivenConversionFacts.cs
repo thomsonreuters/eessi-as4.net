@@ -14,12 +14,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers.Specifications
         [InlineData("ToBeSent", typeof(Operation))]
         [InlineData("1", typeof(int))]
         public void ConvertExpected(string value, Type expectedType)
-        {
-            // Arrange
-            object property = Activator.CreateInstance(expectedType);
-
+        {            
             // Act
-            object actual = Conversion.Convert(property, value);
+            object actual = Conversion.Convert(expectedType, value);
 
             // Assert
             Assert.IsType(expectedType, actual);

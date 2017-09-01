@@ -8,6 +8,8 @@ namespace Eu.EDelivery.AS4.Receivers.Specifications
         public string Filter { get; }
         public int TakeRecords { get; }
 
+        public string DisplayString => $"FROM {TableName} WHERE {Filter} LIMIT {TakeRecords}";
+
         /// <summary>
         /// Initializes a new instance of the <see cref="DatastoreSpecificationArgs"/> class.
         /// </summary>

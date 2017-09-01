@@ -1,15 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.IO;
 using System.Linq;
+using System.Linq.Dynamic.Core;
 using System.Reflection;
 using System.Threading;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Internal;
-using Eu.EDelivery.AS4.Receivers.Specifications;
 using Eu.EDelivery.AS4.Receivers.Specifications.Expressions;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using NLog;
 using Function =
@@ -24,12 +26,9 @@ namespace Eu.EDelivery.AS4.Receivers
     [Info("Datastore receiver")]
     public class DatastoreReceiver : PollingTemplate<Entity, ReceivedMessage>, IReceiver
     {
-        private readonly IDictionary<string, string> _properties;
-        private readonly IDatastoreSpecification _specification;
         private readonly Func<DatastoreContext> _storeExpression;
-        private readonly IDictionary<string, string> _updates;
 
-        private Func<DatastoreContext, IEnumerable<Entity>> _findExpression;
+        private DatastoreReceiverSettings _settings;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DatastoreReceiver" /> class
@@ -43,9 +42,6 @@ namespace Eu.EDelivery.AS4.Receivers
         public DatastoreReceiver(Func<DatastoreContext> storeExpression)
         {
             _storeExpression = storeExpression;
-            _specification = new ExpressionDatastoreSpecification();
-            _updates = new Dictionary<string, string>();
-            _properties = new Dictionary<string, string>();
         }
 
         protected override ILogger Logger { get; } = LogManager.GetCurrentClassLogger();
@@ -57,6 +53,11 @@ namespace Eu.EDelivery.AS4.Receivers
         /// <param name="cancellationToken"></param>
         public void StartReceiving(Function messageCallback, CancellationToken cancellationToken)
         {
+            if (_settings == null)
+            {
+                throw new InvalidOperationException("The DatastoreReceiver is not configured.");
+            }
+
             LogReceiverSpecs(true);
             StartPolling(messageCallback, cancellationToken);
         }
@@ -69,7 +70,7 @@ namespace Eu.EDelivery.AS4.Receivers
         private void LogReceiverSpecs(bool startReceiving)
         {
             string action = startReceiving ? "Start" : "Stop";
-            Logger.Debug($"{action} Receiving on Datastore {_specification.FriendlyExpression}");
+            Logger.Debug($"{action} Receiving on Datastore {_settings.DisplayString}");
         }
 
         private IEnumerable<Entity> GetMessagesEntitiesForConfiguredExpression()
@@ -96,42 +97,99 @@ namespace Eu.EDelivery.AS4.Receivers
             return entities;
         }
 
-        private IEnumerable<Entity> FindAnyMessageEntitiesWithConfiguredExpression(DatastoreContext context)
+        // ReSharper disable once InconsistentNaming
+        private PropertyInfo __tableSetPropertyInfo;
+
+        private PropertyInfo GetTableSetPropertyInfo()
         {
-            IEnumerable<Entity> entities = _findExpression(context).ToList();
-            if (!entities.Any())
+            if (__tableSetPropertyInfo == null)
             {
-                return entities;
+                __tableSetPropertyInfo = typeof(DatastoreContext).GetProperty(_settings.TableName);
             }
 
-            if (!_updates.Any())
-            {
-                Logger.Warn(
-                    $"No UpdateValue configured for {_properties[SettingKeys.Filter]}. "
-                    + $"The entities retrieved from {_properties[SettingKeys.Table]} are not being locked.");
+            return __tableSetPropertyInfo;
+        }
 
+        private IEnumerable<Entity> FindAnyMessageEntitiesWithConfiguredExpression(DatastoreContext context)
+        {
+            // TODO: refactor this using Dynamic Linq; pass the Filter expression to the Dynamic Linq Where extension method.            
+            var tablePropertyInfo = GetTableSetPropertyInfo();
+
+            // TODO: exception handling; extract method and keep trakc of it 
+
+            var dbSet = tablePropertyInfo.GetValue(context) as IQueryable<Entity>;
+
+            if (dbSet == null)
+            {
+                throw new ConfigurationErrorsException($"The configured table {_settings.TableName} could not be found");
+            }
+
+            // TODO: 
+            // - validate the Filter clause for sql injection
+            // - make sure that single quotes are used around string vars.  (Maybe make it dependent on the DB type, same is true for escape characters [] in sql server, ...             
+
+            IEnumerable<Entity> entities;
+
+            string filterExpression = Filter.Replace("\"", "\'");
+
+            try
+            {
+                entities =
+                    dbSet.FromSql($"SELECT * FROM {this.Table} WHERE {filterExpression}")
+                         .OrderBy(x => x.InsertionTime)
+                         .Take(this.TakeRows)
+                         .ToList();
+            }
+            catch
+            {
+                // The InMemory database does not support the FromSql clause.
+                // In this case, fall back on the Dynamic Linq option.
+                // As soon as we have a solution for the NotMapped properties, this solution 
+                // should replace the FromSql solution as well.
+                filterExpression = Filter.Replace("\'", "\"");
+
+                entities = dbSet.Where(filterExpression).OrderBy(x => x.InsertionTime).Take(this.TakeRows).ToList();
+            }
+
+            if (!entities.Any())
+            {
                 return entities;
             }
 
             LockEntitiesBeforeContinueToProcessThem(entities);
 
             context.SaveChanges();
+
             return entities;
+        }
+
+        // ReSharper disable once InconsistentNaming (__ indicates that this field should not be used directly)
+        private PropertyInfo __updateFieldProperty;
+
+        private PropertyInfo GetUpdateFieldProperty(Entity entity)
+        {
+            if (__updateFieldProperty == null)
+            {
+                __updateFieldProperty = entity.GetType().GetProperty(_settings.UpdateField);
+            }
+
+            return __updateFieldProperty;
         }
 
         private void LockEntitiesBeforeContinueToProcessThem(IEnumerable<Entity> entities)
         {
+            if (entities.Any() == false)
+            {
+                return;
+            }
+
+            PropertyInfo property = GetUpdateFieldProperty(entities.First());
+
             foreach (Entity entity in entities)
             {
-                foreach (KeyValuePair<string, string> update in _updates)
-                {
-                    PropertyInfo property = entity.GetType().GetProperty(update.Key);
+                object updateValue = Conversion.Convert(property.PropertyType, this.Update);
 
-                    object propertyValue = property.GetValue(entity);
-                    object updateValue = Conversion.Convert(propertyValue, update.Value);
-
-                    property.SetValue(entity, updateValue);
-                }
+                property.SetValue(entity, updateValue);
             }
         }
 
@@ -190,16 +248,16 @@ namespace Eu.EDelivery.AS4.Receivers
         #region Configuration
 
         [Info("Table", required: true)]
-        private string Table => _properties?.ReadOptionalProperty(SettingKeys.Table);
+        private string Table => _settings.TableName;
 
         [Info("Filter", required: true)]
-        private string Filter => _properties?.ReadOptionalProperty(SettingKeys.Filter);
+        private string Filter => _settings.Filter;
 
         [Info("How many rows to take", defaultValue: SettingKeys.TakeRowsDefault, type: "int32")]
-        private int TakeRows => Convert.ToInt32(_properties?.ReadOptionalProperty(SettingKeys.TakeRows));
+        private int TakeRows => _settings.TakeRows;
 
-        [Info("Update", attributes: new[] { "Field" })]
-        private string Update => _properties?.ReadOptionalProperty(SettingKeys.Update);
+        [Info("Update", attributes: new[] { "field" })]
+        private string Update => _settings.UpdateValue;
 
         private static class SettingKeys
         {
@@ -213,57 +271,54 @@ namespace Eu.EDelivery.AS4.Receivers
         }
 
         [Info("Polling interval (every)", defaultValue: SettingKeys.PollingIntervalDefault)]
-        protected override TimeSpan PollingInterval => GetPollingIntervalFromProperties();
+        protected override TimeSpan PollingInterval => _settings.PollingInterval;
 
-        private TimeSpan GetPollingIntervalFromProperties()
+        private static TimeSpan GetPollingIntervalFromProperties(IDictionary<string, Setting> properties)
         {
-            TimeSpan defaultInterval = TimeSpan.Parse(SettingKeys.PollingIntervalDefault);
-
-            if (_properties.ContainsKey(SettingKeys.PollingInterval) == false)
+            if (properties.ContainsKey(SettingKeys.PollingInterval) == false)
             {
-                return defaultInterval;
+                return DatastoreReceiverSettings.DefaultPollingInterval;
             }
 
-            string pollingInterval = _properties[SettingKeys.PollingInterval];
-            return pollingInterval.AsTimeSpan(defaultInterval);
+            var pollingInterval = properties[SettingKeys.PollingInterval];
+            return pollingInterval.Value.AsTimeSpan(DatastoreReceiverSettings.DefaultPollingInterval);
+        }
+
+        public void Configure(DatastoreReceiverSettings settings)
+        {
+            _settings = settings;
         }
 
         /// <summary>
         /// Configure the receiver with a given settings dictionary.
         /// </summary>
         /// <param name="settings"></param>
-        public void Configure(IEnumerable<Setting> settings)
+        void IReceiver.Configure(IEnumerable<Setting> settings)
         {
-            Configure(
-                settings.GroupBy(s => s.Key, StringComparer.OrdinalIgnoreCase)
-                        .ToDictionary(s => s.Key, s => s.First().Value, StringComparer.OrdinalIgnoreCase));
+            var properties = settings.ToDictionary(s => s.Key, s => s);
 
-            RetrieveUpdates(settings)?.ToList().ForEach(_updates.Add);
-        }
+            var configuredTakeRecords = properties.ReadOptionalProperty(SettingKeys.TakeRows, null);
 
-        /// <summary>
-        /// Configure the receiver with a given Property Dictionary
-        /// </summary>
-        /// <param name="properties"></param>
-        private void Configure(IDictionary<string, string> properties)
-        {
-            properties.ToList().ForEach(_properties.Add);
-            _specification.Configure(CreateDatastoreArgsFrom(_properties));
-            _findExpression = _specification.GetExpression().Compile();
-        }
+            if (configuredTakeRecords == null || Int32.TryParse(configuredTakeRecords.Value, out var takeRecords) == false)
+            {
+                takeRecords = DatastoreReceiverSettings.DefaultTakeRows;
+            }
 
-        private static DatastoreSpecificationArgs CreateDatastoreArgsFrom(IDictionary<string, string> properties)
-        {
-            string tableName = properties.ReadMandatoryProperty(SettingKeys.Table);
-            string filterColumn = properties.ReadMandatoryProperty(SettingKeys.Filter);
-            int take = Convert.ToInt32(properties.ReadOptionalProperty(SettingKeys.TakeRows, SettingKeys.TakeRowsDefault));
+            var pollingInterval = GetPollingIntervalFromProperties(properties);
 
-            return new DatastoreSpecificationArgs(tableName, filterColumn, take);
-        }
+            var updateSetting = properties.ReadMandatoryProperty(SettingKeys.Update);
 
-        private static IDictionary<string, string> RetrieveUpdates(IEnumerable<Setting> settings)
-        {
-            return settings.Where(s => s.Key.Equals("Update")).ToDictionary(s => s["field"].Value, s => s.Value);
+            if (updateSetting["field"] == null)
+            {
+                throw new ConfigurationErrorsException("The Update setting does not contain a field attribute that indicates the field that must be updated.");
+            }
+
+            _settings = new DatastoreReceiverSettings(properties.ReadMandatoryProperty(SettingKeys.Table).Value,
+                                                      properties.ReadMandatoryProperty(SettingKeys.Filter).Value,
+                                                      updateSetting["field"].Value,
+                                                      updateSetting.Value,
+                                                      pollingInterval,
+                                                      takeRecords);
         }
 
         #endregion
@@ -285,7 +340,7 @@ namespace Eu.EDelivery.AS4.Receivers
 
                 logger.Error($"An error occured while polling the datastore: {exception.Message}");
                 logger.Error(
-                    $"Polling on table {_properties.ReadMandatoryProperty(SettingKeys.Table)} with interval {PollingInterval.TotalSeconds} seconds.");
+                    $"Polling on table {Table} with interval {PollingInterval.TotalSeconds} seconds.");
                 logger.Error(exception.StackTrace);
 
                 return Enumerable.Empty<Entity>();
