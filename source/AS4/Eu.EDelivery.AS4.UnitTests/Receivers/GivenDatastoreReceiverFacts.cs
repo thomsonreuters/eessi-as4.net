@@ -36,21 +36,15 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
             // Arrange
             var receiver = new DatastoreReceiver(() => { throw new SaboteurException("Sabotage datastore creation"); });
 
-            receiver.Configure(DummySettings());
+            var settings = new DatastoreReceiverSettings("OutMessages", "Operation = ToBeDelivered", "Operation", "Sending");
+
+            receiver.Configure(settings);
 
             // Act / Assert
             StartReceiverAsTask(receiver, isCalled: false);
         }
 
-        private static IEnumerable<Setting> DummySettings()
-        {
-            return SettingsToPollOnOutMessages(
-                        filter: "Operation = ToBeDelivered",
-                        updates: new[] { "Operation", "Status" },
-                        values: new[] { "Sending", "Sent" });
-        }
-
-        [Fact]
+        [Fact(Skip="Multiple update columns are currently not supported")]
         public void ReceiverUpdatesMultipleValues_IfMultipleUpdateSettingsAreSpecified()
         {
             // Arrange
@@ -60,8 +54,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
                 DataStoreReceiverWith(
                     SettingsToPollOnOutMessages(
                         filter: "Operation = ToBeDelivered",
-                        updates: new[] {"Operation", "Status"},
-                        values: new[] {"Sending", "Sent"}));
+                        updates: new[] { "Operation", "Status" },
+                        values: new[] { "Sending", "Sent" }));
 
             // Act
             StartReceiver(receiver);
@@ -86,10 +80,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
             ArrangeOutMessageInDatastore(Operation.ToBeDelivered, expectedStream, expectedType);
 
             var receiver = new DatastoreReceiver(GetDataStoreContext);
-            receiver.Configure(SettingsToPollOnOutMessages(
-                        filter: "Operation = ToBeDelivered",
-                        updates: new[] { "Operation", "Status" },
-                        values: new[] { "Sending", "Sent" }));
+
+            var settings = new DatastoreReceiverSettings("OutMessages", "Operation = \'ToBeDelivered\'", "Operation", "Sending");
+
+            receiver.Configure(settings);
 
             // Act
             ReceivedMessage actualMessage = StartReceiver(receiver);
@@ -136,10 +130,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
             }
         }
 
-        private IReceiver DataStoreReceiverWith(IEnumerable<Setting> settings)
+        private IReceiver DataStoreReceiverWith( IEnumerable<Setting> settings)
         {
             var receiver = new DatastoreReceiver(() => new DatastoreContext(Options));
-            receiver.Configure(settings);
+            ((IReceiver)receiver).Configure(settings);
 
             return receiver;
         }
@@ -158,10 +152,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
             for (var index = 0; index < updates.Count; index++)
             {
                 string update = updates[index];
-                var attributes = new XmlAttribute[] {new StubXmlAttribute("field", update)};
+                var attributes = new XmlAttribute[] { new StubXmlAttribute("field", update) };
                 string value = values[index];
 
-                settings.Add(new Setting("Update", value) {Attributes = attributes});
+                settings.Add(new Setting("Update", value) { Attributes = attributes });
             }
 
             return settings;
@@ -186,7 +180,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
 
                     receivedMessage = message;
 
-                    return Task.FromResult((MessagingContext) new EmptyMessagingContext());
+                    return Task.FromResult((MessagingContext)new EmptyMessagingContext());
                 },
                 tokenSource.Token);
 

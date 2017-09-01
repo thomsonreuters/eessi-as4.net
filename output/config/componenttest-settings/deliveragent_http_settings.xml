@@ -18,7 +18,7 @@
     <DeliverAgent name="InMessage Deliver Agent">
       <Receiver type="Eu.EDelivery.AS4.Receivers.DatastoreReceiver, Eu.EDelivery.AS4.Receivers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
         <Setting key="Table">InMessages</Setting>
-        <Setting key="Filter">Operation = ToBeDelivered</Setting>
+        <Setting key="Filter">Operation = 'ToBeDelivered'</Setting>
         <Setting key="Update" field="Operation">Delivering</Setting>
       </Receiver>
       <Transformer type="Eu.EDelivery.AS4.Transformers.DeliverMessageTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />

@@ -386,12 +386,7 @@
     </Compile>
     <Compile Include="Receivers\GivenDatastoreReceiverFacts.cs" />
     <Compile Include="Receivers\GivenIntervalRequestFacts.cs" />
-    <Compile Include="Receivers\Specifications\GivenBooleanExpressionFacts.cs" />
-    <Compile Include="Receivers\Specifications\GivenConversionFacts.cs" />
-    <Compile Include="Receivers\Specifications\GivenDatastoreSpecificationArgsFacts.cs" />
-    <Compile Include="Receivers\Specifications\GivenExpressionDatastoreSpecificationFacts.cs" />
-    <Compile Include="Receivers\Specifications\GivenSameExpressionFacts.cs" />
-    <Compile Include="Receivers\Specifications\GivenTokenFacts.cs" />
+    <Compile Include="Receivers\Utilities\GivenConversionFacts.cs" />
     <Compile Include="Receivers\GivenPullRequestReceiverFacts.cs" />
     <Compile Include="Receivers\Seriewatch.cs" />
     <Compile Include="Receivers\StubXmlAttribute.cs" />
