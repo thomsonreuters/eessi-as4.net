@@ -15,7 +15,7 @@
         <ForwardAgent name="Forward Agent">
             <Receiver type="Eu.EDelivery.AS4.Receivers.DatastoreReceiver, Eu.EDelivery.AS4.Receivers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
                 <Setting key="Table">InMessages</Setting>
-                <Setting key="Filter">Operation = ToBeForwarded</Setting>
+                <Setting key="Filter">Operation = 'ToBeForwarded'</Setting>
                 <Setting key="Update" field="Operation">Forwarding</Setting>
             </Receiver>        
             <Transformer type="Eu.EDelivery.AS4.Transformers.ForwardMessageTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />            

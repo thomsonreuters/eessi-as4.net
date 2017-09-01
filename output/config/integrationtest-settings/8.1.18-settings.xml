@@ -33,7 +33,7 @@
     <OutboundProcessingAgent name="OutBound Processing Agent">
       <Receiver type="Eu.EDelivery.AS4.Receivers.DatastoreReceiver, Eu.EDelivery.AS4.Receivers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
         <Setting key="Table">OutMessages</Setting>
-        <Setting key="Filter">Operation = ToBeProcessed</Setting>
+        <Setting key="Filter">Operation = 'ToBeProcessed'</Setting>
         <Setting key="Update" field="Operation">Processing</Setting>
       </Receiver>
       <Transformer type="Eu.EDelivery.AS4.Transformers.AS4MessageTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
@@ -89,7 +89,7 @@
     <DeliverAgent name="InMessage Deliver Agent">
       <Receiver type="Eu.EDelivery.AS4.Receivers.DatastoreReceiver, Eu.EDelivery.AS4.Receivers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
         <Setting key="Table">InMessages</Setting>
-        <Setting key="Filter">Operation = ToBeDelivered</Setting>
+        <Setting key="Filter">Operation = 'ToBeDelivered'</Setting>
         <Setting key="Update" field="Operation">Delivering</Setting>
       </Receiver>
       <Transformer type="Eu.EDelivery.AS4.Transformers.DeliverMessageTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
@@ -105,7 +105,7 @@
     <NotifyConsumerAgent name="InMessages Notify Agent">
       <Receiver type="Eu.EDelivery.AS4.Receivers.DatastoreReceiver, Eu.EDelivery.AS4.Receivers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
         <Setting key="Table">InMessages</Setting>
-        <Setting key="Filter">Operation = ToBeNotified</Setting>
+        <Setting key="Filter">Operation = 'ToBeNotified'</Setting>
         <Setting key="Update" field="Operation">Notifying</Setting>
       </Receiver>
       <Transformer type="Eu.EDelivery.AS4.Transformers.SignalMessageToNotifyMessageTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
@@ -119,7 +119,7 @@
     <NotifyConsumerAgent name="InExceptions Notify Agent">
       <Receiver type="Eu.EDelivery.AS4.Receivers.DatastoreReceiver, Eu.EDelivery.AS4.Receivers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
         <Setting key="Table">InExceptions</Setting>
-        <Setting key="Filter">Operation = ToBeNotified</Setting>
+        <Setting key="Filter">Operation = 'ToBeNotified'</Setting>
         <Setting key="Update" field="Operation">Notifying</Setting>
       </Receiver>
       <Transformer type="Eu.EDelivery.AS4.Transformers.ExceptionToNotifyMessageTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />

@@ -53,7 +53,7 @@
     <OutboundProcessingAgent name="OutBound Processing Agent">
       <Receiver type="Eu.EDelivery.AS4.Receivers.DatastoreReceiver, Eu.EDelivery.AS4.Receivers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
         <Setting key="Table">OutMessages</Setting>
-        <Setting key="Filter">Operation = ToBeProcessed</Setting>
+        <Setting key="Filter">Operation = 'ToBeProcessed'</Setting>
         <Setting key="Update" field="Operation">Processing</Setting>
       </Receiver>
       <Transformer type="Eu.EDelivery.AS4.Transformers.AS4MessageTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
@@ -70,7 +70,7 @@
     <SendAgent name="Send Agent">
       <Receiver type="Eu.EDelivery.AS4.Receivers.DatastoreReceiver, Eu.EDelivery.AS4.Receivers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
         <Setting key="Table">OutMessages</Setting>
-        <Setting key="Filter">Operation = ToBeSent AND MEP = Push</Setting>
+        <Setting key="Filter">Operation = 'ToBeSent' AND MEP = 'Push'</Setting>
         <Setting key="Update" field="Operation">Sending</Setting>
       </Receiver>
       <Transformer type="Eu.EDelivery.AS4.Transformers.AS4MessageTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
@@ -90,7 +90,7 @@
     <DeliverAgent name="InMessage Deliver Agent">
       <Receiver type="Eu.EDelivery.AS4.Receivers.DatastoreReceiver, Eu.EDelivery.AS4.Receivers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
         <Setting key="Table">InMessages</Setting>
-        <Setting key="Filter">Operation = ToBeDelivered</Setting>
+        <Setting key="Filter">Operation = 'ToBeDelivered'</Setting>
         <Setting key="Update" field="Operation">Delivering</Setting>
       </Receiver>
       <Transformer type="Eu.EDelivery.AS4.Transformers.DeliverMessageTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
@@ -108,7 +108,7 @@
     <NotifyAgent type="Consumer" name="InMessages Notify Agent">
       <Receiver type="Eu.EDelivery.AS4.Receivers.DatastoreReceiver, Eu.EDelivery.AS4.Receivers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
         <Setting key="Table">InMessages</Setting>
-        <Setting key="Filter">Operation = ToBeNotified</Setting>
+        <Setting key="Filter">Operation = 'ToBeNotified'</Setting>
         <Setting key="Update" field="Operation">Notifying</Setting>
         <Setting key="PollingInterval">0:00:02</Setting>
       </Receiver>
@@ -123,7 +123,7 @@
     <NotifyAgent type="Producer" name="OutMessages Notify Agent">
       <Receiver type="Eu.EDelivery.AS4.Receivers.DatastoreReceiver, Eu.EDelivery.AS4.Receivers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
         <Setting key="Table">OutMessages</Setting>
-        <Setting key="Filter">Operation = ToBeNotified</Setting>
+        <Setting key="Filter">Operation = 'ToBeNotified'</Setting>
         <Setting key="Update" field="Operation">Notifying</Setting>
         <Setting key="PollingInterval">0:00:02</Setting>
       </Receiver>
@@ -138,7 +138,7 @@
     <NotifyAgent type="Consumer" name="InExceptions Notify Agent">
       <Receiver type="Eu.EDelivery.AS4.Receivers.DatastoreReceiver, Eu.EDelivery.AS4.Receivers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
         <Setting key="Table">InExceptions</Setting>
-        <Setting key="Filter">Operation = ToBeNotified</Setting>
+        <Setting key="Filter">Operation = 'ToBeNotified'</Setting>
         <Setting key="Update" field="Operation">Notifying</Setting>
         <Setting key="PollingInterval">0:00:03</Setting>
       </Receiver>
@@ -153,7 +153,7 @@
     <NotifyAgent type="Producer" name="OutExceptions Notify Agent">
       <Receiver type="Eu.EDelivery.AS4.Receivers.DatastoreReceiver, Eu.EDelivery.AS4.Receivers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
         <Setting key="Table">OutExceptions</Setting>
-        <Setting key="Filter">Operation = ToBeNotified</Setting>
+        <Setting key="Filter">Operation = 'ToBeNotified'</Setting>
         <Setting key="Update" field="Operation">Notifying</Setting>
         <Setting key="PollingInterval">0:00:03</Setting>
       </Receiver>
@@ -168,7 +168,7 @@
     <ReceptionAwarenessAgent name="Reception Awareness Agent">
       <Receiver type="Eu.EDelivery.AS4.Receivers.DatastoreReceiver, Eu.EDelivery.AS4.Receivers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
         <Setting key="Table">ReceptionAwareness</Setting>
-        <Setting key="Filter">Status = Pending</Setting>
+        <Setting key="Filter">Status = 'Pending'</Setting>
         <Setting key="Update" field="Status">Busy</Setting>
         <Setting key="PollingInterval">0:00:05</Setting>
       </Receiver>

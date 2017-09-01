@@ -4,8 +4,8 @@
     <FeInProcess>false</FeInProcess>
     <PayloadServiceInProcess>true</PayloadServiceInProcess>
     <Database>
-      <Provider>Sqlite</Provider>
-      <ConnectionString>Filename=database\messages.db</ConnectionString>
+        <Provider>Sqlite</Provider>
+        <ConnectionString>Filename=database\messages.db</ConnectionString>
     </Database>
     <CertificateStore>
         <StoreName>My</StoreName>
