@@ -1,6 +1,6 @@
 ﻿using System;
 using Eu.EDelivery.AS4.Entities;
-using Eu.EDelivery.AS4.Receivers.Specifications.Expressions;
+using Eu.EDelivery.AS4.Receivers.Utilities;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Receivers.Specifications

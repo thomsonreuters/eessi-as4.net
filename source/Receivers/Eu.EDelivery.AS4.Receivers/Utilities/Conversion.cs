@@ -1,7 +1,7 @@
 using System;
 using System.ComponentModel;
 
-namespace Eu.EDelivery.AS4.Receivers.Specifications.Expressions
+namespace Eu.EDelivery.AS4.Receivers.Utilities
 {
     internal static class Conversion
     {
