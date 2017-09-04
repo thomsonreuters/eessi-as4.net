@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
@@ -29,10 +30,11 @@ namespace Eu.EDelivery.AS4.Fe
 
             host.Run();
         }
+
         private static void OpenPortal(bool isInProcess, IConfigurationRoot config)
         {
             if (isInProcess)
-                Task.Factory.StartNew(() => System.Diagnostics.Process.Start(config["Url"]));
+                Task.Factory.StartNew(() => Process.Start(config["Port"]));
         }
 
         private static string HttpPort(IConfigurationRoot config)
@@ -44,9 +46,9 @@ namespace Eu.EDelivery.AS4.Fe
         private static IConfigurationRoot LoadSettings(bool isInProcess)
         {
             var config = new ConfigurationBuilder()
-                    .SetBasePath(Directory.GetCurrentDirectory())
-                    .AddJsonFile(isInProcess ? "appsettings.inprocess.json" : "appsettings.json", optional: true)
-                    .Build();
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile(isInProcess ? "appsettings.inprocess.json" : "appsettings.json", true)
+                .Build();
             return config;
         }
     }

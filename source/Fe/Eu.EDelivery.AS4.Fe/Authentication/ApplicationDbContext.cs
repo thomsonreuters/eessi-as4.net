@@ -3,10 +3,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Eu.EDelivery.AS4.Fe.Authentication
 {
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <seealso cref="Microsoft.AspNetCore.Identity.EntityFrameworkCore.IdentityDbContext{Eu.EDelivery.AS4.Fe.Authentication.ApplicationUser}" />
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
         /// <summary>

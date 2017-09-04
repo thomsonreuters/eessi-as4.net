@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using Eu.EDelivery.AS4.Fe;
 using Eu.EDelivery.AS4.Fe.Authentication;
 using Eu.EDelivery.AS4.Fe.Controllers;
 using Eu.EDelivery.AS4.Fe.Logging;
@@ -22,7 +23,6 @@ using Newtonsoft.Json;
 
 namespace Eu.EDelivery.AS4.Fe
 {
-    // Add profile data for application users by adding properties to the ApplicationUser class
     public class Startup
     {
         public IConfigurationRoot Configuration { get; private set; }
@@ -38,7 +38,7 @@ namespace Eu.EDelivery.AS4.Fe
                 x.MemoryBufferThreshold = int.MaxValue;
             });
 
-            var settings = new JsonSerializerSettings {ContractResolver = new SignalRContractResolver()};
+            var settings = new JsonSerializerSettings { ContractResolver = new SignalRContractResolver() };
             var serializer = JsonSerializer.Create(settings);
             GlobalHost.DependencyResolver.Register(typeof(JsonSerializer), () => serializer);
 
@@ -111,25 +111,25 @@ namespace Eu.EDelivery.AS4.Fe
 
                         if (ex.Error is AlreadyExistsException alreadyExists)
                         {
-                            context.Response.StatusCode = (int) HttpStatusCode.Conflict;
+                            context.Response.StatusCode = (int)HttpStatusCode.Conflict;
                             response.Type = "businessexception";
                             response.ExceptionType = typeof(AlreadyExistsException).Name;
                         }
                         else if (ex.Error is NotFoundException notFound)
                         {
-                            context.Response.StatusCode = (int) HttpStatusCode.NotFound;
+                            context.Response.StatusCode = (int)HttpStatusCode.NotFound;
                             response.Type = "businessexception";
                             response.ExceptionType = typeof(NotFoundException).Name;
                         }
                         else if (ex.Error is BusinessException businessEx)
                         {
-                            context.Response.StatusCode = (int) HttpStatusCode.ExpectationFailed;
+                            context.Response.StatusCode = (int)HttpStatusCode.ExpectationFailed;
                             response.Type = "businessexception";
                             response.ExceptionType = typeof(BusinessException).Name;
                         }
                         else
                         {
-                            context.Response.StatusCode = (int) HttpStatusCode.InternalServerError;
+                            context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
                             response.Type = "businessexception";
                             response.ExceptionType = typeof(BusinessException).Name;
                         }
@@ -139,7 +139,7 @@ namespace Eu.EDelivery.AS4.Fe
                     }
                     else
                     {
-                        context.Response.StatusCode = (int) HttpStatusCode.InternalServerError;
+                        context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
                     }
                 });
             });
