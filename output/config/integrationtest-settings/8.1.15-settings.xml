@@ -116,7 +116,7 @@
       <StepConfiguration>
         <NormalPipeline>
           <Step type="Eu.EDelivery.AS4.Steps.Notify.SendNotifyMessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" undecorated="false" />
-          <Step type="Eu.EDelivery.AS4.Steps.Notify.NotifyUpdateInMessageDatastoreStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" undecorated="false" />
+          <Step type="Eu.EDelivery.AS4.Steps.Notify.NotifyUpdateDatastoreStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" undecorated="false" />
         </NormalPipeline>
       </StepConfiguration>
     </NotifyConsumerAgent>
@@ -130,7 +130,7 @@
       <StepConfiguration>
         <NormalPipeline>
           <Step type="Eu.EDelivery.AS4.Steps.Notify.SendNotifyMessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" undecorated="false" />
-          <Step type="Eu.EDelivery.AS4.Steps.Notify.NotifyUpdateOutMessageDatastoreStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" undecorated="false" />
+          <Step type="Eu.EDelivery.AS4.Steps.Notify.NotifyUpdateDatastoreStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" undecorated="false" />
         </NormalPipeline>
       </StepConfiguration>
     </NotifyProducerAgent>
@@ -144,7 +144,7 @@
       <StepConfiguration>
         <NormalPipeline>
           <Step type="Eu.EDelivery.AS4.Steps.Notify.SendNotifyMessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" undecorated="false" />
-          <Step type="Eu.EDelivery.AS4.Steps.Notify.NotifyUpdateInExceptionDatastoreStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" undecorated="false" />
+          <Step type="Eu.EDelivery.AS4.Steps.Notify.NotifyUpdateDatastoreStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" undecorated="false" />
         </NormalPipeline>
       </StepConfiguration>
     </NotifyConsumerAgent>
@@ -158,7 +158,7 @@
       <StepConfiguration>
         <NormalPipeline>
           <Step type="Eu.EDelivery.AS4.Steps.Notify.SendNotifyMessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" undecorated="false" />
-          <Step type="Eu.EDelivery.AS4.Steps.Notify.NotifyUpdateOutExceptionDatastoreStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" undecorated="false" />
+          <Step type="Eu.EDelivery.AS4.Steps.Notify.NotifyUpdateDatastoreStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" undecorated="false" />
         </NormalPipeline>
       </StepConfiguration>
     </NotifyProducerAgent>
