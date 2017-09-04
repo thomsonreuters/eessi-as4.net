@@ -4,7 +4,7 @@
         <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
         <TargetFramework>net461</TargetFramework>
         <TypeScriptCompileBlocked>True</TypeScriptCompileBlocked>
-        <DefaultItemExcludes>$(DefaultItemExcludes);node_modules/**</DefaultItemExcludes>
+        <DefaultItemExcludes>$(DefaultItemExcludes);ui/node_modules/**</DefaultItemExcludes>
     </PropertyGroup>
 
     <PropertyGroup>
