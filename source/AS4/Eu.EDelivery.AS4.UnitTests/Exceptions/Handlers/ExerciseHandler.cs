@@ -26,8 +26,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Exceptions.Handlers
         {
             using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(contents)))
             {
-                stream.Position = 1;
-                return await handler.HandleTransformationException(exception, stream); 
+                stream.Position = 0;
+                var receivedMessage = new ReceivedMessage(stream);
+
+                return await handler.HandleTransformationException(exception, receivedMessage);
             }
         }
     }

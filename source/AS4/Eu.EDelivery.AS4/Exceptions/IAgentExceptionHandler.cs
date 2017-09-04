@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Model.Internal;
 
@@ -14,9 +13,9 @@ namespace Eu.EDelivery.AS4.Exceptions
         /// Handles the transformation exception.
         /// </summary>
         /// <param name="exception">The exception.</param>
-        /// <param name="contents">The contents.</param>
+        /// <param name="messageToTransform">The contents.</param>
         /// <returns></returns>
-        Task<MessagingContext> HandleTransformationException(Exception exception, Stream contents);
+        Task<MessagingContext> HandleTransformationException(Exception exception, ReceivedMessage messageToTransform);
 
         /// <summary>
         /// Handles the execution exception.

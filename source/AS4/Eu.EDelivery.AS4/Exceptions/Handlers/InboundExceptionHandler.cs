@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
@@ -34,9 +33,9 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
         /// Handles the transformation exception.
         /// </summary>
         /// <param name="exception">The exception.</param>
-        /// <param name="contents">The contents.</param>
+        /// <param name="messageToTransform">The <see cref="ReceivedMessage"/> that must be transformed by the transformer.</param>
         /// <returns></returns>
-        public async Task<MessagingContext> HandleTransformationException(Exception exception, Stream contents)
+        public async Task<MessagingContext> HandleTransformationException(Exception exception, ReceivedMessage messageToTransform)
         {
             Logger.Error(exception.Message);
             Logger.Trace(exception.StackTrace);
@@ -45,7 +44,7 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
                 repository =>
                 {
                     InException ex = CreateMinimumInException(exception);
-                    ex.MessageBody = contents.ToBytes();
+                    ex.MessageBody = messageToTransform.UnderlyingStream.ToBytes();
                     repository.InsertInException(ex);
                 });
 
