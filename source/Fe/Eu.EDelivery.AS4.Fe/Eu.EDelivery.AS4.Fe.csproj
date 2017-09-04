@@ -48,6 +48,7 @@
         <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="1.1.2" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="1.1.2" />
         <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="1.1.2" />
+        <PackageReference Include="Microsoft.Extensions.Configuration" Version="1.1.2" />
         <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="1.1.2" />
         <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="5.1.4" />
         <PackageReference Include="Mono.Cecil" Version="0.10.0-beta2" />

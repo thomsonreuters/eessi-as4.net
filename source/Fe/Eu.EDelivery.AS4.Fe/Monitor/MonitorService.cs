@@ -66,7 +66,7 @@ namespace Eu.EDelivery.AS4.Fe.Monitor
 
             if (result == null) throw new BusinessException("Could not get any exceptions, something went wrong.");
 
-            return ConvertPmodeXmlToNumbers(await filter.ToResult(result.OrderByDescending(msg => msg.InsertionTime)));
+            return await filter.ToResult(result.OrderByDescending(msg => msg.InsertionTime));
         }
 
         /// <summary>
@@ -98,7 +98,7 @@ namespace Eu.EDelivery.AS4.Fe.Monitor
             else if (outMessages != null) result = outMessages;
             if (result == null) throw new BusinessException("No messages found");
 
-            var returnValue = ConvertPmodeXmlToNumbers(await filter.ToResult(filter.ApplyStatusFilter(result).OrderByDescending(msg => msg.InsertionTime)));
+            var returnValue = await filter.ToResult(filter.ApplyStatusFilter(result).OrderByDescending(msg => msg.InsertionTime));
             UpdateHasExceptions(returnValue, await GetExceptionIds(returnValue));
 
             return returnValue;
@@ -149,14 +149,14 @@ namespace Eu.EDelivery.AS4.Fe.Monitor
             var result = resultTest.First();
             result = resultTest.Skip(1).Aggregate(result, (current, query) => current.Union(query));
 
-            return ConvertPmodeXmlToNumbers(new MessageResult<Message>
+            return new MessageResult<Message>
             {
                 Messages = await result.ToListAsync(),
                 Total = await result.CountAsync(),
                 Page = 0,
                 Pages = 0,
                 CurrentPage = 0
-            });
+            };
         }
 
 
@@ -258,16 +258,16 @@ namespace Eu.EDelivery.AS4.Fe.Monitor
             return await inExceptions.Union(outExceptions).ToListAsync();
         }
 
-        private MessageResult<Message> ConvertPmodeXmlToNumbers(MessageResult<Message> result)
-        {
-            foreach (var message in result.Messages) message.PMode = GetPmodeNumber(message.PMode);
-            return result;
-        }
+        //private MessageResult<Message> ConvertPmodeXmlToNumbers(MessageResult<Message> result)
+        //{
+        //    foreach (var message in result.Messages) message.PMode = GetPmodeNumber(message.PMode);
+        //    return result;
+        //}
 
-        private MessageResult<ExceptionMessage> ConvertPmodeXmlToNumbers(MessageResult<ExceptionMessage> result)
-        {
-            foreach (var message in result.Messages) message.PMode = GetPmodeNumber(message.PMode);
-            return result;
-        }
+        //private MessageResult<ExceptionMessage> ConvertPmodeXmlToNumbers(MessageResult<ExceptionMessage> result)
+        //{
+        //    foreach (var message in result.Messages) message.PMode = GetPmodeNumber(message.PMode);
+        //    return result;
+        //}
     }
 }

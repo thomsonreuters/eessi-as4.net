@@ -8,7 +8,6 @@ namespace Eu.EDelivery.AS4.Fe.Monitor.Model
     /// </summary>
     public class Message
     {
-        private string pMode;
         /// <summary>
         /// Gets or sets the identifier.
         /// </summary>
@@ -151,16 +150,22 @@ namespace Eu.EDelivery.AS4.Fe.Monitor.Model
         /// </value>
         public string PMode
         {
-            get { return pMode; }
             set
             {
                 if (!string.IsNullOrEmpty(value) && value.ToLower().Contains("xml"))
                 {
                     Hash = value.GetMd5Hash();
                 }
-                pMode = value;
             }
         }
+
+        /// <summary>
+        /// Gets or sets the pmode identifier.
+        /// </summary>
+        /// <value>
+        /// The pmode identifier.
+        /// </value>
+        public string PModeId { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether this instance has exceptions.

@@ -200,8 +200,8 @@
                             </td>
                             <td>{{message.operation}}</td>
                             <td>
-                                <a target="_blank" [routerLink]="['/pmodes', filter.outFilter.direction === '0' ? 'receiving' : 'sending', message.pMode]"
-                                    [queryParams]="{ compareto: message.hash }">{{message.pMode}}</a>
+                                <a target="_blank" [routerLink]="['/pmodes', filter.outFilter.direction === '0' ? 'receiving' : 'sending', message.pModeId]"
+                                    [queryParams]="{ compareto: message.hash }">{{message.pModeId}}</a>
                             </td>
                         </tr>
                         <tr *ngIf="message === activeMessage">

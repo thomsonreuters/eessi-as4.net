@@ -56,7 +56,7 @@ Failed to decrypt data element
 
         public MonitorServiceTests()
         {
-            pmode = new ReceivingProcessingMode() { Id = "monitorServiceTestPModeId" };            
+            pmode = new ReceivingProcessingMode() { Id = "monitorServiceTestPModeId" };
         }
 
         private MonitorServiceTests Setup()
@@ -104,13 +104,15 @@ Failed to decrypt data element
             {
                 string pmodeString = AS4XmlSerializer.ToString(pmode);
 
-                datastoreContext.InMessages.Add(new InMessage
+                var message = new InMessage
                 {
                     EbmsMessageId = InEbmsMessageId1,
                     EbmsRefToMessageId = InEbmsRefToMessageId1,
                     Status = InStatus.Created,
-                    InsertionTime = DateTime.UtcNow.AddMinutes(-1)
-                });
+                    InsertionTime = DateTime.UtcNow.AddMinutes(-1),
+                };
+                message.SetPModeInformation(pmode);
+                datastoreContext.InMessages.Add(message);
 
                 datastoreContext.InMessages.Add(new InMessage
                 {
@@ -261,7 +263,7 @@ Failed to decrypt data element
 
                 Assert.NotNull(message);
 
-                Assert.True(message.PMode == pmode.Id);
+                Assert.True(message.PModeId == pmode.Id);
 
                 Cleanup();
             }
