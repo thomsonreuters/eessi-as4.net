@@ -15,7 +15,6 @@ import { SettingForm } from './../../api/SettingForm';
                 <as4-runtime-setting [control]="setting" [controlSize]="controlSize" [labelSize]="labelSize" [runtimeType]="selectedType | getvalue:setting.value.key"></as4-runtime-setting>
             </div>
           </div>
-
     `,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
@@ -26,28 +25,28 @@ export class RuntimeSettingsComponent {
     @Input() public labelSize = '4';
     @Input() public set itemType(newType: string) {
         if (this._type !== newType) {
-            this.selectedType = this.types.find((type) => type.technicalName === newType);
             this._type = newType;
+            this.selectedType = this.types.find((type) => type.technicalName === newType);
+            this.onSettingChange();
         }
     }
     @Input() public pshowTitle: boolean = true;
     public selectedType: ItemType | undefined;
     private _type: string;
     constructor(private _formBuilder: FormBuilder) { }
-    public onSettingChange(setting: Setting, property: Property) {
-        // Check if the formGroup already has the setting
-        const settingArray = <FormArray>this.form.get(`setting`);
-        const exists = settingArray.controls.find((ctrl) => (<Setting>ctrl.value).key === setting.key);
-
-        // formGroup doesn't have the setting ... create it
-        if (!!!exists) {
-            settingArray.push(SettingForm.getForm(this._formBuilder, setting, property.required));
-            this.form.markAsDirty();
-            return;
+    public onSettingChange() {
+        if (!!this.selectedType) {
+            const list = this.form.controls.map((form: FormGroup) => form.controls['key'].value);
+            for (const prop of this.selectedType.properties) {
+                if (!!!list.find((search) => search === prop.technicalName)) {
+                    // Add it
+                    this.form.push(SettingForm.getForm(this._formBuilder, {
+                        key: prop.technicalName,
+                        value: prop.defaultValue,
+                        attributes: prop.attributes
+                    }));
+                }
+            }
         }
-
-        // It has the setting, update the value
-        exists.setValue(setting);
-        this.form.markAsDirty();
     }
 }
