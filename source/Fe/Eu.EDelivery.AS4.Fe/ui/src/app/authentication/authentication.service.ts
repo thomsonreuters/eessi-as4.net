@@ -29,6 +29,9 @@ export class AuthenticationService {
         }
     }
     public getToken(): string | null {
+        if (!tokenNotExpired(TOKENSTORE)) {
+            return null;
+        }
         return localStorage.getItem(TOKENSTORE);
     }
     public login(username: string, password: string): Observable<boolean> {

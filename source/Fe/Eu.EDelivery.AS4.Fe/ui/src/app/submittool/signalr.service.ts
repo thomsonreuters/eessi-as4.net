@@ -24,6 +24,10 @@ export class SignalrService {
             });
     }
     private connect() {
+        if (!this._authenticationService.isAuthenticated) {
+            this._authenticationService.logout();
+            return;
+        }
         this._connection
             .connect({
                 qs: { access_token: this._authenticationService.getToken()! }

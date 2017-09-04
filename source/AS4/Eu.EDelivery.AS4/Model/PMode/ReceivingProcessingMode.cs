@@ -198,7 +198,6 @@ namespace Eu.EDelivery.AS4.Model.PMode
     public class MessageHandling
     {
         [XmlIgnore]
-        [JsonIgnore]
         [ScriptIgnore]
         public MessageHandlingChoiceType MessageHandlingType { get; set; }
 
@@ -207,6 +206,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
         [XmlChoiceIdentifier(nameof(MessageHandlingType))]
         [XmlElement("Deliver", typeof(Deliver))]
         [XmlElement("Forward", typeof(Forward))]
+        [JsonConverter(typeof(MessageHandlingConverter))]
         public object Item
         {
             get { return _item; }

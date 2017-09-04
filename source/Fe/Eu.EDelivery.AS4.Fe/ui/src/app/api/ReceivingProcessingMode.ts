@@ -6,6 +6,7 @@ import { Receivehandling } from "./Receivehandling";
 import { ReceiveSecurity } from "./ReceiveSecurity";
 import { MessagePackaging } from "./MessagePackaging";
 import { Deliver } from "./Deliver";
+import { MessageHandling } from './MessageHandling';
 
 export class ReceivingProcessingMode {
     id: string;
@@ -17,6 +18,7 @@ export class ReceivingProcessingMode {
     security: ReceiveSecurity = new ReceiveSecurity();
     messagePackaging: MessagePackaging = new MessagePackaging();
     deliver: Deliver = new Deliver();
+    messageHandling: MessageHandling = new MessageHandling();
 
     static FIELD_id: string = 'id';
     static FIELD_mep: string = 'mep';
@@ -27,4 +29,5 @@ export class ReceivingProcessingMode {
     static FIELD_security: string = 'security';
     static FIELD_messagePackaging: string = 'messagePackaging';
     static FIELD_deliver: string = 'deliver';    
+    static FIELD_messageHandling: string = 'messageHandling';
 }

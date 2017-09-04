@@ -38,16 +38,38 @@
                 <div class="sub-header-1">Receipt handling</div>
                 <ng-container formGroupName="receiptHandling">
                     <as4-input label="Use NNR format" runtimeTooltip="receiptHandling.usennrformat">
-                        <input type="checkbox" formControlName="useNNRFormat"/>
+                        <input type="checkbox" formControlName="useNNRFormat" />
                     </as4-input>
                 </ng-container>
                 <div class="sub-header-1">Error handling</div>
                 <ng-container formGroupName="errorHandling">
                     <as4-input label="Use Soap fault" runtimeTooltip="receiveErrorHandling.usesoapfault">
-                        <input type="checkbox" formControlName="useSoapFault"/>
+                        <input type="checkbox" formControlName="useSoapFault" />
                     </as4-input>
                     <as4-input label="Response HTTP code" runtimeTooltip="receiveErrorHandling.responsehttpcode">
                         <input type="number" formControlName="responseHttpCode">
+                    </as4-input>
+                </ng-container>
+            </div>
+            <div tabitem title="Message handling" formGroupName="messageHandling">
+                <as4-input label="Type">
+                    <select formControlName="messageHandlingType" #messageHandlingType>
+                        <option [ngValue]="0">None</option>
+                        <option [ngValue]="1">Deliver</option>
+                        <option [ngValue]="2">Forward</option>
+                    </select>
+                </as4-input>
+                <ng-container *ngIf="messageHandlingType.selectedIndex === 1" formGroupName="item">
+                    <as4-input label="Enabled">
+                        <input type="checkbox" formControlName="isEnabled" runtimeTooltip="deliver.isEnabled" />
+                    </as4-input>
+                    <as4-method label="Payload reference method" [group]="pmode.form.get('pmode.messageHandling.item.payloadReferenceMethod')"
+                        [types]="deliverSenders"></as4-method>
+                    <as4-method label="Deliver method" [group]="pmode.form.get('pmode.messageHandling.item.deliverMethod')" [types]="deliverSenders"></as4-method>
+                </ng-container>
+                <ng-container *ngIf="messageHandlingType.selectedIndex === 2" formGroupName="item">
+                    <as4-input label="Sending PMode">
+                        <div as4-pmode-select mode="sending" formControlName="sendingPMode"></div>
                     </as4-input>
                 </ng-container>
             </div>
