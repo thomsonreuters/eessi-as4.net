@@ -101,7 +101,7 @@
         </NormalPipeline>
       </StepConfiguration>
     </DeliverAgent>
-    <NotifyConsumerAgent name="InMessages Notify Agent">
+    <NotifyAgent name="InMessages Notify Agent">
       <Receiver type="Eu.EDelivery.AS4.Receivers.DatastoreReceiver, Eu.EDelivery.AS4.Receivers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
         <Setting key="Table">InMessages</Setting>
         <Setting key="Filter">Operation = 'ToBeNotified'</Setting>
@@ -114,8 +114,8 @@
           <Step type="Eu.EDelivery.AS4.Steps.Notify.NotifyUpdateDatastoreStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" undecorated="false" />
         </NormalPipeline>
       </StepConfiguration>
-    </NotifyConsumerAgent>
-    <NotifyConsumerAgent name="InExceptions Notify Agent">
+    </NotifyAgent>
+    <NotifyAgent name="InExceptions Notify Agent">
       <Receiver type="Eu.EDelivery.AS4.Receivers.DatastoreReceiver, Eu.EDelivery.AS4.Receivers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
         <Setting key="Table">InExceptions</Setting>
         <Setting key="Filter">Operation = 'ToBeNotified'</Setting>
@@ -128,6 +128,6 @@
           <Step type="Eu.EDelivery.AS4.Steps.Notify.NotifyUpdateDatastoreStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" undecorated="false" />
         </NormalPipeline>
       </StepConfiguration>
-    </NotifyConsumerAgent>
+    </NotifyAgent>
   </Agents>
 </Settings>
