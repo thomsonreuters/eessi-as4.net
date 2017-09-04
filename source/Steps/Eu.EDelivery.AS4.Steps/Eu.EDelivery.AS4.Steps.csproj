@@ -217,7 +217,6 @@
     <Compile Include="Receive\DecryptAS4MessageStep.cs" />
     <Compile Include="Receive\UpdateReceivedAS4MessageBodyStep.cs" />
     <Compile Include="ReceptionAwareness\ReceptionAwarenessUpdateDatastoreStep.cs" />
-    <Compile Include="Send\PullUpdateMessageStatusStep.cs" />
     <Compile Include="Send\SetMessageToBeSentStep.cs" />
     <Compile Include="Send\Response\AS4Response.cs" />
     <Compile Include="Send\Response\EmptyBodyResponseHandler.cs" />
