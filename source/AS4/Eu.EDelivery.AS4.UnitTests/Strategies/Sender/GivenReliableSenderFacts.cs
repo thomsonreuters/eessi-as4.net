@@ -73,7 +73,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Strategies.Sender
 
             private static NotifyMessageEnvelope DummyNotifyMessage()
             {
-                return new NotifyMessageEnvelope(null, default(Status), null, null);
+                return new NotifyMessageEnvelope(null, default(Status), null, null, null);
             }
         }
     }

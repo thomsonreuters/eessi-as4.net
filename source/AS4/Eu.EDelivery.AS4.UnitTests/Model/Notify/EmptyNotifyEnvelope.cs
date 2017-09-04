@@ -1,4 +1,5 @@
-﻿using Eu.EDelivery.AS4.Model.Notify;
+﻿using System;
+using Eu.EDelivery.AS4.Model.Notify;
 
 namespace Eu.EDelivery.AS4.UnitTests.Model.Notify
 {
@@ -9,6 +10,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Model.Notify
         /// </summary>
         /// <param name="refToMessageId">The reference to message identifier.</param>
         public EmptyNotifyEnvelope(string refToMessageId)
-            : base(new MessageInfo {RefToMessageId = refToMessageId}, default(Status), null, null) {}
+            : base(new MessageInfo {RefToMessageId = refToMessageId}, default(Status), null, null, default(Type)) {}
     }
 }

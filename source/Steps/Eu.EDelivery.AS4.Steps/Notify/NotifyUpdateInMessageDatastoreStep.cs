@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
@@ -12,6 +13,7 @@ namespace Eu.EDelivery.AS4.Steps.Notify
     /// <summary>
     /// Describes how the data store gets updated when a message is notified
     /// </summary>
+    [Obsolete("Use the NotifyUpdateDatastoreStep instead")]
     public class NotifyUpdateInMessageDatastoreStep : IStep
     {
         private readonly ILogger _logger;

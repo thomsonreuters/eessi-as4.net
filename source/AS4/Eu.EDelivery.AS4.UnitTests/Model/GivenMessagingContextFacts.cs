@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Factories;
 using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Core;
@@ -33,7 +34,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
             public void OverrideMessageWithNotifyMessage()
             {
                 // Arrange
-                var filledNotify = new NotifyMessageEnvelope(new AS4.Model.Notify.MessageInfo(), Status.Delivered, new byte[0], "type");
+                var filledNotify = new NotifyMessageEnvelope(new AS4.Model.Notify.MessageInfo(), Status.Delivered, new byte[0], "type", typeof(InMessage));
 
                 var context = new MessagingContext(filledNotify)
                 {
@@ -41,7 +42,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
                     ReceivingPMode = new ReceivingProcessingMode()
                 };
 
-                var anonymousNotify = new NotifyMessageEnvelope(null, default(Status), null, null);
+                var anonymousNotify = new NotifyMessageEnvelope(null, default(Status), null, null, typeof(InMessage));
 
                 // Act
                 context.ModifyContext(anonymousNotify);
@@ -166,7 +167,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
             public void ThenHasPayloadsIsCorrectTrue()
             {
                 // Arrange
-                var submitMessage = new SubmitMessage {Payloads = new[] {new Payload(string.Empty)}};
+                var submitMessage = new SubmitMessage { Payloads = new[] { new Payload(string.Empty) } };
                 var internalMessage = new MessagingContext(submitMessage);
 
                 // Act

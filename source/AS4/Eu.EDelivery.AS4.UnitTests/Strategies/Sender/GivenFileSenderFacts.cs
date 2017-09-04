@@ -48,7 +48,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Strategies.Sender
 
         private static NotifyMessageEnvelope AnonymousNotifyMessage()
         {
-            return new NotifyMessageEnvelope(new AS4.Model.Notify.MessageInfo { MessageId = "message-id" }, default(Status), new byte[0], "text/plain");
+            return new NotifyMessageEnvelope(new AS4.Model.Notify.MessageInfo { MessageId = "message-id" }, default(Status), new byte[0], "text/plain", default(Type));
         }
 
         /// <summary>

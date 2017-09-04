@@ -3,7 +3,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
-using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.Notify;
 using Eu.EDelivery.AS4.Repositories;
@@ -14,6 +13,7 @@ namespace Eu.EDelivery.AS4.Steps.Notify
     /// <summary>
     /// Describes how the data store gets updated when a message is notified
     /// </summary>    
+    [Obsolete("Use the NotifyUpdateDatastoreStep instead")]
     public class NotifyUpdateOutMessageDatastoreStep : IStep
     {
         private readonly ILogger _logger;
@@ -36,7 +36,7 @@ namespace Eu.EDelivery.AS4.Steps.Notify
 
             await UpdateDatastoreAsync(notifyMessage).ConfigureAwait(false);
             return await StepResult.SuccessAsync(messagingContext);
-            
+
         }
 
         private static async Task UpdateDatastoreAsync(NotifyMessageEnvelope notifyMessage)
