@@ -4,6 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using Eu.EDelivery.AS4.Agents;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Exceptions.Handlers;
+using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Receivers;
 using Eu.EDelivery.AS4.ServiceHandler.Builder;
 using NLog;
@@ -72,7 +73,12 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
                 receiver: receiver,
                 transformerConfig: config.Settings.Transformer,
                 exceptionHandler: ExceptionHandlerRegistry.GetHandler(config.Type),
-                stepConfiguration: config.Settings.StepConfiguration);
+                stepConfiguration: config.Settings.StepConfiguration ?? GetDefaultStepConfigurationForAgentType(config.Type));
+        }
+
+        public static StepConfiguration GetDefaultStepConfigurationForAgentType(AgentType agentType)
+        {
+            return DefaultAgentStepRegistry.GetDefaultStepConfigurationFor(agentType);
         }
 
         [ExcludeFromCodeCoverage]
