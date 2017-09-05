@@ -22,7 +22,7 @@
     </ReceiptHandling>
     <Security>
         <Signing>
-            <IsEnabled>true</IsEnabled>            
+            <IsEnabled>false</IsEnabled>            
             <PrivateKeyFindType>FindBySerialNumber</PrivateKeyFindType>
             <PrivateKeyFindValue>1a00000174eb3567453664bc9f000000000174</PrivateKeyFindValue>
             <KeyReferenceMethod>BSTReference</KeyReferenceMethod>            

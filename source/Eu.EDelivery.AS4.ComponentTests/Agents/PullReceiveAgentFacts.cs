@@ -1,15 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Agents;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.ComponentTests.Common;
 using Eu.EDelivery.AS4.TestUtils.Stubs;
-using Remotion.Linq.Parsing;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.ComponentTests.Agents
