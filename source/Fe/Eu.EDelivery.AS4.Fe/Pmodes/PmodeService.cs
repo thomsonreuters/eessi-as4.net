@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using EnsureThat;
 using Eu.EDelivery.AS4.Fe.Pmodes.Model;
+using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Validators;
 
 namespace Eu.EDelivery.AS4.Fe.Pmodes
@@ -181,11 +182,10 @@ namespace Eu.EDelivery.AS4.Fe.Pmodes
         }
 
         /// <summary>
-        ///     Validates the sending pmode.
+        /// Validates the sending pmode.
         /// </summary>
         /// <param name="sendingPmode">The sending pmode.</param>
-        /// <returns></returns>
-        /// <exception cref="InvalidPmodeException"></exception>
+        /// <exception cref="InvalidPModeException">Invalid PMode</exception>
         private void ValidateSendingPmode(SendingBasePmode sendingPmode)
         {
             if (disableValidation)
@@ -197,7 +197,7 @@ namespace Eu.EDelivery.AS4.Fe.Pmodes
 
             if (!result.IsValid)
             {
-                throw new InvalidPmodeException(result.Errors);
+                throw new InvalidPModeException("Invalid PMode", result);
             }
         }
 
@@ -212,7 +212,7 @@ namespace Eu.EDelivery.AS4.Fe.Pmodes
 
             if (!result.IsValid)
             {
-                throw new InvalidPmodeException(result.Errors);
+                throw new InvalidPModeException("Invalid PMode", result);
             }
         }
     }
