@@ -149,7 +149,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
             InMessage receivedUserMessage = GetInsertedUserMessageFor(receivedAS4Message);
             Assert.NotNull(receivedUserMessage);
-            Assert.Equal(Operation.ToBeDelivered, receivedUserMessage.Operation);
+            Assert.Equal(Operation.ToBeDelivered, OperationUtils.Parse(receivedUserMessage.Operation));
         }
 
         [Fact]
@@ -177,7 +177,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
             InMessage receivedUserMessage = _databaseSpy.GetInMessageFor(m => m.EbmsMessageId == messageId);
             Assert.NotNull(receivedUserMessage);
-            Assert.Equal(Operation.ToBeForwarded, receivedUserMessage.Operation);
+            Assert.Equal(Operation.ToBeForwarded, OperationUtils.Parse(receivedUserMessage.Operation));
         }
 
         [Fact]
@@ -266,7 +266,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
             var inMessage = _databaseSpy.GetInMessageFor(m => m.EbmsRefToMessageId == userMessageId);
             Assert.NotNull(inMessage);
-            Assert.Equal(MessageType.Receipt, inMessage.EbmsMessageType);
+            Assert.Equal(MessageType.Receipt, MessageTypeUtils.Parse(inMessage.EbmsMessageType));
             Assert.Equal(InStatus.Exception, inMessage.Status);
 
             var inExceptions = _databaseSpy.GetInExceptions(m => m.EbmsRefToMessageId == inMessage.EbmsMessageId);
@@ -311,7 +311,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
             var inMessage = _databaseSpy.GetInMessageFor(m => m.EbmsMessageId == messageId);
             Assert.NotNull(inMessage);
-            Assert.Equal(Operation.ToBeForwarded, inMessage.Operation);
+            Assert.Equal(Operation.ToBeForwarded, OperationUtils.Parse(inMessage.Operation));
         }
 
         [Fact]
@@ -342,7 +342,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             // Assert
             var inMessage = _databaseSpy.GetInMessageFor(m => m.EbmsRefToMessageId == messageId);
             Assert.NotNull(inMessage);
-            Assert.Equal(Operation.ToBeNotified, inMessage.Operation);
+            Assert.Equal(Operation.ToBeNotified, OperationUtils.Parse(inMessage.Operation));
 
             var outMessage = _databaseSpy.GetOutMessageFor(m => m.EbmsMessageId == messageId);
             Assert.NotNull(outMessage);
@@ -436,7 +436,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             InMessage inMessage = _databaseSpy.GetInMessageFor(m => m.EbmsRefToMessageId == expectedId);
             Assert.NotNull(inMessage);
             Assert.Equal(InStatus.Received, inMessage.Status);
-            Assert.Equal(Operation.ToBeNotified, inMessage.Operation);
+            Assert.Equal(Operation.ToBeNotified, OperationUtils.Parse(inMessage.Operation));
         }
 
         // ReSharper disable once UnusedParameter.Local

@@ -40,12 +40,15 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
 
         private InMessage CreateInMessage()
         {
-            return new InMessage
+            var inMessage = new InMessage
             {
                 EbmsMessageId = _messageId,
-                Status = InStatus.Received,
-                Operation = Operation.ToBeDelivered
+                Status = InStatus.Received
             };
+
+            inMessage.SetOperation(Operation.ToBeDelivered);
+
+            return inMessage;
         }
 
         public class GivenValidArguments : GivenDeliverUpdateDatastoreStepFacts
@@ -71,14 +74,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
 
                     Assert.NotNull(inmessage);
                     Assert.Equal(InStatus.Delivered, inmessage.Status);
-                    Assert.Equal(Operation.Delivered, inmessage.Operation);
+                    Assert.Equal(Operation.Delivered, OperationUtils.Parse(inmessage.Operation));
                 }
             }
         }
 
         protected DeliverMessageEnvelope CreateDeliverMessage()
         {
-            return new DeliverMessageEnvelope(new MessageInfo {MessageId = _messageId}, new byte[] {}, string.Empty);
+            return new DeliverMessageEnvelope(new MessageInfo { MessageId = _messageId }, new byte[] { }, string.Empty);
         }
 
         protected MessagingContext CreateDefaultInternalMessage()

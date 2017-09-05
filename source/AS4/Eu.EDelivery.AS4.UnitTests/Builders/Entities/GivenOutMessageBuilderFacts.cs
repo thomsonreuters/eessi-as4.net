@@ -16,7 +16,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
     public class GivenOutMessageBuilderFacts
     {
         public class GivenValidArguments : GivenOutMessageBuilderFacts
-        {            
+        {
             [Fact]
             public async Task ThenBuildOutMessageSucceedsWithAS4Message()
             {
@@ -29,7 +29,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
                 // Assert
                 Assert.NotNull(outMessage);
                 Assert.Equal(as4Message.ContentType, outMessage.ContentType);
-                Assert.Equal(MessageType.UserMessage, outMessage.EbmsMessageType);
+                Assert.Equal(MessageType.UserMessage, MessageTypeUtils.Parse(outMessage.EbmsMessageType));
                 Assert.Equal(await AS4XmlSerializer.ToStringAsync(ExpectedPMode()), outMessage.PMode);
             }
 
@@ -50,7 +50,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
 
             private OutMessage BuildForUserMessage(AS4Message as4Message)
             {
-                return OutMessageBuilder.ForMessageUnit(as4Message.PrimaryUserMessage, as4Message.ContentType, ExpectedPMode())                                        
+                return OutMessageBuilder.ForMessageUnit(as4Message.PrimaryUserMessage, as4Message.ContentType, ExpectedPMode())
                                         .Build(CancellationToken.None);
             }
 
@@ -66,7 +66,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
 
                 // Assert
                 Assert.Equal(messageId, outMessage.EbmsMessageId);
-                Assert.Equal(MessageType.Receipt, outMessage.EbmsMessageType);
+                Assert.Equal(MessageType.Receipt, MessageTypeUtils.Parse(outMessage.EbmsMessageType));
             }
 
             [Fact]
@@ -81,7 +81,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
 
                 // Assert
                 Assert.Equal(messageId, outMessage.EbmsMessageId);
-                Assert.Equal(MessageType.Error, outMessage.EbmsMessageType);
+                Assert.Equal(MessageType.Error, MessageTypeUtils.Parse(outMessage.EbmsMessageType));
             }
 
             private OutMessage BuildForSignalMessage(AS4Message as4Message)

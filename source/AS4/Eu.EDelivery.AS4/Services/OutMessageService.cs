@@ -72,7 +72,7 @@ namespace Eu.EDelivery.AS4.Services
             var relatedInMessageMeps =
                 _repository.GetInMessagesData(message.SignalMessages.Select(s => s.RefToMessageId).Distinct(), inMsg => new { inMsg.EbmsMessageId, inMsg.MEP })
                            .Distinct()
-                           .ToDictionary(r => r.EbmsMessageId, r => r.MEP);
+                           .ToDictionary(r => r.EbmsMessageId, r => MessageExchangePatternUtils.Parse(r.MEP));
 
             foreach (var messageUnit in messageUnits)
             {
@@ -104,9 +104,9 @@ namespace Eu.EDelivery.AS4.Services
 
             outMessage.MessageLocation = location;
 
-            if (outMessage.EbmsMessageType == MessageType.UserMessage)
+            if (outMessage.EbmsMessageType == MessageType.UserMessage.ToString())
             {
-                outMessage.Operation = operation;
+                outMessage.SetOperation(operation);                
             }
             else
             {
@@ -123,7 +123,7 @@ namespace Eu.EDelivery.AS4.Services
                     DetermineCorrectReplyPattern(messageContext.ReceivingPMode, inMessageMep);
 
                 outMessage.Status = replyPattern.status;
-                outMessage.Operation = replyPattern.operation;
+                outMessage.SetOperation(replyPattern.operation);                
             }
 
             return outMessage;
@@ -177,7 +177,7 @@ namespace Eu.EDelivery.AS4.Services
                 message.GetPrimaryMessageId(),
                 m =>
                 {
-                    m.Operation = Operation.ToBeSent;
+                    m.SetOperation(Operation.ToBeSent);
                     m.MessageLocation = messageBodyLocation;
                 });
         }

@@ -167,12 +167,13 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             {
                 ContentType = as4Message.ContentType,
                 EbmsMessageId = as4Message.GetPrimaryMessageId(),
-                EbmsMessageType = MessageType.UserMessage,
-                MEP = MessageExchangePattern.Push,
                 MessageLocation =
-                    await Registry.Instance.MessageBodyStore.SaveAS4MessageAsync(Config.Instance.InMessageStoreLocation, as4Message, CancellationToken.None),
-                Operation = Operation.ToBeDelivered
+                    await Registry.Instance.MessageBodyStore.SaveAS4MessageAsync(Config.Instance.InMessageStoreLocation, as4Message, CancellationToken.None)
             };
+
+            inMessage.SetEbmsMessageType(MessageType.UserMessage);
+            inMessage.SetMessageExchangePattern(MessageExchangePattern.Push);
+            inMessage.SetOperation(Operation.ToBeDelivered);
 
             inMessage.SetPModeInformation(CreateReceivedPMode());
 

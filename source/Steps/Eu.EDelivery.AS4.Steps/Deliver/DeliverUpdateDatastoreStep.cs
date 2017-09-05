@@ -60,7 +60,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         private static void UpdateNotifiedInMessage(InMessage inMessage)
         {
             inMessage.Status = InStatus.Delivered;
-            inMessage.Operation = Operation.Delivered;
+            inMessage.SetOperation(Operation.Delivered);            
         }
     }
 }

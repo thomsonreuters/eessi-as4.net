@@ -75,7 +75,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                         .FirstOrDefaultAsync(m => m.EbmsMessageId.Equals(userMessage.MessageId));
 
                     Assert.NotNull(inMessage);
-                    Assert.Equal(MessageType.UserMessage, inMessage.EbmsMessageType);
+                    Assert.Equal(MessageType.UserMessage, MessageTypeUtils.Parse(inMessage.EbmsMessageType));
 
                     if (condition != null)
                     {
@@ -102,7 +102,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                     await Step.ExecuteAsync(messagingContext, CancellationToken.None);
 
                     // Assert
-                    await AssertUserInMessageAsync(userMessage, m => m.Operation == Operation.NotApplicable);
+                    await AssertUserInMessageAsync(userMessage, m => OperationUtils.Parse(m.Operation) == Operation.NotApplicable);
                 }
             }
 
@@ -146,7 +146,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                     await Step.ExecuteAsync(context, CancellationToken.None);
 
                     // Assert
-                    await AssertUserInMessageAsync(userMessage, m => m.Operation == Operation.NotApplicable);
+                    await AssertUserInMessageAsync(userMessage, m => OperationUtils.Parse(m.Operation) == Operation.NotApplicable);
                 }
             }
 

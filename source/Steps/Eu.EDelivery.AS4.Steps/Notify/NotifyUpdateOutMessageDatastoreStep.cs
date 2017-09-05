@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
@@ -53,7 +52,7 @@ namespace Eu.EDelivery.AS4.Steps.Notify
         private static void UpdateNotifiedOutMessage(OutMessage outMessage)
         {
             outMessage.Status = OutStatus.Notified;
-            outMessage.Operation = Operation.Notified;
+            outMessage.SetOperation(Operation.Notified);
         }
     }
 }

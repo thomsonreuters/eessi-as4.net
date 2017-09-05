@@ -124,7 +124,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
                 sut.Lock(expectedOperation.ToString());
 
                 // Assert
-                Assert.Equal(Operation.Sending, sut.Operation);
+                Assert.Equal(Operation.Sending, OperationUtils.Parse(sut.Operation));
             }
 
             [Fact]
@@ -132,13 +132,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
             {
                 // Arrange
                 const Operation expectedOperation = Operation.Notified;
-                var sut = new StubMessageEntity { Operation = expectedOperation };
+                var sut = new StubMessageEntity();
+                sut.SetOperation(expectedOperation);
 
                 // Act
                 sut.Lock(Operation.NotApplicable.ToString());
 
                 // Assert
-                Assert.Equal(expectedOperation, sut.Operation);
+                Assert.Equal(expectedOperation, OperationUtils.Parse(sut.Operation));
             }
         }
 

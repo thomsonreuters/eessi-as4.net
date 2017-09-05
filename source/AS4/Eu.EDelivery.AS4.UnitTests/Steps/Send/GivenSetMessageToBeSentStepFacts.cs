@@ -37,7 +37,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
                 m =>
                 {
                     Assert.Equal(expected, m.MessageLocation);
-                    Assert.Equal(Operation.ToBeSent, m.Operation);
+                    Assert.Equal(Operation.ToBeSent, OperationUtils.Parse(m.Operation));
                 });
 
         }
@@ -53,10 +53,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
         {
             var outMessage = new OutMessage
             {
-                EbmsMessageId = id,
-                Operation = processing,
+                EbmsMessageId = id,                
                 MessageLocation = notUpdatedLocation
             };
+
+            outMessage.SetOperation(processing);
 
             GetDataStoreContext.InsertOutMessage(outMessage);
         }

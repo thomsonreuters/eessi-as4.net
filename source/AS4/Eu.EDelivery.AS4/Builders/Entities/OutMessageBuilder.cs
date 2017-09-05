@@ -3,7 +3,6 @@ using System.Threading;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.PMode;
-using Eu.EDelivery.AS4.Serialization;
 using MessageExchangePattern = Eu.EDelivery.AS4.Entities.MessageExchangePattern;
 
 namespace Eu.EDelivery.AS4.Builders.Entities
@@ -58,14 +57,14 @@ namespace Eu.EDelivery.AS4.Builders.Entities
             {
                 EbmsMessageId = _messageUnit.MessageId,
                 ContentType = _contentType,
-                Operation = Operation.NotApplicable,
                 ModificationTime = DateTimeOffset.Now,
-                InsertionTime = DateTimeOffset.Now,
-                MEP = DetermineMepOf(_sendingProcessingMode),
-                EbmsMessageType = messageType,                
+                InsertionTime = DateTimeOffset.Now
             };
 
+            outMessage.SetOperation(Operation.NotApplicable);
+            outMessage.SetMessageExchangePattern(DetermineMepOf(_sendingProcessingMode));
             outMessage.SetPModeInformation(_sendingProcessingMode);
+            outMessage.SetEbmsMessageType(messageType);
 
             if (string.IsNullOrWhiteSpace(_messageUnit.RefToMessageId) == false)
             {

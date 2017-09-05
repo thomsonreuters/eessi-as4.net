@@ -65,7 +65,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 // Assert
                 InMessage inMessage = GetInMessageWithRefToMessageId(EbmsMessageId);
                 Assert.NotNull(inMessage);
-                Assert.Equal(Operation.ToBeNotified, inMessage.Operation);
+                Assert.Equal(Operation.ToBeNotified, OperationUtils.Parse(inMessage.Operation));
 
                 OutMessage outMessage = GetOutMessage(EbmsMessageId);
                 Assert.NotNull(outMessage);
@@ -157,10 +157,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             var outMessage = new OutMessage
             {
                 EbmsMessageId = messageId,
-                Status = OutStatus.Sent,
-                Operation = Operation.NotApplicable,
-                EbmsMessageType = MessageType.UserMessage,
+                Status = OutStatus.Sent
             };
+
+            outMessage.SetOperation(Operation.NotApplicable);
+            outMessage.SetEbmsMessageType(MessageType.UserMessage);
 
             outMessage.SetPModeInformation(GetSendingPMode());
 

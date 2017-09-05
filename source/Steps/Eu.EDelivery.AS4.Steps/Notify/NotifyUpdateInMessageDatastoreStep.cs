@@ -56,7 +56,7 @@ namespace Eu.EDelivery.AS4.Steps.Notify
         private static void UpdateNotifiedInMessage(InMessage inMessage)
         {
             inMessage.Status = InStatus.Notified;
-            inMessage.Operation = Operation.Notified;
+            inMessage.SetOperation(Operation.Notified);
         }
     }
 }

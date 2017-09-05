@@ -5,7 +5,6 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
@@ -110,38 +109,31 @@ namespace Eu.EDelivery.AS4.Entities
         /// </summary>
         [MaxLength(512)]
         public string MessageLocation { get; set; }
-
-        [NotMapped]
-        public Operation Operation { get; set; }
+        
+        public void SetOperation(Operation operation)
+        {
+            Operation = operation.ToString();
+        }
 
         [Column("Operation")]
         [MaxLength(50)]
-        public string OperationString
-        {
-            get { return Operation.ToString(); }
-            set { Operation = (Operation)Enum.Parse(typeof(Operation), value, true); }
-        }
-        
-        [NotMapped]
-        public MessageExchangePattern MEP { get; set; }
+        public string Operation { get; private set; }
 
-        [NotMapped]
-        public MessageType EbmsMessageType { get; set; }
 
         [Column("MEP")]
         [MaxLength(25)]
-        public string MEPString
+        public string MEP { get; private set; }
+
+        public void SetMessageExchangePattern(MessageExchangePattern mep)
         {
-            get { return MEP.ToString(); }
-            set { MEP = (MessageExchangePattern)Enum.Parse(typeof(MessageExchangePattern), value, true); }
+            MEP = mep.ToString();
         }
 
-        [Column("EbmsMessageType")]
-        [MaxLength(50)]
-        public string EbmsMessageTypeString
+        public string EbmsMessageType { get; private set; }
+
+        public void SetEbmsMessageType(MessageType messageType)
         {
-            get { return EbmsMessageType.ToString(); }
-            set { EbmsMessageType = (MessageType)Enum.Parse(typeof(MessageType), value, true); }
+            EbmsMessageType = messageType.ToString();
         }
 
         [Column("Status")]
@@ -187,9 +179,9 @@ namespace Eu.EDelivery.AS4.Entities
         {
             var updatedOperation = (Operation)Enum.Parse(typeof(Operation), value, true);
 
-            if (updatedOperation != Operation.NotApplicable)
+            if (updatedOperation != AS4.Entities.Operation.NotApplicable)
             {
-                Operation = updatedOperation;
+                SetOperation(updatedOperation);
             }
         }
 

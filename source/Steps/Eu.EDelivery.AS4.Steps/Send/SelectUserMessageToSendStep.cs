@@ -105,7 +105,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
                         return (false, null);
                     }
 
-                    repository.UpdateOutMessage(message.EbmsMessageId, m => m.Operation = Operation.Sent);
+                    repository.UpdateOutMessage(message.EbmsMessageId, m => m.SetOperation(Operation.Sent));
                     context.SaveChanges();
                     scope.Complete();
 
@@ -117,8 +117,8 @@ namespace Eu.EDelivery.AS4.Steps.Send
         private static bool PullRequestQuery(MessageEntity userMessage, PullRequest pullRequest)
         {
             return userMessage.Mpc == pullRequest.Mpc
-                   && userMessage.Operation == Operation.ToBeSent
-                   && userMessage.MEP == MessageExchangePattern.Pull;
+                   && userMessage.Operation == Operation.ToBeSent.ToString()
+                   && userMessage.MEP == MessageExchangePattern.Pull.ToString();
         }
     }
 }

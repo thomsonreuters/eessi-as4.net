@@ -32,7 +32,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Repositories
                     var repository = new DatastoreRepository(context);
 
                     // Act
-                    Operation actual = repository.GetOutMessageData(sharedId, m => m.Operation);
+                    Operation actual = repository.GetOutMessageData(sharedId, m => OperationUtils.Parse(m.Operation));
 
                     // Assert
                     Assert.Equal(expected, actual);
@@ -69,19 +69,21 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Repositories
                 {
                     new DatastoreRepository(context).UpdateOutMessage(
                        sharedId,
-                       m => m.Operation = Operation.Sent);
+                       m => m.SetOperation(Operation.Sent));
 
                     context.SaveChanges();
                 }
 
                 // Assert
-                AssertOutMessage(sharedId, m => Assert.Equal(Operation.Sent, m.Operation));
+                AssertOutMessage(sharedId, m => Assert.Equal(Operation.Sent.ToString(), m.Operation));
             }
 
             private void InsertOutMessage(string ebmsMessageId, Operation operation = Operation.NotApplicable)
             {
-                GetDataStoreContext.InsertOutMessage(
-                    new OutMessage { EbmsMessageId = ebmsMessageId, Operation = operation });
+                var outMessage = new OutMessage() { EbmsMessageId = ebmsMessageId };
+                outMessage.SetOperation(operation);
+
+                GetDataStoreContext.InsertOutMessage(outMessage);
             }
 
             private void AssertOutMessage(string messageId, Action<OutMessage> assertAction)
@@ -227,18 +229,18 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Repositories
                 {
                     new DatastoreRepository(context).UpdateInMessage(
                         sharedId,
-                        m => m.Operation = Operation.Delivered);
+                        m => m.SetOperation(Operation.Delivered));
 
                     await context.SaveChangesAsync();
                 }
 
                 // Assert
-                GetDataStoreContext.AssertInMessage(sharedId, m => Assert.Equal(Operation.Delivered, m.Operation));
+                GetDataStoreContext.AssertInMessage(sharedId, m => Assert.Equal(Operation.Delivered, OperationUtils.Parse(m.Operation)));
             }
 
             private void InsertInMessageWithOperation(string ebmsMessageId, Operation operation = Operation.NotApplicable)
             {
-                InsertInMessage(ebmsMessageId, m => m.Operation = operation);
+                InsertInMessage(ebmsMessageId, m => m.SetOperation(operation));
             }
 
             private void InsertInMessage(string messageId, Action<InMessage> arrangeMessage)

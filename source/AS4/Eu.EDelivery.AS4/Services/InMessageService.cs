@@ -207,7 +207,7 @@ namespace Eu.EDelivery.AS4.Services
                 _repository.UpdateInMessage(messageContext.AS4Message.GetPrimaryMessageId(),
                                             m =>
                                             {
-                                                m.Operation = Operation.ToBeForwarded;
+                                                m.SetOperation(Operation.ToBeForwarded);
                                             });
             }
             else
@@ -248,7 +248,7 @@ namespace Eu.EDelivery.AS4.Services
 
                         if (UserMessageNeedsToBeDelivered(messagingContext.ReceivingPMode, userMessage) && message.Intermediary == false)
                         {
-                            message.Operation = Operation.ToBeDelivered;
+                            message.SetOperation(Operation.ToBeDelivered);
                         }
                     });
             }
@@ -280,7 +280,7 @@ namespace Eu.EDelivery.AS4.Services
                 {
                     _repository.UpdateInMessages(
                         m => signalsToNotify.Select(s => s.MessageId).Contains(m.EbmsMessageId) && m.Intermediary == false,
-                        m => m.Operation = Operation.ToBeNotified);
+                        m => m.SetOperation(Operation.ToBeNotified));
                 }
             }
 

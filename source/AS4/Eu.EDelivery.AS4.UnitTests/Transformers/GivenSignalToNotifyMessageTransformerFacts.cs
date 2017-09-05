@@ -31,7 +31,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             // Arrange
             ReceivedMessageEntityMessage receival = await CreateReceivedReceiptMessage();
             receival.MessageEntity.EbmsMessageId = "other message id";
-                
+
             // Act / Assert
             await Assert.ThrowsAnyAsync<Exception>(() => ExerciseTransform(receival));
         }
@@ -69,8 +69,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             Assert.NotNull(notifyMessage);
 
             // Assert: check if the original Receipt is a part of the NotifyMessage.
-            var document = new XmlDocument {PreserveWhitespace = true};
-            document.LoadXml(Encoding.UTF8.GetString(((MemoryStream) receivedSignal.UnderlyingStream).ToArray()));
+            var document = new XmlDocument { PreserveWhitespace = true };
+            document.LoadXml(Encoding.UTF8.GetString(((MemoryStream)receivedSignal.UnderlyingStream).ToArray()));
 
             Assert.Equal(
                 Canonicalize(document.SelectSingleNode("//*[local-name()='SignalMessage']")),
@@ -110,7 +110,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             var t = new XmlDsigC14NTransform();
             t.LoadInput(doc);
 
-            var stream = (Stream) t.GetOutput(typeof(Stream));
+            var stream = (Stream)t.GetOutput(typeof(Stream));
 
             return new StreamReader(stream).ReadToEnd();
         }
@@ -132,15 +132,18 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
 
         private static InMessage CreateInMessageFor(AS4Message receiptMessage)
         {
-            return new InMessage
+            var inMessage = new InMessage
             {
                 Status = InStatus.Received,
-                Operation = Operation.ToBeNotified,
-                EbmsMessageType = MessageType.Receipt,
                 ContentType = Constants.ContentTypes.Soap,
                 EbmsMessageId = receiptMessage.PrimarySignalMessage.MessageId,
                 EbmsRefToMessageId = receiptMessage.PrimarySignalMessage.RefToMessageId
             };
+
+            inMessage.SetOperation(Operation.ToBeNotified);
+            inMessage.SetEbmsMessageType(MessageType.Receipt);
+
+            return inMessage;
         }
     }
 }

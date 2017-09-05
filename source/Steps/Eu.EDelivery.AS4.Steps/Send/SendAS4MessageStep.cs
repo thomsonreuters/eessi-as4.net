@@ -272,7 +272,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
                     as4Message.MessageIds,
                     outMessage =>
                     {
-                        outMessage.Operation = operation;
+                        outMessage.SetOperation(operation);
                         outMessage.Status = status;
                     });
 

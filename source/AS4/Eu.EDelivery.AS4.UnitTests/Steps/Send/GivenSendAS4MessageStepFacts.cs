@@ -65,7 +65,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
                 as4Message,
                 message =>
                 {
-                    Assert.Equal(Operation.Sent, message.Operation);
+                    Assert.Equal(Operation.Sent, OperationUtils.Parse(message.Operation));
                     Assert.Equal(OutStatus.Sent, message.Status);
                 });
         }

@@ -127,7 +127,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.ReceptionAwareness
                 await step.ExecuteAsync(internalMessage, CancellationToken.None);
 
                 // Assert
-                AssertOutMessage(awareness.InternalMessageId, x => Assert.Equal(Operation.ToBeSent, x.Operation));
+                AssertOutMessage(awareness.InternalMessageId, x => Assert.Equal(Operation.ToBeSent, OperationUtils.Parse(x.Operation)));
                 AssertReceptionAwareness(
                     awareness.InternalMessageId,
                     x => Assert.Equal(ReceptionStatus.Pending, x.Status));

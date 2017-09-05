@@ -44,7 +44,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
                     notifyMessage.MessageInfo.MessageId,
                     m =>
                     {
-                        Assert.Equal(Operation.Notified, m.Operation);
+                        Assert.Equal(Operation.Notified, OperationUtils.Parse(m.Operation));
                         Assert.Equal(OutStatus.Notified, m.Status);
                     });
             }
@@ -54,15 +54,17 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
                 var outMessage = new OutMessage
                 {
                     EbmsMessageId = sharedId,
-                    Operation = Operation.Notifying,
                     Status = OutStatus.Ack
                 };
+
+                outMessage.SetOperation(Operation.Notifying);
+
                 GetDataStoreContext.InsertOutMessage(outMessage);
             }
 
             private static NotifyMessageEnvelope CreateNotifyMessage(string id)
             {
-                var msgInfo = new MessageInfo {MessageId = id};
+                var msgInfo = new MessageInfo { MessageId = id };
 
                 return new NotifyMessageEnvelope(msgInfo, Status.Delivered, null, string.Empty, typeof(OutMessage));
             }

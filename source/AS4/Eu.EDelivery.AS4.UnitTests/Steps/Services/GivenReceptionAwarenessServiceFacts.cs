@@ -137,7 +137,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Services
                 // Arrange
                 var mockRepository = new Mock<IDatastoreRepository>();
                 var awareness = new AS4.Entities.ReceptionAwareness {InternalMessageId = "not empty message-id"};
-                var actual = new OutMessage {Operation = Operation.Sent};
+                var actual = new OutMessage();
+                actual.SetOperation(Operation.Sent);
 
                 mockRepository.Setup(r => r.UpdateOutMessage(It.IsAny<string>(), It.IsAny<Action<OutMessage>>()))
                               .Callback(
@@ -151,7 +152,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Services
                 ExerciseService(mockRepository.Object, s => s.MarkReferencedMessageForResend(awareness));
 
                 // Assert
-                Assert.Equal(Operation.ToBeSent, actual.Operation);
+                Assert.Equal(Operation.ToBeSent, OperationUtils.Parse(actual.Operation));
             }
 
             [Fact]
