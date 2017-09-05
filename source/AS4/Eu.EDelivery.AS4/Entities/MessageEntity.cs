@@ -109,7 +109,7 @@ namespace Eu.EDelivery.AS4.Entities
         /// </summary>
         [MaxLength(512)]
         public string MessageLocation { get; set; }
-        
+
         public void SetOperation(Operation operation)
         {
             Operation = operation.ToString();
@@ -141,6 +141,16 @@ namespace Eu.EDelivery.AS4.Entities
         public abstract string StatusString { get; set; }
 
         public string SoapEnvelope { get; set; }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MessageEntity"/> class.
+        /// </summary>
+        protected MessageEntity()
+        {
+            SetOperation(default(Operation));
+            SetEbmsMessageType(default(MessageType));
+            SetMessageExchangePattern(default(MessageExchangePattern));
+        }
 
         /// <summary>
         /// Assigns the parent properties.
@@ -177,7 +187,7 @@ namespace Eu.EDelivery.AS4.Entities
         /// <param name="value">Value indicating the <see cref="Entity" /> is locked.</param>
         public override void Lock(string value)
         {
-            var updatedOperation = (Operation)Enum.Parse(typeof(Operation), value, true);
+            var updatedOperation = OperationUtils.Parse(value);
 
             if (updatedOperation != AS4.Entities.Operation.NotApplicable)
             {
