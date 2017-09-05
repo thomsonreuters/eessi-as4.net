@@ -57,7 +57,7 @@ namespace Eu.EDelivery.AS4.Steps.Notify
                     repository.UpdateInMessage(notifyMessage.MessageInfo.MessageId, m =>
                     {
                         m.Status = InStatus.Notified;
-                        m.Operation = Operation.Notified;
+                        m.SetOperation(Operation.Notified);
                     });
                 }
                 else if (notifyMessage.EntityType == typeof(OutMessage))
@@ -65,7 +65,7 @@ namespace Eu.EDelivery.AS4.Steps.Notify
                     repository.UpdateOutMessage(notifyMessage.MessageInfo.MessageId, m =>
                     {
                         m.Status = OutStatus.Notified;
-                        m.Operation = Operation.Notified;
+                        m.SetOperation(Operation.Notified);
                     });
                 }
                 else if (notifyMessage.EntityType == typeof(InException))
