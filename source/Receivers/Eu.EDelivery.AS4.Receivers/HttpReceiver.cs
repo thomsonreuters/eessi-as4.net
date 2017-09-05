@@ -470,6 +470,8 @@ namespace Eu.EDelivery.AS4.Receivers
 
                 protected override HttpListenerContentResult ExecuteCore(HttpListenerRequest request, MessagingContext processorResult)
                 {
+                    // TODO: this must be refactored to something that is more maintainable.
+
                     if (processorResult.Exception != null ||
                        (processorResult.ErrorResult != null && (processorResult.AS4Message?.IsEmpty ?? true)))
                     {
@@ -502,8 +504,15 @@ namespace Eu.EDelivery.AS4.Receivers
                         return ByteContentResult.Empty(HttpStatusCode.Accepted);
                     }
 
+                    if (InForwardingRole(processorResult))
+                    {
+                        return ByteContentResult.Empty(HttpStatusCode.Accepted);
+                    }
+
                     if (processorResult.Mode == MessagingContextMode.Send && processorResult.ReceivedMessage != null)
                     {
+                        // When we're sending as a puller, make sure that the message that has been received, 
+                        // is directly written to the stream.
                         return new StreamContentResult(HttpStatusCode.OK,
                                                        processorResult.ReceivedMessage.ContentType, processorResult.ReceivedMessage.UnderlyingStream);
                     }
@@ -515,9 +524,8 @@ namespace Eu.EDelivery.AS4.Receivers
                             contentType: processorResult.AS4Message?.ContentType,
                             messagingContext: processorResult);
                     }
-
-                    // In any other case, return a bad request error ?
-                    return ByteContentResult.Empty(HttpStatusCode.BadRequest);
+                    
+                    return ByteContentResult.Empty(HttpStatusCode.Accepted);
                 }
 
                 private static bool AreReceiptsOrErrorsSendInCallbackMode(MessagingContext processorResult)
@@ -529,6 +537,12 @@ namespace Eu.EDelivery.AS4.Receivers
                 private static bool AreReceiptsOrErrorsSendInResponseMode(MessagingContext processorResult)
                 {
                     return processorResult.AS4Message != null && processorResult.AS4Message.IsEmpty == false;
+                }
+
+                private static bool InForwardingRole(MessagingContext processorResult)
+                {
+                    return processorResult.Mode == MessagingContextMode.Receive &&
+                           processorResult.ReceivedMessageMustBeForwarded;
                 }
 
                 private static HttpStatusCode DetermineHttpCodeFrom(MessagingContext processorResult)
