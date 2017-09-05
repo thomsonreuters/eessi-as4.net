@@ -163,12 +163,11 @@ namespace Eu.EDelivery.AS4.Receivers
             return entities;
         }
 
-        // ReSharper disable InconsistentNaming  (__ indicates that this field should not be used directly; use the GetUpdateFieldProperty instead.)       
-        private MethodInfo __updatePropertySetter;
-        private Type __updatePropertyType;
+        // ReSharper disable InconsistentNaming  (__ indicates that this field should not be used directly; use the GetUpdateFieldProperty instead.)               
+        private PropertyInfo __updateProperty;
         // ReSharper restore InconsistentNaming
 
-        private (MethodInfo propertySetMethod, Type propertyType) GetUpdateFieldProperty(Entity entity)
+        private PropertyInfo GetUpdateFieldProperty(Entity entity)
         {
             PropertyInfo FindPropertyInHierarchy(string propertyName, Type t)
             {
@@ -186,20 +185,17 @@ namespace Eu.EDelivery.AS4.Receivers
                 return pi;
             }
 
-            if (__updatePropertySetter == null)
+            if (__updateProperty == null)
             {
-                var pi = FindPropertyInHierarchy(_settings.UpdateField, entity.GetType());
+                __updateProperty = FindPropertyInHierarchy(_settings.UpdateField, entity.GetType());
 
-                if (pi == null)
+                if (__updateProperty == null)
                 {
                     throw new ConfigurationErrorsException($"The configured Update-field {_settings.UpdateField} could not be found.");
                 }
-
-                __updatePropertySetter = pi.GetSetMethod(true);
-                __updatePropertyType = pi.PropertyType;
             }
 
-            return (__updatePropertySetter, __updatePropertyType);
+            return __updateProperty;
         }
 
         private void LockEntitiesBeforeContinueToProcessThem(IEnumerable<Entity> entities)
@@ -213,9 +209,9 @@ namespace Eu.EDelivery.AS4.Receivers
 
             foreach (Entity entity in entities)
             {
-                object updateValue = Conversion.Convert(updateFieldInfo.propertyType, this.Update);
+                object updateValue = Conversion.Convert(updateFieldInfo.PropertyType, this.Update);
 
-                updateFieldInfo.propertySetMethod.Invoke(entity, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, null, new[] { updateValue }, null);
+                updateFieldInfo.SetValue(entity, updateValue, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, null, null, null);
             }
         }
 
