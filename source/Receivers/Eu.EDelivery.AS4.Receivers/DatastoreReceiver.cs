@@ -163,17 +163,43 @@ namespace Eu.EDelivery.AS4.Receivers
             return entities;
         }
 
-        // ReSharper disable once InconsistentNaming (__ indicates that this field should not be used directly)
-        private PropertyInfo __updateFieldProperty;
+        // ReSharper disable InconsistentNaming  (__ indicates that this field should not be used directly; use the GetUpdateFieldProperty instead.)       
+        private MethodInfo __updatePropertySetter;
+        private Type __updatePropertyType;
+        // ReSharper restore InconsistentNaming
 
-        private PropertyInfo GetUpdateFieldProperty(Entity entity)
+        private (MethodInfo propertySetMethod, Type propertyType) GetUpdateFieldProperty(Entity entity)
         {
-            if (__updateFieldProperty == null)
+            PropertyInfo FindPropertyInHierarchy(string propertyName, Type t)
             {
-                __updateFieldProperty = entity.GetType().GetProperty(_settings.UpdateField);
+                if (t == null)
+                {
+                    return null;
+                }
+
+                var pi = t.GetProperty(propertyName, BindingFlags.Instance | BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.NonPublic);
+
+                if (pi == null)
+                {
+                    pi = FindPropertyInHierarchy(propertyName, t.BaseType);
+                }
+                return pi;
             }
 
-            return __updateFieldProperty;
+            if (__updatePropertySetter == null)
+            {
+                var pi = FindPropertyInHierarchy(_settings.UpdateField, entity.GetType());
+
+                if (pi == null)
+                {
+                    throw new ConfigurationErrorsException($"The configured Update-field {_settings.UpdateField} could not be found.");
+                }
+
+                __updatePropertySetter = pi.GetSetMethod(true);
+                __updatePropertyType = pi.PropertyType;
+            }
+
+            return (__updatePropertySetter, __updatePropertyType);
         }
 
         private void LockEntitiesBeforeContinueToProcessThem(IEnumerable<Entity> entities)
@@ -183,13 +209,13 @@ namespace Eu.EDelivery.AS4.Receivers
                 return;
             }
 
-            PropertyInfo property = GetUpdateFieldProperty(entities.First());
+            var updateFieldInfo = GetUpdateFieldProperty(entities.First());
 
             foreach (Entity entity in entities)
             {
-                object updateValue = Conversion.Convert(property.PropertyType, this.Update);
+                object updateValue = Conversion.Convert(updateFieldInfo.propertyType, this.Update);
 
-                property.SetValue(entity, updateValue);
+                updateFieldInfo.propertySetMethod.Invoke(entity, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, null, new[] { updateValue }, null);
             }
         }
 
