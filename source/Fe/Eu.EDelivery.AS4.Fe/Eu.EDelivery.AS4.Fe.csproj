@@ -18,6 +18,16 @@
         <Content Remove="ui\tsconfig.json" />
         <Content Remove="ui\tsconfig.webpack.json" />
     </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="Eu.EDelivery.AS4.Fe.xml" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Include="Eu.EDelivery.AS4.Fe.xml">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Content>
+    </ItemGroup>
     <ItemGroup>
         <None Include="ui\tsconfig.json" />
         <None Include="ui\tsconfig.webpack.json" />
@@ -44,6 +54,7 @@
         <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="1.1.3" />
         <PackageReference Include="Microsoft.AspNetCore.Owin" Version="1.1.2" />
         <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" Version="1.1.2" />
+        <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="1.1.2" />
         <PackageReference Include="Microsoft.EntityFrameworkCore" Version="1.1.2" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="1.1.2" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="1.1.2" />
