@@ -245,6 +245,7 @@
   <ItemGroup>
     <Compile Include="Agents\GivenAgentFacts.cs" />
     <Compile Include="Agents\GivenAgentProviderFacts.cs" />
+    <Compile Include="Agents\GivenDefaultAgentStepRegistryFacts.cs" />
     <Compile Include="Agents\SpyAgent.cs" />
     <Compile Include="Exceptions\Handlers\ExerciseHandler.cs" />
     <Compile Include="Exceptions\Handlers\GivenInboundExceptionHandlerFacts.cs" />
@@ -262,7 +263,6 @@
     <Compile Include="Steps\Receive\GivenValidateAS4MessageStepFacts.cs" />
     <Compile Include="Steps\Send\GivenLogReceivedProcessingErrorStepFacts.cs" />
     <Compile Include="Steps\Send\GivenSetMessageToBeSentStepFacts.cs" />
-    <Compile Include="Steps\Send\GivenPullUpdateMessageStepFacts.cs" />
     <Compile Include="Steps\Submit\GivenCreateAS4MessageStepFacts.cs" />
     <Compile Include="Transformers\StubSubmitTransformer.cs" />
     <Compile Include="Steps\StubAS4MessageStep.cs" />

@@ -12,11 +12,11 @@ using Xunit;
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
 {
     /// <summary>
-    /// Testing <see cref="NotifyUpdateInExceptionDatastoreStep" />
+    /// Testing <see cref="NotifyUpdateDatastoreStep" />
     /// </summary>
-    public class GivenNotifyUpdateInExceptionDatastoreStepFacts : GivenDatastoreFacts
+    public class GivenNotifyUpdateDatastoreStepForInExceptionsFacts : GivenDatastoreFacts
     {
-        public class GivenValidArguments : GivenNotifyUpdateInExceptionDatastoreStepFacts
+        public class GivenValidArguments : GivenNotifyUpdateDatastoreStepForInExceptionsFacts
         {
             [Fact]
             public async Task ThenUpdateDatastoreSucceedsWithValidNotifyMessageAsync()
@@ -25,7 +25,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
                 InException inException = CreateDefaultInException();
                 InsertInException(inException);
                 MessagingContext messagingContext = CreateNotifyMessage(inException);
-                var step = new NotifyUpdateInExceptionDatastoreStep();
+                var step = new NotifyUpdateDatastoreStep();
 
                 // Act
                 await step.ExecuteAsync(messagingContext, CancellationToken.None);
@@ -43,7 +43,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
             {
                 var msgInfo = new MessageInfo {RefToMessageId = inException.EbmsRefToMessageId};
 
-                var notifyMessage = new NotifyMessageEnvelope(msgInfo, Status.Delivered, null, string.Empty);
+                var notifyMessage = new NotifyMessageEnvelope(msgInfo, Status.Delivered, null, string.Empty, inException.GetType());
 
                 return new MessagingContext(notifyMessage);
             }

@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Exceptions;
-using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.Notify;
 using Eu.EDelivery.AS4.Model.PMode;
@@ -27,7 +25,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
             // Arrange
             IStep sut = CreateSendNotifyStepWithSender(new SaboteurSender());
 
-            var notifyMessage = new NotifyMessageEnvelope(new MessageInfo(), Status.Delivered, null, string.Empty);
+            var notifyMessage = EmptyNotifyMessageEnvelope(Status.Delivered);
             var internalMessage = new MessagingContext(notifyMessage);
 
             // Act / Assert
@@ -91,7 +89,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
 
         private static NotifyMessageEnvelope EmptyNotifyMessageEnvelope(Status status)
         {
-            return new NotifyMessageEnvelope(new MessageInfo(), status, null, string.Empty);
+            return new NotifyMessageEnvelope(new MessageInfo(), status, null, string.Empty, default(Type));
         }
     }
 }

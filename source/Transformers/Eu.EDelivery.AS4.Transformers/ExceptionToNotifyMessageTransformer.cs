@@ -34,7 +34,7 @@ namespace Eu.EDelivery.AS4.Transformers
 
             AS4Message as4Message = await CreateErrorAS4Message(exceptionEntity, cancellationToken);
 
-            var internalMessage = new MessagingContext(await CreateNotifyMessageEnvelope(as4Message))
+            var messagingContext = new MessagingContext(await CreateNotifyMessageEnvelope(as4Message, exceptionEntity.GetType()))
             {
                 SendingPMode = await GetPMode<SendingProcessingMode>(exceptionEntity.PMode),
                 ReceivingPMode = await GetPMode<ReceivingProcessingMode>(exceptionEntity.PMode)
@@ -42,7 +42,7 @@ namespace Eu.EDelivery.AS4.Transformers
 
             Logger.Info($"[{exceptionEntity.EbmsRefToMessageId}] Exception AS4 Message is successfully transformed");
 
-            return internalMessage;
+            return messagingContext;
         }
 
         private static ReceivedEntityMessage RetrieveEntityMessage(ReceivedMessage message)
@@ -61,7 +61,7 @@ namespace Eu.EDelivery.AS4.Transformers
             var exceptionEntity = messageEntity.Entity as ExceptionEntity;
             if (exceptionEntity == null)
             {
-                throw new NotSupportedException($"Exception Transformer only supports '{nameof(ExceptionEntity)}'");
+                throw new NotSupportedException($"Exception Notify Transformer only supports '{nameof(ExceptionEntity)}'");
             }
 
             return exceptionEntity;
@@ -103,7 +103,7 @@ namespace Eu.EDelivery.AS4.Transformers
                 ISerializer serializer = Registry.Instance.SerializerProvider.Get(Constants.ContentTypes.Soap);
                 await serializer.SerializeAsync(as4Message, memoryStream, cancellationToken);
 
-                var xmlDocument = new XmlDocument {PreserveWhitespace = true};
+                var xmlDocument = new XmlDocument { PreserveWhitespace = true };
                 memoryStream.Position = 0;
                 xmlDocument.Load(memoryStream);
 
@@ -111,7 +111,7 @@ namespace Eu.EDelivery.AS4.Transformers
             }
         }
 
-        protected virtual async Task<NotifyMessageEnvelope> CreateNotifyMessageEnvelope(AS4Message as4Message)
+        protected virtual async Task<NotifyMessageEnvelope> CreateNotifyMessageEnvelope(AS4Message as4Message, Type receivedEntityType)
         {
             NotifyMessage notifyMessage = AS4MessageToNotifyMessageMapper.Convert(as4Message);
 
@@ -126,7 +126,8 @@ namespace Eu.EDelivery.AS4.Transformers
                 notifyMessage.MessageInfo,
                 notifyMessage.StatusInfo.Status,
                 Encoding.UTF8.GetBytes(serialized),
-                "application/xml");
+                "application/xml",
+                receivedEntityType);
         }
     }
 }

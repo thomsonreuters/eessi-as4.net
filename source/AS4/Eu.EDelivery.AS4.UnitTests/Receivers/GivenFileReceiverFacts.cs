@@ -39,7 +39,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
 
             CreateFileInDirectory("testfile.dat", _watchedDirectory);
             var receivedFiles = StartReceiving(receiver);
-            Assert.True(receivedFiles.Count() == 1);
+            Assert.Equal(1, receivedFiles.Count());
             Assert.Equal("testfile", Path.GetFileNameWithoutExtension(receivedFiles.First()));
 
             FileSystemUtils.ClearDirectory(_watchedDirectory);

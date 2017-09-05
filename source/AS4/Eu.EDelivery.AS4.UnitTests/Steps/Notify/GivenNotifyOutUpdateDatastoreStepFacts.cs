@@ -14,18 +14,18 @@ using Xunit;
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
 {
     /// <summary>
-    /// Testing <see cref="NotifyUpdateInMessageDatastoreStep" />
+    /// Testing <see cref="NotifyUpdateDatastoreStep" />
     /// </summary>
-    public class GivenNotifyOutUpdateDatastoreStepFacts : GivenDatastoreFacts
+    public class GivenNotifyUpdateDatastoreStepForOutMessageFacts : GivenDatastoreFacts
     {
-        private readonly NotifyUpdateOutMessageDatastoreStep _step;
+        private readonly NotifyUpdateDatastoreStep _step;
 
-        public GivenNotifyOutUpdateDatastoreStepFacts()
+        public GivenNotifyUpdateDatastoreStepForOutMessageFacts()
         {
-            _step = new NotifyUpdateOutMessageDatastoreStep();
+            _step = new NotifyUpdateDatastoreStep();
         }
 
-        public class GivenValidArguments : GivenNotifyOutUpdateDatastoreStepFacts
+        public class GivenValidArguments : GivenNotifyUpdateDatastoreStepForOutMessageFacts
         {
             [Theory]
             [InlineData("shared-id")]
@@ -64,7 +64,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
             {
                 var msgInfo = new MessageInfo {MessageId = id};
 
-                return new NotifyMessageEnvelope(msgInfo, Status.Delivered, null, string.Empty);
+                return new NotifyMessageEnvelope(msgInfo, Status.Delivered, null, string.Empty, typeof(OutMessage));
             }
 
             private void AssertOutMessage(string messageId, Action<OutMessage> assertAction)

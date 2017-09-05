@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
@@ -36,9 +35,9 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
         /// Handles the transformation exception.
         /// </summary>
         /// <param name="exception">The exception.</param>
-        /// <param name="contents">The contents.</param>
+        /// <param name="messageToTransform">The <see cref="ReceivedMessage"/> that must be transformed by the transformer.</param>
         /// <returns></returns>
-        public async Task<MessagingContext> HandleTransformationException(Exception exception, Stream contents)
+        public async Task<MessagingContext> HandleTransformationException(Exception exception, ReceivedMessage messageToTransform)
         {
             Logger.Error($"Exception occured during transformation: {exception.Message}");
 
@@ -46,7 +45,7 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
                 repository =>
                 {
                     OutException outException = CreateMinimumOutException(exception);
-                    outException.MessageBody = contents.ToBytes();
+                    outException.MessageBody = messageToTransform.UnderlyingStream.ToBytes();
 
                     repository.InsertOutException(outException);
                 });
@@ -84,7 +83,7 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
         /// <returns></returns>
         public async Task<MessagingContext> HandleExecutionException(Exception exception, MessagingContext context)
         {
-            Logger.Error($"Exception occured while executing Steps:{exception.Message}");           
+            Logger.Error($"Exception occured while executing Steps:{exception.Message}");
 
             string ebmsMessageId = await GetEbmsMessageId(context);
 
@@ -115,7 +114,7 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
 
             return new MessagingContext(exception);
         }
-        
+
         private static OutException CreateOutExceptionWithContextInfo(Exception exception, MessagingContext context)
         {
             OutException outException = CreateMinimumOutException(exception);

@@ -11,23 +11,23 @@ using Xunit;
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
 {
     /// <summary>
-    /// Testing <see cref="NotifyUpdateInMessageDatastoreStep" />
+    /// Testing <see cref="NotifyUpdateDatastoreStep" />
     /// </summary>
-    public class GivenNotifyInUpdateDatastoreStepFacts : GivenDatastoreFacts
+    public class GivenNotifyUpdateDatastoreStepForInMessageFacts : GivenDatastoreFacts
     {
-        private readonly NotifyUpdateInMessageDatastoreStep _step;
+        private readonly NotifyUpdateDatastoreStep _step;
 
-        public GivenNotifyInUpdateDatastoreStepFacts()
+        public GivenNotifyUpdateDatastoreStepForInMessageFacts()
         {
-            _step = new NotifyUpdateInMessageDatastoreStep();
+            _step = new NotifyUpdateDatastoreStep();
         }
 
         private static InMessage CreateInMessage(string id)
         {
-            return new InMessage {EbmsMessageId = id};
+            return new InMessage { EbmsMessageId = id };
         }
 
-        public class GivenValidArguments : GivenNotifyInUpdateDatastoreStepFacts
+        public class GivenValidArguments : GivenNotifyUpdateDatastoreStepForInMessageFacts
         {
             [Theory]
             [InlineData("shared-id")]
@@ -62,9 +62,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
 
             private static NotifyMessageEnvelope CreateNotifyMessage(string id)
             {
-                var msgInfo = new MessageInfo {MessageId = id};
+                var msgInfo = new MessageInfo { MessageId = id };
 
-                return new NotifyMessageEnvelope(msgInfo, Status.Delivered, null, string.Empty);
+                return new NotifyMessageEnvelope(msgInfo, Status.Delivered, null, string.Empty, typeof(InMessage));
             }
         }
     }

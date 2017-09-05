@@ -88,7 +88,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Agents
 
             // Assert
             Mock.Get(spyHandler)
-                .Verify(h => h.HandleTransformationException(It.IsAny<Exception>(), It.IsAny<Stream>()), Times.Once);
+                .Verify(h => h.HandleTransformationException(It.IsAny<Exception>(), It.IsAny<ReceivedMessage>()), Times.Once);
         }
 
         private static Agent AgentWithSaboteurTransformer(IAgentExceptionHandler spyHandler)

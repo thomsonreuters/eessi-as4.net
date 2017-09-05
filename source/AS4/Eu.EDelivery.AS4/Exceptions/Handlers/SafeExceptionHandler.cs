@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Model.Internal;
 using NLog;
@@ -28,11 +27,11 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
         /// Handles the transformation exception.
         /// </summary>
         /// <param name="exception">The exception.</param>
-        /// <param name="contents">The contents.</param>
+        /// <param name="messageToTransform">The <see cref="ReceivedMessage"/> that must be transformed by the transformer.</param>
         /// <returns></returns>
-        public async Task<MessagingContext> HandleTransformationException(Exception exception, Stream contents)
+        public async Task<MessagingContext> HandleTransformationException(Exception exception, ReceivedMessage messageToTransform)
         {
-            return await TryHandling(() => _innerHandler.HandleTransformationException(exception, contents));
+            return await TryHandling(() => _innerHandler.HandleTransformationException(exception, messageToTransform));
         }
 
         /// <summary>

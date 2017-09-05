@@ -83,7 +83,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Strategies.Sender
             var sut = new SpySender();
 
             // Act
-            await sut.SendAsync(new NotifyMessageEnvelope(null, default(Status), null, null));
+            await sut.SendAsync(new NotifyMessageEnvelope(null, default(Status), null, null, null));
 
             // Assert
             Assert.True(sut.IsNotified);

@@ -331,6 +331,7 @@
     <Compile Include="Exceptions\Handlers\InboundExceptionHandler.cs" />
     <Compile Include="Exceptions\Handlers\LogExceptionHandler.cs" />
     <Compile Include="Exceptions\Handlers\MinderExceptionHandler.cs" />
+    <Compile Include="Exceptions\Handlers\NotifyExceptionHandler.cs" />
     <Compile Include="Exceptions\Handlers\OutboundExceptionHandler.cs" />
     <Compile Include="Exceptions\Handlers\PullSendAgentExceptionHandler.cs" />
     <Compile Include="Exceptions\Handlers\SafeExceptionHandler.cs" />

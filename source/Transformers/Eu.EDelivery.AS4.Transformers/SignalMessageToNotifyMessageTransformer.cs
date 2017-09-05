@@ -31,29 +31,30 @@ namespace Eu.EDelivery.AS4.Transformers
             // the one usermessage that should be delivered.
             AS4Message as4Message = await RetrieveAS4SignalMessage(entityMessage, cancellationToken);
 
-            return new MessagingContext(await CreateNotifyMessageEnvelope(as4Message));
+            return new MessagingContext(await CreateNotifyMessageEnvelope(as4Message, entityMessage.MessageEntity.GetType()));
         }
 
-        protected virtual async Task<NotifyMessageEnvelope> CreateNotifyMessageEnvelope(AS4Message as4Message)
+        protected virtual async Task<NotifyMessageEnvelope> CreateNotifyMessageEnvelope(AS4Message as4Message, Type receivedEntityType)
         {
             var notifyMessage = AS4MessageToNotifyMessageMapper.Convert(as4Message);
 
             if (notifyMessage?.StatusInfo != null)
             {
-                notifyMessage.StatusInfo.Status = 
+                notifyMessage.StatusInfo.Status =
                     as4Message.PrimarySignalMessage is Receipt
                         ? Status.Delivered
                         : Status.Error;
             }
 
-            var serialized = await AS4XmlSerializer.ToStringAsync(notifyMessage);
+            var serialized = await AS4XmlSerializer.ToStringAsync(notifyMessage).ConfigureAwait(false);
 
             return new NotifyMessageEnvelope(notifyMessage.MessageInfo,
                                              notifyMessage.StatusInfo.Status,
-                                             System.Text.Encoding.UTF8.GetBytes(serialized),                  
-                                             "application/xml");
+                                             System.Text.Encoding.UTF8.GetBytes(serialized),
+                                             "application/xml",
+                                             receivedEntityType);
         }
-        
+
         private static async Task<AS4Message> RetrieveAS4SignalMessage(ReceivedMessageEntityMessage entityMessage, CancellationToken cancellationToken)
         {
             var as4Transformer = new AS4MessageTransformer();

@@ -23,11 +23,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Exceptions.Handlers
             byte[] expectedBody = Encoding.UTF8.GetBytes("serialize me!");
             var sut = new PullSendAgentExceptionHandler(GetDataStoreContext);
 
-            // Act
-            await sut.HandleTransformationException(
-                new Exception(_expectedMessage),
-                new MemoryStream(expectedBody));
-
+            using (var stream = new MemoryStream(expectedBody))
+            {
+                // Act
+                await sut.HandleTransformationException(
+                    new Exception(_expectedMessage),
+                    new ReceivedMessage(stream));
+            }
             // Assert
             GetDataStoreContext.AssertOutException(
                 ex =>
