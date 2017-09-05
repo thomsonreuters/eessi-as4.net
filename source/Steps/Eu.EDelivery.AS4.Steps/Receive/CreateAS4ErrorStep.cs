@@ -13,6 +13,7 @@ using Eu.EDelivery.AS4.Singletons;
 using Eu.EDelivery.AS4.Xml;
 using NLog;
 using Error = Eu.EDelivery.AS4.Model.Core.Error;
+using PullRequest = Eu.EDelivery.AS4.Model.Core.PullRequest;
 using SignalMessage = Eu.EDelivery.AS4.Model.Core.SignalMessage;
 using UserMessage = Eu.EDelivery.AS4.Model.Core.UserMessage;
 
@@ -56,7 +57,10 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
             AS4Message errorMessage = CreateAS4Error(messagingContext);
 
-            await CreateExceptionForReceivedSignalMessages(messagingContext);
+            if (messagingContext.ErrorResult != null)
+            {
+                await CreateExceptionForReceivedSignalMessages(messagingContext);
+            }
 
             messagingContext.ModifyContext(errorMessage);
 
@@ -80,6 +84,11 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
                 foreach (var signal in signalMessages)
                 {
+                    if (signal is PullRequest)
+                    {
+                        continue;
+                    }
+
                     var inException = CreateInException(signal, context.ErrorResult);
                     inException.PMode = pmodeString;
 
@@ -95,13 +104,13 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
         private static InException CreateInException(SignalMessage message, ErrorResult error)
         {
-            var inException = new InException();
-            // TODO: what about notification ?
-
-            inException.EbmsRefToMessageId = message.MessageId;
-            inException.Exception = error.Description;
-            inException.ErrorAlias = error.Alias;
-            inException.Operation = Operation.NotApplicable;
+            var inException = new InException
+            {
+                EbmsRefToMessageId = message.MessageId,
+                Exception = error.Description,
+                ErrorAlias = error.Alias,
+                Operation = Operation.NotApplicable
+            };
 
             return inException;
         }
