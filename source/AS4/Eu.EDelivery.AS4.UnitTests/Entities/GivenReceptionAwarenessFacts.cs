@@ -13,13 +13,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
         {
             // Arrange
             const ReceptionStatus expectedStatus = ReceptionStatus.Busy;
-            var sut = new ReceptionAwareness {Status = ReceptionStatus.Pending};
+            var sut = new ReceptionAwareness();
+            sut.SetStatus(ReceptionStatus.Pending);
 
             // Act
             sut.Lock(expectedStatus.ToString());
 
             // Assert
-            Assert.Equal(expectedStatus, sut.Status);
+            Assert.Equal(expectedStatus, ReceptionStatusUtils.Parse(sut.Status));
         }
     }
 }

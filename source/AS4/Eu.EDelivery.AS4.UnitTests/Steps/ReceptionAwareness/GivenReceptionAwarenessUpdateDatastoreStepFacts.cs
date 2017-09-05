@@ -50,7 +50,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.ReceptionAwareness
                 // Assert
                 AssertReceptionAwareness(
                     awareness.InternalMessageId,
-                    x => Assert.Equal(ReceptionStatus.Completed, x.Status));
+                    x => Assert.Equal(ReceptionStatus.Completed, ReceptionStatusUtils.Parse(x.Status)));
             }
 
             private EntityReceptionAwareness InsertAlreadyAnsweredMessage()
@@ -94,7 +94,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.ReceptionAwareness
                 AssertNotNullInMessage(awareness.InternalMessageId);
                 AssertReceptionAwareness(
                     awareness.InternalMessageId,
-                    x => Assert.Equal(ReceptionStatus.Completed, x.Status));
+                    x => Assert.Equal(ReceptionStatus.Completed, ReceptionStatusUtils.Parse(x.Status)));
             }
 
             private void AssertNotNullInMessage(string messageId)
@@ -115,7 +115,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.ReceptionAwareness
                 awareness.CurrentRetryCount = 0;
 
                 // When the DataReceiver receives a ReceptionAwareness item, it's status is Locked to Busy.
-                awareness.Status = ReceptionStatus.Busy;
+                awareness.SetStatus(ReceptionStatus.Busy);
 
                 InsertReceptionAwareness(awareness);
                 InsertOutMessage(awareness.InternalMessageId);
@@ -130,7 +130,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.ReceptionAwareness
                 AssertOutMessage(awareness.InternalMessageId, x => Assert.Equal(Operation.ToBeSent, OperationUtils.Parse(x.Operation)));
                 AssertReceptionAwareness(
                     awareness.InternalMessageId,
-                    x => Assert.Equal(ReceptionStatus.Pending, x.Status));
+                    x => Assert.Equal(ReceptionStatus.Pending, ReceptionStatusUtils.Parse(x.Status)));
             }
 
             private void AssertOutMessage(string messagId, Action<OutMessage> condition)
@@ -176,15 +176,18 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.ReceptionAwareness
 
         protected EntityReceptionAwareness CreateDefaultReceptionAwareness()
         {
-            return new EntityReceptionAwareness
+            var receptionAwareness = new EntityReceptionAwareness
             {
                 CurrentRetryCount = 0,
-                Status = ReceptionStatus.Pending,
                 InternalMessageId = "message-id",
                 LastSendTime = DateTimeOffset.Now.AddMinutes(-1),
                 RetryInterval = "00:00:00",
                 TotalRetryCount = 5
             };
+
+            receptionAwareness.SetStatus(ReceptionStatus.Pending);
+
+            return receptionAwareness;
         }
     }
 }

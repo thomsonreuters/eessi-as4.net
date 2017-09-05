@@ -184,7 +184,7 @@ namespace Eu.EDelivery.AS4.Common
             modelBuilder.Entity<ReceptionAwareness>().HasKey(r => r.Id);
             modelBuilder.Entity<ReceptionAwareness>().Property(r => r.Id).UseSqlServerIdentityColumn();
             modelBuilder.Entity<ReceptionAwareness>().HasAlternateKey(r => r.InternalMessageId);
-            modelBuilder.Entity<ReceptionAwareness>().HasIndex(r => new { r.StatusString, r.CurrentRetryCount });
+            modelBuilder.Entity<ReceptionAwareness>().HasIndex(r => new { r.Status, r.CurrentRetryCount });
         }
 
         /// <summary>

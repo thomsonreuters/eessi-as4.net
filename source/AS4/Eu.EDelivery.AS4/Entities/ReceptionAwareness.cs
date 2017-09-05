@@ -22,14 +22,24 @@ namespace Eu.EDelivery.AS4.Entities
         /// </summary>
         public DateTimeOffset? LastSendTime { get; set; }
 
-        [NotMapped]
-        public ReceptionStatus Status { get; set; }
 
-        [Column("Status")]
-        public string StatusString
+        public string Status
         {
-            get { return Status.ToString(); }
-            set { Status = (ReceptionStatus) Enum.Parse(typeof(ReceptionStatus), value, true); }
+            get;
+            private set;
+        }
+
+        public void SetStatus(ReceptionStatus status)
+        {
+            this.Status = status.ToString();
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ReceptionAwareness"/> class.
+        /// </summary>
+        public ReceptionAwareness()
+        {
+            SetStatus(default(ReceptionStatus));
         }
 
         /// <summary>
@@ -37,8 +47,11 @@ namespace Eu.EDelivery.AS4.Entities
         /// </summary>
         /// <param name="value">Value indicating the <see cref="Entity"/> is locked.</param>
         public override void Lock(string value)
-        {            
-            StatusString = value;
+        {
+            // TODO: use enum-utils method.
+            var updatedStatus = ReceptionStatusUtils.Parse(value);
+
+            SetStatus(updatedStatus);
         }
     }
 
@@ -47,5 +60,13 @@ namespace Eu.EDelivery.AS4.Entities
         Pending,
         Busy,
         Completed
+    }
+
+    public static class ReceptionStatusUtils
+    {
+        public static ReceptionStatus Parse(string value)
+        {
+            return (ReceptionStatus)Enum.Parse(typeof(ReceptionStatus), value, true);
+        }
     }
 }

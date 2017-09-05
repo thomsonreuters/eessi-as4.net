@@ -59,14 +59,14 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
                 Entities.ReceptionAwareness[] existingReceptionAwarenessEntities =
                     repository.GetReceptionAwareness(as4Message.MessageIds).ToArray();
-                
+
                 // For every MessageId for which no ReceptionAwareness entity exists, create one.
                 InsertReceptionAwarenessForMessages(messagingContext, repository, existingReceptionAwarenessEntities);
 
                 await context.SaveChangesAsync().ConfigureAwait(false);
             }
         }
-       
+
         private static void InsertReceptionAwarenessForMessages(
             MessagingContext message,
             IDatastoreRepository repository,
@@ -87,15 +87,18 @@ namespace Eu.EDelivery.AS4.Steps.Send
         {
             // The Message hasn't been sent yet, so set the currentretrycount to -1 and the lastsendtime to null.
             // The SendMessageStep will update those values once the message has in fact been sent.
-            return new Entities.ReceptionAwareness
+            var receptionAwareness = new Entities.ReceptionAwareness
             {
                 InternalMessageId = messageId,
                 CurrentRetryCount = -1,
                 TotalRetryCount = pmode.Reliability.ReceptionAwareness.RetryCount,
                 RetryInterval = pmode.Reliability.ReceptionAwareness.RetryInterval,
                 LastSendTime = null,
-                Status = ReceptionStatus.Pending
             };
+
+            receptionAwareness.SetStatus(ReceptionStatus.Pending);
+
+            return receptionAwareness;
         }
     }
 }

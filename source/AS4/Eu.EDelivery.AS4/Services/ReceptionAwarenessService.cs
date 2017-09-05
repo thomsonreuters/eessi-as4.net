@@ -140,7 +140,7 @@ namespace Eu.EDelivery.AS4.Services
 
             DateTimeOffset deadlineForResend = awareness.LastSendTime.Value.Add(TimeSpan.Parse(awareness.RetryInterval));
 
-            return awareness.Status != ReceptionStatus.Completed
+            return ReceptionStatusUtils.Parse(awareness.Status) != ReceptionStatus.Completed
                    && awareness.CurrentRetryCount < awareness.TotalRetryCount
                    && DateTimeOffset.Now > deadlineForResend
                    && _repository.GetOutMessageData(awareness.InternalMessageId, m => m.Operation) != Operation.Sending.ToString();
@@ -185,7 +185,7 @@ namespace Eu.EDelivery.AS4.Services
 
         private void UpdateReceptionAwareness(ReceptionAwareness awarenes, ReceptionStatus receptionStatus)
         {
-            _repository.UpdateReceptionAwareness(awarenes.InternalMessageId, r => r.Status = receptionStatus);
+            _repository.UpdateReceptionAwareness(awarenes.InternalMessageId, r => r.SetStatus(receptionStatus));
         }
     }
 }
