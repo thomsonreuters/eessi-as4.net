@@ -66,5 +66,33 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
                 Assert.Equal(OutStatus.Ack, OutStatusUtils.Parse(msg.Status));
             }
         }
+
+        [Fact]
+        public async Task InMessageMessageTypeIsCorrectlyPersisted()
+        {
+            long savedId;
+
+            using (var db = this.GetDataStoreContext())
+            {
+                var message = new OutMessage("message-id");
+                message.SetEbmsMessageType(MessageType.Receipt);
+
+                db.OutMessages.Add(message);
+
+                await db.SaveChangesAsync();
+
+                savedId = message.Id;
+
+                Assert.NotEqual(default(long), savedId);
+            }
+
+            using (var db = this.GetDataStoreContext())
+            {
+                var message = db.OutMessages.FirstOrDefault(i => i.Id == savedId);
+
+                Assert.NotNull(message);
+                Assert.Equal(MessageType.Receipt, MessageTypeUtils.Parse(message.EbmsMessageType));
+            }
+        }
     }
 }

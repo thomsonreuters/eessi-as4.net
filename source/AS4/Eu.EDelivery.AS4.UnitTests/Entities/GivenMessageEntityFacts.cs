@@ -38,6 +38,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
             }
 
             [Fact]
+            public void HasDefaultMessageType()
+            {
+                Assert.Equal(MessageType.UserMessage, MessageTypeUtils.Parse(new StubMessageEntity().EbmsMessageType));
+            }
+
+            [Fact]
             public void GetsPartyInfoFromEntity()
             {
                 // Arrange
