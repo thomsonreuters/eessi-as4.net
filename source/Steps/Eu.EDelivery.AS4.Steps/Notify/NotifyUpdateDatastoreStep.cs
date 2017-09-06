@@ -10,7 +10,7 @@ using NLog;
 
 namespace Eu.EDelivery.AS4.Steps.Notify
 {
-    public class NotifyUpdateDatastoreStep
+    public class NotifyUpdateDatastoreStep : IStep
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 
