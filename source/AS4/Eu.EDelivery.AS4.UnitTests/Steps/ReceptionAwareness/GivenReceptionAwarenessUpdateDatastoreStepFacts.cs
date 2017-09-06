@@ -67,7 +67,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.ReceptionAwareness
             {
                 using (var context = new DatastoreContext(Options))
                 {
-                    var outMessage = new OutMessage { EbmsMessageId = messageId };
+                    var outMessage = new OutMessage(ebmsMessageId: messageId);
                     outMessage.SetStatus(OutStatus.Ack);
                     context.OutMessages.Add(outMessage);
 
@@ -170,7 +170,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.ReceptionAwareness
         protected void InsertOutMessage(string messageId)
         {
             var pmode = new SendingProcessingMode();
-            var outMessage = new OutMessage { EbmsMessageId = messageId };
+            var outMessage = new OutMessage(ebmsMessageId: messageId);
             outMessage.SetPModeInformation(pmode);
             GetDataStoreContext.InsertOutMessage(outMessage);
         }

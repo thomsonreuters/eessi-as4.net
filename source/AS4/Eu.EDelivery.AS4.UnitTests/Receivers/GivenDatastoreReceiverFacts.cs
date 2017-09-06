@@ -100,9 +100,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
 
             using (DatastoreContext context = GetDataStoreContext())
             {
-                var outMessage = new OutMessage
-                {
-                    EbmsMessageId = "message-id",
+                var outMessage = new OutMessage("message-id")
+                {                    
                     MessageLocation = "test://",
                     ContentType = contentType
                 };
@@ -119,9 +118,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
         {
             using (var context = new DatastoreContext(Options))
             {
-                var expectedMessage = new OutMessage
-                {
-                    EbmsMessageId = "message-id",
+                var expectedMessage = new OutMessage("message-id")
+                {                    
                     MessageLocation = "ignored location"
                 };
 

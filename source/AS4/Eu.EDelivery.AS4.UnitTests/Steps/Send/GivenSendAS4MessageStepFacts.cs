@@ -74,7 +74,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
         {
             using (var context = new DatastoreContext(Options))
             {
-                context.OutMessages.Add(new OutMessage { EbmsMessageId = as4Message.PrimaryUserMessage.MessageId });
+                context.OutMessages.Add(new OutMessage(ebmsMessageId: as4Message.PrimaryUserMessage.MessageId));
                 context.SaveChanges();
             }
         }

@@ -118,7 +118,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Exceptions.Handlers
             Func<IAgentExceptionHandler, Func<Exception, MessagingContext, Task<MessagingContext>>> getExercise)
         {
             // Arrange
-            var message = new OutMessage { EbmsMessageId = _expectedId };
+            var message = new OutMessage(ebmsMessageId: _expectedId);
             message.SetStatus(OutStatus.Sent);
 
             GetDataStoreContext.InsertOutMessage(message);

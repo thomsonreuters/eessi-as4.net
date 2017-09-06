@@ -85,10 +85,9 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                 SerializerProvider.Default.Get(as4Message.ContentType).Serialize(as4Message, fs, CancellationToken.None);
             }
 
-            var outMessage = new OutMessage()
+            var outMessage = new OutMessage(as4Message.GetPrimaryMessageId())
             {
                 ContentType = as4Message.ContentType,
-                EbmsMessageId = as4Message.GetPrimaryMessageId(),
                 MessageLocation = $"FILE:///{fileName}",
                 Intermediary = actAsIntermediaryMsh,
             };

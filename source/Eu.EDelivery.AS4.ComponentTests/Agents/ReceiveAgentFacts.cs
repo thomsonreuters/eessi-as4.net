@@ -400,10 +400,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
         private void CreateExistingOutMessage(string messageId, SendingProcessingMode sendingPMode)
         {
-            var outMessage = new OutMessage
-            {
-                EbmsMessageId = messageId
-            };
+            var outMessage = new OutMessage(messageId);
 
             outMessage.SetStatus(OutStatus.Sent);
             outMessage.SetPModeInformation(sendingPMode);

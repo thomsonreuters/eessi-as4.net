@@ -97,7 +97,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             {
                 using (DatastoreContext context = GetDataStoreContext())
                 {
-                    context.OutMessages.Add(new OutMessage { EbmsMessageId = messageId });
+                    context.OutMessages.Add(new OutMessage(ebmsMessageId: messageId));
                     context.SaveChanges();
                 }
             }
@@ -154,11 +154,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
         private static OutMessage CreateOutMessage(string messageId)
         {
-            var outMessage = new OutMessage
-            {
-                EbmsMessageId = messageId
-            };
-
+            var outMessage = new OutMessage(ebmsMessageId: messageId);
+            
             outMessage.SetStatus(OutStatus.Sent);
             outMessage.SetOperation(Operation.NotApplicable);
             outMessage.SetEbmsMessageType(MessageType.UserMessage);

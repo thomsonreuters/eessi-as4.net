@@ -139,7 +139,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Services
                 // Arrange
                 var mockRepository = new Mock<IDatastoreRepository>();
                 var awareness = new AS4.Entities.ReceptionAwareness { InternalMessageId = "not empty message-id" };
-                var actual = new OutMessage();
+                var actual = new OutMessage(Guid.NewGuid().ToString());
                 actual.SetOperation(Operation.Sent);
 
                 mockRepository.Setup(r => r.UpdateOutMessage(It.IsAny<string>(), It.IsAny<Action<OutMessage>>()))
@@ -203,7 +203,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Services
 
                 const string messageId = "message id";
 
-                var selectArgument = new OutMessage() { EbmsMessageId = messageId };
+                var selectArgument = new OutMessage(ebmsMessageId: messageId);
                 selectArgument.SetStatus(status);
 
                 stubRepository.Setup(r => r.GetOutMessageData(It.IsAny<string>(), It.IsAny<Func<OutMessage, bool>>()))

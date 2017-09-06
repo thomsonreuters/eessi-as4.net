@@ -51,9 +51,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
 
         private void InsertOutMessageWith(string id, Operation processing, string notUpdatedLocation)
         {
-            var outMessage = new OutMessage
+            var outMessage = new OutMessage(ebmsMessageId: id)
             {
-                EbmsMessageId = id,                
                 MessageLocation = notUpdatedLocation
             };
 

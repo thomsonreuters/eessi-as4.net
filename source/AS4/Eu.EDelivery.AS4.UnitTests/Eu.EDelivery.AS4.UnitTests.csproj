@@ -222,7 +222,9 @@
     <Compile Include="Agents\GivenDefaultAgentStepRegistryFacts.cs" />
     <Compile Include="Agents\SpyAgent.cs" />
     <Compile Include="Entities\GivenInMessageEntityFacts.cs" />
+    <Compile Include="Entities\GivenInMessagePersistenceFacts.cs" />
     <Compile Include="Entities\GivenOutMessageEntityFacts.cs" />
+    <Compile Include="Entities\GivenOutMessagePersistenceFacts.cs" />
     <Compile Include="Exceptions\Handlers\ExerciseHandler.cs" />
     <Compile Include="Exceptions\Handlers\GivenInboundExceptionHandlerFacts.cs" />
     <Compile Include="Exceptions\Handlers\GivenOutboundExceptionHandlerFacts.cs" />

@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.Logging;
 using NLog;
 using Polly;
@@ -163,15 +164,19 @@ namespace Eu.EDelivery.AS4.Common
 
             modelBuilder.Entity<InMessage>().HasKey(im => im.Id);
             modelBuilder.Entity<InMessage>().Property(im => im.Id).UseSqlServerIdentityColumn();
+            modelBuilder.Entity<InMessage>().Property(im => im.MEP).UsePropertyAccessMode(PropertyAccessMode.Field);
             modelBuilder.Entity<InMessage>().HasIndex(im => new { im.EbmsMessageId, im.IsDuplicate });
-            modelBuilder.Entity<InMessage>().HasIndex(im => im.Operation);
+            modelBuilder.Entity<InMessage>().HasIndex(im => new { im.Operation, im.InsertionTime });
             modelBuilder.Entity<InMessage>().HasIndex(im => im.EbmsRefToMessageId);
+
 
             modelBuilder.Entity<OutMessage>().HasKey(im => im.Id);
             modelBuilder.Entity<OutMessage>().Property(im => im.Id).UseSqlServerIdentityColumn();
+            modelBuilder.Entity<OutMessage>().Property(im => im.MEP).UsePropertyAccessMode(PropertyAccessMode.Field);
             modelBuilder.Entity<OutMessage>().HasAlternateKey(im => im.EbmsMessageId);
             modelBuilder.Entity<OutMessage>().HasIndex(im => new { im.Operation, im.MEP, im.Mpc, im.InsertionTime });
             modelBuilder.Entity<OutMessage>().HasIndex(im => im.EbmsRefToMessageId);
+            modelBuilder.Entity<OutMessage>().HasIndex(im => im.InsertionTime);
 
             modelBuilder.Entity<InException>().HasKey(ie => ie.Id);
             modelBuilder.Entity<InException>().Property(ie => ie.Id).UseSqlServerIdentityColumn();

@@ -51,11 +51,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
 
             private void InsertDefaultOutMessage(string sharedId)
             {
-                var outMessage = new OutMessage
-                {
-                    EbmsMessageId = sharedId,
-                };
-
+                var outMessage = new OutMessage(sharedId);
+                
                 outMessage.SetStatus(OutStatus.Ack);
                 outMessage.SetOperation(Operation.Notifying);
 

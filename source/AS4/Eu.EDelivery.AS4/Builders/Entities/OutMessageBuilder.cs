@@ -53,9 +53,8 @@ namespace Eu.EDelivery.AS4.Builders.Entities
         {
             MessageType messageType = DetermineSignalMessageType(_messageUnit);
 
-            var outMessage = new OutMessage
+            var outMessage = new OutMessage(_messageUnit.MessageId)
             {
-                EbmsMessageId = _messageUnit.MessageId,
                 ContentType = _contentType,
                 ModificationTime = DateTimeOffset.Now,
                 InsertionTime = DateTimeOffset.Now
