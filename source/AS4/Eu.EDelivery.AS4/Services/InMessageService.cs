@@ -274,18 +274,20 @@ namespace Eu.EDelivery.AS4.Services
         {
             if (signalsMustBeNotified())
             {
-                var signalsToNotify = signalMessages.Where(r => r.IsDuplicate == false);
+                var signalsToNotify = signalMessages.Where(r => r.IsDuplicate == false).Select(s => s.MessageId).ToArray();
 
                 if (signalsToNotify.Any())
                 {
                     _repository.UpdateInMessages(
-                        m => signalsToNotify.Select(s => s.MessageId).Contains(m.EbmsMessageId) && m.Intermediary == false,
+                        m => signalsToNotify.Contains(m.EbmsMessageId) && m.Intermediary == false,
                         m => m.SetOperation(Operation.ToBeNotified));
                 }
             }
 
+            var refToMessageIds = signalMessages.Select(r => r.RefToMessageId).ToArray();
+
             _repository.UpdateOutMessages(
-                m => signalMessages.Select(r => r.RefToMessageId).Contains(m.EbmsMessageId) && m.Intermediary == false,
+                m => refToMessageIds.Contains(m.EbmsMessageId) && m.Intermediary == false,
                 m => m.SetStatus(outStatus));
         }
 
