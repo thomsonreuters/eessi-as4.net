@@ -41,7 +41,11 @@ namespace Eu.EDelivery.AS4.Entities
         public override void Lock(string value)
         {
             var updatedOperation = OperationUtils.Parse(value);
-            SetOperation(updatedOperation);
+
+            if (updatedOperation != AS4.Entities.Operation.NotApplicable)
+            {
+                SetOperation(updatedOperation);
+            }
         }
     }
 }
