@@ -102,7 +102,7 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
                 await SideEffectRepositoryUsage(
                     repository =>
                     {
-                        repository.UpdateInMessage(context.EbmsMessageId, m => m.Status = InStatus.Exception);
+                        repository.UpdateInMessage(context.EbmsMessageId, m => m.SetStatus(InStatus.Exception));
 
                         InException ex = CreateInExceptionWithContextInfo(exception, context);
                         ex.EbmsRefToMessageId = context.EbmsMessageId;
@@ -131,10 +131,13 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
             if (context != null)
             {
                 inException.PMode = AS4XmlSerializer.ToString(context.ReceivingPMode);
-                inException.Operation = 
+
+                Operation notifyOperation = 
                     context.ReceivingPMode?.ExceptionHandling?.NotifyMessageConsumer == true
                         ? Operation.ToBeNotified
                         : default(Operation);
+
+                inException.SetOperation(notifyOperation);
             }
 
             return inException;

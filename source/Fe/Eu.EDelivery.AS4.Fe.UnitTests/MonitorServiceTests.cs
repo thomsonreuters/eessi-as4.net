@@ -104,37 +104,51 @@ Failed to decrypt data element
             {
                 string pmodeString = AS4XmlSerializer.ToString(pmode);
 
-                var message = new InMessage
                 {
-                    EbmsMessageId = InEbmsMessageId1,
-                    EbmsRefToMessageId = InEbmsRefToMessageId1,
-                    Status = InStatus.Created,
-                    InsertionTime = DateTime.UtcNow.AddMinutes(-1),
-                };
-                message.SetPModeInformation(pmode);
-                datastoreContext.InMessages.Add(message);
+                    var message = new InMessage
+                    {
+                        EbmsMessageId = InEbmsMessageId1,
+                        EbmsRefToMessageId = InEbmsRefToMessageId1,
+                        InsertionTime = DateTime.UtcNow.AddMinutes(-1),
+                    };
+                    message.SetStatus(InStatus.Created);
+                    message.SetPModeInformation(pmode);
+                    datastoreContext.InMessages.Add(message);
+                }
 
-                datastoreContext.InMessages.Add(new InMessage
                 {
-                    EbmsMessageId = InEbmsMessageId2,
-                    EbmsRefToMessageId = InEbmsRefToMessageId2,
-                    Status = InStatus.Received,
-                    InsertionTime = DateTime.UtcNow.AddMinutes(-1)
-                });
-                datastoreContext.OutMessages.Add(new OutMessage
+                    var message = new InMessage()
+                    {
+                        EbmsMessageId = InEbmsMessageId2,
+                        EbmsRefToMessageId = InEbmsRefToMessageId2,
+                        InsertionTime = DateTime.UtcNow.AddMinutes(-1)
+                    };
+                    message.SetStatus(InStatus.Received);
+                    datastoreContext.InMessages.Add(message);
+                }
+
                 {
-                    EbmsMessageId = OutEbmsMessageId1,
-                    EbmsRefToMessageId = OutEbmsRefToMessageId1,
-                    Status = OutStatus.Created,
-                    InsertionTime = DateTime.UtcNow.AddMinutes(-1)
-                });
-                datastoreContext.OutMessages.Add(new OutMessage
+                    var message = new OutMessage(OutEbmsMessageId1)
+                    {                        
+                        EbmsRefToMessageId = OutEbmsRefToMessageId1,
+                        InsertionTime = DateTime.UtcNow.AddMinutes(-1)
+                    };
+                    message.SetStatus(OutStatus.Created);
+
+                    datastoreContext.OutMessages.Add(message);
+                }
+
                 {
-                    EbmsMessageId = OutEbmsMessageId2,
-                    EbmsRefToMessageId = OutEbmsRefToMessageId2,
-                    Status = OutStatus.Created,
-                    InsertionTime = DateTime.UtcNow.AddMinutes(-1)
-                });
+                    var message = new OutMessage(OutEbmsMessageId2)
+                    {                        
+                        EbmsRefToMessageId = OutEbmsRefToMessageId2,
+
+                        InsertionTime = DateTime.UtcNow.AddMinutes(-1)
+                    };
+                    message.SetStatus(OutStatus.Created);
+                    datastoreContext.OutMessages.Add(message);
+                }
+
                 datastoreContext.InExceptions.Add(new InException
                 {
                     EbmsRefToMessageId = InEbmsMessageId1,
@@ -431,10 +445,8 @@ Failed to decrypt data element
                         {
                             EbmsMessageId = InEbmsRefToMessageId1,
                         });
-                        datastoreContext.OutMessages.Add(new OutMessage
-                        {
-                            EbmsMessageId = InEbmsRefToMessageId1,
-                        });
+                        datastoreContext.OutMessages.Add(new OutMessage(InEbmsRefToMessageId1));
+                        
                         datastoreContext.InMessages.Add(new InMessage
                         {
                             EbmsMessageId = "RANDOM",
@@ -445,14 +457,12 @@ Failed to decrypt data element
                             EbmsMessageId = InEbmsMessageId2,
                         });
 
-                        datastoreContext.OutMessages.Add(new OutMessage
+                        datastoreContext.OutMessages.Add(new OutMessage(OutEbmsMessageId1)
                         {
-                            EbmsMessageId = OutEbmsMessageId1,
                             EbmsRefToMessageId = OutEbmsRefToMessageId1
                         });
-                        datastoreContext.OutMessages.Add(new OutMessage
+                        datastoreContext.OutMessages.Add(new OutMessage(OutEbmsMessageId2)
                         {
-                            EbmsMessageId = OutEbmsMessageId2,
                             EbmsRefToMessageId = OutEbmsMessageId1
                         });
                         datastoreContext.InMessages.Add(new InMessage
@@ -466,13 +476,10 @@ Failed to decrypt data element
                             EbmsRefToMessageId = Guid.NewGuid().ToString()
                         });
 
-                        datastoreContext.OutMessages.Add(new OutMessage
+                        datastoreContext.OutMessages.Add(new OutMessage(_outEbmsMessage3));
+
+                        datastoreContext.OutMessages.Add(new OutMessage(Guid.NewGuid().ToString())
                         {
-                            EbmsMessageId = _outEbmsMessage3
-                        });
-                        datastoreContext.OutMessages.Add(new OutMessage
-                        {
-                            EbmsMessageId = Guid.NewGuid().ToString(),
                             EbmsRefToMessageId = _outEbmsMessage3
                         });
                         datastoreContext.InMessages.Add(new InMessage
@@ -485,10 +492,7 @@ Failed to decrypt data element
                         {
                             EbmsMessageId = Guid.NewGuid().ToString()
                         });
-                        datastoreContext.OutMessages.Add(new OutMessage
-                        {
-                            EbmsMessageId = Guid.NewGuid().ToString()
-                        });
+                        datastoreContext.OutMessages.Add(new OutMessage(Guid.NewGuid().ToString()));
 
                         foreach (var inMessage in datastoreContext.InMessages)
                         {

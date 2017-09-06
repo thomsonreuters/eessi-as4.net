@@ -48,7 +48,7 @@ namespace Eu.EDelivery.AS4.Fe.Monitor.Model
             if (Operation != null)
             {
                 var operations = Operation.Select(op => op.ToString());
-                query = query.Where(qr => operations.Contains(qr.OperationString));
+                query = query.Where(qr => operations.Contains(qr.Operation));
             }
 
             switch (InsertionTimeType)
@@ -87,12 +87,12 @@ namespace Eu.EDelivery.AS4.Fe.Monitor.Model
             if (MEP != null)
             {
                 var mepStrings = MEP.Select(mep => mep.ToString());
-                query = query.Where(qr => mepStrings.Contains(qr.MEPString));
+                query = query.Where(qr => mepStrings.Contains(qr.MEP));
             }
             if (EbmsMessageType != null)
             {
                 var messageTypeStrings = EbmsMessageType.Select(type => type.ToString());
-                query = query.Where(qr => messageTypeStrings.Contains(qr.EbmsMessageTypeString));
+                query = query.Where(qr => messageTypeStrings.Contains(qr.EbmsMessageType));
             }
             if (ContentType != null)
             {
@@ -102,7 +102,7 @@ namespace Eu.EDelivery.AS4.Fe.Monitor.Model
             if (Status != null && Status.Any())
             {
                 var statusStrings = Status.Select(status => status.ToString()).ToList();
-                query = query.Where(qr => statusStrings.Contains(qr.StatusString));
+                query = query.Where(qr => statusStrings.Contains(qr.Status));
             }
 
             if (!string.IsNullOrEmpty(FromParty)) query = query.Where(x => x.FromParty == FromParty);

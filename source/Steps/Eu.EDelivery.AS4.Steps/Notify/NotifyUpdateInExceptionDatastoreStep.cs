@@ -54,7 +54,7 @@ namespace Eu.EDelivery.AS4.Steps.Notify
 
         private static void UpdateNotifiedInException(InException inException)
         {
-            inException.Operation = Operation.Notified;
+            inException.SetOperation(Operation.Notified);
         }
     }
 }

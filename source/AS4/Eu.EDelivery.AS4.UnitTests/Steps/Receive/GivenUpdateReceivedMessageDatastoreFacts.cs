@@ -65,11 +65,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 // Assert
                 InMessage inMessage = GetInMessageWithRefToMessageId(EbmsMessageId);
                 Assert.NotNull(inMessage);
-                Assert.Equal(Operation.ToBeNotified, inMessage.Operation);
+                Assert.Equal(Operation.ToBeNotified, OperationUtils.Parse(inMessage.Operation));
 
                 OutMessage outMessage = GetOutMessage(EbmsMessageId);
                 Assert.NotNull(outMessage);
-                Assert.Equal(OutStatus.Ack, outMessage.Status);
+                Assert.Equal(OutStatus.Ack, OutStatusUtils.Parse(outMessage.Status));
             }
 
             private static MessagingContext ReceiptAS4MessageWithSendingPMode(string refToMessageId)
@@ -97,7 +97,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             {
                 using (DatastoreContext context = GetDataStoreContext())
                 {
-                    context.OutMessages.Add(new OutMessage { EbmsMessageId = messageId });
+                    context.OutMessages.Add(new OutMessage(ebmsMessageId: messageId));
                     context.SaveChanges();
                 }
             }
@@ -130,7 +130,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 // Assert
                 OutMessage outMessage = GetOutMessage(EbmsMessageId);
                 Assert.NotNull(outMessage);
-                Assert.Equal(OutStatus.Nack, outMessage.Status);
+                Assert.Equal(OutStatus.Nack, OutStatusUtils.Parse(outMessage.Status));
             }
 
             private async Task InsertOutMessageWith(string messageId)
@@ -154,13 +154,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
         private static OutMessage CreateOutMessage(string messageId)
         {
-            var outMessage = new OutMessage
-            {
-                EbmsMessageId = messageId,
-                Status = OutStatus.Sent,
-                Operation = Operation.NotApplicable,
-                EbmsMessageType = MessageType.UserMessage,
-            };
+            var outMessage = new OutMessage(ebmsMessageId: messageId);
+            
+            outMessage.SetStatus(OutStatus.Sent);
+            outMessage.SetOperation(Operation.NotApplicable);
+            outMessage.SetEbmsMessageType(MessageType.UserMessage);
 
             outMessage.SetPModeInformation(GetSendingPMode());
 

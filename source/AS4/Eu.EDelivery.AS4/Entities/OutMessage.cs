@@ -1,36 +1,29 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations.Schema;
-
-namespace Eu.EDelivery.AS4.Entities
+﻿namespace Eu.EDelivery.AS4.Entities
 {
     /// <summary>
     ///     Outgoing Message Data Entity Schema
     /// </summary>
     public class OutMessage : MessageEntity
     {
+        // ReSharper disable once UnusedMember.Local : Default ctor is required for EF
+        private OutMessage()
+        {            
+        }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="OutMessage"/> class.
         /// </summary>
-        internal OutMessage()
+        internal OutMessage(string ebmsMessageId) : base()
         {
             // Internal ctor to prevent that instances are created directly.
-            // TODO: perhaps this class should not have a default ctor, but a ctor
-            // which takes an AS4Message parameter ...  (Interferes with the Fe Unittests atm).
+            EbmsMessageId = ebmsMessageId;
+            SetStatus(default(OutStatus));
         }
 
-        [NotMapped]
-        public OutStatus Status { get; set; }
-
-        public override string StatusString
+        public void SetStatus(OutStatus status)
         {
-            get
-            {
-                return Status.ToString();
-            }
-            set
-            {
-                Status = (OutStatus)Enum.Parse(typeof(OutStatus), value, true);
-            }
+            Status = status.ToString();
         }
+
     }
 }

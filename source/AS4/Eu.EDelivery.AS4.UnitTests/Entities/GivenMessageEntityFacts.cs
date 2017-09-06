@@ -14,6 +14,7 @@ using Eu.EDelivery.AS4.UnitTests.Model;
 using Eu.EDelivery.AS4.UnitTests.Repositories;
 using Xunit;
 using Eu.EDelivery.AS4.UnitTests.Common;
+using MessageExchangePattern = Eu.EDelivery.AS4.Entities.MessageExchangePattern;
 
 namespace Eu.EDelivery.AS4.UnitTests.Entities
 {
@@ -24,6 +25,24 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
     {
         public class Create
         {
+            [Fact]
+            public void HasDefaultOperation()
+            {
+                Assert.Equal(Operation.NotApplicable, OperationUtils.Parse(new StubMessageEntity().Operation));
+            }
+
+            [Fact]
+            public void HasDefaultMessageExchangePattern()
+            {
+                Assert.Equal(MessageExchangePattern.Push, MessageExchangePatternUtils.Parse(new StubMessageEntity().MEP));
+            }
+
+            [Fact]
+            public void HasDefaultMessageType()
+            {
+                Assert.Equal(MessageType.UserMessage, MessageTypeUtils.Parse(new StubMessageEntity().EbmsMessageType));
+            }
+
             [Fact]
             public void GetsPartyInfoFromEntity()
             {
@@ -124,7 +143,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
                 sut.Lock(expectedOperation.ToString());
 
                 // Assert
-                Assert.Equal(Operation.Sending, sut.Operation);
+                Assert.Equal(Operation.Sending, OperationUtils.Parse(sut.Operation));
             }
 
             [Fact]
@@ -132,13 +151,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
             {
                 // Arrange
                 const Operation expectedOperation = Operation.Notified;
-                var sut = new StubMessageEntity { Operation = expectedOperation };
+                var sut = new StubMessageEntity();
+                sut.SetOperation(expectedOperation);
 
                 // Act
                 sut.Lock(Operation.NotApplicable.ToString());
 
                 // Assert
-                Assert.Equal(expectedOperation, sut.Operation);
+                Assert.Equal(expectedOperation, OperationUtils.Parse(sut.Operation));
             }
         }
 
@@ -269,7 +289,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
         [ExcludeFromCodeCoverage]
         private class StubMessageEntity : MessageEntity
         {
-            public override string StatusString { get; set; }
         }
     }
 }

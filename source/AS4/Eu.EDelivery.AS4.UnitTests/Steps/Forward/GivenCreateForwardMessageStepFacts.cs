@@ -53,24 +53,24 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Forward
                     var outMessage = db.OutMessages.First(m => m.EbmsMessageId == receivedInMessage.EbmsMessageId);
 
                     Assert.NotNull(outMessage);
-                    Assert.Equal(Operation.ToBeSent, outMessage.Operation);
+                    Assert.Equal(Operation.ToBeSent, OperationUtils.Parse(outMessage.Operation));
                     Assert.Equal(messagingContext.SendingPMode.MessagePackaging.Mpc, outMessage.Mpc);
                     Assert.Equal(messagingContext.SendingPMode.MepBinding.ToString(), outMessage.MEP.ToString());
 
                     var inMessage = db.InMessages.First(m => m.EbmsMessageId == receivedInMessage.EbmsMessageId);
 
                     Assert.NotNull(inMessage);
-                    Assert.Equal(Operation.Forwarded, inMessage.Operation);
+                    Assert.Equal(Operation.Forwarded, OperationUtils.Parse(inMessage.Operation));
                 }
             }
-           
+
             private MessagingContext SetupMessagingContext()
             {
                 ReceivedMessageEntityMessage receivedMessage;
 
                 using (var db = GetDataStoreContext())
                 {
-                    var inMessage = db.InMessages.First(m => m.Operation == Operation.ToBeForwarded);
+                    var inMessage = db.InMessages.First(m => OperationUtils.Parse(m.Operation) == Operation.ToBeForwarded);
 
                     receivedMessage = new ReceivedMessageEntityMessage(inMessage, Stream.Null, "");
                 }
@@ -113,10 +113,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Forward
                     EbmsMessageId = message.GetPrimaryMessageId(),
                     EbmsRefToMessageId = primaryMessageUnit.RefToMessageId,
                     ContentType = message.ContentType,
-                    EbmsMessageType = MessageType.UserMessage,
-                    Intermediary = true,
-                    Operation = Operation.ToBeForwarded
+                    Intermediary = true
                 };
+
+                result.SetEbmsMessageType(MessageType.UserMessage);
+                result.SetOperation(Operation.ToBeForwarded);
 
                 result.AssignAS4Properties(primaryMessageUnit, CancellationToken.None);
 

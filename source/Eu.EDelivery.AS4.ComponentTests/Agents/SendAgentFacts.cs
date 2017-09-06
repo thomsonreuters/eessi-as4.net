@@ -65,9 +65,9 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             Assert.NotNull(sentMessage);
             Assert.NotNull(receivedMessage);
 
-            Assert.Equal(expectedOutStatus, sentMessage.Status);
-            Assert.Equal(MessageType.Receipt, receivedMessage.EbmsMessageType);
-            Assert.Equal(expectedSignalOperation, receivedMessage.Operation);
+            Assert.Equal(expectedOutStatus, OutStatusUtils.Parse(sentMessage.Status));
+            Assert.Equal(MessageType.Receipt, MessageTypeUtils.Parse(receivedMessage.EbmsMessageType));
+            Assert.Equal(expectedSignalOperation, OperationUtils.Parse(receivedMessage.Operation));
         }
 
         private void PutMessageToSend(AS4Message as4Message, SendingProcessingMode pmode, bool actAsIntermediaryMsh)
@@ -85,17 +85,16 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                 SerializerProvider.Default.Get(as4Message.ContentType).Serialize(as4Message, fs, CancellationToken.None);
             }
 
-            var outMessage =new OutMessage()
+            var outMessage = new OutMessage(as4Message.GetPrimaryMessageId())
             {
                 ContentType = as4Message.ContentType,
-                EbmsMessageId = as4Message.GetPrimaryMessageId(),
-                EbmsMessageType = MessageType.UserMessage,                
                 MessageLocation = $"FILE:///{fileName}",
-                MEP = MessageExchangePattern.Push,
                 Intermediary = actAsIntermediaryMsh,
-                Operation = Operation.ToBeSent
             };
 
+            outMessage.SetEbmsMessageType(MessageType.UserMessage);
+            outMessage.SetMessageExchangePattern(MessageExchangePattern.Push);
+            outMessage.SetOperation(Operation.ToBeSent);
             outMessage.SetPModeInformation(pmode);
 
             _databaseSpy.InsertOutMessage(outMessage);
@@ -171,6 +170,6 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             };
 
             return pmode;
-        }        
+        }
     }
 }

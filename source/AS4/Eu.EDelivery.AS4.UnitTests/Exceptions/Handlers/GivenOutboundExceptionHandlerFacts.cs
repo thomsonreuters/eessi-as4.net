@@ -118,7 +118,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Exceptions.Handlers
             Func<IAgentExceptionHandler, Func<Exception, MessagingContext, Task<MessagingContext>>> getExercise)
         {
             // Arrange
-            GetDataStoreContext.InsertOutMessage(new OutMessage { EbmsMessageId = _expectedId, Status = OutStatus.Sent });
+            var message = new OutMessage(ebmsMessageId: _expectedId);
+            message.SetStatus(OutStatus.Sent);
+
+            GetDataStoreContext.InsertOutMessage(message);
 
             var sut = new OutboundExceptionHandler(GetDataStoreContext);
             Func<Exception, MessagingContext, Task<MessagingContext>> exercise = getExercise(sut);
@@ -127,13 +130,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Exceptions.Handlers
             await exercise(_expectedException, context);
 
             // Assert
-            GetDataStoreContext.AssertOutMessage(_expectedId, m => Assert.Equal(OutStatus.Exception, m.Status));
+            GetDataStoreContext.AssertOutMessage(_expectedId, m => Assert.Equal(OutStatus.Exception, OutStatusUtils.Parse(m.Status)));
             GetDataStoreContext.AssertOutException(
                 _expectedId,
                 exception =>
                 {
                     Assert.True(exception.Exception.IndexOf(_expectedException.Message, StringComparison.CurrentCultureIgnoreCase) > -1, "Message does not contain expected message");
-                    Assert.True(expected == exception.Operation, "Not equal 'Operation' inserted");
+                    Assert.True(expected == OperationUtils.Parse(exception.Operation), "Not equal 'Operation' inserted");
                     Assert.True(exception.MessageBody == null, "Inserted exception body is not empty");
                 });
         }

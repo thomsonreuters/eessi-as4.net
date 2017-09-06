@@ -38,7 +38,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
                 id,
                 async m =>
                 {
-                    Assert.Equal(Operation.ToBeProcessed, m.Operation);
+                    Assert.Equal(Operation.ToBeProcessed, OperationUtils.Parse(m.Operation));
                     Assert.True(await _messageBodyStore.LoadMessageBodyAsync(m.MessageLocation) != Stream.Null);
                 });
         }

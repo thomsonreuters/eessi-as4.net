@@ -68,11 +68,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
         private static ReceivedEntityMessage CreateReceivedExceptionMessage<T>() where T : ExceptionEntity, new()
         {
             var exception = new T
-            {
-                Operation = Operation.ToBeNotified,
+            {                
                 EbmsRefToMessageId = "somemessage-id",
                 Exception = "Some Exception Message"
             };
+
+            exception.SetOperation(Operation.ToBeNotified);
 
             return new ReceivedEntityMessage(exception);
         }

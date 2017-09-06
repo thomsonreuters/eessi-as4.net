@@ -14,7 +14,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
     /// Describes how the data store gets updated when an incoming message is delivered
     /// </summary>
     public class DeliverUpdateDatastoreStep : IStep
-    {        
+    {
         private readonly ILogger _logger;
 
         private MessagingContext _messagingContext;
@@ -23,7 +23,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         /// Initializes a new instance of the <see cref="DeliverUpdateDatastoreStep"/> class
         /// </summary>
         public DeliverUpdateDatastoreStep()
-        {     
+        {
             _logger = LogManager.GetCurrentClassLogger();
         }
 
@@ -59,8 +59,8 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
 
         private static void UpdateNotifiedInMessage(InMessage inMessage)
         {
-            inMessage.Status = InStatus.Delivered;
-            inMessage.Operation = Operation.Delivered;
+            inMessage.SetStatus(InStatus.Delivered);
+            inMessage.SetOperation(Operation.Delivered);
         }
     }
 }

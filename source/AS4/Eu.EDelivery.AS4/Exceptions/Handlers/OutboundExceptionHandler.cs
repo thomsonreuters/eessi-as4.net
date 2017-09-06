@@ -92,7 +92,7 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
                 await SideEffectUsageRepository(
                     repository =>
                     {
-                        repository.UpdateOutMessage(ebmsMessageId, m => m.Status = OutStatus.Exception);
+                        repository.UpdateOutMessage(ebmsMessageId, m => m.SetStatus(OutStatus.Exception));
 
                         OutException outException = CreateOutExceptionWithContextInfo(exception, context);
                         outException.EbmsRefToMessageId = ebmsMessageId;
@@ -120,10 +120,11 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
             OutException outException = CreateMinimumOutException(exception);
 
             outException.PMode = AS4XmlSerializer.ToString(context.SendingPMode);
-            outException.Operation =
-                context.SendingPMode?.ExceptionHandling?.NotifyMessageProducer == true
-                    ? Operation.ToBeNotified
-                    : default(Operation);
+
+            var notifyOperation =
+                (context.SendingPMode?.ExceptionHandling?.NotifyMessageProducer == true) ? Operation.ToBeNotified : default(Operation);
+
+            outException.SetOperation(notifyOperation);
 
             return outException;
         }

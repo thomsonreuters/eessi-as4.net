@@ -27,8 +27,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
         {
             using (var context = GetDataStoreContext())
             {
-                var receipt = new OutMessage { EbmsMessageId = CreateReceipt().MessageId };
-                var error = new OutMessage { EbmsMessageId = CreateError().MessageId };
+                var receipt = new OutMessage(ebmsMessageId: CreateReceipt().MessageId);
+                var error = new OutMessage(ebmsMessageId: CreateError().MessageId);
 
                 context.OutMessages.Add(receipt);
                 context.OutMessages.Add(error);
@@ -57,7 +57,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
         /// <returns></returns>
         protected Receipt CreateReceipt()
         {
-            return new Receipt(ReceiptMessageId) {RefToMessageId = ReceiptMessageId};
+            return new Receipt(ReceiptMessageId) { RefToMessageId = ReceiptMessageId };
         }
 
         /// <summary>
@@ -66,7 +66,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
         /// <returns></returns>
         protected Error CreateError()
         {
-            return new Error(ErrorMessageId) {RefToMessageId = ErrorMessageId};
+            return new Error(ErrorMessageId) { RefToMessageId = ErrorMessageId };
         }
     }
 }

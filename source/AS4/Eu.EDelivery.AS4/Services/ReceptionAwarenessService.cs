@@ -54,7 +54,7 @@ namespace Eu.EDelivery.AS4.Services
             InMessage inMessage = await CreateErrorInMessage(messageId, messageBodyStore, cancellationToken);
             _repository.InsertInMessage(inMessage);
 
-            _repository.UpdateOutMessage(messageId, x => x.Operation = Operation.DeadLettered);
+            _repository.UpdateOutMessage(messageId, x => x.SetOperation(Operation.DeadLettered));
         }
 
         private async Task<InMessage> CreateErrorInMessage(
@@ -71,7 +71,7 @@ namespace Eu.EDelivery.AS4.Services
                 m => new
                 {
                     pmode = AS4XmlSerializer.FromString<SendingProcessingMode>(m.PMode),
-                    mep = m.MEP
+                    mep = MessageExchangePatternUtils.Parse(m.MEP)
                 });
 
             Error errorMessage = CreateError(messageId);
@@ -94,9 +94,11 @@ namespace Eu.EDelivery.AS4.Services
 
             inMessage.MessageLocation = location;
 
-            inMessage.Operation = outMessageData.pmode.ErrorHandling.NotifyMessageProducer
+            var targetOperation = outMessageData.pmode.ErrorHandling.NotifyMessageProducer
                     ? Operation.ToBeNotified
                     : Operation.NotApplicable;
+
+            inMessage.SetOperation(targetOperation);
 
             return inMessage;
         }
@@ -120,7 +122,7 @@ namespace Eu.EDelivery.AS4.Services
         {
             return _repository.GetOutMessageData(
                 awareness.InternalMessageId,
-                m => m.Status == OutStatus.Ack || m.Status == OutStatus.Nack);
+                m => m.Status == OutStatus.Ack.ToString() || m.Status == OutStatus.Nack.ToString());
         }
 
         /// <summary>
@@ -138,10 +140,10 @@ namespace Eu.EDelivery.AS4.Services
 
             DateTimeOffset deadlineForResend = awareness.LastSendTime.Value.Add(TimeSpan.Parse(awareness.RetryInterval));
 
-            return awareness.Status != ReceptionStatus.Completed
+            return ReceptionStatusUtils.Parse(awareness.Status) != ReceptionStatus.Completed
                    && awareness.CurrentRetryCount < awareness.TotalRetryCount
                    && DateTimeOffset.Now > deadlineForResend
-                   && _repository.GetOutMessageData(awareness.InternalMessageId, m => m.Operation) != Operation.Sending;
+                   && _repository.GetOutMessageData(awareness.InternalMessageId, m => m.Operation) != Operation.Sending.ToString();
         }
 
         /// <summary>
@@ -166,7 +168,7 @@ namespace Eu.EDelivery.AS4.Services
             Logger.Info(
                 $"[{messageId}] Update datastore so the ebMS message can be resend. (RetryCount = {awareness.CurrentRetryCount + 1})");
 
-            _repository.UpdateOutMessage(messageId, m => m.Operation = Operation.ToBeSent);
+            _repository.UpdateOutMessage(messageId, m => m.SetOperation(Operation.ToBeSent));
             UpdateReceptionAwareness(awareness, ReceptionStatus.Pending);
         }
 
@@ -183,7 +185,7 @@ namespace Eu.EDelivery.AS4.Services
 
         private void UpdateReceptionAwareness(ReceptionAwareness awarenes, ReceptionStatus receptionStatus)
         {
-            _repository.UpdateReceptionAwareness(awarenes.InternalMessageId, r => r.Status = receptionStatus);
+            _repository.UpdateReceptionAwareness(awarenes.InternalMessageId, r => r.SetStatus(receptionStatus));
         }
     }
 }

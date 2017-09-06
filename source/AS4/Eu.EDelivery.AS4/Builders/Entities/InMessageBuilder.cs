@@ -16,7 +16,7 @@ namespace Eu.EDelivery.AS4.Builders.Entities
         private readonly MessageUnit _messageUnit;
         private readonly string _contentType;
         private readonly MessageExchangePattern _mep;
-        private IPMode _pmode;    
+        private IPMode _pmode;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="InMessageBuilder" /> class.
@@ -25,7 +25,7 @@ namespace Eu.EDelivery.AS4.Builders.Entities
         /// <param name="messageUnit">The message unit.</param>
         /// <param name="contentType">The contentType of the AS4Message Body to which the MessageUnit belongs to</param>
         /// <param name="mep"><see cref="MessageExchangePattern"/> that describes how the Message was received.</param>
-        private InMessageBuilder(MessageUnit messageUnit , string contentType, MessageExchangePattern mep )
+        private InMessageBuilder(MessageUnit messageUnit, string contentType, MessageExchangePattern mep)
         {
             _messageUnit = messageUnit;
             _contentType = contentType;
@@ -39,7 +39,7 @@ namespace Eu.EDelivery.AS4.Builders.Entities
         /// <param name="belongsToAS4Message">The AS4Message that contains the <paramref name="userMessage"/></param>
         /// <param name="mep"></param>
         /// <returns></returns>
-        public static InMessageBuilder ForUserMessage(UserMessage userMessage,  AS4Message belongsToAS4Message, MessageExchangePattern mep)
+        public static InMessageBuilder ForUserMessage(UserMessage userMessage, AS4Message belongsToAS4Message, MessageExchangePattern mep)
         {
             if (userMessage == null)
             {
@@ -87,16 +87,16 @@ namespace Eu.EDelivery.AS4.Builders.Entities
             {
                 EbmsMessageId = _messageUnit.MessageId,
                 EbmsRefToMessageId = _messageUnit.RefToMessageId,
-                EbmsMessageType = DetermineMessageType(_messageUnit),
-                ContentType = _contentType,                
-                MEP = _mep,
-                Status = InStatus.Received,
-                Operation = Operation.NotApplicable,
+                ContentType = _contentType,
                 InsertionTime = DateTimeOffset.Now,
                 ModificationTime = DateTimeOffset.Now
             };
 
+            inMessage.SetEbmsMessageType(DetermineMessageType(_messageUnit));
+            inMessage.SetMessageExchangePattern(_mep);
+            inMessage.SetOperation(Operation.NotApplicable);
             inMessage.SetPModeInformation(_pmode);
+            inMessage.SetStatus(InStatus.Received);
 
             inMessage.AssignAS4Properties(_messageUnit, cancellationToken);
 

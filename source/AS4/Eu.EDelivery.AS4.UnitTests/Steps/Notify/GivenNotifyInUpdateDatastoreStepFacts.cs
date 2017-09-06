@@ -46,16 +46,16 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
                     notifyMessage.MessageInfo.MessageId,
                     m =>
                     {
-                        Assert.Equal(Operation.Notified, m.Operation);
-                        Assert.Equal(InStatus.Notified, m.Status);
+                        Assert.Equal(Operation.Notified, OperationUtils.Parse(m.Operation));
+                        Assert.Equal(InStatus.Notified, InStatusUtils.Parse(m.Status));
                     });
             }
 
             private void InsertDefaultInMessage(string sharedId)
             {
                 InMessage inMessage = CreateInMessage(sharedId);
-                inMessage.Operation = Operation.Notifying;
-                inMessage.Status = InStatus.Delivered;
+                inMessage.SetOperation(Operation.Notifying);
+                inMessage.SetStatus(InStatus.Delivered);
 
                 GetDataStoreContext.InsertInMessage(inMessage);
             }

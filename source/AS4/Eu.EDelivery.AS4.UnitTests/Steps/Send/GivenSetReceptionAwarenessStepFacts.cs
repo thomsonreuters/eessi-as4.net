@@ -61,7 +61,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
                     Assert.NotNull(receptionAwareness);
                     Assert.Equal(-1, receptionAwareness.CurrentRetryCount);
                     Assert.Null(receptionAwareness.LastSendTime);
-                    Assert.Equal(ReceptionStatus.Pending, receptionAwareness.Status);
+                    Assert.Equal(ReceptionStatus.Pending, ReceptionStatusUtils.Parse(receptionAwareness.Status));
 
                     condition(receptionAwareness);
                 }
@@ -71,17 +71,17 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
                 string messageId,
                 AS4.Model.PMode.ReceptionAwareness receptionAwareness)
             {
-                var pmode = new SendingProcessingMode {Reliability = {ReceptionAwareness = receptionAwareness}};
+                var pmode = new SendingProcessingMode { Reliability = { ReceptionAwareness = receptionAwareness } };
                 var userMessage = new UserMessage(messageId);
                 AS4Message as4Message = AS4Message.Create(userMessage, pmode);
 
-                return new MessagingContext(as4Message, MessagingContextMode.Unknown) {SendingPMode = pmode};
+                return new MessagingContext(as4Message, MessagingContextMode.Unknown) { SendingPMode = pmode };
             }
         }
 
         protected AS4.Model.PMode.ReceptionAwareness CreatePModeReceptionAwareness()
         {
-            return new AS4.Model.PMode.ReceptionAwareness {IsEnabled = true, RetryCount = 3, RetryInterval = "00:05:00"};
+            return new AS4.Model.PMode.ReceptionAwareness { IsEnabled = true, RetryCount = 3, RetryInterval = "00:05:00" };
         }
     }
 }

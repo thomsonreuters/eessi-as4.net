@@ -58,16 +58,18 @@ namespace Eu.EDelivery.AS4.Services
 
         private static async Task<OutException> CreateOutException(ErrorResult error, SendingProcessingMode sendingPMode, string id)
         {
-            return new OutException
+            var outException = new OutException
             {
                 EbmsRefToMessageId = id,
                 Exception = error.Description,
                 InsertionTime = DateTimeOffset.Now,
                 ModificationTime = DateTimeOffset.Now,
                 PMode = await AS4XmlSerializer.ToStringAsync(sendingPMode),
-                Operation =
-                    NeedsOutExceptionBeNotified(sendingPMode) ? Operation.ToBeNotified : Operation.NotApplicable
             };
+
+            outException.SetOperation(NeedsOutExceptionBeNotified(sendingPMode) ? Operation.ToBeNotified : Operation.NotApplicable);
+
+            return outException;
         }
     }
 }

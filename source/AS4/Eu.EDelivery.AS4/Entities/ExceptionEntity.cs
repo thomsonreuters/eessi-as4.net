@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Eu.EDelivery.AS4.Entities
@@ -15,16 +16,23 @@ namespace Eu.EDelivery.AS4.Entities
         public string PMode { get; set; }
 
         public byte[] MessageBody { get; set; }
-       
-        [NotMapped]
-        public Operation Operation { get; set; }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ExceptionEntity"/> class.
+        /// </summary>
+        public ExceptionEntity()
+        {
+            SetOperation(default(Operation));
+        }
+
+        public void SetOperation(Operation operation)
+        {
+            Operation = operation.ToString();
+        }
 
         [Column("Operation")]
-        public string OperationString
-        {
-            get { return Operation.ToString(); }
-            set { Operation = (Operation) Enum.Parse(typeof(Operation), value, true); }
-        }
+        [MaxLength(50)]
+        public string Operation { get; private set; }
 
         /// <summary>
         /// Update the <see cref="Entity" /> to lock it with a given <paramref name="value" />.
@@ -32,11 +40,11 @@ namespace Eu.EDelivery.AS4.Entities
         /// <param name="value">Value indicating the <see cref="Entity" /> is locked.</param>
         public override void Lock(string value)
         {
-            var updatedOperation = (Operation) Enum.Parse(typeof(Operation), value);
+            var updatedOperation = OperationUtils.Parse(value);
 
-            if (updatedOperation != Operation.NotApplicable)
+            if (updatedOperation != AS4.Entities.Operation.NotApplicable)
             {
-                Operation = updatedOperation;
+                SetOperation(updatedOperation);
             }
         }
     }

@@ -137,7 +137,7 @@ namespace Eu.EDelivery.AS4.Repositories
                 message.ModificationTime = DateTimeOffset.Now;
             }
         }
-        
+
         [Obsolete]
         public void UpdateInMessages(IEnumerable<string> messageIds, Action<InMessage> updateAction)
         {
@@ -234,7 +234,7 @@ namespace Eu.EDelivery.AS4.Repositories
         {
             outMessage.InsertionTime = DateTimeOffset.UtcNow;
             outMessage.ModificationTime = DateTimeOffset.UtcNow;
-            
+
             if (String.IsNullOrWhiteSpace(outMessage.MessageLocation))
             {
                 throw new InvalidDataException("OutMessage.MessageLocation has not been set.");
@@ -292,7 +292,7 @@ namespace Eu.EDelivery.AS4.Repositories
 
         private OutMessage GetOutMessageEntityFor(string ebmsMessageId, long id)
         {
-            var msg = new OutMessage { EbmsMessageId = ebmsMessageId };
+            var msg = new OutMessage(ebmsMessageId: ebmsMessageId);
             msg.InitializeIdFromDatabase(id);
 
             if (_datastoreContext.IsEntityAttached(msg) == false)

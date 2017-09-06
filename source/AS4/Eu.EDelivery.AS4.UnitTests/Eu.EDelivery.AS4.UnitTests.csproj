@@ -221,6 +221,12 @@
     <Compile Include="Agents\GivenAgentProviderFacts.cs" />
     <Compile Include="Agents\GivenDefaultAgentStepRegistryFacts.cs" />
     <Compile Include="Agents\SpyAgent.cs" />
+    <Compile Include="Entities\GivenExceptionEntityPersitenceFacts.cs" />
+    <Compile Include="Entities\GivenInMessageEntityFacts.cs" />
+    <Compile Include="Entities\GivenInMessagePersistenceFacts.cs" />
+    <Compile Include="Entities\GivenOutMessageEntityFacts.cs" />
+    <Compile Include="Entities\GivenOutMessagePersistenceFacts.cs" />
+    <Compile Include="Entities\GivenReceptionAwarenessPersistenceFacts.cs" />
     <Compile Include="Exceptions\Handlers\ExerciseHandler.cs" />
     <Compile Include="Exceptions\Handlers\GivenInboundExceptionHandlerFacts.cs" />
     <Compile Include="Exceptions\Handlers\GivenOutboundExceptionHandlerFacts.cs" />
@@ -529,10 +535,7 @@
     <Folder Include="Steps\Participant\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  
   <Import Project="..\..\packages\Microsoft.Bcl.Build.1.0.14\tools\Microsoft.Bcl.Build.targets" Condition="Exists('..\..\packages\Microsoft.Bcl.Build.1.0.14\tools\Microsoft.Bcl.Build.targets')" />
-  
-  
   <Import Project="..\..\packages\xunit.MSBuild.2.0.0.0\build\xunit.MSBuild.targets" Condition="Exists('..\..\packages\xunit.MSBuild.2.0.0.0\build\xunit.MSBuild.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

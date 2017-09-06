@@ -59,12 +59,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
             private void InsertOutMessage(string messageId, SendingProcessingMode pmode)
             {
-                var outMessage = new OutMessage
-                {
-                    EbmsMessageId = messageId,
-                };
-
+                var outMessage = new OutMessage(ebmsMessageId: messageId);
                 outMessage.SetPModeInformation(pmode);
+
                 GetDataStoreContext.InsertOutMessage(outMessage);
             }
 

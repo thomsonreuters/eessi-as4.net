@@ -96,7 +96,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 }
 
                 repository.UpdateInMessages(m => signalMessages.Select(s => s.MessageId).Contains(m.EbmsMessageId),
-                                            m => m.Status = InStatus.Exception);
+                                            m => m.SetStatus(InStatus.Exception));
 
                 await dbContext.SaveChangesAsync();
             }
@@ -107,9 +107,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             var inException = new InException
             {
                 EbmsRefToMessageId = message.MessageId,
-                Exception = error.Description,
-                ErrorAlias = error.Alias,
-                Operation = Operation.NotApplicable
+                Exception = error.Description
             };
 
             return inException;

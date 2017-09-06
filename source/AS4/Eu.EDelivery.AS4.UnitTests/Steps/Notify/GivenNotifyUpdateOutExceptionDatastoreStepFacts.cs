@@ -35,12 +35,15 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
                 // Assert
                 GetDataStoreContext.AssertOutException(
                     outException.EbmsRefToMessageId,
-                    ex => Assert.Equal(Operation.Notified, ex.Operation));
+                    ex => Assert.Equal(Operation.Notified, OperationUtils.Parse(ex.Operation)));
             }
 
             private static OutException CreateDefaultOutException()
             {
-                return new OutException { EbmsRefToMessageId = "ref-to-message-id", Operation = Operation.ToBeNotified };
+                var exception = new OutException { EbmsRefToMessageId = "ref-to-message-id" };
+                exception.SetOperation(Operation.ToBeNotified);
+
+                return exception;
             }
 
             private static MessagingContext CreateNotifyMessage(OutException outException)

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Eu.EDelivery.AS4.Entities
@@ -8,19 +9,14 @@ namespace Eu.EDelivery.AS4.Entities
     /// </summary>
     public class InMessage : MessageEntity
     {
-        [NotMapped]
-        public InStatus Status { get; set; }
-    
-        public override string StatusString
+        public InMessage()
         {
-            get
-            {
-                return Status.ToString();
-            }
-            set
-            {
-                Status = (InStatus)Enum.Parse(typeof(InStatus), value, true);
-            }
+            SetStatus(default(InStatus));
+        }
+
+        public void SetStatus(InStatus status)
+        {
+            Status = status.ToString();
         }
     }
 }

@@ -44,7 +44,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
             StartReceiverAsTask(receiver, isCalled: false);
         }
 
-        [Fact(Skip="Multiple update columns are currently not supported")]
+        [Fact(Skip = "Multiple update columns are currently not supported")]
         public void ReceiverUpdatesMultipleValues_IfMultipleUpdateSettingsAreSpecified()
         {
             // Arrange
@@ -62,11 +62,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
 
             // Assert
             AssertOutMessageIf(
-                m => m.Operation == Operation.Sending,
+                m => OperationUtils.Parse(m.Operation) == Operation.Sending,
                 message =>
                 {
-                    Assert.Equal(Operation.Sending, message.Operation);
-                    Assert.Equal(OutStatus.Sent, message.Status);
+                    Assert.Equal(Operation.Sending, OperationUtils.Parse(message.Operation));
+                    Assert.Equal(OutStatus.Sent, OutStatusUtils.Parse(message.Status));
                 });
         }
 
@@ -100,14 +100,15 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
 
             using (DatastoreContext context = GetDataStoreContext())
             {
-                context.OutMessages.Add(
-                    new OutMessage
-                    {
-                        EbmsMessageId = "message-id",
-                        Operation = operation,
-                        MessageLocation = "test://",
-                        ContentType = contentType
-                    });
+                var outMessage = new OutMessage("message-id")
+                {                    
+                    MessageLocation = "test://",
+                    ContentType = contentType
+                };
+
+                outMessage.SetOperation(operation);
+
+                context.OutMessages.Add(outMessage);
 
                 context.SaveChanges();
             }
@@ -117,20 +118,20 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
         {
             using (var context = new DatastoreContext(Options))
             {
-                var expectedMessage = new OutMessage
-                {
-                    EbmsMessageId = "message-id",
-                    MessageLocation = "ignored location",
-                    Status = status,
-                    Operation = operation
+                var expectedMessage = new OutMessage("message-id")
+                {                    
+                    MessageLocation = "ignored location"
                 };
+
+                expectedMessage.SetStatus(status);
+                expectedMessage.SetOperation(operation);
 
                 context.OutMessages.Add(expectedMessage);
                 context.SaveChanges();
             }
         }
 
-        private IReceiver DataStoreReceiverWith( IEnumerable<Setting> settings)
+        private IReceiver DataStoreReceiverWith(IEnumerable<Setting> settings)
         {
             var receiver = new DatastoreReceiver(() => new DatastoreContext(Options));
             ((IReceiver)receiver).Configure(settings);

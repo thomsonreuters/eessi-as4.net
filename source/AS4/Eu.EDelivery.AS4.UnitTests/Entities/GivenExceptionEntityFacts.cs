@@ -9,6 +9,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
     public class GivenExceptionEntityFacts
     {
         [Fact]
+        public void ExceptionEntityHasDefaultOperation()
+        {
+            Assert.Equal(Operation.NotApplicable, OperationUtils.Parse(new ExceptionEntity().Operation));
+        }
+
+        [Fact]
         public void ExceptionEntityLocksInstanceByUpdatingOperation()
         {
             // Arrange
@@ -19,7 +25,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
             sut.Lock(expectedOperation.ToString());
 
             // Assert
-            Assert.Equal(expectedOperation, sut.Operation);
+            Assert.Equal(expectedOperation, OperationUtils.Parse(sut.Operation));
         }
 
         [Fact]
@@ -27,13 +33,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
         {
             // Arrange
             const Operation expectedOperation = Operation.NotApplicable;
-            var sut = new ExceptionEntity {Operation = Operation.DeadLettered};
+            var sut = new ExceptionEntity();
+            sut.SetOperation(Operation.DeadLettered);
 
             // Act
             sut.Lock(expectedOperation.ToString());
 
             // Assert
-            Assert.NotEqual(expectedOperation, sut.Operation);
+            Assert.NotEqual(expectedOperation, OperationUtils.Parse(sut.Operation));
         }
     }
 }

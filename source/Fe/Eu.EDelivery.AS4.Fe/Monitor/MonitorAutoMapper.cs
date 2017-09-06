@@ -18,17 +18,17 @@ namespace Eu.EDelivery.AS4.Fe.Monitor
         public MonitorAutoMapper()
         {
             CreateMap<InMessage, Message>()
-                .ForMember(x => x.Status, x => x.MapFrom(y => y.StatusString))
-                .ForMember(x => x.EbmsMessageType, x => x.MapFrom(y => y.EbmsMessageTypeString))
-                .ForMember(x => x.Operation, x => x.MapFrom(y => y.OperationString))
+                .ForMember(x => x.Status, x => x.MapFrom(y => y.Status))
+                .ForMember(x => x.EbmsMessageType, x => x.MapFrom(y => y.EbmsMessageType))
+                .ForMember(x => x.Operation, x => x.MapFrom(y => y.Operation))
                 .ForMember(x => x.Direction, x => x.UseValue(Direction.Inbound))
-                .ForMember(x => x.Mep, x => x.MapFrom(y => y.MEPString));
+                .ForMember(x => x.Mep, x => x.MapFrom(y => y.MEP));
             CreateMap<OutMessage, Message>()
-                .ForMember(x => x.Status, x => x.MapFrom(y => y.StatusString))
-                .ForMember(x => x.EbmsMessageType, x => x.MapFrom(y => y.EbmsMessageTypeString))
-                .ForMember(x => x.Operation, x => x.MapFrom(y => y.OperationString))
+                .ForMember(x => x.Status, x => x.MapFrom(y => y.Status))
+                .ForMember(x => x.EbmsMessageType, x => x.MapFrom(y => y.EbmsMessageType))
+                .ForMember(x => x.Operation, x => x.MapFrom(y => y.Operation))
                 .ForMember(x => x.Direction, x => x.UseValue(Direction.Outbound))
-                .ForMember(x => x.Mep, x => x.MapFrom(y => y.MEPString));
+                .ForMember(x => x.Mep, x => x.MapFrom(y => y.MEP));
             CreateMap<InException, ExceptionMessage>()
               .ForMember(x => x.Direction, x => x.UseValue(Direction.Inbound))
               .ForMember(x => x.ExceptionShort, x => x.MapFrom(y => string.IsNullOrEmpty(y.Exception) ? "" : y.Exception.Substring(y.Exception.IndexOf(']') + 1).Split('\r', '\n')[0].Length > ExceptionLength ? y.Exception.Substring(y.Exception.IndexOf(']') + 1).Split('\r', '\n')[0].Substring(0, ExceptionLength) + "..." : y.Exception.Substring(y.Exception.IndexOf(']') + 1).Split('\r', '\n')[0]))

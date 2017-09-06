@@ -36,7 +36,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
                 Assert.NotNull(inMessage);
                 Assert.Equal(as4Message.ContentType, inMessage.ContentType);
                 Assert.Equal(await AS4XmlSerializer.ToStringAsync(new ReceivingProcessingMode()), inMessage.PMode);
-                Assert.Equal(MessageType.Receipt, inMessage.EbmsMessageType);
+                Assert.Equal(MessageType.Receipt, MessageTypeUtils.Parse(inMessage.EbmsMessageType));
             }
         }
 

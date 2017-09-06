@@ -72,14 +72,14 @@ namespace Eu.EDelivery.AS4.Steps.Forward
 
                     outMessage.MessageLocation = outLocation;
                     outMessage.Mpc = messagingContext.SendingPMode.MessagePackaging?.Mpc ?? Constants.Namespaces.EbmsDefaultMpc;
-                    outMessage.Operation = Operation.ToBeSent;
+                    outMessage.SetOperation(Operation.ToBeSent);
 
                     repository.InsertOutMessage(outMessage);
 
                     // Set the InMessage to Forwarded.
                     // We do this for all InMessages that are present in this AS4 Message
                     repository.UpdateInMessages(m => msg.MessageIds.Contains(m.EbmsMessageId),
-                                                r => r.Operation = Operation.Forwarded);
+                                                r => r.SetOperation(Operation.Forwarded));
 
                     await dbContext.SaveChangesAsync(cancellationToken);
                 }
