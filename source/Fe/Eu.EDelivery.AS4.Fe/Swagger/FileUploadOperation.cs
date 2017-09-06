@@ -64,7 +64,6 @@ namespace Eu.EDelivery.AS4.Fe.Swagger
                         Type = "string"
                     }
                 };
-                operation.Consumes.Add("multipart/form-data");
             }
         }
     }

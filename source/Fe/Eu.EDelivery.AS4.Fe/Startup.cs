@@ -90,6 +90,7 @@ namespace Eu.EDelivery.AS4.Fe
                 }
             });
             app.UseDefaultFiles();
+            app.UseDeveloperExceptionPage();
             app.UseStaticFiles();
             app.UseSignalR2();
 
