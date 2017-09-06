@@ -45,6 +45,20 @@ namespace Eu.EDelivery.AS4.Fe.Runtime
         /// </value>
         IEnumerable<ItemType> DeliverSenders { get; }
         /// <summary>
+        /// Gets the notify senders.
+        /// </summary>
+        /// <value>
+        /// The notify senders.
+        /// </value>
+        IEnumerable<ItemType> NotifySenders { get; }
+        /// <summary>
+        /// Gets the attachment uploaders.
+        /// </summary>
+        /// <value>
+        /// The attachment uploaders.
+        /// </value>
+        IEnumerable<ItemType> AttachmentUploaders { get; }
+        /// <summary>
         /// Gets the receiving pmode.
         /// </summary>
         /// <value>

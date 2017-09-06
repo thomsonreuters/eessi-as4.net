@@ -12,12 +12,15 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
     /// <summary>
     /// <see cref="IAttachmentUploader" /> implementation to upload attachments to the file system
     /// </summary>
+    [Info("FILE")]
     public class FileAttachmentUploader : IAttachmentUploader
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
         private readonly IMimeTypeRepository _repository;
 
         private Method _method;
+        [Info("location")]
+        private string Location => _method["location"]?.Value;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="FileAttachmentUploader" /> class.
@@ -56,12 +59,10 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
 
         private string AssembleFileDownloadUrlFor(Attachment attachment)
         {
-            Parameter locationParameter = _method["location"];
-
             string extension = _repository.GetExtensionFromMimeType(attachment.ContentType);
             string fileName = FilenameSanitizer.EnsureValidFilename(attachment.Id);
 
-            return Path.Combine(locationParameter.Value, $"{fileName}{extension}");
+            return Path.Combine(Location, $"{fileName}{extension}");
         }
 
         private static async Task TryUploadAttachment(Attachment attachment, string attachmentFilePath)

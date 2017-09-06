@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Net.Mail;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Common;
-using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
 using NLog;
@@ -15,6 +13,7 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
     /// <see cref="Attachment"/> Uploader to send E-Mail messages 
     /// with these <see cref="Attachment"/> Models
     /// </summary>
+    [NotConfigurable]
     public class EmailAttachmentUploader : IAttachmentUploader
     {
         private readonly IMimeTypeRepository _repository;

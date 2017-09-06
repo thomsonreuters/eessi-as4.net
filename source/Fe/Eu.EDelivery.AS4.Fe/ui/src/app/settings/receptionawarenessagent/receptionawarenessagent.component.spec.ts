@@ -79,6 +79,8 @@ describe('receptionawarenessAgent', () => {
                 transformers: transformers,
                 certificateRepositories: new Array<ItemType>(),
                 deliverSenders: new Array<ItemType>(),
+                attachmentUploaders: new Array<ItemType>(),
+                notifySenders: new Array<ItemType>(),
                 runtimeMetaData: new Array<any>()
             });
 

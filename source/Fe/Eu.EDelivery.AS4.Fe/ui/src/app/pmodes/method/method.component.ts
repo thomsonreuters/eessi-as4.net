@@ -45,7 +45,7 @@ export class MethodComponent {
     public typeChanged(result: string) {
         this.currentType = this.types.find((method) => method.name === result);
         this.group.setControl(Method.FIELD_parameters, this.formBuilder.array(!!!this.currentType || !!!this.currentType.properties ? [] : this.currentType.properties.map(prop => ParameterForm.getForm(this.formBuilder, {
-            name: prop.technicalName,
+            name: prop.technicalName.toLowerCase(),
             value: ''
         }))));
     }

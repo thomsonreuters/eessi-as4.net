@@ -204,19 +204,19 @@
                 <as4-input label="Notify message producer" runtimetooltip="receipthandling.notifymessageproducer">
                     <input type="checkbox" formControlName="notifyMessageProducer" />
                 </as4-input>
-                <as4-method label="Notify method" [group]="pmode.form.get('pmode.receiptHandling.notifyMethod')" [types]="deliverSenders"></as4-method>
+                <as4-method label="Notify method" [group]="pmode.form.get('pmode.receiptHandling.notifyMethod')" [types]="notifySenders$ | async"></as4-method>
             </div>
             <div tabitem title="Error handling" formGroupName="errorHandling" [isValid]="!!!pmode.currentPmode || pmode.form.get('pmode.errorHandling').valid">
                 <as4-input label="Notify message producer" runtimetooltip="errorhandling.notifymessageproducer">
                     <input type="checkbox" formControlName="notifyMessageProducer" />
                 </as4-input>
-                <as4-method label="Notify method" [group]="pmode.form.get('pmode.errorHandling.notifyMethod')" [types]="deliverSenders"></as4-method>
+                <as4-method label="Notify method" [group]="pmode.form.get('pmode.errorHandling.notifyMethod')" [types]="notifySenders$ | async"></as4-method>
             </div>
             <div tabitem title="Exception handling" formGroupName="exceptionHandling" [isValid]="!!!pmode.currentPmode || pmode.form.get('pmode.exceptionHandling').valid">
                 <as4-input label="Notify message producer" runtimetooltip="exceptionhandling.notifymessageproducer">
                     <input type="checkbox" formControlName="notifyMessageProducer" />
                 </as4-input>
-                <as4-method label="Notify method" [group]="pmode.form.get('pmode.exceptionHandling.notifyMethod')" [types]="deliverSenders"></as4-method>
+                <as4-method label="Notify method" [group]="pmode.form.get('pmode.exceptionHandling.notifyMethod')" [types]="notifySenders$ | async"></as4-method>
             </div>
         </as4-tab>
     </div>

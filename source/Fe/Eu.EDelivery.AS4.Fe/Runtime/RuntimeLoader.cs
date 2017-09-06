@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using Eu.EDelivery.AS4.Fe.Settings;
+using Eu.EDelivery.AS4.Strategies.Uploader;
 using Microsoft.Extensions.Options;
 using Mono.Cecil;
 using Mono.Collections.Generic;
@@ -21,6 +22,8 @@ namespace Eu.EDelivery.AS4.Fe.Runtime
         private static readonly string RuntimeTransformerInterface = "Eu.EDelivery.AS4.Transformers.ITransformer";
         private static readonly string RuntimeCertificateRepositoryInterface = "Eu.EDelivery.AS4.Repositories.ICertificateRepository";
         private static readonly string RuntimeDeliverSenderInterface = "Eu.EDelivery.AS4.Strategies.Sender.IDeliverSender";
+        private static readonly string RuntimeNotifySenderInterface = "Eu.EDelivery.AS4.Strategies.Sender.INotifySender";
+        private static readonly string RuntimeAttachmentUploaderInterface = typeof(IAttachmentUploader).FullName;
         private static readonly string RuntimePmodeInterface = "Eu.EDelivery.AS4.Model.PMode.IPMode";
         private static readonly string InfoAttribute = typeof(InfoAttribute).Name;
         private static readonly string NoUiAttribute = typeof(NotConfigurableAttribute).Name;
@@ -76,6 +79,20 @@ namespace Eu.EDelivery.AS4.Fe.Runtime
         /// </value>
         public IEnumerable<ItemType> DeliverSenders { get; private set; }
         /// <summary>
+        /// Gets the notify senders.
+        /// </summary>
+        /// <value>
+        /// The notify senders.
+        /// </value>
+        public IEnumerable<ItemType> NotifySenders { get; private set; }
+        /// <summary>
+        /// Gets the attachment uploaders.
+        /// </summary>
+        /// <value>
+        /// The attachment uploaders.
+        /// </value>
+        public IEnumerable<ItemType> AttachmentUploaders { get; private set; }
+        /// <summary>
         /// Gets the receiving pmode.
         /// </summary>
         /// <value>
@@ -98,6 +115,8 @@ namespace Eu.EDelivery.AS4.Fe.Runtime
             Transformers = LoadImplementationsForType(types, RuntimeTransformerInterface);
             CertificateRepositories = LoadImplementationsForType(types, RuntimeCertificateRepositoryInterface);
             DeliverSenders = LoadImplementationsForType(types, RuntimeDeliverSenderInterface);
+            NotifySenders = LoadImplementationsForType(types, RuntimeNotifySenderInterface);
+            AttachmentUploaders = LoadImplementationsForType(types, RuntimeAttachmentUploaderInterface);
             ReceivingPmode = LoadImplementationsForType(types, RuntimePmodeInterface, false);
 
             return this;

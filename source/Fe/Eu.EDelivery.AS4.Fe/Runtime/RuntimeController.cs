@@ -86,6 +86,30 @@ namespace Eu.EDelivery.AS4.Fe.Runtime
         }
 
         /// <summary>
+        /// Gets the attachment uploaders.
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("getattachmentuploaders")]
+        [SwaggerResponse((int)HttpStatusCode.OK, typeof(OkResult))]
+        public IEnumerable<ItemType> GetAttachmentUploaders()
+        {
+            return runtimeLoader.AttachmentUploaders;
+        }
+
+        /// <summary>
+        /// Gets the notify senders.
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("getnotifysenders")]
+        [SwaggerResponse((int)HttpStatusCode.OK, typeof(OkResult))]
+        public IEnumerable<ItemType> GetNotifySenders()
+        {
+            return runtimeLoader.NotifySenders;
+        }
+
+        /// <summary>
         /// Gets all runtime types.
         /// </summary>
         /// <returns></returns>
@@ -102,6 +126,8 @@ namespace Eu.EDelivery.AS4.Fe.Runtime
                 Transformers = GetTransformerList(),
                 CertificateRepositories = GetCertificateRepositories(),
                 DeliverSenders = GetDeliverSenders(),
+                NotifySenders = GetNotifySenders(),
+                AttachmentUploaders = GetAttachmentUploaders(),
                 RuntimeMetaData = JObject.Parse(JsonConvert.SerializeObject(runtimeLoader.ReceivingPmode, Formatting.Indented, new FlattenRuntimeToJsonConverter()))
             });
         }

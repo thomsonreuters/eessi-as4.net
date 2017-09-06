@@ -53,6 +53,8 @@ export class RuntimeService implements IRuntimeService {
                         transformers: json.transformers,
                         certificateRepositories: json.certificateRepositories,
                         deliverSenders: json.deliverSenders,
+                        notifySenders: json.notifySenders,
+                        attachmentUploaders: json.attachmentUploaders,
                         runtimeMetaData: json.runtimeMetaData
                     });
 

@@ -4,7 +4,7 @@ import { ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs/Subscription';
 import { Observable } from 'rxjs/Observable';
 import { FormGroup, FormBuilder, FormArray, FormControl, AbstractControl, FormGroupDirective } from '@angular/forms';
-import { Component, ViewChildren, QueryList, OnInit, Inject, OnDestroy,ViewChild } from '@angular/core';
+import { Component, ViewChildren, QueryList, OnInit, Inject, OnDestroy, ViewChild } from '@angular/core';
 
 import { BasePmodeComponent } from './../basepmode/basepmode.component';
 import { ReceivingPmode } from './../../api/ReceivingPmode';
@@ -28,15 +28,15 @@ import { ReceivingPmodeService } from '../receivingpmode.service';
     ]
 })
 export class ReceivingPmodeComponent implements OnDestroy, CanComponentDeactivate {
-    public deliverSenders;
+    public deliverSenders$: Observable<ItemType[]>;
+    public attachmentUploaders$: Observable<ItemType[]>;
     private subscriptions: Subscription[] = new Array<Subscription>();
     @ViewChild(FormGroupDirective) private formGroup: FormGroupDirective;
     constructor(private _runtimeStore: RuntimeStore) {
-        this._runtimeStore
-            .changes
-            .filter((store) => !!store)
-            .map((store) => store.deliverSenders)
-            .subscribe((data) => this.deliverSenders = data);
+        this.deliverSenders$ = this
+            ._runtimeStore.changes.filter((store) => !!store).map((store) => store.deliverSenders);
+        this.attachmentUploaders$ = this
+            ._runtimeStore.changes.filter((store) => !!store).map((store) => store.attachmentUploaders);
     }
     public ngOnDestroy() {
         this.subscriptions.forEach((subs) => subs.unsubscribe);

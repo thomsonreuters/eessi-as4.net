@@ -10,6 +10,8 @@ interface State {
     transformers: ItemType[];
     certificateRepositories: ItemType[];
     deliverSenders: ItemType[];
+    notifySenders: ItemType[],
+    attachmentUploaders: ItemType[];
     runtimeMetaData: ItemType[];
 }
 
@@ -22,16 +24,20 @@ export class RuntimeStore extends Store<State> {
             transformers: new Array<ItemType>(),
             certificateRepositories: new Array<ItemType>(),
             deliverSenders: new Array<ItemType>(),
+            notifySenders: new Array<ItemType>(),
+            attachmentUploaders: new Array<ItemType>(),
             runtimeMetaData: new Array<ItemType>()
         });
     }
     public clear() {
         this.setState({
-             receivers: new Array<ItemType>(),
+            receivers: new Array<ItemType>(),
             steps: new Array<ItemType>(),
             transformers: new Array<ItemType>(),
             certificateRepositories: new Array<ItemType>(),
             deliverSenders: new Array<ItemType>(),
+            notifySenders: new Array<ItemType>(),
+            attachmentUploaders: new Array<ItemType>(),
             runtimeMetaData: new Array<ItemType>()
         });
     }

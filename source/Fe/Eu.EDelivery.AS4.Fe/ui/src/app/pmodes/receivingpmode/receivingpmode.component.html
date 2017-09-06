@@ -63,9 +63,8 @@
                     <as4-input label="Enabled">
                         <input type="checkbox" formControlName="isEnabled" runtimeTooltip="deliver.isEnabled" />
                     </as4-input>
-                    <as4-method label="Payload reference method" [group]="pmode.form.get('pmode.messageHandling.item.payloadReferenceMethod')"
-                        [types]="deliverSenders"></as4-method>
-                    <as4-method label="Deliver method" [group]="pmode.form.get('pmode.messageHandling.item.deliverMethod')" [types]="deliverSenders"></as4-method>
+                    <as4-method label="Payload reference method" [group]="pmode.form.get('pmode.messageHandling.item.payloadReferenceMethod')" [types]="attachmentUploaders$ | async"></as4-method>
+                    <as4-method label="Deliver method" [group]="pmode.form.get('pmode.messageHandling.item.deliverMethod')" [types]="deliverSenders$ | async"></as4-method>
                 </ng-container>
                 <ng-container *ngIf="messageHandlingType.selectedIndex === 2" formGroupName="item">
                     <as4-input label="Sending PMode">
@@ -124,14 +123,14 @@
                 <as4-input label="Is enabled" runtimeToolip="deliver.isenabled">
                     <input type="checkbox" formControlName="isEnabled" />
                 </as4-input>
-                <as4-method label="Payload reference method" [group]="pmode.form.get('pmode.deliver.payloadReferenceMethod')" [types]="deliverSenders"></as4-method>
-                <as4-method label="Deliver method" [group]="pmode.form.get('pmode.deliver.deliverMethod')" [types]="deliverSenders"></as4-method>
+                <as4-method label="Payload reference method" [group]="pmode.form.get('pmode.deliver.payloadReferenceMethod')" [types]="attachmentUploaders$ | async"></as4-method>
+                <as4-method label="Deliver method" [group]="pmode.form.get('pmode.deliver.deliverMethod')" [types]="deliverSenders$ | async"></as4-method>
             </div>
             <div tabitem title="Exception handling" formGroupName="exceptionHandling" [isValid]="!!!pmode.currentPmode || pmode.form.get('pmode.exceptionHandling').valid">
                 <as4-input label="Notify message consumer" runtimeTooltip="receivehandling.notifymessageconsumer">
                     <input type="checkbox" formControlName="notifyMessageConsumer" #notifyMessageConsumer/>
                 </as4-input>
-                <as4-method label="Notify method" [group]="pmode.form.get('pmode.exceptionHandling.notifyMethod')" [types]="deliverSenders"></as4-method>
+                <as4-method label="Notify method" [group]="pmode.form.get('pmode.exceptionHandling.notifyMethod')" [types]="deliverSenders$ | async"></as4-method>
             </div>
         </as4-tab>
     </div>

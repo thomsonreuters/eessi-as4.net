@@ -1,4 +1,3 @@
-import { CanComponentDeactivate } from './../../common/candeactivate.guard';
 import { Subscription } from 'rxjs/Subscription';
 import { FormBuilder, FormGroupDirective, FormGroup } from '@angular/forms';
 import { Component, OnDestroy, ViewChild } from '@angular/core';
@@ -11,6 +10,8 @@ import { SendingProcessingMode } from './../../api/SendingProcessingMode';
 import { BasePmodeComponent } from './../basepmode/basepmode.component';
 import { SendingPmode } from './../../api/SendingPmode';
 import { ReceivingPmode } from './../../api/ReceivingPmode';
+import { ItemType } from './../../api/ItemType';
+import { CanComponentDeactivate } from './../../common/candeactivate.guard';
 
 @Component({
     selector: 'as4-sending-pmode',
@@ -22,15 +23,12 @@ import { ReceivingPmode } from './../../api/ReceivingPmode';
 })
 export class SendingPmodeComponent implements OnDestroy, CanComponentDeactivate {
     public mask: any[] = [/[0-9]/, /[0-9]/, ':', /[0-5]/, /[0-9]/, ':', /[0-5]/, /[0-9]/];
-    public deliverSenders;
+    public notifySenders$: Observable<ItemType[]>;
     @ViewChild(FormGroupDirective) private formGroup: FormGroupDirective;
     private subscriptions: Subscription[] = new Array<Subscription>();
     constructor(private _runtimeStore: RuntimeStore) {
-        this._runtimeStore
-            .changes
-            .filter((store) => !!store)
-            .map((store) => store.deliverSenders)
-            .subscribe((data) => this.deliverSenders = data);
+        this.notifySenders$ = this
+            ._runtimeStore.changes.filter((store) => !!store).map((store) => store.notifySenders);
     }
     public ngOnDestroy() {
         this.subscriptions.forEach((subs) => subs.unsubscribe);
