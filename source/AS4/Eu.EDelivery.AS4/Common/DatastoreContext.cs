@@ -176,10 +176,12 @@ namespace Eu.EDelivery.AS4.Common
             modelBuilder.Entity<InException>().HasKey(ie => ie.Id);
             modelBuilder.Entity<InException>().Property(ie => ie.Id).UseSqlServerIdentityColumn();
             modelBuilder.Entity<InException>().HasIndex(ie => ie.EbmsRefToMessageId);
+            modelBuilder.Entity<InException>().HasIndex(ie => ie.Operation);
 
             modelBuilder.Entity<OutException>().HasKey(oe => oe.Id);
             modelBuilder.Entity<OutException>().Property(oe => oe.Id).UseSqlServerIdentityColumn();
             modelBuilder.Entity<OutException>().HasIndex(oe => oe.EbmsRefToMessageId);
+            modelBuilder.Entity<OutException>().HasIndex(oe => oe.Operation);
 
             modelBuilder.Entity<ReceptionAwareness>().HasKey(r => r.Id);
             modelBuilder.Entity<ReceptionAwareness>().Property(r => r.Id).UseSqlServerIdentityColumn();
