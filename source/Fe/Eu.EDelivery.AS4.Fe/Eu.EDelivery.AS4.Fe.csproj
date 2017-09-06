@@ -35,6 +35,8 @@
 
     <ItemGroup>
         <ProjectReference Include="..\..\AS4\Eu.EDelivery.AS4\Eu.EDelivery.AS4.csproj" />
+        <ProjectReference Include="..\..\Receivers\Eu.EDelivery.AS4.Receivers\Eu.EDelivery.AS4.Receivers.csproj" />
+        <ProjectReference Include="..\..\ServiceHandler\Eu.EDelivery.AS4.ServiceHandler\Eu.EDelivery.AS4.ServiceHandler.csproj" />
     </ItemGroup>
 
     <ItemGroup>

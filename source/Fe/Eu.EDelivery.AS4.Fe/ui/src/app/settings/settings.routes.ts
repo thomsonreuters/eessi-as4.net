@@ -23,13 +23,12 @@ export const ROUTES: Routes = [
                     {
                         path: 'agents', data: { title: 'Internal Agents' }, children: [
                             { path: '', redirectTo: 'submit', pathMatch: 'full', canDeactivate: [CanDeactivateGuard] },
-                            { path: 'outboundprocessing', component: AgentSettingsComponent, data: { title: 'Outbound processing', header: 'Outbound processing agent', type: 'outboundProcessingAgents' }, canDeactivate: [CanDeactivateGuard] },
-                            { path: 'send', component: AgentSettingsComponent, data: { title: 'Send', header: 'Send agent', type: 'sendAgents' }, canDeactivate: [CanDeactivateGuard] },
-                            { path: 'deliver', component: AgentSettingsComponent, data: { title: 'Deliver', header: 'Deliver agent', type: 'deliverAgents' }, canDeactivate: [CanDeactivateGuard] },
-                            { path: 'notifyconsumer', component: AgentSettingsComponent, data: { title: 'Notify consumer', header: 'Notify consumer agent', type: 'notifyConsumerAgents' }, canDeactivate: [CanDeactivateGuard] },
-                            { path: 'notifyproducer', component: AgentSettingsComponent, data: { title: 'Notify producer', header: 'Notify producer agent', type: 'notifyProducerAgents' }, canDeactivate: [CanDeactivateGuard] },
-                            { path: 'receptionawareness', component: ReceptionAwarenessAgentComponent, data: { title: 'Reception awareness', header: 'Reception awareness agent', type: 'receptionAwarenessAgent' }, canDeactivate: [CanDeactivateGuard] },
-                            { path: 'pushsend', component: AgentSettingsComponent, data: { title: 'Push send', header: 'Push send agent', type: 'pullSendAgents' }, canDeactivate: [CanDeactivateGuard] }
+                            { path: 'outboundprocessing', component: AgentSettingsComponent, data: { title: 'Outbound processing', header: 'Outbound processing agent', type: 'outboundProcessingAgents', betype: 8 }, canDeactivate: [CanDeactivateGuard] },
+                            { path: 'send', component: AgentSettingsComponent, data: { title: 'Send', header: 'Send agent', type: 'sendAgents', betype: 2 }, canDeactivate: [CanDeactivateGuard] },
+                            { path: 'deliver', component: AgentSettingsComponent, data: { title: 'Deliver', header: 'Deliver agent', type: 'deliverAgents', betype: 3 }, canDeactivate: [CanDeactivateGuard] },
+                            { path: 'notifyagent', component: AgentSettingsComponent, data: { title: 'Notify agent', header: 'Notify agent', type: 'notifyAgents', betype: 4 }, canDeactivate: [CanDeactivateGuard] },
+                            { path: 'receptionawareness', component: ReceptionAwarenessAgentComponent, data: { title: 'Reception awareness', header: 'Reception awareness agent', type: 'receptionAwarenessAgent', betype: 5 }, canDeactivate: [CanDeactivateGuard] },
+                            { path: 'pullsend', component: AgentSettingsComponent, data: { title: 'Pull send', header: 'Pull send agent', type: 'pullSendAgents', betype: 7 }, canDeactivate: [CanDeactivateGuard] }
                         ]
                     }
                 ],

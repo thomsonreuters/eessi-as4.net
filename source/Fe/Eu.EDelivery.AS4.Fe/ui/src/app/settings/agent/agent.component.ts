@@ -46,6 +46,7 @@ export class AgentSettingsComponent implements OnDestroy, CanComponentDeactivate
     public form: FormGroup;
     @Input() public title: string;
     @Input() public agent: string;
+    @Input() public beType: number;
 
     private _currentAgent: SettingsAgent | undefined;
     private _subscription: Subscription;
@@ -60,6 +61,7 @@ export class AgentSettingsComponent implements OnDestroy, CanComponentDeactivate
             this.title = `${this.activatedRoute.snapshot.data['title']} agent`;
             this.collapsed = false;
             this.agent = this.activatedRoute.snapshot.data['type'];
+            this.beType = this.activatedRoute.snapshot.data['betype'];
         }
     }
     public ngOnInit() {
@@ -95,16 +97,31 @@ export class AgentSettingsComponent implements OnDestroy, CanComponentDeactivate
                     if (this.messageIfExists(this.newName)) {
                         return;
                     }
-                    let newAgent;
+
+                    const setupCurrent = (agent) => {
+                        this.currentAgent = agent;
+                        this.currentAgent!.name = this.newName;
+                        this.settingsStore.addAgent(this.agent, this.currentAgent!);
+                        this.form = SettingsAgentForm.getForm(this._formWrapper, this.currentAgent).build(!!!this.currentAgent);
+                    };
+
+                    let newAgent: SettingsAgent;
                     if (+this.actionType !== -1) {
-                        newAgent = Object.assign({}, this.settings.find((agt) => agt.name === this.actionType));
+                        newAgent = <SettingsAgent>Object.assign({}, this.settings.find((agt) => agt.name === this.actionType));
                     } else {
                         newAgent = new SettingsAgent();
+
+                        // Get the default agent steps
+                        this.settingsService
+                            .getDefaultAgentSteps(this.beType)
+                            .subscribe((result) => {
+                                newAgent.stepConfiguration = result;
+                                setupCurrent(newAgent);
+                            });
+                        return;
                     }
 
-                    this.currentAgent = newAgent;
-                    this.currentAgent!.name = this.newName;
-                    this.settingsStore.addAgent(this.agent, this.currentAgent!);
+                    setupCurrent(newAgent);
                 }
             });
     }

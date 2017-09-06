@@ -9,8 +9,6 @@ export class SettingsAgents {
 	receiveAgents = new Array<SettingsAgent>();
 	deliverAgents = new Array<SettingsAgent>();
 	notifyAgents = new Array<SettingsAgent>();
-	notifyConsumerAgents = new Array<SettingsAgent>();
-	notifyProducerAgents = new Array<SettingsAgent>();
 	receptionAwarenessAgent: SettingsAgent | undefined;
 	pullReceiveAgents = new Array<SettingsAgent>();
 	pullSendAgents = new Array<SettingsAgent>();
@@ -21,8 +19,6 @@ export class SettingsAgents {
 	static FIELD_receiveAgents: string = 'receiveAgents';
 	static FIELD_deliverAgents: string = 'deliverAgents';
 	static FIELD_notifyAgents: string = 'notifyAgents';
-	static FIELD_notifyConsumerAgents: string = 'notifyConsumerAgents';
-	static FIELD_notifyProducerAgents: string = 'notifyProducerAgents';
 	static FIELD_receptionAwarenessAgent: string = 'receptionAwarenessAgent';
 	static FIELD_pullReceiveAgents: string = 'pullReceiveAgents';
 	static FIELD_pullSendAgents: string = 'pullSendAgents';

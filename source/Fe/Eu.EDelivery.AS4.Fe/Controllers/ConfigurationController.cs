@@ -2,11 +2,13 @@
 using System.Net;
 using System.Threading.Tasks;
 using EnsureThat;
+using Eu.EDelivery.AS4.Agents;
 using Eu.EDelivery.AS4.Fe.Authentication;
 using Eu.EDelivery.AS4.Fe.Logging;
 using Eu.EDelivery.AS4.Fe.Models;
 using Eu.EDelivery.AS4.Fe.Settings;
 using Eu.EDelivery.AS4.Model.Internal;
+using Eu.EDelivery.AS4.ServiceHandler.Agents;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -122,6 +124,19 @@ namespace Eu.EDelivery.AS4.Fe.Controllers
             EnsureArg.IsNotNull(settings, nameof(settings));
             await settingsService.SaveDatabaseSettings(settings);
             return new OkResult();
+        }
+
+        /// <summary>
+        /// Gets the default agent steps.
+        /// </summary>
+        /// <param name="agentType">Type of the agent.</param>
+        /// <returns>StepConfiguration for the requested agent type</returns>
+        [HttpGet]
+        [Route("defaultagentsteps/{agentType}")]
+        public IActionResult GetDefaultAgentSteps(AgentType agentType)
+        {
+            var steps = AgentProvider.GetDefaultStepConfigurationForAgentType(agentType);
+            return new OkObjectResult(steps);
         }
 
         /// <summary>
@@ -395,47 +410,47 @@ namespace Eu.EDelivery.AS4.Fe.Controllers
         }
 
         /// <summary>
-        /// Creates the notify consumer agent.
+        /// Creates the notify agent.
         /// </summary>
         /// <param name="settingsAgent">The settings agent.</param>
         /// <returns></returns>
         [HttpPost]
-        [Route("notifyconsumeragents")]
+        [Route("notifyagents")]
         [Authorize(Roles = Roles.Admin)]
         [SwaggerResponse((int)HttpStatusCode.OK, typeof(OkResult))]
         [SwaggerResponse((int)HttpStatusCode.Conflict, typeof(ErrorModel), "Indicates that another entity already exists")]
         public async Task<IActionResult> CreateNotifyConsumerAgent([FromBody] AgentSettings settingsAgent)
         {
             EnsureArg.IsNotNull(settingsAgent, nameof(settingsAgent));
-            await settingsService.CreateAgent(settingsAgent, agents => agents.NotifyConsumerAgents, (settings, agents) => settings.NotifyConsumerAgents = agents);
+            await settingsService.CreateAgent(settingsAgent, agents => agents.NotifyAgents, (settings, agents) => settings.NotifyAgents = agents);
             return new OkResult();
         }
 
         /// <summary>
-        /// Deletes the notify consumer agent.
+        /// Deletes the notify agent.
         /// </summary>
         /// <param name="name">The name.</param>
         /// <returns></returns>
         [HttpDelete]
-        [Route("notifyconsumeragents")]
+        [Route("notifyagents")]
         [Authorize(Roles = Roles.Admin)]
         [SwaggerResponse((int)HttpStatusCode.OK, typeof(OkResult))]
         [SwaggerResponse((int)HttpStatusCode.NotFound, typeof(ErrorModel), "Returned when the requested submit agent doesn't exist")]
         public async Task<IActionResult> DeleteNotifyConsumerAgent(string name)
         {
             EnsureArg.IsNotNullOrEmpty(name, nameof(name));
-            await settingsService.DeleteAgent(name, agents => agents.NotifyConsumerAgents, (settings, agents) => settings.NotifyConsumerAgents = agents);
+            await settingsService.DeleteAgent(name, agents => agents.NotifyAgents, (settings, agents) => settings.NotifyAgents = agents);
             return new OkResult();
         }
 
         /// <summary>
-        /// Updates the notify consumer agent.
+        /// Updates the notify agent.
         /// </summary>
         /// <param name="settingsAgent">The settings agent.</param>
         /// <param name="originalName">Name of the original.</param>
         /// <returns></returns>
         [HttpPut]
-        [Route("notifyconsumeragents/{originalName}")]
+        [Route("notifyagents/{originalName}")]
         [Authorize(Roles = Roles.Admin)]
         [SwaggerResponse((int)HttpStatusCode.OK, typeof(OkResult))]
         [SwaggerResponse((int)HttpStatusCode.Conflict, typeof(ErrorModel), "Indicates that another entity already exists")]
@@ -444,61 +459,7 @@ namespace Eu.EDelivery.AS4.Fe.Controllers
         {
             EnsureArg.IsNotNull(settingsAgent, nameof(settingsAgent));
             EnsureArg.IsNotNullOrEmpty(originalName, nameof(originalName));
-            await settingsService.UpdateAgent(settingsAgent, originalName, agents => agents.NotifyConsumerAgents, (settings, agents) => settings.NotifyConsumerAgents = agents);
-            return new OkResult();
-        }
-
-        /// <summary>
-        /// Creates the notify producer agent.
-        /// </summary>
-        /// <param name="settingsAgent">The settings agent.</param>
-        /// <returns></returns>
-        [HttpPost]
-        [Route("notifyproduceragents")]
-        [Authorize(Roles = Roles.Admin)]
-        [SwaggerResponse((int)HttpStatusCode.OK, typeof(OkResult))]
-        [SwaggerResponse((int)HttpStatusCode.Conflict, typeof(ErrorModel), "Indicates that another entity already exists")]
-        public async Task<IActionResult> CreateNotifyProducerAgent([FromBody] AgentSettings settingsAgent)
-        {
-            EnsureArg.IsNotNull(settingsAgent, nameof(settingsAgent));
-            await settingsService.CreateAgent(settingsAgent, agents => agents.NotifyProducerAgents, (settings, agents) => settings.NotifyProducerAgents = agents);
-            return new OkResult();
-        }
-
-        /// <summary>
-        /// Deletes the notify producer agent.
-        /// </summary>
-        /// <param name="name">The name.</param>
-        /// <returns></returns>
-        [HttpDelete]
-        [Route("notifyproduceragents")]
-        [Authorize(Roles = Roles.Admin)]
-        [SwaggerResponse((int)HttpStatusCode.OK, typeof(OkResult))]
-        [SwaggerResponse((int)HttpStatusCode.NotFound, typeof(ErrorModel), "Returned when the requested submit agent doesn't exist")]
-        public async Task<IActionResult> DeleteNotifyProducerAgent(string name)
-        {
-            EnsureArg.IsNotNullOrEmpty(name, nameof(name));
-            await settingsService.DeleteAgent(name, agents => agents.NotifyProducerAgents, (settings, agents) => settings.NotifyProducerAgents = agents);
-            return new OkResult();
-        }
-
-        /// <summary>
-        /// Updates the notify producer agent.
-        /// </summary>
-        /// <param name="settingsAgent">The settings agent.</param>
-        /// <param name="originalName">Name of the original.</param>
-        /// <returns></returns>
-        [HttpPut]
-        [Route("notifyproduceragents/{originalName}")]
-        [Authorize(Roles = Roles.Admin)]
-        [SwaggerResponse((int)HttpStatusCode.OK, typeof(OkResult))]
-        [SwaggerResponse((int)HttpStatusCode.Conflict, typeof(ErrorModel), "Indicates that another entity already exists")]
-        [SwaggerResponse((int)HttpStatusCode.NotFound, typeof(ErrorModel), "Returned when the requested submit agent doesn't exist")]
-        public async Task<IActionResult> UpdateNotifyProducerAgent([FromBody] AgentSettings settingsAgent, string originalName)
-        {
-            EnsureArg.IsNotNull(settingsAgent, nameof(settingsAgent));
-            EnsureArg.IsNotNullOrEmpty(originalName, nameof(originalName));
-            await settingsService.UpdateAgent(settingsAgent, originalName, agents => agents.NotifyProducerAgents, (settings, agents) => settings.NotifyProducerAgents = agents);
+            await settingsService.UpdateAgent(settingsAgent, originalName, agents => agents.NotifyAgents, (settings, agents) => settings.NotifyAgents = agents);
             return new OkResult();
         }
 

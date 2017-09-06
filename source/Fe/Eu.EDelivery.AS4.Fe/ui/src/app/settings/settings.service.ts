@@ -9,6 +9,7 @@ import { CustomSettings } from './../api/CustomSettings';
 import { SettingsDatabase } from './../api/SettingsDatabase';
 import { PortalSettings } from './../api/PortalSettings';
 import { SettingsAgent } from './../api/SettingsAgent';
+import { Steps } from './../api/Steps';
 
 export interface ISettingsService {
     getSettings();
@@ -67,6 +68,12 @@ export class SettingsService implements ISettingsService {
                 subj.complete();
             });
         return subj.asObservable();
+    }
+    public getDefaultAgentSteps(agentType: number): Observable<Steps> {
+        return this
+            .http
+            .get(this.getUrl('defaultagentsteps') + '/' + agentType)
+            .map((result) => result.json());
     }
     public createAgent(settings: SettingsAgent, agent: string): Observable<boolean> {
         return this.http

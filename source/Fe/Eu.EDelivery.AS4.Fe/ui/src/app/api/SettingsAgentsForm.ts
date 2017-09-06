@@ -15,8 +15,6 @@ export class SettingsAgentsForm {
                 receiveAgents: formBuilder.formBuilder.array(!!!(current && current.receiveAgents) ? [] : current.receiveAgents.map(item => SettingsAgentForm.getForm(formBuilder, item))),
                 deliverAgents: formBuilder.formBuilder.array(!!!(current && current.deliverAgents) ? [] : current.deliverAgents.map(item => SettingsAgentForm.getForm(formBuilder, item))),
                 notifyAgents: formBuilder.formBuilder.array(!!!(current && current.notifyAgents) ? [] : current.notifyAgents.map(item => SettingsAgentForm.getForm(formBuilder, item))),
-                notifyConsumerAgents: formBuilder.formBuilder.array(!!!(current && current.notifyConsumerAgents) ? [] : current.notifyConsumerAgents.map(item => SettingsAgentForm.getForm(formBuilder, item))),
-                notifyProducerAgents: formBuilder.formBuilder.array(!!!(current && current.notifyProducerAgents) ? [] : current.notifyProducerAgents.map(item => SettingsAgentForm.getForm(formBuilder, item))),
                 receptionAwarenessAgent: SettingsAgentForm.getForm(formBuilder, current && current.receptionAwarenessAgent),
                 pullReceiveAgents: formBuilder.formBuilder.array(!!!(current && current.pullReceiveAgents) ? [] : current.pullReceiveAgents.map(item => SettingsAgentForm.getForm(formBuilder, item))),
                 pullSendAgents: formBuilder.formBuilder.array(!!!(current && current.pullSendAgents) ? [] : current.pullSendAgents.map(item => SettingsAgentForm.getForm(formBuilder, item))),
