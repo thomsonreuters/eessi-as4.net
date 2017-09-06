@@ -36,12 +36,16 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
 
             private static InException CreateDefaultInException()
             {
-                return new InException {EbmsRefToMessageId = "ref-to-message-id", Operation = Operation.ToBeNotified};
+                var exception = new InException { EbmsRefToMessageId = "ref-to-message-id" };
+
+                exception.SetOperation(Operation.ToBeNotified);
+
+                return exception;
             }
 
             private static MessagingContext CreateNotifyMessage(ExceptionEntity inException)
             {
-                var msgInfo = new MessageInfo {RefToMessageId = inException.EbmsRefToMessageId};
+                var msgInfo = new MessageInfo { RefToMessageId = inException.EbmsRefToMessageId };
 
                 var notifyMessage = new NotifyMessageEnvelope(msgInfo, Status.Delivered, null, string.Empty, inException.GetType());
 
@@ -57,7 +61,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
                             e => e.EbmsRefToMessageId.Equals(previousInException.EbmsRefToMessageId));
 
                     Assert.NotNull(inException);
-                    Assert.Equal(Operation.Notified, inException.Operation);
+                    Assert.Equal(Operation.Notified, OperationUtils.Parse(inException.Operation));
                 }
             }
         }

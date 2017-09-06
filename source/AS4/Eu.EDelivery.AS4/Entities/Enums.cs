@@ -7,7 +7,7 @@ namespace Eu.EDelivery.AS4.Entities
     /// </summary>
     public enum Operation
     {
-        NotApplicable,
+        NotApplicable = 0,
         Undetermined,
 
         ToBeProcessed,

@@ -87,7 +87,7 @@ namespace Eu.EDelivery.AS4.Steps.Notify
 
         private static void UpdateNotifiedException(ExceptionEntity exceptionMessage)
         {
-            exceptionMessage.Operation = Operation.Notified;
+            exceptionMessage.SetOperation(Operation.Notified);
         }
     }
 }

@@ -107,8 +107,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             var inException = new InException
             {
                 EbmsRefToMessageId = message.MessageId,
-                Exception = error.Description,                
-                Operation = Operation.NotApplicable
+                Exception = error.Description
             };
 
             return inException;

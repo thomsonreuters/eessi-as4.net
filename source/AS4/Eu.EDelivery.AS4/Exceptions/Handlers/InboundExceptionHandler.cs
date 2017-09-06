@@ -131,10 +131,13 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
             if (context != null)
             {
                 inException.PMode = AS4XmlSerializer.ToString(context.ReceivingPMode);
-                inException.Operation = 
+
+                Operation notifyOperation = 
                     context.ReceivingPMode?.ExceptionHandling?.NotifyMessageConsumer == true
                         ? Operation.ToBeNotified
                         : default(Operation);
+
+                inException.SetOperation(notifyOperation);
             }
 
             return inException;

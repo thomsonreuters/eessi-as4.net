@@ -133,7 +133,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Exceptions.Handlers
                 exception =>
                 {
                     Assert.True(exception.Exception.IndexOf(_expectedException.Message, StringComparison.CurrentCultureIgnoreCase) > -1, "Message does not contain expected message");
-                    Assert.True(expected == exception.Operation, "Not equal 'Operation' inserted");
+                    Assert.True(expected == OperationUtils.Parse(exception.Operation), "Not equal 'Operation' inserted");
                     Assert.True(exception.MessageBody == null, "Inserted exception body is not empty");
                 });
         }

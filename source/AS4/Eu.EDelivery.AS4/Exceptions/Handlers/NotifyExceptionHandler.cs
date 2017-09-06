@@ -125,11 +125,8 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
             return new T
             {
                 EbmsRefToMessageId = context.EbmsMessageId,
-                Exception = exception.ToString(),
-                Operation = Operation.NotApplicable
+                Exception = exception.ToString()
             };
         }
-
-
     }
 }

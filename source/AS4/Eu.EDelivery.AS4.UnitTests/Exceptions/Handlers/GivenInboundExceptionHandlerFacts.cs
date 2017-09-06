@@ -119,7 +119,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Exceptions.Handlers
                 _expectedId,
                 ex =>
                 {
-                    Assert.Equal(expected, ex.Operation);
+                    Assert.Equal(expected, OperationUtils.Parse(ex.Operation));
                     Assert.Null(ex.MessageBody);
                 });
         }

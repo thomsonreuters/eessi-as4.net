@@ -105,7 +105,7 @@ namespace Eu.EDelivery.AS4.Fe.Monitor.Model
             if (Operation == null) return query;
             {
                 var operationStrings = Operation.Select(op => op.ToString()).ToList();
-                query = query.Where(qr => operationStrings.Contains(qr.OperationString));
+                query = query.Where(qr => operationStrings.Contains(qr.Operation));
             }
             return query;
         }
