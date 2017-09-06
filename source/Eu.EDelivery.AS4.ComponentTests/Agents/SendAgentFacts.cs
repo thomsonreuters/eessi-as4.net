@@ -65,7 +65,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             Assert.NotNull(sentMessage);
             Assert.NotNull(receivedMessage);
 
-            Assert.Equal(expectedOutStatus, sentMessage.Status);
+            Assert.Equal(expectedOutStatus, OutStatusUtils.Parse(sentMessage.Status));
             Assert.Equal(MessageType.Receipt, MessageTypeUtils.Parse(receivedMessage.EbmsMessageType));
             Assert.Equal(expectedSignalOperation, OperationUtils.Parse(receivedMessage.Operation));
         }

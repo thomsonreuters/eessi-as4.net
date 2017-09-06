@@ -69,7 +69,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
                 OutMessage outMessage = GetOutMessage(EbmsMessageId);
                 Assert.NotNull(outMessage);
-                Assert.Equal(OutStatus.Ack, outMessage.Status);
+                Assert.Equal(OutStatus.Ack, OutStatusUtils.Parse(outMessage.Status));
             }
 
             private static MessagingContext ReceiptAS4MessageWithSendingPMode(string refToMessageId)
@@ -130,7 +130,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 // Assert
                 OutMessage outMessage = GetOutMessage(EbmsMessageId);
                 Assert.NotNull(outMessage);
-                Assert.Equal(OutStatus.Nack, outMessage.Status);
+                Assert.Equal(OutStatus.Nack, OutStatusUtils.Parse(outMessage.Status));
             }
 
             private async Task InsertOutMessageWith(string messageId)
@@ -156,10 +156,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
         {
             var outMessage = new OutMessage
             {
-                EbmsMessageId = messageId,
-                Status = OutStatus.Sent
+                EbmsMessageId = messageId
             };
 
+            outMessage.SetStatus(OutStatus.Sent);
             outMessage.SetOperation(Operation.NotApplicable);
             outMessage.SetEbmsMessageType(MessageType.UserMessage);
 

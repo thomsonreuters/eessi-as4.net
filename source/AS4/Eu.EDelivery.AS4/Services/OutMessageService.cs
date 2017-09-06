@@ -106,7 +106,7 @@ namespace Eu.EDelivery.AS4.Services
 
             if (outMessage.EbmsMessageType == MessageType.UserMessage.ToString())
             {
-                outMessage.SetOperation(operation);                
+                outMessage.SetOperation(operation);
             }
             else
             {
@@ -122,8 +122,8 @@ namespace Eu.EDelivery.AS4.Services
                 (OutStatus status, Operation operation) replyPattern =
                     DetermineCorrectReplyPattern(messageContext.ReceivingPMode, inMessageMep);
 
-                outMessage.Status = replyPattern.status;
-                outMessage.SetOperation(replyPattern.operation);                
+                outMessage.SetStatus(replyPattern.status);
+                outMessage.SetOperation(replyPattern.operation);
             }
 
             return outMessage;

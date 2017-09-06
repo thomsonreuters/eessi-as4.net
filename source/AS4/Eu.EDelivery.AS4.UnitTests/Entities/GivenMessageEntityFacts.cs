@@ -269,8 +269,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
 
         [ExcludeFromCodeCoverage]
         private class StubMessageEntity : MessageEntity
-        {
-            public override string StatusString { get; set; }
+        {        
         }
     }
 }

@@ -122,7 +122,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             var inMessageRecord = _databaseSpy.GetInMessageFor(m => m.EbmsMessageId == messageId);
             var inExceptionRecord = _databaseSpy.GetInExceptions(e => e.EbmsRefToMessageId == messageId).FirstOrDefault();
 
-            Assert.Equal(InStatus.Exception, inMessageRecord.Status);
+            Assert.Equal(InStatus.Exception, InStatusUtils.Parse(inMessageRecord.Status));
             Assert.NotNull(inExceptionRecord);
         }
 
@@ -267,7 +267,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             var inMessage = _databaseSpy.GetInMessageFor(m => m.EbmsRefToMessageId == userMessageId);
             Assert.NotNull(inMessage);
             Assert.Equal(MessageType.Receipt, MessageTypeUtils.Parse(inMessage.EbmsMessageType));
-            Assert.Equal(InStatus.Exception, inMessage.Status);
+            Assert.Equal(InStatus.Exception, InStatusUtils.Parse(inMessage.Status));
 
             var inExceptions = _databaseSpy.GetInExceptions(m => m.EbmsRefToMessageId == inMessage.EbmsMessageId);
             Assert.NotNull(inExceptions);
@@ -292,7 +292,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             var inMessage = _databaseSpy.GetInMessageFor(m => m.EbmsRefToMessageId == messageId);
 
             Assert.NotNull(inMessage);
-            Assert.Equal(InStatus.Exception, inMessage.Status);
+            Assert.Equal(InStatus.Exception, InStatusUtils.Parse(inMessage.Status));
 
             var inException = _databaseSpy.GetInExceptions(e => e.EbmsRefToMessageId == inMessage.EbmsMessageId);
             Assert.NotNull(inException);
@@ -346,7 +346,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
             var outMessage = _databaseSpy.GetOutMessageFor(m => m.EbmsMessageId == messageId);
             Assert.NotNull(outMessage);
-            Assert.Equal(OutStatus.Ack, outMessage.Status);
+            Assert.Equal(OutStatus.Ack, OutStatusUtils.Parse(outMessage.Status));
         }
 
         private static AS4Message CreateMultihopSignalMessage(string messageId, string refToMessageId)
@@ -402,10 +402,10 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         {
             var outMessage = new OutMessage
             {
-                EbmsMessageId = messageId,
-                Status = OutStatus.Sent
+                EbmsMessageId = messageId
             };
 
+            outMessage.SetStatus(OutStatus.Sent);
             outMessage.SetPModeInformation(sendingPMode);
 
             _databaseSpy.InsertOutMessage(outMessage);
@@ -435,7 +435,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         {
             InMessage inMessage = _databaseSpy.GetInMessageFor(m => m.EbmsRefToMessageId == expectedId);
             Assert.NotNull(inMessage);
-            Assert.Equal(InStatus.Received, inMessage.Status);
+            Assert.Equal(InStatus.Received, InStatusUtils.Parse(inMessage.Status));
             Assert.Equal(Operation.ToBeNotified, OperationUtils.Parse(inMessage.Operation));
         }
 
@@ -445,7 +445,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             OutMessage outMessage = _databaseSpy.GetOutMessageFor(m => m.EbmsMessageId == expectedId);
 
             Assert.NotNull(outMessage);
-            Assert.Equal(expectedStatus, outMessage.Status);
+            Assert.Equal(expectedStatus, OutStatusUtils.Parse(outMessage.Status));
         }
 
         // TODO:

@@ -286,7 +286,7 @@ namespace Eu.EDelivery.AS4.Services
 
             _repository.UpdateOutMessages(
                 m => signalMessages.Select(r => r.RefToMessageId).Contains(m.EbmsMessageId) && m.Intermediary == false,
-                m => m.Status = outStatus);
+                m => m.SetStatus(outStatus));
         }
 
         #region UserMessage related

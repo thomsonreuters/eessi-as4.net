@@ -56,7 +56,7 @@ namespace Eu.EDelivery.AS4.Steps.Notify
                 {
                     repository.UpdateInMessage(notifyMessage.MessageInfo.MessageId, m =>
                     {
-                        m.Status = InStatus.Notified;
+                        m.SetStatus(InStatus.Notified);
                         m.SetOperation(Operation.Notified);
                     });
                 }
@@ -64,7 +64,7 @@ namespace Eu.EDelivery.AS4.Steps.Notify
                 {
                     repository.UpdateOutMessage(notifyMessage.MessageInfo.MessageId, m =>
                     {
-                        m.Status = OutStatus.Notified;
+                        m.SetStatus(OutStatus.Notified);
                         m.SetOperation(Operation.Notified);
                     });
                 }

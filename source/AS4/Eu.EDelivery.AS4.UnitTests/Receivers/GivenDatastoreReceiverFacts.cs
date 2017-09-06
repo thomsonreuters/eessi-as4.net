@@ -66,7 +66,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
                 message =>
                 {
                     Assert.Equal(Operation.Sending, OperationUtils.Parse(message.Operation));
-                    Assert.Equal(OutStatus.Sent, message.Status);
+                    Assert.Equal(OutStatus.Sent, OutStatusUtils.Parse(message.Status));
                 });
         }
 
@@ -122,10 +122,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
                 var expectedMessage = new OutMessage
                 {
                     EbmsMessageId = "message-id",
-                    MessageLocation = "ignored location",
-                    Status = status
+                    MessageLocation = "ignored location"
                 };
 
+                expectedMessage.SetStatus(status);
                 expectedMessage.SetOperation(operation);
 
                 context.OutMessages.Add(expectedMessage);

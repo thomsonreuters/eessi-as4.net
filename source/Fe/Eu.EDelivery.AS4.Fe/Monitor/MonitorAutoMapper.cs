@@ -18,13 +18,13 @@ namespace Eu.EDelivery.AS4.Fe.Monitor
         public MonitorAutoMapper()
         {
             CreateMap<InMessage, Message>()
-                .ForMember(x => x.Status, x => x.MapFrom(y => y.StatusString))
+                .ForMember(x => x.Status, x => x.MapFrom(y => y.Status))
                 .ForMember(x => x.EbmsMessageType, x => x.MapFrom(y => y.EbmsMessageType))
                 .ForMember(x => x.Operation, x => x.MapFrom(y => y.Operation))
                 .ForMember(x => x.Direction, x => x.UseValue(Direction.Inbound))
                 .ForMember(x => x.Mep, x => x.MapFrom(y => y.MEP));
             CreateMap<OutMessage, Message>()
-                .ForMember(x => x.Status, x => x.MapFrom(y => y.StatusString))
+                .ForMember(x => x.Status, x => x.MapFrom(y => y.Status))
                 .ForMember(x => x.EbmsMessageType, x => x.MapFrom(y => y.EbmsMessageType))
                 .ForMember(x => x.Operation, x => x.MapFrom(y => y.Operation))
                 .ForMember(x => x.Direction, x => x.UseValue(Direction.Outbound))

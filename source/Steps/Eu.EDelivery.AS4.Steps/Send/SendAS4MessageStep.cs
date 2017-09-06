@@ -273,7 +273,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
                     outMessage =>
                     {
                         outMessage.SetOperation(operation);
-                        outMessage.Status = status;
+                        outMessage.SetStatus(status);                        
                     });
 
                 var receptionAwareness = repository.GetReceptionAwareness(as4Message.MessageIds);

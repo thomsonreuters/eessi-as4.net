@@ -133,13 +133,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
         private static InMessage CreateInMessageFor(AS4Message receiptMessage)
         {
             var inMessage = new InMessage
-            {
-                Status = InStatus.Received,
+            {                
                 ContentType = Constants.ContentTypes.Soap,
                 EbmsMessageId = receiptMessage.PrimarySignalMessage.MessageId,
                 EbmsRefToMessageId = receiptMessage.PrimarySignalMessage.RefToMessageId
             };
 
+            inMessage.SetStatus(InStatus.Received);
             inMessage.SetOperation(Operation.ToBeNotified);
             inMessage.SetEbmsMessageType(MessageType.Receipt);
 

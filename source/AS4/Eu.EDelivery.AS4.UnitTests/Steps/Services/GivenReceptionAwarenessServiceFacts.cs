@@ -202,10 +202,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Services
                 var stubRepository = new Mock<IDatastoreRepository>();
 
                 const string messageId = "message id";
+
+                var selectArgument = new OutMessage() { EbmsMessageId = messageId };
+                selectArgument.SetStatus(status);
+
                 stubRepository.Setup(r => r.GetOutMessageData(It.IsAny<string>(), It.IsAny<Func<OutMessage, bool>>()))
                               .Returns(
                                   (string id, Func<OutMessage, bool> selection) =>
-                                      selection(new OutMessage { EbmsMessageId = messageId, Status = status }));
+                                      selection(selectArgument));
 
                 var awareness = new AS4.Entities.ReceptionAwareness { InternalMessageId = messageId };
 

@@ -102,7 +102,7 @@ namespace Eu.EDelivery.AS4.Fe.Monitor.Model
             if (Status != null && Status.Any())
             {
                 var statusStrings = Status.Select(status => status.ToString()).ToList();
-                query = query.Where(qr => statusStrings.Contains(qr.StatusString));
+                query = query.Where(qr => statusStrings.Contains(qr.Status));
             }
 
             if (!string.IsNullOrEmpty(FromParty)) query = query.Where(x => x.FromParty == FromParty);

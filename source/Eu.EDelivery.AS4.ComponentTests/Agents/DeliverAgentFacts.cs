@@ -89,7 +89,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
                 // Assert
                 InMessage actualMessage = GetToBeDeliveredMessage(as4Message);
-                Assert.Equal(InStatus.Exception, actualMessage.Status);
+                Assert.Equal(InStatus.Exception, InStatusUtils.Parse(actualMessage.Status));
             }
         }
 

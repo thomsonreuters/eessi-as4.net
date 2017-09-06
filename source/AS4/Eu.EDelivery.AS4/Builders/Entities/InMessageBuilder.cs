@@ -88,7 +88,6 @@ namespace Eu.EDelivery.AS4.Builders.Entities
                 EbmsMessageId = _messageUnit.MessageId,
                 EbmsRefToMessageId = _messageUnit.RefToMessageId,
                 ContentType = _contentType,
-                Status = InStatus.Received,
                 InsertionTime = DateTimeOffset.Now,
                 ModificationTime = DateTimeOffset.Now
             };
@@ -97,6 +96,7 @@ namespace Eu.EDelivery.AS4.Builders.Entities
             inMessage.SetMessageExchangePattern(_mep);
             inMessage.SetOperation(Operation.NotApplicable);
             inMessage.SetPModeInformation(_pmode);
+            inMessage.SetStatus(InStatus.Received);
 
             inMessage.AssignAS4Properties(_messageUnit, cancellationToken);
 

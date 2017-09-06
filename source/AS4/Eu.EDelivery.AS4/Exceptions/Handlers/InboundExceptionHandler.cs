@@ -102,7 +102,7 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
                 await SideEffectRepositoryUsage(
                     repository =>
                     {
-                        repository.UpdateInMessage(context.EbmsMessageId, m => m.Status = InStatus.Exception);
+                        repository.UpdateInMessage(context.EbmsMessageId, m => m.SetStatus(InStatus.Exception));
 
                         InException ex = CreateInExceptionWithContextInfo(exception, context);
                         ex.EbmsRefToMessageId = context.EbmsMessageId;

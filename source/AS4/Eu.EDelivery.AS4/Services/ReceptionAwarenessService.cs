@@ -122,7 +122,7 @@ namespace Eu.EDelivery.AS4.Services
         {
             return _repository.GetOutMessageData(
                 awareness.InternalMessageId,
-                m => m.Status == OutStatus.Ack || m.Status == OutStatus.Nack);
+                m => m.Status == OutStatus.Ack.ToString() || m.Status == OutStatus.Nack.ToString());
         }
 
         /// <summary>

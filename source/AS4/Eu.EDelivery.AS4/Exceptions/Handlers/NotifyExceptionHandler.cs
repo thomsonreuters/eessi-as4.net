@@ -99,7 +99,7 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
 
                     if (context.NotifyMessage.EntityType == typeof(InMessage))
                     {
-                        repository.UpdateInMessage(context.EbmsMessageId, i => i.Status = InStatus.Exception);
+                        repository.UpdateInMessage(context.EbmsMessageId, i => i.SetStatus(InStatus.Exception));
                     }
                 }
                 else if (context.NotifyMessage.EntityType != typeof(OutMessage) ||
@@ -110,7 +110,7 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
 
                     if (context.NotifyMessage.EntityType == typeof(OutMessage))
                     {
-                        repository.UpdateOutMessage(context.EbmsMessageId, o => o.Status = OutStatus.Exception);
+                        repository.UpdateOutMessage(context.EbmsMessageId, o => o.SetStatus(OutStatus.Exception));
                     }
                 }
 

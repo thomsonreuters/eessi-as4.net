@@ -45,7 +45,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
                     m =>
                     {
                         Assert.Equal(Operation.Notified, OperationUtils.Parse(m.Operation));
-                        Assert.Equal(OutStatus.Notified, m.Status);
+                        Assert.Equal(OutStatus.Notified, OutStatusUtils.Parse(m.Status));
                     });
             }
 
@@ -54,9 +54,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
                 var outMessage = new OutMessage
                 {
                     EbmsMessageId = sharedId,
-                    Status = OutStatus.Ack
                 };
 
+                outMessage.SetStatus(OutStatus.Ack);
                 outMessage.SetOperation(Operation.Notifying);
 
                 GetDataStoreContext.InsertOutMessage(outMessage);

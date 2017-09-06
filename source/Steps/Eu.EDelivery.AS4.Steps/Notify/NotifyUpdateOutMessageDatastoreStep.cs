@@ -52,7 +52,7 @@ namespace Eu.EDelivery.AS4.Steps.Notify
 
         private static void UpdateNotifiedOutMessage(OutMessage outMessage)
         {
-            outMessage.Status = OutStatus.Notified;
+            outMessage.SetStatus(OutStatus.Notified);
             outMessage.SetOperation(Operation.Notified);
         }
     }

@@ -82,6 +82,14 @@ namespace Eu.EDelivery.AS4.Entities
         Exception
     }
 
+    public static class InStatusUtils
+    {
+        public static InStatus Parse(string status)
+        {
+            return (InStatus)Enum.Parse(typeof(InStatus), status, true);
+        }
+    }
+
     /// <summary>
     /// The status field is used for monitoring purposes.
     /// It has the following state machine applied for outgoing messages
@@ -96,6 +104,14 @@ namespace Eu.EDelivery.AS4.Entities
         Exception,
         Created,
         Notified
+    }
+
+    public static class OutStatusUtils
+    {
+        public static OutStatus Parse(string status)
+        {
+            return (OutStatus)Enum.Parse(typeof(OutStatus), status, true);
+        }
     }
 
     public enum Entities

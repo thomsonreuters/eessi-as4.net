@@ -47,7 +47,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             // Assert
             Assert.False(actualResult.CanProceed);
         }
-        
+
         [Fact]
         public async Task StepUpdatesRequestOperationAndStatus_IfRequestIsBeingSent()
         {
@@ -66,7 +66,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
                 message =>
                 {
                     Assert.Equal(Operation.Sent, OperationUtils.Parse(message.Operation));
-                    Assert.Equal(OutStatus.Sent, message.Status);
+                    Assert.Equal(OutStatus.Sent, OutStatusUtils.Parse(message.Status));
                 });
         }
 
@@ -132,7 +132,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
         private static SendingProcessingMode CreateValidSendingPMode()
         {
             return new SendingProcessingMode
-            {                
+            {
                 PushConfiguration = new PushConfiguration { Protocol = { Url = "http://ignored/path" } },
                 Reliability = { ReceptionAwareness = { IsEnabled = true } }
             };

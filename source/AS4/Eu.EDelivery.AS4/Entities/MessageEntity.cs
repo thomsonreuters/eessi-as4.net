@@ -136,9 +136,8 @@ namespace Eu.EDelivery.AS4.Entities
             EbmsMessageType = messageType.ToString();
         }
 
-        [Column("Status")]
-        [MaxLength(50)]
-        public abstract string StatusString { get; set; }
+        [Column("Status")]        
+        public string Status { get; protected set; }
 
         public string SoapEnvelope { get; set; }
 
