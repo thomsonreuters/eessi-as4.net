@@ -8,7 +8,12 @@ namespace Eu.EDelivery.AS4.Entities
     ///     Incoming Message Data Entity Schema
     /// </summary>
     public class InMessage : MessageEntity
-    {        
+    {
+        public InMessage()
+        {
+            SetStatus(default(InStatus));
+        }
+
         public void SetStatus(InStatus status)
         {
             Status = status.ToString();

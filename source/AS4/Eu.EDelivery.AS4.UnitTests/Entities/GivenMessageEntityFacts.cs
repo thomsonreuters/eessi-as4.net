@@ -14,6 +14,7 @@ using Eu.EDelivery.AS4.UnitTests.Model;
 using Eu.EDelivery.AS4.UnitTests.Repositories;
 using Xunit;
 using Eu.EDelivery.AS4.UnitTests.Common;
+using MessageExchangePattern = Eu.EDelivery.AS4.Entities.MessageExchangePattern;
 
 namespace Eu.EDelivery.AS4.UnitTests.Entities
 {
@@ -24,6 +25,18 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
     {
         public class Create
         {
+            [Fact]
+            public void HasDefaultOperation()
+            {
+                Assert.Equal(Operation.NotApplicable, OperationUtils.Parse(new StubMessageEntity().Operation));
+            }
+
+            [Fact]
+            public void HasDefaultMessageExchangePattern()
+            {
+                Assert.Equal(MessageExchangePattern.Push, MessageExchangePatternUtils.Parse(new StubMessageEntity().MEP));
+            }
+
             [Fact]
             public void GetsPartyInfoFromEntity()
             {
@@ -269,7 +282,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
 
         [ExcludeFromCodeCoverage]
         private class StubMessageEntity : MessageEntity
-        {        
+        {
         }
     }
 }

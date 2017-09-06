@@ -11,13 +11,14 @@ namespace Eu.EDelivery.AS4.Entities
         /// <summary>
         /// Initializes a new instance of the <see cref="OutMessage"/> class.
         /// </summary>
-        internal OutMessage()
+        internal OutMessage() : base()
         {
             // Internal ctor to prevent that instances are created directly.
             // TODO: perhaps this class should not have a default ctor, but a ctor
             // which takes an AS4Message parameter ...  (Interferes with the Fe Unittests atm).
+            SetStatus(default(OutStatus));
         }
-        
+
         public void SetStatus(OutStatus status)
         {
             Status = status.ToString();

@@ -9,6 +9,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
     public class GivenExceptionEntityFacts
     {
         [Fact]
+        public void ExceptionEntityHasDefaultOperation()
+        {
+            Assert.Equal(Operation.NotApplicable, OperationUtils.Parse(new ExceptionEntity().Operation));
+        }
+
+        [Fact]
         public void ExceptionEntityLocksInstanceByUpdatingOperation()
         {
             // Arrange

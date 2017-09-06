@@ -75,7 +75,7 @@ namespace Eu.EDelivery.AS4.Entities
     /// </summary>
     public enum InStatus
     {
-        Received,
+        Received = 0,
         Delivered,
         Created,
         Notified,
@@ -96,7 +96,7 @@ namespace Eu.EDelivery.AS4.Entities
     /// </summary>
     public enum OutStatus
     {
-        NotApplicable,
+        NotApplicable = 0,
         Submitted,
         Nack,
         Ack,

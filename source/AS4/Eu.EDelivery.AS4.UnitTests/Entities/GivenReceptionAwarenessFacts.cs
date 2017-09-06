@@ -9,6 +9,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
     public class GivenReceptionAwarenessFacts
     {
         [Fact]
+        public void ReceptionAwarenessHasDefaultStatus()
+        {
+            Assert.Equal(ReceptionStatus.Pending, ReceptionStatusUtils.Parse(new ReceptionAwareness().Status));
+        }
+
+        [Fact]
         public void ReceptionAwarenessLocksByUpdatingStatus()
         {
             // Arrange
