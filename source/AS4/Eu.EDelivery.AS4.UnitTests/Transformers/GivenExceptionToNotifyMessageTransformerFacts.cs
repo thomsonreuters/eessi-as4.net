@@ -28,7 +28,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
 
             Assert.NotNull(result.NotifyMessage);
             Assert.Equal(
-                ((ExceptionEntity) receivedMessage.Entity).EbmsRefToMessageId,
+                ((ExceptionEntity)receivedMessage.Entity).EbmsRefToMessageId,
                 result.NotifyMessage.MessageInfo.RefToMessageId);
         }
 
@@ -45,7 +45,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             // Assert
             Assert.NotNull(result.NotifyMessage);
             Assert.Equal(
-                ((ExceptionEntity) receivedMessage.Entity).EbmsRefToMessageId,
+                ((ExceptionEntity)receivedMessage.Entity).EbmsRefToMessageId,
                 result.NotifyMessage.MessageInfo.RefToMessageId);
         }
 
@@ -62,13 +62,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
 
             // Assert
             Assert.Equal(Status.Exception, messagingContext.NotifyMessage.StatusCode);
-            Assert.Equal(((InException) receivedMessage.Entity).EbmsRefToMessageId, messagingContext.NotifyMessage.MessageInfo.RefToMessageId);
+            Assert.Equal(((InException)receivedMessage.Entity).EbmsRefToMessageId, messagingContext.NotifyMessage.MessageInfo.RefToMessageId);
         }
 
         private static ReceivedEntityMessage CreateReceivedExceptionMessage<T>() where T : ExceptionEntity, new()
         {
             var exception = new T
-            {                
+            {
                 EbmsRefToMessageId = "somemessage-id",
                 Exception = "Some Exception Message"
             };
@@ -89,7 +89,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
                 () => sut.TransformAsync(new ReceivedMessage(Stream.Null), CancellationToken.None));
 
             await Assert.ThrowsAnyAsync<Exception>(
-                () => sut.TransformAsync(new ReceivedEntityMessage(new InMessage()), CancellationToken.None));
+                () => sut.TransformAsync(new ReceivedEntityMessage(new InMessage(Guid.NewGuid().ToString())), CancellationToken.None));
         }
     }
 }

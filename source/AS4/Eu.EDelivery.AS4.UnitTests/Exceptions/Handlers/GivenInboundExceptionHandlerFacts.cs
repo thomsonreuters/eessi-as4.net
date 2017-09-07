@@ -105,7 +105,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Exceptions.Handlers
             Func<IAgentExceptionHandler, Func<Exception, MessagingContext, Task<MessagingContext>>> getExercise)
         {
             // Arrange
-            var inMessage = new InMessage { EbmsMessageId = _expectedId };
+            var inMessage = new InMessage(ebmsMessageId: _expectedId);
             inMessage.SetStatus(InStatus.Received);
 
             GetDataStoreContext.InsertInMessage(inMessage);

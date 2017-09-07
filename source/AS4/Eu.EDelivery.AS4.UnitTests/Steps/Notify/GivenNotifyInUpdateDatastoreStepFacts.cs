@@ -24,7 +24,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
 
         private static InMessage CreateInMessage(string id)
         {
-            return new InMessage { EbmsMessageId = id };
+            return new InMessage(id);
         }
 
         public class GivenValidArguments : GivenNotifyUpdateDatastoreStepForInMessageFacts

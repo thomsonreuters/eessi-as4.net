@@ -83,9 +83,8 @@ namespace Eu.EDelivery.AS4.Builders.Entities
                 throw new InvalidDataException("Builder needs a Message Unit for building an InMessage");
             }
 
-            var inMessage = new InMessage
-            {
-                EbmsMessageId = _messageUnit.MessageId,
+            var inMessage = new InMessage(_messageUnit.MessageId)
+            {                
                 EbmsRefToMessageId = _messageUnit.RefToMessageId,
                 ContentType = _contentType,
                 InsertionTime = DateTimeOffset.Now,

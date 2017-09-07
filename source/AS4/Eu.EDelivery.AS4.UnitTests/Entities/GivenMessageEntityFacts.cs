@@ -201,9 +201,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
 
                 using (var db = GetDataStoreContext())
                 {
-                    var inMessage = new InMessage();
-                    inMessage.EbmsMessageId = messageId;
-                    inMessage.MessageLocation = "test";
+                    var inMessage = new InMessage(messageId) { MessageLocation = "test" };
 
                     Assert.Equal(default(int), inMessage.Id);
 
@@ -228,10 +226,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
 
                 using (var db = GetDataStoreContext())
                 {
-                    var inMessage = new InMessage();
-                    inMessage.EbmsMessageId = messageId;
+                    var inMessage = new InMessage(messageId) { MessageLocation = "test" };
                     inMessage.SetPModeInformation(new SendingProcessingMode() { Id = pmodeId });
-                    inMessage.MessageLocation = "test";
 
                     db.InMessages.Add(inMessage);
 

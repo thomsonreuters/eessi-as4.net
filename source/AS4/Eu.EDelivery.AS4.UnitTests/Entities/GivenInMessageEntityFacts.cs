@@ -1,4 +1,5 @@
-﻿using Eu.EDelivery.AS4.Entities;
+﻿using System;
+using Eu.EDelivery.AS4.Entities;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Entities
@@ -8,7 +9,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
         [Fact]
         public void InMessageHasDefaultInStatus()
         {
-            Assert.Equal(default(InStatus), InStatusUtils.Parse(new InMessage().Status));
+            Assert.Equal(default(InStatus), InStatusUtils.Parse(new InMessage(Guid.NewGuid().ToString()).Status));
         }
     }
 }

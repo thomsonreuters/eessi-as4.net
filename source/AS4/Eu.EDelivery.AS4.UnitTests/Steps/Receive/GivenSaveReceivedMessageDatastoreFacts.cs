@@ -61,7 +61,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             {
                 using (DatastoreContext context = GetDataStoreContext())
                 {
-                    var inMessage = new InMessage { EbmsMessageId = userMessage.MessageId };
+                    var inMessage = new InMessage(ebmsMessageId: userMessage.MessageId);
                     context.InMessages.Add(inMessage);
                     await context.SaveChangesAsync();
                 }

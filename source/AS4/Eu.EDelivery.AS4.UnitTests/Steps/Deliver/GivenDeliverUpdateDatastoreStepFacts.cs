@@ -40,10 +40,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
 
         private InMessage CreateInMessage()
         {
-            var inMessage = new InMessage
-            {
-                EbmsMessageId = _messageId
-            };
+            var inMessage = new InMessage(_messageId);
 
             inMessage.SetStatus(InStatus.Received);
             inMessage.SetOperation(Operation.ToBeDelivered);

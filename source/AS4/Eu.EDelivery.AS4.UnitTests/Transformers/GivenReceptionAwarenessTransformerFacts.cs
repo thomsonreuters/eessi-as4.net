@@ -53,7 +53,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             public async Task ThenTransformFailsWithoutReceptionAwarenessAsync()
             {
                 // Arrange
-                var entity = new InMessage();
+                var entity = new InMessage(Guid.NewGuid().ToString());
                 var receivedMessage = new ReceivedEntityMessage(entity);
                 var transformer = new ReceptionAwarenessTransformer();
 

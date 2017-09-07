@@ -132,10 +132,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
 
         private static InMessage CreateInMessageFor(AS4Message receiptMessage)
         {
-            var inMessage = new InMessage
-            {                
+            var inMessage = new InMessage(receiptMessage.PrimarySignalMessage.MessageId)
+            {
                 ContentType = Constants.ContentTypes.Soap,
-                EbmsMessageId = receiptMessage.PrimarySignalMessage.MessageId,
                 EbmsRefToMessageId = receiptMessage.PrimarySignalMessage.RefToMessageId
             };
 

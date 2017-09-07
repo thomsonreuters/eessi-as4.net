@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.UnitTests.Common;
@@ -15,7 +16,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
 
             using (var db = this.GetDataStoreContext())
             {
-                var inMessage = new InMessage();
+                var inMessage = new InMessage(Guid.NewGuid().ToString());
                 inMessage.SetOperation(Operation.Sent);
 
                 db.InMessages.Add(inMessage);
@@ -43,7 +44,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
 
             using (var db = this.GetDataStoreContext())
             {
-                var inMessage = new InMessage();
+                var inMessage = new InMessage(Guid.NewGuid().ToString());
                 inMessage.SetMessageExchangePattern(MessageExchangePattern.Pull);
 
                 db.InMessages.Add(inMessage);
@@ -71,7 +72,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
 
             using (var db = this.GetDataStoreContext())
             {
-                var inMessage = new InMessage();
+                var inMessage = new InMessage(Guid.NewGuid().ToString());
                 inMessage.SetStatus(InStatus.Notified);
 
                 db.InMessages.Add(inMessage);
@@ -99,7 +100,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
 
             using (var db = this.GetDataStoreContext())
             {
-                var inMessage = new InMessage();
+                var inMessage = new InMessage(Guid.NewGuid().ToString());
                 inMessage.SetEbmsMessageType(MessageType.Receipt);
 
                 db.InMessages.Add(inMessage);
