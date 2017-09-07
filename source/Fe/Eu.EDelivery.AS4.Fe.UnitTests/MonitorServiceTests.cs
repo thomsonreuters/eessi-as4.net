@@ -485,7 +485,6 @@ Failed to decrypt data element
                         var newinMessage = new InMessage(ForwardedMessageId);
                         newinMessage.SetOperation(Operation.Forwarded);
                         datastoreContext.InMessages.Add(newinMessage);
-
                         var newOutMessage = new OutMessage(ForwardedMessageId);
                         newOutMessage.SetOperation(Operation.ToBeSent);
                         datastoreContext.OutMessages.Add(newOutMessage);

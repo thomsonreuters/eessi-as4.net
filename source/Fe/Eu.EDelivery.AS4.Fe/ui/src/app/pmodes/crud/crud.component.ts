@@ -60,6 +60,7 @@ export class CrudComponent implements OnInit, OnDestroy {
         this.form = this._crudService.getForm(undefined).build(true);
     }
     public ngOnInit() {
+        let compareTo: string | null = this._activatedRoute.snapshot.queryParams['compareto'];
         if (!!!this._activatedRoute.snapshot.params['pmode']) {
             this._crudService.get(null);
         }
@@ -83,7 +84,8 @@ export class CrudComponent implements OnInit, OnDestroy {
                     // Validate that the requested pmode exists
                     let exists = result.find((search) => search === pmodeQueryParam);
                     if (!!!exists) {
-                        this._dialogService.message(`Pmode ${pmodeQueryParam} doesn't exist`);
+                        this._dialogService.message(`PMode ${pmodeQueryParam} doesn't exist`);
+                        compareTo = null;
                         return;
                     }
                     this._crudService.get(pmodeQueryParam);
@@ -100,10 +102,10 @@ export class CrudComponent implements OnInit, OnDestroy {
                 if (!!!result) {
                     return;
                 }
-                let compareTo = this._activatedRoute.snapshot.queryParams['compareto'];
                 if (!!result && !!compareTo && compareTo !== result.hash) {
-                    this._dialogService.error(`Pmode used in the message doesn't match anymore.`);
+                    this._dialogService.error(`PMode used in the message doesn't match anymore.`);
                 }
+                compareTo = null;
                 this._routerService.setCurrentValue(this._activatedRoute, result.name);
             }));
     }
