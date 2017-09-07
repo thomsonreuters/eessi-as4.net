@@ -11,7 +11,6 @@ using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Receivers.Utilities;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using NLog;
 using Function =
@@ -112,10 +111,7 @@ namespace Eu.EDelivery.AS4.Receivers
 
         private IEnumerable<Entity> FindAnyMessageEntitiesWithConfiguredExpression(DatastoreContext context)
         {
-            // TODO: refactor this using Dynamic Linq; pass the Filter expression to the Dynamic Linq Where extension method.            
             var tablePropertyInfo = GetTableSetPropertyInfo();
-
-            // TODO: exception handling; extract method and keep trakc of it 
 
             var dbSet = tablePropertyInfo.GetValue(context) as IQueryable<Entity>;
 
@@ -128,28 +124,12 @@ namespace Eu.EDelivery.AS4.Receivers
             // - validate the Filter clause for sql injection
             // - make sure that single quotes are used around string vars.  (Maybe make it dependent on the DB type, same is true for escape characters [] in sql server, ...             
 
-            IEnumerable<Entity> entities;
+            string filterExpression = Filter.Replace("\'", "\"");
 
-            string filterExpression = Filter.Replace("\"", "\'");
-
-            try
-            {
-                entities =
-                    dbSet.FromSql($"SELECT * FROM {this.Table} WHERE {filterExpression}")
-                         .OrderBy(x => x.InsertionTime)
-                         .Take(this.TakeRows)
-                         .ToList();
-            }
-            catch
-            {
-                // The InMemory database does not support the FromSql clause.
-                // In this case, fall back on the Dynamic Linq option.
-                // As soon as we have a solution for the NotMapped properties, this solution 
-                // should replace the FromSql solution as well.
-                filterExpression = Filter.Replace("\'", "\"");
-
-                entities = dbSet.Where(filterExpression).OrderBy(x => x.InsertionTime).Take(this.TakeRows).ToList();
-            }
+            IEnumerable<Entity> entities = dbSet.Where(filterExpression)
+                                                .OrderBy(x => x.InsertionTime)
+                                                .Take(this.TakeRows)
+                                                .ToList();
 
             if (!entities.Any())
             {
