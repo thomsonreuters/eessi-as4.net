@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Threading;
-using Microsoft.AspNetCore.Authentication;
 
 namespace Eu.EDelivery.AS4.IntegrationTests.Common
 {
