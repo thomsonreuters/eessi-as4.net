@@ -97,9 +97,14 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
         /// <param name="messageName">Name of the message.</param>
         public void PutMessage(string messageName)
         {
+            string sourceFile = $"{IntegrationTestTemplate.AS4IntegrationMessagesPath}\\{messageName}";
+            string destinationFile = $"{IntegrationTestTemplate.AS4FullOutputPath}\\{messageName}";
+
+            Console.WriteLine(@$"Putting {destinationFile}");
+
             File.Copy(
-                sourceFileName: $"{IntegrationTestTemplate.AS4IntegrationMessagesPath}\\{messageName}",
-                destFileName: $"{IntegrationTestTemplate.AS4FullOutputPath}\\{messageName}",
+                sourceFileName: sourceFile,
+                destFileName: destinationFile,
                 overwrite: true);
         }
 
