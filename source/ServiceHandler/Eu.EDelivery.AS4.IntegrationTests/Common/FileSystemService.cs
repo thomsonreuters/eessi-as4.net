@@ -28,9 +28,9 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
         }
 
         public void RemoveDirectory(string directory)
-        {            
+        {
             EnsureDirectory(directory);
-            WhileTimeOutTry(5, retryAction: () => Directory.Delete(directory, recursive: true));                            
+            WhileTimeOutTry(5, retryAction: () => Directory.Delete(directory, recursive: true));
         }
 
         private static void EnsureDirectory(string directoryPath)
@@ -52,7 +52,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
                     retryAction();
                     return;
                 }
-                catch (Exception exception)
+                catch (IOException exception)
                 {
                     Console.WriteLine(exception);
                     count++;
@@ -60,6 +60,8 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
                     Thread.Sleep(TimeSpan.FromSeconds(3));
                 }
             }
+
+            throw new TimeoutException("Failed to perform the operation in the specified timeframe.");
         }
     }
 }

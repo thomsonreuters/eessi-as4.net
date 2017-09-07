@@ -26,6 +26,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
             {
                 Directory.CreateDirectory(_watchedDirectory);
             }
+
+            FileSystemUtils.ClearDirectory(_watchedDirectory);
         }
 
         [Theory]
@@ -56,8 +58,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
             var receiveProcessor = new FileReceivedProcessor(signal);
 
             Task.Factory.StartNew(() => receiver.StartReceiving((m, c) => receiveProcessor.OnFileReceived(m, c), CancellationToken.None));
-
             signal.WaitOne(TimeSpan.FromMilliseconds(2000));
+
             receiver.StopReceiving();
             return receiveProcessor.ReceivedFiles;
         }
@@ -72,7 +74,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
 
         private FileReceiver CreateFileReceiver()
         {
-            var settings = new FileReceiverSettings(_watchedDirectory, "*.*", 20, TimeSpan.FromSeconds(2));
+            var settings = new FileReceiverSettings(_watchedDirectory, "*.*", 20, TimeSpan.FromSeconds(1));
 
             FileReceiver receiver = new FileReceiver();
             receiver.Configure(settings);
