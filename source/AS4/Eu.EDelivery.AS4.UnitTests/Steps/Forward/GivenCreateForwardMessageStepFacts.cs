@@ -108,9 +108,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Forward
             {
                 var primaryMessageUnit = ((MessageUnit)message.PrimaryUserMessage ?? message.PrimarySignalMessage);
 
-                var result = new InMessage
-                {
-                    EbmsMessageId = message.GetPrimaryMessageId(),
+                var result = new InMessage(message.GetPrimaryMessageId())
+                {                    
                     EbmsRefToMessageId = primaryMessageUnit.RefToMessageId,
                     ContentType = message.ContentType,
                     Intermediary = true

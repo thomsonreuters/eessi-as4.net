@@ -163,10 +163,9 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                 return pmode;
             }
 
-            var inMessage = new InMessage
+            var inMessage = new InMessage(as4Message.GetPrimaryMessageId())
             {
-                ContentType = as4Message.ContentType,
-                EbmsMessageId = as4Message.GetPrimaryMessageId(),
+                ContentType = as4Message.ContentType,                
                 MessageLocation =
                     await Registry.Instance.MessageBodyStore.SaveAS4MessageAsync(Config.Instance.InMessageStoreLocation, as4Message, CancellationToken.None)
             };

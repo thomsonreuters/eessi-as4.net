@@ -171,7 +171,7 @@ namespace Eu.EDelivery.AS4.Repositories
 
         private InMessage GetInMessageEntityFor(string ebmsMessageId, long id)
         {
-            var msg = new InMessage { EbmsMessageId = ebmsMessageId };
+            var msg = new InMessage(ebmsMessageId: ebmsMessageId);
 
             msg.InitializeIdFromDatabase(id);
 

@@ -105,9 +105,8 @@ Failed to decrypt data element
                 string pmodeString = AS4XmlSerializer.ToString(pmode);
 
                 {
-                    var message = new InMessage
+                    var message = new InMessage(ebmsMessageId: InEbmsMessageId1)
                     {
-                        EbmsMessageId = InEbmsMessageId1,
                         EbmsRefToMessageId = InEbmsRefToMessageId1,
                         InsertionTime = DateTime.UtcNow.AddMinutes(-1),
                     };
@@ -117,9 +116,8 @@ Failed to decrypt data element
                 }
 
                 {
-                    var message = new InMessage()
+                    var message = new InMessage(ebmsMessageId: InEbmsMessageId2)
                     {
-                        EbmsMessageId = InEbmsMessageId2,
                         EbmsRefToMessageId = InEbmsRefToMessageId2,
                         InsertionTime = DateTime.UtcNow.AddMinutes(-1)
                     };
@@ -129,7 +127,7 @@ Failed to decrypt data element
 
                 {
                     var message = new OutMessage(OutEbmsMessageId1)
-                    {                        
+                    {
                         EbmsRefToMessageId = OutEbmsRefToMessageId1,
                         InsertionTime = DateTime.UtcNow.AddMinutes(-1)
                     };
@@ -140,7 +138,7 @@ Failed to decrypt data element
 
                 {
                     var message = new OutMessage(OutEbmsMessageId2)
-                    {                        
+                    {
                         EbmsRefToMessageId = OutEbmsRefToMessageId2,
 
                         InsertionTime = DateTime.UtcNow.AddMinutes(-1)
@@ -437,62 +435,50 @@ Failed to decrypt data element
                 {
                     using (datastoreContext = new DatastoreContext(options))
                     {
-                        datastoreContext.InMessages.Add(new InMessage
+                        datastoreContext.InMessages.Add(new InMessage(ebmsMessageId: InEbmsMessageId1)
                         {
-                            EbmsMessageId = InEbmsMessageId1,
                             EbmsRefToMessageId = InEbmsRefToMessageId1,
                         });
-                        datastoreContext.InMessages.Add(new InMessage
+                        datastoreContext.InMessages.Add(new InMessage(ebmsMessageId: InEbmsRefToMessageId1));
+
+                        datastoreContext.OutMessages.Add(new OutMessage(ebmsMessageId: InEbmsRefToMessageId1));
+
+                        datastoreContext.InMessages.Add(new InMessage(ebmsMessageId: "RANDOM")
                         {
-                            EbmsMessageId = InEbmsRefToMessageId1,
-                        });
-                        datastoreContext.OutMessages.Add(new OutMessage(InEbmsRefToMessageId1));
-                        
-                        datastoreContext.InMessages.Add(new InMessage
-                        {
-                            EbmsMessageId = "RANDOM",
                             EbmsRefToMessageId = InEbmsMessageId1,
                         });
-                        datastoreContext.InMessages.Add(new InMessage
-                        {
-                            EbmsMessageId = InEbmsMessageId2,
-                        });
+                        datastoreContext.InMessages.Add(new InMessage(ebmsMessageId: InEbmsMessageId2));
 
-                        datastoreContext.OutMessages.Add(new OutMessage(OutEbmsMessageId1)
+                        datastoreContext.OutMessages.Add(new OutMessage(ebmsMessageId: OutEbmsMessageId1)
                         {
                             EbmsRefToMessageId = OutEbmsRefToMessageId1
                         });
-                        datastoreContext.OutMessages.Add(new OutMessage(OutEbmsMessageId2)
+                        datastoreContext.OutMessages.Add(new OutMessage(ebmsMessageId: OutEbmsMessageId2)
                         {
                             EbmsRefToMessageId = OutEbmsMessageId1
                         });
-                        datastoreContext.InMessages.Add(new InMessage
+                        datastoreContext.InMessages.Add(new InMessage(ebmsMessageId: Guid.NewGuid().ToString())
                         {
-                            EbmsMessageId = Guid.NewGuid().ToString(),
                             EbmsRefToMessageId = OutEbmsMessageId1
                         });
-                        datastoreContext.InMessages.Add(new InMessage
+                        datastoreContext.InMessages.Add(new InMessage(ebmsMessageId: OutEbmsRefToMessageId1)
                         {
-                            EbmsMessageId = OutEbmsRefToMessageId1,
                             EbmsRefToMessageId = Guid.NewGuid().ToString()
                         });
 
-                        datastoreContext.OutMessages.Add(new OutMessage(_outEbmsMessage3));
+                        datastoreContext.OutMessages.Add(new OutMessage(ebmsMessageId: _outEbmsMessage3));
 
-                        datastoreContext.OutMessages.Add(new OutMessage(Guid.NewGuid().ToString())
+                        datastoreContext.OutMessages.Add(new OutMessage(ebmsMessageId: Guid.NewGuid().ToString())
                         {
                             EbmsRefToMessageId = _outEbmsMessage3
                         });
-                        datastoreContext.InMessages.Add(new InMessage
+                        datastoreContext.InMessages.Add(new InMessage(ebmsMessageId: Guid.NewGuid().ToString())
                         {
-                            EbmsMessageId = Guid.NewGuid().ToString(),
                             EbmsRefToMessageId = _outEbmsMessage3
                         });
 
-                        datastoreContext.InMessages.Add(new InMessage
-                        {
-                            EbmsMessageId = Guid.NewGuid().ToString()
-                        });
+                        datastoreContext.InMessages.Add(new InMessage(ebmsMessageId: Guid.NewGuid().ToString()));
+
                         datastoreContext.OutMessages.Add(new OutMessage(Guid.NewGuid().ToString()));
 
                         // Forwareded message

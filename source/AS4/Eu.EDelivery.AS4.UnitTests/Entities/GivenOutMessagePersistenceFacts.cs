@@ -94,5 +94,30 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
                 Assert.Equal(MessageType.Receipt, MessageTypeUtils.Parse(message.EbmsMessageType));
             }
         }
+
+        [Fact]
+        public async Task EbmsMessageIdIsCorrectlyPersisted()
+        {
+            long savedId;
+
+            using (var db = GetDataStoreContext())
+            {
+                var message = new OutMessage("some-message-id");
+
+                db.OutMessages.Add(message);
+
+                await db.SaveChangesAsync();
+
+                savedId = message.Id;
+            }
+
+            using (var db = this.GetDataStoreContext())
+            {
+                var message = db.OutMessages.FirstOrDefault(i => i.Id == savedId);
+
+                Assert.NotNull(message);
+                Assert.Equal("some-message-id", message.EbmsMessageId);
+            }
+        }
     }
 }

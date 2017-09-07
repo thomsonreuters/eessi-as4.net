@@ -245,7 +245,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Repositories
 
             private void InsertInMessage(string messageId, Action<InMessage> arrangeMessage)
             {
-                var message = new InMessage { EbmsMessageId = messageId };
+                var message = new InMessage(ebmsMessageId: messageId);
                 arrangeMessage(message);
 
                 GetDataStoreContext.InsertInMessage(message);
@@ -253,7 +253,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Repositories
 
             private void InsertRefInMessage(string refToEbmsMessageId)
             {
-                GetDataStoreContext.InsertInMessage(new InMessage { EbmsRefToMessageId = refToEbmsMessageId });
+                GetDataStoreContext.InsertInMessage(new InMessage(Guid.NewGuid().ToString()) { EbmsRefToMessageId = refToEbmsMessageId });
             }
 
             private TResult ExerciseRepository<TResult>(Func<DatastoreRepository, TResult> act)

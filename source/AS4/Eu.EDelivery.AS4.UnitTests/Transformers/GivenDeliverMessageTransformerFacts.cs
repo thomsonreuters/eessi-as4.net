@@ -47,12 +47,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             // Arrange
             const string expectedId = "usermessage-id";
             const string expectedUri = "expected-attachment-uri";
-            
+
             AS4Message message = AS4Message.Create(new FilledUserMessage(expectedId, expectedUri));
             message.AddAttachment(FilledAttachment(expectedUri));
             message.AddAttachment(FilledAttachment());
             message.AddAttachment(FilledAttachment());
-            
+
             // Act
             MessagingContext actualMessage = await ExerciseTransform(expectedId, message);
 
@@ -100,7 +100,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
 
         private static ReceivedMessageEntityMessage CreateReceivedMessage(Action<InMessage> updateInMessage, AS4Message as4Message)
         {
-            var inMessage = new InMessage();
+            var inMessage = new InMessage(as4Message.GetPrimaryMessageId());
             updateInMessage(inMessage);
 
             return new ReceivedMessageEntityMessage(inMessage, as4Message.ToStream(), as4Message.ContentType);
