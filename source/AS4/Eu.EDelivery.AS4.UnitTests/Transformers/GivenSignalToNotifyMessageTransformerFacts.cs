@@ -29,8 +29,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
         public async Task FailsToTransform_IfMessageDoesntHaveAnyMatchingSignalMessages()
         {
             // Arrange
-            ReceivedMessageEntityMessage receival = await CreateReceivedReceiptMessage();
-            receival.MessageEntity.EbmsMessageId = "other message id";
+            ReceivedMessageEntityMessage receival = await CreateInvalidReceivedReceiptMessage();
 
             // Act / Assert
             await Assert.ThrowsAnyAsync<Exception>(() => ExerciseTransform(receival));
@@ -113,6 +112,22 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             var stream = (Stream)t.GetOutput(typeof(Stream));
 
             return new StreamReader(stream).ReadToEnd();
+        }
+
+        private static async Task<ReceivedMessageEntityMessage> CreateInvalidReceivedReceiptMessage()
+        {
+            var receiptContent = new MemoryStream(Encoding.UTF8.GetBytes(Properties.Resources.receipt));
+
+            ISerializer serializer = SerializerProvider.Default.Get(Constants.ContentTypes.Soap);
+            AS4Message receiptMessage = await serializer.DeserializeAsync(receiptContent, Constants.ContentTypes.Soap, CancellationToken.None);
+
+            receiptContent.Position = 0;
+            InMessage receiptInMessage = new InMessage("non-existing-id");
+            receiptInMessage.SetEbmsMessageType(MessageType.Receipt);
+
+            var receivedMessage = new ReceivedMessageEntityMessage(receiptInMessage, receiptContent, receiptInMessage.ContentType);
+
+            return receivedMessage;
         }
 
         private static async Task<ReceivedMessageEntityMessage> CreateReceivedReceiptMessage()
