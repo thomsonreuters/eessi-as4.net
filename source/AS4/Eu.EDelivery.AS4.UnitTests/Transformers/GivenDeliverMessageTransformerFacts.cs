@@ -24,9 +24,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
         {
             // Arrange
             var sut = new DeliverMessageTransformer();
-            ReceivedMessageEntityMessage receivedMessage = CreateReceivedMessage(
-                updateInMessage: m => m.EbmsMessageId = "ignored id",
-                as4Message: AS4Message.Empty);
+            ReceivedMessageEntityMessage receivedMessage = CreateReceivedMessage(receivedInMessageId: "ignored id", as4Message: AS4Message.Empty);
 
             // Act / Assert
             await Assert.ThrowsAnyAsync<Exception>(
@@ -78,7 +76,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             AS4Message as4Message = AS4Message.Create(new FilledUserMessage(expectedId));
             as4Message.MessageUnits.Add(new FilledUserMessage());
 
-            ReceivedMessageEntityMessage receivedMessage = CreateReceivedMessage(m => m.EbmsMessageId = expectedId, as4Message);
+            ReceivedMessageEntityMessage receivedMessage = CreateReceivedMessage(receivedInMessageId: expectedId, as4Message: as4Message);
             var sut = new DeliverMessageTransformer();
 
             // Act
@@ -92,16 +90,15 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
 
         private static async Task<MessagingContext> ExerciseTransform(string expectedId, AS4Message as4Message)
         {
-            ReceivedMessageEntityMessage receivedMessage = CreateReceivedMessage(m => m.EbmsMessageId = expectedId, as4Message);
+            ReceivedMessageEntityMessage receivedMessage = CreateReceivedMessage(receivedInMessageId: expectedId, as4Message: as4Message);
             var sut = new DeliverMessageTransformer();
 
             return await sut.TransformAsync(receivedMessage, CancellationToken.None);
         }
 
-        private static ReceivedMessageEntityMessage CreateReceivedMessage(Action<InMessage> updateInMessage, AS4Message as4Message)
+        private static ReceivedMessageEntityMessage CreateReceivedMessage(string receivedInMessageId, AS4Message as4Message)
         {
-            var inMessage = new InMessage(as4Message.GetPrimaryMessageId());
-            updateInMessage(inMessage);
+            var inMessage = new InMessage(receivedInMessageId);
 
             return new ReceivedMessageEntityMessage(inMessage, as4Message.ToStream(), as4Message.ContentType);
         }

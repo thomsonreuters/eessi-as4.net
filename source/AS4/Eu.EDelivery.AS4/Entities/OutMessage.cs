@@ -7,16 +7,15 @@
     {
         // ReSharper disable once UnusedMember.Local : Default ctor is required for EF
         private OutMessage()
-        {            
+        {
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="OutMessage"/> class.
         /// </summary>
-        internal OutMessage(string ebmsMessageId) : base()
+        internal OutMessage(string ebmsMessageId) : base(ebmsMessageId)
         {
             // Internal ctor to prevent that instances are created directly.
-            EbmsMessageId = ebmsMessageId;
             SetStatus(default(OutStatus));
         }
 

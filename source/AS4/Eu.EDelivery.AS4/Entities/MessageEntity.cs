@@ -19,7 +19,7 @@ namespace Eu.EDelivery.AS4.Entities
     /// </summary>
     public abstract class MessageEntity : Entity
     {
-        public string EbmsMessageId { get; set; }
+        public string EbmsMessageId { get; private set; }
 
         public string EbmsRefToMessageId { get; set; }
 
@@ -136,7 +136,7 @@ namespace Eu.EDelivery.AS4.Entities
             EbmsMessageType = messageType.ToString();
         }
 
-        [Column("Status")]        
+        [Column("Status")]
         public string Status { get; protected set; }
 
         public string SoapEnvelope { get; set; }
@@ -149,6 +149,14 @@ namespace Eu.EDelivery.AS4.Entities
             SetOperation(default(Operation));
             SetEbmsMessageType(default(MessageType));
             SetMessageExchangePattern(default(MessageExchangePattern));
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MessageEntity"/> class.
+        /// </summary>
+        protected MessageEntity(string ebmsMessageId) : this()
+        {
+            EbmsMessageId = ebmsMessageId;
         }
 
         /// <summary>

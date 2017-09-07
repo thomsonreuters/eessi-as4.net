@@ -14,8 +14,8 @@
         }
 
         public InMessage(string ebmsMessageId)
+            : base(ebmsMessageId)
         {
-            EbmsMessageId = ebmsMessageId;
             SetStatus(default(InStatus));
         }
 
