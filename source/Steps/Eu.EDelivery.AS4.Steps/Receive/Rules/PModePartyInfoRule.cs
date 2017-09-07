@@ -9,8 +9,9 @@ namespace Eu.EDelivery.AS4.Steps.Receive.Rules
     /// PMode Rule to check if the PMode Parties are equal to the UserMessage Parties
     /// </summary>
     internal class PModePartyInfoRule : IPModeRule
-    {
-        private const int PartyIdPoints = 15;
+    {        
+        private const int PartyToPoints = 8;
+        private const int PartyFromPoints = 7;
         private const int PartyRolePoints = 1;
         private const int NotEqual = 0;
 
@@ -36,9 +37,14 @@ namespace Eu.EDelivery.AS4.Steps.Receive.Rules
 
             int points = NotEqual;
 
-            if (ArePartyInfoIdsEqual(pmodePartyInfo, userMessage))
+            if (IsPartyInfoEqual(pmodePartyInfo.FromParty, userMessage.Sender))
             {
-                points += PartyIdPoints;
+                points += PartyFromPoints;
+            }
+
+            if (IsPartyInfoEqual(pmodePartyInfo.ToParty, userMessage.Receiver))
+            {
+                points += PartyToPoints;
             }
 
             if (IsPartyInfoRoleEqual(pmodePartyInfo, userMessage))
@@ -47,17 +53,16 @@ namespace Eu.EDelivery.AS4.Steps.Receive.Rules
             }
 
             return points;
-        }
+        }        
 
-        private static bool ArePartyInfoIdsEqual(PartyInfo pmodePartyInfo, UserMessage userMessage)
+        private static bool IsPartyInfoEqual(Party pmodeParty, Party messageParty)
         {
-            if (userMessage.Sender == null || userMessage.Receiver == null)
+            if (pmodeParty == null || messageParty == null)
             {
                 return false;
             }
 
-            return pmodePartyInfo.FromParty.PartyIds.All(userMessage.Sender.PartyIds.Contains) &&
-                   pmodePartyInfo.ToParty.PartyIds.All(userMessage.Receiver.PartyIds.Contains);
+            return pmodeParty.PartyIds.All(messageParty.PartyIds.Contains);
         }
 
         private static bool IsPartyInfoRoleEqual(PartyInfo pmodePartyInfo, UserMessage userMessage)
