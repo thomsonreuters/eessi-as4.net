@@ -431,6 +431,7 @@ Failed to decrypt data element
             public class GetRelatedMessages : MonitorServiceTests
             {
                 private readonly string _outEbmsMessage3 = Guid.NewGuid().ToString();
+                private readonly string ForwardedMessageId = "ForwardedMessage1";
 
                 protected override void SetupDataStore()
                 {
@@ -494,6 +495,17 @@ Failed to decrypt data element
                         });
                         datastoreContext.OutMessages.Add(new OutMessage(Guid.NewGuid().ToString()));
 
+                        // Forwareded message
+                        var newinMessage = new InMessage
+                        {
+                            EbmsMessageId = ForwardedMessageId
+                        };
+                        newinMessage.SetOperation(Operation.Forwarded);
+                        datastoreContext.InMessages.Add(newinMessage);
+                        var newOutMessage = new OutMessage(ForwardedMessageId);
+                        newOutMessage.SetOperation(Operation.ToBeSent);
+                        datastoreContext.OutMessages.Add(newOutMessage);
+
                         foreach (var inMessage in datastoreContext.InMessages)
                         {
                             inMessage.SetPModeInformation(pmode);
@@ -536,6 +548,14 @@ Failed to decrypt data element
                 public async Task Throws_Exception_When_Parames_Are_Null()
                 {
                     await Assert.ThrowsAsync(typeof(ArgumentNullException), () => Setup().monitorService.GetRelatedMessages(Direction.Outbound, null));
+                }
+
+                [Fact]
+                public async Task ForwardedMessage_ShouldBeReturned()
+                {
+                    var result = await Setup().monitorService.GetRelatedMessages(Direction.Inbound, ForwardedMessageId);
+
+                    Assert.True(result.Messages.Count() == 1, "Expected 1 message");
                 }
             }
 

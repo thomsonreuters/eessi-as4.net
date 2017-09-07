@@ -144,6 +144,21 @@ namespace Eu.EDelivery.AS4.Fe.Monitor
                     .OutMessages
                     .Where(message => message.EbmsRefToMessageId == messageId)
                     .ProjectTo<Message>(mapperConfig));
+
+                if (direction == Direction.Inbound)
+                {
+                    resultTest.Add(context
+                        .OutMessages
+                        .Where(message => message.EbmsMessageId == messageId)
+                        .ProjectTo<Message>(mapperConfig));
+                }
+                else
+                {
+                    resultTest.Add(context
+                        .InMessages
+                        .Where(message => message.EbmsMessageId == messageId)
+                        .ProjectTo<Message>(mapperConfig));
+                }
             }
 
             var result = resultTest.First();
