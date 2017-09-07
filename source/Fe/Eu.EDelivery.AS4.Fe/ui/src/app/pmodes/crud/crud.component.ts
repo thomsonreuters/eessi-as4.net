@@ -193,7 +193,7 @@ export class CrudComponent implements OnInit, OnDestroy {
     }
     public rename() {
         this._dialogService
-            .prompt('Please enter a new name')
+            .prompt('Please enter a new name', 'Rename')
             .filter((result) => !!result)
             .subscribe((newName) => {
                 if (this.checkIfExists(newName)) {

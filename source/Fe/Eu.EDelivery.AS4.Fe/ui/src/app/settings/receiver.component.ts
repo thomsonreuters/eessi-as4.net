@@ -16,7 +16,7 @@ import { ItemType } from './../api/ItemType';
                     <option *ngFor="let type of types" [value]="type.technicalName">{{type.name}}</option>
                 </select>
             </as4-input>
-            <as4-runtime-settings [form]="group.get('setting')" labelSize="3" controlSize="5" [types]="types" [itemType]="type.value"></as4-runtime-settings>      
+            <as4-runtime-settings [form]="group.get('setting')" labelSize="3" controlSize="5" [types]="types" [itemType]="group.controls['type'].value"></as4-runtime-settings>      
         </div>
     `
 })

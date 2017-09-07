@@ -51,7 +51,7 @@
                     </as4-input>
                 </ng-container>
             </div>
-            <div tabitem title="Message handling" formGroupName="messageHandling">
+            <div tabitem title="Message handling" formGroupName="messageHandling" [isValid]="pmode.form.get('pmode.messageHandling')">
                 <as4-input label="Type">
                     <select formControlName="messageHandlingType" #messageHandlingType>
                         <option [ngValue]="0">None</option>

@@ -32,17 +32,20 @@ export class ModalService {
 
         this._lastModal = dialog;
         let obs: Observable<boolean> = dialog.show();
-        let obsSubscription: Subscription = obs.subscribe(() => {
-            this._lastModal = null;
-            obsSubscription.unsubscribe();
-        });
+        this.subscribeToClose(obs);
         let subscription: Subscription = obs.subscribe(() => {
             if (this._previousStack.length > 0) {
                 this._lastModal = <ModalComponent>this._previousStack.pop();
-                this._lastModal.show();
+                this.subscribeToClose(this._lastModal.show());
             }
             subscription.unsubscribe();
         });
         return obs;
+    }
+    private subscribeToClose(obs: Observable<boolean>) {
+        const obsSubscription = obs.subscribe(() => {
+            this._lastModal = null;
+            obsSubscription.unsubscribe();
+        });
     }
 }

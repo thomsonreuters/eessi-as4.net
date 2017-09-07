@@ -1,4 +1,4 @@
-import { Component, Input, SimpleChanges, ChangeDetectionStrategy } from '@angular/core';
+import { Component, Input, SimpleChanges, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { FormGroup, FormArray, FormBuilder, FormControl } from '@angular/forms';
 
 import { Setting } from './../../api/Setting';
@@ -32,8 +32,9 @@ export class RuntimeSettingsComponent {
     }
     @Input() public pshowTitle: boolean = true;
     public selectedType: ItemType | undefined;
-    private _type: string;
-    constructor(private _formBuilder: FormBuilder) { }
+    private _type: string = '';
+    private _checked: boolean = false;
+    constructor(private _formBuilder: FormBuilder, private _changeDetectorRef: ChangeDetectorRef) { }
     public onSettingChange() {
         if (!!this.selectedType) {
             const list = this.form.controls.map((form: FormGroup) => form.controls['key'].value);
