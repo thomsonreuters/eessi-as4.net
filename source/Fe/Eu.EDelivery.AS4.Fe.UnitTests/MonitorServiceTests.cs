@@ -482,12 +482,10 @@ Failed to decrypt data element
                         datastoreContext.OutMessages.Add(new OutMessage(Guid.NewGuid().ToString()));
 
                         // Forwareded message
-                        var newinMessage = new InMessage
-                        {
-                            EbmsMessageId = ForwardedMessageId
-                        };
+                        var newinMessage = new InMessage(ForwardedMessageId);
                         newinMessage.SetOperation(Operation.Forwarded);
                         datastoreContext.InMessages.Add(newinMessage);
+
                         var newOutMessage = new OutMessage(ForwardedMessageId);
                         newOutMessage.SetOperation(Operation.ToBeSent);
                         datastoreContext.OutMessages.Add(newOutMessage);
