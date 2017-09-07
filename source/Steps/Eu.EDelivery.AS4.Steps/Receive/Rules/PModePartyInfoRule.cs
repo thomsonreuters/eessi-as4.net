@@ -10,7 +10,8 @@ namespace Eu.EDelivery.AS4.Steps.Receive.Rules
     /// </summary>
     internal class PModePartyInfoRule : IPModeRule
     {
-        private const int PartyIdPoints = 15;
+        private const int PartyToPoints = 8;
+        private const int PartyFromPoints = 7;
         private const int PartyRolePoints = 1;
         private const int NotEqual = 0;
 
@@ -36,9 +37,23 @@ namespace Eu.EDelivery.AS4.Steps.Receive.Rules
 
             int points = NotEqual;
 
-            if (ArePartyInfoIdsEqual(pmodePartyInfo, userMessage))
+
+            bool fromPartyEqual = IsPartyInfoEqual(pmodePartyInfo.FromParty, userMessage.Sender);
+            bool toPartyEqual = IsPartyInfoEqual(pmodePartyInfo.ToParty, userMessage.Receiver);
+
+            if (fromPartyEqual && pmodePartyInfo.ToParty == null)
             {
-                points += PartyIdPoints;
+                points += PartyFromPoints;
+            }
+
+            if (toPartyEqual && pmodePartyInfo.FromParty == null)
+            {
+                points += PartyToPoints;
+            }
+
+            if (fromPartyEqual && toPartyEqual)
+            {
+                points += PartyFromPoints + PartyToPoints;
             }
 
             if (IsPartyInfoRoleEqual(pmodePartyInfo, userMessage))
@@ -49,15 +64,14 @@ namespace Eu.EDelivery.AS4.Steps.Receive.Rules
             return points;
         }
 
-        private static bool ArePartyInfoIdsEqual(PartyInfo pmodePartyInfo, UserMessage userMessage)
+        private static bool IsPartyInfoEqual(Party pmodeParty, Party messageParty)
         {
-            if (userMessage.Sender == null || userMessage.Receiver == null)
+            if (pmodeParty == null || messageParty == null)
             {
                 return false;
             }
 
-            return pmodePartyInfo.FromParty.PartyIds.All(userMessage.Sender.PartyIds.Contains) &&
-                   pmodePartyInfo.ToParty.PartyIds.All(userMessage.Receiver.PartyIds.Contains);
+            return pmodeParty.PartyIds.All(messageParty.PartyIds.Contains);
         }
 
         private static bool IsPartyInfoRoleEqual(PartyInfo pmodePartyInfo, UserMessage userMessage)
@@ -67,8 +81,13 @@ namespace Eu.EDelivery.AS4.Steps.Receive.Rules
                 return false;
             }
 
-            return pmodePartyInfo.FromParty.Role.Equals(userMessage.Sender.Role, StringComparison.OrdinalIgnoreCase) &&
-                   pmodePartyInfo.ToParty.Role.Equals(userMessage.Receiver.Role, StringComparison.OrdinalIgnoreCase);
+            if (pmodePartyInfo.FromParty == null || pmodePartyInfo.ToParty == null)
+            {
+                return false;
+            }
+
+            return StringComparer.OrdinalIgnoreCase.Equals(pmodePartyInfo.FromParty.Role, userMessage.Sender.Role) &&
+                   StringComparer.OrdinalIgnoreCase.Equals(pmodePartyInfo.ToParty.Role, userMessage.Receiver.Role);
         }
 
     }

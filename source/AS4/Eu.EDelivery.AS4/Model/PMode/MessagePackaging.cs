@@ -26,17 +26,8 @@ namespace Eu.EDelivery.AS4.Model.PMode
         /// <returns></returns>
         public bool IsEmpty()
         {
-            return PartiesAreNull() || PartiesAreEmpty();
-        }
-
-        private bool PartiesAreNull()
-        {
-            return this.FromParty == null || this.ToParty == null;
-        }
-
-        private bool PartiesAreEmpty()
-        {
-            return this.FromParty.IsEmpty() || this.ToParty.IsEmpty();
-        }
+            return (FromParty == null || FromParty.IsEmpty()) &&
+                   (ToParty == null || ToParty.IsEmpty());
+        }        
     }
 }
