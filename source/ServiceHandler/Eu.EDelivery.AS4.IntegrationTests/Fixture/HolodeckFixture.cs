@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Configuration;
 using System.Diagnostics;
-using System.IO;
 using Eu.EDelivery.AS4.IntegrationTests.Common;
 using Xunit;
-using static Eu.EDelivery.AS4.IntegrationTests.Properties.Resources;
 
 namespace Eu.EDelivery.AS4.IntegrationTests.Fixture
 {
@@ -31,20 +29,20 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Fixture
             }
 
             var service = new FileSystemService();
-            service.CleanUpFiles(Holodeck.HolodeckALocations.InputPath); 
+            service.CleanUpFiles(Holodeck.HolodeckALocations.InputPath);
             service.CleanUpFiles(Holodeck.HolodeckBLocations.InputPath);
 
             service.CleanUpFiles(Holodeck.HolodeckALocations.PModePath);
-            service.CleanUpFiles(Holodeck.HolodeckBLocations.PModePath); 
+            service.CleanUpFiles(Holodeck.HolodeckBLocations.PModePath);
 
-            service.CleanUpFiles(Holodeck.HolodeckALocations.OutputPath); 
-            service.CleanUpFiles(Holodeck.HolodeckBLocations.OutputPath);  
+            service.CleanUpFiles(Holodeck.HolodeckALocations.OutputPath);
+            service.CleanUpFiles(Holodeck.HolodeckBLocations.OutputPath);
 
-            service.RemoveDirectory(Holodeck.HolodeckALocations.DbPath); 
-            service.RemoveDirectory(Holodeck.HolodeckBLocations.DbPath);   
+            service.RemoveDirectory(Holodeck.HolodeckALocations.DbPath);
+            service.RemoveDirectory(Holodeck.HolodeckBLocations.DbPath);
 
-            Process holodeckA = StartHolodeck(Holodeck.HolodeckALocations.BinaryPath); 
-            Process holodeckB = StartHolodeck(Holodeck.HolodeckBLocations.BinaryPath); 
+            Process holodeckA = StartHolodeck(Holodeck.HolodeckALocations.BinaryPath);
+            Process holodeckB = StartHolodeck(Holodeck.HolodeckBLocations.BinaryPath);
 
             _parentProcess = new ParentProcess(holodeckA, holodeckB);
 
@@ -61,7 +59,6 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Fixture
             p.StartInfo.FileName = executablePath;
             p.StartInfo.WorkingDirectory = System.IO.Path.GetDirectoryName(executablePath);
             p.StartInfo.CreateNoWindow = false;
-
 
             try
             {

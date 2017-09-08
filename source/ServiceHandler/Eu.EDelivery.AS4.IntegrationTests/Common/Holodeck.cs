@@ -183,6 +183,5 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
 
             Assert.NotNull(receipt);
         }
-
     }
 }
