@@ -142,7 +142,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
         /// <param name="files">The files.</param>
         public void AssertPayloadsOnHolodeckA(IEnumerable<FileInfo> files)
         {
-            var sendPayload = new FileInfo(HolodeckALocations.XmlPayloadPath);
+            var sendPayload = new FileInfo(HolodeckALocations.JpegPayloadPath);
 
             Assert.All(files, f => Assert.Equal(sendPayload.Length, f.Length));
         }
