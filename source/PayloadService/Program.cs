@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 
@@ -10,11 +11,22 @@ namespace Eu.EDelivery.AS4.PayloadService
     /// </summary>
     public class Program
     {
+
         /// <summary>
         /// Entry method for the Payload Service Web API.
         /// </summary>
         /// <param name="args"></param>
         public static void Main(string[] args)
+        {
+            Start(CancellationToken.None);
+        }
+
+        /// <summary>
+        /// Starts the PayloadService with a cancellation-token
+        /// This method is used when the service is started in process.
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        public static void Start(CancellationToken cancellationToken)
         {
             var hostBuilder = new WebHostBuilder();
 
@@ -37,9 +49,8 @@ namespace Eu.EDelivery.AS4.PayloadService
             host
                 .UseUrls(url)
                 .Build()
-                .Run();
+                .Run(cancellationToken);
 
-            Console.WriteLine("=== Payload Service Started ===");           
             Console.WriteLine("Payload Service shutdown");
         }
     }

@@ -13,13 +13,15 @@ namespace Eu.EDelivery.AS4.ServiceHandler.ConsoleHost
         public static void Main()
         {
             Console.SetWindowSize(Console.LargestWindowWidth, Console.WindowHeight);
-            
+
             Kernel kernel = CreateKernel();
+
             if (kernel == null)
             {
                 Console.ReadLine();
                 return;
             }
+
             try
             {
                 var cancellationTokenSource = new CancellationTokenSource();
@@ -31,6 +33,9 @@ namespace Eu.EDelivery.AS4.ServiceHandler.ConsoleHost
                         NLog.LogManager.GetCurrentClassLogger().Fatal(x.Exception?.ToString());
                     },
                     TaskContinuationOptions.OnlyOnFaulted);
+
+                Task frontEndTask = StartFeInProcess(cancellationTokenSource.Token);
+                Task payloadServiceTask = StartPayloadServiceInProcess(cancellationTokenSource.Token);
 
                 ConsoleKeyInfo key;
 
@@ -50,11 +55,13 @@ namespace Eu.EDelivery.AS4.ServiceHandler.ConsoleHost
 
                 } while (key.Key != ConsoleKey.Q);
 
-
                 Console.WriteLine(@"Stopping...");
                 cancellationTokenSource.Cancel();
 
-                task.GetAwaiter().GetResult();
+                StopTask(task);
+                StopTask(frontEndTask);
+                StopTask(payloadServiceTask);
+
                 Console.WriteLine($@"Stopped: {task.Status}");
 
                 if (task.IsFaulted && task.Exception != null)
@@ -80,9 +87,6 @@ namespace Eu.EDelivery.AS4.ServiceHandler.ConsoleHost
 
             config.Initialize();
 
-            StartFeInProcess();
-            StartPayloadServiceInProcess();
-
             if (!config.IsInitialized)
             {
                 return null;
@@ -95,7 +99,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler.ConsoleHost
             }
             else
             {
-                registry.CertificateRepository = new CertificateRepository();   
+                registry.CertificateRepository = new CertificateRepository();
             }
 
             registry.CreateDatastoreContext = () => new DatastoreContext(config);
@@ -104,22 +108,33 @@ namespace Eu.EDelivery.AS4.ServiceHandler.ConsoleHost
             return new Kernel(agentProvider.GetAgents());
         }
 
-        private static void StartFeInProcess()
+        private static Task StartFeInProcess(CancellationToken cancellationToken)
         {
-            if (!Config.Instance.FeInProcess) return;
-
-            Task.Factory.StartNew(() =>
+            if (!Config.Instance.FeInProcess)
             {
-                Fe.Program.Main(new[] { "inprocess" });
-            });
+                return Task.CompletedTask;
+            }
+
+            return Task.Factory.StartNew(() =>
+            {
+                Fe.Program.StartInProcess(cancellationToken);
+            }, cancellationToken);
         }
 
-        private static void StartPayloadServiceInProcess()
+        private static Task StartPayloadServiceInProcess(CancellationToken cancellationToken)
         {
-            if (Config.Instance.PayloadServiceInProcess)
+            if (!Config.Instance.PayloadServiceInProcess)
             {
-                Task.Factory.StartNew(() => PayloadService.Program.Main(new string[0]));
+                return Task.CompletedTask;
             }
+
+            return Task.Factory.StartNew(() => PayloadService.Program.Start(cancellationToken), cancellationToken);
+        }
+
+        private static void StopTask(Task task)
+        {
+            task.GetAwaiter().GetResult();
+            task.Dispose();
         }
     }
 }
