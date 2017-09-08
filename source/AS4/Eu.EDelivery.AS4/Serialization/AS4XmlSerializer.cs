@@ -31,7 +31,7 @@ namespace Eu.EDelivery.AS4.Serialization
             return await Task.Run(() =>
             {
                 string xml = ToString(data);
-                return (Stream) new MemoryStream(Encoding.UTF8.GetBytes(xml));
+                return (Stream)new MemoryStream(Encoding.UTF8.GetBytes(xml));
             });
         }
 
@@ -89,7 +89,7 @@ namespace Eu.EDelivery.AS4.Serialization
         private static XmlDocument LoadEnvelopeToDocument(Stream envelopeStream)
         {
             envelopeStream.Position = 0;
-            var envelopeXmlDocument = new XmlDocument {PreserveWhitespace = true};
+            var envelopeXmlDocument = new XmlDocument { PreserveWhitespace = true };
 
             envelopeXmlDocument.Load(envelopeStream);
 
@@ -183,7 +183,7 @@ namespace Eu.EDelivery.AS4.Serialization
             {
                 return null;
             }
-                        
+
             using (XmlReader reader = XmlReader.Create(new StringReader(xml)))
             {
                 var serializer = new XmlSerializer(typeof(T));
