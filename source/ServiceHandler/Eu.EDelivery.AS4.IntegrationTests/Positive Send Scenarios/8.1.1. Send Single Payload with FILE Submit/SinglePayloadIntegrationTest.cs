@@ -41,16 +41,16 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._1._Se
             AssertReceipt();
         }
 
-        private void AssertPayload()
+        private static void AssertPayload()
         {
-            FileInfo receivedPayload = new DirectoryInfo(HolodeckBInputPath).GetFiles("*.jpg").FirstOrDefault();
+            FileInfo receivedPayload = new DirectoryInfo(Holodeck.HolodeckBLocations.InputPath).GetFiles("*.jpg").FirstOrDefault();
             FileInfo sendPayload = AS4Component.SubmitSinglePayloadImage;
 
             Assert.NotNull(receivedPayload);
             Assert.Equal(sendPayload.Length, receivedPayload.Length);
         }
 
-        private void AssertReceipt()
+        private static void AssertReceipt()
         {
             FileInfo receipt = new DirectoryInfo(AS4ReceiptsPath).GetFiles("*.xml").FirstOrDefault();
 

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using System.Xml;
 using Eu.EDelivery.AS4.Exceptions;
 using Xunit;
 
@@ -14,8 +13,17 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
     /// </summary>
     public class Holodeck
     {
+        public static readonly HolodeckLocations HolodeckALocations;
+        public static readonly HolodeckLocations HolodeckBLocations;
+
+        static Holodeck()
+        {
+            HolodeckALocations = HolodeckLocations.ProbeForHolodeckInstance("holodeck-b2b-A");
+            HolodeckBLocations = HolodeckLocations.ProbeForHolodeckInstance("holodeck-b2b-B");
+        }
+
         private readonly DirectoryInfo _holodeckAInputDirectory =
-            new DirectoryInfo(Properties.Resources.holodeck_A_input_path);
+            new DirectoryInfo(HolodeckALocations.InputPath);
 
         /// <summary>
         /// Copy the right PMode configuration to Holodeck B
@@ -24,7 +32,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
         public void CopyPModeToHolodeckB(string pmodeFilename)
         {
             Console.WriteLine($@"Copy PMode {pmodeFilename} to Holodeck B");
-            CopyPModeToHolodeck(pmodeFilename, Properties.Resources.holodeck_B_pmodes);
+            CopyPModeToHolodeck(pmodeFilename, HolodeckBLocations.PModePath);
             WaitForHolodeckToPickUp();
         }
 
@@ -35,7 +43,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
         public void CopyPModeToHolodeckA(string pmodeFilename)
         {
             Console.WriteLine($@"Copy PMode {pmodeFilename} to Holodeck A");
-            CopyPModeToHolodeck(pmodeFilename, Properties.Resources.holodeck_A_pmodes);
+            CopyPModeToHolodeck(pmodeFilename, HolodeckALocations.PModePath);
             WaitForHolodeckToPickUp();
         }
 
@@ -57,7 +65,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
 
             File.Copy(
                 sourceFileName: Path.GetFullPath($@".\messages\holodeck-messages\{messageFileName}"),
-                destFileName: Path.GetFullPath($@"{Properties.Resources.holodeck_B_output_path}\{messageFileName}"));
+                destFileName: Path.GetFullPath($@"{HolodeckBLocations.OutputPath}\{messageFileName}"));
 
             WaitForHolodeckToPickUp();
         }
@@ -72,7 +80,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
 
             File.Copy(
                 sourceFileName: Path.GetFullPath($@".\messages\holodeck-messages\{messageFileName}"),
-                destFileName: Path.GetFullPath($@"{Properties.Resources.holodeck_A_output_path}\{messageFileName}"));
+                destFileName: Path.GetFullPath($@"{HolodeckALocations.OutputPath}\{messageFileName}"));
 
             WaitForHolodeckToPickUp();
         }
@@ -89,7 +97,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
         public void AssertDandelionPayloadOnHolodeckA()
         {
             FileInfo receivedPayload = new DirectoryInfo(IntegrationTestTemplate.AS4FullInputPath).GetFiles("*.jpg").FirstOrDefault();
-            var sendPayload = new FileInfo(Properties.Resources.holodeck_payload_path);
+            var sendPayload = new FileInfo(HolodeckALocations.XmlPayloadPath);
 
             Assert.Equal(sendPayload.Length, receivedPayload?.Length);
         }
@@ -100,7 +108,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
         public void AssertDeliverMessageOnHolodeckB()
         {
             FileInfo deliveredMessage =
-                new DirectoryInfo(Properties.Resources.holodeck_B_input_path).GetFiles("*.xml").FirstOrDefault();
+                new DirectoryInfo(HolodeckBLocations.InputPath).GetFiles("*.xml").FirstOrDefault();
 
             Assert.NotNull(deliveredMessage);
         }
@@ -111,7 +119,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
         public void AssertSinglePayloadOnHolodeckB()
         {
             FileInfo receivedPayload =
-                new DirectoryInfo(Properties.Resources.holodeck_B_input_path).GetFiles("*.jpg").FirstOrDefault();
+                new DirectoryInfo(HolodeckBLocations.InputPath).GetFiles("*.jpg").FirstOrDefault();
             FileInfo sendPayload = AS4Component.SubmitSinglePayloadImage;
 
             Assert.NotNull(receivedPayload);
@@ -134,7 +142,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
         /// <param name="files">The files.</param>
         public void AssertPayloadsOnHolodeckA(IEnumerable<FileInfo> files)
         {
-            var sendPayload = new FileInfo(Properties.Resources.holodeck_payload_path);
+            var sendPayload = new FileInfo(HolodeckALocations.XmlPayloadPath);
 
             Assert.All(files, f => Assert.Equal(sendPayload.Length, f.Length));
         }
@@ -176,42 +184,5 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
             Assert.NotNull(receipt);
         }
 
-        private void AssertError(ErrorCode errorCode, FileInfo error)
-        {
-            XmlNode errorTag = SelectErrorTag(error);
-            if (errorTag != null)
-            {
-                Console.WriteLine(@"Error found at Holodeck A");
-            }
-
-            Assert.NotNull(errorTag?.Attributes);
-
-            if (errorCode == ErrorCode.NotApplicable)
-            {
-                return;
-            }
-
-            AssertErrorCode(errorCode, errorTag);
-        }
-
-        private static void AssertErrorCode(ErrorCode errorCode, XmlNode errorTag)
-        {
-            string errorCodeString = $"Ebms:{(int) errorCode:0000}";
-            XmlAttribute errorCodeAttribute = errorTag.Attributes["errorCode"];
-
-            Assert.Equal(errorCodeString, errorCodeAttribute.InnerText);
-        }
-
-        private static XmlNode SelectErrorTag(FileInfo error)
-        {
-            var xmlDocument = new XmlDocument();
-            using (FileStream filesStream = error.Open(FileMode.Open, FileAccess.Read))
-            {
-                xmlDocument.Load(filesStream);
-                XmlNode errorTag = xmlDocument.SelectSingleNode("//*[local-name()='Error']");
-
-                return errorTag;
-            }
-        }
     }
 }

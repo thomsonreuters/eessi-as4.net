@@ -39,7 +39,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._2._Se
 
         private void AssertPayloads()
         {
-            FileInfo[] receivedPayloads = new DirectoryInfo(HolodeckBInputPath).GetFiles();
+            FileInfo[] receivedPayloads = new DirectoryInfo(Holodeck.HolodeckBLocations.InputPath).GetFiles();
 
             FileInfo sentEarth = AS4Component.SubmitSinglePayloadImage;
             FileInfo sentXml = AS4Component.SubmitSecondPayloadXml;

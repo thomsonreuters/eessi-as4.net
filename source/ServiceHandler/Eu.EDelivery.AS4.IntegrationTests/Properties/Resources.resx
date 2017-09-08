@@ -121,9 +121,6 @@
   <data name="earth" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\earth.jpg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="holodeck_B_input_path" xml:space="preserve">
-    <value>C:\Program Files\Java\holodeck\holodeck-b2b-B\data\msg_in</value>
-  </data>
   <data name="pmodexml" xml:space="preserve">
     <value>&lt;?xml version="1.0" encoding="utf-8"?&gt;
 &lt;PMode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="eu:edelivery:as4:pmode"&gt;
@@ -300,9 +297,6 @@
   <data name="submit_output_path" xml:space="preserve">
     <value>\messages\out</value>
   </data>
-  <data name="holodeck_B_pmodes" xml:space="preserve">
-    <value>C:\Program Files\Java\holodeck\holodeck-b2b-B\conf\pmodes</value>
-  </data>
   <data name="holodeck_test_pmodes" xml:space="preserve">
     <value>\config\integrationtest-settings\integrationtest-pmodes\holodeck-pmodes</value>
   </data>
@@ -314,18 +308,6 @@
   </data>
   <data name="notify_error_path" xml:space="preserve">
     <value>\messages\errors</value>
-  </data>
-  <data name="holodeck_A_output_path" xml:space="preserve">
-    <value>C:\Program Files\Java\holodeck\holodeck-b2b-A\data\msg_out</value>
-  </data>
-  <data name="holodeck_A_pmodes" xml:space="preserve">
-    <value>C:\Program Files\Java\holodeck\holodeck-b2b-A\conf\pmodes</value>
-  </data>
-  <data name="holodeck_payload_path" xml:space="preserve">
-    <value>C:\Program Files\Java\holodeck\holodeck-b2b-A\data\msg_out\payloads\dandelion.jpg</value>
-  </data>
-  <data name="holodeck_A_input_path" xml:space="preserve">
-    <value>C:\Program Files\Java\holodeck\holodeck-b2b-A\data\msg_in</value>
   </data>
   <data name="duplicated_as4message" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\as4message.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;iso-8859-1</value>
@@ -354,14 +336,8 @@
   <data name="as4_soap_wrong_encrypted_message" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\resources\as4-soap-wrong-encrypted-message.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
   </data>
-  <data name="holodeck_xml_payload_path" xml:space="preserve">
-    <value>C:\Program Files\Java\holodeck\holodeck-b2b-A\data\msg_out\payloads\simple_document.xml</value>
-  </data>
   <data name="as4_soap_wrong_signed_callback_message" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\resources\as4-soap-wrong-signed-callback-message.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
-  </data>
-  <data name="holodeck_B_output_path" xml:space="preserve">
-    <value>C:\Program Files\Java\holodeck\holodeck-b2b-B\data\msg_out</value>
   </data>
   <data name="pdf_document" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\pdf-document.pdf;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
@@ -407,11 +383,5 @@
     &lt;/Payload&gt;
   &lt;/Payloads&gt;
 &lt;/SubmitMessage&gt;</value>
-  </data>
-  <data name="holodeck_A_db_path" xml:space="preserve">
-    <value>C:\Program Files\Java\holodeck\holodeck-b2b-A\db</value>
-  </data>
-  <data name="holodeck_B_db_path" xml:space="preserve">
-    <value>C:\Program Files\Java\holodeck\holodeck-b2b-B\db</value>
   </data>
 </root>

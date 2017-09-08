@@ -44,7 +44,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._11_Se
 
         private void AssertPayloads()
         {
-            IEnumerable<FileInfo> files = new DirectoryInfo(HolodeckBInputPath).GetFiles();
+            IEnumerable<FileInfo> files = new DirectoryInfo(Holodeck.HolodeckBLocations.InputPath).GetFiles();
 
             AS4Component.AssertEarthPayload(files.FirstOrDefault(f => f.Extension.Equals(".jpg")));
 

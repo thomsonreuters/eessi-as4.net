@@ -19,7 +19,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Properties {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "4.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class Resources {
@@ -193,101 +193,11 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to C:\Program Files\Java\holodeck\holodeck-b2b-A\db.
-        /// </summary>
-        internal static string holodeck_A_db_path {
-            get {
-                return ResourceManager.GetString("holodeck_A_db_path", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to C:\Program Files\Java\holodeck\holodeck-b2b-A\data\msg_in.
-        /// </summary>
-        internal static string holodeck_A_input_path {
-            get {
-                return ResourceManager.GetString("holodeck_A_input_path", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to C:\Program Files\Java\holodeck\holodeck-b2b-A\data\msg_out.
-        /// </summary>
-        internal static string holodeck_A_output_path {
-            get {
-                return ResourceManager.GetString("holodeck_A_output_path", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to C:\Program Files\Java\holodeck\holodeck-b2b-A\conf\pmodes.
-        /// </summary>
-        internal static string holodeck_A_pmodes {
-            get {
-                return ResourceManager.GetString("holodeck_A_pmodes", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to C:\Program Files\Java\holodeck\holodeck-b2b-B\db.
-        /// </summary>
-        internal static string holodeck_B_db_path {
-            get {
-                return ResourceManager.GetString("holodeck_B_db_path", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to C:\Program Files\Java\holodeck\holodeck-b2b-B\data\msg_in.
-        /// </summary>
-        internal static string holodeck_B_input_path {
-            get {
-                return ResourceManager.GetString("holodeck_B_input_path", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to C:\Program Files\Java\holodeck\holodeck-b2b-B\data\msg_out.
-        /// </summary>
-        internal static string holodeck_B_output_path {
-            get {
-                return ResourceManager.GetString("holodeck_B_output_path", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to C:\Program Files\Java\holodeck\holodeck-b2b-B\conf\pmodes.
-        /// </summary>
-        internal static string holodeck_B_pmodes {
-            get {
-                return ResourceManager.GetString("holodeck_B_pmodes", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to C:\Program Files\Java\holodeck\holodeck-b2b-A\data\msg_out\payloads\dandelion.jpg.
-        /// </summary>
-        internal static string holodeck_payload_path {
-            get {
-                return ResourceManager.GetString("holodeck_payload_path", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to \config\integrationtest-settings\integrationtest-pmodes\holodeck-pmodes.
         /// </summary>
         internal static string holodeck_test_pmodes {
             get {
                 return ResourceManager.GetString("holodeck_test_pmodes", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to C:\Program Files\Java\holodeck\holodeck-b2b-A\data\msg_out\payloads\simple_document.xml.
-        /// </summary>
-        internal static string holodeck_xml_payload_path {
-            get {
-                return ResourceManager.GetString("holodeck_xml_payload_path", resourceCulture);
             }
         }
         

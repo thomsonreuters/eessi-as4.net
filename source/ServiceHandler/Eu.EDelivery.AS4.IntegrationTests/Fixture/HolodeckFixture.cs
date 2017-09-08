@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Configuration;
 using System.Diagnostics;
+using System.IO;
 using Eu.EDelivery.AS4.IntegrationTests.Common;
 using Xunit;
 using static Eu.EDelivery.AS4.IntegrationTests.Properties.Resources;
@@ -18,21 +20,31 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Fixture
         /// </summary>
         public HolodeckFixture()
         {
+            if (Holodeck.HolodeckALocations == null)
+            {
+                throw new ConfigurationErrorsException("Holodeck A could not be found on this machine");
+            }
+
+            if (Holodeck.HolodeckBLocations == null)
+            {
+                throw new ConfigurationErrorsException("Holodeck B could not be found on this machine");
+            }
+
             var service = new FileSystemService();
-            service.CleanUpFiles(holodeck_A_input_path);
-            service.CleanUpFiles(holodeck_B_input_path);
+            service.CleanUpFiles(Holodeck.HolodeckALocations.InputPath); 
+            service.CleanUpFiles(Holodeck.HolodeckBLocations.InputPath);
 
-            service.CleanUpFiles(holodeck_A_pmodes);
-            service.CleanUpFiles(holodeck_B_pmodes);
+            service.CleanUpFiles(Holodeck.HolodeckALocations.PModePath);
+            service.CleanUpFiles(Holodeck.HolodeckBLocations.PModePath); 
 
-            service.CleanUpFiles(holodeck_A_output_path);
-            service.CleanUpFiles(holodeck_B_output_path);
+            service.CleanUpFiles(Holodeck.HolodeckALocations.OutputPath); 
+            service.CleanUpFiles(Holodeck.HolodeckBLocations.OutputPath);  
 
-            service.RemoveDirectory(holodeck_A_db_path);
-            service.RemoveDirectory(holodeck_B_db_path);
+            service.RemoveDirectory(Holodeck.HolodeckALocations.DbPath); 
+            service.RemoveDirectory(Holodeck.HolodeckBLocations.DbPath);   
 
-            Process holodeckA = StartHolodeck(@"C:\Program Files\Java\holodeck\holodeck-b2b-A\bin\startServer.bat");
-            Process holodeckB = StartHolodeck(@"C:\Program Files\Java\holodeck\holodeck-b2b-B\bin\startServer.bat");
+            Process holodeckA = StartHolodeck(Holodeck.HolodeckALocations.BinaryPath); 
+            Process holodeckB = StartHolodeck(Holodeck.HolodeckBLocations.BinaryPath); 
 
             _parentProcess = new ParentProcess(holodeckA, holodeckB);
 

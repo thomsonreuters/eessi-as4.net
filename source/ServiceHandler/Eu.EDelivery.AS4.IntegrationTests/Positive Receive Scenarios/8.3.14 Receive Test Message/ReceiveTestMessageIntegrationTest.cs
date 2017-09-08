@@ -18,7 +18,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Receive_Scenarios._8._3._14
         public ReceiveTestMessageIntegrationTest()
         {
             _holodeckMessagesPath = Path.GetFullPath($"{HolodeckMessagesPath}{HolodeckMessageFilename}");
-            _destFileName = $"{Properties.Resources.holodeck_A_output_path}{HolodeckMessageFilename}";
+            _destFileName = $"{Holodeck.HolodeckALocations.OutputPath}{HolodeckMessageFilename}";
             _holodeck = new Holodeck();
         }
 
@@ -36,17 +36,17 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Receive_Scenarios._8._3._14
 
             // Assert
             Assert.True(
-                PollingAt(Properties.Resources.holodeck_A_input_path, "*.xml", 5000),
+                PollingAt(Holodeck.HolodeckALocations.InputPath, "*.xml", 5000),
                 "Receive Test Message Integration Test failed");
         }
 
         protected override void ValidatePolledFiles(IEnumerable<FileInfo> files)
         {
-            this._holodeck.AssertReceiptOnHolodeckA();
+            _holodeck.AssertReceiptOnHolodeckA();
             AssertMessageIsNotDelivered();
         }
 
-        private void AssertMessageIsNotDelivered()
+        private static void AssertMessageIsNotDelivered()
         {
             string fullDeliverPath = Path.GetFullPath(AS4FullInputPath);
             var deliverDirectory = new DirectoryInfo(fullDeliverPath);
