@@ -38,8 +38,8 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Fixture
             service.CleanUpFiles(Holodeck.HolodeckALocations.OutputPath);
             service.CleanUpFiles(Holodeck.HolodeckBLocations.OutputPath);
 
-            service.RemoveDirectory(Holodeck.HolodeckALocations.DbPath);
-            service.RemoveDirectory(Holodeck.HolodeckBLocations.DbPath);
+            ////service.RemoveDirectory(Holodeck.HolodeckALocations.DbPath);
+            ////service.RemoveDirectory(Holodeck.HolodeckBLocations.DbPath);
 
             Process holodeckA = StartHolodeck(Holodeck.HolodeckALocations.BinaryPath);
             Process holodeckB = StartHolodeck(Holodeck.HolodeckBLocations.BinaryPath);
