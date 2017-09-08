@@ -10,6 +10,7 @@ using Eu.EDelivery.AS4.Fe.Pmodes.Model;
 using Eu.EDelivery.AS4.Model.PMode;
 using Microsoft.Extensions.Options;
 using System.Xml;
+using Eu.EDelivery.AS4.Serialization;
 
 namespace Eu.EDelivery.AS4.Fe.Pmodes
 {
@@ -116,19 +117,10 @@ namespace Eu.EDelivery.AS4.Fe.Pmodes
         /// </summary>
         /// <param name="basePmode">The base pmode.</param>
         /// <returns></returns>
-        public Task CreateReceiving(ReceivingBasePmode basePmode)
+        public async Task CreateReceiving(ReceivingBasePmode basePmode)
         {
-            var xmlSerializer = new XmlSerializer(typeof(ReceivingProcessingMode));
-            var path = Path.Combine(settings.Value.ReceivingPmodeFolder, $"{basePmode.Name}.xml");
-
-            return Task.Factory.StartNew(() =>
-            {
-                using (var textWriter = new StringWriter())
-                {
-                    xmlSerializer.Serialize(textWriter, basePmode.Pmode);
-                    File.WriteAllText(path, textWriter.ToString(), Encoding.Unicode);
-                }
-            });
+            var pmodeFile = Path.Combine(settings.Value.ReceivingPmodeFolder, $"{basePmode.Name}.xml");
+            await SerializePModeToString(basePmode.Pmode, pmodeFile);
         }
 
         /// <summary>
@@ -164,19 +156,21 @@ namespace Eu.EDelivery.AS4.Fe.Pmodes
         /// </summary>
         /// <param name="basePmode">The base pmode.</param>
         /// <returns></returns>
-        public Task CreateSending(SendingBasePmode basePmode)
+        public async Task CreateSending(SendingBasePmode basePmode)
         {
-            var xmlSerializer = new XmlSerializer(typeof(SendingProcessingMode));
             var path = Path.Combine(settings.Value.SendingPmodeFolder, $"{basePmode.Name}.xml");
+            await SerializePModeToString(basePmode.Pmode, path);
 
-            return Task.Factory.StartNew(() =>
-            {
-                using (var textWriter = new StringWriter())
-                {
-                    xmlSerializer.Serialize(textWriter, basePmode.Pmode);
-                    File.WriteAllText(path, textWriter.ToString(), Encoding.Unicode);
-                }
-            });
+            //var xmlSerializer = new XmlSerializer(typeof(SendingProcessingMode));
+
+            //return Task.Factory.StartNew(() =>
+            //{
+            //    using (var textWriter = new StringWriter())
+            //    {
+            //        xmlSerializer.Serialize(textWriter, basePmode.Pmode);
+            //        File.WriteAllText(path, textWriter.ToString(), Encoding.Unicode);
+            //    }
+            //});
         }
 
         /// <summary>
@@ -209,6 +203,12 @@ namespace Eu.EDelivery.AS4.Fe.Pmodes
         public async Task UpdateReceiving(ReceivingBasePmode basePmode, string originalName)
         {
             await CreateReceiving(basePmode);
+        }
+
+        private async Task SerializePModeToString<T>(T basePmode, string pmodeFile)
+        {
+            var pmodeString = await AS4XmlSerializer.ToStringAsync<T>(basePmode);
+            File.WriteAllText(pmodeFile, pmodeString);
         }
     }
 }

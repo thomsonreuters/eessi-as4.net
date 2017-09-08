@@ -420,6 +420,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
 
     public class ClientCertificateReference
     {
+        [DefaultValue(X509FindType.FindByThumbprint)]
         public X509FindType ClientCertificateFindType { get; set; }
 
         public string ClientCertificateFindValue { get; set; }

@@ -83,7 +83,8 @@ namespace Eu.EDelivery.AS4.Serialization
         private static readonly XmlWriterSettings DefaultXmlWriterSettings = new XmlWriterSettings
         {
             CloseOutput = false,
-            Encoding = new UTF8Encoding(false)
+            Encoding = new UTF8Encoding(false),
+            Indent = true
         };
 
         private static XmlDocument LoadEnvelopeToDocument(Stream envelopeStream)
