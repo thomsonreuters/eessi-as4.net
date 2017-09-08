@@ -47,15 +47,9 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Fixture
             Process p = new Process();
 
             p.StartInfo.FileName = executablePath;
-            p.StartInfo.UseShellExecute = false;
             p.StartInfo.WorkingDirectory = System.IO.Path.GetDirectoryName(executablePath);
-            p.StartInfo.RedirectStandardError = true;
-            p.StartInfo.RedirectStandardOutput = true;
+            p.StartInfo.CreateNoWindow = false;
 
-            p.ErrorDataReceived += delegate (object sender, DataReceivedEventArgs args)
-            {
-                Console.WriteLine(args.Data);
-            };
 
             try
             {

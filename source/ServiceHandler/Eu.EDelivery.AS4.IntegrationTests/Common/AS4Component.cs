@@ -100,7 +100,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
             string sourceFile = $"{IntegrationTestTemplate.AS4IntegrationMessagesPath}\\{messageName}";
             string destinationFile = $"{IntegrationTestTemplate.AS4FullOutputPath}\\{messageName}";
 
-            Console.WriteLine(@$"Putting {destinationFile}");
+            Console.WriteLine($@"Putting {destinationFile}");
 
             File.Copy(
                 sourceFileName: sourceFile,
