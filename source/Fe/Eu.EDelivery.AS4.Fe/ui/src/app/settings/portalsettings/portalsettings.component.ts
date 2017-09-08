@@ -52,7 +52,7 @@ export class PortalSettingsComponent {
                 this.form.markAsPristine();
             });
     }
-    public save(group: string) {
+    public save() {
         this._runtimeSettingsService
             .savePortalSettings(this.form.value)
             .subscribe((result) => {

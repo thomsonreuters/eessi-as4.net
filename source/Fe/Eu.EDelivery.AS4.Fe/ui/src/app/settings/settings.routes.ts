@@ -17,7 +17,7 @@ export const ROUTES: Routes = [
             { path: 'receive', component: AgentSettingsComponent, data: { title: 'Receive Agents', type: 'receiveAgents', icon: 'fa-cloud-download', weight: -9 }, canActivate: [MustBeAuthorizedGuard], canDeactivate: [CanDeactivateGuard] },
             {
                 path: 'settings', children: [
-                    { path: '', redirectTo: 'common', pathMatch: 'full', canDeactivate: [CanDeactivateGuard] },
+                    { path: '', redirectTo: 'portal', pathMatch: 'full', canDeactivate: [CanDeactivateGuard] },
                     { path: 'portal', component: PortalSettingsComponent, data: { title: 'Portal settings' }, canDeactivate: [CanDeactivateGuard] },
                     { path: 'runtime', component: SettingsComponent, data: { title: 'Runtime settings' }, canDeactivate: [CanDeactivateGuard] },
                     {
