@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -13,11 +14,26 @@ namespace Eu.EDelivery.AS4.Fe
         {
             var isInProcess = args != null && args.Contains("inprocess");
 
-            var config = LoadSettings(isInProcess);
+            Start(isInProcess, CancellationToken.None);
+        }
+
+        /// <summary>
+        /// Used to start the FrontEnd in process.  Provides cancellation-support so that the FrontEnd
+        /// is gracefully closed when the AS4.NET backend stops.
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        public static void StartInProcess(CancellationToken cancellationToken)
+        {
+            Start(inProcess: true, cancellationToken: cancellationToken);
+        }
+
+        private static void Start(bool inProcess, CancellationToken cancellationToken)
+        {
+            var config = LoadSettings(inProcess);
             var httpPort = HttpPort(config);
 
             var host = new WebHostBuilder()
-                .UseEnvironment(isInProcess ? "inprocess" : "production")
+                .UseEnvironment(inProcess ? "inprocess" : "production")
                 .UseKestrel()
                 .UseWebRoot(Path.Combine(Directory.GetCurrentDirectory(), "ui/dist"))
                 .UseContentRoot(Directory.GetCurrentDirectory())
@@ -26,9 +42,9 @@ namespace Eu.EDelivery.AS4.Fe
                 .UseStartup<Startup>()
                 .Build();
 
-            OpenPortal(isInProcess, config);
+            OpenPortal(inProcess, config);
 
-            host.Run();
+            host.Run(cancellationToken);
         }
 
         private static void OpenPortal(bool isInProcess, IConfigurationRoot config)
