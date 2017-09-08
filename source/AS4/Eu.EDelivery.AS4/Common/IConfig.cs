@@ -2,6 +2,7 @@
 using Eu.EDelivery.AS4.Agents;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
+using Eu.EDelivery.AS4.Services.PullRequestAuthorization;
 
 namespace Eu.EDelivery.AS4.Common
 {
@@ -73,6 +74,12 @@ namespace Eu.EDelivery.AS4.Common
         /// </summary>
         /// <returns></returns>
         IEnumerable<AgentConfig> GetAgentsConfiguration();
+
+        /// <summary>
+        /// Gets the IAuthorizationMapProvider that must be used when verifying PullRequests.
+        /// </summary>
+        /// <returns></returns>
+        IPullAuthorizationMapProvider PullRequestAuthorizationMapProvider { get; }
     }
 
     public enum PropertyType

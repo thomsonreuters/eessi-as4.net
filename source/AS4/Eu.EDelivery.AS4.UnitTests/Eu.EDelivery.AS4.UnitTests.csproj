@@ -237,6 +237,7 @@
     <Compile Include="Model\Notify\EmptyNotifyEnvelope.cs" />
     <Compile Include="Receivers\GivenFileReceiverFacts.cs" />
     <Compile Include="Repositories\DatastoreExtensions.cs" />
+    <Compile Include="Services\GivenFileAuthorizationMapProviderFacts.cs" />
     <Compile Include="Steps\Forward\GivenCreateForwardMessageStepFacts.cs" />
     <Compile Include="Steps\Forward\GivenDetermineForwardStepFacts.cs" />
     <Compile Include="Steps\Receive\GivenSendSignalMessageStepFacts.cs" />

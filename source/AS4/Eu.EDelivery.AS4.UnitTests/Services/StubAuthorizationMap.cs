@@ -1,34 +1,30 @@
 ﻿using System;
-using System.Security.Cryptography.X509Certificates;
-using Eu.EDelivery.AS4.Model.Core;
-using Eu.EDelivery.AS4.Services;
+using System.Collections.Generic;
+using System.Linq;
+using Eu.EDelivery.AS4.Services.PullRequestAuthorization;
 
 namespace Eu.EDelivery.AS4.UnitTests.Services
 {
-    internal class StubAuthorizationMap : IAuthorizationMap
+    internal class StubAuthorizationMapProvider : IPullAuthorizationMapProvider
     {
-        private readonly Func<PullRequest, X509Certificate2, bool> _implementation;
+        private readonly IEnumerable<PullRequestAuthorizationEntry> _authorizationEntries;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="StubAuthorizationMap" /> class.
+        /// Initializes a new instance of the <see cref="StubAuthorizationMapProvider"/> class.
         /// </summary>
-        /// <param name="implementation">The implementation.</param>
-        public StubAuthorizationMap(Func<PullRequest, X509Certificate2, bool> implementation)
+        public StubAuthorizationMapProvider(IEnumerable<PullRequestAuthorizationEntry> entries)
         {
-            _implementation = implementation;
+            _authorizationEntries = entries;
         }
 
-        /// <summary>
-        /// Determines whether [is pull request authorized] [the specified request].
-        /// </summary>
-        /// <param name="request">The request.</param>
-        /// <param name="certificate">The certificate.</param>
-        /// <returns>
-        ///   <c>true</c> if [is pull request authorized] [the specified request]; otherwise, <c>false</c>.
-        /// </returns>
-        public bool IsPullRequestAuthorized(PullRequest request, X509Certificate2 certificate)
+        public IEnumerable<PullRequestAuthorizationEntry> RetrievePullRequestAuthorizationEntriesForMpc(string mpc)
         {
-            return _implementation(request, certificate);
+            return _authorizationEntries.Where(e => e.Mpc == mpc).ToArray();
+        }
+
+        public void SavePullRequestAuthorizationEntries(IEnumerable<PullRequestAuthorizationEntry> entries)
+        {
+            throw new NotSupportedException();
         }
     }
 }

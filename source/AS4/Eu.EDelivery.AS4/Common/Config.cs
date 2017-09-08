@@ -11,6 +11,7 @@ using Eu.EDelivery.AS4.Agents;
 using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
+using Eu.EDelivery.AS4.Services.PullRequestAuthorization;
 using Eu.EDelivery.AS4.Watchers;
 using NLog;
 
@@ -28,6 +29,7 @@ namespace Eu.EDelivery.AS4.Common
         private readonly List<AgentSettings> _agents = new List<AgentSettings>();
         private readonly Collection<AgentConfig> _agentConfigs = new Collection<AgentConfig>();
 
+        private IPullAuthorizationMapProvider _pullRequestPullAuthorizationMapProvider;
         private PModeWatcher<ReceivingProcessingMode> _receivingPModeWatcher;
         private PModeWatcher<SendingProcessingMode> _sendingPModeWatcher;
         private Settings _settings;
@@ -269,6 +271,11 @@ namespace Eu.EDelivery.AS4.Common
 
             FeInProcess = _settings.FeInProcess;
             PayloadServiceInProcess = _settings.PayloadServiceInProcess;
+
+            // TODO: this is hardcoded right now, should be configurable in the settings.xml
+            string authorizationMap = Path.Combine(Properties.Resources.configurationfolder, "pull_authorizationmap.xml");
+
+            _pullRequestPullAuthorizationMapProvider = new FilePullAuthorizationMapProvider(authorizationMap);
         }
 
         private void AddCustomSettings()
@@ -335,5 +342,11 @@ namespace Eu.EDelivery.AS4.Common
                 _receivingPModeWatcher.Dispose();
             }
         }
+
+        /// <summary>
+        /// Gets the IAuthorizationMapProvider that must be used when verifying PullRequests.
+        /// </summary>
+        /// <returns></returns>
+        public IPullAuthorizationMapProvider PullRequestAuthorizationMapProvider => _pullRequestPullAuthorizationMapProvider;
     }
 }
