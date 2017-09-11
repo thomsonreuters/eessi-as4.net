@@ -2,10 +2,8 @@
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Builders.Security;
 using Eu.EDelivery.AS4.Common;
-using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Repositories;
@@ -118,7 +116,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             AS4Message message = messagingContext.AS4Message;
             Model.PMode.Signing signing = messagingContext.SendingPMode.Security.Signing;
 
-            SigningStrategyBuilder builder = new SigningStrategyBuilder(messagingContext, cancellationToken)
+            SigningStrategyBuilder builder = new SigningStrategyBuilder(messagingContext.AS4Message, cancellationToken)
                 .WithSecurityTokenReference(signing.KeyReferenceMethod)
                 .WithSignatureAlgorithm(signing.Algorithm)
                 .WithCertificate(certificate)
