@@ -5,9 +5,6 @@
     "emitEntryPoint": true
   },
   "dependencies": {
-    "Microsoft.Bcl": "1.1.10",
-    "Microsoft.Bcl.Async": "1.0.168",
-    "Microsoft.Bcl.Build": "1.0.21",
     "Microsoft.EntityFrameworkCore": "1.1.2",
     "Microsoft.EntityFrameworkCore.DynamicLinq": "1.0.4.6",
     "Microsoft.EntityFrameworkCore.Relational": "1.1.2",

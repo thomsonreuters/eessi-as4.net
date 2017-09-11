@@ -91,8 +91,8 @@ namespace Eu.EDelivery.AS4.Steps.Submit
             var response = await client.GetAsync(smpServerUri);
 
             if (response.StatusCode != HttpStatusCode.OK)
-            {
-                throw new HttpException((int)response.StatusCode, "Unexpected result returned from SMP Service");
+            {                
+                throw new HttpListenerException((int)response.StatusCode, "Unexpected result returned from SMP Service");
             }
 
             if (response.Content.Headers.ContentType.MediaType.IndexOf("xml", StringComparison.OrdinalIgnoreCase) == -1)
