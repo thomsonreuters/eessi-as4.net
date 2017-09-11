@@ -357,6 +357,7 @@
     <Compile Include="Services\DynamicDiscovery\IDynamicDiscoveryProfile.cs" />
     <Compile Include="Services\PullRequestAuthorization\FilePullAuthorizationMapProvider.cs" />
     <Compile Include="Services\PullRequestAuthorization\IPullAuthorizationMapProvider.cs" />
+    <Compile Include="Services\PullRequestAuthorization\IPullAuthorizationMapService.cs" />
     <Compile Include="Services\PullRequestAuthorization\PullAuthorizationMapService.cs" />
     <Compile Include="Repositories\IAS4MessageBodyStore.cs" />
     <Compile Include="Repositories\IDatastoreRepository.cs" />

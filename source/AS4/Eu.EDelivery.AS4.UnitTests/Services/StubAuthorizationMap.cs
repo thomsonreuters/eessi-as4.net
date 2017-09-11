@@ -26,5 +26,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Services
         {
             throw new NotSupportedException();
         }
+
+        public IEnumerable<PullRequestAuthorizationEntry> GetPullRequestAuthorizationEntryOverview()
+        {
+            return _authorizationEntries;
+        }
     }
 }

@@ -23,15 +23,27 @@ namespace Eu.EDelivery.AS4.Services.PullRequestAuthorization
             _authorizationMapFile = authorizationMapFile;
         }
 
+        public IEnumerable<PullRequestAuthorizationEntry> GetPullRequestAuthorizationEntryOverview()
+        {
+            RefreshCacheIfNecessary();
+
+            return _entries.ToArray();
+        }
+
         public IEnumerable<PullRequestAuthorizationEntry> RetrievePullRequestAuthorizationEntriesForMpc(string mpc)
+        {
+            RefreshCacheIfNecessary();
+
+            return _entries.Where(e => StringComparer.InvariantCulture.Equals((string)e.Mpc, mpc)).ToArray();
+        }
+
+        private void RefreshCacheIfNecessary()
         {
             if (_authorizationMapChanged || _entries == null)
             {
                 _entries = RetrievePullRequestEntriesFromFile(_authorizationMapFile);
                 _authorizationMapChanged = false;
             }
-
-            return _entries.Where(e => StringComparer.InvariantCulture.Equals((string) e.Mpc, mpc)).ToArray();
         }
 
         public void SavePullRequestAuthorizationEntries(IEnumerable<PullRequestAuthorizationEntry> authorizationEntries)
@@ -43,8 +55,7 @@ namespace Eu.EDelivery.AS4.Services.PullRequestAuthorization
                 entries.Add(new AuthorizationEntry() { Mpc = entry.Mpc, CertificateThumbPrint = entry.CertificateThumbprint, Allowed = entry.Allowed });
             }
 
-            var map = new PullRequestAuthorizationMap();
-            map.AuthorizationEntries = entries.ToArray();
+            var map = new PullRequestAuthorizationMap { AuthorizationEntries = entries.ToArray() };
 
             using (var fs = new FileStream(_authorizationMapFile, FileMode.Create, FileAccess.Write))
             {

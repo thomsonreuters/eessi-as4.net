@@ -42,9 +42,9 @@ namespace Eu.EDelivery.AS4.Services.PullRequestAuthorization
                 return true;
             }
 
-            if (pullRequestMessage.SecurityHeader.IsSigned == false)
+            if (pullRequestMessage.SecurityHeader.IsSigned == false && authorizationEntries.Any())
             {
-                return true;
+                return false;
             }
 
             var certificateThumbPrint = RetrieveSigningCertificateThumbPrint(pullRequestMessage);
@@ -52,22 +52,12 @@ namespace Eu.EDelivery.AS4.Services.PullRequestAuthorization
             var authorizationEntriesForCertificate =
                 authorizationEntries.Where(a => StringComparer.InvariantCulture.Equals(a.CertificateThumbprint, certificateThumbPrint));
 
-            return authorizationEntriesForCertificate.All(a => a.Allowed);
+            return authorizationEntriesForCertificate.Any() && authorizationEntriesForCertificate.All(a => a.Allowed);
         }
 
         private static string RetrieveSigningCertificateThumbPrint(AS4Message as4Message)
         {
             return as4Message.SecurityHeader.SigningCertificate.Thumbprint;
         }
-    }
-
-    public interface IPullAuthorizationMapService
-    {
-        /// <summary>
-        /// Determines whether a pull-request is authorized
-        /// </summary>
-        /// <param name="pullRequestMessage">An AS4 Message for which the primary signal-message is a PullRequest.</param>
-        /// <returns>True if the PullRequest is allowed to be processed.</returns>
-        bool IsPullRequestAuthorized(AS4Message pullRequestMessage);
     }
 }
