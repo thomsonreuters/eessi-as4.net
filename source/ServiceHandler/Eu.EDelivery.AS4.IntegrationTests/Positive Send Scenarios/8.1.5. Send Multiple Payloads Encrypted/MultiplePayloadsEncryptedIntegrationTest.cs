@@ -8,7 +8,7 @@ using Xunit;
 namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._5._Send_Multiple_Payloads_Encrypted
 {
     public class MultiplePayloadsEncryptedIntegrationTest : IntegrationTestTemplate
-    {        
+    {
         [Fact]
         public void Test()
         {
@@ -19,10 +19,10 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._5._Se
             Holodeck.CopyPModeToHolodeckB("8.1.5-pmode.xml");
 
             // Act
-            AS4Component.PutMessage("8.1.5-sample.xml");            
+            AS4Component.PutMessage("8.1.5-sample.xml");
 
             // Assert
-            bool areFilesFound = PollingAt(HolodeckBInputPath);
+            bool areFilesFound = PollingAt(Holodeck.HolodeckBLocations.InputPath);
             if (areFilesFound)
             {
                 Console.WriteLine(@"Multiple Payloads Encrypted Integration Test succeeded!");
@@ -40,9 +40,9 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._5._Se
             AssertPayloads();
         }
 
-        private void AssertPayloads()
+        private static void AssertPayloads()
         {
-            FileInfo[] receivedPayloads = new DirectoryInfo(HolodeckBInputPath).GetFiles();
+            FileInfo[] receivedPayloads = new DirectoryInfo(Holodeck.HolodeckBLocations.InputPath).GetFiles();
 
             var sentEarth = new FileInfo($".{Properties.Resources.submitmessage_single_payload_path}");
             var sentXml = new FileInfo($".{Properties.Resources.submitmessage_second_payload_path}");

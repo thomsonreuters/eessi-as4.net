@@ -44,16 +44,16 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._10._S
 
         private void AssertPayloads()
         {
-            FileInfo receivedPayload = new DirectoryInfo(base.HolodeckBInputPath).GetFiles("*.jpg").FirstOrDefault();
+            FileInfo receivedPayload = new DirectoryInfo(Holodeck.HolodeckBLocations.InputPath).GetFiles("*.jpg").FirstOrDefault();
             var sendPayload = new FileInfo(Path.GetFullPath($".\\{Properties.Resources.submitmessage_single_payload_path}"));
 
             Assert.NotNull(receivedPayload);
             Assert.Equal(sendPayload.Length, receivedPayload.Length);
         }
 
-        private void AssertHolodeckReceiptFile()
+        private static void AssertHolodeckReceiptFile()
         {
-            FileInfo receipt = new DirectoryInfo(base.HolodeckBInputPath)
+            FileInfo receipt = new DirectoryInfo(Holodeck.HolodeckBLocations.InputPath)
                 .GetFiles("*.xml").FirstOrDefault();
 
             var xmlDocument = new XmlDocument();

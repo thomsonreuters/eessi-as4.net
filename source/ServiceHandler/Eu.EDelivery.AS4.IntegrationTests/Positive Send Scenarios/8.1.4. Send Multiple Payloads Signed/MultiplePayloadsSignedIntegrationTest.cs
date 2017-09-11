@@ -34,9 +34,9 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._4._Se
             AssertReceipt();
         }
 
-        private void AssertPayloads()
+        private static void AssertPayloads()
         {
-            FileInfo[] receivedPayloads = new DirectoryInfo(HolodeckBInputPath).GetFiles();
+            FileInfo[] receivedPayloads = new DirectoryInfo(Holodeck.HolodeckBLocations.InputPath).GetFiles();
 
             FileInfo sentEarth = AS4Component.SubmitSinglePayloadImage;
             FileInfo sentXml = AS4Component.SubmitSecondPayloadXml;
@@ -52,7 +52,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._4._Se
             Assert.Equal(sentXml.Length, receivedXml.Length);
         }
 
-        private void AssertReceipt()
+        private static void AssertReceipt()
         {
             FileInfo receipt = new DirectoryInfo(AS4ReceiptsPath).GetFiles("*.xml").FirstOrDefault();
 

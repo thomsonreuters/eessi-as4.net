@@ -24,7 +24,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Fixture
         /// Immediately stops the associated process and child processes.
         /// </summary>
         public void KillMeAndChildren()
-        {
+        {            
             foreach (Process process in _childProcesses)
             {
                 KillProcessAndChildren(process.Id);
@@ -33,6 +33,8 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Fixture
 
         private static void KillProcessAndChildren(int pid)
         {
+            Console.WriteLine($"Killing process {pid}");
+
             var processSearcher = new ManagementObjectSearcher("Select * From Win32_Process Where ParentProcessID=" + pid);
             ManagementObjectCollection processCollection = processSearcher.Get();
 

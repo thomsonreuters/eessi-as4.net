@@ -22,7 +22,6 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
         protected static readonly string AS4ErrorsPath = Path.GetFullPath($@".\{Properties.Resources.as4_component_errors_path}");
         protected static readonly string AS4ExceptionsPath = Path.GetFullPath($@".\{Properties.Resources.as4_component_exceptions_path}");
 
-        protected readonly string HolodeckBInputPath = Properties.Resources.holodeck_B_input_path;
         protected static readonly string HolodeckMessagesPath = Path.GetFullPath(@".\messages\holodeck-messages");
 
         protected AS4Component AS4Component { get; } = new AS4Component();
@@ -47,14 +46,14 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
             CleanUpFiles(AS4ErrorsPath);
             CleanUpFiles(AS4ExceptionsPath);
 
-            CleanUpFiles(Properties.Resources.holodeck_A_pmodes);
-            CleanUpFiles(Properties.Resources.holodeck_B_pmodes);
+            CleanUpFiles(Holodeck.HolodeckALocations.PModePath); // Properties.Resources.holodeck_A_pmodes);
+            CleanUpFiles(Holodeck.HolodeckBLocations.PModePath);
 
-            CleanUpFiles(Properties.Resources.holodeck_A_input_path);
-            CleanUpFiles(Properties.Resources.holodeck_B_input_path);
+            CleanUpFiles(Holodeck.HolodeckALocations.InputPath);
+            CleanUpFiles(Holodeck.HolodeckBLocations.InputPath);
 
-            CleanUpFiles(Properties.Resources.holodeck_A_output_path);
-            CleanUpFiles(Properties.Resources.holodeck_B_output_path);       
+            CleanUpFiles(Holodeck.HolodeckALocations.OutputPath);
+            CleanUpFiles(Holodeck.HolodeckBLocations.PModePath);       
         }
 
         #region Fixture Setup

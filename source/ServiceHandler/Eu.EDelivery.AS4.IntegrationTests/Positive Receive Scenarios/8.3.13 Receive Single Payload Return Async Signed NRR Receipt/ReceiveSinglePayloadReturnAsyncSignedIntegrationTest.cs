@@ -19,7 +19,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Receive_Scenarios._8._3._13
         public ReceiveSinglePayloadReturnAsyncSignedIntegrationTest()
         {
             this._holodeckMessagesPath = Path.GetFullPath($"{HolodeckMessagesPath}{HolodeckMessageFilename}");
-            this._destFileName = $"{Properties.Resources.holodeck_A_output_path}{HolodeckMessageFilename}";
+            this._destFileName = $"{Holodeck.HolodeckALocations.OutputPath}{HolodeckMessageFilename}";
             this._holodeck = new Holodeck();
         }
 
@@ -36,7 +36,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Receive_Scenarios._8._3._13
             File.Copy(_holodeckMessagesPath, _destFileName);
 
             // Assert
-            bool areFilesFound = PollingAt(Properties.Resources.holodeck_A_input_path, retryCount: 5000);
+            bool areFilesFound = PollingAt(Holodeck.HolodeckALocations.InputPath, retryCount: 5000);
             if (areFilesFound)
             {
                 Console.WriteLine(@"Receive Single Payload Return Async Signed NRR Integration Test succeeded!");

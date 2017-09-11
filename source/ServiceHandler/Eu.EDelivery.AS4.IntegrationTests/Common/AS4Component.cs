@@ -55,7 +55,14 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
                 TryCopyConfigFile(@"integrationtest-settings\settings.xml", @"settings.xml", true);
             }
 
-            _as4ComponentProcess = Process.Start("Eu.EDelivery.AS4.ServiceHandler.ConsoleHost.exe");
+            ProcessStartInfo psi = new ProcessStartInfo
+            {
+                FileName = "Eu.EDelivery.AS4.ServiceHandler.ConsoleHost.exe",
+                Arguments = "",
+                Verb = "runas"
+            };
+
+            _as4ComponentProcess = Process.Start(psi);
 
             if (_as4ComponentProcess != null)
             {
@@ -97,9 +104,14 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
         /// <param name="messageName">Name of the message.</param>
         public void PutMessage(string messageName)
         {
+            string sourceFile = $"{IntegrationTestTemplate.AS4IntegrationMessagesPath}\\{messageName}";
+            string destinationFile = $"{IntegrationTestTemplate.AS4FullOutputPath}\\{messageName}";
+
+            Console.WriteLine($@"Putting {destinationFile}");
+
             File.Copy(
-                sourceFileName: $"{IntegrationTestTemplate.AS4IntegrationMessagesPath}\\{messageName}",
-                destFileName: $"{IntegrationTestTemplate.AS4FullOutputPath}\\{messageName}",
+                sourceFileName: sourceFile,
+                destFileName: destinationFile,
                 overwrite: true);
         }
 
