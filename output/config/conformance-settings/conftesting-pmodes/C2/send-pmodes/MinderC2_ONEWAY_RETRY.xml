@@ -103,7 +103,7 @@
       <ConversationId>1</ConversationId>
     </CollaborationInfo>
     <MessageProperties />
-    <UseAS4Compression>false</UseAS4Compression>
+    <UseAS4Compression>true</UseAS4Compression>
     <IsMultiHop>false</IsMultiHop>
     <IncludePModeId>false</IncludePModeId>
   </MessagePackaging>
