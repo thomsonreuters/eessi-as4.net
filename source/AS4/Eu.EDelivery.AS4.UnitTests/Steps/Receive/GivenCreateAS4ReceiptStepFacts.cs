@@ -46,7 +46,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 StepResult result = await _step.ExecuteAsync(messagingContext, CancellationToken.None);
 
                 // Assert
-                Assert.NotNull(result.MessagingContext.AS4Message);                
+                Assert.NotNull(result.MessagingContext.AS4Message);
                 Assert.IsType(typeof(Receipt), result.MessagingContext.AS4Message.PrimarySignalMessage);
             }
 
@@ -161,8 +161,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             AS4Message as4Message = message.AS4Message;
             X509Certificate2 certificate = new StubCertificateRepository().GetStubCertificate();
 
-            SigningStrategyBuilder builder = new SigningStrategyBuilder(as4Message, CancellationToken.None)
-                .WithSecurityTokenReference(X509ReferenceType.BSTReference)
+            SigningStrategyBuilder builder = new SigningStrategyBuilder(as4Message, X509ReferenceType.BSTReference)
                 .WithSignatureAlgorithm(Algorithm)
                 .WithCertificate(certificate)
                 .WithSigningId(as4Message.SigningId, HashFunction);
