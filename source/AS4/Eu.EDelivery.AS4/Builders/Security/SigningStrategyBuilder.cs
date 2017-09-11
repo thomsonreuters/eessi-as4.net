@@ -4,11 +4,8 @@ using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Xml;
-using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Common;
-using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
-using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Security.Algorithms;
 using Eu.EDelivery.AS4.Security.References;
 using Eu.EDelivery.AS4.Security.Signing;
@@ -35,7 +32,7 @@ namespace Eu.EDelivery.AS4.Builders.Security
             new SecurityTokenReferenceProvider(Registry.Instance.CertificateRepository);
 
         private X509Certificate2 _certificate;
-        private SecurityTokenReference _securityTokenReference;
+        private readonly SecurityTokenReference _securityTokenReference;
 
         private SignatureAlgorithm _signatureAlgorithm;
 
@@ -43,10 +40,11 @@ namespace Eu.EDelivery.AS4.Builders.Security
         /// Initializes a new instance of the <see cref="SigningStrategyBuilder" /> class.
         /// </summary>
         /// <param name="message">The message.</param>
-        /// <param name="cancellation">The cancellation.</param>
-        public SigningStrategyBuilder(AS4Message message, CancellationToken cancellation)
+        /// <param name="securityTokenReferenceMethod">An <see cref="X509ReferenceType"/> value</param>
+        public SigningStrategyBuilder(AS4Message message, X509ReferenceType securityTokenReferenceMethod)
         {
-            _envelopeDocument = AS4XmlSerializer.ToSoapEnvelopeDocument(message, cancellation);
+            _envelopeDocument = AS4XmlSerializer.ToSoapEnvelopeDocument(message, CancellationToken.None);
+            _securityTokenReference = _tokenProvider.Get(securityTokenReferenceMethod);
         }
 
         /// <summary>
@@ -131,20 +129,6 @@ namespace Eu.EDelivery.AS4.Builders.Security
             }
 
             _certificate = certificate;
-            return this;
-        }
-
-        /// <summary>
-        /// Add Security Token Reference to Security Header
-        /// </summary>
-        /// <param name="keyReferenceMethod"></param>
-        /// <returns></returns>
-        public SigningStrategyBuilder WithSecurityTokenReference(X509ReferenceType keyReferenceMethod)
-        {
-            Logger.Debug($"Signing with Signature Token Reference {keyReferenceMethod}");
-
-            _securityTokenReference = _tokenProvider.Get(keyReferenceMethod);
-
             return this;
         }
 

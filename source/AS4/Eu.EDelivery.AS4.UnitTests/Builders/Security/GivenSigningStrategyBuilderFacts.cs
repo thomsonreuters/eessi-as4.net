@@ -5,12 +5,9 @@ using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Security.Cryptography.Xml;
 using System.Text;
-using System.Threading;
 using System.Xml;
 using Eu.EDelivery.AS4.Builders.Security;
-using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
-using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Security.References;
 using Eu.EDelivery.AS4.Security.Signing;
 using Eu.EDelivery.AS4.Security.Strategies;
@@ -87,10 +84,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Security
                 X509Certificate2 certificate = new StubCertificateRepository().GetStubCertificate();
 
                 // Act
-                ISigningStrategy signingStrategy =
-                    CreateBuilder().WithSecurityTokenReference(X509ReferenceType.BSTReference)
-                            .WithCertificate(certificate)
-                            .Build();
+                ISigningStrategy signingStrategy = CreateBuilder().WithCertificate(certificate).Build();
 
                 // Assert
                 var concreteStrategy = signingStrategy as SigningStrategy;
@@ -102,7 +96,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Security
             {
                 // Act
                 ISigningStrategy signingStrategy =
-                    CreateBuilder().WithSecurityTokenReference(X509ReferenceType.BSTReference).Build();
+                    CreateBuilder().Build();
 
                 // Assert
                 Assert.NotNull(signingStrategy);
@@ -171,7 +165,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Security
 
         protected SigningStrategyBuilder CreateBuilder()
         {
-            return new SigningStrategyBuilder(AS4Message.Empty, CancellationToken.None);
+            return new SigningStrategyBuilder(AS4Message.Empty, X509ReferenceType.BSTReference);
         }
     }
 }
