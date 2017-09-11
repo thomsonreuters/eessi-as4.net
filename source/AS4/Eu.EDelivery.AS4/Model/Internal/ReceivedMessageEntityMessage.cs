@@ -8,12 +8,12 @@ namespace Eu.EDelivery.AS4.Model.Internal
     /// <summary>
     /// <see cref="ReceivedMessage"/> to receive a <see cref="AS4.Entities.MessageEntity"/>
     /// </summary>
-    public class ReceivedMessageEntityMessage : ReceivedMessage
+    public class ReceivedMessageEntityMessage : ReceivedEntityMessage 
     {
         public MessageEntity MessageEntity { get; }
 
         public ReceivedMessageEntityMessage(MessageEntity messageEntity, Stream underlyingStream, string contentType) 
-            : base(underlyingStream, contentType)
+            : base(messageEntity, underlyingStream, contentType)
         {
             MessageEntity = messageEntity;
         }

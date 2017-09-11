@@ -1,3 +1,4 @@
+using System.IO;
 using Eu.EDelivery.AS4.Entities;
 
 namespace Eu.EDelivery.AS4.Model.Internal
@@ -16,7 +17,11 @@ namespace Eu.EDelivery.AS4.Model.Internal
         /// </summary>
         /// <param name="entity">
         /// </param>
-        public ReceivedEntityMessage(Entity entity)
+        public ReceivedEntityMessage(Entity entity) : this(entity, Stream.Null, string.Empty)
+        {
+        }
+
+        public ReceivedEntityMessage(Entity entity, Stream underlyingStream, string contentType) : base(underlyingStream, contentType)
         {
             this.Entity = entity;
         }

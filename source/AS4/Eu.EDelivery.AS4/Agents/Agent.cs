@@ -102,7 +102,8 @@ namespace Eu.EDelivery.AS4.Agents
             }
             catch (Exception exception)
             {
-                Logger.Error("Could not transform message");
+                Logger.Error($"Could not transform message: {exception.Message}");
+                Logger.Trace(exception.StackTrace);
                 return await _exceptionHandler.HandleTransformationException(exception, message);
             }
 

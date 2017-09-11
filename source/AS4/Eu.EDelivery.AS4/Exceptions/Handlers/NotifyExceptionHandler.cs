@@ -47,8 +47,6 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
                 var outboundHandler = new OutboundExceptionHandler();
                 return await outboundHandler.HandleTransformationException(exception, messageToTransform).ConfigureAwait(false);
             }
-
-
         }
 
         private static Entity GetReceivedEntity(ReceivedMessage message)
@@ -57,7 +55,7 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
 
             if (receivedEntityMessage == null)
             {
-                throw new InvalidOperationException("A ReceivedEntityMessage is expected in the NotifyExceptionHandler.HandleTransformationException method");
+                throw new InvalidOperationException($"A ReceivedEntityMessage is expected in the NotifyExceptionHandler.HandleTransformationException method instead of a {message.GetType().FullName}");
             }
 
             return receivedEntityMessage.Entity;
