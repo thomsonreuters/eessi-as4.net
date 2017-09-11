@@ -50,7 +50,7 @@ namespace Eu.EDelivery.AS4.Services.PullRequestAuthorization
             var certificateThumbPrint = RetrieveSigningCertificateThumbPrint(pullRequestMessage);
 
             var authorizationEntriesForCertificate =
-                authorizationEntries.Where(a => StringComparer.InvariantCulture.Equals(a.CertificateThumbprint, certificateThumbPrint));
+                authorizationEntries.Where(a => StringComparer.OrdinalIgnoreCase.Equals(a.CertificateThumbprint, certificateThumbPrint));
 
             return authorizationEntriesForCertificate.Any() && authorizationEntriesForCertificate.All(a => a.Allowed);
         }

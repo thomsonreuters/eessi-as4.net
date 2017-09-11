@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<PullRequestAuthorizationMap xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <AuthorizationEntries xmlns="eu:edelivery:as4">
+    <!-- Define PullRequest-Authorization entries like this:
+    <Authorization mpc="mpc1" certificatethumbprint="abcdefgh" allowed="true" />
+    -->    
+    <Authorization mpc="componenttest-mpc" certificatethumbprint="abcdefgh" allowed="true" />
+  </AuthorizationEntries>
+</PullRequestAuthorizationMap>

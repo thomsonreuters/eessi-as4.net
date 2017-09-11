@@ -212,7 +212,7 @@ namespace Eu.EDelivery.AS4.Common
 
             string fullPath = Path.GetFullPath(path);
 
-            if (Path.IsPathRooted(path) == false || 
+            if (Path.IsPathRooted(path) == false ||
                 (File.Exists(fullPath) == false && StringComparer.OrdinalIgnoreCase.Equals(path, fullPath) == false))
             {
                 path = Path.Combine(".", path);
@@ -273,7 +273,7 @@ namespace Eu.EDelivery.AS4.Common
             PayloadServiceInProcess = _settings.PayloadServiceInProcess;
 
             // TODO: this is hardcoded right now, should be configurable in the settings.xml
-            string authorizationMap = Path.Combine(Properties.Resources.configurationfolder, "pull_authorizationmap.xml");
+            string authorizationMap = Path.Combine(Properties.Resources.configurationfolder, "Security\\pull_authorizationmap.xml");
 
             _pullRequestPullAuthorizationMapProvider = new FilePullAuthorizationMapProvider(authorizationMap);
         }
@@ -294,7 +294,7 @@ namespace Eu.EDelivery.AS4.Common
         private void AddCustomAgents()
         {
             AddCustomAgentsIfNotNull(AgentType.ReceptionAwareness, _settings.Agents.ReceptionAwarenessAgent);
-            AddCustomAgentsIfNotNull(AgentType.Notify, _settings.Agents.NotifyAgents);            
+            AddCustomAgentsIfNotNull(AgentType.Notify, _settings.Agents.NotifyAgents);
             AddCustomAgentsIfNotNull(AgentType.Deliver, _settings.Agents.DeliverAgents);
             AddCustomAgentsIfNotNull(AgentType.PushSend, _settings.Agents.SendAgents);
             AddCustomAgentsIfNotNull(AgentType.Submit, _settings.Agents.SubmitAgents);
@@ -318,7 +318,7 @@ namespace Eu.EDelivery.AS4.Common
             {
                 if (setting != null)
                 {
-                    _agentConfigs.Add(new AgentConfig(setting.Name) { Type = type, Settings = setting }); 
+                    _agentConfigs.Add(new AgentConfig(setting.Name) { Type = type, Settings = setting });
                 }
             }
         }
