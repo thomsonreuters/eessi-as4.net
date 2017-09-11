@@ -35,6 +35,7 @@ If (Test-Path .\users.sqlite ) {
 Remove-Item .\Microsoft.VisualStudio.Quality*.*
 Remove-Item .\Moq.*
 Remove-Item .\*Tests.*
+Remove-Item .\*TestUtils.*
 
 Copy-Item -Path .\Assets\*.* .\Staging\Assets\
 Copy-Item -Path .\Eu.EDelivery.AS4.ServiceHandler.ConsoleHost.exe .\Staging\
