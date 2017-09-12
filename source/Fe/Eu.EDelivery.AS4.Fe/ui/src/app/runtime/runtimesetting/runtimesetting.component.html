@@ -10,13 +10,11 @@
         <as4-pmode-select *ngSwitchCase="'sendingpmode'" mode="sending" formControlName="value"></as4-pmode-select>
         <as4-pmode-select *ngSwitchCase="'receivingpmode'" mode="receiving" formControlName="value"></as4-pmode-select>
         <as4-pmode-select *ngSwitchCase="'pmode'" formControlName="value"></as4-pmode-select>
-        <input *ngSwitchCase="'timespan'" type="text" [textMask]="{ mask: timeSpanMask }" formControlName="value" 
-        />
+        <input *ngSwitchCase="'timespan'" type="text" [textMask]="{ mask: timeSpanMask, pipe: pipe }" formControlName="value" />
         <input *ngSwitchDefault type="text" class="form-control" name="type" formControlName="value" test/>
     </div>
 </as4-input>
-<as4-input label="Parameters" *ngIf="hasParameters()"
-    [isLabelBold]="false">
+<as4-input label="Parameters" *ngIf="hasParameters()" [isLabelBold]="false">
     <table class="table table-condensed">
         <tr>
             <th>Name</th>
