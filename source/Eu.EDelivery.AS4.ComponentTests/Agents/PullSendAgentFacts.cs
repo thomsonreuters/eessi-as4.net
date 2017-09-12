@@ -1,14 +1,19 @@
 ﻿using System;
+using System.IO;
+using System.Linq;
 using System.Xml;
 using System.Net;
 using System.Net.Http;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
+using Eu.EDelivery.AS4.Builders.Security;
 using Eu.EDelivery.AS4.ComponentTests.Common;
 using Eu.EDelivery.AS4.ComponentTests.Extensions;
 using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Submit;
+using Eu.EDelivery.AS4.Security.References;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.TestUtils.Stubs;
 using Xunit;
@@ -91,12 +96,55 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         }
 
+        [Fact]
+        public async Task RespondsWithHttpForbidden_WhenReceivedPullRequestIsNotAllowed()
+        {
+            OverridePullAuthorizationMap(@".\config\componenttest-settings\security\pull_authorizationmap_notallowed_facts.xml");
+
+            var pullRequest = CreatePullRequestWithMpc("componenttest-mpc");
+
+            // Act
+            HttpResponseMessage response = await StubSender.SendAS4Message(PullSendUrl, pullRequest);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task PullSendAgentReturnsHttpOk_IfPullRequestIsAllowed()
+        {
+            OverridePullAuthorizationMap(@".\config\componenttest-settings\security\pull_authorizationmap_allowed_facts.xml");
+
+            var pullRequest = CreatePullRequestWithMpc("componenttest-mpc");
+
+            var signedPullRequest = SignPullRequest(pullRequest, new X509Certificate2(@".\samples\certificates\AccessPointA.pfx", "Pz4cZK4SULUwmraZa", X509KeyStorageFlags.Exportable));
+
+            // Act
+            HttpResponseMessage response = await StubSender.SendAS4Message(PullSendUrl, signedPullRequest);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        }
+
         private static AS4Message CreatePullRequestWithMpc(string mpc)
         {
             PullRequest pr = new PullRequest(mpc);
             var pullRequestMessage = AS4Message.Create(pr);
 
             return pullRequestMessage;
+        }
+
+        private static AS4Message SignPullRequest(AS4Message message, X509Certificate2 certificate)
+        {
+            var signer =
+                new SigningStrategyBuilder(message, X509ReferenceType.BSTReference).WithSigningId(message.SigningId, Constants.HashFunctions.First())
+                                                                                   .WithSignatureAlgorithm(Constants.Algoritms.First())
+                                                                                   .WithCertificate(certificate)
+                                                                                   .Build();
+
+            message.SecurityHeader.Sign(signer);
+
+            return message;
         }
 
         private static async Task SubmitMessageToSubmitAgent(string submitMessage)
@@ -106,8 +154,26 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             await Task.Delay(3000);
         }
 
+        private static void OverridePullAuthorizationMap(string pullAuthorizationMapToUse)
+        {
+            File.Copy(@".\config\security\pull_authorizationmap.xml", @".\config\security\pull_authorizationmap_original.xml", true);
+            File.Copy(pullAuthorizationMapToUse, @".\config\security\pull_authorizationmap.xml", true);
+        }
+
+        private static void RestorePullAuthorizationMap()
+        {
+            const string originalAuthorizationMapBackupFile = @".\config\security\pull_authorizationmap_original.xml";
+
+            if (File.Exists(originalAuthorizationMapBackupFile))
+            {
+                File.Copy(originalAuthorizationMapBackupFile, @".\config\security\pull_authorizationmap.xml", true);
+                File.Delete(originalAuthorizationMapBackupFile);
+            }
+        }        
+
         protected override void Disposing(bool isDisposing)
         {
+            RestorePullAuthorizationMap();
             _as4Msh?.Dispose();
             _as4Msh = null;
         }

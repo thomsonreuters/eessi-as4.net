@@ -81,6 +81,11 @@ namespace Eu.EDelivery.AS4.Security.Strategies
             // loading the private key to prevent this.
             lock (CertificateReaderLocker)
             {
+                if (certificate.PrivateKey == null)
+                {
+                    throw new InvalidOperationException("The Private Key of the signing certificate is not present.");
+                }
+
                 var key = new RSACryptoServiceProvider();
 
                 string keyXml = certificate.PrivateKey.ToXmlString(includePrivateParameters: true);

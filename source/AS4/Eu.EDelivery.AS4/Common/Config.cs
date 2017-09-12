@@ -11,6 +11,7 @@ using Eu.EDelivery.AS4.Agents;
 using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
+using Eu.EDelivery.AS4.Services.PullRequestAuthorization;
 using Eu.EDelivery.AS4.Watchers;
 using NLog;
 
@@ -28,6 +29,7 @@ namespace Eu.EDelivery.AS4.Common
         private readonly List<AgentSettings> _agents = new List<AgentSettings>();
         private readonly Collection<AgentConfig> _agentConfigs = new Collection<AgentConfig>();
 
+        private IPullAuthorizationMapProvider _pullRequestPullAuthorizationMapProvider;
         private PModeWatcher<ReceivingProcessingMode> _receivingPModeWatcher;
         private PModeWatcher<SendingProcessingMode> _sendingPModeWatcher;
         private Settings _settings;
@@ -210,7 +212,7 @@ namespace Eu.EDelivery.AS4.Common
 
             string fullPath = Path.GetFullPath(path);
 
-            if (Path.IsPathRooted(path) == false || 
+            if (Path.IsPathRooted(path) == false ||
                 (File.Exists(fullPath) == false && StringComparer.OrdinalIgnoreCase.Equals(path, fullPath) == false))
             {
                 path = Path.Combine(".", path);
@@ -269,6 +271,11 @@ namespace Eu.EDelivery.AS4.Common
 
             FeInProcess = _settings.FeInProcess;
             PayloadServiceInProcess = _settings.PayloadServiceInProcess;
+
+            // TODO: this is hardcoded right now, should be configurable in the settings.xml
+            string authorizationMap = Path.Combine(Properties.Resources.configurationfolder, "Security\\pull_authorizationmap.xml");
+
+            _pullRequestPullAuthorizationMapProvider = new FilePullAuthorizationMapProvider(authorizationMap);
         }
 
         private void AddCustomSettings()
@@ -287,7 +294,7 @@ namespace Eu.EDelivery.AS4.Common
         private void AddCustomAgents()
         {
             AddCustomAgentsIfNotNull(AgentType.ReceptionAwareness, _settings.Agents.ReceptionAwarenessAgent);
-            AddCustomAgentsIfNotNull(AgentType.Notify, _settings.Agents.NotifyAgents);            
+            AddCustomAgentsIfNotNull(AgentType.Notify, _settings.Agents.NotifyAgents);
             AddCustomAgentsIfNotNull(AgentType.Deliver, _settings.Agents.DeliverAgents);
             AddCustomAgentsIfNotNull(AgentType.PushSend, _settings.Agents.SendAgents);
             AddCustomAgentsIfNotNull(AgentType.Submit, _settings.Agents.SubmitAgents);
@@ -311,7 +318,7 @@ namespace Eu.EDelivery.AS4.Common
             {
                 if (setting != null)
                 {
-                    _agentConfigs.Add(new AgentConfig(setting.Name) { Type = type, Settings = setting }); 
+                    _agentConfigs.Add(new AgentConfig(setting.Name) { Type = type, Settings = setting });
                 }
             }
         }
@@ -335,5 +342,11 @@ namespace Eu.EDelivery.AS4.Common
                 _receivingPModeWatcher.Dispose();
             }
         }
+
+        /// <summary>
+        /// Gets the IAuthorizationMapProvider that must be used when verifying PullRequests.
+        /// </summary>
+        /// <returns></returns>
+        public IPullAuthorizationMapProvider PullRequestAuthorizationMapProvider => _pullRequestPullAuthorizationMapProvider;
     }
 }

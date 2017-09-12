@@ -4,6 +4,7 @@ using Eu.EDelivery.AS4.Agents;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
+using Eu.EDelivery.AS4.Services.PullRequestAuthorization;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Common
@@ -99,6 +100,15 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
         {
             throw new NotImplementedException();
         }
+
+        /// <summary>
+        /// Gets the IAuthorizationMapProvider that must be used when verifying PullRequests.
+        /// </summary>
+        /// <returns></returns>
+        public IPullAuthorizationMapProvider PullRequestAuthorizationMapProvider
+        {
+            get { throw new NotImplementedException(); }
+        }
     }
 
     public class PseudoConfigFacts : PseudoConfig
@@ -112,7 +122,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
 
         [Fact]
         public void FailsToGetAgents()
-        {            
+        {
             Assert.ThrowsAny<Exception>(GetEnabledMinderTestAgents);
             Assert.ThrowsAny<Exception>(GetAgentsConfiguration);
         }
@@ -128,7 +138,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
         [Fact]
         public void FailsToGetSetting()
         {
-            Assert.ThrowsAny<Exception>(() => GetSetting("ignored string"));            
+            Assert.ThrowsAny<Exception>(() => GetSetting("ignored string"));
         }
     }
 }

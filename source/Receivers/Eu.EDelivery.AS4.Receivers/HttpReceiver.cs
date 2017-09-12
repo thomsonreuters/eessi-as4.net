@@ -5,6 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Security;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -470,6 +471,21 @@ namespace Eu.EDelivery.AS4.Receivers
 
                 protected override HttpListenerContentResult ExecuteCore(HttpListenerRequest request, MessagingContext processorResult)
                 {
+                    HttpStatusCode DetermineStatusCode(ErrorResult errorResult, Exception exception)
+                    {
+                        if (exception != null && exception is SecurityException)
+                        {
+                            return HttpStatusCode.Forbidden;
+                        }
+
+                        if (processorResult.ErrorResult == null || processorResult.ErrorResult.Code == ErrorCode.NotApplicable)
+                        {
+                            return HttpStatusCode.BadRequest;
+                        }
+
+                        return HttpStatusCode.InternalServerError;
+                    }
+
                     // TODO: this must be refactored to something that is more maintainable.
 
                     if (processorResult.Exception != null ||
@@ -479,17 +495,10 @@ namespace Eu.EDelivery.AS4.Receivers
                             ? processorResult.ErrorResult.Description
                             : processorResult.Exception?.Message ?? string.Empty;
 
-                        if (processorResult.ErrorResult == null ||
-                            processorResult.ErrorResult.Code == ErrorCode.NotApplicable)
-                        {
-                            return new ByteContentResult(HttpStatusCode.BadRequest, "text/plain",
-                                                         Encoding.UTF8.GetBytes(errorMessage));
-                        }
-                        else
-                        {
-                            return new ByteContentResult(HttpStatusCode.InternalServerError, "text/plain",
-                                                         Encoding.UTF8.GetBytes(errorMessage));
-                        }
+                        HttpStatusCode statusCode = DetermineStatusCode(processorResult.ErrorResult, processorResult.Exception);
+                       
+                        return new ByteContentResult(statusCode, "text/plain",
+                                                     Encoding.UTF8.GetBytes(errorMessage));
                     }
 
                     // Ugly hack until the Transformer is refactored.
@@ -524,7 +533,7 @@ namespace Eu.EDelivery.AS4.Receivers
                             contentType: processorResult.AS4Message?.ContentType,
                             messagingContext: processorResult);
                     }
-                    
+
                     return ByteContentResult.Empty(HttpStatusCode.Accepted);
                 }
 

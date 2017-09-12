@@ -1,11 +1,14 @@
 ﻿using System;
+using System.Security;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
-using Eu.EDelivery.AS4.Model.PMode;
+using Eu.EDelivery.AS4.Services.PullRequestAuthorization;
 using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Steps.Send;
+using Eu.EDelivery.AS4.TestUtils;
 using Eu.EDelivery.AS4.UnitTests.Services;
 using Xunit;
 
@@ -17,10 +20,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
         public async Task ContinuesExecution_IfMatchedCertificateCanBeFoundForTheMpc()
         {
             // Arrange
-            const string expectedMpc = "message-mpc";
-            MessagingContext context = ContextWithPullRequest(expectedMpc);
+            var signingCertificate = GetSigningCertificate();
 
-            var stubMap = new StubAuthorizationMap((r, c) => r.Mpc.Equals(expectedMpc));
+            const string expectedMpc = "message-mpc";
+            MessagingContext context = ContextWithSignedPullRequest(expectedMpc, signingCertificate);
+
+            var stubMap = new StubAuthorizationMapProvider(new[] { new PullRequestAuthorizationEntry(expectedMpc, signingCertificate.Thumbprint, true) });
             var sut = new VerifyPullRequestAuthorizationStep(stubMap);
 
             // Act
@@ -34,18 +39,33 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
         public async Task FailsToAuthorize_WhenNoCertificateMatchesMpc()
         {
             // Arrange
-            MessagingContext context = ContextWithPullRequest("not existing pull request mpc");
-            var sut = new VerifyPullRequestAuthorizationStep(new StubAuthorizationMap((r, c) => false));
+            var signingCertificate = GetSigningCertificate();
 
-            // Act / Assert
-            await Assert.ThrowsAnyAsync<Exception>(
-                () => sut.ExecuteAsync(context, CancellationToken.None));
+            const string expectedMpc = "message-mpc";
+            MessagingContext context = ContextWithSignedPullRequest(expectedMpc, signingCertificate);
+
+            var stubMap = new StubAuthorizationMapProvider(new[] { new PullRequestAuthorizationEntry(expectedMpc, "ANOTHERTHUMBPRINT", true) });
+            var sut = new VerifyPullRequestAuthorizationStep(stubMap);
+
+            // Act and assert.
+            await Assert.ThrowsAsync<SecurityException>(() => sut.ExecuteAsync(context, CancellationToken.None));
         }
 
-        private static MessagingContext ContextWithPullRequest(string expectedMpc)
+        private static X509Certificate2 GetSigningCertificate()
         {
-            AS4Message message = AS4Message.Create(new SendingProcessingMode());
-            message.MessageUnits.Add(new PullRequest(expectedMpc));
+            var cert = new X509Certificate2(Properties.Resources.holodeck_partya_certificate,
+                                           Properties.Resources.certificate_password, X509KeyStorageFlags.Exportable);
+
+            Assert.NotNull(cert.PrivateKey);
+
+            return cert;
+        }
+
+        private static MessagingContext ContextWithSignedPullRequest(string expectedMpc, X509Certificate2 signingCertificate)
+        {
+            AS4Message message = AS4Message.Create(new PullRequest(expectedMpc));
+
+            message = AS4MessageUtils.SignWithCertificate(message, signingCertificate);
 
             return new MessagingContext(message, MessagingContextMode.Send);
         }

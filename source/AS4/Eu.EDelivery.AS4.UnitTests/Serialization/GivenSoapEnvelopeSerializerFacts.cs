@@ -330,10 +330,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
             // Arrange
 
             AS4Message as4Message = CreateAS4MessageWithPMode(CreateMultiHopPMode());
-            var context = new MessagingContext(as4Message, MessagingContextMode.Unknown);
 
             // Act
-            XmlDocument doc = AS4XmlSerializer.ToSoapEnvelopeDocument(context, CancellationToken.None);
+            XmlDocument doc = AS4XmlSerializer.ToSoapEnvelopeDocument(as4Message, CancellationToken.None);
 
             // Assert
             var messagingNode = doc.SelectSingleNode("//*[local-name()='Messaging']") as XmlElement;
@@ -358,7 +357,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
             // The result should contain a signalmessage, which is a receipt.
             Assert.True(result.MessagingContext.AS4Message.IsSignalMessage);
 
-            XmlDocument doc = AS4XmlSerializer.ToSoapEnvelopeDocument(result.MessagingContext, CancellationToken.None);
+            XmlDocument doc = AS4XmlSerializer.ToSoapEnvelopeDocument(result.MessagingContext.AS4Message, CancellationToken.None);
 
             // Following elements should be present:
             // - To element in the wsa namespace
@@ -396,10 +395,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
 
 
             AS4Message errorMessage = AS4Message.Create(error);
-            var context = new MessagingContext(errorMessage, MessagingContextMode.Send) { SendingPMode = CreateMultiHopPMode() };
+
 
             // Act
-            XmlDocument document = AS4XmlSerializer.ToSoapEnvelopeDocument(context, CancellationToken.None);
+            XmlDocument document = AS4XmlSerializer.ToSoapEnvelopeDocument(errorMessage, CancellationToken.None);
 
             // Following elements should be present:
             // - To element in the wsa namespace
@@ -439,7 +438,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                 Assert.NotNull(multihopReceipt.PrimarySignalMessage.MultiHopRouting);
 
                 // Serialize the Deserialized receipt again, and make sure the RoutingInput element is present and correct.
-                XmlDocument doc = AS4XmlSerializer.ToSoapEnvelopeDocument(new MessagingContext(multihopReceipt, MessagingContextMode.Unknown), CancellationToken.None);
+                XmlDocument doc = AS4XmlSerializer.ToSoapEnvelopeDocument(multihopReceipt, CancellationToken.None);
 
                 XmlNode routingInput = doc.SelectSingleNode(@"//*[local-name()='RoutingInput']");
 
@@ -452,17 +451,17 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
         {
             AS4Message as4Message = await CreateReceivedAS4Message(CreateNonMultiHopPMode());
 
-            var message = new MessagingContext(as4Message, MessagingContextMode.Unknown);
+            var context = new MessagingContext(as4Message, MessagingContextMode.Unknown);
 
             // Create a receipt for this message.
             // Use the CreateReceiptStep, since there is no other way.
             var step = new CreateAS4ReceiptStep();
-            StepResult result = await step.ExecuteAsync(message, CancellationToken.None);
+            StepResult result = await step.ExecuteAsync(context, CancellationToken.None);
 
             // The result should contain a signalmessage, which is a receipt.
             Assert.True(result.MessagingContext.AS4Message.IsSignalMessage);
 
-            XmlDocument doc = AS4XmlSerializer.ToSoapEnvelopeDocument(result.MessagingContext, CancellationToken.None);
+            XmlDocument doc = AS4XmlSerializer.ToSoapEnvelopeDocument(result.MessagingContext.AS4Message, CancellationToken.None);
 
             // No MultiHop related elements may be present:
             // - No Action element in the wsa namespace
@@ -571,7 +570,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
 
             var as4Message = AS4Message.Create(receipt);
 
-            XmlDocument document = AS4XmlSerializer.ToSoapEnvelopeDocument(new MessagingContext(as4Message, MessagingContextMode.Unknown), CancellationToken.None);
+            XmlDocument document = AS4XmlSerializer.ToSoapEnvelopeDocument(as4Message, CancellationToken.None);
 
             var node = document.SelectSingleNode(@"//*[local-name()='NonRepudiationInformation']");
 
@@ -586,7 +585,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
 
             var as4Message = AS4Message.Create(receipt);
 
-            XmlDocument document = AS4XmlSerializer.ToSoapEnvelopeDocument(new MessagingContext(as4Message, MessagingContextMode.Unknown), CancellationToken.None);
+            XmlDocument document = AS4XmlSerializer.ToSoapEnvelopeDocument(as4Message, CancellationToken.None);
 
             var node = document.SelectSingleNode(@"//*[local-name()='UserMessage']");
 
