@@ -75,6 +75,11 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
             var sendConfiguration = messagingContext.SendingPMode.PushConfiguration;
 
+            if (sendConfiguration == null)
+            {
+                throw new ConfigurationErrorsException($"The Sending PMode {messagingContext.SendingPMode.Id} does not contain a PushConfiguration element.");
+            }
+
             var as4Message = await GetAS4MessageFromContext(messagingContext);
 
             try
@@ -273,7 +278,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
                     outMessage =>
                     {
                         outMessage.SetOperation(operation);
-                        outMessage.SetStatus(status);                        
+                        outMessage.SetStatus(status);
                     });
 
                 var receptionAwareness = repository.GetReceptionAwareness(as4Message.MessageIds);

@@ -6,7 +6,6 @@ using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Web;
 using System.Xml;
 using Eu.EDelivery.AS4.Builders;
 using Eu.EDelivery.AS4.Extensions;
