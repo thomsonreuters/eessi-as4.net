@@ -84,6 +84,10 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
         public async Task<MessagingContext> HandleExecutionException(Exception exception, MessagingContext context)
         {
             Logger.Error($"Exception occured while executing Steps:{exception.Message}");
+            if (exception.InnerException != null)
+            {
+                Logger.Error(exception.InnerException.Message);
+            }
 
             string ebmsMessageId = await GetEbmsMessageId(context);
 
