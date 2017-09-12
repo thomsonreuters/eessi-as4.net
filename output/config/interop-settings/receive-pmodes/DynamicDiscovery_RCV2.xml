@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <PMode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="eu:edelivery:as4:pmode">
-  <Id>DYNAMIC_DISCOVERY_RCV_AS4NET-C3</Id>
+  <Id>DYNAMIC_DISCOVERY_RCV_AS4NET-C2</Id>
   <Mep>OneWay</Mep>
   <MepBinding>Push</MepBinding>
   <Reliability>
@@ -10,7 +10,7 @@
   </Reliability>
   <ReplyHandling>
     <ReplyPattern>Response</ReplyPattern>
-    <SendingPMode>SIGNED_RESPONSE_FROM_C3</SendingPMode>
+    <SendingPMode>SIGNED_RESPONSE_FROM_C2</SendingPMode>
     <ReceiptHandling>
       <UseNNRFormat>true</UseNNRFormat>
     </ReceiptHandling>
@@ -39,23 +39,12 @@
     </Decryption>
   </Security>
   <MessagePackaging>
-    <PartyInfo>
-      <!-- <FromParty> -->
-        <!-- <PartyIds> -->
-          <!-- <PartyId> -->
-            <!-- <Id>domibus-c2</Id> -->
-            <!-- <Type /> -->
-            <!--<Type>urn:oasis:names:tc:ebcore:partyid-type:unregistered</Type>--> 
-          <!-- </PartyId> -->
-        <!-- </PartyIds> -->
-        <!-- <Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</Role> -->
-      <!-- </FromParty> -->
+    <PartyInfo>     
       <ToParty>
         <PartyIds>
           <PartyId>
-            <Id>as4.net-c3</Id>
-            <Type />
-            <!--<Type>urn:oasis:names:tc:ebcore:partyid-type:unregistered</Type>-->
+            <Id>as4.net-c2</Id>
+            <Type />            
           </PartyId>
         </PartyIds>
         <Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</Role>
