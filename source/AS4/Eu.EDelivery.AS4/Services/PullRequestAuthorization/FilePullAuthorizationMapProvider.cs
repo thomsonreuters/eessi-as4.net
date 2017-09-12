@@ -52,7 +52,7 @@ namespace Eu.EDelivery.AS4.Services.PullRequestAuthorization
 
             foreach (var entry in authorizationEntries)
             {
-                entries.Add(new AuthorizationEntry() { Mpc = entry.Mpc, CertificateThumbPrint = entry.CertificateThumbprint, Allowed = entry.Allowed });
+                entries.Add(new AuthorizationEntry { Mpc = entry.Mpc, CertificateThumbPrint = entry.CertificateThumbprint, Allowed = entry.Allowed });
             }
 
             var map = new PullRequestAuthorizationMap { AuthorizationEntries = entries.ToArray() };

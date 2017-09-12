@@ -1,9 +1,7 @@
-﻿using System.Linq;
-using System.Security.Cryptography.X509Certificates;
-using Eu.EDelivery.AS4.Builders.Security;
+﻿using System.Security.Cryptography.X509Certificates;
 using Eu.EDelivery.AS4.Model.Core;
-using Eu.EDelivery.AS4.Security.References;
 using Eu.EDelivery.AS4.Services.PullRequestAuthorization;
+using Eu.EDelivery.AS4.TestUtils;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Services
@@ -111,14 +109,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Services
 
             [Fact]
             public void IfPullRequestIsNotSignedAndEntriesExistInAuthorizationMap()
-            {                
+            {
                 var provider = new StubAuthorizationMapProvider(new[]
                 {
                     new PullRequestAuthorizationEntry("mpc1", "ABCDEFGHIJKLM", true), new PullRequestAuthorizationEntry("mpc2", "ABCDEFGHIJKLM", true)
                 });
 
                 var pullRequest = CreatePullRequest("mpc1");
-                
+
                 var service = new PullPullAuthorizationMapService(provider);
 
                 Assert.False(service.IsPullRequestAuthorized(pullRequest), "PullRequest should not be allowed since PullRequest is not signed");
@@ -137,13 +135,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Services
 
         private static AS4Message SignAS4MessageWithCertificate(AS4Message message, X509Certificate2 certificate)
         {
-            var signing = new SigningStrategyBuilder(message, X509ReferenceType.BSTReference)
-                .WithCertificate(certificate)
-                .WithSigningId(message.SigningId, hashFunction: Constants.HashFunctions.First())
-                .Build();
-            signing.SignSignature();
-            message.SecurityHeader.Sign(signing);
-            return message;
+            return AS4MessageUtils.SignWithCertificate(message, certificate);
         }
 
         private static AS4Message CreatePullRequest(string mpc)
