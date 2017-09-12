@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
@@ -35,7 +36,7 @@ namespace Eu.EDelivery.AS4.Fe
             var host = new WebHostBuilder()
                 .UseEnvironment(inProcess ? "inprocess" : "production")
                 .UseKestrel()
-                .UseWebRoot(Path.Combine(Directory.GetCurrentDirectory(), "ui/dist"))
+                .UseWebRoot(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "ui/dist"))
                 .UseContentRoot(Directory.GetCurrentDirectory())
                 .UseUrls(httpPort)
                 .UseIISIntegration()

@@ -48,6 +48,8 @@ namespace Eu.EDelivery.AS4.Fe
             {
                 configBuilder
                     .SetBasePath(env.ContentRootPath)
+                    .AddJsonFile("./bin/appsettings.json", true)
+                    .AddJsonFile($"./bin/appsettings.{env.EnvironmentName}.json", true)
                     .AddJsonFile("appsettings.json", true, true)
                     .AddJsonFile($"appsettings.{env.EnvironmentName}.json", true, true);
             }, out config);
