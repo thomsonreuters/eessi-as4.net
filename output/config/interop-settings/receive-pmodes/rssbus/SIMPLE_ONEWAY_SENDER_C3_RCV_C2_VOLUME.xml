@@ -17,7 +17,7 @@
     <NotifyMessageConsumer>false</NotifyMessageConsumer>
     <UseSoapFault>false</UseSoapFault>
     <ReplyPattern>Response</ReplyPattern>
-    <ResponseHttpCode>500</ResponseHttpCode>
+    <ResponseHttpCode>200</ResponseHttpCode>
     <SendingPMode>SIGNED_RESPONSE_FROM_C2</SendingPMode>
   </ErrorHandling>
   <ExceptionHandling>
