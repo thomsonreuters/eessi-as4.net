@@ -59,7 +59,7 @@
   </xs:simpleType>
   <xs:complexType name="ClientCertificateReference">
     <xs:sequence>
-      <xs:element minOccurs="1" maxOccurs="1" name="ClientCertificateFindType" type="tns:X509FindType" />
+      <xs:element minOccurs="0" maxOccurs="1" default="FindByThumbprint" name="ClientCertificateFindType" type="tns:X509FindType" />
       <xs:element minOccurs="0" maxOccurs="1" name="ClientCertificateFindValue" type="xs:string" />
     </xs:sequence>
   </xs:complexType>
