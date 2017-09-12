@@ -53,8 +53,6 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 return await StepResult.SuccessAsync(messagingContext);
             }
 
-            Logger.Info($"[{messagingContext.EbmsMessageId}] Create AS4 Error Message");
-
             AS4Message errorMessage = CreateAS4Error(messagingContext);
 
             if (messagingContext.ErrorResult != null)
@@ -63,6 +61,11 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             }
 
             messagingContext.ModifyContext(errorMessage);
+
+            if (Logger.IsInfoEnabled && errorMessage.MessageUnits.Any())
+            {
+                Logger.Info("Error message has been created for received AS4 UserMessages.");
+            }
 
             return await StepResult.SuccessAsync(messagingContext);
         }

@@ -52,6 +52,11 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
             receiptMessage.SigningId = receivedAS4Message.SigningId;
 
+            if (Logger.IsInfoEnabled && receiptMessage.MessageUnits.Any())
+            {
+                Logger.Info("Receipt message has been created for received AS4 UserMessages.");
+            }
+
             return receiptMessage;
         }
 

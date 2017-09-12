@@ -58,14 +58,13 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             }
 
             if (IsReplyPatternCallback(messagingContext))
-            {
+            {                
                 return await CreateEmptySoapResult(messagingContext);
             }
             else
             {
                 return await ReturnSameStepResult(messagingContext);
             }
-
         }
 
         private static bool IsReplyPatternCallback(MessagingContext message)

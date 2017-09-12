@@ -68,7 +68,33 @@ namespace Eu.EDelivery.AS4.Steps.Send.Response
             response.ReceivedStream = new ReceivedMessage(contentStream, webResponse.ContentType);
             response.ReceivedAS4Message = await TryDeserializeReceivedStream(response.ReceivedStream, cancellation);
 
+            if (Logger.IsInfoEnabled)
+            {
+                if (response.ReceivedAS4Message.IsEmpty == false)
+                {
+                    LogReceivedAS4Response(response.ReceivedAS4Message);
+                }
+            }
+
             return response;
+        }
+
+        private static void LogReceivedAS4Response(AS4Message as4Message)
+        {
+            foreach (var mu in as4Message.MessageUnits)
+            {
+                string messageType = "";
+
+                if (mu is Receipt)
+                {
+                    messageType = "Receipt";
+                }
+                else if (mu is Error)
+                {
+                    messageType = "Error";
+                }
+                Logger.Info($"{messageType} received for message with ebMS Id {mu.RefToMessageId}");
+            }
         }
 
         private static async Task<AS4Message> TryDeserializeReceivedStream(ReceivedMessage receivedStream, CancellationToken cancellation)
