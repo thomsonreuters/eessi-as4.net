@@ -163,7 +163,8 @@ namespace Eu.EDelivery.AS4.Services
         {
             if (as4Message.SignalMessages.Any())
             {
-                IEnumerable<string> relatedUserMessageIds = as4Message.SignalMessages.Select(m => m.RefToMessageId);
+                IEnumerable<string> relatedUserMessageIds = as4Message.SignalMessages.Select(m => m.RefToMessageId)
+                                                                                     .Where(refToMessageId => !String.IsNullOrWhiteSpace(refToMessageId));
 
                 IDictionary<string, bool> duplicateSignalMessages =
                     DetermineDuplicateSignalMessageIds(relatedUserMessageIds);
