@@ -40,7 +40,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive.Participant
         public void Accept(IPModeRuleVisitor visitor)
         {            
             visitor.Visit(this);
-            Logger.Debug($"Receiving PMode: {PMode.Id} has {Points} Points");
+            Logger.Trace($"Receiving PMode: {PMode.Id} has {Points} Points");
         }
 
         /// <summary>

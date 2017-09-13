@@ -37,7 +37,6 @@ namespace Eu.EDelivery.AS4.Steps.Receive.Rules
 
             int points = NotEqual;
 
-
             bool fromPartyEqual = IsPartyInfoEqual(pmodePartyInfo.FromParty, userMessage.Sender);
             bool toPartyEqual = IsPartyInfoEqual(pmodePartyInfo.ToParty, userMessage.Receiver);
 
