@@ -103,6 +103,7 @@ Failed to decrypt data element
             using (datastoreContext = new DatastoreContext(options))
             {
                 string pmodeString = AS4XmlSerializer.ToString(pmode);
+                string pmodeId = pmode.Id;
 
                 {
                     var message = new InMessage(ebmsMessageId: InEbmsMessageId1)
@@ -111,7 +112,7 @@ Failed to decrypt data element
                         InsertionTime = DateTime.UtcNow.AddMinutes(-1),
                     };
                     message.SetStatus(InStatus.Created);
-                    message.SetPModeInformation(pmode);
+                    message.SetPModeInformation(pmodeId, pmodeString);
                     datastoreContext.InMessages.Add(message);
                 }
 
@@ -149,29 +150,25 @@ Failed to decrypt data element
 
                 datastoreContext.InExceptions.Add(new InException
                 {
-                    EbmsRefToMessageId = InEbmsMessageId1,
-                    PMode = pmodeString,
+                    EbmsRefToMessageId = InEbmsMessageId1,                    
                     Exception = InException,
                     InsertionTime = DateTime.UtcNow.AddMinutes(-1),
                 });
                 datastoreContext.InExceptions.Add(new InException
                 {
-                    EbmsRefToMessageId = OutEbmsRefToMessageId1,
-                    PMode = pmodeString,
+                    EbmsRefToMessageId = OutEbmsRefToMessageId1,                    
                     MessageBody = Encoding.ASCII.GetBytes(MessageBody1),
                     InsertionTime = DateTime.UtcNow.AddMinutes(-1)
                 });
                 datastoreContext.OutExceptions.Add(new OutException
                 {
                     EbmsRefToMessageId = OutEbmsRefToMessageId1,
-                    PMode = pmodeString,
                     Exception = InException,
                     InsertionTime = DateTime.UtcNow.AddMinutes(-1)
                 });
                 datastoreContext.OutExceptions.Add(new OutException
                 {
-                    EbmsRefToMessageId = InEbmsRefToMessageId1,
-                    PMode = pmodeString,
+                    EbmsRefToMessageId = InEbmsRefToMessageId1,                    
                     MessageBody = Encoding.ASCII.GetBytes(MessageBody1),
                     Exception = Exception,
                     InsertionTime = DateTime.UtcNow.AddMinutes(-1)
@@ -181,12 +178,22 @@ Failed to decrypt data element
 
                 foreach (var inMessage in datastoreContext.InMessages)
                 {
-                    inMessage.SetPModeInformation(pmode);
+                    inMessage.SetPModeInformation(pmodeId, pmodeString);
                 }
 
                 foreach (var outMessage in datastoreContext.OutMessages)
                 {
-                    outMessage.SetPModeInformation(pmode);
+                    outMessage.SetPModeInformation(pmodeId, pmodeString);
+                }
+
+                foreach (var inException in datastoreContext.InExceptions)
+                {
+                    inException.SetPModeInformation(pmodeId, pmodeString);
+                }
+
+                foreach (var outException in datastoreContext.OutExceptions)
+                {
+                    outException.SetPModeInformation(pmodeId, pmodeString);
                 }
 
                 datastoreContext.SaveChanges();
@@ -489,13 +496,16 @@ Failed to decrypt data element
                         newOutMessage.SetOperation(Operation.ToBeSent);
                         datastoreContext.OutMessages.Add(newOutMessage);
 
+                        var pmodeId = pmode.Id;
+                        var pmodeString = AS4XmlSerializer.ToString(pmode);
+
                         foreach (var inMessage in datastoreContext.InMessages)
                         {
-                            inMessage.SetPModeInformation(pmode);
+                            inMessage.SetPModeInformation(pmodeId, pmodeString);
                         }
                         foreach (var outMessage in datastoreContext.OutMessages)
                         {
-                            outMessage.SetPModeInformation(pmode);
+                            outMessage.SetPModeInformation(pmodeId, pmodeString);
                         }
 
                         datastoreContext.SaveChanges();

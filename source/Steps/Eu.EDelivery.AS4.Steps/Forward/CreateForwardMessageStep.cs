@@ -66,9 +66,11 @@ namespace Eu.EDelivery.AS4.Steps.Forward
                     var repository = new DatastoreRepository(dbContext);
 
                     // Only create an OutMessage for the primary message-unit.
-                    var outMessage = OutMessageBuilder.ForMessageUnit(GetPrimaryMessageUnit(msg),
-                                                                      receivedInMessage.ContentType,
-                                                                      messagingContext.SendingPMode).Build(cancellationToken);
+                    var outMessage = 
+                        await OutMessageBuilder.ForMessageUnit(GetPrimaryMessageUnit(msg),
+                                                               receivedInMessage.ContentType,
+                                                               messagingContext.SendingPMode)
+                                               .BuildAsync(cancellationToken);
 
                     outMessage.MessageLocation = outLocation;
                     outMessage.Mpc = messagingContext.SendingPMode.MessagePackaging?.Mpc ?? Constants.Namespaces.EbmsDefaultMpc;

@@ -79,19 +79,19 @@ namespace Eu.EDelivery.AS4.Services
                 var sendingPMode = GetSendingPMode(messageUnit is SignalMessage, messagingContext);
 
                 OutMessage outMessage =
-                    CreateOutMessageForMessageUnit(
-                        messageUnit: messageUnit,
-                        messageContext: messagingContext,
-                        sendingPMode: sendingPMode,
-                        relatedInMessageMeps: relatedInMessageMeps,
-                        location: messageBodyLocation,
-                        operation: operation);
+                    await CreateOutMessageForMessageUnitAsync(
+                            messageUnit: messageUnit,
+                            messageContext: messagingContext,
+                            sendingPMode: sendingPMode,
+                            relatedInMessageMeps: relatedInMessageMeps,
+                            location: messageBodyLocation,
+                            operation: operation);
 
                 _repository.InsertOutMessage(outMessage);
             }
         }
 
-        private static OutMessage CreateOutMessageForMessageUnit(
+        private static async Task<OutMessage> CreateOutMessageForMessageUnitAsync(
             MessageUnit messageUnit,
             MessagingContext messageContext,
             SendingProcessingMode sendingPMode,
@@ -99,8 +99,9 @@ namespace Eu.EDelivery.AS4.Services
             string location,
             Operation operation)
         {
-            OutMessage outMessage = OutMessageBuilder.ForMessageUnit(messageUnit, messageContext.AS4Message.ContentType, sendingPMode)
-                                                     .Build(CancellationToken.None);
+            OutMessage outMessage = 
+                await OutMessageBuilder.ForMessageUnit(messageUnit, messageContext.AS4Message.ContentType, sendingPMode)
+                                       .BuildAsync(CancellationToken.None);
 
             outMessage.MessageLocation = location;
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading;
+using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.PMode;
@@ -49,7 +50,7 @@ namespace Eu.EDelivery.AS4.Builders.Entities
         /// </param>
         /// <returns>
         /// </returns>
-        public OutMessage Build(CancellationToken cancellationToken)
+        public async Task<OutMessage> BuildAsync(CancellationToken cancellationToken)
         {
             MessageType messageType = DetermineSignalMessageType(_messageUnit);
 
@@ -61,9 +62,9 @@ namespace Eu.EDelivery.AS4.Builders.Entities
             };
 
             outMessage.SetOperation(Operation.NotApplicable);
-            outMessage.SetMessageExchangePattern(DetermineMepOf(_sendingProcessingMode));
-            outMessage.SetPModeInformation(_sendingProcessingMode);
+            outMessage.SetMessageExchangePattern(DetermineMepOf(_sendingProcessingMode));            
             outMessage.SetEbmsMessageType(messageType);
+            await outMessage.SetPModeInformationAsync(_sendingProcessingMode);
 
             if (string.IsNullOrWhiteSpace(_messageUnit.RefToMessageId) == false)
             {

@@ -28,9 +28,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
 
                 // Act
                 InMessage inMessage =
-                    InMessageBuilder.ForSignalMessage(receipt, as4Message, MessageExchangePattern.Push)
-                                    .WithPMode(new ReceivingProcessingMode())
-                                    .Build(CancellationToken.None);
+                    await InMessageBuilder.ForSignalMessage(receipt, as4Message, MessageExchangePattern.Push)
+                                          .WithPMode(new ReceivingProcessingMode())
+                                          .BuildAsync(CancellationToken.None);
 
                 // Assert
                 Assert.NotNull(inMessage);
@@ -43,35 +43,35 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
         public class GivenInvalidArguments : GivenInMessageBuilderFacts
         {
             [Fact]
-            public void ThenBuildInMessageFailsWitMissingAS4Message()
+            public async Task ThenBuildInMessageFailsWitMissingAS4Message()
             {
                 // Arrange
                 Receipt messageUnit = CreateReceiptMessageUnit();
 
                 // Act / Assert
-                Assert.ThrowsAny<Exception>(
-                    () => InMessageBuilder.ForSignalMessage(messageUnit, belongsToAS4Message: null, mep: MessageExchangePattern.Push).Build(CancellationToken.None));
+                await Assert.ThrowsAnyAsync<Exception>(
+                    () => InMessageBuilder.ForSignalMessage(messageUnit, belongsToAS4Message: null, mep: MessageExchangePattern.Push).BuildAsync(CancellationToken.None));
             }
 
             [Fact]
-            public void ThenBuildInMessageFailsWithMissingMessageUnit()
+            public async Task ThenBuildInMessageFailsWithMissingMessageUnit()
             {
                 // Arrange
                 AS4Message as4Message = AS4Message.Empty;
 
                 // Act / Assert
-                Assert.ThrowsAny<Exception>(
-                    () => InMessageBuilder.ForUserMessage(null, as4Message, MessageExchangePattern.Push).Build(CancellationToken.None));
+                await Assert.ThrowsAnyAsync<Exception>(
+                    () => InMessageBuilder.ForUserMessage(null, as4Message, MessageExchangePattern.Push).BuildAsync(CancellationToken.None));
             }
 
             [Fact]
-            public void FailsToBuild_IfInvalidMessageUnit()
+            public async Task FailsToBuild_IfInvalidMessageUnit()
             {
                 // Arrange
                 InMessageBuilder sut = InMessageBuilder.ForSignalMessage(Mock.Of<SignalMessage>(), AS4Message.Empty, MessageExchangePattern.Push);
 
                 // Act / Assert
-                Assert.ThrowsAny<Exception>(() => sut.Build(CancellationToken.None));
+                await Assert.ThrowsAnyAsync<Exception>(() => sut.BuildAsync(CancellationToken.None));
             }
         }
 

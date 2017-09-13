@@ -174,7 +174,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             inMessage.SetMessageExchangePattern(MessageExchangePattern.Push);
             inMessage.SetOperation(Operation.ToBeDelivered);
 
-            inMessage.SetPModeInformation(CreateReceivedPMode());
+            await inMessage.SetPModeInformationAsync(CreateReceivedPMode());
 
             return inMessage;
         }

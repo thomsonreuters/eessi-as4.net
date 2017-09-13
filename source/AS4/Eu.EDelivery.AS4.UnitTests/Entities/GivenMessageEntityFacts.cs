@@ -165,26 +165,26 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
         public class PMode : GivenMessageEntityFacts
         {
             [Fact]
-            public void SendingPModeInformationIsCorrectlySet()
+            public async Task SendingPModeInformationIsCorrectlySet()
             {
                 var entity = new StubMessageEntity();
 
                 var sendingPMode = new SendingProcessingMode() { Id = "sending_pmode_id" };
 
-                entity.SetPModeInformation(sendingPMode);
+                await entity.SetPModeInformationAsync(sendingPMode);
 
                 Assert.Equal(sendingPMode.Id, entity.PModeId);
                 Assert.Equal(entity.PMode, AS4XmlSerializer.ToString(sendingPMode));
             }
 
             [Fact]
-            public void ReceivingPModeInformationIsCorrectlySet()
+            public async Task ReceivingPModeInformationIsCorrectlySet()
             {
                 var entity = new StubMessageEntity();
 
                 var receivingPMode = new ReceivingProcessingMode() { Id = "sending_pmode_id" };
 
-                entity.SetPModeInformation(receivingPMode);
+                await entity.SetPModeInformationAsync(receivingPMode);
 
                 Assert.Equal(receivingPMode.Id, entity.PModeId);
                 Assert.Equal(entity.PMode, AS4XmlSerializer.ToString(receivingPMode));
@@ -227,7 +227,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
                 using (var db = GetDataStoreContext())
                 {
                     var inMessage = new InMessage(messageId) { MessageLocation = "test" };
-                    inMessage.SetPModeInformation(new SendingProcessingMode() { Id = pmodeId });
+                    await inMessage.SetPModeInformationAsync(new SendingProcessingMode() { Id = pmodeId });
 
                     db.InMessages.Add(inMessage);
 
