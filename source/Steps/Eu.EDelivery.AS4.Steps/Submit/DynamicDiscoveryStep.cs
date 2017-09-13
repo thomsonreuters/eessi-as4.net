@@ -45,7 +45,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
                 return StepResult.Success(messagingContext);
             }
 
-            Logger.Info("DynamicDiscovery is enabled in Sending PMode");
+            Logger.Info($"DynamicDiscovery is enabled in Sending PMode - using {SmpProfile}");
 
             var clonedPMode = (SendingProcessingMode)messagingContext.SendingPMode.Clone();
             clonedPMode.Id = $"{clonedPMode.Id}_SMP";
@@ -86,11 +86,13 @@ namespace Eu.EDelivery.AS4.Steps.Submit
 
         private static async Task<XmlDocument> RetrieveSmpMetaData(Uri smpServerUri)
         {
+            Logger.Info($"Contacting SMP server at {smpServerUri} to retrieve meta-data");
+
             HttpClient client = new HttpClient();
             var response = await client.GetAsync(smpServerUri);
 
             if (response.StatusCode != HttpStatusCode.OK)
-            {                
+            {
                 throw new HttpListenerException((int)response.StatusCode, "Unexpected result returned from SMP Service");
             }
 
@@ -106,7 +108,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         }
 
         private static void ValidatePMode(SendingProcessingMode pmode)
-        {            
+        {
             SendingProcessingModeValidator.Instance.Validate(pmode).Result(
                 onValidationSuccess: result => Logger.Info($"Dynamically completed PMode {pmode.Id} is valid"),
                 onValidationFailed: result =>
