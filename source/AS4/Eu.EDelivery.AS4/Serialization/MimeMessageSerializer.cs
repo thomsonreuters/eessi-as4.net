@@ -139,17 +139,24 @@ namespace Eu.EDelivery.AS4.Serialization
                 attachment.Content = tempStream;
             }
 
-            var attachmentMimePart = new MimePart(attachment.ContentType)
+            try
             {
-                ContentId = attachment.Id,
-                ContentObject = new ContentObject(attachment.Content),
-                ContentDisposition = new ContentDisposition(ContentDisposition.Attachment),
-                ContentTransferEncoding = ContentEncoding.Binary
+                var attachmentMimePart = new MimePart(attachment.ContentType)
+                {
+                    ContentId = attachment.Id,
+                    ContentObject = new ContentObject(attachment.Content),
+                    ContentDisposition = new ContentDisposition(ContentDisposition.Attachment),
+                    ContentTransferEncoding = ContentEncoding.Binary
 
-                // We need to explicitly set this to binary, 
-                // otherwise we can enounter issues with CRLFs & signing.
-            };
-            bodyMultipart.Add(attachmentMimePart);
+                    // We need to explicitly set this to binary, 
+                    // otherwise we can enounter issues with CRLFs & signing.
+                };
+                bodyMultipart.Add(attachmentMimePart);
+            }
+            catch (ArgumentException)
+            {
+                throw new NotSupportedException($"Attachment {attachment.Id} has a content-type that is not supported ({attachment.ContentType}).");
+            }
         }
 
         // ReSharper disable once InconsistentNaming : double underscore to indicate that this field should not be used directly.
