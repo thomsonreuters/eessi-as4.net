@@ -30,7 +30,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
         {
             if (!messagingContext.SendingPMode.MessagePackaging.UseAS4Compression)
             {
-                return await ReturnSameInternalMessage(messagingContext);
+                return await ReturnSameMessagingContext(messagingContext);
             }
 
             _messagingContext = messagingContext;
@@ -39,7 +39,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             return await StepResult.SuccessAsync(messagingContext);
         }
 
-        private static async Task<StepResult> ReturnSameInternalMessage(MessagingContext messagingContext)
+        private static async Task<StepResult> ReturnSameMessagingContext(MessagingContext messagingContext)
         {
             Logger.Debug($"Sending PMode {messagingContext.SendingPMode.Id} Compression is disabled");
             return await StepResult.SuccessAsync(messagingContext);

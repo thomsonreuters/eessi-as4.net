@@ -55,14 +55,14 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         private static AS4Message CreateAS4MessageFromSubmit(MessagingContext messagingContext)
         {
             UserMessage userMessage = CreateUserMessage(messagingContext);
-            Logger.Info($"[{userMessage.MessageId}] Create AS4Message with Submit Message");
+            Logger.Info($"UserMessage with Id {userMessage.MessageId} created from Submit Message");
 
             return AS4Message.Create(userMessage, messagingContext.SendingPMode);
         }
 
         private static UserMessage CreateUserMessage(MessagingContext messagingContext)
         {
-            Logger.Debug("Map Submit Message to UserMessage");
+            Logger.Debug($"Create UserMessage for Submit Message");
 
             return AS4Mapper.Map<UserMessage>(messagingContext.SubmitMessage);
         }

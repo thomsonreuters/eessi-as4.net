@@ -31,7 +31,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         /// Initializes a new instance of the <see cref="StoreAS4MessageStep" /> class.
         /// </summary>
         public StoreAS4MessageStep()
-            : this(Registry.Instance.CreateDatastoreContext, Registry.Instance.MessageBodyStore) {}
+            : this(Registry.Instance.CreateDatastoreContext, Registry.Instance.MessageBodyStore) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="StoreAS4MessageStep" /> class.
@@ -52,7 +52,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellation)
         {
-            Logger.Info($"[{messagingContext.AS4Message.GetPrimaryMessageId()}] Store the AS4 Message with Operation = 'ToBeProcessed'");
+            Logger.Info($"[{messagingContext.AS4Message.GetPrimaryMessageId()}] Storing the AS4 Message with Operation = 'ToBeProcessed'");
 
             using (DatastoreContext context = _createContext())
             {
@@ -70,6 +70,8 @@ namespace Eu.EDelivery.AS4.Steps.Submit
                     throw;
                 }
             }
+
+            Logger.Info($"[{messagingContext.AS4Message.GetPrimaryMessageId()}] Stored the AS4 Message");
 
             return await StepResult.SuccessAsync(messagingContext);
         }

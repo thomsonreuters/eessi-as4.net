@@ -126,7 +126,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             }
 
             ReceivePMode pmode = possibilities.First();
-            Logger.Info($"Use '{pmode.Id}' as Receiving PMode");
+            Logger.Info($"Use '{pmode.Id}' as Receiving PMode to process message {messagingContext.EbmsMessageId}");
 
             var validationResult = ReceivingProcessingModeValidator.Instance.Validate(pmode);
 
@@ -168,7 +168,16 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             participants.ForEach(p => p.Accept(new PModeRuleVisitor()));
 
             PModeParticipant winner = participants.Where(p => p.Points >= 10).Max();
-            return participants.Where(p => p.Points == winner?.Points).Select(p => p.PMode);
+            var scoresToConsider = participants.Select(p => p.Points).Where(p => p >= 10);
+
+            if (scoresToConsider.Any() == false)
+            {
+                return new ReceivePMode[] {};
+            }
+
+            int maxPoints = scoresToConsider.Max();
+
+            return participants.Where(p => p.Points == maxPoints).Select(p => p.PMode);
         }
 
         private List<PModeParticipant> GetPModeParticipants(UserMessage primaryUser)
@@ -185,7 +194,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             }
 
             string pmodeId = receivePMode.ReplyHandling.SendingPMode;
-            Logger.Info("Referenced Sending PMode Id: " + pmodeId);
+            Logger.Info($"Referenced Sending PMode Id: {pmodeId}");
 
             return _config.GetSendingPMode(pmodeId);
         }

@@ -200,7 +200,7 @@ namespace Eu.EDelivery.AS4.Receivers
         {
             extension = extension.TrimStart('.');
 
-            Logger.Debug($"Renaming file '{fileInfo.Name}'...");
+            Logger.Trace($"Renaming file '{fileInfo.Name}'...");
             string destFileName =
                 $"{fileInfo.Directory?.FullName}\\{Path.GetFileNameWithoutExtension(fileInfo.FullName)}.{extension}";
 
@@ -230,7 +230,7 @@ namespace Eu.EDelivery.AS4.Receivers
                     }
                 } while (attempts < 5);
 
-                Logger.Info($"File renamed to: '{fileInfo.Name}'!");
+                Logger.Trace($"File renamed to: '{fileInfo.Name}'");
 
                 return (success: true, filename: destFileName);
             }

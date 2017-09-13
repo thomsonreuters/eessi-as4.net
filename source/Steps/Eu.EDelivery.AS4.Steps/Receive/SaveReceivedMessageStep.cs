@@ -47,7 +47,6 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         {
             Logger.Info($"{messagingContext.EbmsMessageId} Insert received message in datastore");
 
-
             if (messagingContext.ReceivedMessage == null)
             {
                 throw new InvalidOperationException("SaveReceivedMessageStep requires a ReceivedStream");
@@ -84,7 +83,6 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             if (messagingContext.SendingPMode.MepBinding == MessageExchangePatternBinding.Pull)
             {
                 return MessageExchangePattern.Pull;
-
             }
 
             return MessageExchangePattern.Push;

@@ -65,6 +65,8 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         {
             AS4Message as4Message = context.AS4Message;
 
+            Logger.Info($"[{as4Message.GetPrimaryMessageId()}] Decompressing attachments");
+
             foreach (Attachment attachment in as4Message.Attachments)
             {
                 if (IsAttachmentNotCompressed(attachment))
@@ -84,7 +86,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 AssignAttachmentProperties(as4Message.PrimaryUserMessage.PayloadInfo.ToList(), attachment);
             }
 
-            Logger.Info($"[{as4Message.GetPrimaryMessageId()}] Decompress AS4 Message Attachments with GZip Compression");
+            Logger.Info($"[{as4Message.GetPrimaryMessageId()}] Attachmemnts decompressed");
             return await StepResult.SuccessAsync(context);
         }
 
