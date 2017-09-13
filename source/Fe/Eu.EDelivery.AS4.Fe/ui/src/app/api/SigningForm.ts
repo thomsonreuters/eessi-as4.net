@@ -2,7 +2,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 import { ItemType } from './ItemType';
 import { FormWrapper } from './../common/form.service';
-import { thumbPrintValidation } from '../validators/thumbprintValidator';
+import { thumbPrintValidation } from '../common/thumbprintInput/validator'
 import { Signing } from './Signing';
 
 export class SigningForm {

@@ -3,7 +3,7 @@ import 'rxjs/add/operator/distinctuntilchanged';
 
 import { ItemType } from './ItemType';
 import { Encryption, PublicKeyFindCriteria, PublicKeyCertificate } from './Encryption';
-import { thumbPrintValidation } from '../validators/thumbprintValidator';
+import { thumbPrintValidation } from '../common/thumbprintInput/validator'
 import { KeyEncryptionForm } from './KeyEncryptionForm';
 import { FormWrapper } from './../common/form.service';
 

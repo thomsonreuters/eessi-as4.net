@@ -1,7 +1,7 @@
 import { ItemType } from './ItemType';
 
 import { FormWrapper } from './../common/form.service';
-import { thumbPrintValidation } from '../validators/thumbprintValidator';
+import { thumbPrintValidation } from '../common/thumbprintInput/validator'
 import { Decryption } from './Decryption';
 
 export class DecryptionForm {

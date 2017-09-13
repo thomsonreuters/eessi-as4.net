@@ -49,6 +49,7 @@ import { CustomHttp, CustomAuthNoSpinnerHttp } from './spinner/customhttp';
 import { GetItemTypePropertyPipe, GetTypePipe } from './getitemtypeproperty.pipe';
 import { RuntimetoolTipDirective } from './runtimetooltip.directive';
 import { Select2Component } from './select2/select2.component';
+import { ThumbprintValidatorDirective } from './thumbprintInput/validator';
 
 import { Select2Module } from 'ng2-select2';
 
@@ -101,7 +102,8 @@ const directives: any = [
     FixFormGroupStateDirective,
     OptionDirective,
     TabIndexDirective,
-    RuntimetoolTipDirective
+    RuntimetoolTipDirective,
+    ThumbprintValidatorDirective
 ];
 
 const pipes: any = [
@@ -180,7 +182,8 @@ const services: any = [
         GetItemTypePropertyPipe,
         GetTypePipe,
         RuntimetoolTipDirective,
-        Select2Component
+        Select2Component,
+        ThumbprintValidatorDirective
     ],
     imports: [
         ClipboardModule,

@@ -45,12 +45,12 @@ export class ThumbprintInputComponent implements ControlValueAccessor {
     }
     public name: EventEmitter<string>;
     public get errors() {
-        return !!!this.formControl.control ? null : this.formControl.control!.get(this.formControlName)!.errors;
+        return (!!!this.formControl || !!!this.formControl.control) ? null : this.formControl.control!.get(this.formControlName)!.errors;
     }
     @Input() public formControlName: string;
     private _input: string;
     private _propagateChange: (_: string) => void;
-    constructor(@SkipSelf() @Host() @Inject(forwardRef(() => ControlContainer)) private formControl: ControlContainer) {
+    constructor(@SkipSelf() @Optional() @Host() @Inject(forwardRef(() => ControlContainer)) private formControl: ControlContainer) {
     }
     public sanitize() {
         let charReg = new RegExp(/[0-9a-fA-F]/);

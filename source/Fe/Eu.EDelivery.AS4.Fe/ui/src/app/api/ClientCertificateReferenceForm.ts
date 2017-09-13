@@ -2,7 +2,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 import { FormWrapper } from './../common/form.service';
 import { ClientCertificateReference } from './ClientCertificateReference';
-import { thumbPrintValidation } from '../validators/thumbprintValidator';
+import { thumbPrintValidation } from '../common/thumbprintInput/validator'
 import { ItemType } from './ItemType';
 
 export class ClientCertificateReferenceForm {

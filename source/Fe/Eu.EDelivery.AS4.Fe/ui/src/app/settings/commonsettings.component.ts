@@ -44,9 +44,9 @@ export class CommonSettingsComponent implements CanComponentDeactivate {
     public set settings(settings: CustomSettings) {
         this.form = CustomSettingsForm.getForm(this.formBuilder, settings);
         this._settings = settings;
-        this.isDirty = this.form.valueChanges.map(() => this.form.dirty).toBehaviorSubject(this.form.dirty);
+        this.isSaveEnabled = this.form.valueChanges.map(() => this.form.dirty && this.form.valid);
     }
-    @Output() public isDirty: Observable<boolean>;
+    @Output() public isSaveEnabled: Observable<boolean>;
     private _settings: CustomSettings;
     constructor(private settingsService: SettingsService, private formBuilder: FormBuilder, private dialogService: DialogService) {
     }
@@ -76,6 +76,7 @@ export class CommonSettingsComponent implements CanComponentDeactivate {
         }
         (<FormArray>this.form.controls['setting']).removeAt(index);
         this.form.markAsDirty();
+        this.form.updateValueAndValidity();
     }
     public canDeactivate(): boolean {
         return !this.form.dirty;

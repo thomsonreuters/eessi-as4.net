@@ -23,6 +23,8 @@ import { PortalSettingsComponent } from './portalsettings/portalsettings.compone
 import { AuthenticationModule } from './../authentication/authentication.module';
 import { RuntimeService } from './runtime.service';
 import { SettingsService } from './settings.service';
+import { AuthorizationMapComponent } from './authorizationmap/authorizationmap.component';
+import { AuthorizationMapService } from './authorizationmap/authorizationmapservice';
 
 const components: any = [
     SettingsComponent,
@@ -33,14 +35,16 @@ const components: any = [
     ReceiverComponent,
     StepSettingsComponent,
     ReceptionAwarenessAgentComponent,
-    PortalSettingsComponent
+    PortalSettingsComponent,
+    AuthorizationMapComponent
 ];
 
 const services: any = [
     SettingsService,
     RuntimeService,
     SettingsStore,
-    RuntimeStore
+    RuntimeStore,
+    AuthorizationMapService
 ];
 
 @NgModule({
@@ -56,8 +60,8 @@ const services: any = [
         ReactiveFormsModule,
         RouterModule.forChild(ROUTES),
         SortablejsModule,
-        As4ComponentsModule,
         AuthenticationModule,
+        As4ComponentsModule,
         RuntimeModule
     ],
     exports: [

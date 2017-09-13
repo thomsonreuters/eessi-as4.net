@@ -1,14 +1,17 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using EnsureThat;
 using Eu.EDelivery.AS4.Agents;
+using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Fe.Authentication;
 using Eu.EDelivery.AS4.Fe.Logging;
 using Eu.EDelivery.AS4.Fe.Models;
 using Eu.EDelivery.AS4.Fe.Settings;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.ServiceHandler.Agents;
+using Eu.EDelivery.AS4.Services.PullRequestAuthorization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -39,6 +42,32 @@ namespace Eu.EDelivery.AS4.Fe.Controllers
             this.settingsService = settingsService;
             this.portalSettings = portalSettings;
             this.portalSettingsService = portalSettingsService;
+        }
+
+        /// <summary>
+        /// Posts the authorization map.
+        /// </summary>
+        /// <param name="authorizationEntries">The authorization entries.</param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("authorizationmap")]
+        [SwaggerResponse((int)HttpStatusCode.OK)]
+        public IActionResult PostAuthorizationMap([FromBody] IEnumerable<PullRequestAuthorizationEntry> authorizationEntries)
+        {
+            Config.Instance.PullRequestAuthorizationMapProvider.SavePullRequestAuthorizationEntries(authorizationEntries);
+            return new OkResult();
+        }
+
+        /// <summary>
+        /// Gets the authorization map.
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("authorizationmap")]
+        [SwaggerResponse((int)HttpStatusCode.OK, typeof(IEnumerable<PullRequestAuthorizationEntry>))]
+        public IActionResult GetAuthorizationMap()
+        {
+            return new OkObjectResult(Config.Instance.PullRequestAuthorizationMapProvider.GetPullRequestAuthorizationEntryOverview());
         }
 
         /// <summary>
