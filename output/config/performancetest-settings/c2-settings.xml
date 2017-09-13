@@ -60,7 +60,6 @@
         <Setting key="Table">OutMessages</Setting>
         <Setting key="Filter">Operation = 'ToBeProcessed'</Setting>
         <Setting key="Update" field="Operation">Processing</Setting>
-        <Setting key="BatchSize">50</Setting>
       </Receiver>
       <Transformer type="Eu.EDelivery.AS4.Transformers.AS4MessageTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
       <StepConfiguration>
