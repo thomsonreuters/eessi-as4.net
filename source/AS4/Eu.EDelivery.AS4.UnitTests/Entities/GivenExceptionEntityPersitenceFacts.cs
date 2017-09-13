@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.UnitTests.Common;
@@ -18,7 +15,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
 
             using (var db = this.GetDataStoreContext())
             {
-                var inException = new InException();
+                var inException = new InException("message-id", "some-error-happened");
                 inException.SetOperation(Operation.Sent);
 
                 db.InExceptions.Add(inException);

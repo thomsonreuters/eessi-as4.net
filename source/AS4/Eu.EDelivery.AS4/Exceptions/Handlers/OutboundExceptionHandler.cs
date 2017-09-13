@@ -44,8 +44,7 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
             await SideEffectUsageRepository(
                 repository =>
                 {
-                    OutException outException = CreateMinimumOutException(exception);
-                    outException.MessageBody = messageToTransform.UnderlyingStream.ToBytes();
+                    OutException outException = new OutException(messageToTransform.UnderlyingStream.ToBytes(), exception);
 
                     repository.InsertOutException(outException);
 
@@ -53,16 +52,6 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
                 });
 
             return new MessagingContext(exception);
-        }
-
-        private static OutException CreateMinimumOutException(Exception exception)
-        {
-            return new OutException
-            {
-                Exception = exception.ToString(),
-                InsertionTime = DateTimeOffset.Now,
-                ModificationTime = DateTimeOffset.Now
-            };
         }
 
         /// <summary>
@@ -100,8 +89,8 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
                     {
                         repository.UpdateOutMessage(ebmsMessageId, m => m.SetStatus(OutStatus.Exception));
 
-                        OutException outException = await CreateOutExceptionWithContextInfo(exception, context);
-                        outException.EbmsRefToMessageId = ebmsMessageId;
+                        OutException outException = new OutException(ebmsMessageId, exception);
+                        await DecorateExceptionEntityWithContextInfoAsync(outException, context);
 
                         repository.InsertOutException(outException);
                     });
@@ -111,8 +100,11 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
                 await SideEffectUsageRepository(
                     async repository =>
                     {
-                        OutException ex = await CreateOutExceptionWithContextInfo(exception, context);
-                        ex.MessageBody = AS4XmlSerializer.TryToXmlBytesAsync(context.SubmitMessage).Result;
+                        OutException ex = new OutException(await AS4XmlSerializer.TryToXmlBytesAsync(context.SubmitMessage),
+                                                           exception);
+
+                        await DecorateExceptionEntityWithContextInfoAsync(ex, context);
+
 
                         repository.InsertOutException(ex);
                     });
@@ -121,18 +113,14 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
             return new MessagingContext(exception);
         }
 
-        private static async Task<OutException> CreateOutExceptionWithContextInfo(Exception exception, MessagingContext context)
+        private static async Task DecorateExceptionEntityWithContextInfoAsync(ExceptionEntity outException, MessagingContext context)
         {
-            OutException outException = CreateMinimumOutException(exception);
-
             await outException.SetPModeInformationAsync(context.SendingPMode);
 
             var notifyOperation =
                 (context.SendingPMode?.ExceptionHandling?.NotifyMessageProducer == true) ? Operation.ToBeNotified : default(Operation);
 
             outException.SetOperation(notifyOperation);
-
-            return outException;
         }
 
         private async Task SideEffectUsageRepository(Func<DatastoreRepository, Task> usage)

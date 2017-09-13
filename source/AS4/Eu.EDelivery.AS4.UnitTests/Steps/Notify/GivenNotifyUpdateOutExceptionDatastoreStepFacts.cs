@@ -40,7 +40,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
 
             private static OutException CreateDefaultOutException()
             {
-                var exception = new OutException { EbmsRefToMessageId = "ref-to-message-id" };
+                var exception = new OutException("ref-to-message-id", "errorMessage");
                 exception.SetOperation(Operation.ToBeNotified);
 
                 return exception;

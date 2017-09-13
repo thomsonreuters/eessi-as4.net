@@ -90,7 +90,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                         continue;
                     }
 
-                    var inException = CreateInException(signal, context.ErrorResult);
+                    var inException = new InException(signal.MessageId, context.ErrorResult.Description);
                     await inException.SetPModeInformationAsync(context.ReceivingPMode);
 
                     repository.InsertInException(inException);
@@ -101,17 +101,6 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
                 await dbContext.SaveChangesAsync();
             }
-        }
-
-        private static InException CreateInException(SignalMessage message, ErrorResult error)
-        {
-            var inException = new InException
-            {
-                EbmsRefToMessageId = message.MessageId,
-                Exception = error.Description
-            };
-
-            return inException;
         }
 
         private static AS4Message CreateAS4Error(MessagingContext context)

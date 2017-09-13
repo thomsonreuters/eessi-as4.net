@@ -69,14 +69,8 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
             using (DatastoreContext context = _createContext())
             {
                 var repository = new DatastoreRepository(context);
-                var outException = new OutException
-                {
-                    Exception = exception.Message,
-                    MessageBody = body,
-                    InsertionTime = DateTimeOffset.Now,
-                    ModificationTime = DateTimeOffset.Now
-                };
-
+                var outException = new OutException(body, exception.Message);
+                
                 repository.InsertOutException(outException);
                 await context.SaveChangesAsync();
             }
