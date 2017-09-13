@@ -24,8 +24,6 @@ namespace Eu.EDelivery.AS4.Steps.Send
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
         private readonly ICertificateRepository _certificateRepository;
 
-        ////private InternalMessage _internalMessage;
-
         /// <summary>
         /// Initializes a new instance of the <see cref="EncryptAS4MessageStep"/> class
         /// </summary>
@@ -50,7 +48,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
         {
             if (!messagingContext.SendingPMode.Security.Encryption.IsEnabled)
             {
-                return await ReturnSameInternalMessage(messagingContext);
+                return await ReturnSameMessagingContext(messagingContext);
             }
 
             TryEncryptAS4Message(messagingContext);
@@ -122,7 +120,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             throw new NotSupportedException("The PublicKeyInformation specified in the PMode could not be used to retrieve the certificate");            
         }
 
-        private static Task<StepResult> ReturnSameInternalMessage(MessagingContext messagingContext)
+        private static Task<StepResult> ReturnSameMessagingContext(MessagingContext messagingContext)
         {
             Logger.Debug($"Sending PMode {messagingContext.SendingPMode.Id} Encryption is disabled");
             return StepResult.SuccessAsync(messagingContext);

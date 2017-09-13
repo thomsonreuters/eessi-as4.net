@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
@@ -27,7 +26,7 @@ namespace Eu.EDelivery.AS4.Transformers
         /// <returns></returns>
         public async Task<MessagingContext> TransformAsync(ReceivedMessage message, CancellationToken cancellationToken)
         {
-            Logger.Info("Transforming ReceivedMessage to InternalMessage");
+            Logger.Info("Transforming ReceivedMessage to MessagingContext");
 
             SubmitMessage submitMessage = DeserializeSubmitMessage(message.UnderlyingStream);
             ValidateSubmitMessage(submitMessage);
