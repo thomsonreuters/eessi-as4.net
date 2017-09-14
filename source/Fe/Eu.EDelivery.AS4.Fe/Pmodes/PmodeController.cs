@@ -157,7 +157,7 @@ namespace Eu.EDelivery.AS4.Fe.Pmodes
         /// Update an existing pmode.
         /// </summary>
         /// <param name="basePmode">The pmode data.</param>
-        /// <param name="originalPmodeName">Name of the original pmode.</param>
+        /// <param name="originalName">Name of the original pmode.</param>
         /// <returns></returns>
         [HttpPut]
         [Route("sending/{originalName}")]

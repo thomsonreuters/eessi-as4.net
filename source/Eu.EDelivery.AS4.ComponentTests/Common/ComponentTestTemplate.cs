@@ -5,8 +5,8 @@ using Xunit;
 
 namespace Eu.EDelivery.AS4.ComponentTests.Common
 {
-    [Collection("ComponentTest")]
-    public class ComponentTestTemplate : IClassFixture<ComponentTestFixture>, IDisposable
+    [Collection(ComponentTestCollection.ComponentTestCollectionName)]
+    public class ComponentTestTemplate : IDisposable
     {
         private bool _restoreSettings = false;
 
@@ -27,11 +27,12 @@ namespace Eu.EDelivery.AS4.ComponentTests.Common
         }
 
         protected virtual void Disposing(bool isDisposing) { }
+    }
 
-        #region Infrastructure methods
-
-
-        #endregion
+    [CollectionDefinition(ComponentTestCollectionName)]
+    public class ComponentTestCollection : ICollectionFixture<ComponentTestFixture>
+    {
+        public const string ComponentTestCollectionName = "ComponentTestCollection";
     }
 
     public class ComponentTestFixture
