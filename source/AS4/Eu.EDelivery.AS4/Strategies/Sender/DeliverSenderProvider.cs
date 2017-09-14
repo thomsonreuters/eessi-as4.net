@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using Eu.EDelivery.AS4.Exceptions;
 
 namespace Eu.EDelivery.AS4.Strategies.Sender
 {
@@ -29,7 +28,7 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
         /// </summary>
         /// <param name="condition"></param>
         /// <param name="sender"></param>
-        public void Accept(Func<string, bool> condition, IDeliverSender sender)
+        public void Accept(Func<string, bool> condition, Func<IDeliverSender> sender)
         {
             _senders.Add(new DeliverSenderEntry(condition, sender));
         }
@@ -50,7 +49,7 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
                 throw new KeyNotFoundException($"No Deliver Sender found for a given {operationMethod} Operation Method");
             }
 
-            return entry.Sender;
+            return entry.Sender();
         }
 
         /// <summary>
@@ -58,7 +57,7 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
         /// </summary>
         private class DeliverSenderEntry
         {
-            public DeliverSenderEntry(Func<string, bool> condition, IDeliverSender sender)
+            public DeliverSenderEntry(Func<string, bool> condition, Func<IDeliverSender> sender)
             {
                 Condition = condition;
                 Sender = sender;
@@ -66,7 +65,7 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
 
             public Func<string, bool> Condition { get; }
 
-            public IDeliverSender Sender { get; }
+            public Func<IDeliverSender> Sender { get; }
         }
     }
 
@@ -75,7 +74,7 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
     /// </summary>
     public interface IDeliverSenderProvider
     {
-        void Accept(Func<string, bool> condition, IDeliverSender sender);
+        void Accept(Func<string, bool> condition, Func<IDeliverSender> sender);
 
         IDeliverSender GetDeliverSender(string operationMethod);
     }

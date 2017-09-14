@@ -17,7 +17,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Strategies.Sender
 
             // Act / Assert
             TestProviderReturnsExpectedSender(
-                acceptSender: sender => sut.Accept(s => true, sender),
+                acceptSender: sender => sut.Accept(s => true, () => sender),
                 getSender: sut.GetDeliverSender);
         }
 
@@ -27,10 +27,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Strategies.Sender
             // Arrange
             var sut = new NotifySenderProvider();
 
-           // Act / Assert
-           TestProviderReturnsExpectedSender(
-               acceptSender: sender => sut.Accept(s => true, () => sender), 
-               getSender: sut.GetNotifySender);
+            // Act / Assert
+            TestProviderReturnsExpectedSender(
+                acceptSender: sender => sut.Accept(s => true, () => sender),
+                getSender: sut.GetNotifySender);
         }
 
         private static void TestProviderReturnsExpectedSender<T>(Action<T> acceptSender, Func<string, T> getSender) where T : class
@@ -39,7 +39,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Strategies.Sender
             const string dummyOperation = "ignored string";
             var expectedSender = new SaboteurSender() as T;
             acceptSender(expectedSender);
-                
+
             // Act
             T actualSender = getSender(dummyOperation);
 

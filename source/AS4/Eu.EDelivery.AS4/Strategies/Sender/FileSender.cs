@@ -12,11 +12,14 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
     /// <summary>
     /// <see cref="IDeliverSender"/>, <see cref="INotifySender"/> implementation to write contensts to the File System.
     /// </summary>
-    [Info("FILE")]
+    [Info(FileSender.Key)]
     public class FileSender : IDeliverSender, INotifySender
     {
+        public const string Key = "FILE";
+
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
         private string _destinationPath;
+
         [Info("Destination path")]
         private string Location { get; set; }
 
