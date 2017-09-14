@@ -120,5 +120,35 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
                 Assert.Equal(MessageType.Receipt, MessageTypeUtils.Parse(inMessage.EbmsMessageType));
             }
         }
+
+        [Fact]
+        public async Task PModeInformationIsCorrectlyPersisted()
+        {
+            long savedId;
+
+            const string pmodeId = "pmodeId";
+            const string pmodeContent = "<pmode><id>pmodeId</id></pmode>";
+
+            using (var db = GetDataStoreContext())
+            {
+                var message = new InMessage("some-message-id");
+                message.SetPModeInformation(pmodeId, pmodeContent);
+
+                db.InMessages.Add(message);
+
+                await db.SaveChangesAsync();
+
+                savedId = message.Id;
+            }
+
+            using (var db = this.GetDataStoreContext())
+            {
+                var message = db.InMessages.FirstOrDefault(i => i.Id == savedId);
+
+                Assert.NotNull(message);
+                Assert.Equal(pmodeId, message.PModeId);
+                Assert.Equal(pmodeContent, message.PMode);
+            }
+        }
     }
 }

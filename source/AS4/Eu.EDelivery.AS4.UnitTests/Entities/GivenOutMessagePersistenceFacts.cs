@@ -68,7 +68,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
         }
 
         [Fact]
-        public async Task InMessageMessageTypeIsCorrectlyPersisted()
+        public async Task OutMessageMessageTypeIsCorrectlyPersisted()
         {
             long savedId;
 
@@ -117,6 +117,36 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
 
                 Assert.NotNull(message);
                 Assert.Equal("some-message-id", message.EbmsMessageId);
+            }
+        }
+
+        [Fact]
+        public async Task PModeInformationIsCorrectlyPersisted()
+        {
+            long savedId;
+
+            const string pmodeId = "pmodeId";
+            const string pmodeContent = "<pmode><id>pmodeId</id></pmode>";
+
+            using (var db = GetDataStoreContext())
+            {
+                var message = new OutMessage("some-message-id");
+                message.SetPModeInformation(pmodeId, pmodeContent);
+
+                db.OutMessages.Add(message);
+
+                await db.SaveChangesAsync();
+
+                savedId = message.Id;
+            }
+
+            using (var db = this.GetDataStoreContext())
+            {
+                var message = db.OutMessages.FirstOrDefault(i => i.Id == savedId);
+
+                Assert.NotNull(message);
+                Assert.Equal(pmodeId, message.PModeId);
+                Assert.Equal(pmodeContent, message.PMode);
             }
         }
     }

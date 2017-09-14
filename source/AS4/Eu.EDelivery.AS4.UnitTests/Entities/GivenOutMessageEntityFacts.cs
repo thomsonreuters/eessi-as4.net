@@ -1,6 +1,5 @@
 ﻿using System;
 using Eu.EDelivery.AS4.Entities;
-using Eu.EDelivery.AS4.Model.Notify;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Entities
