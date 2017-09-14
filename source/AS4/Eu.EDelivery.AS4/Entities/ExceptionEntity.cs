@@ -16,6 +16,8 @@ namespace Eu.EDelivery.AS4.Entities
 
         public string Exception { get; set; }
 
+        public byte[] MessageBody { get; set; }
+
         public string PMode { get; protected set; }
         public string PModeId { get; protected set; }
 
@@ -58,14 +60,36 @@ namespace Eu.EDelivery.AS4.Entities
             }
         }
 
-        public byte[] MessageBody { get; set; }
-
         /// <summary>
         /// Initializes a new instance of the <see cref="ExceptionEntity"/> class.
         /// </summary>
-        public ExceptionEntity()
+        protected internal ExceptionEntity()
         {
             SetOperation(default(Operation));
+
+            InsertionTime = DateTimeOffset.UtcNow;
+            ModificationTime = DateTimeOffset.UtcNow;
+        }
+
+        protected ExceptionEntity(string ebmsRefToMessageId, Exception exception)
+            : this(ebmsRefToMessageId, exception.ToString())
+        {
+        }
+
+        protected ExceptionEntity(string ebmsRefToMessageId, string errorMessage) : this()
+        {
+            this.EbmsRefToMessageId = ebmsRefToMessageId;
+            this.Exception = errorMessage;
+        }
+
+        protected ExceptionEntity(byte[] messageBody, Exception exception) : this(messageBody, exception.ToString())
+        {
+        }
+
+        protected ExceptionEntity(byte[] messageBody, string errorMessage) : this()
+        {
+            this.MessageBody = messageBody;
+            this.Exception = errorMessage;
         }
 
         public void SetOperation(Operation operation)

@@ -130,11 +130,8 @@ namespace Eu.EDelivery.AS4.Services
             {
                 Logger.Error(ex.Message);
 
-                InException inException = new InException
-                {
-                    Exception = ex.Message,
-                    MessageBody = System.Text.Encoding.UTF8.GetBytes(location)
-                };
+                InException inException = new InException(System.Text.Encoding.UTF8.GetBytes(location), ex.Message);
+                
                 _repository.InsertInException(inException);
 
                 return new MessagingContext(ex);

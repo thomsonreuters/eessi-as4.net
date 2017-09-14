@@ -43,24 +43,13 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
             await SideEffectRepositoryUsage(
                 repository =>
                 {
-                    InException ex = CreateMinimumInException(exception);
-                    ex.MessageBody = messageToTransform.UnderlyingStream.ToBytes();
+                    InException ex = new InException(messageToTransform.UnderlyingStream.ToBytes(), exception);
                     repository.InsertInException(ex);
 
                     return Task.CompletedTask;
                 });
 
             return new MessagingContext(exception);
-        }
-
-        private static InException CreateMinimumInException(Exception exception)
-        {
-            return new InException
-            {
-                Exception = exception.ToString(),
-                InsertionTime = DateTimeOffset.Now,
-                ModificationTime = DateTimeOffset.Now
-            };
         }
 
         /// <summary>
@@ -92,9 +81,9 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
             {
                 await SideEffectRepositoryUsage(
                     async repository =>
-                    {
-                        InException ex = await CreateInExceptionWithContextInfoAsync(exception, context);
-                        ex.MessageBody = AS4XmlSerializer.TryToXmlBytesAsync(context.SubmitMessage).Result;
+                    {                        
+                        InException ex = new InException(await AS4XmlSerializer.TryToXmlBytesAsync(context.SubmitMessage), exception);
+                        await DecorateExceptionEntityWithContextInfoAsync(ex, context);
 
                         repository.InsertInException(ex);
                     });
@@ -106,9 +95,9 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
                     {
                         repository.UpdateInMessage(context.EbmsMessageId, m => m.SetStatus(InStatus.Exception));
 
-                        InException ex = await CreateInExceptionWithContextInfoAsync(exception, context);
-                        ex.EbmsRefToMessageId = context.EbmsMessageId;
-
+                        InException ex = new InException(context.EbmsMessageId, exception);
+                        await DecorateExceptionEntityWithContextInfoAsync(ex, context);
+                        
                         repository.InsertInException(ex);
                     });
             }
@@ -126,10 +115,8 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
             return exceptionContext;
         }
 
-        private static async Task<InException> CreateInExceptionWithContextInfoAsync(Exception exception, MessagingContext context)
+        private static async Task DecorateExceptionEntityWithContextInfoAsync(InException exceptionEntity, MessagingContext context)
         {
-            InException inException = CreateMinimumInException(exception);
-
             if (context != null)
             {
                 Operation notifyOperation =
@@ -137,13 +124,11 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
                         ? Operation.ToBeNotified
                         : default(Operation);
 
-                inException.SetOperation(notifyOperation);
-                await inException.SetPModeInformationAsync(context.ReceivingPMode);
+                exceptionEntity.SetOperation(notifyOperation);
+                await exceptionEntity.SetPModeInformationAsync(context.ReceivingPMode);
             }
-
-            return inException;
         }
-
+        
         private async Task SideEffectRepositoryUsage(Func<DatastoreRepository, Task> usage)
         {
             using (DatastoreContext context = _createContext())

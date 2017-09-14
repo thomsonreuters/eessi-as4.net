@@ -148,29 +148,30 @@ Failed to decrypt data element
                     datastoreContext.OutMessages.Add(message);
                 }
 
-                datastoreContext.InExceptions.Add(new InException
-                {
-                    EbmsRefToMessageId = InEbmsMessageId1,                    
-                    Exception = InException,
+                datastoreContext.InExceptions.Add(new InException(InEbmsMessageId1, InException)
+                {                    
                     InsertionTime = DateTime.UtcNow.AddMinutes(-1),
                 });
-                datastoreContext.InExceptions.Add(new InException
+                datastoreContext.InExceptions.Add(new InException(OutEbmsRefToMessageId1, MessageBody1)
                 {
-                    EbmsRefToMessageId = OutEbmsRefToMessageId1,                    
-                    MessageBody = Encoding.ASCII.GetBytes(MessageBody1),
+                    EbmsRefToMessageId = OutEbmsRefToMessageId1,                                        
                     InsertionTime = DateTime.UtcNow.AddMinutes(-1)
                 });
-                datastoreContext.OutExceptions.Add(new OutException
+                datastoreContext.InExceptions.Add(new InException(Encoding.ASCII.GetBytes(MessageBody1), "errorMessage")
                 {
-                    EbmsRefToMessageId = OutEbmsRefToMessageId1,
-                    Exception = InException,
                     InsertionTime = DateTime.UtcNow.AddMinutes(-1)
                 });
-                datastoreContext.OutExceptions.Add(new OutException
+                datastoreContext.OutExceptions.Add(new OutException(OutEbmsRefToMessageId1, InException)
+                {                    
+                    InsertionTime = DateTime.UtcNow.AddMinutes(-1)
+                });
+                datastoreContext.OutExceptions.Add(new OutException(InEbmsRefToMessageId1, Exception)
+                {                    
+                    InsertionTime = DateTime.UtcNow.AddMinutes(-1)
+                });
+
+                datastoreContext.OutExceptions.Add(new OutException(Encoding.ASCII.GetBytes(MessageBody1), Exception)
                 {
-                    EbmsRefToMessageId = InEbmsRefToMessageId1,                    
-                    MessageBody = Encoding.ASCII.GetBytes(MessageBody1),
-                    Exception = Exception,
                     InsertionTime = DateTime.UtcNow.AddMinutes(-1)
                 });
 
@@ -395,7 +396,7 @@ Failed to decrypt data element
                 {
                     var result = await Setup().monitorService.GetExceptions(new ExceptionFilter());
 
-                    Assert.True(result.Messages.Count() == 4);
+                    Assert.True(result.Messages.Count() == 6);
                 }
 
                 [Fact]

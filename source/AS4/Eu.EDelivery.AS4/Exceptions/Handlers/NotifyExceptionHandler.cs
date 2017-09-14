@@ -92,7 +92,7 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
                 if (context.NotifyMessage.EntityType == typeof(InMessage) ||
                     context.NotifyMessage.EntityType == typeof(InException))
                 {
-                    var inException = CreateMinimumExceptionEntity<InException>(exception, context);
+                    var inException = new InException(context.EbmsMessageId, exception);
                     repository.InsertInException(inException);
 
                     if (context.NotifyMessage.EntityType == typeof(InMessage))
@@ -103,7 +103,7 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
                 else if (context.NotifyMessage.EntityType != typeof(OutMessage) ||
                          context.NotifyMessage.EntityType == typeof(OutException))
                 {
-                    var outException = CreateMinimumExceptionEntity<OutException>(exception, context);
+                    var outException = new OutException(context.EbmsMessageId, exception);
                     repository.InsertOutException(outException);
 
                     if (context.NotifyMessage.EntityType == typeof(OutMessage))
@@ -116,15 +116,6 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
             }
 
             return new MessagingContext(exception);
-        }
-
-        private static T CreateMinimumExceptionEntity<T>(Exception exception, MessagingContext context) where T : ExceptionEntity, new()
-        {
-            return new T
-            {
-                EbmsRefToMessageId = context.EbmsMessageId,
-                Exception = exception.ToString()
-            };
-        }
+        }        
     }
 }

@@ -103,7 +103,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Repositories
             public async Task ThenInsertInExceptionSucceedsAsync(string sharedId)
             {
                 // Arrange
-                var inException = new InException { EbmsRefToMessageId = sharedId };
+                var inException = new InException(sharedId, "");
 
                 // Act
                 using (DatastoreContext context = GetDataStoreContext())
@@ -124,7 +124,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Repositories
             public async Task ThenInsertOutExceptionSucceedsAsync(string sharedId)
             {
                 // Arrange
-                var outException = new OutException { EbmsRefToMessageId = sharedId };
+                var outException = new OutException(sharedId, "");
 
                 // Act
                 using (DatastoreContext context = GetDataStoreContext())

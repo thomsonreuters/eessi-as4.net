@@ -30,7 +30,7 @@ namespace Eu.EDelivery.AS4.Services
         /// Inserts the error.
         /// </summary>
         /// <param name="error">The error.</param>
-        /// <param name="context">The context.</param>
+        /// <param name="as4Message">The context.</param>
         public async Task InsertException(ErrorResult error, AS4Message as4Message, SendingProcessingMode sendingPMode)
         {
             var repository = new DatastoreRepository(_context);
@@ -58,13 +58,8 @@ namespace Eu.EDelivery.AS4.Services
 
         private static async Task<OutException> CreateOutExceptionAsync(ErrorResult error, SendingProcessingMode sendingPMode, string id)
         {
-            var outException = new OutException
-            {
-                EbmsRefToMessageId = id,
-                Exception = error.Description,
-                InsertionTime = DateTimeOffset.Now,
-                ModificationTime = DateTimeOffset.Now
-            };
+            var outException = new OutException(id, error.Description);
+            
             await outException.SetPModeInformationAsync(sendingPMode);
             outException.SetOperation(NeedsOutExceptionBeNotified(sendingPMode) ? Operation.ToBeNotified : Operation.NotApplicable);
 

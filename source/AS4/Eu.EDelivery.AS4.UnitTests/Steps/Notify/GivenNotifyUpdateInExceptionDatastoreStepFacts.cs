@@ -36,7 +36,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
 
             private static InException CreateDefaultInException()
             {
-                var exception = new InException { EbmsRefToMessageId = "ref-to-message-id" };
+                var exception = new InException("ref-to-message-id", "");
 
                 exception.SetOperation(Operation.ToBeNotified);
 
