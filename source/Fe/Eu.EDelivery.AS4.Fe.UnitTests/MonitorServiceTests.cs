@@ -154,7 +154,6 @@ Failed to decrypt data element
                 });
                 datastoreContext.InExceptions.Add(new InException(OutEbmsRefToMessageId1, MessageBody1)
                 {
-                    EbmsRefToMessageId = OutEbmsRefToMessageId1,                                        
                     InsertionTime = DateTime.UtcNow.AddMinutes(-1)
                 });
                 datastoreContext.InExceptions.Add(new InException(Encoding.ASCII.GetBytes(MessageBody1), "errorMessage")
