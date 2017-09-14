@@ -12,12 +12,15 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
     /// <summary>
     /// <see cref="IDeliverSender"/>, <see cref="INotifySender"/> implemetation to HTTP POST on a configured endpoint.
     /// </summary>
-    [Info("HTTP")]
+    [Info(HttpSender.Key)]
     public class HttpSender : IDeliverSender, INotifySender
     {
+        public const string Key = "HTTP";
+
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
         private readonly IHttpClient _httpClient;
         private string _destinationUri;
+
         [Info("Destination URL")]
         private string Location { get; set; }
 
