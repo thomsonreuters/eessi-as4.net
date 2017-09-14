@@ -38,7 +38,7 @@
     </SubmitAgent>
     <SubmitAgent name="HTTP Submit Agent">
       <Receiver type="Eu.EDelivery.AS4.Receivers.HttpReceiver, Eu.EDelivery.AS4.Receivers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-        <Setting key="Url">http://interas4.westeurope.cloudapp.azure.com:8181/c2_submit/</Setting>
+        <Setting key="Url">http://*:8181/c2_submit/</Setting>
       </Receiver>
       <Transformer type="Eu.EDelivery.AS4.Transformers.SubmitMessageXmlTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
       <StepConfiguration>
