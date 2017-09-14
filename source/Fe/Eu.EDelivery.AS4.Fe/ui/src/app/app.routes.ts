@@ -8,5 +8,6 @@ import { MustBeAuthorizedGuard } from './common/mustbeauthorized.guards';
 import { AgentSettingsComponent } from './settings/agent/agent.component';
 
 export const ROUTES: Routes = [
+    { path: '', redirectTo: 'monitor', pathMatch: 'full' },
     { path: '**', component: NoContentComponent }
 ];

@@ -7,10 +7,9 @@ import { Role } from '../authentication/roles.service';
 
 export const ROUTES: Routes = [
     {
-        path: '', component: WrapperComponent, children: [
-            { path: 'test', component: SubmitComponent, data: { title: 'Test', icon: 'fa-inbox', weight: 1000, roles: [Role.Admin] } }
+        path: 'test', component: WrapperComponent, children: [
+            { path: '', component: SubmitComponent, data: { title: 'Test', icon: 'fa-inbox', weight: 1000, roles: [Role.Admin] } }
         ],
-        data: { title: 'test', weight: 1000 },
         canActivate: [MustBeAuthorizedGuard]
     }
 ];

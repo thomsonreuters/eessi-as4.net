@@ -48,13 +48,13 @@ type StoreType = {
         NoContentComponent,
     ],
     imports: [
+        RouterModule.forRoot(ROUTES, { useHash: false }),
         RuntimeModule,
         BrowserModule,
         FormsModule,
         HttpModule,
         CommonModule,
         MonitorModule,
-        RouterModule.forRoot(ROUTES, { useHash: false }),
 
         UserModule,
         SettingsModule,
