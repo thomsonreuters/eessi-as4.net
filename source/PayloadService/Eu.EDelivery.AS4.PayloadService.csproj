@@ -24,7 +24,7 @@
         <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="1.1.2" />
         <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="1.1.2" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="1.0.0" />
-        <PackageReference Include="System.ValueTuple" Version="4.3.1" />
+        <PackageReference Include="System.ValueTuple" Version="4.4.0" />
     </ItemGroup>
     <ItemGroup>
         <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="1.0.0" />
