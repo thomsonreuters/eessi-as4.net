@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Model.Internal;
@@ -26,7 +27,7 @@ namespace Eu.EDelivery.AS4.Transformers
             return context;
         }
 
-        private void PreConditions(ReceivedMessage message)
+        private static void PreConditions(ReceivedMessage message)
         {
             if (message.UnderlyingStream == null)
             {
@@ -35,7 +36,8 @@ namespace Eu.EDelivery.AS4.Transformers
 
             if (!ContentTypeSupporter.IsContentTypeSupported(message.ContentType))
             {
-                throw new InvalidDataException($"ContentType is not supported {message.ContentType}");
+                throw new InvalidDataException($"ContentType is not supported {message.ContentType}{Environment.NewLine}" +
+                                               $"Supported ContentTypes are {Constants.ContentTypes.Soap} and {Constants.ContentTypes.Mime}");
             }
         }
 
