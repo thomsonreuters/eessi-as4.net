@@ -83,7 +83,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.ReceptionAwareness
                 awareness.CurrentRetryCount = awareness.TotalRetryCount;
 
                 InsertReceptionAwareness(awareness);
-                InsertOutMessage(awareness.InternalMessageId);
+                await InsertOutMessage(awareness.InternalMessageId);
 
                 var internalMessage = new MessagingContext(awareness);
                 var step = new ReceptionAwarenessUpdateDatastoreStep(_messageBodyStore, GetDataStoreContext);
@@ -119,7 +119,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.ReceptionAwareness
                 awareness.SetStatus(ReceptionStatus.Busy);
 
                 InsertReceptionAwareness(awareness);
-                InsertOutMessage(awareness.InternalMessageId);
+                await InsertOutMessage(awareness.InternalMessageId);
 
                 var internalMessage = new MessagingContext(awareness);
                 var step = new ReceptionAwarenessUpdateDatastoreStep(_messageBodyStore, GetDataStoreContext);
@@ -167,11 +167,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.ReceptionAwareness
             }
         }
 
-        protected void InsertOutMessage(string messageId)
+        protected async Task InsertOutMessage(string messageId)
         {
             var pmode = new SendingProcessingMode();
             var outMessage = new OutMessage(ebmsMessageId: messageId);
-            outMessage.SetPModeInformation(pmode);
+            await outMessage.SetPModeInformationAsync(pmode);
             GetDataStoreContext.InsertOutMessage(outMessage);
         }
 

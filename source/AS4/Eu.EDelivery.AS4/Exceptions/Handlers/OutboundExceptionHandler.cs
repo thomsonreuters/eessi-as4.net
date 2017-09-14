@@ -48,6 +48,8 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
                     outException.MessageBody = messageToTransform.UnderlyingStream.ToBytes();
 
                     repository.InsertOutException(outException);
+
+                    return Task.CompletedTask;
                 });
 
             return new MessagingContext(exception);
@@ -94,11 +96,11 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
             if (string.IsNullOrEmpty(ebmsMessageId) == false)
             {
                 await SideEffectUsageRepository(
-                    repository =>
+                    async repository =>
                     {
                         repository.UpdateOutMessage(ebmsMessageId, m => m.SetStatus(OutStatus.Exception));
 
-                        OutException outException = CreateOutExceptionWithContextInfo(exception, context);
+                        OutException outException = await CreateOutExceptionWithContextInfo(exception, context);
                         outException.EbmsRefToMessageId = ebmsMessageId;
 
                         repository.InsertOutException(outException);
@@ -107,9 +109,9 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
             else
             {
                 await SideEffectUsageRepository(
-                    repository =>
+                    async repository =>
                     {
-                        OutException ex = CreateOutExceptionWithContextInfo(exception, context);
+                        OutException ex = await CreateOutExceptionWithContextInfo(exception, context);
                         ex.MessageBody = AS4XmlSerializer.TryToXmlBytesAsync(context.SubmitMessage).Result;
 
                         repository.InsertOutException(ex);
@@ -119,11 +121,11 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
             return new MessagingContext(exception);
         }
 
-        private static OutException CreateOutExceptionWithContextInfo(Exception exception, MessagingContext context)
+        private static async Task<OutException> CreateOutExceptionWithContextInfo(Exception exception, MessagingContext context)
         {
             OutException outException = CreateMinimumOutException(exception);
 
-            outException.PMode = AS4XmlSerializer.ToString(context.SendingPMode);
+            await outException.SetPModeInformationAsync(context.SendingPMode);
 
             var notifyOperation =
                 (context.SendingPMode?.ExceptionHandling?.NotifyMessageProducer == true) ? Operation.ToBeNotified : default(Operation);
@@ -133,12 +135,12 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
             return outException;
         }
 
-        private async Task SideEffectUsageRepository(Action<DatastoreRepository> usage)
+        private async Task SideEffectUsageRepository(Func<DatastoreRepository, Task> usage)
         {
             using (DatastoreContext context = _createContext())
             {
                 var repository = new DatastoreRepository(context);
-                usage(repository);
+                await usage(repository);
 
                 await context.SaveChangesAsync();
             }

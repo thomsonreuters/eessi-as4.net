@@ -87,10 +87,10 @@ namespace Eu.EDelivery.AS4.Services
                     message: as4Message,
                     cancellation: cancellationToken);
 
-            InMessage inMessage = InMessageBuilder
+            InMessage inMessage = await InMessageBuilder
                 .ForSignalMessage(errorMessage, as4Message, outMessageData.mep)
                 .WithPMode(outMessageData.pmode)
-                .Build(cancellationToken);
+                .BuildAsync(cancellationToken);
 
             inMessage.MessageLocation = location;
 

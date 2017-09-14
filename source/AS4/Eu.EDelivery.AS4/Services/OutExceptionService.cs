@@ -39,7 +39,7 @@ namespace Eu.EDelivery.AS4.Services
             {
                 try
                 {
-                    OutException outException = await CreateOutException(error, sendingPMode, id);
+                    OutException outException = await CreateOutExceptionAsync(error, sendingPMode, id);
 
                     repository.InsertOutException(outException);
                 }
@@ -56,17 +56,16 @@ namespace Eu.EDelivery.AS4.Services
             return sendPMode?.ExceptionHandling?.NotifyMessageProducer == true;
         }
 
-        private static async Task<OutException> CreateOutException(ErrorResult error, SendingProcessingMode sendingPMode, string id)
+        private static async Task<OutException> CreateOutExceptionAsync(ErrorResult error, SendingProcessingMode sendingPMode, string id)
         {
             var outException = new OutException
             {
                 EbmsRefToMessageId = id,
                 Exception = error.Description,
                 InsertionTime = DateTimeOffset.Now,
-                ModificationTime = DateTimeOffset.Now,
-                PMode = await AS4XmlSerializer.ToStringAsync(sendingPMode),
+                ModificationTime = DateTimeOffset.Now
             };
-
+            await outException.SetPModeInformationAsync(sendingPMode);
             outException.SetOperation(NeedsOutExceptionBeNotified(sendingPMode) ? Operation.ToBeNotified : Operation.NotApplicable);
 
             return outException;

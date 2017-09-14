@@ -51,7 +51,7 @@ namespace Eu.EDelivery.AS4.Entities
         /// Set the PMode that is used to process the message.
         /// </summary>
         /// <param name="pmode"></param>
-        public void SetPModeInformation(IPMode pmode)
+        public async Task SetPModeInformationAsync(IPMode pmode)
         {
             if (pmode != null)
             {
@@ -62,11 +62,11 @@ namespace Eu.EDelivery.AS4.Entities
 
                 if (pmode is SendingProcessingMode sp)
                 {
-                    PMode = AS4XmlSerializer.ToString(sp);
+                    PMode = await AS4XmlSerializer.ToStringAsync(sp);
                 }
                 else if (pmode is ReceivingProcessingMode rp)
                 {
-                    PMode = AS4XmlSerializer.ToString(rp);
+                    PMode = await AS4XmlSerializer.ToStringAsync(rp);
                 }
                 else
                 {

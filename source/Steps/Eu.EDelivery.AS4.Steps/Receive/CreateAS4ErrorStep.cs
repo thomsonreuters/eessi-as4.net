@@ -83,8 +83,6 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             {
                 var repository = new DatastoreRepository(dbContext);
 
-                var pmodeString = context.GetReceivingPModeString();
-
                 foreach (var signal in signalMessages)
                 {
                     if (signal is PullRequest)
@@ -93,7 +91,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                     }
 
                     var inException = CreateInException(signal, context.ErrorResult);
-                    inException.PMode = pmodeString;
+                    await inException.SetPModeInformationAsync(context.ReceivingPMode);
 
                     repository.InsertInException(inException);
                 }

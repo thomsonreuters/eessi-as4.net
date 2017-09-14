@@ -119,8 +119,8 @@ namespace Eu.EDelivery.AS4.Services
                                                                      cancellationToken);
 
 
-                InsertUserMessages(as4Message, mep, location, cancellationToken);
-                InsertSignalMessages(as4Message, mep, location, cancellationToken);
+                await InsertUserMessagesAsync(as4Message, mep, location, cancellationToken);
+                await InsertSignalMessagesAsync(as4Message, mep, location, cancellationToken);
 
                 context.ModifyContext(as4Message);
 
@@ -141,7 +141,7 @@ namespace Eu.EDelivery.AS4.Services
             }
         }
 
-        private void InsertUserMessages(AS4Message as4Message, MessageExchangePattern mep, string location, CancellationToken cancellationToken)
+        private async Task InsertUserMessagesAsync(AS4Message as4Message, MessageExchangePattern mep, string location, CancellationToken cancellationToken)
         {
             IDictionary<string, bool> duplicateUserMessages =
                 DetermineDuplicateUserMessageIds(as4Message.UserMessages.Select(m => m.MessageId));
@@ -151,11 +151,11 @@ namespace Eu.EDelivery.AS4.Services
                 userMessage.IsTest = IsUserMessageTest(userMessage);
                 userMessage.IsDuplicate = IsUserMessageDuplicate(userMessage, duplicateUserMessages);
 
-                AttemptToInsertUserMessage(userMessage, as4Message, mep, location, cancellationToken);
+                await AttemptToInsertUserMessageAsync(userMessage, as4Message, mep, location, cancellationToken);
             }
         }
 
-        private void InsertSignalMessages(
+        private async Task InsertSignalMessagesAsync(
             AS4Message as4Message,
             MessageExchangePattern mep,
             string location,
@@ -172,7 +172,7 @@ namespace Eu.EDelivery.AS4.Services
                 {
                     signalMessage.IsDuplicate = IsSignalMessageDuplicate(signalMessage, duplicateSignalMessages);
 
-                    AttemptToInsertSignalMessage(signalMessage, as4Message, mep, location, cancellationToken);
+                    await AttemptToInsertSignalMessageAsync(signalMessage, as4Message, mep, location, cancellationToken);
                 }
             }
         }
@@ -322,7 +322,7 @@ namespace Eu.EDelivery.AS4.Services
             return isDuplicate;
         }
 
-        private void AttemptToInsertUserMessage(
+        private async Task AttemptToInsertUserMessageAsync(
             UserMessage userMessage,
             AS4Message belongsToAS4Message,
             MessageExchangePattern mep,
@@ -331,7 +331,7 @@ namespace Eu.EDelivery.AS4.Services
         {
             try
             {
-                InMessage inMessage = CreateUserInMessage(userMessage, belongsToAS4Message, mep, location, cancellationToken);
+                InMessage inMessage = await CreateUserInMessageAsync(userMessage, belongsToAS4Message, mep, location, cancellationToken);
                 _repository.InsertInMessage(inMessage);
             }
             catch (Exception ex)
@@ -343,7 +343,7 @@ namespace Eu.EDelivery.AS4.Services
             }
         }
 
-        private static InMessage CreateUserInMessage(
+        private static async Task<InMessage> CreateUserInMessageAsync(
             UserMessage userMessage,
             AS4Message belongsToAS4Message,
             MessageExchangePattern mep,
@@ -351,8 +351,8 @@ namespace Eu.EDelivery.AS4.Services
             CancellationToken cancellationToken)
         {
             InMessage inMessage =
-                InMessageBuilder.ForUserMessage(userMessage, belongsToAS4Message, mep)
-                                .Build(cancellationToken);
+                await InMessageBuilder.ForUserMessage(userMessage, belongsToAS4Message, mep)
+                                      .BuildAsync(cancellationToken);
 
             inMessage.MessageLocation = messageLocation;
 
@@ -377,7 +377,7 @@ namespace Eu.EDelivery.AS4.Services
             return isDuplicate;
         }
 
-        private void AttemptToInsertSignalMessage(
+        private async Task AttemptToInsertSignalMessageAsync(
             SignalMessage signalMessage,
             AS4Message as4Message,
             MessageExchangePattern mep,
@@ -386,9 +386,8 @@ namespace Eu.EDelivery.AS4.Services
         {
             try
             {
-                InMessage inMessage =
-                InMessageBuilder.ForSignalMessage(signalMessage, as4Message, mep)
-                                .Build(cancellationToken);
+                InMessage inMessage = await InMessageBuilder.ForSignalMessage(signalMessage, as4Message, mep)
+                                                            .BuildAsync(cancellationToken);
                 inMessage.MessageLocation = location;
 
                 _repository.InsertInMessage(inMessage);

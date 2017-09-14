@@ -208,7 +208,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         {
             // Arrange
             const string expectedId = "message-id";
-            CreateExistingOutMessage(expectedId, CreateSendingPMode());
+            await CreateExistingOutMessage(expectedId, CreateSendingPMode());
 
             AS4Message as4Message = CreateAS4ReceiptMessage(expectedId);
 
@@ -235,7 +235,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         {
             // Arrange
             const string expectedId = "message-id";
-            CreateExistingOutMessage(expectedId, CreateSendingPMode());
+            await CreateExistingOutMessage(expectedId, CreateSendingPMode());
 
             AS4Message as4Message = CreateAS4ErrorMessage(expectedId);
 
@@ -257,7 +257,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
             var receiptString = Encoding.UTF8.GetString(receipt_with_invalid_signature).Replace("{{RefToMessageId}}", userMessageId);
 
-            CreateExistingOutMessage(userMessageId, CreateSendingPMode());
+            await CreateExistingOutMessage(userMessageId, CreateSendingPMode());
 
             var response = await StubSender.SendRequest(_receiveAgentUrl, Encoding.UTF8.GetBytes(receiptString), "application/soap+xml");
 
@@ -332,7 +332,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                 }
             };
 
-            CreateExistingOutMessage(messageId, sendingPMode);
+            await CreateExistingOutMessage(messageId, sendingPMode);
 
             var as4Message = CreateMultihopSignalMessage("multihop-signalmessage-id", messageId);
 
@@ -398,12 +398,12 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             return AS4Message.Create(receipt);
         }
 
-        private void CreateExistingOutMessage(string messageId, SendingProcessingMode sendingPMode)
+        private async Task CreateExistingOutMessage(string messageId, SendingProcessingMode sendingPMode)
         {
             var outMessage = new OutMessage(messageId);
 
             outMessage.SetStatus(OutStatus.Sent);
-            outMessage.SetPModeInformation(sendingPMode);
+            await outMessage.SetPModeInformationAsync(sendingPMode);
 
             _databaseSpy.InsertOutMessage(outMessage);
         }
