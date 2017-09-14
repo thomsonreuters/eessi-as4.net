@@ -162,6 +162,10 @@ namespace Eu.EDelivery.AS4.Common
         {
             base.OnModelCreating(modelBuilder);
 
+            // It is necessary to define the property-access mode for properties that are defined in a base
+            // class and have a private setter.  Failing to do this results in Entity Framework not generating
+            // a column in the table for that property
+
             modelBuilder.Entity<InMessage>().HasKey(im => im.Id);
             modelBuilder.Entity<InMessage>().Property(im => im.Id).UseSqlServerIdentityColumn();
             modelBuilder.Entity<InMessage>().Property(im => im.MEP).UsePropertyAccessMode(PropertyAccessMode.Field);
@@ -193,15 +197,20 @@ namespace Eu.EDelivery.AS4.Common
             modelBuilder.Entity<InException>().Property(ie => ie.EbmsRefToMessageId).UsePropertyAccessMode(PropertyAccessMode.Field);
             modelBuilder.Entity<InException>().Property(ie => ie.MessageBody).UsePropertyAccessMode(PropertyAccessMode.Field);
             modelBuilder.Entity<InException>().Property(ie => ie.Exception).UsePropertyAccessMode(PropertyAccessMode.Field);
+            modelBuilder.Entity<InException>().Property(ie => ie.PMode).UsePropertyAccessMode(PropertyAccessMode.Field);
+            modelBuilder.Entity<InException>().Property(ie => ie.PModeId).UsePropertyAccessMode(PropertyAccessMode.Field);
 
             modelBuilder.Entity<OutException>().HasKey(oe => oe.Id);
             modelBuilder.Entity<OutException>().Property(oe => oe.Id).UseSqlServerIdentityColumn();
             modelBuilder.Entity<OutException>().HasIndex(oe => oe.EbmsRefToMessageId);
             modelBuilder.Entity<OutException>().HasIndex(oe => oe.Operation);
-            modelBuilder.Entity<OutException>().Property(ie => ie.Id).UsePropertyAccessMode(PropertyAccessMode.Field);
-            modelBuilder.Entity<OutException>().Property(ie => ie.EbmsRefToMessageId).UsePropertyAccessMode(PropertyAccessMode.Field);
-            modelBuilder.Entity<OutException>().Property(ie => ie.MessageBody).UsePropertyAccessMode(PropertyAccessMode.Field);
-            modelBuilder.Entity<OutException>().Property(ie => ie.Exception).UsePropertyAccessMode(PropertyAccessMode.Field);
+            modelBuilder.Entity<OutException>().Property(oe => oe.Id).UsePropertyAccessMode(PropertyAccessMode.Field);
+            modelBuilder.Entity<OutException>().Property(oe => oe.EbmsRefToMessageId).UsePropertyAccessMode(PropertyAccessMode.Field);
+            modelBuilder.Entity<OutException>().Property(oe => oe.MessageBody).UsePropertyAccessMode(PropertyAccessMode.Field);
+            modelBuilder.Entity<OutException>().Property(oe => oe.Exception).UsePropertyAccessMode(PropertyAccessMode.Field);
+            modelBuilder.Entity<OutException>().Property(oe => oe.PMode).UsePropertyAccessMode(PropertyAccessMode.Field);
+            modelBuilder.Entity<OutException>().Property(oe => oe.PModeId).UsePropertyAccessMode(PropertyAccessMode.Field);
+
 
             modelBuilder.Entity<ReceptionAwareness>().HasKey(r => r.Id);
             modelBuilder.Entity<ReceptionAwareness>().Property(r => r.Id).UseSqlServerIdentityColumn();
