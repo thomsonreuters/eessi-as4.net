@@ -12,14 +12,14 @@ namespace Eu.EDelivery.AS4.Entities
     /// </summary>
     public class ExceptionEntity : Entity
     {
-        public string EbmsRefToMessageId { get; set; }
+        public string EbmsRefToMessageId { get; private set; }
 
-        public string Exception { get; set; }
+        public string Exception { get; private set; }
 
-        public byte[] MessageBody { get; set; }
+        public byte[] MessageBody { get; private set; }
 
-        public string PMode { get; protected set; }
-        public string PModeId { get; protected set; }
+        public string PMode { get; private set; }
+        public string PModeId { get; private set; }
 
         /// <summary>
         /// Set the Id & string represenation of the PMode that is used to process the message.

@@ -29,12 +29,12 @@ namespace Eu.EDelivery.AS4.Entities
         /// <summary>
         /// Gets a string representation of the PMode that has been used to process this message.
         /// </summary>
-        public string PMode { get; protected set; }
+        public string PMode { get; private set; }
 
         /// <summary>
         /// Gets the ID of the PMode that is used to process this message.
         /// </summary>
-        public string PModeId { get; protected set; }
+        public string PModeId { get; private set; }
 
         /// <summary>
         /// Set the Id & string represenation of the PMode that is used to process the message.
