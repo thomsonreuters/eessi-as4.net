@@ -52,6 +52,9 @@ namespace Eu.EDelivery.AS4.Fe
                     .AddJsonFile($"./bin/appsettings.{env.EnvironmentName}.json", true)
                     .AddJsonFile("appsettings.json", true, true)
                     .AddJsonFile($"appsettings.{env.EnvironmentName}.json", true, true);
+#if DEBUG
+                    configBuilder.AddJsonFile("appsettings.Development.json", true);
+#endif
             }, out config);
             Configuration = config;
 

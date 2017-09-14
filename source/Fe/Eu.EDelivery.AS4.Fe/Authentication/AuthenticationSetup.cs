@@ -28,7 +28,7 @@ namespace Eu.EDelivery.AS4.Fe.Authentication
             services
                 .AddIdentity<ApplicationUser, IdentityRole>(options =>
                 {
-                   
+
                 })
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
@@ -92,7 +92,7 @@ namespace Eu.EDelivery.AS4.Fe.Authentication
 
                 userManager.AddClaimsAsync(user1, new[] { new Claim(ClaimTypes.Role, Roles.Admin) }).Wait();
                 userManager.AddClaimsAsync(user2, new[] { new Claim(ClaimTypes.Role, Roles.Readonly) }).Wait();
-            }          
+            }
         }
 
         private static void RegisterOptions(IServiceCollection services, IConfigurationRoot configuration)

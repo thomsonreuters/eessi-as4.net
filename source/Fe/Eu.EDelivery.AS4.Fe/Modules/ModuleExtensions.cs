@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using Eu.EDelivery.AS4.Fe;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -41,6 +40,7 @@ namespace Eu.EDelivery.AS4.Fe.Modules
             var configurationBuilder = new ConfigurationBuilder();
             configBuilder(configurationBuilder, services.BuildServiceProvider().GetService<IHostingEnvironment>());
             var localConfig = configurationBuilder.Build();
+
             configuration = localConfig;
             CallStartup<IRunAtConfiguration>(services, service => service.Run(configurationBuilder, services, localConfig));
 
