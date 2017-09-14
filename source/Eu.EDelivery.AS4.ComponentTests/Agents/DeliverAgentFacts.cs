@@ -180,7 +180,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         }
 
         protected override void Disposing(bool isDisposing)
-        {
+        {           
             _as4Msh.Dispose();
         }
     }
