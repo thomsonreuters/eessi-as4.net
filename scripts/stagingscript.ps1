@@ -42,7 +42,6 @@ Copy-Item -Path .\Eu.EDelivery.AS4.ServiceHandler.ConsoleHost.exe .\Staging\
 Copy-Item -Path .\Eu.EDelivery.AS4.ServiceHandler.ConsoleHost.exe.config .\Staging\
 Copy-Item -Path .\Eu.EDelivery.AS4.Fe.exe .\Staging\bin\
 Copy-Item -Path .\Eu.EDelivery.AS4.Fe.exe.config .\Staging\bin\
-Copy-Item -Path .\Eu.EDelivery.AS4.Fe.exe.xml .\Staging\bin
 Copy-Item -Path .\Eu.EDelivery.AS4.PayloadService.exe .\Staging\bin\
 
 If (Test-Path .\Eu.EDelivery.AS4.dll.config) {
