@@ -100,7 +100,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
         [XmlIgnore]
         [JsonIgnore]
         [ScriptIgnore]
-        public bool UseNNRFormatSpecified => _useNRRFormat.HasValue;
+        public bool UseNRRFormatSpecified => _useNRRFormat.HasValue;
 
         #endregion
     }
