@@ -47,6 +47,29 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             Assert.Equal(ErrorCode.Ebms0009, result.MessagingContext.ErrorResult.Code);
         }
 
+        [Fact]
+        public async Task ValidationFailure_IfSoapBodyAttachmentFound()
+        {
+            const string contentType = "application/soap+xml";
+            AS4Message message = await BuildMessageFor(as4_soapattachment, contentType);
+
+            StepResult result = await ExerciseValidation(message);
+
+            Assert.False(result.Succeeded);
+            Assert.Equal(ErrorAlias.FeatureNotSupported, result.MessagingContext.ErrorResult.Alias);
+        }
+
+        [Fact]
+        public async Task ValidationSucceeds_IfSoapBodyHasNoAttachment()
+        {
+            const string contentType = "multipart/related; boundary=\"=-M9awlqbs/xWAPxlvpSWrAg==\"; type=\"application/soap+xml\"; charset=\"utf-8\"";
+            AS4Message message = await BuildMessageFor(System.Text.Encoding.UTF8.GetBytes(as4message), contentType);
+
+            StepResult result = await ExerciseValidation(message);
+
+            Assert.True(result.Succeeded);            
+        }
+
         private static async Task<AS4Message> BuildMessageFor(byte[] as4MessageExternalPayloads, string contentType)
         {
             using (var stream = new MemoryStream(as4MessageExternalPayloads))
@@ -56,11 +79,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             }
         }
 
-        private async Task<StepResult> ExerciseValidation(AS4Message message)
+        private static async Task<StepResult> ExerciseValidation(AS4Message message)
         {
             var sut = new ValidateAS4MessageStep();
 
-           return await sut.ExecuteAsync(new MessagingContext(message, MessagingContextMode.Receive), CancellationToken.None);
+            return await sut.ExecuteAsync(new MessagingContext(message, MessagingContextMode.Receive), CancellationToken.None);
         }
     }
 }

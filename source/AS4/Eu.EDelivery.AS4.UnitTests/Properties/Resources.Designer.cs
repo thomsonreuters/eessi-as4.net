@@ -19,7 +19,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Properties {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "4.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class Resources {
@@ -221,6 +221,16 @@ namespace Eu.EDelivery.AS4.UnitTests.Properties {
         internal static string as4_soap_wrong_signed_pullrequest {
             get {
                 return ResourceManager.GetString("as4_soap_wrong_signed_pullrequest", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] as4_soapattachment {
+            get {
+                object obj = ResourceManager.GetObject("as4_soapattachment", resourceCulture);
+                return ((byte[])(obj));
             }
         }
         
