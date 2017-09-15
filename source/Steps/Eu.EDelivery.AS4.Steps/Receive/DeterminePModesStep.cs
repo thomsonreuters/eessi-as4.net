@@ -76,6 +76,11 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
         private async Task<SendingProcessingMode> DetermineSendingPModeForSignalMessage(SignalMessage signalMessage)
         {
+            if (String.IsNullOrWhiteSpace(signalMessage.RefToMessageId))
+            {
+                return null;
+            }
+
             using (DatastoreContext dbContext = _createContext())
             {
                 var repository = new DatastoreRepository(dbContext);
@@ -166,13 +171,12 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         {
             List<PModeParticipant> participants = GetPModeParticipants(userMessage);
             participants.ForEach(p => p.Accept(new PModeRuleVisitor()));
-
-            PModeParticipant winner = participants.Where(p => p.Points >= 10).Max();
+            
             var scoresToConsider = participants.Select(p => p.Points).Where(p => p >= 10);
 
             if (scoresToConsider.Any() == false)
             {
-                return new ReceivePMode[] {};
+                return new ReceivePMode[] { };
             }
 
             int maxPoints = scoresToConsider.Max();

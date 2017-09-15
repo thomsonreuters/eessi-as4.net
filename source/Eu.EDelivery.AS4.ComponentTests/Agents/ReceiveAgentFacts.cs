@@ -349,6 +349,24 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             Assert.Equal(OutStatus.Ack, OutStatusUtils.Parse(outMessage.Status));
         }
 
+        [Fact]
+        public async Task CanReceiveErrorSignalWithoutRefToMessageId()
+        {
+            var errorMessage = new ErrorBuilder().WithErrorResult(new ErrorResult("An Error occurred", ErrorAlias.NonApplicable)).Build();
+            var as4Message = AS4Message.Create(errorMessage);
+
+            string id = as4Message.GetPrimaryMessageId();
+
+            var response = await StubSender.SendAS4Message(_receiveAgentUrl, as4Message);
+
+            Assert.Equal(HttpStatusCode.Accepted, response.StatusCode);
+            Assert.True(String.IsNullOrWhiteSpace(await response.Content.ReadAsStringAsync()));
+
+            var inMessage = _databaseSpy.GetInMessageFor(m => m.EbmsMessageId == id);
+            Assert.NotNull(inMessage);
+            Assert.Equal(Operation.NotApplicable, OperationUtils.Parse(inMessage.Operation));
+        }
+
         private static AS4Message CreateMultihopSignalMessage(string messageId, string refToMessageId)
         {
             var receipt = new Receipt(messageId)

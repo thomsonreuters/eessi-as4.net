@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
+using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
@@ -63,7 +64,14 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 await context.SaveChangesAsync(token).ConfigureAwait(false);
 
                 if (resultContext != null)
-                {
+                {                    
+                    if (resultContext.AS4Message.IsSignalMessage &&
+                        String.IsNullOrWhiteSpace(resultContext.AS4Message.PrimarySignalMessage.RefToMessageId))
+                    {
+                        Logger.Info("The received message is a signal-message without RefToMessageId.  It cannot be processed any further.");
+                        return StepResult.Success(new MessagingContext(AS4Message.Empty, MessagingContextMode.Receive)).AndStopExecution();
+                    }
+
                     return StepResult.Success(resultContext);
                 }
                 else
