@@ -88,10 +88,8 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
         private static ErrorResult ExternalPayloadError(IEnumerable<PartInfo> invalidPartInfos)
         {
-            string hrefs = string.Join(",", invalidPartInfos.Select(i => $"'{i.Href}'"));
-
             return new ErrorResult(
-                $"AS4Message only support embedded Payloads and: '{hrefs}' was given",
+                "Attachments must be embedded in the MIME message and must be referred to in the PayloadInfo section using a PartyInfo with a cid href reference.",
                 ErrorAlias.ExternalPayloadError);
         }
 
