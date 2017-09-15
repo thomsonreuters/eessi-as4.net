@@ -115,6 +115,10 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             {
                 string description = "More than one matching Receiving PMode was found";
 
+                Logger.Error(description);
+                Logger.Error("Candidates are: ");
+                Logger.Error(String.Join(Environment.NewLine, possibilities.Select(p => p.Id).ToArray()));
+
                 if (messagingContext.AS4Message.IsUserMessage)
                 {
                     return FailedStepResult(description, messagingContext);
@@ -172,7 +176,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
             if (scoresToConsider.Any() == false)
             {
-                return new ReceivePMode[] {};
+                return new ReceivePMode[] { };
             }
 
             int maxPoints = scoresToConsider.Max();
