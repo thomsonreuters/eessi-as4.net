@@ -7,16 +7,18 @@ using System.Xml;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
+using NLog;
 
 namespace Eu.EDelivery.AS4.Steps.Receive
 {
     public class ValidateAS4MessageStep : IStep
     {
-        private static readonly XmlNamespaceManager _namespaces = new XmlNamespaceManager(new NameTable());
+        private static readonly XmlNamespaceManager Namespaces = new XmlNamespaceManager(new NameTable());
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
         static ValidateAS4MessageStep()
         {
-            _namespaces.AddNamespace("soap12", Constants.Namespaces.Soap12);
+            Namespaces.AddNamespace("soap12", Constants.Namespaces.Soap12);
         }
 
         /// <summary>
@@ -27,9 +29,12 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(MessagingContext context, CancellationToken cancellationToken)
         {
+            Logger.Info("Validating the received AS4 Message ...");
+
             if (SoapBodyIsNotEmpty(context.AS4Message))
-            {
-                context.ErrorResult = FeatureNotSupportedError();
+            {                
+                context.ErrorResult = SoapBodyAttachmentsNotSupported();
+                Logger.Error($"AS4 Message {context.AS4Message.GetPrimaryMessageId()} is not valid: {context.ErrorResult.Description}");
                 return StepResult.Failed(context);
             }
 
@@ -40,6 +45,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             if (invalidPartInfos.Any())
             {
                 context.ErrorResult = ExternalPayloadError(invalidPartInfos);
+                Logger.Error($"AS4 Message {context.AS4Message.GetPrimaryMessageId()} is not valid: {context.ErrorResult.Description}");
                 return StepResult.Failed(context);
             }
 
@@ -54,16 +60,19 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 if (noAttachmentCanBeFounForEachPartInfo)
                 {
                     context.ErrorResult = InvalidHeaderError();
+                    Logger.Error($"AS4 Message {context.AS4Message.GetPrimaryMessageId()} is not valid: {context.ErrorResult.Description}");
                     return StepResult.Failed(context);
                 }
             }
+
+            Logger.Info("Received AS4 Message is valid");
 
             return await StepResult.SuccessAsync(context);
         }
 
         private static bool SoapBodyIsNotEmpty(AS4Message message)
         {
-            var bodyNode = message.EnvelopeDocument.SelectSingleNode("/soap12:Envelope/soap12:Body", _namespaces);
+            var bodyNode = message.EnvelopeDocument.SelectSingleNode("/soap12:Envelope/soap12:Body", Namespaces);
 
             if (bodyNode != null && String.IsNullOrWhiteSpace(bodyNode.InnerText) == false)
             {
@@ -72,7 +81,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             return false;
         }
 
-        private static ErrorResult FeatureNotSupportedError()
+        private static ErrorResult SoapBodyAttachmentsNotSupported()
         {
             return new ErrorResult("Attachments in the soap body are not supported.", ErrorAlias.FeatureNotSupported);
         }
