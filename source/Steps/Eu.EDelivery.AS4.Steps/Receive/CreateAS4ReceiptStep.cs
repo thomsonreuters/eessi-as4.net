@@ -63,7 +63,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         private static void AdaptReceiptMessage(Receipt receipt, MessagingContext messagingContext)
         {
             AS4Message receivedAS4Message = messagingContext.AS4Message;
-            if (messagingContext.ReceivingPMode?.ReplyHandling.ReceiptHandling.UseNNRFormat == true)
+            if (messagingContext.ReceivingPMode?.ReplyHandling.ReceiptHandling.UseNRRFormat == true)
             {
                 Logger.Debug(
                     $"{receivedAS4Message.GetPrimaryMessageId()} Use Non-Repudiation for Receipt {receipt.MessageId} Creation");

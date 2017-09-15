@@ -79,7 +79,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
 
                 // Assert
                 Assert.NotNull(pmode.ReplyHandling.ReceiptHandling);
-                Assert.False(pmode.ReplyHandling.ReceiptHandling.UseNNRFormat);
+                Assert.False(pmode.ReplyHandling.ReceiptHandling.UseNRRFormat);
                 Assert.Equal(ReplyPattern.Response, pmode.ReplyHandling.ReplyPattern);
             }
 

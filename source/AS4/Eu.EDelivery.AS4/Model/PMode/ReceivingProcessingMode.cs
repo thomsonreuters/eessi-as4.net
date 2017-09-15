@@ -79,17 +79,20 @@ namespace Eu.EDelivery.AS4.Model.PMode
 
     public class ReceiveReceiptHandling
     {
-        private bool? _useNNRFormat;
+        private bool? _useNRRFormat;
 
-        public bool UseNNRFormat
+        /// <summary>
+        /// Flag that determines whether of not Non-Repudiation of Receipt must be used.
+        /// </summary>
+        public bool UseNRRFormat
         {
-            get { return _useNNRFormat ?? false; }
-            set { _useNNRFormat = value; }
+            get { return _useNRRFormat ?? false; }
+            set { _useNRRFormat = value; }
         }
 
         public ReceiveReceiptHandling()
         {
-            UseNNRFormat = false;
+            UseNRRFormat = false;
         }
 
         #region Serialization Control properties
@@ -97,7 +100,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
         [XmlIgnore]
         [JsonIgnore]
         [ScriptIgnore]
-        public bool UseNNRFormatSpecified => _useNNRFormat.HasValue;
+        public bool UseNNRFormatSpecified => _useNRRFormat.HasValue;
 
         #endregion
     }
