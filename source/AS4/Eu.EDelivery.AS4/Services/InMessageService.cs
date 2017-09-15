@@ -365,6 +365,11 @@ namespace Eu.EDelivery.AS4.Services
             MessageUnit signalMessage,
             IDictionary<string, bool> duplicateSignalMessages)
         {
+            if (String.IsNullOrWhiteSpace(signalMessage.RefToMessageId))
+            {
+                return false;
+            }
+
             duplicateSignalMessages.TryGetValue(signalMessage.RefToMessageId, out bool isDuplicate);
 
             if (isDuplicate)
