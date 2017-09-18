@@ -18,9 +18,13 @@ namespace Eu.EDelivery.AS4.Strategies.Retriever
         /// <summary>
         /// Initializes a new instance of the <see cref="FtpPayloadRetriever" /> class
         /// </summary>
-        public FtpPayloadRetriever()
+        public FtpPayloadRetriever() : this(Config.Instance)
         {
-            _config = Config.Instance;
+        }
+
+        public FtpPayloadRetriever(IConfig config)
+        {
+            _config = config;
         }
 
         /// <summary>
@@ -41,7 +45,7 @@ namespace Eu.EDelivery.AS4.Strategies.Retriever
 
         private FtpWebRequest CreateFtpRequest(string location)
         {
-            var ftpRequest = (FtpWebRequest) WebRequest.Create(new Uri(location));
+            var ftpRequest = (FtpWebRequest)WebRequest.Create(new Uri(location));
             ftpRequest.Method = WebRequestMethods.Ftp.DownloadFile;
 
             ftpRequest.Credentials = new NetworkCredential(_config.GetSetting("ftpusername"), _config.GetSetting("ftppassword"));
