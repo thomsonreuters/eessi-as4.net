@@ -85,7 +85,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             {
                 // Arrange
                 MessagingContext messagingContext = CreateSignedInternalMessage();
-                messagingContext.ReceivingPMode.ReplyHandling.ReceiptHandling.UseNNRFormat = true;
+                messagingContext.ReceivingPMode.ReplyHandling.ReceiptHandling.UseNRRFormat = true;
 
                 // Act
                 StepResult result = await _step.ExecuteAsync(messagingContext, CancellationToken.None);
@@ -103,7 +103,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             {
                 // Arrange
                 MessagingContext messagingContext = CreateSignedInternalMessage();
-                messagingContext.ReceivingPMode.ReplyHandling.ReceiptHandling.UseNNRFormat = true;
+                messagingContext.ReceivingPMode.ReplyHandling.ReceiptHandling.UseNRRFormat = true;
 
                 // Act
                 StepResult result = await _step.ExecuteAsync(messagingContext, CancellationToken.None);
@@ -133,7 +133,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
         protected ReceivingProcessingMode GetReceivingPMode()
         {
             var pmode = new ReceivingProcessingMode();
-            pmode.ReplyHandling.ReceiptHandling.UseNNRFormat = false;
+            pmode.ReplyHandling.ReceiptHandling.UseNRRFormat = false;
             return pmode;
         }
 

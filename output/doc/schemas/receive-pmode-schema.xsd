@@ -52,7 +52,7 @@
   </xs:simpleType>
   <xs:complexType name="ReceiveReceiptHandling">
     <xs:sequence>
-      <xs:element minOccurs="0" maxOccurs="1" name="UseNNRFormat" type="xs:boolean" />
+      <xs:element minOccurs="0" maxOccurs="1" name="UseNRRFormat" type="xs:boolean" />
     </xs:sequence>
   </xs:complexType>
   <xs:complexType name="ReceiveErrorHandling">

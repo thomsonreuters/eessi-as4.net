@@ -7,7 +7,7 @@
     <ReplyPattern>Callback</ReplyPattern>
     <SendingPMode>c3-push-pmode</SendingPMode>
     <ReceiptHandling>
-      <UseNNRFormat>true</UseNNRFormat>
+      <UseNRRFormat>true</UseNRRFormat>
     </ReceiptHandling>
     <ErrorHandling />
   </ReplyHandling>

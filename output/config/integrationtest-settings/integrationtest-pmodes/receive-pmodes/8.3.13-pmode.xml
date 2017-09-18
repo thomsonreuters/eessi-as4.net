@@ -12,7 +12,7 @@
     <ReplyPattern>Callback</ReplyPattern>
     <SendingPMode>pmode-callback</SendingPMode>
     <ReceiptHandling>
-      <UseNNRFormat>false</UseNNRFormat>
+      <UseNRRFormat>false</UseNRRFormat>
     </ReceiptHandling>
     <ErrorHandling>
       <UseSoapFault>false</UseSoapFault>

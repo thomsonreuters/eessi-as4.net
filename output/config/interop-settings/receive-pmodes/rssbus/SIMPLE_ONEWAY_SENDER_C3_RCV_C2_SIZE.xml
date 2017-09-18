@@ -9,7 +9,7 @@
     </DuplicateElimination>
   </Reliability>
   <ReceiptHandling>
-    <UseNNRFormat>true</UseNNRFormat>
+    <UseNRRFormat>true</UseNRRFormat>
     <ReplyPattern>Response</ReplyPattern>
     <SendingPMode>SIGNED_RESPONSE_FROM_C2</SendingPMode>
   </ReceiptHandling>
