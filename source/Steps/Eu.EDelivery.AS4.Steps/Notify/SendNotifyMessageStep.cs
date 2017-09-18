@@ -79,10 +79,10 @@ namespace Eu.EDelivery.AS4.Steps.Notify
             }
         }
 
-        private async Task SendNotifyMessage(MessagingContext message)
+        private async Task SendNotifyMessage(MessagingContext messagingContext)
         {
-            NotifyMessageEnvelope notifyMessage = message.NotifyMessage;
-            Method notifyMethod = GetNotifyMethod(message);
+            NotifyMessageEnvelope notifyMessage = messagingContext.NotifyMessage;
+            Method notifyMethod = GetNotifyMethod(messagingContext);
 
             INotifySender sender = _provider.GetNotifySender(notifyMethod.Type);
             sender.Configure(notifyMethod);
