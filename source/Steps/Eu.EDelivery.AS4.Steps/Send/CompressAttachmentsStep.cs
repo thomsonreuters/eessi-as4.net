@@ -13,7 +13,7 @@ using NLog;
 namespace Eu.EDelivery.AS4.Steps.Send
 {
     /// <summary>
-    /// Describes how the AS4 UserMessage gets compressed
+    /// Describes how the attachments of an AS4 message must be compressed.
     /// </summary>
     public class CompressAttachmentsStep : IStep
     {
