@@ -16,9 +16,8 @@ namespace Eu.EDelivery.AS4.Repositories
         /// Initializes a new instance of the <see cref="CertificateRepository"/> class
         /// with default Configuration
         /// </summary>
-        public CertificateRepository()
+        public CertificateRepository() : this(Config.Instance)
         {
-            this._config = Config.Instance;
         }
 
         /// <summary>
@@ -29,7 +28,7 @@ namespace Eu.EDelivery.AS4.Repositories
         /// </param>
         public CertificateRepository(IConfig config)
         {
-            this._config = config;
+            _config = config;
         }
 
         /// <summary>
@@ -54,7 +53,7 @@ namespace Eu.EDelivery.AS4.Repositories
                           $"Could not find Certificate in store: '{GetCertificateStoreName()}' where '{findType}' is '{privateKeyReference}'");
                 }
 
-                return certificateCollection[0];            
+                return certificateCollection[0];
             }
         }
 
@@ -66,7 +65,7 @@ namespace Eu.EDelivery.AS4.Repositories
 
         private string GetCertificateStoreName()
         {
-            return this._config.GetSetting("certificatestore");
+            return _config.GetSetting("certificatestore");
         }
     }
 

@@ -18,18 +18,22 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
     {
         private readonly IMimeTypeRepository _repository;
         private readonly IConfig _config;
-        private readonly ILogger _logger;
         private Method _method;
+
+        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 
         /// <summary>
         /// Initialize a new instance of the <see cref="EmailAttachmentUploader"/> class
         /// </summary>
         /// <param name="mimeTypeRepository"></param>
-        public EmailAttachmentUploader(IMimeTypeRepository mimeTypeRepository)
+        public EmailAttachmentUploader(IMimeTypeRepository mimeTypeRepository) : this(mimeTypeRepository, Config.Instance)
+        {
+        }
+
+        public EmailAttachmentUploader(IMimeTypeRepository mimeTypeRepository, IConfig config)
         {
             _repository = mimeTypeRepository;
-            _config = Config.Instance;
-            _logger = LogManager.GetCurrentClassLogger();
+            _config = config;
         }
 
         /// <summary>
@@ -90,7 +94,7 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
             }
             else
             {
-                _logger.Debug($"Following key is not defined in Paylaod Reference Method: {key}");
+                Logger.Debug($"Following key is not defined in Paylaod Reference Method: {key}");
             }
         }
 
@@ -121,7 +125,7 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
         private void LogUploadInformation(Attachment attachment)
         {
             string toEmailAddress = _method["to"]?.Value;
-            _logger.Info($"Attachment {attachment.Id} is send as Mail Attachment to {toEmailAddress}");
+            Logger.Info($"Attachment {attachment.Id} is send as Mail Attachment to {toEmailAddress}");
         }
     }
 }

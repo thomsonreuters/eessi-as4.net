@@ -99,7 +99,7 @@ namespace Eu.EDelivery.AS4.Services
             string location,
             Operation operation)
         {
-            OutMessage outMessage = 
+            OutMessage outMessage =
                 await OutMessageBuilder.ForMessageUnit(messageUnit, messageContext.AS4Message.ContentType, sendingPMode)
                                        .BuildAsync(CancellationToken.None);
 
@@ -130,7 +130,7 @@ namespace Eu.EDelivery.AS4.Services
             return outMessage;
         }
 
-        private static SendingProcessingMode GetSendingPMode(bool isSignalMessage, MessagingContext context)
+        private SendingProcessingMode GetSendingPMode(bool isSignalMessage, MessagingContext context)
         {
             if (context.SendingPMode?.Id != null)
             {
@@ -141,7 +141,7 @@ namespace Eu.EDelivery.AS4.Services
 
             if (isSignalMessage && receivePMode != null && receivePMode.ReplyHandling.ReplyPattern == ReplyPattern.Callback)
             {
-                return Config.Instance.GetSendingPMode(receivePMode.ReplyHandling.SendingPMode);
+                return _configuration.GetSendingPMode(receivePMode.ReplyHandling.SendingPMode);
             }
 
             return null;
