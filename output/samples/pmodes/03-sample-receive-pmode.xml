@@ -12,7 +12,7 @@
     <ReplyPattern>Response</ReplyPattern>
     <SendingPMode>signed-response-pmode</SendingPMode>
     <ReceiptHandling>
-      <UseNNRFormat>true</UseNNRFormat>
+      <UseNRRFormat>true</UseNRRFormat>
     </ReceiptHandling>
     <ErrorHandling>
       <UseSoapFault>false</UseSoapFault>
