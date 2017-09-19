@@ -17,6 +17,7 @@ using NLog;
 
 namespace Eu.EDelivery.AS4.Transformers
 {
+    [Obsolete("Use the NotifyMessageTransformer instead")]
     public class ExceptionToNotifyMessageTransformer : ITransformer
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();

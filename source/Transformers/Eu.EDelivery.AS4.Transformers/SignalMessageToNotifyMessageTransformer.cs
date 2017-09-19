@@ -9,6 +9,7 @@ using Eu.EDelivery.AS4.Serialization;
 
 namespace Eu.EDelivery.AS4.Transformers
 {
+    [Obsolete("Use the MessageToNotifyMessageTransformer instead.")]
     public class SignalMessageToNotifyMessageTransformer : ITransformer
     {
         /// <summary>
@@ -29,7 +30,7 @@ namespace Eu.EDelivery.AS4.Transformers
 
             // Get the AS4Message that is referred to by this entityMessage and modify it so that it just contains
             // the one usermessage that should be delivered.
-            AS4Message as4Message = await RetrieveAS4SignalMessage(entityMessage, cancellationToken);
+            AS4Message as4Message = await RetrieveAS4SignalMessageForNotification(entityMessage, cancellationToken);
 
             return new MessagingContext(await CreateNotifyMessageEnvelope(as4Message, entityMessage.MessageEntity.GetType()));
         }
@@ -55,7 +56,7 @@ namespace Eu.EDelivery.AS4.Transformers
                                              receivedEntityType);
         }
 
-        private static async Task<AS4Message> RetrieveAS4SignalMessage(ReceivedMessageEntityMessage entityMessage, CancellationToken cancellationToken)
+        private static async Task<AS4Message> RetrieveAS4SignalMessageForNotification(ReceivedMessageEntityMessage entityMessage, CancellationToken cancellationToken)
         {
             var as4Transformer = new AS4MessageTransformer();
             var internalMessage = await as4Transformer.TransformAsync(entityMessage, cancellationToken);

@@ -39,7 +39,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Receive_Scenarios._8._3._5_
 
         private static void AssertPayloads(IEnumerable<FileInfo> files)
         {
-            var sendPayload = new FileInfo(Holodeck.HolodeckALocations.XmlPayloadPath);
+            var sendPayload = new FileInfo(Holodeck.HolodeckALocations.JpegPayloadPath);
 
             Assert.All(files, f => Assert.Equal(sendPayload.Length, f.Length));
         }

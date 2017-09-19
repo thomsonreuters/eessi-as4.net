@@ -97,7 +97,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
         public void AssertDandelionPayloadOnHolodeckA()
         {
             FileInfo receivedPayload = new DirectoryInfo(IntegrationTestTemplate.AS4FullInputPath).GetFiles("*.jpg").FirstOrDefault();
-            var sendPayload = new FileInfo(HolodeckALocations.XmlPayloadPath);
+            var sendPayload = new FileInfo(HolodeckALocations.JpegPayloadPath);
 
             Assert.Equal(sendPayload.Length, receivedPayload?.Length);
         }
