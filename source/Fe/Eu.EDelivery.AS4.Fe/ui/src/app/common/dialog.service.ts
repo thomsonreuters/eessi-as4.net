@@ -8,9 +8,7 @@ import { Subject } from 'rxjs/Subject';
 
 @Injectable()
 export class DialogService {
-    constructor(private modalService: ModalService) {
-
-    }
+    constructor(private modalService: ModalService) { }
     public prompt(message: string, title?: string): Observable<string> {
         let obs = new Subject<string>();
         let dialog: ModalComponent;
@@ -68,6 +66,7 @@ export class DialogService {
                 if (unexpected) {
                     dlg.showOk = false;
                     dlg.showClose = false;
+                    dlg.unexpected = true;
                 }
                 if (stackTrace instanceof Response) {
                     try {

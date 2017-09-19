@@ -23,7 +23,7 @@ import { ModalService } from './modal.service';
                         <div *ngIf="showDefaultMessage">{{message}}</div>
                         <ng-content></ng-content>
                     </div>
-                    <div class="modal-footer">
+                    <div class="modal-footer" *ngIf="!unexpected">
                         <div *ngIf="showDefaultButtons === true">
                             <button type="button" class="btn btn-flat" *ngIf="showOk" (click)="ok()" focus>{{buttonOk}}</button>
                             <button type="button" class="btn btn-flat" *ngIf="showCancel" data-dismiss="modal" (click)="cancel()" focus onlyWhenNoText="true">{{buttonCancel}}</button>
@@ -44,6 +44,7 @@ export class ModalComponent implements OnDestroy {
     public type: string = '';
     public showOk: boolean = true;
     public showCancel: boolean = true;
+    public unexpected: boolean = false;
     public get transition(): string {
         return this.isVisible ? 'enter' : 'exit';
     }

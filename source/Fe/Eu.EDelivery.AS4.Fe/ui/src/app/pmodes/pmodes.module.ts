@@ -37,7 +37,7 @@ const services: any = [
     PmodeStore,
     SendingPmodeService,
     ReceivingPmodeService,
-    // ...errorHandlingServices
+    ...errorHandlingServices
 ];
 
 @NgModule({

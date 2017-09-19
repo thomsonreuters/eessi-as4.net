@@ -7,6 +7,7 @@ import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRe
 import { ModalService } from './../../common/modal/modal.service';
 import { DialogService } from './../../common/dialog.service';
 import { UsersService, User } from './../users.service';
+import { validatePassword } from '../../common/passwordValidator';
 
 @Component({
     selector: 'as4-users',
@@ -108,7 +109,7 @@ export class UsersComponent implements OnDestroy, CanComponentDeactivate {
         this.form = this._formBuilder.group({
             name: [!!!user ? '' : user.name, Validators.required],
             roles: [!!!user ? null : user.roles[0], Validators.required],
-            password: ['', this.isNew ? Validators.required : this.validatePassword]
+            password: ['', this.isNew ? Validators.required : validatePassword]
         });
         if (!!!user) {
             this.form.disable();
@@ -116,18 +117,5 @@ export class UsersComponent implements OnDestroy, CanComponentDeactivate {
             this.form.enable();
         }
     }
-    private static regex: RegExp = new RegExp(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[$@$!%*?&])[A-Za-z\d$@$!%*?&]{8,}/)
-    private validatePassword(control: FormControl) {
-        if (!!!control.value) {
-            return null;
-        } else {
-            if ((<string>control.value).length === 0 || !UsersComponent.regex.test(control.value)) {
-                return {
-                    validatePassword: {
-                        valid: false
-                    }
-                };
-            }
-        }
-    }
+  
 }

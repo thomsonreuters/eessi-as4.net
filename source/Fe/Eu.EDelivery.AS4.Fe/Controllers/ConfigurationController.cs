@@ -45,6 +45,32 @@ namespace Eu.EDelivery.AS4.Fe.Controllers
         }
 
         /// <summary>
+        /// Returns if the portal is in setup state
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("setup")]
+        [AllowAnonymous]
+        public async Task<IActionResult> IsSetup()
+        {
+            return new OkObjectResult(await portalSettingsService.IsSetup());
+        }
+
+        /// <summary>
+        /// Saves the setup.
+        /// </summary>
+        /// <param name="setup">The setup.</param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("setup")]
+        [AllowAnonymous]
+        public async Task<IActionResult> SaveSetup([FromBody] Setup setup)
+        {
+            await portalSettingsService.SaveSetup(setup);
+            return new OkResult();
+        }
+
+        /// <summary>
         /// Posts the authorization map.
         /// </summary>
         /// <param name="authorizationEntries">The authorization entries.</param>

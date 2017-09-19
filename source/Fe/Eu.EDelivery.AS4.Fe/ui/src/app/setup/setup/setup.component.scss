@@ -1,0 +1,31 @@
+:host {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-top: 10%;
+}
+
+.setup {
+    border: 1px solid #ccc;
+    box-shadow: 2px 2px 5px #888888;
+    padding: 30px;
+    min-height: 60%;
+    height: 60%;
+    width: 50vw;
+    .message {
+        font-size: 18px;
+    }
+    form {
+      padding-top: 10px;
+    }
+    h2 {
+        font-weight: bold;
+        text-align: center;
+    }
+    .finished {
+        h2 {
+            color: green;
+        }
+        text-align: center;
+    }
+}

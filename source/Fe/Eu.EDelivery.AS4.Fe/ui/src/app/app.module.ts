@@ -28,6 +28,7 @@ import { RuntimeModule } from './runtime/runtime.module';
 import { RuntimeService } from './settings/runtime.service';
 import { UserModule } from './users/user.module';
 import { AuthenticationService } from './authentication/authentication.service';
+import { SetupModule } from './setup/setup.module';
 
 import '../styles/external.scss';
 
@@ -62,7 +63,8 @@ type StoreType = {
         SubmittoolModule,
         As4ComponentsModule,
         AuthenticationModule,
-        ClipboardModule
+        ClipboardModule,
+        SetupModule
     ],
     providers: [ // expose our Services and Providers into Angular's dependency injection
         AppState,

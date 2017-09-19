@@ -1,7 +1,7 @@
 import { Directive, ElementRef, Renderer } from '@angular/core';
 
 @Directive({
-    selector: 'input[type=text],input[type=number]'
+    selector: 'input[type=text],input[type=number],input[type=password]'
 })
 export class TextDirective {
     constructor(private _elementRef: ElementRef, private _renderer: Renderer) {

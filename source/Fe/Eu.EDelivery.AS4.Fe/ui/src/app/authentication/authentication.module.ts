@@ -11,6 +11,7 @@ import { AuthenticationStore } from './authentication.store';
 import { TOKENSTORE } from './token';
 import { HasAuthDirective } from './hasauth/hasauth.directive';
 import { UnauthorizedComponent } from './unauthorized/unauthorized.component';
+import { SetupGuard } from './../setup/setup.guard';
 
 export function jwtHelperFactory() {
     return new JwtHelper();
@@ -28,7 +29,9 @@ const directives: any = [
 const services: any = [
     { provide: JwtHelper, useFactory: jwtHelperFactory },
     AuthenticationService,
-    AuthenticationStore
+    AuthenticationStore,
+
+    SetupGuard
 ];
 
 @NgModule({

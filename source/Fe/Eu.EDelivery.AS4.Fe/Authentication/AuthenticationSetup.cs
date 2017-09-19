@@ -75,24 +75,6 @@ namespace Eu.EDelivery.AS4.Fe.Authentication
                 AuthenticationScheme = "JWT",
                 TokenValidationParameters = tokenValidationParameters
             });
-
-            using (var serviceScope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope())
-            {
-                var context = serviceScope.ServiceProvider.GetService<ApplicationDbContext>();
-                context.Database.EnsureCreated();
-                context.SaveChanges();
-
-                var userManager = serviceScope.ServiceProvider.GetService<UserManager<ApplicationUser>>();
-
-                var user1 = new ApplicationUser { UserName = "admin" };
-                var user2 = new ApplicationUser { UserName = "readonly" };
-
-                var user1result = userManager.CreateAsync(user1, "gl0M+`pxas").Result;
-                var user2result = userManager.CreateAsync(user2, "gl0M+`pxas").Result;
-
-                userManager.AddClaimsAsync(user1, new[] { new Claim(ClaimTypes.Role, Roles.Admin) }).Wait();
-                userManager.AddClaimsAsync(user2, new[] { new Claim(ClaimTypes.Role, Roles.Readonly) }).Wait();
-            }
         }
 
         private static void RegisterOptions(IServiceCollection services, IConfigurationRoot configuration)

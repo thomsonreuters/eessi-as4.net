@@ -19,6 +19,7 @@ export interface IRuntimeService {
 
 @Injectable()
 export class RuntimeService implements IRuntimeService {
+    public isLoaded: boolean = false;
     private _runtimeMetaData: any | null = null;
     constructor(private _authHttp: AuthHttp, private _http: Http, private _runtimeStore: RuntimeStore) { }
     public getReceivers() {
@@ -66,7 +67,9 @@ export class RuntimeService implements IRuntimeService {
                         attachmentUploaders: json.attachmentUploaders,
                         runtimeMetaData: json.runtimeMetaData
                     });
-
+                    this.isLoaded = true;
+                    resolve(true);
+                }, () => {
                     resolve(true);
                 });
         });

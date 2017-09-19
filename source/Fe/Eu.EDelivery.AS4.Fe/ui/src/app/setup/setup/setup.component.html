@@ -1,0 +1,35 @@
+<div class="setup">
+    <div class="login-logo">
+        AS4.NET - <b>Setup</b>
+    </div>
+    <div *ngIf="!finished">
+        <p class="message">It seems that the AS4 portal hasn't been setup yet!</p>
+        <p class="message">Please provide the following required information before proceeding with the portal.</p>
+        <form [formGroup]="form" class="form-horizontal">
+            <h3>Authentication setup</h3>
+            <p>Following passwords are required to setup the default users.</p>
+            <as4-input label="Admin password">
+                <input type="password" formControlName="adminPassword">
+            </as4-input>
+            <as4-input label="Readonly password">
+                <input type="password" formControlName="readonlyPassword">
+            </as4-input>
+            <h3>JWT</h3>
+            <p>To sign the JWT tokens, a key is required. Please enter or generate a key.</p>
+            <as4-input label="Key">
+                <div class="input-group">
+                    <input type="text" formControlName="jwtKey">
+                    <span class="input-group-btn">
+                    <button class="btn btn-secondary" type="button" (click)="generate()"><i class="fa fa-refresh"></i></button>
+                </span>
+                </div>
+            </as4-input>
+            <button type="button" class="btn btn-primary pull-right" [attr.disabled]="!!form.valid ? null : true" (click)="send()">SEND</button>
+        </form>
+    </div>
+    <div *ngIf="finished" class="finished">
+        <h2>Setup is finished!</h2>
+        <p>The portal is now ready to be used.</p>
+        <p>Click <a [routerLink]="['/']">here</a> to start.</p>
+    </div>
+</div>

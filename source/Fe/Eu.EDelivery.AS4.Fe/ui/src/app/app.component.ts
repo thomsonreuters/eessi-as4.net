@@ -1,13 +1,14 @@
-import { SettingsService } from './settings/settings.service';
-import { DialogService } from './common/dialog.service';
-import { ModalService } from './common/modal/modal.service';
-import { Component, ViewEncapsulation, ViewChild, ElementRef } from '@angular/core';
+import { Component, ViewEncapsulation, ViewChild, ElementRef, ViewContainerRef, AfterViewInit } from '@angular/core';
 
 import { AppState } from './app.service';
 import { RuntimeService } from './settings/runtime.service';
 import { AuthenticationStore } from './authentication/authentication.store';
 import { SendingPmodeService } from './pmodes/sendingpmode.service';
 import { ReceivingPmodeService } from './pmodes/receivingpmode.service';
+import { ErrorDialogComponent } from './common/errorDialog/errorDialog.component';
+import { SettingsService } from './settings/settings.service';
+import { DialogService } from './common/dialog.service';
+import { ModalService } from './common/modal/modal.service';
 
 import 'jquery';
 import 'bootstrap/dist/js/bootstrap.js';
@@ -37,14 +38,16 @@ import '../theme/js/app.js';
         <router-outlet></router-outlet>
   `
 })
-export class AppComponent {
+export class AppComponent implements AfterViewInit {
     public isLoggedIn: boolean;
     public isShowDetails: boolean = false;
     public showOk: boolean = true;
     @ViewChild('modal') public modal: ElementRef;
     // tslint:disable-next-line:max-line-length
     constructor(private appState: AppState, private authenticationStore: AuthenticationStore, private runtimeService: RuntimeService, private modalService: ModalService, private dialogService: DialogService, private sendingPmodeService: SendingPmodeService, private receivingPmodeService: ReceivingPmodeService,
-        private settingsService: SettingsService) {
+        private settingsService: SettingsService, private _viewContainer: ViewContainerRef) {
+        this.modalService.setRootContainerRef(this._viewContainer);
+
         this.authenticationStore
             .changes
             .subscribe((result) => {
@@ -55,5 +58,11 @@ export class AppComponent {
                     this.receivingPmodeService.getAll();
                 }
             });
+    }
+    public ngAfterViewInit() {
+        if (!this.runtimeService.isLoaded) {
+            this.dialogService.error('Error connecting to the API. Please verify that you can reach it! Reload the browser to try again.', 'Error', true);
+            return;
+        }
     }
 }

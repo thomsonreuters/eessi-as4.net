@@ -50,6 +50,7 @@ import { GetItemTypePropertyPipe, GetTypePipe } from './getitemtypeproperty.pipe
 import { RuntimetoolTipDirective } from './runtimetooltip.directive';
 import { Select2Component } from './select2/select2.component';
 import { ThumbprintValidatorDirective } from './thumbprintInput/validator';
+import { ErrorDialogComponent } from './errorDialog/errorDialog.component';
 
 import { Select2Module } from 'ng2-select2';
 
@@ -88,7 +89,8 @@ const components: any = [
     ThumbprintInputComponent,
     ClipboardComponent,
     TimeInputComponent,
-    Select2Component
+    Select2Component,
+    ErrorDialogComponent
 ];
 
 const directives: any = [
@@ -138,7 +140,7 @@ const services: any = [
         useFactory: authHttpNoSpinnerServiceFactory,
         deps: [Http, RequestOptions, XHRBackend, SpinnerService, DialogService]
     },
-    // ...errorHandlingServices
+    ...errorHandlingServices
 ];
 
 @NgModule({
@@ -183,7 +185,8 @@ const services: any = [
         GetTypePipe,
         RuntimetoolTipDirective,
         Select2Component,
-        ThumbprintValidatorDirective
+        ThumbprintValidatorDirective,
+        ErrorDialogComponent
     ],
     imports: [
         ClipboardModule,
@@ -194,6 +197,7 @@ const services: any = [
         TextMaskModule,
         Select2Module,
         AuthenticationModule
-    ]
+    ],
+    entryComponents: [ErrorDialogComponent]
 })
 export class As4ComponentsModule { }
