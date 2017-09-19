@@ -12,13 +12,17 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
     /// <summary>
     /// <see cref="IAttachmentUploader" /> implementation to upload attachments to the file system
     /// </summary>
-    [Info("FILE")]
+    [Info(FileAttachmentUploader.Key)]
     public class FileAttachmentUploader : IAttachmentUploader
     {
+        public const string Key = "FILE";
+
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+
         private readonly IMimeTypeRepository _repository;
 
         private Method _method;
+
         [Info("location")]
         private string Location => _method["location"]?.Value;
 

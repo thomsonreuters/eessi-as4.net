@@ -16,6 +16,8 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
     [NotConfigurable]
     public class EmailAttachmentUploader : IAttachmentUploader
     {
+        public const string Key = "EMAIL";
+
         private readonly IMimeTypeRepository _repository;
         private readonly IConfig _config;
         private Method _method;

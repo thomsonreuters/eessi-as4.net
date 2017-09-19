@@ -11,6 +11,8 @@ namespace Eu.EDelivery.AS4.Strategies.Retriever
     /// </summary>
     public class HttpPayloadRetriever : IPayloadRetriever
     {
+        public const string Key = "http";
+
         private static readonly HttpClient HttpClient = new HttpClient();
         private readonly Func<HttpRequestMessage, Task<HttpResponseMessage>> _sendRequest;
 
