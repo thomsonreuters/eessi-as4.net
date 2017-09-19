@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.ComponentModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -16,6 +17,8 @@ namespace Eu.EDelivery.AS4.Steps.Receive
     /// <summary>
     /// Describes how the AS4 Receipt must be created
     /// </summary>
+    [Description("Create an AS4 Receipt message to inform the sender that the received AS4 Message has been processed correctly")]
+    [Info("Create a Receipt message")]
     public class CreateAS4ReceiptStep : IStep
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -22,6 +23,8 @@ namespace Eu.EDelivery.AS4.Steps.Receive
     /// <summary>
     /// Step which describes how the PModes (Sending and Receiving) is determined
     /// </summary>
+    [Description("Determines the PMode that must be used to process the received AS4 Message")]
+    [Info("Determine PMode for received AS4 Message")]
     public class DeterminePModesStep : IStep
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();

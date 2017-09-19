@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,6 +12,8 @@ using NLog;
 
 namespace Eu.EDelivery.AS4.Steps.Receive
 {
+    [Description("Validate received AS4 Message")]
+    [Info("Verifies if the received AS4 Message is valid for further processing")]
     public class ValidateAS4MessageStep : IStep
     {
         private static readonly XmlNamespaceManager Namespaces = new XmlNamespaceManager(new NameTable());

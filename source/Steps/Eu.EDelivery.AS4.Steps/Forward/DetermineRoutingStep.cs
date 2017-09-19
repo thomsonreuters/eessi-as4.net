@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Configuration;
 using System.Threading;
 using System.Threading.Tasks;
@@ -8,6 +9,8 @@ using NLog;
 
 namespace Eu.EDelivery.AS4.Steps.Forward
 {
+    [Description("Determine how the message must be forwarded by retrieving the sending pmode that must be used.")]
+    [Info("Determine routing for message that must be forwarded")]
     public class DetermineRoutingStep : IStep
     {
         private readonly IConfig _configuration;

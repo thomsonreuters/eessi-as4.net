@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
@@ -12,6 +13,8 @@ using NLog;
 
 namespace Eu.EDelivery.AS4.Steps.Receive
 {
+    [Description("Send AS4 signal message")]
+    [Info("Send AS4 signal message")]
     public class SendAS4SignalMessageStep : IStep
     {
         private readonly Func<DatastoreContext> _createDatastoreContext;

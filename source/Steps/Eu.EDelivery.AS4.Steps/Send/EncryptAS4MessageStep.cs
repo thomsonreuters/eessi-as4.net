@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Configuration;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
@@ -19,6 +20,8 @@ namespace Eu.EDelivery.AS4.Steps.Send
     /// <summary>
     /// Describes how the MSH encrypts the ebMS UserMessage
     /// </summary>
+    [Description("his step encrypts the AS4 Message and its attachments if encryption is enabled in the sending PMode")]
+    [Info("his step encrypts the AS4 Message and its attachments if encryption is enabled in the sending PMode")]
     public class EncryptAS4MessageStep : IStep
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();

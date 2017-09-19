@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
@@ -15,6 +16,8 @@ namespace Eu.EDelivery.AS4.Steps.Receive
     /// <summary>
     /// Describes how the data store gets updated when an incoming message is received.
     /// </summary>
+    [Description("Saves a received message as-is in the datastore.")]
+    [Info("Save received message")]
     public class SaveReceivedMessageStep : IStep
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();

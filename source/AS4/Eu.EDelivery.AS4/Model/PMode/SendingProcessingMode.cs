@@ -35,30 +35,42 @@ namespace Eu.EDelivery.AS4.Model.PMode
         }
 
         [XmlElement(IsNullable = true)]
+        [Description("Id of the PMode")]
         public string Id { get; set; }
 
         [DefaultValue(false)]
+        [Description("Indicate if settings in the PMode can be overwritten by settings from the submit message")]
         public bool AllowOverride { get; set; }
 
+        [Description("Message exchange pattern")]
         public MessageExchangePattern Mep { get; set; }
 
         [Info("Message exchange pattern binding", defaultValue: MessageExchangePatternBinding.Push)]
+        [Description("Message exchange pattern binding")]
         public MessageExchangePatternBinding MepBinding { get; set; }
 
+        [Description("Push configuration")]
         public PushConfiguration PushConfiguration { get; set; }
 
+        [Description("Configuration for dyanmic discovery")]
         public DynamicDiscoveryConfiguration DynamicDiscovery { get; set; }
 
+        [Description("Send reliability")]
         public SendReliability Reliability { get; set; }
 
+        [Description("Receipt handling")]
         public SendHandling ReceiptHandling { get; set; }
 
+        [Description("Error handling")]
         public SendHandling ErrorHandling { get; set; }
 
+        [Description("Exception handling")]
         public SendHandling ExceptionHandling { get; set; }
 
+        [Description("Security settings")]
         public Security Security { get; set; }
 
+        [Description("Send message pacjaging")]
         public SendMessagePackaging MessagePackaging { get; set; }
 
         #region Serialization-control properties
@@ -93,8 +105,10 @@ namespace Eu.EDelivery.AS4.Model.PMode
             Encryption = new Encryption();
         }
 
+        [Description("Signing")]
         public Signing Signing { get; set; }
 
+        [Description("Encryption")]
         public Encryption Encryption { get; set; }
     }
 
@@ -117,22 +131,27 @@ namespace Eu.EDelivery.AS4.Model.PMode
             PublicKeyType = PublicKeyChoiceType.None;
         }
 
+        [Description("Is encryption enabled")]
         public bool IsEnabled { get; set; }
 
         [DefaultValue("http://www.w3.org/2009/xmlenc11#aes128-gcm")]
+        [Description("Encryption algorithm")]
         public string Algorithm { get; set; }
 
         [DefaultValue(128)]
+        [Description("Algorithm key size")]
         public int AlgorithmKeySize { get; set; }
 
         [XmlIgnore]
         [JsonIgnore]
         [ScriptIgnore]
+        [Description("Public key type")]
         public PublicKeyChoiceType PublicKeyType { get; set; }
 
         [XmlChoiceIdentifier(nameof(PublicKeyType))]
         [XmlElement("PublicKeyFindCriteria", typeof(PublicKeyFindCriteria))]
         [XmlElement("PublicKeyCertificate", typeof(PublicKeyCertificate))]
+        [Description("Public key information")]
         public object PublicKeyInformation
         {
             get { return _publicKeyInformation; }
@@ -191,13 +210,16 @@ namespace Eu.EDelivery.AS4.Model.PMode
 
     public class PublicKeyCertificate
     {
+        [Description("Certificate to use")]
         public string Certificate { get; set; }
     }
 
     public class PublicKeyFindCriteria
     {
+        [Description("X509 find type")]
         public X509FindType PublicKeyFindType { get; set; }
 
+        [Description("Key value to search for")]
         public string PublicKeyFindValue { get; set; }
     }
 
@@ -216,11 +238,14 @@ namespace Eu.EDelivery.AS4.Model.PMode
         }
 
         [DefaultValue(EncryptionStrategy.XmlEncRSAOAEPUrlWithMgf)]
+        [Description("Transport algorithm")]
         public string TransportAlgorithm { get; set; }
 
         [DefaultValue(EncryptionStrategy.XmlEncSHA1Url)]
+        [Description("Digest algorithm")]
         public string DigestAlgorithm { get; set; }
 
+        [Description("Mgf algorithm")]
         public string MgfAlgorithm { get; set; }
 
         #region Properties that control serialization
@@ -255,16 +280,22 @@ namespace Eu.EDelivery.AS4.Model.PMode
             HashFunction = DefaultHashFunction;
         }
 
+        [Description("Is signing enabled")]
         public bool IsEnabled { get; set; }
 
+        [Description("Find certificate using")]
         public X509FindType PrivateKeyFindType { get; set; }
 
+        [Description("Key value to search for")]
         public string PrivateKeyFindValue { get; set; }
 
+        [Description("Key reference method")]
         public X509ReferenceType KeyReferenceMethod { get; set; }
 
+        [Description("Signing algorithm")]
         public string Algorithm { get; set; }
 
+        [Description("Hash function to use for the signing")]
         public string HashFunction { get; set; }
 
         #region Properties that control serialization
@@ -305,8 +336,10 @@ namespace Eu.EDelivery.AS4.Model.PMode
             NotifyMethod = new Method();
         }
 
+        [Description("Notify message producer")]
         public bool NotifyMessageProducer { get; set; }
 
+        [Description("Notify method")]
         public Method NotifyMethod { get; set; }
     }
 
@@ -318,6 +351,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
             ReceptionAwareness = new ReceptionAwareness();
         }
 
+        [Description("Reception awareness")]
         public ReceptionAwareness ReceptionAwareness { get; set; }
     }
 
@@ -332,11 +366,14 @@ namespace Eu.EDelivery.AS4.Model.PMode
             _retryInterval = TimeSpan.FromMinutes(1);
         }
 
+        [Description("Indicates if reception awareness is enabled")]
         public bool IsEnabled { get; set; }
 
+        [Description("Retry count")]
         public int RetryCount { get; set; }
 
         [DefaultValue("00:03:00")]
+        [Description("Interval after which to try again")]
         public string RetryInterval
         {
             get { return _retryInterval.ToString(@"hh\:mm\:ss"); }
@@ -360,16 +397,22 @@ namespace Eu.EDelivery.AS4.Model.PMode
             TlsConfiguration = new TlsConfiguration();
         }
 
+        [Description("Protocol settings")]
         public Protocol Protocol { get; set; }
 
+        [Description("TLS configuration")]
         public TlsConfiguration TlsConfiguration { get; set; }
     }
 
     public class DynamicDiscoveryConfiguration
     {
+        [Description("Service meta locator scheme")]
         public string SmlScheme { get; set; }
+        [Description("Service management point domain name")]
         public string SmpServerDomainName { get; set; }
+        [Description("Document identifier")]
         public string DocumentIdentifier { get; set; }
+        [Description("Document identifer scheme")]
         public string DocumentIdentifierScheme { get; set; }
 
         /// <summary>
@@ -392,12 +435,15 @@ namespace Eu.EDelivery.AS4.Model.PMode
             UseHttpCompression = false;
         }
 
+        [Description("URL")]
         public string Url { get; set; }
 
         [DefaultValue(false)]
+        [Description("Indicates if chunking is enabled")]
         public bool UseChunking { get; set; }
 
         [DefaultValue(false)]
+        [Description("Indicates if HTTP compression is enabled")]
         public bool UseHttpCompression { get; set; }
     }
 
@@ -410,19 +456,24 @@ namespace Eu.EDelivery.AS4.Model.PMode
         }
 
         [DefaultValue(false)]
+        [Description("Indicates if TLS is enabled")]
         public bool IsEnabled { get; set; }
 
         [DefaultValue(TlsVersion.Tls12)]
+        [Description("Version for TLS")]
         public TlsVersion TlsVersion { get; set; }
 
+        [Description("Client certificate reference settings")]
         public ClientCertificateReference ClientCertificateReference { get; set; }
     }
 
     public class ClientCertificateReference
     {
         [DefaultValue(X509FindType.FindByThumbprint)]
+        [Description("X509 find type")]
         public X509FindType ClientCertificateFindType { get; set; }
 
+        [Description("Value to search for")]
         public string ClientCertificateFindValue { get; set; }
     }
 
@@ -436,15 +487,19 @@ namespace Eu.EDelivery.AS4.Model.PMode
             Mpc = Constants.Namespaces.EbmsDefaultMpc;
         }
         
+        [Description("Messaging partition channel")]
         public string Mpc { get; set; }
 
         [DefaultValue(true)]
+        [Description("Use AS4 compression")]
         public bool UseAS4Compression { get; set; }
 
         [DefaultValue(false)]
+        [Description("Indicates if multihop is enabled")]
         public bool IsMultiHop { get; set; }
 
         [DefaultValue(false)]
+        [Description("Include PMode")]
         public bool IncludePModeId { get; set; }
     }
 

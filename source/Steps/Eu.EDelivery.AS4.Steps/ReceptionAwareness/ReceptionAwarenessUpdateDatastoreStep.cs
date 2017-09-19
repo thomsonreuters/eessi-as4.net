@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
@@ -12,6 +13,8 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
     /// <summary>
     /// Describes how the AS4 message has to be behave in a Reception Awareness scenario
     /// </summary>
+    [Description("This step determines what the Operation and Status of an AS4 Message for which reception awareness is enabled, must be.")]
+    [Info("Reception Awareness")]
     public class ReceptionAwarenessUpdateDatastoreStep : IStep
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();

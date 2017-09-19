@@ -1,4 +1,5 @@
-﻿using System.Security;
+﻿using System.ComponentModel;
+using System.Security;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
@@ -7,6 +8,8 @@ using Eu.EDelivery.AS4.Services.PullRequestAuthorization;
 
 namespace Eu.EDelivery.AS4.Steps.Send
 {
+    [Description("Verifies if the received PullRequest is authorized.")]
+    [Info("Verify pull request authorization")]
     public class VerifyPullRequestAuthorizationStep : IStep
     {
         private readonly IPullAuthorizationMapProvider _pullAuthorizationMapProvider;

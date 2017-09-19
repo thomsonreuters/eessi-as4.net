@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -16,6 +17,8 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
     /// <summary>
     /// Describes how the message payloads are uploaded to their respective media
     /// </summary>
+    [Description("This step uploads the message payloads to the destination that was configured in the receiving pmode.")]
+    [Info("Deliver attachments ipv upload attachments ?")]
     public class UploadAttachmentsStep : IStep
     {
         private readonly ILogger _logger;

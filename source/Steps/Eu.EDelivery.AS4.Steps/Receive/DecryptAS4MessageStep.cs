@@ -1,4 +1,6 @@
-﻿using System.Security.Cryptography.X509Certificates;
+﻿
+using System.ComponentModel;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Security;
@@ -17,6 +19,8 @@ namespace Eu.EDelivery.AS4.Steps.Receive
     /// <summary>
     /// The use case describes how a message gets decrypted.
     /// </summary>
+    [Description("Decrypts the received AS4 Message if necessary")]
+    [Info("Decrypt received message")]
     public class DecryptAS4MessageStep : IStep
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();

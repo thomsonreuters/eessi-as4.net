@@ -12,7 +12,7 @@ import { PartyId } from '../../api/PartyId';
     selector: 'as4-party',
     template: `
         <div [formGroup]="group">
-            <as4-input [label]="label" formArrayName="partyIds" runtimetooltip="partyids">
+            <as4-input [label]="label" formArrayName="partyIds" runtimeTooltip="partyids">
                 <div class="item-container" *ngIf="partyIdsControl.length === 0">
                     <button as4-auth class="action add-button" type="button" [attr.disabled]="!group.disabled ? null : group.disabled" (click)="addParty()" class="btn btn-flat add-button"><i class="fa fa-plus"></i></button>
                 </div>
@@ -25,7 +25,7 @@ import { PartyId } from '../../api/PartyId';
                     </div>
                 </div>
             </as4-input>
-            <as4-input label="Role" runtimetooltip="role">
+            <as4-input label="Role" runtimeTooltip="role">
                 <input type="text" formControlName="role"/>
             </as4-input>
         </div>

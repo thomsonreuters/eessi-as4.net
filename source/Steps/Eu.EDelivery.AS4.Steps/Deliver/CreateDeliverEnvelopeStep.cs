@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -18,6 +19,8 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
     /// <summary>
     /// <see cref="IStep" /> implementation to create a <see cref="DeliverMessage" />.
     /// </summary>
+    [Description("Step that creates a deliver message")]
+    [Info("Create deliver message")]
     public class CreateDeliverEnvelopeStep : IStep
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();

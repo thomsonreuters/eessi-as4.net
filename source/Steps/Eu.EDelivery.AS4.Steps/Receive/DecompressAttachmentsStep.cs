@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -16,6 +17,8 @@ namespace Eu.EDelivery.AS4.Steps.Receive
     /// <summary>
     /// Decompress the incoming Payloads
     /// </summary>
+    [Description("If necessary, decompresses the attachments that are present in the received message.")]
+    [Info("Decompress attachments")]
     public class DecompressAttachmentsStep : IStep
     {
         private const string GzipContentType = "application/gzip";

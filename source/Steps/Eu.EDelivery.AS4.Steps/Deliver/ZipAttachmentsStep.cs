@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.ComponentModel;
+using System.IO;
 using System.IO.Compression;
 using System.Threading;
 using System.Threading.Tasks;
@@ -13,6 +14,8 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
     /// <summary>
     /// <see cref="IStep"/> implementation to .zip the attachments to one file
     /// </summary>
+    [Description("If the received AS4 Message contains multiple attachments, then this step zips them into one payload.")]
+    [Info("If the received AS4 Message contains multiple attachments, then this step zips them into one payload.")]
     public class ZipAttachmentsStep : IStep
     {        
         private readonly IMimeTypeRepository _repository;

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
@@ -9,6 +10,8 @@ using NLog;
 
 namespace Eu.EDelivery.AS4.Steps.Send
 {
+    [Description("Confirms that a message is ready to be sent.")]
+    [Info("Confirms that a message is ready to be sent.")]
     public class SetMessageToBeSentStep : IStep
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();

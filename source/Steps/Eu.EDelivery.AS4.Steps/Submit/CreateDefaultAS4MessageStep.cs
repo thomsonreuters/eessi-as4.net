@@ -16,6 +16,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
     /// <see cref="IStep" /> implementation
     /// to create a default configured <see cref="AS4Message" />
     /// </summary>
+    [NotConfigurable]
     public class CreateDefaultAS4MessageStep : IConfigStep
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();

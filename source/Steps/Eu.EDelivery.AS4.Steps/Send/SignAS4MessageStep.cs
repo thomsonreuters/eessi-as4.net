@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
@@ -15,6 +16,8 @@ namespace Eu.EDelivery.AS4.Steps.Send
     /// <summary>
     /// Describes how the MSH signs the AS4 UserMessage
     /// </summary>
+    [Description("This step signs the AS4 Message if signing is enabled in the sending PMode.")]
+    [Info("This step signs the AS4 Message if signing is enabled in the sending PMode.")]
     public class SignAS4MessageStep : IStep
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();

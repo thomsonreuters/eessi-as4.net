@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
+using System.ComponentModel;
 using System.IO;
 using System.IO.Compression;
 using System.Threading;
@@ -15,6 +15,8 @@ namespace Eu.EDelivery.AS4.Steps.Send
     /// <summary>
     /// Describes how the attachments of an AS4 message must be compressed.
     /// </summary>
+    [Description("This step compresses the attachments of an AS4 Message if compression is enabled in the sending PMode.")]
+    [Info("This step compresses the attachments of an AS4 Message if compression is enabled in the sending PMode.")]
     public class CompressAttachmentsStep : IStep
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();

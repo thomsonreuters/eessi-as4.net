@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -15,6 +16,8 @@ namespace Eu.EDelivery.AS4.Steps.Send
     /// <summary>
     /// Describes how the state and configuration on the retry mechanism of reception awareness is stored
     /// </summary>
+    [Description("This step makes sure that reception awareness is enabled for the message that is to be sent, if reception awareness is enabled in the sending PMode.")]
+    [Info("This step makes sure that reception awareness is enabled for the message that is to be sent, if reception awareness is enabled in the sending PMode.")]
     public class SetReceptionAwarenessStep : IStep
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();

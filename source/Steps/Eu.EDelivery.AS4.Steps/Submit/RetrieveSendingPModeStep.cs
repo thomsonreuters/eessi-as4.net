@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Configuration;
 using System.Threading;
 using System.Threading.Tasks;
@@ -6,7 +7,6 @@ using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
-using Eu.EDelivery.AS4.Model.Submit;
 using Eu.EDelivery.AS4.Validators;
 using NLog;
 
@@ -16,6 +16,8 @@ namespace Eu.EDelivery.AS4.Steps.Submit
     /// Add the retrieved PMode to the <see cref="SubmitMessage" />
     /// after the PMode is verified
     /// </summary>
+    [Description("Retrieve the sending PMode that must be used to send the AS4 Message")]
+    [Info("Retrieve sending PMode")]
     public class RetrieveSendingPModeStep : IStep
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();

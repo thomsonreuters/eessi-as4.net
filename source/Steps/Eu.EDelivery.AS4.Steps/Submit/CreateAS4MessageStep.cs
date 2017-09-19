@@ -1,11 +1,11 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
-using Eu.EDelivery.AS4.Model.Submit;
 using Eu.EDelivery.AS4.Singletons;
 using Eu.EDelivery.AS4.Strategies.Retriever;
 using NLog;
@@ -15,6 +15,8 @@ namespace Eu.EDelivery.AS4.Steps.Submit
     /// <summary>
     /// Create an <see cref="AS4Message"/> from a <see cref="SubmitMessage"/>
     /// </summary>
+    [Description("Create an AS4 Message for the submit message")]
+    [Info("Create AS4 message")]
     public class CreateAS4MessageStep : IStep
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();

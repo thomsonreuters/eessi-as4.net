@@ -14,6 +14,7 @@ namespace Eu.EDelivery.AS4.Steps.Notify
     /// Describes how the data store gets updated when a message is notified
     /// </summary>
     [Obsolete("Use the NotifyUpdateDatastoreStep instead")]
+    [NotConfigurable]
     public class NotifyUpdateOutExceptionDatastoreStep : IStep
     {
         private readonly ILogger _logger;

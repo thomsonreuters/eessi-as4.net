@@ -13,7 +13,7 @@ export const ROUTES: Routes = [
         path: 'monitor',
         component: WrapperComponent,
         children: [
-            { path: '', pathMatch: 'full', redirectTo: 'inexception' },
+            { path: '', pathMatch: 'full', redirectTo: 'messages' },
             { path: 'messages', component: MessageComponent, data: { title: 'Messages', icon: 'fa-inbox', isAuthCheck: false } },
             { path: 'exceptions', component: ExceptionComponent, data: { title: 'Exceptions', icon: 'fa-warning', isAuthCheck: false } },
             { path: 'exceptions/:direction/:messageid', component: ExceptionDetailComponent, data: { title: 'Exception detail', nomenu: true, icon: 'fa-warning', isAuthCheck: false } }

@@ -1,11 +1,11 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
-using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Repositories;
@@ -14,11 +14,12 @@ using Eu.EDelivery.AS4.Xml;
 using NLog;
 using Error = Eu.EDelivery.AS4.Model.Core.Error;
 using PullRequest = Eu.EDelivery.AS4.Model.Core.PullRequest;
-using SignalMessage = Eu.EDelivery.AS4.Model.Core.SignalMessage;
 using UserMessage = Eu.EDelivery.AS4.Model.Core.UserMessage;
 
 namespace Eu.EDelivery.AS4.Steps.Receive
 {
+    [Description("Create an AS4 Error message to inform the sender that something went wrong processing the received AS4 message.")]
+    [Info("Create an AS4 Error message")]
     public class CreateAS4ErrorStep : IStep
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();

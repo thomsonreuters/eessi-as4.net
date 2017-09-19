@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
@@ -13,6 +14,8 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
     /// <summary>
     /// Describes how a DeliverMessage is sent to the consuming business application. 
     /// </summary>
+    [Description("Send deliver message")]
+    [Info("Send deliver message")]
     public class SendDeliverMessageStep : IStep
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();

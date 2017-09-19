@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
@@ -19,6 +20,8 @@ namespace Eu.EDelivery.AS4.Steps.Send
     /// Describes how a MessageUnit should be selected to be sent via Pulling.
     /// </summary>
     /// <seealso cref="IStep" />
+    [Description("Selects a message that is eligible for sending via pulling. This step selects a message that matches the MPC of the received pull-request signalmessage.")]
+    [Info("Select message to send")]
     public class SelectUserMessageToSendStep : IStep
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();

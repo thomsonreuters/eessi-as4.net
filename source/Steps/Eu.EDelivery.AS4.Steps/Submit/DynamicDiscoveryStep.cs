@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Configuration;
 using System.Linq;
 using System.Net;
@@ -21,6 +22,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
     /// <see cref="IStep" /> implementation
     /// to dynamically complete the <see cref="SendingProcessingMode"/>
     /// </summary>
+    [NotConfigurable]
     public class DynamicDiscoveryStep : IConfigStep
     {
         [Info("SMP profile")]

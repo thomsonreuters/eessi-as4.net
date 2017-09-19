@@ -34,7 +34,7 @@ export const PMODECRUD_SERVICE = new OpaqueToken('pmodecrudservice');
                 </div>
             </form>
         </as4-modal>
-        <as4-input label="Name" runtimetooltip="receivingprocessingmode.id">
+        <as4-input label="Name" runtimeTooltip="receivingprocessingmode.id">
             <as4-columns noMargin="true">
                 <select class="FormArray-control select-pmode" as4-no-auth (change)="pmodeChanged($event.target.value); pmodeSelect.value = currentPmode && currentPmode.name" #pmodeSelect>
                     <option value="undefined">Select an option</option>

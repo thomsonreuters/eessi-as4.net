@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
@@ -10,6 +11,8 @@ using NLog;
 
 namespace Eu.EDelivery.AS4.Steps.Receive
 {
+    [Description("Updates the AS4 Message that has been received after processing so that it can be delivered or forwarded.")]
+    [Info("Update the received AS4 Message")]
     public class UpdateReceivedAS4MessageBodyStep : IStep
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();

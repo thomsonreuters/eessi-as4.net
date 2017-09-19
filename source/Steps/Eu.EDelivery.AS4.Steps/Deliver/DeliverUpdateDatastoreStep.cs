@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.ComponentModel;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
@@ -13,6 +13,9 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
     /// <summary>
     /// Describes how the data store gets updated when an incoming message is delivered
     /// </summary>
+    [Description("This step makes sure that the status of the message is correctly set after the message has been delivered.")]
+    [Info("Update message status after delivery")]
+
     public class DeliverUpdateDatastoreStep : IStep
     {
         private readonly ILogger _logger;

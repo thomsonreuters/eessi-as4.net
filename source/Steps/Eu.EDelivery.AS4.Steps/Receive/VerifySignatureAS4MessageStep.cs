@@ -1,4 +1,5 @@
-﻿using System.Security.Cryptography;
+﻿using System.ComponentModel;
+using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Exceptions;
@@ -13,6 +14,8 @@ namespace Eu.EDelivery.AS4.Steps.Receive
     /// <summary>
     /// Describes how a <see cref="AS4Message"/> signature gets verified
     /// </summary>
+    [Description("Verifies if the signature of the AS4 Message is correct. Message verification is necessary to ensure that the authenticity of the message is intact.")]
+    [Info("Verify signature of received AS4 Message")]
     public class VerifySignatureAS4MessageStep : IStep
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();

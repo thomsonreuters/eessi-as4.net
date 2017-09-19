@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,6 +13,8 @@ using Eu.EDelivery.AS4.Serialization;
 
 namespace Eu.EDelivery.AS4.Steps.Forward
 {
+    [Description("Creates a copy of the received message so that it can be forwarded.")]
+    [Info("Creates a copy of the received message so that it can be forwarded.")]
     public class CreateForwardMessageStep : IStep
     {
         private readonly IConfig _configuration;

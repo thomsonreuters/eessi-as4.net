@@ -1,10 +1,16 @@
-﻿namespace Eu.EDelivery.AS4.Model.Core
+﻿using System.ComponentModel;
+
+namespace Eu.EDelivery.AS4.Model.Core
 {
     public class CollaborationInfo
     {
+        [Description("Agreement reference")]
         public AgreementReference AgreementReference { get; set; }        
+        [Description("Service")]
         public Service Service { get; set; }
+        [Description("Action")]
         public string Action { get; set; }
+        [Description("Conversation ID")]
         public string ConversationId { get; set; }
 
         /// <summary>

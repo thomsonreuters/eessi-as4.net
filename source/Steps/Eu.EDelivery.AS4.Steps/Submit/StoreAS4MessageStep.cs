@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
@@ -15,6 +16,8 @@ namespace Eu.EDelivery.AS4.Steps.Submit
     /// Describes how the AS4 UserMessage is stored in the message store,
     /// in order to hand over to the Send Agents.
     /// </summary>
+    [Description("Stores the AS4 Message that has been created for the received submit-message so that it can be processed (signed, encrypted, …) afterwards.")]
+    [Info("Store AS4 message")]
     public class StoreAS4MessageStep : IStep
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();

@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
@@ -10,6 +11,8 @@ using NLog;
 
 namespace Eu.EDelivery.AS4.Steps.Notify
 {
+    [Description("This step makes sure that the status of the message is set to ‘Notified’ after notification")]
+    [Info("Update datastore after notification")]
     public class NotifyUpdateDatastoreStep : IStep
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();

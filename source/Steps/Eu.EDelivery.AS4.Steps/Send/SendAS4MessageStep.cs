@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Configuration;
 using System.IO;
 using System.Net;
@@ -23,6 +24,8 @@ namespace Eu.EDelivery.AS4.Steps.Send
     /// <summary>
     /// Send <see cref="AS4Message" /> to the corresponding Receiving MSH
     /// </summary>
+    [Description("Sends the processed AS4 Message.")]
+    [Info("Sends the processed AS4 Message.")]
     public class SendAS4MessageStep : IStep
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();

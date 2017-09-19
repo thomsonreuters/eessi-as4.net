@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Model.Internal;
@@ -9,6 +10,7 @@ namespace Eu.EDelivery.AS4.Steps
     /// <summary>
     /// Composition of Steps
     /// </summary>
+    [NotConfigurable]
     public class CompositeStep : IStep
     {
         private readonly IList<IStep> _steps;

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
@@ -15,6 +16,8 @@ namespace Eu.EDelivery.AS4.Steps.Notify
     /// <summary>
     /// Describes how a <see cref="NotifyMessage"/> is sent to the business application 
     /// </summary>
+    [Description("Send a notification message using the method that is configured in the PMode")]
+    [Info("Send notification message")]
     public class SendNotifyMessageStep : IStep
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();

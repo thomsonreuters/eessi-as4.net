@@ -41,13 +41,13 @@ export class InputComponent implements OnInit {
             .changes
             .filter((state) => !!state && !!state.runtimeMetaData)
             .map((state) => state.runtimeMetaData)
+            .take(1)
             .subscribe((result) => {
                 const runtime = result[this._tooltipDirective.getPath()];
                 if (!!!runtime) {
                     return;
                 }
                 this.tooltip = result[this._tooltipDirective.getPath()].description;
-                console.log(`tooltip = ${this.tooltip}`);
             });
     }
 }

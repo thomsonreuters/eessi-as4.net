@@ -41,6 +41,15 @@ export class RuntimeService implements IRuntimeService {
             .get(this.getBaseUrl('getcertificaterepositories'))
             .subscribe((type) => this._runtimeStore.update('certificateRepositories', type.json()));
     }
+    public getDescriptionByTechnicalName(technicalName: string): ItemType | undefined {
+        // Flatten all types
+        let result = Object
+            .keys(this._runtimeStore.state)
+            .map((key) => (<ItemType[]>this._runtimeStore.state[key]))
+            .reduce((a, b) => a.concat(b))
+            .find((item) => item.technicalName === technicalName);
+        return result;
+    }
     public getAll(): Promise<boolean> {
         return new Promise((resolve, reject) => {
             this._http

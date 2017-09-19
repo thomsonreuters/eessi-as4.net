@@ -1,5 +1,5 @@
 ﻿<form [formGroup]="pmode.form" class="form-horizontal" disabled>
-    <div formGroupName="pmode" runtimetooltip="receivingprocessingmode">
+    <div formGroupName="pmode" runtimeTooltip="receivingprocessingmode">
         <as4-box>
             <div content>
                 <as4-pmode #pmode></as4-pmode>
@@ -7,32 +7,32 @@
         </as4-box>
         <as4-tab>
             <div tabitem title="Common">
-                <as4-input label="Message exchange pattern" runtimetooltip="mep">
+                <as4-input label="Message exchange pattern" runtimeTooltip="mep">
                     <select formControlName="mep">
                         <option [ngValue]="0">One way</option>
                         <option [ngValue]="1">Two way</option>
                     </select>
                 </as4-input>
-                <as4-input label="Message exchange pattern binding" runtimetooltip="receivingprocessingmode.mepbinding">
+                <as4-input label="Message exchange pattern binding" runtimeTooltip="mepbinding">
                     <select formControlName="mepBinding">
                         <option [ngValue]="0">Push</option>
                         <option [ngValue]="1">Pull</option>
                     </select>
                 </as4-input>
                 <div formGroupName="reliability">
-                    <as4-input label="Reliability - duplicate elimination" formGroupName="duplicateElimination" runtimetooltip="duplicateelimination.isenabled">
+                    <as4-input label="Reliability - duplicate elimination" formGroupName="duplicateElimination" runtimeTooltip="reliability.duplicateelimination.isenabled">
                         <input type="checkbox" formControlName="isEnabled" />
                     </as4-input>
                 </div>
             </div>
-            <div tabitem title="Reply handling" formGroupName="replyHandling" [isValid]="pmode.form.get('pmode.replyHandling')">
-                <as4-input label="Reply pattern" runtimeTooltip="replyHandling.replyPattern">
+            <div tabitem title="Reply handling" formGroupName="replyHandling" [isValid]="pmode.form.get('pmode.replyHandling')" runtimeTooltip="replyhandling">
+                <as4-input label="Reply pattern" runtimeTooltip="replyPattern">
                     <select formControlName="replyPattern">
                         <option [ngValue]="0">Response</option>
                         <option [ngValue]="1">Callback</option>
                     </select>
                 </as4-input>
-                <as4-input label="Sending PMode" runtimeTooltip="replyHandling.sendingpmode">
+                <as4-input label="Sending PMode" runtimeTooltip="sendingpmode">
                     <div as4-pmode-select mode="sending" formControlName="sendingPMode"></div>
                 </as4-input>
                 <div class="sub-header-1">Receipt handling</div>
@@ -42,17 +42,14 @@
                     </as4-input>
                 </ng-container>
                 <div class="sub-header-1">Error handling</div>
-                <ng-container formGroupName="errorHandling">
-                    <as4-input label="Use Soap fault" runtimeTooltip="receiveErrorHandling.usesoapfault">
-                        <input type="checkbox" formControlName="useSoapFault" />
-                    </as4-input>
-                    <as4-input label="Response HTTP code" runtimeTooltip="receiveErrorHandling.responsehttpcode">
+                <ng-container formGroupName="errorHandling" runtimeTooltip="errorhandling">
+                    <as4-input label="Response HTTP code" runtimeTooltip="responsehttpcode">
                         <input type="number" formControlName="responseHttpCode">
                     </as4-input>
                 </ng-container>
             </div>
-            <div tabitem title="Message handling" formGroupName="messageHandling" [isValid]="pmode.form.get('pmode.messageHandling')">
-                <as4-input label="Type">
+            <div tabitem title="Message handling" formGroupName="messageHandling" [isValid]="pmode.form.get('pmode.messageHandling')" runtimeTooltip="messagehandling">
+                <as4-input label="Type"  runtimeTooltip="messagehandlingtype">
                     <select formControlName="messageHandlingType" #messageHandlingType>
                         <option [ngValue]="0">None</option>
                         <option [ngValue]="1">Deliver</option>
@@ -60,11 +57,11 @@
                     </select>
                 </as4-input>
                 <ng-container *ngIf="messageHandlingType.selectedIndex === 1" formGroupName="item">
-                    <as4-input label="Enabled">
+                    <as4-input label="Enabled" runtimeTooltip="deliverinformation.isenabled">
                         <input type="checkbox" formControlName="isEnabled" runtimeTooltip="deliver.isEnabled" />
                     </as4-input>
-                    <as4-method label="Payload reference method" [group]="pmode.form.get('pmode.messageHandling.item.payloadReferenceMethod')" [types]="attachmentUploaders$ | async"></as4-method>
-                    <as4-method label="Deliver method" [group]="pmode.form.get('pmode.messageHandling.item.deliverMethod')" [types]="deliverSenders$ | async"></as4-method>
+                    <as4-method runtime="payloadreferencemethod" label="Payload reference method" [group]="pmode.form.get('pmode.messageHandling.item.payloadReferenceMethod')" [types]="attachmentUploaders$ | async"></as4-method>
+                    <as4-method runtime="delivermethod" label="Deliver method" [group]="pmode.form.get('pmode.messageHandling.item.deliverMethod')" [types]="deliverSenders$ | async"></as4-method>
                 </ng-container>
                 <ng-container *ngIf="messageHandlingType.selectedIndex === 2" formGroupName="item">
                     <as4-input label="Sending PMode">
@@ -72,11 +69,11 @@
                     </as4-input>
                 </ng-container>
             </div>
-            <div tabitem title="Message packaging" [isValid]="!!!pmode.currentPmode || pmode.form.get('pmode.messagePackaging').valid">
+            <div tabitem title="Message packaging" [isValid]="!!!pmode.currentPmode || pmode.form.get('pmode.messagePackaging').valid" runtimeTooltip="messagepackaging">
                 <as4-message-packaging [form]="pmode.form.get('pmode.messagePackaging')" [isSendingType]="false"></as4-message-packaging>
             </div>
-            <div title="Security" tabitem formGroupName="security" [isValid]="!!!pmode.currentPmode || pmode.form.get('pmode.security').valid">
-                <as4-input label="Signing verification" formGroupName="signingVerification" runtimeTooltip="receivesecurity.signingverification">
+            <div title="Security" tabitem formGroupName="security" [isValid]="!!!pmode.currentPmode || pmode.form.get('pmode.security').valid" runtimeTooltip="security">
+                <as4-input label="Signing verification" formGroupName="signingVerification" runtimeTooltip="signingverification.signature">
                     <select formControlName="signature">
                         <option [ngValue]="0">Allowed</option>
                         <option [ngValue]="1">Not allowed</option>
@@ -84,7 +81,7 @@
                         <option [ngValue]="3">Ignored</option>
                     </select>
                 </as4-input>
-                <as4-input label="Decryption" formGroupName="decryption" runtimeTooltip="receivesecurity.decryption">
+                <as4-input label="Decryption" formGroupName="decryption" runtimeTooltip="decryption.encryption">
                     <select formControlName="encryption" #selectedEncryption>
                         <option [ngValue]="0">Allowed</option>
                         <option [ngValue]="1">Not allowed</option>
@@ -92,9 +89,9 @@
                         <option [ngValue]="3">Ignored</option>
                     </select>
                 </as4-input>
-                <div formGroupName="decryption">
+                <div formGroupName="decryption" runtimeTooltip="decryption.privatekeyfintype">
                     <as4-input label="Private key find type (decryption)" *ngIf="selectedEncryption.selectedIndex === 0 || selectedEncryption.selectedIndex === 2"
-                        runtimeTooltip="decryption.privatekeyfindtype">
+                        runtimeTooltip="privatekeyfindtype">
                         <select formControlName="privateKeyFindType">
                             <option [ngValue]="0">Find by thumbprint</option>
                             <option [ngValue]="1">Find by subject name</option>
@@ -119,18 +116,11 @@
                     </as4-input>
                 </div>
             </div>
-            <div title="Deliver" tabitem formGroupName="deliver" [isValid]="!!!pmode.currentPmode || pmode.form.get('pmode.deliver').valid">
-                <as4-input label="Is enabled" runtimeToolip="deliver.isenabled">
-                    <input type="checkbox" formControlName="isEnabled" />
-                </as4-input>
-                <as4-method label="Payload reference method" [group]="pmode.form.get('pmode.deliver.payloadReferenceMethod')" [types]="attachmentUploaders$ | async"></as4-method>
-                <as4-method label="Deliver method" [group]="pmode.form.get('pmode.deliver.deliverMethod')" [types]="deliverSenders$ | async"></as4-method>
-            </div>
-            <div tabitem title="Exception handling" formGroupName="exceptionHandling" [isValid]="!!!pmode.currentPmode || pmode.form.get('pmode.exceptionHandling').valid">
-                <as4-input label="Notify message consumer" runtimeTooltip="receivehandling.notifymessageconsumer">
+            <div tabitem title="Exception handling" formGroupName="exceptionHandling" [isValid]="!!!pmode.currentPmode || pmode.form.get('pmode.exceptionHandling').valid" runtimeTooltip="exceptionhandling">
+                <as4-input label="Notify message consumer" runtimeTooltip="notifymessageconsumer">
                     <input type="checkbox" formControlName="notifyMessageConsumer" #notifyMessageConsumer/>
                 </as4-input>
-                <as4-method label="Notify method" [group]="pmode.form.get('pmode.exceptionHandling.notifyMethod')" [types]="deliverSenders$ | async"></as4-method>
+                <as4-method runtime="notifymethod" label="Notify method" [group]="pmode.form.get('pmode.exceptionHandling.notifyMethod')" [types]="deliverSenders$ | async"></as4-method>
             </div>
         </as4-tab>
     </div>

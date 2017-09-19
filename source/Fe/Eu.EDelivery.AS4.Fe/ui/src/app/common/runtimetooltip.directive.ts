@@ -1,14 +1,17 @@
 import { Directive, Input, SkipSelf, Optional } from '@angular/core';
 
-@Directive({ selector: '[runtimetooltip]' })
+@Directive({ selector: '[runtimeTooltip]' })
 export class RuntimetoolTipDirective {
-    @Input() public runtimetooltip: string;
+    @Input() public runtimeTooltip: string;
     constructor( @SkipSelf() @Optional() private _parentTooltip: RuntimetoolTipDirective) {
     }
     public getPath(): string {
+        let result: string | null = null;
         if (!!this._parentTooltip) {
-            return `${this._parentTooltip.getPath()}.${this.runtimetooltip}`;
+            result = `${this._parentTooltip.getPath()}.${this.runtimeTooltip}`;
+        } else {
+            result = this.runtimeTooltip;
         }
-        return this.runtimetooltip;
+        return result.toLocaleLowerCase();
     }
 }
