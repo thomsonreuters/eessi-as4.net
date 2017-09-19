@@ -265,6 +265,7 @@
   <ItemGroup>
     <Compile Include="Agents\AgentProvider.cs" />
     <Compile Include="Agents\DefaultAgentStepRegistry.cs" />
+    <Compile Include="Agents\DefaultAgentTransformerRegistry.cs" />
     <Compile Include="Agents\MinderAgentProvider.cs" />
     <Compile Include="Builder\ReceiverBuilder.cs" />
     <Compile Include="Kernel.cs" />
