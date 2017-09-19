@@ -16,6 +16,9 @@ using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Transformers
 {
+    /// <summary>
+    /// Tests the <see cref="NotifyMessageTransformer"/> to notify on signal-messages
+    /// </summary>
     public class GivenSignalToNotifyMessageTransformerFacts
     {
         [Fact]
@@ -94,7 +97,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
 
         private static async Task<MessagingContext> ExerciseTransform(ReceivedMessage receival)
         {
-            var sut = new SignalMessageToNotifyMessageTransformer();
+            var sut = new NotifyMessageTransformer();
 
             return await sut.TransformAsync(receival, CancellationToken.None);
         }

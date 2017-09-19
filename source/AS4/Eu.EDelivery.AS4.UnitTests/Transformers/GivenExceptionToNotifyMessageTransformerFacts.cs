@@ -11,7 +11,7 @@ using Xunit;
 namespace Eu.EDelivery.AS4.UnitTests.Transformers
 {
     /// <summary>
-    /// Testing <see cref="ExceptionToNotifyMessageTransformer"/>
+    /// Testing <see cref="NotifyMessageTransformer"/> to notify exceptions
     /// </summary>
     public class GivenExceptionToNotifyMessageTransformerFacts
     {
@@ -20,7 +20,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
         {
             // Arrange
             ReceivedEntityMessage receivedMessage = CreateReceivedExceptionMessage(new InException("id", "refid"), Operation.ToBeNotified);
-            var transformer = new ExceptionToNotifyMessageTransformer();
+            var transformer = new NotifyMessageTransformer();
             var result = await transformer.TransformAsync(receivedMessage, CancellationToken.None);
 
             Assert.NotNull(result.NotifyMessage);
@@ -34,7 +34,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
         {
             // Arrange
             ReceivedEntityMessage receivedMessage = CreateReceivedExceptionMessage(new OutException("id", "refid"), Operation.ToBeNotified);
-            var transformer = new ExceptionToNotifyMessageTransformer();
+            var transformer = new NotifyMessageTransformer();
 
             // Act
             MessagingContext result = await transformer.TransformAsync(receivedMessage, CancellationToken.None);
@@ -51,7 +51,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
         {
             // Arrange            
             ReceivedEntityMessage receivedMessage = CreateReceivedExceptionMessage(new InException("id", "refid"), Operation.ToBeNotified);
-            var transformer = new ExceptionToNotifyMessageTransformer();
+            var transformer = new NotifyMessageTransformer();
 
             // Act
             MessagingContext messagingContext =
@@ -73,7 +73,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
         public async Task FaisToTransform_IfNotSupported()
         {
             // Arrange
-            var sut = new ExceptionToNotifyMessageTransformer();
+            var sut = new NotifyMessageTransformer();
 
             // Act / Assert
             await Assert.ThrowsAnyAsync<Exception>(
