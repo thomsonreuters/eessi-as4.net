@@ -11,9 +11,11 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
     /// <summary>
     /// <see cref="IAttachmentUploader" /> implementation to upload <see cref="Attachment" /> models as Multipart Form data.
     /// </summary>
-    [Info("PAYLOAD-SERVICE")]
+    [Info(PayloadServiceAttachmentUploader.Key)]
     public class PayloadServiceAttachmentUploader : IAttachmentUploader
     {
+        public const string Key = "PAYLOAD-SERVICE";
+
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
         private static readonly HttpClient HttpClient = new HttpClient();
         private readonly Func<string, HttpContent, Task<HttpResponseMessage>> _postRequest;

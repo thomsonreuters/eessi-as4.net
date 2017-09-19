@@ -12,6 +12,8 @@ namespace Eu.EDelivery.AS4.Strategies.Retriever
     /// </summary>
     public class FtpPayloadRetriever : IPayloadRetriever
     {
+        public const string Key = "ftp://";
+
         private readonly IConfig _config;
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 

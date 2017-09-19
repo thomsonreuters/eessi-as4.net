@@ -10,6 +10,8 @@ namespace Eu.EDelivery.AS4.Strategies.Retriever
     /// </summary>
     public class FilePayloadRetriever : IPayloadRetriever
     {
+        public const string Key = "file:///";
+
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 
         /// <summary>
