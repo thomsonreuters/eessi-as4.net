@@ -63,7 +63,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler
                 }
                 catch (Exception exception)
                 {
-                    Logger.Fatal($"Datastore failed to create or already created: {exception.Message}");
+                    Logger.Fatal($"An error occured while migrating the database: {exception.Message}");
                     return;
                 }
             }
