@@ -14,7 +14,7 @@
       <IsEnabled>false</IsEnabled>
       <TlsVersion>Tls12</TlsVersion>
     </TlsConfiguration>
-  </PushConfiguration>  
+  </PushConfiguration>
   <Reliability>
     <ReceptionAwareness>
       <IsEnabled>true</IsEnabled>
@@ -51,9 +51,11 @@
   </ExceptionHandling>
   <Security>
     <Signing>
-      <IsEnabled>true</IsEnabled>      
-      <PrivateKeyFindType>FindBySubjectName</PrivateKeyFindType>
-      <PrivateKeyFindValue>AccessPointA</PrivateKeyFindValue>
+      <IsEnabled>true</IsEnabled>
+      <CertificateFindCriteria>
+        <CertificateFindType>FindBySubjectName</CertificateFindType>
+        <CertificateFindValue>AccessPointA</CertificateFindValue>
+      </CertificateFindCriteria>
       <KeyReferenceMethod>BSTReference</KeyReferenceMethod>
       <Algorithm>http://www.w3.org/2001/04/xmldsig-more#rsa-sha256</Algorithm>
       <HashFunction>http://www.w3.org/2001/04/xmlenc#sha256</HashFunction>
@@ -86,10 +88,10 @@
         <Role>Receiver</Role>
       </ToParty>
     </PartyInfo>
-    <CollaborationInfo>      
+    <CollaborationInfo>
       <AgreementReference>
         <Value>http://agreements.europa.org/agreement</Value>
-      </AgreementReference>      
+      </AgreementReference>
       <Service>
         <Value>getting:started</Value>
         <Type>org:europa:services</Type>

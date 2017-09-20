@@ -49,9 +49,11 @@
   <Security>
     <Signing>
       <IsEnabled>true</IsEnabled>
+      <CertificateFindCriteria>
+        <CertificateFindType>FindBySubjectName</CertificateFindType>
+        <CertificateFindValue>AccessPointA</CertificateFindValue>
+      </CertificateFindCriteria>
       <KeyReferenceMethod>BSTReference</KeyReferenceMethod>
-      <PrivateKeyFindValue>AccessPointA</PrivateKeyFindValue>
-      <PrivateKeyFindType>FindBySubjectName</PrivateKeyFindType>
       <Algorithm>http://www.w3.org/2001/04/xmldsig-more#rsa-sha256</Algorithm>
       <HashFunction>http://www.w3.org/2001/04/xmlenc#sha256</HashFunction>
     </Signing>

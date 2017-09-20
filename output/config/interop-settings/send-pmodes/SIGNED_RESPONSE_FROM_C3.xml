@@ -1,8 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?>
-<PMode 
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-  xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
-  xmlns="eu:edelivery:as4:pmode">
+﻿<?xml version="1.0" encoding="utf-8"?>
+<PMode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="eu:edelivery:as4:pmode">
   <Id>SIGNED_RESPONSE_FROM_C3</Id>
   <AllowOverride>false</AllowOverride>
   <Mep>OneWay</Mep>
@@ -10,9 +7,11 @@
   <Security>
     <Signing>
       <IsEnabled>true</IsEnabled>
+      <CertificateFindCriteria>
+        <CertificateFindType>FindBySubjectName</CertificateFindType>
+        <CertificateFindValue>as4-net-c3</CertificateFindValue>
+      </CertificateFindCriteria>
       <KeyReferenceMethod>BSTReference</KeyReferenceMethod>
-      <PrivateKeyFindValue>as4-net-c3</PrivateKeyFindValue>
-      <PrivateKeyFindType>FindBySubjectName</PrivateKeyFindType>
       <Algorithm>http://www.w3.org/2001/04/xmldsig-more#rsa-sha256</Algorithm>
       <HashFunction>http://www.w3.org/2001/04/xmlenc#sha256</HashFunction>
     </Signing>
