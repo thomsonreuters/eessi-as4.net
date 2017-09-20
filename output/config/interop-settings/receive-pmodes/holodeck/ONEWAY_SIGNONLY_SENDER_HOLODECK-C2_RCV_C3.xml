@@ -34,7 +34,10 @@
     </SigningVerification>
     <Decryption>
       <Encryption>Ignored</Encryption>
-      <PrivateKeyFindType>FindByThumbprint</PrivateKeyFindType>
+      <CertificateFindCriteria>
+        <CertificateFindType>FindByThumbprint</CertificateFindType>
+        <CertificateFindValue />
+      </CertificateFindCriteria>
     </Decryption>
   </Security>
   <MessagePackaging>
