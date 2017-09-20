@@ -1,5 +1,7 @@
 ﻿
+using System;
 using System.ComponentModel;
+using System.Configuration;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
@@ -121,8 +123,13 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
         private IEncryptionStrategy CreateDecryptStrategy(MessagingContext messagingContext)
         {
-            X509Certificate2 certificate = GetCertificate(messagingContext);
             AS4Message as4Message = messagingContext.AS4Message;
+            X509Certificate2 certificate = GetCertificate(messagingContext);
+
+            if (!certificate.HasPrivateKey)
+            {
+                throw new CryptoException("Decryption failed - No private key found.");
+            }
 
             return EncryptionStrategyBuilder
                 .Create(as4Message.EnvelopeDocument)
@@ -135,14 +142,26 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         {
             Decryption decryption = messagingContext.ReceivingPMode.Security.Decryption;
 
-            var certificate = _certificateRepository.GetCertificate(decryption.PrivateKeyFindType, decryption.PrivateKeyFindValue);
-
-            if (!certificate.HasPrivateKey)
+            if (decryption.DecryptCertificateInformation == null)
             {
-                throw new CryptoException("Decryption failed - No private key found.");
+                throw new ConfigurationErrorsException("No signing certificate information found in PMode to perform signing.");
             }
 
-            return certificate;
+            var certFindCriteria = decryption.DecryptCertificateInformation as CertificateFindCriteria;
+
+            if (certFindCriteria != null)
+            {
+                return _certificateRepository.GetCertificate(certFindCriteria.CertificateFindType, certFindCriteria.CertificateFindValue);
+            }
+
+            var embeddedCertInfo = decryption.DecryptCertificateInformation as PrivateKeyCertificate;
+
+            if (embeddedCertInfo != null)
+            {
+                return new X509Certificate2(Convert.FromBase64String(embeddedCertInfo.Certificate), embeddedCertInfo.Password);
+            }
+
+            throw new NotSupportedException("The signing certificate information specified in the PMode could not be used to retrieve the certificate");
         }
     }
 }
