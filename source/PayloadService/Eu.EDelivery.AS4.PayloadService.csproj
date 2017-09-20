@@ -34,5 +34,10 @@
             <HintPath>..\packages\Microsoft.AspNet.WebApi.Client.5.2.3\lib\net45\System.Net.Http.Formatting.dll</HintPath>
         </Reference>
     </ItemGroup>
+    <ItemGroup>
+      <Content Update="appsettings.payloadservice.json">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Content>
+    </ItemGroup>
 
 </Project>
