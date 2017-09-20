@@ -58,10 +58,10 @@
     <Encryption>
       <IsEnabled>true</IsEnabled>
       <Algorithm>http://www.w3.org/2009/xmlenc11#aes128-gcm</Algorithm>
-      <PublicKeyFindCriteria>
-        <PublicKeyFindType>FindBySubjectName</PublicKeyFindType>
-        <PublicKeyFindValue>AccessPointB</PublicKeyFindValue>
-      </PublicKeyFindCriteria>
+      <CertificateFindCriteria>
+        <CertificateFindType>FindBySubjectName</CertificateFindType>
+        <CertificateFindValue>AccessPointB</CertificateFindValue>
+      </CertificateFindCriteria>
     </Encryption>
   </Security>
   <MessagePackaging>

@@ -62,10 +62,10 @@
         <Encryption>
             <IsEnabled>true</IsEnabled>
             <Algorithm>http://www.w3.org/2009/xmlenc11#aes128-gcm</Algorithm>
-            <PublicKeyFindCriteria>
-                <PublicKeyFindType>FindBySubjectName</PublicKeyFindType>
-                <PublicKeyFindValue>as4-net-c3</PublicKeyFindValue>
-            </PublicKeyFindCriteria>
+            <CertificateFindCriteria>
+                <CertificateFindType>FindBySubjectName</CertificateFindType>
+                <CertificateFindValue>as4-net-c3</CertificateFindValue>
+            </CertificateFindCriteria>
             <KeyTransport>
                 <TransportAlgorithm>http://www.w3.org/2009/xmlenc11#rsa-oaep</TransportAlgorithm>
                 <DigestAlgorithm>http://www.w3.org/2001/04/xmlenc#sha256</DigestAlgorithm>

@@ -57,10 +57,10 @@
     <Encryption>
       <IsEnabled>false</IsEnabled>
       <Algorithm>http://www.w3.org/2009/xmlenc11#aes128-gcm</Algorithm>
-      <PublicKeyFindCriteria>
-        <PublicKeyFindType>FindBySubjectName</PublicKeyFindType>
-        <PublicKeyFindValue>rssbus-c2</PublicKeyFindValue>
-      </PublicKeyFindCriteria>
+      <CertificateFindCriteria>
+        <CertificateFindType>FindBySubjectName</CertificateFindType>
+        <CertificateFindValue>rssbus-c2</CertificateFindValue>
+      </CertificateFindCriteria>
     </Encryption>
   </Security>
   <MessagePackaging>

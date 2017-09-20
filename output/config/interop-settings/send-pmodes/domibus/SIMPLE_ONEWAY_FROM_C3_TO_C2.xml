@@ -58,10 +58,10 @@
       <IsEnabled>true</IsEnabled>
       <Algorithm>http://www.w3.org/2009/xmlenc11#aes128-gcm</Algorithm>
       <AlgorithmKeySize>128</AlgorithmKeySize>
-      <PublicKeyFindCriteria>
-        <PublicKeyFindType>FindBySubjectName</PublicKeyFindType>
-        <PublicKeyFindValue>domibus-c2</PublicKeyFindValue>
-      </PublicKeyFindCriteria>
+      <CertificateFindCriteria>
+        <CertificateFindType>FindBySubjectName</CertificateFindType>
+        <CertificateFindValue>domibus-c2</CertificateFindValue>
+      </CertificateFindCriteria>
       <KeyTransport>
         <TransportAlgorithm>http://www.w3.org/2009/xmlenc11#rsa-oaep</TransportAlgorithm>
       </KeyTransport>
