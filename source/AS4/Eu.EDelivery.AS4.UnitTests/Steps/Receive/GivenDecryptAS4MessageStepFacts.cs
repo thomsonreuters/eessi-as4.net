@@ -43,11 +43,20 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             {
                 // Arrange
                 AS4Message as4Message = await GetEncryptedAS4MessageAsync();
-                var internalMessage = new MessagingContext(as4Message, MessagingContextMode.Receive) { ReceivingPMode = new ReceivingProcessingMode() };
-                internalMessage.ReceivingPMode.Security.Decryption.Encryption = Limit.Allowed;
+                var context = new MessagingContext(as4Message, MessagingContextMode.Receive)
+                {
+                    ReceivingPMode = new ReceivingProcessingMode()
+                };
+                context.ReceivingPMode.Security.Decryption.Encryption = Limit.Allowed;
+                context.ReceivingPMode.Security.Decryption.DecryptCertificateInformation =
+                    new CertificateFindCriteria
+                    {
+                        CertificateFindValue = "",
+                        CertificateFindType = X509FindType.FindByIssuerName
+                    };
 
                 // Act
-                StepResult stepResult = await _step.ExecuteAsync(internalMessage, CancellationToken.None);
+                StepResult stepResult = await _step.ExecuteAsync(context, CancellationToken.None);
 
                 // Assert
                 Assert.True(stepResult.MessagingContext.AS4Message.IsEncrypted);
@@ -60,6 +69,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 AS4Message as4Message = await GetEncryptedAS4MessageAsync();
                 var context = new MessagingContext(as4Message, MessagingContextMode.Receive) { ReceivingPMode = new ReceivingProcessingMode() };
                 context.ReceivingPMode.Security.Decryption.Encryption = Limit.Allowed;
+                context.ReceivingPMode.Security.Decryption.DecryptCertificateInformation =
+                    new CertificateFindCriteria()
+                    {
+                        CertificateFindType = X509FindType.FindBySerialNumber
+                    };
 
                 // Act
                 StepResult result = await _step.ExecuteAsync(context, CancellationToken.None);
