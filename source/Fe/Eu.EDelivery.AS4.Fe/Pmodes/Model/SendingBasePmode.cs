@@ -24,10 +24,10 @@ namespace Eu.EDelivery.AS4.Fe.Pmodes.Model
             set
             {
                 pmode = value;
-                if (value?.Security?.Encryption != null && value.Security.Encryption.PublicKeyInformation is JObject json)
+                if (value?.Security?.Encryption != null && value.Security.Encryption.EncryptionCertificateInformation is JObject json)
                 {
-                    if (json["certificate"] != null) value.Security.Encryption.PublicKeyInformation = json.ToObject<PublicKeyCertificate>();
-                    else value.Security.Encryption.PublicKeyInformation = json.ToObject<PublicKeyFindCriteria>();
+                    if (json["certificate"] != null) value.Security.Encryption.EncryptionCertificateInformation = json.ToObject<PublicKeyCertificate>();
+                    else value.Security.Encryption.EncryptionCertificateInformation = json.ToObject<CertificateFindCriteria>();
                 }
 
                 if (value?.MepBinding == MessageExchangePatternBinding.Pull)

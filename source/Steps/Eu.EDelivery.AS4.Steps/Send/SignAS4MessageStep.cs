@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Configuration;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
@@ -7,6 +8,7 @@ using Eu.EDelivery.AS4.Builders.Security;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
+using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Security.Strategies;
 using NLog;
@@ -61,18 +63,18 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 return await StepResult.SuccessAsync(messagingContext);
             }
 
-            TrySignAS4Message(messagingContext, cancellationToken);
+            TrySignAS4Message(messagingContext);
             ResetAttachmentContents(messagingContext.AS4Message);
 
             return await StepResult.SuccessAsync(messagingContext);
         }
 
-        private void TrySignAS4Message(MessagingContext message, CancellationToken cancellationToken)
+        private void TrySignAS4Message(MessagingContext message)
         {
             try
             {
                 Logger.Info($"{message.EbmsMessageId} Sign AS4 Message with given Signing Information");
-                SignAS4Message(message, cancellationToken);
+                SignAS4Message(message);
             }
             catch (Exception exception)
             {
@@ -86,7 +88,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             }
         }
 
-        private void SignAS4Message(MessagingContext message, CancellationToken cancellationToken)
+        private void SignAS4Message(MessagingContext message)
         {
             X509Certificate2 certificate = RetrieveCertificate(message);
 
@@ -95,17 +97,34 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 throw ThrowCommonSigningException($"{message.EbmsMessageId} Certificate hasn't a private key");
             }
 
-            ISigningStrategy signingStrategy = CreateSignStrategy(message, certificate, cancellationToken);
+            ISigningStrategy signingStrategy = CreateSignStrategy(message, certificate);
             message.AS4Message.SecurityHeader.Sign(signingStrategy);
         }
 
-        private X509Certificate2 RetrieveCertificate(MessagingContext message)
+        private X509Certificate2 RetrieveCertificate(MessagingContext messagingContext)
         {
-            Model.PMode.Signing signing = message.SendingPMode.Security.Signing;
+            Signing signInfo = messagingContext.SendingPMode.Security.Signing;
 
-            X509Certificate2 certificate = _repository.GetCertificate(signing.PrivateKeyFindType, signing.PrivateKeyFindValue);
+            if (signInfo.SigningCertificateInformation == null)
+            {
+                throw new ConfigurationErrorsException("No signing certificate information found in PMode to perform signing.");
+            }
 
-            return certificate;
+            var certFindCriteria = signInfo.SigningCertificateInformation as CertificateFindCriteria;
+
+            if (certFindCriteria != null)
+            {
+                return _repository.GetCertificate(certFindCriteria.CertificateFindType, certFindCriteria.CertificateFindValue);
+            }
+
+            var embeddedCertInfo = signInfo.SigningCertificateInformation as PrivateKeyCertificate;
+
+            if (embeddedCertInfo != null)
+            {
+                return new X509Certificate2(Convert.FromBase64String(embeddedCertInfo.Certificate), embeddedCertInfo.Password);
+            }
+
+            throw new NotSupportedException("The signing certificate information specified in the PMode could not be used to retrieve the certificate");
         }
 
         private static ApplicationException ThrowCommonSigningException(string description, Exception innerException = null)
@@ -114,10 +133,10 @@ namespace Eu.EDelivery.AS4.Steps.Send
             return new ApplicationException(description, innerException);
         }
 
-        private static ISigningStrategy CreateSignStrategy(MessagingContext messagingContext, X509Certificate2 certificate, CancellationToken cancellationToken)
+        private static ISigningStrategy CreateSignStrategy(MessagingContext messagingContext, X509Certificate2 certificate)
         {
             AS4Message message = messagingContext.AS4Message;
-            Model.PMode.Signing signing = messagingContext.SendingPMode.Security.Signing;
+            Signing signing = messagingContext.SendingPMode.Security.Signing;
 
             SigningStrategyBuilder builder = new SigningStrategyBuilder(messagingContext.AS4Message, signing.KeyReferenceMethod)
                 .WithSignatureAlgorithm(signing.Algorithm)

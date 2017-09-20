@@ -107,7 +107,13 @@ namespace Eu.EDelivery.AS4.Validators
         {
             Func<SendingProcessingMode, bool> isSigningEnabled = pmode => pmode.Security.Signing.IsEnabled;
 
-            RuleFor(pmode => pmode.Security.Signing.PrivateKeyFindValue).NotEmpty().When(isSigningEnabled);
+            When(isSigningEnabled, delegate
+            {
+                RuleFor(pmode => pmode.Security.Signing.SigningCertificateInformation).NotNull()
+                                                                               .WithMessage(
+                                                                                   "Signing certificate information must be specified when signing is enabled.");
+            });
+
             RuleFor(pmode => pmode.Security.Signing.Algorithm).NotEmpty().When(isSigningEnabled);
             RuleFor(pmode => pmode.Security.Signing.HashFunction).NotEmpty().When(isSigningEnabled);
             RuleFor(pmode => Constants.Algoritms.Contains(pmode.Security.Signing.Algorithm))
@@ -124,8 +130,8 @@ namespace Eu.EDelivery.AS4.Validators
 
             When(isEncryptionEnabled, delegate
             {
-                RuleFor(pmode => pmode.Security.Encryption.PublicKeyInformation).NotNull()
-                                         .WithMessage("PublicKeyInformation must be specified when encryption is enabled");
+                RuleFor(pmode => pmode.Security.Encryption.EncryptionCertificateInformation).NotNull()
+                                         .WithMessage("Encryption certificate information must be specified when encryption is enabled");
             });
 
         }

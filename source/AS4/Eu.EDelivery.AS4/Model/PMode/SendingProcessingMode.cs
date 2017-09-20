@@ -120,7 +120,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
         [XmlIgnore]
         public static readonly Encryption Default = new Encryption();
 
-        private object _publicKeyInformation;
+        private object _encryptionCertificateInformation;
 
         public Encryption()
         {
@@ -128,7 +128,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
             Algorithm = "http://www.w3.org/2009/xmlenc11#aes128-gcm";
             KeyTransport = new KeyEncryption();
             AlgorithmKeySize = 128;
-            PublicKeyType = PublicKeyChoiceType.None;
+            CertificateType = CertificateChoiceType.None;
         }
 
         [Description("Is encryption enabled")]
@@ -146,29 +146,29 @@ namespace Eu.EDelivery.AS4.Model.PMode
         [JsonIgnore]
         [ScriptIgnore]
         [Description("Public key type")]
-        public PublicKeyChoiceType PublicKeyType { get; set; }
+        public CertificateChoiceType CertificateType { get; set; }
 
-        [XmlChoiceIdentifier(nameof(PublicKeyType))]
-        [XmlElement("PublicKeyFindCriteria", typeof(PublicKeyFindCriteria))]
-        [XmlElement("PublicKeyCertificate", typeof(PublicKeyCertificate))]
+        [XmlChoiceIdentifier(nameof(CertificateType))]
+        [XmlElement("CertificateFindCriteria", typeof(CertificateFindCriteria))]
+        [XmlElement("EncryptionCertificate", typeof(PublicKeyCertificate))]
         [Description("Public key information")]
-        public object PublicKeyInformation
+        public object EncryptionCertificateInformation
         {
-            get { return _publicKeyInformation; }
+            get { return _encryptionCertificateInformation; }
             set
             {
-                _publicKeyInformation = value;
-                if (value is PublicKeyFindCriteria)
+                _encryptionCertificateInformation = value;
+                if (value is CertificateFindCriteria)
                 {
-                    PublicKeyType = PublicKeyChoiceType.PublicKeyFindCriteria;
+                    CertificateType = CertificateChoiceType.FindCertificate;
                 }
                 else if (value is PublicKeyCertificate)
                 {
-                    PublicKeyType = PublicKeyChoiceType.PublicKeyCertificate;
+                    CertificateType = CertificateChoiceType.EmbeddedCertificate;
                 }
                 else
                 {
-                    PublicKeyType = PublicKeyChoiceType.None;
+                    CertificateType = CertificateChoiceType.None;
                 }
             }
         }
@@ -190,7 +190,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
         [XmlIgnore]
         [JsonIgnore]
         [ScriptIgnore]
-        public bool PublicKeyInformationSpecified => PublicKeyInformation != null;
+        public bool EncryptionCertificateInformationSpecified => EncryptionCertificateInformation != null;
 
         [XmlIgnore]
         [JsonIgnore]
@@ -201,11 +201,11 @@ namespace Eu.EDelivery.AS4.Model.PMode
     }
 
     [XmlType(IncludeInSchema = false)]
-    public enum PublicKeyChoiceType
+    public enum CertificateChoiceType
     {
         None = 0,
-        PublicKeyCertificate,
-        PublicKeyFindCriteria
+        EmbeddedCertificate,
+        FindCertificate
     }
 
     public class PublicKeyCertificate
@@ -214,13 +214,11 @@ namespace Eu.EDelivery.AS4.Model.PMode
         public string Certificate { get; set; }
     }
 
-    public class PublicKeyFindCriteria
+    public class PrivateKeyCertificate
     {
-        [Description("X509 find type")]
-        public X509FindType PublicKeyFindType { get; set; }
+        public string Certificate { get; set; }
 
-        [Description("Key value to search for")]
-        public string PublicKeyFindValue { get; set; }
+        public string Password { get; set; }
     }
 
     public class KeyEncryption
@@ -273,6 +271,8 @@ namespace Eu.EDelivery.AS4.Model.PMode
         private const string DefaultAlgorithm = "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256";
         private const string DefaultHashFunction = "http://www.w3.org/2001/04/xmlenc#sha256";
 
+        private object _signingCertificateInformation;
+
         public Signing()
         {
             IsEnabled = false;
@@ -283,11 +283,35 @@ namespace Eu.EDelivery.AS4.Model.PMode
         [Description("Is signing enabled")]
         public bool IsEnabled { get; set; }
 
-        [Description("Find certificate using")]
-        public X509FindType PrivateKeyFindType { get; set; }
+        [XmlIgnore]
+        [JsonIgnore]
+        [ScriptIgnore]
+        public CertificateChoiceType CertificateType { get; set; }
 
-        [Description("Key value to search for")]
-        public string PrivateKeyFindValue { get; set; }
+        [XmlChoiceIdentifier(nameof(CertificateType))]
+        [XmlElement("CertificateFindCriteria", typeof(CertificateFindCriteria))]
+        [XmlElement("SigningCertificate", typeof(PrivateKeyCertificate))]
+        [Description("Signing Certificate")]
+        public object SigningCertificateInformation
+        {
+            get { return _signingCertificateInformation; }
+            set
+            {
+                _signingCertificateInformation = value;
+                if (value is CertificateFindCriteria)
+                {
+                    CertificateType = CertificateChoiceType.FindCertificate;
+                }
+                else if (value is PrivateKeyCertificate)
+                {
+                    CertificateType = CertificateChoiceType.EmbeddedCertificate;
+                }
+                else
+                {
+                    CertificateType = CertificateChoiceType.None;
+                }
+            }
+        }
 
         [Description("Key reference method")]
         public X509ReferenceType KeyReferenceMethod { get; set; }
@@ -300,15 +324,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
 
         #region Properties that control serialization
 
-        [XmlIgnore]
-        [JsonIgnore]
-        [ScriptIgnore]
-        public bool PrivateKeyFindValueSpecified => !string.IsNullOrWhiteSpace(PrivateKeyFindValue);
-
-        [XmlIgnore]
-        [JsonIgnore]
-        [ScriptIgnore]
-        public bool PrivateKeyFindTypeSpecified { get; set; }
+        public bool SigningCertificateInformationSpecified => SigningCertificateInformation != null;
 
         [XmlIgnore]
         [JsonIgnore]
@@ -486,7 +502,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
             IncludePModeId = false;
             Mpc = Constants.Namespaces.EbmsDefaultMpc;
         }
-        
+
         [Description("Messaging partition channel")]
         public string Mpc { get; set; }
 

@@ -342,6 +342,7 @@
       <DependentUpon>20170919142609_InitialMigration.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\DatastoreContextModelSnapshot.cs" />
+    <Compile Include="Model\PMode\CertificateFindCriteria.cs" />
     <Compile Include="Model\PMode\InvalidPModeException.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="Extensions\XmlAttributeExtensions.cs" />

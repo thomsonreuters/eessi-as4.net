@@ -128,11 +128,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
 
             message.SendingPMode.Security.Encryption.IsEnabled = true;
             message.SendingPMode.Security.Encryption.Algorithm = "http://www.w3.org/2009/xmlenc11#aes128-gcm";
-            message.SendingPMode.Security.Encryption.PublicKeyType = PublicKeyChoiceType.PublicKeyFindCriteria;
-            message.SendingPMode.Security.Encryption.PublicKeyInformation = new PublicKeyFindCriteria()
+            message.SendingPMode.Security.Encryption.CertificateType = CertificateChoiceType.FindCertificate;
+            message.SendingPMode.Security.Encryption.EncryptionCertificateInformation = new CertificateFindCriteria()
             {
-                PublicKeyFindType = X509FindType.FindBySerialNumber,
-                PublicKeyFindValue = "some dummy value"
+                CertificateFindType = X509FindType.FindBySerialNumber,
+                CertificateFindValue = "some dummy value"
             };
 
             return message;
