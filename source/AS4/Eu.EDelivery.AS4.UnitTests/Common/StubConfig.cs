@@ -14,7 +14,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
         private readonly IDictionary<string, SendingProcessingMode> _sendingPModes;
 
         public static readonly StubConfig Default = new StubConfig();
-       
+
         /// <summary>
         /// Initializes a new instance of the <see cref="StubConfig"/> class.
         /// </summary>
@@ -29,7 +29,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
             return new Dictionary<string, string>(StringComparer.CurrentCultureIgnoreCase)
             {
                 ["IdFormat"] = "{GUID}",
-                ["Provider"] = "InMemory",
+                ["Provider"] = "Sqlite",
                 ["ConnectionString"] = @"Filename=database\messages.db",
                 ["CertificateStore"] = "My"
             };
@@ -87,7 +87,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
 
             return _sendingPModes[id];
         }
-        
+
         /// <summary>
         /// Verify if the configuration implementation contains a <see cref="SendingProcessingMode"/> for a given <paramref name="id"/>
         /// </summary>

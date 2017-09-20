@@ -5,7 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Agents;
 using Eu.EDelivery.AS4.Common;
-using Eu.EDelivery.AS4.Singletons;
+using Microsoft.EntityFrameworkCore;
 using NLog;
 
 namespace Eu.EDelivery.AS4.ServiceHandler
@@ -25,7 +25,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler
         /// Initializes a new instance of the <see cref="Kernel"/> class. 
         /// </summary>
         /// <param name="agents"></param>
-        public Kernel(IEnumerable<IAgent> agents) : this(agents, Config.Instance) {}
+        public Kernel(IEnumerable<IAgent> agents) : this(agents, Config.Instance) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Kernel" /> class.
@@ -59,14 +59,11 @@ namespace Eu.EDelivery.AS4.ServiceHandler
             {
                 try
                 {
-                    if (context.Database.EnsureCreated())
-                    {
-                        Logger.Info("Datastore did not exist and has been created.");
-                    }
+                    await context.Database.MigrateAsync(cancellationToken);                    
                 }
                 catch (Exception exception)
                 {
-                    Logger.Fatal($"Datastore failed to create or already created: {exception.Message}");
+                    Logger.Fatal($"An error occured while migrating the database: {exception.Message}");
                     return;
                 }
             }
@@ -82,7 +79,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler
 
         public void Dispose()
         {
-           CloseAgents();
+            CloseAgents();
         }
 
         private void CloseAgents()

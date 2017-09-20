@@ -37,7 +37,7 @@ namespace Eu.EDelivery.AS4.Common
         {
             InitializeFields();
         }
-
+      
         /// <summary>
         /// Initializes a new instance of the <see cref="DatastoreContext"/> class. 
         /// Create a new Data Store Context with given a Configuration Dependency
