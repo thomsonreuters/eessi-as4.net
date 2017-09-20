@@ -128,7 +128,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
             Algorithm = "http://www.w3.org/2009/xmlenc11#aes128-gcm";
             KeyTransport = new KeyEncryption();
             AlgorithmKeySize = 128;
-            CertificateType = CertificateChoiceType.None;
+            CertificateType = PublicKeyCertificateChoiceType.None;
         }
 
         [Description("Is encryption enabled")]
@@ -146,11 +146,11 @@ namespace Eu.EDelivery.AS4.Model.PMode
         [JsonIgnore]
         [ScriptIgnore]
         [Description("Public key type")]
-        public CertificateChoiceType CertificateType { get; set; }
+        public PublicKeyCertificateChoiceType CertificateType { get; set; }
 
         [XmlChoiceIdentifier(nameof(CertificateType))]
         [XmlElement("CertificateFindCriteria", typeof(CertificateFindCriteria))]
-        [XmlElement("EncryptionCertificate", typeof(PublicKeyCertificate))]
+        [XmlElement("PublicKeyCertificate", typeof(PublicKeyCertificate))]
         [Description("Public key information")]
         public object EncryptionCertificateInformation
         {
@@ -160,15 +160,15 @@ namespace Eu.EDelivery.AS4.Model.PMode
                 _encryptionCertificateInformation = value;
                 if (value is CertificateFindCriteria)
                 {
-                    CertificateType = CertificateChoiceType.FindCertificate;
+                    CertificateType = PublicKeyCertificateChoiceType.CertificateFindCriteria;
                 }
                 else if (value is PublicKeyCertificate)
                 {
-                    CertificateType = CertificateChoiceType.EmbeddedCertificate;
+                    CertificateType = PublicKeyCertificateChoiceType.PublicKeyCertificate;
                 }
                 else
                 {
-                    CertificateType = CertificateChoiceType.None;
+                    CertificateType = PublicKeyCertificateChoiceType.None;
                 }
             }
         }
@@ -201,11 +201,19 @@ namespace Eu.EDelivery.AS4.Model.PMode
     }
 
     [XmlType(IncludeInSchema = false)]
-    public enum CertificateChoiceType
+    public enum PublicKeyCertificateChoiceType
     {
         None = 0,
-        EmbeddedCertificate,
-        FindCertificate
+        PublicKeyCertificate,
+        CertificateFindCriteria
+    }
+
+    [XmlType(IncludeInSchema = false)]
+    public enum PrivateKeyCertificateChoiceType
+    {
+        None = 0,
+        PrivateKeyCertificate,
+        CertificateFindCriteria
     }
 
     public class PublicKeyCertificate
@@ -276,6 +284,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
         public Signing()
         {
             IsEnabled = false;
+            CertificateType = PrivateKeyCertificateChoiceType.None;
             Algorithm = DefaultAlgorithm;
             HashFunction = DefaultHashFunction;
         }
@@ -286,11 +295,11 @@ namespace Eu.EDelivery.AS4.Model.PMode
         [XmlIgnore]
         [JsonIgnore]
         [ScriptIgnore]
-        public CertificateChoiceType CertificateType { get; set; }
+        public PrivateKeyCertificateChoiceType CertificateType { get; set; }
 
         [XmlChoiceIdentifier(nameof(CertificateType))]
         [XmlElement("CertificateFindCriteria", typeof(CertificateFindCriteria))]
-        [XmlElement("SigningCertificate", typeof(PrivateKeyCertificate))]
+        [XmlElement("PrivateKeyCertificate", typeof(PrivateKeyCertificate))]
         [Description("Signing Certificate")]
         public object SigningCertificateInformation
         {
@@ -300,15 +309,15 @@ namespace Eu.EDelivery.AS4.Model.PMode
                 _signingCertificateInformation = value;
                 if (value is CertificateFindCriteria)
                 {
-                    CertificateType = CertificateChoiceType.FindCertificate;
+                    CertificateType = PrivateKeyCertificateChoiceType.CertificateFindCriteria;
                 }
                 else if (value is PrivateKeyCertificate)
                 {
-                    CertificateType = CertificateChoiceType.EmbeddedCertificate;
+                    CertificateType = PrivateKeyCertificateChoiceType.PrivateKeyCertificate;
                 }
                 else
                 {
-                    CertificateType = CertificateChoiceType.None;
+                    CertificateType = PrivateKeyCertificateChoiceType.None;
                 }
             }
         }

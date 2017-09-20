@@ -123,7 +123,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
                     {
                         IsEnabled = true,
                         EncryptionCertificateInformation = new PublicKeyCertificate() { Certificate = "ABCDEFGH" },
-                        CertificateType = CertificateChoiceType.EmbeddedCertificate
+                        CertificateType = PublicKeyCertificateChoiceType.PublicKeyCertificate
                     }
                 }
             };

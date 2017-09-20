@@ -256,7 +256,7 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
                 {
                     Certificate = certificateNode.InnerText
                 };
-                sendingPMode.Security.Encryption.CertificateType = CertificateChoiceType.EmbeddedCertificate;
+                sendingPMode.Security.Encryption.CertificateType = PublicKeyCertificateChoiceType.PublicKeyCertificate;
 
                 X509Certificate2 cert = new X509Certificate2(Convert.FromBase64String(certificateNode.InnerText), (string) null);
 

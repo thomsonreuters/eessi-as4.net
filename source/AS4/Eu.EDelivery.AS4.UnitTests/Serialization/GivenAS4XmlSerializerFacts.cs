@@ -53,7 +53,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
             {
                 // Arrange
                 var expectedPMode = new SendingProcessingMode { Id = "expected-id" };
-                expectedPMode.Security.Encryption.CertificateType = CertificateChoiceType.FindCertificate;
+                expectedPMode.Security.Encryption.CertificateType = PublicKeyCertificateChoiceType.CertificateFindCriteria;
                 expectedPMode.Security.Encryption.EncryptionCertificateInformation = new CertificateFindCriteria()
                 {
                     CertificateFindType = X509FindType.FindByCertificatePolicy,
@@ -80,7 +80,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
             {
                 // Arrange
                 var expectedPMode = new SendingProcessingMode { Id = "expected-id" };
-                expectedPMode.Security.Encryption.CertificateType = CertificateChoiceType.EmbeddedCertificate;
+                expectedPMode.Security.Encryption.CertificateType = PublicKeyCertificateChoiceType.PublicKeyCertificate;
                 expectedPMode.Security.Encryption.EncryptionCertificateInformation = new PublicKeyCertificate()
                 {
                     Certificate = "ABCDEFGH"
@@ -92,7 +92,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                 // Assert
                 SendingProcessingMode actualPMode = DeserializeExpectedPMode(actualPModeStream);
                 Assert.Equal(expectedPMode.Id, actualPMode.Id);
-                Assert.Equal(expectedPMode.Security.Encryption.CertificateType, CertificateChoiceType.EmbeddedCertificate);
+                Assert.Equal(expectedPMode.Security.Encryption.CertificateType, PublicKeyCertificateChoiceType.PublicKeyCertificate);
                 Assert.Equal("ABCDEFGH", ((PublicKeyCertificate)actualPMode.Security.Encryption.EncryptionCertificateInformation).Certificate);
             }
 
