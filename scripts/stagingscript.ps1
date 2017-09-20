@@ -23,6 +23,7 @@ MkDir .\Staging\samples
 MkDir .\Staging\samples\certificates
 MkDir .\Staging\samples\messages
 MkDir .\Staging\samples\pmodes
+MkDir .\Staging\samples\pmodes\eessi
 MkDir .\Staging\x64
 MkDir .\Staging\x86
 
@@ -42,7 +43,9 @@ Copy-Item -Path .\Eu.EDelivery.AS4.ServiceHandler.ConsoleHost.exe .\Staging\
 Copy-Item -Path .\Eu.EDelivery.AS4.ServiceHandler.ConsoleHost.exe.config .\Staging\
 Copy-Item -Path .\Eu.EDelivery.AS4.Fe.exe .\Staging\bin\
 Copy-Item -Path .\Eu.EDelivery.AS4.Fe.exe.config .\Staging\bin\
+Copy-Item -Path .\Eu.EDelivery.AS4.Fe.exe.xml .\Staging\bin\
 Copy-Item -Path .\Eu.EDelivery.AS4.PayloadService.exe .\Staging\bin\
+
 
 If (Test-Path .\Eu.EDelivery.AS4.dll.config) {
 	Move-Item -Path .\Eu.EDelivery.AS4.dll.config .\Staging\bin\
@@ -58,3 +61,4 @@ Copy-Item -Path .\messages\attachments\*.* .\Staging\messages\attachments\
 Copy-Item -Path .\samples\certificates\*.* .\Staging\samples\certificates\
 Copy-Item -Path .\samples\messages\*.* .\Staging\samples\messages\
 Copy-Item -Path .\samples\pmodes\*.* .\Staging\samples\pmodes\
+Copy-Item -Path .\samples\pmodes\eessi\*.* .\Staging\samples\pmodes\eessi\
