@@ -4,8 +4,6 @@
   <xs:complexType name="ReceivingProcessingMode">
     <xs:sequence>
       <xs:element minOccurs="0" maxOccurs="1" name="Id" type="xs:string" />
-      <xs:element minOccurs="1" maxOccurs="1" name="Mep" type="tns:MessageExchangePattern" />
-      <xs:element minOccurs="1" maxOccurs="1" name="MepBinding" type="tns:MessageExchangePatternBinding" />
       <xs:element minOccurs="0" maxOccurs="1" name="Reliability" type="tns:ReceiveReliability" />
       <xs:element minOccurs="0" maxOccurs="1" name="ReplyHandling" type="tns:ReplyHandlingSetting" />
       <xs:element minOccurs="0" maxOccurs="1" name="ExceptionHandling" type="tns:ReceiveHandling" />
@@ -14,18 +12,6 @@
       <xs:element minOccurs="0" maxOccurs="1" name="MessageHandling" type="tns:MessageHandling" />
     </xs:sequence>
   </xs:complexType>
-  <xs:simpleType name="MessageExchangePattern">
-    <xs:restriction base="xs:string">
-      <xs:enumeration value="OneWay" />
-      <xs:enumeration value="TwoWay" />
-    </xs:restriction>
-  </xs:simpleType>
-  <xs:simpleType name="MessageExchangePatternBinding">
-    <xs:restriction base="xs:string">
-      <xs:enumeration value="Push" />
-      <xs:enumeration value="Pull" />
-    </xs:restriction>
-  </xs:simpleType>
   <xs:complexType name="ReceiveReliability">
     <xs:sequence>
       <xs:element minOccurs="0" maxOccurs="1" name="DuplicateElimination" type="tns:DuplicateElimination" />
