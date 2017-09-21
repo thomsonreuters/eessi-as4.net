@@ -122,8 +122,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
                     Encryption = new Encryption
                     {
                         IsEnabled = true,
-                        PublicKeyInformation = new PublicKeyCertificate() { Certificate = "ABCDEFGH" },
-                        PublicKeyType = PublicKeyChoiceType.PublicKeyCertificate
+                        EncryptionCertificateInformation = new PublicKeyCertificate() { Certificate = "ABCDEFGH" },
+                        CertificateType = PublicKeyCertificateChoiceType.PublicKeyCertificate
                     }
                 }
             };
@@ -134,7 +134,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
 
             Assert.Equal(pmode.Id, clone.Id);
             Assert.Equal(pmode.Security.Encryption.IsEnabled, clone.Security.Encryption.IsEnabled);
-            Assert.Equal("ABCDEFGH", ((PublicKeyCertificate)clone.Security.Encryption.PublicKeyInformation).Certificate);
+            Assert.Equal("ABCDEFGH", ((PublicKeyCertificate)clone.Security.Encryption.EncryptionCertificateInformation).Certificate);
         }        
     }
 }

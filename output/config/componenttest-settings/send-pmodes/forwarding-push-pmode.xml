@@ -1,23 +1,22 @@
-<?xml version="1.0" encoding="utf-8"?>
-<PMode 
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-  xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
-  xmlns="eu:edelivery:as4:pmode">
+﻿<?xml version="1.0" encoding="utf-8"?>
+<PMode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="eu:edelivery:as4:pmode">
   <Id>Forwarding_Push</Id>
   <AllowOverride>false</AllowOverride>
   <Mep>OneWay</Mep>
   <MepBinding>Push</MepBinding>
-  <PushConfiguration>  
-        <Protocol>
-            <Url>https://localhost/msh</Url>
-        </Protocol>            
+  <PushConfiguration>
+    <Protocol>
+      <Url>https://localhost/msh</Url>
+    </Protocol>
   </PushConfiguration>
   <Security>
     <Signing>
       <IsEnabled>true</IsEnabled>
+      <CertificateFindCriteria>
+        <CertificateFindType>FindBySubjectName</CertificateFindType>
+        <CertificateFindValue>AccessPointA</CertificateFindValue>
+      </CertificateFindCriteria>
       <KeyReferenceMethod>BSTReference</KeyReferenceMethod>
-      <PrivateKeyFindType>FindBySubjectName</PrivateKeyFindType>
-	  <PrivateKeyFindValue>AccessPointA</PrivateKeyFindValue>      
       <Algorithm>http://www.w3.org/2001/04/xmldsig-more#rsa-sha256</Algorithm>
       <HashFunction>http://www.w3.org/2001/04/xmlenc#sha256</HashFunction>
     </Signing>

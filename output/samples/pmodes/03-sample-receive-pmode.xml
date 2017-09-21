@@ -34,8 +34,10 @@
     </SigningVerification>
     <Decryption>
       <Encryption>Allowed</Encryption>
-      <PrivateKeyFindType>FindBySubjectName</PrivateKeyFindType>
-      <PrivateKeyFindValue>AccessPointA</PrivateKeyFindValue>
+      <CertificateFindCriteria>
+        <CertificateFindType>FindBySubjectName</CertificateFindType>
+        <CertificateFindValue>AccessPointA</CertificateFindValue>
+      </CertificateFindCriteria>
     </Decryption>
   </Security>
   <MessagePackaging>

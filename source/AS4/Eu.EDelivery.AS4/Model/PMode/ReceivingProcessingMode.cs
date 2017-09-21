@@ -1,6 +1,4 @@
-﻿using System;
-using System.ComponentModel;
-using System.Security.Cryptography.X509Certificates;
+﻿using System.ComponentModel;
 using System.Web.Script.Serialization;
 using System.Xml.Serialization;
 using Newtonsoft.Json;
@@ -152,10 +150,6 @@ namespace Eu.EDelivery.AS4.Model.PMode
             set { _responseHttpCode = value; }
         }
 
-        public ReceiveErrorHandling()
-        {
-        }
-
         #region Serialization Control Properties
 
         [XmlIgnore]
@@ -177,7 +171,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
         public SigningVerification SigningVerification { get; set; }
         [Description("Decryption settings")]
         public Decryption Decryption { get; set; }
-            
+
         public ReceiveSecurity()
         {
             SigningVerification = new SigningVerification();
@@ -198,29 +192,59 @@ namespace Eu.EDelivery.AS4.Model.PMode
 
     public class Decryption
     {
+        private object _decryptCertificateInformation;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Decryption"/> class.
+        /// </summary>
+        public Decryption()
+        {
+            Encryption = Limit.Allowed;
+            CertificateType = PrivateKeyCertificateChoiceType.None;
+        }
+
         [Description("Decryption")]
         public Limit Encryption { get; set; }
-        [Description("Find certificate using")]
-        public X509FindType PrivateKeyFindType { get; set; }
-        [Description("Value to search for")]
-        public string PrivateKeyFindValue { get; set; }
+
+        [XmlIgnore]
+        [JsonIgnore]
+        [ScriptIgnore]
+        public PrivateKeyCertificateChoiceType CertificateType { get; set; }
+
+        [XmlChoiceIdentifier(nameof(CertificateType))]
+        [XmlElement("CertificateFindCriteria", typeof(CertificateFindCriteria))]
+        [XmlElement("PrivateKeyCertificate", typeof(PrivateKeyCertificate))]
+        [Description("Decryption Certificate")]
+        public object DecryptCertificateInformation
+        {
+            get { return _decryptCertificateInformation; }
+            set
+            {
+                _decryptCertificateInformation = value;
+                if (value is CertificateFindCriteria)
+                {
+                    CertificateType = PrivateKeyCertificateChoiceType.CertificateFindCriteria;
+                }
+                else if (value is PrivateKeyCertificate)
+                {
+                    CertificateType = PrivateKeyCertificateChoiceType.PrivateKeyCertificate;
+                }
+                else
+                {
+                    CertificateType = PrivateKeyCertificateChoiceType.None;
+                }
+            }
+        }
 
         #region Serialization management
 
         [XmlIgnore]
         [JsonIgnore]
-        public bool PrivateKeyFindTypeSpecified { get; set; }
-
-        [XmlIgnore]
-        [JsonIgnore]
-        public bool PrivateKeyFindValueSpecified => !String.IsNullOrWhiteSpace(PrivateKeyFindValue);
+        [ScriptIgnore]
+        public bool DecryptCertificateInformationSpecified => DecryptCertificateInformation != null;
 
         #endregion
 
-        public Decryption()
-        {
-            Encryption = Limit.Allowed;
-        }
     }
 
     public class MessageHandling

@@ -66,7 +66,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             var certWithoutPrivateKey = new X509Certificate2(AccessPointA, access_point_a_password, X509KeyStorageFlags.Exportable);
 
             SendingProcessingMode pmode = PModeWithSigningSettings();
-            pmode.Security.Signing.PrivateKeyFindValue = "AccessPointA";
+            pmode.Security.Signing.SigningCertificateInformation = new CertificateFindCriteria
+            {
+                CertificateFindValue = "AccessPointA"
+            };
 
             MessagingContext context = AS4MessageContext(AS4UserMessageWithAttachment(), pmode);
 
@@ -122,8 +125,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
                     {
                         IsEnabled = true,
                         KeyReferenceMethod = X509ReferenceType.BSTReference,
-                        PrivateKeyFindValue = "PartyA",
-                        PrivateKeyFindType = X509FindType.FindBySubjectName,
+                        SigningCertificateInformation = new CertificateFindCriteria
+                        {
+                            CertificateFindValue = "PartyA",
+                            CertificateFindType = X509FindType.FindBySubjectName
+                        },
                         Algorithm = "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256",
                         HashFunction = "http://www.w3.org/2001/04/xmlenc#sha256"
                     }

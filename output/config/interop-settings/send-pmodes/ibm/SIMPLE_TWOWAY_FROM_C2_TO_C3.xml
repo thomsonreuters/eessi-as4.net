@@ -51,19 +51,21 @@
   <Security>
     <Signing>
       <IsEnabled>true</IsEnabled>
+      <CertificateFindCriteria>
+        <CertificateFindType>FindBySubjectName</CertificateFindType>
+        <CertificateFindValue>as4-net-c2</CertificateFindValue>
+      </CertificateFindCriteria>
       <KeyReferenceMethod>BSTReference</KeyReferenceMethod>
-      <PrivateKeyFindValue>as4-net-c2</PrivateKeyFindValue>
-      <PrivateKeyFindType>FindBySubjectName</PrivateKeyFindType>
       <Algorithm>http://www.w3.org/2001/04/xmldsig-more#rsa-sha256</Algorithm>
       <HashFunction>http://www.w3.org/2001/04/xmlenc#sha256</HashFunction>
     </Signing>
     <Encryption>
       <IsEnabled>true</IsEnabled>
       <Algorithm>http://www.w3.org/2009/xmlenc11#aes128-gcm</Algorithm>
-      <PublicKeyFindCriteria>
-        <PublicKeyFindType>FindBySubjectName</PublicKeyFindType>
-        <PublicKeyFindValue>ibmgw-c3</PublicKeyFindValue>
-      </PublicKeyFindCriteria>
+      <CertificateFindCriteria>
+        <CertificateFindType>FindBySubjectName</CertificateFindType>
+        <CertificateFindValue>ibmgw-c3</CertificateFindValue>
+      </CertificateFindCriteria>
       <KeyTransport>
         <TransportAlgorithm>http://www.w3.org/2009/xmlenc11#rsa-oaep</TransportAlgorithm>
       </KeyTransport>

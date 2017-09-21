@@ -34,8 +34,10 @@
     </SigningVerification>
     <Decryption>
       <Encryption>Allowed</Encryption>
-      <PrivateKeyFindValue>as4-net-c2</PrivateKeyFindValue>
-      <PrivateKeyFindType>FindBySubjectName</PrivateKeyFindType>
+      <CertificateFindCriteria>
+        <CertificateFindType>FindBySubjectName</CertificateFindType>
+        <CertificateFindValue>as4-net-c2</CertificateFindValue>
+      </CertificateFindCriteria>
     </Decryption>
   </Security>
   <MessagePackaging>

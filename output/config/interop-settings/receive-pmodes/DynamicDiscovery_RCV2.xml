@@ -34,17 +34,19 @@
     </SigningVerification>
     <Decryption>
       <Encryption>Allowed</Encryption>
-      <PrivateKeyFindValue>as4-net-c3</PrivateKeyFindValue>
-      <PrivateKeyFindType>FindBySubjectName</PrivateKeyFindType>
+      <CertificateFindCriteria>
+        <CertificateFindType>FindBySubjectName</CertificateFindType>
+        <CertificateFindValue>as4-net-c3</CertificateFindValue>
+      </CertificateFindCriteria>
     </Decryption>
   </Security>
   <MessagePackaging>
-    <PartyInfo>     
+    <PartyInfo>
       <ToParty>
         <PartyIds>
           <PartyId>
             <Id>as4.net-c2</Id>
-            <Type />            
+            <Type />
           </PartyId>
         </PartyIds>
         <Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</Role>

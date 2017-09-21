@@ -6,8 +6,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
-using Eu.EDelivery.AS4.Builders.Core;
-using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
@@ -128,11 +126,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
 
             message.SendingPMode.Security.Encryption.IsEnabled = true;
             message.SendingPMode.Security.Encryption.Algorithm = "http://www.w3.org/2009/xmlenc11#aes128-gcm";
-            message.SendingPMode.Security.Encryption.PublicKeyType = PublicKeyChoiceType.PublicKeyFindCriteria;
-            message.SendingPMode.Security.Encryption.PublicKeyInformation = new PublicKeyFindCriteria()
+            message.SendingPMode.Security.Encryption.CertificateType = PublicKeyCertificateChoiceType.CertificateFindCriteria;
+            message.SendingPMode.Security.Encryption.EncryptionCertificateInformation = new CertificateFindCriteria()
             {
-                PublicKeyFindType = X509FindType.FindBySerialNumber,
-                PublicKeyFindValue = "some dummy value"
+                CertificateFindType = X509FindType.FindBySerialNumber,
+                CertificateFindValue = "some dummy value"
             };
 
             return message;

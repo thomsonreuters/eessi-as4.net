@@ -1,13 +1,10 @@
 <?xml version="1.0"?>
 <!-- This PMode is used for sending (pushing) PullRequest signal messages -->
-<PMode 
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-  xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
-  xmlns="eu:edelivery:as4:pmode">
+<PMode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="eu:edelivery:as4:pmode">
   <Id>eessi-pull-send-pmode</Id>
   <Mep>OneWay</Mep>
   <MepBinding>Push</MepBinding>
-  <PushConfiguration>    
+  <PushConfiguration>
     <Protocol>
       <Url>[Add the URL of the AP Inbox Service here]</Url>
     </Protocol>
@@ -20,17 +17,19 @@
       </ClientCertificateReference>
     </TlsConfiguration>
   </PushConfiguration>
-   <Security>
+  <Security>
     <Signing>
-      <IsEnabled>true</IsEnabled>      
-      <PrivateKeyFindType>FindBySerialNumber</PrivateKeyFindType>
-      <PrivateKeyFindValue>[Add the serial number of your Institution's ebMS signing certificate here]</PrivateKeyFindValue>
+      <IsEnabled>true</IsEnabled>
+      <CertificateFindCriteria>
+        <CertificateFindType>FindBySerialNumber</CertificateFindType>
+        <CertificateFindValue>[Add the serial number of your Institution's ebMS signing certificate here]</CertificateFindValue>
+      </CertificateFindCriteria>
       <KeyReferenceMethod>BSTReference</KeyReferenceMethod>
       <Algorithm>http://www.w3.org/2001/04/xmldsig-more#rsa-sha256</Algorithm>
       <HashFunction>http://www.w3.org/2001/04/xmlenc#sha256</HashFunction>
     </Signing>
   </Security>
   <MessagePackaging>
-	<Mpc>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMPC/[Add your Institution's PULL endpoint here]</Mpc>
+    <Mpc>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMPC/[Add your Institution's PULL endpoint here]</Mpc>
   </MessagePackaging>
-  </PMode>
+</PMode>

@@ -104,8 +104,16 @@
   <xs:complexType name="Decryption">
     <xs:sequence>
       <xs:element minOccurs="1" maxOccurs="1" name="Encryption" type="tns:Limit" />
-      <xs:element minOccurs="0" maxOccurs="1" name="PrivateKeyFindType" type="tns:X509FindType" />
-      <xs:element minOccurs="0" maxOccurs="1" name="PrivateKeyFindValue" type="xs:string" />
+      <xs:choice minOccurs="1" maxOccurs="1">
+        <xs:element minOccurs="0" maxOccurs="1" name="CertificateFindCriteria" type="tns:CertificateFindCriteria" />
+        <xs:element minOccurs="0" maxOccurs="1" name="PrivateKeyCertificate" type="tns:PrivateKeyCertificate" />
+      </xs:choice>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="CertificateFindCriteria">
+    <xs:sequence>
+      <xs:element minOccurs="1" maxOccurs="1" name="CertificateFindType" type="tns:X509FindType" />
+      <xs:element minOccurs="0" maxOccurs="1" name="CertificateFindValue" type="xs:string" />
     </xs:sequence>
   </xs:complexType>
   <xs:simpleType name="X509FindType">
@@ -127,6 +135,12 @@
       <xs:enumeration value="FindBySubjectKeyIdentifier" />
     </xs:restriction>
   </xs:simpleType>
+  <xs:complexType name="PrivateKeyCertificate">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="Certificate" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Password" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
   <xs:complexType name="MessagePackaging">
     <xs:sequence>
       <xs:element minOccurs="0" maxOccurs="1" name="PartyInfo" type="tns:PartyInfo" />

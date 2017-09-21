@@ -132,11 +132,25 @@
   <xs:complexType name="Signing">
     <xs:sequence>
       <xs:element minOccurs="1" maxOccurs="1" name="IsEnabled" type="xs:boolean" />
-      <xs:element minOccurs="0" maxOccurs="1" name="PrivateKeyFindType" type="tns:X509FindType" />
-      <xs:element minOccurs="0" maxOccurs="1" name="PrivateKeyFindValue" type="xs:string" />
+      <xs:choice minOccurs="1" maxOccurs="1">
+        <xs:element minOccurs="0" maxOccurs="1" name="CertificateFindCriteria" type="tns:CertificateFindCriteria" />
+        <xs:element minOccurs="0" maxOccurs="1" name="PrivateKeyCertificate" type="tns:PrivateKeyCertificate" />
+      </xs:choice>
       <xs:element minOccurs="0" maxOccurs="1" name="KeyReferenceMethod" type="tns:X509ReferenceType" />
       <xs:element minOccurs="0" maxOccurs="1" name="Algorithm" type="xs:string" />
       <xs:element minOccurs="0" maxOccurs="1" name="HashFunction" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="CertificateFindCriteria">
+    <xs:sequence>
+      <xs:element minOccurs="1" maxOccurs="1" name="CertificateFindType" type="tns:X509FindType" />
+      <xs:element minOccurs="0" maxOccurs="1" name="CertificateFindValue" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="PrivateKeyCertificate">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="Certificate" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Password" type="xs:string" />
     </xs:sequence>
   </xs:complexType>
   <xs:simpleType name="X509ReferenceType">
@@ -152,16 +166,10 @@
       <xs:element minOccurs="0" maxOccurs="1" default="http://www.w3.org/2009/xmlenc11#aes128-gcm" name="Algorithm" type="xs:string" />
       <xs:element minOccurs="0" maxOccurs="1" default="128" name="AlgorithmKeySize" type="xs:int" />
       <xs:choice minOccurs="1" maxOccurs="1">
-        <xs:element minOccurs="0" maxOccurs="1" name="PublicKeyFindCriteria" type="tns:PublicKeyFindCriteria" />
+        <xs:element minOccurs="0" maxOccurs="1" name="CertificateFindCriteria" type="tns:CertificateFindCriteria" />
         <xs:element minOccurs="0" maxOccurs="1" name="PublicKeyCertificate" type="tns:PublicKeyCertificate" />
       </xs:choice>
       <xs:element minOccurs="0" maxOccurs="1" name="KeyTransport" type="tns:KeyEncryption" />
-    </xs:sequence>
-  </xs:complexType>
-  <xs:complexType name="PublicKeyFindCriteria">
-    <xs:sequence>
-      <xs:element minOccurs="1" maxOccurs="1" name="PublicKeyFindType" type="tns:X509FindType" />
-      <xs:element minOccurs="0" maxOccurs="1" name="PublicKeyFindValue" type="xs:string" />
     </xs:sequence>
   </xs:complexType>
   <xs:complexType name="PublicKeyCertificate">

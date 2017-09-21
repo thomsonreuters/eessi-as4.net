@@ -53,11 +53,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
             {
                 // Arrange
                 var expectedPMode = new SendingProcessingMode { Id = "expected-id" };
-                expectedPMode.Security.Encryption.PublicKeyType = PublicKeyChoiceType.PublicKeyFindCriteria;
-                expectedPMode.Security.Encryption.PublicKeyInformation = new PublicKeyFindCriteria()
+                expectedPMode.Security.Encryption.CertificateType = PublicKeyCertificateChoiceType.CertificateFindCriteria;
+                expectedPMode.Security.Encryption.EncryptionCertificateInformation = new CertificateFindCriteria()
                 {
-                    PublicKeyFindType = X509FindType.FindByCertificatePolicy,
-                    PublicKeyFindValue = "SomeValue"
+                    CertificateFindType = X509FindType.FindByCertificatePolicy,
+                    CertificateFindValue = "SomeValue"
                 };
 
                 // Act
@@ -66,13 +66,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                 // Assert
                 SendingProcessingMode actualPMode = DeserializeExpectedPMode(actualPModeStream);
                 Assert.Equal(expectedPMode.Id, actualPMode.Id);
-                Assert.Equal(expectedPMode.Security.Encryption.PublicKeyType, actualPMode.Security.Encryption.PublicKeyType);
+                Assert.Equal(expectedPMode.Security.Encryption.CertificateType, actualPMode.Security.Encryption.CertificateType);
 
-                var expectedPublicKeyCriteria = (PublicKeyFindCriteria)expectedPMode.Security.Encryption.PublicKeyInformation;
-                var actualPublicKeyCriteria = (PublicKeyFindCriteria)actualPMode.Security.Encryption.PublicKeyInformation;
+                var expectedPublicKeyCriteria = (CertificateFindCriteria)expectedPMode.Security.Encryption.EncryptionCertificateInformation;
+                var actualPublicKeyCriteria = (CertificateFindCriteria)actualPMode.Security.Encryption.EncryptionCertificateInformation;
 
-                Assert.Equal(expectedPublicKeyCriteria.PublicKeyFindType, actualPublicKeyCriteria.PublicKeyFindType);
-                Assert.Equal(expectedPublicKeyCriteria.PublicKeyFindValue, actualPublicKeyCriteria.PublicKeyFindValue);
+                Assert.Equal(expectedPublicKeyCriteria.CertificateFindType, actualPublicKeyCriteria.CertificateFindType);
+                Assert.Equal(expectedPublicKeyCriteria.CertificateFindValue, actualPublicKeyCriteria.CertificateFindValue);
             }
 
             [Fact]
@@ -80,8 +80,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
             {
                 // Arrange
                 var expectedPMode = new SendingProcessingMode { Id = "expected-id" };
-                expectedPMode.Security.Encryption.PublicKeyType = PublicKeyChoiceType.PublicKeyCertificate;
-                expectedPMode.Security.Encryption.PublicKeyInformation = new PublicKeyCertificate()
+                expectedPMode.Security.Encryption.CertificateType = PublicKeyCertificateChoiceType.PublicKeyCertificate;
+                expectedPMode.Security.Encryption.EncryptionCertificateInformation = new PublicKeyCertificate()
                 {
                     Certificate = "ABCDEFGH"
                 };
@@ -92,8 +92,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                 // Assert
                 SendingProcessingMode actualPMode = DeserializeExpectedPMode(actualPModeStream);
                 Assert.Equal(expectedPMode.Id, actualPMode.Id);
-                Assert.Equal(expectedPMode.Security.Encryption.PublicKeyType, PublicKeyChoiceType.PublicKeyCertificate);
-                Assert.Equal("ABCDEFGH", ((PublicKeyCertificate)actualPMode.Security.Encryption.PublicKeyInformation).Certificate);
+                Assert.Equal(expectedPMode.Security.Encryption.CertificateType, PublicKeyCertificateChoiceType.PublicKeyCertificate);
+                Assert.Equal("ABCDEFGH", ((PublicKeyCertificate)actualPMode.Security.Encryption.EncryptionCertificateInformation).Certificate);
             }
 
             private static SendingProcessingMode DeserializeExpectedPMode(Stream actualPModeStream)

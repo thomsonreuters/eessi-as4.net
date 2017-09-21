@@ -101,26 +101,26 @@ namespace Eu.EDelivery.AS4.Steps.Send
         {
             Encryption encryption = messagingContext.SendingPMode.Security.Encryption;
 
-            if (encryption.PublicKeyInformation == null)
+            if (encryption.EncryptionCertificateInformation == null)
             {
-                throw new ConfigurationErrorsException("No PublicKey information found in PMode to perform encryption");
+                throw new ConfigurationErrorsException("No encryption certificate information found in PMode to perform encryption");
             }
 
-            var publicKeyFindCriteria = encryption.PublicKeyInformation as PublicKeyFindCriteria;
+            var publicKeyFindCriteria = encryption.EncryptionCertificateInformation as CertificateFindCriteria;
 
             if (publicKeyFindCriteria != null)
             {
-                return _certificateRepository.GetCertificate(publicKeyFindCriteria.PublicKeyFindType, publicKeyFindCriteria.PublicKeyFindValue);
+                return _certificateRepository.GetCertificate(publicKeyFindCriteria.CertificateFindType, publicKeyFindCriteria.CertificateFindValue);
             }
 
-            var publicKeyCertificate = encryption.PublicKeyInformation as PublicKeyCertificate;
+            var publicKeyCertificate = encryption.EncryptionCertificateInformation as PublicKeyCertificate;
 
             if (publicKeyCertificate != null)
             {
                 return new X509Certificate2(Convert.FromBase64String(publicKeyCertificate.Certificate), string.Empty);
             }
 
-            throw new NotSupportedException("The PublicKeyInformation specified in the PMode could not be used to retrieve the certificate");            
+            throw new NotSupportedException("The encryption certificate information specified in the PMode could not be used to retrieve the certificate");            
         }
 
         private static Task<StepResult> ReturnSameMessagingContext(MessagingContext messagingContext)

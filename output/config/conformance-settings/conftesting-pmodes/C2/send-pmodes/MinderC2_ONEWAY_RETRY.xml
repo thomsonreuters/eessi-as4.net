@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <PMode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="eu:edelivery:as4:pmode">
   <Id>ACT_ONEWAY_RETRY</Id>
   <AllowOverride>false</AllowOverride>
@@ -53,8 +53,10 @@
   <Security>
     <Signing>
       <IsEnabled>true</IsEnabled>
-      <PrivateKeyFindType>FindBySubjectName</PrivateKeyFindType>
-      <PrivateKeyFindValue>as4-net-c2</PrivateKeyFindValue>
+      <CertificateFindCriteria>
+        <CertificateFindType>FindBySubjectName</CertificateFindType>
+        <CertificateFindValue>as4-net-c2</CertificateFindValue>
+      </CertificateFindCriteria>
       <KeyReferenceMethod>BSTReference</KeyReferenceMethod>
       <Algorithm>http://www.w3.org/2001/04/xmldsig-more#rsa-sha256</Algorithm>
       <HashFunction>http://www.w3.org/2001/04/xmlenc#sha256</HashFunction>
@@ -62,10 +64,10 @@
     <Encryption>
       <IsEnabled>true</IsEnabled>
       <Algorithm>http://www.w3.org/2009/xmlenc11#aes128-gcm</Algorithm>
-      <PublicKeyFindCriteria>
-        <PublicKeyFindType>FindBySubjectName</PublicKeyFindType>
-        <PublicKeyFindValue>as4-net-c3</PublicKeyFindValue>
-      </PublicKeyFindCriteria>
+      <CertificateFindCriteria>
+        <CertificateFindType>FindBySubjectName</CertificateFindType>
+        <CertificateFindValue>as4-net-c3</CertificateFindValue>
+      </CertificateFindCriteria>
       <KeyTransport>
         <TransportAlgorithm>http://www.w3.org/2001/04/xmlenc#rsa-oaep-mgf1p</TransportAlgorithm>
         <DigestAlgorithm>
