@@ -13,11 +13,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
     public class ReceivingProcessingMode : IPMode
     {
         public string Id { get; set; }
-        [Description("Message exchange pattern")]
-        public MessageExchangePattern Mep { get; set; }
-        [Info("Message exchange pattern binding", defaultValue: MessageExchangePatternBinding.Push)]
-        [Description("Message exchange pattern binding")]
-        public MessageExchangePatternBinding MepBinding { get; set; }
+
         [Description("Receive reliability")]
         public ReceiveReliability Reliability { get; set; }
         [Description("Configure settings for reply handling")]
