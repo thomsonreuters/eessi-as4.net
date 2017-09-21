@@ -151,7 +151,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
         [XmlChoiceIdentifier(nameof(CertificateType))]
         [XmlElement("CertificateFindCriteria", typeof(CertificateFindCriteria))]
         [XmlElement("PublicKeyCertificate", typeof(PublicKeyCertificate))]
-        [Description("Public key information")]
+        [Description("Encryption certificate information")]
         public object EncryptionCertificateInformation
         {
             get { return _encryptionCertificateInformation; }
