@@ -23,11 +23,8 @@
         <Content Remove="ui\tsconfig.webpack.json" />
     </ItemGroup>
 
-    
     <ItemGroup>
-      <Content Include="Eu.EDelivery.AS4.Fe.xml">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </Content>
+      <None Remove="Eu.EDelivery.AS4.Fe.xml" />
     </ItemGroup>
     
     <ItemGroup>
