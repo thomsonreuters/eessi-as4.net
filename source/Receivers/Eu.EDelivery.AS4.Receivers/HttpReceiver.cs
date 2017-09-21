@@ -71,7 +71,14 @@ namespace Eu.EDelivery.AS4.Receivers
             /// <param name="useLogging">if set to <c>true</c> [use logging].</param>
             public HttpRequestMeta(string hostname, bool useLogging)
             {
-                Hostname = hostname;
+                if (hostname.EndsWith("/") == false)
+                {
+                    Hostname = hostname + "/";
+                }
+                else
+                {
+                    Hostname = hostname;
+                }
                 UseLogging = useLogging;
             }
 
@@ -496,7 +503,7 @@ namespace Eu.EDelivery.AS4.Receivers
                             : processorResult.Exception?.Message ?? string.Empty;
 
                         HttpStatusCode statusCode = DetermineStatusCode(processorResult.ErrorResult, processorResult.Exception);
-                       
+
                         return new ByteContentResult(statusCode, "text/plain",
                                                      Encoding.UTF8.GetBytes(errorMessage));
                     }
