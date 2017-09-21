@@ -1,8 +1,6 @@
 <?xml version="1.0"?>
 <PMode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="eu:edelivery:as4:pmode">
   <Id>ACT_SIMPLE_ONEWAY_SENDER_DOMIBUS-C2_RCV_AS4NET-C3_SIZE</Id>
-  <Mep>OneWay</Mep>
-  <MepBinding>Push</MepBinding>
   <Reliability>
     <DuplicateElimination>
       <IsEnabled>false</IsEnabled>
