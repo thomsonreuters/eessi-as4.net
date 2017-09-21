@@ -25,8 +25,7 @@ namespace Eu.EDelivery.AS4.Common
         private static readonly IConfig Singleton = new Config();
         private readonly IDictionary<string, string> _configuration;
         private readonly ILogger _logger;
-
-        private readonly List<AgentSettings> _agents = new List<AgentSettings>();
+        
         private readonly Collection<AgentConfig> _agentConfigs = new Collection<AgentConfig>();
 
         private IPullAuthorizationMapProvider _pullRequestPullAuthorizationMapProvider;
@@ -311,9 +310,7 @@ namespace Eu.EDelivery.AS4.Common
             {
                 return;
             }
-
-            _agents.AddRange(agents.Where(a => a != null));
-
+            
             foreach (AgentSettings setting in agents)
             {
                 if (setting != null)

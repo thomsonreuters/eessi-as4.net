@@ -1,8 +1,6 @@
 <?xml version="1.0"?>
 <PMode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="eu:edelivery:as4:pmode">
   <Id>Forward_Pull</Id>
-  <Mep>OneWay</Mep>
-  <MepBinding>Push</MepBinding>
   <Reliability>
     <DuplicateElimination>
       <IsEnabled>false</IsEnabled>
@@ -27,7 +25,7 @@
         <Parameter name="location" value=".\messages\exceptions\" />
       </Parameters>
     </NotifyMethod>
-  </ExceptionHandling>  
+  </ExceptionHandling>
   <MessagePackaging>
     <PartyInfo>
       <FromParty>
@@ -57,10 +55,10 @@
         <Type>eu:europa:services</Type>
       </Service>
     </CollaborationInfo>
-  </MessagePackaging>   
+  </MessagePackaging>
   <MessageHandling>
     <Forward>
-        <SendingPMode>Forwarding_Pull</SendingPMode>
+      <SendingPMode>Forwarding_Pull</SendingPMode>
     </Forward>
   </MessageHandling>
 </PMode>
