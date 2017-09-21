@@ -9,6 +9,7 @@
 
     <PropertyGroup>
         <OutputPath>..\..\..\output\</OutputPath>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 		<DocumentationFile>..\..\..\output\Eu.EDelivery.AS4.Fe.xml</DocumentationFile>        
         <PlatformTarget>x86</PlatformTarget>
         <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
@@ -23,9 +24,6 @@
         <Content Remove="ui\tsconfig.webpack.json" />
     </ItemGroup>
 
-    <ItemGroup>
-      <None Remove="Eu.EDelivery.AS4.Fe.xml" />
-    </ItemGroup>
     
     <ItemGroup>
         <None Include="ui\tsconfig.json" />
