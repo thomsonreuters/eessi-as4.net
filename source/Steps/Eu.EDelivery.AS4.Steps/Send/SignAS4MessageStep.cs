@@ -83,7 +83,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 {
                     Logger.Error(exception.InnerException.Message);
                 }
-                Logger.Debug(exception.StackTrace);
+                Logger.Trace(exception.StackTrace);
                 throw ThrowCommonSigningException(exception.Message, exception);
             }
         }
