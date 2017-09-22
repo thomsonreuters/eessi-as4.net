@@ -16,6 +16,12 @@
             </summary>
             <param name="message">The message that describes the error.</param>
         </member>
+        <member name="T:Eu.EDelivery.AS4.Fe.Authentication.ApplicationDbContext">
+            <summary>
+            DbContext to manage the database used for the portal
+            </summary>
+            <seealso cref="!:Microsoft.AspNetCore.Identity.EntityFrameworkCore.IdentityDbContext&lt;Eu.EDelivery.AS4.Fe.Authentication.ApplicationUser&gt;" />
+        </member>
         <member name="M:Eu.EDelivery.AS4.Fe.Authentication.ApplicationDbContext.#ctor(Microsoft.EntityFrameworkCore.DbContextOptions{Eu.EDelivery.AS4.Fe.Authentication.ApplicationDbContext})">
             <summary>
             Initializes a new instance of the <see cref="T:Eu.EDelivery.AS4.Fe.Authentication.ApplicationDbContext"/> class.
@@ -112,6 +118,32 @@
             <param name="portalSettings">The portal settings.</param>
             <param name="portalSettingsService">The portal settings service.</param>
         </member>
+        <member name="M:Eu.EDelivery.AS4.Fe.Controllers.ConfigurationController.IsSetup">
+            <summary>
+            Returns if the portal is in setup state
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Eu.EDelivery.AS4.Fe.Controllers.ConfigurationController.SaveSetup(Eu.EDelivery.AS4.Fe.Models.Setup)">
+            <summary>
+            Saves the setup.
+            </summary>
+            <param name="setup">The setup.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Eu.EDelivery.AS4.Fe.Controllers.ConfigurationController.PostAuthorizationMap(System.Collections.Generic.IEnumerable{Eu.EDelivery.AS4.Services.PullRequestAuthorization.PullRequestAuthorizationEntry})">
+            <summary>
+            Posts the authorization map.
+            </summary>
+            <param name="authorizationEntries">The authorization entries.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Eu.EDelivery.AS4.Fe.Controllers.ConfigurationController.GetAuthorizationMap">
+            <summary>
+            Gets the authorization map.
+            </summary>
+            <returns></returns>
+        </member>
         <member name="M:Eu.EDelivery.AS4.Fe.Controllers.ConfigurationController.Get">
             <summary>
             Get settings
@@ -151,6 +183,13 @@
             </summary>
             <param name="settings">The settings.</param>
             <returns>OkResult</returns>
+        </member>
+        <member name="M:Eu.EDelivery.AS4.Fe.Controllers.ConfigurationController.GetDefaultAgentSteps(Eu.EDelivery.AS4.Agents.AgentType)">
+            <summary>
+            Gets the default agent steps.
+            </summary>
+            <param name="agentType">Type of the agent.</param>
+            <returns>StepConfiguration for the requested agent type</returns>
         </member>
         <member name="M:Eu.EDelivery.AS4.Fe.Controllers.ConfigurationController.CreateSubmitAgent(Eu.EDelivery.AS4.Model.Internal.AgentSettings)">
             <summary>
@@ -264,43 +303,21 @@
         </member>
         <member name="M:Eu.EDelivery.AS4.Fe.Controllers.ConfigurationController.CreateNotifyConsumerAgent(Eu.EDelivery.AS4.Model.Internal.AgentSettings)">
             <summary>
-            Creates the notify consumer agent.
+            Creates the notify agent.
             </summary>
             <param name="settingsAgent">The settings agent.</param>
             <returns></returns>
         </member>
         <member name="M:Eu.EDelivery.AS4.Fe.Controllers.ConfigurationController.DeleteNotifyConsumerAgent(System.String)">
             <summary>
-            Deletes the notify consumer agent.
+            Deletes the notify agent.
             </summary>
             <param name="name">The name.</param>
             <returns></returns>
         </member>
         <member name="M:Eu.EDelivery.AS4.Fe.Controllers.ConfigurationController.UpdateNotifyConsumerAgent(Eu.EDelivery.AS4.Model.Internal.AgentSettings,System.String)">
             <summary>
-            Updates the notify consumer agent.
-            </summary>
-            <param name="settingsAgent">The settings agent.</param>
-            <param name="originalName">Name of the original.</param>
-            <returns></returns>
-        </member>
-        <member name="M:Eu.EDelivery.AS4.Fe.Controllers.ConfigurationController.CreateNotifyProducerAgent(Eu.EDelivery.AS4.Model.Internal.AgentSettings)">
-            <summary>
-            Creates the notify producer agent.
-            </summary>
-            <param name="settingsAgent">The settings agent.</param>
-            <returns></returns>
-        </member>
-        <member name="M:Eu.EDelivery.AS4.Fe.Controllers.ConfigurationController.DeleteNotifyProducerAgent(System.String)">
-            <summary>
-            Deletes the notify producer agent.
-            </summary>
-            <param name="name">The name.</param>
-            <returns></returns>
-        </member>
-        <member name="M:Eu.EDelivery.AS4.Fe.Controllers.ConfigurationController.UpdateNotifyProducerAgent(Eu.EDelivery.AS4.Model.Internal.AgentSettings,System.String)">
-            <summary>
-            Updates the notify producer agent.
+            Updates the notify agent.
             </summary>
             <param name="settingsAgent">The settings agent.</param>
             <param name="originalName">Name of the original.</param>
@@ -384,6 +401,18 @@
             <param name="save">The save.</param>
             <returns></returns>
         </member>
+        <member name="M:Eu.EDelivery.AS4.Fe.Controllers.IPortalSettingsService.IsSetup">
+            <summary>
+            Determines whether the portal is in setup state
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Eu.EDelivery.AS4.Fe.Controllers.IPortalSettingsService.SaveSetup(Eu.EDelivery.AS4.Fe.Models.Setup)">
+            <summary>
+            Saves the setup.
+            </summary>
+            <returns></returns>
+        </member>
         <member name="T:Eu.EDelivery.AS4.Fe.Controllers.PortalSettings">
             <summary>
             Class containing all the Portal settings
@@ -443,17 +472,32 @@
             </summary>
             <seealso cref="T:Eu.EDelivery.AS4.Fe.Controllers.IPortalSettingsService" />
         </member>
-        <member name="M:Eu.EDelivery.AS4.Fe.Controllers.PortalSettingsService.#ctor(Microsoft.AspNetCore.Hosting.IHostingEnvironment)">
+        <member name="M:Eu.EDelivery.AS4.Fe.Controllers.PortalSettingsService.#ctor(Microsoft.AspNetCore.Hosting.IHostingEnvironment,Eu.EDelivery.AS4.Fe.Authentication.ApplicationDbContext,Microsoft.AspNetCore.Identity.UserManager{Eu.EDelivery.AS4.Fe.Authentication.ApplicationUser},Microsoft.Extensions.Options.IOptions{Eu.EDelivery.AS4.Fe.Controllers.PortalSettings})">
             <summary>
-            Initializes a new instance of the <see cref="T:Eu.EDelivery.AS4.Fe.Controllers.PortalSettingsService"/> class.
+            Initializes a new instance of the <see cref="T:Eu.EDelivery.AS4.Fe.Controllers.PortalSettingsService" /> class.
             </summary>
             <param name="hostingEnvironment">The hosting environment.</param>
+            <param name="applicationDbContext">The application database context.</param>
+            <param name="userManager">The user manager.</param>
+            <param name="settings">The settings.</param>
         </member>
         <member name="M:Eu.EDelivery.AS4.Fe.Controllers.PortalSettingsService.Save(Eu.EDelivery.AS4.Fe.Controllers.PortalSettings)">
             <summary>
             Saves the specified save.
             </summary>
             <param name="save">The save.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Eu.EDelivery.AS4.Fe.Controllers.PortalSettingsService.IsSetup">
+            <summary>
+            Determines whether the portal is in setup state
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Eu.EDelivery.AS4.Fe.Controllers.PortalSettingsService.SaveSetup(Eu.EDelivery.AS4.Fe.Models.Setup)">
+            <summary>
+            Saves the setup.
+            </summary>
             <returns></returns>
         </member>
         <member name="T:Eu.EDelivery.AS4.Fe.ErrorModel">
@@ -518,6 +562,35 @@
             </summary>
             <value>
             The message.
+            </value>
+        </member>
+        <member name="T:Eu.EDelivery.AS4.Fe.Models.Setup">
+            <summary>
+            Class containing setup data
+            </summary>
+        </member>
+        <member name="P:Eu.EDelivery.AS4.Fe.Models.Setup.AdminPassword">
+            <summary>
+            Gets or sets the admin password.
+            </summary>
+            <value>
+            The admin password.
+            </value>
+        </member>
+        <member name="P:Eu.EDelivery.AS4.Fe.Models.Setup.ReadonlyPassword">
+            <summary>
+            Gets or sets the readonly password.
+            </summary>
+            <value>
+            The readonly password.
+            </value>
+        </member>
+        <member name="P:Eu.EDelivery.AS4.Fe.Models.Setup.JwtKey">
+            <summary>
+            Gets or sets the JWT key.
+            </summary>
+            <value>
+            The JWT key.
             </value>
         </member>
         <member name="T:Eu.EDelivery.AS4.Fe.Modules.IRunAtAppConfiguration">
@@ -1672,7 +1745,7 @@
             Update an existing pmode.
             </summary>
             <param name="basePmode">The pmode data.</param>
-            <param name="originalPmodeName">Name of the original pmode.</param>
+            <param name="originalName">Name of the original pmode.</param>
             <returns></returns>
         </member>
         <member name="T:Eu.EDelivery.AS4.Fe.Pmodes.PmodeService">
@@ -1797,6 +1870,13 @@
                 A <see cref="T:System.String" /> that represents this instance.
             </returns>
         </member>
+        <member name="M:Eu.EDelivery.AS4.Fe.Program.StartInProcess(System.Threading.CancellationToken)">
+            <summary>
+            Used to start the FrontEnd in process.  Provides cancellation-support so that the FrontEnd
+            is gracefully closed when the AS4.NET backend stops.
+            </summary>
+            <param name="cancellationToken"></param>
+        </member>
         <member name="T:Eu.EDelivery.AS4.Fe.Runtime.IRuntimeLoader">
             <summary>
             Interface to implement a runtime loader
@@ -1841,6 +1921,22 @@
             </summary>
             <value>
             The deliver senders.
+            </value>
+        </member>
+        <member name="P:Eu.EDelivery.AS4.Fe.Runtime.IRuntimeLoader.NotifySenders">
+            <summary>
+            Gets the notify senders.
+            </summary>
+            <value>
+            The notify senders.
+            </value>
+        </member>
+        <member name="P:Eu.EDelivery.AS4.Fe.Runtime.IRuntimeLoader.AttachmentUploaders">
+            <summary>
+            Gets the attachment uploaders.
+            </summary>
+            <value>
+            The attachment uploaders.
             </value>
         </member>
         <member name="P:Eu.EDelivery.AS4.Fe.Runtime.IRuntimeLoader.ReceivingPmode">
@@ -2009,6 +2105,18 @@
             </summary>
             <returns></returns>
         </member>
+        <member name="M:Eu.EDelivery.AS4.Fe.Runtime.RuntimeController.GetAttachmentUploaders">
+            <summary>
+            Gets the attachment uploaders.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Eu.EDelivery.AS4.Fe.Runtime.RuntimeController.GetNotifySenders">
+            <summary>
+            Gets the notify senders.
+            </summary>
+            <returns></returns>
+        </member>
         <member name="M:Eu.EDelivery.AS4.Fe.Runtime.RuntimeController.GetAllRuntimeTypes">
             <summary>
             Gets all runtime types.
@@ -2072,6 +2180,22 @@
             </summary>
             <value>
             The deliver senders.
+            </value>
+        </member>
+        <member name="P:Eu.EDelivery.AS4.Fe.Runtime.RuntimeLoader.NotifySenders">
+            <summary>
+            Gets the notify senders.
+            </summary>
+            <value>
+            The notify senders.
+            </value>
+        </member>
+        <member name="P:Eu.EDelivery.AS4.Fe.Runtime.RuntimeLoader.AttachmentUploaders">
+            <summary>
+            Gets the attachment uploaders.
+            </summary>
+            <value>
+            The attachment uploaders.
             </value>
         </member>
         <member name="P:Eu.EDelivery.AS4.Fe.Runtime.RuntimeLoader.ReceivingPmode">
