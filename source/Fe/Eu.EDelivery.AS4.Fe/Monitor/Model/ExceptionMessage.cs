@@ -66,6 +66,14 @@ namespace Eu.EDelivery.AS4.Fe.Monitor.Model
         }
 
         /// <summary>
+        /// Gets or sets the pmode identifier.
+        /// </summary>
+        /// <value>
+        /// The pmode identifier.
+        /// </value>
+        public string PModeId { get; set; }
+
+        /// <summary>
         /// Gets or sets the modification time.
         /// </summary>
         /// <value>
