@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.Diagnostics;
 using System.Web.Script.Serialization;
 using System.Xml.Serialization;
 using Newtonsoft.Json;
@@ -10,6 +11,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
     /// </summary>
     [XmlType(Namespace = "eu:edelivery:as4:pmode")]
     [XmlRoot("PMode", Namespace = "eu:edelivery:as4:pmode", IsNullable = false)]
+    [DebuggerDisplay("PMode Id = {" + nameof(Id) + "}")]
     public class ReceivingProcessingMode : IPMode
     {
         public string Id { get; set; }

@@ -6,7 +6,7 @@ using Eu.EDelivery.AS4.Security.References;
 
 namespace Eu.EDelivery.AS4.TestUtils
 {
-  public static  class AS4MessageUtils
+    public static class AS4MessageUtils
     {
         public static AS4Message SignWithCertificate(AS4Message message, X509Certificate2 certificate)
         {
@@ -16,6 +16,18 @@ namespace Eu.EDelivery.AS4.TestUtils
                .Build();
 
             message.SecurityHeader.Sign(signing);
+
+            return message;
+        }
+
+        public static AS4Message EncryptWithCertificate(AS4Message message, X509Certificate2 certificate)
+        {
+            var encryption = EncryptionStrategyBuilder.Create(message)
+                                                      .WithCertificate(certificate)
+                                                      .WithAttachments(message.Attachments)
+                                                      .Build();
+
+            message.SecurityHeader.Encrypt(encryption);
 
             return message;
         }

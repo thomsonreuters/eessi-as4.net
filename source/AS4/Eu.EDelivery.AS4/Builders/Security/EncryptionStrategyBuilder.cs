@@ -4,7 +4,6 @@ using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Xml;
 using Eu.EDelivery.AS4.Model.Core;
-using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Security.Encryption;
 using Eu.EDelivery.AS4.Security.References;
@@ -45,13 +44,11 @@ namespace Eu.EDelivery.AS4.Builders.Security
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="EncryptionStrategyBuilder"/> class for the specified <paramref name="message"/>
+        /// Initializes a new instance of the <see cref="EncryptionStrategyBuilder"/> class for the specified <paramref name="a4sMessage"/>
         /// </summary>
-        /// <param name="message"></param>
-        public static EncryptionStrategyBuilder Create(MessagingContext message)
+        /// <param name="as4Message"></param>
+        public static EncryptionStrategyBuilder Create(AS4Message as4Message)
         {
-            AS4Message as4Message = message.AS4Message;
-
             if (as4Message == null)
             {
                 throw new ArgumentNullException(nameof(as4Message));
