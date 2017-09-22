@@ -2,6 +2,7 @@
 using System;
 using System.ComponentModel;
 using System.Configuration;
+using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
@@ -33,7 +34,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// Create a <see cref="IStep" /> implementation
         /// to decrypt a <see cref="AS4Message" />
         /// </summary>
-        public DecryptAS4MessageStep() : this(Registry.Instance.CertificateRepository) {}
+        public DecryptAS4MessageStep() : this(Registry.Instance.CertificateRepository) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DecryptAS4MessageStep"/> class.
@@ -63,7 +64,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
             if (decryption.Encryption == Limit.Required && !as4Message.IsEncrypted)
             {
-               return FailedDecryptResult($"AS4 Message is not encrypted but Receiving PMode {pmode.Id} requires it", ErrorAlias.PolicyNonCompliance, context);
+                return FailedDecryptResult($"AS4 Message is not encrypted but Receiving PMode {pmode.Id} requires it", ErrorAlias.PolicyNonCompliance, context);
             }
 
             if (decryption.Encryption == Limit.NotAllowed && as4Message.IsEncrypted)
@@ -111,11 +112,13 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
                 return await StepResult.SuccessAsync(messagingContext);
             }
-            catch (CryptoException exception)
+            catch (Exception exception) when (exception is CryptoException || exception is CryptographicException)
             {
                 messagingContext.ErrorResult = new ErrorResult(
-                    description: $"Decryption failed: {exception.Message}",                    
+                    description: $"Decryption failed: {exception.Message}",
                     alias: ErrorAlias.FailedDecryption);
+
+                Logger.Error(messagingContext.ErrorResult.Description);
 
                 return StepResult.Failed(messagingContext);
             }
@@ -144,7 +147,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
             if (decryption.DecryptCertificateInformation == null)
             {
-                throw new ConfigurationErrorsException("No signing certificate information found in PMode to perform signing.");
+                throw new ConfigurationErrorsException("No certificate information found in PMode to decrypt the message.");
             }
 
             var certFindCriteria = decryption.DecryptCertificateInformation as CertificateFindCriteria;

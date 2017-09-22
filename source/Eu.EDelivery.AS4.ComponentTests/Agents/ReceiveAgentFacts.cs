@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.ComponentTests.Common;
@@ -12,6 +14,8 @@ using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.PMode;
+using Eu.EDelivery.AS4.Serialization;
+using Eu.EDelivery.AS4.TestUtils;
 using Eu.EDelivery.AS4.TestUtils.Stubs;
 using Eu.EDelivery.AS4.Xml;
 using Xunit;
@@ -124,6 +128,46 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
             Assert.Equal(InStatus.Exception, InStatusUtils.Parse(inMessageRecord.Status));
             Assert.NotNull(inExceptionRecord);
+        }
+
+        [Fact]
+        public async Task ReturnsErrorMessageWhenDecryptionCertificateCannotBeFound()
+        {
+            var userMessage = new UserMessage();
+            userMessage.CollaborationInfo.AgreementReference.PModeId = "receiveagent-non_existing_decrypt_cert-pmode";
+
+            var as4Message = CreateAS4MessageWithAttachment(userMessage);
+
+            var encryptedMessage = AS4MessageUtils.EncryptWithCertificate(as4Message, new StubCertificateRepository().GetStubCertificate());
+
+            // Act
+            HttpResponseMessage response = await StubSender.SendAS4Message(_receiveAgentUrl, encryptedMessage);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+            var contentType = response.Content.Headers.ContentType.MediaType;
+            var result = await SerializerProvider.Default.Get(contentType)
+                                        .DeserializeAsync(await response.Content.ReadAsStreamAsync(), contentType, CancellationToken.None);
+
+            Assert.True(result.IsSignalMessage);
+
+            var errorMessage = result.PrimarySignalMessage as Error;
+            Assert.NotNull(errorMessage);
+            Assert.Equal("EBMS:0102", errorMessage.Errors.First().ErrorCode);
+        }
+
+        private static AS4Message CreateAS4MessageWithAttachment(UserMessage msg)
+        {
+            var as4Message = AS4Message.Create(msg);
+
+            // Arrange
+            byte[] attachmentContents = Encoding.UTF8.GetBytes("some random attachment");
+            var attachment = new Attachment("attachment-id") { Content = new MemoryStream(attachmentContents) };
+
+            as4Message.AddAttachment(attachment);
+
+            return as4Message;
         }
 
         #endregion
@@ -427,7 +471,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         }
 
         #endregion
-
+        
         private static SendingProcessingMode CreateSendingPMode()
         {
             return new SendingProcessingMode
@@ -435,7 +479,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                 Id = "receive_agent_facts_pmode",
                 ReceiptHandling = { NotifyMessageProducer = true },
                 ErrorHandling = { NotifyMessageProducer = true }
-            };
+            };            
         }
 
         private static AS4Message CreateAS4ErrorMessage(string refToMessageId)

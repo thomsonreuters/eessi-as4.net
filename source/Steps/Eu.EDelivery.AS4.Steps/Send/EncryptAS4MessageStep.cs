@@ -83,7 +83,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
             X509Certificate2 certificate = RetrieveCertificate(messagingContext);
 
-            EncryptionStrategyBuilder builder = EncryptionStrategyBuilder.Create(messagingContext);
+            EncryptionStrategyBuilder builder = EncryptionStrategyBuilder.Create(messagingContext.AS4Message);
 
             builder.WithDataEncryptionConfiguration(
                 new DataEncryptionConfiguration(encryption.Algorithm, algorithmKeySize: encryption.AlgorithmKeySize));

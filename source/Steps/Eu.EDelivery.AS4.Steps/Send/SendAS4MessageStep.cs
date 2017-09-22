@@ -104,7 +104,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             {
                 Logger.Error(
                     $"{messagingContext.EbmsMessageId} An error occured while trying to send the message: {exception.Message}");
-                Logger.Error(exception.StackTrace);
+                Logger.Trace(exception.StackTrace);
 
                 if (exception.InnerException != null)
                 {
