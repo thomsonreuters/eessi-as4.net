@@ -28,7 +28,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         [Info("SMP profile")]
         public string SmpProfile => _properties?.ReadMandatoryProperty("SmpProfile");
 
-        private IDictionary<string, string> _properties { get; set; }
+        private IDictionary<string, string> _properties;
 
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
