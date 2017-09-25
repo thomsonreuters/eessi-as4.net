@@ -14,7 +14,7 @@
     </ReceiptHandling>
     <ErrorHandling>
       <UseSoapFault>false</UseSoapFault>
-      <ResponseHttpCode>500</ResponseHttpCode>
+      <ResponseHttpCode>200</ResponseHttpCode>
     </ErrorHandling>
   </ReplyHandling>
   <ExceptionHandling>
