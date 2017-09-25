@@ -2,7 +2,7 @@
 AS4.NET is an open-source application that implements the OASIS AS4 specification. It supports both the e-SENS e-Delivery and the EESSI AS4 Messaging profile as an ebMS endpoint.   
  
 The component has been conformance and interop tested against the e-SENS eDelivery specifications.  
-Extensive testing against the EESSI AS4 Messaging profile is scheduled for June / July 2017, basic testing is already covered.
+Basic testing against the EESSI AS4 Messaging profile is already covered. Extensive testing is scheduled later this year.
 
 # Features
 - One-Way/Push message exchange pattern (v1.0)
@@ -24,10 +24,16 @@ Extensive testing against the EESSI AS4 Messaging profile is scheduled for June 
 - Support for TLS client certificates (v1.1)
 - Performance tuning for large messages, up to 2GB (v1.1)
 - Performance tuning for high volume processing (v1.1) 
+
+- Web interface for configuration and monitoring (v2.0)
+- One-Way/Pull pattern as responder (v2.0)
+- Support for Message Forwarding (v2.0)
+- Support for authorization check of received PullRequest signal-messages (v2.0)
+- Support for SMP/SML Dynamic Discovery (v2.0)
  
 
 # Installation
-AS4.NET v1.1.0 can be downloaded from [the following location](https://ec.europa.eu/cefdigital/artifact/content/repositories/eDelivery/eu/eessi/as4/eessi_as4.net/1.1.0/eessi_as4.net-1.1.0.zip). The documentation on how to use and configure AS4.NET can be found in the documentation folder of the package.
+AS4.NET v2.0.0 can be downloaded from [the following location](https://ec.europa.eu/cefdigital/artifact/content/repositories/eDelivery/eu/eessi/as4/eessi_as4.net/1.1.0/eessi_as4.net-1.1.0.zip). The documentation on how to use and configure AS4.NET can be found in the documentation folder of the package.
 
 # Third Party software
 The following third party libraries are used by AS4.NET:
