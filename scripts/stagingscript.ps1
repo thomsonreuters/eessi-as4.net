@@ -28,7 +28,7 @@ MkDir .\Staging\x64
 MkDir .\Staging\x86
 
 Remove-Item .\*.pdb
-Remove-Item .\*.xml
+Remove-Item .\*.xml -exclude Eu.EDelivery.AS4.Fe.xml
 Remove-Item .\xunit*.*
 If (Test-Path .\users.sqlite ) {
 	Remove-Item .\users.sqlite
