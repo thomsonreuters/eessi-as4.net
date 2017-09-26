@@ -223,6 +223,7 @@
     <Compile Include="Agents\GivenAgentFacts.cs" />
     <Compile Include="Agents\GivenAgentProviderFacts.cs" />
     <Compile Include="Agents\GivenDefaultAgentStepRegistryFacts.cs" />
+    <Compile Include="Agents\GivenDefaultAgentTransformerRegistryFacts.cs" />
     <Compile Include="Agents\SpyAgent.cs" />
     <Compile Include="Entities\GivenExceptionEntityPersitenceFacts.cs" />
     <Compile Include="Entities\GivenInMessageEntityFacts.cs" />

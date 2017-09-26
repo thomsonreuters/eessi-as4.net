@@ -24,8 +24,8 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
             TransformerRegistry.Add(AgentType.PullSend, new Transformer { Type = typeof(AS4MessageTransformer).AssemblyQualifiedName });
             TransformerRegistry.Add(AgentType.Receive, new Transformer { Type = typeof(ReceiveMessageTransformer).AssemblyQualifiedName });
             TransformerRegistry.Add(AgentType.Notify, new Transformer { Type = typeof(NotifyMessageTransformer).AssemblyQualifiedName });
-            TransformerRegistry.Add(AgentType.Deliver, new Transformer { Type = typeof(DeliverMessageTransformer).AssemblyQualifiedName });
             TransformerRegistry.Add(AgentType.Forward, new Transformer { Type = typeof(ForwardMessageTransformer).AssemblyQualifiedName });
+            TransformerRegistry.Add(AgentType.PullReceive, new Transformer { Type = typeof(PModeToPullRequestTransformer).AssemblyQualifiedName });
         }
 
         internal static Transformer GetDefaultTransformerFor(AgentType agentType)
