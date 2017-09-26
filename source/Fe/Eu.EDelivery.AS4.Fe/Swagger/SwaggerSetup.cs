@@ -48,8 +48,10 @@ namespace Eu.EDelivery.AS4.Fe.Swagger
 
         private string GetXmlCommentsPath()
         {
+            const string xml = "Eu.EDelivery.AS4.Fe.xml";
             ApplicationEnvironment app = PlatformServices.Default.Application;
-            return Path.Combine(app.ApplicationBasePath, "Eu.EDelivery.AS4.Fe.xml");
+            var binPath = Path.Combine(app.ApplicationBasePath, "bin", xml);
+            return File.Exists(binPath) ? binPath : Path.Combine(app.ApplicationBasePath, xml);
         }
     }
 }
