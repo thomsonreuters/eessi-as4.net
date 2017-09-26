@@ -1,22 +1,22 @@
-﻿using System;
+using System;
 using Eu.EDelivery.AS4.Agents;
 using Eu.EDelivery.AS4.ServiceHandler.Agents;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Agents
 {
-    public class GivenDefaultAgentStepRegistryFacts
+    public class GivenDefaultAgentTransformerRegistryFacts
     {
         [Fact]
-        public void RegistryContainsDefaultConfigurationForAllAgentTypes()
+        public void RegistryContainsDefaultTransformerForAllAgentTypes()
         {
             var agentTypes = (AgentType[])Enum.GetValues(typeof(AgentType));
 
             foreach (var agentType in agentTypes)
-            {
-                var config = AgentProvider.GetDefaultStepConfigurationForAgentType(agentType);
+            {                
+                var transformer = AgentProvider.GetDefaultTransformerForAgentType(agentType);
 
-                Assert.NotNull(config);
+                Assert.NotNull(transformer);
             }
         }
     }
