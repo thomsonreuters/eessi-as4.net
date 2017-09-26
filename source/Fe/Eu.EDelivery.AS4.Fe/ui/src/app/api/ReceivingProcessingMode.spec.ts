@@ -24,18 +24,10 @@ describe('Receiving processing mode', () => {
     }));
     it('should set default values when a new one is created', inject([FormBuilder], (formBuilder: FormBuilder) => {
         let form = ReceivingProcessingModeForm.getForm(formBuilder, null);
-
-        expect(form.get(ReceivingProcessingMode.FIELD_mep).value).toBe(0);
-        expect(form.get(ReceivingProcessingMode.FIELD_mepBinding).value).toBe(1);
     }));
     it('should have the correct value when a value is used', inject([FormBuilder], (formBuilder: FormBuilder) => {
         let data = new ReceivingProcessingMode();
         data.mep = 1;
-        data.mepBinding = 0;
-        let form = ReceivingProcessingModeForm.getForm(formBuilder, data);
-
-        expect(form.get(ReceivingProcessingMode.FIELD_mep).value).toBe(1);
-        expect(form.get(ReceivingProcessingMode.FIELD_mepBinding).value).toBe(0);
     }));
 });
 

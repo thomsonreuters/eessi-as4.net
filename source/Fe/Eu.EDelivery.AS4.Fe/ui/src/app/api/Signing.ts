@@ -4,16 +4,17 @@ import { FormBuilder, FormGroup, FormArray } from '@angular/forms';
 
 export class Signing {
 	isEnabled: boolean;
-	privateKeyFindValue: string;
-	privateKeyFindType: number;
 	keyReferenceMethod: number;
+	signingCertificateInformation: {
+		certificateFindType: number,
+		certificateFindValue: string
+	};
 	algorithm: string;
 	hashFunction: string;
 
 	static FIELD_isEnabled: string = 'isEnabled';
-	static FIELD_privateKeyFindValue: string = 'privateKeyFindValue';
-	static FIELD_privateKeyFindType: string = 'privateKeyFindType';
+	static FIELD_signingCertificateInformation: string = 'signingCertificateInformation';
 	static FIELD_keyReferenceMethod: string = 'keyReferenceMethod';
 	static FIELD_algorithm: string = 'algorithm';
-	static FIELD_hashFunction: string = 'hashFunction';	
+	static FIELD_hashFunction: string = 'hashFunction';
 }

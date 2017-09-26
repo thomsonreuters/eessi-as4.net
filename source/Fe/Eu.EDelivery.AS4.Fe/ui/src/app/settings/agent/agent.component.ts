@@ -6,6 +6,8 @@ import { Component, Input, OnDestroy, ViewChild, ElementRef, NgZone, OnInit } fr
 import { Subscription } from 'rxjs/Subscription';
 import { NgForm, FormBuilder, FormGroup, FormArray } from '@angular/forms';
 
+import 'rxjs/add/operator/combineLatest';
+
 import { ModalService } from './../../common/modal/modal.service';
 import { RuntimeStore } from '../runtime.store';
 import { Setting } from './../../api/Setting';
@@ -102,7 +104,9 @@ export class AgentSettingsComponent implements OnDestroy, CanComponentDeactivate
                         this.currentAgent = agent;
                         this.currentAgent!.name = this.newName;
                         this.settingsStore.addAgent(this.agent, this.currentAgent!);
-                        this.form = SettingsAgentForm.getForm(this._formWrapper, this.currentAgent).build(!!!this.currentAgent);
+                        this.form = SettingsAgentForm.getForm(this._formWrapper, this.currentAgent).build(true);
+                        this.form.markAsDirty();
+                        setTimeout(() => this.form.enable());
                     };
 
                     let newAgent: SettingsAgent;
@@ -110,12 +114,13 @@ export class AgentSettingsComponent implements OnDestroy, CanComponentDeactivate
                         newAgent = <SettingsAgent>Object.assign({}, this.settings.find((agt) => agt.name === this.actionType));
                     } else {
                         newAgent = new SettingsAgent();
-
-                        // Get the default agent steps
-                        this.settingsService
-                            .getDefaultAgentSteps(this.beType)
-                            .subscribe((result) => {
-                                newAgent.stepConfiguration = result;
+                        const defaultTransformer = this.settingsService.getDefaultAgentTransformer(this.beType);
+                        const defaultSteps = this.settingsService.getDefaultAgentSteps(this.beType);
+                        Observable
+                            .combineLatest(defaultTransformer, defaultSteps)
+                            .subscribe(([transformer, steps]) => {
+                                newAgent.stepConfiguration = steps;
+                                newAgent.transformer = transformer;
                                 setupCurrent(newAgent);
                             });
                         return;
@@ -139,9 +144,8 @@ export class AgentSettingsComponent implements OnDestroy, CanComponentDeactivate
                 .subscribe(() => {
                     if (this.isNewMode) {
                         this.settings = this.settings.filter((agent) => agent !== this.currentAgent);
-                    } else {
-                        select();
                     }
+                    select();
                 });
 
             return false;

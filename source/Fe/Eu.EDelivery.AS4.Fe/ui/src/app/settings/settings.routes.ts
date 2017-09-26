@@ -13,13 +13,13 @@ export const ROUTES: Routes = [
     {
         path: 'submit',
         component: WrapperComponent, children: [
-            { path: '', component: AgentSettingsComponent, data: { title: 'Submit Agents', type: 'submitAgents', icon: 'fa-cloud-upload', weight: -10 }, canActivate: [MustBeAuthorizedGuard], canDeactivate: [CanDeactivateGuard] },
+            { path: '', component: AgentSettingsComponent, data: { title: 'Submit Agents', type: 'submitAgents', icon: 'fa-cloud-upload', weight: -10, betype: 0 }, canActivate: [MustBeAuthorizedGuard], canDeactivate: [CanDeactivateGuard] },
         ]
     },
     {
         path: 'receive',
         component: WrapperComponent, children: [
-            { path: '', component: AgentSettingsComponent, data: { title: 'Receive Agents', type: 'receiveAgents', icon: 'fa-cloud-download', weight: -9 }, canActivate: [MustBeAuthorizedGuard], canDeactivate: [CanDeactivateGuard] },
+            { path: '', component: AgentSettingsComponent, data: { title: 'Receive Agents', type: 'receiveAgents', icon: 'fa-cloud-download', weight: -9, betype: 1 }, canActivate: [MustBeAuthorizedGuard], canDeactivate: [CanDeactivateGuard] },
         ]
     },
     {

@@ -6,6 +6,21 @@ import 'rxjs/add/operator/distinctUntilChanged';
 import { jsonAccessor } from '../common/jsonAccessor';
 import { ItemType } from './../api/ItemType';
 
+function byString(o, s): any {
+    s = s.replace(/\[(\w+)\]/g, '.$1'); // convert indexes to properties
+    s = s.replace(/^\./, '');           // strip a leading dot
+    let a = s.split('.');
+    for (let i = 0, n = a.length; i < n; ++i) {
+        let k = a[i];
+        if (k in o) {
+            o = o[k];
+        } else {
+            return;
+        }
+    }
+    return o;
+}
+
 @Injectable()
 export class FormBuilderExtended {
     constructor(private formBuilder: FormBuilder, private injector: Injector) { }
@@ -28,7 +43,7 @@ export class FormWrapper {
     }
     public createFieldValue(current: any, field: string, path: string, defaultValue: any = null, itemTypes: ItemType[]): any {
         const fullPath = `${path.toLocaleLowerCase()}.${field.toLowerCase()}`;
-        let result = current == null || current[field] == null ? itemTypes[fullPath] === undefined ? defaultValue : itemTypes[fullPath].defaultvalue : current[field];
+        let result = current == null || byString(current, field) == null ? itemTypes[fullPath] === undefined ? defaultValue : itemTypes[fullPath].defaultvalue : byString(current, field);
         return result;
     }
     public subForm(field: string): FormWrapper {

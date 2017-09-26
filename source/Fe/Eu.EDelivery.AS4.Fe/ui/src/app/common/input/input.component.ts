@@ -28,7 +28,7 @@ export class InputComponent implements OnInit {
     @Input() public label: string;
     @Input() public isLabelBold: boolean = true;
     @Input() public labelSize: number = 3;
-    @Input() public controlSize: number = 9;
+    @Input() public controlSize: number = 6;
     @Input() public showLabel: boolean = true;
     @Input() public tooltip: string;
     @Input() public formGroupName: string;

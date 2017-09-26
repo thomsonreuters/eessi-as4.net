@@ -195,6 +195,19 @@ namespace Eu.EDelivery.AS4.Fe.Controllers
         }
 
         /// <summary>
+        /// Gets the default agent transformer.
+        /// </summary>
+        /// <param name="agentType">Type of the agent.</param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("defaultagenttransformer/{agentType}")]
+        public IActionResult GetDefaultAgentTransformer(AgentType agentType)
+        {
+            var transformer = AgentProvider.GetDefaultTransformerForAgentType(agentType);
+            return new OkObjectResult(transformer);
+        }
+
+        /// <summary>
         /// Create a submit agent
         /// </summary>
         /// <param name="settingsAgent">The submit agent agent.</param>

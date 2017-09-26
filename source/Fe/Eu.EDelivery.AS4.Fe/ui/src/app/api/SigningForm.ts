@@ -10,8 +10,10 @@ export class SigningForm {
         let form = formBuilder
             .group({
                 [Signing.FIELD_isEnabled]: [formBuilder.createFieldValue(current, Signing.FIELD_isEnabled, path, false, runtime)],
-                [Signing.FIELD_privateKeyFindType]: [formBuilder.createFieldValue(current, Signing.FIELD_privateKeyFindType, path, 0, runtime), Validators.required],
-                [Signing.FIELD_privateKeyFindValue]: [formBuilder.createFieldValue(current, Signing.FIELD_privateKeyFindValue, path, 0, runtime), Validators.required],
+                [Signing.FIELD_signingCertificateInformation]: formBuilder.formBuilder.group({
+                    certificateFindType: [formBuilder.createFieldValue(current, Signing.FIELD_signingCertificateInformation + '.certificateFindType', path, 0, runtime)],
+                    certificateFindValue: [formBuilder.createFieldValue(current, Signing.FIELD_signingCertificateInformation + '.certificateFindValue', path, 0, runtime)]
+                }),
                 [Signing.FIELD_keyReferenceMethod]: [formBuilder.createFieldValue(current, Signing.FIELD_keyReferenceMethod, path, 0, runtime), Validators.required],
                 [Signing.FIELD_algorithm]: [formBuilder.createFieldValue(current, Signing.FIELD_algorithm, path, 0, runtime), Validators.required],
                 [Signing.FIELD_hashFunction]: [formBuilder.createFieldValue(current, Signing.FIELD_hashFunction, path, 0, runtime), Validators.required]
@@ -23,19 +25,25 @@ export class SigningForm {
                     wrapper.disable([Signing.FIELD_isEnabled]);
                 }
             })
-            .onChange<number>(Signing.FIELD_privateKeyFindType, (result, wrapper) => {
-                const value = wrapper.form!.get(Signing.FIELD_privateKeyFindValue)!;
-
-                value.clearValidators();
-                if (+result === 0) {
-                    value.setValidators([Validators.required, thumbPrintValidation]);
-                } else {
-                    value.setValidators(Validators.required);
-                }
-                value.updateValueAndValidity();
-            })
-            .triggerHandler(Signing.FIELD_privateKeyFindType, current && current.privateKeyFindType)
             .triggerHandler(Signing.FIELD_isEnabled, current && current.isEnabled);
+        form.form
+            .get(Signing.FIELD_signingCertificateInformation + '.certificateFindType')!
+            .valueChanges
+            .distinctUntilChanged()
+            .subscribe((result) => {
+                const findType = formBuilder.form!.get(Signing.FIELD_signingCertificateInformation + '.certificateFindType')!;
+                const findValue = formBuilder.form!.get(Signing.FIELD_signingCertificateInformation + '.certificateFindValue')!;
+                if (!!!findType) {
+                    return;
+                }
+                findValue.clearValidators();
+                if (+result === 0) {
+                    findValue.setValidators([Validators.required, thumbPrintValidation]);
+                } else {
+                    findValue.setValidators(Validators.required);
+                }
+                findValue.updateValueAndValidity();
+            });
         return form;
     }
 }
