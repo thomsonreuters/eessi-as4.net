@@ -35,7 +35,7 @@ export class AuthorizationMapComponent implements CanComponentDeactivate {
         return this.form.dirty;
     }
 
-    public add(entry: PullRequestAuthorizationEntry | null) {
+    public add(entry: PullRequestAuthorizationEntry | null = null) {
         this.form.push(this._formBuilder.group({
             mpc: [!!entry ? entry.mpc : null, Validators.required],
             certificateThumbprint: [!!entry ? entry.certificateThumbprint : null, Validators.compose([thumbPrintValidation, Validators.required])],
