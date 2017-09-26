@@ -5,7 +5,6 @@ import { RuntimeService } from './settings/runtime.service';
 import { AuthenticationStore } from './authentication/authentication.store';
 import { SendingPmodeService } from './pmodes/sendingpmode.service';
 import { ReceivingPmodeService } from './pmodes/receivingpmode.service';
-import { ErrorDialogComponent } from './common/errorDialog/errorDialog.component';
 import { SettingsService } from './settings/settings.service';
 import { DialogService } from './common/dialog.service';
 import { ModalService } from './common/modal/modal.service';

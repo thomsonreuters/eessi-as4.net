@@ -3,7 +3,6 @@ import { Observable } from 'rxjs/Observable';
 import { Injectable, ComponentFactoryResolver, Type, ViewContainerRef, Injector, SkipSelf, Host, forwardRef, Inject } from '@angular/core';
 
 import { ModalComponent } from './modal.component';
-import { ErrorDialogComponent } from './../errorDialog/errorDialog.component';
 
 @Injectable()
 export class ModalService {
