@@ -10,8 +10,6 @@ import { MessageHandling } from './MessageHandling';
 
 export class ReceivingProcessingMode {
     id: string;
-    mep: number;
-    mepBinding: number;
     reliability: ReceiveReliability = new ReceiveReliability();
     replyHandling: ReplyHandlingSetting = new ReplyHandlingSetting();
     exceptionHandling: Receivehandling = new Receivehandling();
@@ -21,8 +19,6 @@ export class ReceivingProcessingMode {
     messageHandling: MessageHandling = new MessageHandling();
 
     static FIELD_id: string = 'id';
-    static FIELD_mep: string = 'mep';
-    static FIELD_mepBinding: string = 'mepBinding';
     static FIELD_reliability: string = 'reliability';
     static FIELD_replyHandling: string = 'replyHandling';
     static FIELD_exceptionHandling: string = 'exceptionHandling';

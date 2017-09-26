@@ -1,3 +1,4 @@
+import { Transformer } from './../api/Transformer';
 import { Injectable } from '@angular/core';
 import { AuthHttp } from 'angular2-jwt';
 import { Observable } from 'rxjs/Observable';
@@ -73,6 +74,12 @@ export class SettingsService implements ISettingsService {
         return this
             .http
             .get(this.getUrl('defaultagentsteps') + '/' + agentType)
+            .map((result) => result.json());
+    }
+    public getDefaultAgentTransformer(agentType: number): Observable<Transformer> {
+        return this
+            .http
+            .get(this.getUrl('defaultagenttransformer') + '/' + agentType)
             .map((result) => result.json());
     }
     public createAgent(settings: SettingsAgent, agent: string): Observable<boolean> {

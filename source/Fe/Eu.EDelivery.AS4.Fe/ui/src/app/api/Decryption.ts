@@ -3,10 +3,11 @@ import { FormBuilder, FormGroup, FormArray, FormControl, AbstractControl } from 
 
 export class Decryption {
     encryption: number;
-    privateKeyFindValue: string;
-    privateKeyFindType: number;
+    decryptCertificateInformation: {
+        certificateFindType: string,
+        certificateFindValue: string
+    };
 
     static FIELD_encryption: string = 'encryption';
-    static FIELD_privateKeyFindValue: string = 'privateKeyFindValue';
-    static FIELD_privateKeyFindType: string = 'privateKeyFindType';   
+    static FIELD_decryptCertificateInformation: string = 'decryptCertificateInformation';
 }

@@ -20,7 +20,7 @@ namespace Eu.EDelivery.AS4.Fe.Pmodes.Model
         /// </value>
         public override SendingProcessingMode Pmode
         {
-            get { return pmode; }
+            get => pmode;
             set
             {
                 pmode = value;
@@ -29,6 +29,9 @@ namespace Eu.EDelivery.AS4.Fe.Pmodes.Model
                     if (json["certificate"] != null) value.Security.Encryption.EncryptionCertificateInformation = json.ToObject<PublicKeyCertificate>();
                     else value.Security.Encryption.EncryptionCertificateInformation = json.ToObject<CertificateFindCriteria>();
                 }
+
+                if (value?.Security?.Signing?.SigningCertificateInformation == null || !(value.Security.Signing.SigningCertificateInformation is JObject signing)) return;
+                value.Security.Signing.SigningCertificateInformation = signing.ToObject<CertificateFindCriteria>();
 
                 if (value?.MepBinding == MessageExchangePatternBinding.Pull)
                 {
