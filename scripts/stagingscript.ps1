@@ -28,7 +28,7 @@ MkDir .\Staging\x64
 MkDir .\Staging\x86
 
 Remove-Item .\*.pdb
-Remove-Item .\*.xml -exclude Eu.EDelivery.AS4.Fe.xml
+Remove-Item .\*.xml -exclude Eu.EDelivery.AS4.Fe.xml,Eu.EDelivery.AS4.PayloayService.xml
 Remove-Item .\xunit*.*
 If (Test-Path .\users.sqlite ) {
 	Remove-Item .\users.sqlite
@@ -45,6 +45,7 @@ Copy-Item -Path .\Eu.EDelivery.AS4.Fe.exe .\Staging\bin\
 Copy-Item -Path .\Eu.EDelivery.AS4.Fe.exe.config .\Staging\bin\
 Copy-Item -Path .\Eu.EDelivery.AS4.Fe.xml .\Staging\bin\
 Copy-Item -Path .\Eu.EDelivery.AS4.PayloadService.exe .\Staging\bin\
+Copy-Item -Path .\Eu.EDelivery.AS4.PayloadService.xml .\Staging\bin\
 Copy-Item -Path .\appsettings.payloadservice.json .\Staging\bin\
 
 
