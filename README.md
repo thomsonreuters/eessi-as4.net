@@ -1,7 +1,10 @@
 # AS4.NET
 AS4.NET is an open-source application that implements the OASIS AS4 specification. It supports both the e-SENS e-Delivery and the EESSI AS4 Messaging profile as an ebMS endpoint.   
  
-The component has been conformance and interop tested against the e-SENS eDelivery specifications.  
+The component has been conformance tested against the e-SENS eDelivery specifications.  
+
+AS4.NET is interoperable with multiple other AS4 gateway providers; AS4.NET has undergone performance and interop-tests against Holodeck B2B, RSSBus, Domibus, Flame Message Server and IBM B2B.
+
 Basic testing against the EESSI AS4 Messaging profile is already covered. Extensive testing is scheduled later this year.
 
 # Features
@@ -25,11 +28,20 @@ Basic testing against the EESSI AS4 Messaging profile is already covered. Extens
 - Performance tuning for large messages, up to 2GB (v1.1)
 - Performance tuning for high volume processing (v1.1) 
 
-- Web interface for configuration and monitoring (v2.0)
+- Web interface for configuration (v2.0)
+- Web interface for monitoring (v2.0)
+- Web interface for user management (v2.0)
+- Web interface for testing (v2.0)
 - One-Way/Pull pattern as responder (v2.0)
-- Support for Message Forwarding (v2.0)
-- Support for authorization check of received PullRequest signal-messages (v2.0)
-- Support for SMP/SML Dynamic Discovery (v2.0)
+- Support for sub-channels (v2.0)
+- Support for message forwarding (v2.0)
+- Support for MEP bridging (v2.0)
+- Support for PullRequest authorization (v2.0)
+- Support for SMP/SML dynamic discovery (v2.0)
+- Support for TLS server side (v2.0)
+- Continued performance tuning for large messages, up to 2GB (v2.0)
+- Continued performance tuning for high volume processing (v2.0)
+- Improvements to the internal messaging engine (v2.0)
  
 
 # Installation
