@@ -42,6 +42,9 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
             EnsureDirectory(_destinationPath);
 
             string location = CombineDestinationFullName(deliverMessage.MessageInfo.MessageId, _destinationPath);
+
+            Logger.Trace($"Sending DeliverMessage to {location}");
+
             await WriteContentsToFile(location, deliverMessage.DeliverMessage).ConfigureAwait(false);
 
             Logger.Info($"DeliverMessage {deliverMessage.MessageInfo.MessageId} is successfully Send to: {location}");
@@ -56,6 +59,9 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
             EnsureDirectory(_destinationPath);
 
             string location = CombineDestinationFullName(notifyMessage.MessageInfo.MessageId, _destinationPath);
+
+            Logger.Trace($"Sending NotifyMessage to {location}");
+
             await WriteContentsToFile(location, notifyMessage.NotifyMessage).ConfigureAwait(false);
 
             Logger.Info($"NotifyMessage {notifyMessage.MessageInfo.MessageId} is successfully Send to: {location}");
