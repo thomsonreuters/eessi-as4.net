@@ -186,7 +186,14 @@ namespace Eu.EDelivery.AS4.Serialization
 
         private static async Task<Stream> CopyEnvelopeStream(Stream envelopeStream)
         {
-            Stream stream = new MemoryStream();
+            int initialCapacity = 4196;
+
+            if (envelopeStream.CanSeek)
+            {
+                initialCapacity = (int)envelopeStream.Length;
+            }
+
+            Stream stream = new MemoryStream(initialCapacity);
 
             await envelopeStream.CopyToAsync(stream).ConfigureAwait(false);
             stream.Position = 0;

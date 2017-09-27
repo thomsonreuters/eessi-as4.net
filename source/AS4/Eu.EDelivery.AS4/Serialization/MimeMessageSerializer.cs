@@ -55,7 +55,7 @@ namespace Eu.EDelivery.AS4.Serialization
 
         private void SerializeToMimeStream(AS4Message message, Stream stream, CancellationToken cancellationToken)
         {
-            using (var bodyPartStream = new MemoryStream())
+            using (var bodyPartStream = new MemoryStream(4196))
             {
                 _soapSerializer.Serialize(message, bodyPartStream, cancellationToken);
 
