@@ -6,7 +6,7 @@
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-        <DocumentationFile>..\..\output\payload-service-docs.xml</DocumentationFile>
+        <DocumentationFile>..\..\output\Eu.EDelivery.AS4.PayloayService.xml</DocumentationFile>
         <OutputPath>..\..\output</OutputPath>
         <DefineConstants>TRACE;DEBUG;NET461</DefineConstants>
         <PlatformTarget>x86</PlatformTarget>

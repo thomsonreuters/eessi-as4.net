@@ -90,9 +90,9 @@ namespace Eu.EDelivery.AS4.PayloadService
                 });
         }
 
-        private string GetXmlCommentsPath()
+        private static string GetXmlCommentsPath()
         {
-            const string xml = "payload-service-docs.xml";
+            const string xml = "Eu.EDelivery.AS4.PayloayService.xml";
             ApplicationEnvironment app = PlatformServices.Default.Application;
             var binPath = Path.Combine(app.ApplicationBasePath, "bin", xml);
             return File.Exists(binPath) ? binPath : Path.Combine(app.ApplicationBasePath, xml);
