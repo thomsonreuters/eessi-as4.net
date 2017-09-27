@@ -66,6 +66,9 @@ namespace Eu.EDelivery.AS4.Steps.Notify
             }
 
             await SendNotifyMessage(messagingContext).ConfigureAwait(false);
+
+            Logger.Info($"{messagingContext.EbmsMessageId} Notify Message sent");
+
             return await StepResult.SuccessAsync(messagingContext);
         }
 
