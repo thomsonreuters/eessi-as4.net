@@ -33,6 +33,7 @@ import { CanComponentDeactivate } from './../../common/candeactivate.guard';
 export class AgentSettingsComponent implements OnDestroy, CanComponentDeactivate, OnInit {
     public settings: SettingsAgent[] = new Array<SettingsAgent>();
     public collapsed: boolean = true;
+    public showWarning: boolean =false;
 
     public get currentAgent(): SettingsAgent | undefined {
         return this._currentAgent;
@@ -64,6 +65,7 @@ export class AgentSettingsComponent implements OnDestroy, CanComponentDeactivate
             this.collapsed = false;
             this.agent = this.activatedRoute.snapshot.data['type'];
             this.beType = this.activatedRoute.snapshot.data['betype'];
+            this.showWarning = this.activatedRoute.snapshot.data['showwarning'];
         }
     }
     public ngOnInit() {

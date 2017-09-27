@@ -8,11 +8,15 @@
         <form [formGroup]="form" class="form-horizontal">
             <h3>Authentication setup</h3>
             <p>Following passwords are required to setup the default users.</p>
-            <as4-input label="Admin password">
+            <as4-input label="Admin user password">
                 <input type="password" formControlName="adminPassword">
+                <as4-password [invalid]="!form.controls['adminPassword'].valid"></as4-password>
             </as4-input>
-            <as4-input label="Readonly password">
+            <as4-input label="Readonly user password">
                 <input type="password" formControlName="readonlyPassword">
+                <div class="alert alert-danger" *ngIf="!form.controls['readonlyPassword'].valid">
+                    <as4-password [invalid]="!form.controls['readonlyPassword'].valid"></as4-password>
+                </div>
             </as4-input>
             <h3>JWT</h3>
             <p>To sign the JWT tokens, a key is required. Please enter or generate a key.</p>

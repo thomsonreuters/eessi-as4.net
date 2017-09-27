@@ -10,10 +10,8 @@
 @import './mixins.scss';
 @import './datetimepicker.scss';
 @import './select2.scss';
-
 $focusColor: #3c8dbc;
 $borderColor: #d2d6de;
-
 .completer-dropdown-holder {
     z-index: 20000;
 }
@@ -74,5 +72,12 @@ div {
             width: 25%;
             padding-right: 23px;
         }
+    }
+}
+
+.alert {
+    border-radius: 0 !important;
+    &.alert-danger {
+        margin-top: 2px;
     }
 }

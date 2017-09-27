@@ -26,6 +26,7 @@
             <div tabitem title="Common" [isValid]="!form.enabled || form.valid">
                 <as4-input label="Password">
                     <input type="password" class="form-control" formControlName="password" />
+                    <as4-password [invalid]="!form.controls['password'].valid && form.controls['password'].touched"></as4-password>
                     <i *ngIf="!!currentUser && !isNew">Leave this field blank to keep the same password.</i>
                 </as4-input>
                 <as4-input label="Role">

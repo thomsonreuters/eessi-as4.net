@@ -1,3 +1,4 @@
+<div class="alert alert-danger" *ngIf="showWarning">These agents are only for internal usage. Change them at your own risk!</div>
 <as4-modal name="new-agent" title="Create a new agent" (shown)="actionType = settings[0]?.name; newName = ''; nameInput.focus()">
     <form class="form-horizontal">
         <div class="form-group">

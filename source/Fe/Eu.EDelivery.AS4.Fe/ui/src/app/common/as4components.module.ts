@@ -50,6 +50,7 @@ import { GetItemTypePropertyPipe, GetTypePipe } from './getitemtypeproperty.pipe
 import { RuntimetoolTipDirective } from './runtimetooltip.directive';
 import { Select2Component } from './select2/select2.component';
 import { ThumbprintValidatorDirective } from './thumbprintInput/validator';
+import { PasswordComponent } from './password/password.component';
 
 import { Select2Module } from 'ng2-select2';
 
@@ -88,7 +89,8 @@ const components: any = [
     ThumbprintInputComponent,
     ClipboardComponent,
     TimeInputComponent,
-    Select2Component
+    Select2Component,
+    PasswordComponent
 ];
 
 const directives: any = [
@@ -183,7 +185,8 @@ const services: any = [
         GetTypePipe,
         RuntimetoolTipDirective,
         Select2Component,
-        ThumbprintValidatorDirective
+        ThumbprintValidatorDirective,
+        PasswordComponent
     ],
     imports: [
         ClipboardModule,
