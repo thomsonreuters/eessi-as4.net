@@ -1,9 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using AutoMapper;
 using Eu.EDelivery.AS4.Model.Core;
+using Eu.EDelivery.AS4.Singletons;
+using Eu.EDelivery.AS4.Xml;
+using MessagePartNRInformation = Eu.EDelivery.AS4.Model.Core.MessagePartNRInformation;
 
 namespace Eu.EDelivery.AS4.Mappings.Core
 {
@@ -57,7 +58,9 @@ namespace Eu.EDelivery.AS4.Mappings.Core
                 .ForMember(dest => dest.MessagePartNRInformation, src => src.MapFrom(t => t.MessagePartNRInformation ?? new Xml.MessagePartNRInformation[] { }));
 
             CreateMap<Xml.MessagePartNRInformation, Model.Core.MessagePartNRInformation>()
-                .ForMember(dest => dest.Reference, src => src.MapFrom(t => t.Item));
+                .ForMember(dest => dest.Reference,
+                           opt => opt.ResolveUsing(src => src.Item is ReferenceType ? AS4Mapper.Map<Reference>(src.Item) : new Reference()));
+
 
             CreateMap<Xml.ReferenceType, Model.Core.Reference>()
                 .ForMember(dest => dest.Transforms, src => src.MapFrom(t => t.Transforms))
