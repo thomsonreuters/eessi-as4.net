@@ -16,8 +16,6 @@ namespace Eu.EDelivery.AS4.Serialization
     /// </summary>
     public static class AS4XmlSerializer
     {
-        private const int DefaultCapacity = 4096;
-
         private static readonly IDictionary<Type, XmlSerializer> Serializers =
             new ConcurrentDictionary<Type, XmlSerializer>();
 
@@ -55,7 +53,7 @@ namespace Eu.EDelivery.AS4.Serialization
         /// <returns></returns>
         public static string ToString<T>(T data)
         {
-            using (var stream = new MemoryStream(DefaultCapacity))
+            using (var stream = new MemoryStream())
             {
                 using (XmlWriter xmlWriter = XmlWriter.Create(stream, DefaultXmlWriterSettings))
                 {
@@ -133,7 +131,7 @@ namespace Eu.EDelivery.AS4.Serialization
             CancellationToken cancellation,
             Func<MemoryStream, T> handling)
         {
-            using (var messageStream = new MemoryStream(DefaultCapacity))
+            using (var messageStream = new MemoryStream())
             {
                 var serializer = new SoapEnvelopeSerializer();
                 serializer.Serialize(message, messageStream, cancellation);
