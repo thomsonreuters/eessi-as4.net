@@ -102,8 +102,8 @@ namespace Eu.EDelivery.AS4.Repositories
         /// <param name="inMessage"></param>
         public void InsertInMessage(InMessage inMessage)
         {
-            inMessage.InsertionTime = DateTimeOffset.UtcNow;
-            inMessage.ModificationTime = DateTimeOffset.UtcNow;
+            inMessage.InsertionTime = DateTimeOffset.Now;
+            inMessage.ModificationTime = DateTimeOffset.Now;
 
             if (String.IsNullOrWhiteSpace(inMessage.MessageLocation))
             {
@@ -232,8 +232,8 @@ namespace Eu.EDelivery.AS4.Repositories
         /// <param name="outMessage"></param>        
         public void InsertOutMessage(OutMessage outMessage)
         {
-            outMessage.InsertionTime = DateTimeOffset.UtcNow;
-            outMessage.ModificationTime = DateTimeOffset.UtcNow;
+            outMessage.InsertionTime = DateTimeOffset.Now;
+            outMessage.ModificationTime = DateTimeOffset.Now;
 
             if (String.IsNullOrWhiteSpace(outMessage.MessageLocation))
             {
@@ -401,8 +401,8 @@ namespace Eu.EDelivery.AS4.Repositories
         /// <param name="outException"></param>
         public void InsertOutException(OutException outException)
         {
-            outException.InsertionTime = DateTimeOffset.UtcNow;
-            outException.ModificationTime = DateTimeOffset.UtcNow;
+            outException.InsertionTime = DateTimeOffset.Now;
+            outException.ModificationTime = DateTimeOffset.Now;
 
             _datastoreContext.OutExceptions.Add(outException);
         }
@@ -435,8 +435,8 @@ namespace Eu.EDelivery.AS4.Repositories
         /// <param name="inException"></param>
         public void InsertInException(InException inException)
         {
-            inException.ModificationTime = DateTimeOffset.UtcNow;
-            inException.InsertionTime = DateTimeOffset.UtcNow;
+            inException.ModificationTime = DateTimeOffset.Now;
+            inException.InsertionTime = DateTimeOffset.Now;
 
             _datastoreContext.InExceptions.Add(inException);
         }
