@@ -28,7 +28,7 @@ namespace Eu.EDelivery.AS4.Fe.Authentication
             services
                 .AddIdentity<ApplicationUser, IdentityRole>(options =>
                 {
-
+                    options.Password.RequireNonAlphanumeric = false;
                 })
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
