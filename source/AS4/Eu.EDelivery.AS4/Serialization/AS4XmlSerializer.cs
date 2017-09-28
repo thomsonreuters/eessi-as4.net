@@ -16,7 +16,7 @@ namespace Eu.EDelivery.AS4.Serialization
     /// </summary>
     public static class AS4XmlSerializer
     {
-        private const int DefaultCapacity = 4196;
+        private const int DefaultCapacity = 4096;
 
         private static readonly IDictionary<Type, XmlSerializer> Serializers =
             new ConcurrentDictionary<Type, XmlSerializer>();
