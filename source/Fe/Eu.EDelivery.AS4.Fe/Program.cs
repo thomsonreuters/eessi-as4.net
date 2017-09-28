@@ -64,6 +64,7 @@ namespace Eu.EDelivery.AS4.Fe
         {
             var config = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
+
                 .AddJsonFile(isInProcess ? "./bin/appsettings.inprocess.json" : "./bin/appsettings.json", true)
                 .AddJsonFile(isInProcess ? "appsettings.inprocess.json" : "appsettings.json", true)
                 .Build();

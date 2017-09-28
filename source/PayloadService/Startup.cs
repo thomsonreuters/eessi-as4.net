@@ -24,7 +24,9 @@ namespace Eu.EDelivery.AS4.PayloadService
         {
             IConfigurationBuilder builder =
                 new ConfigurationBuilder().SetBasePath(env.ContentRootPath)
-                                          .AddJsonFile("appsettings.json", false, true)
+                                          .AddJsonFile("./bin/appsettings.json", true)
+                                          .AddJsonFile($"./bin/appsettings.{env.EnvironmentName}.json", true)
+                                          .AddJsonFile("appsettings.json", true)
                                           .AddJsonFile($"appsettings.{env.EnvironmentName}.json", true)
                                           .AddEnvironmentVariables();
 
@@ -76,7 +78,7 @@ namespace Eu.EDelivery.AS4.PayloadService
                             Version = $"v{AssemblyVersion}",
                             Description = "A Web API to upload and download payloads in a persistent manner.",
                             TermsOfService = "None",
-                            Contact = new Contact {Name = "DG EMPL" },
+                            Contact = new Contact { Name = "DG EMPL" },
                             License =
                                 new License
                                 {
