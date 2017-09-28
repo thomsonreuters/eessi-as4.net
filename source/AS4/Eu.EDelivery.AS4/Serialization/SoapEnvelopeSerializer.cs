@@ -186,7 +186,7 @@ namespace Eu.EDelivery.AS4.Serialization
 
         private static async Task<Stream> CopyEnvelopeStream(Stream envelopeStream)
         {
-            int initialCapacity = 4196;
+            int initialCapacity = 4096;
 
             if (envelopeStream.CanSeek)
             {
