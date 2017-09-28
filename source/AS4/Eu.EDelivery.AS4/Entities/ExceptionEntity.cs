@@ -67,8 +67,8 @@ namespace Eu.EDelivery.AS4.Entities
         {
             SetOperation(default(Operation));
 
-            InsertionTime = DateTimeOffset.UtcNow;
-            ModificationTime = DateTimeOffset.UtcNow;
+            InsertionTime = DateTimeOffset.Now;
+            ModificationTime = DateTimeOffset.Now;
         }
 
         protected ExceptionEntity(string ebmsRefToMessageId, Exception exception)
