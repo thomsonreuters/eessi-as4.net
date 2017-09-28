@@ -56,7 +56,7 @@ namespace Eu.EDelivery.AS4.Fe
 
         private static string HttpPort(IConfigurationRoot config)
         {
-            var httpPort = config["Url"] ?? "http://0.0.0.0:5000";
+            var httpPort = config["Port"] ?? "http://0.0.0.0:5000";
             return httpPort;
         }
 
@@ -64,6 +64,7 @@ namespace Eu.EDelivery.AS4.Fe
         {
             var config = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile(isInProcess ? "./bin/appsettings.inprocess.json" : "./bin/appsettings.json", true)
                 .AddJsonFile(isInProcess ? "appsettings.inprocess.json" : "appsettings.json", true)
                 .Build();
             return config;
