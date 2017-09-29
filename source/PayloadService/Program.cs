@@ -32,8 +32,8 @@ namespace Eu.EDelivery.AS4.PayloadService
 
             var config = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.payloadservice.json")
-                .AddJsonFile($"appsettings.{hostBuilder.GetSetting("Environment")}.json", true, true)
+                .AddJsonFile("./bin/appsettings.payloadservice.json", true)
+                .AddJsonFile("./appsettings.payloadservice.json", true)
                 .AddEnvironmentVariables()
                 .Build();
 
