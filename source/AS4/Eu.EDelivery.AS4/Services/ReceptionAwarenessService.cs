@@ -152,7 +152,6 @@ namespace Eu.EDelivery.AS4.Services
         /// <param name="awareness">The awareness.</param>
         public void MarkReferencedMessageAsComplete(ReceptionAwareness awareness)
         {
-            Logger.Debug("Message has been answered, marking as complete");
             Logger.Info($"[{awareness.InternalMessageId}] Reception Awareness completed");
 
             UpdateReceptionAwareness(awareness, ReceptionStatus.Completed);
