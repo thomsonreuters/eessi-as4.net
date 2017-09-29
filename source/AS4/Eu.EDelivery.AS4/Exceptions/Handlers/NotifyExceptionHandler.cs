@@ -11,6 +11,8 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
     {
         private readonly Func<DatastoreContext> _createContext;
 
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
         /// <summary>
         /// Initializes a new instance of the <see cref="NotifyExceptionHandler"/> class.
         /// </summary>
@@ -85,6 +87,8 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
 
         private async Task<MessagingContext> HandleNotifyException(Exception exception, MessagingContext context)
         {
+            Logger.Error(exception.Message);
+
             using (var dbContext = _createContext())
             {
                 var repository = new DatastoreRepository(dbContext);

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Eu.EDelivery.AS4.Strategies.Sender;
 using Xunit;
 
@@ -31,6 +32,15 @@ namespace Eu.EDelivery.AS4.UnitTests.Strategies.Sender
             TestProviderReturnsExpectedSender(
                 acceptSender: sender => sut.Accept(s => true, () => sender),
                 getSender: sut.GetNotifySender);
+        }
+
+        [Fact]
+        public void ExceptionIsThrownWhenNoSenderIsConfiguredInProvider()
+        {
+            // Arrange
+            var sut = new NotifySenderProvider();
+
+            Assert.Throws<KeyNotFoundException>(() => sut.GetNotifySender("true"));
         }
 
         private static void TestProviderReturnsExpectedSender<T>(Action<T> acceptSender, Func<string, T> getSender) where T : class
