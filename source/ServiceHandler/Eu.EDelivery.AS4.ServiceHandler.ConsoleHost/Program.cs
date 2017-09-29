@@ -115,8 +115,11 @@ namespace Eu.EDelivery.AS4.ServiceHandler.ConsoleHost
                 return Task.CompletedTask;
             }
 
-            return Task.Factory.StartNew(() => Fe.Program.StartInProcess(cancellationToken), cancellationToken)
-                               .ContinueWith(t => LogExceptions(t), TaskContinuationOptions.OnlyOnFaulted);
+            var frontEndTask = Task.Factory.StartNew(() => Fe.Program.StartInProcess(cancellationToken), cancellationToken);
+
+            frontEndTask.ContinueWith(t => LogExceptions(t), TaskContinuationOptions.OnlyOnFaulted);
+
+            return frontEndTask;            
         }
 
         private static Task StartPayloadServiceInProcess(CancellationToken cancellationToken)
@@ -126,8 +129,11 @@ namespace Eu.EDelivery.AS4.ServiceHandler.ConsoleHost
                 return Task.CompletedTask;
             }
 
-            return Task.Factory.StartNew(() => PayloadService.Program.Start(cancellationToken), cancellationToken)
-                       .ContinueWith((t) => LogExceptions(t), TaskContinuationOptions.OnlyOnFaulted);
+            var payloadServiceTask = Task.Factory.StartNew(() => PayloadService.Program.Start(cancellationToken), cancellationToken);
+
+            payloadServiceTask.ContinueWith(t => LogExceptions(t), TaskContinuationOptions.OnlyOnFaulted);
+
+            return payloadServiceTask;
         }
 
         private static void LogExceptions(Task task)
@@ -143,8 +149,18 @@ namespace Eu.EDelivery.AS4.ServiceHandler.ConsoleHost
 
         private static void StopTask(Task task)
         {
-            task.GetAwaiter().GetResult();
-            task.Dispose();
+            try
+            {
+                task.GetAwaiter().GetResult();
+            }
+            catch (AggregateException exception)
+            {
+                exception.Handle(e => e is TaskCanceledException);
+            }
+            finally
+            {
+                task.Dispose();
+            }
         }
     }
 }
