@@ -115,10 +115,8 @@ namespace Eu.EDelivery.AS4.ServiceHandler.ConsoleHost
                 return Task.CompletedTask;
             }
 
-            return Task.Factory.StartNew(() =>
-            {
-                Fe.Program.StartInProcess(cancellationToken);
-            }, cancellationToken);
+            return Task.Factory.StartNew(() => Fe.Program.StartInProcess(cancellationToken), cancellationToken)
+                               .ContinueWith(t => LogExceptions(t), TaskContinuationOptions.OnlyOnFaulted);
         }
 
         private static Task StartPayloadServiceInProcess(CancellationToken cancellationToken)
@@ -128,7 +126,19 @@ namespace Eu.EDelivery.AS4.ServiceHandler.ConsoleHost
                 return Task.CompletedTask;
             }
 
-            return Task.Factory.StartNew(() => PayloadService.Program.Start(cancellationToken), cancellationToken);
+            return Task.Factory.StartNew(() => PayloadService.Program.Start(cancellationToken), cancellationToken)
+                       .ContinueWith((t) => LogExceptions(t), TaskContinuationOptions.OnlyOnFaulted);
+        }
+
+        private static void LogExceptions(Task task)
+        {
+            if (task.Exception?.InnerExceptions != null)
+            {
+                foreach (Exception ex in task.Exception?.InnerExceptions)
+                {
+                    NLog.LogManager.GetCurrentClassLogger().Error(ex.Message);
+                }
+            }
         }
 
         private static void StopTask(Task task)
