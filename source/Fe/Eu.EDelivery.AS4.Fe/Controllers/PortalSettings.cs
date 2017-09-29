@@ -17,7 +17,7 @@ namespace Eu.EDelivery.AS4.Fe.Controllers
         /// <value>
         /// The start URL.
         /// </value>
-        public string Url { get; set; }
+        public string Port { get; set; }
         /// <summary>
         /// Gets or sets the settings.
         /// </summary>

@@ -1,4 +1,4 @@
-import { FormsModule, FormControlDirective } from '@angular/forms';
+import { FormsModule, FormControlDirective, ReactiveFormsModule } from '@angular/forms';
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import { JwtHelper, AuthConfig } from 'angular2-jwt';
@@ -37,7 +37,8 @@ const services: any = [
 @NgModule({
     imports: [
         RouterModule.forChild(routes),
-        FormsModule
+        FormsModule,
+        ReactiveFormsModule
     ],
     declarations: [
         ...components,

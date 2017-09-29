@@ -13,7 +13,7 @@ export class ReceiverForm {
             .group({
                 type: [current && current.type],
                 setting: formBuilder.formBuilder.array(!!!(current && current.setting) ? [] : current.setting.map(item => {
-                    let isRequired = receiver!.properties.find((prop) => prop.technicalName === item.key);
+                    let isRequired = !!!receiver ? false : receiver.properties.find((prop) => prop.technicalName === item.key);
                     return SettingForm.getForm(formBuilder.formBuilder, item, isRequired!.required);
                 })),
             });

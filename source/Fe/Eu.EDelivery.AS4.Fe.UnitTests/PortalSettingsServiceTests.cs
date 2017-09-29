@@ -59,7 +59,7 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
 
                 var test = new PortalSettings()
                 {
-                    Url = "test"
+                    Port = "test"
                 };
 
                 await runtimeSettingsService.Save(test);

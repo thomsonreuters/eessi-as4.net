@@ -38,7 +38,7 @@ export class PortalSettingsComponent {
                 settingsXml: ['', Validators.required],
                 showStackTraceInExceptions: ['', Validators.required]
             }),
-            url: ['', Validators.required],
+            port: ['', Validators.required],
             submitTool: this._formBuilder.group({
                 payloadHttpAddress: ['', Validators.required],
                 toHttpAddress: ['', Validators.required]

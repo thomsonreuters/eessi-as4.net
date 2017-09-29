@@ -1,5 +1,5 @@
 export class PortalSettings {
-    public startUrl: string;
+    public port: string;
     public settings: {
         showStacktraceInException: boolean,
         settingsXml: string,

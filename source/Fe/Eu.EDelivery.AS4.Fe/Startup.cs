@@ -81,7 +81,7 @@ namespace Eu.EDelivery.AS4.Fe
         /// <param name="loggerFactory">The logger factory.</param>
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
-            loggerFactory.AddConsole(LogLevel.Debug);
+            loggerFactory.AddConsole(Configuration);
             app.ExecuteStartupServices();
             app.Use(async (context, next) =>
             {

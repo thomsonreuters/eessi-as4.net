@@ -1,3 +1,4 @@
+import { FormBuilder, Validators, FormGroup } from '@angular/forms';
 import { Subscription } from 'rxjs/Subscription';
 import { Component, OnInit, ChangeDetectionStrategy, OnDestroy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
@@ -20,10 +21,14 @@ import { AuthenticationStore } from '../authentication.store';
     `]
 })
 export class LoginComponent implements OnDestroy {
-    public username: string;
-    public password: string;
+    public form: FormGroup;
     private _subscriptions: Subscription[] = new Array<Subscription>();
-    constructor(private http: Http, private activatedRoute: ActivatedRoute, private authenticationService: AuthenticationService, private authenticationStore: AuthenticationStore) {
+    constructor(private http: Http, private activatedRoute: ActivatedRoute, private authenticationService: AuthenticationService, private authenticationStore: AuthenticationStore,
+        private formBuilder: FormBuilder) {
+        this.form = this.formBuilder.group({
+            username: ['', Validators.required],
+            password: ['', Validators.required]
+        });
         this._subscriptions.push(this.authenticationStore.changes.subscribe((result) => {
             console.log(result);
         }));
@@ -42,12 +47,9 @@ export class LoginComponent implements OnDestroy {
     }
     public login() {
         this.authenticationService
-            .login(this.username, this.password)
+            .login(this.form.get('username')!.value, this.form.get('password')!.value)
             .filter((result) => !result)
-            .subscribe(() => {
-                this.username = '';
-                this.password = '';
-            });
+            .subscribe(() => this.form.reset());
     }
     public ngOnDestroy() {
         this._subscriptions.forEach((sub) => sub.unsubscribe());

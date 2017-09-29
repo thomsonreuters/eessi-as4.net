@@ -26,7 +26,7 @@
         <button [disabled]="!form.dirty" action type="button" class="btn btn-box-tool" (click)="save()"><i class="fa fa-save" [class.active]="form.dirty"></i></button>
         <div content>
             <as4-input label="URL" tooltip="URL & port to start the portal on">
-                <input type="text" formControlName="url" />
+                <input type="text" formControlName="port" />
             </as4-input>
             <as4-input label="Show stacktrace" formGroupName="settings" tooltip="If true then a stacktrace will be shown in the error dialog">
                 <input type="text" formControlName="showStackTraceInExceptions" />
