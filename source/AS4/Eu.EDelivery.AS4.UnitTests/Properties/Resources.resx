@@ -423,4 +423,7 @@
   <data name="as4_soapattachment" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\as4_soapattachment.as4;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
+  <data name="Receipt_InvalidNRI_Namespace" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Receipt_InvalidNRI_Namespace.as4;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
 </root>
