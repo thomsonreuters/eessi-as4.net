@@ -7,10 +7,10 @@ namespace Eu.EDelivery.AS4.Fe.Authentication
 {
     public class TokenService : ITokenService
     {
-        private readonly IOptions<JwtOptions> jwtOptions;
+        private readonly IOptionsSnapshot<JwtOptions> jwtOptions;
         private readonly UserManager<ApplicationUser> userManager;
 
-        public TokenService(IOptions<JwtOptions> jwtOptions, UserManager<ApplicationUser> userManager)
+        public TokenService(IOptionsSnapshot<JwtOptions> jwtOptions, UserManager<ApplicationUser> userManager)
         {
             this.jwtOptions = jwtOptions;
             this.userManager = userManager;

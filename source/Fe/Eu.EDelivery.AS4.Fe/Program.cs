@@ -32,9 +32,13 @@ namespace Eu.EDelivery.AS4.Fe
         {
             var config = LoadSettings(inProcess);
             var httpPort = HttpPort(config);
+            var environment = inProcess ? "inprocess" : "production";
+#if DEBUG
+            environment = "Development";
+#endif
 
             var host = new WebHostBuilder()
-                .UseEnvironment(inProcess ? "inprocess" : "production")
+                .UseEnvironment(environment)
                 .UseKestrel()
                 .UseWebRoot(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "ui/dist"))
                 .UseContentRoot(Directory.GetCurrentDirectory())
