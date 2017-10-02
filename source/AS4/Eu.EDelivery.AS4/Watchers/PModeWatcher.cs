@@ -17,6 +17,7 @@ namespace Eu.EDelivery.AS4.Watchers
     public class PModeWatcher<T> : IDisposable where T : class, IPMode
     {
         private readonly ConcurrentDictionary<string, ConfiguredPMode> _pmodes = new ConcurrentDictionary<string, ConfiguredPMode>(StringComparer.OrdinalIgnoreCase);
+        private readonly ConcurrentDictionary<string, string> _filePModeIdMap = new ConcurrentDictionary<string, string>();
 
         private readonly FileSystemWatcher _watcher;
 
@@ -26,7 +27,7 @@ namespace Eu.EDelivery.AS4.Watchers
         /// <param name="path"></param>        
         public PModeWatcher(string path)
         {
-            _watcher = new FileSystemWatcher(path, "*.xml") {IncludeSubdirectories = true};
+            _watcher = new FileSystemWatcher(path, "*.xml") { IncludeSubdirectories = true };
             _watcher.Changed += OnChanged;
             _watcher.Created += OnCreated;
             _watcher.Deleted += OnDeleted;
@@ -64,7 +65,7 @@ namespace Eu.EDelivery.AS4.Watchers
 
             ConfiguredPMode configuredPMode;
 
-            this._pmodes.TryGetValue(key, out configuredPMode);
+            _pmodes.TryGetValue(key, out configuredPMode);
 
             return configuredPMode?.PMode;
         }
@@ -106,20 +107,22 @@ namespace Eu.EDelivery.AS4.Watchers
 
         private void OnCreated(object sender, FileSystemEventArgs e)
         {
-            AddOrUpdateConfiguredPMode(e.FullPath);
+            AddOrUpdateConfiguredPMode(Path.GetFullPath(e.FullPath));
         }
 
         private void OnChanged(object sender, FileSystemEventArgs e)
         {
-            AddOrUpdateConfiguredPMode(e.FullPath);
+            AddOrUpdateConfiguredPMode(Path.GetFullPath(e.FullPath));
         }
 
         private void OnDeleted(object sender, FileSystemEventArgs e)
         {
-            ConfiguredPMode pmode;
+            string key = _pmodes.FirstOrDefault(p => p.Value.Filename.Equals(e.FullPath)).Key;
 
-            string key = this._pmodes.FirstOrDefault(p => p.Value.Filename.Equals(e.FullPath)).Key;
-            if (key != null) this._pmodes.TryRemove(key, out pmode);
+            if (key != null)
+            {
+                _pmodes.TryRemove(key, out _);
+            }
         }
 
         private readonly object _cacheLock = new object();
@@ -140,18 +143,27 @@ namespace Eu.EDelivery.AS4.Watchers
             IPMode pmode = TryDeserialize(fullPath);
             if (pmode == null)
             {
+                // Since the PMode that we expect in this file is invalid, it
+                // must be removed from our cache.
+                if (_filePModeIdMap.TryGetValue(fullPath, out string pmodeId))
+                {
+                    _pmodes.TryRemove(pmodeId, out _);
+                    _filePModeIdMap.TryRemove(fullPath, out _);
+                }
+
                 return;
             }
 
             var configuredPMode = new ConfiguredPMode(fullPath, pmode);
 
-            if (this._pmodes.ContainsKey(pmode.Id))
+            if (_pmodes.ContainsKey(pmode.Id))
             {
                 LogManager.GetCurrentClassLogger().Warn($"There already exists a configured PMode with id {pmode.Id}.");
                 LogManager.GetCurrentClassLogger().Warn($"Existing PMode will be overwritten with PMode from {fullPath}");
             }
 
-            this._pmodes.AddOrUpdate(pmode.Id, configuredPMode, (key, value) => configuredPMode);
+            _pmodes.AddOrUpdate(pmode.Id, configuredPMode, (key, value) => configuredPMode);
+            _filePModeIdMap.AddOrUpdate(fullPath, pmode.Id, (key, value) => pmode.Id);
         }
 
         // cache which keeps track of the date and time a PMode file was last handled by the FileSystemWatcher.
@@ -223,6 +235,7 @@ namespace Eu.EDelivery.AS4.Watchers
             if (disposing)
             {
                 _pmodes.Clear();
+                _filePModeIdMap.Clear();                
                 _watcher?.Dispose();
             }
         }

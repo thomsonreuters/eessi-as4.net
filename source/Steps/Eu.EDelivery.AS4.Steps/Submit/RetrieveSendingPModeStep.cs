@@ -13,7 +13,7 @@ using NLog;
 namespace Eu.EDelivery.AS4.Steps.Submit
 {
     /// <summary>
-    /// Add the retrieved PMode to the <see cref="SubmitMessage" />
+    /// Add the retrieved PMode to the <see cref="Model.Submit.SubmitMessage" />
     /// after the PMode is verified
     /// </summary>
     [Description("Retrieve the sending PMode that must be used to send the AS4 Message")]
