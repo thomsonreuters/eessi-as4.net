@@ -22,6 +22,9 @@ namespace Eu.EDelivery.AS4.Steps.Submit
     /// <see cref="IStep" /> implementation
     /// to dynamically complete the <see cref="SendingProcessingMode"/>
     /// </summary>    
+    [Info("Perform Dynamic Discovery if required")]
+    [Description("Contacts an SMP server and executes the configured SMP Profile if dynamic discovery is enabled. \n\r" +
+        "The information returned from the SMP server is used to complete the sending PMode.")]
     public class DynamicDiscoveryStep : IConfigStep
     {
         [Info("SMP profile")]

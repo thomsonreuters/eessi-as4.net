@@ -18,7 +18,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
     /// Describes how the message payloads are uploaded to their respective media
     /// </summary>
     [Description("This step uploads the message payloads to the destination that was configured in the receiving pmode.")]
-    [Info("Deliver attachments ipv upload attachments ?")]
+    [Info("Upload attachments to deliver location")]
     public class UploadAttachmentsStep : IStep
     {
         private readonly ILogger _logger;

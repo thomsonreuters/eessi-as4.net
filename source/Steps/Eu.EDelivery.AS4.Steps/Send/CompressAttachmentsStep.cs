@@ -16,7 +16,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
     /// Describes how the attachments of an AS4 message must be compressed.
     /// </summary>
     [Description("This step compresses the attachments of an AS4 Message if compression is enabled in the sending PMode.")]
-    [Info("This step compresses the attachments of an AS4 Message if compression is enabled in the sending PMode.")]
+    [Info("Compress attachments")]
     public class CompressAttachmentsStep : IStep
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();

@@ -24,8 +24,8 @@ namespace Eu.EDelivery.AS4.Steps.Send
     /// <summary>
     /// Send <see cref="AS4Message" /> to the corresponding Receiving MSH
     /// </summary>
-    [Description("Sends the processed AS4 Message.")]
-    [Info("Sends the processed AS4 Message.")]
+    [Description("This step makes sure that an AS4 Message that has been processed, is sent to its destination.")]
+    [Info("Send AS4 Message.")]
     public class SendAS4MessageStep : IStep
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();

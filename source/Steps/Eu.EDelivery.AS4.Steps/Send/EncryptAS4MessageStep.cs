@@ -20,8 +20,8 @@ namespace Eu.EDelivery.AS4.Steps.Send
     /// <summary>
     /// Describes how the MSH encrypts the ebMS UserMessage
     /// </summary>
-    [Description("his step encrypts the AS4 Message and its attachments if encryption is enabled in the sending PMode")]
-    [Info("his step encrypts the AS4 Message and its attachments if encryption is enabled in the sending PMode")]
+    [Description("This step encrypts the AS4 Message and its attachments if encryption is enabled in the sending PMode")]
+    [Info("Encrypt AS4 Message")]
     public class EncryptAS4MessageStep : IStep
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
