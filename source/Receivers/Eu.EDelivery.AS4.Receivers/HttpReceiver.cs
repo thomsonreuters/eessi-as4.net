@@ -478,14 +478,14 @@ namespace Eu.EDelivery.AS4.Receivers
 
                 protected override HttpListenerContentResult ExecuteCore(HttpListenerRequest request, MessagingContext processorResult)
                 {
-                    HttpStatusCode DetermineStatusCode(ErrorResult errorResult, Exception exception)
+                    HttpStatusCode DetermineStatusCode(Exception exception)
                     {
                         if (exception != null && exception is SecurityException)
                         {
                             return HttpStatusCode.Forbidden;
                         }
 
-                        if (processorResult.ErrorResult == null || processorResult.ErrorResult.Code == ErrorCode.NotApplicable)
+                        if (exception != null && exception is InvalidMessageException)
                         {
                             return HttpStatusCode.BadRequest;
                         }
@@ -502,7 +502,7 @@ namespace Eu.EDelivery.AS4.Receivers
                             ? processorResult.ErrorResult.Description
                             : processorResult.Exception?.Message ?? string.Empty;
 
-                        HttpStatusCode statusCode = DetermineStatusCode(processorResult.ErrorResult, processorResult.Exception);
+                        HttpStatusCode statusCode = DetermineStatusCode(processorResult.Exception);
 
                         return new ByteContentResult(statusCode, "text/plain",
                                                      Encoding.UTF8.GetBytes(errorMessage));

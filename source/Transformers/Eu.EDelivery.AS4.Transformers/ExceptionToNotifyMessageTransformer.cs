@@ -51,7 +51,7 @@ namespace Eu.EDelivery.AS4.Transformers
             var entityMessage = message as ReceivedEntityMessage;
             if (entityMessage == null)
             {
-                throw new NotSupportedException($"Exception Transformer only supportes '{nameof(ReceivedEntityMessage)}'");
+                throw new NotSupportedException($"Exception Transformer only supports '{nameof(ReceivedEntityMessage)}'");
             }
 
             return entityMessage;
