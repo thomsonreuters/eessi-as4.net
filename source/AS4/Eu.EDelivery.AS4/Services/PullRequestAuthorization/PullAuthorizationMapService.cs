@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 
 namespace Eu.EDelivery.AS4.Services.PullRequestAuthorization
@@ -30,7 +31,7 @@ namespace Eu.EDelivery.AS4.Services.PullRequestAuthorization
 
             if (pullRequestMessage.IsPullRequest == false)
             {
-                throw new ArgumentException("The AS4 Message is not a PullRequest message");
+                throw new InvalidMessageException("The AS4 Message is not a PullRequest message");
             }
 
             var mpc = ((PullRequest)pullRequestMessage.PrimarySignalMessage).Mpc;
