@@ -2,6 +2,7 @@
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Streaming;
 using Eu.EDelivery.AS4.Utilities;
@@ -31,13 +32,13 @@ namespace Eu.EDelivery.AS4.Transformers
         {
             if (message.UnderlyingStream == null)
             {
-                throw new InvalidDataException("The incoming stream is not an ebMS Message");
+                throw new InvalidMessageException("The incoming stream is not an ebMS Message");
             }
 
             if (!ContentTypeSupporter.IsContentTypeSupported(message.ContentType))
             {
-                throw new InvalidDataException($"ContentType is not supported {message.ContentType}{Environment.NewLine}" +
-                                               $"Supported ContentTypes are {Constants.ContentTypes.Soap} and {Constants.ContentTypes.Mime}");
+                throw new InvalidMessageException($"ContentType is not supported {message.ContentType}{Environment.NewLine}" +
+                                                  $"Supported ContentTypes are {Constants.ContentTypes.Soap} and {Constants.ContentTypes.Mime}");
             }
         }
 

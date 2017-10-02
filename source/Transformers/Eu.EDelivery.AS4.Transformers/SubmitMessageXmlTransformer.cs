@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
@@ -36,8 +37,16 @@ namespace Eu.EDelivery.AS4.Transformers
 
         private static SubmitMessage DeserializeSubmitMessage(Stream stream)
         {
-            var serializer = new XmlSerializer(typeof(SubmitMessage));
-            return serializer.Deserialize(stream) as SubmitMessage;
+            try
+            {
+                var serializer = new XmlSerializer(typeof(SubmitMessage));
+
+                return serializer.Deserialize(stream) as SubmitMessage;
+            }
+            catch(Exception ex)
+            {
+                throw new InvalidMessageException("Received stream is not a SubmitMessage", ex);
+            }
         }
 
         private static void ValidateSubmitMessage(SubmitMessage submitMessage)
