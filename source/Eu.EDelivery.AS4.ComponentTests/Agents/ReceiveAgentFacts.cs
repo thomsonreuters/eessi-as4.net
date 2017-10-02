@@ -330,7 +330,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
             // Act
             var response = await StubSender.SendAS4Message(_receiveAgentUrl, as4Message);
-            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+            Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
 
             // Assert
             var inMessage = _databaseSpy.GetInMessageFor(m => m.EbmsRefToMessageId == messageId);
