@@ -21,8 +21,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
     /// <summary>
     /// <see cref="IStep" /> implementation
     /// to dynamically complete the <see cref="SendingProcessingMode"/>
-    /// </summary>
-    [NotConfigurable]
+    /// </summary>    
     public class DynamicDiscoveryStep : IConfigStep
     {
         [Info("SMP profile")]
