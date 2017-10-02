@@ -10,7 +10,7 @@ using Eu.EDelivery.AS4.Repositories;
 namespace Eu.EDelivery.AS4.Steps.Send
 {
     [Description("This step makes sure that unexpected errors are logged when something went wrong during the send operation or during the processing of the synchronous response.")]
-    [Info("This step makes sure that unexpected errors are logged when something went wrong during the send operation or during the processing of the synchronous response.")]
+    [Info("Log unexpected errors")]
     public class LogReceivedProcessingErrorStep : IStep
     {
         private readonly Func<DatastoreContext> _createContext;

@@ -18,8 +18,8 @@ namespace Eu.EDelivery.AS4.Steps.Send
     /// <summary>
     /// Describes how the MSH signs the AS4 UserMessage
     /// </summary>
-    [Description("This step signs the AS4 Message if signing is enabled in the sending PMode.")]
-    [Info("This step signs the AS4 Message if signing is enabled in the sending PMode.")]
+    [Info("Sign the AS4 Message")]
+    [Description("This step signs the AS4 Message if signing is enabled in the Sending PMode.")]
     public class SignAS4MessageStep : IStep
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();

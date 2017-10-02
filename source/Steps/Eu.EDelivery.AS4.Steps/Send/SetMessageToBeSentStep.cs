@@ -10,8 +10,8 @@ using NLog;
 
 namespace Eu.EDelivery.AS4.Steps.Send
 {
-    [Description("Confirms that a message is ready to be sent.")]
-    [Info("Confirms that a message is ready to be sent.")]
+    [Description("Confirms that the message is ready to be sent.")]
+    [Info("Confirm that the message can be sent.")]
     public class SetMessageToBeSentStep : IStep
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
