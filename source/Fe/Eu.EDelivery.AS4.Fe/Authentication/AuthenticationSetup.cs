@@ -3,7 +3,6 @@ using System.Linq;
 using System.Security.Claims;
 using Eu.EDelivery.AS4.Fe.Database;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -35,8 +34,9 @@ namespace Eu.EDelivery.AS4.Fe.Authentication
         }
 
         public void Run(IApplicationBuilder app)
-        {
-            var options = app.ApplicationServices.GetService<IOptions<JwtOptions>>().Value;
+        {           
+            var options = app.ApplicationServices.GetService<IOptionsSnapshot<JwtOptions>>().Value;            
+            
             var tokenValidationParameters = new TokenValidationParameters
             {
                 ValidateIssuerSigningKey = true,
@@ -49,6 +49,13 @@ namespace Eu.EDelivery.AS4.Fe.Authentication
                 ClockSkew = TimeSpan.Zero,
                 RoleClaimType = ClaimTypes.Role
             };
+
+            var monitor = app.ApplicationServices.GetService<IOptionsMonitor<JwtOptions>>();
+            monitor.OnChange(x =>
+            {
+                // Update token settings when JwtOptions change
+                tokenValidationParameters.IssuerSigningKey = x.SigningKey;
+            });
 
             app.Use(async (context, next) =>
             {
