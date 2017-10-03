@@ -44,7 +44,7 @@
   <xs:complexType name="ReceiveErrorHandling">
     <xs:sequence>
       <xs:element minOccurs="0" maxOccurs="1" name="UseSoapFault" type="xs:boolean" />
-      <xs:element minOccurs="0" maxOccurs="1" name="ResponseHttpCode" type="xs:int" />
+      <xs:element minOccurs="0" maxOccurs="1" default="200" name="ResponseHttpCode" type="xs:int" />
     </xs:sequence>
   </xs:complexType>
   <xs:complexType name="ReceiveHandling">
