@@ -46,16 +46,6 @@ namespace Eu.EDelivery.AS4.Validators
 
         private void RulesForPushConfiguration()
         {
-            Func<SendingProcessingMode, bool> isPushing =
-                pmode => pmode.MepBinding == MessageExchangePatternBinding.Push && pmode.DynamicDiscoverySpecified == false;
-
-            When(p => isPushing(p), delegate
-            {
-                RuleFor(pmode => pmode.PushConfiguration).NotNull().WithMessage("PushConfiguration element must be present when MEP = Push")
-                  .DependentRules(r => r.RuleFor(pmode => pmode.PushConfiguration.Protocol).NotNull().WithMessage("PushConfiguration/Protocol element must be present")
-                  .DependentRules(x => x.RuleFor(pmode => pmode.PushConfiguration.Protocol.Url).NotEmpty().WithMessage("PushConfiguration/Protocol/Url must not be empty")));
-            });
-
             Func<SendingProcessingMode, bool> isPulling =
                 pmode => pmode.MepBinding == MessageExchangePatternBinding.Pull;
             When(p => isPulling(p), delegate
