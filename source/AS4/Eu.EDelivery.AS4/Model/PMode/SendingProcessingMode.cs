@@ -515,6 +515,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
             Mpc = Constants.Namespaces.EbmsDefaultMpc;
         }
 
+        [DefaultValue(Constants.Namespaces.EbmsDefaultMpc)]
         [Description("Messaging partition channel")]
         public string Mpc { get; set; }
 

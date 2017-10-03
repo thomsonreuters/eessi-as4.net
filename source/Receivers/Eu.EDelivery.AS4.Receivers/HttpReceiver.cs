@@ -46,7 +46,7 @@ namespace Eu.EDelivery.AS4.Receivers
         private int ConcurrentRequests => Convert.ToInt32(_properties?.ReadOptionalProperty(SettingKeys.ConcurrentRequests, "10"));
 
         [Info("Use logging")]
-        [Description("Add log entries.")]
+        [Description("Log incoming requests to logs\\receivedmessages\\.")]
         private bool UseLogging => Convert.ToBoolean(_properties?.ReadOptionalProperty(SettingKeys.UseLogging, "false"));
 
         /// <summary>

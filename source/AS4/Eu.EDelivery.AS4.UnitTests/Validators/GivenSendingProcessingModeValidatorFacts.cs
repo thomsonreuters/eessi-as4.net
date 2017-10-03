@@ -31,23 +31,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
         }
 
         [Fact]
-        public void DynamicDiscoveryMustBeSpecified_WhenNoSendingConfiguration()
-        {
-            SendingProcessingMode pmode = new SendingProcessingMode
-            {
-                Id = "Test",
-                MepBinding = MessageExchangePatternBinding.Push,
-                PushConfiguration = null,
-                DynamicDiscovery = null
-            };
-
-            var result = ExerciseValidation(pmode);
-
-            Assert.False(result.IsValid);
-            Assert.Equal(2, result.Errors.Count);
-        }
-
-        [Fact]
         public void PushConfigurationMustNotBeSpecified_WhenPulling()
         {
             SendingProcessingMode pmode = new SendingProcessingMode
