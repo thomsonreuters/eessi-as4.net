@@ -22,7 +22,7 @@ namespace Eu.EDelivery.AS4.Validators
             RuleFor(pmode => pmode.Id).NotEmpty();
 
             RulesForDynamicDiscoveryConfiguration();
-            RulesForPushConfiguration();
+            RulesForPullConfiguration();
             RulesForReceiptHandling();
             RulesForErrorHandling();
             RulesForExceptionHandling();
@@ -44,7 +44,7 @@ namespace Eu.EDelivery.AS4.Validators
             });
         }
 
-        private void RulesForPushConfiguration()
+        private void RulesForPullConfiguration()
         {
             Func<SendingProcessingMode, bool> isPulling =
                 pmode => pmode.MepBinding == MessageExchangePatternBinding.Pull;
