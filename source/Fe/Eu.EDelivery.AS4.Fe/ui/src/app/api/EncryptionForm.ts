@@ -13,7 +13,7 @@ export class EncryptionForm {
         let previousFindType = null;
         let form = formBuilder
             .group({
-                [Encryption.FIELD_isEnabled]: [formBuilder.createFieldValue(current, Encryption.FIELD_isEnabled, path, false, runtime), Validators.required],
+                [Encryption.FIELD_isEnabled]: [formBuilder.createFieldValue(current, Encryption.FIELD_isEnabled, path, false, runtime)],
                 [Encryption.FIELD_algorithm]: [formBuilder.createFieldValue(current, Encryption.FIELD_algorithm, path, null, runtime), Validators.required],
                 [Encryption.FIELD_algorithmKeySize]: [formBuilder.createFieldValue(current, Encryption.FIELD_algorithmKeySize, path, null, runtime), Validators.required],
                 [Encryption.FIELD_encryptionCertificateInformation]: formBuilder.formBuilder.group({

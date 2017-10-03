@@ -326,9 +326,11 @@ namespace Eu.EDelivery.AS4.Model.PMode
         public X509ReferenceType KeyReferenceMethod { get; set; }
 
         [Description("Signing algorithm")]
+        [DefaultValue(DefaultAlgorithm)]
         public string Algorithm { get; set; }
 
         [Description("Hash function to use for the signing")]
+        [DefaultValue(DefaultHashFunction)]
         public string HashFunction { get; set; }
 
         #region Properties that control serialization
