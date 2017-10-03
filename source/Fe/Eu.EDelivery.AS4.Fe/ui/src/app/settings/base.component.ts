@@ -1,9 +1,10 @@
-import { CanComponentDeactivate } from './../common/candeactivate.guard';
 import { Observable } from 'rxjs/Observable';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Component, Input, Output } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 
+import { RuntimeStore } from './runtime.store';
+import { CanComponentDeactivate } from './../common/candeactivate.guard';
 import { DialogService } from './../common/dialog.service';
 import { Base } from './../api/Base';
 import { BaseForm } from './../api/BaseForm';
@@ -37,6 +38,7 @@ export class BaseSettingsComponent implements CanComponentDeactivate {
     @Input() public get settings(): Base {
         return this._settings;
     }
+    public repositories: ItemType[];
     public set settings(baseSetting: Base) {
         this.form = BaseForm.getForm(this.formBuilder, baseSetting);
         this.isDirty = this
@@ -47,7 +49,11 @@ export class BaseSettingsComponent implements CanComponentDeactivate {
         this._settings = baseSetting;
     }
     private _settings: Base;
-    constructor(private settingsService: SettingsService, private formBuilder: FormBuilder, private dialogService: DialogService) {
+    constructor(private settingsService: SettingsService, private formBuilder: FormBuilder, private runtimeStore: RuntimeStore, private dialogService: DialogService) {
+        runtimeStore
+            .changes
+            .filter((result) => !!(result && result.certificateRepositories))
+            .subscribe((result) => this.repositories = result.certificateRepositories);
     }
     public save() {
         if (!this.form.valid) {
