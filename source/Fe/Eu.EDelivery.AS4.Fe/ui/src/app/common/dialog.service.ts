@@ -71,7 +71,7 @@ export class DialogService {
                 if (stackTrace instanceof Response) {
                     try {
                         dlg.payload = stackTrace.json().Exception;
-                    } catch (e) { }
+                    } catch (e) {}
                 }
             });
     }

@@ -39,7 +39,7 @@ import '../theme/js/app.js';
 })
 export class AppComponent implements AfterViewInit {
     public isLoggedIn: boolean;
-    public isShowDetails: boolean = false;
+    public isShowDetails: boolean = true;
     public showOk: boolean = true;
     @ViewChild('modal') public modal: ElementRef;
     // tslint:disable-next-line:max-line-length

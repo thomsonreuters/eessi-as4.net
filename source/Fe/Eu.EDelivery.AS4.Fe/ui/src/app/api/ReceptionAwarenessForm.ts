@@ -8,7 +8,7 @@ export class ReceptionAwarenessForm {
     public static getForm(formBuilder: FormWrapper, current: ReceptionAwareness, path: string, runtime: ItemType[]): FormWrapper {
         let form = formBuilder
             .group({
-                [ReceptionAwareness.FIELD_isEnabled]: [formBuilder.createFieldValue(current, ReceptionAwareness.FIELD_isEnabled, path, false, runtime), Validators.required],
+                [ReceptionAwareness.FIELD_isEnabled]: [formBuilder.createFieldValue(current, ReceptionAwareness.FIELD_isEnabled, path, false, runtime)],
                 [ReceptionAwareness.FIELD_retryCount]: [formBuilder.createFieldValue(current, ReceptionAwareness.FIELD_retryCount, path, 5, runtime), Validators.required],
                 [ReceptionAwareness.FIELD_retryInterval]: [formBuilder.createFieldValue(current, ReceptionAwareness.FIELD_retryInterval, path, 0, runtime), Validators.required],
             })

@@ -1,16 +1,14 @@
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Observable } from 'rxjs/Observable';
 import { Subject } from 'rxjs/Subject';
-import { PmodeStore } from './../pmodes/pmode.store';
-import { RuntimeStore } from '../settings/runtime.store';
-import { SettingsStore } from './../settings/settings.store';
-import { DialogService } from './../common/dialog.service';
-import { SpinnerService } from './../common/spinner/spinner.service';
 import { Http, Headers, RequestOptions } from '@angular/http';
 import { Router } from '@angular/router';
 import { Injectable } from '@angular/core';
 import { tokenNotExpired, JwtHelper } from 'angular2-jwt';
 
+import { LogoutService } from './logout.service';
+import { DialogService } from './../common/dialog.service';
+import { SpinnerService } from './../common/spinner/spinner.service';
 import { AuthenticationStore } from './authentication.store';
 import { TOKENSTORE } from './token';
 
@@ -22,7 +20,7 @@ export class AuthenticationService {
     }
     private _onAuthenticate: BehaviorSubject<boolean> = new BehaviorSubject(false);
     constructor(private http: Http, private authenticationStore: AuthenticationStore, private router: Router, private _spinnerService: SpinnerService,
-        private _dialogService: DialogService, private _settingsStore: SettingsStore, private _pmodesStore: PmodeStore, private _runtimeStore: RuntimeStore) {
+        private _dialogService: DialogService, private _logoutService: LogoutService) {
         this.onAuthenticate = this._onAuthenticate.asObservable();
         if (!!this.getToken()) {
             this._onAuthenticate.next(true);
@@ -64,12 +62,6 @@ export class AuthenticationService {
         return obs.asObservable();
     }
     public logout() {
-        this._settingsStore.clear();
-        this._pmodesStore.clear();
-        this._runtimeStore.clear();
-
-        localStorage.removeItem(TOKENSTORE);
-        this.authenticationStore.logout();
-        this.router.navigate(['/login']);
+        this._logoutService.logout();
     }
 }

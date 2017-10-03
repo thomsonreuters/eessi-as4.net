@@ -7,6 +7,7 @@ using Eu.EDelivery.AS4.Fe.Modules;
 using Eu.EDelivery.AS4.Fe.Monitor;
 using Eu.EDelivery.AS4.Fe.Runtime;
 using Eu.EDelivery.AS4.Fe.Settings;
+using Eu.EDelivery.AS4.Model.PMode;
 using Microsoft.AspNet.SignalR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
@@ -95,7 +96,9 @@ namespace Eu.EDelivery.AS4.Fe
                 }
             });
             app.UseDefaultFiles();
+#if DEBUG
             app.UseDeveloperExceptionPage();
+#endif
             app.UseStaticFiles();
             app.UseSignalR2();
 
@@ -130,6 +133,12 @@ namespace Eu.EDelivery.AS4.Fe
                         else if (ex.Error is BusinessException businessEx)
                         {
                             context.Response.StatusCode = (int)HttpStatusCode.ExpectationFailed;
+                            response.Type = "businessexception";
+                            response.ExceptionType = typeof(BusinessException).Name;
+                        }
+                        else if (ex.Error is InvalidPModeException invalidPmodeEx)
+                        {
+                            context.Response.StatusCode = (int) HttpStatusCode.ExpectationFailed;
                             response.Type = "businessexception";
                             response.ExceptionType = typeof(BusinessException).Name;
                         }

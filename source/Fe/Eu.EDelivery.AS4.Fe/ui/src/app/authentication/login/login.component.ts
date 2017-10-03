@@ -6,6 +6,7 @@ import { ActivatedRoute } from '@angular/router';
 import { Http } from '@angular/http';
 import { AuthenticationService } from '../authentication.service';
 import { AuthenticationStore } from '../authentication.store';
+import { TOKENSTORE } from './../token';
 
 @Component({
     selector: 'as4-login',
@@ -25,6 +26,8 @@ export class LoginComponent implements OnDestroy {
     private _subscriptions: Subscription[] = new Array<Subscription>();
     constructor(private http: Http, private activatedRoute: ActivatedRoute, private authenticationService: AuthenticationService, private authenticationStore: AuthenticationStore,
         private formBuilder: FormBuilder) {
+        localStorage.removeItem(TOKENSTORE);
+        this.authenticationStore.logout();
         this.form = this.formBuilder.group({
             username: ['', Validators.required],
             password: ['', Validators.required]

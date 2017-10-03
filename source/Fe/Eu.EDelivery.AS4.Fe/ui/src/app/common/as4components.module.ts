@@ -1,6 +1,6 @@
 import { ClipboardModule } from 'ngx-clipboard';
 import { Http, RequestOptions, RequestOptionsArgs, Response, XHRBackend, Request } from '@angular/http';
-import { NgModule, ModuleWithProviders, ErrorHandler } from '@angular/core';
+import { NgModule, ModuleWithProviders, ErrorHandler, Injector } from '@angular/core';
 import { ReactiveFormsModule, FormsModule, FormBuilder } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -54,13 +54,13 @@ import { PasswordComponent } from './password/password.component';
 
 import { Select2Module } from 'ng2-select2';
 
-export function authHttpServiceFactory(http: Http, options: RequestOptions, backend: XHRBackend, spinnerService: SpinnerService, dialogService: DialogService) {
-    let result = new AuthHttp(new AuthConfig(), new CustomHttp(backend, options, spinnerService, dialogService), options);
+export function authHttpServiceFactory(http: Http, options: RequestOptions, backend: XHRBackend, spinnerService: SpinnerService, dialogService: DialogService, injector: Injector) {
+    let result = new AuthHttp(new AuthConfig(), new CustomHttp(backend, options, spinnerService, dialogService, injector), options);
     return result;
 }
 
-export function authHttpNoSpinnerServiceFactory(http: Http, options: RequestOptions, backend: XHRBackend, spinnerService: SpinnerService, dialogService: DialogService) {
-    let customHttp = new CustomHttp(backend, options, spinnerService, dialogService);
+export function authHttpNoSpinnerServiceFactory(http: Http, options: RequestOptions, backend: XHRBackend, spinnerService: SpinnerService, dialogService: DialogService, injector: Injector) {
+    let customHttp = new CustomHttp(backend, options, spinnerService, dialogService, injector);
     customHttp.noSpinner = true;
     let result = new AuthHttp(new AuthConfig(), customHttp, options);
     return result;
@@ -128,17 +128,17 @@ const services: any = [
     {
         provide: Http,
         useFactory: spinnerHttpServiceFactory,
-        deps: [XHRBackend, RequestOptions, SpinnerService, DialogService]
+        deps: [XHRBackend, RequestOptions, SpinnerService, DialogService, Injector]
     },
     {
         provide: AuthHttp,
         useFactory: authHttpServiceFactory,
-        deps: [Http, RequestOptions, XHRBackend, SpinnerService, DialogService]
+        deps: [Http, RequestOptions, XHRBackend, SpinnerService, DialogService, Injector]
     },
     {
         provide: CustomAuthNoSpinnerHttp,
         useFactory: authHttpNoSpinnerServiceFactory,
-        deps: [Http, RequestOptions, XHRBackend, SpinnerService, DialogService]
+        deps: [Http, RequestOptions, XHRBackend, SpinnerService, DialogService, Injector]
     },
     ...errorHandlingServices
 ];

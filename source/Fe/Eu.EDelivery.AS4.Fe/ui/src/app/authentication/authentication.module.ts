@@ -12,6 +12,7 @@ import { TOKENSTORE } from './token';
 import { HasAuthDirective } from './hasauth/hasauth.directive';
 import { UnauthorizedComponent } from './unauthorized/unauthorized.component';
 import { SetupGuard } from './../setup/setup.guard';
+import { LogoutService } from './logout.service';
 
 export function jwtHelperFactory() {
     return new JwtHelper();
@@ -30,6 +31,7 @@ const services: any = [
     { provide: JwtHelper, useFactory: jwtHelperFactory },
     AuthenticationService,
     AuthenticationStore,
+    LogoutService,
 
     SetupGuard
 ];
