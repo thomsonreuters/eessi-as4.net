@@ -397,9 +397,10 @@ namespace Eu.EDelivery.AS4.Model.PMode
         public bool IsEnabled { get; set; }
 
         [Description("Retry count")]
+        [DefaultValue(5)]
         public int RetryCount { get; set; }
 
-        [DefaultValue("00:03:00")]
+        [DefaultValue("00:01:00")]
         [Description("Interval after which to try again")]
         public string RetryInterval
         {
