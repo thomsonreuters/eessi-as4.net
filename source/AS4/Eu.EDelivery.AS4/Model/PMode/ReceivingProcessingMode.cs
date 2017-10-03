@@ -141,6 +141,8 @@ namespace Eu.EDelivery.AS4.Model.PMode
             get { return _useSoapFault ?? false; }
             set { _useSoapFault = value; }
         }
+
+        [DefaultValue(200)]
         [Description("HTTP statuscode that must be used when an Error signalmessage is sent.")]
         public int ResponseHttpCode
         {
