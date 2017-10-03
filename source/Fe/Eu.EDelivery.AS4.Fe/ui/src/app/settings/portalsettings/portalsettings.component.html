@@ -3,7 +3,10 @@
         <button [disabled]="!form.dirty" action type="button" class="btn btn-box-tool" (click)="save()"><i class="fa fa-save" [class.active]="form.dirty"></i></button>
         <div content>
             <as4-input label="Provider" formGroupName="monitor" tooltip="Provider used for the monitor module">
-                <input type="text" formControlName="provider" />
+                <select formControlName="provider" class="form-control">
+                    <option value="sqlite">SQLite</option>
+                    <option value="sqlserver">Microsoft SQL server</option>
+                </select>
             </as4-input>
             <as4-input label="ConnectionString" formGroupName="monitor">
                 <input type="text" formControlName="connectionString" />
@@ -60,7 +63,7 @@
     <as4-box title="Test tool" formGroupName="submitTool">
         <button [disabled]="!form.dirty" action type="button" class="btn btn-box-tool" (click)="save()"><i class="fa fa-save" [class.active]="form.dirty"></i></button>
         <div content>
-            <as4-input label="HTTP address" tooltip="HTTP address used to submit messages to">
+            <as4-input label="Sender HTTP address" tooltip="HTTP address used to submit messages to">
                 <input type="text" formControlName="toHttpAddress" />
             </as4-input>
             <as4-input label="Payload HTTP address" tooltip="HTTP address to send message payloads to">

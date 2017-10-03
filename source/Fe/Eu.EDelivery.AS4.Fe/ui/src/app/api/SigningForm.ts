@@ -12,7 +12,7 @@ export class SigningForm {
                 [Signing.FIELD_isEnabled]: [formBuilder.createFieldValue(current, Signing.FIELD_isEnabled, path, false, runtime)],
                 [Signing.FIELD_signingCertificateInformation]: formBuilder.formBuilder.group({
                     certificateFindType: [formBuilder.createFieldValue(current, Signing.FIELD_signingCertificateInformation + '.certificateFindType', path, 0, runtime)],
-                    certificateFindValue: [formBuilder.createFieldValue(current, Signing.FIELD_signingCertificateInformation + '.certificateFindValue', path, 0, runtime)]
+                    certificateFindValue: [formBuilder.createFieldValue(current, Signing.FIELD_signingCertificateInformation + '.certificateFindValue', path, null, runtime)]
                 }),
                 [Signing.FIELD_keyReferenceMethod]: [formBuilder.createFieldValue(current, Signing.FIELD_keyReferenceMethod, path, 0, runtime), Validators.required],
                 [Signing.FIELD_algorithm]: [formBuilder.createFieldValue(current, Signing.FIELD_algorithm, path, 0, runtime), Validators.required],

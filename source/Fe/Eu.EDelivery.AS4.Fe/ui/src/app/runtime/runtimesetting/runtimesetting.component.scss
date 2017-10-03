@@ -1,0 +1,21 @@
+.table {
+    tr>td,
+    tr>th {
+        border: 0;
+    }
+    thead {
+        border-bottom: 1px solid #CCC;
+    }
+    .name {
+        padding-top: 5px;
+        &:first-letter {
+            text-transform: uppercase;
+        }
+    }
+    tbody:before {
+        content: '-';
+        display: block;
+        line-height: 5px;
+        color: transparent;
+    }
+}

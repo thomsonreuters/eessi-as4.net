@@ -21,8 +21,8 @@ import { SettingForm } from './../../api/SettingForm';
 export class RuntimeSettingsComponent {
     @Input() public form: FormArray;
     @Input() public types: ItemType[];
-    @Input() public controlSize = '8';
-    @Input() public labelSize = '4';
+    @Input() public controlSize = 8;
+    @Input() public labelSize = 4;
     @Input() public set itemType(newType: string) {
         if (this._type !== newType) {
             this._type = newType;

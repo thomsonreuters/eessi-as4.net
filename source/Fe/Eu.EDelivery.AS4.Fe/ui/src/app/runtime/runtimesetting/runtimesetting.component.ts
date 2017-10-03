@@ -7,6 +7,7 @@ import { Property } from './../../api/Property';
 @Component({
     selector: 'as4-runtime-setting',
     templateUrl: 'runtimesetting.component.html',
+    styleUrls: ['./runtimesetting.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class RuntimeSettingComponent {

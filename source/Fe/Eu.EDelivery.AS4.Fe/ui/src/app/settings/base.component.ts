@@ -5,7 +5,6 @@ import { Component, Input, Output } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 
 import { DialogService } from './../common/dialog.service';
-import { RuntimeStore } from './runtime.store';
 import { Base } from './../api/Base';
 import { BaseForm } from './../api/BaseForm';
 import { SettingsService } from './settings.service';
@@ -16,15 +15,15 @@ import '../common/rxjs/toBehaviorSubject';
     selector: 'as4-base-settings',
     template: `
         <form [formGroup]="form" class="form-horizontal">
-            <as4-input [label]="'Id format'">
+            <as4-input [label]="'Message Id'">
                 <input type="text" class="form-control" name="idFormat" formControlName="idFormat"/>
             </as4-input>
-            <as4-input [label]="'Store name'" formGroupName="certificateStore">
+            <as4-input [label]="'Certificate store'" formGroupName="certificateStore">
                 <input type="text" class="form-control" name="certificateStoreName" formControlName="storeName"/>
-            </as4-input>
+            </as4-input>            
             <div formGroupName="certificateStore">
-                <as4-input [label]="'Certificate repository'" formGroupName="repository">
-                     <select class="form-control" formControlName="type">
+                <as4-input [label]="'Certificate retriever'" formGroupName="repository">
+                    <select class="form-control" formControlName="type">
                         <option *ngFor="let repository of repositories" [value]="repository.technicalName">{{repository.name}}</option>
                     </select>
                 </as4-input>
@@ -33,7 +32,6 @@ import '../common/rxjs/toBehaviorSubject';
     `
 })
 export class BaseSettingsComponent implements CanComponentDeactivate {
-    public repositories: ItemType[];
     public form: FormGroup;
     @Output() public isDirty: Observable<boolean>;
     @Input() public get settings(): Base {
@@ -49,11 +47,7 @@ export class BaseSettingsComponent implements CanComponentDeactivate {
         this._settings = baseSetting;
     }
     private _settings: Base;
-    constructor(private settingsService: SettingsService, private formBuilder: FormBuilder, private runtimeStore: RuntimeStore, private dialogService: DialogService) {
-        runtimeStore
-            .changes
-            .filter((result) => !!(result && result.certificateRepositories))
-            .subscribe((result) => this.repositories = result.certificateRepositories);
+    constructor(private settingsService: SettingsService, private formBuilder: FormBuilder, private dialogService: DialogService) {
     }
     public save() {
         if (!this.form.valid) {

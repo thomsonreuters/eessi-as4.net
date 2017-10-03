@@ -16,13 +16,15 @@
 </as4-input>
 <as4-input label="Parameters" *ngIf="hasParameters()" [isLabelBold]="false">
     <table class="table table-condensed">
-        <tr>
+        <thead>
             <th>Name</th>
             <th>Value</th>
-        </tr>
-        <tr *ngFor="let attribute of control.get('attributes').controls | getkeys; let i = index">
-            <td>{{attribute}}</td>
-            <td><input type="text" [formControl]="control.get('attributes').controls[i].get(attribute)" /></td>
-        </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let attribute of control.get('attributes').controls | getkeys; let i = index">
+                <td class="name">{{attribute}}</td>
+                <td><input type="text" [formControl]="control.get('attributes').controls[i].get(attribute)" /></td>
+            </tr>
+        </tbody>
     </table>
 </as4-input>

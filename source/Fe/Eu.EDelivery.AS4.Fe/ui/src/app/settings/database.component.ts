@@ -15,7 +15,10 @@ import '../common/rxjs/toBehaviorSubject';
     template: `
         <form [formGroup]="form" class="form-horizontal">
             <as4-input [label]="'Provider'">
-                <input type="text" class="form-control pull-right" name="provider" (keydown.enter)="save()" formControlName="provider"/>
+                <select formControlName="provider" class="form-control">
+                    <option value="Sqlite">SQLite</option>
+                    <option value="SqlServer">Microsoft SQL server</option>
+                </select>
             </as4-input>
             <as4-input [label]="'Connectionstring'">
                 <input type="text" class="form-control pull-right" name="provider" (keydown.enter)="save()" formControlName="connectionString"/>

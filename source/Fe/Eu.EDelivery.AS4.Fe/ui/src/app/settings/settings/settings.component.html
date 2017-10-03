@@ -4,13 +4,6 @@
     </div>
     <button [disabled]="!(baseSettings.isDirty | async)" action type="button" class="btn btn-box-tool" (click)="baseSettings.save()"><i class="fa fa-save" [class.active]="baseSettings.isDirty | async"></i></button>
 </as4-box>
-<as4-box [title]="'Custom settings'">
-    <div content>
-        <as4-custom-settings [settings]="settings && settings.customSettings" #customSettings #dirtycheck></as4-custom-settings>
-        <p>{{(customSettings.isSaveEnabled |async) | json}}</p>
-    </div>
-    <button [disabled]="(customSettings.isSaveEnabled | async) ? null : true" action type="button" class="btn btn-box-tool" (click)="customSettings.save()"><i class="fa fa-save" [class.active]="customSettings.isSaveEnabled | async"></i></button>
-</as4-box>
 <as4-box [title]="'ConnectionString settings'">
     <div content>
         <as4-database-settings [settings]="settings && settings.database" #databaseSettings #dirtycheck></as4-database-settings>
@@ -23,4 +16,10 @@
     </div>
     <button [attr.disabled]="(authorizationmap.isSaveEnabled | async) ? null : true" action type="button" class="btn btn-box-tool"
         (click)="authorizationmap.save()"><i class="fa fa-save" [class.active]="authorizationmap.isSaveEnabled | async"></i></button>
+</as4-box>
+<as4-box [title]="'Custom settings'">
+    <div content>
+        <as4-custom-settings [settings]="settings && settings.customSettings" #customSettings #dirtycheck></as4-custom-settings>
+    </div>
+    <button [disabled]="(customSettings.isSaveEnabled | async) ? null : true" action type="button" class="btn btn-box-tool" (click)="customSettings.save()"><i class="fa fa-save" [class.active]="customSettings.isSaveEnabled | async"></i></button>
 </as4-box>

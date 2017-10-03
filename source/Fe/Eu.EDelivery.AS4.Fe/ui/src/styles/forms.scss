@@ -1,9 +1,9 @@
 $invalidColor: #dd4b39;
 form {
-    select.ng-invalid {
-        border: 1px solid $invalidColor;
-    }
-    input.ng-invalid {
+    select.ng-invalid,
+    input.ng-invalid,
+    div.ng-invalid>input,
+    div.ng-invalid>select {
         border: 1px solid $invalidColor;
     }
     .control-label {

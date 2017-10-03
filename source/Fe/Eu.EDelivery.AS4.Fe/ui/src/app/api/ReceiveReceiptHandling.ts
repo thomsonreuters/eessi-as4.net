@@ -1,6 +1,6 @@
 /* tslint:disable */
 export class ReceiveReceiptHandling {
-    useNNRFormat: boolean;
+    useNRRFormat: boolean;
 
-    public static FIELD_useNNRFormat = 'useNNRFormat';
+    public static FIELD_useNRRFormat = 'useNRRFormat';
 }

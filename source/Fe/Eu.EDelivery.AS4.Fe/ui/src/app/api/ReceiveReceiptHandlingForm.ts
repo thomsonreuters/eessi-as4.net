@@ -6,7 +6,7 @@ export class ReceiveReceiptHandlingForm {
     public static getForm(formBuilder: FormWrapper, current: ReceiveReceiptHandling, path: string, runtime: ItemType[]): FormWrapper {
         return formBuilder
             .group({
-                [ReceiveReceiptHandling.FIELD_useNNRFormat]: [formBuilder.createFieldValue(current, ReceiveReceiptHandling.FIELD_useNNRFormat, path, null, runtime)]
+                [ReceiveReceiptHandling.FIELD_useNRRFormat]: [formBuilder.createFieldValue(current, ReceiveReceiptHandling.FIELD_useNRRFormat, path, null, runtime)]
             });
     }
 }

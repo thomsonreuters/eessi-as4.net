@@ -9,7 +9,7 @@ export class KeyEncryptionForm {
     // public static defaultDigestAlgorithm: string = 'http://www.w3.org/2000/09/xmldsig#sha1';
     // public static transportAlgorithm: string = 'http://www.w3.org/2009/xmlenc11#rsa-oaep';
     // public static defaultMgfAlgorithm: string = 'http://www.w3.org/2009/xmlenc11#mgf1sha1';
-
+    private static disabledAlgo = 'http://www.w3.org/2001/04/xmlenc#rsa-oaep-mgf1p';
     public static getForm(formBuilder: FormWrapper, current: KeyEncryption, path: string, runtime: ItemType[]): FormWrapper {
         let form = formBuilder
             .group({
@@ -19,7 +19,7 @@ export class KeyEncryptionForm {
             })
             .onChange<string>(KeyEncryption.FIELD_transportAlgorithm, (value, wrapper) => {
                 let mgf = wrapper.form.get(KeyEncryption.FIELD_mgfAlgorithm)!;
-                if (value !== runtime[`${path}.${KeyEncryption.FIELD_transportAlgorithm}`]) {
+                if (value === this.disabledAlgo) {
                     mgf.disable();
                 } else {
                     mgf.enable();
