@@ -239,7 +239,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
         public KeyEncryption()
         {
             TransportAlgorithm = EncryptionStrategy.XmlEncRSAOAEPUrlWithMgf;
-            DigestAlgorithm = EncryptionStrategy.XmlEncSHA1Url;
+            DigestAlgorithm = EncryptionStrategy.XmlEncSHA256Url;
             MgfAlgorithm = null;
         }
 
@@ -247,7 +247,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
         [Description("Transport algorithm")]
         public string TransportAlgorithm { get; set; }
 
-        [DefaultValue(EncryptionStrategy.XmlEncSHA1Url)]
+        [DefaultValue(EncryptionStrategy.XmlEncSHA256Url)]
         [Description("Digest algorithm")]
         public string DigestAlgorithm { get; set; }
 

@@ -56,7 +56,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
 
     public class DuplicateElimination
     {
-        [Description("Do not process duplicate messages")]
+        [Description("Do not deliver duplicate messages")]
         public bool IsEnabled { get; set; }
 
         public DuplicateElimination()
