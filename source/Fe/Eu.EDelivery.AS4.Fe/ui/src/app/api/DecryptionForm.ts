@@ -24,7 +24,7 @@ export class DecryptionForm {
                 } else {
                     value.setValidators(Validators.required);
                 }
-                value.updateValueAndValidity();
+                value.updateValueAndValidity({ emitEvent: false });
             });
         return form;
     }
