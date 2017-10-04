@@ -7,11 +7,6 @@ namespace Eu.EDelivery.AS4.Model.Core
         public string Value { get; set; }
         public string Type { get; set; }
 
-        public Service()
-        {
-            this.Value = Constants.Namespaces.TestService;
-        }
-
         /// <summary>
         /// Indicates whether the current object is equal to another object of the same type.
         /// </summary>

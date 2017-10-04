@@ -131,7 +131,7 @@ namespace Eu.EDelivery.AS4.Services
                 Logger.Error(ex.Message);
 
                 InException inException = new InException(System.Text.Encoding.UTF8.GetBytes(location), ex.Message);
-                
+
                 _repository.InsertInException(inException);
 
                 return new MessagingContext(ex);
@@ -295,8 +295,8 @@ namespace Eu.EDelivery.AS4.Services
         {
             CollaborationInfo collaborationInfo = userMessage.CollaborationInfo;
 
-            bool isTestMessage = collaborationInfo.Service.Value.Equals(Constants.Namespaces.TestService)
-                                 && collaborationInfo.Action.Equals(Constants.Namespaces.TestAction);
+            bool isTestMessage = (collaborationInfo.Service.Value?.Equals(Constants.Namespaces.TestService) ?? false) &&
+                                 (collaborationInfo.Action?.Equals(Constants.Namespaces.TestAction) ?? false);
 
             if (isTestMessage)
             {

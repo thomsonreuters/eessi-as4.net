@@ -23,7 +23,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.PMode
                 Service service = resolver.Resolve(pmode);
 
                 // Assert
-                Assert.Equal("http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service", service.Value);
+                Assert.True(string.IsNullOrWhiteSpace(service.Value));                
             }
 
             [Fact]
