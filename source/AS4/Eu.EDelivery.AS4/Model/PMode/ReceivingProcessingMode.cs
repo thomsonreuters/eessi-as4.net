@@ -274,10 +274,6 @@ namespace Eu.EDelivery.AS4.Model.PMode
                 {
                     MessageHandlingType = MessageHandlingChoiceType.Forward;
                 }
-                else
-                {
-                    MessageHandlingType = MessageHandlingChoiceType.None;
-                }
             }
         }
 
@@ -325,8 +321,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
 
     public enum MessageHandlingChoiceType
     {
-        None = 0,
-        Deliver,
+        Deliver = 1,
         Forward
     }
 
