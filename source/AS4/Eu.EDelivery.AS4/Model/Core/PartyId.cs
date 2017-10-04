@@ -10,7 +10,7 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// <summary>
         /// Initializes a new instance of the <see cref="PartyId"/> class
         /// </summary>
-        public PartyId() {}
+        public PartyId() { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PartyId"/> class
@@ -20,6 +20,12 @@ namespace Eu.EDelivery.AS4.Model.Core
         public PartyId(string id)
         {
             this.Id = id;
+        }
+
+        public bool IsEmpty()
+        {
+            return String.IsNullOrWhiteSpace(Id) &&
+                   String.IsNullOrWhiteSpace(Type);
         }
 
         /// <summary>
@@ -36,7 +42,7 @@ namespace Eu.EDelivery.AS4.Model.Core
 
             return
                 string.Equals(this.Id, other.Id, StringComparison.OrdinalIgnoreCase) &&
-                string.Equals(this.Type??string.Empty, other.Type??string.Empty, StringComparison.OrdinalIgnoreCase);
+                string.Equals(this.Type ?? string.Empty, other.Type ?? string.Empty, StringComparison.OrdinalIgnoreCase);
         }
 
         /// <summary>
@@ -58,7 +64,7 @@ namespace Eu.EDelivery.AS4.Model.Core
                 return false;
             }
 
-            return Equals(other);            
+            return Equals(other);
         }
 
         /// <summary>
@@ -72,7 +78,7 @@ namespace Eu.EDelivery.AS4.Model.Core
             unchecked
             {
                 return
-                    ((this.Id != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(this.Id) : 0)*397) ^
+                    ((this.Id != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(this.Id) : 0) * 397) ^
                     (this.Type != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(this.Type) : 0);
             }
         }
