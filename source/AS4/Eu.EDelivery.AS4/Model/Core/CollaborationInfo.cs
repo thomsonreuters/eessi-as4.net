@@ -5,11 +5,14 @@ namespace Eu.EDelivery.AS4.Model.Core
     public class CollaborationInfo
     {
         [Description("Agreement reference")]
-        public AgreementReference AgreementReference { get; set; }        
+        public AgreementReference AgreementReference { get; set; }
+
         [Description("Service")]
         public Service Service { get; set; }
+
         [Description("Action")]
         public string Action { get; set; }
+
         [Description("Conversation ID")]
         public string ConversationId { get; set; }
 
@@ -20,9 +23,7 @@ namespace Eu.EDelivery.AS4.Model.Core
         public CollaborationInfo()
         {
             AgreementReference = new AgreementReference();
-            Service = new Service();
-            Action = "http://docs.oasis-open.org/ebxml-msg/ebMS/v3.0/ns/core/200704/test";
-            ConversationId = "1";
+            Service = new Service();            
         }
 
         /// <summary>
