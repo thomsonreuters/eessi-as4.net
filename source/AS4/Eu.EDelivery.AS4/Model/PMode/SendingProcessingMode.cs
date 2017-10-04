@@ -287,6 +287,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
             CertificateType = PrivateKeyCertificateChoiceType.None;
             Algorithm = DefaultAlgorithm;
             HashFunction = DefaultHashFunction;
+            KeyReferenceMethod = X509ReferenceType.BSTReference;
         }
 
         [Description("Is signing enabled")]
