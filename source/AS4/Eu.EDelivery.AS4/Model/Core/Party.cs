@@ -49,7 +49,7 @@ namespace Eu.EDelivery.AS4.Model.Core
         public bool IsEmpty()
         {
             return
-                string.IsNullOrEmpty(this.Role) && PartyIds.Count == 0;
+                string.IsNullOrEmpty(Role) && (PartyIds == null || PartyIds.Count == 0 || PartyIds.All(p => p.IsEmpty()));
         }
 
         /// <summary>
@@ -61,12 +61,18 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// <param name="other">An object to compare with this object.</param>
         public bool Equals(Party other)
         {
-            if (ReferenceEquals(null, other)) return false;
-            if (ReferenceEquals(this, other)) return true;
+            if (ReferenceEquals(null, other))
+            {
+                return false;
+            }
+            if (ReferenceEquals(this, other))
+            {
+                return true;
+            }
 
             return
-                string.Equals(this.Role, other.Role, StringComparison.OrdinalIgnoreCase) &&
-                this.PartyIds.All(other.PartyIds.Contains);
+                string.Equals(Role, other.Role, StringComparison.OrdinalIgnoreCase) &&
+                PartyIds.All(other.PartyIds.Contains);
         }
 
         /// <summary>

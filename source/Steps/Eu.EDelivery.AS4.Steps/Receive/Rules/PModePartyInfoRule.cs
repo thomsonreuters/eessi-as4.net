@@ -40,12 +40,12 @@ namespace Eu.EDelivery.AS4.Steps.Receive.Rules
             bool fromPartyEqual = IsPartyInfoEqual(pmodePartyInfo.FromParty, userMessage.Sender);
             bool toPartyEqual = IsPartyInfoEqual(pmodePartyInfo.ToParty, userMessage.Receiver);
 
-            if (fromPartyEqual && pmodePartyInfo.ToParty == null)
+            if (fromPartyEqual && (pmodePartyInfo.ToParty == null || pmodePartyInfo.ToParty.IsEmpty()))
             {
                 points += PartyFromPoints;
             }
 
-            if (toPartyEqual && pmodePartyInfo.FromParty == null)
+            if (toPartyEqual && (pmodePartyInfo.FromParty == null || pmodePartyInfo.FromParty.IsEmpty()))
             {
                 points += PartyToPoints;
             }
