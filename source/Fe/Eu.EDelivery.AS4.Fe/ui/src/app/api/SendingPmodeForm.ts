@@ -16,7 +16,7 @@ export class SendingPmodeForm {
                 type: [current && current.type],
                 name: [current && current.name],
                 pmode: SendingProcessingModeForm.getForm(formWrapper.subForm('pmode'), current && current.pmode, runtime).form,
-                [SendingPmode.FIELD_isDynamicDiscoveryEnabled]: [current && current.isDynamicDiscoveryEnabled]
+                [SendingPmode.FIELD_isDynamicDiscoveryEnabled]: [!!!current || !!!current.isDynamicDiscoveryEnabled ? false : current && current.isDynamicDiscoveryEnabled]
             })
             .onChange<boolean>(SendingPmode.FIELD_isDynamicDiscoveryEnabled, (value, wrapper) => {
                 if (initialised && previousDynamicDiscoveryEnabled === value) {
