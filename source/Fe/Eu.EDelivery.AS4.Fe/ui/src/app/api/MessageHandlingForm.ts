@@ -1,4 +1,5 @@
 import { FormBuilder, FormGroup, FormGroupDirective, Validators } from '@angular/forms';
+
 import { MethodForm } from './MethodForm';
 import { ItemType } from './ItemType';
 import { MessageHandling, Deliver, Forward } from './MessageHandling';
@@ -9,7 +10,7 @@ export class MessageHandlingForm {
     public static getForm(formBuilder: FormWrapper, current: MessageHandling, runtime: ItemType[], path: string = 'messagehandling'): FormWrapper {
         return formBuilder
             .group({
-                [MessageHandling.FIELD_messageHandlingType]: [current && current.messageHandlingType],
+                [MessageHandling.FIELD_messageHandlingType]: [!!!current || !!!current.messageHandlingType ? 1 : current.messageHandlingType, Validators.required],
                 [MessageHandling.FIELD_item]: []
             })
             .onChange<number>(MessageHandling.FIELD_messageHandlingType, (_current, wrapper) => {
@@ -25,6 +26,10 @@ export class MessageHandlingForm {
                     wrapper.form.setControl(MessageHandling.FIELD_item, wrapper.formBuilder.group({
                         [Forward.FIELD_sendingPmode]: [!!!current || !!!current.item ? null : (<Forward>current.item).sendingPMode, Validators.required]
                     }));
+                }
+
+                if (!!!current) {
+                    wrapper.form.get(MessageHandling.FIELD_item)!.disable({ emitEvent: false });
                 }
             })
             .triggerHandler(MessageHandling.FIELD_messageHandlingType, current && current.messageHandlingType);

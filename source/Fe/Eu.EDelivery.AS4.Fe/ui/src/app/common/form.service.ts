@@ -43,7 +43,7 @@ export class FormWrapper {
     }
     public createFieldValue(current: any, field: string, path: string, defaultValue: any = null, itemTypes: ItemType[]): any {
         const fullPath = `${path.toLocaleLowerCase()}.${field.toLowerCase()}`;
-        let result = current == null || byString(current, field) == null ? itemTypes[fullPath] === undefined ? defaultValue : itemTypes[fullPath].defaultvalue : byString(current, field);
+        let result = current == null || byString(current, field) == null ? !!!itemTypes[fullPath] || itemTypes[fullPath].defaultValue === undefined || itemTypes[fullPath].defaultValue === null ? defaultValue : itemTypes[fullPath].defaultvalue : byString(current, field);
         return result;
     }
     public subForm(field: string): FormWrapper {

@@ -13,7 +13,7 @@
                     </as4-input>
                 </div>
             </div>
-            <div tabitem title="Reply handling" formGroupName="replyHandling" [isValid]="pmode.form.get('pmode.replyHandling')" runtimeTooltip="replyhandling">
+            <div tabitem title="Reply handling" formGroupName="replyHandling" [isValid]="!!!pmode.currentPmode || pmode.form.get('pmode.replyHandling')" runtimeTooltip="replyhandling">
                 <as4-input label="Reply pattern" runtimeTooltip="replyPattern">
                     <select formControlName="replyPattern">
                         <option [ngValue]="0">Response</option>
@@ -36,16 +36,15 @@
                     </as4-input>
                 </ng-container>
             </div>
-            <div tabitem title="Message handling" formGroupName="messageHandling" [isValid]="pmode.form.get('pmode.messageHandling')"
+            <div tabitem title="Message handling" formGroupName="messageHandling" [isValid]="!!!pmode.currentPmode || pmode.form.get('pmode.messageHandling')"
                 runtimeTooltip="messagehandling">
                 <as4-input label="Type" runtimeTooltip="messagehandlingtype">
                     <select formControlName="messageHandlingType" #messageHandlingType>
-                        <option [ngValue]="0">None</option>
                         <option [ngValue]="1">Deliver</option>
                         <option [ngValue]="2">Forward</option>
                     </select>
                 </as4-input>
-                <ng-container *ngIf="messageHandlingType.selectedIndex === 1" formGroupName="item">
+                <ng-container *ngIf="+pmode.form.get('pmode.messageHandling.messageHandlingType').value === 1" formGroupName="item">
                     <as4-input label="Enabled" runtimeTooltip="deliverinformation.isenabled">
                         <input type="checkbox" formControlName="isEnabled" runtimeTooltip="deliver.isEnabled" />
                     </as4-input>
@@ -54,7 +53,7 @@
                     <as4-method runtime="delivermethod" label="Deliver method" [group]="pmode.form.get('pmode.messageHandling.item.deliverMethod')"
                         [types]="deliverSenders$ | async"></as4-method>
                 </ng-container>
-                <ng-container *ngIf="messageHandlingType.selectedIndex === 2" formGroupName="item">
+                <ng-container *ngIf="+pmode.form.get('pmode.messageHandling.messageHandlingType').value === 2" formGroupName="item">
                     <as4-input label="Sending PMode">
                         <div as4-pmode-select mode="sending" formControlName="sendingPMode"></div>
                     </as4-input>
