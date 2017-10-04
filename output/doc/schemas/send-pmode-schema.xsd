@@ -44,7 +44,7 @@
   </xs:complexType>
   <xs:complexType name="TlsConfiguration">
     <xs:sequence>
-      <xs:element minOccurs="0" maxOccurs="1" default="false" name="IsEnabled" type="xs:boolean" />
+      <xs:element minOccurs="1" maxOccurs="1" name="IsEnabled" type="xs:boolean" />
       <xs:element minOccurs="0" maxOccurs="1" default="Tls12" name="TlsVersion" type="tns:TlsVersion" />
       <xs:element minOccurs="0" maxOccurs="1" name="ClientCertificateReference" type="tns:ClientCertificateReference" />
     </xs:sequence>

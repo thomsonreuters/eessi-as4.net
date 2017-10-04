@@ -20,8 +20,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
 
                 // Assert
                 Assert.NotNull(collaborationInfo);
-                Assert.Equal(DefaultAction, collaborationInfo.Action);
-                Assert.Equal("1", collaborationInfo.ConversationId);
+                Assert.Equal(null, collaborationInfo.Action);
+                Assert.Equal(null, collaborationInfo.ConversationId);
             }
 
             [Fact]

@@ -466,9 +466,11 @@ namespace Eu.EDelivery.AS4.Model.PMode
         [Description("URL")]
         public string Url { get; set; }
 
+        [DefaultValue(false)]
         [Description("Indicates if chunking is enabled")]
         public bool UseChunking { get; set; }
 
+        [DefaultValue(false)]
         [Description("Indicates if HTTP compression is enabled")]
         public bool UseHttpCompression { get; set; }
     }

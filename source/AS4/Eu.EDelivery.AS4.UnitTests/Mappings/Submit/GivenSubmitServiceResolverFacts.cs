@@ -27,7 +27,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
                 CoreService service = resolver.Resolve(submitMessage);
 
                 // Assert
-                Assert.Equal(Constants.Namespaces.TestService, service.Value);
+                Assert.True(string.IsNullOrWhiteSpace(service.Value));
             }
 
             [Fact]
