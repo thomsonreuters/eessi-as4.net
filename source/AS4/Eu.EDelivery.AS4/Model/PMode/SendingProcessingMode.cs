@@ -52,7 +52,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
         [Description("Push configuration")]
         public PushConfiguration PushConfiguration { get; set; }
 
-        [Description("Configuration for dyanmic discovery")]
+        [Description("Configuration for dynamic discovery")]
         public DynamicDiscoveryConfiguration DynamicDiscovery { get; set; }
 
         [Description("Send reliability")]
@@ -466,11 +466,9 @@ namespace Eu.EDelivery.AS4.Model.PMode
         [Description("URL")]
         public string Url { get; set; }
 
-        [DefaultValue(false)]
         [Description("Indicates if chunking is enabled")]
         public bool UseChunking { get; set; }
 
-        [DefaultValue(false)]
         [Description("Indicates if HTTP compression is enabled")]
         public bool UseHttpCompression { get; set; }
     }
@@ -482,8 +480,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
             IsEnabled = false;
             TlsVersion = TlsVersion.Tls12;
         }
-
-        [DefaultValue(false)]
+        
         [Description("Indicates if TLS is enabled")]
         public bool IsEnabled { get; set; }
 
