@@ -45,7 +45,7 @@ Basic testing against the EESSI AS4 Messaging profile is already covered. Extens
  
 
 # Installation
-AS4.NET v2.0.0 can be downloaded from [the following location](https://ec.europa.eu/cefdigital/artifact/content/repositories/eDelivery/eu/eessi/as4/eessi_as4.net/1.1.0/eessi_as4.net-1.1.0.zip). The documentation on how to use and configure AS4.NET can be found in the documentation folder of the package.
+AS4.NET v2.0.0 can be downloaded from [the following location](https://ec.europa.eu/cefdigital/artifact/service/local/repositories/eDelivery/content/eu/eessi/as4/eessi_as4.net/2.0.0/eessi_as4.net-2.0.0.zip). The documentation on how to use and configure AS4.NET can be found in the documentation folder of the package.
 
 # Third Party software
 The following third party libraries are used by AS4.NET:
