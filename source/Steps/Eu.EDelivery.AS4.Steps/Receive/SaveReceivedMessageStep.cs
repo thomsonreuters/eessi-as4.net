@@ -66,7 +66,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 var resultContext = await service.InsertAS4Message(messagingContext, mep, _messageBodyStore, token).ConfigureAwait(false);
                 await context.SaveChangesAsync(token).ConfigureAwait(false);
 
-                if (resultContext != null)
+                if (resultContext != null && resultContext.Exception == null)
                 {                    
                     if (resultContext.AS4Message.IsSignalMessage &&
                         String.IsNullOrWhiteSpace(resultContext.AS4Message.PrimarySignalMessage.RefToMessageId))
@@ -79,7 +79,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 }
                 else
                 {
-                    return StepResult.Failed(null);
+                    return StepResult.Failed(resultContext);
                 }
             }
         }

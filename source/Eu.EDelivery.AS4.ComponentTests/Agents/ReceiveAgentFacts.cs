@@ -62,6 +62,23 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                 "The URL where the receive agent is listening on, could not be retrieved.");
         }
 
+        #region Scenario where ReceiveAgent receives invalid Messages (no AS4 Messages)
+
+        [Fact]
+        public async Task ThenAgentReturnsBadRequest_IfReceivedMessageIsNotAS4Message()
+        {
+            // Arrange
+            byte[] content = Encoding.UTF8.GetBytes(Convert.ToBase64String(receiveagent_message));
+
+            // Act
+            HttpResponseMessage response = await StubSender.SendRequest(_receiveAgentUrl, content,
+                                                                        "multipart/related; boundary=\"=-C3oBZDXCy4W2LpjPUhC4rw==\"; type=\"application/soap+xml\"; charset=\"utf-8\"");
+            // Assert
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        }
+
+        #endregion
+
         #region Scenario's for received UserMessages that result in errors.
 
         [Fact]
