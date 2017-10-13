@@ -108,7 +108,7 @@ namespace Eu.EDelivery.AS4.Serialization
             ContentType contentType = ContentType.Parse(type);
 
             bodyMultipart.ContentType.Boundary = contentType.Boundary;
-            bodyMultipart.ContentType.Charset = contentType.Boundary;
+            bodyMultipart.ContentType.Charset = contentType.Charset;
             bodyMultipart.ContentType.Format = contentType.Format;
             bodyMultipart.ContentType.MediaSubtype = contentType.MediaSubtype;
             bodyMultipart.ContentType.MediaType = contentType.MediaType;

@@ -161,7 +161,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
             if (embeddedCertInfo != null)
             {
-                return new X509Certificate2(Convert.FromBase64String(embeddedCertInfo.Certificate), embeddedCertInfo.Password);
+                return new X509Certificate2(Convert.FromBase64String(embeddedCertInfo.Certificate), embeddedCertInfo.Password, X509KeyStorageFlags.Exportable);
             }
 
             throw new NotSupportedException("The signing certificate information specified in the PMode could not be used to retrieve the certificate");
