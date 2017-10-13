@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Streaming;
 using MimeKit;
@@ -254,9 +255,9 @@ namespace Eu.EDelivery.AS4.Serialization
             }
         }
 
-        private static FormatException CreateAS4MimeInconsistencyException(Exception exception)
+        private static InvalidMessageException CreateAS4MimeInconsistencyException(Exception exception)
         {
-            return new FormatException(
+            return new InvalidMessageException(
                 "The use of MIME is not consistent with the required usage in this specification", exception);
         }
 
