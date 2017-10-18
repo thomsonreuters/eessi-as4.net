@@ -13,7 +13,7 @@ namespace Eu.EDelivery.AS4.Security.References
     /// </summary>
     internal sealed class IssuerSecurityTokenReference : SecurityTokenReference
     {
-        private readonly ICertificateRepository _certifcateRepository;
+        private readonly ICertificateRepository _certificateRepository;
         private readonly string _keyInfoId;
         private readonly string _securityTokenReferenceId;
 
@@ -26,14 +26,19 @@ namespace Eu.EDelivery.AS4.Security.References
         /// <param name="certificateRepository">Repository to obtain the certificate needed to append to the Issuer Security Token Reference.</param>
         public IssuerSecurityTokenReference(ICertificateRepository certificateRepository)
         {
+            if (certificateRepository == null)
+            {
+                throw new ArgumentNullException(nameof(certificateRepository));
+            }
+
             _keyInfoId = $"KI-{Guid.NewGuid()}";
             _securityTokenReferenceId = $"STR-{Guid.NewGuid()}";
-            _certifcateRepository = certificateRepository;
+            _certificateRepository = certificateRepository;
         }
 
-        public IssuerSecurityTokenReference(XmlElement envelope, ICertificateRepository certifcateRepository)
+        public IssuerSecurityTokenReference(XmlElement envelope, ICertificateRepository certificateRepository)
         {
-            _certifcateRepository = certifcateRepository;
+            _certificateRepository = certificateRepository;
             LoadXml(envelope);
         }
 
@@ -44,7 +49,12 @@ namespace Eu.EDelivery.AS4.Security.References
                 throw new InvalidOperationException("Unable to retrieve Certificate: No X509SerialNumber available.");
             }
 
-            return _certifcateRepository.GetCertificate(X509FindType.FindBySerialNumber, _certificateSerialNr);
+            if (_certificateRepository == null)
+            {
+                throw new InvalidOperationException("Unable to retrieve Certificate: No CertificateRepository defined.");
+            }
+
+            return _certificateRepository.GetCertificate(X509FindType.FindBySerialNumber, _certificateSerialNr);
         }
 
         /// <summary>

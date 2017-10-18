@@ -11,7 +11,7 @@ namespace Eu.EDelivery.AS4.Security.References
 
         public SecurityTokenReferenceProvider(ICertificateRepository certificateRepository)
         {
-            this._certificateRepository = certificateRepository;
+            _certificateRepository = certificateRepository;
         }
 
         public SecurityTokenReference Get(X509ReferenceType referenceType)
@@ -21,9 +21,9 @@ namespace Eu.EDelivery.AS4.Security.References
                 case X509ReferenceType.BSTReference:
                     return new BinarySecurityTokenReference();
                 case X509ReferenceType.IssuerSerial:
-                    return new IssuerSecurityTokenReference(this._certificateRepository);
+                    return new IssuerSecurityTokenReference(_certificateRepository);
                 case X509ReferenceType.KeyIdentifier:
-                    return new KeyIdentifierSecurityTokenReference(this._certificateRepository);
+                    return new KeyIdentifierSecurityTokenReference(_certificateRepository);
 
                 default:
                     return new BinarySecurityTokenReference();
@@ -54,12 +54,12 @@ namespace Eu.EDelivery.AS4.Security.References
 
             if (HasEnvelopeTag(envelopeDocument, xpathSelector: String.Format(xpathQuery, "X509SerialNumber")))
             {
-                return new IssuerSecurityTokenReference(envelopeDocument, this._certificateRepository);
+                return new IssuerSecurityTokenReference(envelopeDocument, _certificateRepository);
             }
 
             if (HasEnvelopeTag(envelopeDocument, xpathSelector: String.Format(xpathQuery, "KeyIdentifier")))
             {
-                return new KeyIdentifierSecurityTokenReference(envelopeDocument, this._certificateRepository);
+                return new KeyIdentifierSecurityTokenReference(envelopeDocument, _certificateRepository);
             }
 
             return new BinarySecurityTokenReference(envelopeDocument);

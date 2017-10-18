@@ -13,7 +13,7 @@ namespace Eu.EDelivery.AS4.Security.References
     internal sealed class KeyIdentifierSecurityTokenReference : SecurityTokenReference
     {
         private readonly string _keyInfoId;
-        private readonly ICertificateRepository _certificateReposistory;
+        private readonly ICertificateRepository _certificateRepository;
 
         private string _certificateSubjectKeyIdentifier;
 
@@ -23,7 +23,7 @@ namespace Eu.EDelivery.AS4.Security.References
         /// <param name="certificateRepository">Repository to obtain the certificate needed to embed it into the Key Identifier Security Token Reference.</param>
         public KeyIdentifierSecurityTokenReference(ICertificateRepository certificateRepository)
         {
-            _certificateReposistory = certificateRepository;
+            _certificateRepository = certificateRepository;
             _keyInfoId = $"KI-{Guid.NewGuid()}";
         }
 
@@ -34,7 +34,7 @@ namespace Eu.EDelivery.AS4.Security.References
         /// <param name="certificateRepository">Repository to obtain the certificate needed to embed it into the Key Identifier Security Token Reference.</param>
         public KeyIdentifierSecurityTokenReference(XmlElement envelope, ICertificateRepository certificateRepository)
         {
-            _certificateReposistory = certificateRepository;
+            _certificateRepository = certificateRepository;
             LoadXml(envelope);
         }
 
@@ -45,7 +45,12 @@ namespace Eu.EDelivery.AS4.Security.References
                 throw new InvalidOperationException("Unable to retrieve Certificate: No SubjectKeyIdentifier available.");
             }
 
-            return _certificateReposistory.GetCertificate(
+            if (_certificateRepository == null)
+            {
+                throw new InvalidOperationException("Unable to retrieve Certificate: No CertificateRepository defined.");
+            }
+
+            return _certificateRepository.GetCertificate(
                 X509FindType.FindBySubjectKeyIdentifier, _certificateSubjectKeyIdentifier);
         }
 
