@@ -23,6 +23,11 @@ namespace Eu.EDelivery.AS4.Security.References
         /// <param name="certificateRepository">Repository to obtain the certificate needed to embed it into the Key Identifier Security Token Reference.</param>
         public KeyIdentifierSecurityTokenReference(ICertificateRepository certificateRepository)
         {
+            if (certificateRepository == null)
+            {
+                throw new ArgumentNullException(nameof(certificateRepository));
+            }
+
             _certificateReposistory = certificateRepository;
             _keyInfoId = $"KI-{Guid.NewGuid()}";
         }
@@ -34,6 +39,11 @@ namespace Eu.EDelivery.AS4.Security.References
         /// <param name="certificateRepository">Repository to obtain the certificate needed to embed it into the Key Identifier Security Token Reference.</param>
         public KeyIdentifierSecurityTokenReference(XmlElement envelope, ICertificateRepository certificateRepository)
         {
+            if (certificateRepository == null)
+            {
+                throw new ArgumentNullException(nameof(certificateRepository));
+            }
+
             _certificateReposistory = certificateRepository;
             LoadXml(envelope);
         }
