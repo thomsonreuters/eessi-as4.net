@@ -38,10 +38,6 @@ namespace Eu.EDelivery.AS4.Security.References
 
         public IssuerSecurityTokenReference(XmlElement envelope, ICertificateRepository certificateRepository)
         {
-            if (certificateRepository == null)
-            {
-                throw new ArgumentNullException(nameof(certificateRepository));
-            }
             _certificateRepository = certificateRepository;
             LoadXml(envelope);
         }
@@ -51,6 +47,11 @@ namespace Eu.EDelivery.AS4.Security.References
             if (String.IsNullOrWhiteSpace(_certificateSerialNr))
             {
                 throw new InvalidOperationException("Unable to retrieve Certificate: No X509SerialNumber available.");
+            }
+
+            if (_certificateRepository == null)
+            {
+                throw new InvalidOperationException("Unable to retrieve Certificate: No CertificateRepository defined.");
             }
 
             return _certificateRepository.GetCertificate(X509FindType.FindBySerialNumber, _certificateSerialNr);
