@@ -478,6 +478,8 @@ namespace Eu.EDelivery.AS4.Model.PMode
 
     public class TlsConfiguration
     {
+        private object _clientCertificateInformation;
+
         public TlsConfiguration()
         {
             IsEnabled = false;
@@ -491,8 +493,36 @@ namespace Eu.EDelivery.AS4.Model.PMode
         [Description("Version for TLS")]
         public TlsVersion TlsVersion { get; set; }
 
+        [XmlIgnore]
+        [JsonIgnore]
+        public TlsCertificateChoiceType CertificateType { get; set; }
+
+        [XmlChoiceIdentifier(nameof(CertificateType))]
+        [XmlElement("ClientCertificateReference", typeof(ClientCertificateReference))]
+        [XmlElement("PrivateKeyCertificate", typeof(PrivateKeyCertificate))]
         [Description("Client certificate reference settings")]
-        public ClientCertificateReference ClientCertificateReference { get; set; }
+        public object ClientCertificateInformation
+        {
+            get { return _clientCertificateInformation; }
+            set
+            {
+                _clientCertificateInformation = value;
+                if (value is ClientCertificateReference)
+                {
+                    CertificateType = TlsCertificateChoiceType.ClientCertificateReference;
+                }
+                else if (value is PrivateKeyCertificate)
+                {
+                    CertificateType = TlsCertificateChoiceType.PrivateKeyCertificate;
+                }
+            }
+        }
+    }
+
+    public enum TlsCertificateChoiceType
+    {
+        ClientCertificateReference,
+        PrivateKeyCertificate
     }
 
     public class ClientCertificateReference
