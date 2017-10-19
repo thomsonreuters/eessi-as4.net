@@ -90,22 +90,17 @@ namespace Eu.EDelivery.AS4.Steps.Submit
             }
             catch (Exception exception)
             {
-                throw FailedToRetrievePayloads(exception, context);
+                const string description = "Failed to retrieve Submit Message Payloads";
+                Logger.Error(description);
+                Logger.Error($"{context.EbmsMessageId} {exception.Message}");
+
+                throw new ApplicationException(description, exception);
             }
         }
 
         private async Task<System.IO.Stream> RetrieveAttachmentContent(Payload payload)
         {
             return await _payloadProvider.Get(payload).RetrievePayloadAsync(payload.Location);
-        }
-
-        private static ApplicationException FailedToRetrievePayloads(Exception exception, MessagingContext messagingContext)
-        {
-            const string description = "Failed to retrieve Submit Message Payloads";
-            Logger.Error(description);
-            Logger.Error($"{messagingContext.EbmsMessageId} {exception.Message}");
-
-            return new ApplicationException(description, exception);
         }
     }
 }
