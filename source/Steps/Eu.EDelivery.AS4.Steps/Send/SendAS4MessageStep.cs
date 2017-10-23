@@ -132,27 +132,37 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
         private static void AssignClientCertificate(TlsConfiguration configuration, HttpWebRequest request)
         {
-            if (!configuration.IsEnabled || configuration.ClientCertificateReference == null)
+            if (!configuration.IsEnabled || configuration.ClientCertificateInformation == null)
             {
                 return;
             }
 
             Logger.Info("Adding Client TLS Certificate to Http Request.");
 
-            ClientCertificateReference certReference = configuration.ClientCertificateReference;
-            X509Certificate2 certificate =
-                Registry.Instance.CertificateRepository.GetCertificate(
-                    certReference.ClientCertificateFindType,
-                    certReference.ClientCertificateFindValue);
-
-            if (certificate == null)
-            {
-                throw new ConfigurationErrorsException(
-                    "The Client TLS Certificate could not be found "
-                    + $"(FindType:{certReference.ClientCertificateFindType}/FindValue:{certReference.ClientCertificateFindValue})");
-            }
+            X509Certificate2 certificate = RetrieveTlsCertificate(configuration);
 
             request.ClientCertificates.Add(certificate);
+        }
+
+        private static X509Certificate2 RetrieveTlsCertificate(TlsConfiguration configuration)
+        {
+            var certFindCriteria = configuration.ClientCertificateInformation as ClientCertificateReference;
+
+            if (certFindCriteria != null)
+            {
+                return Registry.Instance.CertificateRepository.GetCertificate(
+                    certFindCriteria.ClientCertificateFindType,
+                    certFindCriteria.ClientCertificateFindValue);
+            }
+
+            var embeddedCertInfo = configuration.ClientCertificateInformation as PrivateKeyCertificate;
+
+            if (embeddedCertInfo != null)
+            {
+                return new X509Certificate2(Convert.FromBase64String(embeddedCertInfo.Certificate), embeddedCertInfo.Password, X509KeyStorageFlags.Exportable);
+            }
+
+            throw new NotSupportedException("The TLS certificate information specified in the PMode could not be used to retrieve the certificate");
         }
 
         private static async Task<bool> TryWriteToHttpRequestStreamAsync(HttpWebRequest request, MessagingContext messagingContext)
