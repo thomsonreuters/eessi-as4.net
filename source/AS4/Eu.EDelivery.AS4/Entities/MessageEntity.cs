@@ -19,8 +19,10 @@ namespace Eu.EDelivery.AS4.Entities
     /// </summary>
     public abstract class MessageEntity : Entity
     {
+        [MaxLength(256)]
         public string EbmsMessageId { get; private set; }
 
+        [MaxLength(256)]
         public string EbmsRefToMessageId { get; set; }
 
         [MaxLength(256)]
@@ -34,6 +36,7 @@ namespace Eu.EDelivery.AS4.Entities
         /// <summary>
         /// Gets the ID of the PMode that is used to process this message.
         /// </summary>
+        [MaxLength(256)]
         public string PModeId { get; private set; }
 
         /// <summary>
@@ -129,6 +132,7 @@ namespace Eu.EDelivery.AS4.Entities
             MEP = mep.ToString();
         }
 
+        [MaxLength(50)]
         public string EbmsMessageType { get; private set; }
 
         public void SetEbmsMessageType(MessageType messageType)
@@ -137,6 +141,7 @@ namespace Eu.EDelivery.AS4.Entities
         }
 
         [Column("Status")]
+        [MaxLength(50)]
         public string Status { get; protected set; }
 
         public string SoapEnvelope { get; set; }

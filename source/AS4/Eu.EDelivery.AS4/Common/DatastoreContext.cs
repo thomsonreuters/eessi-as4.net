@@ -37,7 +37,27 @@ namespace Eu.EDelivery.AS4.Common
         {
             InitializeFields();
         }
-      
+
+        /*
+
+        //   The code below is required when creating a new Db-Migration.
+        //  The Add-Migration command requires a default constructor on DatastoreContext
+
+        public DatastoreContext() : this(GetDbContextOptions())
+        {
+        }
+
+        private static DbContextOptions<DatastoreContext> GetDbContextOptions()
+        {
+            var optionsBuilder = new DbContextOptionsBuilder<DatastoreContext>();
+
+            optionsBuilder.UseSqlServer("Server=.;database=as4test;integrated security=sspi");
+
+            return optionsBuilder.Options;
+        }
+
+        */
+
         /// <summary>
         /// Initializes a new instance of the <see cref="DatastoreContext"/> class. 
         /// Create a new Data Store Context with given a Configuration Dependency
