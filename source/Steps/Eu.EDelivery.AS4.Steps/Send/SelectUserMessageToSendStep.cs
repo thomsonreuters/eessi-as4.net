@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
@@ -97,11 +98,9 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 using (DatastoreContext context = _createContext())
                 {
                     var repository = new DatastoreRepository(context);
-
+                    
                     OutMessage message =
-                        repository.GetOutMessageData(
-                            m => PullRequestQuery(m, pullRequestMessage),
-                            m => m);
+                        repository.GetOutMessageData(PullRequestQuery(pullRequestMessage), m => m);
 
                     if (message == null)
                     {
@@ -117,11 +116,11 @@ namespace Eu.EDelivery.AS4.Steps.Send
             }
         }
 
-        private static bool PullRequestQuery(MessageEntity userMessage, PullRequest pullRequest)
+        private static Expression<Func<OutMessage, bool>> PullRequestQuery(PullRequest pullRequest)
         {
-            return userMessage.Mpc == pullRequest.Mpc
-                   && userMessage.Operation == Operation.ToBeSent.ToString()
-                   && userMessage.MEP == MessageExchangePattern.Pull.ToString();
+            return m => m.Mpc == pullRequest.Mpc &&
+                        m.Operation == Operation.ToBeSent.ToString() &&
+                        m.MEP == MessageExchangePattern.Pull.ToString();
         }
     }
 }
