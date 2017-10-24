@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq.Expressions;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Services;
@@ -68,7 +69,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Services
             {
                 var stub = new Mock<IDatastoreRepository>();
 
-                stub.Setup(r => r.GetOutMessageData(It.IsAny<string>(), It.IsAny<Func<OutMessage, Operation>>()))
+                stub.Setup(r => r.GetOutMessageData(It.IsAny<string>(), It.IsAny<Expression<Func<OutMessage, Operation>>>()))
                     .Returns(operation);
 
                 return stub.Object;
@@ -206,7 +207,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Services
                 var selectArgument = new OutMessage(ebmsMessageId: messageId);
                 selectArgument.SetStatus(status);
 
-                stubRepository.Setup(r => r.GetOutMessageData(It.IsAny<string>(), It.IsAny<Func<OutMessage, bool>>()))
+                stubRepository.Setup(r => r.GetOutMessageData(It.IsAny<string>(), It.IsAny<Expression<Func<OutMessage, bool>>>()))
                               .Returns(
                                   (string id, Func<OutMessage, bool> selection) =>
                                       selection(selectArgument));
@@ -219,7 +220,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Services
                 // Assert
                 Assert.Equal(expected, actual);
                 stubRepository.Verify(
-                    expression: r => r.GetOutMessageData(It.IsAny<string>(), It.IsAny<Func<OutMessage, bool>>()),
+                    expression: r => r.GetOutMessageData(It.IsAny<string>(), It.IsAny<Expression<Func<OutMessage, bool>>>()),
                     times: Times.Once);
             }
         }
