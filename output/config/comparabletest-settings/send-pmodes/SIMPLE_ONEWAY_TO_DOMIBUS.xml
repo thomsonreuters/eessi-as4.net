@@ -75,7 +75,7 @@
   <MessagePackaging>
     <UseAS4Compression>true</UseAS4Compression>
     <IsMultiHop>false</IsMultiHop>
-    <IncludePModeId>true</IncludePModeId>
+    <IncludePModeId>false</IncludePModeId>
     <CollaborationInfo>
       <Action>ACT_SIMPLE_ONEWAY</Action>
       <Service>
@@ -86,7 +86,7 @@
       <FromParty>
         <PartyIds>
           <PartyId>
-            <Id>as4.net-c2</Id>
+            <Id>as4-net-c2</Id>
           </PartyId>
         </PartyIds>
         <Role>Sender</Role>
