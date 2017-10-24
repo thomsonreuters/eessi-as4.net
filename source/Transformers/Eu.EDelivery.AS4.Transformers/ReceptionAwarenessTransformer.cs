@@ -25,10 +25,10 @@ namespace Eu.EDelivery.AS4.Transformers
         {
             ReceivedEntityMessage entityMessage = RetrieveEntityMessage(message);
             ReceptionAwareness awareness = RetrieveReceptionAwareness(entityMessage);
-            var internalMessage = new MessagingContext(awareness);
+            var messagingContext = new MessagingContext(awareness);
 
             Logger.Info($"[{awareness.InternalMessageId}] Reception Awareness is successfully transformed");
-            return await Task.FromResult(internalMessage);
+            return await Task.FromResult(messagingContext);
         }
 
         private static ReceptionAwareness RetrieveReceptionAwareness(ReceivedEntityMessage messageEntity)

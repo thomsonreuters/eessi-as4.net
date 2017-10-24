@@ -12,6 +12,7 @@ using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Security.Strategies;
 using NLog;
+using System.Security.Cryptography;
 
 namespace Eu.EDelivery.AS4.Steps.Send
 {
@@ -84,7 +85,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
                     Logger.Error(exception.InnerException.Message);
                 }
                 Logger.Trace(exception.StackTrace);
-                throw ThrowCommonSigningException(exception.Message, exception);
+                throw;
             }
         }
 
@@ -94,7 +95,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
             if (!certificate.HasPrivateKey)
             {
-                throw ThrowCommonSigningException($"{message.EbmsMessageId} Certificate hasn't a private key");
+              throw new CryptographicException($"{message.EbmsMessageId} Certificate does not have a private key");
             }
 
             ISigningStrategy signingStrategy = CreateSignStrategy(message, certificate);
@@ -125,12 +126,6 @@ namespace Eu.EDelivery.AS4.Steps.Send
             }
 
             throw new NotSupportedException("The signing certificate information specified in the PMode could not be used to retrieve the certificate");
-        }
-
-        private static ApplicationException ThrowCommonSigningException(string description, Exception innerException = null)
-        {
-            Logger.Error(description);
-            return new ApplicationException(description, innerException);
         }
 
         private static ISigningStrategy CreateSignStrategy(MessagingContext messagingContext, X509Certificate2 certificate)

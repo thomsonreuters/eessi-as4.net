@@ -16,7 +16,7 @@ namespace Eu.EDelivery.AS4.Transformers.InteropTestTransformers
         public async Task<MessagingContext> TransformAsync(ReceivedMessage message, CancellationToken cancellationToken)
         {
             // We receive an AS4Message from Minder, we should convert it to a SubmitMessage if the action is submit.
-            // In any other case, we should just return an InternalMessage which contains the as4Message.
+            // In any other case, we should just return an MessagingContext which contains the as4Message.
             var transformer = new AS4MessageTransformer();
             var messagingContext = await transformer.TransformAsync(message, cancellationToken);
 

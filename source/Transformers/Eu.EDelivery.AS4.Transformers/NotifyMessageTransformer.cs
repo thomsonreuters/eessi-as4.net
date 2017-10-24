@@ -100,9 +100,9 @@ namespace Eu.EDelivery.AS4.Transformers
         private static async Task<AS4Message> RetrieveAS4MessageForNotificationFromReceivedMessage(ReceivedMessageEntityMessage entityMessage, CancellationToken cancellationToken)
         {
             var as4Transformer = new AS4MessageTransformer();
-            var internalMessage = await as4Transformer.TransformAsync(entityMessage, cancellationToken);
+            var messagingContext = await as4Transformer.TransformAsync(entityMessage, cancellationToken);
 
-            var as4Message = internalMessage.AS4Message;
+            var as4Message = messagingContext.AS4Message;
 
             // No attachments are needed in order to create notify messages.
             as4Message.CloseAttachments();
