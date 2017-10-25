@@ -84,7 +84,7 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
 
         private static string CombineDestinationFullName(string fileName, string destinationFolder)
         {
-            string filename = FilenameSanitizer.EnsureValidFilename(fileName) + ".xml";
+            string filename = FilenameUtils.EnsureValidFilename(fileName) + ".xml";
             return Path.Combine(destinationFolder ?? string.Empty, filename);
         }
 

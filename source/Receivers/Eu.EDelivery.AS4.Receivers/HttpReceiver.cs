@@ -334,7 +334,7 @@ namespace Eu.EDelivery.AS4.Receivers
                 try
                 {
                     string newReceivedMessageFile =
-                                     FilenameSanitizer.EnsureValidFilename($"{hostInformation}.{Guid.NewGuid()}.{DateTime.Now:yyyyMMdd}");
+                                     FilenameUtils.EnsureValidFilename($"{hostInformation}.{Guid.NewGuid()}.{DateTime.Now:yyyyMMdd}");
 
                     Logger.Info($"Logging to {newReceivedMessageFile}");
                     using (var destinationStream = new FileStream(Path.Combine(logDir, newReceivedMessageFile), FileMode.Create))
