@@ -252,7 +252,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
             }
 
             LoadXml(GetSignatureElement());
-            AddUnreconizedAttachmentReferences(options.Attachments);
+            AddUnrecognizedAttachmentReferences(options.Attachments);
 
             return CheckSignature(SecurityTokenReference.Certificate, verifySignatureOnly: true);
         }
@@ -282,7 +282,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
             }
         }
 
-        private void AddUnreconizedAttachmentReferences(ICollection<Attachment> attachments)
+        private void AddUnrecognizedAttachmentReferences(ICollection<Attachment> attachments)
         {
             IEnumerable<CryptoReference> references = SignedInfo
                 .References.Cast<CryptoReference>().Where(ReferenceIsCidReference()).ToArray();
