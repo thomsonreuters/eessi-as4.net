@@ -159,7 +159,10 @@ namespace Eu.EDelivery.AS4.Common
             };
 
             _providers["SqlServer"] = c => optionsBuilder.UseSqlServer(c);
-            _providers["InMemory"] = c => optionsBuilder.UseInMemoryDatabase(c);
+            // The InMemoryDatabaseProvider does not represent a relation database and
+            // therefore does not support DB Migrations.  That is the reason why
+            // we use Sqlite with an 'in memory' connection string when the provider is 'InMemory'.
+            _providers["InMemory"] = c => optionsBuilder.UseSqlite("Data Source=:memory:"); 
 
             // TODO: add other providers
         }
@@ -230,7 +233,6 @@ namespace Eu.EDelivery.AS4.Common
             modelBuilder.Entity<OutException>().Property(oe => oe.Exception).UsePropertyAccessMode(PropertyAccessMode.Field);
             modelBuilder.Entity<OutException>().Property(oe => oe.PMode).UsePropertyAccessMode(PropertyAccessMode.Field);
             modelBuilder.Entity<OutException>().Property(oe => oe.PModeId).UsePropertyAccessMode(PropertyAccessMode.Field);
-
 
             modelBuilder.Entity<ReceptionAwareness>().HasKey(r => r.Id);
             modelBuilder.Entity<ReceptionAwareness>().Property(r => r.Id).UseSqlServerIdentityColumn();
