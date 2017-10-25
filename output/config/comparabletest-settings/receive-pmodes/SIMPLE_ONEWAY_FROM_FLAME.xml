@@ -70,7 +70,7 @@
   </MessagePackaging>
   <MessageHandling>
     <Deliver>
-      <IsEnabled>true</IsEnabled>
+      <IsEnabled>false</IsEnabled>
       <PayloadReferenceMethod>
         <Type>FILE</Type>
         <Parameters>
