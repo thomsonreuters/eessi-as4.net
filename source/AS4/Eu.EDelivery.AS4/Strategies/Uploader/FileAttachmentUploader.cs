@@ -94,7 +94,7 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
                 await attachment.Content.CopyToAsync(fileStream).ConfigureAwait(false);
             }
 
-            Logger.Info($"Attachment {attachment.Id} is uploaded successfully to {attachment.Location}");
+            Logger.Info($"Attachment {attachment.Id} is uploaded successfully to {attachmentFilePath}");
         }
     }
 }
