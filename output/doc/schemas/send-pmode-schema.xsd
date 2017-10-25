@@ -46,7 +46,10 @@
     <xs:sequence>
       <xs:element minOccurs="1" maxOccurs="1" name="IsEnabled" type="xs:boolean" />
       <xs:element minOccurs="0" maxOccurs="1" default="Tls12" name="TlsVersion" type="tns:TlsVersion" />
-      <xs:element minOccurs="0" maxOccurs="1" name="ClientCertificateReference" type="tns:ClientCertificateReference" />
+      <xs:choice minOccurs="1" maxOccurs="1">
+        <xs:element minOccurs="0" maxOccurs="1" name="ClientCertificateReference" type="tns:ClientCertificateReference" />
+        <xs:element minOccurs="0" maxOccurs="1" name="PrivateKeyCertificate" type="tns:PrivateKeyCertificate" />
+      </xs:choice>
     </xs:sequence>
   </xs:complexType>
   <xs:simpleType name="TlsVersion">
@@ -82,6 +85,12 @@
       <xs:enumeration value="FindBySubjectKeyIdentifier" />
     </xs:restriction>
   </xs:simpleType>
+  <xs:complexType name="PrivateKeyCertificate">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="Certificate" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Password" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
   <xs:complexType name="DynamicDiscoveryConfiguration">
     <xs:sequence>
       <xs:element minOccurs="0" maxOccurs="1" name="SmlScheme" type="xs:string" />
@@ -145,12 +154,6 @@
     <xs:sequence>
       <xs:element minOccurs="1" maxOccurs="1" name="CertificateFindType" type="tns:X509FindType" />
       <xs:element minOccurs="0" maxOccurs="1" name="CertificateFindValue" type="xs:string" />
-    </xs:sequence>
-  </xs:complexType>
-  <xs:complexType name="PrivateKeyCertificate">
-    <xs:sequence>
-      <xs:element minOccurs="0" maxOccurs="1" name="Certificate" type="xs:string" />
-      <xs:element minOccurs="0" maxOccurs="1" name="Password" type="xs:string" />
     </xs:sequence>
   </xs:complexType>
   <xs:simpleType name="X509ReferenceType">

@@ -284,9 +284,12 @@ namespace Eu.EDelivery.AS4.Services
 
             var refToMessageIds = signalMessages.Select(r => r.RefToMessageId).ToArray();
 
-            _repository.UpdateOutMessages(
-                m => refToMessageIds.Contains(m.EbmsMessageId) && m.Intermediary == false,
-                m => m.SetStatus(outStatus));
+            if (refToMessageIds.Any())
+            {
+                _repository.UpdateOutMessages(
+                    m => refToMessageIds.Contains(m.EbmsMessageId) && m.Intermediary == false,
+                    m => m.SetStatus(outStatus));
+            }
         }
 
         #region UserMessage related

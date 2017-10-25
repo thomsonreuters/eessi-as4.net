@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -171,11 +172,14 @@ namespace Eu.EDelivery.AS4.Services
         /// <returns></returns>
         public async Task UpdateAS4MessageToBeSent(AS4Message message, CancellationToken cancellation)
         {
-            string messageBodyLocation = _repository.GetOutMessageData(message.GetPrimaryMessageId(), m => m.MessageLocation);
+            string ebmsMessageId = message.GetPrimaryMessageId();
+
+            string messageBodyLocation = _repository.GetOutMessageData(ebmsMessageId, m => m.MessageLocation);
+
             await _messageBodyStore.UpdateAS4MessageAsync(messageBodyLocation, message, cancellation);
 
             _repository.UpdateOutMessage(
-                message.GetPrimaryMessageId(),
+                ebmsMessageId,
                 m =>
                 {
                     m.SetOperation(Operation.ToBeSent);

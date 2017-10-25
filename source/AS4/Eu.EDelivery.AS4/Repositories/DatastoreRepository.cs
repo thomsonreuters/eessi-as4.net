@@ -7,7 +7,6 @@ using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Microsoft.Extensions.Caching.Memory;
 using NLog;
-using Z.EntityFramework.Plus;
 using ReceptionAwareness = Eu.EDelivery.AS4.Entities.ReceptionAwareness;
 
 namespace Eu.EDelivery.AS4.Repositories
@@ -37,7 +36,7 @@ namespace Eu.EDelivery.AS4.Repositories
         /// </summary>
         /// <param name="predicate"></param>
         /// <returns></returns>
-        public bool InMessageExists(Func<InMessage, bool> predicate)
+        public bool InMessageExists(Expression<Func<InMessage, bool>> predicate)
         {
             return _datastoreContext.InMessages.Any(predicate);
         }
@@ -49,7 +48,7 @@ namespace Eu.EDelivery.AS4.Repositories
         /// <param name="messageId"></param>
         /// <param name="selection">The selection.</param>
         /// <returns></returns>
-        public TResult GetInMessageData<TResult>(string messageId, Func<InMessage, TResult> selection)
+        public TResult GetInMessageData<TResult>(string messageId, Expression<Func<InMessage, TResult>> selection)
         {
             return
                 _datastoreContext.InMessages.Where(m => m.EbmsMessageId.Equals(messageId)).Select(selection).FirstOrDefault();
@@ -62,7 +61,7 @@ namespace Eu.EDelivery.AS4.Repositories
         /// <param name="messageIds"></param>
         /// <param name="selection"></param>
         /// <returns></returns>
-        public IEnumerable<TResult> GetInMessagesData<TResult>(IEnumerable<string> messageIds, Func<InMessage, TResult> selection)
+        public IEnumerable<TResult> GetInMessagesData<TResult>(IEnumerable<string> messageIds, Expression<Func<InMessage, TResult>> selection)
         {
             if (messageIds.Any() == false)
             {
@@ -81,7 +80,7 @@ namespace Eu.EDelivery.AS4.Repositories
         {
             return
                 _datastoreContext.InMessages.Where(m => searchedMessageIds.Contains(m.EbmsMessageId))
-                          .Select(m => m.EbmsMessageId);
+                                            .Select(m => m.EbmsMessageId);
         }
 
         /// <summary>
@@ -138,18 +137,6 @@ namespace Eu.EDelivery.AS4.Repositories
             }
         }
 
-        [Obsolete]
-        public void UpdateInMessages(IEnumerable<string> messageIds, Action<InMessage> updateAction)
-        {
-            Dictionary<string, long> idMap = GetMessageIdsForEbmsMessageIds(_datastoreContext.InMessages, _inMessageIdMap, messageIds.ToArray());
-
-            foreach (KeyValuePair<string, long> kvp in idMap)
-            {
-                InMessage msg = GetInMessageEntityFor(kvp.Key, kvp.Value);
-                UpdateMessageEntityIfNotNull(updateAction, msg);
-            }
-        }
-
         public void UpdateInMessages(Expression<Func<InMessage, bool>> predicate, Action<InMessage> updateAction)
         {
             var inMessages = _datastoreContext.InMessages.Where(predicate);
@@ -163,11 +150,6 @@ namespace Eu.EDelivery.AS4.Repositories
             }
         }
 
-        [Obsolete("Sqlite is not supported by this method.")]
-        public void UpdateInMessages(Expression<Func<InMessage, bool>> predicate, Expression<Func<InMessage, InMessage>> updateAction)
-        {
-            _datastoreContext.InMessages.Where(predicate).Update(updateAction);
-        }
 
         private InMessage GetInMessageEntityFor(string ebmsMessageId, long id)
         {
@@ -196,7 +178,7 @@ namespace Eu.EDelivery.AS4.Repositories
 
         #region OutMessage related functionality
 
-        public bool OutMessageExists(Func<OutMessage, bool> predicate)
+        public bool OutMessageExists(Expression<Func<OutMessage, bool>> predicate)
         {
             return _datastoreContext.OutMessages.Any(predicate);
         }
@@ -208,7 +190,7 @@ namespace Eu.EDelivery.AS4.Repositories
         /// <param name="messageId">The message identifier.</param>
         /// <param name="selection">The selection.</param>
         /// <returns></returns>
-        public TResult GetOutMessageData<TResult>(string messageId, Func<OutMessage, TResult> selection)
+        public TResult GetOutMessageData<TResult>(string messageId, Expression<Func<OutMessage, TResult>> selection)
         {
             return GetOutMessageData(m => m.EbmsMessageId.Equals(messageId), selection);
         }
@@ -216,13 +198,14 @@ namespace Eu.EDelivery.AS4.Repositories
         /// <summary>
         /// Gets the out message data.
         /// </summary>
+        /// <remarks>The where clause must make sure that only one entity is retrieved.</remarks>
         /// <typeparam name="TResult">The type of the result.</typeparam>
         /// <param name="where">The where.</param>
         /// <param name="selection">The selection.</param>
         /// <returns></returns>
-        public TResult GetOutMessageData<TResult>(Func<OutMessage, bool> where, Func<OutMessage, TResult> selection)
+        public TResult GetOutMessageData<TResult>(Expression<Func<OutMessage, bool>> where, Expression<Func<OutMessage, TResult>> selection)
         {
-            return _datastoreContext.OutMessages.Where(where).Select(selection).FirstOrDefault();
+            return _datastoreContext.OutMessages.Where(where).Select(selection).SingleOrDefault();
         }
 
         /// <summary>
@@ -250,26 +233,12 @@ namespace Eu.EDelivery.AS4.Repositories
         /// <param name="updateAction"></param>
         public void UpdateOutMessage(string messageId, Action<OutMessage> updateAction)
         {
-            // We need to know the Id, since Attaching only works when the Primary Key is known.
-            // Still, retrieving only the PK will still be faster then retrieving the complete entity.
-            // Maybe we should define the ebmsId as the PK ?            
+            // We need to know the Id, since Attaching only works when the Primary Key is known.            
             Dictionary<string, long> keyMap = GetMessageIdsForEbmsMessageIds(_datastoreContext.OutMessages, _outMessageIdMap, messageId);
 
             if (keyMap.ContainsKey(messageId))
             {
                 OutMessage msg = GetOutMessageEntityFor(messageId, keyMap[messageId]);
-                UpdateMessageEntityIfNotNull(updateAction, msg);
-            }
-        }
-
-        // TODO: can it be made obsolete ?
-        public void UpdateOutMessages(IEnumerable<string> messageIds, Action<OutMessage> updateAction)
-        {
-            Dictionary<string, long> idMap = GetMessageIdsForEbmsMessageIds(_datastoreContext.OutMessages, _outMessageIdMap, messageIds.ToArray());
-
-            foreach (KeyValuePair<string, long> kvp in idMap)
-            {
-                OutMessage msg = GetOutMessageEntityFor(kvp.Key, kvp.Value);
                 UpdateMessageEntityIfNotNull(updateAction, msg);
             }
         }
@@ -282,12 +251,6 @@ namespace Eu.EDelivery.AS4.Repositories
             {
                 updateAction(m);
             }
-        }
-
-        [Obsolete("Sqlite is not supported by this method")]
-        public void UpdateOutMessages(Expression<Func<OutMessage, bool>> predicate, Expression<Func<OutMessage, OutMessage>> updateAction)
-        {
-            _datastoreContext.OutMessages.Where(predicate).Update(updateAction);
         }
 
         private OutMessage GetOutMessageEntityFor(string ebmsMessageId, long id)
@@ -517,7 +480,7 @@ namespace Eu.EDelivery.AS4.Repositories
                     }
                 }
             }
-
+            
             return result;
         }
 

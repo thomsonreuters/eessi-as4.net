@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Configuration;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
@@ -287,7 +288,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 var repository = new DatastoreRepository(context);
 
                 repository.UpdateOutMessages(
-                    as4Message.MessageIds,
+                    outMessage => as4Message.MessageIds.Contains(outMessage.EbmsMessageId),
                     outMessage =>
                     {
                         outMessage.SetOperation(operation);

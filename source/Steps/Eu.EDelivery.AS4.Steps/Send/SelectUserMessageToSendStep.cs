@@ -1,5 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Linq;
+using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
@@ -96,19 +98,16 @@ namespace Eu.EDelivery.AS4.Steps.Send
             {
                 using (DatastoreContext context = _createContext())
                 {
-                    var repository = new DatastoreRepository(context);
-
-                    OutMessage message =
-                        repository.GetOutMessageData(
-                            m => PullRequestQuery(m, pullRequestMessage),
-                            m => m);
-
+                    OutMessage message = 
+                        context.OutMessages.Where(PullRequestQuery(pullRequestMessage))
+                                           .OrderBy(m => m.InsertionTime).Take(1).FirstOrDefault();
                     if (message == null)
                     {
                         return (false, null);
                     }
 
-                    repository.UpdateOutMessage(message.EbmsMessageId, m => m.SetOperation(Operation.Sent));
+                    message.SetOperation(Operation.Sent);
+
                     context.SaveChanges();
                     scope.Complete();
 
@@ -117,11 +116,11 @@ namespace Eu.EDelivery.AS4.Steps.Send
             }
         }
 
-        private static bool PullRequestQuery(MessageEntity userMessage, PullRequest pullRequest)
+        private static Expression<Func<OutMessage, bool>> PullRequestQuery(PullRequest pullRequest)
         {
-            return userMessage.Mpc == pullRequest.Mpc
-                   && userMessage.Operation == Operation.ToBeSent.ToString()
-                   && userMessage.MEP == MessageExchangePattern.Pull.ToString();
+            return m => m.Mpc == pullRequest.Mpc &&
+                        m.Operation == Operation.ToBeSent.ToString() &&
+                        m.MEP == MessageExchangePattern.Pull.ToString();
         }
     }
 }

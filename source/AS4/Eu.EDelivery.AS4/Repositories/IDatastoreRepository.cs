@@ -21,7 +21,7 @@ namespace Eu.EDelivery.AS4.Repositories
         /// </summary>
         /// <param name="predicate">The predicate.</param>
         /// <returns></returns>
-        bool InMessageExists(Func<InMessage, bool> predicate);
+        bool InMessageExists(Expression<Func<InMessage, bool>> predicate);
 
         /// <summary>
         /// Select all the found 'EbmsMessageIds' in the given datastore.
@@ -45,7 +45,7 @@ namespace Eu.EDelivery.AS4.Repositories
         /// <param name="selection">The selection.</param>
         /// <returns></returns>
         /// <exception cref="Exception">A delegate callback throws an exception.</exception>
-        TResult GetInMessageData<TResult>(string messageId, Func<InMessage, TResult> selection);
+        TResult GetInMessageData<TResult>(string messageId, Expression<Func<InMessage, TResult>> selection);
 
         /// <summary>
         /// Selects some information of specified InMessages.
@@ -54,7 +54,7 @@ namespace Eu.EDelivery.AS4.Repositories
         /// <param name="messageIds"></param>
         /// <param name="selection"></param>
         /// <returns></returns>
-        IEnumerable<TResult> GetInMessagesData<TResult>(IEnumerable<string> messageIds, Func<InMessage, TResult> selection);
+        IEnumerable<TResult> GetInMessagesData<TResult>(IEnumerable<string> messageIds, Expression<Func<InMessage, TResult>> selection);
 
         /// <summary>
         /// Updates the in message.
@@ -63,8 +63,6 @@ namespace Eu.EDelivery.AS4.Repositories
         /// <param name="updateAction">The update action.</param>
         void UpdateInMessage(string messageId, Action<InMessage> updateAction);
 
-        [Obsolete("Sqlite is not supported by this method")]
-        void UpdateInMessages(Expression<Func<InMessage, bool>> predicate, Expression<Func<InMessage, InMessage>> updateAction);
 
         void UpdateInMessages(Expression<Func<InMessage, bool>> predicate, Action<InMessage> updateAction);
 
@@ -77,7 +75,7 @@ namespace Eu.EDelivery.AS4.Repositories
         /// </summary>
         /// <param name="predicate"></param>
         /// <returns></returns>
-        bool OutMessageExists(Func<OutMessage, bool> predicate);
+        bool OutMessageExists(Expression<Func<OutMessage, bool>> predicate);
 
         /// <summary>
         /// Firsts the or default out message.
@@ -86,7 +84,7 @@ namespace Eu.EDelivery.AS4.Repositories
         /// <param name="messageId">The message identifier.</param>
         /// <param name="selection">The selection.</param>
         /// <returns></returns>
-        TResult GetOutMessageData<TResult>(string messageId, Func<OutMessage, TResult> selection);
+        TResult GetOutMessageData<TResult>(string messageId, Expression<Func<OutMessage, TResult>> selection);
 
         /// <summary>
         /// Gets the out message data.
@@ -95,7 +93,7 @@ namespace Eu.EDelivery.AS4.Repositories
         /// <param name="where">The where.</param>
         /// <param name="selection">The selection.</param>
         /// <returns></returns>
-        TResult GetOutMessageData<TResult>(Func<OutMessage, bool> where, Func<OutMessage, TResult> selection);
+        TResult GetOutMessageData<TResult>(Expression<Func<OutMessage, bool>> where, Expression<Func<OutMessage, TResult>> selection);
 
         /// <summary>
         /// Inserts the out message.
@@ -109,9 +107,6 @@ namespace Eu.EDelivery.AS4.Repositories
         /// <param name="messageId">The message identifier.</param>
         /// <param name="updateAction">The update action.</param>
         void UpdateOutMessage(string messageId, Action<OutMessage> updateAction);
-
-        [Obsolete("Sqlite is not supported by this method")]
-        void UpdateOutMessages(Expression<Func<OutMessage, bool>> predicate, Expression<Func<OutMessage, OutMessage>> updateAction);
 
         void UpdateOutMessages(Expression<Func<OutMessage, bool>> predicate, Action<OutMessage> updateAction);
 
