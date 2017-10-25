@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
+using Eu.EDelivery.AS4.Factories;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
@@ -102,22 +103,19 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
                 }
             }
 
-            using (var messageStream = new MemoryStream(Encoding.UTF8.GetBytes(Properties.Resources.as4_encrypted_envelope)))
+            var sendingPMode = new SendingProcessingMode()
             {
-                var serializer = new SoapEnvelopeSerializer();
-                AS4Message message = await serializer
-                    .DeserializeAsync(messageStream, Constants.ContentTypes.Soap, CancellationToken.None);
+                Id = "SomePModeId",
+                MepBinding = GetMepBindingFromMep(pattern)
+            };
 
-                message.PrimaryUserMessage.Mpc = mpc;
+            var userMessage = UserMessageFactory.Instance.Create(sendingPMode);
+            userMessage.Mpc = mpc;
 
-                var sendingPMode = new SendingProcessingMode()
-                {
-                    Id = "SomePModeId",
-                    MepBinding = GetMepBindingFromMep(pattern)
-                };
+            var as4Message = AS4Message.Create(userMessage, sendingPMode);
 
-                await InsertOutMessage(message, operation, sendingPMode);
-            }
+            await InsertOutMessage(as4Message, operation, sendingPMode);
+            
         }
 
         private async Task InsertOutMessage(AS4Message as4Message, Operation operation, SendingProcessingMode sendingPMode)
