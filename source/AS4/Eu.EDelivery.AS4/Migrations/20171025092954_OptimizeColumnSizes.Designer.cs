@@ -8,7 +8,7 @@ using Eu.EDelivery.AS4.Common;
 namespace Eu.EDelivery.AS4.Migrations
 {
     [DbContext(typeof(DatastoreContext))]
-    [Migration("20171024134135_OptimizeColumnSizes")]
+    [Migration("20171025092954_OptimizeColumnSizes")]
     partial class OptimizeColumnSizes
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -25,6 +25,7 @@ namespace Eu.EDelivery.AS4.Migrations
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("EbmsRefToMessageId")
+                        .HasMaxLength(256)
                         .HasAnnotation("PropertyAccessMode", PropertyAccessMode.Field);
 
                     b.Property<string>("Exception")
@@ -45,6 +46,7 @@ namespace Eu.EDelivery.AS4.Migrations
                         .HasAnnotation("PropertyAccessMode", PropertyAccessMode.Field);
 
                     b.Property<string>("PModeId")
+                        .HasMaxLength(256)
                         .HasAnnotation("PropertyAccessMode", PropertyAccessMode.Field);
 
                     b.HasKey("Id");
@@ -148,6 +150,7 @@ namespace Eu.EDelivery.AS4.Migrations
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("EbmsRefToMessageId")
+                        .HasMaxLength(256)
                         .HasAnnotation("PropertyAccessMode", PropertyAccessMode.Field);
 
                     b.Property<string>("Exception")
@@ -168,6 +171,7 @@ namespace Eu.EDelivery.AS4.Migrations
                         .HasAnnotation("PropertyAccessMode", PropertyAccessMode.Field);
 
                     b.Property<string>("PModeId")
+                        .HasMaxLength(256)
                         .HasAnnotation("PropertyAccessMode", PropertyAccessMode.Field);
 
                     b.HasKey("Id");
@@ -277,15 +281,18 @@ namespace Eu.EDelivery.AS4.Migrations
                     b.Property<DateTimeOffset>("InsertionTime");
 
                     b.Property<string>("InternalMessageId")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasMaxLength(256);
 
                     b.Property<DateTimeOffset?>("LastSendTime");
 
                     b.Property<DateTimeOffset>("ModificationTime");
 
-                    b.Property<string>("RetryInterval");
+                    b.Property<string>("RetryInterval")
+                        .HasMaxLength(12);
 
-                    b.Property<string>("Status");
+                    b.Property<string>("Status")
+                        .HasMaxLength(25);
 
                     b.Property<int>("TotalRetryCount");
 

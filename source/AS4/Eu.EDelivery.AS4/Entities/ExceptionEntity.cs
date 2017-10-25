@@ -12,6 +12,7 @@ namespace Eu.EDelivery.AS4.Entities
     /// </summary>
     public class ExceptionEntity : Entity
     {
+        [MaxLength(256)]
         public string EbmsRefToMessageId { get; private set; }
 
         public string Exception { get; private set; }
@@ -19,6 +20,8 @@ namespace Eu.EDelivery.AS4.Entities
         public byte[] MessageBody { get; private set; }
 
         public string PMode { get; private set; }
+
+        [MaxLength(256)]
         public string PModeId { get; private set; }
 
         /// <summary>

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Eu.EDelivery.AS4.Entities
@@ -8,12 +9,14 @@ namespace Eu.EDelivery.AS4.Entities
     /// </summary>
     public class ReceptionAwareness : Entity
     {
+        [MaxLength(256)]
         public string InternalMessageId { get; set; }
 
         public int CurrentRetryCount { get; set; }
 
         public int TotalRetryCount { get; set; }
 
+        [MaxLength(12)]
         public string RetryInterval { get; set; }
 
         /// <summary>
@@ -22,7 +25,7 @@ namespace Eu.EDelivery.AS4.Entities
         /// </summary>
         public DateTimeOffset? LastSendTime { get; set; }
 
-
+        [MaxLength(25)]
         public string Status
         {
             get;

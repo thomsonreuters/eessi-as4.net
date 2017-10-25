@@ -341,9 +341,9 @@
     <Compile Include="Migrations\20170919142609_InitialMigration.designer.cs">
       <DependentUpon>20170919142609_InitialMigration.cs</DependentUpon>
     </Compile>
-    <Compile Include="Migrations\20171024134135_OptimizeColumnSizes.cs" />
-    <Compile Include="Migrations\20171024134135_OptimizeColumnSizes.designer.cs">
-      <DependentUpon>20171024134135_OptimizeColumnSizes.cs</DependentUpon>
+    <Compile Include="Migrations\20171025092954_OptimizeColumnSizes.cs" />
+    <Compile Include="Migrations\20171025092954_OptimizeColumnSizes.designer.cs">
+      <DependentUpon>20171025092954_OptimizeColumnSizes.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\DatastoreContextModelSnapshot.cs" />
     <Compile Include="Model\PMode\CertificateFindCriteria.cs" />
