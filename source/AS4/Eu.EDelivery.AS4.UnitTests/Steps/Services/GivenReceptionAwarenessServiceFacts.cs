@@ -209,8 +209,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Services
 
                 stubRepository.Setup(r => r.GetOutMessageData(It.IsAny<string>(), It.IsAny<Expression<Func<OutMessage, bool>>>()))
                               .Returns(
-                                  (string id, Func<OutMessage, bool> selection) =>
-                                      selection(selectArgument));
+                                  (string id, Expression<Func<OutMessage, bool>> selection) =>
+                                  {
+                                      var f = selection.Compile();
+                                      return f(selectArgument);
+                                  });
 
                 var awareness = new AS4.Entities.ReceptionAwareness { InternalMessageId = messageId };
 
