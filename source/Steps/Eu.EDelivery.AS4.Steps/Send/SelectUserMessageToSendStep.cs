@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -98,16 +99,17 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 using (DatastoreContext context = _createContext())
                 {
                     var repository = new DatastoreRepository(context);
-                    
-                    OutMessage message =
-                        repository.GetOutMessageData(PullRequestQuery(pullRequestMessage), m => m);
 
+                    OutMessage message = 
+                        context.OutMessages.Where(PullRequestQuery(pullRequestMessage))
+                                           .OrderBy(m => m.InsertionTime).Take(1).FirstOrDefault();
                     if (message == null)
                     {
                         return (false, null);
                     }
 
-                    repository.UpdateOutMessage(message.EbmsMessageId, m => m.SetOperation(Operation.Sent));
+                    message.SetOperation(Operation.Sent);
+
                     context.SaveChanges();
                     scope.Complete();
 
