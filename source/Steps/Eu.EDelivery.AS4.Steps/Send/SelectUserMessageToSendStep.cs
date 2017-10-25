@@ -98,8 +98,6 @@ namespace Eu.EDelivery.AS4.Steps.Send
             {
                 using (DatastoreContext context = _createContext())
                 {
-                    var repository = new DatastoreRepository(context);
-
                     OutMessage message = 
                         context.OutMessages.Where(PullRequestQuery(pullRequestMessage))
                                            .OrderBy(m => m.InsertionTime).Take(1).FirstOrDefault();
