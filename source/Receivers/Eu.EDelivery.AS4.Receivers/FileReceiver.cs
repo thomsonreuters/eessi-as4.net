@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Repositories;
+using Eu.EDelivery.AS4.Utilities;
 using NLog;
 using Function =
     System.Func<Eu.EDelivery.AS4.Model.Internal.ReceivedMessage, System.Threading.CancellationToken,
@@ -206,7 +207,7 @@ namespace Eu.EDelivery.AS4.Receivers
 
             try
             {
-                destFileName = EnsureFilenameIsUnique(destFileName);
+                destFileName = FilenameUtils.EnsureFilenameIsUnique(destFileName);
 
                 int attempts = 0;
 
@@ -241,21 +242,6 @@ namespace Eu.EDelivery.AS4.Receivers
                 Logger.Trace(ex.StackTrace);
                 return (success: false, filename: string.Empty);
             }
-        }
-
-        private static string EnsureFilenameIsUnique(string filename)
-        {
-            while (File.Exists(filename))
-            {
-                const string copyExtension = " - Copy";
-
-                string name = Path.GetFileName(filename) + copyExtension + Path.GetExtension(filename);
-                string copyFilename = Path.Combine(Path.GetDirectoryName(filename) ?? string.Empty, name);
-
-                filename = copyFilename;
-            }
-
-            return filename;
         }
 
         private static TimeSpan ReadPollingIntervalFromProperties(Dictionary<string, string> properties)

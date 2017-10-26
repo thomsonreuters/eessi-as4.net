@@ -57,23 +57,41 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
             string downloadUrl = AssembleFileDownloadUrlFor(attachment);
             string attachmentFilePath = Path.GetFullPath(downloadUrl);
 
-            await TryUploadAttachment(attachment, attachmentFilePath).ConfigureAwait(false);
-            return new UploadResult { DownloadUrl = attachmentFilePath };
+            string uploadLocation = await TryUploadAttachment(attachment, attachmentFilePath).ConfigureAwait(false);
+            return new UploadResult { DownloadUrl = uploadLocation };
         }
 
         private string AssembleFileDownloadUrlFor(Attachment attachment)
         {
             string extension = _repository.GetExtensionFromMimeType(attachment.ContentType);
-            string fileName = FilenameSanitizer.EnsureValidFilename(attachment.Id);
+            string fileName = FilenameUtils.EnsureValidFilename($"{attachment.Id}{extension}");
 
-            return Path.Combine(Location, $"{fileName}{extension}");
+            return Path.Combine(Location, fileName);
         }
 
-        private static async Task TryUploadAttachment(Attachment attachment, string attachmentFilePath)
+        private static async Task<string> TryUploadAttachment(Attachment attachment, string attachmentFilePath)
         {
             try
             {
-                await UploadAttachment(attachment, attachmentFilePath).ConfigureAwait(false);
+                try
+                {
+                    return await UploadAttachment(attachment, attachmentFilePath).ConfigureAwait(false);
+                }
+                catch (IOException)
+                {
+                    if (File.Exists(attachmentFilePath))
+                    {
+                        // If we happen to be in a concurrent scenario where there already
+                        // exists a file with the same name, try to upload the file as well.
+                        // The TryUploadAttachment method will generate a new name, but it is 
+                        // still possible that, under heavy load, another file has been created
+                        // with the same name as the unique name that we've generated.
+                        // Therefore, retry again.
+                        return await TryUploadAttachment(attachment, attachmentFilePath);
+                    }
+
+                    throw;
+                }
             }
             catch (Exception ex)
             {
@@ -84,17 +102,21 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
             }
         }
 
-        private static async Task UploadAttachment(Attachment attachment, string attachmentFilePath)
+        private static async Task<string> UploadAttachment(Attachment attachment, string attachmentFilePath)
         {
             // Create the directory, if it does not exist.
             Directory.CreateDirectory(Path.GetDirectoryName(attachmentFilePath));
+
+            attachmentFilePath = FilenameUtils.EnsureFilenameIsUnique(attachmentFilePath);
 
             using (FileStream fileStream = File.Create(attachmentFilePath))
             {
                 await attachment.Content.CopyToAsync(fileStream).ConfigureAwait(false);
             }
 
-            Logger.Info($"Attachment {attachment.Id} is uploaded successfully to {attachment.Location}");
+            Logger.Info($"Attachment {attachment.Id} is uploaded successfully to {attachmentFilePath}");
+
+            return attachmentFilePath;
         }
     }
 }
