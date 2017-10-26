@@ -64,9 +64,9 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
         private string AssembleFileDownloadUrlFor(Attachment attachment)
         {
             string extension = _repository.GetExtensionFromMimeType(attachment.ContentType);
-            string fileName = FilenameUtils.EnsureValidFilename(attachment.Id);
+            string fileName = FilenameUtils.EnsureValidFilename($"{attachment.Id}{extension}");
 
-            return Path.Combine(Location, $"{fileName}{extension}");
+            return Path.Combine(Location, fileName);
         }
 
         private static async Task<string> TryUploadAttachment(Attachment attachment, string attachmentFilePath)
