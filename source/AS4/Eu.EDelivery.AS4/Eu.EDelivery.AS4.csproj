@@ -566,6 +566,7 @@
     <Compile Include="Factories\IdentifierFactory.cs" />
     <Compile Include="Utilities\FilenameUtils.cs" />
     <Compile Include="Streaming\VirtualStream.cs" />
+    <Compile Include="Utilities\FileUtils.cs" />
     <Compile Include="Validators\DeliverMessageValidator.cs" />
     <Compile Include="Validators\ParameterValidator.cs" />
     <Compile Include="Validators\ReceivingProcessingModeValidator.cs" />

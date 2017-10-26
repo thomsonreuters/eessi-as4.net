@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Streaming;
+using Eu.EDelivery.AS4.Utilities;
 
 namespace Eu.EDelivery.AS4.Repositories
 {
@@ -64,7 +65,7 @@ namespace Eu.EDelivery.AS4.Repositories
 
             if (!File.Exists(fileName))
             {
-                using (FileStream fs = new FileStream(fileName, FileMode.Create))
+                using (FileStream fs = FileUtils.OpenAsync(fileName, FileMode.Create, FileAccess.Write))
                 {
                     await as4MessageStream.CopyToAsync(fs);
                 }
@@ -121,7 +122,7 @@ namespace Eu.EDelivery.AS4.Repositories
 
         private async Task SaveMessageToFile(AS4Message message, string fileName, CancellationToken cancellationToken)
         {
-            using (FileStream content = File.Create(fileName))
+            using (FileStream content = FileUtils.CreateAsync(fileName))
             {
                 ISerializer serializer = _provider.Get(message.ContentType);
                 await serializer.SerializeAsync(message, content, cancellationToken);
@@ -144,7 +145,7 @@ namespace Eu.EDelivery.AS4.Repositories
 
             if (File.Exists(fileLocation))
             {
-                using (FileStream fileStream = File.OpenRead(fileLocation))
+                using (FileStream fileStream = FileUtils.OpenReadAsync(fileLocation))
                 {
                     VirtualStream virtualStream =
                         VirtualStream.CreateVirtualStream(
