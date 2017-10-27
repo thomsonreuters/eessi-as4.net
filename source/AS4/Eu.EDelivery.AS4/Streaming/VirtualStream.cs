@@ -8,6 +8,9 @@ namespace Eu.EDelivery.AS4.Streaming
 {
     public sealed class VirtualStream : Stream, ICloneable
     {
+        /// <summary>
+        /// The threshold at which VirtualStream will start overflowing to a persistent stream.
+        /// </summary>
         public const int ThresholdMax = ThresholdSize.FiftyMegabytes;
         public const int DefaultBufferSize = 8192;
 
@@ -18,7 +21,7 @@ namespace Eu.EDelivery.AS4.Streaming
         /// Determines the Treshold at which size the stream will overflow to disk.
         /// </summary>
         private readonly int _threshholdSize;
-        private readonly int _bufferSize;
+
         private readonly MemoryFlag _memoryStatus;
 
         /// <summary>
@@ -29,10 +32,10 @@ namespace Eu.EDelivery.AS4.Streaming
         { }
 
         public VirtualStream(MemoryFlag flag)
-          : this(DefaultBufferSize, ThresholdMax, flag, flag == MemoryFlag.OnlyToDisk ? CreatePersistentStream(DefaultBufferSize) : new MemoryStream())
+          : this(ThresholdMax, flag, flag == MemoryFlag.OnlyToDisk ? CreatePersistentStream() : new MemoryStream())
         { }
 
-        private VirtualStream(int bufferSize, int thresholdSize, MemoryFlag flag, Stream dataStream)
+        private VirtualStream(int thresholdSize, MemoryFlag flag, Stream dataStream)
         {
             if (dataStream == null)
             {
@@ -41,7 +44,6 @@ namespace Eu.EDelivery.AS4.Streaming
 
             _isInMemory = flag != MemoryFlag.OnlyToDisk;
             _memoryStatus = flag;
-            _bufferSize = bufferSize;
             _threshholdSize = thresholdSize;
             UnderlyingStream = dataStream;
             _isDisposed = false;
@@ -99,37 +101,37 @@ namespace Eu.EDelivery.AS4.Streaming
         {
             if (expectedSize > thresholdSize)
             {
-                int bufferSize = (expectedSize > ThresholdSize.FiftyMegabytes) ? 204_800 : DefaultBufferSize;
-
-                return new VirtualStream(DefaultBufferSize, thresholdSize, MemoryFlag.OnlyToDisk, CreatePersistentStream(bufferSize));
+                return new VirtualStream(thresholdSize, MemoryFlag.OnlyToDisk, CreatePersistentStream());
             }
 
-            return new VirtualStream(DefaultBufferSize, thresholdSize, MemoryFlag.AutoOverFlowToDisk, new MemoryStream(DefaultBufferSize));
+            return new VirtualStream(thresholdSize, MemoryFlag.AutoOverFlowToDisk, new MemoryStream(DefaultBufferSize));
         }
 
-        private static Stream CreatePersistentStream(int bufferSize)
+        private static Stream CreatePersistentStream()
         {
             StringBuilder stringBuilder = new StringBuilder(261);
             Guid guid = Guid.NewGuid();
             stringBuilder.Append(Path.Combine(Path.GetTempPath(), "VST" + guid.ToString() + ".tmp"));
-            return new FileStream(new SafeFileHandle(NativeMethods.CreateFile(stringBuilder.ToString(), 3U, 0U, IntPtr.Zero, 2U, 67109120U, IntPtr.Zero), true), FileAccess.ReadWrite, bufferSize);
+            return new FileStream(new SafeFileHandle(NativeMethods.CreateFile(stringBuilder.ToString(), 3U, 0U, IntPtr.Zero, 2U, 67109120U, IntPtr.Zero), true), FileAccess.ReadWrite, DefaultBufferSize);
         }
 
         public object Clone()
         {
+            Stream clonedStream;
+
             if (_isInMemory)
             {
-                Stream stream = new MemoryStream((int)UnderlyingStream.Length);
-                CopyStreamContentHelper(UnderlyingStream, stream);
-                stream.Position = 0L;
-                return new VirtualStream(_bufferSize, _threshholdSize, MemoryFlag.AutoOverFlowToDisk, stream);
+                clonedStream = new MemoryStream((int)UnderlyingStream.Length);
+            }
+            else
+            {
+                clonedStream = CreatePersistentStream();
             }
 
-            Stream persistentStream = CreatePersistentStream(_bufferSize);
-            CopyStreamContentHelper(UnderlyingStream, persistentStream);
-            persistentStream.Position = 0L;
+            UnderlyingStream.CopyTo(clonedStream);
+            clonedStream.Position = 0L;
 
-            return new VirtualStream(_bufferSize, _threshholdSize, MemoryFlag.OnlyToDisk, persistentStream);
+            return new VirtualStream(_threshholdSize, _memoryStatus, clonedStream);
         }
 
         public override void Flush()
@@ -156,10 +158,7 @@ namespace Eu.EDelivery.AS4.Streaming
 
             if (_memoryStatus == MemoryFlag.AutoOverFlowToDisk && _isInMemory && length > _threshholdSize)
             {
-                Stream persistentStream = CreatePersistentStream(_bufferSize);
-                CopyStreamContent((MemoryStream)UnderlyingStream, persistentStream);
-                UnderlyingStream = persistentStream;
-                _isInMemory = false;
+                OverflowToPersistentStream();
                 UnderlyingStream.SetLength(length);
             }
             else
@@ -173,10 +172,7 @@ namespace Eu.EDelivery.AS4.Streaming
             ThrowIfDisposed();
             if (_memoryStatus == MemoryFlag.AutoOverFlowToDisk && _isInMemory && count + UnderlyingStream.Position > _threshholdSize)
             {
-                Stream persistentStream = CreatePersistentStream(_bufferSize);
-                CopyStreamContent((MemoryStream)UnderlyingStream, persistentStream);
-                UnderlyingStream = persistentStream;
-                _isInMemory = false;
+                OverflowToPersistentStream();
                 UnderlyingStream.Write(buffer, offset, count);
             }
             else
@@ -185,33 +181,12 @@ namespace Eu.EDelivery.AS4.Streaming
             }
         }
 
-        private void CopyStreamContent(MemoryStream source, Stream target)
+        private void OverflowToPersistentStream()
         {
-            if (source.Length < int.MaxValue)
-            {
-                long position = source.Position;
-                target.Write(source.GetBuffer(), 0, (int)source.Length);
-                target.Position = position;
-            }
-            else
-            {
-                CopyStreamContentHelper(source, target);
-            }
-        }
-
-        private void CopyStreamContentHelper(Stream source, Stream target)
-        {
-            long position = source.Position;
-            source.Position = 0L;
-            byte[] buffer = new byte[_bufferSize];
-            int count;
-
-            while ((count = source.Read(buffer, 0, _bufferSize)) != 0)
-            {
-                target.Write(buffer, 0, count);
-            }
-
-            target.Position = position;
+            Stream persistentStream = CreatePersistentStream();
+            UnderlyingStream.CopyTo(persistentStream);
+            UnderlyingStream = persistentStream;
+            _isInMemory = false;
         }
 
         protected override void Dispose(bool disposing)
