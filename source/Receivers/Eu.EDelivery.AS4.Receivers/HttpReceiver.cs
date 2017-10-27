@@ -337,7 +337,7 @@ namespace Eu.EDelivery.AS4.Receivers
                                      FilenameUtils.EnsureValidFilename($"{hostInformation}.{Guid.NewGuid()}.{DateTime.Now:yyyyMMdd}");
 
                     Logger.Info($"Logging to {newReceivedMessageFile}");
-                    using (var destinationStream = new FileStream(Path.Combine(logDir, newReceivedMessageFile), FileMode.Create))
+                    using (var destinationStream = FileUtils.CreateAsync(Path.Combine(logDir, newReceivedMessageFile)))
                     {
                         await message.UnderlyingStream.CopyToAsync(destinationStream).ConfigureAwait(false);
                     }

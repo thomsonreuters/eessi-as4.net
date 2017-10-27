@@ -108,8 +108,8 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
             Directory.CreateDirectory(Path.GetDirectoryName(attachmentFilePath));
 
             attachmentFilePath = FilenameUtils.EnsureFilenameIsUnique(attachmentFilePath);
-
-            using (FileStream fileStream = File.Create(attachmentFilePath))
+            
+            using (FileStream fileStream = FileUtils.CreateAsync(attachmentFilePath))
             {
                 await attachment.Content.CopyToAsync(fileStream).ConfigureAwait(false);
             }
