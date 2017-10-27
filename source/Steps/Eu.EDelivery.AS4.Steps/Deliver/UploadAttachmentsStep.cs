@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
@@ -88,8 +87,11 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         }
 
         private async Task UploadAttachments(IEnumerable<Attachment> attachments, IAttachmentUploader uploader)
-        {
-            await Task.WhenAll(attachments.Select(a => TryUploadAttachment(a, uploader)));
+        {            
+            foreach (var attachment in attachments)
+            {
+                await TryUploadAttachment(attachment, uploader);
+            }
         }
 
         private async Task TryUploadAttachment(Attachment attachment, IAttachmentUploader uploader)
