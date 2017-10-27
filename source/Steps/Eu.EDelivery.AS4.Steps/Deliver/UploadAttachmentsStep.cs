@@ -20,7 +20,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
     [Info("Upload attachments to deliver location")]
     public class UploadAttachmentsStep : IStep
     {
-        private readonly ILogger _logger;
+        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
         private readonly IAttachmentUploaderProvider _provider;
 
         private MessagingContext _messagingContext;
@@ -28,10 +28,8 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         /// <summary>
         /// Initializes a new instance of the <see cref="UploadAttachmentsStep"/> class.
         /// </summary>
-        public UploadAttachmentsStep()
+        public UploadAttachmentsStep() : this(Registry.Instance.AttachmentUploader)
         {
-            _provider = Registry.Instance.AttachmentUploader;
-            _logger = LogManager.GetCurrentClassLogger();
         }
 
         /// <summary>
@@ -43,7 +41,6 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         public UploadAttachmentsStep(IAttachmentUploaderProvider provider)
         {
             _provider = provider;
-            _logger = LogManager.GetCurrentClassLogger();
         }
 
         /// <summary>
@@ -66,16 +63,15 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
                 throw new InvalidOperationException("Unable to send DeliverMessage: the ReceivingPMode does not contain any DeliverInformation");
             }
 
-            var uploader = GetAttachmentUploader();
+            var uploader = GetAttachmentUploader(_messagingContext.ReceivingPMode);
 
-            await UploadAttachments(messagingContext.AS4Message.Attachments, uploader).ConfigureAwait(false);
+            await UploadAttachments(messagingContext.AS4Message.Attachments, uploader, messagingContext.EbmsMessageId).ConfigureAwait(false);
 
             return await StepResult.SuccessAsync(messagingContext);
         }
 
-        private IAttachmentUploader GetAttachmentUploader()
+        private IAttachmentUploader GetAttachmentUploader(ReceivingProcessingMode pmode)
         {
-            ReceivingProcessingMode pmode = _messagingContext.ReceivingPMode;
             Method payloadReferenceMethod = pmode.MessageHandling.DeliverInformation.PayloadReferenceMethod;
             PreConditionsPayloadReferenceMethod(pmode, payloadReferenceMethod);
 
@@ -86,19 +82,20 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
             return uploader;
         }
 
-        private async Task UploadAttachments(IEnumerable<Attachment> attachments, IAttachmentUploader uploader)
-        {            
+        private static async Task UploadAttachments(IEnumerable<Attachment> attachments, IAttachmentUploader uploader, string ebmsMessageId)
+        {
             foreach (var attachment in attachments)
             {
-                await TryUploadAttachment(attachment, uploader);
+                await TryUploadAttachment(attachment, uploader, ebmsMessageId);
             }
         }
 
-        private async Task TryUploadAttachment(Attachment attachment, IAttachmentUploader uploader)
+        private static async Task TryUploadAttachment(Attachment attachment, IAttachmentUploader uploader, string ebmsMessageId)
         {
             try
             {
-                _logger.Info($"{_messagingContext.EbmsMessageId} Start Uploading Attachment {attachment.Id} ...");
+                Logger.Info($"{ebmsMessageId} Start Uploading Attachment...");
+
                 await UploadAttachment(attachment, uploader).ConfigureAwait(false);
 
                 attachment.ResetContentPosition();
@@ -106,7 +103,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
             catch (Exception exception)
             {
                 const string description = "Attachments cannot be uploaded";
-                _logger.Error(description);
+                Logger.Error(description);
 
                 throw new ApplicationException(description, exception);
             }
@@ -119,12 +116,12 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
             attachment.Location = attachmentResult.DownloadUrl;
         }
 
-        private void PreConditionsPayloadReferenceMethod(IPMode pmode, Method payloadReferenceMethod)
+        private static void PreConditionsPayloadReferenceMethod(IPMode pmode, Method payloadReferenceMethod)
         {
             if (payloadReferenceMethod.Type == null)
             {
                 string description = $"Invalid configured Payload Reference Method in receive PMode {pmode.Id}";
-                _logger.Error(description);
+                Logger.Error(description);
 
                 throw new InvalidDataException(description);
             }
