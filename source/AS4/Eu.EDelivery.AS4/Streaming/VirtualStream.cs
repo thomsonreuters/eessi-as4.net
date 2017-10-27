@@ -184,6 +184,7 @@ namespace Eu.EDelivery.AS4.Streaming
         private void OverflowToPersistentStream()
         {
             Stream persistentStream = CreatePersistentStream();
+            UnderlyingStream.Position = 0;
             UnderlyingStream.CopyTo(persistentStream);
             UnderlyingStream = persistentStream;
             _isInMemory = false;

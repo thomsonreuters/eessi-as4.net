@@ -27,7 +27,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Streaming
         [Fact]
         public void CorrectlyOverflowsToDiskWhenThresholdIsReached()
         {
-            byte[] bytesToWrite = new byte[] { 0x00, 0x00, 0x00, 0x00 };
+            byte[] bytesToWrite = new byte[] { 0x01, 0x02, 0x03, 0x04 };
 
             using (VirtualStream stream = VirtualStream.CreateVirtualStream(1, 10))
             {
