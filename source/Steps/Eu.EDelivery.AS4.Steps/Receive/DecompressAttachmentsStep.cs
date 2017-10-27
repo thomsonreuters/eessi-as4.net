@@ -89,7 +89,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 AssignAttachmentProperties(as4Message.PrimaryUserMessage.PayloadInfo.ToList(), attachment);
             }
 
-            Logger.Info($"[{as4Message.GetPrimaryMessageId()}] Attachmemnts decompressed");
+            Logger.Info($"[{as4Message.GetPrimaryMessageId()}] Attachments decompressed");
             return await StepResult.SuccessAsync(context);
         }
 
