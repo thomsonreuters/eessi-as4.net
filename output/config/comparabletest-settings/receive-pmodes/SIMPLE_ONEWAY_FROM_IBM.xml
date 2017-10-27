@@ -1,6 +1,6 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="utf-8"?>
 <PMode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="eu:edelivery:as4:pmode">
-  <Id>SIMPLE_ONEWAY_FROM_HOLODECK</Id>
+  <Id>SIMPLE_ONEWAY_FROM_IBM</Id>
   <Reliability>
     <DuplicateElimination>
       <IsEnabled>false</IsEnabled>
@@ -12,10 +12,7 @@
     <ReceiptHandling>
       <UseNRRFormat>true</UseNRRFormat>
     </ReceiptHandling>
-    <ErrorHandling>
-      <UseSoapFault>false</UseSoapFault>
-      <ResponseHttpCode>200</ResponseHttpCode>
-    </ErrorHandling>
+    <ErrorHandling />
   </ReplyHandling>
   <ExceptionHandling>
     <NotifyMessageConsumer>true</NotifyMessageConsumer>
@@ -43,9 +40,8 @@
       <FromParty>
         <PartyIds>
           <PartyId>
-            <Id>holodeck-c2</Id>
+            <Id>ibmgw-c2</Id>
             <Type />
-            <!--<Type>urn:oasis:names:tc:ebcore:partyid-type:unregistered</Type>-->
           </PartyId>
         </PartyIds>
         <Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</Role>
@@ -55,18 +51,19 @@
           <PartyId>
             <Id>as4-net-c2</Id>
             <Type />
-            <!--<Type>urn:oasis:names:tc:ebcore:partyid-type:unregistered</Type>-->
           </PartyId>
         </PartyIds>
         <Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</Role>
       </ToParty>
     </PartyInfo>
     <CollaborationInfo>
-      <Action>ACT_SIMPLE_ONEWAY</Action>
+      <AgreementReference />
       <Service>
         <Value>SRV_SIMPLE_ONEWAY</Value>
       </Service>
+      <Action>ACT_SIMPLE_ONEWAY</Action>
     </CollaborationInfo>
+    <MessageProperties />
   </MessagePackaging>
   <MessageHandling>
     <Deliver>
