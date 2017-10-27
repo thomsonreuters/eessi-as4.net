@@ -192,7 +192,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
         private void AppendSecurityTokenElements(XmlElement securityElement)
         {
             foreach (SecurityTokenReference reference in KeyInfo.OfType<SecurityTokenReference>())
-            {                
+            {
                 reference.AppendSecurityTokenTo(securityElement, securityElement.OwnerDocument);
             }
         }
@@ -224,7 +224,15 @@ namespace Eu.EDelivery.AS4.Security.Strategies
         public void AddAlgorithm(SignatureAlgorithm algorithm)
         {
             SignedInfo.SignatureMethod = algorithm.GetIdentifier();
-            SafeCanonicalizationMethods.Add(AttachmentSignatureTransform.Url);
+
+            // Lock the SafeCanonicalizationMethods collection since, under heavy load
+            // the VerifySignature method in SignedXml sometimes throws an InvalidOperationException
+            // saying that the enumerate operation failed due to the fact that the collection
+            // has changed.  Locking the collection seems to solve this problem.
+            lock (SafeCanonicalizationMethods)
+            {
+                SafeCanonicalizationMethods.Add(AttachmentSignatureTransform.Url);
+            }
 
             CryptoConfig.AddAlgorithm(algorithm.GetType(), algorithm.GetIdentifier());
             CryptoConfig.AddAlgorithm(typeof(AttachmentSignatureTransform), AttachmentSignatureTransform.Url);
@@ -288,9 +296,9 @@ namespace Eu.EDelivery.AS4.Security.Strategies
                 .References.Cast<CryptoReference>().Where(ReferenceIsCidReference()).ToArray();
 
             foreach (CryptoReference reference in references)
-            {                
+            {
                 var attachment = attachments.FirstOrDefault(a => a.Matches(reference));
-                
+
                 if (attachment != null)
                 {
                     SetReferenceStream(reference, attachment);
