@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PMode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="eu:edelivery:as4:pmode">
+  <Id>SIMPLE_ONEWAY_TO_IBM</Id>
+  <Mep>OneWay</Mep>
+  <MepBinding>Push</MepBinding>
+  <PushConfiguration>
+    <Protocol>
+      <Url>http://edelibm.westeurope.cloudapp.azure.com:29010/as4</Url>
+    </Protocol>
+    <TlsConfiguration>
+      <IsEnabled>false</IsEnabled>
+    </TlsConfiguration>
+  </PushConfiguration>
+  <Reliability>
+    <ReceptionAwareness>
+      <IsEnabled>false</IsEnabled>
+      <RetryInterval>00:00:05</RetryInterval>
+    </ReceptionAwareness>
+  </Reliability>
+  <ReceiptHandling>
+    <NotifyMessageProducer>false</NotifyMessageProducer>
+    <NotifyMethod>
+      <Type>FILE</Type>
+      <Parameters>
+        <Parameter name="location" value=".\messages\receipts" />
+      </Parameters>
+    </NotifyMethod>
+  </ReceiptHandling>
+  <ErrorHandling>
+    <NotifyMessageProducer>false</NotifyMessageProducer>
+    <NotifyMethod>
+      <Type>FILE</Type>
+      <Parameters>
+        <Parameter name="location" value=".\messages\errors" />
+      </Parameters>
+    </NotifyMethod>
+  </ErrorHandling>
+  <ExceptionHandling>
+    <NotifyMessageProducer>false</NotifyMessageProducer>
+    <NotifyMethod>
+      <Parameters />
+    </NotifyMethod>
+  </ExceptionHandling>
+  <Security>
+    <Signing>
+      <IsEnabled>true</IsEnabled>
+      <CertificateFindCriteria>
+        <CertificateFindType>FindBySubjectName</CertificateFindType>
+        <CertificateFindValue>as4-net-c2</CertificateFindValue>
+      </CertificateFindCriteria>
+      <KeyReferenceMethod>BSTReference</KeyReferenceMethod>
+    </Signing>
+    <Encryption>
+      <IsEnabled>true</IsEnabled>
+      <CertificateFindCriteria>
+        <CertificateFindType>FindBySubjectName</CertificateFindType>
+        <CertificateFindValue>ibmgw-c2</CertificateFindValue>
+      </CertificateFindCriteria>
+      <KeyTransport />
+    </Encryption>
+  </Security>
+  <MessagePackaging>
+    <PartyInfo>
+      <FromParty>
+        <PartyIds>
+          <PartyId>
+            <Id>as4-net-c2</Id>
+          </PartyId>
+        </PartyIds>
+        <Role>Sender</Role>
+      </FromParty>
+      <ToParty>
+        <PartyIds>
+          <PartyId>
+            <Id>ibmgw-c2</Id>
+          </PartyId>
+        </PartyIds>
+        <Role>Receiver</Role>
+      </ToParty>
+    </PartyInfo>
+    <CollaborationInfo>
+      <AgreementReference />
+      <Service>
+        <Value>SRV_SIMPLE_ONEWAY</Value>
+      </Service>
+      <Action>ACT_SIMPLE_ONEWAY</Action>
+    </CollaborationInfo>
+    <MessageProperties />
+  </MessagePackaging>
+</PMode>
