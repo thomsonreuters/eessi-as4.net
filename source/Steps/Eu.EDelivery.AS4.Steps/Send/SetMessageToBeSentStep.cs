@@ -51,7 +51,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 var repository = new DatastoreRepository(context);
                 var service = new OutMessageService(repository, _messageStore);
 
-                await service.UpdateAS4MessageToBeSent(messagingContext.AS4Message, cancellationToken).ConfigureAwait(false);
+                await service.UpdateAS4MessageToBeSentAsync(messagingContext.AS4Message, cancellationToken).ConfigureAwait(false);
                 await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
             }
 

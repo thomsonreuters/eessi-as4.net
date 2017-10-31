@@ -63,7 +63,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
                 var mep = DetermineMessageExchangePattern(messagingContext);
 
-                var resultContext = await service.InsertAS4Message(messagingContext, mep, _messageBodyStore, token).ConfigureAwait(false);
+                var resultContext = await service.InsertAS4MessageAsync(messagingContext, mep, _messageBodyStore, token).ConfigureAwait(false);
                 await context.SaveChangesAsync(token).ConfigureAwait(false);
 
                 if (resultContext != null && resultContext.Exception == null)

@@ -47,7 +47,7 @@ namespace Eu.EDelivery.AS4.Repositories
 
             if (!File.Exists(fileName))
             {
-                await SaveMessageToFile(message, fileName, cancellation);
+                await SaveMessageToFile(message, fileName, cancellation).ConfigureAwait(false);
             }
 
             return $"file:///{fileName}";
@@ -67,7 +67,7 @@ namespace Eu.EDelivery.AS4.Repositories
             {
                 using (FileStream fs = FileUtils.OpenAsync(fileName, FileMode.Create, FileAccess.Write))
                 {
-                    await as4MessageStream.CopyToAsync(fs);
+                    await as4MessageStream.CopyToAsync(fs).ConfigureAwait(false);
                 }
             }
 
@@ -94,7 +94,7 @@ namespace Eu.EDelivery.AS4.Repositories
         }
 
         /// <summary>
-        /// Updates a s4 message asynchronous.
+        /// Updates an AS4 message asynchronously.
         /// </summary>
         /// <param name="location">The location.</param>
         /// <param name="message">The message.</param>
@@ -117,7 +117,7 @@ namespace Eu.EDelivery.AS4.Repositories
                     $"The messagebody that must be updated could not be found at: {fileLocation}.");
             }
 
-            await SaveMessageToFile(message, fileLocation, cancellation);
+            await SaveMessageToFile(message, fileLocation, cancellation).ConfigureAwait(false);
         }
 
         private async Task SaveMessageToFile(AS4Message message, string fileName, CancellationToken cancellationToken)
@@ -125,7 +125,7 @@ namespace Eu.EDelivery.AS4.Repositories
             using (FileStream content = FileUtils.CreateAsync(fileName))
             {
                 ISerializer serializer = _provider.Get(message.ContentType);
-                await serializer.SerializeAsync(message, content, cancellationToken);
+                await serializer.SerializeAsync(message, content, cancellationToken).ConfigureAwait(false);
             }
         }
 
@@ -151,7 +151,7 @@ namespace Eu.EDelivery.AS4.Repositories
                         VirtualStream.CreateVirtualStream(
                             fileStream.CanSeek ? fileStream.Length : VirtualStream.ThresholdMax);
 
-                    await fileStream.CopyToAsync(virtualStream);
+                    await fileStream.CopyToAsync(virtualStream).ConfigureAwait(false);
                     virtualStream.Position = 0;
 
                     return virtualStream;

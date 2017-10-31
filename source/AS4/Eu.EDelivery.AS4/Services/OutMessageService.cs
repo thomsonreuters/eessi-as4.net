@@ -54,7 +54,7 @@ namespace Eu.EDelivery.AS4.Services
         /// <param name="operation">The operation.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns></returns>
-        public async Task InsertAS4Message(
+        public async Task InsertAS4MessageAsync(
             MessagingContext messagingContext,
             Operation operation,
             CancellationToken cancellationToken)
@@ -170,7 +170,7 @@ namespace Eu.EDelivery.AS4.Services
         /// <param name="message">The message.</param>
         /// <param name="cancellation">The cancellation.</param>
         /// <returns></returns>
-        public async Task UpdateAS4MessageToBeSent(AS4Message message, CancellationToken cancellation)
+        public async Task UpdateAS4MessageToBeSentAsync(AS4Message message, CancellationToken cancellation)
         {
             string ebmsMessageId = message.GetPrimaryMessageId();
 
@@ -197,7 +197,7 @@ namespace Eu.EDelivery.AS4.Services
         /// <param name="operation">The operation.</param>
         /// <param name="cancellation">The cancellation.</param>
         /// <returns></returns>
-        Task InsertAS4Message(MessagingContext message, Operation operation, CancellationToken cancellation);
+        Task InsertAS4MessageAsync(MessagingContext message, Operation operation, CancellationToken cancellation);
 
         /// <summary>
         /// Updates a <see cref="AS4Message"/>.
@@ -205,6 +205,6 @@ namespace Eu.EDelivery.AS4.Services
         /// <param name="message">The message.</param>
         /// <param name="cancellation">The cancellation.</param>
         /// <returns></returns>
-        Task UpdateAS4MessageToBeSent(AS4Message message, CancellationToken cancellation);
+        Task UpdateAS4MessageToBeSentAsync(AS4Message message, CancellationToken cancellation);
     }
 }

@@ -32,7 +32,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Services
 
                 // Act / Assert
                 await Assert.ThrowsAnyAsync<InvalidDataException>(
-                    () => sut.UpdateAS4MessageForMessageHandling(context, null, CancellationToken.None));
+                    () => sut.UpdateAS4MessageForMessageHandlingAsync(context, null, CancellationToken.None));
             }
         }
 

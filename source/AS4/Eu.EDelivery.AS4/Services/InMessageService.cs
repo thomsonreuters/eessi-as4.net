@@ -91,7 +91,7 @@ namespace Eu.EDelivery.AS4.Services
         /// <param name="messageBodyStore"></param>
         /// <param name="cancellationToken"></param>
         /// <returns>A MessagingContext instance that contains the parsed AS4 Message.</returns>
-        public async Task<MessagingContext> InsertAS4Message(
+        public async Task<MessagingContext> InsertAS4MessageAsync(
             MessagingContext context,
             MessageExchangePattern mep,
             IAS4MessageBodyStore messageBodyStore,
@@ -181,7 +181,7 @@ namespace Eu.EDelivery.AS4.Services
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns></returns>
         /// <exception cref="InvalidDataException"></exception>
-        public async Task UpdateAS4MessageForMessageHandling(
+        public async Task UpdateAS4MessageForMessageHandlingAsync(
             MessagingContext messageContext,
             IAS4MessageBodyStore messageBodyStore,
             CancellationToken cancellationToken)
