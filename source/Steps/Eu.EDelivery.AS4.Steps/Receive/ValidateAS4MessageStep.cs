@@ -56,11 +56,11 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             {
                 AS4Message message = context.AS4Message;
 
-                bool noAttachmentCanBeFounForEachPartInfo =
+                bool noAttachmentCanBeFoundForEachPartInfo =
                     message.PrimaryUserMessage.PayloadInfo?.Count(
                         p => message.Attachments.FirstOrDefault(a => a.Matches(p)) == null) > 0;
 
-                if (noAttachmentCanBeFounForEachPartInfo)
+                if (noAttachmentCanBeFoundForEachPartInfo)
                 {
                     context.ErrorResult = InvalidHeaderError();
                     Logger.Error($"AS4 Message {context.AS4Message.GetPrimaryMessageId()} is not valid: {context.ErrorResult.Description}");
