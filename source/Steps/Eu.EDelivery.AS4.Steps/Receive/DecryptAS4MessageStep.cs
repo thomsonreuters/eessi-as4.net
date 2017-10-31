@@ -77,7 +77,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 return await StepResult.SuccessAsync(context);
             }
 
-            return await TryDecryptAS4Message(context);
+            return await TryDecryptAS4Message(context).ConfigureAwait(false);
         }
 
         private static StepResult FailedDecryptResult(string description, ErrorAlias errorAlias, MessagingContext context)

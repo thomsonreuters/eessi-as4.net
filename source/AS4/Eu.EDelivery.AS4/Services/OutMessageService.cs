@@ -64,7 +64,7 @@ namespace Eu.EDelivery.AS4.Services
                 await _messageBodyStore.SaveAS4MessageAsync(
                     location: _configuration.OutMessageStoreLocation,
                     message: message,
-                    cancellation: cancellationToken);
+                    cancellation: cancellationToken).ConfigureAwait(false);
 
             var messageUnits = new List<MessageUnit>();
             messageUnits.AddRange(message.UserMessages);
@@ -86,7 +86,7 @@ namespace Eu.EDelivery.AS4.Services
                             sendingPMode: sendingPMode,
                             relatedInMessageMeps: relatedInMessageMeps,
                             location: messageBodyLocation,
-                            operation: operation);
+                            operation: operation).ConfigureAwait(false);
 
                 _repository.InsertOutMessage(outMessage);
             }
@@ -102,7 +102,7 @@ namespace Eu.EDelivery.AS4.Services
         {
             OutMessage outMessage =
                 await OutMessageBuilder.ForMessageUnit(messageUnit, messageContext.AS4Message.ContentType, sendingPMode)
-                                       .BuildAsync(CancellationToken.None);
+                                       .BuildAsync(CancellationToken.None).ConfigureAwait(false);
 
             outMessage.MessageLocation = location;
 
@@ -176,7 +176,7 @@ namespace Eu.EDelivery.AS4.Services
 
             string messageBodyLocation = _repository.GetOutMessageData(ebmsMessageId, m => m.MessageLocation);
 
-            await _messageBodyStore.UpdateAS4MessageAsync(messageBodyLocation, message, cancellation);
+            await _messageBodyStore.UpdateAS4MessageAsync(messageBodyLocation, message, cancellation).ConfigureAwait(false);
 
             _repository.UpdateOutMessage(
                 ebmsMessageId,

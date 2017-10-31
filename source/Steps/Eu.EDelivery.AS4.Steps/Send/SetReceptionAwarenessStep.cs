@@ -37,7 +37,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             }
 
             await InsertReceptionAwarenessAsync(messagingContext).ConfigureAwait(false);
-            return await StepResult.SuccessAsync(messagingContext);
+            return StepResult.Success(messagingContext);
         }
 
         private static bool IsReceptionAwarenessEnabled(MessagingContext messagingContext)

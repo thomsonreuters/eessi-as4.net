@@ -47,7 +47,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         {
             AS4Message as4Message = CreateAS4MessageFromSubmit(messagingContext);
 
-            await RetrieveAttachmentsForAS4Message(as4Message, messagingContext);
+            await RetrieveAttachmentsForAS4Message(as4Message, messagingContext).ConfigureAwait(false);
 
             messagingContext.ModifyContext(as4Message);
 
@@ -79,7 +79,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
 
                     await as4Message.AddAttachments(
                         context.SubmitMessage.Payloads,
-                        async payload => await RetrieveAttachmentContent(payload));
+                        async payload => await RetrieveAttachmentContent(payload).ConfigureAwait(false)).ConfigureAwait(false);
 
                     Logger.Info($"{context.EbmsMessageId} Number of Payloads retrieved: {as4Message.Attachments.Count}");
                 }
@@ -100,7 +100,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
 
         private async Task<System.IO.Stream> RetrieveAttachmentContent(Payload payload)
         {
-            return await _payloadProvider.Get(payload).RetrievePayloadAsync(payload.Location);
+            return await _payloadProvider.Get(payload).RetrievePayloadAsync(payload.Location).ConfigureAwait(false);
         }
     }
 }

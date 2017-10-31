@@ -50,8 +50,8 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
             using (DatastoreContext datastoreContext = _createDatastoreContext())
             {
-                await UpdateReceivedMessage(messagingContext, datastoreContext, cancellationToken);
-                await datastoreContext.SaveChangesAsync(cancellationToken);
+                await UpdateReceivedMessage(messagingContext, datastoreContext, cancellationToken).ConfigureAwait(false);
+                await datastoreContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
             }
 
             if (messagingContext.ReceivedMessageMustBeForwarded)
@@ -77,7 +77,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             await service.UpdateAS4MessageForMessageHandling(
                 messagingContext,
                 _messageBodyStore,
-                cancellationToken);
+                cancellationToken).ConfigureAwait(false);
         }
     }
 }

@@ -48,10 +48,10 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
             if (MessageDoesNotNeedToBeVerified(messagingContext))
             {
-                return await StepResult.SuccessAsync(messagingContext);
+                return StepResult.Success(messagingContext);
             }
 
-            return await TryVerifyingSignature(messagingContext);
+            return await TryVerifyingSignature(messagingContext).ConfigureAwait(false);
         }
 
         private static bool MessageDoesNotNeedToBeVerified(MessagingContext message)

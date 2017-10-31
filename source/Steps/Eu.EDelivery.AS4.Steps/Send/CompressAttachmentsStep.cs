@@ -32,19 +32,19 @@ namespace Eu.EDelivery.AS4.Steps.Send
         {
             if (!messagingContext.SendingPMode.MessagePackaging.UseAS4Compression)
             {
-                return await ReturnSameMessagingContext(messagingContext);
+                return ReturnSameMessagingContext(messagingContext);
             }
 
             _messagingContext = messagingContext;
             await TryCompressAS4MessageAsync(messagingContext.AS4Message.Attachments).ConfigureAwait(false);
 
-            return await StepResult.SuccessAsync(messagingContext);
+            return StepResult.Success(messagingContext);
         }
 
-        private static async Task<StepResult> ReturnSameMessagingContext(MessagingContext messagingContext)
+        private static StepResult ReturnSameMessagingContext(MessagingContext messagingContext)
         {
             Logger.Debug($"Sending PMode {messagingContext.SendingPMode.Id} Compression is disabled");
-            return await StepResult.SuccessAsync(messagingContext);
+            return StepResult.Success(messagingContext);
         }
 
         private async Task TryCompressAS4MessageAsync(IEnumerable<Attachment> attachments)
@@ -53,7 +53,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             {
                 Logger.Info(
                     $"{_messagingContext.EbmsMessageId} Compress AS4 Message Attachments with GZip Compression");
-                await CompressAttachments(attachments);
+                await CompressAttachments(attachments).ConfigureAwait(false);
             }
             catch (SystemException exception)
             {
@@ -76,13 +76,43 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 VirtualStream.CreateVirtualStream(
                     attachment.Content.CanSeek ? attachment.Content.Length : VirtualStream.ThresholdMax);
 
-            using (var gzipCompression = new GZipStream(outputStream, CompressionMode.Compress, leaveOpen: true))
+            var compressionLevel = DetermineCompressionLevelFor(attachment);
+
+            using (var gzipCompression = new GZipStream(outputStream, compressionLevel: compressionLevel, leaveOpen: true))
             {
                 await attachment.Content.CopyToAsync(gzipCompression).ConfigureAwait(false);
             }
 
             outputStream.Position = 0;
             attachment.Content = outputStream;
+        }
+
+        private static CompressionLevel DetermineCompressionLevelFor(Attachment attachment)
+        {
+            if (attachment.ContentType.Equals("application/gzip", StringComparison.OrdinalIgnoreCase))
+            {
+                // In certain cases, we do not want to waste time compressing the attachment, since
+                // compressing will only take time without noteably decreasing the attachment size.
+                return CompressionLevel.NoCompression;
+            }
+
+            if (attachment.Content.CanSeek)
+            {
+                const long twelveKilobytes = 12_288;
+                const long hundredMegabytes = 104_857_600;
+
+                if (attachment.Content.Length <= twelveKilobytes)
+                {
+                    return CompressionLevel.NoCompression;
+                }
+
+                if (attachment.Content.Length <= hundredMegabytes)
+                {
+                    return CompressionLevel.Fastest;
+                }
+            }
+
+            return CompressionLevel.Optimal;
         }
 
         private static void AssignAttachmentProperties(Attachment attachment)

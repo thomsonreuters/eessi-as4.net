@@ -70,7 +70,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
             Logger.Info("Received AS4 Message is valid");
 
-            return await StepResult.SuccessAsync(context);
+            return StepResult.Success(context);
         }
 
         private static bool SoapBodyIsNotEmpty(AS4Message message)

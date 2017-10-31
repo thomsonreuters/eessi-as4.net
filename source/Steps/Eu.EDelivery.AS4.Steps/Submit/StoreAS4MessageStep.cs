@@ -61,7 +61,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
             {
                 var service = new OutMessageService(new DatastoreRepository(context), _messageBodyStore);
 
-                await service.InsertAS4Message(messagingContext, Operation.ToBeProcessed, cancellation);
+                await service.InsertAS4Message(messagingContext, Operation.ToBeProcessed, cancellation).ConfigureAwait(false);
 
                 try
                 {
