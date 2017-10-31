@@ -139,13 +139,18 @@ namespace Eu.EDelivery.AS4.Repositories
 
         public void UpdateInMessages(Expression<Func<InMessage, bool>> predicate, Action<InMessage> updateAction)
         {
-            var inMessages = _datastoreContext.InMessages.Where(predicate);
+            var inMessageIds = _datastoreContext.InMessages.Where(predicate).Select(m => new { m.EbmsMessageId, m.Id }).ToArray();
 
-            if (inMessages.Any())
+            if (inMessageIds.Any())
             {
-                foreach (var m in inMessages)
+                foreach (var idSet in inMessageIds)
                 {
-                    updateAction(m);
+                    InMessage message = GetInMessageEntityFor(idSet.EbmsMessageId, idSet.Id);
+                    if (message != null)
+                    {
+                        updateAction(message);
+                        message.ModificationTime = DateTimeOffset.Now;
+                    }
                 }
             }
         }
@@ -245,11 +250,12 @@ namespace Eu.EDelivery.AS4.Repositories
 
         public void UpdateOutMessages(Expression<Func<OutMessage, bool>> predicate, Action<OutMessage> updateAction)
         {
-            var outMessages = _datastoreContext.OutMessages.Where(predicate);
+            var keyMap = _datastoreContext.OutMessages.Where(predicate).Select(m => new { m.EbmsMessageId, m.Id }).ToArray();
 
-            foreach (var m in outMessages)
+            foreach (var key in keyMap)
             {
-                updateAction(m);
+                var msg = GetOutMessageEntityFor(key.EbmsMessageId, key.Id);
+                UpdateMessageEntityIfNotNull(updateAction, msg);
             }
         }
 
@@ -480,7 +486,7 @@ namespace Eu.EDelivery.AS4.Repositories
                     }
                 }
             }
-            
+
             return result;
         }
 
