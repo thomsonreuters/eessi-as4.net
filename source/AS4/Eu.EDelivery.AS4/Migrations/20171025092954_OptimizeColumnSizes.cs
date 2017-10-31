@@ -29,6 +29,8 @@ namespace Eu.EDelivery.AS4.Migrations
 
         private static void AlterReceptionAwarenessTable(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropUniqueConstraint("AK_ReceptionAwareness_InternalMessageId", "ReceptionAwareness");
+
             migrationBuilder.AlterColumn<string>(
                 name: "Status",
                 table: "ReceptionAwareness",
@@ -51,6 +53,8 @@ namespace Eu.EDelivery.AS4.Migrations
                 maxLength: 256,
                 nullable: false,
                 oldClrType: typeof(string));
+
+            migrationBuilder.AddUniqueConstraint("AK_ReceptionAwareness_InternalMessageId", "ReceptionAwareness", "InternalMessageId");
         }
 
         private static void AlterInExceptionTable(MigrationBuilder migrationBuilder)
@@ -75,12 +79,12 @@ namespace Eu.EDelivery.AS4.Migrations
         private static void AlterOutExceptionTable(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AlterColumn<string>(
-                name: "PModeId",
-                table: "OutExceptions",
-                maxLength: 256,
-                nullable: true,
-                oldClrType: typeof(string),
-                oldNullable: true);
+               name: "PModeId",
+               table: "OutExceptions",
+               maxLength: 256,
+               nullable: true,
+               oldClrType: typeof(string),
+               oldNullable: true);
 
             migrationBuilder.AlterColumn<string>(
                 name: "EbmsRefToMessageId",
@@ -136,6 +140,8 @@ namespace Eu.EDelivery.AS4.Migrations
 
         private static void AlterOutMessageTable(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropUniqueConstraint("AK_OutMessages_EbmsMessageId", "OutMessages");
+
             migrationBuilder.AlterColumn<string>(
                 name: "Status",
                 table: "OutMessages",
@@ -174,6 +180,8 @@ namespace Eu.EDelivery.AS4.Migrations
                 maxLength: 256,
                 nullable: false,
                 oldClrType: typeof(string));
+
+            migrationBuilder.AddUniqueConstraint("AK_OutMessages_EbmsMessageId", "OutMessages", "EbmsMessageId");
         }
 
         private static void DropAndRecreateOutMessageTable(MigrationBuilder migrationBuilder)
@@ -545,6 +553,8 @@ namespace Eu.EDelivery.AS4.Migrations
 
         private static void RestoreOutMessagesTable(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropUniqueConstraint("AK_OutMessages_EbmsMessageId", "OutMessages");
+
             migrationBuilder.AlterColumn<string>(
                 name: "Status",
                 table: "OutMessages",
@@ -583,10 +593,14 @@ namespace Eu.EDelivery.AS4.Migrations
                 nullable: false,
                 oldClrType: typeof(string),
                 oldMaxLength: 256);
+
+            migrationBuilder.AddUniqueConstraint("AK_OutMessages_EbmsMessageId", "OutMessages", "EbmsMessageId");
         }
 
         private static void RestoreReceptionAwarenessTable(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropUniqueConstraint("AK_ReceptionAwareness_InternalMessageId", "ReceptionAwareness");
+
             migrationBuilder.AlterColumn<string>(
                 name: "Status",
                 table: "ReceptionAwareness",
@@ -609,6 +623,8 @@ namespace Eu.EDelivery.AS4.Migrations
                 nullable: false,
                 oldClrType: typeof(string),
                 oldMaxLength: 256);
+
+            migrationBuilder.AddUniqueConstraint("AK_ReceptionAwareness_InternalMessageId", "ReceptionAwareness", "InternalMessageId");
         }
 
         private static void RecreatePreviousOutMessageTable(MigrationBuilder migrationBuilder)
@@ -837,6 +853,7 @@ namespace Eu.EDelivery.AS4.Migrations
 
         private static void RecreatePreviousReceptionAwarenessTable(MigrationBuilder migrationBuilder)
         {
+
             migrationBuilder.RenameTable("ReceptionAwareness", newName: "OldReceptionAwareness");
 
             migrationBuilder.CreateTable(
