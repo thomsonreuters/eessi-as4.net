@@ -40,11 +40,11 @@ namespace Eu.EDelivery.AS4.Services
         /// Initializes a new instance of the <see cref="InMessageService"/> class.
         /// </summary>
         /// <param name="config">The configuration.</param>
-        /// <param name="respository">The respository.</param>
-        public InMessageService(IConfig config, IDatastoreRepository respository)
+        /// <param name="repository">The repository.</param>
+        public InMessageService(IConfig config, IDatastoreRepository repository)
         {
             _configuration = config;
-            _repository = respository;
+            _repository = repository;
         }
 
         /// <summary>
