@@ -58,8 +58,14 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         {
             var as4Message = messagingContext.AS4Message;
 
+            
             if (as4Message.IsSignalMessage)
             {
+                if (as4Message.IsMultiHopMessage == false && messagingContext.SendingPMode != null)
+                {
+                    return StepResult.Success(messagingContext);
+                }
+
                 var pmode = await DetermineSendingPModeForSignalMessage(as4Message.PrimarySignalMessage);
 
                 if (pmode != null)
@@ -178,7 +184,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         {
             List<PModeParticipant> participants = GetPModeParticipants(userMessage);
             participants.ForEach(p => p.Accept(new PModeRuleVisitor()));
-            
+
             var scoresToConsider = participants.Select(p => p.Points).Where(p => p >= 10);
 
             if (scoresToConsider.Any() == false)
