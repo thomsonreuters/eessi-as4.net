@@ -1,9 +1,12 @@
-﻿using System.IO;
+﻿using System;
+using System.Diagnostics;
+using System.IO;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Serialization;
+using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Deliver;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Serialization;
@@ -16,6 +19,70 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
     /// </summary>
     public class GivenAS4XmlSerializerfacts
     {
+        [Fact]
+        public void PerfTest()
+        {
+            var sendingPMode = new SendingProcessingMode();
+            sendingPMode.Id = "melp";
+            sendingPMode.PushConfiguration = new PushConfiguration();
+            sendingPMode.PushConfiguration.Protocol.Url = "http://melk.melp.be/test";
+            sendingPMode.MessagePackaging.IncludePModeId = true;
+            sendingPMode.MessagePackaging.PartyInfo = new PartyInfo();
+            sendingPMode.MessagePackaging.PartyInfo.ToParty = new Party();
+            sendingPMode.MessagePackaging.PartyInfo.FromParty = new Party();
+            sendingPMode.MessagePackaging.PartyInfo.FromParty.Role = "bac";
+
+            var sw = new Stopwatch();
+            //for (int j = 0; j < 10; j++)
+            //{
+            sw.Start();
+
+            for (int i = 0; i < 1000000; i++)
+            {
+                AS4XmlSerializer.ToStringOld(sendingPMode);
+            }
+
+            sw.Stop();
+            Console.WriteLine("elapsed: " + sw.ElapsedMilliseconds);
+
+            sw.Reset();
+            sw.Start();
+
+            for (int i = 0; i < 1000000; i++)
+            {
+                AS4XmlSerializer.ToString(sendingPMode);
+            }
+
+            sw.Stop();
+            Console.WriteLine("elapsed: " + sw.ElapsedMilliseconds);
+
+            sw.Reset();
+            sw.Start();
+
+            for (int i = 0; i < 1000000; i++)
+            {
+                AS4XmlSerializer.ToStringOld(sendingPMode);
+            }
+
+            sw.Stop();
+            Console.WriteLine("elapsed: " + sw.ElapsedMilliseconds);
+
+            sw.Reset();
+            sw.Start();
+
+            for (int i = 0; i < 1000000; i++)
+            {
+                AS4XmlSerializer.ToString(sendingPMode);
+            }
+
+            sw.Stop();
+            Console.WriteLine("elapsed: " + sw.ElapsedMilliseconds);
+
+            sw.Reset();
+            //}
+
+        }
+
         public class ToXmlString
         {
             [Fact]

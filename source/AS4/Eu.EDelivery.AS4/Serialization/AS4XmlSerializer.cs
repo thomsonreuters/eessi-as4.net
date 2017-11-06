@@ -45,6 +45,16 @@ namespace Eu.EDelivery.AS4.Serialization
             return await Task.Run(() => ToString(data));
         }
 
+        private class Utf8StringWriter : StringWriter
+        {
+            private static readonly Encoding Utf8Encoding = new UTF8Encoding(false);
+
+            /// <inheritdoc />
+            /// <summary>Gets the <see cref="T:System.Text.Encoding" /> in which the output is written.</summary>
+            /// <returns>The Encoding in which the output is written.</returns>
+            public override Encoding Encoding => Utf8Encoding;
+        }
+
         /// <summary>
         /// Serialize Model into Xml String
         /// </summary>
@@ -52,6 +62,16 @@ namespace Eu.EDelivery.AS4.Serialization
         /// <param name="data"></param>
         /// <returns></returns>
         public static string ToString<T>(T data)
+        {
+            using (var writer = new Utf8StringWriter())
+            {
+                var serializer = new XmlSerializer(typeof(T));
+                serializer.Serialize(writer, data);
+
+                return writer.ToString();
+            }
+        }
+        public static string ToStringOld<T>(T data)
         {
             using (var stream = new MemoryStream())
             {
@@ -64,7 +84,6 @@ namespace Eu.EDelivery.AS4.Serialization
                 }
             }
         }
-
         /// <summary>
         /// To the document.
         /// </summary>
@@ -148,16 +167,13 @@ namespace Eu.EDelivery.AS4.Serialization
         /// <returns></returns>
         public static async Task<T> FromStreamAsync<T>(Stream stream) where T : class
         {
-            return await Task.Run(() =>
+            using (var streamReader = new StreamReader(stream))
             {
-                using (var streamReader = new StreamReader(stream))
-                {
-                    stream.Position = 0;
+                stream.Position = 0;
 
-                    string xml = streamReader.ReadToEnd();
-                    return FromString<T>(xml);
-                }
-            });
+                string xml = await streamReader.ReadToEndAsync();
+                return await FromStringAsync<T>(xml);
+            }
         }
 
         /// <summary>
@@ -213,7 +229,11 @@ namespace Eu.EDelivery.AS4.Serialization
 
         private static XmlSerializer GetSerializerForType(Type type)
         {
-            if (!Serializers.ContainsKey(type)) Serializers[type] = new XmlSerializer(type);
+            if (!Serializers.ContainsKey(type))
+            {
+                Serializers[type] = new XmlSerializer(type);
+            }
+
             return Serializers[type];
         }
     }
