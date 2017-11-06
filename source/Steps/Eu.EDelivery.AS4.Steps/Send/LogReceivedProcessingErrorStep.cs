@@ -42,7 +42,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 return StepResult.Success(messagingContext);
             }
 
-            await InsertReferencedInException(messagingContext, cancellation);
+            await InsertReferencedInException(messagingContext, cancellation).ConfigureAwait(false);
             return StepResult.Success(messagingContext);
         }
 
@@ -60,7 +60,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 };
 
                 repository.InsertInException(exception);
-                await context.SaveChangesAsync(cancellation);
+                await context.SaveChangesAsync(cancellation).ConfigureAwait(false);
             }
         }
     }

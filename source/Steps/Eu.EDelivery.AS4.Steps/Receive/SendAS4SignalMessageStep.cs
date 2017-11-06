@@ -48,26 +48,27 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         {
             if (messagingContext.AS4Message == null || messagingContext.AS4Message.IsEmpty)
             {
-                return await ReturnSameStepResult(messagingContext);
+                return StepResult.Success(messagingContext);
             }
 
             using (var dataContext = _createDatastoreContext())
             {
                 var repository = new DatastoreRepository(dataContext);
 
-                await StoreSignalMessage(messagingContext, repository, _messageBodyStore, cancellationToken);
+                await new OutMessageService(repository, _messageBodyStore).InsertAS4MessageAsync(
+                                            messagingContext,
+                                            Operation.NotApplicable, // The service will determine the correct reply-pattern.
+                                            cancellationToken).ConfigureAwait(false);
 
-                await dataContext.SaveChangesAsync(cancellationToken);
+                await dataContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
             }
 
             if (IsReplyPatternCallback(messagingContext))
-            {                
-                return await CreateEmptySoapResult(messagingContext);
-            }
-            else
             {
-                return await ReturnSameStepResult(messagingContext);
+                return CreateEmptySoapResult(messagingContext);
             }
+
+            return StepResult.Success(messagingContext);
         }
 
         private static bool IsReplyPatternCallback(MessagingContext message)
@@ -75,24 +76,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             return message.ReceivingPMode?.ReplyHandling?.ReplyPattern == ReplyPattern.Callback;
         }
 
-        private static async Task StoreSignalMessage(
-            MessagingContext messagingContext,
-            IDatastoreRepository repository,
-            IAS4MessageBodyStore messageBodyStore,
-            CancellationToken cancellationToken)
-        {
-            using (DatastoreContext context = Registry.Instance.CreateDatastoreContext())
-            {
-                await new OutMessageService(repository, messageBodyStore).InsertAS4Message(
-                    messagingContext,
-                    Operation.NotApplicable, // The service will determine the correct reply-pattern.
-                    cancellationToken);
-
-                await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
-            }
-        }
-
-        private static async Task<StepResult> CreateEmptySoapResult(MessagingContext messagingContext)
+        private static StepResult CreateEmptySoapResult(MessagingContext messagingContext)
         {
             LogManager.GetCurrentClassLogger()
                       .Info($"{messagingContext.EbmsMessageId} Empty SOAP Envelope will be send to requested party");
@@ -103,12 +87,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 ReceivingPMode = messagingContext.ReceivingPMode
             };
 
-            return await StepResult.SuccessAsync(emptyContext);
-        }
-
-        private static async Task<StepResult> ReturnSameStepResult(MessagingContext messagingContext)
-        {
-            return await StepResult.SuccessAsync(messagingContext);
+            return StepResult.Success(emptyContext);
         }
     }
 }

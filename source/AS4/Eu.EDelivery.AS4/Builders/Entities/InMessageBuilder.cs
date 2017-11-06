@@ -85,7 +85,7 @@ namespace Eu.EDelivery.AS4.Builders.Entities
             }
 
             var inMessage = new InMessage(_messageUnit.MessageId)
-            {                
+            {
                 EbmsRefToMessageId = _messageUnit.RefToMessageId,
                 ContentType = _contentType,
                 InsertionTime = DateTimeOffset.Now,
@@ -95,7 +95,7 @@ namespace Eu.EDelivery.AS4.Builders.Entities
             inMessage.SetEbmsMessageType(DetermineMessageType(_messageUnit));
             inMessage.SetMessageExchangePattern(_mep);
             inMessage.SetOperation(Operation.NotApplicable);
-            await inMessage.SetPModeInformationAsync(_pmode);
+            await inMessage.SetPModeInformationAsync(_pmode).ConfigureAwait(false);
             inMessage.SetStatus(InStatus.Received);
 
             inMessage.AssignAS4Properties(_messageUnit, cancellationToken);

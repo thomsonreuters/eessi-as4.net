@@ -124,7 +124,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             {
                 var service = new OutMessageService(new DatastoreRepository(context), InMemoryMessageBodyStore.Default);
 
-                await service.InsertAS4Message(
+                await service.InsertAS4MessageAsync(
                     new MessagingContext(as4Message, MessagingContextMode.Send)
                     {
                         SendingPMode = sendingPMode

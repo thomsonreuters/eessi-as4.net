@@ -35,7 +35,7 @@ namespace Eu.EDelivery.AS4.Services
         /// <param name="as4MessageBodyPersister"></param>
         /// <param name="cancellationToken"></param>
         /// <returns>A MessagingContext instance that contains the parsed AS4 Message.</returns>
-        Task<MessagingContext> InsertAS4Message(
+        Task<MessagingContext> InsertAS4MessageAsync(
             MessagingContext context,
             MessageExchangePattern mep,
             IAS4MessageBodyStore as4MessageBodyPersister,
@@ -48,7 +48,7 @@ namespace Eu.EDelivery.AS4.Services
         /// <param name="as4MessageBodyPersister"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        Task UpdateAS4MessageForMessageHandling(
+        Task UpdateAS4MessageForMessageHandlingAsync(
             MessagingContext messagingContext,
             IAS4MessageBodyStore as4MessageBodyPersister,
             CancellationToken cancellationToken);

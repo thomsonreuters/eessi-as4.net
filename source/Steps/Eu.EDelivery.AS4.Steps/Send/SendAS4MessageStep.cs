@@ -84,7 +84,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 throw new ConfigurationErrorsException($"The Sending PMode {messagingContext.SendingPMode.Id} does not contain a PushConfiguration element.");
             }
 
-            var as4Message = await GetAS4MessageFromContext(messagingContext);
+            var as4Message = await GetAS4MessageFromContextAsync(messagingContext);
 
             try
             {
@@ -116,7 +116,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             }
             finally
             {
-                UpdateMessageStatus(as4Message, Operation.Sent, OutStatus.Sent);
+                await UpdateMessageStatusAsync(as4Message, Operation.Sent, OutStatus.Sent).ConfigureAwait(false);
             }
         }
 
@@ -176,13 +176,13 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 {
                     if (messagingContext.ReceivedMessage != null)
                     {
-                        await messagingContext.ReceivedMessage.UnderlyingStream.CopyToAsync(requestStream);
+                        await messagingContext.ReceivedMessage.UnderlyingStream.CopyToAsync(requestStream).ConfigureAwait(false);
                     }
                     else
                     {
                         // Serialize the AS4 Message to the request-stream
                         var serializer = SerializerProvider.Default.Get(request.ContentType);
-                        await serializer.SerializeAsync(messagingContext.AS4Message, requestStream, CancellationToken.None);
+                        await serializer.SerializeAsync(messagingContext.AS4Message, requestStream, CancellationToken.None).ConfigureAwait(false);
                     }
                 }
 
@@ -218,11 +218,11 @@ namespace Eu.EDelivery.AS4.Steps.Send
             }
         }
 
-        private static async Task<AS4Message> GetAS4MessageFromContext(MessagingContext context)
+        private static async Task<AS4Message> GetAS4MessageFromContextAsync(MessagingContext context)
         {
             if (context.ReceivedMessage != null)
             {
-                return await GetAS4MessageFromStream(context.ReceivedMessage.UnderlyingStream, context.ReceivedMessage.ContentType);
+                return await GetAS4MessageFromStreamAsync(context.ReceivedMessage.UnderlyingStream, context.ReceivedMessage.ContentType).ConfigureAwait(false);
             }
             else
             {
@@ -230,12 +230,12 @@ namespace Eu.EDelivery.AS4.Steps.Send
             }
         }
 
-        private static async Task<AS4Message> GetAS4MessageFromStream(Stream stream, string contentType)
+        private static async Task<AS4Message> GetAS4MessageFromStreamAsync(Stream stream, string contentType)
         {
             var serializer = SerializerProvider.Default.Get(contentType);
 
             stream.Position = 0;
-            var as4Message = await serializer.DeserializeAsync(stream, contentType, CancellationToken.None);
+            var as4Message = await serializer.DeserializeAsync(stream, contentType, CancellationToken.None).ConfigureAwait(false);
             stream.Position = 0;
 
             return as4Message;
@@ -263,7 +263,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
         {
             Logger.Debug($"AS4 Message received from: {request.Address}");
 
-            (HttpWebResponse webResponse, WebException exception) response = await _httpClient.Respond(request);
+            (HttpWebResponse webResponse, WebException exception) response = await _httpClient.Respond(request).ConfigureAwait(false);
 
             if (response.webResponse != null
                 && ContentTypeSupporter.IsContentTypeSupported(response.webResponse.ContentType))
@@ -276,7 +276,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             throw CreateFailedSendException(request.RequestUri.ToString(), response.exception);
         }
 
-        private void UpdateMessageStatus(AS4Message as4Message, Operation operation, OutStatus status)
+        private async Task UpdateMessageStatusAsync(AS4Message as4Message, Operation operation, OutStatus status)
         {
             if (as4Message == null)
             {
@@ -299,7 +299,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
                 UpdateReceptionAwareness(receptionAwareness);
 
-                context.SaveChanges();
+                await context.SaveChangesAsync().ConfigureAwait(false);
             }
         }
 
@@ -318,7 +318,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             CancellationToken cancellation)
         {
             using (AS4Response as4Response =
-                await AS4Response.Create(originalMessage, webResponse as HttpWebResponse, cancellation))
+                await AS4Response.Create(originalMessage, webResponse as HttpWebResponse, cancellation).ConfigureAwait(false))
             {
                 var responseHandler = new EmptyBodyResponseHandler(new PullRequestResponseHandler(new TailResponseHandler()));
                 return await responseHandler.HandleResponse(as4Response).ConfigureAwait(false);

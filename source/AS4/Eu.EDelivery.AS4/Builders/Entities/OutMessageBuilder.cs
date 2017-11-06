@@ -64,7 +64,7 @@ namespace Eu.EDelivery.AS4.Builders.Entities
             outMessage.SetOperation(Operation.NotApplicable);
             outMessage.SetMessageExchangePattern(DetermineMepOf(_sendingProcessingMode));            
             outMessage.SetEbmsMessageType(messageType);
-            await outMessage.SetPModeInformationAsync(_sendingProcessingMode);
+            await outMessage.SetPModeInformationAsync(_sendingProcessingMode).ConfigureAwait(false);
 
             if (string.IsNullOrWhiteSpace(_messageUnit.RefToMessageId) == false)
             {

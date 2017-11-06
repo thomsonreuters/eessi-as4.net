@@ -42,7 +42,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             if (messagingContext.AS4Message.HasAttachments == false)
             {
                 Logger.Debug($"[{messagingContext.AS4Message.GetPrimaryMessageId()}] AS4Message hasn't got any Attachments to decompress");
-                return await StepResult.SuccessAsync(messagingContext);
+                return StepResult.Success(messagingContext);
             }
 
             return await TryDecompressAttachments(messagingContext).ConfigureAwait(false);
@@ -90,7 +90,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             }
 
             Logger.Info($"[{as4Message.GetPrimaryMessageId()}] Attachments decompressed");
-            return await StepResult.SuccessAsync(context);
+            return StepResult.Success(context);
         }
 
         private static StepResult DecompressFailureResult(string description, MessagingContext context)

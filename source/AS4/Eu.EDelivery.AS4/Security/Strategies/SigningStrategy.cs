@@ -261,7 +261,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
 
             LoadXml(GetSignatureElement());
             AddUnrecognizedAttachmentReferences(options.Attachments);
-
+            
             return CheckSignature(SecurityTokenReference.Certificate, verifySignatureOnly: true);
         }
 

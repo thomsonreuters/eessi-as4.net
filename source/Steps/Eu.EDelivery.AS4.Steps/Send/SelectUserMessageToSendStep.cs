@@ -73,7 +73,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 // Retrieve the existing MessageBody and put that stream in the MessagingContext.
                 // The HttpReceiver processor will make sure that it gets serialized to the http response stream.
 
-                var messageBody = await selection.match.RetrieveMessageBody(_messageBodyStore);
+                var messageBody = await selection.match.RetrieveMessageBody(_messageBodyStore).ConfigureAwait(false);
 
                 messagingContext.ModifyContext(new ReceivedMessage(messageBody, selection.match.ContentType), MessagingContextMode.Send);
 
