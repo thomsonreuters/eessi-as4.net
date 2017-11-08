@@ -99,14 +99,14 @@ namespace Eu.EDelivery.AS4.Steps.Send
             if (attachment.Content.CanSeek)
             {
                 const long twelveKilobytes = 12_288;
-                const long ninehundredMegabytes = 943_718_400;
+                const long twoHundredMegabytes = 209_715_200;
 
                 if (attachment.Content.Length <= twelveKilobytes)
                 {
                     return CompressionLevel.NoCompression;
                 }
 
-                if (attachment.Content.Length > ninehundredMegabytes)
+                if (attachment.Content.Length > twoHundredMegabytes)
                 {
                     return CompressionLevel.Fastest;
                 }
