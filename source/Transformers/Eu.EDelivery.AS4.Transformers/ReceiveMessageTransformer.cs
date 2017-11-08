@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Exceptions;
@@ -21,9 +20,13 @@ namespace Eu.EDelivery.AS4.Transformers
         {
             PreConditions(message);
 
-            VirtualStream messageStream = await CopyIncomingStreamToVirtualStream(message);
+            if (message.UnderlyingStream.CanSeek == false)
+            {
+                VirtualStream messageStream = await CopyIncomingStreamToVirtualStream(message);
+                message = new ReceivedMessage(messageStream, message.ContentType);
+            }
 
-            var context = new MessagingContext(new ReceivedMessage(messageStream, message.ContentType), MessagingContextMode.Receive);
+            var context = new MessagingContext(message, MessagingContextMode.Receive);
 
             return context;
         }
@@ -49,8 +52,8 @@ namespace Eu.EDelivery.AS4.Transformers
                     receivedMessage.UnderlyingStream.CanSeek
                         ? receivedMessage.UnderlyingStream.Length
                         : VirtualStream.ThresholdMax);
-
-            await receivedMessage.UnderlyingStream.CopyToAsync(messageStream);
+            
+            await receivedMessage.UnderlyingStream.CopyToFastAsync(messageStream);
 
             messageStream.Position = 0;
 
