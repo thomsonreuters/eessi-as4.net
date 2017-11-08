@@ -98,7 +98,7 @@ namespace Eu.EDelivery.AS4.Transformers
                         ? receivedMessage.UnderlyingStream.Length
                         : VirtualStream.ThresholdMax);
 
-            await receivedMessage.UnderlyingStream.CopyToAsync(messageStream);
+            await receivedMessage.UnderlyingStream.CopyToFastAsync(messageStream);
 
             messageStream.Position = 0;
 

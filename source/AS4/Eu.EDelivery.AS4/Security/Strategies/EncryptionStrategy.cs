@@ -342,7 +342,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
             var as4EncryptedKey = AS4EncryptedKey.LoadFromXmlDocument(_document);
 
             byte[] key = DecryptEncryptedKey(as4EncryptedKey);
-
+            
             foreach (EncryptedData encryptedData in encryptedDatas)
             {
                 DecryptEncryptedData(encryptedData, key);

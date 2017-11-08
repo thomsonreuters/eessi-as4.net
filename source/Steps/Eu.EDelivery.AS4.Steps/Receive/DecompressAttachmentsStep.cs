@@ -120,7 +120,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
             using (var gzipCompression = new GZipStream(attachment.Content, CompressionMode.Decompress, true))
             {
-                await gzipCompression.CopyToAsync(outputStream).ConfigureAwait(false);
+                await gzipCompression.CopyToFastAsync(outputStream).ConfigureAwait(false);
                 outputStream.Position = 0;
                 attachment.Content = outputStream;
             }

@@ -13,6 +13,7 @@ using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Resources;
 using Eu.EDelivery.AS4.Security.Strategies;
 using Eu.EDelivery.AS4.Singletons;
+using Eu.EDelivery.AS4.Streaming;
 using Eu.EDelivery.AS4.Xml;
 using NLog;
 using Error = Eu.EDelivery.AS4.Model.Core.Error;
@@ -195,7 +196,7 @@ namespace Eu.EDelivery.AS4.Serialization
 
             Stream stream = new MemoryStream(initialCapacity);
 
-            await envelopeStream.CopyToAsync(stream).ConfigureAwait(false);
+            await envelopeStream.CopyToFastAsync(stream).ConfigureAwait(false);
             stream.Position = 0;
 
             return stream;

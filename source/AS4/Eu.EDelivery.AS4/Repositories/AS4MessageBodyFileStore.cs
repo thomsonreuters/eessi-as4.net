@@ -67,7 +67,7 @@ namespace Eu.EDelivery.AS4.Repositories
             {
                 using (FileStream fs = FileUtils.OpenAsync(fileName, FileMode.Create, FileAccess.Write))
                 {
-                    await as4MessageStream.CopyToAsync(fs).ConfigureAwait(false);
+                    await as4MessageStream.CopyToFastAsync(fs).ConfigureAwait(false);
                 }
             }
 
@@ -151,7 +151,7 @@ namespace Eu.EDelivery.AS4.Repositories
                         VirtualStream.CreateVirtualStream(
                             fileStream.CanSeek ? fileStream.Length : VirtualStream.ThresholdMax);
 
-                    await fileStream.CopyToAsync(virtualStream).ConfigureAwait(false);
+                    await fileStream.CopyToFastAsync(virtualStream).ConfigureAwait(false);
                     virtualStream.Position = 0;
 
                     return virtualStream;

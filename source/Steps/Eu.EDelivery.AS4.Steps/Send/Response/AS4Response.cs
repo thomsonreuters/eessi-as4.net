@@ -62,7 +62,7 @@ namespace Eu.EDelivery.AS4.Steps.Send.Response
 
             var contentStream = VirtualStream.CreateVirtualStream(webResponse.ContentLength);
 
-            await responseStream.CopyToAsync(contentStream);
+            await responseStream.CopyToFastAsync(contentStream);
             contentStream.Position = 0;
 
             response.ReceivedStream = new ReceivedMessage(contentStream, webResponse.ContentType);

@@ -305,7 +305,7 @@ namespace Eu.EDelivery.AS4.Receivers
                 VirtualStream.MemoryFlag flag)
             {
                 var destinationStream = new VirtualStream(flag);
-                await request.InputStream.CopyToAsync(destinationStream).ConfigureAwait(false);
+                await request.InputStream.CopyToFastAsync(destinationStream).ConfigureAwait(false);
                 destinationStream.Position = 0;
 
                 return new ReceivedMessage(destinationStream, request.ContentType);
@@ -339,7 +339,7 @@ namespace Eu.EDelivery.AS4.Receivers
                     Logger.Info($"Logging to {newReceivedMessageFile}");
                     using (var destinationStream = FileUtils.CreateAsync(Path.Combine(logDir, newReceivedMessageFile)))
                     {
-                        await message.UnderlyingStream.CopyToAsync(destinationStream).ConfigureAwait(false);
+                        await message.UnderlyingStream.CopyToFastAsync(destinationStream).ConfigureAwait(false);
                     }
 
                     message.UnderlyingStream.Position = 0;
@@ -676,7 +676,7 @@ namespace Eu.EDelivery.AS4.Receivers
             protected override async Task ExecuteResultAsyncCore(HttpListenerResponse response)
             {
                 StreamPositionMover.MovePositionToStreamStart(_stream);
-                await _stream.CopyToAsync(response.OutputStream);
+                await _stream.CopyToFastAsync(response.OutputStream);
             }
         }
 

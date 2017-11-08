@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿#define CONCURRENT_IO
+using System.IO;
 using System.Threading.Tasks;
 
 namespace Eu.EDelivery.AS4.Streaming
@@ -26,10 +27,24 @@ namespace Eu.EDelivery.AS4.Streaming
             return new byte[0];
         }
 
+        /// <summary>
+        /// Copies the source stream to the target stream asynchronously
+        /// </summary>
+        /// <param name="source"></param>
+        /// <param name="target"></param>
+        /// <remarks>Reading from the source-stream and writing to the target stream occurs in parallel.</remarks>
+        /// <returns></returns>
         public static async Task CopyToFastAsync(this Stream source, Stream target)
         {
-            const int bufferSize = 81920;
-            const int ioCount = 40960;
+#if CONCURRENT_IO
+
+            // We have a buffer of bufferSize.
+            // The ioCount constant is exactly the half of bufferSize.
+            // We're reading ioCount bytes from the source-stream inside one half of the buffer
+            // while the writeTask is writing the other half of the buffer to the target-stream.
+
+            const int bufferSize = 163_840;
+            const int ioCount = 81_920;
 
             byte[] buffer = new byte[bufferSize];
             int curoff = 0;
@@ -48,6 +63,9 @@ namespace Eu.EDelivery.AS4.Streaming
             }
 
             await writeTask.ConfigureAwait(false);
+#else
+            await source.CopyToAsync(target).ConfigureAwait(false);
+#endif
         }
     }
 }

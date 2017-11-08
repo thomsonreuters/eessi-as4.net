@@ -17,6 +17,7 @@ using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Steps.Send.Response;
+using Eu.EDelivery.AS4.Streaming;
 using Eu.EDelivery.AS4.Utilities;
 using NLog;
 
@@ -176,7 +177,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 {
                     if (messagingContext.ReceivedMessage != null)
                     {
-                        await messagingContext.ReceivedMessage.UnderlyingStream.CopyToAsync(requestStream).ConfigureAwait(false);
+                        await messagingContext.ReceivedMessage.UnderlyingStream.CopyToFastAsync(requestStream).ConfigureAwait(false);
                     }
                     else
                     {
