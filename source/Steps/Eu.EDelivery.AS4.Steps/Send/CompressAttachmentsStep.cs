@@ -80,7 +80,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
             using (var gzipCompression = new GZipStream(outputStream, compressionLevel: compressionLevel, leaveOpen: true))
             {
-                await attachment.Content.CopyToAsync(gzipCompression).ConfigureAwait(false);
+                await attachment.Content.CopyToFastAsync(gzipCompression).ConfigureAwait(false);
             }
 
             outputStream.Position = 0;
@@ -99,14 +99,14 @@ namespace Eu.EDelivery.AS4.Steps.Send
             if (attachment.Content.CanSeek)
             {
                 const long twelveKilobytes = 12_288;
-                const long hundredMegabytes = 104_857_600;
+                const long ninehundredMegabytes = 943_718_400;
 
                 if (attachment.Content.Length <= twelveKilobytes)
                 {
                     return CompressionLevel.NoCompression;
                 }
 
-                if (attachment.Content.Length <= hundredMegabytes)
+                if (attachment.Content.Length > ninehundredMegabytes)
                 {
                     return CompressionLevel.Fastest;
                 }
