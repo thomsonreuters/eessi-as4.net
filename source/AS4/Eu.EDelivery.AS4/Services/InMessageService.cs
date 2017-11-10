@@ -103,25 +103,12 @@ namespace Eu.EDelivery.AS4.Services
                 throw new InvalidOperationException("The MessagingContext must contain a Received Message");
             }
 
-            var sw = new Stopwatch();
-
-            if (Logger.IsTraceEnabled)
-            {
-                sw.Start();
-            }
-
             // TODO: should we start the transaction here.
             string location =
                 await messageBodyStore.SaveAS4MessageStreamAsync(
                     location: _configuration.InMessageStoreLocation,
                     as4MessageStream: context.ReceivedMessage.UnderlyingStream,
                     cancellation: cancellationToken).ConfigureAwait(false);
-
-            if (Logger.IsTraceEnabled)
-            {
-                sw.Stop();
-                Logger.Trace($"Saving received messagestream took {sw.ElapsedMilliseconds} msecs.");
-            }
 
             try
             {
