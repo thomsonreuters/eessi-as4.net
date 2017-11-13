@@ -97,13 +97,15 @@ namespace Eu.EDelivery.AS4.Factories
             return idBuilder.ToString();
         }
 
-        private StringBuilder ReplaceValueWithMacro(StringBuilder idBuilder, Match match)
+        private static StringBuilder ReplaceValueWithMacro(StringBuilder idBuilder, Match match)
         {
             string valueToReplace = match.Groups[0].Value;
             string macroName = match.Groups[1].Value;
 
             if (Macros.ContainsKey(macroName))
+            {
                 idBuilder = idBuilder.Replace(valueToReplace, Macros[macroName]());
+            }
 
             return idBuilder;
         }
