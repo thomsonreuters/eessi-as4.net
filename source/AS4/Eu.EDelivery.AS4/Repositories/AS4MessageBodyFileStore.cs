@@ -53,6 +53,13 @@ namespace Eu.EDelivery.AS4.Repositories
             return $"file:///{fileName}";
         }
 
+        /// <summary>
+        /// Saves an AS4 Message Stream to the filesystem.
+        /// </summary>
+        /// <param name="location">The location where the AS4 message must be saved</param>
+        /// <param name="as4MessageStream">A stream representing the AS4 message</param>
+        /// <param name="cancellation"></param>
+        /// <returns></returns>
         public async Task<string> SaveAS4MessageStreamAsync(string location, Stream as4MessageStream, CancellationToken cancellation)
         {
             if (as4MessageStream == null)
@@ -67,6 +74,8 @@ namespace Eu.EDelivery.AS4.Repositories
             {
                 using (FileStream fs = FileUtils.OpenAsync(fileName, FileMode.Create, FileAccess.Write))
                 {
+                    File.SetAttributes(fs.Name, FileAttributes.NotContentIndexed);
+
                     await as4MessageStream.CopyToFastAsync(fs).ConfigureAwait(false);
                 }
             }
@@ -124,6 +133,8 @@ namespace Eu.EDelivery.AS4.Repositories
         {
             using (FileStream content = FileUtils.CreateAsync(fileName))
             {
+                File.SetAttributes(fileName, FileAttributes.NotContentIndexed);
+
                 ISerializer serializer = _provider.Get(message.ContentType);
                 await serializer.SerializeAsync(message, content, cancellationToken).ConfigureAwait(false);
             }
@@ -149,7 +160,8 @@ namespace Eu.EDelivery.AS4.Repositories
                 {
                     VirtualStream virtualStream =
                         VirtualStream.CreateVirtualStream(
-                            fileStream.CanSeek ? fileStream.Length : VirtualStream.ThresholdMax);
+                            fileStream.CanSeek ? fileStream.Length : VirtualStream.ThresholdMax,
+                            forAsync: true);
 
                     await fileStream.CopyToFastAsync(virtualStream).ConfigureAwait(false);
                     virtualStream.Position = 0;

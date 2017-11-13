@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -116,14 +117,23 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
             VirtualStream outputStream =
                 VirtualStream.CreateVirtualStream(
-                    attachment.Content.CanSeek ? attachment.Content.Length : VirtualStream.ThresholdMax);
+                    attachment.Content.CanSeek ? attachment.Content.Length : VirtualStream.ThresholdMax,
+                    forAsync: true);
+
+            var sw = new Stopwatch();
+            sw.Start();
 
             using (var gzipCompression = new GZipStream(attachment.Content, CompressionMode.Decompress, true))
             {
                 await gzipCompression.CopyToFastAsync(outputStream).ConfigureAwait(false);
+                //gzipCompression.CopyTo(outputStream);
+                //await gzipCompression.CopyToAsync(outputStream);
                 outputStream.Position = 0;
                 attachment.Content = outputStream;
             }
+
+            sw.Stop();
+            Logger.Trace($"Decompress copytofastasync took {sw.ElapsedMilliseconds} millisecs");
         }
 
         private static void AssignAttachmentProperties(List<PartInfo> messagePayloadInfo, Attachment attachment)

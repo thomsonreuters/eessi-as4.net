@@ -134,7 +134,7 @@ namespace Eu.EDelivery.AS4.Serialization
 
             if (attachment.Content.CanSeek == false)
             {
-                var tempStream = new VirtualStream();
+                var tempStream = new VirtualStream(forAsync: true);
                 attachment.Content.CopyTo(tempStream);
                 tempStream.Position = 0;
                 attachment.Content = tempStream;

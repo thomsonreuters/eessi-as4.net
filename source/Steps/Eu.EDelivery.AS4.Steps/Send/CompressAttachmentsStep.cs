@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Threading;
@@ -74,14 +75,21 @@ namespace Eu.EDelivery.AS4.Steps.Send
         {
             VirtualStream outputStream =
                 VirtualStream.CreateVirtualStream(
-                    attachment.Content.CanSeek ? attachment.Content.Length : VirtualStream.ThresholdMax);
+                    attachment.Content.CanSeek ? attachment.Content.Length : VirtualStream.ThresholdMax,
+                    forAsync: false);
 
             var compressionLevel = DetermineCompressionLevelFor(attachment);
+
+            var sw = new Stopwatch();
+            sw.Start();
 
             using (var gzipCompression = new GZipStream(outputStream, compressionLevel: compressionLevel, leaveOpen: true))
             {
                 await attachment.Content.CopyToFastAsync(gzipCompression).ConfigureAwait(false);
             }
+
+            sw.Stop();
+            Logger.Trace($"Compress took {sw.ElapsedMilliseconds} milliseconds");
 
             outputStream.Position = 0;
             attachment.Content = outputStream;

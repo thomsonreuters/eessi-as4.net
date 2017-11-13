@@ -12,7 +12,8 @@ namespace Eu.EDelivery.AS4.Streaming
         /// The threshold at which VirtualStream will start overflowing to a persistent stream.
         /// </summary>
         public const int ThresholdMax = ThresholdSize.FiftyMegabytes;
-        public const int DefaultBufferSize = 8192;
+
+        public const int DefaultBufferSize = 8192; // 131072; // -> 128kb // 8192;
 
         private bool _isDisposed;
         private bool _isInMemory;
@@ -24,18 +25,20 @@ namespace Eu.EDelivery.AS4.Streaming
 
         private readonly MemoryFlag _memoryStatus;
 
+        private readonly bool _forAsync;
+
         /// <summary>
         /// Initializes a new <see cref="VirtualStream"/> instance.
         /// </summary>
-        public VirtualStream()
-          : this(MemoryFlag.AutoOverFlowToDisk)
+        public VirtualStream(bool forAsync = false)
+          : this(MemoryFlag.AutoOverFlowToDisk, forAsync)
         { }
 
-        public VirtualStream(MemoryFlag flag)
-          : this(ThresholdMax, flag, flag == MemoryFlag.OnlyToDisk ? CreatePersistentStream() : new MemoryStream())
+        public VirtualStream(MemoryFlag flag, bool forAsync = false)
+          : this(ThresholdMax, flag, flag == MemoryFlag.OnlyToDisk ? CreatePersistentStream(forAsync) : new MemoryStream(), forAsync)
         { }
 
-        private VirtualStream(int thresholdSize, MemoryFlag flag, Stream dataStream)
+        private VirtualStream(int thresholdSize, MemoryFlag flag, Stream dataStream, bool forAsync)
         {
             if (dataStream == null)
             {
@@ -45,6 +48,7 @@ namespace Eu.EDelivery.AS4.Streaming
             _isInMemory = flag != MemoryFlag.OnlyToDisk;
             _memoryStatus = flag;
             _threshholdSize = thresholdSize;
+            _forAsync = forAsync;
             UnderlyingStream = dataStream;
             _isDisposed = false;
         }
@@ -71,9 +75,9 @@ namespace Eu.EDelivery.AS4.Streaming
             }
         }
 
-        public static VirtualStream CreateVirtualStream()
+        public static VirtualStream CreateVirtualStream(bool forAsync = false)
         {
-            return CreateVirtualStream(ThresholdMax);
+            return CreateVirtualStream(ThresholdMax, forAsync);
         }
 
         /// <summary>
@@ -81,7 +85,7 @@ namespace Eu.EDelivery.AS4.Streaming
         /// </summary>
         /// <param name="expectedSize"></param>
         /// <returns></returns>
-        public static VirtualStream CreateVirtualStream(long expectedSize)
+        public static VirtualStream CreateVirtualStream(long expectedSize, bool forAsync = false)
         {
             if (expectedSize < 0)
             {
@@ -97,22 +101,37 @@ namespace Eu.EDelivery.AS4.Streaming
         /// <param name="expectedSize">The expected total size of the stream.</param>
         /// <param name="thresholdSize">The threshold size on which the VirtualStream will be persisted to disk.</param>
         /// <returns></returns>
-        public static VirtualStream CreateVirtualStream(long expectedSize, int thresholdSize)
+        public static VirtualStream CreateVirtualStream(long expectedSize, int thresholdSize, bool forAsync = false)
         {
             if (expectedSize > thresholdSize)
             {
-                return new VirtualStream(thresholdSize, MemoryFlag.OnlyToDisk, CreatePersistentStream());
+                return new VirtualStream(thresholdSize, MemoryFlag.OnlyToDisk, CreatePersistentStream(forAsync), forAsync);
             }
 
-            return new VirtualStream(thresholdSize, MemoryFlag.AutoOverFlowToDisk, new MemoryStream(DefaultBufferSize));
+            return new VirtualStream(thresholdSize, MemoryFlag.AutoOverFlowToDisk, new MemoryStream(DefaultBufferSize), forAsync);
         }
 
-        private static Stream CreatePersistentStream()
+        private static Stream CreatePersistentStream(bool forAsync)
         {
-            StringBuilder stringBuilder = new StringBuilder(261);
             Guid guid = Guid.NewGuid();
-            stringBuilder.Append(Path.Combine(Path.GetTempPath(), "VST" + guid.ToString() + ".tmp"));
-            return new FileStream(new SafeFileHandle(NativeMethods.CreateFile(stringBuilder.ToString(), 3U, 0U, IntPtr.Zero, 2U, 67109120U, IntPtr.Zero), true), FileAccess.ReadWrite, DefaultBufferSize);
+
+            FileOptions options = FileOptions.DeleteOnClose | FileOptions.SequentialScan;
+
+            if (forAsync)
+            {
+                options |= FileOptions.Asynchronous;
+            }
+
+            var fs = new FileStream(Path.Combine(Path.GetTempPath(), "VST" + guid.ToString() + ".tmp"),
+                                    FileMode.Create,
+                                    FileAccess.ReadWrite,
+                                    FileShare.None,
+                                    DefaultBufferSize,
+                                    options);
+
+            File.SetAttributes(fs.Name, FileAttributes.Temporary | FileAttributes.NotContentIndexed);
+
+            return fs;
         }
 
         public object Clone()
@@ -125,13 +144,13 @@ namespace Eu.EDelivery.AS4.Streaming
             }
             else
             {
-                clonedStream = CreatePersistentStream();
+                clonedStream = CreatePersistentStream(_forAsync);
             }
 
             UnderlyingStream.CopyTo(clonedStream);
             clonedStream.Position = 0L;
 
-            return new VirtualStream(_threshholdSize, _memoryStatus, clonedStream);
+            return new VirtualStream(_threshholdSize, _memoryStatus, clonedStream, _forAsync);
         }
 
         public override void Flush()
@@ -183,7 +202,7 @@ namespace Eu.EDelivery.AS4.Streaming
 
         private void OverflowToPersistentStream()
         {
-            Stream persistentStream = CreatePersistentStream();
+            Stream persistentStream = CreatePersistentStream(_forAsync);
             UnderlyingStream.Position = 0;
             UnderlyingStream.CopyTo(persistentStream);
             UnderlyingStream = persistentStream;
@@ -252,6 +271,9 @@ namespace Eu.EDelivery.AS4.Streaming
         private static class ThresholdSize
         {
             public const int FiftyMegabytes = 52_428_800;
+            public const int OneHundredMegabytes = 104_857_600;
+            public const int TwoHundredMegabytes = 209_715_200;
+            public const int TwoHundredFiftyMegabytes = 262_144_000;
         }
 
         /// <summary>

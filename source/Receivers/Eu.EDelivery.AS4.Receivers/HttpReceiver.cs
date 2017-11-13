@@ -304,7 +304,7 @@ namespace Eu.EDelivery.AS4.Receivers
                 HttpListenerRequest request,
                 VirtualStream.MemoryFlag flag)
             {
-                var destinationStream = new VirtualStream(flag);
+                var destinationStream = new VirtualStream(flag, forAsync: true);
                 await request.InputStream.CopyToFastAsync(destinationStream).ConfigureAwait(false);
                 destinationStream.Position = 0;
 
