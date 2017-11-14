@@ -125,7 +125,7 @@ namespace Eu.EDelivery.AS4.Streaming
             var fs = new FileStream(Path.Combine(Path.GetTempPath(), "VST" + guid.ToString() + ".tmp"),
                                     FileMode.Create,
                                     FileAccess.ReadWrite,
-                                    FileShare.None,
+                                    FileShare.Read,
                                     DefaultBufferSize,
                                     options);
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -6,6 +7,7 @@ using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Streaming;
 using Eu.EDelivery.AS4.Utilities;
+using NLog;
 
 namespace Eu.EDelivery.AS4.Repositories
 {
@@ -70,17 +72,51 @@ namespace Eu.EDelivery.AS4.Repositories
             string storeLocation = EnsureStoreLocation(location);
             string fileName = AssembleUniqueMessageLocation(storeLocation);
 
+            var sw = new Stopwatch();
+            sw.Start();
+
             if (!File.Exists(fileName))
             {
-                using (FileStream fs = FileUtils.OpenAsync(fileName, FileMode.Create, FileAccess.Write))
-                {
-                    File.SetAttributes(fs.Name, FileAttributes.NotContentIndexed);
+                var sourceFile = GetFileStreamForSourceStream(as4MessageStream);
 
-                    await as4MessageStream.CopyToFastAsync(fs).ConfigureAwait(false);
+                if (sourceFile != null)
+                {
+                    File.Copy(sourceFile.Name, fileName);
+                }
+                else
+                {
+                    using (FileStream fs = FileUtils.OpenAsync(fileName, FileMode.Create, FileAccess.Write, FileOptions.SequentialScan))
+                    {
+                        File.SetAttributes(fs.Name, FileAttributes.NotContentIndexed);
+                        if (as4MessageStream.CanSeek)
+                        {
+                            fs.SetLength(as4MessageStream.Length);
+                        }
+
+                        await as4MessageStream.CopyToFastAsync(fs).ConfigureAwait(false);
+                    }
                 }
             }
 
+            sw.Stop();
+            LogManager.GetCurrentClassLogger().Trace($"Saving stream took {sw.ElapsedMilliseconds} millisecs");
+
             return $"file:///{fileName}";
+        }
+
+        private static FileStream GetFileStreamForSourceStream(Stream s)
+        {
+            if (s is FileStream fs)
+            {
+                return fs;
+            }
+
+            if (s is VirtualStream vs && vs.UnderlyingStream is FileStream ufs)
+            {
+                return ufs;
+            }
+
+            return null;
         }
 
         private static string EnsureStoreLocation(string storeLocation)
@@ -131,13 +167,20 @@ namespace Eu.EDelivery.AS4.Repositories
 
         private async Task SaveMessageToFile(AS4Message message, string fileName, CancellationToken cancellationToken)
         {
+            var sw = new Stopwatch();
+            sw.Start();
+
             using (FileStream content = FileUtils.CreateAsync(fileName))
             {
                 File.SetAttributes(fileName, FileAttributes.NotContentIndexed);
+                content.SetLength(message.DetermineMessageSize(SerializerProvider.Default));
 
                 ISerializer serializer = _provider.Get(message.ContentType);
                 await serializer.SerializeAsync(message, content, cancellationToken).ConfigureAwait(false);
             }
+
+            sw.Stop();
+            LogManager.GetCurrentClassLogger().Trace($"Saving AS4 Message to file took {sw.ElapsedMilliseconds} millisecs");
         }
 
         /// <summary>
