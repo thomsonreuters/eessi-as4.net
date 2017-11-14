@@ -6,19 +6,25 @@ namespace Eu.EDelivery.AS4.Utilities
     {
         private const int DefaultBufferSize = 4096;
 
-        public static FileStream OpenAsync(string fileName, FileMode mode, FileAccess access)
+        public static FileStream OpenAsync(string fileName, FileMode mode, FileAccess access, FileOptions options = FileOptions.None)
         {
-            return new FileStream(fileName, mode, access, FileShare.Read, DefaultBufferSize, useAsync: true);
+            options |= FileOptions.Asynchronous;
+
+            return new FileStream(fileName, mode, access, FileShare.Read, DefaultBufferSize, options);
         }
 
-        public static FileStream OpenReadAsync(string fileName)
+        public static FileStream OpenReadAsync(string fileName, FileOptions options = FileOptions.None)
         {
-            return new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.Read, DefaultBufferSize, useAsync: true);
+            options |= FileOptions.Asynchronous;
+
+            return new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.Read, DefaultBufferSize, options);
         }
 
-        public static FileStream CreateAsync(string fileName)
+        public static FileStream CreateAsync(string fileName, FileOptions options = FileOptions.None)
         {
-            return new FileStream(fileName, FileMode.Create, FileAccess.ReadWrite, FileShare.None, DefaultBufferSize, useAsync: true);
+            options |= FileOptions.Asynchronous;
+
+            return new FileStream(fileName, FileMode.Create, FileAccess.ReadWrite, FileShare.None, DefaultBufferSize, options);
         }
     }
 
