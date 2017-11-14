@@ -336,6 +336,7 @@
     <Compile Include="Exceptions\Handlers\SafeExceptionHandler.cs" />
     <Compile Include="Exceptions\IAgentExceptionHandler.cs" />
     <Compile Include="Exceptions\InvalidMessageException.cs" />
+    <Compile Include="Factories\PayloadFileNameFactory.cs" />
     <Compile Include="Mappings\Core\RoutingInputUserMessageMap.cs" />
     <Compile Include="Migrations\20170919142609_InitialMigration.cs" />
     <Compile Include="Migrations\20170919142609_InitialMigration.designer.cs">

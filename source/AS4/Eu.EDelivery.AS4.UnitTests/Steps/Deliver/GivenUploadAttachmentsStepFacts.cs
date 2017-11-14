@@ -70,7 +70,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
             return new MessagingContext(as4Message, MessagingContextMode.Unknown)
             {
                 ReceivingPMode = pmode
-
             };
         }
     }

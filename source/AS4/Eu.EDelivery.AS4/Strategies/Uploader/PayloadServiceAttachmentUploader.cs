@@ -46,12 +46,8 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
             Location = payloadReferenceMethod["location"].Value;
         }
 
-        /// <summary>
-        /// Start uploading <see cref="Attachment" />
-        /// </summary>
-        /// <param name="attachment"></param>
-        /// <returns></returns>
-        public async Task<UploadResult> UploadAsync(Attachment attachment)
+        /// <inheritdoc />
+        public async Task<UploadResult> UploadAsync(Attachment attachment, UserMessage referringUserMessage)
         {
             HttpResponseMessage response = await PostAttachmentAsMultipart(attachment).ConfigureAwait(false);
             return await DeserializeResponseAsUploadResult(response).ConfigureAwait(false);

@@ -2,6 +2,7 @@
 using System.Net.Mail;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
+using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
 using NLog;
@@ -48,12 +49,8 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
             _method = payloadReferenceMethod;
         }
 
-        /// <summary>
-        /// Start uploading <see cref="Attachment"/>
-        /// </summary>
-        /// <param name="attachment"></param>
-        /// <returns></returns>
-        public Task<UploadResult> UploadAsync(Attachment attachment)
+        /// <inheritdoc />
+        public Task<UploadResult> UploadAsync(Attachment attachment, UserMessage referringUserMessage)
         {
             SendAttachmentAsMail(attachment);
 

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
@@ -65,7 +66,13 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
 
             var uploader = GetAttachmentUploader(_messagingContext.ReceivingPMode);
 
-            await UploadAttachments(messagingContext.AS4Message.Attachments, uploader, messagingContext.EbmsMessageId).ConfigureAwait(false);
+            // Retrieve and upload all payloads per user-message.
+            foreach (var um in _messagingContext.AS4Message.UserMessages)
+            {
+                var payloads = _messagingContext.AS4Message.Attachments.Where(a => a.MatchesAny(um.PayloadInfo));
+
+                await UploadAttachments(payloads, um, uploader).ConfigureAwait(false);
+            }
 
             return await StepResult.SuccessAsync(messagingContext);
         }
@@ -82,21 +89,21 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
             return uploader;
         }
 
-        private static async Task UploadAttachments(IEnumerable<Attachment> attachments, IAttachmentUploader uploader, string ebmsMessageId)
+        private static async Task UploadAttachments(IEnumerable<Attachment> attachments, UserMessage referringUserMessage, IAttachmentUploader uploader)
         {
             foreach (var attachment in attachments)
             {
-                await TryUploadAttachment(attachment, uploader, ebmsMessageId);
+                await TryUploadAttachment(attachment, referringUserMessage, uploader);
             }
         }
 
-        private static async Task TryUploadAttachment(Attachment attachment, IAttachmentUploader uploader, string ebmsMessageId)
+        private static async Task TryUploadAttachment(Attachment attachment, UserMessage referringUserMessage, IAttachmentUploader uploader)
         {
             try
             {
-                Logger.Info($"{ebmsMessageId} Start Uploading Attachment...");
+                Logger.Info($"{referringUserMessage.MessageId} Start Uploading Attachment...");
 
-                await UploadAttachment(attachment, uploader).ConfigureAwait(false);
+                await UploadAttachment(attachment, referringUserMessage, uploader).ConfigureAwait(false);
 
                 attachment.ResetContentPosition();
             }
@@ -109,9 +116,9 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
             }
         }
 
-        private static async Task UploadAttachment(Attachment attachment, IAttachmentUploader uploader)
+        private static async Task UploadAttachment(Attachment attachment, UserMessage belongsToUserMessage, IAttachmentUploader uploader)
         {
-            UploadResult attachmentResult = await uploader.UploadAsync(attachment).ConfigureAwait(false);
+            UploadResult attachmentResult = await uploader.UploadAsync(attachment, belongsToUserMessage).ConfigureAwait(false);
 
             attachment.Location = attachmentResult.DownloadUrl;
         }

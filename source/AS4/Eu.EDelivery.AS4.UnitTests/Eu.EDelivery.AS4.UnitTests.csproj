@@ -236,6 +236,7 @@
     <Compile Include="Exceptions\Handlers\GivenOutboundExceptionHandlerFacts.cs" />
     <Compile Include="Exceptions\Handlers\GivenPullSendAgentExceptionHandlerFacts.cs" />
     <Compile Include="Exceptions\Handlers\GivenSafeExceptionHandlerFacts.cs" />
+    <Compile Include="Factories\GivenPayloadFileNameFactoryFacts.cs" />
     <Compile Include="Mappings\Core\GivenRoutingInputUserMessageMapFacts.cs" />
     <Compile Include="Model\Deliver\EmptyDeliverEnvelope.cs" />
     <Compile Include="Model\Notify\EmptyNotifyEnvelope.cs" />
