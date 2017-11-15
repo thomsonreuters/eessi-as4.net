@@ -62,7 +62,7 @@ namespace Eu.EDelivery.AS4.Streaming
             while ((len = await readTask.ConfigureAwait(false)) != 0)
             {
                 await writeTask.ConfigureAwait(false);
-                writeTask = target.WriteAsync(buffer, curoff, len).ContinueWith(async (c) => await target.FlushAsync());
+                writeTask = target.WriteAsync(buffer, curoff, len);
 
                 curoff ^= actionBufferSize;
                 readTask = source.ReadAsync(buffer, curoff, actionBufferSize);
