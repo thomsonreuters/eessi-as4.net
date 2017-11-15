@@ -27,14 +27,20 @@ namespace Eu.EDelivery.AS4.Streaming
             return new byte[0];
         }
 
+        public static async Task CopyToFastAsync(this Stream source, Stream target)
+        {
+            await CopyToFastAsync(source, target, 81_920);
+        }
+
         /// <summary>
         /// Copies the source stream to the target stream asynchronously
         /// </summary>
         /// <param name="source"></param>
         /// <param name="target"></param>
+        /// <param name="bufferSize">The size of the buffer that must be applied when reading or writing during copy.</param>
         /// <remarks>Reading from the source-stream and writing to the target stream occurs in parallel.</remarks>
         /// <returns></returns>
-        public static async Task CopyToFastAsync(this Stream source, Stream target)
+        public static async Task CopyToFastAsync(this Stream source, Stream target, int bufferSize)
         {
 #if CONCURRENT_IO
 
@@ -43,23 +49,23 @@ namespace Eu.EDelivery.AS4.Streaming
             // We're reading ioCount bytes from the source-stream inside one half of the buffer
             // while the writeTask is writing the other half of the buffer to the target-stream.
 
-            const int bufferSize = 163_840;
-            const int ioCount = 81_920;
+            int ioBufferSize = bufferSize * 2;
+            int actionBufferSize = bufferSize;
 
-            byte[] buffer = new byte[bufferSize];
+            byte[] buffer = new byte[ioBufferSize];
             int curoff = 0;
 
-            Task<int> readTask = source.ReadAsync(buffer, curoff, ioCount);
+            Task<int> readTask = source.ReadAsync(buffer, curoff, actionBufferSize);
             Task writeTask = Task.CompletedTask;
             int len;
 
             while ((len = await readTask.ConfigureAwait(false)) != 0)
             {
                 await writeTask.ConfigureAwait(false);
-                writeTask = target.WriteAsync(buffer, curoff, len);
+                writeTask = target.WriteAsync(buffer, curoff, len).ContinueWith(async (c) => await target.FlushAsync());
 
-                curoff ^= ioCount;
-                readTask = source.ReadAsync(buffer, curoff, ioCount);
+                curoff ^= actionBufferSize;
+                readTask = source.ReadAsync(buffer, curoff, actionBufferSize);
             }
 
             await writeTask.ConfigureAwait(false);
