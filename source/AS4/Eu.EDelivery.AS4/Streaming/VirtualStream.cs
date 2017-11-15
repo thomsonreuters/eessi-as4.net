@@ -1,8 +1,7 @@
 ﻿using System;
 using System.IO;
-using System.Runtime.InteropServices;
-using System.Text;
-using Microsoft.Win32.SafeHandles;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Eu.EDelivery.AS4.Streaming
 {
@@ -145,6 +144,7 @@ namespace Eu.EDelivery.AS4.Streaming
             else
             {
                 clonedStream = CreatePersistentStream(_forAsync);
+                clonedStream.SetLength(this.Length);
             }
 
             UnderlyingStream.CopyTo(clonedStream);
@@ -165,12 +165,35 @@ namespace Eu.EDelivery.AS4.Streaming
             return UnderlyingStream.Read(buffer, offset, count);
         }
 
+        ///<inheritdoc />
+        public override IAsyncResult BeginRead(byte[] buffer, int offset, int count, AsyncCallback callback, object state)
+        {
+            ThrowIfDisposed();
+            return UnderlyingStream.BeginRead(buffer, offset, count, callback, state);
+        }
+
+        ///<inheritdoc />
+        public override int EndRead(IAsyncResult asyncResult)
+        {
+            ThrowIfDisposed();
+            return UnderlyingStream.EndRead(asyncResult);
+        }
+
+        ///<inheritdoc />
+        public override Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+        {
+            ThrowIfDisposed();
+            return UnderlyingStream.ReadAsync(buffer, offset, count, cancellationToken);
+        }
+
+        ///<inheritdoc />
         public override long Seek(long offset, SeekOrigin origin)
         {
             ThrowIfDisposed();
             return UnderlyingStream.Seek(offset, origin);
         }
 
+        ///<inheritdoc />
         public override void SetLength(long length)
         {
             ThrowIfDisposed();
@@ -178,31 +201,64 @@ namespace Eu.EDelivery.AS4.Streaming
             if (_memoryStatus == MemoryFlag.AutoOverFlowToDisk && _isInMemory && length > _threshholdSize)
             {
                 OverflowToPersistentStream();
-                UnderlyingStream.SetLength(length);
             }
-            else
-            {
-                UnderlyingStream.SetLength(length);
-            }
+
+            UnderlyingStream.SetLength(length);
         }
 
+        ///<inheritdoc />
         public override void Write(byte[] buffer, int offset, int count)
         {
             ThrowIfDisposed();
             if (_memoryStatus == MemoryFlag.AutoOverFlowToDisk && _isInMemory && count + UnderlyingStream.Position > _threshholdSize)
             {
                 OverflowToPersistentStream();
-                UnderlyingStream.Write(buffer, offset, count);
             }
-            else
+
+            UnderlyingStream.Write(buffer, offset, count);
+        }
+
+        ///<inheritdoc />
+        public override IAsyncResult BeginWrite(byte[] buffer, int offset, int count, AsyncCallback callback, object state)
+        {
+            ThrowIfDisposed();
+            if (_memoryStatus == MemoryFlag.AutoOverFlowToDisk && _isInMemory && count + UnderlyingStream.Position > _threshholdSize)
             {
-                UnderlyingStream.Write(buffer, offset, count);
+                OverflowToPersistentStream();
             }
+            return UnderlyingStream.BeginWrite(buffer, offset, count, callback, state);
+        }
+
+        ///<inheritdoc />
+        public override void EndWrite(IAsyncResult asyncResult)
+        {
+            ThrowIfDisposed();
+            UnderlyingStream.EndWrite(asyncResult);
+        }
+
+        ///<inheritdoc />
+        public override Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+        {
+            ThrowIfDisposed();
+            if (_memoryStatus == MemoryFlag.AutoOverFlowToDisk && _isInMemory && count + UnderlyingStream.Position > _threshholdSize)
+            {
+                OverflowToPersistentStream();
+            }
+            return UnderlyingStream.WriteAsync(buffer, offset, count, cancellationToken);
+        }
+
+        ///<inheritdoc />
+        public override Task CopyToAsync(Stream destination, int bufferSize, CancellationToken cancellationToken)
+        {
+            ThrowIfDisposed();
+            return UnderlyingStream.CopyToAsync(destination, bufferSize, cancellationToken);
         }
 
         private void OverflowToPersistentStream()
         {
             Stream persistentStream = CreatePersistentStream(_forAsync);
+            persistentStream.SetLength(UnderlyingStream.Length);
+
             UnderlyingStream.Position = 0;
             UnderlyingStream.CopyTo(persistentStream);
             UnderlyingStream = persistentStream;
@@ -238,8 +294,7 @@ namespace Eu.EDelivery.AS4.Streaming
             }
             UnderlyingStream.Close();
 
-            var fs = UnderlyingStream as FileStream;
-            if (fs != null)
+            if (UnderlyingStream is FileStream fs)
             {
                 File.Delete(fs.Name);
             }
@@ -253,12 +308,6 @@ namespace Eu.EDelivery.AS4.Streaming
             {
                 throw new ObjectDisposedException("VirtualStream");
             }
-        }
-
-        private static class NativeMethods
-        {
-            [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
-            internal static extern IntPtr CreateFile(string name, uint accessMode, uint shareMode, IntPtr security, uint createMode, uint flags, IntPtr template);
         }
 
         public enum MemoryFlag
