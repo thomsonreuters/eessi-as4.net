@@ -170,7 +170,7 @@ namespace Eu.EDelivery.AS4.Repositories
             var sw = new Stopwatch();
             sw.Start();
 
-            using (FileStream content = FileUtils.CreateAsync(fileName))
+            using (FileStream content = FileUtils.CreateAsync(fileName, options: FileOptions.SequentialScan))
             {
                 File.SetAttributes(fileName, FileAttributes.NotContentIndexed);
                 content.SetLength(message.DetermineMessageSize(SerializerProvider.Default));
@@ -199,7 +199,7 @@ namespace Eu.EDelivery.AS4.Repositories
 
             if (File.Exists(fileLocation))
             {
-                using (FileStream fileStream = FileUtils.OpenReadAsync(fileLocation))
+                using (FileStream fileStream = FileUtils.OpenReadAsync(fileLocation, options: FileOptions.SequentialScan))
                 {
                     VirtualStream virtualStream =
                         VirtualStream.CreateVirtualStream(
