@@ -117,23 +117,53 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
             VirtualStream outputStream =
                 VirtualStream.CreateVirtualStream(
-                    attachment.Content.CanSeek ? attachment.Content.Length : VirtualStream.ThresholdMax,
-                    forAsync: true);
+                    attachment.Content.CanSeek ? attachment.Content.Length : VirtualStream.ThresholdMax, true);
 
+            int unzipLength = DetermineOriginalFileSize(attachment.Content);
+            if (unzipLength > 0)
+            {
+                outputStream.SetLength(unzipLength);
+            }
             var sw = new Stopwatch();
             sw.Start();
 
             using (var gzipCompression = new GZipStream(attachment.Content, CompressionMode.Decompress, true))
             {
                 await gzipCompression.CopyToFastAsync(outputStream).ConfigureAwait(false);
-                //gzipCompression.CopyTo(outputStream);
-                //await gzipCompression.CopyToAsync(outputStream);
                 outputStream.Position = 0;
                 attachment.Content = outputStream;
             }
 
             sw.Stop();
             Logger.Trace($"Decompress copytofastasync took {sw.ElapsedMilliseconds} millisecs");
+        }
+
+        private static int DetermineOriginalFileSize(Stream str)
+        {
+            long originalPosition = str.Position;
+
+            try
+            {
+                byte[] fh = new byte[3];
+                str.Read(fh, 0, 3);
+                if (fh[0] == 31 && fh[1] == 139 && fh[2] == 8) //If magic numbers are 31 and 139 and the deflation id is 8 then...
+                {
+                    byte[] ba = new byte[4];
+                    str.Seek(-4, SeekOrigin.End);
+                    str.Read(ba, 0, 4);
+                    return BitConverter.ToInt32(ba, 0);
+                }
+                else
+                    return -1;
+            }
+            catch
+            {
+                return -1;
+            }
+            finally
+            {
+                str.Position = originalPosition;
+            }
         }
 
         private static void AssignAttachmentProperties(List<PartInfo> messagePayloadInfo, Attachment attachment)
