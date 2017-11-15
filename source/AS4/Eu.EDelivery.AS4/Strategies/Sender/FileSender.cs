@@ -90,7 +90,7 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
 
         private static async Task WriteContentsToFile(string locationPath, byte[] contents)
         {
-            using (FileStream fileStream = FileUtils.CreateAsync(locationPath))
+            using (FileStream fileStream = FileUtils.CreateAsync(locationPath, options: FileOptions.SequentialScan))
             {
                 await fileStream.WriteAsync(contents, 0, contents.Length).ConfigureAwait(false);
             }
