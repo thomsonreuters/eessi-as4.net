@@ -86,12 +86,12 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 }
 
                 Logger.Debug($"[{as4Message.GetPrimaryMessageId()}] Attachment {attachment.Id} will be Decompressed");
-                await DecompressAttachment(attachment).ConfigureAwait(false);
+                DecompressAttachment(attachment);
                 AssignAttachmentProperties(as4Message.PrimaryUserMessage.PayloadInfo.ToList(), attachment);
             }
 
             Logger.Info($"[{as4Message.GetPrimaryMessageId()}] Attachments decompressed");
-            return StepResult.Success(context);
+            return await StepResult.SuccessAsync(context);
         }
 
         private static StepResult DecompressFailureResult(string description, MessagingContext context)
@@ -111,7 +111,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             return !attachment.Properties.ContainsKey("MimeType");
         }
 
-        private static async Task DecompressAttachment(Attachment attachment)
+        private static void DecompressAttachment(Attachment attachment)
         {
             attachment.ResetContentPosition();
 
@@ -129,7 +129,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
             using (var gzipCompression = new GZipStream(attachment.Content, CompressionMode.Decompress, true))
             {
-                await gzipCompression.CopyToFastAsync(outputStream).ConfigureAwait(false);
+                gzipCompression.CopyTo(outputStream);
                 outputStream.Position = 0;
                 attachment.Content = outputStream;
             }
