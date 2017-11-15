@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
@@ -285,29 +286,41 @@ namespace Eu.EDelivery.AS4.Receivers
 
             private static async Task<ReceivedMessage> CreateReceivedMessage(HttpListenerRequest request, bool useLogging)
             {
+                ReceivedMessage message = await RequestAsVirtualStreamMessage(request, request.ContentLength64);
+
                 if (useLogging)
                 {
-                    VirtualStream.MemoryFlag flag = request.ContentLength64 > VirtualStream.ThresholdMax
-                        ? VirtualStream.MemoryFlag.OnlyToDisk
-                        : VirtualStream.MemoryFlag.AutoOverFlowToDisk;
-
-                    ReceivedMessage message = await RequestAsVirtualStreamMessage(request, flag);
                     await LogReceivedMessageMessage(message, request.Url).ConfigureAwait(false);
-
-                    return message;
                 }
 
-                return new ReceivedMessage(request.InputStream, request.ContentType);
+                return message;
             }
 
             private static async Task<ReceivedMessage> RequestAsVirtualStreamMessage(
                 HttpListenerRequest request,
-                VirtualStream.MemoryFlag flag)
+                long contentLength)
             {
-                var destinationStream = new VirtualStream(flag, forAsync: true);
-                await request.InputStream.CopyToFastAsync(destinationStream).ConfigureAwait(false);
-                destinationStream.Position = 0;
+                Logger.Trace("Start copying to VirtualStream");
 
+                var sw = new Stopwatch();
+                sw.Start();
+
+                VirtualStream.MemoryFlag flag = request.ContentLength64 > VirtualStream.ThresholdMax
+                    ? VirtualStream.MemoryFlag.OnlyToDisk
+                    : VirtualStream.MemoryFlag.AutoOverFlowToDisk;
+
+                var destinationStream = new VirtualStream(flag, forAsync: true);
+
+                if (contentLength > 0)
+                {
+                    destinationStream.SetLength(contentLength);
+                }
+
+                await request.InputStream.CopyToFastAsync(destinationStream).ConfigureAwait(false);
+
+                destinationStream.Position = 0;
+                sw.Stop();
+                Logger.Trace($"HttpReceiver to VirtualStream took {sw.ElapsedMilliseconds} milliseconds");
                 return new ReceivedMessage(destinationStream, request.ContentType);
             }
 
@@ -337,7 +350,7 @@ namespace Eu.EDelivery.AS4.Receivers
                                      FilenameUtils.EnsureValidFilename($"{hostInformation}.{Guid.NewGuid()}.{DateTime.Now:yyyyMMdd}");
 
                     Logger.Info($"Logging to {newReceivedMessageFile}");
-                    using (var destinationStream = FileUtils.CreateAsync(Path.Combine(logDir, newReceivedMessageFile)))
+                    using (var destinationStream = FileUtils.CreateAsync(Path.Combine(logDir, newReceivedMessageFile), options: FileOptions.SequentialScan))
                     {
                         await message.UnderlyingStream.CopyToFastAsync(destinationStream).ConfigureAwait(false);
                     }
