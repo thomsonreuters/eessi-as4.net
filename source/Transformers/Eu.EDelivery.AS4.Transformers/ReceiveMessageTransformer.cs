@@ -59,11 +59,6 @@ namespace Eu.EDelivery.AS4.Transformers
                         : VirtualStream.ThresholdMax,
                     forAsync: true);
 
-            if (receivedMessage.UnderlyingStream.CanSeek)
-            {
-                messageStream.SetLength(receivedMessage.UnderlyingStream.Length);
-            }
-
             await receivedMessage.UnderlyingStream.CopyToFastAsync(messageStream);
 
             messageStream.Position = 0;
