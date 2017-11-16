@@ -83,6 +83,7 @@ namespace Eu.EDelivery.AS4.Streaming
         /// Creates a VirtualStream instance.
         /// </summary>
         /// <param name="expectedSize"></param>
+        /// <param name="forAsync"></param>
         /// <returns></returns>
         public static VirtualStream CreateVirtualStream(long expectedSize, bool forAsync = false)
         {
@@ -91,7 +92,7 @@ namespace Eu.EDelivery.AS4.Streaming
                 expectedSize = ThresholdMax;
             }
 
-            return CreateVirtualStream(expectedSize, ThresholdMax);
+            return CreateVirtualStream(expectedSize, ThresholdMax, forAsync);
         }
 
         /// <summary>
