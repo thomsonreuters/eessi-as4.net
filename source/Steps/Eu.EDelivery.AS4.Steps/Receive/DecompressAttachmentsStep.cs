@@ -117,13 +117,14 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
             VirtualStream outputStream =
                 VirtualStream.CreateVirtualStream(
-                    attachment.Content.CanSeek ? attachment.Content.Length : VirtualStream.ThresholdMax, true);
+                    attachment.Content.CanSeek ? attachment.Content.Length : VirtualStream.ThresholdMax);
 
             int unzipLength = DetermineOriginalFileSize(attachment.Content);
             if (unzipLength > 0)
             {
                 outputStream.SetLength(unzipLength);
             }
+
             var sw = new Stopwatch();
             sw.Start();
 
@@ -154,7 +155,9 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                     return BitConverter.ToInt32(ba, 0);
                 }
                 else
+                {
                     return -1;
+                }
             }
             catch
             {
