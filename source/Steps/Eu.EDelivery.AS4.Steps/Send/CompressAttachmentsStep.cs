@@ -75,7 +75,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
         {
             VirtualStream outputStream =
                 VirtualStream.CreateVirtualStream(
-                    attachment.Content.CanSeek ? attachment.Content.Length : VirtualStream.ThresholdMax);                    
+                    attachment.Content.CanSeek ? attachment.Content.Length : VirtualStream.ThresholdMax);
 
             var compressionLevel = DetermineCompressionLevelFor(attachment);
 

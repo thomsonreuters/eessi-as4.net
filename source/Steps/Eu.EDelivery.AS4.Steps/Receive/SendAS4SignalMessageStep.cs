@@ -55,10 +55,9 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             {
                 var repository = new DatastoreRepository(dataContext);
 
-                await new OutMessageService(repository, _messageBodyStore).InsertAS4MessageAsync(
-                                            messagingContext,
-                                            Operation.NotApplicable, // The service will determine the correct reply-pattern.
-                                            cancellationToken).ConfigureAwait(false);
+                var outService = new OutMessageService(repository, _messageBodyStore);
+
+                outService.InsertAS4Message(messagingContext, Operation.NotApplicable);
 
                 await dataContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
             }

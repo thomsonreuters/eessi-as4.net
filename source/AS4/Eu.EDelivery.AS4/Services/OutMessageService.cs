@@ -1,8 +1,5 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Entities;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
@@ -52,19 +49,14 @@ namespace Eu.EDelivery.AS4.Services
         /// </summary>
         /// <param name="messagingContext">The messaging context.</param>
         /// <param name="operation">The operation.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns></returns>
-        public async Task InsertAS4MessageAsync(
-            MessagingContext messagingContext,
-            Operation operation,
-            CancellationToken cancellationToken)
+        public void InsertAS4Message(MessagingContext messagingContext, Operation operation)
         {
             AS4Message message = messagingContext.AS4Message;
             string messageBodyLocation =
-                await _messageBodyStore.SaveAS4MessageAsync(
+                _messageBodyStore.SaveAS4Message(
                     location: _configuration.OutMessageStoreLocation,
-                    message: message,
-                    cancellation: cancellationToken).ConfigureAwait(false);
+                    message: message);
 
             var messageUnits = new List<MessageUnit>();
             messageUnits.AddRange(message.UserMessages);
@@ -80,19 +72,19 @@ namespace Eu.EDelivery.AS4.Services
                 var sendingPMode = GetSendingPMode(messageUnit is SignalMessage, messagingContext);
 
                 OutMessage outMessage =
-                    await CreateOutMessageForMessageUnitAsync(
-                            messageUnit: messageUnit,
-                            messageContext: messagingContext,
-                            sendingPMode: sendingPMode,
-                            relatedInMessageMeps: relatedInMessageMeps,
-                            location: messageBodyLocation,
-                            operation: operation).ConfigureAwait(false);
+                    CreateOutMessageForMessageUnit(
+                        messageUnit: messageUnit,
+                        messageContext: messagingContext,
+                        sendingPMode: sendingPMode,
+                        relatedInMessageMeps: relatedInMessageMeps,
+                        location: messageBodyLocation,
+                        operation: operation);
 
                 _repository.InsertOutMessage(outMessage);
             }
         }
 
-        private static async Task<OutMessage> CreateOutMessageForMessageUnitAsync(
+        private static OutMessage CreateOutMessageForMessageUnit(
             MessageUnit messageUnit,
             MessagingContext messageContext,
             SendingProcessingMode sendingPMode,
@@ -101,8 +93,8 @@ namespace Eu.EDelivery.AS4.Services
             Operation operation)
         {
             OutMessage outMessage =
-                await OutMessageBuilder.ForMessageUnit(messageUnit, messageContext.AS4Message.ContentType, sendingPMode)
-                                       .BuildAsync(CancellationToken.None).ConfigureAwait(false);
+                OutMessageBuilder.ForMessageUnit(messageUnit, messageContext.AS4Message.ContentType, sendingPMode)
+                                 .Build();
 
             outMessage.MessageLocation = location;
 
@@ -168,15 +160,14 @@ namespace Eu.EDelivery.AS4.Services
         /// Updates a <see cref="AS4Message"/>.
         /// </summary>
         /// <param name="message">The message.</param>
-        /// <param name="cancellation">The cancellation.</param>
         /// <returns></returns>
-        public async Task UpdateAS4MessageToBeSentAsync(AS4Message message, CancellationToken cancellation)
+        public void UpdateAS4MessageToBeSent(AS4Message message)
         {
             string ebmsMessageId = message.GetPrimaryMessageId();
 
             string messageBodyLocation = _repository.GetOutMessageData(ebmsMessageId, m => m.MessageLocation);
 
-            await _messageBodyStore.UpdateAS4MessageAsync(messageBodyLocation, message, cancellation).ConfigureAwait(false);
+            _messageBodyStore.UpdateAS4Message(messageBodyLocation, message);
 
             _repository.UpdateOutMessage(
                 ebmsMessageId,
@@ -195,16 +186,15 @@ namespace Eu.EDelivery.AS4.Services
         /// </summary>
         /// <param name="message">The message.</param>
         /// <param name="operation">The operation.</param>
-        /// <param name="cancellation">The cancellation.</param>
         /// <returns></returns>
-        Task InsertAS4MessageAsync(MessagingContext message, Operation operation, CancellationToken cancellation);
+        void InsertAS4Message(MessagingContext message, Operation operation);
 
         /// <summary>
         /// Updates a <see cref="AS4Message"/>.
         /// </summary>
         /// <param name="message">The message.</param>
-        /// <param name="cancellation">The cancellation.</param>
         /// <returns></returns>
-        Task UpdateAS4MessageToBeSentAsync(AS4Message message, CancellationToken cancellation);
+        void UpdateAS4MessageToBeSent(AS4Message message);
+
     }
 }

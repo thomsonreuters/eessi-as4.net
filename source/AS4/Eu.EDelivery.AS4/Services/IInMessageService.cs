@@ -46,11 +46,7 @@ namespace Eu.EDelivery.AS4.Services
         /// </summary>
         /// <param name="messagingContext"></param>
         /// <param name="as4MessageBodyPersister"></param>
-        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        Task UpdateAS4MessageForMessageHandlingAsync(
-            MessagingContext messagingContext,
-            IAS4MessageBodyStore as4MessageBodyPersister,
-            CancellationToken cancellationToken);
+        void UpdateAS4MessageForMessageHandling(MessagingContext messagingContext, IAS4MessageBodyStore as4MessageBodyPersister);
     }
 }

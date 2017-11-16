@@ -50,7 +50,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
             using (DatastoreContext datastoreContext = _createDatastoreContext())
             {
-                await UpdateReceivedMessage(messagingContext, datastoreContext, cancellationToken).ConfigureAwait(false);
+                UpdateReceivedMessage(messagingContext, datastoreContext, cancellationToken);
                 await datastoreContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
             }
 
@@ -66,7 +66,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             return StepResult.Success(messagingContext);
         }
 
-        private async Task UpdateReceivedMessage(
+        private void UpdateReceivedMessage(
             MessagingContext messagingContext,
             DatastoreContext datastoreContext,
             CancellationToken cancellationToken)
@@ -74,10 +74,9 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             var repository = new DatastoreRepository(datastoreContext);
             var service = new InMessageService(repository);
 
-            await service.UpdateAS4MessageForMessageHandlingAsync(
+            service.UpdateAS4MessageForMessageHandling(
                 messagingContext,
-                _messageBodyStore,
-                cancellationToken).ConfigureAwait(false);
+                _messageBodyStore);
         }
     }
 }

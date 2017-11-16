@@ -19,11 +19,10 @@ namespace Eu.EDelivery.AS4.Repositories
         /// </summary>
         /// <param name="location">The location.</param>
         /// <param name="message">The message to save.</param>
-        /// <param name="cancellation">The cancellation.</param>
         /// <returns>
         /// Location where the <paramref name="message" /> is saved.
         /// </returns>
-        Task<string> SaveAS4MessageAsync(string location, AS4Message message, CancellationToken cancellation);
+        string SaveAS4Message(string location, AS4Message message);
 
         Task<string> SaveAS4MessageStreamAsync(string location, Stream as4MessageStream, CancellationToken cancellation);
 
@@ -31,9 +30,8 @@ namespace Eu.EDelivery.AS4.Repositories
         /// Updates an existing AS4 Message body.
         /// </summary>
         /// <param name="location">The location.</param>
-        /// <param name="message">The message that should overwrite the existing messagebody.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <param name="message">The message that should overwrite the existing messagebody.</param>        
         /// <returns></returns>
-        Task UpdateAS4MessageAsync(string location, AS4Message message, CancellationToken cancellationToken);
+        void UpdateAS4Message(string location, AS4Message message);
     }
 }

@@ -50,7 +50,7 @@ namespace Eu.EDelivery.AS4.Builders.Entities
         /// </param>
         /// <returns>
         /// </returns>
-        public async Task<OutMessage> BuildAsync(CancellationToken cancellationToken)
+        public OutMessage Build()
         {
             MessageType messageType = DetermineSignalMessageType(_messageUnit);
 
@@ -64,14 +64,14 @@ namespace Eu.EDelivery.AS4.Builders.Entities
             outMessage.SetOperation(Operation.NotApplicable);
             outMessage.SetMessageExchangePattern(DetermineMepOf(_sendingProcessingMode));            
             outMessage.SetEbmsMessageType(messageType);
-            await outMessage.SetPModeInformationAsync(_sendingProcessingMode).ConfigureAwait(false);
+            outMessage.SetPModeInformation(_sendingProcessingMode);
 
             if (string.IsNullOrWhiteSpace(_messageUnit.RefToMessageId) == false)
             {
                 outMessage.EbmsRefToMessageId = _messageUnit.RefToMessageId;
             }
 
-            outMessage.AssignAS4Properties(_messageUnit, cancellationToken);
+            outMessage.AssignAS4Properties(_messageUnit);
 
             return outMessage;
         }
