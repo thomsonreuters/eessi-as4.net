@@ -24,7 +24,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
                 AS4Message as4Message = CreateAS4MessageWithUserMessage(Guid.NewGuid().ToString());
 
                 // Act
-                OutMessage outMessage = await BuildForUserMessage(as4Message);
+                OutMessage outMessage = BuildForUserMessage(as4Message);
 
                 // Assert
                 Assert.NotNull(outMessage);
@@ -34,7 +34,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
             }
 
             [Fact]
-            public async Task ThenBuildOutMessageSucceedsWithAS4MessageAndEbmsMessageId()
+            public void ThenBuildOutMessageSucceedsWithAS4MessageAndEbmsMessageId()
             {
                 // Arrange
                 string messageId = Guid.NewGuid().ToString();
@@ -42,27 +42,27 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
 
 
                 // Act
-                OutMessage outMessage = await BuildForUserMessage(as4Message);
+                OutMessage outMessage = BuildForUserMessage(as4Message);
 
                 // Assert
                 Assert.Equal(messageId, outMessage.EbmsMessageId);
             }
 
-            private async Task<OutMessage> BuildForUserMessage(AS4Message as4Message)
+            private OutMessage BuildForUserMessage(AS4Message as4Message)
             {
-                return await OutMessageBuilder.ForMessageUnit(as4Message.PrimaryUserMessage, as4Message.ContentType, ExpectedPMode())
-                                              .BuildAsync(CancellationToken.None);
+                return OutMessageBuilder.ForMessageUnit(as4Message.PrimaryUserMessage, as4Message.ContentType, ExpectedPMode())
+                                        .Build();
             }
 
             [Fact]
-            public async Task ThenBuildOutMessageSucceedsForReceiptMessage()
+            public void ThenBuildOutMessageSucceedsForReceiptMessage()
             {
                 // Arrange
                 string messageId = Guid.NewGuid().ToString();
                 AS4Message as4Message = AS4Message.Create(new Receipt(messageId), ExpectedPMode());
 
                 // Act
-                OutMessage outMessage = await BuildForSignalMessage(as4Message);
+                OutMessage outMessage = BuildForSignalMessage(as4Message);
 
                 // Assert
                 Assert.Equal(messageId, outMessage.EbmsMessageId);
@@ -70,24 +70,24 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
             }
 
             [Fact]
-            public async Task ThenBuildOutMessageSucceedsForErrorMessage()
+            public void ThenBuildOutMessageSucceedsForErrorMessage()
             {
                 // Arrange
                 string messageId = Guid.NewGuid().ToString();
                 AS4Message as4Message = AS4Message.Create(new Error(messageId), ExpectedPMode());
 
                 // Act
-                OutMessage outMessage = await BuildForSignalMessage(as4Message);
+                OutMessage outMessage = BuildForSignalMessage(as4Message);
 
                 // Assert
                 Assert.Equal(messageId, outMessage.EbmsMessageId);
                 Assert.Equal(MessageType.Error, MessageTypeUtils.Parse(outMessage.EbmsMessageType));
             }
 
-            private async Task<OutMessage> BuildForSignalMessage(AS4Message as4Message)
+            private OutMessage BuildForSignalMessage(AS4Message as4Message)
             {
-                return await OutMessageBuilder.ForMessageUnit(as4Message.PrimarySignalMessage, as4Message.ContentType, ExpectedPMode())
-                                              .BuildAsync(CancellationToken.None);
+                return OutMessageBuilder.ForMessageUnit(as4Message.PrimarySignalMessage, as4Message.ContentType, ExpectedPMode())
+                                        .Build();
             }
         }
 

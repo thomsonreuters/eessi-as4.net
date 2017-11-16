@@ -42,21 +42,20 @@ namespace Eu.EDelivery.AS4.UnitTests.Repositories
         /// </summary>
         /// <param name="location">The location.</param>
         /// <param name="message">The message to save.</param>
-        /// <param name="cancellation">The cancellation.</param>
         /// <returns>
         /// Location where the <paramref name="message" /> is saved.
         /// </returns>
-        public async Task<string> SaveAS4MessageAsync(string location, AS4Message message, CancellationToken cancellation)
+        public string SaveAS4Message(string location, AS4Message message)
         {
             string id = Guid.NewGuid().ToString();
 
             var serializer = SerializerProvider.Default.Get(message.ContentType);
             var stream = new MemoryStream();
-            await serializer.SerializeAsync(message, stream, cancellation);
+            serializer.Serialize(message, stream, CancellationToken.None);
 
             _store.Add(id, stream);
 
-            return await Task.FromResult(id);
+            return id;
         }
 
         public Task<string> SaveAS4MessageStreamAsync(string location, Stream as4MessageStream, CancellationToken cancellation)
@@ -68,19 +67,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Repositories
             return Task.FromResult(locationId);
         }
 
-        /// <summary>
-        /// Updates an existing AS4 Message body.
-        /// </summary>
-        /// <param name="location">The location.</param>
-        /// <param name="message">The message that should overwrite the existing messagebody.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns></returns>
-        public Task UpdateAS4MessageAsync(string location, AS4Message message, CancellationToken cancellationToken)
+
+        /// <inheritdoc />
+        public void UpdateAS4Message(string location, AS4Message message)
         {
-            return Task.CompletedTask;
+            return;
         }
 
-        /// <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</summary>
+        /// <inheritdoc />
         public void Dispose()
         {
             foreach (var kvp in _store)

@@ -41,7 +41,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Repositories
         /// <returns>
         /// Location where the <paramref name="message" /> is saved.
         /// </returns>
-        public Task<string> SaveAS4MessageAsync(string location, AS4Message message, CancellationToken cancellation)
+        public string SaveAS4Message(string location, AS4Message message)
         {
             throw new NotImplementedException();
         }
@@ -58,7 +58,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Repositories
         /// <param name="message">The message that should overwrite the existing messagebody.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns></returns>
-        public Task UpdateAS4MessageAsync(string location, AS4Message message, CancellationToken cancellationToken)
+        public void UpdateAS4Message(string location, AS4Message message)
         {
             throw new NotImplementedException();
         }
