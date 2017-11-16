@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Streaming;
 using Eu.EDelivery.AS4.Utilities;
+using NLog;
 
 namespace Eu.EDelivery.AS4.Transformers
 {
@@ -47,6 +49,9 @@ namespace Eu.EDelivery.AS4.Transformers
 
         private static async Task<VirtualStream> CopyIncomingStreamToVirtualStream(ReceivedMessage receivedMessage)
         {
+            var sw = new Stopwatch();
+            sw.Start();
+
             VirtualStream messageStream =
                 VirtualStream.CreateVirtualStream(
                     receivedMessage.UnderlyingStream.CanSeek
@@ -54,10 +59,16 @@ namespace Eu.EDelivery.AS4.Transformers
                         : VirtualStream.ThresholdMax,
                     forAsync: true);
 
+            if (receivedMessage.UnderlyingStream.CanSeek)
+            {
+                messageStream.SetLength(receivedMessage.UnderlyingStream.Length);
+            }
+
             await receivedMessage.UnderlyingStream.CopyToFastAsync(messageStream);
 
             messageStream.Position = 0;
-
+            sw.Stop();
+            LogManager.GetCurrentClassLogger().Trace($"ReceiveMessageTransformer took {sw.ElapsedMilliseconds} milliseconds");
             return messageStream;
         }
     }
