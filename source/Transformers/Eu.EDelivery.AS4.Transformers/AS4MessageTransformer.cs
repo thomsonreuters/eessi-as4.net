@@ -86,8 +86,7 @@ namespace Eu.EDelivery.AS4.Transformers
 
         private static async Task<VirtualStream> CopyIncomingStreamToVirtualStream(ReceivedMessage receivedMessage)
         {
-            var stream = receivedMessage.UnderlyingStream as VirtualStream;
-            if (stream != null)
+            if (receivedMessage.UnderlyingStream is VirtualStream stream)
             {
                 return stream;
             }
