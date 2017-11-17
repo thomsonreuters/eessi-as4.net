@@ -49,7 +49,7 @@ namespace Eu.EDelivery.AS4.Streaming
 
             // We're reading bufferSize bytes from the source-stream inside one half of the buffer
             // while the writeTask is writing the other half of the buffer to the target-stream.
-            int bufferSize = DetermineOptimalBufferSize(source);
+            int bufferSize = DefaultCopyToFastBufferSize; // DetermineOptimalBufferSize(source);
             int ioBufferSize = bufferSize * 2;
 
             byte[] buffer = new byte[ioBufferSize];
@@ -74,26 +74,5 @@ namespace Eu.EDelivery.AS4.Streaming
 #endif
         }
 
-        private static int DetermineOptimalBufferSize(Stream sourceStream)
-        {
-            if (sourceStream.CanSeek == false)
-            {
-                return DefaultCopyToFastBufferSize;
-            }
-
-            if (sourceStream.Length < DefaultCopyToFastBufferSize)
-            {
-                int factor = (int)sourceStream.Length / (4096 * 2);
-
-                if (factor == 0)
-                {
-                    return 4096;
-                }
-
-                return 4096 * factor;
-            }
-
-            return DefaultCopyToFastBufferSize;
-        }
     }
 }
