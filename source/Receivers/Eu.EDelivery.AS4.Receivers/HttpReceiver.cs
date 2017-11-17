@@ -688,7 +688,7 @@ namespace Eu.EDelivery.AS4.Receivers
             /// <param name="response"></param>
             protected override async Task ExecuteResultAsyncCore(HttpListenerResponse response)
             {
-                StreamPositionMover.MovePositionToStreamStart(_stream);
+                StreamUtilities.MovePositionToStreamStart(_stream);
                 await _stream.CopyToFastAsync(response.OutputStream);
             }
         }
