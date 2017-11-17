@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -59,19 +58,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             Assert.NotEqual(expectedLength, actual.Content.Length);
             Assert.Equal(expectedType, actual.Properties["MimeType"]);
             Assert.Equal("application/gzip", actual.ContentType);
-        }
-
-        [Fact]
-        public async Task FailsToCompressAttachments_IfInvalidAttachment()
-        {
-            // Arrange
-            Attachment invalidAttachment = NonCompressedAttachment();
-            invalidAttachment.Content.Position = 100;
-
-            MessagingContext context = AS4MessageContext(invalidAttachment, PModeWithCompressionSettings());
-
-            // Act / Assert
-            await Assert.ThrowsAnyAsync<Exception>(() => ExerciseCompression(context));
         }
 
         private static Attachment NonCompressedAttachment()
