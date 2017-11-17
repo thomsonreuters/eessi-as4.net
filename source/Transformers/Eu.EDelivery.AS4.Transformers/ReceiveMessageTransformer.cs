@@ -1,11 +1,12 @@
 ﻿using System;
-using System.IO;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Streaming;
 using Eu.EDelivery.AS4.Utilities;
+using NLog;
 
 namespace Eu.EDelivery.AS4.Transformers
 {
@@ -21,9 +22,13 @@ namespace Eu.EDelivery.AS4.Transformers
         {
             PreConditions(message);
 
-            VirtualStream messageStream = await CopyIncomingStreamToVirtualStream(message);
+            if (message.UnderlyingStream.CanSeek == false)
+            {
+                VirtualStream messageStream = await CopyIncomingStreamToVirtualStream(message);
+                message = new ReceivedMessage(messageStream, message.ContentType);
+            }
 
-            var context = new MessagingContext(new ReceivedMessage(messageStream, message.ContentType), MessagingContextMode.Receive);
+            var context = new MessagingContext(message, MessagingContextMode.Receive);
 
             return context;
         }
@@ -44,16 +49,21 @@ namespace Eu.EDelivery.AS4.Transformers
 
         private static async Task<VirtualStream> CopyIncomingStreamToVirtualStream(ReceivedMessage receivedMessage)
         {
+            var sw = new Stopwatch();
+            sw.Start();
+
             VirtualStream messageStream =
                 VirtualStream.CreateVirtualStream(
                     receivedMessage.UnderlyingStream.CanSeek
                         ? receivedMessage.UnderlyingStream.Length
-                        : VirtualStream.ThresholdMax);
+                        : VirtualStream.ThresholdMax,
+                    forAsync: true);
 
-            await receivedMessage.UnderlyingStream.CopyToAsync(messageStream);
+            await receivedMessage.UnderlyingStream.CopyToFastAsync(messageStream);
 
             messageStream.Position = 0;
-
+            sw.Stop();
+            LogManager.GetCurrentClassLogger().Trace($"ReceiveMessageTransformer took {sw.ElapsedMilliseconds} milliseconds");
             return messageStream;
         }
     }

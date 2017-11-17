@@ -30,7 +30,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Forward
                     Mpc = Constants.Namespaces.EbmsDefaultMpc
                 });
 
-                var location = await Store.SaveAS4MessageAsync("", as4Message, CancellationToken.None);
+                var location = Store.SaveAS4Message("", as4Message);
 
                 var receivedInMessage = CreateInMessage(as4Message);
                 receivedInMessage.MessageLocation = location;
@@ -109,7 +109,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Forward
                 var primaryMessageUnit = ((MessageUnit)message.PrimaryUserMessage ?? message.PrimarySignalMessage);
 
                 var result = new InMessage(message.GetPrimaryMessageId())
-                {                    
+                {
                     EbmsRefToMessageId = primaryMessageUnit.RefToMessageId,
                     ContentType = message.ContentType,
                     Intermediary = true
@@ -118,7 +118,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Forward
                 result.SetEbmsMessageType(MessageType.UserMessage);
                 result.SetOperation(Operation.ToBeForwarded);
 
-                result.AssignAS4Properties(primaryMessageUnit, CancellationToken.None);
+                result.AssignAS4Properties(primaryMessageUnit);
 
                 return result;
             }

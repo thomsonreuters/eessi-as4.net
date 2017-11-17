@@ -45,7 +45,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 // Arrange
                 string messageId = Guid.NewGuid().ToString();
                 var expected = new SendingProcessingMode { Id = Guid.NewGuid().ToString() };
-                await InsertOutMessage(messageId, expected);
+                InsertOutMessage(messageId, expected);
 
                 AS4Message as4Message = AS4Message.Create(new Receipt { RefToMessageId = messageId });
 
@@ -57,10 +57,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 Assert.Equal(expected.Id, actual.Id);
             }
 
-            private async Task InsertOutMessage(string messageId, SendingProcessingMode pmode)
+            private void InsertOutMessage(string messageId, SendingProcessingMode pmode)
             {
                 var outMessage = new OutMessage(ebmsMessageId: messageId);
-                await outMessage.SetPModeInformationAsync(pmode);
+                outMessage.SetPModeInformation(pmode);
 
                 GetDataStoreContext.InsertOutMessage(outMessage);
             }

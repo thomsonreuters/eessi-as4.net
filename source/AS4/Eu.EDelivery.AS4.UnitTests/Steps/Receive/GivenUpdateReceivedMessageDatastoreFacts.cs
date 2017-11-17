@@ -111,7 +111,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             public async Task ThenRelatedUserMessageStatusIsSetToNAck()
             {
                 // Arrange
-                await InsertOutMessageWith(EbmsMessageId);
+                InsertOutMessageWith(EbmsMessageId);
 
                 var error = new ErrorBuilder().WithErrorResult(new ErrorResult("Some Error", ErrorAlias.ConnectionFailure))
                                               .WithRefToEbmsMessageId(EbmsMessageId)
@@ -133,12 +133,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 Assert.Equal(OutStatus.Nack, OutStatusUtils.Parse(outMessage.Status));
             }
 
-            private async Task InsertOutMessageWith(string messageId)
+            private void InsertOutMessageWith(string messageId)
             {
                 using (DatastoreContext db = GetDataStoreContext())
                 {
-                    db.OutMessages.Add(await CreateOutMessage(messageId));
-                    await db.SaveChangesAsync();
+                    db.OutMessages.Add(CreateOutMessage(messageId));
+                    db.SaveChanges();
                 }
             }
         }
@@ -152,7 +152,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             return result.MessagingContext;
         }
 
-        private static async Task<OutMessage> CreateOutMessage(string messageId)
+        private static OutMessage CreateOutMessage(string messageId)
         {
             var outMessage = new OutMessage(ebmsMessageId: messageId);
 
@@ -160,7 +160,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             outMessage.SetOperation(Operation.NotApplicable);
             outMessage.SetEbmsMessageType(MessageType.UserMessage);
 
-            await outMessage.SetPModeInformationAsync(GetSendingPMode());
+            outMessage.SetPModeInformation(GetSendingPMode());
 
             return outMessage;
         }

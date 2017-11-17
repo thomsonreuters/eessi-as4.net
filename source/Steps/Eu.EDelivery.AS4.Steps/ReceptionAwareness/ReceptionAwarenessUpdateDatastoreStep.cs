@@ -62,7 +62,7 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
 
                 context.Attach(receptionAwareness);
 
-                await RunReceptionAwarenessFlow(receptionAwareness, service, cancellationToken);
+                RunReceptionAwarenessFlow(receptionAwareness, service);
                 await context.SaveChangesAsync(cancellationToken);
             }
 
@@ -70,10 +70,9 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
             return await StepResult.SuccessAsync(messagingContext);
         }
 
-        private async Task RunReceptionAwarenessFlow(
+        private void RunReceptionAwarenessFlow(
             Entities.ReceptionAwareness receptionAwareness,
-            ReceptionAwarenessService service,
-            CancellationToken cancellationToken)
+            ReceptionAwarenessService service)
         {
             if (service.IsMessageAlreadyAnswered(receptionAwareness))
             {
@@ -93,10 +92,9 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
 
                         service.MarkReferencedMessageAsComplete(receptionAwareness);
 
-                        await service.DeadletterOutMessageAsync(
+                        service.DeadletterOutMessage(
                             messageId: receptionAwareness.InternalMessageId,
-                            messageBodyStore: _inMessageBodyStore,
-                            cancellationToken: cancellationToken);
+                            messageBodyStore: _inMessageBodyStore);
                     }
                     else
                     {

@@ -124,7 +124,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
             private static MessageEntity BuildForMessageUnit(MessageUnit expected)
             {
                 var message = new StubMessageEntity();
-                message.AssignAS4Properties(expected, CancellationToken.None);
+                message.AssignAS4Properties(expected);
 
                 return message;
             }
@@ -165,26 +165,26 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
         public class PMode : GivenMessageEntityFacts
         {
             [Fact]
-            public async Task SendingPModeInformationIsCorrectlySet()
+            public void SendingPModeInformationIsCorrectlySet()
             {
                 var entity = new StubMessageEntity();
 
                 var sendingPMode = new SendingProcessingMode() { Id = "sending_pmode_id" };
 
-                await entity.SetPModeInformationAsync(sendingPMode);
+                entity.SetPModeInformation(sendingPMode);
 
                 Assert.Equal(sendingPMode.Id, entity.PModeId);
                 Assert.Equal(entity.PMode, AS4XmlSerializer.ToString(sendingPMode));
             }
 
             [Fact]
-            public async Task ReceivingPModeInformationIsCorrectlySet()
+            public void ReceivingPModeInformationIsCorrectlySet()
             {
                 var entity = new StubMessageEntity();
 
                 var receivingPMode = new ReceivingProcessingMode() { Id = "sending_pmode_id" };
 
-                await entity.SetPModeInformationAsync(receivingPMode);
+                entity.SetPModeInformation(receivingPMode);
 
                 Assert.Equal(receivingPMode.Id, entity.PModeId);
                 Assert.Equal(entity.PMode, AS4XmlSerializer.ToString(receivingPMode));
@@ -227,7 +227,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
                 using (var db = GetDataStoreContext())
                 {
                     var inMessage = new InMessage(messageId) { MessageLocation = "test" };
-                    await inMessage.SetPModeInformationAsync(new SendingProcessingMode() { Id = pmodeId });
+                    inMessage.SetPModeInformation(new SendingProcessingMode() { Id = pmodeId });
 
                     db.InMessages.Add(inMessage);
 

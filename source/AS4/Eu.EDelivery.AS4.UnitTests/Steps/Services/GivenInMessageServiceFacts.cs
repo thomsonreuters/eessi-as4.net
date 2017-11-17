@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Repositories;
@@ -22,7 +20,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Services
         public class UpdateAS4Message
         {
             [Fact]
-            public async Task FailsToUpdateMessage_IfNoMessageLocationCanBeFound()
+            public void FailsToUpdateMessage_IfNoMessageLocationCanBeFound()
             {
                 // Arrange
                 var notPopulatedRepository = Mock.Of<IDatastoreRepository>();
@@ -31,8 +29,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Services
                 var context = new MessagingContext(AS4Message.Empty, MessagingContextMode.Unknown);
 
                 // Act / Assert
-                await Assert.ThrowsAnyAsync<InvalidDataException>(
-                    () => sut.UpdateAS4MessageForMessageHandlingAsync(context, null, CancellationToken.None));
+                Assert.ThrowsAny<InvalidDataException>(
+                    () => sut.UpdateAS4MessageForMessageHandling(context, null));
             }
         }
 

@@ -54,7 +54,7 @@ namespace Eu.EDelivery.AS4.Entities
         /// Set the PMode that is used to process the message.
         /// </summary>
         /// <param name="pmode"></param>
-        public async Task SetPModeInformationAsync(IPMode pmode)
+        public void SetPModeInformation(IPMode pmode)
         {
             if (pmode != null)
             {
@@ -65,11 +65,11 @@ namespace Eu.EDelivery.AS4.Entities
 
                 if (pmode is SendingProcessingMode sp)
                 {
-                    PMode = await AS4XmlSerializer.ToStringAsync(sp);
+                    PMode = AS4XmlSerializer.ToString(sp);
                 }
                 else if (pmode is ReceivingProcessingMode rp)
                 {
-                    PMode = await AS4XmlSerializer.ToStringAsync(rp);
+                    PMode = AS4XmlSerializer.ToString(rp);
                 }
                 else
                 {
@@ -168,8 +168,7 @@ namespace Eu.EDelivery.AS4.Entities
         /// Assigns the parent properties.
         /// </summary>
         /// <param name="messageUnit">The MessageUnit from which the properties must be retrieved..</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        public void AssignAS4Properties(MessageUnit messageUnit, CancellationToken cancellationToken)
+        public void AssignAS4Properties(MessageUnit messageUnit)
         {
             if (messageUnit is UserMessage userMessage)
             {

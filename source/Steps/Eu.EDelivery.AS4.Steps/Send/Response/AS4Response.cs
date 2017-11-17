@@ -60,9 +60,9 @@ namespace Eu.EDelivery.AS4.Steps.Send.Response
 
             var responseStream = webResponse.GetResponseStream() ?? Stream.Null;
 
-            var contentStream = VirtualStream.CreateVirtualStream(webResponse.ContentLength);
+            var contentStream = VirtualStream.CreateVirtualStream(webResponse.ContentLength, forAsync: true);
 
-            await responseStream.CopyToAsync(contentStream);
+            await responseStream.CopyToFastAsync(contentStream);
             contentStream.Position = 0;
 
             response.ReceivedStream = new ReceivedMessage(contentStream, webResponse.ContentType);

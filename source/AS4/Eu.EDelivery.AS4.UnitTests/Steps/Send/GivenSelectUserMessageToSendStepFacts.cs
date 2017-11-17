@@ -1,7 +1,5 @@
 ﻿using System;
-using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
@@ -44,9 +42,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
         {
             // Arrange
             const string expectedMpc = "message-mpc";
-            await InsertUserMessage(expectedMpc, MessageExchangePattern.Push, Operation.ToBeSent);
-            await InsertUserMessage("yet-another-mpc", MessageExchangePattern.Pull, Operation.DeadLettered);
-            await InsertUserMessage(expectedMpc, MessageExchangePattern.Pull, Operation.ToBeSent);
+            InsertUserMessage(expectedMpc, MessageExchangePattern.Push, Operation.ToBeSent);
+            InsertUserMessage("yet-another-mpc", MessageExchangePattern.Pull, Operation.DeadLettered);
+            InsertUserMessage(expectedMpc, MessageExchangePattern.Pull, Operation.ToBeSent);
 
             // Act
             StepResult result = await ExerciseSelection(expectedMpc);
@@ -90,7 +88,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             return await sut.ExecuteAsync(context, CancellationToken.None);
         }
 
-        private async Task InsertUserMessage(string mpc, MessageExchangePattern pattern, Operation operation)
+        private void InsertUserMessage(string mpc, MessageExchangePattern pattern, Operation operation)
         {
             MessageExchangePatternBinding GetMepBindingFromMep(MessageExchangePattern mep)
             {
@@ -114,23 +112,21 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
 
             var as4Message = AS4Message.Create(userMessage, sendingPMode);
 
-            await InsertOutMessage(as4Message, operation, sendingPMode);
-            
+            InsertOutMessage(as4Message, operation, sendingPMode);
         }
 
-        private async Task InsertOutMessage(AS4Message as4Message, Operation operation, SendingProcessingMode sendingPMode)
+        private void InsertOutMessage(AS4Message as4Message, Operation operation, SendingProcessingMode sendingPMode)
         {
             using (DatastoreContext context = GetDataStoreContext())
             {
                 var service = new OutMessageService(new DatastoreRepository(context), InMemoryMessageBodyStore.Default);
 
-                await service.InsertAS4MessageAsync(
+                service.InsertAS4Message(
                     new MessagingContext(as4Message, MessagingContextMode.Send)
                     {
                         SendingPMode = sendingPMode
                     },
-                    operation,
-                    CancellationToken.None);
+                    operation);
 
                 context.SaveChanges();
             }

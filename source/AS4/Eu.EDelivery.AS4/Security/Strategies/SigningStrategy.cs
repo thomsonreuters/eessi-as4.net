@@ -367,7 +367,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
 
             if (referenceStream != null)
             {
-                StreamPositionMover.MovePositionToStreamStart(referenceStream);
+                StreamUtilities.MovePositionToStreamStart(referenceStream);
             }
         }
     }

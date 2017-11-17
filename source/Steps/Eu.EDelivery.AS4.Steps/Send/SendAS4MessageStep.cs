@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Configuration;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -17,6 +18,7 @@ using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Steps.Send.Response;
+using Eu.EDelivery.AS4.Streaming;
 using Eu.EDelivery.AS4.Utilities;
 using NLog;
 
@@ -176,13 +178,19 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 {
                     if (messagingContext.ReceivedMessage != null)
                     {
-                        await messagingContext.ReceivedMessage.UnderlyingStream.CopyToAsync(requestStream).ConfigureAwait(false);
+                        var sw = new Stopwatch();
+                        sw.Start();
+
+                        await messagingContext.ReceivedMessage.UnderlyingStream.CopyToFastAsync(requestStream).ConfigureAwait(false);
+
+                        sw.Stop();
+                        Logger.Trace($"Writing to request stream took {sw.ElapsedMilliseconds} milliseconds");
                     }
                     else
                     {
                         // Serialize the AS4 Message to the request-stream
                         var serializer = SerializerProvider.Default.Get(request.ContentType);
-                        await serializer.SerializeAsync(messagingContext.AS4Message, requestStream, CancellationToken.None).ConfigureAwait(false);
+                        serializer.Serialize(messagingContext.AS4Message, requestStream, CancellationToken.None);
                     }
                 }
 
@@ -209,13 +217,13 @@ namespace Eu.EDelivery.AS4.Steps.Send
         private static void SetAdditionalRequestHeaders(HttpWebRequest request, MessagingContext messagingContext)
         {
             long messageSize = TryGetMessageSize(messagingContext);
-            const int threshold = 209_715_200;
 
-            if (messageSize > threshold)
+            if (messageSize >= 0)
             {
-                request.AllowWriteStreamBuffering = false;
                 request.ContentLength = messageSize;
             }
+
+            request.AllowWriteStreamBuffering = false;
         }
 
         private static async Task<AS4Message> GetAS4MessageFromContextAsync(MessagingContext context)

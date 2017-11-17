@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Threading;
@@ -36,9 +37,9 @@ namespace Eu.EDelivery.AS4.Steps.Send
             }
 
             _messagingContext = messagingContext;
-            await TryCompressAS4MessageAsync(messagingContext.AS4Message.Attachments).ConfigureAwait(false);
+            TryCompressAS4Message(messagingContext.AS4Message.Attachments);
 
-            return StepResult.Success(messagingContext);
+            return await StepResult.SuccessAsync(messagingContext);
         }
 
         private static StepResult ReturnSameMessagingContext(MessagingContext messagingContext)
@@ -47,13 +48,13 @@ namespace Eu.EDelivery.AS4.Steps.Send
             return StepResult.Success(messagingContext);
         }
 
-        private async Task TryCompressAS4MessageAsync(IEnumerable<Attachment> attachments)
+        private void TryCompressAS4Message(IEnumerable<Attachment> attachments)
         {
             try
             {
                 Logger.Info(
                     $"{_messagingContext.EbmsMessageId} Compress AS4 Message Attachments with GZip Compression");
-                await CompressAttachments(attachments).ConfigureAwait(false);
+                CompressAttachments(attachments);
             }
             catch (SystemException exception)
             {
@@ -61,27 +62,33 @@ namespace Eu.EDelivery.AS4.Steps.Send
             }
         }
 
-        private static async Task CompressAttachments(IEnumerable<Attachment> attachments)
+        private static void CompressAttachments(IEnumerable<Attachment> attachments)
         {
             foreach (Attachment attachment in attachments)
             {
-                await CompressAttachmentAsync(attachment).ConfigureAwait(false);
+                CompressAttachment(attachment);
                 AssignAttachmentProperties(attachment);
             }
         }
 
-        private static async Task CompressAttachmentAsync(Attachment attachment)
+        private static void CompressAttachment(Attachment attachment)
         {
             VirtualStream outputStream =
                 VirtualStream.CreateVirtualStream(
-                    attachment.Content.CanSeek ? attachment.Content.Length : VirtualStream.ThresholdMax);
+                    attachment.EstimatedContentSize > -1 ? attachment.EstimatedContentSize : VirtualStream.ThresholdMax);
 
             var compressionLevel = DetermineCompressionLevelFor(attachment);
 
-            using (var gzipCompression = new GZipStream(outputStream, compressionLevel: compressionLevel, leaveOpen: true))
+            var sw = new Stopwatch();
+            sw.Start();
+
+            using (var gzipCompression = new GZipStream(outputStream, compressionLevel, leaveOpen: true))
             {
-                await attachment.Content.CopyToAsync(gzipCompression).ConfigureAwait(false);
+                attachment.Content.CopyTo(gzipCompression);
             }
+
+            sw.Stop();
+            Logger.Trace($"Compress took {sw.ElapsedMilliseconds} milliseconds");
 
             outputStream.Position = 0;
             attachment.Content = outputStream;
@@ -96,17 +103,17 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 return CompressionLevel.NoCompression;
             }
 
-            if (attachment.Content.CanSeek)
+            if (attachment.EstimatedContentSize > -1)
             {
                 const long twelveKilobytes = 12_288;
-                const long hundredMegabytes = 104_857_600;
+                const long twoHundredMegabytes = 209_715_200;
 
-                if (attachment.Content.Length <= twelveKilobytes)
+                if (attachment.EstimatedContentSize <= twelveKilobytes)
                 {
                     return CompressionLevel.NoCompression;
                 }
 
-                if (attachment.Content.Length <= hundredMegabytes)
+                if (attachment.EstimatedContentSize > twoHundredMegabytes)
                 {
                     return CompressionLevel.Fastest;
                 }

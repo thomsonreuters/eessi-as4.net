@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -85,12 +86,12 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 }
 
                 Logger.Debug($"[{as4Message.GetPrimaryMessageId()}] Attachment {attachment.Id} will be Decompressed");
-                await DecompressAttachment(attachment).ConfigureAwait(false);
+                DecompressAttachment(attachment);
                 AssignAttachmentProperties(as4Message.PrimaryUserMessage.PayloadInfo.ToList(), attachment);
             }
 
             Logger.Info($"[{as4Message.GetPrimaryMessageId()}] Attachments decompressed");
-            return StepResult.Success(context);
+            return await StepResult.SuccessAsync(context);
         }
 
         private static StepResult DecompressFailureResult(string description, MessagingContext context)
@@ -110,19 +111,62 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             return !attachment.Properties.ContainsKey("MimeType");
         }
 
-        private static async Task DecompressAttachment(Attachment attachment)
+        private static void DecompressAttachment(Attachment attachment)
         {
             attachment.ResetContentPosition();
 
+            int unzipLength = DetermineOriginalFileSize(attachment.Content);
+
             VirtualStream outputStream =
                 VirtualStream.CreateVirtualStream(
-                    attachment.Content.CanSeek ? attachment.Content.Length : VirtualStream.ThresholdMax);
+                    unzipLength > -1 ? unzipLength : VirtualStream.ThresholdMax);
+
+            if (unzipLength > 0)
+            {
+                outputStream.SetLength(unzipLength);
+            }
+
+            var sw = new Stopwatch();
+            sw.Start();
 
             using (var gzipCompression = new GZipStream(attachment.Content, CompressionMode.Decompress, true))
             {
-                await gzipCompression.CopyToAsync(outputStream).ConfigureAwait(false);
+                gzipCompression.CopyTo(outputStream);
                 outputStream.Position = 0;
                 attachment.Content = outputStream;
+            }
+
+            sw.Stop();
+            Logger.Trace($"Decompress copytofastasync took {sw.ElapsedMilliseconds} millisecs");
+        }
+
+        private static int DetermineOriginalFileSize(Stream str)
+        {
+            long originalPosition = str.Position;
+
+            try
+            {
+                byte[] fh = new byte[3];
+                str.Read(fh, 0, 3);
+                if (fh[0] == 31 && fh[1] == 139 && fh[2] == 8) //If magic numbers are 31 and 139 and the deflation id is 8 then...
+                {
+                    byte[] ba = new byte[4];
+                    str.Seek(-4, SeekOrigin.End);
+                    str.Read(ba, 0, 4);
+                    return BitConverter.ToInt32(ba, 0);
+                }
+                else
+                {
+                    return -1;
+                }
+            }
+            catch
+            {
+                return -1;
+            }
+            finally
+            {
+                str.Position = originalPosition;
             }
         }
 

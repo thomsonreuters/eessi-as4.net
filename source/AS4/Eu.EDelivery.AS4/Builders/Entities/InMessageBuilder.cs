@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Threading;
-using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.PMode;
@@ -75,9 +74,8 @@ namespace Eu.EDelivery.AS4.Builders.Entities
         /// <summary>
         /// Start Creating the <see cref="InMessage"/>
         /// </summary>
-        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<InMessage> BuildAsync(CancellationToken cancellationToken)
+        public InMessage Build()
         {
             if (_messageUnit == null)
             {
@@ -95,10 +93,10 @@ namespace Eu.EDelivery.AS4.Builders.Entities
             inMessage.SetEbmsMessageType(DetermineMessageType(_messageUnit));
             inMessage.SetMessageExchangePattern(_mep);
             inMessage.SetOperation(Operation.NotApplicable);
-            await inMessage.SetPModeInformationAsync(_pmode).ConfigureAwait(false);
+            inMessage.SetPModeInformation(_pmode);
             inMessage.SetStatus(InStatus.Received);
 
-            inMessage.AssignAS4Properties(_messageUnit, cancellationToken);
+            inMessage.AssignAS4Properties(_messageUnit);
 
             return inMessage;
         }

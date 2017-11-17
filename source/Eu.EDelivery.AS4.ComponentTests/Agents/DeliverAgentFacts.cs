@@ -129,7 +129,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         {
             var context = new DatastoreContext(_as4Msh.GetConfiguration());
             var repository = new DatastoreRepository(context);
-            repository.InsertInMessage(await CreateInMessageFrom(as4Message));
+            repository.InsertInMessage(CreateInMessageFrom(as4Message));
             await context.SaveChangesAsync();
         }
 
@@ -142,7 +142,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             return spy.GetInMessageFor(m => m.EbmsMessageId.Equals(as4Message.GetPrimaryMessageId()));
         }
 
-        private static async Task<InMessage> CreateInMessageFrom(AS4Message as4Message)
+        private static InMessage CreateInMessageFrom(AS4Message as4Message)
         {
             ReceivingProcessingMode CreateReceivedPMode()
             {
@@ -167,14 +167,14 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             {
                 ContentType = as4Message.ContentType,                
                 MessageLocation =
-                    await Registry.Instance.MessageBodyStore.SaveAS4MessageAsync(Config.Instance.InMessageStoreLocation, as4Message, CancellationToken.None)
+                    Registry.Instance.MessageBodyStore.SaveAS4Message(Config.Instance.InMessageStoreLocation, as4Message)
             };
 
             inMessage.SetEbmsMessageType(MessageType.UserMessage);
             inMessage.SetMessageExchangePattern(MessageExchangePattern.Push);
             inMessage.SetOperation(Operation.ToBeDelivered);
 
-            await inMessage.SetPModeInformationAsync(CreateReceivedPMode());
+            inMessage.SetPModeInformation(CreateReceivedPMode());
 
             return inMessage;
         }

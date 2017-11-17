@@ -36,7 +36,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Repositories
         /// Location where the <paramref name="message" /> is saved.
         /// </returns>
         /// <exception cref="NotImplementedException"></exception>
-        public Task<string> SaveAS4MessageAsync(string location, AS4Message message, CancellationToken cancellation)
+        public string SaveAS4Message(string location, AS4Message message)
         {
             throw new NotImplementedException();
         }
@@ -49,7 +49,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Repositories
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public Task UpdateAS4MessageAsync(string location, AS4Message message, CancellationToken cancellationToken)
+        public void UpdateAS4Message(string location, AS4Message message)
         {
             throw new NotImplementedException();
         }
@@ -66,17 +66,17 @@ namespace Eu.EDelivery.AS4.UnitTests.Repositories
         }
 
         [Fact]
-        public async Task FailsToSave()
+        public void FailsToSave()
         {
-            await Assert.ThrowsAnyAsync<Exception>(
-                () => new SaboteurMessageBodyStore().SaveAS4MessageAsync(null, null, CancellationToken.None));
+            Assert.ThrowsAny<Exception>(
+                () => new SaboteurMessageBodyStore().SaveAS4Message(null, null));
         }
 
         [Fact]
-        public async Task FailsToUpdate()
+        public void FailsToUpdate()
         {
-            await Assert.ThrowsAnyAsync<Exception>(
-                () => new SaboteurMessageBodyStore().UpdateAS4MessageAsync(null, null, CancellationToken.None));
+            Assert.ThrowsAny<Exception>(
+                () => new SaboteurMessageBodyStore().UpdateAS4Message(null, null));
         }
     }
 }

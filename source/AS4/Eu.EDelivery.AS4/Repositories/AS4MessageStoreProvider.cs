@@ -10,7 +10,7 @@ namespace Eu.EDelivery.AS4.Repositories
 {
     public class MessageBodyStore : IAS4MessageBodyStore
     {
-        private readonly IDictionary<Func<string, bool>, IAS4MessageBodyStore> _stores = 
+        private readonly IDictionary<Func<string, bool>, IAS4MessageBodyStore> _stores =
             new Dictionary<Func<string, bool>, IAS4MessageBodyStore>();
 
         /// <summary>
@@ -38,13 +38,12 @@ namespace Eu.EDelivery.AS4.Repositories
         /// </summary>
         /// <param name="location">The location.</param>
         /// <param name="message">The message to save.</param>
-        /// <param name="cancellation">The cancellation.</param>
         /// <returns>
         /// Location where the <paramref name="message" /> is saved.
         /// </returns>
-        public async Task<string> SaveAS4MessageAsync(string location, AS4Message message, CancellationToken cancellation)
+        public string SaveAS4Message(string location, AS4Message message)
         {
-            return await For(location).SaveAS4MessageAsync(location, message, cancellation);
+            return For(location).SaveAS4Message(location, message);
         }
 
         public async Task<string> SaveAS4MessageStreamAsync(string location, Stream as4MessageStream, CancellationToken cancellation)
@@ -52,17 +51,15 @@ namespace Eu.EDelivery.AS4.Repositories
             return await For(location).SaveAS4MessageStreamAsync(location, as4MessageStream, cancellation);
         }
 
-
         /// <summary>
         /// Updates an existing AS4 Message body.
         /// </summary>
         /// <param name="location">The location.</param>
         /// <param name="message">The message that should overwrite the existing messagebody.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns></returns>
-        public async Task UpdateAS4MessageAsync(string location, AS4Message message, CancellationToken cancellationToken)
+        public void UpdateAS4Message(string location, AS4Message message)
         {
-            await For(location).UpdateAS4MessageAsync(location, message, cancellationToken);
+            For(location).UpdateAS4Message(location, message);
         }
 
         private IAS4MessageBodyStore For(string key)
@@ -80,6 +77,6 @@ namespace Eu.EDelivery.AS4.Repositories
             }
 
             return entry.Value;
-        }       
+        }
     }
 }

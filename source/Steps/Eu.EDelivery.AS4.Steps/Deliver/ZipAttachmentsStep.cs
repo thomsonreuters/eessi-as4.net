@@ -17,7 +17,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
     [Description("If the received AS4 Message contains multiple attachments, then this step zips them into one payload.")]
     [Info("If the received AS4 Message contains multiple attachments, then this step zips them into one payload.")]
     public class ZipAttachmentsStep : IStep
-    {        
+    {
         private readonly IMimeTypeRepository _repository;
 
         /// <summary>
@@ -25,7 +25,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         /// </summary>
         public ZipAttachmentsStep()
         {
-            _repository = new MimeTypeRepository();            
+            _repository = new MimeTypeRepository();
         }
 
         /// <summary>
@@ -35,7 +35,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
-        {           
+        {
             if (HasAS4MessageMultipleAttachments(messagingContext.AS4Message))
             {
                 Stream zippedStream = await ZipAttachmentsInAS4Message(messagingContext.AS4Message).ConfigureAwait(false);
@@ -57,10 +57,10 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
 
         private async Task<Stream> ZipAttachmentsInAS4Message(AS4Message message)
         {
-            var stream = new VirtualStream();
+            var stream = new VirtualStream(forAsync: true);
 
             using (var archive = new ZipArchive(stream, ZipArchiveMode.Create, leaveOpen: true))
-            {                
+            {
                 foreach (Attachment attachment in message.Attachments)
                 {
                     ZipArchiveEntry archiveEntry = CreateAttachmentEntry(archive, attachment);
@@ -72,12 +72,12 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
 
             return stream;
         }
-        
+
         private ZipArchiveEntry CreateAttachmentEntry(ZipArchive archive, Attachment attachment)
         {
             string entryName = GetAttachmentEntryName(attachment);
             ZipArchiveEntry entry = archive.CreateEntry(entryName, CompressionLevel.Optimal);
-            return entry;            
+            return entry;
         }
 
         private string GetAttachmentEntryName(Attachment attachment)
@@ -94,7 +94,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         }
 
         private static Attachment CreateZippedAttachment(Stream stream)
-        {           
+        {
             return new Attachment
             {
                 ContentType = "application/zip",
@@ -106,6 +106,6 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         {
             message.Attachments.Clear();
             message.Attachments.Add(zipAttachment);
-        }        
+        }
     }
 }

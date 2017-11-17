@@ -44,23 +44,18 @@ namespace Eu.EDelivery.AS4.Services
         /// </summary>
         /// <param name="messageId">The message identifier.</param>
         /// <param name="messageBodyStore">The message body persister.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns></returns>
-        public async Task DeadletterOutMessageAsync(
-            string messageId,
-            IAS4MessageBodyStore messageBodyStore,
-            CancellationToken cancellationToken)
+        public void DeadletterOutMessage(string messageId, IAS4MessageBodyStore messageBodyStore)
         {
-            InMessage inMessage = await CreateErrorInMessage(messageId, messageBodyStore, cancellationToken);
+            InMessage inMessage = CreateErrorInMessage(messageId, messageBodyStore);
             _repository.InsertInMessage(inMessage);
 
             _repository.UpdateOutMessage(messageId, x => x.SetOperation(Operation.DeadLettered));
         }
 
-        private async Task<InMessage> CreateErrorInMessage(
+        private InMessage CreateErrorInMessage(
             string messageId,
-            IAS4MessageBodyStore messageBodyStore,
-            CancellationToken cancellationToken)
+            IAS4MessageBodyStore messageBodyStore)
         {
             // TODO: should this not be an OutException instead of an InMessage ?
             //       Maybe it is an InMessage because we have more detailed information
@@ -82,15 +77,14 @@ namespace Eu.EDelivery.AS4.Services
             // if he should be notified when a message cannot be sent.
             // (Maybe we should only create the InMessage when notification is enabled ?)
             string location =
-                await messageBodyStore.SaveAS4MessageAsync(
+                messageBodyStore.SaveAS4Message(
                     location: _configuration.InMessageStoreLocation,
-                    message: as4Message,
-                    cancellation: cancellationToken);
+                    message: as4Message);
 
-            InMessage inMessage = await InMessageBuilder
-                .ForSignalMessage(errorMessage, as4Message, outMessageData.mep)
-                .WithPMode(outMessageData.pmode)
-                .BuildAsync(cancellationToken);
+            InMessage inMessage =
+                InMessageBuilder.ForSignalMessage(errorMessage, as4Message, outMessageData.mep)
+                                .WithPMode(outMessageData.pmode)
+                                .Build();
 
             inMessage.MessageLocation = location;
 

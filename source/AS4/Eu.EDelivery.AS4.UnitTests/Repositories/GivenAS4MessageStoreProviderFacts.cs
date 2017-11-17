@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Linq.Expressions;
-using System.Threading;
-using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Repositories;
 using Moq;
 using Xunit;
@@ -10,32 +8,25 @@ namespace Eu.EDelivery.AS4.UnitTests.Repositories
 {
     public class GivenAS4MessageStoreProviderFacts
     {
+
         [Fact]
-        public async Task SpyPersisterGetsCalled_IfLoadsBody()
+        public void SpyPersisterGetsCalled_IfSaveBody()
         {
-            await TestProviderWithAcceptedPersister(
-                sut => sut.LoadMessageBodyAsync("ignored location"),
-                spy => spy.LoadMessageBodyAsync(It.IsAny<string>()));
+            TestProviderWithAcceptedPersister(
+               sut => sut.SaveAS4Message("ignored location", null),
+               spy => spy.SaveAS4Message(It.IsAny<string>(), null));
         }
 
         [Fact]
-        public async Task SpyPersisterGetsCalled_IfSaveBody()
+        public void SpyPersisterGetsCalled_IfUpdateBody()
         {
-            await TestProviderWithAcceptedPersister(
-                sut => sut.SaveAS4MessageAsync("ignored location", null, CancellationToken.None),
-                spy => spy.SaveAS4MessageAsync(It.IsAny<string>(), null, CancellationToken.None));
+            TestProviderWithAcceptedPersister(
+                sut => sut.UpdateAS4Message("ignored location", null),
+                spy => spy.UpdateAS4Message(It.IsAny<string>(), null));
         }
 
-        [Fact]
-        public async Task SpyPersisterGetsCalled_IfUpdateBody()
-        {
-            await TestProviderWithAcceptedPersister(
-                sut => sut.UpdateAS4MessageAsync("ignored location", null, CancellationToken.None),
-                spy => spy.UpdateAS4MessageAsync(It.IsAny<string>(), null, CancellationToken.None));
-        }
-
-        private static async Task TestProviderWithAcceptedPersister(
-            Func<MessageBodyStore, Task> act,
+        private static void TestProviderWithAcceptedPersister(
+            Action<MessageBodyStore> act,
             Expression<Action<IAS4MessageBodyStore>> assertion)
         {
             // Arrange
@@ -44,7 +35,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Repositories
             sut.Accept(location => true, spyPersister);
 
             // Act
-            await act(sut);
+            act(sut);
 
             // Assert
             Mock.Get(spyPersister).Verify(assertion, Times.Once);

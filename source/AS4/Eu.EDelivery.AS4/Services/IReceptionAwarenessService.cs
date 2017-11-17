@@ -1,6 +1,4 @@
-﻿using System.Threading;
-using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Entities;
+﻿using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Repositories;
 
 namespace Eu.EDelivery.AS4.Services
@@ -12,9 +10,8 @@ namespace Eu.EDelivery.AS4.Services
         /// </summary>
         /// <param name="messageId">The message identifier.</param>
         /// <param name="messageBodyStore">The message body persister.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns></returns>
-        Task DeadletterOutMessageAsync(string messageId, IAS4MessageBodyStore messageBodyStore, CancellationToken cancellationToken);
+        void DeadletterOutMessage(string messageId, IAS4MessageBodyStore messageBodyStore);
 
         /// <summary>
         /// Messages the needs to be resend.

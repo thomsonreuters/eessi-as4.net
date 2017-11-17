@@ -86,8 +86,7 @@ namespace Eu.EDelivery.AS4.Transformers
 
         private static async Task<VirtualStream> CopyIncomingStreamToVirtualStream(ReceivedMessage receivedMessage)
         {
-            var stream = receivedMessage.UnderlyingStream as VirtualStream;
-            if (stream != null)
+            if (receivedMessage.UnderlyingStream is VirtualStream stream)
             {
                 return stream;
             }
@@ -96,9 +95,10 @@ namespace Eu.EDelivery.AS4.Transformers
                 VirtualStream.CreateVirtualStream(
                     receivedMessage.UnderlyingStream.CanSeek
                         ? receivedMessage.UnderlyingStream.Length
-                        : VirtualStream.ThresholdMax);
-
-            await receivedMessage.UnderlyingStream.CopyToAsync(messageStream);
+                        : VirtualStream.ThresholdMax,
+                    forAsync: true);
+            
+            await receivedMessage.UnderlyingStream.CopyToFastAsync(messageStream);
 
             messageStream.Position = 0;
 

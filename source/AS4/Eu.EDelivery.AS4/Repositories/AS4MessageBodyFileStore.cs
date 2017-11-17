@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -6,6 +7,7 @@ using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Streaming;
 using Eu.EDelivery.AS4.Utilities;
+using NLog;
 
 namespace Eu.EDelivery.AS4.Repositories
 {
@@ -23,19 +25,13 @@ namespace Eu.EDelivery.AS4.Repositories
         }
 
         /// <summary>
-        /// Saves a given <see cref="AS4Message" /> to a given location.
+        /// Saves an AS4 Message instance to the filesystem.
         /// </summary>
-        /// <param name="location">The location.</param>
-        /// <param name="message">The message to save.</param>
-        /// <param name="cancellation">The cancellation.</param>
-        /// <returns>
-        /// Location where the <paramref name="message" /> is saved.
-        /// </returns>
-        /// <exception cref="ArgumentNullException">message</exception>
-        public async Task<string> SaveAS4MessageAsync(
-            string location,
-            AS4Message message,
-            CancellationToken cancellation)
+        /// <remarks>The AS4 Message is being serialized to file.</remarks>
+        /// <param name="location"></param>
+        /// <param name="message"></param>
+        /// <returns></returns>
+        public string SaveAS4Message(string location, AS4Message message)
         {
             if (message == null)
             {
@@ -47,12 +43,19 @@ namespace Eu.EDelivery.AS4.Repositories
 
             if (!File.Exists(fileName))
             {
-                await SaveMessageToFile(message, fileName, cancellation).ConfigureAwait(false);
+                SaveMessageToFile(message, fileName);
             }
 
             return $"file:///{fileName}";
         }
 
+        /// <summary>
+        /// Saves an AS4 Message Stream to the filesystem.
+        /// </summary>
+        /// <param name="location">The location where the AS4 message must be saved</param>
+        /// <param name="as4MessageStream">A stream representing the AS4 message</param>
+        /// <param name="cancellation"></param>
+        /// <returns></returns>
         public async Task<string> SaveAS4MessageStreamAsync(string location, Stream as4MessageStream, CancellationToken cancellation)
         {
             if (as4MessageStream == null)
@@ -63,15 +66,47 @@ namespace Eu.EDelivery.AS4.Repositories
             string storeLocation = EnsureStoreLocation(location);
             string fileName = AssembleUniqueMessageLocation(storeLocation);
 
+            var sw = new Stopwatch();
+            sw.Start();
+
             if (!File.Exists(fileName))
             {
-                using (FileStream fs = FileUtils.OpenAsync(fileName, FileMode.Create, FileAccess.Write))
+                var sourceFile = GetFileStreamForSourceStream(as4MessageStream);
+
+                if (sourceFile != null)
                 {
-                    await as4MessageStream.CopyToAsync(fs).ConfigureAwait(false);
+                    File.Copy(sourceFile.Name, fileName);
+                }
+                else
+                {
+                    using (FileStream fs = FileUtils.OpenAsync(fileName, FileMode.Create, FileAccess.Write, FileOptions.SequentialScan))
+                    {
+                        File.SetAttributes(fs.Name, FileAttributes.NotContentIndexed);
+
+                        await as4MessageStream.CopyToFastAsync(fs).ConfigureAwait(false);
+                    }
                 }
             }
 
+            sw.Stop();
+            LogManager.GetCurrentClassLogger().Trace($"Saving stream took {sw.ElapsedMilliseconds} millisecs");
+
             return $"file:///{fileName}";
+        }
+
+        private static FileStream GetFileStreamForSourceStream(Stream s)
+        {
+            if (s is FileStream fs)
+            {
+                return fs;
+            }
+
+            if (s is VirtualStream vs && vs.UnderlyingStream is FileStream ufs)
+            {
+                return ufs;
+            }
+
+            return null;
         }
 
         private static string EnsureStoreLocation(string storeLocation)
@@ -94,15 +129,12 @@ namespace Eu.EDelivery.AS4.Repositories
         }
 
         /// <summary>
-        /// Updates an AS4 message asynchronously.
+        /// Updates an existing file on the file-system with an updated version
+        /// of the given AS4 Message instance.
         /// </summary>
-        /// <param name="location">The location.</param>
-        /// <param name="message">The message.</param>
-        /// <param name="cancellation">The cancellation.</param>
-        /// <returns></returns>
-        /// <exception cref="ArgumentNullException">message</exception>
-        /// <exception cref="FileNotFoundException">The messagebody that must be updated could not be found.</exception>
-        public async Task UpdateAS4MessageAsync(string location, AS4Message message, CancellationToken cancellation)
+        /// <param name="location"></param>
+        /// <param name="message"></param>
+        public void UpdateAS4Message(string location, AS4Message message)
         {
             if (message == null)
             {
@@ -117,16 +149,24 @@ namespace Eu.EDelivery.AS4.Repositories
                     $"The messagebody that must be updated could not be found at: {fileLocation}.");
             }
 
-            await SaveMessageToFile(message, fileLocation, cancellation).ConfigureAwait(false);
+            SaveMessageToFile(message, fileLocation);
         }
 
-        private async Task SaveMessageToFile(AS4Message message, string fileName, CancellationToken cancellationToken)
+        private void SaveMessageToFile(AS4Message message, string fileName)
         {
-            using (FileStream content = FileUtils.CreateAsync(fileName))
+            var sw = new Stopwatch();
+            sw.Start();
+
+            using (FileStream content = File.Create(fileName))
             {
+                File.SetAttributes(fileName, FileAttributes.NotContentIndexed);
+
                 ISerializer serializer = _provider.Get(message.ContentType);
-                await serializer.SerializeAsync(message, content, cancellationToken).ConfigureAwait(false);
+                serializer.Serialize(message, content, CancellationToken.None);
             }
+
+            sw.Stop();
+            LogManager.GetCurrentClassLogger().Trace($"Saving AS4 Message to file took {sw.ElapsedMilliseconds} millisecs");
         }
 
         /// <summary>
@@ -145,13 +185,14 @@ namespace Eu.EDelivery.AS4.Repositories
 
             if (File.Exists(fileLocation))
             {
-                using (FileStream fileStream = FileUtils.OpenReadAsync(fileLocation))
+                using (FileStream fileStream = FileUtils.OpenReadAsync(fileLocation, options: FileOptions.SequentialScan))
                 {
                     VirtualStream virtualStream =
                         VirtualStream.CreateVirtualStream(
-                            fileStream.CanSeek ? fileStream.Length : VirtualStream.ThresholdMax);
+                            fileStream.CanSeek ? fileStream.Length : VirtualStream.ThresholdMax,
+                            forAsync: true);
 
-                    await fileStream.CopyToAsync(virtualStream).ConfigureAwait(false);
+                    await fileStream.CopyToFastAsync(virtualStream).ConfigureAwait(false);
                     virtualStream.Position = 0;
 
                     return virtualStream;

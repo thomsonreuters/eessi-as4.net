@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Configuration;
+using System.Diagnostics;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
@@ -54,7 +55,13 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 return await ReturnSameMessagingContext(messagingContext);
             }
 
+            var sw = new Stopwatch();
+            sw.Start();
+
             TryEncryptAS4Message(messagingContext);
+
+            sw.Stop();
+            Logger.Trace($"Encrypt took {sw.ElapsedMilliseconds} milliseconds");
 
             return await StepResult.SuccessAsync(messagingContext);
         }

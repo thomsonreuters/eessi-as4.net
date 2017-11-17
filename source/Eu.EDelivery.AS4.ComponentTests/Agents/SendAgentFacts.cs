@@ -52,7 +52,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
             StubHttpServer.StartServer(sendToUrl, r.WriteResponse, signal);
 
-            await PutMessageToSend(as4Message, pmode, actAsIntermediaryMsh);
+            PutMessageToSend(as4Message, pmode, actAsIntermediaryMsh);
 
             signal.WaitOne();
 
@@ -70,7 +70,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             Assert.Equal(expectedSignalOperation, OperationUtils.Parse(receivedMessage.Operation));
         }
 
-        private async Task PutMessageToSend(AS4Message as4Message, SendingProcessingMode pmode, bool actAsIntermediaryMsh)
+        private void PutMessageToSend(AS4Message as4Message, SendingProcessingMode pmode, bool actAsIntermediaryMsh)
         {
             string fileName = @".\database\as4messages\out\sendagent_test.as4";
 
@@ -95,7 +95,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             outMessage.SetEbmsMessageType(MessageType.UserMessage);
             outMessage.SetMessageExchangePattern(MessageExchangePattern.Push);
             outMessage.SetOperation(Operation.ToBeSent);
-            await outMessage.SetPModeInformationAsync(pmode);
+            outMessage.SetPModeInformation(pmode);
 
             _databaseSpy.InsertOutMessage(outMessage);
         }
