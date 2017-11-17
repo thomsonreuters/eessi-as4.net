@@ -181,7 +181,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
                         var sw = new Stopwatch();
                         sw.Start();
 
-                        await messagingContext.ReceivedMessage.UnderlyingStream.CopyToFastAsync(requestStream, 8192).ConfigureAwait(false);
+                        await messagingContext.ReceivedMessage.UnderlyingStream.CopyToFastAsync(requestStream).ConfigureAwait(false);
 
                         sw.Stop();
                         Logger.Trace($"Writing to request stream took {sw.ElapsedMilliseconds} milliseconds");
@@ -190,7 +190,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
                     {
                         // Serialize the AS4 Message to the request-stream
                         var serializer = SerializerProvider.Default.Get(request.ContentType);
-                        await serializer.SerializeAsync(messagingContext.AS4Message, requestStream, CancellationToken.None).ConfigureAwait(false);
+                        serializer.Serialize(messagingContext.AS4Message, requestStream, CancellationToken.None);
                     }
                 }
 
@@ -223,7 +223,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 request.ContentLength = messageSize;
             }
 
-            request.AllowWriteStreamBuffering = false;           
+            request.AllowWriteStreamBuffering = false;
         }
 
         private static async Task<AS4Message> GetAS4MessageFromContextAsync(MessagingContext context)

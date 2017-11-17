@@ -715,7 +715,7 @@ namespace Eu.EDelivery.AS4.Receivers
             /// Specific <see cref="HttpListenerResponse"/> handling.
             /// </summary>
             /// <param name="response"></param>
-            protected override async Task ExecuteResultAsyncCore(HttpListenerResponse response)
+            protected override Task ExecuteResultAsyncCore(HttpListenerResponse response)
             {
                 try
                 {
@@ -725,12 +725,11 @@ namespace Eu.EDelivery.AS4.Receivers
                         {
                             ISerializer serializer = SerializerProvider.Get(_messagingContext.AS4Message.ContentType);
 
-                            await serializer.SerializeAsync(
-                                _messagingContext.AS4Message,
-                                responseStream,
-                                CancellationToken.None);
+                            serializer.Serialize(_messagingContext.AS4Message, responseStream, CancellationToken.None);
                         }
                     }
+
+                    return Task.FromResult(Task.CompletedTask);
                 }
                 catch (Exception exception)
                 {
