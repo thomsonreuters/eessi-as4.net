@@ -13,7 +13,7 @@ namespace Eu.EDelivery.AS4.Streaming
         /// <returns></returns>
         public static byte[] ToBytes(this Stream contents)
         {
-            StreamPositionMover.MovePositionToStreamStart(contents);
+            StreamUtilities.MovePositionToStreamStart(contents);
 
             VirtualStream virtualStream =
                 VirtualStream.CreateVirtualStream(contents.CanSeek ? contents.Length : VirtualStream.ThresholdMax);
@@ -49,7 +49,7 @@ namespace Eu.EDelivery.AS4.Streaming
 
             // We're reading bufferSize bytes from the source-stream inside one half of the buffer
             // while the writeTask is writing the other half of the buffer to the target-stream.
-            int bufferSize = DefaultCopyToFastBufferSize; // DetermineOptimalBufferSize(source);
+            int bufferSize = DefaultCopyToFastBufferSize; 
             int ioBufferSize = bufferSize * 2;
 
             byte[] buffer = new byte[ioBufferSize];

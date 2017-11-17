@@ -8,7 +8,7 @@ using Xunit;
 namespace Eu.EDelivery.AS4.UnitTests.Streaming
 {
     /// <summary>
-    /// Testing <see cref="StreamPositionMover"/>
+    /// Testing <see cref="StreamUtilities"/>
     /// </summary>
     public class GivenStreamPositionMoverFacts
     {
@@ -17,7 +17,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Streaming
         {
             // Act / Assert
             Assert.Throws<ArgumentNullException>(
-                () => StreamPositionMover.MovePositionToStreamStart(stream: null));
+                () => StreamUtilities.MovePositionToStreamStart(stream: null));
         }
 
         [Fact]
@@ -27,7 +27,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Streaming
             using (MemoryStream stubStream = GetNotZeroPositionStream())
             {
                 // Act
-                StreamPositionMover.MovePositionToStreamStart(stubStream);
+                StreamUtilities.MovePositionToStreamStart(stubStream);
 
                 // Assert
                 AssertEqualsZero(stubStream);
@@ -41,7 +41,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Streaming
             using (var stubStream = new NonCloseableStream(GetNotZeroPositionStream()))
             {
                 // Act
-                StreamPositionMover.MovePositionToStreamStart(stubStream);
+                StreamUtilities.MovePositionToStreamStart(stubStream);
 
                 // Assert
                 AssertEqualsZero(stubStream.InnerStream);
@@ -55,7 +55,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Streaming
             using (var stubStream = new FilteredStream(GetNotZeroPositionStream()))
             {
                 // Act
-                StreamPositionMover.MovePositionToStreamStart(stubStream);
+                StreamUtilities.MovePositionToStreamStart(stubStream);
 
                 // Assert
                 AssertEqualsZero(stubStream.Source);

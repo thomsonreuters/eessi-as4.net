@@ -333,7 +333,7 @@ namespace Eu.EDelivery.AS4.Streaming
         public byte[] ToArray()
         {
             byte[] bytes = GetUnderlyingBytes();
-            StreamPositionMover.MovePositionToStreamStart(UnderlyingStream);
+            StreamUtilities.MovePositionToStreamStart(UnderlyingStream);
 
             return bytes;
         }

@@ -115,11 +115,12 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         {
             attachment.ResetContentPosition();
 
+            int unzipLength = DetermineOriginalFileSize(attachment.Content);
+
             VirtualStream outputStream =
                 VirtualStream.CreateVirtualStream(
-                    attachment.Content.CanSeek ? attachment.Content.Length : VirtualStream.ThresholdMax);
+                    unzipLength > -1 ? unzipLength : VirtualStream.ThresholdMax);
 
-            int unzipLength = DetermineOriginalFileSize(attachment.Content);
             if (unzipLength > 0)
             {
                 outputStream.SetLength(unzipLength);
