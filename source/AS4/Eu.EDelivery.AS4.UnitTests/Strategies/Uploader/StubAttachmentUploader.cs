@@ -32,7 +32,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Strategies.Uploader
         /// </summary>
         /// <param name="attachment"></param>
         /// <returns></returns>
-        public Task<UploadResult> UploadAsync(Attachment attachment)
+        public Task<UploadResult> UploadAsync(Attachment attachment, UserMessage referringUserMessage)
         {
             return Task.FromResult(_configuredResult);
         }

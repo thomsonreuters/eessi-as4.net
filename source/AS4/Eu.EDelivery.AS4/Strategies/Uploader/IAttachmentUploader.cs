@@ -17,10 +17,14 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
         void Configure(Method payloadReferenceMethod);
 
         /// <summary>
-        /// Start uploading <see cref="Attachment"/>
+        /// Start uploading the <paramref name="attachment"/>
         /// </summary>
-        /// <param name="attachment"></param>
-        /// <returns></returns>
-        Task<UploadResult> UploadAsync(Attachment attachment);
+        /// <remarks>The <paramref name="referringUserMessage"/> parameter can be used
+        /// by the IAttachmentUploader implementation when determining the name that must be
+        /// given to the uploaded payload.</remarks>
+        /// <param name="attachment">The <see cref="Attachment"/> that must be uploaded</param>
+        /// <param name="referringUserMessage">The UserMessage to which the Attachment belongs to.</param>
+        /// <returns>An UploadResult instance</returns>
+        Task<UploadResult> UploadAsync(Attachment attachment, UserMessage referringUserMessage);
     }
 }

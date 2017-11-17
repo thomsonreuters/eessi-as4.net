@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
+using Eu.EDelivery.AS4.Factories;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
@@ -28,6 +29,9 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
         [Info("location")]
         private string Location => _method["location"]?.Value;
 
+        [Info("Payload Naming Pattern")]
+        private string NamePattern => _method["filenameformat"]?.Value;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="FileAttachmentUploader" /> class.
         /// Create a Payload Uploader for the file system
@@ -49,24 +53,23 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
             _method = payloadReferenceMethod;
         }
 
-        /// <summary>
-        /// Start uploading Attachment
-        /// </summary>
-        /// <param name="attachment"></param>
-        /// <returns></returns>
-        public async Task<UploadResult> UploadAsync(Attachment attachment)
+        /// <inheritdoc/>
+        public async Task<UploadResult> UploadAsync(Attachment attachment, UserMessage referringUserMessage)
         {
-            string downloadUrl = AssembleFileDownloadUrlFor(attachment);
+            string downloadUrl = AssembleFileDownloadUrlFor(attachment, referringUserMessage);
             string attachmentFilePath = Path.GetFullPath(downloadUrl);
 
             string uploadLocation = await TryUploadAttachment(attachment, attachmentFilePath).ConfigureAwait(false);
             return new UploadResult { DownloadUrl = uploadLocation };
         }
 
-        private string AssembleFileDownloadUrlFor(Attachment attachment)
+        private string AssembleFileDownloadUrlFor(Attachment attachment, UserMessage referringUserMessage)
         {
             string extension = _repository.GetExtensionFromMimeType(attachment.ContentType);
-            string fileName = FilenameUtils.EnsureValidFilename($"{attachment.Id}{extension}");
+
+            string fileName = PayloadFileNameFactory.CreateFileName(NamePattern, attachment, referringUserMessage);
+
+            fileName = FilenameUtils.EnsureValidFilename($"{fileName}{extension}");
 
             return Path.Combine(Location, fileName);
         }

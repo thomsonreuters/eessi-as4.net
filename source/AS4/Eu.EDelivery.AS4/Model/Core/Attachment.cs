@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Xml.Serialization;
 using Eu.EDelivery.AS4.Factories;
 using MimeKit.IO;
@@ -70,6 +71,16 @@ namespace Eu.EDelivery.AS4.Model.Core
         public bool Matches(PartInfo partInfo)
         {
             return partInfo.Href != null && partInfo.Href.Equals($"cid:{Id}");
+        }
+
+        /// <summary>
+        /// Verifies if this Attachment is referred by any of the specified <paramref name="partInfos"/>
+        /// </summary>
+        /// <param name="partInfos"></param>
+        /// <returns></returns>
+        public bool MatchesAny(IEnumerable<PartInfo> partInfos)
+        {
+            return partInfos.Any(this.Matches);
         }
 
         /// <summary>
