@@ -37,7 +37,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             }
 
             _messagingContext = messagingContext;
-            TryCompressAS4MessageAsync(messagingContext.AS4Message.Attachments);
+            TryCompressAS4Message(messagingContext.AS4Message.Attachments);
 
             return await StepResult.SuccessAsync(messagingContext);
         }
@@ -48,7 +48,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             return StepResult.Success(messagingContext);
         }
 
-        private void TryCompressAS4MessageAsync(IEnumerable<Attachment> attachments)
+        private void TryCompressAS4Message(IEnumerable<Attachment> attachments)
         {
             try
             {
@@ -66,12 +66,12 @@ namespace Eu.EDelivery.AS4.Steps.Send
         {
             foreach (Attachment attachment in attachments)
             {
-                CompressAttachmentAsync(attachment);
+                CompressAttachment(attachment);
                 AssignAttachmentProperties(attachment);
             }
         }
 
-        private static void CompressAttachmentAsync(Attachment attachment)
+        private static void CompressAttachment(Attachment attachment)
         {
             VirtualStream outputStream =
                 VirtualStream.CreateVirtualStream(
