@@ -29,7 +29,23 @@ namespace Eu.EDelivery.AS4.Model.Core
                     _content?.Dispose();
                 }
                 _content = value;
+
+                if (_content != null)
+                {
+                    EstimatedContentSize = StreamUtilities.GetStreamSize(_content);
+                }
+                else
+                {
+                    EstimatedContentSize = -1;
+                }
             }
+        }
+
+        [XmlIgnore]
+        public long EstimatedContentSize
+        {
+            get;
+            private set;
         }
 
         public string Location { get; set; }
@@ -73,7 +89,7 @@ namespace Eu.EDelivery.AS4.Model.Core
         {
             if (Content != null)
             {
-                StreamPositionMover.MovePositionToStreamStart(Content);
+                StreamUtilities.MovePositionToStreamStart(Content);
             }
         }
 
@@ -82,6 +98,7 @@ namespace Eu.EDelivery.AS4.Model.Core
             Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
             Schemas = new List<Schema>();
             ContentType = "application/octet-stream";
+            EstimatedContentSize = -1;
         }
     }
 
