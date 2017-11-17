@@ -61,8 +61,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
 
         protected MessagingContext CreateAS4MessageWithAttachment()
         {
-            AS4Message as4Message = AS4Message.Empty;
-            as4Message.AddAttachment(new Attachment("attachment-id") { Content = Stream.Null });
+            const string attachmentId = "attachment-id";
+
+            var userMessage = new UserMessage(Guid.NewGuid().ToString());
+            userMessage.PayloadInfo.Add(new PartInfo($"cid:{attachmentId}"));
+
+            AS4Message as4Message = AS4Message.Create(userMessage);
+
+            as4Message.AddAttachment(new Attachment(attachmentId) { Content = Stream.Null });
 
             var pmode = new ReceivingProcessingMode();
             pmode.MessageHandling.DeliverInformation.PayloadReferenceMethod = new Method { Type = "FILE" };
