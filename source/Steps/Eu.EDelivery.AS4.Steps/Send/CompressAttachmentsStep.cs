@@ -75,14 +75,14 @@ namespace Eu.EDelivery.AS4.Steps.Send
         {
             VirtualStream outputStream =
                 VirtualStream.CreateVirtualStream(
-                    attachment.Content.CanSeek ? attachment.Content.Length : VirtualStream.ThresholdMax);
+                    attachment.EstimatedContentSize > -1 ? attachment.EstimatedContentSize : VirtualStream.ThresholdMax);
 
             var compressionLevel = DetermineCompressionLevelFor(attachment);
 
             var sw = new Stopwatch();
             sw.Start();
 
-            using (var gzipCompression = new GZipStream(outputStream, compressionLevel: compressionLevel, leaveOpen: true))
+            using (var gzipCompression = new GZipStream(outputStream, compressionLevel, leaveOpen: true))
             {
                 attachment.Content.CopyTo(gzipCompression);
             }
@@ -103,17 +103,17 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 return CompressionLevel.NoCompression;
             }
 
-            if (attachment.Content.CanSeek)
+            if (attachment.EstimatedContentSize > -1)
             {
                 const long twelveKilobytes = 12_288;
                 const long twoHundredMegabytes = 209_715_200;
 
-                if (attachment.Content.Length <= twelveKilobytes)
+                if (attachment.EstimatedContentSize <= twelveKilobytes)
                 {
                     return CompressionLevel.NoCompression;
                 }
 
-                if (attachment.Content.Length > twoHundredMegabytes)
+                if (attachment.EstimatedContentSize > twoHundredMegabytes)
                 {
                     return CompressionLevel.Fastest;
                 }
