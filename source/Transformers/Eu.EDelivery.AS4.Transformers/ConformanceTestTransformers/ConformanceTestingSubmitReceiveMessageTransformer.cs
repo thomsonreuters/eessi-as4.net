@@ -55,7 +55,7 @@ namespace Eu.EDelivery.AS4.Transformers.ConformanceTestTransformers
             {
                 var l = NLog.LogManager.GetCurrentClassLogger();
                 l.Error(ex.Message);
-                l.Error(ex.StackTrace);
+                l.Trace(ex.StackTrace);
 
                 if (ex.InnerException != null)
                 {
