@@ -115,7 +115,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         {
             attachment.ResetContentPosition();
 
-            int unzipLength = DetermineOriginalFileSize(attachment.Content);
+            long unzipLength = StreamUtilities.DetermineOriginalSizeOfCompressedStream(attachment.Content);
 
             VirtualStream outputStream =
                 VirtualStream.CreateVirtualStream(
@@ -138,36 +138,6 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
             sw.Stop();
             Logger.Trace($"Decompress copytofastasync took {sw.ElapsedMilliseconds} millisecs");
-        }
-
-        private static int DetermineOriginalFileSize(Stream str)
-        {
-            long originalPosition = str.Position;
-
-            try
-            {
-                byte[] fh = new byte[3];
-                str.Read(fh, 0, 3);
-                if (fh[0] == 31 && fh[1] == 139 && fh[2] == 8) //If magic numbers are 31 and 139 and the deflation id is 8 then...
-                {
-                    byte[] ba = new byte[4];
-                    str.Seek(-4, SeekOrigin.End);
-                    str.Read(ba, 0, 4);
-                    return BitConverter.ToInt32(ba, 0);
-                }
-                else
-                {
-                    return -1;
-                }
-            }
-            catch
-            {
-                return -1;
-            }
-            finally
-            {
-                str.Position = originalPosition;
-            }
         }
 
         private static void AssignAttachmentProperties(List<PartInfo> messagePayloadInfo, Attachment attachment)

@@ -55,6 +55,48 @@ namespace Eu.EDelivery.AS4.Streaming
             return streamToWorkOn.Length;
         }
 
+        public static long DetermineOriginalSizeOfCompressedStream(Stream stream)
+        {
+            if (stream == null)
+            {
+                throw new ArgumentNullException(nameof(stream));
+            }
+
+            Stream streamToWorkOn = GetStreamToWorkOn(stream);
+
+            if (streamToWorkOn.CanSeek == false)
+            {
+                return -1;
+            }
+
+            long originalPosition = streamToWorkOn.Position;
+
+            try
+            {
+                byte[] fh = new byte[3];
+                streamToWorkOn.Read(fh, 0, 3);
+                if (fh[0] == 31 && fh[1] == 139 && fh[2] == 8) //If magic numbers are 31 and 139 and the deflation id is 8 then...
+                {
+                    byte[] ba = new byte[4];
+                    streamToWorkOn.Seek(-4, SeekOrigin.End);
+                    streamToWorkOn.Read(ba, 0, 4);
+                    return BitConverter.ToInt32(ba, 0);
+                }
+                else
+                {
+                    return -1;
+                }
+            }
+            catch
+            {
+                return -1;
+            }
+            finally
+            {
+                streamToWorkOn.Position = originalPosition;
+            }
+        }
+
         private static Stream GetStreamToWorkOn(Stream stream)
         {
             Stream streamToWorkOn = stream;
