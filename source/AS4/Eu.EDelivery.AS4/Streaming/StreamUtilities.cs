@@ -101,13 +101,16 @@ namespace Eu.EDelivery.AS4.Streaming
         {
             Stream streamToWorkOn = stream;
 
-            if (stream is NonCloseableStream ncs)
+            while (streamToWorkOn.CanSeek == false)
             {
-                streamToWorkOn = ncs.InnerStream;
-            }
-            else if (stream is FilteredStream fs)
-            {
-                streamToWorkOn = fs.Source;
+                if (streamToWorkOn is NonCloseableStream ncs)
+                {
+                    streamToWorkOn = ncs.InnerStream;
+                }
+                else if (streamToWorkOn is FilteredStream fs)
+                {
+                    streamToWorkOn = fs.Source;
+                }
             }
             return streamToWorkOn;
         }
