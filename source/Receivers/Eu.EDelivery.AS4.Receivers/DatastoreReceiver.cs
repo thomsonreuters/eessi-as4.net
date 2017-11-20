@@ -343,7 +343,7 @@ namespace Eu.EDelivery.AS4.Receivers
                 logger.Error($"An error occured while polling the datastore: {exception.Message}");
                 logger.Error(
                     $"Polling on table {Table} with interval {PollingInterval.TotalSeconds} seconds.");
-                logger.Error(exception.StackTrace);
+                logger.Trace(exception.StackTrace);
 
                 return Enumerable.Empty<Entity>();
             }

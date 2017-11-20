@@ -109,10 +109,10 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
             }
             catch (Exception exception)
             {
-                const string description = "Attachments cannot be uploaded";
-                Logger.Error(description);
+                Logger.Error("Attachments cannot be uploaded");
+                Logger.Error(exception.Message);
 
-                throw new ApplicationException(description, exception);
+                throw;
             }
         }
 
