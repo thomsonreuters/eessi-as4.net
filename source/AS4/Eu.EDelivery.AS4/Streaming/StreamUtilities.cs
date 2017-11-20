@@ -111,6 +111,7 @@ namespace Eu.EDelivery.AS4.Streaming
                 {
                     streamToWorkOn = fs.Source;
                 }
+                break;
             }
             return streamToWorkOn;
         }
