@@ -26,6 +26,13 @@ namespace Eu.EDelivery.AS4.Utilities
 
             return new FileStream(fileName, FileMode.Create, FileAccess.ReadWrite, FileShare.None, DefaultBufferSize, options);
         }
+
+        public static FileStream CreateNewAsync(string fileName, FileOptions options = FileOptions.None)
+        {
+            options |= FileOptions.Asynchronous;
+
+            return new FileStream(fileName, FileMode.CreateNew, FileAccess.ReadWrite, FileShare.None, DefaultBufferSize, options);
+        }
     }
 
 }
