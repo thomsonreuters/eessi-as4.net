@@ -82,20 +82,19 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
                 {
                     return await UploadAttachment(attachment, attachmentFilePath).ConfigureAwait(false);
                 }
-                catch (IOException)
+                // Filter IOExceptions on a specific HResult.
+                // -2147024816 is the HResult if the IOException is thrown because the file already exists.
+                catch (IOException ex) when (ex.HResult == -2147024816)
                 {
-                    if (File.Exists(attachmentFilePath))
-                    {
-                        // If we happen to be in a concurrent scenario where there already
-                        // exists a file with the same name, try to upload the file as well.
-                        // The TryUploadAttachment method will generate a new name, but it is 
-                        // still possible that, under heavy load, another file has been created
-                        // with the same name as the unique name that we've generated.
-                        // Therefore, retry again.
-                        return await TryUploadAttachment(attachment, attachmentFilePath);
-                    }
+                    Logger.Info(ex.Message);
 
-                    throw;
+                    // If we happen to be in a concurrent scenario where there already
+                    // exists a file with the same name, try to upload the file as well.
+                    // The TryUploadAttachment method will generate a new name, but it is 
+                    // still possible that, under heavy load, another file has been created
+                    // with the same name as the unique name that we've generated.
+                    // Therefore, retry again.
+                    return await TryUploadAttachment(attachment, attachmentFilePath);
                 }
             }
             catch (Exception ex)
@@ -117,7 +116,7 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
             var sw = new Stopwatch();
             sw.Start();
 
-            using (FileStream fileStream = FileUtils.CreateAsync(attachmentFilePath, FileOptions.SequentialScan))
+            using (FileStream fileStream = FileUtils.CreateNewAsync(attachmentFilePath, FileOptions.SequentialScan))
             {
                 await attachment.Content.CopyToFastAsync(fileStream).ConfigureAwait(false);
             }
