@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Xml;
@@ -12,8 +11,8 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._12_Re
     /// Testing the Application with a Single Payload
     /// </summary>
     public class ReceiveAsyncSignedNRRReceiptIntegrationTest : IntegrationTestTemplate
-    {        
-    
+    {
+
         [Retry(MaxRetries = 3)]
         public void ThenSendAsyncSignedNRRReceiptSucceeds()
         {
@@ -24,7 +23,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._12_Re
             Holodeck.CopyPModeToHolodeckB("8.1.12-pmode.xml");
 
             // Act
-            AS4Component.PutMessage("8.1.12-sample.xml");    
+            AS4Component.PutMessage("8.1.12-sample.xml");
 
             // Assert
             Assert.True(PollingAt(AS4ReceiptsPath, "*.xml"), "Send Async Signed NRR Receipt failed");

@@ -231,7 +231,10 @@ namespace Eu.EDelivery.AS4.Security.Strategies
             // has changed.  Locking the collection seems to solve this problem.
             lock (SafeCanonicalizationMethods)
             {
-                SafeCanonicalizationMethods.Add(AttachmentSignatureTransform.Url);
+                if (SafeCanonicalizationMethods.Contains(AttachmentSignatureTransform.Url) == false)
+                {
+                    SafeCanonicalizationMethods.Add(AttachmentSignatureTransform.Url);
+                }
             }
 
             CryptoConfig.AddAlgorithm(algorithm.GetType(), algorithm.GetIdentifier());
@@ -261,7 +264,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
 
             LoadXml(GetSignatureElement());
             AddUnrecognizedAttachmentReferences(options.Attachments);
-            
+
             return CheckSignature(SecurityTokenReference.Certificate, verifySignatureOnly: true);
         }
 
