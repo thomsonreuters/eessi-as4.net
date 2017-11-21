@@ -17,6 +17,14 @@ namespace Eu.EDelivery.AS4.Factories
                 {"AttachmentId", (attachment, userMessage) => attachment.Id}
             };
 
+        public const string PatternDocumentation =
+                   "The Payload naming pattern lets you define how the filename of the delivered payloads should look like. \n\r" +
+                   "There are a few macro's that can be used to define the pattern:\n\r" +
+                   "{MessageId}: inserts the ebMS MessageId in the filename.\n\r" +
+                   "{AttachmentId}: inserts the Id of the attachment in the filename.\n\r" +
+                   "The macro's can be combined which means that it is possible to use {MessageId}_{AttachmentId} for instance.\n\r" +
+                   "If no pattern is defined, {AttachmentId} will be used by default";
+
         public static string CreateFileName(string pattern, Attachment attachment, UserMessage userMessage)
         {
             if (String.IsNullOrEmpty(pattern))
