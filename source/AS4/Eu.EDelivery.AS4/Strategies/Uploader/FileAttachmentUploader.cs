@@ -27,7 +27,8 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
 
         private Method _method;
 
-        [Info("location")]
+        [Info("Location")]
+        [Description("Folder where the payloads must be delivered")]
         private string Location => _method["location"]?.Value;
 
         [Info("Payload Naming Pattern")]
