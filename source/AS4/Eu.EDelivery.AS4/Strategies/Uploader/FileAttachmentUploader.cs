@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
@@ -30,6 +31,7 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
         private string Location => _method["location"]?.Value;
 
         [Info("Payload Naming Pattern")]
+        [Description(PayloadFileNameFactory.PatternDocumentation)]
         private string NamePattern => _method["filenameformat"]?.Value;
 
         /// <summary>

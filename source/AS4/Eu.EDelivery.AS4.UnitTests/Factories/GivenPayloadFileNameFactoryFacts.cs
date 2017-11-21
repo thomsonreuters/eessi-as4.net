@@ -51,5 +51,18 @@ namespace Eu.EDelivery.AS4.UnitTests.Factories {
 
             Assert.Equal($"{userMessage.MessageId}_{attachment.Id}", payloadFileName);
         }
+
+        [Fact]
+        public void ThenAppendAttachmentIdIfPatternContainsNoMacro()
+        {
+            var attachment = new Attachment("earth.jpg");
+            var userMessage = new UserMessage("messageId");
+
+            var pattern = "abc_";
+
+            var payloadFileName = PayloadFileNameFactory.CreateFileName(pattern, attachment, userMessage);
+
+            Assert.Equal($"abc_{attachment.Id}", payloadFileName);
+        }
     }
 }
