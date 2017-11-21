@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using Eu.EDelivery.AS4.Model.Core;
@@ -30,6 +31,13 @@ namespace Eu.EDelivery.AS4.Factories
             if (String.IsNullOrEmpty(pattern))
             {
                 pattern = "{AttachmentId}";
+            }
+            else
+            {
+                if (NamingMacros.Keys.Any(p => pattern.IndexOf(p, StringComparison.OrdinalIgnoreCase) > -1) == false)
+                {
+                    pattern = pattern.TrimEnd('_') + "_{AttachmentId}";
+                }
             }
 
             var idBuilder = new StringBuilder(pattern);
