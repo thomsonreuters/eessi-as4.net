@@ -7,6 +7,9 @@ AS4.NET is interoperable with multiple other AS4 gateway providers; AS4.NET has 
 
 Basic testing against the EESSI AS4 Messaging profile is already covered. Extensive testing is scheduled later this year.
 
+# Installation
+AS4.NET v2.0.0 can be downloaded from [the following location](https://ec.europa.eu/cefdigital/artifact/content/repositories/eDelivery/eu/eessi/as4/eessi_as4.net/1.1.0/eessi_as4.net-1.1.0.zip). The documentation on how to use and configure AS4.NET can be found in the documentation folder of the package.
+
 #Documentation
 A configuration- and usermanual for AS4.NET can be found [online]([https://ec.europa.eu/cefdigital/wiki/display/EDELCOMMUNITY/AS4.NET)
 
@@ -46,10 +49,6 @@ A configuration- and usermanual for AS4.NET can be found [online]([https://ec.eu
 - Continued performance tuning for high volume processing (v2.0)
 - Improvements to the internal messaging engine (v2.0)
  
-
-# Installation
-AS4.NET v2.0.0 can be downloaded from [the following location](https://ec.europa.eu/cefdigital/artifact/content/repositories/eDelivery/eu/eessi/as4/eessi_as4.net/1.1.0/eessi_as4.net-1.1.0.zip). The documentation on how to use and configure AS4.NET can be found in the documentation folder of the package.
-
 # Third Party software
 The following third party libraries are used by AS4.NET:
 - [Automapper](https://github.com/AutoMapper/AutoMapper) ([MIT License](https://opensource.org/licenses/MIT))
