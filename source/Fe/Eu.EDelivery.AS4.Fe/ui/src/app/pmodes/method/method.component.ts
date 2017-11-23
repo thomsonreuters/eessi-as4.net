@@ -27,8 +27,10 @@ import { ItemType } from './../../api/ItemType';
                         <th>Value</th>
                     </tr>
                     <tr *ngFor="let setting of parametersControl; let i = index" [formGroupName]="i">
-                        
-                        <td as4-tooltip="{{(types | gettype:group.get('type')?.value | getitemtypeproperty:parametersControl[i].value.name)?.description}}">{{(types | gettype:group.get('type')?.value | getitemtypeproperty:parametersControl[i].value.name)?.friendlyName}}</td> 
+                        <td>
+                        {{(types | gettype:group.get('type')?.value | getitemtypeproperty:parametersControl[i].value.name)?.friendlyName}}
+                        <as4-info tooltip="{{(types | gettype:group.get('type')?.value | getitemtypeproperty:parametersControl[i].value.name)?.description}}"></as4-info>
+                        </td>
                         <td><input type="text" name="value" class="value-input form-control" formControlName="value"/></td>
                     </tr>
                 </table>
