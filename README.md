@@ -48,6 +48,9 @@ A configuration- and usermanual for AS4.NET can be found [online]([https://ec.eu
 - Continued performance tuning for large messages, up to 2GB (v2.0)
 - Continued performance tuning for high volume processing (v2.0)
 - Improvements to the internal messaging engine (v2.0)
+
+- Configurable payload naming when delivering on filesystem (v2.0.1)
+- Continued performance tuning for large messages and high volume processing (v2.0.1)
  
 # Third Party software
 The following third party libraries are used by AS4.NET:
