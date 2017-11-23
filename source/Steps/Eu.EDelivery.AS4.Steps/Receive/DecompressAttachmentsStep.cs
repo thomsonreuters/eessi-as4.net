@@ -126,18 +126,12 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 outputStream.SetLength(unzipLength);
             }
 
-            var sw = new Stopwatch();
-            sw.Start();
-
             using (var gzipCompression = new GZipStream(attachment.Content, CompressionMode.Decompress, true))
             {
                 gzipCompression.CopyTo(outputStream);
                 outputStream.Position = 0;
                 attachment.Content = outputStream;
             }
-
-            sw.Stop();
-            Logger.Trace($"Decompress copytofastasync took {sw.ElapsedMilliseconds} millisecs");
         }
 
         private static void AssignAttachmentProperties(List<PartInfo> messagePayloadInfo, Attachment attachment)

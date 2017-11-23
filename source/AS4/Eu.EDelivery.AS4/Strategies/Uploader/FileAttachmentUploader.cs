@@ -1,6 +1,5 @@
 ﻿using System;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Factories;
@@ -116,16 +115,10 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
 
             attachmentFilePath = FilenameUtils.EnsureFilenameIsUnique(attachmentFilePath);
 
-            var sw = new Stopwatch();
-            sw.Start();
-
             using (FileStream fileStream = FileUtils.CreateNewAsync(attachmentFilePath, FileOptions.SequentialScan))
             {
                 await attachment.Content.CopyToFastAsync(fileStream).ConfigureAwait(false);
             }
-
-            sw.Stop();
-            Logger.Trace($"Uploading attachment to filesystem took {sw.ElapsedMilliseconds} milliseconds.");
 
             Logger.Info($"Attachment {attachment.Id} is uploaded successfully to {attachmentFilePath}");
 

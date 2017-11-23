@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
@@ -342,17 +341,13 @@ namespace Eu.EDelivery.AS4.Security.Strategies
 
             var as4EncryptedKey = AS4EncryptedKey.LoadFromXmlDocument(_document);
 
-            var sw = new Stopwatch();
-            sw.Start();
-
             byte[] key = DecryptEncryptedKey(as4EncryptedKey);
             
             foreach (EncryptedData encryptedData in encryptedDatas)
             {
                 DecryptEncryptedData(encryptedData, key);
             }
-            sw.Stop();
-            LogManager.GetCurrentClassLogger().Trace($"Decrypting message took {sw.ElapsedMilliseconds} milliseconds");
+
             _as4EncryptedKey = as4EncryptedKey;
         }
 
