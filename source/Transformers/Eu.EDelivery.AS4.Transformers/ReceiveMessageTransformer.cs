@@ -49,9 +49,6 @@ namespace Eu.EDelivery.AS4.Transformers
 
         private static async Task<VirtualStream> CopyIncomingStreamToVirtualStream(ReceivedMessage receivedMessage)
         {
-            var sw = new Stopwatch();
-            sw.Start();
-
             VirtualStream messageStream =
                 VirtualStream.CreateVirtualStream(
                     receivedMessage.UnderlyingStream.CanSeek
@@ -62,8 +59,7 @@ namespace Eu.EDelivery.AS4.Transformers
             await receivedMessage.UnderlyingStream.CopyToFastAsync(messageStream);
 
             messageStream.Position = 0;
-            sw.Stop();
-            LogManager.GetCurrentClassLogger().Trace($"ReceiveMessageTransformer took {sw.ElapsedMilliseconds} milliseconds");
+            
             return messageStream;
         }
     }

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Threading;
@@ -79,16 +78,10 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
             var compressionLevel = DetermineCompressionLevelFor(attachment);
 
-            var sw = new Stopwatch();
-            sw.Start();
-
             using (var gzipCompression = new GZipStream(outputStream, compressionLevel, leaveOpen: true))
             {
                 attachment.Content.CopyTo(gzipCompression);
             }
-
-            sw.Stop();
-            Logger.Trace($"Compress took {sw.ElapsedMilliseconds} milliseconds");
 
             outputStream.Position = 0;
             attachment.Content = outputStream;

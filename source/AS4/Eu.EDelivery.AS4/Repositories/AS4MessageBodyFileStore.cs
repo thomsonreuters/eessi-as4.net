@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -7,7 +6,6 @@ using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Streaming;
 using Eu.EDelivery.AS4.Utilities;
-using NLog;
 
 namespace Eu.EDelivery.AS4.Repositories
 {
@@ -66,9 +64,6 @@ namespace Eu.EDelivery.AS4.Repositories
             string storeLocation = EnsureStoreLocation(location);
             string fileName = AssembleUniqueMessageLocation(storeLocation);
 
-            var sw = new Stopwatch();
-            sw.Start();
-
             if (!File.Exists(fileName))
             {
                 var sourceFile = GetFileStreamForSourceStream(as4MessageStream);
@@ -87,9 +82,6 @@ namespace Eu.EDelivery.AS4.Repositories
                     }
                 }
             }
-
-            sw.Stop();
-            LogManager.GetCurrentClassLogger().Trace($"Saving stream took {sw.ElapsedMilliseconds} millisecs");
 
             return $"file:///{fileName}";
         }
@@ -154,9 +146,6 @@ namespace Eu.EDelivery.AS4.Repositories
 
         private void SaveMessageToFile(AS4Message message, string fileName)
         {
-            var sw = new Stopwatch();
-            sw.Start();
-
             using (FileStream content = File.Create(fileName))
             {
                 File.SetAttributes(fileName, FileAttributes.NotContentIndexed);
@@ -164,9 +153,6 @@ namespace Eu.EDelivery.AS4.Repositories
                 ISerializer serializer = _provider.Get(message.ContentType);
                 serializer.Serialize(message, content, CancellationToken.None);
             }
-
-            sw.Stop();
-            LogManager.GetCurrentClassLogger().Trace($"Saving AS4 Message to file took {sw.ElapsedMilliseconds} millisecs");
         }
 
         /// <summary>

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
@@ -302,9 +301,6 @@ namespace Eu.EDelivery.AS4.Receivers
             {
                 Logger.Trace("Start copying to VirtualStream");
 
-                var sw = new Stopwatch();
-                sw.Start();
-
                 VirtualStream.MemoryFlag flag = request.ContentLength64 > VirtualStream.ThresholdMax
                     ? VirtualStream.MemoryFlag.OnlyToDisk
                     : VirtualStream.MemoryFlag.AutoOverFlowToDisk;
@@ -319,8 +315,7 @@ namespace Eu.EDelivery.AS4.Receivers
                 await request.InputStream.CopyToFastAsync(destinationStream).ConfigureAwait(false);
 
                 destinationStream.Position = 0;
-                sw.Stop();
-                Logger.Trace($"HttpReceiver to VirtualStream took {sw.ElapsedMilliseconds} milliseconds");
+
                 return new ReceivedMessage(destinationStream, request.ContentType);
             }
 
