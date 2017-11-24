@@ -73,6 +73,7 @@
         <Type>FILE</Type>
         <Parameters>
           <Parameter name="location" value=".\messages\in\" />
+          <Parameter name="AllowOverwrite" value="true" />
         </Parameters>
       </PayloadReferenceMethod>
       <DeliverMethod>
