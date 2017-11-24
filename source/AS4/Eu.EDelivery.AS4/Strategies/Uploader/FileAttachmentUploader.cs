@@ -34,6 +34,11 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
         [Description(PayloadFileNameFactory.PatternDocumentation)]
         private string NamePattern => _method["filenameformat"]?.Value;
 
+        [Info("Allow overwrite")]
+        [Description("When Allow overwrite is set to true, the file will be overwritten if it already exists.\n\r" +
+                     "When set to false, an attempt will be made to create a new unique filename. The default is false.")]
+        private string AllowOverwrite => _method["allowoverwrite"]?.Value;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="FileAttachmentUploader" /> class.
         /// Create a Payload Uploader for the file system
@@ -61,7 +66,9 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
             string downloadUrl = AssembleFileDownloadUrlFor(attachment, referringUserMessage);
             string attachmentFilePath = Path.GetFullPath(downloadUrl);
 
-            string uploadLocation = await TryUploadAttachment(attachment, attachmentFilePath).ConfigureAwait(false);
+            bool allowOverwrite = DetermineAllowOverwrite();
+
+            string uploadLocation = await TryUploadAttachment(attachment, attachmentFilePath, allowOverwrite).ConfigureAwait(false);
             return new UploadResult { DownloadUrl = uploadLocation };
         }
 
@@ -76,13 +83,28 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
             return Path.Combine(Location, fileName);
         }
 
-        private static async Task<string> TryUploadAttachment(Attachment attachment, string attachmentFilePath)
+        private bool DetermineAllowOverwrite()
+        {
+            if (String.IsNullOrEmpty(AllowOverwrite))
+            {
+                return false;
+            }
+
+            if (Boolean.TryParse(AllowOverwrite, out bool allowOverwrite))
+            {
+                return allowOverwrite;
+            }
+
+            return false;
+        }
+
+        private static async Task<string> TryUploadAttachment(Attachment attachment, string attachmentFilePath, bool allowOverwrite)
         {
             try
             {
                 try
                 {
-                    return await UploadAttachment(attachment, attachmentFilePath).ConfigureAwait(false);
+                    return await UploadAttachment(attachment, attachmentFilePath, allowOverwrite).ConfigureAwait(false);
                 }
                 // Filter IOExceptions on a specific HResult.
                 // -2147024816 is the HResult if the IOException is thrown because the file already exists.
@@ -96,26 +118,34 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
                     // still possible that, under heavy load, another file has been created
                     // with the same name as the unique name that we've generated.
                     // Therefore, retry again.
-                    return await TryUploadAttachment(attachment, attachmentFilePath);
+                    return await TryUploadAttachment(attachment, attachmentFilePath, allowOverwrite);
                 }
             }
             catch (Exception ex)
             {
                 Logger.Error($"An error occured while uploading the attachment: {ex.Message}");
-                string description = $"Unable to upload attachment {attachment.Id} to {attachment.Location}";
+                string description = $"Unable to upload attachment {attachment.Id}";
 
                 throw new IOException(description, ex);
             }
         }
 
-        private static async Task<string> UploadAttachment(Attachment attachment, string attachmentFilePath)
+        private static async Task<string> UploadAttachment(Attachment attachment, string attachmentFilePath, bool overwriteExisting)
         {
             // Create the directory, if it does not exist.
             Directory.CreateDirectory(Path.GetDirectoryName(attachmentFilePath));
 
-            attachmentFilePath = FilenameUtils.EnsureFilenameIsUnique(attachmentFilePath);
+            FileMode mode = FileMode.Create;
 
-            using (FileStream fileStream = FileUtils.CreateNewAsync(attachmentFilePath, FileOptions.SequentialScan))
+            if (overwriteExisting == false)
+            {
+                attachmentFilePath = FilenameUtils.EnsureFilenameIsUnique(attachmentFilePath);
+                mode = FileMode.CreateNew;
+            }
+
+            Logger.Trace($"Trying to upload attachment {attachment.Id} to {attachmentFilePath}");
+
+            using (FileStream fileStream = new FileStream(attachmentFilePath, mode, FileAccess.Write, FileShare.None, 4096, FileOptions.Asynchronous | FileOptions.SequentialScan))
             {
                 await attachment.Content.CopyToFastAsync(fileStream).ConfigureAwait(false);
             }
