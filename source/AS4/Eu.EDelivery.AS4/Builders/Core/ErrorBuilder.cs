@@ -76,8 +76,6 @@ namespace Eu.EDelivery.AS4.Builders.Core
 
         private static ErrorDetail CreateErrorDetail(ErrorResult error)
         {
-            LogManager.GetCurrentClassLogger().Debug("Adds detail: " + error.Description);
-
             return new ErrorDetail
             {
                 Detail = error.Description,
