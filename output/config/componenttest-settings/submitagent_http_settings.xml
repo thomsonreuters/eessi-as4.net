@@ -12,19 +12,19 @@
   </Database>
   <CertificateStore>
     <StoreName>My</StoreName>
-    <Repository type="Eu.EDelivery.AS4.Repositories.CertificateRepository, Eu.EDelivery.AS4, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+    <Repository type="Eu.EDelivery.AS4.Repositories.CertificateRepository, Eu.EDelivery.AS4, Version=2.0.1.0, Culture=neutral, PublicKeyToken=null" />
   </CertificateStore>
   <Agents>
     <SubmitAgent name="FILE Submit Agent">
-      <Receiver type="Eu.EDelivery.AS4.Receivers.HttpReceiver, Eu.EDelivery.AS4.Receivers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <Receiver type="Eu.EDelivery.AS4.Receivers.HttpReceiver, Eu.EDelivery.AS4.Receivers, Version=2.0.1.0, Culture=neutral, PublicKeyToken=null">
         <Setting key="Url">http://localhost:7070/msh/</Setting>
       </Receiver>
-      <Transformer type="Eu.EDelivery.AS4.Transformers.SubmitMessageXmlTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+      <Transformer type="Eu.EDelivery.AS4.Transformers.SubmitMessageXmlTransformer, Eu.EDelivery.AS4.Transformers, Version=2.0.1.0, Culture=neutral, PublicKeyToken=null" />
       <StepConfiguration>
         <NormalPipeline>
-          <Step type="Eu.EDelivery.AS4.Steps.Submit.RetrieveSendingPModeStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"/>
-          <Step type="Eu.EDelivery.AS4.Steps.Submit.CreateAS4MessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"/>
-          <Step type="Eu.EDelivery.AS4.Steps.Submit.StoreAS4MessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+          <Step type="Eu.EDelivery.AS4.Steps.Submit.RetrieveSendingPModeStep, Eu.EDelivery.AS4.Steps, Version=2.0.1.0, Culture=neutral, PublicKeyToken=null"/>
+          <Step type="Eu.EDelivery.AS4.Steps.Submit.CreateAS4MessageStep, Eu.EDelivery.AS4.Steps, Version=2.0.1.0, Culture=neutral, PublicKeyToken=null"/>
+          <Step type="Eu.EDelivery.AS4.Steps.Submit.StoreAS4MessageStep, Eu.EDelivery.AS4.Steps, Version=2.0.1.0, Culture=neutral, PublicKeyToken=null" />
         </NormalPipeline>
       </StepConfiguration>
     </SubmitAgent>
