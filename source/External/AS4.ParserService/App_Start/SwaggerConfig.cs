@@ -101,6 +101,7 @@ namespace AS4.ParserService
                         // more Xml comment files.
                         //
                         //c.IncludeXmlComments(GetXmlCommentsPath());
+                        c.IncludeXmlComments($@"{System.Web.HttpRuntime.AppDomainAppPath}\bin\AS4.ParserService.xml");
 
                         // Swashbuckle makes a best attempt at generating Swagger compliant JSON schemas for the various types
                         // exposed in your API. However, there may be occasions when more control of the output is needed.
