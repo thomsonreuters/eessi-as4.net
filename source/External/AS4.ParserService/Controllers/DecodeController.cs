@@ -23,33 +23,39 @@ namespace AS4.ParserService.Controllers
             return Ok("AS4.NET Decode");
         }
 
+        /// <summary>
+        /// Processes a received AS4 Message using the specified Receiving PMode.
+        /// </summary>
+        /// <param name="decodeInfo">An <see cref="DecodeMessageInfo"/> instance that contains all information that is required to decode 
+        /// the received AS4 Message</param>
+        /// <returns></returns>
         [HttpPost]
         [SwaggerResponse(HttpStatusCode.OK,
             description:
-            "When the Decode process succeeded, a DecodeResult that contains the Deliver information, payloads and signalmessage is returned.",
+            "When the Decode process succeeded, a DecodeResult that contains the Deliver information, payloads and the responding signalmessage is returned.",
             type: typeof(DecodeResult))]
         [SwaggerResponse(HttpStatusCode.Accepted, description: "The message has been accepted")]
         [SwaggerResponse(HttpStatusCode.BadRequest,
             description: "When the given DecodeMessageInfo object does not contain a Receiving PMode or a Responding PMode, a Bad Request is returned")]
         [SwaggerResponse(HttpStatusCode.InternalServerError, description: "Something went wrong while creating the requested AS4 Message",
             type: typeof(Exception))]
-        public async Task<IHttpActionResult> Post([FromBody] DecodeMessageInfo info)
+        public async Task<IHttpActionResult> Post([FromBody] DecodeMessageInfo decodeInfo)
         {
-            if (info?.ReceivingPMode == null || info.RespondingPMode == null)
+            if (decodeInfo?.ReceivingPMode == null || decodeInfo.RespondingPMode == null)
             {
                 return BadRequest();
             }
 
             var certificateInformation = CertificateInfoRetriever.RetrieveCertificatePassword(this.Request);
 
-            info.DecryptionCertificatePassword = certificateInformation.DecryptionPassword;
-            info.SigningResponseCertificatePassword = certificateInformation.SigningPassword;
+            decodeInfo.DecryptionCertificatePassword = certificateInformation.DecryptionPassword;
+            decodeInfo.SigningResponseCertificatePassword = certificateInformation.SigningPassword;
 
             try
             {
                 var service = new DecodeService();
 
-                var processingResult = await service.Process(info);
+                var processingResult = await service.Process(decodeInfo);
 
                 if (processingResult == null || processingResult.ReceivedMessageType == EbmsMessageType.Unknown)
                 {
