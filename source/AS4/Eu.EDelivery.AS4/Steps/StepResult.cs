@@ -69,5 +69,10 @@ namespace Eu.EDelivery.AS4.Steps
         {
             return Task.FromResult(Success(message));
         }
+
+        public static Task<StepResult> FailedAsync(MessagingContext context)
+        {
+            return Task.FromResult(Failed(context));
+        }
     }
 }
