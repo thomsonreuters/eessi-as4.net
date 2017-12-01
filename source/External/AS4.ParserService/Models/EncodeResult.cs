@@ -1,5 +1,8 @@
 ﻿namespace AS4.ParserService.Models
 {
+    /// <summary>
+    /// Contains the result of the Encode AS4 operation.
+    /// </summary>
     public class EncodeResult
     {
         /// <summary>
@@ -11,6 +14,11 @@
         /// The AS4Message that must be sent.
         /// </summary>
         public byte[] AS4Message { get; set; }
+
+        /// <summary>
+        /// The Ebms Id that is assigned to the AS4 Message that has been created.
+        /// </summary>
+        public string EbmsMessageId { get; set; }
 
         /// <summary>
         /// The ContentType of the AS4Message.

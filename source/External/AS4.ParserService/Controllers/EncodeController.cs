@@ -1,8 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Net;
-using System.Net.Http;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web.Http;
@@ -81,7 +79,8 @@ namespace AS4.ParserService.Controllers
                 {
                     SendToUrl = context.SendingPMode.PushConfiguration.Protocol.Url,
                     AS4Message = stream.ToArray(),
-                    ContentType = context.AS4Message.ContentType.Replace("\"utf-8\"", "utf-8")
+                    ContentType = context.AS4Message.ContentType.Replace("\"utf-8\"", "utf-8"),
+                    EbmsMessageId = context.AS4Message.GetPrimaryMessageId()
                 };
 
                 return result;
