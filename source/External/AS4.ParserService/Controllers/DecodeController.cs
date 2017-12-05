@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 using AS4.ParserService.Infrastructure;
@@ -41,7 +38,7 @@ namespace AS4.ParserService.Controllers
             type: typeof(Exception))]
         public async Task<IHttpActionResult> Post([FromBody] DecodeMessageInfo decodeInfo)
         {
-            if (decodeInfo?.ReceivingPMode == null || decodeInfo.RespondingPMode == null)
+            if (decodeInfo == null)
             {
                 return BadRequest();
             }
