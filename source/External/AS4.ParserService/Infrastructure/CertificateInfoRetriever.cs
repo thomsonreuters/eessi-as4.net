@@ -41,7 +41,7 @@ namespace AS4.ParserService.Infrastructure
             DecryptionPassword = decryptPwd;
         }
 
-        public string SigningPassword { get; }
-        public string DecryptionPassword { get; }
+        public string SigningPassword { get; set; }
+        public string DecryptionPassword { get; set; }
     }
 }
