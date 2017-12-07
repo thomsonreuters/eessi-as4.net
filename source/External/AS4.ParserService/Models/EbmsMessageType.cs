@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-
-namespace AS4.ParserService.Models
+﻿namespace AS4.ParserService.Models
 {
     public enum EbmsMessageType
     {
