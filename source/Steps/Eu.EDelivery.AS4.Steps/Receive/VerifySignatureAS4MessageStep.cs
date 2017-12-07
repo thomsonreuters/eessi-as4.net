@@ -77,7 +77,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
         private static async Task<StepResult> VerifySignature(MessagingContext messagingContext)
         {
-            if (!IsValidSignature(messagingContext.AS4Message))
+            if (!IsValidSignature(messagingContext.AS4Message, CreateVerifyOptionsForAS4Message(messagingContext.AS4Message, messagingContext.ReceivingPMode)))
             {
                 string description = "The signature is invalid";
                 Logger.Error(description);
@@ -94,18 +94,17 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             return await StepResult.SuccessAsync(messagingContext);
         }
 
-        private static bool IsValidSignature(AS4Message as4Message)
+        private static bool IsValidSignature(AS4Message as4Message, VerifySignatureConfig options)
         {
-            VerifyConfig options = CreateVerifyOptionsForAS4Message(as4Message);
-
             return as4Message.SecurityHeader.Verify(options);
         }
 
-        private static VerifyConfig CreateVerifyOptionsForAS4Message(AS4Message as4Message)
+        private static VerifySignatureConfig CreateVerifyOptionsForAS4Message(AS4Message as4Message, ReceivingProcessingMode pmode)
         {
-            return new VerifyConfig
+            return new VerifySignatureConfig
             {
-                Attachments = as4Message.Attachments
+                Attachments = as4Message.Attachments,
+                AllowUnknownRootCertificateAuthority = pmode.Security.SigningVerification.AllowUnknownRootCertificate
             };
         }
 

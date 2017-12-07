@@ -255,9 +255,9 @@ namespace Eu.EDelivery.AS4.Security.Strategies
         /// </summary>
         /// <param name="options"></param>
         /// <returns></returns>
-        public bool VerifySignature(VerifyConfig options)
+        public bool VerifySignature(VerifySignatureConfig options)
         {
-            if (!VerifyCertificate(SecurityTokenReference.Certificate, out X509ChainStatus[] status))
+            if (!VerifyCertificate(SecurityTokenReference.Certificate, options.AllowUnknownRootCertificateAuthority, out X509ChainStatus[] status))
             {
                 throw new CryptographicException($"The signing certificate is not trusted: {string.Join(" ", status.Select(s => s.StatusInformation))}");
             }
@@ -280,11 +280,17 @@ namespace Eu.EDelivery.AS4.Security.Strategies
             return xmlSignature;
         }
 
-        private static bool VerifyCertificate(X509Certificate2 certificate, out X509ChainStatus[] errorMessages)
+        private static bool VerifyCertificate(X509Certificate2 certificate, bool allowUnknownRootAuthority, out X509ChainStatus[] errorMessages)
         {
             using (var chain = new X509Chain())
             {
                 chain.ChainPolicy.RevocationMode = X509RevocationMode.NoCheck; // TODO: Make this configurable
+
+                if (allowUnknownRootAuthority)
+                {
+                    chain.ChainPolicy.VerificationFlags = X509VerificationFlags.AllowUnknownCertificateAuthority;
+                }
+
                 bool isValid = chain.Build(certificate);
 
                 errorMessages = isValid ? new X509ChainStatus[] { } : chain.ChainStatus;
