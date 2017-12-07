@@ -413,7 +413,7 @@
     <Compile Include="Security\Repositories\KeyInfoRepository.cs" />
     <Compile Include="Security\Repositories\SignedXmlRepository.cs" />
     <Compile Include="Security\Serializers\EncryptedDataSerializer.cs" />
-    <Compile Include="Security\Signing\VerifyConfig.cs" />
+    <Compile Include="Security\Signing\VerifySignatureConfig.cs" />
     <Compile Include="Security\Algorithms\AesGcmAlgorithm.cs" />
     <Compile Include="Security\Strategies\EncryptionStrategy.cs" />
     <Compile Include="Security\Strategies\IEncryptionStrategy.cs" />

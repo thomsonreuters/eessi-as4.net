@@ -175,9 +175,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Strategies
             }
         }
 
-        protected VerifyConfig EmptyVerifyConfig()
+        protected VerifySignatureConfig EmptyVerifyConfig()
         {
-            return new VerifyConfig {Attachments = new List<Attachment>()};
+            return new VerifySignatureConfig {Attachments = new List<Attachment>()};
         }
     }
 }

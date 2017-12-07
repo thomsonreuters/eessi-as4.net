@@ -77,6 +77,7 @@
   <xs:complexType name="SigningVerification">
     <xs:sequence>
       <xs:element minOccurs="1" maxOccurs="1" name="Signature" type="tns:Limit" />
+      <xs:element minOccurs="0" maxOccurs="1" default="false" name="AllowUnknownRootCertificate" type="xs:boolean" />
     </xs:sequence>
   </xs:complexType>
   <xs:simpleType name="Limit">

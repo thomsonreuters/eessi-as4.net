@@ -184,9 +184,15 @@ namespace Eu.EDelivery.AS4.Model.PMode
         [Description("Signature verification")]
         public Limit Signature { get; set; }
 
+        [DefaultValue(false)]
+        [Description("Allow unknown root certificate authority")]
+        [Info("When set to true, signature verification will not fail if the certificate chain ends in a root certificate that is not trusted. The default value is false.")]
+        public bool AllowUnknownRootCertificate { get; set; }
+
         public SigningVerification()
         {
             Signature = Limit.Allowed;
+            AllowUnknownRootCertificate = false;
         }
     }
 

@@ -89,7 +89,7 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// <param name="options"> The options. </param>
         /// <returns>
         /// </returns>
-        public bool Verify(VerifyConfig options)
+        public bool Verify(VerifySignatureConfig options)
         {
             return _signingStrategy.VerifySignature(options);
         }
