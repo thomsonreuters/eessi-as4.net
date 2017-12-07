@@ -91,6 +91,8 @@ namespace Eu.EDelivery.AS4.Steps.Send
             {
                 string contentType = messagingContext.ReceivedMessage?.ContentType ?? messagingContext.AS4Message.ContentType;
 
+                contentType = contentType.Replace("charset=\"utf-8\"", "");
+
                 HttpWebRequest request = CreateWebRequest(sendConfiguration, contentType);
 
                 if (await TryWriteToHttpRequestStreamAsync(request, messagingContext).ConfigureAwait(false))
