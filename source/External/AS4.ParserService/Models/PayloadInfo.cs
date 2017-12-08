@@ -1,4 +1,7 @@
-﻿namespace AS4.ParserService.Models
+﻿using System;
+using System.Linq;
+
+namespace AS4.ParserService.Models
 {
 
     /// <summary>
@@ -13,9 +16,9 @@
         {
         }
 
-        public PayloadInfo(string fileName, string contentType, byte[] content)
+        public PayloadInfo(string payloadId, string contentType, byte[] content)
         {
-            PayloadName= fileName;
+            PayloadName = payloadId;
             ContentType = contentType;
             Content = content;
         }
@@ -24,6 +27,32 @@
         /// The name of the payload. 
         /// </summary>
         public string PayloadName { get; set; }
+
+        /// <summary>
+        /// The filename that can be used to save the payload on a filesystem.
+        /// </summary>
+        public string PayloadFilename
+        {
+            get
+            {
+                if (String.IsNullOrWhiteSpace(ContentType))
+                {
+                    return PayloadName;
+                }
+
+                // TODO: refactor, put in another class and make sure that text/xml is also handled,
+                // since the method below doesn't cover it.
+                var extension = new MimeSharp.Mime().Extension(ContentType).FirstOrDefault();
+
+                if (extension == null)
+                {
+                    return PayloadName;
+                }
+
+                return $"{PayloadName}{extension}";
+            }
+
+        }
 
         /// <summary>
         /// The content-type of the payload.
