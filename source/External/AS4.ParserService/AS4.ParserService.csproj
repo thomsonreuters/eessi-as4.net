@@ -139,6 +139,7 @@
     </Compile>
     <Compile Include="Infrastructure\CertificateInfoRetriever.cs" />
     <Compile Include="Infrastructure\Deserializer.cs" />
+    <Compile Include="Infrastructure\MimeTypeMapper.cs" />
     <Compile Include="Infrastructure\Serializer.cs" />
     <Compile Include="Infrastructure\StepProcessor.cs" />
     <Compile Include="Infrastructure\StepRegistry.cs" />

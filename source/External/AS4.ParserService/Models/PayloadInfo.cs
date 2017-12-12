@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Linq;
+using AS4.ParserService.Infrastructure;
 
 namespace AS4.ParserService.Models
 {
@@ -40,9 +40,7 @@ namespace AS4.ParserService.Models
                     return PayloadName;
                 }
 
-                // TODO: refactor, put in another class and make sure that text/xml is also handled,
-                // since the method below doesn't cover it.
-                var extension = new MimeSharp.Mime().Extension(ContentType).FirstOrDefault();
+                var extension = MimeTypeMapper.GetExtensionFor(ContentType);
 
                 if (extension == null)
                 {
