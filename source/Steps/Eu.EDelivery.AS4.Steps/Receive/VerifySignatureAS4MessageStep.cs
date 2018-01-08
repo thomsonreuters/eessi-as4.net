@@ -104,7 +104,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             return new VerifySignatureConfig
             {
                 Attachments = as4Message.Attachments,
-                AllowUnknownRootCertificateAuthority = pmode.Security.SigningVerification.AllowUnknownRootCertificate
+                AllowUnknownRootCertificateAuthority = pmode?.Security?.SigningVerification?.AllowUnknownRootCertificate ?? false
             };
         }
 
