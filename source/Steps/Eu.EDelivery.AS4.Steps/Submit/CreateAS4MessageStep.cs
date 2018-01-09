@@ -3,12 +3,14 @@ using System.ComponentModel;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
+using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.Submit;
 using Eu.EDelivery.AS4.Singletons;
 using Eu.EDelivery.AS4.Strategies.Retriever;
+using Eu.EDelivery.AS4.Validators;
 using NLog;
 
 namespace Eu.EDelivery.AS4.Steps.Submit
@@ -21,6 +23,8 @@ namespace Eu.EDelivery.AS4.Steps.Submit
     public class CreateAS4MessageStep : IStep
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+        private static readonly SubmitMessageValidator SubmitValidator = new SubmitMessageValidator();
+
         private readonly IPayloadRetrieverProvider _payloadProvider;
 
         /// <summary>
@@ -47,26 +51,47 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
         {
             AS4Message as4Message = CreateAS4MessageFromSubmit(messagingContext);
-
             await RetrieveAttachmentsForAS4Message(as4Message, messagingContext).ConfigureAwait(false);
 
             messagingContext.ModifyContext(as4Message);
-
             return StepResult.Success(messagingContext);
         }
 
         private static AS4Message CreateAS4MessageFromSubmit(MessagingContext messagingContext)
         {
+            ValidateSubmitMessage(messagingContext.SubmitMessage);
+
             UserMessage userMessage = CreateUserMessage(messagingContext);
             Logger.Info($"UserMessage with Id {userMessage.MessageId} created from Submit Message");
 
             return AS4Message.Create(userMessage, messagingContext.SendingPMode);
         }
 
+        private static void ValidateSubmitMessage(SubmitMessage submitMessage)
+        {
+            SubmitValidator
+                .Validate(submitMessage)
+                .Result(
+                    result => Logger.Debug($"Submit Message {submitMessage.MessageInfo.MessageId} is valid"),
+                    result =>
+                    {
+                        result.LogErrors(Logger);
+                        throw ThrowInvalidSubmitMessageException(submitMessage);
+                        
+                    });
+        }
+
+        private static InvalidMessageException ThrowInvalidSubmitMessageException(SubmitMessage submitMessage)
+        {
+            string description = $"Submit Message {submitMessage.MessageInfo.MessageId} was invalid, see logging";
+            Logger.Error(description);
+
+            return new InvalidMessageException(description);
+        }
+
         private static UserMessage CreateUserMessage(MessagingContext messagingContext)
         {
             Logger.Debug("Create UserMessage for Submit Message");
-
             return AS4Mapper.Map<UserMessage>(messagingContext.SubmitMessage);
         }
 
@@ -101,7 +126,10 @@ namespace Eu.EDelivery.AS4.Steps.Submit
 
         private async Task<System.IO.Stream> RetrieveAttachmentContent(Payload payload)
         {
-            return await _payloadProvider.Get(payload).RetrievePayloadAsync(payload.Location).ConfigureAwait(false);
+            return await _payloadProvider
+                .Get(payload)
+                .RetrievePayloadAsync(payload.Location)
+                .ConfigureAwait(false);
         }
     }
 }

@@ -63,22 +63,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
         }
 
         [Fact]
-        public async Task SubmitMessageWithoutPModeIdIsNotAccepted()
-        {
-            // Arrange
-            var submitMessage = new SubmitMessage
-            {
-                Collaboration = new CollaborationInfo {AgreementRef = new Agreement {PModeId = string.Empty}}
-            };
-            ReceivedMessage receivedMessage = CreateMessageFrom(submitMessage);
-
-            // Act / Assert
-            await Assert.ThrowsAnyAsync<Exception>(() => Transform(receivedMessage));
-
-            receivedMessage.UnderlyingStream.Dispose();
-        }
-
-        [Fact]
         public async Task TransformSubmitMessageFailsDeserializing()
         {
             // Arrange
@@ -87,17 +71,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
 
             // Act / Assert
             await Assert.ThrowsAnyAsync<Exception>(() => Transform(receivedMessage));
-        }
-
-        [Fact]
-        public async Task TransformFails_IfInvalidSubmitMessage()
-        {
-            // Arrange
-            var invalidMessage = new SubmitMessage {Collaboration = null};
-            ReceivedMessage receivedmessage = CreateMessageFrom(invalidMessage);
-
-            // Act / Assert
-            await Assert.ThrowsAnyAsync<Exception>(() => Transform(receivedmessage));
         }
 
         protected async Task<MessagingContext> Transform(ReceivedMessage message)

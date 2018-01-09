@@ -30,7 +30,6 @@ namespace Eu.EDelivery.AS4.Transformers
             Logger.Info("Transforming ReceivedMessage to MessagingContext");
 
             SubmitMessage submitMessage = DeserializeSubmitMessage(message.UnderlyingStream);
-            ValidateSubmitMessage(submitMessage);
 
             return await Task.FromResult(new MessagingContext(submitMessage));
         }
@@ -49,26 +48,6 @@ namespace Eu.EDelivery.AS4.Transformers
             }
         }
 
-        private static void ValidateSubmitMessage(SubmitMessage submitMessage)
-        {
-            var validator = new SubmitMessageValidator();
 
-            validator.Validate(submitMessage)
-                     .Result(
-                         result => Logger.Debug($"Submit Message {submitMessage.MessageInfo.MessageId} is valid"),
-                         result =>
-                         {
-                             result.LogErrors(Logger);
-                             throw ThrowInvalidSubmitMessageException(submitMessage);
-                         });
-        }
-
-        private static InvalidMessageException ThrowInvalidSubmitMessageException(SubmitMessage submitMessage)
-        {
-            string description = $"Submit Message {submitMessage.MessageInfo.MessageId} was invalid, see logging";
-            Logger.Error(description);
-
-            return new InvalidMessageException(description);
-        }
     }
 }
