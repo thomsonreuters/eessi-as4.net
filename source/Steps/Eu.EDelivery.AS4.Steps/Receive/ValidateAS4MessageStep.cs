@@ -37,8 +37,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             if (SoapBodyIsNotEmpty(context.AS4Message))
             {                
                 context.ErrorResult = SoapBodyAttachmentsNotSupported();
-                Logger.Error($"AS4 Message {context.AS4Message.GetPrimaryMessageId()} is not valid: {context.ErrorResult.Description}");
-                return StepResult.Failed(context);
+                return ValidationFailure(context);
             }
 
             IEnumerable<PartInfo> invalidPartInfos =
@@ -47,9 +46,8 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
             if (invalidPartInfos.Any())
             {
-                context.ErrorResult = ExternalPayloadError(invalidPartInfos);
-                Logger.Error($"AS4 Message {context.AS4Message.GetPrimaryMessageId()} is not valid: {context.ErrorResult.Description}");
-                return StepResult.Failed(context);
+                context.ErrorResult = ExternalPayloadError();
+                return ValidationFailure(context);
             }
 
             if (context.AS4Message.IsUserMessage)
@@ -62,45 +60,65 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
                 if (noAttachmentCanBeFoundForEachPartInfo)
                 {
-                    context.ErrorResult = InvalidHeaderError();
-                    Logger.Error($"AS4 Message {context.AS4Message.GetPrimaryMessageId()} is not valid: {context.ErrorResult.Description}");
-                    return StepResult.Failed(context);
+                    context.ErrorResult = AttachmentNotFoundInvalidHeaderError();
+                    return ValidationFailure(context);
+                }
+
+                if (message.PrimaryUserMessage.PayloadInfo?.GroupBy(p => p.Href).All(g => g.Count() == 1) == false)
+                {
+                    context.ErrorResult = DuplicateAttachmentInvalidHeaderError();
+                    return ValidationFailure(context);
                 }
             }
 
             Logger.Info("Received AS4 Message is valid");
-
-            return StepResult.Success(context);
+            return await StepResult.SuccessAsync(context);
         }
 
         private static bool SoapBodyIsNotEmpty(AS4Message message)
         {
-            var bodyNode = message.EnvelopeDocument.SelectSingleNode("/soap12:Envelope/soap12:Body", Namespaces);
+            XmlNode bodyNode = message.EnvelopeDocument.SelectSingleNode("/soap12:Envelope/soap12:Body", Namespaces);
 
             if (bodyNode != null && String.IsNullOrWhiteSpace(bodyNode.InnerText) == false)
             {
                 return true;
             }
+
             return false;
         }
 
         private static ErrorResult SoapBodyAttachmentsNotSupported()
         {
-            return new ErrorResult("Attachments in the soap body are not supported.", ErrorAlias.FeatureNotSupported);
+            return new ErrorResult(
+                "Attachments in the soap body are not supported.", 
+                ErrorAlias.FeatureNotSupported);
         }
 
-        private static ErrorResult ExternalPayloadError(IEnumerable<PartInfo> invalidPartInfos)
+        private static ErrorResult ExternalPayloadError()
         {
             return new ErrorResult(
                 "Attachments must be embedded in the MIME message and must be referred to in the PayloadInfo section using a PartyInfo with a cid href reference.",
                 ErrorAlias.ExternalPayloadError);
         }
 
-        private static ErrorResult InvalidHeaderError()
+        private static ErrorResult AttachmentNotFoundInvalidHeaderError()
         {
             return new ErrorResult(
                 "No Attachment can be found for each UserMessage PartInfo",
                 ErrorAlias.InvalidHeader);
+        }
+
+        private static ErrorResult DuplicateAttachmentInvalidHeaderError()
+        {
+            return new ErrorResult(
+                "AS4 Message is not allowed because it contains payloads that have the same PayloadId",
+                ErrorAlias.InvalidHeader);
+        }
+
+        private static StepResult ValidationFailure(MessagingContext context)
+        {
+            Logger.Error($"AS4 Message {context.AS4Message.GetPrimaryMessageId()} is not valid: {context.ErrorResult.Description}");
+            return StepResult.Failed(context);
         }
     }
 }

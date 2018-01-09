@@ -70,6 +70,18 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             Assert.True(result.Succeeded);            
         }
 
+        [Fact]
+        public async Task ValidationFailure_IfUserMessageContainsDuplicatePayloadIds()
+        {
+            const string contentType = "multipart/related; boundary=\"=-M9awlqbs/xWAPxlvpSWrAg==\"; type=\"application/soap+xml\"; charset=\"utf-8\"";
+            AS4Message message = await BuildMessageFor(as4message_duplicate_payloads, contentType);
+
+            StepResult result = await ExerciseValidation(message);
+
+            Assert.False(result.Succeeded);
+            Assert.Equal(ErrorAlias.InvalidHeader, result.MessagingContext.ErrorResult.Alias);
+        }
+
         private static async Task<AS4Message> BuildMessageFor(byte[] as4MessageExternalPayloads, string contentType)
         {
             using (var stream = new MemoryStream(as4MessageExternalPayloads))
