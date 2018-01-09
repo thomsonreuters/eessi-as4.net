@@ -6,6 +6,7 @@ using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
+using Eu.EDelivery.AS4.Model.Submit;
 using Eu.EDelivery.AS4.Singletons;
 using Eu.EDelivery.AS4.Strategies.Retriever;
 using NLog;
@@ -64,7 +65,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
 
         private static UserMessage CreateUserMessage(MessagingContext messagingContext)
         {
-            Logger.Debug($"Create UserMessage for Submit Message");
+            Logger.Debug("Create UserMessage for Submit Message");
 
             return AS4Mapper.Map<UserMessage>(messagingContext.SubmitMessage);
         }

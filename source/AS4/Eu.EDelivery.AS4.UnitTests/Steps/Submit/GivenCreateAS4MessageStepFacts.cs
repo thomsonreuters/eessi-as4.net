@@ -1,26 +1,42 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using AutoMapper;
+using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Model.Submit;
+using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Steps.Submit;
 using Eu.EDelivery.AS4.UnitTests.Model.PMode;
 using Xunit;
-
+using Xunit.Abstractions;
+using Party = Eu.EDelivery.AS4.Model.Core.Party;
+using PartyId = Eu.EDelivery.AS4.Model.Core.PartyId;
+using PartyInfo = Eu.EDelivery.AS4.Model.PMode.PartyInfo;
 
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
 {
     public class GivenCreateAS4MessageStepFacts
     {
+        private readonly ITestOutputHelper _testLogger;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GivenCreateAS4MessageStepFacts" /> class.
+        /// </summary>
+        /// <param name="ouputHelper">The ouput helper.</param>
+        public GivenCreateAS4MessageStepFacts(ITestOutputHelper ouputHelper)
+        {
+            _testLogger = ouputHelper;
+        }
 
         [Fact]
         public async Task CanCreateMessageWithPModeWithoutToParty()
         {
+            // Arrange
             var sendingParty = CreatePModeParty("sender", "c2", "eu.edelivery.services");
 
             var pmode = CreateSendingPMode(fromParty: sendingParty, toParty: null);
@@ -29,16 +45,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
 
             var submitMessage = CreateSubmitMessage(pmode, fromParty: null, toParty: receivingParty);
 
-            var context = new MessagingContext(submitMessage);
-            context.SendingPMode = pmode;
+            var context = new MessagingContext(submitMessage) {SendingPMode = pmode};
 
-            var sut = new CreateAS4MessageStep();
+            // Act
+            var result = await ExerciseCreation(context);
 
-            var result = await sut.ExecuteAsync(context, CancellationToken.None);
-
+            // Assert
             Assert.True(result.Succeeded);
-
-            var as4Message = result.MessagingContext.AS4Message;
+            AS4Message as4Message = result.MessagingContext.AS4Message;
 
             Assert.False(as4Message.IsEmpty);
             Assert.True(as4Message.IsUserMessage);
@@ -50,6 +64,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
         [Fact]
         public async Task CanCreateMessageWithPModeWithoutFromParty()
         {
+            // Arrange
             var receivingParty = CreatePModeParty("receiver", "c3", "eu.edelivery.services");
 
             var pmode = CreateSendingPMode(fromParty: null, toParty: receivingParty);
@@ -58,15 +73,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
 
             var submitMessage = CreateSubmitMessage(pmode, fromParty: fromParty, toParty: null);
 
-            var context = new MessagingContext(submitMessage);
-            context.SendingPMode = pmode;
+            var context = new MessagingContext(submitMessage) {SendingPMode = pmode};
 
-            var sut = new CreateAS4MessageStep();
+            // Act
+            StepResult result = await ExerciseCreation(context);
 
-            var result = await sut.ExecuteAsync(context, CancellationToken.None);
-
+            // Assert
             Assert.True(result.Succeeded);
-
             var as4Message = result.MessagingContext.AS4Message;
 
             Assert.False(as4Message.IsEmpty);
@@ -79,19 +92,19 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
         [Fact]
         public async Task MessageIsCreatedWithDefaultSender_IfNoneIsSpecified()
         {
+            // Arrange
             var receivingParty = CreatePModeParty("receiver", "c3", "eu.edelivery.services");
 
             var pmode = CreateSendingPMode(fromParty: null, toParty: receivingParty);
 
             var submitMessage = CreateSubmitMessage(pmode, fromParty: null, toParty: null);
 
-            var context = new MessagingContext(submitMessage);
-            context.SendingPMode = pmode;
+            var context = new MessagingContext(submitMessage) {SendingPMode = pmode};
 
-            var sut = new CreateAS4MessageStep();
+            // Act
+            var result = await ExerciseCreation(context);
 
-            var result = await sut.ExecuteAsync(context, CancellationToken.None);
-
+            // Assert
             Assert.True(result.Succeeded);
             Assert.Equal(Constants.Namespaces.EbmsDefaultFrom, result.MessagingContext.AS4Message.PrimaryUserMessage.Sender.PartyIds.First().Id);
             Assert.Equal(Constants.Namespaces.EbmsDefaultRole, result.MessagingContext.AS4Message.PrimaryUserMessage.Sender.Role);
@@ -100,65 +113,95 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
         [Fact]
         public async Task MessageIsCreatedWithDefaultReceiver_IfNoneIsSpecified()
         {            
+            // Arrange
             var pmode = CreateSendingPMode(fromParty: null, toParty: null);
 
             var submitMessage = CreateSubmitMessage(pmode, fromParty: null, toParty: null);
 
-            var context = new MessagingContext(submitMessage);
-            context.SendingPMode = pmode;
+            var context = new MessagingContext(submitMessage) {SendingPMode = pmode};
 
-            var sut = new CreateAS4MessageStep();
+            // Act
+            var result = await ExerciseCreation(context);
 
-            var result = await sut.ExecuteAsync(context, CancellationToken.None);
-
+            // Assert
             Assert.True(result.Succeeded);
             Assert.Equal(Constants.Namespaces.EbmsDefaultTo, result.MessagingContext.AS4Message.PrimaryUserMessage.Receiver.PartyIds.First().Id);
             Assert.Equal(Constants.Namespaces.EbmsDefaultRole, result.MessagingContext.AS4Message.PrimaryUserMessage.Receiver.Role);
         }
 
+        [Fact]
+        public async Task MessageIsntCreated_IfDuplicatePayloadIdsAreFound()
+        {
+            // Arrange
+            SendingProcessingMode pmode = ValidSendingPModeFactory.Create();
+            var submit = new SubmitMessage
+            {
+                PMode = pmode,
+                Payloads = new []
+                {
+                    new Payload("earth", "location", "mime"),
+                    new Payload("earth", "location", "mime")
+                }
+            };
+            var context = new MessagingContext(submit) {SendingPMode = pmode};
+
+            // Act / Assert
+            AutoMapperMappingException ex = 
+                await Assert.ThrowsAsync<AutoMapperMappingException>(() => ExerciseCreation(context));
+
+            _testLogger.WriteLine(ex.ToString());
+            Assert.IsType<InvalidDataException>(ex.InnerException);
+        }
+
+        [Obsolete("Do we have forgotten to specify the test?")]
         public void FailToCreateMessageWhenNoToPartyAvailable() { }
 
         private static Party CreatePModeParty(string role, string id, string type)
         {
-            return new Party(role, new PartyId() { Id = id, Type = type });
+            return new Party(role, new PartyId { Id = id, Type = type });
         }
 
         private static AS4.Model.Common.Party CreateSubmitMessageParty(string role, string type, string id)
         {
-            return new AS4.Model.Common.Party() { Role = role, PartyIds = new[] { new AS4.Model.Common.PartyId(id, type), } };
+            return new AS4.Model.Common.Party { Role = role, PartyIds = new[] { new AS4.Model.Common.PartyId(id, type), } };
         }
 
-        private static SubmitMessage CreateSubmitMessage(SendingProcessingMode pmode, AS4.Model.Common.Party fromParty, AS4.Model.Common.Party toParty)
+        private static SubmitMessage CreateSubmitMessage(
+            SendingProcessingMode pmode, 
+            AS4.Model.Common.Party fromParty, 
+            AS4.Model.Common.Party toParty)
         {
-            var msg = new SubmitMessage
+            return new SubmitMessage
             {
-                PartyInfo = new AS4.Model.Common.PartyInfo()
+                PartyInfo = new AS4.Model.Common.PartyInfo
                 {
                     FromParty = fromParty,
                     ToParty = toParty
-                }
+                },
+                PMode = pmode
             };
-
-            msg.PMode = pmode;
-
-            return msg;
         }
 
         private static SendingProcessingMode CreateSendingPMode(Party fromParty, Party toParty)
         {
-            var pmode = ValidSendingPModeFactory.Create();
+            SendingProcessingMode pmode = ValidSendingPModeFactory.Create();
 
-            pmode.MessagePackaging = new SendMessagePackaging()
+            pmode.MessagePackaging = new SendMessagePackaging
             {
-                PartyInfo = new PartyInfo()
+                PartyInfo = new PartyInfo
                 {
                     FromParty = fromParty,
                     ToParty = toParty
                 }
-
             };
 
             return pmode;
+        }
+
+        private static async Task<StepResult> ExerciseCreation(MessagingContext context)
+        {
+            var sut = new CreateAS4MessageStep();
+            return await sut.ExecuteAsync(context, CancellationToken.None);
         }
     }
 }

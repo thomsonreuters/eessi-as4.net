@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Eu.EDelivery.AS4.Factories;
 using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Core;
@@ -24,94 +25,79 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
         /// <returns></returns>
         public List<PartInfo> Resolve(SubmitMessage submitMessage)
         {
-            var returnPayloads = new List<PartInfo>();
             if (submitMessage.Payloads == null)
             {
-                return returnPayloads;
+                return Enumerable.Empty<PartInfo>().ToList();
             }
 
-            ResolvePartInfosFromSubmitMessage(submitMessage, returnPayloads);
-
-            return returnPayloads;
+            return ResolvePartInfosFromSubmitMessage(submitMessage).ToList();
         }
 
-        private static void ResolvePartInfosFromSubmitMessage(SubmitMessage submitMessage, List<PartInfo> returnPayloads)
+        private static IEnumerable<PartInfo> ResolvePartInfosFromSubmitMessage(SubmitMessage submitMessage)
         {
-            foreach (Payload submitPayload in submitMessage.Payloads)
+            bool submitContainsDuplicatePayloadIds = 
+                submitMessage.Payloads.GroupBy(p => p.Id).All(g => g.Count() == 1) == false;
+
+            if (submitContainsDuplicatePayloadIds)
             {
-                PartInfo returnPayload = CreatePartInfo(submitMessage, submitPayload);
-                returnPayloads.Add(returnPayload);
+                throw new InvalidDataException("Invalid Payloads: duplicate Payload Ids");
             }
+
+            return submitMessage.Payloads.Select(CreatePartInfo);
         }
 
-        private static PartInfo CreatePartInfo(SubmitMessage submitMessage, Payload submitPayload)
+        private static PartInfo CreatePartInfo(Payload submitPayload)
         {
             string href = submitPayload.Id ?? IdentifierFactory.Instance.Create();
 
             var returnPayload = new PartInfo(href.StartsWith("cid:") ? href : $"cid:{href}");
+
             if (submitPayload.Schemas != null)
             {
-                InsertSchemasInPayload(submitPayload, returnPayload);
+                returnPayload.Schemas = submitPayload.Schemas
+                    .Select(SubmitToAS4Schema)
+                    .ToList();
             }
 
-            InsertPropertiesInPayload(submitMessage, submitPayload, returnPayload);
+            if (submitPayload.PayloadProperties != null)
+            {
+                returnPayload.Properties = submitPayload.PayloadProperties
+                    .Select(SubmitToProperty)
+                    .Concat(CompressionProperties(submitPayload))
+                    .ToDictionary(t => t.name, t => t.value);
+            }
+
             return returnPayload;
         }
 
-        private static void InsertSchemasInPayload(Payload submitPayload, PartInfo returnPartInfo)
+        private static Model.Core.Schema SubmitToAS4Schema(Model.Common.Schema sch)
         {
-            foreach (Model.Common.Schema submitSchema in submitPayload.Schemas)
+            var schema = AS4Mapper.Map<Model.Core.Schema>(sch);
+            if (string.IsNullOrEmpty(schema.Location))
             {
-                var schema = AS4Mapper.Map<Model.Core.Schema>(submitSchema);
-                if (string.IsNullOrEmpty(schema.Location))
-                {
-                    throw new InvalidDataException("Invalid Schema: Schema needs a location");
-                }
-
-                returnPartInfo.Schemas.Add(schema);
+                throw new InvalidDataException("Invalid Schema: Schema needs a location");
             }
+
+            return schema;
         }
 
-        private static void InsertPropertiesInPayload(SubmitMessage message, Payload submitPayload, PartInfo returnPartInfo)
+        private static (string name, string value) SubmitToProperty(PayloadProperty prop)
         {
-            if (message.PMode.MessagePackaging.UseAS4Compression)
+            if (string.IsNullOrEmpty(prop.Name))
             {
-                AddCompressionProperties(submitPayload, returnPartInfo);
+                throw new InvalidDataException("Invalid Payload Property: Property requires name");
             }
 
-            if (submitPayload.PayloadProperties == null)
-            {
-                return;
-            }
-
-            AddPayloadProperties(submitPayload, returnPartInfo);
+            return (prop.Name, prop.Value);
         }
 
-        private static void AddPayloadProperties(Payload submitPayload, PartInfo returnPartInfo)
+        private static IEnumerable<(string name, string value)> CompressionProperties(Payload submit)
         {
-            foreach (PayloadProperty payloadProperty in submitPayload.PayloadProperties)
+            return new[]
             {
-                if (string.IsNullOrEmpty(payloadProperty.Name))
-                {
-                    throw new InvalidDataException("Invalid Payload Property: Property requires name");
-                }
-
-                returnPartInfo.Properties[payloadProperty.Name] = payloadProperty.Value;
-            }
-        }
-
-        private static void AddCompressionProperties(Payload submitPayload, PartInfo returnPartInfo)
-        {
-            returnPartInfo.Properties["CompressionType"] = "application/gzip";
-
-            if (!string.IsNullOrEmpty(submitPayload.MimeType))
-            {
-                returnPartInfo.Properties["MimeType"] = submitPayload.MimeType;
-            }
-            else
-            {
-                returnPartInfo.Properties["MimeType"] = "application/octet-stream";
-            }
+                ("CompressionType", "application/gzip"),
+                ("MimeType", !string.IsNullOrEmpty(submit.MimeType) ? submit.MimeType : "application/octet-stream")
+            };
         }
     }
 }
