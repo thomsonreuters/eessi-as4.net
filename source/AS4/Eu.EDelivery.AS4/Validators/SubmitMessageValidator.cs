@@ -24,6 +24,24 @@ namespace Eu.EDelivery.AS4.Validators
         public PayloadValidator()
         {
             RuleFor(p => p.Location).NotEmpty();
+            RuleFor(p => p.Schemas).SetCollectionValidator(new SchemaValidator());
+            RuleFor(p => p.PayloadProperties).SetCollectionValidator(new PayloadPropertyValidator());
+        }
+    }
+
+    internal class SchemaValidator : AbstractValidator<Schema>
+    {
+        public SchemaValidator()
+        {
+            RuleFor(s => s.Location).NotEmpty();
+        }
+    }
+
+    internal class PayloadPropertyValidator : AbstractValidator<PayloadProperty>
+    {
+        public PayloadPropertyValidator()
+        {
+            RuleFor(p => p.Name).NotEmpty();
         }
     }
 }

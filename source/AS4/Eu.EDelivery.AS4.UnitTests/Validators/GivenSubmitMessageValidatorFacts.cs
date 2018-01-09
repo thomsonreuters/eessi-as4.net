@@ -16,19 +16,41 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
         [Fact]
         public void ThenSubmitMessageIsValid()
         {
-            TestInvalidValidation(message => { }, expectedValid: true);
+            TestInvalidValidation(
+                message => { }, 
+                expectedValid: true);
         }
 
         [Fact]
         public void ThenSubmitMessageIsInvalidWithMissingPModeId()
         {
-            TestInvalidValidation(message => message.Collaboration.AgreementRef.PModeId = null, expectedValid: false);
+            TestInvalidValidation(
+                message => message.Collaboration.AgreementRef.PModeId = null, 
+                expectedValid: false);
         }
 
         [Fact]
         public void ThenSubmitMessageIsInvalidWithMissingPayloadLocation()
         {
-            TestInvalidValidation(message => message.Payloads.First().Location = null, expectedValid: false);
+            TestInvalidValidation(
+                message => message.Payloads.First().Location = null, 
+                expectedValid: false);
+        }
+
+        [Fact]
+        public void ThenSubmitMessageIsInvalidWithMissingPayloadPropertyName()
+        {
+            TestInvalidValidation(
+                message => message.Payloads.First().PayloadProperties.First().Name = null, 
+                expectedValid: false);
+        }
+
+        [Fact]
+        public void ThenSubmitMessageIsInvalidWithMissingSchemaLocation()
+        {
+            TestInvalidValidation(
+                message => message.Payloads.First().Schemas.First().Location = null, 
+                expectedValid: false);
         }
 
         private static void TestInvalidValidation(Action<SubmitMessage> arrangeMessage, bool expectedValid)
@@ -52,7 +74,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
             return new SubmitMessage
             {
                 Collaboration = {AgreementRef = {PModeId = "pmode-id"}},
-                Payloads = new[] {new Payload("file:///")}
+                Payloads = new[] {new Payload("file:///")
+                {
+                    Schemas = new [] {new Schema("location")},
+                    PayloadProperties = new [] {new PayloadProperty("name")}
+                }}
             };
         }
     }
