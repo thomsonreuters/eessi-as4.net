@@ -8,18 +8,34 @@ using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Receivers;
 using Eu.EDelivery.AS4.TestUtils;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Eu.EDelivery.AS4.UnitTests.Receivers
 {
     public class GivenFileReceiverFacts : IDisposable
     {
+        private readonly ITestOutputHelper _testLogger;
         private readonly string _watchedDirectory;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="GivenFileReceiverFacts"/> class.
+        /// Gets the system extensions for which the <see cref="FileReceiver"/> must ignore.
         /// </summary>
-        public GivenFileReceiverFacts()
+        /// <value>The system extensions.</value>
+        public static IEnumerable<object[]> SystemExtensions => new[]
         {
+            new[] {".processing"},
+            new[] {".exception"},
+            new[] {".accepted"},
+            new[] {".pending"}
+        };
+        
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GivenFileReceiverFacts" /> class.
+        /// </summary>
+        /// <param name="outputHelper">The output helper.</param>
+        public GivenFileReceiverFacts(ITestOutputHelper outputHelper)
+        {
+            _testLogger = outputHelper;
             _watchedDirectory = Path.Combine(Path.GetTempPath(), "FileReceiverTest");
 
             if (Directory.Exists(_watchedDirectory) == false)
@@ -27,38 +43,49 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
                 Directory.CreateDirectory(_watchedDirectory);
             }
 
-            FileSystemUtils.ClearDirectory(_watchedDirectory);
+            try
+            {
+                FileSystemUtils.ClearDirectory(_watchedDirectory);
+            }
+            catch (Exception ex)
+            {
+                _testLogger.WriteLine(ex.ToString());
+            }
         }
 
         [Theory]
-        [InlineData(".processing")]
-        [InlineData(".exception")]
-        [InlineData(".accepted")]
-        [InlineData(".pending")]
+        [MemberData(nameof(SystemExtensions))]
         public void DoesNotReceiveCertainFileTypes(string extension)
         {
-            var receiver = CreateFileReceiver();
-
             CreateFileInDirectory("testfile.dat", _watchedDirectory);
-            var receivedFiles = StartReceiving(receiver);
+
+            var receiver = CreateFileReceiver();
+            var receivedFiles = StartReceiving(receiver, TimeSpan.FromDays(1));
+
             Assert.Equal(1, receivedFiles.Count());
             Assert.Equal("testfile", Path.GetFileNameWithoutExtension(receivedFiles.First()));
+        }
 
-            FileSystemUtils.ClearDirectory(_watchedDirectory);
-
+        [Theory]
+        [MemberData(nameof(SystemExtensions))]
+        public void DoesNotReceive(string extension)
+        {
             CreateFileInDirectory($"unwanted_testfile{extension}", _watchedDirectory);
-            receivedFiles = StartReceiving(receiver);
+
+            var receiver = CreateFileReceiver();
+            var receivedFiles = StartReceiving(receiver, TimeSpan.FromSeconds(1));
+
             Assert.False(receivedFiles.Any());
         }
 
-        private static IEnumerable<string> StartReceiving(FileReceiver receiver)
+        private static IEnumerable<string> StartReceiving(FileReceiver receiver, TimeSpan timeout)
         {
             var signal = new ManualResetEvent(false);
 
             var receiveProcessor = new FileReceivedProcessor(signal);
 
             Task.Factory.StartNew(() => receiver.StartReceiving((m, c) => receiveProcessor.OnFileReceived(m, c), CancellationToken.None));
-            signal.WaitOne(TimeSpan.FromMilliseconds(2000));
+            signal.WaitOne(timeout);
 
             receiver.StopReceiving();
             return receiveProcessor.ReceivedFiles;
@@ -110,11 +137,21 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
             }
         }
 
-        /// <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</summary>
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
         public void Dispose()
         {
             FileSystemUtils.ClearDirectory(_watchedDirectory);
-            Directory.Delete(_watchedDirectory, true);
+
+            try
+            {
+                Directory.Delete(_watchedDirectory, true);
+            }
+            catch (Exception ex)
+            {
+                _testLogger.WriteLine(ex.ToString());
+            }
         }
     }
 }
