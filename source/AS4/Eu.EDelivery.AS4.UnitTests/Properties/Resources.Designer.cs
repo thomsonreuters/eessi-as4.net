@@ -250,16 +250,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
-        internal static byte[] as4message_external_payloads {
-            get {
-                object obj = ResourceManager.GetObject("as4message_external_payloads", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Byte[].
-        /// </summary>
         internal static byte[] certificate_as4 {
             get {
                 object obj = ResourceManager.GetObject("certificate_as4", resourceCulture);

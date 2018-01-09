@@ -19,8 +19,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
         public async Task ValidationFailure_IfExternalPayloadReference()
         {
             // Arrange
-            const string contentType = "multipart/related; boundary=\"=-M9awlqbs/xWAPxlvpSWrAg==\"; type=\"application/soap+xml\"; charset=\"utf-8\"";
-            AS4Message message = await BuildMessageFor(as4message_external_payloads, contentType);
+            AS4Message message = AS4Message.Create(new UserMessage
+            {
+                PayloadInfo = new[] {new PartInfo("cid:earth")}
+            });
+            message.AddAttachment(new Attachment("earth") {Content = Stream.Null});
+            message = await SerializeDeserialize(message);
             message.PrimaryUserMessage.PayloadInfo.First().Href = null;
 
             // Act
@@ -35,9 +39,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
         public async Task ValidationFailure_IfNoAttachmentCanBeFoundForEachPartInfo()
         {
             // Arrange
-            const string contentType = "multipart/related; boundary=\"=-PHQq1fuE9QxpIWax7CKj5w==\"; type=\"application/soap+xml\"; charset=\"utf-8\"";
-            AS4Message message = await BuildMessageFor(as4_single_payload, contentType);
-            message.UserMessages.First().PayloadInfo.First().Href = "cid:some other href";
+            AS4Message message = AS4Message.Create(new UserMessage
+            {
+                PayloadInfo = new[] {new PartInfo("cid:some other href")}
+            });
+            message.AddAttachment(new Attachment("earth") {Content = Stream.Null});
+            message = await SerializeDeserialize(message);
 
             // Act
             StepResult result = await ExerciseValidation(message);
@@ -68,6 +75,38 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             StepResult result = await ExerciseValidation(message);
 
             Assert.True(result.Succeeded);            
+        }
+
+        [Fact]
+        public async Task ValidationFailure_IfUserMessageContainsDuplicatePayloadIds()
+        {
+            AS4Message message = AS4Message.Create(new UserMessage
+            {
+                PayloadInfo = new[]
+                {
+                    new PartInfo("cid:earth"),
+                    new PartInfo("cid:earth")
+                }
+            });
+
+            message.AddAttachment(new Attachment("earth") {Content = Stream.Null});
+            message = await SerializeDeserialize(message);
+
+            StepResult result = await ExerciseValidation(message);
+
+            Assert.False(result.Succeeded);
+            Assert.Equal(ErrorAlias.InvalidHeader, result.MessagingContext.ErrorResult.Alias);
+        }
+
+        private static async Task<AS4Message> SerializeDeserialize(AS4Message message)
+        {
+            var serializer = new MimeMessageSerializer(new SoapEnvelopeSerializer());
+
+            var memory = new MemoryStream();
+            serializer.Serialize(message, memory, CancellationToken.None);
+            memory.Position = 0;
+
+            return await serializer.DeserializeAsync(memory, message.ContentType, CancellationToken.None);
         }
 
         private static async Task<AS4Message> BuildMessageFor(byte[] as4MessageExternalPayloads, string contentType)
