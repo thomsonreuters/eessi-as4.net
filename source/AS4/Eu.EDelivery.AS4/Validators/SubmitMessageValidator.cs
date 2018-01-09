@@ -1,4 +1,5 @@
-﻿using Eu.EDelivery.AS4.Model.Common;
+﻿using System.Linq;
+using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Submit;
 using FluentValidation;
 
@@ -15,6 +16,7 @@ namespace Eu.EDelivery.AS4.Validators
             RuleFor(s => s.Collaboration.AgreementRef).NotNull();
             RuleFor(s => s.Collaboration.AgreementRef.PModeId).NotEmpty();
 
+            RuleFor(s => s.Payloads).Must(ps => ps.GroupBy(p => p.Id).All(p => p.Count() == 1)).When(s => s.Payloads != null);
             RuleFor(s => s.Payloads).SetCollectionValidator(new PayloadValidator());
         }
     }

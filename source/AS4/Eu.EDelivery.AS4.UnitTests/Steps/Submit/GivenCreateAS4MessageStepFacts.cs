@@ -1,9 +1,8 @@
 ﻿using System;
-using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using AutoMapper;
+using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
@@ -13,7 +12,6 @@ using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Steps.Submit;
 using Eu.EDelivery.AS4.UnitTests.Model.PMode;
 using Xunit;
-using Xunit.Abstractions;
 using Party = Eu.EDelivery.AS4.Model.Core.Party;
 using PartyId = Eu.EDelivery.AS4.Model.Core.PartyId;
 using PartyInfo = Eu.EDelivery.AS4.Model.PMode.PartyInfo;
@@ -22,17 +20,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
 {
     public class GivenCreateAS4MessageStepFacts
     {
-        private readonly ITestOutputHelper _testLogger;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="GivenCreateAS4MessageStepFacts" /> class.
-        /// </summary>
-        /// <param name="ouputHelper">The ouput helper.</param>
-        public GivenCreateAS4MessageStepFacts(ITestOutputHelper ouputHelper)
-        {
-            _testLogger = ouputHelper;
-        }
-
         [Fact]
         public async Task CanCreateMessageWithPModeWithoutToParty()
         {
@@ -146,11 +133,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
             var context = new MessagingContext(submit) {SendingPMode = pmode};
 
             // Act / Assert
-            AutoMapperMappingException ex = 
-                await Assert.ThrowsAsync<AutoMapperMappingException>(() => ExerciseCreation(context));
-
-            _testLogger.WriteLine(ex.ToString());
-            Assert.IsType<InvalidDataException>(ex.InnerException);
+            await Assert.ThrowsAsync<InvalidMessageException>(() => ExerciseCreation(context));
         }
 
         [Obsolete("Do we have forgotten to specify the test?")]
@@ -173,6 +156,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
         {
             return new SubmitMessage
             {
+                Collaboration =
+                {
+                    AgreementRef = {PModeId = "not empty pmode id"}
+                },
                 PartyInfo = new AS4.Model.Common.PartyInfo
                 {
                     FromParty = fromParty,

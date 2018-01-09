@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using Eu.EDelivery.AS4.Factories;
 using Eu.EDelivery.AS4.Model.Common;
@@ -30,65 +29,31 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
                 return new List<PartInfo>();
             }
 
-            return ResolvePartInfosFromSubmitMessage(submitMessage).ToList();
-        }
-
-        private static IEnumerable<PartInfo> ResolvePartInfosFromSubmitMessage(SubmitMessage submitMessage)
-        {
-            bool submitContainsDuplicatePayloadIds = 
-                submitMessage.Payloads.GroupBy(p => p.Id).All(g => g.Count() == 1) == false;
-
-            if (submitContainsDuplicatePayloadIds)
-            {
-                throw new InvalidDataException("Invalid Payloads: duplicate Payload Ids");
-            }
-
-            return submitMessage.Payloads.Select(CreatePartInfo);
+            return submitMessage.Payloads.Select(CreatePartInfo).ToList();
         }
 
         private static PartInfo CreatePartInfo(Payload submitPayload)
         {
             string href = submitPayload.Id ?? IdentifierFactory.Instance.Create();
-
+            
             var returnPayload = new PartInfo(href.StartsWith("cid:") ? href : $"cid:{href}");
 
             if (submitPayload.Schemas != null)
             {
                 returnPayload.Schemas = submitPayload.Schemas
-                    .Select(SubmitToAS4Schema)
+                    .Select(AS4Mapper.Map<Model.Core.Schema>)
                     .ToList();
             }
 
             if (submitPayload.PayloadProperties != null)
             {
                 returnPayload.Properties = submitPayload.PayloadProperties
-                    .Select(SubmitToProperty)
+                    .Select(prop => (prop.Name, prop.Value))
                     .Concat(CompressionProperties(submitPayload))
-                    .ToDictionary(t => t.propName, t => t.propValue);
+                    .ToDictionary<(string propName, string propValue), string, string>(t => t.propName, t => t.propValue);
             }
 
             return returnPayload;
-        }
-
-        private static Model.Core.Schema SubmitToAS4Schema(Model.Common.Schema sch)
-        {
-            var schema = AS4Mapper.Map<Model.Core.Schema>(sch);
-            if (string.IsNullOrEmpty(schema.Location))
-            {
-                throw new InvalidDataException("Invalid Schema: Schema needs a location");
-            }
-
-            return schema;
-        }
-
-        private static (string propName, string propValue) SubmitToProperty(PayloadProperty prop)
-        {
-            if (string.IsNullOrEmpty(prop.Name))
-            {
-                throw new InvalidDataException("Invalid Payload Property: Property requires name");
-            }
-
-            return (prop.Name, prop.Value);
         }
 
         private static IEnumerable<(string propName, string propValue)> CompressionProperties(Payload submit)
