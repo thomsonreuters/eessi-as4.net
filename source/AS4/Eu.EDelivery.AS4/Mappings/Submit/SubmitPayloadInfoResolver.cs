@@ -27,7 +27,7 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
         {
             if (submitMessage.Payloads == null)
             {
-                return Enumerable.Empty<PartInfo>().ToList();
+                return new List<PartInfo>();
             }
 
             return ResolvePartInfosFromSubmitMessage(submitMessage).ToList();
@@ -64,7 +64,7 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
                 returnPayload.Properties = submitPayload.PayloadProperties
                     .Select(SubmitToProperty)
                     .Concat(CompressionProperties(submitPayload))
-                    .ToDictionary(t => t.name, t => t.value);
+                    .ToDictionary(t => t.propName, t => t.propValue);
             }
 
             return returnPayload;
@@ -81,7 +81,7 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
             return schema;
         }
 
-        private static (string name, string value) SubmitToProperty(PayloadProperty prop)
+        private static (string propName, string propValue) SubmitToProperty(PayloadProperty prop)
         {
             if (string.IsNullOrEmpty(prop.Name))
             {
@@ -91,7 +91,7 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
             return (prop.Name, prop.Value);
         }
 
-        private static IEnumerable<(string name, string value)> CompressionProperties(Payload submit)
+        private static IEnumerable<(string propName, string propValue)> CompressionProperties(Payload submit)
         {
             return new[]
             {
