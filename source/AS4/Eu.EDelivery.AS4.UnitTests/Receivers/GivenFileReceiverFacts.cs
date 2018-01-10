@@ -16,18 +16,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
     {
         private readonly ITestOutputHelper _testLogger;
         private readonly string _watchedDirectory;
-
-        /// <summary>
-        /// Gets the system extensions for which the <see cref="FileReceiver"/> must ignore.
-        /// </summary>
-        /// <value>The system extensions.</value>
-        public static IEnumerable<object[]> SystemExtensions => new[]
-        {
-            new[] {".processing"},
-            new[] {".exception"},
-            new[] {".accepted"},
-            new[] {".pending"}
-        };
         
         /// <summary>
         /// Initializes a new instance of the <see cref="GivenFileReceiverFacts" /> class.
@@ -43,39 +31,34 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
                 Directory.CreateDirectory(_watchedDirectory);
             }
 
-            try
-            {
-                FileSystemUtils.ClearDirectory(_watchedDirectory);
-            }
-            catch (Exception ex)
-            {
-                _testLogger.WriteLine(ex.ToString());
-            }
+            FileSystemUtils.ClearDirectory(_watchedDirectory);
         }
 
-        [Theory]
-        [MemberData(nameof(SystemExtensions))]
-        public void DoesNotReceiveCertainFileTypes(string extension)
+        [Fact]
+        public void DoesReceiveNonSystemFileTypes()
         {
             CreateFileInDirectory("testfile.dat", _watchedDirectory);
 
             var receiver = CreateFileReceiver();
-            var receivedFiles = StartReceiving(receiver, TimeSpan.FromDays(1));
+            var receivedFiles = StartReceiving(receiver, TimeSpan.FromSeconds(10));
 
             Assert.Equal(1, receivedFiles.Count());
             Assert.Equal("testfile", Path.GetFileNameWithoutExtension(receivedFiles.First()));
         }
 
         [Theory]
-        [MemberData(nameof(SystemExtensions))]
-        public void DoesNotReceive(string extension)
+        [InlineData(".processing")]
+        [InlineData(".exception")]
+        [InlineData(".accepted")]
+        [InlineData(".pending")]
+        public void DoesNotReceiveSystemFileTypes(string extension)
         {
             CreateFileInDirectory($"unwanted_testfile{extension}", _watchedDirectory);
 
             var receiver = CreateFileReceiver();
             var receivedFiles = StartReceiving(receiver, TimeSpan.FromSeconds(1));
 
-            Assert.False(receivedFiles.Any());
+            Assert.Empty(receivedFiles);
         }
 
         private static IEnumerable<string> StartReceiving(FileReceiver receiver, TimeSpan timeout)
@@ -84,10 +67,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
 
             var receiveProcessor = new FileReceivedProcessor(signal);
 
-            Task.Factory.StartNew(() => receiver.StartReceiving((m, c) => receiveProcessor.OnFileReceived(m, c), CancellationToken.None));
+            var tokenSource = new CancellationTokenSource();
+            tokenSource.Token.Register(receiver.StopReceiving);
+            tokenSource.CancelAfter(timeout);
+
+            Task.Factory.StartNew(() => receiver.StartReceiving((m, c) => receiveProcessor.OnFileReceived(m, c), tokenSource.Token), tokenSource.Token);
             signal.WaitOne(timeout);
 
-            receiver.StopReceiving();
             return receiveProcessor.ReceivedFiles;
         }
 
@@ -95,13 +81,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
         {
             var fullPath = Path.Combine(directory, fileName);
 
-            var fs = File.Create(fullPath);
-            fs.Close();
+            File.WriteAllText(fullPath, string.Empty);
         }
 
         private FileReceiver CreateFileReceiver()
         {
-            var settings = new FileReceiverSettings(_watchedDirectory, "*.*", 20, TimeSpan.FromSeconds(1));
+            var settings = new FileReceiverSettings(_watchedDirectory, "*.*", 20, TimeSpan.FromMilliseconds(100));
 
             FileReceiver receiver = new FileReceiver();
             receiver.Configure(settings);
@@ -126,9 +111,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
 
             public Task<MessagingContext> OnFileReceived(ReceivedMessage m, CancellationToken token)
             {
-                using (var fileStream = m.UnderlyingStream as FileStream)
+                using (var fs = (FileStream) m.UnderlyingStream)
                 {
-                    _receivedFiles.Add(Path.GetFileName(fileStream?.Name));
+                    _receivedFiles.Add(fs.Name);
                 }
 
                 _waitSignal.Set();
