@@ -53,6 +53,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
 
                 // Assert
                 Assert.Equal(2, partInfos.Count);
+                Assert.All(partInfos, p => Assert.DoesNotContain("CompressionType", p.Properties.Keys));
             }
 
             [Fact]
