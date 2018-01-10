@@ -16,34 +16,35 @@ namespace Eu.EDelivery.AS4.Validators
             RuleFor(s => s.Collaboration.AgreementRef).NotNull();
             RuleFor(s => s.Collaboration.AgreementRef.PModeId).NotEmpty();
 
-            RuleFor(s => s.Payloads).Must(ps => ps.GroupBy(p => p.Id).All(p => p.Count() == 1)).When(s => s.Payloads != null);
+            RuleFor(s => s.Payloads).Must(ps => ps.GroupBy(p => p.Id).All(p => p.Count() == 1))
+                                    .When(s => s.Payloads != null);
             RuleFor(s => s.Payloads).SetCollectionValidator(new PayloadValidator());
         }
-    }
 
-    internal class PayloadValidator : AbstractValidator<Payload>
-    {
-        public PayloadValidator()
+        private class PayloadValidator : AbstractValidator<Payload>
         {
-            RuleFor(p => p.Location).NotEmpty();
-            RuleFor(p => p.Schemas).SetCollectionValidator(new SchemaValidator());
-            RuleFor(p => p.PayloadProperties).SetCollectionValidator(new PayloadPropertyValidator());
+            public PayloadValidator()
+            {
+                RuleFor(p => p.Location).NotEmpty();
+                RuleFor(p => p.Schemas).SetCollectionValidator(new SchemaValidator());
+                RuleFor(p => p.PayloadProperties).SetCollectionValidator(new PayloadPropertyValidator());
+            }
         }
-    }
 
-    internal class SchemaValidator : AbstractValidator<Schema>
-    {
-        public SchemaValidator()
+        private class SchemaValidator : AbstractValidator<Schema>
         {
-            RuleFor(s => s.Location).NotEmpty();
+            public SchemaValidator()
+            {
+                RuleFor(s => s.Location).NotEmpty();
+            }
         }
-    }
 
-    internal class PayloadPropertyValidator : AbstractValidator<PayloadProperty>
-    {
-        public PayloadPropertyValidator()
+        private class PayloadPropertyValidator : AbstractValidator<PayloadProperty>
         {
-            RuleFor(p => p.Name).NotEmpty();
+            public PayloadPropertyValidator()
+            {
+                RuleFor(p => p.Name).NotEmpty();
+            }
         }
     }
 }
