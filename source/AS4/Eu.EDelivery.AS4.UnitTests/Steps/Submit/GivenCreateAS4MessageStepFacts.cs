@@ -136,9 +136,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
             await Assert.ThrowsAsync<InvalidMessageException>(() => ExerciseCreation(context));
         }
 
-        [Obsolete("Do we have forgotten to specify the test?")]
-        public void FailToCreateMessageWhenNoToPartyAvailable() { }
-
         private static Party CreatePModeParty(string role, string id, string type)
         {
             return new Party(role, new PartyId { Id = id, Type = type });
