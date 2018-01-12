@@ -53,7 +53,7 @@ namespace Eu.EDelivery.AS4.Receivers
 
         protected override ILogger Logger { get; }
 
-        private static readonly string[] ExcludedExtensions = { ".pending", ".processing", ".accepted", ".exception", ".details" };
+        private static readonly string[] ExcludedExtensions = { ".pending", ".processing", ".accepted", ".exception", ".details", ".lock" };
 
         #region Configuration
 
@@ -118,6 +118,8 @@ namespace Eu.EDelivery.AS4.Receivers
             StartPolling(messageCallback, cancellationToken);
         }
 
+        
+
         public void StopReceiving()
         {
             _isReceiving = false;
@@ -131,6 +133,11 @@ namespace Eu.EDelivery.AS4.Receivers
         /// <returns></returns>
         protected override IEnumerable<FileInfo> GetMessagesToPoll(CancellationToken cancellationToken)
         {
+            if (AddLockFile() == FileLock.Failure)
+            {
+                return Enumerable.Empty<FileInfo>();
+            }
+
             var directoryInfo = new DirectoryInfo(FilePath);
             var resultedFiles = new List<FileInfo>();
 
@@ -169,7 +176,43 @@ namespace Eu.EDelivery.AS4.Receivers
                 }
             }
 
+            RemoveFileLock();
             return resultedFiles;
+        }
+
+        private enum FileLock { Created, Failure }
+
+        private FileLock AddLockFile()
+        {
+            try
+            {
+                using (var fs = new FileStream(
+                    Path.Combine(FilePath, "file.lock"),
+                    FileMode.CreateNew,
+                    FileAccess.Write))
+                {
+                    fs.Close();
+                }
+
+                return FileLock.Created;
+            }
+            catch (IOException ex)
+            {
+                Logger.Error("File Lock Failure: " + ex.Message);
+                return FileLock.Failure;
+            }
+        }
+
+        private void RemoveFileLock()
+        {
+            try
+            {
+                File.Delete(Path.Combine(FilePath, "file.lock"));
+            }
+            catch (IOException ex)
+            {
+                Logger.Error("File Lock Failure: " + ex.Message);
+            }
         }
 
         /// <summary>
