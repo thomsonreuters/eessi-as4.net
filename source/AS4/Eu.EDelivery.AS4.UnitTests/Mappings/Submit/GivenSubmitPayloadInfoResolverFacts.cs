@@ -1,17 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Factories;
 using Eu.EDelivery.AS4.Mappings.Submit;
-using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Model.Submit;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.UnitTests.Common;
 using Xunit;
-using CommonSchema = Eu.EDelivery.AS4.Model.Common.Schema;
 
 namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
 {
@@ -85,33 +81,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
                 IEnumerable<PartInfo> compressedPartInfos =
                     partInfos.Where(i => i.Properties.ContainsKey("CompressionType"));
                 Assert.Equal(2, compressedPartInfos.Count());
-            }
-        }
-
-        public class GivenInvalidArguments : GivenSubmitPayloadInfoResolverFacts
-        {
-            [Fact]
-            public void ThenResolveFails_IfPayloadPropertyNameIsEmpty()
-            {
-                // Arrange
-                SubmitMessage submitMessage = CreatePopulatedSubmitMessage();
-                submitMessage.Payloads.First().PayloadProperties = new[] {new PayloadProperty(name: string.Empty)};
-                submitMessage.PMode = CreatePopulatedSendingPMode();
-
-                // Act
-                Assert.ThrowsAny<Exception>(() => ExerciseResolve(submitMessage));
-            }
-
-            [Fact]
-            public void ThenResolveFails_IfSchemaLocationIsEmpty()
-            {
-                // Arrange
-                SubmitMessage submitMessage = CreatePopulatedSubmitMessage();
-                submitMessage.Payloads.First().Schemas = new[] {new CommonSchema(location: string.Empty)};
-                submitMessage.PMode = CreatePopulatedSendingPMode();
-
-                // Act / Assert
-                Assert.ThrowsAny<Exception>(() => ExerciseResolve(submitMessage));
             }
         }
 

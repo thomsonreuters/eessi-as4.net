@@ -16,22 +16,61 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
         [Fact]
         public void ThenSubmitMessageIsValid()
         {
-            TestInvalidValidation(message => { }, expectedValid: true);
+            ExerciseValidation(
+                message => { }, 
+                expectedValid: true);
         }
 
         [Fact]
         public void ThenSubmitMessageIsInvalidWithMissingPModeId()
         {
-            TestInvalidValidation(message => message.Collaboration.AgreementRef.PModeId = null, expectedValid: false);
+            ExerciseValidation(
+                message => message.Collaboration.AgreementRef.PModeId = null, 
+                expectedValid: false);
         }
 
         [Fact]
         public void ThenSubmitMessageIsInvalidWithMissingPayloadLocation()
         {
-            TestInvalidValidation(message => message.Payloads.First().Location = null, expectedValid: false);
+            ExerciseValidation(
+                message => message.Payloads.First().Location = null, 
+                expectedValid: false);
         }
 
-        private static void TestInvalidValidation(Action<SubmitMessage> arrangeMessage, bool expectedValid)
+        [Fact]
+        public void ThenSubmitMessageIsInvalidWithMissingPayloadPropertyName()
+        {
+            ExerciseValidation(
+                message => message.Payloads.First().PayloadProperties.First().Name = null, 
+                expectedValid: false);
+        }
+
+        [Fact]
+        public void ThenSubmitMessageIsInvalidWithMissingSchemaLocation()
+        {
+            ExerciseValidation(
+                message => message.Payloads.First().Schemas.First().Location = null, 
+                expectedValid: false);
+        }
+
+        [Fact]
+        public void ThenSubmitMessageIsInvalidWithDuplicatePayloadId()
+        {
+            ExerciseValidation(
+                message =>
+                {
+                    message.Payloads.First().Id = "same id";
+
+                    Payload[] temp = message.Payloads;
+                    Array.Resize(ref temp, 2);
+                    temp[1] = message.Payloads.First();
+
+                    message.Payloads = temp;
+                },
+                expectedValid: false);
+        }
+
+        private static void ExerciseValidation(Action<SubmitMessage> arrangeMessage, bool expectedValid)
         {
             // Arrange
             SubmitMessage message = CreateValidSubmitMessage();
@@ -52,7 +91,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
             return new SubmitMessage
             {
                 Collaboration = {AgreementRef = {PModeId = "pmode-id"}},
-                Payloads = new[] {new Payload("file:///")}
+                Payloads = new[] {new Payload("file:///")
+                {
+                    Schemas = new [] {new Schema("location")},
+                    PayloadProperties = new [] {new PayloadProperty("name")}
+                }}
             };
         }
     }

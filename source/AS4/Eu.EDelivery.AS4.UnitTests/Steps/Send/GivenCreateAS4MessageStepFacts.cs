@@ -114,6 +114,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             {
                 SubmitMessage submitMessage = CreateSubmitMessageWithMpc("some-mpc");
                 submitMessage.PMode = DefaultSendPMode();
+                submitMessage.Collaboration.AgreementRef.PModeId = submitMessage.PMode.Id;
                 submitMessage.PMode.AllowOverride = true;
                 var context = new MessagingContext(submitMessage);
 
@@ -136,6 +137,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             {
                 SubmitMessage submitMessage = new SubmitMessage();
                 submitMessage.PMode = DefaultSendPMode();
+                submitMessage.Collaboration.AgreementRef.PModeId = submitMessage.PMode.Id;
                 submitMessage.PMode.MessagePackaging.Mpc = "some-mpc";
 
                 var context = new MessagingContext(submitMessage);
