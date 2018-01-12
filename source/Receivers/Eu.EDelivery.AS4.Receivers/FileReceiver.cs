@@ -93,6 +93,17 @@ namespace Eu.EDelivery.AS4.Receivers
                                                  ReadPollingIntervalFromProperties(properties));
         }
 
+        private static TimeSpan ReadPollingIntervalFromProperties(Dictionary<string, string> properties)
+        {
+            if (properties.ContainsKey(SettingKeys.PollingInterval) == false)
+            {
+                return TimeSpan.Parse(SettingKeys.PollingIntervalDefault);
+            }
+
+            string pollingInterval = properties[SettingKeys.PollingInterval];
+            return pollingInterval.AsTimeSpan(TimeSpan.Parse(SettingKeys.PollingIntervalDefault));
+        }
+
         #endregion
 
         /// <summary>
@@ -111,6 +122,66 @@ namespace Eu.EDelivery.AS4.Receivers
         {
             _isReceiving = false;
             Logger.Debug($"Stop receiving on '{Path.GetFullPath(FilePath)}'...");
+        }
+
+        /// <summary>
+        /// Declaration to where the Message are and can be polled
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        protected override IEnumerable<FileInfo> GetMessagesToPoll(CancellationToken cancellationToken)
+        {
+            var directoryInfo = new DirectoryInfo(FilePath);
+            var resultedFiles = new List<FileInfo>();
+
+            if (cancellationToken.IsCancellationRequested || _isReceiving == false)
+            {
+                return new FileInfo[] { };
+            }
+
+            FileInfo[] directoryFiles =
+                directoryInfo.GetFiles(FileMask)
+                             .Where(fi => ExcludedExtensions.Contains(fi.Extension) == false)
+                             .Take(BatchSize).ToArray();
+
+            foreach (FileInfo file in directoryFiles)
+            {
+                try
+                {
+                    var result = MoveFile(file, "pending");
+
+                    if (result.success)
+                    {
+                        var pendingFile = new FileInfo(result.filename);
+
+                        Logger.Trace(
+                            $"Locked file {file.Name} to be processed and renamed it to {pendingFile.Name}");
+
+                        _pendingFiles.Add(pendingFile);
+
+                        resultedFiles.Add(pendingFile);
+                    }
+                }
+                catch (IOException ex)
+                {
+                    Logger.Info($"FileReceiver on {FilePath}: {file.Name} skipped since it is in use.");
+                    Logger.Trace(ex.Message);
+                }
+            }
+
+            return resultedFiles;
+        }
+
+        /// <summary>
+        /// Declaration to the action that has to executed when a Message is received
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <param name="messageCallback">Message Callback after the Message is received</param>
+        /// <param name="token"></param>
+        protected override void MessageReceived(FileInfo entity, Function messageCallback, CancellationToken token)
+        {
+            Logger.Info($"Received Message from Filesystem: {entity.Name}");
+            GetMessageFromFile(entity, messageCallback, token);
         }
 
         private async void GetMessageFromFile(FileInfo fileInfo, Function messageCallback, CancellationToken token)
@@ -191,6 +262,37 @@ namespace Eu.EDelivery.AS4.Receivers
                 await streamWriter.WriteLineAsync(exception.ToString()).ConfigureAwait(false);
             }
         }
+       
+        protected override void ReleasePendingItems()
+        {
+            // Rename the 'pending' files to their original filename.
+            string extension = Path.GetExtension(FileMask);
+
+            lock (_pendingFiles.SyncRoot)
+            {
+                for (int i = _pendingFiles.Count - 1; i >= 0; i--)
+                {
+                    var pendingFile = _pendingFiles[i];
+
+                    if (File.Exists(pendingFile.FullName))
+                    {
+                        MoveFile(pendingFile, extension);
+                    }
+                    _pendingFiles.Remove(pendingFile);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Describe what to do in case of an Exception
+        /// </summary>
+        /// <param name="fileInfo"></param>
+        /// <param name="exception"></param>
+        protected override void HandleMessageException(FileInfo fileInfo, Exception exception)
+        {
+            Logger.Error(exception.Message);
+            MoveFile(fileInfo, "exception");
+        }
 
         /// <summary>
         /// Move file to another place on the File System
@@ -244,106 +346,5 @@ namespace Eu.EDelivery.AS4.Receivers
             }
         }
 
-        private static TimeSpan ReadPollingIntervalFromProperties(Dictionary<string, string> properties)
-        {
-            if (properties.ContainsKey(SettingKeys.PollingInterval) == false)
-            {
-                return TimeSpan.Parse(SettingKeys.PollingIntervalDefault);
-            }
-
-            string pollingInterval = properties[SettingKeys.PollingInterval];
-            return pollingInterval.AsTimeSpan(TimeSpan.Parse(SettingKeys.PollingIntervalDefault));
-        }
-
-        /// <summary>
-        /// Declaration to where the Message are and can be polled
-        /// </summary>
-        /// <param name="cancellationToken"></param>
-        /// <returns></returns>
-        protected override IEnumerable<FileInfo> GetMessagesToPoll(CancellationToken cancellationToken)
-        {
-            var directoryInfo = new DirectoryInfo(FilePath);
-            var resultedFiles = new List<FileInfo>();
-
-            if (cancellationToken.IsCancellationRequested || _isReceiving == false)
-            {
-                return new FileInfo[] { };
-            }
-
-            FileInfo[] directoryFiles =
-                directoryInfo.GetFiles(FileMask)
-                             .Where(fi => ExcludedExtensions.Contains(fi.Extension) == false)
-                             .Take(BatchSize).ToArray();
-
-            foreach (FileInfo file in directoryFiles)
-            {
-                try
-                {
-                    var result = MoveFile(file, "pending");
-
-                    if (result.success)
-                    {
-                        var pendingFile = new FileInfo(result.filename);
-
-                        Logger.Trace(
-                            $"Locked file {file.Name} to be processed and renamed it to {pendingFile.Name}");
-
-                        _pendingFiles.Add(pendingFile);
-
-                        resultedFiles.Add(pendingFile);
-                    }
-                }
-                catch (IOException ex)
-                {
-                    Logger.Info($"FileReceiver on {FilePath}: {file.Name} skipped since it is in use.");
-                    Logger.Trace(ex.Message);
-                }
-            }
-
-            return resultedFiles;
-        }
-
-        protected override void ReleasePendingItems()
-        {
-            // Rename the 'pending' files to their original filename.
-            string extension = Path.GetExtension(FileMask);
-
-            lock (_pendingFiles.SyncRoot)
-            {
-                for (int i = _pendingFiles.Count - 1; i >= 0; i--)
-                {
-                    var pendingFile = _pendingFiles[i];
-
-                    if (File.Exists(pendingFile.FullName))
-                    {
-                        MoveFile(pendingFile, extension);
-                    }
-                    _pendingFiles.Remove(pendingFile);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Declaration to the action that has to executed when a Message is received
-        /// </summary>
-        /// <param name="entity"></param>
-        /// <param name="messageCallback">Message Callback after the Message is received</param>
-        /// <param name="token"></param>
-        protected override void MessageReceived(FileInfo entity, Function messageCallback, CancellationToken token)
-        {
-            Logger.Info($"Received Message from Filesystem: {entity.Name}");
-            GetMessageFromFile(entity, messageCallback, token);
-        }
-
-        /// <summary>
-        /// Describe what to do in case of an Exception
-        /// </summary>
-        /// <param name="fileInfo"></param>
-        /// <param name="exception"></param>
-        protected override void HandleMessageException(FileInfo fileInfo, Exception exception)
-        {
-            Logger.Error(exception.Message);
-            MoveFile(fileInfo, "exception");
-        }
     }
 }
