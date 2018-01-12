@@ -29,10 +29,10 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
                 return new List<PartInfo>();
             }
 
-            return submitMessage.Payloads.Select(CreatePartInfo).ToList();
+            return submitMessage.Payloads.Select(p => CreatePartInfo(p, submitMessage)).ToList();
         }
 
-        private static PartInfo CreatePartInfo(Payload submitPayload)
+        private static PartInfo CreatePartInfo(Payload submitPayload, SubmitMessage submit)
         {
             string href = submitPayload.Id ?? IdentifierFactory.Instance.Create();
             
@@ -49,20 +49,30 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
             {
                 returnPayload.Properties = submitPayload.PayloadProperties
                     .Select(prop => (prop.Name, prop.Value))
-                    .Concat(CompressionProperties(submitPayload))
+                    .Concat(CompressionProperties(submitPayload, submit))
                     .ToDictionary<(string propName, string propValue), string, string>(t => t.propName, t => t.propValue);
             }
 
             return returnPayload;
         }
 
-        private static IEnumerable<(string propName, string propValue)> CompressionProperties(Payload submit)
+
+        private static IEnumerable<(string propName, string propValue)> CompressionProperties(
+            Payload payload, 
+            SubmitMessage submitMessage)
         {
-            return new[]
+            if (submitMessage.PMode.MessagePackaging.UseAS4Compression)
             {
-                ("CompressionType", "application/gzip"),
-                ("MimeType", !string.IsNullOrEmpty(submit.MimeType) ? submit.MimeType : "application/octet-stream")
-            };
+                return new[]
+                {
+                    ("CompressionType", "application/gzip"),
+                    ("MimeType", !string.IsNullOrEmpty(payload.MimeType)
+                        ? payload.MimeType
+                        : "application/octet-stream")
+                };
+            }
+
+            return Enumerable.Empty<(string, string)>();
         }
     }
 }

@@ -195,7 +195,7 @@ namespace Eu.EDelivery.AS4.Serialization
         /// <returns></returns>
         public static T FromString<T>(string xml) where T : class
         {
-            if (xml == null)
+            if (String.IsNullOrWhiteSpace(xml))
             {
                 return null;
             }

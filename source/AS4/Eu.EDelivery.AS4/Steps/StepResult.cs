@@ -43,31 +43,41 @@ namespace Eu.EDelivery.AS4.Steps
         /// <summary>
         /// Return a Failed <see cref="StepResult" />.
         /// </summary>
-        /// <param name="context">The context.</param>
+        /// <param name="context">The <see cref="MessagingContext"/>.</param>
         /// <returns></returns>
         public static StepResult Failed(MessagingContext context)
         {
             return new StepResult(succeeded: false) {MessagingContext = context, CanProceed = false};
         }
-        
+
         /// <summary>
         /// Return a Successful <see cref="StepResult" />
         /// </summary>
-        /// <param name="message">Included <see cref="MessagingContext" />.</param>
+        /// <param name="context">The <see cref="MessagingContext"/>.</param>
         /// <returns></returns>
-        public static StepResult Success(MessagingContext message)
+        public static StepResult Success(MessagingContext context)
         {
-            return new StepResult(succeeded: true) {MessagingContext = message, CanProceed = true};
+            return new StepResult(succeeded: true) {MessagingContext = context, CanProceed = true};
         }
 
         /// <summary>
         /// Return a Successful <see cref="StepResult" />
         /// </summary>
-        /// <param name="message">The message.</param>
+        /// <param name="context">The <see cref="MessagingContext"/>.</param>
         /// <returns></returns>
-        public static Task<StepResult> SuccessAsync(MessagingContext message)
+        public static Task<StepResult> SuccessAsync(MessagingContext context)
         {
-            return Task.FromResult(Success(message));
+            return Task.FromResult(Success(context));
+        }
+
+        /// <summary>
+        /// Return a Failed <see cref="StepResult" />.
+        /// </summary>
+        /// <param name="context">The <see cref="MessagingContext"/>.</param>
+        /// <returns></returns>
+        public static Task<StepResult> FailedAsync(MessagingContext context)
+        {
+            return Task.FromResult(Failed(context));
         }
     }
 }
