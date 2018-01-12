@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 namespace Eu.EDelivery.AS4.Strategies.Retriever
 {
     /// <summary>
-    /// Global Interface to provide a consistent "GetStrategyKey" Method
+    /// Interface that defines how a payload must be retrieved from a certain location.
     /// </summary>
     public interface IPayloadRetriever
     {
