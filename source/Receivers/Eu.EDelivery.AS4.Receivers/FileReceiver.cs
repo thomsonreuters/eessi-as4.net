@@ -204,7 +204,7 @@ namespace Eu.EDelivery.AS4.Receivers
             }
             catch (IOException ex)
             {
-                Logger.Error("The lock file cannot be removed, reason: " + ex.Message);
+                Logger.Error("The lock file cannot be added, reason: " + ex.Message);
                 return FileLock.Failure;
             }
         }
