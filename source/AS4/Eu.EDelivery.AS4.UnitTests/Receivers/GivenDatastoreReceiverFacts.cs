@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Linq.Dynamic.Core;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
@@ -9,6 +10,7 @@ using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Receivers;
+using Eu.EDelivery.AS4.Strategies.Database;
 using Eu.EDelivery.AS4.UnitTests.Common;
 using Eu.EDelivery.AS4.UnitTests.Model;
 using Eu.EDelivery.AS4.UnitTests.Repositories;
@@ -34,7 +36,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
         public void CatchesInvalidDatastoreCreation()
         {
             // Arrange
-            var receiver = new DatastoreReceiver(() => { throw new SaboteurException("Sabotage datastore creation"); });
+            var receiver = new DatastoreReceiver(
+                () => throw new SaboteurException("Sabotage datastore creation"), 
+                type => (db, ctx) => new InMemoryDbCommand(db));
 
             var settings = new DatastoreReceiverSettings("OutMessages", "Operation = ToBeDelivered", "Operation", "Sending");
 
@@ -79,7 +83,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
 
             ArrangeOutMessageInDatastore(Operation.ToBeDelivered, expectedStream, expectedType);
 
-            var receiver = new DatastoreReceiver(GetDataStoreContext);
+            var receiver = new DatastoreReceiver(GetDataStoreContext, type => (db, ctx) => new InMemoryDbCommand(db));
 
             var settings = new DatastoreReceiverSettings("OutMessages", "Operation = \'ToBeDelivered\'", "Operation", "Sending");
 
@@ -133,7 +137,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
 
         private IReceiver DataStoreReceiverWith(IEnumerable<Setting> settings)
         {
-            var receiver = new DatastoreReceiver(() => new DatastoreContext(Options));
+            var receiver = new DatastoreReceiver(() => new DatastoreContext(Options), type => (db, ctx) => new InMemoryDbCommand(db));
             ((IReceiver)receiver).Configure(settings);
 
             return receiver;
@@ -200,6 +204,35 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
                 OutMessage actualMessag = context.OutMessages.Where(where).FirstOrDefault();
                 assertion(actualMessag);
             }
+        }
+    }
+
+    internal class InMemoryDbCommand : IAS4DbCommand
+    {
+        private readonly IQueryable<Entity> _dbSet;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="InMemoryDbCommand" /> class.
+        /// </summary>
+        /// <param name="dbSet">The database set.</param>
+        public InMemoryDbCommand(IQueryable<Entity> dbSet)
+        {
+            _dbSet = dbSet;
+        }
+
+        /// <summary>
+        /// Exclusively retrieves the entities.
+        /// </summary>
+        /// <param name="tableName">Name of the Db table.</param>
+        /// <param name="filter">Order by this field.</param>
+        /// <param name="takeRows">Take this amount of rows.</param>
+        /// <returns></returns>
+        public IEnumerable<Entity> ExclusivelyRetrieveEntities(string tableName, string filter, int takeRows)
+        {
+            string filterExpression = filter.Replace("\'", "\"");
+
+            return _dbSet.Where(filterExpression)
+                         .ToList();
         }
     }
 }
