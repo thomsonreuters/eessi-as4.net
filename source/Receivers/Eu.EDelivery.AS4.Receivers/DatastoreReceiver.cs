@@ -302,7 +302,7 @@ namespace Eu.EDelivery.AS4.Receivers
         /// <param name="settings"></param>
         void IReceiver.Configure(IEnumerable<Setting> settings)
         {
-            Dictionary<string, Setting> properties = settings.ToDictionary(s => s.Key, s => s);
+            var properties = settings.ToDictionary(s => s.Key, s => s);
 
             Setting configuredTakeRecords = properties.ReadOptionalProperty(SettingKeys.TakeRows, null);
 
