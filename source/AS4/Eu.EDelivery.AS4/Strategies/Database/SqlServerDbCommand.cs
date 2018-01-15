@@ -46,7 +46,7 @@ namespace Eu.EDelivery.AS4.Strategies.Database
                 IQueryable<Entity> entities = _dbSet.FromSql(query);
                 transaction.Commit();
 
-                return entities;
+                return entities.AsEnumerable();
             }
             catch (Exception)
             {
