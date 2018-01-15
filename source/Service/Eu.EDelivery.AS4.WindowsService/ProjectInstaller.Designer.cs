@@ -33,6 +33,7 @@
             // 
             // as4ServiceProcessInstaller
             // 
+            this.as4ServiceProcessInstaller.Account = System.ServiceProcess.ServiceAccount.LocalSystem;
             this.as4ServiceProcessInstaller.Password = null;
             this.as4ServiceProcessInstaller.Username = null;
             // 
