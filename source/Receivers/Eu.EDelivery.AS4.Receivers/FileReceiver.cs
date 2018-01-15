@@ -22,6 +22,8 @@ namespace Eu.EDelivery.AS4.Receivers
     [Info("FILE receiver")]
     public class FileReceiver : PollingTemplate<FileInfo, ReceivedMessage>, IReceiver
     {
+        private const string FileLockName = "file.lock";
+
         private readonly SynchronizedCollection<FileInfo> _pendingFiles = new SynchronizedCollection<FileInfo>();
         private readonly IMimeTypeRepository _repository;
 
@@ -118,8 +120,6 @@ namespace Eu.EDelivery.AS4.Receivers
             StartPolling(messageCallback, cancellationToken);
         }
 
-        
-
         public void StopReceiving()
         {
             _isReceiving = false;
@@ -151,32 +151,38 @@ namespace Eu.EDelivery.AS4.Receivers
                              .Where(fi => ExcludedExtensions.Contains(fi.Extension) == false)
                              .Take(BatchSize).ToArray();
 
-            foreach (FileInfo file in directoryFiles)
+            try
             {
-                try
+                foreach (FileInfo file in directoryFiles)
                 {
-                    var result = MoveFile(file, "pending");
-
-                    if (result.success)
+                    try
                     {
-                        var pendingFile = new FileInfo(result.filename);
+                        var result = MoveFile(file, "pending");
 
-                        Logger.Trace(
-                            $"Locked file {file.Name} to be processed and renamed it to {pendingFile.Name}");
+                        if (result.success)
+                        {
+                            var pendingFile = new FileInfo(result.filename);
 
-                        _pendingFiles.Add(pendingFile);
+                            Logger.Trace(
+                                $"Locked file {file.Name} to be processed and renamed it to {pendingFile.Name}");
 
-                        resultedFiles.Add(pendingFile);
+                            _pendingFiles.Add(pendingFile);
+
+                            resultedFiles.Add(pendingFile);
+                        }
+                    }
+                    catch (IOException ex)
+                    {
+                        Logger.Info($"FileReceiver on {FilePath}: {file.Name} skipped since it is in use.");
+                        Logger.Trace(ex.Message);
                     }
                 }
-                catch (IOException ex)
-                {
-                    Logger.Info($"FileReceiver on {FilePath}: {file.Name} skipped since it is in use.");
-                    Logger.Trace(ex.Message);
-                }
+            }
+            finally
+            {
+                RemoveFileLock();
             }
 
-            RemoveFileLock();
             return resultedFiles;
         }
 
@@ -187,7 +193,7 @@ namespace Eu.EDelivery.AS4.Receivers
             try
             {
                 using (var fs = new FileStream(
-                    Path.Combine(FilePath, "file.lock"),
+                    Path.Combine(FilePath, FileLockName),
                     FileMode.CreateNew,
                     FileAccess.Write))
                 {
@@ -198,7 +204,7 @@ namespace Eu.EDelivery.AS4.Receivers
             }
             catch (IOException ex)
             {
-                Logger.Error("File Lock Failure: " + ex.Message);
+                Logger.Error("The lock file cannot be removed, reason: " + ex.Message);
                 return FileLock.Failure;
             }
         }
@@ -207,11 +213,11 @@ namespace Eu.EDelivery.AS4.Receivers
         {
             try
             {
-                File.Delete(Path.Combine(FilePath, "file.lock"));
+                File.Delete(Path.Combine(FilePath, FileLockName));
             }
             catch (IOException ex)
             {
-                Logger.Error("File Lock Failure: " + ex.Message);
+                Logger.Error("The lock file cannot be removed, reason: " + ex.Message);
             }
         }
 
