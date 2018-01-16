@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Threading.Tasks;
+using Eu.EDelivery.AS4.Common;
 using NLog;
 
 namespace Eu.EDelivery.AS4.Strategies.Retriever
@@ -41,7 +42,7 @@ namespace Eu.EDelivery.AS4.Strategies.Retriever
         private static Stream RetrievePayloadAtlocation(string location)
         {
             string relativePath = location.Replace("file:///", string.Empty);
-            string absolutePath = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, relativePath));
+            string absolutePath = Path.GetFullPath(Path.Combine(Config.ApplicationPath, relativePath));
             var uri = new Uri(absolutePath);            
             
             return new FileStream(uri.LocalPath, FileMode.Open, FileAccess.Read, FileShare.Read);

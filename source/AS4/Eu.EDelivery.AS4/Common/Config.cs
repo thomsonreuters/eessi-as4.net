@@ -64,6 +64,12 @@ namespace Eu.EDelivery.AS4.Common
         public string OutMessageStoreLocation => _settings?.Database?.OutMessageStoreLocation ?? @"file:///.\database\as4messages\out";
 
         /// <summary>
+        /// Gets the application path of the AS4.NET Component.
+        /// </summary><value>The application path.
+        /// </value>
+        public static string ApplicationPath => AppDomain.CurrentDomain.BaseDirectory;
+
+        /// <summary>
         /// Gets a value indicating whether if the Configuration is initialized
         /// </summary>
         public bool IsInitialized { get; private set; }
@@ -227,7 +233,7 @@ namespace Eu.EDelivery.AS4.Common
 
         private static string BaseDirCombine(params string[] paths)
         {
-            return Path.Combine(new[] {AppDomain.CurrentDomain.BaseDirectory}.Concat(paths).ToArray());
+            return Path.Combine(new[] {ApplicationPath}.Concat(paths).ToArray());
         }
 
         private T TryDeserialize<T>(string path) where T : class
