@@ -1,10 +1,13 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
+using System.Linq.Dynamic.Core;
 
 namespace Eu.EDelivery.AS4.Strategies.Database
 {
@@ -33,6 +36,11 @@ namespace Eu.EDelivery.AS4.Strategies.Database
         /// <returns></returns>
         public IEnumerable<Entity> ExclusivelyRetrieveEntities(string tableName, string filter, int takeRows)
         {
+            if (!TableValidation.IsTableNameKnown(tableName))
+            {
+                throw new ConfigurationErrorsException($"The configured table {tableName} could not be found");
+            }
+
             string query =
                 $@"SELECT TOP {takeRows} *
                 FROM {tableName} WITH (XLOCK, READPAST)
@@ -41,7 +49,7 @@ namespace Eu.EDelivery.AS4.Strategies.Database
 
             IQueryable<Entity> entities = _dbSet.FromSql(query);
 
-            return entities.AsEnumerable();
+            return entities.ToList<Entity>();
         }
     }
 }

@@ -35,6 +35,7 @@ namespace Eu.EDelivery.AS4.Common
             };
 
         private RetryPolicy _policy;
+        private Func<IQueryable<Entity>, DatastoreContext, IAS4DbCommand> _retrieveEntitiesCommand;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DatastoreContext"/> class. 
@@ -96,8 +97,25 @@ namespace Eu.EDelivery.AS4.Common
 
         public DbSet<ReceptionAwareness> ReceptionAwareness { get; set; }
 
-        public Func<IQueryable<Entity>, DatastoreContext, IAS4DbCommand> RetrieveEntitiesCommand { get; internal set; }
+        public Func<IQueryable<Entity>, DatastoreContext, IAS4DbCommand> RetrieveEntitiesCommand
+        {
+            get
+            {
+                if (_retrieveEntitiesCommand == null)
+                {
+                    string providerKey = _config.GetSetting("Provider");
+                    if (!_retrieveCommands.ContainsKey(providerKey))
+                    {
+                        throw new KeyNotFoundException($"No Database Command found for DBMS-Type: '{providerKey}'");
+                    }
 
+                    _retrieveEntitiesCommand = _retrieveCommands[providerKey];
+                }
+
+                return _retrieveEntitiesCommand;
+            }
+            internal set { _retrieveEntitiesCommand = value; }
+        }
 
         /// <summary>
         ///     <para>
@@ -141,13 +159,6 @@ namespace Eu.EDelivery.AS4.Common
             logger.AddProvider(new TraceLoggerProvider());
 
             optionsBuilder.UseLoggerFactory(logger);
-
-            if (!_retrieveCommands.ContainsKey(providerKey))
-            {
-                throw new KeyNotFoundException($"No Database Command found for DBMS-Type: '{providerKey}'");
-            }
-
-            RetrieveEntitiesCommand = _retrieveCommands[providerKey];
         }
 
         private void ConfigureProviders(DbContextOptionsBuilder optionsBuilder)
