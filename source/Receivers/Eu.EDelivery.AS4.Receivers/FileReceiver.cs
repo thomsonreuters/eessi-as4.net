@@ -22,6 +22,8 @@ namespace Eu.EDelivery.AS4.Receivers
     [Info("FILE receiver")]
     public class FileReceiver : PollingTemplate<FileInfo, ReceivedMessage>, IReceiver
     {
+        private const string FileLockName = "file.lock";
+
         private readonly SynchronizedCollection<FileInfo> _pendingFiles = new SynchronizedCollection<FileInfo>();
         private readonly IMimeTypeRepository _repository;
 
@@ -53,7 +55,7 @@ namespace Eu.EDelivery.AS4.Receivers
 
         protected override ILogger Logger { get; }
 
-        private static readonly string[] ExcludedExtensions = { ".pending", ".processing", ".accepted", ".exception", ".details" };
+        private static readonly string[] ExcludedExtensions = { ".pending", ".processing", ".accepted", ".exception", ".details", ".lock" };
 
         #region Configuration
 
@@ -131,6 +133,11 @@ namespace Eu.EDelivery.AS4.Receivers
         /// <returns></returns>
         protected override IEnumerable<FileInfo> GetMessagesToPoll(CancellationToken cancellationToken)
         {
+            if (AddLockFile() == FileLock.Failure)
+            {
+                return Enumerable.Empty<FileInfo>();
+            }
+
             var directoryInfo = new DirectoryInfo(FilePath);
             var resultedFiles = new List<FileInfo>();
 
@@ -144,32 +151,74 @@ namespace Eu.EDelivery.AS4.Receivers
                              .Where(fi => ExcludedExtensions.Contains(fi.Extension) == false)
                              .Take(BatchSize).ToArray();
 
-            foreach (FileInfo file in directoryFiles)
+            try
             {
-                try
+                foreach (FileInfo file in directoryFiles)
                 {
-                    var result = MoveFile(file, "pending");
-
-                    if (result.success)
+                    try
                     {
-                        var pendingFile = new FileInfo(result.filename);
+                        var result = MoveFile(file, "pending");
 
-                        Logger.Trace(
-                            $"Locked file {file.Name} to be processed and renamed it to {pendingFile.Name}");
+                        if (result.success)
+                        {
+                            var pendingFile = new FileInfo(result.filename);
 
-                        _pendingFiles.Add(pendingFile);
+                            Logger.Trace(
+                                $"Locked file {file.Name} to be processed and renamed it to {pendingFile.Name}");
 
-                        resultedFiles.Add(pendingFile);
+                            _pendingFiles.Add(pendingFile);
+
+                            resultedFiles.Add(pendingFile);
+                        }
+                    }
+                    catch (IOException ex)
+                    {
+                        Logger.Info($"FileReceiver on {FilePath}: {file.Name} skipped since it is in use.");
+                        Logger.Trace(ex.Message);
                     }
                 }
-                catch (IOException ex)
-                {
-                    Logger.Info($"FileReceiver on {FilePath}: {file.Name} skipped since it is in use.");
-                    Logger.Trace(ex.Message);
-                }
+            }
+            finally
+            {
+                RemoveFileLock();
             }
 
             return resultedFiles;
+        }
+
+        private enum FileLock { Created, Failure }
+
+        private FileLock AddLockFile()
+        {
+            try
+            {
+                using (var fs = new FileStream(
+                    Path.Combine(FilePath, FileLockName),
+                    FileMode.CreateNew,
+                    FileAccess.Write))
+                {
+                    fs.Close();
+                }
+
+                return FileLock.Created;
+            }
+            catch (IOException ex)
+            {
+                Logger.Error("The lock file cannot be added, reason: " + ex.Message);
+                return FileLock.Failure;
+            }
+        }
+
+        private void RemoveFileLock()
+        {
+            try
+            {
+                File.Delete(Path.Combine(FilePath, FileLockName));
+            }
+            catch (IOException ex)
+            {
+                Logger.Error("The lock file cannot be removed, reason: " + ex.Message);
+            }
         }
 
         /// <summary>

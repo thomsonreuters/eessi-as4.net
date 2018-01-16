@@ -35,6 +35,30 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
         }
 
         [Fact]
+        public void BlocksFileReceiverWhenFolderIsLocked()
+        {
+            CreateFileInDirectory("testfile.dat", _watchedDirectory);
+            CreateFileInDirectory("file.lock", _watchedDirectory);
+            var receiver = CreateFileReceiver();
+
+            Assert.Empty(StartReceiving(receiver, TimeSpan.FromSeconds(10)));
+            DeleteFile(Path.Combine(_watchedDirectory, "file.lock"));
+            Assert.NotEmpty(StartReceiving(receiver, TimeSpan.FromSeconds(10)));
+        }
+
+        private void DeleteFile(string path)
+        {
+            try
+            {
+                File.Delete(path);
+            }
+            catch (IOException ex)
+            {
+                _testLogger.WriteLine(ex.ToString());
+            }
+        }
+
+        [Fact]
         public void DoesReceiveNonSystemFileTypes()
         {
             CreateFileInDirectory("testfile.dat", _watchedDirectory);
