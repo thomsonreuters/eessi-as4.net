@@ -8,8 +8,6 @@ using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.ServiceHandler;
 using Eu.EDelivery.AS4.ServiceHandler.Agents;
-using NLog;
-using NLog.Targets;
 
 namespace Eu.EDelivery.AS4.WindowsService
 {
@@ -20,10 +18,6 @@ namespace Eu.EDelivery.AS4.WindowsService
         private CancellationTokenSource _cancellation;
         private readonly EventLog _eventLog;
 
-        private const string Source = "Application", 
-            LogName = "AS4.NET Component",
-            MachineName = "."; 
-
         /// <summary>
         /// Initializes a new instance of the <see cref="AS4Service"/> class.
         /// </summary>
@@ -32,8 +26,7 @@ namespace Eu.EDelivery.AS4.WindowsService
             InitializeComponent();
             AutoLog = false;
 
-            _eventLog = new EventLog("Application", ".", LogName);
-            //_eventLog = new EventLogger();
+            _eventLog = new EventLog("Application", ".", "AS4.NET Component");
         }
 
         /// <summary>
@@ -47,13 +40,9 @@ namespace Eu.EDelivery.AS4.WindowsService
             try
             {
                 Config configuration = Config.Instance;
-                _eventLog.WriteEntry("AS4.NET Component end starting");
                 Registry registration = Registry.Instance;
                 configuration.Initialize();
             
-
-                _eventLog.WriteEntry("AS4.NET Component end starting");
-
                 if (!configuration.IsInitialized)
                 {
                     _eventLog.WriteEntry("AS4.NET Component cannot be initialized");
@@ -80,7 +69,6 @@ namespace Eu.EDelivery.AS4.WindowsService
 
                 _feTask = StartFeInProcess(_cancellation.Token);
                 _payloadServiceTask = StartPayloadServiceInProcess(_cancellation.Token);
-
             }
             catch (Exception ex)
             {
@@ -115,14 +103,21 @@ namespace Eu.EDelivery.AS4.WindowsService
         {
             _eventLog.WriteEntry("Stopping AS4.NET Component Service");
 
-            _cancellation.Cancel();
+            try
+            {
+                _cancellation.Cancel();
 
-            StopTask(_rootTask);
-            StopTask(_feTask);
-            StopTask(_payloadServiceTask);
+                StopTask(_rootTask);
+                StopTask(_feTask);
+                StopTask(_payloadServiceTask);
 
-            _kernel.Dispose();
-            Config.Instance.Dispose();
+                _kernel.Dispose();
+                Config.Instance.Dispose();
+            }
+            catch (Exception ex)
+            {
+                _eventLog.WriteEntry(ex.ToString(), EventLogEntryType.Error);
+            }
         }
 
         private static void StopTask(Task task)
@@ -139,14 +134,6 @@ namespace Eu.EDelivery.AS4.WindowsService
             {
                 task.Dispose();
             }
-        }
-    }
-
-    public class EventLogger : EventLogTarget
-    {
-        public void WriteEntry(string message, LogLevel level = null)
-        {
-            Write(new LogEventInfo(level ?? LogLevel.Info, "*", message));
         }
     }
 }

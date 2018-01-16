@@ -38,7 +38,7 @@ namespace Eu.EDelivery.AS4.Receivers
 
         [Info("File path", required: true)]
         [Description("Path to the folder to poll for new files")]
-        private string FilePath => _settings.FilePath;
+        private string FilePath => Path.Combine(AppDomain.CurrentDomain.BaseDirectory, _settings.FilePath);
 
         [Info("File mask", required: true, defaultValue: "*.*")]
         [Description("Mask used to match files.")]
