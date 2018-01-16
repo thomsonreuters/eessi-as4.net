@@ -69,6 +69,8 @@ namespace Eu.EDelivery.AS4.WindowsService
 
                 _feTask = StartFeInProcess(_cancellation.Token);
                 _payloadServiceTask = StartPayloadServiceInProcess(_cancellation.Token);
+
+                _eventLog.WriteEntry("AS4.NET Component Service is started");
             }
             catch (Exception ex)
             {
@@ -113,6 +115,8 @@ namespace Eu.EDelivery.AS4.WindowsService
 
                 _kernel.Dispose();
                 Config.Instance.Dispose();
+
+                _eventLog.WriteEntry("AS4.NET Component Service is stopped");
             }
             catch (Exception ex)
             {
