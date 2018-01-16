@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Entities;
+using Eu.EDelivery.AS4.Strategies.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -24,6 +25,14 @@ namespace Eu.EDelivery.AS4.Common
         private readonly IConfig _config;
         private readonly IDictionary<string, Func<string, DbContextOptionsBuilder>> _providers =
             new Dictionary<string, Func<string, DbContextOptionsBuilder>>(StringComparer.InvariantCulture);
+
+        private readonly IDictionary<string, Func<IQueryable<Entity>, DatastoreContext, IAS4DbCommand>> _retrieveCommands =
+            new Dictionary<string, Func<IQueryable<Entity>, DatastoreContext, IAS4DbCommand>>
+            {
+                {"SqlServer", (db, ctx) => new SqlServerDbCommand(db, ctx)},
+                {"Sqlite", (db, ctx) => new SqliteDbCommand(db, ctx)}
+                
+            };
 
         private RetryPolicy _policy;
 
@@ -87,6 +96,9 @@ namespace Eu.EDelivery.AS4.Common
 
         public DbSet<ReceptionAwareness> ReceptionAwareness { get; set; }
 
+        public Func<IQueryable<Entity>, DatastoreContext, IAS4DbCommand> RetrieveEntitiesCommand { get; internal set; }
+
+
         /// <summary>
         ///     <para>
         ///         Override this method to configure the database (and other options) to be used for this context.
@@ -129,8 +141,14 @@ namespace Eu.EDelivery.AS4.Common
             logger.AddProvider(new TraceLoggerProvider());
 
             optionsBuilder.UseLoggerFactory(logger);
-        }
 
+            if (!_retrieveCommands.ContainsKey(providerKey))
+            {
+                throw new KeyNotFoundException($"No Database Command found for DBMS-Type: '{providerKey}'");
+            }
+
+            RetrieveEntitiesCommand = _retrieveCommands[providerKey];
+        }
 
         private void ConfigureProviders(DbContextOptionsBuilder optionsBuilder)
         {

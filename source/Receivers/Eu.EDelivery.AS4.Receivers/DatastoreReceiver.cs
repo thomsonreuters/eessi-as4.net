@@ -10,7 +10,6 @@ using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Receivers.Utilities;
-using Eu.EDelivery.AS4.Strategies.Database;
 using NLog;
 using Function =
     System.Func<Eu.EDelivery.AS4.Model.Internal.ReceivedMessage, System.Threading.CancellationToken,
@@ -25,26 +24,21 @@ namespace Eu.EDelivery.AS4.Receivers
     public class DatastoreReceiver : PollingTemplate<Entity, ReceivedMessage>, IReceiver
     {
         private readonly Func<DatastoreContext> _storeExpression;
-        private readonly Func<string, Func<IQueryable<Entity>, DatastoreContext, IAS4DbCommand>> _commandProvider;
 
         private DatastoreReceiverSettings _settings;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DatastoreReceiver" /> class
         /// </summary>
-        public DatastoreReceiver() : this(() => new DatastoreContext(Config.Instance), new DbCommandProvider().Get) { }
-        
+        public DatastoreReceiver() : this(() => new DatastoreContext(Config.Instance)) { }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="DatastoreReceiver" /> class.
         /// </summary>
         /// <param name="storeExpression">The store expression.</param>
-        /// <param name="commandProvider">The command provider.</param>
-        public DatastoreReceiver(
-            Func<DatastoreContext> storeExpression, 
-            Func<string, Func<IQueryable<Entity>, DatastoreContext, IAS4DbCommand>> commandProvider)
+        public DatastoreReceiver(Func<DatastoreContext> storeExpression)
         {
             _storeExpression = storeExpression;
-            _commandProvider = commandProvider;
         }
 
         protected override ILogger Logger { get; } = LogManager.GetCurrentClassLogger();
@@ -121,12 +115,9 @@ namespace Eu.EDelivery.AS4.Receivers
             // TODO: 
             // - validate the Filter clause for sql injection
             // - make sure that single quotes are used around string vars.  (Maybe make it dependent on the DB type, same is true for escape characters [] in sql server, ...             
-            // - Hard-Coded 'Provider' should be available as "supported settings?"
-
-            string dbmsType = Config.Instance.GetSetting("Provider");
 
             IEnumerable<Entity> entities = 
-                _commandProvider(dbmsType)(dbSet, context)
+                context.RetrieveEntitiesCommand(dbSet, context)
                 .ExclusivelyRetrieveEntities(Table, Filter, TakeRows);
 
             if (!entities.Any())

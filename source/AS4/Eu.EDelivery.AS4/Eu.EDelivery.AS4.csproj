@@ -490,7 +490,6 @@
     <Compile Include="Services\OutMessageService.cs" />
     <Compile Include="Services\PullRequestAuthorization\PullRequestAuthorizationEntry.cs" />
     <Compile Include="Services\ReceptionAwarenessService.cs" />
-    <Compile Include="Strategies\Database\DbCommandProvider.cs" />
     <Compile Include="Strategies\Database\IAS4DbCommand.cs" />
     <Compile Include="Strategies\Database\SqliteDbCommand.cs" />
     <Compile Include="Strategies\Database\SqlServerDbCommand.cs" />

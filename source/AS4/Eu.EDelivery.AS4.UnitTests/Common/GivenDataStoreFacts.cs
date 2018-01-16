@@ -1,6 +1,7 @@
 using System;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Repositories;
+using Eu.EDelivery.AS4.UnitTests.Receivers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
@@ -28,8 +29,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
         public GivenDatastoreFacts()
         {
             Options = CreateNewContextOptions();
-            GetDataStoreContext = () => new DatastoreContext(Options);
-            Registry.Instance.CreateDatastoreContext = () => new DatastoreContext(Options);
+            GetDataStoreContext = () => new DatastoreContext(Options)
+            {
+                RetrieveEntitiesCommand = (db, ctx) => new InMemoryDbCommand(db)
+            };
+            Registry.Instance.CreateDatastoreContext = () => new DatastoreContext(Options)
+            {
+                RetrieveEntitiesCommand = (db, ctx) => new InMemoryDbCommand(db)
+            };
 
             BatchUpdateManager.InMemoryDbContextFactory = () => new DatastoreContext(Options);
 
