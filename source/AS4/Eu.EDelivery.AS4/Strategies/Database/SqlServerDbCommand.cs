@@ -33,26 +33,15 @@ namespace Eu.EDelivery.AS4.Strategies.Database
         /// <returns></returns>
         public IEnumerable<Entity> ExclusivelyRetrieveEntities(string tableName, string filter, int takeRows)
         {
-            IDbContextTransaction transaction = _context.Database.BeginTransaction();
-
-            try
-            {
-                string query =
-                    $@"SELECT TOP {takeRows} *
+            string query =
+                $@"SELECT TOP {takeRows} *
                 FROM {tableName} WITH (XLOCK, READPAST)
                 WHERE {filter}
                 ORDER BY InsertionTime";
 
-                IQueryable<Entity> entities = _dbSet.FromSql(query);
-                transaction.Commit();
+            IQueryable<Entity> entities = _dbSet.FromSql(query);
 
-                return entities.AsEnumerable();
-            }
-            catch (Exception)
-            {
-                transaction.Rollback();
-                throw;
-            }
+            return entities.AsEnumerable();
         }
     }
 }
