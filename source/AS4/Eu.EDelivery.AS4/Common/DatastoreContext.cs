@@ -29,7 +29,7 @@ namespace Eu.EDelivery.AS4.Common
         private readonly IDictionary<string, Func<IQueryable<Entity>, DatastoreContext, IAS4DbCommand>> _retrieveCommands =
             new Dictionary<string, Func<IQueryable<Entity>, DatastoreContext, IAS4DbCommand>>
             {
-                {"SqlServer", (db, ctx) => new SqlServerDbCommand(db, ctx)},
+                {"SqlServer", (db, ctx) => new SqlServerDbCommand(ctx)},
                 {"Sqlite", (db, ctx) => new SqliteDbCommand(db, ctx)}
                 
             };

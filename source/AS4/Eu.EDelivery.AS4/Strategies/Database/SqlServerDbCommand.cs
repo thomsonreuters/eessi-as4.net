@@ -1,29 +1,34 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage;
 using System.Linq.Dynamic.Core;
 
 namespace Eu.EDelivery.AS4.Strategies.Database
 {
     internal class SqlServerDbCommand : IAS4DbCommand
     {
-        private readonly IQueryable<Entity> _dbSet;
         private readonly DatastoreContext _context;
+
+        private readonly IDictionary<string, Func<DatastoreContext, IQueryable<Entity>>> _tablesByName = 
+            new Dictionary<string, Func<DatastoreContext, IQueryable<Entity>>>
+            {
+                {"InMessages", c => c.InMessages.FromSql(CreateSqlStatement("InMessages"))},
+                {"OutMessages", c => c.OutMessages.FromSql(CreateSqlStatement("OutMessages"))},
+                {"InExceptions", c => c.InExceptions.FromSql(CreateSqlStatement("InExceptions"))},
+                {"OutExceptions", c => c.OutExceptions.FromSql(CreateSqlStatement("OutExceptions"))},
+                {"ReceptionAwareness", c => c.ReceptionAwareness.FromSql(CreateSqlStatement("ReceptionAwareness"))}
+            };
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SqlServerDbCommand" /> class.
         /// </summary>
-        /// <param name="dbSet">The database set.</param>
         /// <param name="context">The context.</param>
-        public SqlServerDbCommand(IQueryable<Entity> dbSet, DatastoreContext context)
+        public SqlServerDbCommand(DatastoreContext context)
         {
-            _dbSet = dbSet;
             _context = context;
         }
 
@@ -36,20 +41,21 @@ namespace Eu.EDelivery.AS4.Strategies.Database
         /// <returns></returns>
         public IEnumerable<Entity> ExclusivelyRetrieveEntities(string tableName, string filter, int takeRows)
         {
-            if (!TableValidation.IsTableNameKnown(tableName))
+            if (!(TableValidation.IsTableNameKnown(tableName) && _tablesByName.ContainsKey(tableName)))
             {
                 throw new ConfigurationErrorsException($"The configured table {tableName} could not be found");
             }
 
-            string query =
-                $@"SELECT TOP {takeRows} *
-                FROM {tableName} WITH (XLOCK, READPAST)
-                WHERE {filter}
-                ORDER BY InsertionTime";
+            return _tablesByName[tableName](_context)
+                .Where(filter.Replace("\'", "\""))
+                .OrderBy(x => x.InsertionTime)
+                .Take(takeRows)
+                .ToList();
+        }
 
-            IQueryable<Entity> entities = _dbSet.FromSql(query);
-
-            return entities.ToList<Entity>();
+        private static string CreateSqlStatement(string tableName)
+        {
+            return $"SELECT * FROM {tableName} WITH (xlock, readpast)";
         }
     }
 }
