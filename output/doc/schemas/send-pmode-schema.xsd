@@ -10,7 +10,7 @@
       <xs:element minOccurs="0" maxOccurs="1" name="PushConfiguration" type="tns:PushConfiguration" />
       <xs:element minOccurs="0" maxOccurs="1" name="DynamicDiscovery" type="tns:DynamicDiscoveryConfiguration" />
       <xs:element minOccurs="0" maxOccurs="1" name="Reliability" type="tns:SendReliability" />
-      <xs:element minOccurs="0" maxOccurs="1" name="ReceiptHandling" type="tns:SendHandling" />
+      <xs:element minOccurs="0" maxOccurs="1" name="ReceiptHandling" type="tns:SendReceiptHandling" />
       <xs:element minOccurs="0" maxOccurs="1" name="ErrorHandling" type="tns:SendHandling" />
       <xs:element minOccurs="0" maxOccurs="1" name="ExceptionHandling" type="tns:SendHandling" />
       <xs:element minOccurs="0" maxOccurs="1" name="Security" type="tns:Security" />
@@ -110,6 +110,15 @@
       <xs:element minOccurs="0" maxOccurs="1" default="5" name="RetryCount" type="xs:int" />
       <xs:element minOccurs="0" maxOccurs="1" default="00:01:00" name="RetryInterval" type="xs:string" />
     </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="SendReceiptHandling">
+    <xs:complexContent mixed="false">
+      <xs:extension base="tns:SendHandling">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" default="true" name="VerifyNRR" type="xs:boolean" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
   </xs:complexType>
   <xs:complexType name="SendHandling">
     <xs:sequence>

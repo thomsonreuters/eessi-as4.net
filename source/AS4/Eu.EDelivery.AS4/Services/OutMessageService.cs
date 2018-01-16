@@ -1,5 +1,9 @@
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Management.Instrumentation;
+using System.Threading;
+using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Entities;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
@@ -7,6 +11,7 @@ using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
+using Eu.EDelivery.AS4.Serialization;
 using MessageExchangePattern = Eu.EDelivery.AS4.Entities.MessageExchangePattern;
 
 namespace Eu.EDelivery.AS4.Services
@@ -42,6 +47,33 @@ namespace Eu.EDelivery.AS4.Services
             _configuration = config;
             _repository = respository;
             _messageBodyStore = messageBodyStore;
+        }
+
+        /// <summary>
+        /// Gets a s4 user message for identifier.
+        /// </summary>
+        /// <param name="messageId">The message identifier.</param>
+        /// <param name="store">The provider.</param>
+        /// <returns></returns>
+        public async Task<AS4Message> GetAS4UserMessageForId(string messageId, IAS4MessageBodyStore store)
+        {
+            OutMessage message = GetOutMessageById(messageId);
+            Stream messageBody = await store.LoadMessageBodyAsync(message.MessageLocation);
+
+            ISerializer serializer = Registry.Instance.SerializerProvider.Get(message.ContentType);
+            return await serializer.DeserializeAsync(messageBody, message.ContentType, CancellationToken.None);
+        }
+
+        private OutMessage GetOutMessageById(string messageId)
+        {
+            OutMessage outMessage = _repository.GetOutMessageData(messageId, m => m);
+
+            if (outMessage == null)
+            {
+                throw new InstanceNotFoundException($"No 'Out Message' found for the given Id: '{messageId}'");
+            }
+
+            return outMessage;
         }
 
         /// <summary>
@@ -182,6 +214,14 @@ namespace Eu.EDelivery.AS4.Services
     public interface IOutMessageService
     {
         /// <summary>
+        /// Gets a s4 user message for identifier.
+        /// </summary>
+        /// <param name="messageId">The message identifier.</param>
+        /// <param name="store">The provider.</param>
+        /// <returns></returns>
+        Task<AS4Message> GetAS4UserMessageForId(string messageId, IAS4MessageBodyStore store);
+
+        /// <summary>
         /// Inserts a s4 message.
         /// </summary>
         /// <param name="message">The message.</param>
@@ -195,6 +235,5 @@ namespace Eu.EDelivery.AS4.Services
         /// <param name="message">The message.</param>
         /// <returns></returns>
         void UpdateAS4MessageToBeSent(AS4Message message);
-
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 
 namespace Eu.EDelivery.AS4.Model.Core
 {
@@ -8,22 +9,60 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// <summary>
         /// The UserMessage for which this is a receipt.
         /// </summary>
+        /// <value>The user message.</value>
         /// <remarks>This property should only be populated when the NonRepudiationInformation is not filled out.</remarks>
         public UserMessage UserMessage { get; set; }
 
         /// <summary>
         /// NonRepudiation information of the UserMessage for which this is a receipt.
         /// </summary>
+        /// <value>The non repudiation information.</value>
         /// <remarks>This property is only populated when the UserMessage property is not filled out.</remarks>
         public NonRepudiationInformation NonRepudiationInformation { get; set; }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Receipt"/> class.
+        /// </summary>
         public Receipt() {}
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Receipt"/> class.
+        /// </summary>
+        /// <param name="messageId">The message identifier.</param>
         public Receipt(string messageId) : base(messageId) {}
 
+        /// <summary>
+        /// Gets the action value.
+        /// </summary>
+        /// <returns></returns>
         public override string GetActionValue()
         {
             return "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/oneWay.receipt";
+        }
+
+        /// <summary>
+        /// Verifies the non repudiations.
+        /// </summary>
+        /// <param name="userReferences">The user references.</param>
+        /// <returns></returns>
+        public bool VerifyNonRepudiations(IEnumerable<System.Security.Cryptography.Xml.Reference> userReferences)
+        {
+            return userReferences.Any()
+                   && userReferences.Select(IsNonRepudiationHashEqualToUserReferenceHash).All(r => r);
+        }
+
+        private bool IsNonRepudiationHashEqualToUserReferenceHash(System.Security.Cryptography.Xml.Reference r)
+        {
+            byte[] repudiationHash = GetNonRepudiationHashForUri(r.Uri);
+            return repudiationHash != null && r.DigestValue?.SequenceEqual(repudiationHash) == true;
+        }
+
+        private byte[] GetNonRepudiationHashForUri(string userMessageReferenceUri)
+        {
+            return NonRepudiationInformation.MessagePartNRInformation
+                .Where(i => i.Reference.URI.Equals(userMessageReferenceUri))
+                .Select(i => i.Reference.DigestValue)
+                .FirstOrDefault();
         }
     }
 

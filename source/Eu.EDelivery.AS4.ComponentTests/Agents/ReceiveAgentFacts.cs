@@ -383,7 +383,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
             var sendingPMode = new SendingProcessingMode()
             {
-                ReceiptHandling = new SendHandling()
+                ReceiptHandling = new SendReceiptHandling()
                 {
                     NotifyMessageProducer = true,
                     NotifyMethod = new Method()
