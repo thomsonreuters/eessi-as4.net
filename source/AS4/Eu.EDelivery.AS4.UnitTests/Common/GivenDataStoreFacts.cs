@@ -29,16 +29,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
         public GivenDatastoreFacts()
         {
             Options = CreateNewContextOptions();
-            GetDataStoreContext = () => new DatastoreContext(Options)
-            {
-                RetrieveEntitiesCommand = (db, ctx) => new InMemoryDbCommand(db)
-            };
-            Registry.Instance.CreateDatastoreContext = () => new DatastoreContext(Options)
-            {
-                RetrieveEntitiesCommand = (db, ctx) => new InMemoryDbCommand(db)
-            };
+            GetDataStoreContext = () => new DatastoreContext(Options, StubConfig.Default);
+            Registry.Instance.CreateDatastoreContext = () => new DatastoreContext(Options, StubConfig.Default);
 
-            BatchUpdateManager.InMemoryDbContextFactory = () => new DatastoreContext(Options);
+            BatchUpdateManager.InMemoryDbContextFactory = () => new DatastoreContext(StubConfig.Default);
 
             DatastoreRepository.ResetCaches();
         }

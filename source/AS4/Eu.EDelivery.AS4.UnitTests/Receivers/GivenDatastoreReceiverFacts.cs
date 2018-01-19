@@ -117,7 +117,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
 
         private void InsertOutMessageInDatastoreWith(Operation operation, OutStatus status)
         {
-            using (var context = new DatastoreContext(Options))
+            using (var context = GetDataStoreContext())
             {
                 var expectedMessage = new OutMessage("message-id")
                 {                    
@@ -134,7 +134,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
 
         private IReceiver DataStoreReceiverWith(IEnumerable<Setting> settings)
         {
-            var receiver = new DatastoreReceiver(() => new DatastoreContext(Options));
+            var receiver = new DatastoreReceiver(GetDataStoreContext);
             ((IReceiver)receiver).Configure(settings);
 
             return receiver;
@@ -196,7 +196,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
 
         private void AssertOutMessageIf(Func<OutMessage, bool> where, Action<OutMessage> assertion)
         {
-            using (var context = new DatastoreContext(Options))
+            using (var context = GetDataStoreContext())
             {
                 OutMessage actualMessag = context.OutMessages.Where(where).FirstOrDefault();
                 assertion(actualMessag);

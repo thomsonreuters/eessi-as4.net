@@ -10,17 +10,14 @@ namespace Eu.EDelivery.AS4.Strategies.Database
 {
     internal class SqliteDbCommand : IAS4DbCommand
     {
-        private readonly IQueryable<Entity> _dbSet;
         private readonly DatastoreContext _context;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SqliteDbCommand" /> class.
         /// </summary>
-        /// <param name="dbSet">The database set.</param>
         /// <param name="context">The context.</param>
-        public SqliteDbCommand(IQueryable<Entity> dbSet, DatastoreContext context)
+        public SqliteDbCommand(DatastoreContext context)
         {
-            _dbSet = dbSet;
             _context = context;
         }
 
@@ -33,7 +30,7 @@ namespace Eu.EDelivery.AS4.Strategies.Database
         /// <returns></returns>
         public IEnumerable<Entity> ExclusivelyRetrieveEntities(string tableName, string filter, int takeRows)
         {
-            if (!TableValidation.IsTableNameKnown(tableName))
+            if (!DatastoreTable.IsTableNameKnown(tableName))
             {
                 throw new ConfigurationErrorsException($"The configured table {tableName} could not be found");
             }
@@ -41,10 +38,11 @@ namespace Eu.EDelivery.AS4.Strategies.Database
             _context.Database.ExecuteSqlCommand("BEGIN EXCLUSIVE");
             string filterExpression = filter.Replace("\'", "\"");
 
-            return _dbSet.Where(filterExpression)
-                         .OrderBy(x => x.InsertionTime)
-                         .Take(takeRows)
-                         .ToList();
+            return DatastoreTable.FromTableName(tableName)(_context)
+                .Where(filterExpression)
+                .OrderBy(x => x.InsertionTime)
+                .Take(takeRows)
+                .ToList();
         }
     }
 }

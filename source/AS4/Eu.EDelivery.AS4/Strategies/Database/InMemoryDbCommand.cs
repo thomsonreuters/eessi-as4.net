@@ -1,22 +1,22 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Dynamic.Core;
+using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
-using Eu.EDelivery.AS4.Strategies.Database;
 
-namespace Eu.EDelivery.AS4.UnitTests.Common
+namespace Eu.EDelivery.AS4.Strategies.Database
 {
     internal class InMemoryDbCommand : IAS4DbCommand
     {
-        private readonly IQueryable<Entity> _dbSet;
+        private readonly DatastoreContext _context;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="InMemoryDbCommand" /> class.
         /// </summary>
-        /// <param name="dbSet">The database set.</param>
-        public InMemoryDbCommand(IQueryable<Entity> dbSet)
+        /// <param name="context">The context.</param>
+        public InMemoryDbCommand(DatastoreContext context)
         {
-            _dbSet = dbSet;
+            _context = context;
         }
 
         /// <summary>
@@ -30,8 +30,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
         {
             string filterExpression = filter.Replace("\'", "\"");
 
-            return _dbSet.Where(filterExpression)
-                         .ToList();
+            return DatastoreTable.FromTableName(tableName)(_context)
+                .Where(filterExpression)
+                .ToList();
         }
     }
 }

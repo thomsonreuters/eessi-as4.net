@@ -253,7 +253,6 @@
     <Compile Include="Model\Notify\EmptyNotifyEnvelope.cs" />
     <Compile Include="Model\PMode\GivenSendingPModeFacts.cs" />
     <Compile Include="Receivers\GivenFileReceiverFacts.cs" />
-    <Compile Include="Common\InMemoryDbCommand.cs" />
     <Compile Include="Repositories\DatastoreExtensions.cs" />
     <Compile Include="Serialization\GivenInvalidMessageSerializationFacts.cs" />
     <Compile Include="Services\GivenFileAuthorizationMapProviderFacts.cs" />

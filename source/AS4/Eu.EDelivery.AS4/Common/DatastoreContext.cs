@@ -26,16 +26,15 @@ namespace Eu.EDelivery.AS4.Common
         private readonly IDictionary<string, Func<string, DbContextOptionsBuilder>> _providers =
             new Dictionary<string, Func<string, DbContextOptionsBuilder>>(StringComparer.InvariantCulture);
 
-        private readonly IDictionary<string, Func<IQueryable<Entity>, DatastoreContext, IAS4DbCommand>> _retrieveCommands =
-            new Dictionary<string, Func<IQueryable<Entity>, DatastoreContext, IAS4DbCommand>>
+        private readonly IDictionary<string, Func<DatastoreContext, IAS4DbCommand>> _retrieveCommands =
+            new Dictionary<string, Func<DatastoreContext, IAS4DbCommand>>
             {
-                {"SqlServer", (db, ctx) => new SqlServerDbCommand(ctx)},
-                {"Sqlite", (db, ctx) => new SqliteDbCommand(db, ctx)}
-                
+                {"SqlServer", ctx => new SqlServerDbCommand(ctx)},
+                {"Sqlite", ctx => new SqliteDbCommand(ctx)},
+                {"InMemory", ctx => new InMemoryDbCommand(ctx)}
             };
 
         private RetryPolicy _policy;
-        private Func<IQueryable<Entity>, DatastoreContext, IAS4DbCommand> _retrieveEntitiesCommand;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DatastoreContext"/> class. 
@@ -45,6 +44,15 @@ namespace Eu.EDelivery.AS4.Common
         /// </param>
         public DatastoreContext(DbContextOptions<DatastoreContext> options) : base(options)
         {
+            InitializeFields();
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DatastoreContext"/> class.
+        /// </summary>
+        public DatastoreContext(DbContextOptions<DatastoreContext> options, IConfig config) : base(options)
+        {
+            _config = config;
             InitializeFields();
         }
 
@@ -85,6 +93,17 @@ namespace Eu.EDelivery.AS4.Common
             _policy = Policy
                 .Handle<DbUpdateException>()
                 .RetryAsync();
+
+            if (_config == null) { return; }
+
+            string providerKey = _config.GetSetting("Provider");
+            if (!_retrieveCommands.ContainsKey(providerKey))
+            {
+                throw new KeyNotFoundException(
+                    $"No Native Command implementation found for DBMS-type: '{providerKey}'");
+            }
+
+            NativeCommand = _retrieveCommands[providerKey](this);
         }
 
         public DbSet<InMessage> InMessages { get; set; }
@@ -97,25 +116,7 @@ namespace Eu.EDelivery.AS4.Common
 
         public DbSet<ReceptionAwareness> ReceptionAwareness { get; set; }
 
-        public Func<IQueryable<Entity>, DatastoreContext, IAS4DbCommand> RetrieveEntitiesCommand
-        {
-            get
-            {
-                if (_retrieveEntitiesCommand == null)
-                {
-                    string providerKey = _config.GetSetting("Provider");
-                    if (!_retrieveCommands.ContainsKey(providerKey))
-                    {
-                        throw new KeyNotFoundException($"No Database Command found for DBMS-Type: '{providerKey}'");
-                    }
-
-                    _retrieveEntitiesCommand = _retrieveCommands[providerKey];
-                }
-
-                return _retrieveEntitiesCommand;
-            }
-            internal set { _retrieveEntitiesCommand = value; }
-        }
+        public IAS4DbCommand NativeCommand { get; private set; }
 
         /// <summary>
         ///     <para>
@@ -140,25 +141,28 @@ namespace Eu.EDelivery.AS4.Common
                 return;
             }
 
-            string connectionString = _config.GetSetting("connectionstring");
-            ConfigureProviders(optionsBuilder);
-
             string providerKey = _config.GetSetting("Provider");
 
-            if (!_providers.ContainsKey(providerKey))
+            if (!optionsBuilder.IsConfigured)
             {
-                throw new KeyNotFoundException($"No Database provider found for key: {providerKey}");
+                string connectionString = _config.GetSetting("connectionstring");
+                ConfigureProviders(optionsBuilder);
+
+                if (!_providers.ContainsKey(providerKey))
+                {
+                    throw new KeyNotFoundException($"No Database provider found for key: {providerKey}");
+                }
+
+                _providers[providerKey](connectionString);
+
+                // Make sure no InvalidOperation is thrown when an ambient transaction is detected.
+                optionsBuilder.ConfigureWarnings(x => x.Ignore(RelationalEventId.AmbientTransactionWarning));
+
+                var logger = new LoggerFactory();
+                logger.AddProvider(new TraceLoggerProvider());
+
+                optionsBuilder.UseLoggerFactory(logger);
             }
-
-            _providers[providerKey](connectionString);
-
-            // Make sure no InvalidOperation is thrown when an ambient transaction is detected.
-            optionsBuilder.ConfigureWarnings(x => x.Ignore(RelationalEventId.AmbientTransactionWarning));
-
-            var logger = new LoggerFactory();
-            logger.AddProvider(new TraceLoggerProvider());
-
-            optionsBuilder.UseLoggerFactory(logger);
         }
 
         private void ConfigureProviders(DbContextOptionsBuilder optionsBuilder)

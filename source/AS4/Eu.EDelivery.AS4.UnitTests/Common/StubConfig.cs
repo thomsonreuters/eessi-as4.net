@@ -10,7 +10,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
     public class StubConfig : PseudoConfig
     {
         private readonly IDictionary<string, string> _configuration;
-        private readonly IDictionary<string, ReceivingProcessingMode> _receivingPmodes;
         private readonly IDictionary<string, SendingProcessingMode> _sendingPModes;
 
         public static readonly StubConfig Default = new StubConfig();
@@ -29,8 +28,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
             return new Dictionary<string, string>(StringComparer.CurrentCultureIgnoreCase)
             {
                 ["IdFormat"] = "{GUID}",
-                ["Provider"] = "Sqlite",
-                ["ConnectionString"] = @"Filename=database\messages.db",
+                ["Provider"] = "InMemory",
+                ["ConnectionString"] = @"",
                 ["CertificateStore"] = "My"
             };
         }
@@ -55,7 +54,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
         {
             _configuration = configSettings;
             _sendingPModes = sendingPModes;
-            _receivingPmodes = receivingPModes;
         }
 
         /// <summary>

@@ -13,6 +13,7 @@ namespace Eu.EDelivery.AS4.Strategies.Database
     {
         private readonly DatastoreContext _context;
 
+        // TODO: this is kind of similiar to the 'DatastoreTable' class
         private readonly IDictionary<string, Func<DatastoreContext, IQueryable<Entity>>> _tablesByName = 
             new Dictionary<string, Func<DatastoreContext, IQueryable<Entity>>>
             {
@@ -41,7 +42,7 @@ namespace Eu.EDelivery.AS4.Strategies.Database
         /// <returns></returns>
         public IEnumerable<Entity> ExclusivelyRetrieveEntities(string tableName, string filter, int takeRows)
         {
-            if (!(TableValidation.IsTableNameKnown(tableName) && _tablesByName.ContainsKey(tableName)))
+            if (!(DatastoreTable.IsTableNameKnown(tableName) && _tablesByName.ContainsKey(tableName)))
             {
                 throw new ConfigurationErrorsException($"The configured table {tableName} could not be found");
             }

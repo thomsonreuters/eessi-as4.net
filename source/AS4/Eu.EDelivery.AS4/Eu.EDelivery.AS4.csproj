@@ -491,9 +491,10 @@
     <Compile Include="Services\PullRequestAuthorization\PullRequestAuthorizationEntry.cs" />
     <Compile Include="Services\ReceptionAwarenessService.cs" />
     <Compile Include="Strategies\Database\IAS4DbCommand.cs" />
+    <Compile Include="Strategies\Database\InMemoryDbCommand.cs" />
     <Compile Include="Strategies\Database\SqliteDbCommand.cs" />
     <Compile Include="Strategies\Database\SqlServerDbCommand.cs" />
-    <Compile Include="Strategies\Database\TableValidation.cs" />
+    <Compile Include="Strategies\Database\DatastoreTable.cs" />
     <Compile Include="Strategies\Sender\FileSender.cs" />
     <Compile Include="Strategies\Sender\HttpSender.cs" />
     <Compile Include="Strategies\Sender\ReliableSender.cs" />
