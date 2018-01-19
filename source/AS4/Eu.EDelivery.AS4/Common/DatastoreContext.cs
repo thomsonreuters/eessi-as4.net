@@ -37,6 +37,15 @@ namespace Eu.EDelivery.AS4.Common
         private RetryPolicy _policy;
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="DatastoreContext" /> class.
+        /// </summary>
+        /// <param name="options">The options.</param>
+        public DatastoreContext(DbContextOptions<DatastoreContext> options) : base(options)
+        {
+            InitializeFields();            
+        }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="DatastoreContext"/> class.
         /// </summary>
         public DatastoreContext(DbContextOptions<DatastoreContext> options, IConfig config) : base(options)
