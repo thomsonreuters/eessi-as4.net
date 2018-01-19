@@ -107,7 +107,7 @@ namespace Eu.EDelivery.AS4.Receivers
         {
             var tablePropertyInfo = GetTableSetPropertyInfo();
 
-            if (!(tablePropertyInfo.GetValue(context) is IQueryable<Entity> dbSet))
+            if (!(tablePropertyInfo.GetValue(context) is IQueryable<Entity>))
             {
                 throw new ConfigurationErrorsException($"The configured table {_settings.TableName} could not be found");
             }
@@ -117,8 +117,7 @@ namespace Eu.EDelivery.AS4.Receivers
             // - make sure that single quotes are used around string vars.  (Maybe make it dependent on the DB type, same is true for escape characters [] in sql server, ...             
 
             IEnumerable<Entity> entities = 
-                context.RetrieveEntitiesCommand(dbSet, context)
-                .ExclusivelyRetrieveEntities(Table, Filter, TakeRows);
+                context.NativeCommand.ExclusivelyRetrieveEntities(Table, Filter, TakeRows);
 
             if (!entities.Any())
             {

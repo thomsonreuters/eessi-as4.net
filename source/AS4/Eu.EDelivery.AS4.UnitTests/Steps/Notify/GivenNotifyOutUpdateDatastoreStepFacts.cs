@@ -68,7 +68,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
 
             private void AssertOutMessage(string messageId, Action<OutMessage> assertAction)
             {
-                using (var context = new DatastoreContext(Options))
+                using (var context = GetDataStoreContext())
                 {
                     OutMessage outMessage = context.OutMessages.FirstOrDefault(m => m.EbmsMessageId.Equals(messageId));
                     assertAction(outMessage);

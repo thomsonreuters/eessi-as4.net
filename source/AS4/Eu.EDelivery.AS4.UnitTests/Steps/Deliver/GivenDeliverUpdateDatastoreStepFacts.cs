@@ -30,7 +30,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
 
         private void SeedDatastore()
         {
-            using (var context = new DatastoreContext(Options))
+            using (var context = GetDataStoreContext())
             {
                 InMessage inMessage = CreateInMessage();
                 context.InMessages.Add(inMessage);
@@ -65,7 +65,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
 
             private void AssertInMessages()
             {
-                using (var context = new DatastoreContext(Options))
+                using (var context = GetDataStoreContext())
                 {
                     InMessage inmessage = context.InMessages.FirstOrDefault(m => m.EbmsMessageId.Equals(_messageId));
 

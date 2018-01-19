@@ -54,7 +54,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
 
             private void AssertInException(ExceptionEntity previousInException)
             {
-                using (var context = new DatastoreContext(Options))
+                using (var context = GetDataStoreContext())
                 {
                     InException inException =
                         context.InExceptions.FirstOrDefault(
@@ -68,7 +68,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
 
         protected void InsertInException(InException inException)
         {
-            using (var context = new DatastoreContext(Options))
+            using (var context = GetDataStoreContext())
             {
                 context.InExceptions.Add(inException);
                 context.SaveChanges();

@@ -65,7 +65,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.ReceptionAwareness
 
             private void ArrangeMessageIsAlreadyAnswered(string messageId)
             {
-                using (var context = new DatastoreContext(Options))
+                using (var context = GetDataStoreContext())
                 {
                     var outMessage = new OutMessage(ebmsMessageId: messageId);
                     outMessage.SetStatus(OutStatus.Ack);

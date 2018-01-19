@@ -72,7 +72,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
 
         private void InsertToBeSentUserMessage(AS4Message as4Message)
         {
-            using (var context = new DatastoreContext(Options))
+            using (var context = GetDataStoreContext())
             {
                 context.OutMessages.Add(new OutMessage(ebmsMessageId: as4Message.PrimaryUserMessage.MessageId));
                 context.SaveChanges();
@@ -86,7 +86,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
 
         private void AssertSentUserMessage(AS4Message as4Message, Action<OutMessage> assertion)
         {
-            using (var context = new DatastoreContext(Options))
+            using (var context = GetDataStoreContext())
             {
                 OutMessage outMessage = context.OutMessages.FirstOrDefault(
                     m => m.EbmsMessageId.Equals(as4Message.PrimaryUserMessage.MessageId));
