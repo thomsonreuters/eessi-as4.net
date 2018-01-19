@@ -116,6 +116,21 @@ namespace Eu.EDelivery.AS4.Common
 
         public IAS4DbCommand NativeCommand { get; private set; }
 
+        public bool IsInMemory
+        {
+            get
+            {
+                try
+                {
+                    return _config?.GetSetting("Provider").Equals("InMemory") ?? false;
+                }
+                catch (Exception)
+                {
+                    return false;
+                }
+            }
+        }
+
         /// <summary>
         ///     <para>
         ///         Override this method to configure the database (and other options) to be used for this context.

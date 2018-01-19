@@ -18,7 +18,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
         /// Initializes a new instance of the <see cref="StubConfig"/> class.
         /// </summary>
         private StubConfig()
-            : this(sendingPModes: new Dictionary<string, SendingProcessingMode>(),
+            : this(GetDefaultConfigSettings(),
+                   sendingPModes: new Dictionary<string, SendingProcessingMode>(),
                    receivingPModes: new Dictionary<string, ReceivingProcessingMode>())
         {
         }

@@ -55,17 +55,20 @@ namespace Eu.EDelivery.AS4.ServiceHandler
                 return;
             }
 
-            using (var context = new DatastoreContext(_config))
+            try
             {
-                try
+                using (var context = new DatastoreContext(_config))
                 {
-                    await context.Database.MigrateAsync(cancellationToken);                    
+                    if (!context.IsInMemory)
+                    {
+                        await context.Database.MigrateAsync(cancellationToken);
+                    }
                 }
-                catch (Exception exception)
-                {
-                    Logger.Fatal($"An error occured while migrating the database: {exception.Message}");
-                    return;
-                }
+            }
+            catch (Exception exception)
+            {
+                Logger.Fatal($"An error occured while migrating the database: {exception.Message}");
+                return;
             }
 
             Logger.Debug("Starting...");
