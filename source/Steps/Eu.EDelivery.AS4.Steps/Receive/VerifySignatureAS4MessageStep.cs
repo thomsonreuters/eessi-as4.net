@@ -94,58 +94,45 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 && !as4Message.IsMultiHopMessage
                 && messagingContext.SendingPMode.ReceiptHandling.VerifyNRR)
             {
-                foreach (Receipt nrrReceipt in as4Message.SignalMessages.Where(m => m is Receipt).Cast<Receipt>())
+                if (!await VerifyNonRepudiationsHashes(as4Message))
                 {
-                    using (DatastoreContext context = _storeExpression())
-                    {
-                        var service = new OutMessageService(_config, new DatastoreRepository(context), _bodyStore);
-                        AS4Message referencedUserMessage = await service.GetAS4UserMessageForId(
-                            nrrReceipt.RefToMessageId,
-                            _bodyStore);
-
-                        IEnumerable<Reference> signedReferences = referencedUserMessage
-                            .SecurityHeader.GetReferences()
-                            .ToArray().ToList().Cast<Reference>();
-
-                        if (!nrrReceipt.VerifyNonRepudiations(signedReferences))
-                        {
-                            return InvalidSignatureResult(
-                                "The digest value in the Signature References of the referenced UserMessage " +
-                                "doesn't match the References of the NRI of the incoming NRR Receipt",
-                                ErrorAlias.FailedAuthentication,
-                                messagingContext);
-                        } 
-                    }
+                    return InvalidSignatureResult(
+                        "The digest value in the Signature References of the referenced UserMessage " +
+                        "doesn't match the References of the NRI of the incoming NRR Receipt",
+                        ErrorAlias.FailedAuthentication,
+                        messagingContext);
                 }
             }
 
             return await TryVerifyingSignature(messagingContext).ConfigureAwait(false);
         }
 
-        //private async Task<bool> VerifyNonRepudiations(AS4Message as4Message)
-        //{
-        //    async Task<bool> AreNrrHashesSameAsRefUserMessageReferences(Receipt receipt)
-        //    {
-        //        AS4Message userMessage = 
-        //            await _messageService.GetAS4UserMessageForId(
-        //                receipt.RefToMessageId, 
-        //                Registry.Instance.MessageBodyStore);
+        private async Task<bool> VerifyNonRepudiationsHashes(AS4Message as4Message)
+        {
+            using (DatastoreContext context = _storeExpression())
+            {
+                var service = new OutMessageService(_config, new DatastoreRepository(context), _bodyStore);
+                foreach (Receipt nrrReceipt in as4Message.SignalMessages.Where(m => m is Receipt).Cast<Receipt>())
+                {
+                    AS4Message referencedUserMessage = await service.GetAS4UserMessageForId(
+                        nrrReceipt.RefToMessageId,
+                        _bodyStore);
 
-        //        IEnumerable<Reference> userReferences = userMessage.SecurityHeader
-        //            .GetReferences()
-        //            .ToArray().ToList().Cast<Reference>();
+                    if (!referencedUserMessage.IsSigned) { continue; }
 
-        //        return receipt.VerifyNonRepudiations(userReferences);
-        //    }
+                    IEnumerable<Reference> signedReferences = referencedUserMessage
+                        .SecurityHeader.GetReferences()
+                        .ToArray().ToList().Cast<Reference>();
 
-        //    bool[] verifyRepudiations = 
-        //        await Task.WhenAll(as4Message.SignalMessages
-        //            .Where(m => m is Receipt)
-        //            .Cast<Receipt>()
-        //            .Select(AreNrrHashesSameAsRefUserMessageReferences));
+                    if (!nrrReceipt.VerifyNonRepudiations(signedReferences))
+                    {
+                        return false;
+                    }
+                }
+            }
 
-        //    return verifyRepudiations.All(b => b);
-        //}
+            return true;
+        }
 
         private static bool MessageDoesNotNeedToBeVerified(MessagingContext message)
         {

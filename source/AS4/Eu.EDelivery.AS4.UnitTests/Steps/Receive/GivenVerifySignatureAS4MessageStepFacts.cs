@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -16,7 +15,6 @@ using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Steps.Receive;
-using Eu.EDelivery.AS4.Steps.Send;
 using Eu.EDelivery.AS4.Streaming;
 using Eu.EDelivery.AS4.TestUtils;
 using Eu.EDelivery.AS4.UnitTests.Common;
@@ -65,20 +63,24 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             public async Task ThenExecuteStepSuceeds_IfNRRHashesAreEqual()
             {
                 // Arrange
-                const string messageId = "verify-nrr-message-id";
-
-                AS4Message signedUserMessage = await SignedUserMessage(messageId);
-                InsertOutMessageWithLocation(messageId, signedUserMessage.ContentType);
-
-                AS4Message signedReceiptResult = NRRReceiptHashes(messageId, signedUserMessage, hashes => hashes);
-                StubMessageBodyRetriever messageStore = StubMessageStoreThatRetreives(signedUserMessage);
-
-                Stream stream = await messageStore.LoadMessageBodyAsync(null);
-                var serializer = new MimeMessageSerializer(new SoapEnvelopeSerializer());
-                AS4Message as4Message = await serializer.DeserializeAsync(stream, signedUserMessage.ContentType, CancellationToken.None);
+                byte[] EqualHashes(byte[] hashes) => hashes;
 
                 // Act
-                StepResult verifyResult = await ExerciseVerifyNRRReceipt(messageStore, signedReceiptResult);
+                StepResult verifyResult = await TestVerifyNRRReceipt(EqualHashes);
+
+                // Assert
+                Assert.True(verifyResult.CanProceed);
+            }
+
+            [Fact]
+            public async Task ThenExecuteStepSucceeds_IfNRRHashesAreNotEqual_AndPModeDoesntRequireValidNRIHashes()
+            {
+                // Arrange
+                byte[] IncrementedHashes(byte[] hashes) => 
+                    hashes.Select(i => (byte) (i + 10)).ToArray();
+
+                // Act
+                StepResult verifyResult = await TestVerifyNRRReceipt(IncrementedHashes, verifyNrr: false);
 
                 // Assert
                 Assert.True(verifyResult.CanProceed);
@@ -125,16 +127,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             public async Task ThenExecuteStepFailsWithUnmatchingRepudiationHashes()
             {
                 // Arrange
-                const string messageId = "verify-nrr-message-id";
-
-                AS4Message signedUserMessage = await SignedUserMessage(messageId);
-                InsertOutMessageWithLocation(messageId, signedUserMessage.ContentType);
-
-                AS4Message signedReceiptResult = NRRReceiptHashes(messageId, signedUserMessage, hashes => hashes.Reverse().ToArray());
-                StubMessageBodyRetriever messageStore = StubMessageStoreThatRetreives(signedUserMessage);
+                byte[] ReversedHashes(byte[] hashes) => hashes.Reverse().ToArray();
 
                 // Act
-                StepResult verifyResult = await ExerciseVerifyNRRReceipt(messageStore, signedReceiptResult);
+                StepResult verifyResult = await TestVerifyNRRReceipt(ReversedHashes);
 
                 // Assert
                 Assert.False(verifyResult.CanProceed);
@@ -142,9 +138,27 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             }
         }
 
-        protected async Task<StepResult> ExerciseVerifyNRRReceipt(IAS4MessageBodyStore messageStore, AS4Message signedReceiptResult)
+        protected async Task<StepResult> TestVerifyNRRReceipt(Func<byte[], byte[]> adaptHashes, bool verifyNrr = true)
         {
-            var verifyNrrPMode = new SendingProcessingMode { ReceiptHandling = { VerifyNRR = true } };
+            // Arrange
+            const string messageId = "verify-nrr-message-id";
+
+            AS4Message signedUserMessage = await SignedUserMessage(messageId);
+            InsertOutMessageWithLocation(messageId, signedUserMessage.ContentType);
+
+            AS4Message signedReceiptResult = await NRRReceiptHashes(messageId, signedUserMessage, adaptHashes);
+            StubMessageBodyRetriever messageStore = StubMessageStoreThatRetreives(signedUserMessage);
+
+            // Act
+            return await ExerciseVerifyNRRReceipt(messageStore, signedReceiptResult, verifyNrr);
+        }
+
+        private async Task<StepResult> ExerciseVerifyNRRReceipt(
+            IAS4MessageBodyStore messageStore, 
+            AS4Message signedReceiptResult, 
+            bool verifyNrr)
+        {
+            var verifyNrrPMode = new SendingProcessingMode { ReceiptHandling = { VerifyNRR = verifyNrr } };
             var verifySignaturePMode = new ReceivingProcessingMode { Security = { SigningVerification = { Signature = Limit.Required } } };
 
             var step = new VerifySignatureAS4MessageStep(
@@ -163,7 +177,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 CancellationToken.None);
         }
 
-        protected static AS4Message NRRReceiptHashes(
+        protected static async Task<AS4Message> NRRReceiptHashes(
             string messageId,
             AS4Message signedUserMessage,
             Func<byte[], byte[]> adaptHashes)
@@ -190,9 +204,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 }
             };
 
-
-            return AS4MessageUtils.SignWithCertificate(AS4Message.Create(receipt),
-                                                       new StubCertificateRepository().GetStubCertificate());
+            return await SerializeDeserializeSoap(AS4MessageUtils.SignWithCertificate(AS4Message.Create(receipt), new StubCertificateRepository().GetStubCertificate()));
         }
 
         protected void InsertOutMessageWithLocation(string messageId, string contentType)
@@ -227,6 +239,15 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             return serializer.DeserializeAsync(memory, msg.ContentType, CancellationToken.None);
         }
 
+        private static Task<AS4Message> SerializeDeserializeSoap(AS4Message msg)
+        {
+            var serializer = new SoapEnvelopeSerializer();
+            var memory = new MemoryStream();
+            serializer.Serialize(msg, memory, CancellationToken.None);
+            memory.Position = 0;
+            return serializer.DeserializeAsync(memory, msg.ContentType, CancellationToken.None);
+        }
+
         private static async Task<AS4Message> SignedUserMessage(string messageId)
         {
             AS4Message userMessage = AS4Message.Create(new UserMessage(messageId));
@@ -234,25 +255,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             userMessage = await SerializeDeserializeMime(userMessage);
 
             return AS4MessageUtils.SignWithCertificate(userMessage, new StubCertificateRepository().GetStubCertificate());
-        }
-
-        private static SendingProcessingMode SigningPMode()
-        {
-            return new SendingProcessingMode
-            {
-                Security =
-                    {
-                        Signing =
-                        {
-                            IsEnabled = true,
-                            SigningCertificateInformation = new CertificateFindCriteria
-                            {
-                                CertificateFindType = X509FindType.FindByThumbprint,
-                                CertificateFindValue = new StubCertificateRepository().GetStubCertificate().Thumbprint
-                            }
-                        }
-                    }
-            };
         }
 
         protected async Task<MessagingContext> GetSignedInternalMessageAsync(string xml)

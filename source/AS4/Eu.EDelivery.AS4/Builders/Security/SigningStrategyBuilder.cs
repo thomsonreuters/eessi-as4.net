@@ -33,6 +33,7 @@ namespace Eu.EDelivery.AS4.Builders.Security
 
         private X509Certificate2 _certificate;
         private readonly SecurityTokenReference _securityTokenReference;
+        private readonly bool _isSigned;
 
         private SignatureAlgorithm _signatureAlgorithm;
 
@@ -45,6 +46,7 @@ namespace Eu.EDelivery.AS4.Builders.Security
         {
             _envelopeDocument = AS4XmlSerializer.ToSoapEnvelopeDocument(message, CancellationToken.None);
             _securityTokenReference = _tokenProvider.Get(securityTokenReferenceMethod);
+            _isSigned = message.IsSigned;
         }
 
         /// <summary>
@@ -60,6 +62,7 @@ namespace Eu.EDelivery.AS4.Builders.Security
 
             _signatureAlgorithm = RetrieveSignatureAlgorithm(envelopeDocument);
             _securityTokenReference = RetrieveSigningSecurityTokenReference(envelopeDocument);
+            _isSigned = true;
         }
 
         /// <summary>
@@ -95,6 +98,12 @@ namespace Eu.EDelivery.AS4.Builders.Security
                 strategy.AddAttachmentReference(attachmentReference.Item1, attachmentReference.Item2);
             }
 
+            if (_isSigned)
+            {
+                // Load the xml into the 'SignedXml' class so the message contains the full signing information.
+                strategy.LoadSignature();
+            }
+            
             return strategy;
         }
 
