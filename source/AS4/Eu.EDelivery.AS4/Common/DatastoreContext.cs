@@ -101,7 +101,7 @@ namespace Eu.EDelivery.AS4.Common
                     $"No Native Command implementation found for DBMS-type: '{providerKey}'");
             }
 
-            NativeCommand = _retrieveCommands[providerKey](this);
+            NativeCommands = _retrieveCommands[providerKey](this);
         }
 
         public DbSet<InMessage> InMessages { get; set; }
@@ -114,7 +114,7 @@ namespace Eu.EDelivery.AS4.Common
 
         public DbSet<ReceptionAwareness> ReceptionAwareness { get; set; }
 
-        public IAS4DbCommand NativeCommand { get; private set; }
+        public IAS4DbCommand NativeCommands { get; private set; }
 
         public bool IsInMemory
         {

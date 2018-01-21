@@ -117,7 +117,7 @@ namespace Eu.EDelivery.AS4.Receivers
             // - make sure that single quotes are used around string vars.  (Maybe make it dependent on the DB type, same is true for escape characters [] in sql server, ...             
 
             IEnumerable<Entity> entities = 
-                context.NativeCommand.ExclusivelyRetrieveEntities(Table, Filter, TakeRows);
+                context.NativeCommands.ExclusivelyRetrieveEntities(Table, Filter, TakeRows);
 
             if (!entities.Any())
             {
