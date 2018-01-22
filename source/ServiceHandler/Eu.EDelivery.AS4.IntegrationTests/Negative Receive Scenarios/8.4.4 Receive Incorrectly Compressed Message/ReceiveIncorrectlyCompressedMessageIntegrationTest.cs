@@ -3,6 +3,7 @@ using System.Linq;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.IntegrationTests.Common;
 using Eu.EDelivery.AS4.Model.Core;
+using Eu.EDelivery.AS4.Singletons;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.IntegrationTests.Negative_Receive_Scenarios._8._4._4_Receive_Incorrectly_Compressed_Message
@@ -18,6 +19,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Negative_Receive_Scenarios._8._4._4_
         public async void ThenReceivingIncorrectlyCompressedMessageFails()
         {
             // Before
+            AS4Mapper.Initialize();
             AS4Component.Start();
 
             // Act

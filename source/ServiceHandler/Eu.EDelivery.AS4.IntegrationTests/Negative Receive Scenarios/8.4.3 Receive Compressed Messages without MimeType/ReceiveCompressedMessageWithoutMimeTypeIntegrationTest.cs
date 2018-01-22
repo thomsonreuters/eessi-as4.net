@@ -3,6 +3,7 @@ using System.Linq;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.IntegrationTests.Common;
 using Eu.EDelivery.AS4.Model.Core;
+using Eu.EDelivery.AS4.Singletons;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.IntegrationTests.Negative_Receive_Scenarios._8._4._3_Receive_Compressed_Messages_without_MimeType
@@ -18,6 +19,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Negative_Receive_Scenarios._8._4._3_
         public async void ThenSendingSinglePayloadSucceedsAsync()
         {
             // Before
+            AS4Mapper.Initialize();
             AS4Component.Start();
 
             // Act

@@ -3,6 +3,7 @@ using System.Linq;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.IntegrationTests.Common;
 using Eu.EDelivery.AS4.Model.Core;
+using Eu.EDelivery.AS4.Singletons;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.IntegrationTests.Negative_Receive_Scenarios._8._4._5_Receive_Incorrectly_Signed_Message
@@ -16,6 +17,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Negative_Receive_Scenarios._8._4._5_
         public async void ThenReceivingIncorrectlySignedMessageFails()
         {
             // Before
+            AS4Mapper.Initialize();
             AS4Component.Start();
 
             // Act
