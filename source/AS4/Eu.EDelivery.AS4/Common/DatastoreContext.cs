@@ -37,15 +37,6 @@ namespace Eu.EDelivery.AS4.Common
         private RetryPolicy _policy;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="DatastoreContext" /> class.
-        /// </summary>
-        /// <param name="options">The options.</param>
-        public DatastoreContext(DbContextOptions<DatastoreContext> options) : base(options)
-        {
-            InitializeFields();            
-        }
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="DatastoreContext"/> class.
         /// </summary>
         public DatastoreContext(DbContextOptions<DatastoreContext> options, IConfig config) : base(options)
@@ -115,21 +106,6 @@ namespace Eu.EDelivery.AS4.Common
         public DbSet<ReceptionAwareness> ReceptionAwareness { get; set; }
 
         public IAS4DbCommand NativeCommands { get; private set; }
-
-        public bool IsInMemory
-        {
-            get
-            {
-                try
-                {
-                    return _config?.GetSetting("Provider").Equals("InMemory") ?? false;
-                }
-                catch (Exception)
-                {
-                    return false;
-                }
-            }
-        }
 
         /// <summary>
         ///     <para>

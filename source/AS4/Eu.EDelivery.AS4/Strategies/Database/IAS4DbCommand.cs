@@ -1,12 +1,21 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Entities;
 
 namespace Eu.EDelivery.AS4.Strategies.Database
 {
+    /// <summary>
+    /// Abstraction to introduce custom commands/queries on the specific DBMS storage types.
+    /// </summary>
     public interface IAS4DbCommand
     {
         /// <summary>
-        /// Exclusively retrieves the entities.
+        /// Initialization process for the different DBMS storage types.
+        /// </summary>
+        Task CreateDatabase();
+
+        /// <summary>
+        /// Exclusively retrieves the entities for the different DBMS storage types.
         /// </summary>
         /// <param name="tableName">Name of the Db table.</param>
         /// <param name="filter">Order by this field.</param>

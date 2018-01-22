@@ -59,10 +59,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler
             {
                 using (var context = new DatastoreContext(_config))
                 {
-                    if (!context.IsInMemory)
-                    {
-                        await context.Database.MigrateAsync(cancellationToken);
-                    }
+                    await context.NativeCommands.CreateDatabase();
                 }
             }
             catch (Exception exception)

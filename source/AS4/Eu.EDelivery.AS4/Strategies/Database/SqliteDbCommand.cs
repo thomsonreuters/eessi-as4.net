@@ -2,6 +2,7 @@
 using System.Configuration;
 using System.Linq;
 using System.Linq.Dynamic.Core;
+using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -19,6 +20,14 @@ namespace Eu.EDelivery.AS4.Strategies.Database
         public SqliteDbCommand(DatastoreContext context)
         {
             _context = context;
+        }
+
+        /// <summary>
+        /// Initialization process for the different DBMS storage types.
+        /// </summary>
+        public async Task CreateDatabase()
+        {
+            await _context.Database.MigrateAsync();
         }
 
         /// <summary>
