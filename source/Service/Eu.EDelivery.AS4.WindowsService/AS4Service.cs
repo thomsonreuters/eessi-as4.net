@@ -35,7 +35,7 @@ namespace Eu.EDelivery.AS4.WindowsService
         /// <param name="args">Data passed by the start command. </param>
         protected override void OnStart(string[] args)
         {
-            _eventLog.WriteEntry("Starting AS4.NET Component Service Starting");
+            _eventLog.WriteEntry("Starting AS4.NET Component Service");
 
             try
             {
