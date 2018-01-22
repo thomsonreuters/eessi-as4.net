@@ -18,7 +18,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model.Core
         public bool VerifyNonRepudiationsReferences(byte[] nonRepudiationHash, byte[] userReferences)
         {
             return NRRReceipt(nonRepudiationHash)
-                .VerifyNonRepudiations(UserReferences(userReferences))
+                .VerifyNonRepudiationInfo(UserReferences(userReferences))
                 .Equals(nonRepudiationHash.SequenceEqual(userReferences));
         }
 

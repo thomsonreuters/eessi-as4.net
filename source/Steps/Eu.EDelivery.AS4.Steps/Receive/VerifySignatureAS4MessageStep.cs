@@ -124,7 +124,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                         .SecurityHeader.GetReferences()
                         .ToArray().ToList().Cast<Reference>();
 
-                    if (!nrrReceipt.VerifyNonRepudiations(signedReferences))
+                    if (!nrrReceipt.VerifyNonRepudiationInfo(signedReferences))
                     {
                         return false;
                     }

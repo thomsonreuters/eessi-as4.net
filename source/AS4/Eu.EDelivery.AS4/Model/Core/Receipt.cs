@@ -41,11 +41,11 @@ namespace Eu.EDelivery.AS4.Model.Core
         }
 
         /// <summary>
-        /// Verifies the non repudiations.
+        /// Verifies the Non-Repudiation Information of the <see cref="Receipt"/> against the NRI of the related <see cref="Core.UserMessage"/>.
         /// </summary>
-        /// <param name="userReferences">The user references.</param>
+        /// <param name="userReferences">The related <see cref="Core.UserMessage"/> security references.</param>
         /// <returns></returns>
-        public bool VerifyNonRepudiations(IEnumerable<System.Security.Cryptography.Xml.Reference> userReferences)
+        public bool VerifyNonRepudiationInfo(IEnumerable<System.Security.Cryptography.Xml.Reference> userReferences)
         {
             return userReferences.Any()
                    && userReferences.Select(IsNonRepudiationHashEqualToUserReferenceHash).All(r => r);
