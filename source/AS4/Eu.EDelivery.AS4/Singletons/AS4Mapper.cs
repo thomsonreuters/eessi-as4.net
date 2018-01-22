@@ -12,17 +12,35 @@ namespace Eu.EDelivery.AS4.Singletons
     /// </summary>
     public static class AS4Mapper
     {
-        static AS4Mapper()
+        /// <summary>
+        /// Gets a collection of the mapping profiles defined in AS4.
+        /// Integrators can call this method and use the returned profiles to add to their own mapping configuration.
+        /// </summary>
+        /// <returns></returns>
+        public static IEnumerable<Type> GetAS4MappingProfiles()
+        {
+            return typeof(AS4Mapper).Assembly.GetTypes().Where(typeof(Profile).IsAssignableFrom);
+        }
+
+        /// <summary>
+        /// Performs the initialization process of all the mappings so the AS4 component can use it using the <see cref="Map{TDestination}"/> method.
+        /// </summary>
+        public static void Initialize()
+        {
+            Initialize(GetAS4MappingProfiles());
+        }
+
+        /// <summary>
+        /// Performs the initialization process of all the mappings so the AS4 component can use it using the <see cref="Map{TDestination}"/> method.
+        /// </summary>
+        /// <param name="profiles">The configured mapping profiles.</param>
+        public static void Initialize(IEnumerable<Type> profiles)
         {
             LogManager.GetCurrentClassLogger().Trace("Initializing AutoMapper ...");
 
-            // static constructor is guaranteed to be executed only once, which makes it the ideal place
-            // to initialize the Automapper-mappings.            
             Mapper.Initialize(
                 configurationExpression =>
                 {
-                    IEnumerable<Type> profiles = typeof(AS4Mapper).Assembly.GetTypes().Where(x => typeof(Profile).IsAssignableFrom(x));
-
                     foreach (Type profile in profiles)
                     {
                         configurationExpression.AddProfile(profile);

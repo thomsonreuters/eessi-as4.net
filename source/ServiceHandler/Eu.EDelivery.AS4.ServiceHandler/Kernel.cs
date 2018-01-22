@@ -5,6 +5,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Agents;
 using Eu.EDelivery.AS4.Common;
+using Eu.EDelivery.AS4.Model.Core;
+using Eu.EDelivery.AS4.Singletons;
 using Microsoft.EntityFrameworkCore;
 using NLog;
 
@@ -54,6 +56,9 @@ namespace Eu.EDelivery.AS4.ServiceHandler
             {
                 return;
             }
+
+            // TODO: do integrators need to inject their mappings in here?
+            AS4Mapper.Initialize(AS4Mapper.GetAS4MappingProfiles());
 
             using (var context = new DatastoreContext(_config))
             {
