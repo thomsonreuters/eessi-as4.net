@@ -248,7 +248,6 @@
     <Compile Include="Exceptions\Handlers\GivenSafeExceptionHandlerFacts.cs" />
     <Compile Include="Factories\GivenPayloadFileNameFactoryFacts.cs" />
     <Compile Include="Mappings\Core\GivenRoutingInputUserMessageMapFacts.cs" />
-    <Compile Include="Model\Core\GivenReceiptFacts.cs" />
     <Compile Include="Model\Deliver\EmptyDeliverEnvelope.cs" />
     <Compile Include="Model\Notify\EmptyNotifyEnvelope.cs" />
     <Compile Include="Model\PMode\GivenSendingPModeFacts.cs" />
