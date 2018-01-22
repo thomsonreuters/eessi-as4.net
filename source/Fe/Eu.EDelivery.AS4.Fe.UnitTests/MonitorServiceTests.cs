@@ -17,6 +17,7 @@ using Eu.EDelivery.AS4.Fe.Monitor.Model;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Serialization;
+using Eu.EDelivery.AS4.UnitTests.Common;
 
 namespace Eu.EDelivery.AS4.Fe.UnitTests
 {
@@ -66,12 +67,12 @@ Failed to decrypt data element
             options = new DbContextOptionsBuilder<DatastoreContext>()
                 .UseInMemoryDatabase(Guid.NewGuid().ToString())
                 .Options;
-            using (var store = new DatastoreContext(options))
+            using (var store = new DatastoreContext(options, StubConfig.Default))
             {
                 store.Database.EnsureCreated();
             }
             SetupDataStore();
-            datastoreContext = new DatastoreContext(options);
+            datastoreContext = new DatastoreContext(options, StubConfig.Default);
 
             var mapperConfig = new MapperConfiguration(cfg =>
             {
@@ -100,7 +101,7 @@ Failed to decrypt data element
 
         protected virtual void SetupDataStore()
         {
-            using (datastoreContext = new DatastoreContext(options))
+            using (datastoreContext = new DatastoreContext(options, StubConfig.Default))
             {
                 string pmodeString = AS4XmlSerializer.ToString(pmode);
                 string pmodeId = pmode.Id;
@@ -440,7 +441,7 @@ Failed to decrypt data element
 
                 protected override void SetupDataStore()
                 {
-                    using (datastoreContext = new DatastoreContext(options))
+                    using (datastoreContext = new DatastoreContext(options, StubConfig.Default))
                     {
                         datastoreContext.InMessages.Add(new InMessage(ebmsMessageId: InEbmsMessageId1)
                         {

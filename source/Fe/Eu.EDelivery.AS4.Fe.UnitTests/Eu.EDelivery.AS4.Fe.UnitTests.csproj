@@ -363,6 +363,10 @@
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\AS4\Eu.EDelivery.AS4.UnitTests\Eu.EDelivery.AS4.UnitTests.csproj">
+      <Project>{8E13829C-19D7-498D-9383-EF52A92FC2C9}</Project>
+      <Name>Eu.EDelivery.AS4.UnitTests</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\AS4\Eu.EDelivery.AS4\Eu.EDelivery.AS4.csproj">
       <Project>{8b0ba38f-c3f7-46c1-9e68-a7291c7b16b1}</Project>
       <Name>Eu.EDelivery.AS4</Name>
