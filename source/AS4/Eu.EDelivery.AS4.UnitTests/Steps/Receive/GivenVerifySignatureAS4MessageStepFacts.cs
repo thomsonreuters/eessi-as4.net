@@ -85,6 +85,20 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 // Assert
                 Assert.True(verifyResult.CanProceed);
             }
+
+            [Fact]
+            public async Task ThenExecuteStepSucceeds_IfThisReceiverIsTheFinalRecipient()
+            {
+                // Arrange
+                byte[] CorruptHashes(byte[] hashes) =>
+                    hashes.Select(i => (byte) (i * 10)).ToArray();
+
+                // Act
+                StepResult verifyResult = await TestVerifyNRRReceipt(CorruptHashes, intermediary: true);
+
+                // Assert
+                Assert.True(verifyResult.CanProceed);
+            }
         }
 
         public class GivenInvalidArguments : GivenVerifySignatureAS4MessageStepFacts
@@ -138,13 +152,16 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             }
         }
 
-        protected async Task<StepResult> TestVerifyNRRReceipt(Func<byte[], byte[]> adaptHashes, bool verifyNrr = true)
+        protected async Task<StepResult> TestVerifyNRRReceipt(
+            Func<byte[], byte[]> adaptHashes, 
+            bool verifyNrr = true,
+            bool intermediary = false)
         {
             // Arrange
             const string messageId = "verify-nrr-message-id";
 
             AS4Message signedUserMessage = await SignedUserMessage(messageId);
-            InsertOutMessageWithLocation(messageId, signedUserMessage.ContentType);
+            InsertOutMessageWithLocation(messageId, signedUserMessage.ContentType, intermediary);
 
             AS4Message signedReceiptResult = await NRRReceiptHashes(messageId, signedUserMessage, adaptHashes);
             StubMessageBodyRetriever messageStore = StubMessageStoreThatRetreives(signedUserMessage);
@@ -207,12 +224,20 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             return await SerializeDeserializeSoap(AS4MessageUtils.SignWithCertificate(AS4Message.Create(receipt), new StubCertificateRepository().GetStubCertificate()));
         }
 
-        protected void InsertOutMessageWithLocation(string messageId, string contentType)
+        protected void InsertOutMessageWithLocation(
+            string messageId, 
+            string contentType, 
+            bool intermediary)
         {
             using (DatastoreContext context = GetDataStoreContext())
             {
                 var repo = new DatastoreRepository(context);
-                repo.InsertOutMessage(new OutMessage(messageId) { MessageLocation = messageId, ContentType = contentType });
+                repo.InsertOutMessage(new OutMessage(messageId)
+                {
+                    MessageLocation = messageId,
+                    ContentType = contentType,
+                    Intermediary = intermediary
+                });
                 context.SaveChanges();
             }
         }

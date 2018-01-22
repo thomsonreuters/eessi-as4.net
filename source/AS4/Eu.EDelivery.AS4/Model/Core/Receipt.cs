@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using CryptoReference = System.Security.Cryptography.Xml.Reference;
 
 namespace Eu.EDelivery.AS4.Model.Core
 {
@@ -43,15 +44,18 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// <summary>
         /// Verifies the Non-Repudiation Information of the <see cref="Receipt"/> against the NRI of the related <see cref="Core.UserMessage"/>.
         /// </summary>
-        /// <param name="userReferences">The related <see cref="Core.UserMessage"/> security references.</param>
+        /// <param name="userMessage">The related <see cref="Core.UserMessage"/>.</param>
         /// <returns></returns>
-        public bool VerifyNonRepudiationInfo(IEnumerable<System.Security.Cryptography.Xml.Reference> userReferences)
+        public bool VerifyNonRepudiationInfo(AS4Message userMessage)
         {
+            IEnumerable<CryptoReference> userReferences = 
+                userMessage.SecurityHeader.GetReferences().Cast<CryptoReference>();
+
             return userReferences.Any()
                    && userReferences.Select(IsNonRepudiationHashEqualToUserReferenceHash).All(r => r);
         }
 
-        private bool IsNonRepudiationHashEqualToUserReferenceHash(System.Security.Cryptography.Xml.Reference r)
+        private bool IsNonRepudiationHashEqualToUserReferenceHash(CryptoReference r)
         {
             byte[] repudiationHash = GetNonRepudiationHashForUri(r.Uri);
             return repudiationHash != null && r.DigestValue?.SequenceEqual(repudiationHash) == true;

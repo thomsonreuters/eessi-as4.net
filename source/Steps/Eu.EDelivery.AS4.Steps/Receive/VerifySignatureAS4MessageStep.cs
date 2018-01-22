@@ -91,7 +91,6 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             }
 
             if (as4Message.IsSignalMessage
-                && !as4Message.IsMultiHopMessage
                 && messagingContext.SendingPMode.ReceiptHandling.VerifyNRR)
             {
                 if (!await VerifyNonRepudiationsHashes(as4Message))
@@ -118,13 +117,10 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                         nrrReceipt.RefToMessageId,
                         _bodyStore);
 
-                    if (!referencedUserMessage.IsSigned) { continue; }
+                    if (referencedUserMessage == null 
+                        || referencedUserMessage.IsSigned == false) { continue; }
 
-                    IEnumerable<Reference> signedReferences = referencedUserMessage
-                        .SecurityHeader.GetReferences()
-                        .ToArray().ToList().Cast<Reference>();
-
-                    if (!nrrReceipt.VerifyNonRepudiationInfo(signedReferences))
+                    if (!nrrReceipt.VerifyNonRepudiationInfo(referencedUserMessage))
                     {
                         return false;
                     }

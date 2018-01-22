@@ -58,6 +58,8 @@ namespace Eu.EDelivery.AS4.Services
         public async Task<AS4Message> GetAS4UserMessageForId(string messageId, IAS4MessageBodyStore store)
         {
             OutMessage message = GetOutMessageById(messageId);
+            if (message == null) { return null; }
+
             Stream messageBody = await store.LoadMessageBodyAsync(message.MessageLocation);
 
             ISerializer serializer = Registry.Instance.SerializerProvider.Get(message.ContentType);
@@ -66,14 +68,9 @@ namespace Eu.EDelivery.AS4.Services
 
         private OutMessage GetOutMessageById(string messageId)
         {
-            OutMessage outMessage = _repository.GetOutMessageData(messageId, m => m);
-
-            if (outMessage == null)
-            {
-                throw new InstanceNotFoundException($"No 'Out Message' found for the given Id: '{messageId}'");
-            }
-
-            return outMessage;
+            return _repository.GetOutMessageData(
+                m => m.EbmsMessageId.Equals(messageId) && m.Intermediary == false, 
+                m => m);
         }
 
         /// <summary>
