@@ -52,13 +52,9 @@ namespace Eu.EDelivery.AS4.ServiceHandler
         /// <returns></returns>
         public async Task StartAsync(CancellationToken cancellationToken)
         {
-            if (_agents == null)
-            {
-                return;
-            }
+            if (_agents == null) { return; }
 
-            // TODO: do integrators need to inject their mappings in here?
-            AS4Mapper.Initialize(AS4Mapper.GetAS4MappingProfiles());
+            AS4Mapper.Initialize();
 
             using (var context = new DatastoreContext(_config))
             {
