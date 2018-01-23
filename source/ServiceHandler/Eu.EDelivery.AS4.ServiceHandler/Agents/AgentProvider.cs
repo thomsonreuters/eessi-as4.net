@@ -81,10 +81,10 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
             return DefaultAgentStepRegistry.GetDefaultStepConfigurationFor(agentType);
         }
 
-        public static Transformer GetDefaultTransformerForAgentType(AgentType agentType)
+        public static (Transformer defaultTransformer, IEnumerable<Transformer> otherTransformers) GetDefaultTransformerForAgentType(AgentType agentType)
         {
             return DefaultAgentTransformerRegistry.GetDefaultTransformerFor(agentType);
-        }
+        }        
 
         [ExcludeFromCodeCoverage]
         private void AddMinderAgentsToProvider()
