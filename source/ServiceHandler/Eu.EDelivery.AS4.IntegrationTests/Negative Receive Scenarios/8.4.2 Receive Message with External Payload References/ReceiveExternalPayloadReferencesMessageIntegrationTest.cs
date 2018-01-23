@@ -3,7 +3,6 @@ using System.Linq;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.IntegrationTests.Common;
 using Eu.EDelivery.AS4.Model.Core;
-using Eu.EDelivery.AS4.Singletons;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.IntegrationTests.Negative_Receive_Scenarios._8._4._2_Receive_Message_with_External_Payload_References
@@ -19,7 +18,6 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Negative_Receive_Scenarios._8._4._2_
         public async void ThenSendingMessageFailsAsync()
         {
             // Before
-            AS4Mapper.Initialize();
             AS4Component.Start();
 
             // Act
