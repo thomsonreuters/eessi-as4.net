@@ -1,13 +1,23 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.IO;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
+using Eu.EDelivery.AS4.Common;
+using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
+using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Security.Signing;
+using Eu.EDelivery.AS4.Services;
+using Microsoft.EntityFrameworkCore.Query.Sql.Internal;
 using NLog;
+using Reference = System.Security.Cryptography.Xml.Reference;
 
 namespace Eu.EDelivery.AS4.Steps.Receive
 {
@@ -19,6 +29,34 @@ namespace Eu.EDelivery.AS4.Steps.Receive
     public class VerifySignatureAS4MessageStep : IStep
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+        private readonly Func<DatastoreContext> _storeExpression;
+        private readonly IConfig _config;
+        private readonly IAS4MessageBodyStore _bodyStore;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="VerifySignatureAS4MessageStep"/> class.
+        /// </summary>
+        public VerifySignatureAS4MessageStep()
+            : this(
+                Registry.Instance.CreateDatastoreContext,
+                Config.Instance,
+                Registry.Instance.MessageBodyStore) { }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="VerifySignatureAS4MessageStep" /> class.
+        /// </summary>
+        /// <param name="createContext">The create context.</param>
+        /// <param name="config">The configuration.</param>
+        /// <param name="bodyStore">The body store.</param>
+        public VerifySignatureAS4MessageStep(
+            Func<DatastoreContext> createContext, 
+            IConfig config,
+            IAS4MessageBodyStore bodyStore)
+        {
+            _storeExpression = createContext;
+            _config = config;
+            _bodyStore = bodyStore;
+        }
 
         /// <summary>
         /// Start verifying the Signature of the <see cref="AS4Message"/>
@@ -30,9 +68,10 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         {
             ReceivingProcessingMode pmode = messagingContext.ReceivingPMode;
             SigningVerification verification = pmode?.Security.SigningVerification;
+            AS4Message as4Message = messagingContext.AS4Message;
 
-            bool isMessageFailsTheRequiredSigning = verification?.Signature == Limit.Required && !messagingContext.AS4Message.IsSigned;
-            bool isMessageFailedTheUnallowedSigning = verification?.Signature == Limit.NotAllowed && messagingContext.AS4Message.IsSigned;
+            bool isMessageFailsTheRequiredSigning = verification?.Signature == Limit.Required && !as4Message.IsSigned;
+            bool isMessageFailedTheUnallowedSigning = verification?.Signature == Limit.NotAllowed && as4Message.IsSigned;
 
             if (isMessageFailsTheRequiredSigning)
             {
@@ -51,7 +90,44 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 return StepResult.Success(messagingContext);
             }
 
+            if (as4Message.IsSignalMessage
+                && messagingContext.SendingPMode.ReceiptHandling.VerifyNRR)
+            {
+                if (!await VerifyNonRepudiationsHashes(as4Message))
+                {
+                    return InvalidSignatureResult(
+                        "The digest value in the Signature References of the referenced UserMessage " +
+                        "doesn't match the References of the NRI of the incoming NRR Receipt",
+                        ErrorAlias.FailedAuthentication,
+                        messagingContext);
+                }
+            }
+
             return await TryVerifyingSignature(messagingContext).ConfigureAwait(false);
+        }
+
+        private async Task<bool> VerifyNonRepudiationsHashes(AS4Message as4Message)
+        {
+            using (DatastoreContext context = _storeExpression())
+            {
+                var service = new OutMessageService(_config, new DatastoreRepository(context), _bodyStore);
+                foreach (Receipt nrrReceipt in as4Message.SignalMessages.Where(m => m is Receipt).Cast<Receipt>())
+                {
+                    AS4Message referencedUserMessage = await service.GetAS4UserMessageForId(
+                        nrrReceipt.RefToMessageId,
+                        _bodyStore);
+
+                    if (referencedUserMessage == null 
+                        || referencedUserMessage.IsSigned == false) { continue; }
+
+                    if (!nrrReceipt.VerifyNonRepudiationInfo(referencedUserMessage))
+                    {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
         }
 
         private static bool MessageDoesNotNeedToBeVerified(MessagingContext message)

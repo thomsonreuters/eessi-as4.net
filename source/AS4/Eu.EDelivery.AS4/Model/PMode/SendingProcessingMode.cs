@@ -27,7 +27,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
             MepBinding = MessageExchangePatternBinding.Push;
             AllowOverride = false;
             Reliability = new SendReliability();
-            ReceiptHandling = new SendHandling();
+            ReceiptHandling = new SendReceiptHandling();
             ErrorHandling = new SendHandling();
             ExceptionHandling = new SendHandling();
             Security = new Security();
@@ -59,7 +59,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
         public SendReliability Reliability { get; set; }
 
         [Description("Receipt handling")]
-        public SendHandling ReceiptHandling { get; set; }
+        public SendReceiptHandling ReceiptHandling { get; set; }
 
         [Description("Error handling")]
         public SendHandling ErrorHandling { get; set; }
@@ -369,6 +369,18 @@ namespace Eu.EDelivery.AS4.Model.PMode
 
         [Description("Notify method")]
         public Method NotifyMethod { get; set; }
+    }
+
+    public class SendReceiptHandling : SendHandling
+    {
+        public SendReceiptHandling()
+        {
+            VerifyNRR = true;
+        }
+
+        [DefaultValue(true)]
+        [Description("Indicates if the MSH needs to verify the NRR information that is included in the receipt")]
+        public bool VerifyNRR { get; set; }
     }
 
     [Serializable]

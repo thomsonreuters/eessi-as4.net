@@ -134,7 +134,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                         Url = sendToUrl
                     }
                 },
-                ReceiptHandling = new SendHandling()
+                ReceiptHandling = new SendReceiptHandling()
                 {
                     NotifyMessageProducer = true,
                     NotifyMethod = new Method { Type = "FILE", Parameters = new List<Parameter> { new Parameter() { Name = "Location", Value = "." } } }
