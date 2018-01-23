@@ -158,7 +158,11 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <None Include="packages.config" />
+    <None Include="Properties\PublishProfiles\bkw-dev-weu-as4-parser - Web Deploy.pubxml" />
     <None Include="Properties\PublishProfiles\bkw-dev-weu-as4parser - Web Deploy.pubxml" />
+    <None Include="Properties\PublishProfiles\bkw-prod-weu-as4-parser - Web Deploy.pubxml" />
+    <None Include="Properties\PublishProfiles\bkw-test-weu-as4-parser - Web Deploy.pubxml" />
+    <None Include="Properties\PublishProfiles\codit-poc-as4webapi - Web Deploy.pubxml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
