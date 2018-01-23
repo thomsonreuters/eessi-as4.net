@@ -244,17 +244,19 @@ namespace Eu.EDelivery.AS4.Receivers
 
             Logger.Info($"Getting Message from file '{fileInfo.Name}'");
 
-            await OpenStreamFromMessage(fileInfo, messageCallback, token);
-
             var item = _pendingFiles.FirstOrDefault(f => f.file == fileInfo);
+            await OpenStreamFromMessage(item, messageCallback, token);
             _pendingFiles.Remove(item);
         }
 
-        private async Task OpenStreamFromMessage(FileInfo fileInfo, Function messageCallback, CancellationToken token)
+        private async Task OpenStreamFromMessage(
+            (FileInfo fileInfo, string contentType) _, 
+            Function messageCallback, 
+            CancellationToken token)
         {
             try
             {
-                var result = MoveFile(fileInfo, "processing");
+                var result = MoveFile(_.fileInfo, "processing");
 
                 if (result.success)
                 {
@@ -266,13 +268,11 @@ namespace Eu.EDelivery.AS4.Receivers
                         {
                             fileStream.Seek(0, SeekOrigin.Begin);
 
-                            (FileInfo _, string contentType) = _pendingFiles.FirstOrDefault(f => f.file == fileInfo);
-
-                            var receivedMessage = new ReceivedMessage(fileStream, contentType);
+                            var receivedMessage = new ReceivedMessage(fileStream, _.contentType);
                             messagingContext = await messageCallback(receivedMessage, token).ConfigureAwait(false);
                         }
 
-                        await NotifyReceivedFile(fileInfo, messagingContext).ConfigureAwait(false);
+                        await NotifyReceivedFile(_.fileInfo, messagingContext).ConfigureAwait(false);
                     }
                     finally
                     {
@@ -282,7 +282,7 @@ namespace Eu.EDelivery.AS4.Receivers
             }
             catch (Exception ex)
             {
-                Logger.Error($"An error occured while processing {fileInfo.Name}");
+                Logger.Error($"An error occured while processing {_.fileInfo.Name}");
                 Logger.Trace(ex.Message);
             }
         }
@@ -325,14 +325,13 @@ namespace Eu.EDelivery.AS4.Receivers
             {
                 for (int i = _pendingFiles.Count - 1; i >= 0; i--)
                 {
-                    (FileInfo pendingFile, string _) = _pendingFiles[i];
+                    var item = _pendingFiles[i];
 
-                    if (File.Exists(pendingFile.FullName))
+                    if (File.Exists(item.file.FullName))
                     {
-                        MoveFile(pendingFile, extension);
+                        MoveFile(item.file, extension);
                     }
 
-                    var item = _pendingFiles.FirstOrDefault(f => f.file == pendingFile);
                     _pendingFiles.Remove(item);
                 }
             }
