@@ -24,7 +24,8 @@ namespace Eu.EDelivery.AS4.Receivers
     {
         private const string FileLockName = "file.lock";
 
-        private readonly SynchronizedCollection<FileInfo> _pendingFiles = new SynchronizedCollection<FileInfo>();
+        private readonly SynchronizedCollection<(FileInfo file, string contentType)> _pendingFiles = 
+            new SynchronizedCollection<(FileInfo, string)>();
         private readonly IMimeTypeRepository _repository;
 
         private bool _isReceiving = false;
@@ -157,6 +158,7 @@ namespace Eu.EDelivery.AS4.Receivers
                 {
                     try
                     {
+                        string contentType = _repository.GetMimeTypeFromExtension(file.Extension);
                         var result = MoveFile(file, "pending");
 
                         if (result.success)
@@ -166,7 +168,7 @@ namespace Eu.EDelivery.AS4.Receivers
                             Logger.Trace(
                                 $"Locked file {file.Name} to be processed and renamed it to {pendingFile.Name}");
 
-                            _pendingFiles.Add(pendingFile);
+                            _pendingFiles.Add((pendingFile, contentType));
 
                             resultedFiles.Add(pendingFile);
                         }
@@ -244,15 +246,14 @@ namespace Eu.EDelivery.AS4.Receivers
 
             await OpenStreamFromMessage(fileInfo, messageCallback, token);
 
-            _pendingFiles.Remove(fileInfo);
+            var item = _pendingFiles.FirstOrDefault(f => f.file == fileInfo);
+            _pendingFiles.Remove(item);
         }
 
         private async Task OpenStreamFromMessage(FileInfo fileInfo, Function messageCallback, CancellationToken token)
         {
             try
             {
-                string contentType = _repository.GetMimeTypeFromExtension(fileInfo.Extension);
-
                 var result = MoveFile(fileInfo, "processing");
 
                 if (result.success)
@@ -264,6 +265,9 @@ namespace Eu.EDelivery.AS4.Receivers
                         using (Stream fileStream = new FileStream(result.filename, FileMode.Open, FileAccess.Read))
                         {
                             fileStream.Seek(0, SeekOrigin.Begin);
+
+                            (FileInfo _, string contentType) = _pendingFiles.FirstOrDefault(f => f.file == fileInfo);
+
                             var receivedMessage = new ReceivedMessage(fileStream, contentType);
                             messagingContext = await messageCallback(receivedMessage, token).ConfigureAwait(false);
                         }
@@ -321,13 +325,15 @@ namespace Eu.EDelivery.AS4.Receivers
             {
                 for (int i = _pendingFiles.Count - 1; i >= 0; i--)
                 {
-                    var pendingFile = _pendingFiles[i];
+                    (FileInfo pendingFile, string _) = _pendingFiles[i];
 
                     if (File.Exists(pendingFile.FullName))
                     {
                         MoveFile(pendingFile, extension);
                     }
-                    _pendingFiles.Remove(pendingFile);
+
+                    var item = _pendingFiles.FirstOrDefault(f => f.file == pendingFile);
+                    _pendingFiles.Remove(item);
                 }
             }
         }
