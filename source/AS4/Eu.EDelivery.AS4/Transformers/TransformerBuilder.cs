@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using Eu.EDelivery.AS4.Builders;
 using Eu.EDelivery.AS4.Model.Internal;
@@ -18,7 +17,7 @@ namespace Eu.EDelivery.AS4.Transformers
         /// </summary>
         /// <param name="config">The configuration which contains the type and the optional settings for the <see cref="ITransformer"/> implementation.</param>
         /// <returns></returns>
-        public static ITransformer FromTransformerconfig(Transformer config)
+        public static ITransformer FromTransformerConfig(Transformer config)
         {
             GenericTypeBuilder builder = GenericTypeBuilder.FromType(config.Type);
 
