@@ -338,5 +338,8 @@ namespace Eu.EDelivery.AS4.Model.Internal
     {
         [XmlAttribute(AttributeName = "type")]
         public string Type { get; set; }
+
+        [XmlElement("Setting")]
+        public Setting[] Setting { get; set; }
     }
 }
