@@ -10,6 +10,7 @@ using Eu.EDelivery.AS4.Strategies.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NLog;
 using Polly;
@@ -22,6 +23,9 @@ namespace Eu.EDelivery.AS4.Common
     /// </summary>
     public class DatastoreContext : DbContext
     {
+        private readonly IServiceProvider _serviceProvider =
+            new ServiceCollection().AddEntityFrameworkInMemoryDatabase().BuildServiceProvider();
+
         private readonly IConfig _config;
         private readonly IDictionary<string, Func<string, DbContextOptionsBuilder>> _providers =
             new Dictionary<string, Func<string, DbContextOptionsBuilder>>(StringComparer.InvariantCulture);
@@ -131,27 +135,24 @@ namespace Eu.EDelivery.AS4.Common
             }
 
             string providerKey = _config.GetSetting("Provider");
+            string connectionString = _config.GetSetting("connectionstring");
 
-            if (!optionsBuilder.IsConfigured)
+            ConfigureProviders(optionsBuilder);
+
+            if (!_providers.ContainsKey(providerKey))
             {
-                string connectionString = _config.GetSetting("connectionstring");
-                ConfigureProviders(optionsBuilder);
-
-                if (!_providers.ContainsKey(providerKey))
-                {
-                    throw new KeyNotFoundException($"No Database provider found for key: {providerKey}");
-                }
-
-                _providers[providerKey](connectionString);
-
-                // Make sure no InvalidOperation is thrown when an ambient transaction is detected.
-                optionsBuilder.ConfigureWarnings(x => x.Ignore(RelationalEventId.AmbientTransactionWarning));
-
-                var logger = new LoggerFactory();
-                logger.AddProvider(new TraceLoggerProvider());
-
-                optionsBuilder.UseLoggerFactory(logger);
+                throw new KeyNotFoundException($"No Database provider found for key: {providerKey}");
             }
+
+            _providers[providerKey](connectionString);
+
+            // Make sure no InvalidOperation is thrown when an ambient transaction is detected.
+            optionsBuilder.ConfigureWarnings(x => x.Ignore(RelationalEventId.AmbientTransactionWarning));
+
+            var logger = new LoggerFactory();
+            logger.AddProvider(new TraceLoggerProvider());
+
+            optionsBuilder.UseLoggerFactory(logger);
         }
 
         private void ConfigureProviders(DbContextOptionsBuilder optionsBuilder)
@@ -181,12 +182,12 @@ namespace Eu.EDelivery.AS4.Common
             };
 
             _providers["SqlServer"] = c => optionsBuilder.UseSqlServer(c);
-            // The InMemoryDatabaseProvider does not represent a relation database and
-            // therefore does not support DB Migrations.  That is the reason why
-            // we use Sqlite with an 'in memory' connection string when the provider is 'InMemory'.
-            _providers["InMemory"] = c => optionsBuilder.UseSqlite("Data Source=:memory:"); 
 
             // TODO: add other providers
+            _providers["InMemory"] = _ => 
+                optionsBuilder.UseInMemoryDatabase(Guid.NewGuid().ToString())
+                              .UseInternalServiceProvider(_serviceProvider)
+                              .ConfigureWarnings(w => w.Ignore(InMemoryEventId.TransactionIgnoredWarning));
         }
 
         /// <summary>

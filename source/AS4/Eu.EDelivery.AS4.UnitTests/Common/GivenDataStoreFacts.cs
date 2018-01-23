@@ -1,7 +1,6 @@
 using System;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Repositories;
-using Eu.EDelivery.AS4.UnitTests.Receivers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
