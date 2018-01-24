@@ -180,7 +180,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Xml
         {
             Computer.RunPowershellScript("&..\\scripts\\GenerateXsd.ps1 -binDirectory . -outputDirectory ./doc/schemas");
             // Pragmatic way to make sure that the XSD's are ready
-            System.Threading.Thread.Sleep(2500);
+            System.Threading.Thread.Sleep(5000);
         }
     }
 }
