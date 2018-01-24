@@ -9,8 +9,8 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
 {
     internal static class DefaultAgentTransformerRegistry
     {
-        private static readonly IDictionary<AgentType, (Transformer, IEnumerable<Transformer>)> Registry = 
-            new Dictionary<AgentType, (Transformer, IEnumerable<Transformer>)>();
+        private static readonly IDictionary<AgentType, TransformerConfigEntry> Registry = 
+            new Dictionary<AgentType, TransformerConfigEntry>();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DefaultAgentTransformerRegistry"/> class.
@@ -29,9 +29,9 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
             Registry[AgentType.PullReceive]        = TransformerConfigEntry<PModeToPullRequestTransformer>();
         }
 
-        private static (Transformer, IEnumerable<Transformer>) TransformerConfigEntry<TDefault>(params Type[] others)
+        private static TransformerConfigEntry TransformerConfigEntry<TDefault>(params Type[] others)
         {
-            return (TransformerConfig(typeof(TDefault)), others.Select(TransformerConfig));
+            return new TransformerConfigEntry(TransformerConfig(typeof(TDefault)), others.Select(TransformerConfig));
         }
 
         private static Transformer TransformerConfig(Type t)
@@ -39,7 +39,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
             return new Transformer {Type = t.AssemblyQualifiedName};
         }
 
-        internal static (Transformer defaultTransformer, IEnumerable<Transformer> otherTransformers) GetDefaultTransformerFor(AgentType agentType)
+        internal static TransformerConfigEntry GetDefaultTransformerFor(AgentType agentType)
         {
             if (Registry.ContainsKey(agentType) == false)
             {
@@ -48,5 +48,34 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
 
             return Registry[agentType];
         }
+    }
+
+    /// <summary>
+    /// Transformer Configuration Entry to wrap the information about the different <see cref="ITransformer"/> implementations that can be used for an <see cref="AgentType"/>.
+    /// </summary>
+    public class TransformerConfigEntry
+    {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TransformerConfigEntry" /> class.
+        /// </summary>
+        /// <param name="defaultTransformer">The default transformer.</param>
+        /// <param name="otherTransformers">The other transformers.</param>
+        public TransformerConfigEntry(Transformer defaultTransformer, IEnumerable<Transformer> otherTransformers)
+        {
+            DefaultTransformer = defaultTransformer;
+            OtherTransformers = otherTransformers;
+        }
+
+        /// <summary>
+        /// Gets the configuration to create the default <see cref="ITransformer"/> for an <see cref="AgentType"/>.
+        /// </summary>
+        /// <value>The default transformer.</value>
+        public Transformer DefaultTransformer { get; }
+
+        /// <summary>
+        /// Gets the list of configurations to create other <see cref="ITransformer"/> implementations for an <see cref="AgentType"/>.
+        /// </summary>
+        /// <value>The other transformers.</value>
+        public IEnumerable<Transformer> OtherTransformers { get; }
     }
 }
