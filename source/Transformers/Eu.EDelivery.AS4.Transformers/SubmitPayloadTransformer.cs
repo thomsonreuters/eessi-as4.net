@@ -96,9 +96,9 @@ namespace Eu.EDelivery.AS4.Transformers
         {
             if (incoming.UnderlyingStream is FileStream file)
             {
-                string patyloadPath = file.Name;
-                string payloadId = Path.GetFileNameWithoutExtension(new FileInfo(patyloadPath).Name);
-                return (payloadId, patyloadPath);
+                string payloadPath = file.Name;
+                string payloadId = Path.GetFileNameWithoutExtension(new FileInfo(payloadPath).Name);
+                return (payloadId, payloadPath);
             }
             else
             {
