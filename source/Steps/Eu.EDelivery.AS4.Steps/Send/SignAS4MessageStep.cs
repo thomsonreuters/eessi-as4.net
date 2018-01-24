@@ -95,7 +95,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
             if (!certificate.HasPrivateKey)
             {
-              throw new CryptographicException($"{message.EbmsMessageId} Certificate does not have a private key");
+                throw new CryptographicException($"{message.EbmsMessageId} Certificate does not have a private key");
             }
 
             ISigningStrategy signingStrategy = CreateSignStrategy(message, certificate);
@@ -122,7 +122,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
             if (embeddedCertInfo != null)
             {
-                return new X509Certificate2(Convert.FromBase64String(embeddedCertInfo.Certificate), embeddedCertInfo.Password, X509KeyStorageFlags.Exportable);
+                return new X509Certificate2(Convert.FromBase64String(embeddedCertInfo.Certificate), embeddedCertInfo.Password, X509KeyStorageFlags.Exportable | X509KeyStorageFlags.MachineKeySet | X509KeyStorageFlags.PersistKeySet);
             }
 
             throw new NotSupportedException("The signing certificate information specified in the PMode could not be used to retrieve the certificate");
