@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
@@ -12,7 +11,6 @@ using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Model.Submit;
 using Eu.EDelivery.AS4.Repositories;
-using Eu.EDelivery.AS4.Singletons;
 
 namespace Eu.EDelivery.AS4.Transformers
 {
@@ -38,7 +36,7 @@ namespace Eu.EDelivery.AS4.Transformers
         /// <param name="configuration">The configuration.</param>
         public SubmitPayloadTransformer(IConfig configuration)
         {
-            _config = configuration;
+            _config = configuration ?? throw new ArgumentNullException(nameof(configuration));
             _mimeTypeRepository = new MimeTypeRepository();
         }
 
