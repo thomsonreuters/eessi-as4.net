@@ -66,7 +66,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
 
         private static void WaitToMakeSureAS4ComponentIsStarted()
         {
-            Thread.Sleep(3000);
+            Thread.Sleep(TimeSpan.FromSeconds(10));
         }
 
         private HttpWebRequest CreateWebRequest(string contentType)

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.IntegrationTests.Common;
 using Eu.EDelivery.AS4.Model.Core;
@@ -21,6 +22,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Negative_Receive_Scenarios._8._4._6_
             // Act
             const string contentType = "multipart/related; boundary=\"=-WoWSZIFF06iwFV8PHCZ0dg==\"; type=\"application/soap+xml\"; charset=\"utf-8\"";
             string messageWrongEncrypted = Properties.Resources.as4_soap_wrong_encrypted_message;
+
             AS4Message as4Message = await new StubSender().SendMessage(messageWrongEncrypted, contentType);
 
             // Assert

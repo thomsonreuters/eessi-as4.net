@@ -5,6 +5,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Agents;
 using Eu.EDelivery.AS4.Common;
+using Eu.EDelivery.AS4.Model.Core;
+using Eu.EDelivery.AS4.Singletons;
 using Microsoft.EntityFrameworkCore;
 using NLog;
 
@@ -50,10 +52,9 @@ namespace Eu.EDelivery.AS4.ServiceHandler
         /// <returns></returns>
         public async Task StartAsync(CancellationToken cancellationToken)
         {
-            if (_agents == null)
-            {
-                return;
-            }
+            if (_agents == null) { return; }
+
+            AS4Mapper.Initialize();
 
             using (var context = new DatastoreContext(_config))
             {

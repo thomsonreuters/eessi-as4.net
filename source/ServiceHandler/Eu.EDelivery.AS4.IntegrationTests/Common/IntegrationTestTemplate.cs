@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using Eu.EDelivery.AS4.IntegrationTests.Fixture;
+using Eu.EDelivery.AS4.Singletons;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.IntegrationTests.Common
@@ -33,6 +34,8 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
         /// </summary>
         public IntegrationTestTemplate()
         {
+            AS4Mapper.Initialize();
+
             Console.WriteLine(Environment.NewLine);
 
             CopyDirectory(@".\config\integrationtest-settings", @".\config\");
