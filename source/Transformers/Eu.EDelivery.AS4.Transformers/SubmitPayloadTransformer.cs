@@ -60,24 +60,17 @@ namespace Eu.EDelivery.AS4.Transformers
         public Task<MessagingContext> TransformAsync(ReceivedMessage message, CancellationToken cancellationToken)
         {
             SendingProcessingMode sendingPMode = _config.GetSendingPMode(_pmodeId);
-            SendMessagePackaging packaging = sendingPMode.MessagePackaging;
 
             (string payloadId, string payloadPath) = GetPayloadInfo(message);
 
             var submit = new SubmitMessage
             {
-                MessageInfo = new MessageInfo(IdentifierFactory.Instance.Create(), packaging?.Mpc),
+                MessageInfo = {MessageId = IdentifierFactory.Instance.Create()},
                 Collaboration =
                 {
                   AgreementRef  = {PModeId = sendingPMode.Id}
                 },
-                PartyInfo =
-                {
-                    FromParty = AS4Mapper.Map<Party>(packaging?.PartyInfo?.FromParty),
-                    ToParty = AS4Mapper.Map<Party>(packaging?.PartyInfo?.ToParty)
-                },
                 PMode = sendingPMode,
-                MessageProperties = packaging?.MessageProperties?.Select(AS4Mapper.Map<MessageProperty>).ToArray(),
                 Payloads = new[]
                 {
                     new Payload
