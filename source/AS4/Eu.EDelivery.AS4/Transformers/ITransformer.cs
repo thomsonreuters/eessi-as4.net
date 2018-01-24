@@ -17,14 +17,7 @@ namespace Eu.EDelivery.AS4.Transformers
         /// <param name="cancellationToken">Cancellation which stops the transforming.</param>
         /// <returns></returns>
         Task<MessagingContext> TransformAsync(ReceivedMessage message, CancellationToken cancellationToken);
-    }
 
-    /// <summary>
-    /// Configurable <see cref="ITransformer"/> abstraction to inject custom user-defined properties.
-    /// </summary>
-    /// <seealso cref="ITransformer" />
-    public interface IConfigTransformer : ITransformer
-    {
         /// <summary>
         /// Configures the <see cref="ITransformer"/> implementation with specific user-defined properties.
         /// </summary>

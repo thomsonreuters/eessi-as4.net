@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Model.Core;
@@ -18,6 +19,12 @@ namespace Eu.EDelivery.AS4.Transformers
     public class PModeToPullRequestTransformer : ITransformer
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+
+        /// <summary>
+        /// Configures the <see cref="ITransformer"/> implementation with specific user-defined properties.
+        /// </summary>
+        /// <param name="properties">The properties.</param>
+        public void Configure(IDictionary<string, string> properties) { }
 
         /// <summary>
         /// Transform a given <see cref="ReceivedMessage" /> to a Canonical <see cref="MessagingContext" /> instance.

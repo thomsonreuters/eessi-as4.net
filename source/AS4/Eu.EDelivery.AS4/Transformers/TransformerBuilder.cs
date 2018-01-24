@@ -21,12 +21,13 @@ namespace Eu.EDelivery.AS4.Transformers
         {
             GenericTypeBuilder builder = GenericTypeBuilder.FromType(config.Type);
 
+            var transformer = builder.Build<ITransformer>();
+
             if (config.Setting == null)
             {
-                return builder.Build<ITransformer>();
+                return transformer;
             }
-
-            var transformer = builder.Build<IConfigTransformer>();
+            
             transformer.Configure(config.Setting.ToDictionary(s => s.Key, s => s.Value, StringComparer.OrdinalIgnoreCase));
 
             return transformer;

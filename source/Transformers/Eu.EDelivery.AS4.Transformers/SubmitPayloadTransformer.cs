@@ -19,8 +19,8 @@ namespace Eu.EDelivery.AS4.Transformers
     /// <summary>
     /// This Transformer is responsible for creating a <see cref="MessagingContext"/> that contains a <see cref="SubmitMessage"/> for the payload it has received. 
     /// </summary>
-    /// <seealso cref="IConfigTransformer" />
-    public class SubmitPayloadTransformer : IConfigTransformer
+    /// <seealso cref="ITransformer" />
+    public class SubmitPayloadTransformer : ITransformer
     {
         private readonly IConfig _config;
         private static MimeTypeRepository _mimeTypeRepository;
