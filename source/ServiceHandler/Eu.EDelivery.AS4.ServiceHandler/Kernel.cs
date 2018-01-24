@@ -56,17 +56,17 @@ namespace Eu.EDelivery.AS4.ServiceHandler
 
             AS4Mapper.Initialize();
 
-            using (var context = new DatastoreContext(_config))
+            try
             {
-                try
+                using (var context = new DatastoreContext(_config))
                 {
-                    await context.Database.MigrateAsync(cancellationToken);                    
+                    await context.NativeCommands.CreateDatabase();
                 }
-                catch (Exception exception)
-                {
-                    Logger.Fatal($"An error occured while migrating the database: {exception.Message}");
-                    return;
-                }
+            }
+            catch (Exception exception)
+            {
+                Logger.Fatal($"An error occured while migrating the database: {exception.Message}");
+                return;
             }
 
             Logger.Debug("Starting...");

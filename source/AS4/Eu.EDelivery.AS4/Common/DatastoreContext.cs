@@ -6,9 +6,11 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Entities;
+using Eu.EDelivery.AS4.Strategies.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NLog;
 using Polly;
@@ -25,16 +27,22 @@ namespace Eu.EDelivery.AS4.Common
         private readonly IDictionary<string, Func<string, DbContextOptionsBuilder>> _providers =
             new Dictionary<string, Func<string, DbContextOptionsBuilder>>(StringComparer.InvariantCulture);
 
+        private readonly IDictionary<string, Func<DatastoreContext, IAS4DbCommand>> _retrieveCommands =
+            new Dictionary<string, Func<DatastoreContext, IAS4DbCommand>>
+            {
+                {"SqlServer", ctx => new SqlServerDbCommand(ctx)},
+                {"Sqlite", ctx => new SqliteDbCommand(ctx)},
+                {"InMemory", ctx => new InMemoryDbCommand(ctx)}
+            };
+
         private RetryPolicy _policy;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="DatastoreContext"/> class. 
-        /// Create a new DataStore Context with given Context Options
+        /// Initializes a new instance of the <see cref="DatastoreContext"/> class.
         /// </summary>
-        /// <param name="options">
-        /// </param>
-        public DatastoreContext(DbContextOptions<DatastoreContext> options) : base(options)
+        public DatastoreContext(DbContextOptions<DatastoreContext> options, IConfig config) : base(options)
         {
+            _config = config;
             InitializeFields();
         }
 
@@ -75,6 +83,17 @@ namespace Eu.EDelivery.AS4.Common
             _policy = Policy
                 .Handle<DbUpdateException>()
                 .RetryAsync();
+
+            if (_config == null) { return; }
+
+            string providerKey = _config.GetSetting("Provider");
+            if (!_retrieveCommands.ContainsKey(providerKey))
+            {
+                throw new KeyNotFoundException(
+                    $"No Native Command implementation found for DBMS-type: '{providerKey}'");
+            }
+
+            NativeCommands = _retrieveCommands[providerKey](this);
         }
 
         public DbSet<InMessage> InMessages { get; set; }
@@ -86,6 +105,8 @@ namespace Eu.EDelivery.AS4.Common
         public DbSet<OutException> OutExceptions { get; set; }
 
         public DbSet<ReceptionAwareness> ReceptionAwareness { get; set; }
+
+        public IAS4DbCommand NativeCommands { get; private set; }
 
         /// <summary>
         ///     <para>
@@ -110,10 +131,10 @@ namespace Eu.EDelivery.AS4.Common
                 return;
             }
 
-            string connectionString = _config.GetSetting("connectionstring");
-            ConfigureProviders(optionsBuilder);
-
             string providerKey = _config.GetSetting("Provider");
+            string connectionString = _config.GetSetting("connectionstring");
+
+            ConfigureProviders(optionsBuilder);
 
             if (!_providers.ContainsKey(providerKey))
             {
@@ -130,7 +151,6 @@ namespace Eu.EDelivery.AS4.Common
 
             optionsBuilder.UseLoggerFactory(logger);
         }
-
 
         private void ConfigureProviders(DbContextOptionsBuilder optionsBuilder)
         {
@@ -159,12 +179,11 @@ namespace Eu.EDelivery.AS4.Common
             };
 
             _providers["SqlServer"] = c => optionsBuilder.UseSqlServer(c);
-            // The InMemoryDatabaseProvider does not represent a relation database and
-            // therefore does not support DB Migrations.  That is the reason why
-            // we use Sqlite with an 'in memory' connection string when the provider is 'InMemory'.
-            _providers["InMemory"] = c => optionsBuilder.UseSqlite("Data Source=:memory:"); 
 
             // TODO: add other providers
+            _providers["InMemory"] = _ => 
+                optionsBuilder.UseInMemoryDatabase(Guid.NewGuid().ToString())
+                              .ConfigureWarnings(w => w.Ignore(InMemoryEventId.TransactionIgnoredWarning));
         }
 
         /// <summary>

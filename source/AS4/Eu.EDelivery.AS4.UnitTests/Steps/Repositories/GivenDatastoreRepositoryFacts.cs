@@ -88,7 +88,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Repositories
 
             private void AssertOutMessage(string messageId, Action<OutMessage> assertAction)
             {
-                using (var contex = new DatastoreContext(Options))
+                using (var contex = GetDataStoreContext())
                 {
                     OutMessage outMessage = contex.OutMessages.FirstOrDefault(m => m.EbmsMessageId.Equals(messageId));
                     assertAction(outMessage);

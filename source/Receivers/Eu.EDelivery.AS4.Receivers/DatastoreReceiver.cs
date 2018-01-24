@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
 using System.Linq;
-using System.Linq.Dynamic.Core;
 using System.Reflection;
 using System.Threading;
 using Eu.EDelivery.AS4.Common;
@@ -11,7 +10,6 @@ using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Receivers.Utilities;
-using Microsoft.EntityFrameworkCore.Storage;
 using NLog;
 using Function =
     System.Func<Eu.EDelivery.AS4.Model.Internal.ReceivedMessage, System.Threading.CancellationToken,
@@ -37,7 +35,7 @@ namespace Eu.EDelivery.AS4.Receivers
         /// <summary>
         /// Initializes a new instance of the <see cref="DatastoreReceiver" /> class.
         /// </summary>
-        /// <param name="storeExpression"></param>
+        /// <param name="storeExpression">The store expression.</param>
         public DatastoreReceiver(Func<DatastoreContext> storeExpression)
         {
             _storeExpression = storeExpression;
@@ -79,17 +77,13 @@ namespace Eu.EDelivery.AS4.Receivers
 
             using (DatastoreContext context = _storeExpression())
             {
-                IDbContextTransaction transaction = context.Database.BeginTransaction();
-
                 try
                 {
                     entities = FindAnyMessageEntitiesWithConfiguredExpression(context);
-                    transaction.Commit();
                 }
                 catch (Exception exception)
                 {
                     LogExceptionAndInner(exception);
-                    transaction.Rollback();
                 }
             }
 
@@ -113,9 +107,7 @@ namespace Eu.EDelivery.AS4.Receivers
         {
             var tablePropertyInfo = GetTableSetPropertyInfo();
 
-            var dbSet = tablePropertyInfo.GetValue(context) as IQueryable<Entity>;
-
-            if (dbSet == null)
+            if (!(tablePropertyInfo.GetValue(context) is IQueryable<Entity>))
             {
                 throw new ConfigurationErrorsException($"The configured table {_settings.TableName} could not be found");
             }
@@ -124,12 +116,8 @@ namespace Eu.EDelivery.AS4.Receivers
             // - validate the Filter clause for sql injection
             // - make sure that single quotes are used around string vars.  (Maybe make it dependent on the DB type, same is true for escape characters [] in sql server, ...             
 
-            string filterExpression = Filter.Replace("\'", "\"");
-
-            IEnumerable<Entity> entities = dbSet.Where(filterExpression)
-                                                .OrderBy(x => x.InsertionTime)
-                                                .Take(this.TakeRows)
-                                                .ToList();
+            IEnumerable<Entity> entities = 
+                context.NativeCommands.ExclusivelyRetrieveEntities(Table, Filter, TakeRows);
 
             if (!entities.Any())
             {
@@ -162,6 +150,7 @@ namespace Eu.EDelivery.AS4.Receivers
                 {
                     pi = FindPropertyInHierarchy(propertyName, t.BaseType);
                 }
+
                 return pi;
             }
 
@@ -185,13 +174,19 @@ namespace Eu.EDelivery.AS4.Receivers
                 return;
             }
 
-            var updateFieldInfo = GetUpdateFieldProperty(entities.First());
+            PropertyInfo updateFieldInfo = GetUpdateFieldProperty(entities.First());
 
             foreach (Entity entity in entities)
             {
-                object updateValue = Conversion.Convert(updateFieldInfo.PropertyType, this.Update);
+                object updateValue = Conversion.Convert(updateFieldInfo.PropertyType, Update);
 
-                updateFieldInfo.SetValue(entity, updateValue, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, null, null, null);
+                updateFieldInfo.SetValue(
+                    obj: entity, 
+                    value: updateValue, 
+                    invokeAttr: BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, 
+                    binder: null, 
+                    index: null, 
+                    culture: null);
             }
         }
 
@@ -299,28 +294,29 @@ namespace Eu.EDelivery.AS4.Receivers
         {
             var properties = settings.ToDictionary(s => s.Key, s => s);
 
-            var configuredTakeRecords = properties.ReadOptionalProperty(SettingKeys.TakeRows, null);
+            Setting configuredTakeRecords = properties.ReadOptionalProperty(SettingKeys.TakeRows, null);
 
-            if (configuredTakeRecords == null || Int32.TryParse(configuredTakeRecords.Value, out var takeRecords) == false)
+            if (configuredTakeRecords == null || Int32.TryParse(configuredTakeRecords.Value, out int takeRecords) == false)
             {
                 takeRecords = DatastoreReceiverSettings.DefaultTakeRows;
             }
 
-            var pollingInterval = GetPollingIntervalFromProperties(properties);
+            TimeSpan pollingInterval = GetPollingIntervalFromProperties(properties);
 
-            var updateSetting = properties.ReadMandatoryProperty(SettingKeys.Update);
+            Setting updateSetting = properties.ReadMandatoryProperty(SettingKeys.Update);
 
             if (updateSetting["field"] == null)
             {
                 throw new ConfigurationErrorsException("The Update setting does not contain a field attribute that indicates the field that must be updated.");
             }
 
-            _settings = new DatastoreReceiverSettings(properties.ReadMandatoryProperty(SettingKeys.Table).Value,
-                                                      properties.ReadMandatoryProperty(SettingKeys.Filter).Value,
-                                                      updateSetting["field"].Value,
-                                                      updateSetting.Value,
-                                                      pollingInterval,
-                                                      takeRecords);
+            _settings = new DatastoreReceiverSettings(
+                tableName: properties.ReadMandatoryProperty(SettingKeys.Table).Value,
+                filter: properties.ReadMandatoryProperty(SettingKeys.Filter).Value,
+                updateField: updateSetting["field"].Value,
+                updateValue: updateSetting.Value,
+                pollingInterval: pollingInterval,
+                takeRows: takeRecords);
         }
 
         #endregion
@@ -357,9 +353,7 @@ namespace Eu.EDelivery.AS4.Receivers
         /// <param name="token"></param>
         protected override void MessageReceived(Entity entity, Function messageCallback, CancellationToken token)
         {
-            var messageEntity = entity as MessageEntity;
-
-            if (messageEntity != null)
+            if (entity is MessageEntity messageEntity)
             {
                 ReceiveMessageEntity(messageEntity, messageCallback, token);
             }
@@ -372,9 +366,8 @@ namespace Eu.EDelivery.AS4.Receivers
         protected override void HandleMessageException(Entity message, Exception exception)
         {
             Logger.Error(exception.Message);
-            var aggregate = exception as AggregateException;
 
-            if (aggregate == null)
+            if (!(exception is AggregateException aggregate))
             {
                 return;
             }
