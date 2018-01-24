@@ -23,9 +23,6 @@ namespace Eu.EDelivery.AS4.Common
     /// </summary>
     public class DatastoreContext : DbContext
     {
-        private readonly IServiceProvider _serviceProvider =
-            new ServiceCollection().AddEntityFrameworkInMemoryDatabase().BuildServiceProvider();
-
         private readonly IConfig _config;
         private readonly IDictionary<string, Func<string, DbContextOptionsBuilder>> _providers =
             new Dictionary<string, Func<string, DbContextOptionsBuilder>>(StringComparer.InvariantCulture);
@@ -186,7 +183,6 @@ namespace Eu.EDelivery.AS4.Common
             // TODO: add other providers
             _providers["InMemory"] = _ => 
                 optionsBuilder.UseInMemoryDatabase(Guid.NewGuid().ToString())
-                              .UseInternalServiceProvider(_serviceProvider)
                               .ConfigureWarnings(w => w.Ignore(InMemoryEventId.TransactionIgnoredWarning));
         }
 
