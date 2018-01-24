@@ -36,7 +36,9 @@ namespace Eu.EDelivery.AS4.Transformers
         /// <param name="configuration">The configuration.</param>
         public SubmitPayloadTransformer(IConfig configuration)
         {
-            _config = configuration ?? throw new ArgumentNullException(nameof(configuration));
+            if (configuration == null) { throw new ArgumentNullException(nameof(configuration)); }
+
+            _config = configuration;
             _mimeTypeRepository = new MimeTypeRepository();
         }
 
