@@ -64,6 +64,12 @@ namespace Eu.EDelivery.AS4.Common
         public string OutMessageStoreLocation => _settings?.Database?.OutMessageStoreLocation ?? @"file:///.\database\as4messages\out";
 
         /// <summary>
+        /// Gets the application path of the AS4.NET Component.
+        /// </summary><value>The application path.
+        /// </value>
+        public static string ApplicationPath => AppDomain.CurrentDomain.BaseDirectory;
+
+        /// <summary>
         /// Gets a value indicating whether if the Configuration is initialized
         /// </summary>
         public bool IsInitialized { get; private set; }
@@ -178,9 +184,9 @@ namespace Eu.EDelivery.AS4.Common
         {
             DirectoryInfo directory = null;
 
-            if (Directory.Exists(Properties.Resources.externalfolder))
+            if (Directory.Exists(BaseDirCombine(Properties.Resources.externalfolder)))
             {
-                directory = new DirectoryInfo(Properties.Resources.externalfolder);
+                directory = new DirectoryInfo(BaseDirCombine(Properties.Resources.externalfolder));
             }
 
             return directory;
@@ -197,17 +203,17 @@ namespace Eu.EDelivery.AS4.Common
 
         private static string GetSendPModeFolder()
         {
-            return Path.Combine(Properties.Resources.configurationfolder, Properties.Resources.sendpmodefolder);
+            return BaseDirCombine(Properties.Resources.configurationfolder, Properties.Resources.sendpmodefolder);
         }
 
         private static string GetReceivePModeFolder()
         {
-            return Path.Combine(Properties.Resources.configurationfolder, Properties.Resources.receivepmodefolder);
+            return BaseDirCombine(Properties.Resources.configurationfolder, Properties.Resources.receivepmodefolder);
         }
 
         private void RetrieveLocalConfiguration()
         {
-            string path = Path.Combine(Properties.Resources.configurationfolder, Properties.Resources.settingsfilename);
+            string path = BaseDirCombine(Properties.Resources.configurationfolder, Properties.Resources.settingsfilename);
 
             string fullPath = Path.GetFullPath(path);
 
@@ -216,7 +222,6 @@ namespace Eu.EDelivery.AS4.Common
             {
                 path = Path.Combine(".", path);
             }
-
             _settings = TryDeserialize<Settings>(path);
             if (_settings == null)
             {
@@ -224,6 +229,11 @@ namespace Eu.EDelivery.AS4.Common
             }
 
             AssignSettingsToGlobalConfiguration();
+        }
+
+        private static string BaseDirCombine(params string[] paths)
+        {
+            return Path.Combine(new[] {ApplicationPath}.Concat(paths).ToArray());
         }
 
         private T TryDeserialize<T>(string path) where T : class
@@ -272,7 +282,7 @@ namespace Eu.EDelivery.AS4.Common
             PayloadServiceInProcess = _settings.PayloadServiceInProcess;
 
             // TODO: this is hardcoded right now, should be configurable in the settings.xml
-            string authorizationMap = Path.Combine(Properties.Resources.configurationfolder, "Security\\pull_authorizationmap.xml");
+            string authorizationMap = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, Properties.Resources.configurationfolder, "Security\\pull_authorizationmap.xml");
 
             _pullRequestPullAuthorizationMapProvider = new FilePullAuthorizationMapProvider(authorizationMap);
         }

@@ -162,7 +162,10 @@ namespace Eu.EDelivery.AS4.Security.Strategies
             }
         }
 
-        private void LoadSignature()
+        /// <summary>
+        /// Loads the signature.
+        /// </summary>
+        public void LoadSignature()
         {
             ArrayList references = GetSignedReferences();
             if (references == null || references.Count == 0)

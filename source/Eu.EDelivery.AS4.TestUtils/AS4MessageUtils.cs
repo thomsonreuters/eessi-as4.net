@@ -13,6 +13,7 @@ namespace Eu.EDelivery.AS4.TestUtils
             var signing = new SigningStrategyBuilder(message, X509ReferenceType.BSTReference)
                .WithCertificate(certificate)
                .WithSigningId(message.SigningId, hashFunction: Constants.HashFunctions.First())
+               .WithSignatureAlgorithm(Constants.Algoritms.First())
                .Build();
 
             message.SecurityHeader.Sign(signing);
