@@ -11,6 +11,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Xml
 {
     public class XsdValidationFacts : IClassFixture<XsdValidationFixture>
     {
+        [Collection("XSD")]
         public class SamplesXsdValidationFacts : XsdValidationFacts
         {
             [Fact]
@@ -53,6 +54,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Xml
             }
         }
 
+        [Collection("XSD")]
         public class ConformanceTestXsdValidationFacts : XsdValidationFacts
         {
             [Fact]
@@ -70,6 +72,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Xml
             }
         }
 
+        [Collection("XSD")]
         public class EessiConformanceXsdValidationFacts : XsdValidationFacts
         {
             [Fact]
