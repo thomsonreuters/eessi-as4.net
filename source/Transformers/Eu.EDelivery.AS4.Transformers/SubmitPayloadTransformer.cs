@@ -68,7 +68,6 @@ namespace Eu.EDelivery.AS4.Transformers
                 {
                   AgreementRef  = {PModeId = sendingPMode.Id}
                 },
-                PMode = sendingPMode,
                 Payloads = new[]
                 {
                     new Payload
