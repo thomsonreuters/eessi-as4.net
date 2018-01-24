@@ -42,20 +42,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
             var receiver = CreateFileReceiver();
 
             Assert.Empty(StartReceiving(receiver, TimeSpan.FromSeconds(10)));
-            DeleteFile(Path.Combine(_watchedDirectory, "file.lock"));
-            Assert.NotEmpty(StartReceiving(receiver, TimeSpan.FromSeconds(10)));
-        }
-
-        private void DeleteFile(string path)
-        {
-            try
-            {
-                File.Delete(path);
-            }
-            catch (IOException ex)
-            {
-                _testLogger.WriteLine(ex.ToString());
-            }
+            receiver.StopReceiving();
         }
 
         [Fact]
@@ -65,6 +52,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
 
             var receiver = CreateFileReceiver();
             var receivedFiles = StartReceiving(receiver, TimeSpan.FromSeconds(10));
+            receiver.StopReceiving();
 
             Assert.Equal(1, receivedFiles.Count());
             Assert.Equal("testfile", Path.GetFileNameWithoutExtension(receivedFiles.First()));
@@ -75,12 +63,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
         [InlineData(".exception")]
         [InlineData(".accepted")]
         [InlineData(".pending")]
+        [InlineData(".lock")]
         public void DoesNotReceiveSystemFileTypes(string extension)
         {
             CreateFileInDirectory($"unwanted_testfile{extension}", _watchedDirectory);
 
             var receiver = CreateFileReceiver();
             var receivedFiles = StartReceiving(receiver, TimeSpan.FromSeconds(1));
+            receiver.StopReceiving();
 
             Assert.Empty(receivedFiles);
         }
@@ -98,7 +88,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
             Task.Factory.StartNew(() => receiver.StartReceiving((m, c) => receiveProcessor.OnFileReceived(m, c), tokenSource.Token), tokenSource.Token);
             signal.WaitOne(timeout);
 
-            return receiveProcessor.ReceivedFiles;
+            return receiveProcessor.ReceivedFiles.ToList();
         }
 
         private static void CreateFileInDirectory(string fileName, string directory)
