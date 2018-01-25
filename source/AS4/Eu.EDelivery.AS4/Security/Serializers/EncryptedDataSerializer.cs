@@ -13,8 +13,6 @@ namespace Eu.EDelivery.AS4.Security.Serializers
     {
         private readonly XmlDocument _document;
                 
-        private const string EncNamespace = "http://www.w3.org/2001/04/xmlenc#";
-
         /// <summary>
         /// Initializes a new instance of the <see cref="EncryptedDataSerializer"/> class
         /// </summary>
@@ -38,7 +36,7 @@ namespace Eu.EDelivery.AS4.Security.Serializers
             var result = new List<EncryptedData>();
 
             var namespaceManager = new XmlNamespaceManager(_document.NameTable);
-            namespaceManager.AddNamespace("enc", EncNamespace);
+            namespaceManager.AddNamespace("enc", Constants.Namespaces.XmlEnc);
 
             IEnumerable<XmlElement> encryptedDataElements = _document
                 .SelectNodes("//enc:EncryptedData", namespaceManager)
