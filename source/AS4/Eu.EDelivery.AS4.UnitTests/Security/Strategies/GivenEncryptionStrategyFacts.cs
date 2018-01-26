@@ -6,7 +6,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
-using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Builders.Security;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.PMode;
@@ -49,7 +48,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Strategies
                 byte[] attachmentContents = Encoding.UTF8.GetBytes("hi!");
                 var attachment = new Attachment("attachment-id") { Content = new MemoryStream(attachmentContents) };
 
-                AS4Message as4Message = AS4Message.Create(soapEnvelope: null, contentType: null);
+                AS4Message as4Message = AS4Message.Create(pmode: null);
                 as4Message.AddAttachment(attachment);
 
                 IEncryptionStrategy encryptionStrategy = CreateEncryptionStrategyForEncrypting(as4Message);

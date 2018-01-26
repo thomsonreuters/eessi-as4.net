@@ -112,7 +112,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             foreach (UserMessage userMessage in context.AS4Message.UserMessages)
             {
                 Error error = CreateError(userMessage.MessageId, context);
-                errorMessage.MessageUnits.Add(error);
+                errorMessage.AddMessageUnit(error);
             }
 
             return errorMessage;

@@ -80,8 +80,8 @@ namespace Eu.EDelivery.AS4.Transformers
             }
 
             // Remove all the user- and signalmessages from the AS4Message, except the userMessage that we're about to deliver.
-            as4Message.MessageUnits.Clear();
-            as4Message.MessageUnits.Add(userMessage);
+            as4Message.ClearMessageUnits();
+            as4Message.AddMessageUnit(userMessage);
 
             return as4Message;
         }

@@ -32,7 +32,7 @@ namespace Eu.EDelivery.AS4.Model.Core
             SigningId = new SigningId();
             SecurityHeader = new SecurityHeader();
             Attachments = new List<Attachment>();
-            MessageUnits = new List<MessageUnit>();
+            _messageUnits = new List<MessageUnit>();
         }
 
         public static AS4Message Empty => new AS4Message(serializeAsMultiHop: false);
@@ -76,7 +76,9 @@ namespace Eu.EDelivery.AS4.Model.Core
             return !string.IsNullOrWhiteSpace(role) && role.Equals(Constants.Namespaces.EbmsNextMsh);
         }
 
-        public ICollection<MessageUnit> MessageUnits { get; }
+        private readonly List<MessageUnit> _messageUnits;
+
+        public IEnumerable<MessageUnit> MessageUnits => _messageUnits.AsReadOnly();
 
         public IEnumerable<UserMessage> UserMessages => MessageUnits.OfType<UserMessage>();
 
@@ -114,10 +116,52 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// </summary>
         /// <param name="soapEnvelope">The SOAP envelope.</param>
         /// <param name="contentType">Type of the content.</param>
+        /// <param name="securityHeader"></param>
+        /// <param name="messagingHeader"></param>
+        /// <param name="bodyElement"></param>
+        ///<remarks>This method should only be used when creating an AS4 Message via deserialization.</remarks>
         /// <returns></returns>
-        public static AS4Message Create(XmlDocument soapEnvelope, string contentType)
+        internal static AS4Message Create(XmlDocument soapEnvelope, string contentType, SecurityHeader securityHeader, Xml.Messaging messagingHeader, Xml.Body1 bodyElement)
         {
-            return new AS4Message { EnvelopeDocument = soapEnvelope, ContentType = contentType };
+            if (soapEnvelope == null)
+            {
+                throw new ArgumentNullException(nameof(soapEnvelope));
+            }
+
+            if (String.IsNullOrWhiteSpace(contentType))
+            {
+                throw new ArgumentException(@"ContentType must be defined.", nameof(contentType));
+            }
+
+            if (securityHeader == null)
+            {
+                throw new ArgumentNullException(nameof(securityHeader));
+            }
+
+            if (messagingHeader == null)
+            {
+                throw new ArgumentNullException(nameof(messagingHeader));
+            }
+
+            var result = new AS4Message
+            {
+                EnvelopeDocument = soapEnvelope,
+                ContentType = contentType,
+                SecurityHeader = securityHeader
+            };
+
+            result.SigningId.HeaderSecurityId = messagingHeader.SecurityId;
+
+            if (bodyElement?.AnyAttr != null)
+            {
+                result.SigningId.BodySecurityId = bodyElement.AnyAttr.FirstOrDefault(a => a.LocalName == "Id")?.Value;
+            }
+
+            var units = SoapEnvelopeSerializer.GetMessageUnitsFromMessagingHeader(messagingHeader);
+
+            result._messageUnits.AddRange(units);
+
+            return result;
         }
 
         /// <summary>
@@ -134,10 +178,9 @@ namespace Eu.EDelivery.AS4.Model.Core
         {
             AS4Message as4Message = Create(pmode);
 
-            as4Message.MessageUnits.Add(message);
+            as4Message.AddMessageUnit(message);
 
             return as4Message;
-
         }
 
         /// <summary>
@@ -147,6 +190,41 @@ namespace Eu.EDelivery.AS4.Model.Core
         public string GetPrimaryMessageId()
         {
             return IsUserMessage ? PrimaryUserMessage.MessageId : PrimarySignalMessage?.MessageId;
+        }
+
+        /// <summary>
+        /// Adds a <see cref="MessageUnit"/> to the AS4 Message.
+        /// </summary>
+        /// <param name="messageUnit">The MessageUnit, which can be a signalmessage or a usermessage.</param>
+        /// <remarks>Adding a MessageUnit will cause the EnvelopeDocument property to be set to null, since the 
+        /// Envelope Document will no longer be in-sync.</remarks>
+        public void AddMessageUnit(MessageUnit messageUnit)
+        {
+            _messageUnits.Add(messageUnit);
+            EnvelopeDocument = null;
+        }
+
+        /// <summary>
+        /// Removes the <paramref name="messageUnit"/> from the AS4 Message.
+        /// </summary>
+        /// <param name="messageUnit"></param>
+        /// <remarks>Removing a MessageUnit will cause the EnvelopeDocument property to be set to null, since the 
+        /// Envelope Document will no longer be in-sync.</remarks>
+        public void RemoveMessageUnit(MessageUnit messageUnit)
+        {
+            _messageUnits.Remove(messageUnit);
+            EnvelopeDocument = null;
+        }
+
+        /// <summary>
+        /// Clears the MessageUnit collection.
+        /// </summary>
+        /// <remarks>Clearing the essageUnits will cause the EnvelopeDocument property to be set to null, since the 
+        /// Envelope Document will no longer be in-sync.</remarks>
+        public void ClearMessageUnits()
+        {
+            _messageUnits.Clear();
+            EnvelopeDocument = null;
         }
 
         /// <summary>

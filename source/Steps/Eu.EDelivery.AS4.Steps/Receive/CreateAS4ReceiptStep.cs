@@ -50,7 +50,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 var receipt = new Receipt { RefToMessageId = messageId };
                 AdaptReceiptMessage(receipt, messagingContext);
 
-                receiptMessage.MessageUnits.Add(receipt);
+                receiptMessage.AddMessageUnit(receipt);
             }
 
             receiptMessage.SigningId = receivedAS4Message.SigningId;

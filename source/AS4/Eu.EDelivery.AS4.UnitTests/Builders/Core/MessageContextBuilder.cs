@@ -22,7 +22,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Core
             _messagingContext = new MessagingContext(AS4Message.Empty, MessagingContextMode.Receive);
 
             UserMessage userMessage = CreateDefaultUserMessage(messageId);
-            _messagingContext.AS4Message.MessageUnits.Add(userMessage);
+            _messagingContext.AS4Message.AddMessageUnit(userMessage);
         }
 
         /// <summary>
@@ -96,7 +96,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Core
         /// <returns></returns>
         public MessageContextBuilder WithSignalMessage(SignalMessage signalMessage)
         {
-            _messagingContext.AS4Message.MessageUnits.Add(signalMessage);
+            _messagingContext.AS4Message.AddMessageUnit(signalMessage);
 
             return this;
         }
@@ -108,7 +108,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Core
         /// <returns></returns>
         public MessageContextBuilder WithUserMessage(UserMessage userMessage)
         {
-            _messagingContext.AS4Message.MessageUnits.Add(userMessage);
+            _messagingContext.AS4Message.AddMessageUnit(userMessage);
 
             return this;
         }

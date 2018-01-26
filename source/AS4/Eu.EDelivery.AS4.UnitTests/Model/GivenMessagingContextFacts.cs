@@ -101,7 +101,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
 
             private static AS4Message AS4MessageWithoutEbmsMessageId()
             {
-                return AS4Message.Create(null, contentType: "other");
+                return AS4Message.Create(pmode: null);
             }
 
             [Fact]
@@ -138,7 +138,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
             public void ThenHasAttachmentsIsCorrectTrue()
             {
                 // Arrange
-                AS4Message as4Message = AS4Message.Create(soapEnvelope: null, contentType: null);
+                AS4Message as4Message = AS4Message.Create(pmode: null);
                 as4Message.AddAttachment(new Attachment("attachment-id"));
                 var context = new MessagingContext(as4Message, MessagingContextMode.Unknown);
 

@@ -74,7 +74,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             const string expectedId = "usermessage-id";
 
             AS4Message as4Message = AS4Message.Create(new FilledUserMessage(expectedId));
-            as4Message.MessageUnits.Add(new FilledUserMessage());
+            as4Message.AddMessageUnit(new FilledUserMessage());
 
             ReceivedMessageEntityMessage receivedMessage = CreateReceivedMessage(receivedInMessageId: expectedId, as4Message: as4Message);
             var sut = new DeliverMessageTransformer();
