@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using Eu.EDelivery.AS4.Singletons;
 using Eu.EDelivery.AS4.TestUtils;
 using Xunit;
 
@@ -9,6 +10,14 @@ namespace Eu.EDelivery.AS4.ComponentTests.Common
     public class ComponentTestTemplate : IDisposable
     {
         private bool _restoreSettings = false;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ComponentTestTemplate"/> class.
+        /// </summary>
+        public ComponentTestTemplate()
+        {
+            AS4Mapper.Initialize();
+        }
 
         protected void OverrideSettings(string settingsFile)
         {
