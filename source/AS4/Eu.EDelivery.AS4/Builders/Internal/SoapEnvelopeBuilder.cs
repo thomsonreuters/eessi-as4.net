@@ -203,7 +203,15 @@ namespace Eu.EDelivery.AS4.Builders.Internal
         {
             if (_securityHeaderElement != null)
             {
-                _headerElement.AppendChild(_securityHeaderElement);
+                var existingSecurityHeader = _headerElement.SelectSingleNode("//*[local-name()='Security']");
+                if (existingSecurityHeader != null)
+                {
+                    _headerElement.ReplaceChild(_securityHeaderElement, existingSecurityHeader);
+                }
+                else
+                {
+                    _headerElement.AppendChild(_securityHeaderElement);
+                }
             }
 
             if (_routingInputHeaderElement != null)
