@@ -93,11 +93,21 @@
   </xs:complexType>
   <xs:complexType name="DynamicDiscoveryConfiguration">
     <xs:sequence>
-      <xs:element minOccurs="0" maxOccurs="1" name="SmlScheme" type="xs:string" />
-      <xs:element minOccurs="0" maxOccurs="1" name="SmpServerDomainName" type="xs:string" />
-      <xs:element minOccurs="0" maxOccurs="1" name="DocumentIdentifier" type="xs:string" />
-      <xs:element minOccurs="0" maxOccurs="1" name="DocumentIdentifierScheme" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="SmpProfile" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Settings" type="tns:ArrayOfDynamicDiscoverySetting" />
     </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="ArrayOfDynamicDiscoverySetting">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="Setting" nillable="true" type="tns:DynamicDiscoverySetting" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="DynamicDiscoverySetting">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="key" type="xs:string" />
+      </xs:extension>
+    </xs:simpleContent>
   </xs:complexType>
   <xs:complexType name="SendReliability">
     <xs:sequence>

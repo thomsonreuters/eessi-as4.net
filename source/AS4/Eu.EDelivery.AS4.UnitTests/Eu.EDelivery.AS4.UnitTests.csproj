@@ -269,6 +269,7 @@
     <Compile Include="Receivers\GivenFileReceiverFacts.cs" />
     <Compile Include="Repositories\DatastoreExtensions.cs" />
     <Compile Include="Serialization\GivenInvalidMessageSerializationFacts.cs" />
+    <Compile Include="Services\DynamicDiscovery\GivenESensDynamicDiscoveryProfileFacts.cs" />
     <Compile Include="Services\GivenFileAuthorizationMapProviderFacts.cs" />
     <Compile Include="Steps\Forward\GivenCreateForwardMessageStepFacts.cs" />
     <Compile Include="Steps\Forward\GivenDetermineForwardStepFacts.cs" />
@@ -278,6 +279,7 @@
     <Compile Include="Steps\Send\GivenSetMessageToBeSentStepFacts.cs" />
     <Compile Include="Steps\Submit\GivenCreateAS4MessageStepFacts.cs" />
     <Compile Include="Transformers\GivenSubmitPayloadTransformerFacts.cs" />
+    <Compile Include="Steps\Submit\GivenDynamicDiscoveryStepFacts.cs" />
     <Compile Include="Transformers\StubSubmitTransformer.cs" />
     <Compile Include="Steps\StubAS4MessageStep.cs" />
     <Compile Include="Receivers\SpyReceiver.cs" />

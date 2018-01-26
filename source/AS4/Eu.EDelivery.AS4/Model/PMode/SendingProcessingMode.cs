@@ -447,25 +447,21 @@ namespace Eu.EDelivery.AS4.Model.PMode
 
     public class DynamicDiscoveryConfiguration
     {
-        [Description("Service meta locator scheme")]
-        public string SmlScheme { get; set; }
-        [Description("Service management point domain name")]
-        public string SmpServerDomainName { get; set; }
-        [Description("Document identifier")]
-        public string DocumentIdentifier { get; set; }
-        [Description("Document identifer scheme")]
-        public string DocumentIdentifierScheme { get; set; }
+        [Description("Reference to the Dynamic Discovery Profile implementation")]
+        public string SmpProfile { get; set; }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="DynamicDiscoveryConfiguration"/> class.
-        /// </summary>
-        public DynamicDiscoveryConfiguration()
-        {
-            SmlScheme = "iso6523-actorid-upis";
-            DocumentIdentifier = "urn:oasis:names:specification:ubl:schema:xsd:Invoice-2::Invoice##urn:www.cenbii.eu:transaction:biitrns010:ver2.0:extended:urn:www.peppol.eu:bis:peppol5a:ver2.0::2.1";
-            DocumentIdentifierScheme = "busdox-docid-qns";
-            SmpServerDomainName = string.Empty;
-        }
+        [Description("Smp Profile custom settings")]
+        [XmlArrayItem("Setting")]
+        public DynamicDiscoverySetting[] Settings { get; set; }
+    }
+
+    public class DynamicDiscoverySetting
+    {
+        [XmlAttribute(AttributeName = "key")]
+        public string Key { get; set; }
+
+        [XmlText]
+        public string Value { get; set; }
     }
 
     public class Protocol
