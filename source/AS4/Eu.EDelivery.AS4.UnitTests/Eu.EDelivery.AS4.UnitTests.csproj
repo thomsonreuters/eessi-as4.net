@@ -258,6 +258,7 @@
     <Compile Include="Receivers\GivenFileReceiverFacts.cs" />
     <Compile Include="Repositories\DatastoreExtensions.cs" />
     <Compile Include="Serialization\GivenInvalidMessageSerializationFacts.cs" />
+    <Compile Include="Serialization\GivenSoapEnvelopeDeserializingFacts.cs" />
     <Compile Include="Services\GivenFileAuthorizationMapProviderFacts.cs" />
     <Compile Include="Steps\Forward\GivenCreateForwardMessageStepFacts.cs" />
     <Compile Include="Steps\Forward\GivenDetermineForwardStepFacts.cs" />
@@ -526,6 +527,8 @@
     <None Include="Resources\holodeck-partya-certificate.pfx" />
     <None Include="Resources\partyC.p12" />
     <None Include="Resources\Receipt_InvalidNRI_Namespace.as4" />
+    <None Include="Resources\rssbus_message.as4" />
+    <None Include="Resources\signed_holodeck_message.as4" />
     <None Include="Resources\UserMessage.xml" />
   </ItemGroup>
   <ItemGroup>

@@ -436,6 +436,16 @@ namespace Eu.EDelivery.AS4.UnitTests.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] rssbus_message {
+            get {
+                object obj = ResourceManager.GetObject("rssbus_message", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to &lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
         ///&lt;PMode xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; xmlns:xsd=&quot;http://www.w3.org/2001/XMLSchema&quot; xmlns=&quot;eu:edelivery:as4:pmode&quot;&gt;
         ///  &lt;Id&gt;01-pmode&lt;/Id&gt;
@@ -475,6 +485,16 @@ namespace Eu.EDelivery.AS4.UnitTests.Properties {
         internal static string sendingprocessingmode {
             get {
                 return ResourceManager.GetString("sendingprocessingmode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] signed_holodeck_message {
+            get {
+                object obj = ResourceManager.GetObject("signed_holodeck_message", resourceCulture);
+                return ((byte[])(obj));
             }
         }
         

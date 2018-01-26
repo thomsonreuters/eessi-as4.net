@@ -420,4 +420,10 @@
   <data name="Receipt_InvalidNRI_Namespace" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Receipt_InvalidNRI_Namespace.as4;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
+  <data name="rssbus_message" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\rssbus_message.as4;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="signed_holodeck_message" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\signed_holodeck_message.as4;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
 </root>
