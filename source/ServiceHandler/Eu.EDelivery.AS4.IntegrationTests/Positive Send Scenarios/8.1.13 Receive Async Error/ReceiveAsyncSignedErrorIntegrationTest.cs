@@ -42,7 +42,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._13_Re
             await _sender.SendMessage(messageWrongSigned, Constants.ContentTypes.Soap);
 
             // Assert
-            Assert.True(PollingAt(AS4ErrorsPath, "*.xml"), "Send Async Error failed");
+            Assert.True(PollingAt(AS4ErrorsPath, "*.xml", retryCount: 100000), "Send Async Error failed");
         }
 
         private string UpdateSubmitMessageId()
