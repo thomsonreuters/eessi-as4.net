@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
@@ -13,7 +14,13 @@ namespace Eu.EDelivery.AS4.Transformers
     public class PayloadTransformer : ITransformer
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
-        
+
+        /// <summary>
+        /// Configures the <see cref="ITransformer"/> implementation with specific user-defined properties.
+        /// </summary>
+        /// <param name="properties">The properties.</param>
+        public void Configure(IDictionary<string, string> properties) { }
+
         /// <summary>
         /// Tranform the Payload(s)
         /// </summary>

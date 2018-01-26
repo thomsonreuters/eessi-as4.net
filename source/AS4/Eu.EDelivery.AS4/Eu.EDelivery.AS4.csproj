@@ -578,6 +578,7 @@
     <Compile Include="Strategies\Retriever\FilePayloadRetriever.cs" />
     <Compile Include="Strategies\Retriever\IPayloadRetriever.cs" />
     <Compile Include="Strategies\Retriever\HttpPayloadRetriever.cs" />
+    <Compile Include="Transformers\TransformerBuilder.cs" />
     <Compile Include="Utilities\ContentTypeSupporter.cs" />
     <Compile Include="Factories\IdentifierFactory.cs" />
     <Compile Include="Utilities\FilenameUtils.cs" />

@@ -24,7 +24,8 @@ namespace Eu.EDelivery.AS4.Receivers
     {
         private const string FileLockName = "file.lock";
 
-        private readonly SynchronizedCollection<FileInfo> _pendingFiles = new SynchronizedCollection<FileInfo>();
+        private readonly SynchronizedCollection<(FileInfo file, string contentType)> _pendingFiles = 
+            new SynchronizedCollection<(FileInfo, string)>();
         private readonly IMimeTypeRepository _repository;
 
         private bool _isReceiving = false;
@@ -157,6 +158,7 @@ namespace Eu.EDelivery.AS4.Receivers
                 {
                     try
                     {
+                        string contentType = _repository.GetMimeTypeFromExtension(file.Extension);
                         var result = MoveFile(file, "pending");
 
                         if (result.success)
@@ -166,7 +168,7 @@ namespace Eu.EDelivery.AS4.Receivers
                             Logger.Trace(
                                 $"Locked file {file.Name} to be processed and renamed it to {pendingFile.Name}");
 
-                            _pendingFiles.Add(pendingFile);
+                            _pendingFiles.Add((pendingFile, contentType));
 
                             resultedFiles.Add(pendingFile);
                         }
@@ -242,18 +244,19 @@ namespace Eu.EDelivery.AS4.Receivers
 
             Logger.Info($"Getting Message from file '{fileInfo.Name}'");
 
-            await OpenStreamFromMessage(fileInfo, messageCallback, token);
-
-            _pendingFiles.Remove(fileInfo);
+            var item = _pendingFiles.FirstOrDefault(f => f.file == fileInfo);
+            await OpenStreamFromMessage(item, messageCallback, token);
+            _pendingFiles.Remove(item);
         }
 
-        private async Task OpenStreamFromMessage(FileInfo fileInfo, Function messageCallback, CancellationToken token)
+        private async Task OpenStreamFromMessage(
+            (FileInfo fileInfo, string contentType) _, 
+            Function messageCallback, 
+            CancellationToken token)
         {
             try
             {
-                string contentType = _repository.GetMimeTypeFromExtension(fileInfo.Extension);
-
-                var result = MoveFile(fileInfo, "processing");
+                var result = MoveFile(_.fileInfo, "processing");
 
                 if (result.success)
                 {
@@ -264,11 +267,12 @@ namespace Eu.EDelivery.AS4.Receivers
                         using (Stream fileStream = new FileStream(result.filename, FileMode.Open, FileAccess.Read))
                         {
                             fileStream.Seek(0, SeekOrigin.Begin);
-                            var receivedMessage = new ReceivedMessage(fileStream, contentType);
+
+                            var receivedMessage = new ReceivedMessage(fileStream, _.contentType);
                             messagingContext = await messageCallback(receivedMessage, token).ConfigureAwait(false);
                         }
 
-                        await NotifyReceivedFile(fileInfo, messagingContext).ConfigureAwait(false);
+                        await NotifyReceivedFile(_.fileInfo, messagingContext).ConfigureAwait(false);
                     }
                     finally
                     {
@@ -278,7 +282,7 @@ namespace Eu.EDelivery.AS4.Receivers
             }
             catch (Exception ex)
             {
-                Logger.Error($"An error occured while processing {fileInfo.Name}");
+                Logger.Error($"An error occured while processing {_.fileInfo.Name}");
                 Logger.Trace(ex.Message);
             }
         }
@@ -321,13 +325,14 @@ namespace Eu.EDelivery.AS4.Receivers
             {
                 for (int i = _pendingFiles.Count - 1; i >= 0; i--)
                 {
-                    var pendingFile = _pendingFiles[i];
+                    var item = _pendingFiles[i];
 
-                    if (File.Exists(pendingFile.FullName))
+                    if (File.Exists(item.file.FullName))
                     {
-                        MoveFile(pendingFile, extension);
+                        MoveFile(item.file, extension);
                     }
-                    _pendingFiles.Remove(pendingFile);
+
+                    _pendingFiles.Remove(item);
                 }
             }
         }
