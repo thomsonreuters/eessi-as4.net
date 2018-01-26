@@ -157,6 +157,7 @@
     <Compile Include="Agents\PullReceiveAgentFacts.cs" />
     <Compile Include="Agents\PullSendAgentFacts.cs" />
     <Compile Include="Agents\ReceiveAgentFacts.cs" />
+    <Compile Include="Agents\StaticSubmitAgentFacts.cs" />
     <Compile Include="Common\AS4MessageResponseHandler.cs" />
     <Compile Include="Agents\SendAgentFacts.cs" />
     <Compile Include="Agents\SubmitAgentFacts.cs" />
@@ -182,6 +183,7 @@
     <None Include="Resources\receiveagent_message.as4" />
   </ItemGroup>
   <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>
   <ItemGroup>
@@ -211,6 +213,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Resources\deliveragent-pmode.xml" />
+    <None Include="Resources\earth" />
     <Content Include="Resources\pullsendagent_submit.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
