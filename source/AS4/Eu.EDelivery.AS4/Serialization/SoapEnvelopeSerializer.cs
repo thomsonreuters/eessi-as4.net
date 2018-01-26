@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -146,56 +145,35 @@ namespace Eu.EDelivery.AS4.Serialization
                 throw new ArgumentNullException(nameof(envelopeStream));
             }
 
-            using (Stream stream = await CopyEnvelopeStream(envelopeStream).ConfigureAwait(false))
+
+            XmlDocument envelopeDocument = LoadXmlDocument(envelopeStream);
+
+            // Sometimes throws 'The 'http://www.w3.org/XML/1998/namespace:lang' attribute is not declared.'
+            // ValidateEnvelopeDocument(envelopeDocument);
+
+            var nsMgr = GetNamespaceManagerForDocument(envelopeDocument);
+
+            var securityHeader = DeserializeSecurityHeader(envelopeDocument, nsMgr);
+            var messagingHeader = DeserializeMessagingHeader(envelopeDocument, nsMgr);
+            var body = DeserializeBody(envelopeDocument, nsMgr);
+
+            AS4Message as4Message = AS4Message.Create(envelopeDocument, contentType, securityHeader, messagingHeader, body);
+
+            XmlNode routingInput = envelopeDocument.SelectSingleNode(@"//*[local-name()='RoutingInput']");
+
+            if (routingInput != null)
             {
-                XmlDocument envelopeDocument = LoadXmlDocument(stream);
-
-                // Sometimes throws 'The 'http://www.w3.org/XML/1998/namespace:lang' attribute is not declared.'
-                // ValidateEnvelopeDocument(envelopeDocument);
-
-                stream.Position = 0;
-
-                var nsMgr = GetNamespaceManagerForDocument(envelopeDocument);
-
-                var securityHeader = DeserializeSecurityHeader(envelopeDocument, nsMgr);
-                var messagingHeader = DeserializeMessagingHeader(envelopeDocument, nsMgr);
-                var body = DeserializeBody(envelopeDocument, nsMgr);
-
-                AS4Message as4Message = AS4Message.Create(envelopeDocument, contentType, securityHeader, messagingHeader, body);
-
-                XmlNode routingInput = envelopeDocument.SelectSingleNode(@"//*[local-name()='RoutingInput']");
-
-                if (routingInput != null)
+                var routing = await AS4XmlSerializer.FromStringAsync<RoutingInput>(routingInput.OuterXml);
+                if (routing != null)
                 {
-                    var routing = await AS4XmlSerializer.FromStringAsync<RoutingInput>(routingInput.OuterXml);
-                    if (routing != null)
+                    if (as4Message.PrimarySignalMessage != null)
                     {
-                        if (as4Message.PrimarySignalMessage != null)
-                        {
-                            as4Message.PrimarySignalMessage.MultiHopRouting = routing.UserMessage;
-                        }
+                        as4Message.PrimarySignalMessage.MultiHopRouting = routing.UserMessage;
                     }
                 }
-
-                return as4Message;
-            }
-        }
-
-        private static async Task<Stream> CopyEnvelopeStream(Stream envelopeStream)
-        {
-            int initialCapacity = 4096;
-
-            if (envelopeStream.CanSeek)
-            {
-                initialCapacity = (int)envelopeStream.Length;
             }
 
-            Stream stream = new MemoryStream(initialCapacity);
-
-            await envelopeStream.CopyToFastAsync(stream).ConfigureAwait(false);
-            stream.Position = 0;
-
-            return stream;
+            return as4Message;
         }
 
         private void ValidateEnvelopeDocument(XmlDocument envelopeDocument)
@@ -228,8 +206,6 @@ namespace Eu.EDelivery.AS4.Serialization
 
         private static XmlDocument LoadXmlDocument(Stream stream)
         {
-            stream.Position = 0;
-
             var document = new XmlDocument { PreserveWhitespace = true };
             document.Load(stream);
 
