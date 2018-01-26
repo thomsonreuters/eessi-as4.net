@@ -26,7 +26,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._12_Re
             AS4Component.PutMessage("8.1.12-sample.xml");
 
             // Assert
-            Assert.True(PollingAt(AS4ReceiptsPath, "*.xml"), "Send Async Signed NRR Receipt failed");
+            Assert.True(PollingAt(AS4ReceiptsPath, "*.xml", retryCount: 100000), "Send Async Signed NRR Receipt failed");
         }
 
         /// <summary>

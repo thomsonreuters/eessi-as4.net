@@ -21,7 +21,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._16_Se
             Holodeck.CopyPModeToHolodeckB("8.1.16-pmode.xml");
 
             // Assert
-            Assert.True(PollingAt(AS4ReceiptsPath));
+            Assert.True(PollingAt(AS4ReceiptsPath, retryCount: 100000));
         }
 
         /// <summary>
