@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Eu.EDelivery.AS4.Entities
 {
-    public class SmpResponse
+    public class SmpConfiguration
     {
         [Key]
         [MaxLength(255)]

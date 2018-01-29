@@ -106,7 +106,7 @@ namespace Eu.EDelivery.AS4.Common
 
         public DbSet<ReceptionAwareness> ReceptionAwareness { get; set; }
 
-        public DbSet<SmpResponse> SmpResponses { get; set; }
+        public DbSet<SmpConfiguration> SmpConfigurations { get; set; }
 
         public IAS4DbCommand NativeCommands { get; private set; }
 
@@ -260,23 +260,23 @@ namespace Eu.EDelivery.AS4.Common
             modelBuilder.Entity<ReceptionAwareness>().HasAlternateKey(r => r.InternalMessageId);
             modelBuilder.Entity<ReceptionAwareness>().HasIndex(r => new { r.Status, r.CurrentRetryCount });
 
-            modelBuilder.Entity<SmpResponse>().HasKey(sr => new { sr.ToPartyId, sr.PartyRole, sr.PartyType });
-            modelBuilder.Entity<SmpResponse>().Property(sr => sr.Action).UsePropertyAccessMode(PropertyAccessMode.Field);
-            modelBuilder.Entity<SmpResponse>().Property(sr => sr.EncryptionEnabled).UsePropertyAccessMode(PropertyAccessMode.Field);
-            modelBuilder.Entity<SmpResponse>().Property(sr => sr.ServiceType).UsePropertyAccessMode(PropertyAccessMode.Field);
-            modelBuilder.Entity<SmpResponse>().Property(sr => sr.ServiceValue).UsePropertyAccessMode(PropertyAccessMode.Field);
-            modelBuilder.Entity<SmpResponse>().Property(sr => sr.TlsEnabled).UsePropertyAccessMode(PropertyAccessMode.Field);
-            modelBuilder.Entity<SmpResponse>().Property(sr => sr.Url).UsePropertyAccessMode(PropertyAccessMode.Field);
-            modelBuilder.Entity<SmpResponse>().Property(sr => sr.EncryptAlgorithm).UsePropertyAccessMode(PropertyAccessMode.Field);
-            modelBuilder.Entity<SmpResponse>().Property(sr => sr.EncryptAlgorithmKeySize).UsePropertyAccessMode(PropertyAccessMode.Field);
-            modelBuilder.Entity<SmpResponse>().Property(sr => sr.EncryptKeyDigestAlgorithm).UsePropertyAccessMode(PropertyAccessMode.Field);
-            modelBuilder.Entity<SmpResponse>().Property(sr => sr.EncryptKeyMgfAlorithm).UsePropertyAccessMode(PropertyAccessMode.Field);
-            modelBuilder.Entity<SmpResponse>().Property(sr => sr.EncryptKeyTransportAlgorithm).UsePropertyAccessMode(PropertyAccessMode.Field);
-            modelBuilder.Entity<SmpResponse>().Property(sr => sr.EncryptPublicKeyCertificate).UsePropertyAccessMode(PropertyAccessMode.Field);
-            modelBuilder.Entity<SmpResponse>().Property(sr => sr.FinalRecipient).UsePropertyAccessMode(PropertyAccessMode.Field);
-            modelBuilder.Entity<SmpResponse>().Property(sr => sr.PartyRole).UsePropertyAccessMode(PropertyAccessMode.Field);
-            modelBuilder.Entity<SmpResponse>().Property(sr => sr.PartyType).UsePropertyAccessMode(PropertyAccessMode.Field);
-            modelBuilder.Entity<SmpResponse>().Property(sr => sr.ToPartyId).UsePropertyAccessMode(PropertyAccessMode.Field);
+            modelBuilder.Entity<SmpConfiguration>().HasKey(sr => new { sr.ToPartyId, sr.PartyRole, sr.PartyType });
+            modelBuilder.Entity<SmpConfiguration>().Property(sr => sr.Action).UsePropertyAccessMode(PropertyAccessMode.Field);
+            modelBuilder.Entity<SmpConfiguration>().Property(sr => sr.EncryptionEnabled).UsePropertyAccessMode(PropertyAccessMode.Field);
+            modelBuilder.Entity<SmpConfiguration>().Property(sr => sr.ServiceType).UsePropertyAccessMode(PropertyAccessMode.Field);
+            modelBuilder.Entity<SmpConfiguration>().Property(sr => sr.ServiceValue).UsePropertyAccessMode(PropertyAccessMode.Field);
+            modelBuilder.Entity<SmpConfiguration>().Property(sr => sr.TlsEnabled).UsePropertyAccessMode(PropertyAccessMode.Field);
+            modelBuilder.Entity<SmpConfiguration>().Property(sr => sr.Url).UsePropertyAccessMode(PropertyAccessMode.Field);
+            modelBuilder.Entity<SmpConfiguration>().Property(sr => sr.EncryptAlgorithm).UsePropertyAccessMode(PropertyAccessMode.Field);
+            modelBuilder.Entity<SmpConfiguration>().Property(sr => sr.EncryptAlgorithmKeySize).UsePropertyAccessMode(PropertyAccessMode.Field);
+            modelBuilder.Entity<SmpConfiguration>().Property(sr => sr.EncryptKeyDigestAlgorithm).UsePropertyAccessMode(PropertyAccessMode.Field);
+            modelBuilder.Entity<SmpConfiguration>().Property(sr => sr.EncryptKeyMgfAlorithm).UsePropertyAccessMode(PropertyAccessMode.Field);
+            modelBuilder.Entity<SmpConfiguration>().Property(sr => sr.EncryptKeyTransportAlgorithm).UsePropertyAccessMode(PropertyAccessMode.Field);
+            modelBuilder.Entity<SmpConfiguration>().Property(sr => sr.EncryptPublicKeyCertificate).UsePropertyAccessMode(PropertyAccessMode.Field);
+            modelBuilder.Entity<SmpConfiguration>().Property(sr => sr.FinalRecipient).UsePropertyAccessMode(PropertyAccessMode.Field);
+            modelBuilder.Entity<SmpConfiguration>().Property(sr => sr.PartyRole).UsePropertyAccessMode(PropertyAccessMode.Field);
+            modelBuilder.Entity<SmpConfiguration>().Property(sr => sr.PartyType).UsePropertyAccessMode(PropertyAccessMode.Field);
+            modelBuilder.Entity<SmpConfiguration>().Property(sr => sr.ToPartyId).UsePropertyAccessMode(PropertyAccessMode.Field);
         }
 
         /// <summary>

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using System.Xml;
 using Eu.EDelivery.AS4.Common;
@@ -18,7 +17,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Services.DynamicDiscovery
         public async Task RetrieveSmpResponseFromDatastore()
         {
             // Arrange
-            var expected = new SmpResponse
+            var expected = new SmpConfiguration
             {
                 ToPartyId = Guid.NewGuid().ToString(),
                 PartyRole = "role",
@@ -33,15 +32,15 @@ namespace Eu.EDelivery.AS4.UnitTests.Services.DynamicDiscovery
             XmlDocument actualDoc = await sut.RetrieveSmpMetaData(expected.ToPartyId, properties: null);
 
             // Assert
-            var actual = AS4XmlSerializer.FromString<SmpResponse>(actualDoc.OuterXml);
+            var actual = AS4XmlSerializer.FromString<SmpConfiguration>(actualDoc.OuterXml);
             Assert.Equal(expected.ToPartyId, actual.ToPartyId);
         }
 
-        private void InsertSmpResponse(SmpResponse smpResponse)
+        private void InsertSmpResponse(SmpConfiguration smpConfiguration)
         {
             using (DatastoreContext context = GetDataStoreContext())
             {
-                context.SmpResponses.Add(smpResponse);
+                context.SmpConfigurations.Add(smpConfiguration);
                 context.SaveChanges();
             }
         }
@@ -50,7 +49,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Services.DynamicDiscovery
         public void DecorateMandatoryInfoToSendingPMode()
         {
             // Arrange
-            var smpResponse = new SmpResponse
+            var smpResponse = new SmpConfiguration
             {
                 PartyRole = "role",
                 Url = "http://some/url"

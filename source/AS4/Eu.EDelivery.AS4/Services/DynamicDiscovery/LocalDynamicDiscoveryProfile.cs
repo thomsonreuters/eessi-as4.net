@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
-using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using System.Xml;
 using Eu.EDelivery.AS4.Common;
@@ -43,8 +42,8 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
         /// <returns></returns>
         public Task<XmlDocument> RetrieveSmpMetaData(string partyId, IDictionary<string, string> properties)
         {
-            SmpResponse response = FindSmpResponseForToPartyId(partyId);
-            string xml = AS4XmlSerializer.ToString(response);
+            SmpConfiguration configuration = FindSmpResponseForToPartyId(partyId);
+            string xml = AS4XmlSerializer.ToString(configuration);
 
             var document = new XmlDocument();
             document.LoadXml(xml);
@@ -52,19 +51,19 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
             return Task.FromResult(document);
         }
 
-        private SmpResponse FindSmpResponseForToPartyId(string partyId)
+        private SmpConfiguration FindSmpResponseForToPartyId(string partyId)
         {
             using (DatastoreContext context = _createDatastore())
             {
-                SmpResponse foundResponse = context.SmpResponses.FirstOrDefault(r => r.ToPartyId == partyId);
+                SmpConfiguration foundConfiguration = context.SmpConfigurations.FirstOrDefault(r => r.ToPartyId == partyId);
 
-                if (foundResponse == null)
+                if (foundConfiguration == null)
                 {
                     throw new ConfigurationErrorsException(
                         "No SMP Response found for the given 'ToPartyId': " + partyId);
                 }
 
-                return foundResponse;
+                return foundConfiguration;
             }
         }
 
@@ -76,7 +75,7 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
         /// <returns>The completed <see cref="SendingProcessingMode"/></returns>
         public SendingProcessingMode DecoratePModeWithSmpMetaData(SendingProcessingMode pmode, XmlDocument smpMetaData)
         {
-            var smpResponse = AS4XmlSerializer.FromString<SmpResponse>(smpMetaData.OuterXml);
+            var smpResponse = AS4XmlSerializer.FromString<SmpConfiguration>(smpMetaData.OuterXml);
 
             pmode.MessagePackaging = pmode.MessagePackaging ?? new SendMessagePackaging();
             pmode.MessagePackaging.PartyInfo = pmode.MessagePackaging.PartyInfo ?? new PartyInfo();
