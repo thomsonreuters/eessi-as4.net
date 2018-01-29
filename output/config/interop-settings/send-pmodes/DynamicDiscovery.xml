@@ -7,8 +7,8 @@
   <DynamicDiscovery>
     <SmpProfile>Eu.EDelivery.AS4.Services.DynamicDiscovery.ESensDynamicDiscoveryProfile, Eu.EDelivery.AS4, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</SmpProfile>
     <Settings>
-      <Setting key="SmlScheme">isaitb.acc.edelivery.tech.ec.europa.eu</Setting>
-      <Setting key="SmpServerDomainName"></Setting>
+      <Setting key="SmlScheme">iso6523-actorid-upis</Setting>
+      <Setting key="SmpServerDomainName">isaitb.acc.edelivery.tech.ec.europa.eu</Setting>
     </Settings>
   </DynamicDiscovery>
   <ReceiptHandling>
