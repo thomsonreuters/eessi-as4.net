@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Configuration;
 using System.Linq;
@@ -43,8 +44,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
 
             var clonedPMode = (SendingProcessingMode)messagingContext.SendingPMode.Clone();
             clonedPMode.Id = $"{clonedPMode.Id}_SMP";
-
-            var profile = GenericTypeBuilder.FromType(smpProfile).Build<IDynamicDiscoveryProfile>();
+            IDynamicDiscoveryProfile profile = ResolveDynamicDiscoveryProfile(smpProfile);
             XmlDocument smpMetaData = await RetrieveSmpMetaData(profile, clonedPMode);
 
             SendingProcessingMode sendingPMode = profile.DecoratePModeWithSmpMetaData(clonedPMode, smpMetaData);
@@ -54,6 +54,16 @@ namespace Eu.EDelivery.AS4.Steps.Submit
             messagingContext.SendingPMode = sendingPMode;
             messagingContext.SubmitMessage.PMode = sendingPMode;
             return StepResult.Success(messagingContext);
+        }
+
+        private static IDynamicDiscoveryProfile ResolveDynamicDiscoveryProfile(string smpProfile)
+        {
+            if (string.IsNullOrEmpty(smpProfile))
+            {
+                return new LocalDynamicDiscoveryProfile();
+            }
+
+            return GenericTypeBuilder.FromType(smpProfile).Build<IDynamicDiscoveryProfile>();
         }
 
         private static async Task<XmlDocument> RetrieveSmpMetaData(

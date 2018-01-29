@@ -271,6 +271,7 @@
     <Compile Include="Serialization\GivenInvalidMessageSerializationFacts.cs" />
     <Compile Include="Serialization\GivenSoapEnvelopeDeserializingFacts.cs" />
     <Compile Include="Services\DynamicDiscovery\GivenESensDynamicDiscoveryProfileFacts.cs" />
+    <Compile Include="Services\DynamicDiscovery\GivenLocalDynamicDiscoveryProfileFacts.cs" />
     <Compile Include="Services\GivenFileAuthorizationMapProviderFacts.cs" />
     <Compile Include="Steps\Forward\GivenCreateForwardMessageStepFacts.cs" />
     <Compile Include="Steps\Forward\GivenDetermineForwardStepFacts.cs" />

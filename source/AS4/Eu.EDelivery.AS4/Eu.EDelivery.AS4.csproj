@@ -331,6 +331,7 @@
     <Compile Include="Builders\Internal\SoapEnvelopeBuilder.cs" />
     <Compile Include="Common\TraceLogger.cs" />
     <Compile Include="Common\TraceLoggerProvider.cs" />
+    <Compile Include="Entities\SmpResponse.cs" />
     <Compile Include="Exceptions\ErrorResult.cs" />
     <Compile Include="Exceptions\Handlers\ExceptionHandlerRegistry.cs" />
     <Compile Include="Exceptions\Handlers\InboundExceptionHandler.cs" />
@@ -377,6 +378,7 @@
     <Compile Include="Repositories\AS4MessageStoreProvider.cs" />
     <Compile Include="Services\DynamicDiscovery\ESensDynamicDiscoveryProfile.cs" />
     <Compile Include="Services\DynamicDiscovery\IDynamicDiscoveryProfile.cs" />
+    <Compile Include="Services\DynamicDiscovery\LocalDynamicDiscoveryProfile.cs" />
     <Compile Include="Services\PullRequestAuthorization\FilePullAuthorizationMapProvider.cs" />
     <Compile Include="Services\PullRequestAuthorization\IPullAuthorizationMapProvider.cs" />
     <Compile Include="Services\PullRequestAuthorization\IPullAuthorizationMapService.cs" />
