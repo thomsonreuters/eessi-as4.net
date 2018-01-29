@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
@@ -23,80 +24,46 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Forward
             [Fact]
             public async Task ThenMessageIsForwarded()
             {
-                var as4Message = CreateAS4Message(new UserMessage()
+                // Arrange
+                InMessage receivedInMessage = InPersistentUserMessage();
+                await InsertInMessageIntoDatastore(receivedInMessage);
+
+                MessagingContext messagingContext = ContextWithReferencedToBeForwardMessage();
+
+                // Act
+                await ExerciseCreateForwardMessage(messagingContext);
+
+                // Assert
+                // Verify if there exists a correct OutMessage record.
+                using (DatastoreContext db = GetDataStoreContext())
+                {
+                    OutMessage outMessage = db.OutMessages.First(m => m.EbmsMessageId == receivedInMessage.EbmsMessageId);
+
+                    Assert.Equal(Operation.ToBeProcessed, OperationUtils.Parse(outMessage.Operation));
+                    Assert.Equal(messagingContext.SendingPMode.MessagePackaging.Mpc, outMessage.Mpc);
+                    Assert.Equal(messagingContext.SendingPMode.MepBinding.ToString(), outMessage.MEP);
+
+                    InMessage inMessage = db.InMessages.First(m => m.EbmsMessageId == receivedInMessage.EbmsMessageId);
+
+                    Assert.Equal(Operation.Forwarded, OperationUtils.Parse(inMessage.Operation));
+                }
+            }
+
+            private InMessage InPersistentUserMessage()
+            {
+                AS4Message as4Message = CreateAS4Message(new UserMessage
                 {
                     MessageId = "some-message-id",
                     RefToMessageId = "ref-to-message-id",
                     Mpc = Constants.Namespaces.EbmsDefaultMpc
                 });
 
-                var location = Store.SaveAS4Message("", as4Message);
+                string location = Store.SaveAS4Message("", as4Message);
 
-                var receivedInMessage = CreateInMessage(as4Message);
+                InMessage receivedInMessage = CreateInMessage(as4Message);
                 receivedInMessage.MessageLocation = location;
 
-                using (var db = GetDataStoreContext())
-                {
-                    db.InMessages.Add(receivedInMessage);
-                    await db.SaveChangesAsync();
-                }
-
-                var messagingContext = SetupMessagingContext();
-
-                var sut = new CreateForwardMessageStep(StubConfig.Default, Store, GetDataStoreContext);
-
-                await sut.ExecuteAsync(messagingContext, CancellationToken.None);
-
-                // Verify if there exists a correct OutMessage record.
-                using (var db = GetDataStoreContext())
-                {
-                    var outMessage = db.OutMessages.First(m => m.EbmsMessageId == receivedInMessage.EbmsMessageId);
-
-                    Assert.NotNull(outMessage);
-                    Assert.Equal(Operation.ToBeSent, OperationUtils.Parse(outMessage.Operation));
-                    Assert.Equal(messagingContext.SendingPMode.MessagePackaging.Mpc, outMessage.Mpc);
-                    Assert.Equal(messagingContext.SendingPMode.MepBinding.ToString(), outMessage.MEP.ToString());
-
-                    var inMessage = db.InMessages.First(m => m.EbmsMessageId == receivedInMessage.EbmsMessageId);
-
-                    Assert.NotNull(inMessage);
-                    Assert.Equal(Operation.Forwarded, OperationUtils.Parse(inMessage.Operation));
-                }
-            }
-
-            private MessagingContext SetupMessagingContext()
-            {
-                ReceivedMessageEntityMessage receivedMessage;
-
-                using (var db = GetDataStoreContext())
-                {
-                    var inMessage = db.InMessages.First(m => OperationUtils.Parse(m.Operation) == Operation.ToBeForwarded);
-
-                    receivedMessage = new ReceivedMessageEntityMessage(inMessage, Stream.Null, "");
-                }
-
-                var context = new MessagingContext(receivedMessage, MessagingContextMode.Forward)
-                {
-                    SendingPMode = CreateSendingPMode()
-                };
-
-                return context;
-            }
-
-            private static SendingProcessingMode CreateSendingPMode()
-            {
-                var pmode = new SendingProcessingMode()
-                {
-                    Id = "forward-sending-pmode",
-                    Mep = MessageExchangePattern.OneWay,
-                    MepBinding = MessageExchangePatternBinding.Pull,
-                    MessagePackaging = new SendMessagePackaging()
-                    {
-                        Mpc = "Some-Modified-Mpc"
-                    }
-                };
-
-                return pmode;
+                return receivedInMessage;
             }
 
             private static AS4Message CreateAS4Message(UserMessage userMessage)
@@ -106,7 +73,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Forward
 
             private static InMessage CreateInMessage(AS4Message message)
             {
-                var primaryMessageUnit = ((MessageUnit)message.PrimaryUserMessage ?? message.PrimarySignalMessage);
+                var primaryMessageUnit = (MessageUnit) message.PrimaryUserMessage ?? message.PrimarySignalMessage;
 
                 var result = new InMessage(message.GetPrimaryMessageId())
                 {
@@ -122,9 +89,59 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Forward
 
                 return result;
             }
+
+            private MessagingContext ContextWithReferencedToBeForwardMessage()
+            {
+                ReceivedMessageEntityMessage receivedMessage;
+
+                using (DatastoreContext db = GetDataStoreContext())
+                {
+                    InMessage inMessage =
+                        db.InMessages.First(m => OperationUtils.Parse(m.Operation) == Operation.ToBeForwarded);
+
+                    receivedMessage = new ReceivedMessageEntityMessage(inMessage, Stream.Null, "");
+                }
+
+                return new MessagingContext(receivedMessage, MessagingContextMode.Forward)
+                {
+                    SendingPMode = CreateSendingPMode()
+                };
+            }
+
+            private static SendingProcessingMode CreateSendingPMode()
+            {
+                return new SendingProcessingMode
+                {
+                    Id = "forward-sending-pmode",
+                    Mep = MessageExchangePattern.OneWay,
+                    MepBinding = MessageExchangePatternBinding.Pull,
+                    MessagePackaging = new SendMessagePackaging
+                    {
+                        Mpc = "Some-Modified-Mpc"
+                    }
+                };
+            }
+
+            private async Task InsertInMessageIntoDatastore(InMessage receivedInMessage)
+            {
+                using (DatastoreContext db = GetDataStoreContext())
+                {
+                    db.InMessages.Add(receivedInMessage);
+                    await db.SaveChangesAsync();
+                }
+            }
+
+            private async Task ExerciseCreateForwardMessage(MessagingContext messagingContext)
+            {
+                var sut = new CreateForwardMessageStep(StubConfig.Default, Store, GetDataStoreContext);
+
+                await sut.ExecuteAsync(messagingContext, CancellationToken.None);
+            }
         }
 
-        /// <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</summary>
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
         protected override void Disposing()
         {
             Store.Dispose();

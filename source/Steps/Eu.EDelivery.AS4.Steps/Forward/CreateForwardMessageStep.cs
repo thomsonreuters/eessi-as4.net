@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -24,13 +25,15 @@ namespace Eu.EDelivery.AS4.Steps.Forward
         /// <summary>
         /// Initializes a new instance of the <see cref="CreateForwardMessageStep"/> class.
         /// </summary>
-        public CreateForwardMessageStep() : this(Config.Instance, Registry.Instance.MessageBodyStore, Registry.Instance.CreateDatastoreContext)
-        {
-        }
+        public CreateForwardMessageStep() 
+            : this(Config.Instance, Registry.Instance.MessageBodyStore, Registry.Instance.CreateDatastoreContext) { }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="CreateForwardMessageStep"/> class.
+        /// Initializes a new instance of the <see cref="CreateForwardMessageStep" /> class.
         /// </summary>
+        /// <param name="configuration">The local configuration.</param>
+        /// <param name="messageStore">The store where the datastore persist its messages.</param>
+        /// <param name="createDatastoreContext">Create a new datastore context.</param>
         public CreateForwardMessageStep(IConfig configuration, IAS4MessageBodyStore messageStore, Func<DatastoreContext> createDatastoreContext)
         {
             _configuration = configuration;
@@ -54,37 +57,44 @@ namespace Eu.EDelivery.AS4.Steps.Forward
             }
 
             // Forward message by creating an OutMessage and set operation to 'ToBeProcessed'.
-            using (var originalInMessage = await _messageStore.LoadMessageBodyAsync(receivedInMessage.MessageLocation))
+            using (Stream originalInMessage =
+                await _messageStore.LoadMessageBodyAsync(receivedInMessage.MessageLocation))
             {
-                string outLocation = await _messageStore.SaveAS4MessageStreamAsync(_configuration.OutMessageStoreLocation,
-                                                                                   originalInMessage,
-                                                                                   cancellationToken);
+                string outLocation = await _messageStore.SaveAS4MessageStreamAsync(
+                    _configuration.OutMessageStoreLocation,
+                    originalInMessage,
+                    cancellationToken);
+
                 originalInMessage.Position = 0;
 
-                AS4Message msg = await SerializerProvider.Default.Get(receivedInMessage.ContentType)
-                                                         .DeserializeAsync(originalInMessage, receivedInMessage.ContentType, cancellationToken);
+                AS4Message msg = 
+                    await SerializerProvider.Default
+                        .Get(receivedInMessage.ContentType)
+                        .DeserializeAsync(originalInMessage, receivedInMessage.ContentType, cancellationToken);
 
-                using (var dbContext = _createDataStoreContext())
+                using (DatastoreContext dbContext = _createDataStoreContext())
                 {
                     var repository = new DatastoreRepository(dbContext);
 
                     // Only create an OutMessage for the primary message-unit.
-                    var outMessage =
-                        OutMessageBuilder.ForMessageUnit(GetPrimaryMessageUnit(msg),
-                                                         receivedInMessage.ContentType,
-                                                         messagingContext.SendingPMode)
-                                          .Build();
+                    OutMessage outMessage = OutMessageBuilder
+                        .ForMessageUnit(
+                            GetPrimaryMessageUnit(msg), 
+                            receivedInMessage.ContentType, 
+                            messagingContext.SendingPMode)
+                        .Build();
 
                     outMessage.MessageLocation = outLocation;
                     outMessage.Mpc = messagingContext.SendingPMode.MessagePackaging?.Mpc ?? Constants.Namespaces.EbmsDefaultMpc;
-                    outMessage.SetOperation(Operation.ToBeSent);
+                    outMessage.SetOperation(Operation.ToBeProcessed);
 
                     repository.InsertOutMessage(outMessage);
 
                     // Set the InMessage to Forwarded.
                     // We do this for all InMessages that are present in this AS4 Message
-                    repository.UpdateInMessages(m => msg.MessageIds.Contains(m.EbmsMessageId),
-                                                r => r.SetOperation(Operation.Forwarded));
+                    repository.UpdateInMessages(
+                        m => msg.MessageIds.Contains(m.EbmsMessageId),
+                        r => r.SetOperation(Operation.Forwarded));
 
                     await dbContext.SaveChangesAsync(cancellationToken);
                 }
