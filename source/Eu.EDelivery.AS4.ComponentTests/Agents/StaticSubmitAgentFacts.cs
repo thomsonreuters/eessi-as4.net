@@ -2,6 +2,7 @@
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.ComponentTests.Common;
 using Eu.EDelivery.AS4.TestUtils.Stubs;
 using Xunit;
@@ -37,7 +38,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             }
 
             // Assert
-            Assert.NotNull(_databaseSpy.GetOutMessageFor(m => true));
+            Assert.NotNull(_databaseSpy.GetOutMessageFor(m => m.PModeId == "componentsubmittest-pmode"));
         }
 
         protected override void Disposing(bool isDisposing)
