@@ -1,12 +1,9 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Xml;
 using Eu.EDelivery.AS4.Builders.Core;
-using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
@@ -55,7 +52,7 @@ namespace Eu.EDelivery.AS4.Transformers
         {
             if (receivedMessage.Entity is ExceptionEntity ex)
             {
-                return await CreateAS4ErrorFromException(ex);
+                return CreateAS4ErrorFromException(ex);
             }
 
             if (receivedMessage is ReceivedMessageEntityMessage me)
@@ -66,30 +63,12 @@ namespace Eu.EDelivery.AS4.Transformers
             throw new InvalidOperationException();
         }
 
-        private static async Task<AS4Message> CreateAS4ErrorFromException(
+        private static AS4Message CreateAS4ErrorFromException(
             ExceptionEntity exceptionEntity)
         {
-            async Task<XmlDocument> GetEnvelopeDocument(
-                AS4Message message,
-                CancellationToken cancellationToken)
-            {
-                using (var memoryStream = new MemoryStream())
-                {
-                    ISerializer serializer = Registry.Instance.SerializerProvider.Get(Constants.ContentTypes.Soap);
-                    await serializer.SerializeAsync(message, memoryStream, cancellationToken);
-
-                    var xmlDocument = new XmlDocument { PreserveWhitespace = true };
-                    memoryStream.Position = 0;
-                    xmlDocument.Load(memoryStream);
-
-                    return xmlDocument;
-                }
-            }
-
             Error error = CreateSignalErrorMessage(exceptionEntity);
 
             AS4Message as4Message = AS4Message.Create(error, new SendingProcessingMode());
-            as4Message.EnvelopeDocument = await GetEnvelopeDocument(as4Message, CancellationToken.None);
 
             return as4Message;
         }
