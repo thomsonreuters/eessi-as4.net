@@ -1,6 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Xml;
+using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Services.DynamicDiscovery;
 using Xunit;
@@ -9,6 +12,17 @@ namespace Eu.EDelivery.AS4.UnitTests.Services.DynamicDiscovery
 {
     public class GivenESensDynamicDiscoveryProfileFacts
     {
+        [Fact]
+        public async Task FailsToRetrieveSmpMetaData_IfPartyIsInvalid()
+        {
+            // Arrange
+            var sut = new ESensDynamicDiscoveryProfile();
+
+            // Act / Assert
+            await Assert.ThrowsAsync<InvalidOperationException>(
+                () => sut.RetrieveSmpMetaData(new Party(partyId: new PartyId(id: null)), properties: null));
+        }
+
         [Fact]
         public void DecorateSendingPModeWithSMPResponse()
         {

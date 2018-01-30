@@ -56,21 +56,26 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
         private static string TrimDots(string s) => s.Trim('.');
 
         /// <summary>
-        /// Retrieves the SMP meta data <see cref="XmlDocument"/> for a given <paramref name="partyId"/> using a given <paramref name="properties"/>.
+        /// Retrieves the SMP meta data <see cref="XmlDocument"/> for a given <paramref name="party"/> using a given <paramref name="properties"/>.
         /// </summary>
-        /// <param name="partyId">The party identifier.</param>
+        /// <param name="party">The party identifier.</param>
         /// <param name="properties"></param>
         /// <returns></returns>
         public async Task<XmlDocument> RetrieveSmpMetaData(
-            string partyId, 
+            Party party, 
             IDictionary<string, string> properties)
         {
+            if (party.PrimaryPartyId == null)
+            {
+                throw new InvalidOperationException("Given invalid 'ToParty'; requires a 'PartyId'");
+            }
+
             var config = ESensConfig.From(properties);
 
-            string hashedPartyId = CalculateMD5Hash(partyId);
+            string hashedPartyId = CalculateMD5Hash(party.PrimaryPartyId);
 
             var host = $"b-{hashedPartyId}.{_documentIdentifierScheme}.{config.SmpServerDomainName}";
-            var path = $"{config.SmlScheme}::{partyId}/services/{_documentIdentifierScheme}::{_documentIdentifier}";
+            var path = $"{config.SmlScheme}::{party.PrimaryPartyId}/services/{_documentIdentifierScheme}::{_documentIdentifier}";
 
             var builder = new UriBuilder
             {

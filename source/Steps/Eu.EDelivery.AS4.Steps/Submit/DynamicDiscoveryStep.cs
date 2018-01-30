@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel;
 using System.Configuration;
 using System.Linq;
@@ -7,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 using Eu.EDelivery.AS4.Builders;
+using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Services.DynamicDiscovery;
@@ -80,14 +80,13 @@ namespace Eu.EDelivery.AS4.Steps.Submit
                 throw new ConfigurationErrorsException("The Sending PMode must contain a ToParty Id");
             }
 
-            string toPartyId = clonedPMode.MessagePackaging.PartyInfo.ToParty.PartyIds.First().Id;
-
+            Party toParty = clonedPMode.MessagePackaging.PartyInfo.ToParty;
             Dictionary<string, string> customProperties = 
                 clonedPMode.DynamicDiscovery.Settings?.ToDictionary(s => s.Key, s => s.Value) 
                     ?? new Dictionary<string, string>();
 
             return await profile.RetrieveSmpMetaData(
-                partyId: toPartyId, 
+                party: toParty, 
                 properties: customProperties);
         }
 

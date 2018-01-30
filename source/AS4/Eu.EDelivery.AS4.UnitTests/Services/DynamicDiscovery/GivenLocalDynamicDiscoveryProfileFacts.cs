@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using System.Xml;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
+using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Services.DynamicDiscovery;
@@ -17,11 +18,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Services.DynamicDiscovery
         public async Task RetrieveSmpResponseFromDatastore()
         {
             // Arrange
+            var fixture = new Party("role", new PartyId(Guid.NewGuid().ToString()) {Type = "type"});
             var expected = new SmpConfiguration
             {
-                ToPartyId = Guid.NewGuid().ToString(),
-                PartyRole = "role",
-                PartyType = "type"
+                PartyRole = fixture.Role,
+                ToPartyId = fixture.PrimaryPartyId,
+                PartyType = fixture.PrimaryPartyType
             };
 
             InsertSmpResponse(expected);
@@ -29,7 +31,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Services.DynamicDiscovery
             var sut = new LocalDynamicDiscoveryProfile(GetDataStoreContext);
 
             // Act
-            XmlDocument actualDoc = await sut.RetrieveSmpMetaData(expected.ToPartyId, properties: null);
+            XmlDocument actualDoc = await sut.RetrieveSmpMetaData(fixture, properties: null);
 
             // Assert
             var actual = AS4XmlSerializer.FromString<SmpConfiguration>(actualDoc.OuterXml);
@@ -43,6 +45,17 @@ namespace Eu.EDelivery.AS4.UnitTests.Services.DynamicDiscovery
                 context.SmpConfigurations.Add(smpConfiguration);
                 context.SaveChanges();
             }
+        }
+
+        [Fact]
+        public async Task FailsToRetrieveSmpMetaData_IfPartyIsInvalid()
+        {
+            // Arrange
+            var sut = new LocalDynamicDiscoveryProfile(createDatastore: null);
+
+            // Act / Assert
+            await Assert.ThrowsAsync<InvalidOperationException>(
+                () => sut.RetrieveSmpMetaData(new Party(), properties: null));
         }
 
         [Fact]

@@ -35,14 +35,22 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
         }
 
         /// <summary>
-        /// Retrieves the SMP meta data <see cref="XmlDocument"/> for a given <paramref name="partyId"/> using a given <paramref name="config"/>.
+        /// Retrieves the SMP meta data <see cref="XmlDocument"/> for a given <paramref name="party"/> using a given <paramref name="properties"/>.
         /// </summary>
-        /// <param name="partyId">The party identifier.</param>
+        /// <param name="party">The party identifier.</param>
         /// <param name="properties"></param>
         /// <returns></returns>
-        public Task<XmlDocument> RetrieveSmpMetaData(string partyId, IDictionary<string, string> properties)
+        public Task<XmlDocument> RetrieveSmpMetaData(Party party, IDictionary<string, string> properties)
         {
-            SmpConfiguration configuration = FindSmpResponseForToPartyId(partyId);
+            if (party.PrimaryPartyId == null 
+                || party.PrimaryPartyType == null 
+                || party.Role == null)
+            {
+                throw new InvalidOperationException(
+                    "Given invalid 'ToParty', requires 'Role', 'PartyId', and 'PartyType'");
+            }
+
+            SmpConfiguration configuration = FindSmpResponseForToParty(party);
             string xml = AS4XmlSerializer.ToString(configuration);
 
             var document = new XmlDocument();
@@ -51,16 +59,21 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
             return Task.FromResult(document);
         }
 
-        private SmpConfiguration FindSmpResponseForToPartyId(string partyId)
+        private SmpConfiguration FindSmpResponseForToParty(Party party)
         {
             using (DatastoreContext context = _createDatastore())
             {
-                SmpConfiguration foundConfiguration = context.SmpConfigurations.FirstOrDefault(r => r.ToPartyId == partyId);
+                SmpConfiguration foundConfiguration = context.SmpConfigurations
+                    .FirstOrDefault(sc => 
+                        sc.PartyRole == party.Role
+                        && sc.ToPartyId == party.PrimaryPartyId
+                        && sc.PartyType == party.PrimaryPartyType);
 
                 if (foundConfiguration == null)
                 {
                     throw new ConfigurationErrorsException(
-                        "No SMP Response found for the given 'ToPartyId': " + partyId);
+                        "No SMP Response found for the given " +
+                        $"'Role': {party.Role}, 'PartyId': {party.PrimaryPartyId}, and 'PartyType': {party.PrimaryPartyType}");
                 }
 
                 return foundConfiguration;
