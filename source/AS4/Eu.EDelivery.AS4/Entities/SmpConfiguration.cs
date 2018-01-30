@@ -5,15 +5,14 @@ namespace Eu.EDelivery.AS4.Entities
 {
     public class SmpConfiguration
     {
-        [Key]
+        public long Id { get; set; }
+
         [MaxLength(255)]
         public string ToPartyId { get; set; }
 
-        [Key]
         [MaxLength(255)]
         public string PartyRole { get; set; }
 
-        [Key]
         [MaxLength(255)]
         public string PartyType { get; set; }
 
