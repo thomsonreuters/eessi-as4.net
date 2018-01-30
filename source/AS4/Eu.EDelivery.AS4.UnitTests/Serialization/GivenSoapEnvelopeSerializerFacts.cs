@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
@@ -626,31 +627,22 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
     {
         [Fact]
         public async Task ReserializedMessageHasUntouchedSoapEnvelope()
-        {
-            const string contentType = @"multipart/related;boundary=""NSMIMEBoundary__e5cfd617-6cec-4276-b190-23f0b25d9d4d"";type=""application/soap+xml"";start=""<_7a711d7c-4d1c-4ce7-ab38-794a01b445e1>""";
-
-            var serializer = SerializerProvider.Default.Get(contentType);
-
-            var stream = new MemoryStream(rssbus_message);
-
-            AS4Message deserializedAS4Message = await serializer.DeserializeAsync(stream, contentType, CancellationToken.None);
+        {            
+            AS4Message deserializedAS4Message = await DeserializeToAS4Message(rssbus_message, @"multipart/related;boundary=""NSMIMEBoundary__e5cfd617-6cec-4276-b190-23f0b25d9d4d"";type=""application/soap+xml"";start=""<_7a711d7c-4d1c-4ce7-ab38-794a01b445e1>""");
             AS4Message reserializedAS4Message = await SerializeDeserializeAsync(deserializedAS4Message);
 
             Assert.Equal(deserializedAS4Message.EnvelopeDocument.OuterXml, reserializedAS4Message.EnvelopeDocument.OuterXml);
         }
-
+        
         [Fact]
         public async Task CanDeserializeEncryptAndSerializeSignedMessageWithUntouchedMessagingHeader()
         {
-            const string contentType = @"multipart/related;boundary=""MIMEBoundary_bcb27a6f984295aa9962b01ef2fb3e8d982de76d061ab23f""";
+            // Arrange: retrieve an existing signed AS4 Message and encrypt it. 
+            //          Serialize it again to inspect the Soap envelope of the modified message.
 
-            var stream = new MemoryStream(signed_holodeck_message);
+            AS4Message deserializedAS4Message = await DeserializeToAS4Message(signed_holodeck_message, @"multipart/related;boundary=""MIMEBoundary_bcb27a6f984295aa9962b01ef2fb3e8d982de76d061ab23f""");
 
-            var serializer = SerializerProvider.Default.Get(contentType);
-
-            AS4Message deserializedAS4Message = await serializer.DeserializeAsync(stream, contentType, CancellationToken.None);
-
-            // Encrypt the message
+            // Act: Encrypt the message
             IEncryptionStrategy strategy =
                 EncryptionStrategyBuilder.Create(deserializedAS4Message)
                                          .WithCertificate(new X509Certificate2(certificate_as4, certificate_password))
@@ -662,14 +654,30 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
             // some changes that have been made to the security header.
             var reserializedAS4Message = await SerializeDeserializeAsync(deserializedAS4Message);
 
+            // Assert: the soap envelope of the encrypted message should not be equal to the
+            //         envelope of the original message since there should be modifications in
+            //         the security header.
+
             Assert.NotEqual(reserializedAS4Message.EnvelopeDocument.OuterXml, deserializedAS4Message.EnvelopeDocument.OuterXml);
 
-            // Remove the Security Header from both EnvelopeDocuments; the envelopes should 
-            // be equal without the SecurityHeader.
+            // Assert: The soap envelopes of both messages should be equal if the 
+            //         SecurityHeader is not taken into consideration.
+
             RemoveSecurityHeaderFromMessageEnvelope(reserializedAS4Message);
             RemoveSecurityHeaderFromMessageEnvelope(deserializedAS4Message);
 
             Assert.Equal(reserializedAS4Message.EnvelopeDocument.OuterXml, deserializedAS4Message.EnvelopeDocument.OuterXml);
+        }
+
+        private static async Task<AS4Message> DeserializeToAS4Message(byte[] content, string contentType)
+        {
+            // Note that the stream cannot be disposed here, since the AS4Message needs to
+            // keep an open reference to it so that it can access the attachments.
+            var stream = new MemoryStream(content);
+
+            var serializer = SerializerProvider.Default.Get(contentType);
+
+            return await serializer.DeserializeAsync(stream, contentType, CancellationToken.None);
         }
 
         private static async Task<AS4Message> SerializeDeserializeAsync(AS4Message message)
