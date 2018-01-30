@@ -25,16 +25,14 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Receive_Scenarios._8._3._4_
             Holodeck.CopyMessageToHolodeckA("8.3.4-sample.mmd");
 
             // Assert
-            Assert.True(PollingAt(AS4FullInputPath));
+            Assert.True(PollingAt(AS4FullInputPath, fileCount: 2, validation: ValidateOnAS4InputPath));
+            Assert.True(PollingAt(Holodeck.HolodeckALocations.InputPath, validation: _ => Holodeck.AssertReceiptOnHolodeckA()));
         }
 
-        protected override void ValidatePolledFiles(IEnumerable<FileInfo> files)
+        private static void ValidateOnAS4InputPath(IEnumerable<FileInfo> files)
         {
-            // Assert
-            AssertPayloads(new DirectoryInfo(AS4FullInputPath).GetFiles("*.jpg"));
-            AssertXmlFiles(new DirectoryInfo(AS4FullInputPath).GetFiles("*.xml"));
-
-            new Holodeck().AssertReceiptOnHolodeckA();
+            AssertPayloads(files.Where(f => f.Extension == ".jpg"));
+            AssertXmlFiles(files.Where(f => f.Extension == ".xml"));
         }
 
         private static void AssertPayloads(IEnumerable<FileInfo> files)
