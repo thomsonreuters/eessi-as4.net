@@ -107,8 +107,13 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             using (DatastoreContext context = _storeExpression())
             {
                 var service = new OutMessageService(_config, new DatastoreRepository(context), _bodyStore);
+
                 foreach (Receipt nrrReceipt in as4Message.SignalMessages.Where(m => m is Receipt).Cast<Receipt>())
                 {
+                    // TODO: this is not optimal.  It would be better to retrieve all
+                    //       related UserMessages in one call, outside this loop and use 
+                    //       the retrieved messages afterwards to verify the NRI of each Receipt.
+
                     AS4Message referencedUserMessage = await service.GetAS4UserMessageForId(
                         nrrReceipt.RefToMessageId,
                         _bodyStore);
