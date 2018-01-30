@@ -23,27 +23,29 @@ namespace Eu.EDelivery.AS4.Strategies.Retriever
         /// <returns></returns>
         public async Task<Stream> RetrievePayloadAsync(string location)
         {
-            VirtualStream virtualStr = VirtualStream.CreateVirtualStream();
             string absolutePath = location.Replace(Key, string.Empty);
 
-            await CopyTempFileToStream(absolutePath, virtualStr);
-            virtualStr.Position = 0;
-
+            Stream targetStr = await RetrieveTempFileContents(absolutePath);
             DeleteTempFile(absolutePath);
 
-            return virtualStr;
+            return targetStr;
         }
 
-        private static async Task CopyTempFileToStream(string absolutePath, Stream str)
+        private static async Task<Stream> RetrieveTempFileContents(string absolutePath)
         {
+            var virtualStr = VirtualStream.CreateVirtualStream();
+
             using (var fileStr = new FileStream(
                 absolutePath, 
                 FileMode.Open, 
                 FileAccess.Read, 
                 FileShare.Read))
             {
-                await fileStr.CopyToFastAsync(str);
+                await fileStr.CopyToFastAsync(virtualStr);
             }
+
+            virtualStr.Position = 0;
+            return virtualStr;
         }
 
         private static void DeleteTempFile(string absolutePath)
