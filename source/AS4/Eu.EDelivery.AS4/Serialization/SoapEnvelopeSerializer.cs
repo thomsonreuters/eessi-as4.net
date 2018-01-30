@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
-using Eu.EDelivery.AS4.Builders.Internal;
 using Eu.EDelivery.AS4.Builders.Security;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Resources;
@@ -27,7 +26,7 @@ namespace Eu.EDelivery.AS4.Serialization
     /// <summary>
     /// Serialize <see cref="AS4Message" /> to a <see cref="Stream" />
     /// </summary>
-    public class SoapEnvelopeSerializer : ISerializer
+    public partial class SoapEnvelopeSerializer : ISerializer
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 

@@ -1,21 +1,21 @@
 ﻿using System;
 using System.Xml;
-using Eu.EDelivery.AS4.Builders.Internal;
+using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Xml;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Builders.Internal
 {
     /// <summary>
-    /// Testing the <see cref="SoapEnvelopeBuilder" />
+    /// Testing the <see cref="SoapEnvelopeSerializer.SoapEnvelopeBuilder" />
     /// </summary>
     public class GivenSoapEnvelopeBuilderFacts
     {
-        private readonly SoapEnvelopeBuilder _builder;
+        private readonly SoapEnvelopeSerializer.SoapEnvelopeBuilder _builder;
 
         public GivenSoapEnvelopeBuilderFacts()
         {
-            _builder = new SoapEnvelopeBuilder();
+            _builder = new SoapEnvelopeSerializer.SoapEnvelopeBuilder();
         }
 
         /// <summary>
