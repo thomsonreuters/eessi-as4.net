@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
+using Eu.EDelivery.AS4.Strategies.Retriever;
 using Eu.EDelivery.AS4.Transformers;
 using Eu.EDelivery.AS4.UnitTests.Common;
 using Xunit;
@@ -28,7 +29,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             Assert.Collection(result.SubmitMessage.Payloads, p =>
             {
                 Assert.True(Guid.TryParse(p.Id, out Guid _));
-                Assert.NotNull(new FileInfo(p.Location.Replace("file:///", string.Empty)));
+                Assert.NotNull(new FileInfo(p.Location.Replace(TempFilePayloadRetriever.Key, string.Empty)));
                 Assert.EndsWith(".txt", p.Location);
             });
         }
@@ -51,7 +52,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             Assert.Collection(result.SubmitMessage.Payloads, p =>
             {
                 Assert.Equal(payloadId, p.Id);
-                Assert.Equal("file:///" + payloadPath, p.Location);
+                Assert.Equal(TempFilePayloadRetriever.Key + payloadPath, p.Location);
             });
         }
 
