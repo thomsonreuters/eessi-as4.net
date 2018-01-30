@@ -11,6 +11,8 @@ namespace Eu.EDelivery.AS4.Builders.Internal
     /// </summary>
     internal class SoapEnvelopeBuilder
     {
+        // TODO: refactor this to a simpler structure.
+
         private static readonly Dictionary<SoapNamespace, string> Prefixes = new Dictionary<SoapNamespace, string>
         {
             {SoapNamespace.Ebms, "eb"},
@@ -27,29 +29,45 @@ namespace Eu.EDelivery.AS4.Builders.Internal
             {SoapNamespace.SecurityExt, Constants.Namespaces.WssSecuritySecExt}
         };
 
-        private XmlElement _bodyElement;
-        private XmlDocument _document;
-        private XmlElement _envelopeElement;
-        private XmlElement _headerElement;
+        private readonly XmlElement _bodyElement;
+        private readonly XmlDocument _document;
+        private readonly XmlElement _envelopeElement;
+        private readonly XmlElement _headerElement;
+
+        private XmlNode _securityHeaderElement;
+        private XmlNode _messagingHeaderElement;
+        private XmlNode _routingInputHeaderElement;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SoapEnvelopeBuilder"/> class. 
         /// Create a Soap Envelope Builder
         /// </summary>
-        public SoapEnvelopeBuilder()
+        public SoapEnvelopeBuilder() : this(null)
         {
-            InitializeBuilder();
         }
 
-        private void InitializeBuilder()
+        public SoapEnvelopeBuilder(XmlDocument envelopeDocument)
         {
-            _document = new XmlDocument() { PreserveWhitespace = true };
+            if (envelopeDocument == null)
+            {
+                _document = new XmlDocument() { PreserveWhitespace = true };
 
-            _envelopeElement = CreateElement(SoapNamespace.Soap, "Envelope");
-            _bodyElement = CreateElement(SoapNamespace.Soap, "Body");
-            _headerElement = CreateElement(SoapNamespace.Soap, "Header");
+                _envelopeElement = CreateElement(SoapNamespace.Soap, "Envelope");
+                _bodyElement = CreateElement(SoapNamespace.Soap, "Body");
+                _headerElement = CreateElement(SoapNamespace.Soap, "Header");
 
-            _document.AppendChild(_envelopeElement);
+                _document.AppendChild(_envelopeElement);
+            }
+            else
+            {
+                var nsMgr = new XmlNamespaceManager(envelopeDocument.NameTable);
+                nsMgr.AddNamespace("s", Namespaces[SoapNamespace.Soap]);
+                _document = envelopeDocument;
+
+                _envelopeElement = envelopeDocument.SelectSingleNode("/s:Envelope", nsMgr) as XmlElement;
+                _headerElement = envelopeDocument.SelectSingleNode($"/s:Envelope/s:Header", nsMgr) as XmlElement;
+                _bodyElement = envelopeDocument.SelectSingleNode("/s:Envelope/s:Body", nsMgr) as XmlElement;
+            }
         }
 
         /// <summary>
@@ -59,23 +77,16 @@ namespace Eu.EDelivery.AS4.Builders.Internal
         public SoapEnvelopeBuilder SetMessagingHeader(Xml.Messaging messagingHeader)
         {
             if (messagingHeader == null)
-                throw new ArgumentNullException(nameof(messagingHeader));
-
-            if (_headerElement == null)
             {
-                _headerElement = CreateElement(SoapNamespace.Soap, "Header");
+                throw new ArgumentNullException(nameof(messagingHeader));
             }
 
-            XmlDocument xmlDocument = SerializeMessagingHeaderToXmlDocument(messagingHeader);
-            XmlNode messagingNode = _document.ImportNode(xmlDocument.DocumentElement, deep: true);
-
-            _headerElement.AppendChild(messagingNode);
-            _envelopeElement.AppendChild(_headerElement);
+            _messagingHeaderElement = SerializeMessagingHeaderToXmlDocument(messagingHeader);
 
             return this;
         }
 
-        private static XmlDocument SerializeMessagingHeaderToXmlDocument(Xml.Messaging messagingHeader)
+        private XmlNode SerializeMessagingHeaderToXmlDocument(Xml.Messaging messagingHeader)
         {
             var xmlDocument = new XmlDocument() { PreserveWhitespace = true };
 
@@ -85,7 +96,7 @@ namespace Eu.EDelivery.AS4.Builders.Internal
                 serializer.Serialize(writer, messagingHeader, GetXmlNamespaces());
             }
 
-            return xmlDocument;
+            return _document.ImportNode(xmlDocument.DocumentElement, deep: true);
         }
 
         private static XmlSerializerNamespaces GetXmlNamespaces()
@@ -110,14 +121,8 @@ namespace Eu.EDelivery.AS4.Builders.Internal
                 throw new ArgumentNullException(nameof(securityHeader));
             }
 
-            if (_headerElement == null)
-            {
-                _headerElement = CreateElement(SoapNamespace.Soap, "Header");
-            }
+            _securityHeaderElement = _document.ImportNode(securityHeader, deep: true);
 
-            securityHeader = _document.ImportNode(securityHeader, deep: true);
-
-            _headerElement.AppendChild(securityHeader);
             return this;
         }
 
@@ -136,8 +141,7 @@ namespace Eu.EDelivery.AS4.Builders.Internal
                 serializer.Serialize(writer, routingInput, GetXmlNamespaces());
             }
 
-            XmlNode routingInputNode = _document.ImportNode(xmlDocument.DocumentElement, deep: true);
-            _headerElement.AppendChild(routingInputNode);
+            _routingInputHeaderElement = _document.ImportNode(xmlDocument.DocumentElement, deep: true);
 
             return this;
         }
@@ -149,15 +153,8 @@ namespace Eu.EDelivery.AS4.Builders.Internal
         /// </param>
         public SoapEnvelopeBuilder SetMessagingBody(string bodySecurityId)
         {
-            if (_bodyElement == null)
-            {
-                _bodyElement = CreateElement(SoapNamespace.Soap, "Body");
-            }
-
             _bodyElement.SetAttribute("Id", Constants.Namespaces.WssSecurityUtility, bodySecurityId);
-            XmlNode xmlNode = _document.ImportNode(_bodyElement, deep: true);
 
-            _envelopeElement.AppendChild(xmlNode);
             return this;
         }
 
@@ -204,15 +201,48 @@ namespace Eu.EDelivery.AS4.Builders.Internal
         /// <returns></returns>
         public XmlDocument Build()
         {
+            if (_securityHeaderElement != null)
+            {
+                var existingSecurityHeader = _headerElement.SelectSingleNode("//*[local-name()='Security']");
+                if (existingSecurityHeader != null)
+                {
+                    _headerElement.ReplaceChild(_securityHeaderElement, existingSecurityHeader);
+                }
+                else
+                {
+                    _headerElement.AppendChild(_securityHeaderElement);
+                }
+            }
+
+            if (_routingInputHeaderElement != null)
+            {
+                _headerElement.AppendChild(_routingInputHeaderElement);
+            }
+
+            if (_messagingHeaderElement != null)
+            {
+                _headerElement.AppendChild(_messagingHeaderElement);
+            }
+
+            if (_headerElement.HasChildNodes)
+            {
+                _envelopeElement.AppendChild(_headerElement);
+            }
+
+            if (_bodyElement.HasAttributes)
+            {
+                _envelopeElement.AppendChild(_bodyElement);
+            }
+
             return _document;
         }
-    }
 
-    internal enum SoapNamespace
-    {
-        Soap,
-        Ebms,
-        SecurityUtility,
-        SecurityExt
+        private enum SoapNamespace
+        {
+            Soap,
+            Ebms,
+            SecurityUtility,
+            SecurityExt
+        }
     }
 }

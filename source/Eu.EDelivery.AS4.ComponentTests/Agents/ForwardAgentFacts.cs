@@ -227,7 +227,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
             foreach (var mu in messageUnits.Skip(1))
             {
-                as4Message.MessageUnits.Add(mu);
+                as4Message.AddMessageUnit(mu);
             }
 
             // Add a PMode Id to the primary usermessage, just to be sure that it can be picked up with

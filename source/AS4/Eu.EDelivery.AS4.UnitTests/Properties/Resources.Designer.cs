@@ -312,15 +312,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to --MIMEBoundary_7afbb12a12dd535c2c59cc1fab5b4aadf7a2013d35e98980\r\nContent-Type: application/soap+xml; charset=UTF-8\r\nContent-Transfer-Encoding: binary\r\nContent-ID: &lt;0.6afbb12a12dd535c2c59cc1fab5b4aadf7a2013d35e98980@apache.org&gt;\r\n\r\n&lt;?xml version=&apos;1.0&apos; encoding=&apos;UTF-8&apos;?&gt;&lt;soapenv:Envelope xmlns:soapenv=\&quot;http://www.w3.org/2003/05/soap-envelope\&quot; xmlns:xsd=\&quot;http://www.w3.org/1999/XMLSchema\&quot; xmlns:eb3=\&quot;http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/\&quot; xmlns:xsi=\&quot;http://www.w3.org/1999 [rest of string was truncated]&quot;;.
-        /// </summary>
-        internal static string holodeck_as4message {
-            get {
-                return ResourceManager.GetString("holodeck_as4message", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
         internal static byte[] holodeck_partya_certificate {

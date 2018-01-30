@@ -73,7 +73,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             {
                 // Arrange
                 AS4Message as4Message = CreateAS4MessageWithoutAttachments();
-                as4Message.MessageUnits.Add(new UserMessage("message-id"));
+                as4Message.AddMessageUnit(new UserMessage("message-id"));
                 MemoryStream memoryStream = as4Message.ToStream();
 
                 var receivedMessage = new ReceivedMessage(memoryStream, Constants.ContentTypes.Mime);
