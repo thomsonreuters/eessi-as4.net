@@ -21,8 +21,8 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 
-        private readonly string _documentIdentifier = TrimDots("urn:oasis:names:specification:ubl:schema:xsd:Invoice-2::Invoice##urn:www.cenbii.eu:transaction:biitrns010:ver2.0:extended:urn:www.peppol.eu:bis:peppol5a:ver2.0::2.1");
-        private readonly string _documentIdentifierScheme = TrimDots("busdox-docid-qns");
+        private const string DocumentIdentifier = "urn:oasis:names:specification:ubl:schema:xsd:Invoice-2::Invoice##urn:www.cenbii.eu:transaction:biitrns010:ver2.0:extended:urn:www.peppol.eu:bis:peppol5a:ver2.0::2.1";
+        private const string DocumentIdentifierScheme = "busdox-docid-qns";
 
         private class ESensConfig
         {
@@ -48,12 +48,12 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
             public static ESensConfig From(IDictionary<string, string> properties)
             {
                 return new ESensConfig(
-                    TrimDots(properties.ReadOptionalProperty("SmlScheme", "isaitb.acc.edelivery.tech.ec.europa.eu")),
-                    TrimDots(properties.ReadOptionalProperty("SmpServerDomainName", string.Empty)));
+                    TrimDots(properties.ReadOptionalProperty("SmlScheme", "iso6523-actorid-upis")),
+                    TrimDots(properties.ReadOptionalProperty("SmpServerDomainName", "isaitb.acc.edelivery.tech.ec.europa.eu")));
             }
-        }
 
-        private static string TrimDots(string s) => s.Trim('.');
+            private static string TrimDots(string s) => s.Trim('.');
+        }
 
         /// <summary>
         /// Retrieves the SMP meta data <see cref="XmlDocument"/> for a given <paramref name="party"/> using a given <paramref name="properties"/>.
@@ -74,8 +74,8 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
 
             string hashedPartyId = CalculateMD5Hash(party.PrimaryPartyId);
 
-            var host = $"b-{hashedPartyId}.{_documentIdentifierScheme}.{config.SmpServerDomainName}";
-            var path = $"{config.SmlScheme}::{party.PrimaryPartyId}/services/{_documentIdentifierScheme}::{_documentIdentifier}";
+            var host = $"b-{hashedPartyId}.{DocumentIdentifierScheme}.{config.SmpServerDomainName}";
+            var path = $"{config.SmlScheme}::{party.PrimaryPartyId}/services/{DocumentIdentifierScheme}::{DocumentIdentifier}";
 
             var builder = new UriBuilder
             {
