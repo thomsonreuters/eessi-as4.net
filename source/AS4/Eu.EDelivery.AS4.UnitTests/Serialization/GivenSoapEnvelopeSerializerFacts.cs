@@ -1,16 +1,19 @@
 ﻿using System.Collections;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Schema;
 using Eu.EDelivery.AS4.Builders.Core;
+using Eu.EDelivery.AS4.Builders.Security;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Resources;
+using Eu.EDelivery.AS4.Security.Strategies;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Singletons;
 using Eu.EDelivery.AS4.Steps;
@@ -254,7 +257,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
             private static bool ValidateEnvelope(XmlDocument envelopeDocument)
             {
                 var isValid = true;
-                envelopeDocument.Validate((sender, args) => { isValid = false; });
+                envelopeDocument.Validate((sender, args) =>
+                {
+                    isValid = false;
+                });
 
                 return isValid;
             }
@@ -613,6 +619,87 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
             };
 
             return receipt;
+        }
+    }
+
+    public class GivenReserializationFacts
+    {
+        [Fact]
+        public async Task ReserializedMessageHasUntouchedSoapEnvelope()
+        {
+            const string contentType = @"multipart/related;boundary=""NSMIMEBoundary__e5cfd617-6cec-4276-b190-23f0b25d9d4d"";type=""application/soap+xml"";start=""<_7a711d7c-4d1c-4ce7-ab38-794a01b445e1>""";
+
+            var serializer = SerializerProvider.Default.Get(contentType);
+
+            var stream = new MemoryStream(rssbus_message);
+
+            AS4Message deserializedAS4Message = await serializer.DeserializeAsync(stream, contentType, CancellationToken.None);
+            AS4Message reserializedAS4Message = await SerializeDeserializeAsync(deserializedAS4Message);
+
+            Assert.Equal(deserializedAS4Message.EnvelopeDocument.OuterXml, reserializedAS4Message.EnvelopeDocument.OuterXml);
+        }
+
+        [Fact]
+        public async Task CanDeserializeEncryptAndSerializeSignedMessageWithUntouchedMessagingHeader()
+        {
+            const string contentType = @"multipart/related;boundary=""MIMEBoundary_bcb27a6f984295aa9962b01ef2fb3e8d982de76d061ab23f""";
+
+            var stream = new MemoryStream(signed_holodeck_message);
+
+            var serializer = SerializerProvider.Default.Get(contentType);
+
+            AS4Message deserializedAS4Message = await serializer.DeserializeAsync(stream, contentType, CancellationToken.None);
+
+            // Encrypt the message
+            IEncryptionStrategy strategy =
+                EncryptionStrategyBuilder.Create(deserializedAS4Message)
+                                         .WithCertificate(new X509Certificate2(certificate_as4, certificate_password))
+                                         .Build();
+
+            deserializedAS4Message.SecurityHeader.Encrypt(strategy);
+
+            // Serialize it again; the Soap envelope should remain intact, besides
+            // some changes that have been made to the security header.
+            var reserializedAS4Message = await SerializeDeserializeAsync(deserializedAS4Message);
+
+            Assert.NotEqual(reserializedAS4Message.EnvelopeDocument.OuterXml, deserializedAS4Message.EnvelopeDocument.OuterXml);
+
+            // Remove the Security Header from both EnvelopeDocuments; the envelopes should 
+            // be equal without the SecurityHeader.
+            RemoveSecurityHeaderFromMessageEnvelope(reserializedAS4Message);
+            RemoveSecurityHeaderFromMessageEnvelope(deserializedAS4Message);
+
+            Assert.Equal(reserializedAS4Message.EnvelopeDocument.OuterXml, deserializedAS4Message.EnvelopeDocument.OuterXml);
+        }
+
+        private static async Task<AS4Message> SerializeDeserializeAsync(AS4Message message)
+        {
+            var serializer = SerializerProvider.Default.Get(message.ContentType);
+
+            using (var targetStream = new MemoryStream())
+            {
+                serializer.Serialize(message, targetStream, CancellationToken.None);
+
+                targetStream.Position = 0;
+
+                return await serializer.DeserializeAsync(targetStream, message.ContentType, CancellationToken.None);
+            }
+        }
+
+        private static void RemoveSecurityHeaderFromMessageEnvelope(AS4Message as4Message)
+        {
+            var headerNode = as4Message.EnvelopeDocument.SelectSingleNode("//*[local-name()='Header']");
+
+            if (headerNode == null)
+            {
+                return;
+            }
+
+            var securityHeader = headerNode.SelectSingleNode("//*[local-name()='Security']");
+            if (securityHeader != null)
+            {
+                headerNode.RemoveChild(securityHeader);
+            }
         }
     }
 }

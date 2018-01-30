@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Xml;
 using System.Xml.Serialization;
 using Eu.EDelivery.AS4.Xml;
@@ -13,24 +14,18 @@ namespace Eu.EDelivery.AS4.Serialization
         /// </summary>
         internal class SoapEnvelopeBuilder
         {
-            // TODO: refactor this to a simpler structure.
+            private static readonly Dictionary<SoapNamespace, XmlQualifiedName> NamespaceInformation
+                = new Dictionary<SoapNamespace, XmlQualifiedName>()
+                {
+                    { SoapNamespace.Ebms, new XmlQualifiedName("eb", Constants.Namespaces.EbmsXmlCore) },
+                    { SoapNamespace.Soap, new XmlQualifiedName("s12", Constants.Namespaces.Soap12) },
+                    { SoapNamespace.SecurityUtility, new XmlQualifiedName("wsu", Constants.Namespaces.WssSecurityUtility) },
+                    { SoapNamespace.SecurityExt, new XmlQualifiedName("wsse", Constants.Namespaces.WssSecuritySecExt) }
+                };
 
-            private static readonly Dictionary<SoapNamespace, string> Prefixes = new Dictionary<SoapNamespace, string>
-            {
-                {SoapNamespace.Ebms, "eb"},
-                {SoapNamespace.Soap, "s12"},
-                {SoapNamespace.SecurityUtility, "wsu"},
-                {SoapNamespace.SecurityExt, "wsse"}
-            };
-
-            private static readonly Dictionary<SoapNamespace, string> Namespaces = new Dictionary<SoapNamespace, string>
-            {
-                {SoapNamespace.Ebms, Constants.Namespaces.EbmsXmlCore},
-                {SoapNamespace.Soap, Constants.Namespaces.Soap12},
-                {SoapNamespace.SecurityUtility, Constants.Namespaces.WssSecurityUtility},
-                {SoapNamespace.SecurityExt, Constants.Namespaces.WssSecuritySecExt}
-            };
-
+            private static readonly XmlSerializerNamespaces XmlSerializerNamespaceInfo
+                = new XmlSerializerNamespaces(NamespaceInformation.Values.ToArray());
+         
             private readonly XmlElement _bodyElement;
             private readonly XmlDocument _document;
             private readonly XmlElement _envelopeElement;
@@ -50,7 +45,7 @@ namespace Eu.EDelivery.AS4.Serialization
             {
                 if (envelopeDocument == null)
                 {
-                    _document = new XmlDocument() { PreserveWhitespace = true };
+                    _document = new XmlDocument { PreserveWhitespace = true };
 
                     _envelopeElement = CreateElement(SoapNamespace.Soap, "Envelope");
                     _bodyElement = CreateElement(SoapNamespace.Soap, "Body");
@@ -60,13 +55,16 @@ namespace Eu.EDelivery.AS4.Serialization
                 }
                 else
                 {
+                    var soapNamespace = NamespaceInformation[SoapNamespace.Soap];
+
                     var nsMgr = new XmlNamespaceManager(envelopeDocument.NameTable);
-                    nsMgr.AddNamespace("s", Namespaces[SoapNamespace.Soap]);
+                    nsMgr.AddNamespace(soapNamespace.Name, soapNamespace.Namespace);
+
                     _document = envelopeDocument;
 
-                    _envelopeElement = envelopeDocument.SelectSingleNode("/s:Envelope", nsMgr) as XmlElement;
-                    _headerElement = envelopeDocument.SelectSingleNode($"/s:Envelope/s:Header", nsMgr) as XmlElement;
-                    _bodyElement = envelopeDocument.SelectSingleNode("/s:Envelope/s:Body", nsMgr) as XmlElement;
+                    _envelopeElement = envelopeDocument.SelectSingleNode($"/{soapNamespace.Name}:Envelope", nsMgr) as XmlElement;
+                    _headerElement = envelopeDocument.SelectSingleNode($"/{soapNamespace.Name}:Envelope/{soapNamespace.Name}:Header", nsMgr) as XmlElement;
+                    _bodyElement = envelopeDocument.SelectSingleNode($"/{soapNamespace.Name}:Envelope/{soapNamespace.Name}:Body", nsMgr) as XmlElement;
                 }
             }
 
@@ -88,26 +86,15 @@ namespace Eu.EDelivery.AS4.Serialization
 
             private XmlNode SerializeMessagingHeaderToXmlDocument(Xml.Messaging messagingHeader)
             {
-                var xmlDocument = new XmlDocument() { PreserveWhitespace = true };
+                var xmlDocument = new XmlDocument { PreserveWhitespace = true };
 
                 using (XmlWriter writer = xmlDocument.CreateNavigator().AppendChild())
                 {
                     var serializer = new XmlSerializer(typeof(Xml.Messaging));
-                    serializer.Serialize(writer, messagingHeader, GetXmlNamespaces());
+                    serializer.Serialize(writer, messagingHeader, XmlSerializerNamespaceInfo);
                 }
 
                 return _document.ImportNode(xmlDocument.DocumentElement, deep: true);
-            }
-
-            private static XmlSerializerNamespaces GetXmlNamespaces()
-            {
-                var namespaces = new XmlSerializerNamespaces();
-                foreach (KeyValuePair<SoapNamespace, string> prefix in Prefixes)
-                {
-                    namespaces.Add(prefix.Value, Namespaces[prefix.Key]);
-                }
-
-                return namespaces;
             }
 
             /// <summary>
@@ -133,12 +120,12 @@ namespace Eu.EDelivery.AS4.Serialization
             /// <returns></returns>
             public SoapEnvelopeBuilder SetRoutingInput(RoutingInput routingInput)
             {
-                var xmlDocument = new XmlDocument() { PreserveWhitespace = true };
+                var xmlDocument = new XmlDocument { PreserveWhitespace = true };
 
                 using (XmlWriter writer = xmlDocument.CreateNavigator().AppendChild())
                 {
                     var serializer = new XmlSerializer(typeof(Xml.RoutingInput));
-                    serializer.Serialize(writer, routingInput, GetXmlNamespaces());
+                    serializer.Serialize(writer, routingInput, XmlSerializerNamespaceInfo);
                 }
 
                 _routingInputHeaderElement = _document.ImportNode(xmlDocument.DocumentElement, deep: true);
@@ -168,7 +155,9 @@ namespace Eu.EDelivery.AS4.Serialization
                 XmlNode toNode = _document.CreateElement("wsa", "To", Constants.Namespaces.Addressing);
                 toNode.InnerText = Constants.Namespaces.ICloud;
 
-                XmlAttribute roleAttribute = _document.CreateAttribute(Prefixes[SoapNamespace.Soap], "role", Namespaces[SoapNamespace.Soap]);
+                var soapNamespace = NamespaceInformation[SoapNamespace.Soap];
+
+                XmlAttribute roleAttribute = _document.CreateAttribute(soapNamespace.Name, "role", soapNamespace.Namespace);
                 roleAttribute.Value = to.Role;
                 toNode.Attributes.Append(roleAttribute);
 
@@ -190,9 +179,11 @@ namespace Eu.EDelivery.AS4.Serialization
                 return this;
             }
 
-            private XmlElement CreateElement(SoapNamespace soapNamespace, string elementName)
+            private XmlElement CreateElement(SoapNamespace namespaceInfo, string elementName)
             {
-                return _document.CreateElement(Prefixes[soapNamespace], elementName, Namespaces[soapNamespace]);
+                return _document.CreateElement(NamespaceInformation[namespaceInfo].Name,
+                                               elementName,
+                                               NamespaceInformation[namespaceInfo].Namespace);
             }
 
             /// <summary>
