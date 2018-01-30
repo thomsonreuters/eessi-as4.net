@@ -1,13 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
-using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
@@ -15,9 +12,7 @@ using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Security.Signing;
 using Eu.EDelivery.AS4.Services;
-using Microsoft.EntityFrameworkCore.Query.Sql.Internal;
 using NLog;
-using Reference = System.Security.Cryptography.Xml.Reference;
 
 namespace Eu.EDelivery.AS4.Steps.Receive
 {
@@ -40,7 +35,8 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             : this(
                 Registry.Instance.CreateDatastoreContext,
                 Config.Instance,
-                Registry.Instance.MessageBodyStore) { }
+                Registry.Instance.MessageBodyStore)
+        { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="VerifySignatureAS4MessageStep" /> class.
@@ -49,7 +45,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// <param name="config">The configuration.</param>
         /// <param name="bodyStore">The body store.</param>
         public VerifySignatureAS4MessageStep(
-            Func<DatastoreContext> createContext, 
+            Func<DatastoreContext> createContext,
             IConfig config,
             IAS4MessageBodyStore bodyStore)
         {
@@ -90,8 +86,8 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 return StepResult.Success(messagingContext);
             }
 
-            if (as4Message.IsSignalMessage
-                && messagingContext.SendingPMode.ReceiptHandling.VerifyNRR)
+            if (as4Message.IsSignalMessage &&
+                (messagingContext.SendingPMode?.ReceiptHandling?.VerifyNRR ?? true))
             {
                 if (!await VerifyNonRepudiationsHashes(as4Message))
                 {
@@ -111,13 +107,18 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             using (DatastoreContext context = _storeExpression())
             {
                 var service = new OutMessageService(_config, new DatastoreRepository(context), _bodyStore);
+
                 foreach (Receipt nrrReceipt in as4Message.SignalMessages.Where(m => m is Receipt).Cast<Receipt>())
                 {
+                    // TODO: this is not optimal.  It would be better to retrieve all
+                    //       related UserMessages in one call, outside this loop and use 
+                    //       the retrieved messages afterwards to verify the NRI of each Receipt.
+
                     AS4Message referencedUserMessage = await service.GetAS4UserMessageForId(
                         nrrReceipt.RefToMessageId,
                         _bodyStore);
 
-                    if (referencedUserMessage == null 
+                    if (referencedUserMessage == null
                         || referencedUserMessage.IsSigned == false) { continue; }
 
                     if (!nrrReceipt.VerifyNonRepudiationInfo(referencedUserMessage))
@@ -181,7 +182,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             {
                 Attachments = as4Message.Attachments,
                 AllowUnknownRootCertificateAuthority =
-                    pmode?.Security?.SigningVerification?.AllowUnknownRootCertificate 
+                    pmode?.Security?.SigningVerification?.AllowUnknownRootCertificate
                     ?? new ReceivingProcessingMode().Security.SigningVerification.AllowUnknownRootCertificate
             };
         }
