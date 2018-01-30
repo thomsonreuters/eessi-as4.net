@@ -42,7 +42,7 @@ namespace Eu.EDelivery.AS4.Strategies.Retriever
                 FileAccess.Read, 
                 FileShare.Read))
             {
-                await fileStr.CopyToAsync(str);
+                await fileStr.CopyToFastAsync(str);
             }
         }
 
