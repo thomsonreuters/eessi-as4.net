@@ -353,6 +353,10 @@
     <Compile Include="Migrations\20171025092954_OptimizeColumnSizes.Designer.cs">
       <DependentUpon>20171025092954_OptimizeColumnSizes.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\20180130091857_AddSmpConfigurationTable.cs" />
+    <Compile Include="Migrations\20180130091857_AddSmpConfigurationTable.designer.cs">
+      <DependentUpon>20180130091857_AddSmpConfigurationTable.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\DatastoreContextModelSnapshot.cs" />
     <Compile Include="Model\PMode\CertificateFindCriteria.cs" />
     <Compile Include="Model\PMode\InvalidPModeException.cs" />
