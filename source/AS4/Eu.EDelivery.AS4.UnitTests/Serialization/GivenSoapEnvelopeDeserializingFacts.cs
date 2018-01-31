@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Serialization;
 using Xunit;
 
@@ -13,14 +14,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
             [Fact]
             public async Task CanDeserializeEncryptedMessage()
             {
-                const string contentType = @"multipart/related; boundary=""MIMEBoundary_64ed729f813b10a65dfdc363e469e2206ff40c4aa5f4bd11""";
+                var message = await DeserializeAS4Message(Properties.Resources.as4_encrypted_message,
+                                                          @"multipart/related; boundary=""MIMEBoundary_64ed729f813b10a65dfdc363e469e2206ff40c4aa5f4bd11""");
 
-                using (var stream = new MemoryStream(Properties.Resources.as4_encrypted_message))
+                try
                 {
-                    var serializer = SerializerProvider.Default.Get(contentType);
-
-                    var message = await serializer.DeserializeAsync(stream, contentType, CancellationToken.None);
-
                     Assert.NotNull(message);
                     Assert.NotNull(message.EnvelopeDocument);
                     Assert.NotNull(message.SecurityHeader);
@@ -29,19 +27,20 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                     Assert.True(message.IsUserMessage);
                     Assert.Equal("30392f3c-bc9c-4a1f-ba5e-5d4d81382eef@CLT-SNEIRINCK", message.PrimaryUserMessage.MessageId);
                 }
+                finally
+                {
+                    message.CloseAttachments();
+                }
             }
 
             [Fact]
             public async Task CanDeserializeSignedMultihopErrorMessage()
             {
-                const string contentType = "multipart/related; boundary=\"=-M/sMGEhQK8RBNg/21Nf7Ig==\";\ttype=\"application/soap+xml\"";
+                var message = await DeserializeAS4Message(Properties.Resources.as4_multihop_message,
+                                                          "multipart/related; boundary=\"=-M/sMGEhQK8RBNg/21Nf7Ig==\";\ttype=\"application/soap+xml\"");
 
-                using (var stream = new MemoryStream(Properties.Resources.as4_multihop_message))
+                try
                 {
-                    var serializer = SerializerProvider.Default.Get(contentType);
-
-                    var message = await serializer.DeserializeAsync(stream, contentType, CancellationToken.None);
-
                     Assert.NotNull(message);
                     Assert.NotNull(message.EnvelopeDocument);
                     Assert.NotNull(message.SecurityHeader);
@@ -51,19 +50,19 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
 
                     Assert.Equal("1e022294-1809-4c9e-b98d-27ef93be5f13@TESTFX", message.GetPrimaryMessageId());
                 }
+                finally
+                {
+                    message.CloseAttachments();
+                }
             }
 
             [Fact]
             public async Task CanDeserializeSignedAndEncryptedFlameEnvelope()
             {
-                const string contentType = @"application/soap+xml";
+                var message = await DeserializeAS4Message(Properties.Resources.as4_flame_envelope, "application/soap+xml");
 
-                using (var stream = new MemoryStream(Properties.Resources.as4_flame_envelope))
+                try
                 {
-                    var serializer = SerializerProvider.Default.Get(contentType);
-
-                    var message = await serializer.DeserializeAsync(stream, contentType, CancellationToken.None);
-
                     Assert.NotNull(message);
                     Assert.NotNull(message.EnvelopeDocument);
                     Assert.NotNull(message.SecurityHeader);
@@ -73,18 +72,19 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                     Assert.True(message.IsUserMessage);
                     Assert.Equal("b495f1e1-ef0f-4da3-a311-0f5ab6ab27a9@mindertestbed.org", message.PrimaryUserMessage.MessageId);
                 }
+                finally
+                {
+                    message.CloseAttachments();
+                }
             }
 
             [Fact]
             public async Task CanDeserializeSignedHolodeckMessage()
             {
-                const string contentType = @"multipart/related;boundary=""MIMEBoundary_bcb27a6f984295aa9962b01ef2fb3e8d982de76d061ab23f""";
-
-                using (var stream = new MemoryStream(Properties.Resources.signed_holodeck_message))
+                var message = await DeserializeAS4Message(Properties.Resources.signed_holodeck_message,
+                                                          @"multipart/related;boundary=""MIMEBoundary_bcb27a6f984295aa9962b01ef2fb3e8d982de76d061ab23f""");
+                try
                 {
-                    var serializer = SerializerProvider.Default.Get(contentType);
-
-                    var message = await serializer.DeserializeAsync(stream, contentType, CancellationToken.None);
 
                     Assert.NotNull(message);
                     Assert.NotNull(message.EnvelopeDocument);
@@ -95,8 +95,20 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                     Assert.True(message.IsUserMessage);
                     Assert.Equal("cdcc838c-96ed-414a-b127-0937f5cd6549@CLT-FGHEYSELS.ad.codit.eu", message.PrimaryUserMessage.MessageId);
                 }
+                finally
+                {
+                    message.CloseAttachments();
+                }
             }
 
+            private static async Task<AS4Message> DeserializeAS4Message(byte[] message, string contentType)
+            {
+                var stream = new MemoryStream(message);
+
+                var serializer = SerializerProvider.Default.Get(contentType);
+
+                return await serializer.DeserializeAsync(stream, contentType, CancellationToken.None);
+            }
         }
     }
 }
