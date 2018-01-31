@@ -21,6 +21,8 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 
+        private static readonly HttpClient HttpClient = new HttpClient();
+
         private const string DocumentIdentifier = "urn:oasis:names:specification:ubl:schema:xsd:Invoice-2::Invoice##urn:www.cenbii.eu:transaction:biitrns010:ver2.0:extended:urn:www.peppol.eu:bis:peppol5a:ver2.0::2.1";
         private const string DocumentIdentifierScheme = "busdox-docid-qns";
 
@@ -70,8 +72,13 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
                 throw new InvalidOperationException("Given invalid 'ToParty'; requires a 'PartyId'");
             }
 
-            var config = ESensConfig.From(properties);
+            var smpUrl = CreateSmpServerUrl(party, ESensConfig.From(properties));
 
+            return await RetrieveSmpMetaData(smpUrl);
+        }
+
+        private static Uri CreateSmpServerUrl(Party party, ESensConfig config)
+        {
             string hashedPartyId = CalculateMD5Hash(party.PrimaryPartyId);
 
             var host = $"b-{hashedPartyId}.{config.SmlScheme}.{config.SmpServerDomainName}";
@@ -83,7 +90,7 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
                 Path = path
             };
 
-            return await RetrieveSmpMetaData(builder.Uri);
+            return builder.Uri;
         }
 
         private static string CalculateMD5Hash(string input)
@@ -109,8 +116,7 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
         {
             Logger.Info($"Contacting SMP server at {smpServerUri} to retrieve meta-data");
 
-            var client = new HttpClient();
-            HttpResponseMessage response = await client.GetAsync(smpServerUri);
+            HttpResponseMessage response = await HttpClient.GetAsync(smpServerUri);
 
             if (response.StatusCode != HttpStatusCode.OK)
             {
