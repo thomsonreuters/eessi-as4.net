@@ -4,6 +4,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
+using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Factories;
 using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Core;
@@ -14,7 +15,6 @@ using Eu.EDelivery.AS4.UnitTests.Common;
 using Eu.EDelivery.AS4.UnitTests.Extensions;
 using MimeKit;
 using Xunit;
-using MessageExchangePattern = Eu.EDelivery.AS4.Entities.MessageExchangePattern;
 
 namespace Eu.EDelivery.AS4.UnitTests.Model
 {
@@ -27,7 +27,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
         {
             IdentifierFactory.Instance.SetContext(StubConfig.Default);
         }
-       
+
         public class Empty
         {
             [Fact]
@@ -57,7 +57,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
             public async Task ThenAddAttachmentSucceeds()
             {
                 // Arrange
-                var submitMessage = new SubmitMessage {Payloads = new[] {new Payload(string.Empty)}};
+                var submitMessage = new SubmitMessage { Payloads = new[] { new Payload(string.Empty) } };
                 AS4Message sut = AS4Message.Empty;
 
                 // Act
@@ -75,7 +75,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
                 AS4Message sut = AS4Message.Empty;
 
                 // Act
-                await sut.AddAttachments(new Payload[0],  async payload => await Task.FromResult(Stream.Null));
+                await sut.AddAttachments(new Payload[0], async payload => await Task.FromResult(Stream.Null));
 
                 // Assert
                 Assert.False(sut.HasAttachments);
@@ -101,11 +101,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
         /// <summary>
         /// Testing if the AS4Message Succeeds
         /// </summary>
-        public class GivenAS4MessageSucceeds : GivenAS4MessageFacts
+        public class AS4MessageSerializeFacts : GivenAS4MessageFacts
         {
             [Theory]
             [InlineData("mpc")]
-            public void ThenSaveToMessageWithoutAttachmentsReturnsSoapMessage(string mpc)
+            public void ThenSerializeWithoutAttachmentsReturnsSoapMessage(string mpc)
             {
                 // Act
                 UserMessage userMessage = CreateUserMessage();
@@ -124,7 +124,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
 
             [Theory]
             [InlineData("mpc")]
-            public void ThenSaveToPullRequestCorrectlySerialized(string mpc)
+            public void ThenPullRequestCorrectlySerialized(string mpc)
             {
                 // Arrange
                 UserMessage userMessage = CreateUserMessage();
@@ -145,11 +145,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
 
             [Theory]
             [InlineData("mpc")]
-            public void ThenSaveToMessageWithAttachmentsReturnsMimeMessage(string messageContents)
+            public void ThenSerializeWithAttachmentsReturnsMimeMessage(string messageContents)
             {
                 // Arrange
                 var attachmentStream = new MemoryStream(Encoding.UTF8.GetBytes(messageContents));
-                var attachment = new Attachment("attachment-id") {Content = attachmentStream};
+                var attachment = new Attachment("attachment-id") { Content = attachmentStream };
 
                 UserMessage userMessage = CreateUserMessage();
 
@@ -204,7 +204,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
 
         protected UserMessage CreateUserMessage()
         {
-            return new UserMessage("message-id") {CollaborationInfo = {AgreementReference = new AgreementReference()}};
+            return new UserMessage("message-id") { CollaborationInfo = { AgreementReference = new AgreementReference() } };
         }
 
         protected XmlDocument SerializeSoapMessage(AS4Message message, MemoryStream soapStream)
