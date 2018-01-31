@@ -344,6 +344,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
             InMessage insertedReceipt = _databaseSpy.GetInMessageFor(m => m.EbmsRefToMessageId == ebmsMessageId);
             Assert.Equal(InStatus.Exception, InStatusUtils.Parse(insertedReceipt.Status));
+            Assert.NotEmpty(_databaseSpy.GetInExceptions(m => m.EbmsRefToMessageId == insertedReceipt.EbmsMessageId));
         }
 
         private async Task<HttpResponseMessage> TestSendNRReceiptWith(string messageId, Func<int, int> selection)
