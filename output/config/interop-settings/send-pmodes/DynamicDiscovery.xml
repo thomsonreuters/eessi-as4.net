@@ -5,7 +5,11 @@
   <Mep>OneWay</Mep>
   <MepBinding>Push</MepBinding>
   <DynamicDiscovery>
-    <SmpServerDomainName>isaitb.acc.edelivery.tech.ec.europa.eu</SmpServerDomainName>
+    <SmpProfile>Eu.EDelivery.AS4.Services.DynamicDiscovery.ESensDynamicDiscoveryProfile, Eu.EDelivery.AS4, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</SmpProfile>
+    <Settings>
+      <Setting key="SmlScheme">iso6523-actorid-upis</Setting>
+      <Setting key="SmpServerDomainName">isaitb.acc.edelivery.tech.ec.europa.eu</Setting>
+    </Settings>
   </DynamicDiscovery>
   <ReceiptHandling>
     <NotifyMessageProducer>true</NotifyMessageProducer>

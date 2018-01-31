@@ -82,7 +82,6 @@ namespace Eu.EDelivery.AS4.Transformers
             Error error = CreateSignalErrorMessage(exceptionEntity);
 
             AS4Message as4Message = AS4Message.Create(error, new SendingProcessingMode());
-            as4Message.EnvelopeDocument = await GetEnvelopeDocument(as4Message, cancellationTokken);
 
             return as4Message;
         }
@@ -100,23 +99,6 @@ namespace Eu.EDelivery.AS4.Transformers
         private static Task<T> GetPMode<T>(string pmode) where T : class
         {
             return AS4XmlSerializer.FromStringAsync<T>(pmode);
-        }
-
-        private static async Task<XmlDocument> GetEnvelopeDocument(
-            AS4Message as4Message,
-            CancellationToken cancellationToken)
-        {
-            using (var memoryStream = new MemoryStream())
-            {
-                ISerializer serializer = Registry.Instance.SerializerProvider.Get(Constants.ContentTypes.Soap);
-                await serializer.SerializeAsync(as4Message, memoryStream, cancellationToken);
-
-                var xmlDocument = new XmlDocument { PreserveWhitespace = true };
-                memoryStream.Position = 0;
-                xmlDocument.Load(memoryStream);
-
-                return xmlDocument;
-            }
         }
 
         protected virtual async Task<NotifyMessageEnvelope> CreateNotifyMessageEnvelope(AS4Message as4Message, Type receivedEntityType)

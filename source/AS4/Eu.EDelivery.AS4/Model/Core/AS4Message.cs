@@ -39,7 +39,7 @@ namespace Eu.EDelivery.AS4.Model.Core
 
         public string ContentType { get; set; }
 
-        public XmlDocument EnvelopeDocument { get; set; }
+        public XmlDocument EnvelopeDocument { get; private set; }
 
         // ReSharper disable once InconsistentNaming
         private bool? __hasMultiHopAttribute;

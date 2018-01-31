@@ -1,15 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel;
 using System.Configuration;
 using System.Linq;
-using System.Net;
-using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 using Eu.EDelivery.AS4.Builders;
-using Eu.EDelivery.AS4.Extensions;
+using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Services.DynamicDiscovery;
@@ -25,16 +22,9 @@ namespace Eu.EDelivery.AS4.Steps.Submit
     [Info("Perform Dynamic Discovery if required")]
     [Description("Contacts an SMP server and executes the configured SMP Profile if dynamic discovery is enabled. \n\r" +
         "The information returned from the SMP server is used to complete the sending PMode.")]
-    public class DynamicDiscoveryStep : IConfigStep
+    public class DynamicDiscoveryStep : IStep
     {
-        [Info("SMP profile")]
-        public string SmpProfile => _properties?.ReadMandatoryProperty("SmpProfile");
-
-        private IDictionary<string, string> _properties;
-
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
-
-        private IDynamicDiscoveryProfile _profile;
 
         /// <summary>
         /// Execute the step for a given <paramref name="messagingContext"/>.
@@ -49,66 +39,55 @@ namespace Eu.EDelivery.AS4.Steps.Submit
                 return StepResult.Success(messagingContext);
             }
 
-            Logger.Info($"DynamicDiscovery is enabled in Sending PMode - using {SmpProfile}");
+            string smpProfile = messagingContext.SendingPMode.DynamicDiscovery.SmpProfile;
+            Logger.Info($"DynamicDiscovery is enabled in Sending PMode - using {smpProfile}");
 
             var clonedPMode = (SendingProcessingMode)messagingContext.SendingPMode.Clone();
             clonedPMode.Id = $"{clonedPMode.Id}_SMP";
+            IDynamicDiscoveryProfile profile = ResolveDynamicDiscoveryProfile(smpProfile);
+            XmlDocument smpMetaData = await RetrieveSmpMetaData(profile, clonedPMode);
 
-            var smpServerUri = BuildSmpServerUri(clonedPMode);
-
-            XmlDocument smpMetaData = await RetrieveSmpMetaData(smpServerUri);
-
-            var sendingPMode = _profile.DecoratePModeWithSmpMetaData(clonedPMode, smpMetaData);
-
+            SendingProcessingMode sendingPMode = profile.DecoratePModeWithSmpMetaData(clonedPMode, smpMetaData);
             Logger.Info("Sending PMode completed with SMP metadata");
-
             ValidatePMode(sendingPMode);
 
             messagingContext.SendingPMode = sendingPMode;
             messagingContext.SubmitMessage.PMode = sendingPMode;
-
             return StepResult.Success(messagingContext);
         }
 
-        private Uri BuildSmpServerUri(SendingProcessingMode clonedPMode)
+        private static IDynamicDiscoveryProfile ResolveDynamicDiscoveryProfile(string smpProfile)
+        {
+            if (string.IsNullOrEmpty(smpProfile))
+            {
+                return new LocalDynamicDiscoveryProfile();
+            }
+
+            return GenericTypeBuilder.FromType(smpProfile).Build<IDynamicDiscoveryProfile>();
+        }
+
+        private static async Task<XmlDocument> RetrieveSmpMetaData(
+            IDynamicDiscoveryProfile profile, 
+            SendingProcessingMode clonedPMode)
         {
             if (clonedPMode.DynamicDiscovery == null)
             {
                 throw new ConfigurationErrorsException(@"The Sending PMode requires a DynamicDiscovery element");
             }
 
-            if (clonedPMode.MessagePackaging?.PartyInfo?.ToParty?.PartyIds.Any() == false)
+            if (clonedPMode.MessagePackaging?.PartyInfo?.ToParty?.PartyIds.Any() != true)
             {
                 throw new ConfigurationErrorsException("The Sending PMode must contain a ToParty Id");
             }
 
-            var toPartyId = clonedPMode.MessagePackaging.PartyInfo.ToParty.PartyIds.First().Id;
-            var dynamicDiscoveryConfig = clonedPMode.DynamicDiscovery;
+            Party toParty = clonedPMode.MessagePackaging.PartyInfo.ToParty;
+            Dictionary<string, string> customProperties = 
+                clonedPMode.DynamicDiscovery.Settings?.ToDictionary(s => s.Key, s => s.Value) 
+                    ?? new Dictionary<string, string>();
 
-            return _profile.CreateSmpServerUri(toPartyId, dynamicDiscoveryConfig);
-        }
-
-        private static async Task<XmlDocument> RetrieveSmpMetaData(Uri smpServerUri)
-        {
-            Logger.Info($"Contacting SMP server at {smpServerUri} to retrieve meta-data");
-
-            HttpClient client = new HttpClient();
-            var response = await client.GetAsync(smpServerUri);
-
-            if (response.StatusCode != HttpStatusCode.OK)
-            {
-                throw new HttpListenerException((int)response.StatusCode, "Unexpected result returned from SMP Service");
-            }
-
-            if (response.Content.Headers.ContentType.MediaType.IndexOf("xml", StringComparison.OrdinalIgnoreCase) == -1)
-            {
-                throw new NotSupportedException($"An XML response was expected from the SMP server instead of {response.Content.Headers.ContentType.MediaType}");
-            }
-
-            var result = new XmlDocument();
-            result.Load(await response.Content.ReadAsStreamAsync());
-
-            return result;
+            return await profile.RetrieveSmpMetaData(
+                party: toParty, 
+                properties: customProperties);
         }
 
         private static void ValidatePMode(SendingProcessingMode pmode)
@@ -124,16 +103,5 @@ namespace Eu.EDelivery.AS4.Steps.Submit
                     throw new ConfigurationErrorsException(errorMessage);
                 });
         }
-
-        /// <summary>
-        /// Configure the step with a given Property Dictionary
-        /// </summary>
-        /// <param name="properties"></param>
-        public void Configure(IDictionary<string, string> properties)
-        {
-            _properties = properties;
-            _profile = GenericTypeBuilder.FromType(SmpProfile).Build<IDynamicDiscoveryProfile>();
-        }
-
     }
 }

@@ -53,6 +53,18 @@ namespace Eu.EDelivery.AS4.Model.Core
         }
 
         /// <summary>
+        /// Gets the primary party identifier of this <see cref="Party"/>'s <see cref="PartyId"/>.
+        /// </summary>
+        /// <value>The primary party identifier.</value>
+        public string PrimaryPartyId => PartyIds?.FirstOrDefault()?.Id;
+
+        /// <summary>
+        /// Gets the type of the primary party of this <see cref="Party"/>'s <see cref="PartyId"/>.
+        /// </summary>
+        /// <value>The type of the primary party.</value>
+        public string PrimaryPartyType => PartyIds?.FirstOrDefault()?.Type;
+
+        /// <summary>
         /// Indicates whether the current object is equal to another object of the same type.
         /// </summary>
         /// <returns>

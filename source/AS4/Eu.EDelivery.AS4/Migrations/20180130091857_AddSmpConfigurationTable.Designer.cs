@@ -8,13 +8,13 @@ using Eu.EDelivery.AS4.Common;
 namespace Eu.EDelivery.AS4.Migrations
 {
     [DbContext(typeof(DatastoreContext))]
-    partial class DatastoreContextModelSnapshot : ModelSnapshot
+    [Migration("20180130091857_AddSmpConfigurationTable")]
+    partial class AddSmpConfigurationTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
             modelBuilder
-                .HasAnnotation("ProductVersion", "1.1.2")
-                .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                .HasAnnotation("ProductVersion", "1.1.2");
 
             modelBuilder.Entity("Eu.EDelivery.AS4.Entities.InException", b =>
                 {

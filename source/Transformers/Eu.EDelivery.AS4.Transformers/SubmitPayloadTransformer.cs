@@ -11,6 +11,7 @@ using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Model.Submit;
 using Eu.EDelivery.AS4.Repositories;
+using Eu.EDelivery.AS4.Strategies.Retriever;
 
 namespace Eu.EDelivery.AS4.Transformers
 {
@@ -76,7 +77,7 @@ namespace Eu.EDelivery.AS4.Transformers
                     {
                         Id = payloadId,
                         MimeType = message.ContentType,
-                        Location = "file:///" + payloadPath
+                        Location = TempFilePayloadRetriever.Key + payloadPath
                     }
                 }
             };
