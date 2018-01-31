@@ -315,13 +315,15 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             AssertIfStatusOfOutMessageIs(expectedId, OutStatus.Nack);
             AssertIfInMessageExistsForSignalMessage(expectedId);
         }
-
        
         [Fact]
         public async Task ThenResponseWithAccepted_IfNRReceiptHasValidHashes()
         {
+            // Arrange
+            string ebmsMessageId = Guid.NewGuid().ToString();
+
             // Act
-            HttpResponseMessage response = await TestSendNRReceiptWith(hash => hash);
+            HttpResponseMessage response = await TestSendNRReceiptWith(ebmsMessageId, hash => hash);
 
             // Assert
             Assert.Equal(HttpStatusCode.Accepted, response.StatusCode);
@@ -331,22 +333,26 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         public async Task ThenResponseWithError_IfNRReceiptHasInvalidHashes()
         {
             // Arrange
+            string ebmsMessageId = Guid.NewGuid().ToString();
             int CorruptHash(int hash) => hash + 10;
 
             // Act
-            HttpResponseMessage response = await TestSendNRReceiptWith(CorruptHash);
+            HttpResponseMessage response = await TestSendNRReceiptWith(ebmsMessageId, CorruptHash);
 
             // Assert
             Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
+
+            InMessage insertedReceipt = _databaseSpy.GetInMessageFor(m => m.EbmsRefToMessageId == ebmsMessageId);
+            Assert.Equal(InStatus.Exception, InStatusUtils.Parse(insertedReceipt.Status));
         }
 
-        private async Task<HttpResponseMessage> TestSendNRReceiptWith(Func<int, int> selection)
+        private async Task<HttpResponseMessage> TestSendNRReceiptWith(string messageId, Func<int, int> selection)
         {
             // Arrange
             var nrrPMode = new SendingProcessingMode {Id = "verify-nrr", ReceiptHandling = {VerifyNRR = true}};
             X509Certificate2 cert = new StubCertificateRepository().GetStubCertificate();
 
-            AS4Message signedUserMessage = SignedUserMessage(nrrPMode, cert);
+            AS4Message signedUserMessage = SignedUserMessage(messageId, nrrPMode, cert);
             InsertRelatedSignedUserMessage(nrrPMode, signedUserMessage);
 
             AS4Message signedReceipt = SignedNRReceipt(cert, signedUserMessage, selection);
@@ -356,9 +362,9 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
         }
 
-        private static AS4Message SignedUserMessage(SendingProcessingMode nrrPMode, X509Certificate2 cert)
+        private static AS4Message SignedUserMessage(string messageId, SendingProcessingMode nrrPMode, X509Certificate2 cert)
         {
-            AS4Message userMessage = AS4Message.Create(new UserMessage("message-id"), nrrPMode);
+            AS4Message userMessage = AS4Message.Create(new UserMessage(messageId), nrrPMode);
             userMessage.AddAttachment(new Attachment("payload")
             {
                 Content = new MemoryStream(Encoding.UTF8.GetBytes("some content!")),
