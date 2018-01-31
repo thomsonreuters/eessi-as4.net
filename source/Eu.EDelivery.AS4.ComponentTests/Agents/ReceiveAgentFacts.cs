@@ -4,10 +4,12 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Core;
+using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.ComponentTests.Common;
 using Eu.EDelivery.AS4.ComponentTests.Extensions;
 using Eu.EDelivery.AS4.Entities;
@@ -21,6 +23,8 @@ using Eu.EDelivery.AS4.Xml;
 using Xunit;
 using static Eu.EDelivery.AS4.ComponentTests.Properties.Resources;
 using Error = Eu.EDelivery.AS4.Model.Core.Error;
+using NonRepudiationInformation = Eu.EDelivery.AS4.Model.Core.NonRepudiationInformation;
+using MessagePartNRInformation = Eu.EDelivery.AS4.Model.Core.MessagePartNRInformation;
 using Parameter = Eu.EDelivery.AS4.Model.PMode.Parameter;
 using PartyId = Eu.EDelivery.AS4.Model.Core.PartyId;
 using Receipt = Eu.EDelivery.AS4.Model.Core.Receipt;
@@ -213,6 +217,13 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             Assert.Equal(Operation.ToBeDelivered, OperationUtils.Parse(receivedUserMessage.Operation));
         }
 
+        private InMessage GetInsertedUserMessageFor(AS4Message receivedAS4Message)
+        {
+            return
+                _databaseSpy.GetInMessageFor(
+                    i => i.EbmsMessageId.Equals(receivedAS4Message.PrimarySignalMessage.RefToMessageId));
+        }
+
         [Fact]
         public async Task ThenInMessageOperationIsToBeForwarded()
         {
@@ -251,13 +262,6 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             // Assert
             Assert.Equal(HttpStatusCode.Accepted, response.StatusCode);
             Assert.Empty(await response.Content.ReadAsStringAsync());
-        }
-
-        private InMessage GetInsertedUserMessageFor(AS4Message receivedAS4Message)
-        {
-            return
-                _databaseSpy.GetInMessageFor(
-                    i => i.EbmsMessageId.Equals(receivedAS4Message.PrimarySignalMessage.RefToMessageId));
         }
 
         #endregion
@@ -310,6 +314,99 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
             AssertIfStatusOfOutMessageIs(expectedId, OutStatus.Nack);
             AssertIfInMessageExistsForSignalMessage(expectedId);
+        }
+
+       
+        [Fact]
+        public async Task ThenResponseWithAccepted_IfNRReceiptHasValidHashes()
+        {
+            // Act
+            HttpResponseMessage response = await TestSendNRReceiptWith(hash => hash);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.Accepted, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task ThenResponseWithError_IfNRReceiptHasInvalidHashes()
+        {
+            // Arrange
+            int CorruptHash(int hash) => hash + 10;
+
+            // Act
+            HttpResponseMessage response = await TestSendNRReceiptWith(CorruptHash);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
+        }
+
+        private async Task<HttpResponseMessage> TestSendNRReceiptWith(Func<int, int> selection)
+        {
+            // Arrange
+            var nrrPMode = new SendingProcessingMode {Id = "verify-nrr", ReceiptHandling = {VerifyNRR = true}};
+            X509Certificate2 cert = new StubCertificateRepository().GetStubCertificate();
+
+            AS4Message signedUserMessage = SignedUserMessage(nrrPMode, cert);
+            InsertRelatedSignedUserMessage(nrrPMode, signedUserMessage);
+
+            AS4Message signedReceipt = SignedNRReceipt(cert, signedUserMessage, selection);
+
+            // Act
+            return await StubSender.SendAS4Message(_receiveAgentUrl, signedReceipt);
+
+        }
+
+        private static AS4Message SignedUserMessage(SendingProcessingMode nrrPMode, X509Certificate2 cert)
+        {
+            AS4Message userMessage = AS4Message.Create(new UserMessage("message-id"), nrrPMode);
+            userMessage.AddAttachment(new Attachment("payload")
+            {
+                Content = new MemoryStream(Encoding.UTF8.GetBytes("some content!")),
+                ContentType = "text/plain"
+            });
+
+            return AS4MessageUtils.SignWithCertificate(userMessage, cert);
+        }
+
+        private void InsertRelatedSignedUserMessage(IPMode nrrPMode, AS4Message signedUserMessage)
+        {
+            string location = Registry.Instance.MessageBodyStore
+                .SaveAS4Message(_as4Msh.GetConfiguration().OutMessageStoreLocation, signedUserMessage);
+
+            var outMessage = new OutMessage(signedUserMessage.GetPrimaryMessageId())
+            {
+                ContentType = signedUserMessage.ContentType,
+                MessageLocation = location,
+
+            };
+            outMessage.SetPModeInformation(nrrPMode);
+
+            _databaseSpy.InsertOutMessage(outMessage);
+        }
+
+        private static AS4Message SignedNRReceipt(X509Certificate2 cert, AS4Message signedUserMessage, Func<int, int> selection)
+        {
+            IEnumerable<MessagePartNRInformation> hashes = new NonRepudiationInformationBuilder()
+                .WithSignedReferences(signedUserMessage.SecurityHeader.GetReferences())
+                .Build()
+                .MessagePartNRInformation.Select(i => new MessagePartNRInformation
+                {
+                    Reference = new Reference
+                    {
+                        DigestValue = i.Reference.DigestValue.Select(v => (byte) selection(v)).ToArray(),
+                        DigestMethod = i.Reference.DigestMethod,
+                        Transforms = i.Reference.Transforms,
+                        URI = i.Reference.URI
+                    }
+                });
+
+            AS4Message receipt = AS4Message.Create(new Receipt
+            {
+                RefToMessageId = signedUserMessage.GetPrimaryMessageId(),
+                NonRepudiationInformation = new NonRepudiationInformation {MessagePartNRInformation = hashes.ToList()}
+            });
+
+            return AS4MessageUtils.SignWithCertificate(receipt, cert);
         }
 
         [Fact]
