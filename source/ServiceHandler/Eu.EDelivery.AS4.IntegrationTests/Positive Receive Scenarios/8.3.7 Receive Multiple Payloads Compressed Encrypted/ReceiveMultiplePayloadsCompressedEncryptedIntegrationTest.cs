@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Eu.EDelivery.AS4.IntegrationTests.Common;
 using Xunit;
 
@@ -10,7 +11,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Receive_Scenarios._8._3._7_
     /// </summary>
     public class ReceiveMultiplePayloadsCompressedEncryptedIntegrationTest : IntegrationTestTemplate
     {
-        [Retry(maxRetries: 2)]
+        [Fact]
         public void ThenReceiveMultiplePayloadsSignedSucceeds()
         {
             // Before
@@ -23,15 +24,13 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Receive_Scenarios._8._3._7_
             Holodeck.CopyMessageToHolodeckA("8.3.7-sample.mmd");
 
             // Assert
-           Assert.True(PollingAt(Holodeck.HolodeckALocations.InputPath, fileCount: 3));
+           Assert.True(PollingAt(AS4FullInputPath, fileCount: 3), "No DeliverMessage and payloads found on AS4.NET Component");
         }
 
         protected override void ValidatePolledFiles(IEnumerable<FileInfo> files)
         {
-            // Assert
-            Holodeck.AssertPayloadsOnHolodeckA(new DirectoryInfo(AS4FullInputPath).GetFiles("*.jpg"));
-            Holodeck.AssertXmlFilesOnHolodeckA(new DirectoryInfo(AS4FullInputPath).GetFiles("*.xml"));
-            Holodeck.AssertReceiptOnHolodeckA();
+            Assert.All(files.Where(f => f.Extension == ".jpg"), f => Assert.Equal(f.Length, Holodeck.HolodeckAPayload.Length));
+            Assert.Equal(files.Count(f => f.Extension == ".xml"), 2);
         }
     }
 }

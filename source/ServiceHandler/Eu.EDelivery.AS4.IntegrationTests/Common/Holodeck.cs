@@ -25,6 +25,8 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
         private readonly DirectoryInfo _holodeckAInputDirectory =
             new DirectoryInfo(HolodeckALocations.InputPath);
 
+        public FileInfo HolodeckAPayload => new FileInfo(HolodeckALocations.JpegPayloadPath);
+
         /// <summary>
         /// Copy the right PMode configuration to Holodeck B
         /// </summary>

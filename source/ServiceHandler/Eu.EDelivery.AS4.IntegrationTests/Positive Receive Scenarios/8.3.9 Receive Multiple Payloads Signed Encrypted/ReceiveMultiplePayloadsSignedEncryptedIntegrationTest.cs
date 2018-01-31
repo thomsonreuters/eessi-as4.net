@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Eu.EDelivery.AS4.IntegrationTests.Common;
 using Xunit;
 
@@ -23,15 +24,14 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Receive_Scenarios._8._3._9_
             Holodeck.CopyMessageToHolodeckA("8.3.9-sample.mmd");
 
             // Assert
-            Assert.True(PollingAt(AS4FullInputPath, fileCount: 3), "Receive Multiple Payloads Encrypted Integration Test failed");
+            Assert.True(PollingAt(Holodeck.HolodeckALocations.InputPath), "No Receipt found at Holodeck A");
+            Assert.True(PollingAt(AS4FullInputPath, fileCount: 3, validation: ValidateDelivery), "Receive Multiple Payloads Encrypted Integration Test failed");
         }
 
-        protected override void ValidatePolledFiles(IEnumerable<FileInfo> files)
+        private void ValidateDelivery(IEnumerable<FileInfo> files)
         {
-            // Assert
-            Holodeck.AssertPayloadsOnHolodeckA(new DirectoryInfo(AS4FullInputPath).GetFiles("*.jpg"));
-            Holodeck.AssertXmlFilesOnHolodeckA(new DirectoryInfo(AS4FullInputPath).GetFiles("*.xml"));
-            Holodeck.AssertReceiptOnHolodeckA();
+            Assert.All(files.Where(f => f.Extension == ".jpg"), f => Assert.Equal(f.Length, Holodeck.HolodeckAPayload.Length));
+            Assert.Equal(files.Count(f => f.Extension == ".xml"), 2);
         }
     }
 }

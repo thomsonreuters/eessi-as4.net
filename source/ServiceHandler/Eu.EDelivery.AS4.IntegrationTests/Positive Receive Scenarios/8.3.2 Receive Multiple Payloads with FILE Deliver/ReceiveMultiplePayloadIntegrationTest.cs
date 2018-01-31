@@ -25,27 +25,14 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Receive_Scenarios._8._3._2_
             Holodeck.CopyMessageToHolodeckA("8.3.2-sample.mmd");
 
             // Assert
-            Assert.True(PollingAt(AS4FullInputPath, fileCount: 2, validation: ValidateOnAS4InputPath));
-            Assert.True(PollingAt(Holodeck.HolodeckALocations.InputPath, validation: _ => Holodeck.AssertReceiptOnHolodeckA()));
+            Assert.True(PollingAt(Holodeck.HolodeckALocations.InputPath), "No Receipt found at Holodeck A");
+            Assert.True(PollingAt(AS4FullInputPath, fileCount: 3, validation: ValidateDelivery), "No DeliverMessage and Payloads found at AS4.NET Component");
         }
 
-        private static void ValidateOnAS4InputPath(IEnumerable<FileInfo> files)
+        private void ValidateDelivery(IEnumerable<FileInfo> files)
         {
-            AssertPayloads(new DirectoryInfo(AS4FullInputPath).GetFiles("*.jpg"));
-            AssertXmlFiles(new DirectoryInfo(AS4FullInputPath).GetFiles("*.xml"));
-        }
-
-        private static void AssertPayloads(IEnumerable<FileInfo> files)
-        {
-            var sendPayload = new FileInfo(Holodeck.HolodeckALocations.JpegPayloadPath);
-
-            Assert.All(files, f => Assert.Equal(sendPayload.Length, f.Length));
-        }
-
-        private static void AssertXmlFiles(IEnumerable<FileInfo> files)
-        {
-            Assert.Equal(2, files.Count());
-            Console.WriteLine($@"There're {files.Count()} incoming Xml Documents found");
+            Assert.All(files.Where(f => f.Extension == ".jpg"), f => Assert.Equal(f.Length, Holodeck.HolodeckAPayload.Length));
+            Assert.Equal(files.Count(f => f.Extension == ".xml"), 2);
         }
     }
 }

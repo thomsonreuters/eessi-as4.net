@@ -232,7 +232,6 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
                 i += 100;
             }
 
-            StopApplication();
             return areFilesFound;
         }
 
