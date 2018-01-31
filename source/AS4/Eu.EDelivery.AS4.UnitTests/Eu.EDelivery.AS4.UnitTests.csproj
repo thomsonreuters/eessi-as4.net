@@ -278,6 +278,7 @@
     <Compile Include="Steps\Send\GivenLogReceivedProcessingErrorStepFacts.cs" />
     <Compile Include="Steps\Send\GivenSetMessageToBeSentStepFacts.cs" />
     <Compile Include="Steps\Submit\GivenCreateAS4MessageStepFacts.cs" />
+    <Compile Include="Strategies\Retriever\GivenTempFilePayloadRetrieverFacts.cs" />
     <Compile Include="Transformers\GivenSubmitPayloadTransformerFacts.cs" />
     <Compile Include="Transformers\StubSubmitTransformer.cs" />
     <Compile Include="Steps\StubAS4MessageStep.cs" />

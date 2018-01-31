@@ -45,6 +45,7 @@ namespace Eu.EDelivery.AS4.Common
         {
             PayloadRetrieverProvider = new PayloadRetrieverProvider();
             PayloadRetrieverProvider.Accept(p => p.Location.StartsWith(FilePayloadRetriever.Key, StringComparison.OrdinalIgnoreCase), new FilePayloadRetriever());
+            PayloadRetrieverProvider.Accept(p => p.Location.StartsWith(TempFilePayloadRetriever.Key, StringComparison.OrdinalIgnoreCase), new TempFilePayloadRetriever());
             PayloadRetrieverProvider.Accept(p => p.Location.StartsWith(FtpPayloadRetriever.Key, StringComparison.OrdinalIgnoreCase), new FtpPayloadRetriever());
             PayloadRetrieverProvider.Accept(p => p.Location.StartsWith(HttpPayloadRetriever.Key, StringComparison.OrdinalIgnoreCase), new HttpPayloadRetriever());
         }
