@@ -24,8 +24,8 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Receive_Scenarios._8._3._9_
             Holodeck.CopyMessageToHolodeckA("8.3.9-sample.mmd");
 
             // Assert
-            Assert.True(PollingAt(Holodeck.HolodeckALocations.InputPath), "No Receipt found at Holodeck A");
             Assert.True(PollingAt(AS4FullInputPath, fileCount: 3, validation: ValidateDelivery), "Receive Multiple Payloads Encrypted Integration Test failed");
+            Assert.True(PollingAt(Holodeck.HolodeckALocations.InputPath), "No Receipt found at Holodeck A");
         }
 
         private void ValidateDelivery(IEnumerable<FileInfo> files)

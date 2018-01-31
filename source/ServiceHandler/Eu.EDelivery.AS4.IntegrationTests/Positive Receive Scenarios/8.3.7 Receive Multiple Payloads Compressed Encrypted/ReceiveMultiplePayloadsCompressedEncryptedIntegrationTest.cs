@@ -25,6 +25,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Receive_Scenarios._8._3._7_
 
             // Assert
            Assert.True(PollingAt(AS4FullInputPath, fileCount: 3), "No DeliverMessage and payloads found on AS4.NET Component");
+            Assert.True(PollingAt(Holodeck.HolodeckALocations.InputPath), "No Receipt found at Holodeck A");
         }
 
         protected override void ValidatePolledFiles(IEnumerable<FileInfo> files)

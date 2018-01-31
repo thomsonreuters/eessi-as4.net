@@ -139,27 +139,6 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
         }
 
         /// <summary>
-        /// Asserts the payloads on holodeck a.
-        /// </summary>
-        /// <param name="files">The files.</param>
-        public void AssertPayloadsOnHolodeckA(IEnumerable<FileInfo> files)
-        {
-            var sendPayload = new FileInfo(HolodeckALocations.JpegPayloadPath);
-
-            Assert.All(files, f => Assert.Equal(sendPayload.Length, f.Length));
-        }
-
-        /// <summary>
-        /// Asserts the XML files on holodeck a.
-        /// </summary>
-        /// <param name="files">The files.</param>
-        public void AssertXmlFilesOnHolodeckA(IEnumerable<FileInfo> files)
-        {
-            Assert.Equal(2, files.Count());
-            Console.WriteLine($@"There're {files.Count()} incoming Xml Documents found");
-        }
-
-        /// <summary>
         /// Asserts the receipt on holodeck b.
         /// </summary>
         /// <param name="files">The files.</param>
