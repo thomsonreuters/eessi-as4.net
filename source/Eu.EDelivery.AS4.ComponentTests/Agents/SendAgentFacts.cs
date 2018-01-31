@@ -1,8 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Security.Cryptography.X509Certificates;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.ComponentTests.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Factories;
@@ -11,14 +15,18 @@ using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Steps.Receive;
+using Eu.EDelivery.AS4.TestUtils;
 using Eu.EDelivery.AS4.TestUtils.Stubs;
 using Xunit;
 using MessageExchangePattern = Eu.EDelivery.AS4.Entities.MessageExchangePattern;
+using X509Certificate2 = System.Security.Cryptography.X509Certificates.X509Certificate2;
 
 namespace Eu.EDelivery.AS4.ComponentTests.Agents
 {
     public class SendAgentFacts : ComponentTestTemplate
     {
+        private const string StubListenLocation = "http://localhost:9997/msh/";
+
         private readonly AS4Component _as4Msh;
         private readonly DatabaseSpy _databaseSpy;
 
@@ -34,15 +42,106 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             _as4Msh.Dispose();
         }
 
+        [Fact]
+        public async Task ThenUpdateReceiptWithReceived_IfNRReceiptHasValidHashes()
+        {
+            // Arrange
+            string ebmsMessageId = Guid.NewGuid().ToString();
+
+            // Act
+            await TestReceiveNRReceiptWith(ebmsMessageId, hash => hash);
+
+            // Assert
+            InMessage receipt = _databaseSpy.GetInMessageFor(m => m.EbmsRefToMessageId == ebmsMessageId);
+            Assert.Equal(InStatus.Received, InStatusUtils.Parse(receipt.Status));
+        }
+
+        [Fact]
+        public async Task ThenUpdateReceiptWithException_IfNRReceiptHasInvalidHashes()
+        {
+            // Arrange
+            string ebmsMessageId = Guid.NewGuid().ToString();
+            int CorruptHash(int hash) => hash + 10;
+
+            // Act
+            await TestReceiveNRReceiptWith(ebmsMessageId, CorruptHash);
+
+            // Assert
+            Assert.NotEmpty(_databaseSpy.GetInExceptions(m => m.EbmsRefToMessageId == ebmsMessageId));
+        }
+
+        public async Task TestReceiveNRReceiptWith(string ebmsMessageId, Func<int, int> selection)
+        {
+            SendingProcessingMode nrrPMode = VerifyNRReceiptsPMode();
+            X509Certificate2 cert = new StubCertificateRepository().GetStubCertificate();
+
+            AS4Message userMessage = SignedUserMessage(ebmsMessageId, nrrPMode, cert);
+            AS4Message nrReceipt = SignedNRReceipt(cert, userMessage, selection);
+
+            var waitHandle = new ManualResetEvent(initialState: false);
+            StubHttpServer.StartServer(StubListenLocation, new AS4MessageResponseHandler(nrReceipt).WriteResponse, waitHandle);
+
+            PutMessageToSend(userMessage, nrrPMode, actAsIntermediaryMsh: false);
+            waitHandle.WaitOne();
+
+            await Task.Delay(TimeSpan.FromSeconds(1));
+        }
+
+        private static SendingProcessingMode VerifyNRReceiptsPMode()
+        {
+            return new SendingProcessingMode
+            {
+                Id = "verify-nrr",
+                PushConfiguration = new PushConfiguration {Protocol = {Url = StubListenLocation}},
+                ReceiptHandling = {VerifyNRR = true}
+            };
+        }
+
+        private static AS4Message SignedUserMessage(string messageId, SendingProcessingMode nrrPMode, X509Certificate2 cert)
+        {
+            AS4Message userMessage = AS4Message.Create(new UserMessage(messageId), nrrPMode);
+            userMessage.AddAttachment(new Attachment("payload")
+            {
+                Content = new MemoryStream(Encoding.UTF8.GetBytes("some content!")),
+                ContentType = "text/plain"
+            });
+
+            return AS4MessageUtils.SignWithCertificate(userMessage, cert);
+        }
+
+        private static AS4Message SignedNRReceipt(X509Certificate2 cert, AS4Message signedUserMessage, Func<int, int> selection)
+        {
+            IEnumerable<MessagePartNRInformation> hashes = new NonRepudiationInformationBuilder()
+                .WithSignedReferences(signedUserMessage.SecurityHeader.GetReferences())
+                .Build()
+                .MessagePartNRInformation.Select(i => new MessagePartNRInformation
+                {
+                    Reference = new Reference
+                    {
+                        DigestValue = i.Reference.DigestValue.Select(v => (byte) selection(v)).ToArray(),
+                        DigestMethod = i.Reference.DigestMethod,
+                        Transforms = i.Reference.Transforms,
+                        URI = i.Reference.URI
+                    }
+                });
+
+            AS4Message receipt = AS4Message.Create(new Receipt
+            {
+                RefToMessageId = signedUserMessage.GetPrimaryMessageId(),
+                NonRepudiationInformation = new NonRepudiationInformation { MessagePartNRInformation = hashes.ToList() }
+            });
+
+            return AS4MessageUtils.SignWithCertificate(receipt, cert);
+        }
+
         [Theory]
         [InlineData(true, OutStatus.Sent, Operation.ToBeForwarded)]
         [InlineData(false, OutStatus.Ack, Operation.ToBeNotified)]
         public async Task CorrectHandlingOnSynchronouslyReceivedMultiHopReceipt(bool actAsIntermediaryMsh, OutStatus expectedOutStatus, Operation expectedSignalOperation)
         {
             const string messageId = "multihop-message-id";
-            const string sendToUrl = "http://localhost:9997/msh/";
 
-            var pmode = CreateMultihopPMode(sendToUrl);
+            var pmode = CreateMultihopPMode(StubListenLocation);
 
             var as4Message = CreateMultiHopMessage(messageId, pmode);
 
@@ -50,7 +149,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
             AS4MessageResponseHandler r = new AS4MessageResponseHandler(CreateMultiHopReceiptFor(as4Message));
 
-            StubHttpServer.StartServer(sendToUrl, r.WriteResponse, signal);
+            StubHttpServer.StartServer(StubListenLocation, r.WriteResponse, signal);
 
             PutMessageToSend(as4Message, pmode, actAsIntermediaryMsh);
 
