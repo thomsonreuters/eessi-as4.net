@@ -74,7 +74,7 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
 
             string hashedPartyId = CalculateMD5Hash(party.PrimaryPartyId);
 
-            var host = $"b-{hashedPartyId}.{DocumentIdentifierScheme}.{config.SmpServerDomainName}";
+            var host = $"b-{hashedPartyId}.{config.SmlScheme}.{config.SmpServerDomainName}";
             var path = $"{config.SmlScheme}::{party.PrimaryPartyId}/services/{DocumentIdentifierScheme}::{DocumentIdentifier}";
 
             var builder = new UriBuilder
