@@ -72,7 +72,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             Assert.NotNull(AS4XmlSerializer.FromString<ReceivingProcessingMode>(inMessage.PMode));
 
             Assert.NotNull(outMessage);
-            Assert.Equal(Operation.ToBeSent, OperationUtils.Parse(outMessage.Operation));
+            Assert.Equal(Operation.ToBeProcessed, OperationUtils.Parse(outMessage.Operation));
             Assert.NotNull(AS4XmlSerializer.FromString<SendingProcessingMode>(outMessage.PMode));
         }
 
@@ -106,7 +106,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             Assert.NotNull(AS4XmlSerializer.FromString<ReceivingProcessingMode>(primaryInMessage.PMode));
 
             Assert.NotNull(primaryOutMessage);
-            Assert.Equal(Operation.ToBeSent, OperationUtils.Parse(primaryOutMessage.Operation));
+            Assert.Equal(Operation.ToBeProcessed, OperationUtils.Parse(primaryOutMessage.Operation));
             Assert.NotNull(AS4XmlSerializer.FromString<SendingProcessingMode>(primaryOutMessage.PMode));
 
             Assert.Null(secondaryOutMessage);
@@ -142,7 +142,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             var sendingPMode = AS4XmlSerializer.FromString<SendingProcessingMode>(outMessage.PMode);
 
             Assert.NotNull(sendingPMode);
-            Assert.Equal(Operation.ToBeSent, OperationUtils.Parse(outMessage.Operation));
+            Assert.Equal(Operation.ToBeProcessed, OperationUtils.Parse(outMessage.Operation));
             Assert.Equal(MessageExchangePattern.Pull, MessageExchangePatternUtils.Parse(outMessage.MEP));
             Assert.Equal(sendingPMode.MessagePackaging.Mpc, outMessage.Mpc);
         }
@@ -165,7 +165,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             Assert.True(waiter.WaitOne(TimeSpan.FromSeconds(15)));
 
             // Wait a little bit so that the Message can be processed.
-            await Task.Delay(TimeSpan.FromSeconds(3));
+            await Task.Delay(TimeSpan.FromSeconds(5));
 
             // Assert if an OutMessage is created with the correct status and operation.
             var inMessage = _databaseSpy.GetInMessageFor(m => m.EbmsMessageId == messageId);
@@ -183,7 +183,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             var sendingPMode = AS4XmlSerializer.FromString<SendingProcessingMode>(outMessage.PMode);
 
             Assert.NotNull(sendingPMode);
-            Assert.Equal(Operation.ToBeSent, OperationUtils.Parse(outMessage.Operation));
+            Assert.Equal(Operation.ToBeProcessed, OperationUtils.Parse(outMessage.Operation));
             Assert.Equal(MessageExchangePattern.Push, MessageExchangePatternUtils.Parse(outMessage.MEP));
             Assert.Equal(sendingPMode.MessagePackaging.Mpc, outMessage.Mpc);
 
