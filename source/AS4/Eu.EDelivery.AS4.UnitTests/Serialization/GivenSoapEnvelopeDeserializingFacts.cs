@@ -1,6 +1,8 @@
 ﻿using System.IO;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Serialization;
 using Xunit;
@@ -9,7 +11,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
 {
     public class GivenSoapEnvelopeDeserializingFacts
     {
-        public class DeserializingSucceedsFacts
+        public class DeserializingSucceedsFacts : GivenSoapEnvelopeDeserializingFacts
         {
             [Fact]
             public async Task CanDeserializeEncryptedMessage()
@@ -108,6 +110,25 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                 var serializer = SerializerProvider.Default.Get(contentType);
 
                 return await serializer.DeserializeAsync(stream, contentType, CancellationToken.None);
+            }
+        }
+
+        public class DeserializingFailsFacts : GivenSoapEnvelopeDeserializingFacts
+        {
+            [Fact]
+            public async Task DeserializeSoapEnvelopeWithoutMessagingHeaderThrowsInvalidMessageException()
+            {
+                const string xmlContent = @"<?xml version=""1.0""?><s12:Envelope xmlns:s12 = ""http://www.w3.org/2003/05/soap-envelope""><s12:Header/></s12:Envelope>";
+ 
+                using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(xmlContent)))
+                {
+                    await Assert.ThrowsAsync<InvalidMessageException>(
+                        async () =>
+                        {
+                            var s = new SoapEnvelopeSerializer();
+                            await s.DeserializeAsync(stream, "application/xml", CancellationToken.None);
+                        });
+                }
             }
         }
     }
