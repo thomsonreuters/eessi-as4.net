@@ -331,6 +331,7 @@
     <Compile Include="Serialization\SoapEnvelopeBuilder.cs" />
     <Compile Include="Common\TraceLogger.cs" />
     <Compile Include="Common\TraceLoggerProvider.cs" />
+    <Compile Include="Entities\SmpConfiguration.cs" />
     <Compile Include="Exceptions\ErrorResult.cs" />
     <Compile Include="Exceptions\Handlers\ExceptionHandlerRegistry.cs" />
     <Compile Include="Exceptions\Handlers\InboundExceptionHandler.cs" />
@@ -351,6 +352,10 @@
     <Compile Include="Migrations\20171025092954_OptimizeColumnSizes.cs" />
     <Compile Include="Migrations\20171025092954_OptimizeColumnSizes.Designer.cs">
       <DependentUpon>20171025092954_OptimizeColumnSizes.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\20180130091857_AddSmpConfigurationTable.cs" />
+    <Compile Include="Migrations\20180130091857_AddSmpConfigurationTable.designer.cs">
+      <DependentUpon>20180130091857_AddSmpConfigurationTable.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\DatastoreContextModelSnapshot.cs" />
     <Compile Include="Model\PMode\CertificateFindCriteria.cs" />
@@ -377,6 +382,7 @@
     <Compile Include="Repositories\AS4MessageStoreProvider.cs" />
     <Compile Include="Services\DynamicDiscovery\ESensDynamicDiscoveryProfile.cs" />
     <Compile Include="Services\DynamicDiscovery\IDynamicDiscoveryProfile.cs" />
+    <Compile Include="Services\DynamicDiscovery\LocalDynamicDiscoveryProfile.cs" />
     <Compile Include="Services\PullRequestAuthorization\FilePullAuthorizationMapProvider.cs" />
     <Compile Include="Services\PullRequestAuthorization\IPullAuthorizationMapProvider.cs" />
     <Compile Include="Services\PullRequestAuthorization\IPullAuthorizationMapService.cs" />
