@@ -1,13 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
-using System.IO.Compression;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
-using Eu.EDelivery.AS4.Streaming;
 using NLog;
 
 namespace Eu.EDelivery.AS4.Steps.Send
@@ -36,7 +33,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             }
 
             _messagingContext = messagingContext;
-            TryCompressAS4Message(messagingContext.AS4Message.Attachments);
+            TryCompressAS4Message(messagingContext.AS4Message);
 
             return await StepResult.SuccessAsync(messagingContext);
         }
@@ -47,79 +44,19 @@ namespace Eu.EDelivery.AS4.Steps.Send
             return StepResult.Success(messagingContext);
         }
 
-        private void TryCompressAS4Message(IEnumerable<Attachment> attachments)
+        private void TryCompressAS4Message(AS4Message message)
         {
             try
             {
                 Logger.Info(
                     $"{_messagingContext.EbmsMessageId} Compress AS4 Message Attachments with GZip Compression");
-                CompressAttachments(attachments);
+
+                message.CompressAttachments();
             }
             catch (SystemException exception)
             {
                 throw ThrowAS4CompressingException(exception);
             }
-        }
-
-        private static void CompressAttachments(IEnumerable<Attachment> attachments)
-        {
-            foreach (Attachment attachment in attachments)
-            {
-                CompressAttachment(attachment);
-                AssignAttachmentProperties(attachment);
-            }
-        }
-
-        private static void CompressAttachment(Attachment attachment)
-        {
-            VirtualStream outputStream =
-                VirtualStream.CreateVirtualStream(
-                    attachment.EstimatedContentSize > -1 ? attachment.EstimatedContentSize : VirtualStream.ThresholdMax);
-
-            var compressionLevel = DetermineCompressionLevelFor(attachment);
-
-            using (var gzipCompression = new GZipStream(outputStream, compressionLevel, leaveOpen: true))
-            {
-                attachment.Content.CopyTo(gzipCompression);
-            }
-
-            outputStream.Position = 0;
-            attachment.Content = outputStream;
-        }
-
-        private static CompressionLevel DetermineCompressionLevelFor(Attachment attachment)
-        {
-            if (attachment.ContentType.Equals("application/gzip", StringComparison.OrdinalIgnoreCase))
-            {
-                // In certain cases, we do not want to waste time compressing the attachment, since
-                // compressing will only take time without noteably decreasing the attachment size.
-                return CompressionLevel.NoCompression;
-            }
-
-            if (attachment.EstimatedContentSize > -1)
-            {
-                const long twelveKilobytes = 12_288;
-                const long twoHundredMegabytes = 209_715_200;
-
-                if (attachment.EstimatedContentSize <= twelveKilobytes)
-                {
-                    return CompressionLevel.NoCompression;
-                }
-
-                if (attachment.EstimatedContentSize > twoHundredMegabytes)
-                {
-                    return CompressionLevel.Fastest;
-                }
-            }
-
-            return CompressionLevel.Optimal;
-        }
-
-        private static void AssignAttachmentProperties(Attachment attachment)
-        {
-            attachment.Properties["CompressionType"] = "application/gzip";
-            attachment.Properties["MimeType"] = attachment.ContentType;
-            attachment.ContentType = "application/gzip";
         }
 
         private static Exception ThrowAS4CompressingException(Exception innerException)
