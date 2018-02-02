@@ -22,6 +22,7 @@
             <StepConfiguration>
                 <NormalPipeline>
                     <Step type="Eu.EDelivery.AS4.Steps.Forward.DetermineRoutingStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+                    <Step type="Eu.EDelivery.AS4.Steps.Submit.DynamicDiscoveryStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
                     <Step type="Eu.EDelivery.AS4.Steps.Forward.CreateForwardMessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />                 
                 </NormalPipeline>
                 <ErrorPipeline />                    

@@ -130,6 +130,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
                     NormalPipeline = new[]
                     {
                         new Step { Type = typeof(DetermineRoutingStep).AssemblyQualifiedName },
+                        new Step { Type = typeof(DynamicDiscoveryStep).AssemblyQualifiedName },
                         new Step { Type = typeof(CreateForwardMessageStep).AssemblyQualifiedName }
                     }
                 });
