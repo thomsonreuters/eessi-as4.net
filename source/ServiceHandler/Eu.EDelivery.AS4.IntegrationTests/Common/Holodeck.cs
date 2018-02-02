@@ -25,6 +25,8 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
         private readonly DirectoryInfo _holodeckAInputDirectory =
             new DirectoryInfo(HolodeckALocations.InputPath);
 
+        public FileInfo HolodeckAPayload => new FileInfo(HolodeckALocations.JpegPayloadPath);
+
         /// <summary>
         /// Copy the right PMode configuration to Holodeck B
         /// </summary>
@@ -134,27 +136,6 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
         {
             FileInfo error = _holodeckAInputDirectory.GetFiles("*.xml").FirstOrDefault();
             Assert.NotNull(error);
-        }
-
-        /// <summary>
-        /// Asserts the payloads on holodeck a.
-        /// </summary>
-        /// <param name="files">The files.</param>
-        public void AssertPayloadsOnHolodeckA(IEnumerable<FileInfo> files)
-        {
-            var sendPayload = new FileInfo(HolodeckALocations.JpegPayloadPath);
-
-            Assert.All(files, f => Assert.Equal(sendPayload.Length, f.Length));
-        }
-
-        /// <summary>
-        /// Asserts the XML files on holodeck a.
-        /// </summary>
-        /// <param name="files">The files.</param>
-        public void AssertXmlFilesOnHolodeckA(IEnumerable<FileInfo> files)
-        {
-            Assert.Equal(2, files.Count());
-            Console.WriteLine($@"There're {files.Count()} incoming Xml Documents found");
         }
 
         /// <summary>

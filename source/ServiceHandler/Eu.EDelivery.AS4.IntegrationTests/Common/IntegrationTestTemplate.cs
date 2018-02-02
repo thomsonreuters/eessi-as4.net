@@ -42,7 +42,8 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
             CopyDirectory(@".\config\integrationtest-settings\integrationtest-pmodes\send-pmodes", @".\config\send-pmodes");
             CopyDirectory(@".\config\integrationtest-settings\integrationtest-pmodes\receive-pmodes", @".\config\receive-pmodes");
 
-            CleanUpFiles(@".\database", recursive: true);            
+            CleanUpFiles(@".\database", recursive: true);   
+            CleanUpFiles(@".\logs");
             CleanUpFiles(AS4FullInputPath);
             CleanUpFiles(AS4FullOutputPath);
             CleanUpFiles(AS4ReceiptsPath);
@@ -202,9 +203,17 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
         /// Poll to a given target Directory to find files
         /// </summary>
         /// <param name="directoryPath">Directory Path to poll</param>
-        /// <param name="extension"></param>
+        /// <param name="extension">The extension.</param>
         /// <param name="retryCount">Retry Count in miliseconds</param>
-        protected bool PollingAt(string directoryPath, string extension = "*", int retryCount = 2500)
+        /// <param name="fileCount">The file count.</param>
+        /// <param name="validation">The validation.</param>
+        /// <returns></returns>
+        protected bool PollingAt(
+            string directoryPath, 
+            string extension = "*", 
+            int retryCount = 5000,
+            int fileCount = 1,
+            Action<IEnumerable<FileInfo>> validation = null)
         {
             string location = FindAliasLocation(directoryPath);
             Console.WriteLine($@"Start polling to {location}");
@@ -214,7 +223,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
 
             while (i < retryCount)
             {
-                areFilesFound = IsMessageFound(directoryPath, extension);
+                areFilesFound = IsMessageFound(directoryPath, extension, fileCount, validation);
                 if (areFilesFound)
                 {
                     break;
@@ -224,7 +233,6 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
                 i += 100;
             }
 
-            StopApplication();
             return areFilesFound;
         }
 
@@ -243,11 +251,15 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
             return directoryPath;
         }
 
-        private bool IsMessageFound(string directoryPath, string extension)
+        private bool IsMessageFound(
+            string directoryPath, 
+            string extension, 
+            int fileCount,
+            Action<IEnumerable<FileInfo>> validation)
         {
             var startDir = new DirectoryInfo(directoryPath);
             FileInfo[] files = startDir.GetFiles(extension, SearchOption.AllDirectories);
-            bool areFilesPresent = files.Length > 0;
+            bool areFilesPresent = files.Length >= fileCount;
 
             if (!areFilesPresent)
             {
@@ -255,6 +267,8 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
             }
 
             WriteFilesToConsole(files);
+
+            validation?.Invoke(files);
             ValidatePolledFiles(files);
 
             return true;
@@ -307,7 +321,28 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
         {
             AS4Component.Dispose();
 
+            WriteLogFilesToConsole();
+
             DisposeChild();
+        }
+
+        private static void WriteLogFilesToConsole()
+        {
+            Console.WriteLine(Environment.NewLine);
+            Console.WriteLine(@"AS4.NET Component Logs:");
+            Console.WriteLine(Environment.NewLine);
+
+            foreach (string file in Directory.GetFiles(Path.GetFullPath(@".\logs")))
+            {
+                Console.WriteLine($@"From file: '{file}':");
+
+                foreach (string line in File.ReadAllLines(file))
+                {
+                    Console.WriteLine(line);
+                }
+
+                Console.WriteLine(Environment.NewLine);
+            }
         }
 
         /// <summary>
