@@ -15,7 +15,7 @@ namespace Eu.EDelivery.AS4.Model.Core
         private IEncryptionStrategy _encryptionStrategy;
 
         public bool IsSigned => _signingStrategy != null;
-        public bool IsEncrypted => _encryptionStrategy != null;
+        public bool IsEncrypted { get; private set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SecurityHeader"/> class. 
@@ -25,19 +25,16 @@ namespace Eu.EDelivery.AS4.Model.Core
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SecurityHeader"/> class. 
-        /// Set the used Strategies
-        /// without signing the <see cref="SecurityHeader"/>
-        /// This is used if the <see cref="SecurityHeader"/> 
-        /// is already Signed and Encrypted with the Strategies
         /// </summary>
         /// <param name="signingStrategy">
         /// </param>
-        /// <param name="encryptionStrategy">
+        /// <param name="isEncrypted">
+        /// Indicates whether the message is encrypted or not.
         /// </param>
-        public SecurityHeader(ISigningStrategy signingStrategy, IEncryptionStrategy encryptionStrategy)
+        public SecurityHeader(ISigningStrategy signingStrategy, bool isEncrypted)
         {
             _signingStrategy = signingStrategy;
-            _encryptionStrategy = encryptionStrategy;
+            IsEncrypted = isEncrypted;
         }
 
         /// <summary>
@@ -95,16 +92,6 @@ namespace Eu.EDelivery.AS4.Model.Core
         }
 
         /// <summary>
-        /// Decrypts the message and its attachments.
-        /// </summary>
-        /// <param name="encryptionStrategy"></param>
-        public void Decrypt(IEncryptionStrategy encryptionStrategy)
-        {
-            _encryptionStrategy = encryptionStrategy;
-            _encryptionStrategy.DecryptMessage();
-        }
-
-        /// <summary>
         /// Encrypts the message and its attachments.
         /// </summary>
         /// <param name="encryptionStrategy"></param>
@@ -112,6 +99,7 @@ namespace Eu.EDelivery.AS4.Model.Core
         {
             _encryptionStrategy = encryptionStrategy;
             _encryptionStrategy.EncryptMessage();
+            IsEncrypted = true;
         }
     }
 }

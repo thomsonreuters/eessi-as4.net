@@ -12,6 +12,7 @@ using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Security.Encryption;
 using Eu.EDelivery.AS4.Security.Strategies;
 using Eu.EDelivery.AS4.Serialization;
+using Eu.EDelivery.AS4.TestUtils.Stubs;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Security.Strategies
@@ -27,14 +28,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Strategies
                 AS4Message as4Message = await GetEncryptedMessageAsync();
                 X509Certificate2 decryptCertificate = CreateDecryptCertificate();
 
-                EncryptionStrategy encryptionStrategy =
-                    EncryptionStrategyBuilder.Create(as4Message.EnvelopeDocument)
-                                             .WithCertificate(decryptCertificate)
-                                             .WithAttachments(as4Message.Attachments)
-                                             .Build();
-
                 // Act
-                encryptionStrategy.DecryptMessage();
+                as4Message.Decrypt(decryptCertificate);
 
                 // Assert
                 Assert.Equal(Properties.Resources.flower1, GetAttachmentContents(as4Message.Attachments.ElementAt(0)));
@@ -61,15 +56,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Strategies
                 Assert.NotEqual(attachmentContents.Length, firstAttachment?.Content.Length);
             }
 
-            private IEncryptionStrategy CreateEncryptionStrategyForEncrypting(AS4Message message)
+            private static IEncryptionStrategy CreateEncryptionStrategyForEncrypting(AS4Message message)
             {
-                XmlDocument xmlDocument = SerializeAS4Message(message);
                 X509Certificate2 certificate = CreateDecryptCertificate();
 
                 return EncryptionStrategyBuilder
-                    .Create(xmlDocument)
+                    .Create(message)
                     .WithCertificate(certificate)
-                    .WithAttachments(message.Attachments)
                     .Build();
             }
         }
@@ -89,11 +82,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Strategies
             {
                 // Arrange
                 AS4Message as4Message = await GetEncryptedMessageAsync();
-                EncryptionStrategy encryptionStrategy =
-                    EncryptionStrategyBuilder.Create(as4Message.EnvelopeDocument).Build();
-
+                var certificate = new StubCertificateRepository().GetStubCertificate();
+                
                 // Act&Assert
-                Assert.ThrowsAny<Exception>(() => encryptionStrategy.DecryptMessage());
+                Assert.ThrowsAny<Exception>(() => as4Message.Decrypt(certificate));
             }
 
             [Fact]
@@ -101,7 +93,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Strategies
             {
                 // Arrange
                 AS4Message as4Message = await GetEncryptedMessageAsync();
-                var pmode = new SendingProcessingMode {Security = {Encryption = {AlgorithmKeySize = -1}}};
+                var pmode = new SendingProcessingMode { Security = { Encryption = { AlgorithmKeySize = -1 } } };
 
                 EncryptionStrategy sut = EncryptionStrategyFor(as4Message, pmode);
 
@@ -115,7 +107,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Strategies
                 var dataEncryptConfig = new DataEncryptionConfiguration(encryption.Algorithm, algorithmKeySize: encryption.AlgorithmKeySize);
 
                 return EncryptionStrategyBuilder
-                    .Create(as4Message.EnvelopeDocument)
+                    .Create(as4Message)
                     .WithDataEncryptionConfiguration(dataEncryptConfig)
                     .Build();
             }

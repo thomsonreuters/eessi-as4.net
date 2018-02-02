@@ -17,7 +17,10 @@ namespace Eu.EDelivery.AS4.Security.References
         /// <summary>
         /// Initializes a new instance of the <see cref="BinarySecurityTokenReference"/> class.
         /// </summary>
-        public BinarySecurityTokenReference() { }
+        public BinarySecurityTokenReference()
+        {
+            ReferenceId = "cert-" + Guid.NewGuid();
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="BinarySecurityTokenReference"/> class.

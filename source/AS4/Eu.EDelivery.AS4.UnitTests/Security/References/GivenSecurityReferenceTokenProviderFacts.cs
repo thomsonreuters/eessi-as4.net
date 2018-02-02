@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml;
+﻿using System.Xml;
 using Eu.EDelivery.AS4.Security.References;
 using Eu.EDelivery.AS4.UnitTests.Common;
 using Xunit;
@@ -23,7 +18,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.References
                 Assert.NotNull(token);
                 Assert.True(token is BinarySecurityTokenReference );
                 Assert.NotNull(token.Certificate);
-             //   Assert.Equal("#cert-5e2982ff-5edd-4991-8c46-3dd5439e3797", binaryToken.ReferenceId);
             }
 
             [Fact]
@@ -34,7 +28,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.References
 
                 Assert.NotNull(token);
                 Assert.True(token is KeyIdentifierSecurityTokenReference);
-             //   Assert.Equal("#cert-5e2982ff-5edd-4991-8c46-3dd5439e3797", token.ReferenceId);
             }
 
             [Fact]

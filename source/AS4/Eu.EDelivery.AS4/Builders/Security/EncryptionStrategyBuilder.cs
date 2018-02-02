@@ -1,14 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Security.Cryptography.X509Certificates;
-using System.Threading;
-using System.Xml;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Security.Encryption;
 using Eu.EDelivery.AS4.Security.References;
 using Eu.EDelivery.AS4.Security.Strategies;
-using Eu.EDelivery.AS4.Serialization;
 
 namespace Eu.EDelivery.AS4.Builders.Security
 {
@@ -17,8 +13,7 @@ namespace Eu.EDelivery.AS4.Builders.Security
     /// </summary>
     public class EncryptionStrategyBuilder
     {
-        private readonly XmlDocument _soapEnvelope;
-        private readonly List<Attachment> _attachments = new List<Attachment>();
+        private readonly AS4Message _as4Message;
 
         private X509Certificate2 _certificate;
 
@@ -29,22 +24,13 @@ namespace Eu.EDelivery.AS4.Builders.Security
             Encryption.Default.Algorithm,
             Encryption.Default.AlgorithmKeySize);
 
-        private EncryptionStrategyBuilder(XmlDocument soapEnvelope)
+        private EncryptionStrategyBuilder(AS4Message as4Message)
         {
-            _soapEnvelope = soapEnvelope;
+            _as4Message = as4Message;
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="EncryptionStrategyBuilder"/> class for the specified <paramref name="soapEnvelope"/>
-        /// </summary>
-        /// <param name="soapEnvelope"></param>
-        public static EncryptionStrategyBuilder Create(XmlDocument soapEnvelope)
-        {
-            return new EncryptionStrategyBuilder(soapEnvelope);
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="EncryptionStrategyBuilder"/> class for the specified <paramref name="a4sMessage"/>
+        /// Initializes a new instance of the <see cref="EncryptionStrategyBuilder"/> class for the specified <paramref name="as4Message"/>
         /// </summary>
         /// <param name="as4Message"></param>
         public static EncryptionStrategyBuilder Create(AS4Message as4Message)
@@ -54,10 +40,7 @@ namespace Eu.EDelivery.AS4.Builders.Security
                 throw new ArgumentNullException(nameof(as4Message));
             }
 
-            XmlDocument soapEnvelope = as4Message.EnvelopeDocument
-               ?? AS4XmlSerializer.ToSoapEnvelopeDocument(as4Message, default(CancellationToken));
-
-            return new EncryptionStrategyBuilder(soapEnvelope);
+            return new EncryptionStrategyBuilder(as4Message);
         }
 
         /// <summary>
@@ -94,22 +77,9 @@ namespace Eu.EDelivery.AS4.Builders.Security
             return this;
         }
 
-        public EncryptionStrategyBuilder WithAttachment(Attachment attachment)
-        {
-            _attachments.Add(attachment);
-            return this;
-        }
-
-        public EncryptionStrategyBuilder WithAttachments(IEnumerable<Attachment> attachments)
-        {
-            _attachments.AddRange(attachments);
-            return this;
-        }
-
         public EncryptionStrategy Build()
         {
-            return new EncryptionStrategy(_soapEnvelope, _keyConfiguration, _dataConfiguration, _certificate, _attachments);
+            return new EncryptionStrategy(_keyConfiguration, _dataConfiguration, _certificate, _as4Message.Attachments);
         }
     }
-
 }

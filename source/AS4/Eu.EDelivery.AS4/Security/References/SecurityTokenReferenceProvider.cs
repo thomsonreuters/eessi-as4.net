@@ -5,7 +5,7 @@ using Eu.EDelivery.AS4.Repositories;
 namespace Eu.EDelivery.AS4.Security.References
 {
 
-    internal class SecurityTokenReferenceProvider : ISecurityTokenReferenceProvider
+    public class SecurityTokenReferenceProvider : ISecurityTokenReferenceProvider
     {
         private readonly ICertificateRepository _certificateRepository;
 

@@ -8,7 +8,6 @@ namespace Eu.EDelivery.AS4.Security.References
     /// <summary>
     /// Security Token Reference Base Class to have a consistent AS4 Key Info Clause.
     /// Acts as  Interface for the different Security Token Reference options needed.
-    /// TODO: responsible for concrete implementation based on XmlDocument and Reference Type (Enum)
     /// </summary>
     public abstract class SecurityTokenReference : KeyInfoClause
     {
@@ -32,12 +31,6 @@ namespace Eu.EDelivery.AS4.Security.References
                 _certificate = value;
             }
         }
-
-        /// <summary>
-        /// Gets or sets the reference id.
-        /// </summary>
-        [Obsolete]
-    //    public string ReferenceId { get; protected set; } = "cert-" + Guid.NewGuid();
 
         public virtual XmlElement AppendSecurityTokenTo(XmlElement element, XmlDocument document)
         {

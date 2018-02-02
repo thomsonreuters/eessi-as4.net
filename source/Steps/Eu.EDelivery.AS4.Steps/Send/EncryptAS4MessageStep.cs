@@ -7,7 +7,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Security;
 using Eu.EDelivery.AS4.Common;
-using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
@@ -78,7 +77,6 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
         private IEncryptionStrategy CreateEncryptStrategy(MessagingContext messagingContext)
         {
-            AS4Message as4Message = messagingContext.AS4Message;
             Encryption encryption = messagingContext.SendingPMode.Security.Encryption;
 
             X509Certificate2 certificate = RetrieveCertificate(messagingContext);
@@ -92,7 +90,6 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 new KeyEncryptionConfiguration(tokenReference: null, keyEncryption: encryption.KeyTransport));
 
             builder.WithCertificate(certificate);
-            builder.WithAttachments(as4Message.Attachments);
 
             return builder.Build();
         }
