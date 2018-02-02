@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -75,9 +76,15 @@ namespace Eu.EDelivery.AS4.Serialization
         {
             var messagingHeader = new Messaging { SecurityId = message.SigningId.HeaderSecurityId };
 
-            messagingHeader.SignalMessage = AS4Mapper.Map<Xml.SignalMessage[]>(message.SignalMessages);
+            if (message.SignalMessages.Any())
+            {
+                messagingHeader.SignalMessage = AS4Mapper.Map<Xml.SignalMessage[]>(message.SignalMessages);
+            }
 
-            messagingHeader.UserMessage = AS4Mapper.Map<Xml.UserMessage[]>(message.UserMessages);
+            if (message.UserMessages.Any())
+            {
+                messagingHeader.UserMessage = AS4Mapper.Map<Xml.UserMessage[]>(message.UserMessages);
+            }
 
             if (message.IsMultiHopMessage)
             {
