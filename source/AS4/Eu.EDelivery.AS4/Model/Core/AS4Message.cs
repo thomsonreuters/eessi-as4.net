@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -10,6 +11,7 @@ using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Security.Signing;
 using Eu.EDelivery.AS4.Serialization;
+using Eu.EDelivery.AS4.Streaming;
 using MimeKit;
 
 namespace Eu.EDelivery.AS4.Model.Core
@@ -84,7 +86,7 @@ namespace Eu.EDelivery.AS4.Model.Core
 
         public IEnumerable<SignalMessage> SignalMessages => MessageUnits.OfType<SignalMessage>();
 
-        public ICollection<Attachment> Attachments { get; internal set; }
+        public ICollection<Attachment> Attachments { get; private set; }
 
         public SigningId SigningId { get; set; }
 
@@ -299,6 +301,75 @@ namespace Eu.EDelivery.AS4.Model.Core
         private static Attachment CreateAttachmentFromPayload(Payload payload)
         {
             return new Attachment(payload.Id) { ContentType = payload.MimeType, Location = payload.Location };
+        }
+
+        /// <summary>
+        /// Compresses the Attachments that are part of this AS4 Message and
+        /// modifies the Payload-info in the UserMessage to indicate that the attachment 
+        /// is compressed.
+        /// </summary>
+        public void CompressAttachments()
+        {
+            foreach (Attachment attachment in this.Attachments)
+            {
+                CompressAttachment(attachment);
+                AssignAttachmentProperties(attachment);
+            }
+            // Since the headers in the message have changed, the EnvelopeDocument
+            // is no longer in sync and should be set to null.
+            this.EnvelopeDocument = null;
+        }
+
+        private static void CompressAttachment(Attachment attachment)
+        {
+            VirtualStream outputStream =
+                VirtualStream.CreateVirtualStream(
+                    attachment.EstimatedContentSize > -1 ? attachment.EstimatedContentSize : VirtualStream.ThresholdMax);
+
+            var compressionLevel = DetermineCompressionLevelFor(attachment);
+
+            using (var gzipCompression = new GZipStream(outputStream, compressionLevel, leaveOpen: true))
+            {
+                attachment.Content.CopyTo(gzipCompression);
+            }
+
+            outputStream.Position = 0;
+            attachment.Content = outputStream;
+        }
+
+        private static CompressionLevel DetermineCompressionLevelFor(Attachment attachment)
+        {
+            if (attachment.ContentType.Equals("application/gzip", StringComparison.OrdinalIgnoreCase))
+            {
+                // In certain cases, we do not want to waste time compressing the attachment, since
+                // compressing will only take time without noteably decreasing the attachment size.
+                return CompressionLevel.NoCompression;
+            }
+
+            if (attachment.EstimatedContentSize > -1)
+            {
+                const long twelveKilobytes = 12_288;
+                const long twoHundredMegabytes = 209_715_200;
+
+                if (attachment.EstimatedContentSize <= twelveKilobytes)
+                {
+                    return CompressionLevel.NoCompression;
+                }
+
+                if (attachment.EstimatedContentSize > twoHundredMegabytes)
+                {
+                    return CompressionLevel.Fastest;
+                }
+            }
+
+            return CompressionLevel.Optimal;
+        }
+
+        private static void AssignAttachmentProperties(Attachment attachment)
+        {
+            attachment.Properties["CompressionType"] = "application/gzip";
+            attachment.Properties["MimeType"] = attachment.ContentType;
+            attachment.ContentType = "application/gzip";
         }
 
         /// <summary>Indicates whether the current object is equal to another object of the same type.</summary>

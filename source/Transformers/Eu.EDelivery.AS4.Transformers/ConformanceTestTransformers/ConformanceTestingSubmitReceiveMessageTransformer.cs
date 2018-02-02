@@ -43,14 +43,10 @@ namespace Eu.EDelivery.AS4.Transformers.ConformanceTestTransformers
                 var transformer = new AS4MessageTransformer();
                 var messagingContext = await transformer.TransformAsync(receivedMessage, cancellationToken);
 
-                var as4Message = messagingContext.AS4Message;
-
-                if (as4Message?.PrimaryUserMessage?.CollaborationInfo?.Action?.Equals("Submit", StringComparison.OrdinalIgnoreCase) ?? false)
+                if (messagingContext.AS4Message?.PrimaryUserMessage?.CollaborationInfo?.Action?.Equals("Submit", StringComparison.OrdinalIgnoreCase) ?? false)
                 {
-                    var properties = as4Message.PrimaryUserMessage?.MessageProperties;
-
-                    TransformUserMessage(as4Message.PrimaryUserMessage, properties);
-
+                    var as4Message =
+                        TransformMinderSubmitToAS4Message(messagingContext.AS4Message.PrimaryUserMessage, messagingContext.AS4Message.Attachments);
                     messagingContext = new MessagingContext(as4Message, MessagingContextMode.Submit);
 
                     AssignPModeToContext(messagingContext);
@@ -75,7 +71,48 @@ namespace Eu.EDelivery.AS4.Transformers.ConformanceTestTransformers
                 }
                 throw;
             }
+        }
 
+        private static AS4Message TransformMinderSubmitToAS4Message(UserMessage submitMessage, IEnumerable<Attachment> attachments)
+        {
+            var userMessage = new UserMessage(GetPropertyValue(submitMessage.MessageProperties, "MessageId"))
+            {
+                RefToMessageId = GetPropertyValue(submitMessage.MessageProperties, "RefToMessageId"),
+                Timestamp = DateTimeOffset.Now
+            };
+
+            SetCollaborationInfoProperties(userMessage, submitMessage.MessageProperties);
+
+            SetPartyInformation(userMessage, submitMessage);
+
+            AS4Message result = CreateAS4Message(userMessage, submitMessage.PayloadInfo, attachments);
+
+            return result;
+        }
+
+        private static void SetPartyInformation(UserMessage userMessage, UserMessage submitMessage)
+        {
+            userMessage.Sender.PartyIds.First().Id = GetPropertyValue(submitMessage.MessageProperties, "FromPartyId");
+            userMessage.Sender.PartyIds.First().Type = submitMessage.Sender.PartyIds.First().Type;
+            userMessage.Sender.Role = GetPropertyValue(submitMessage.MessageProperties, "FromPartyRole");
+
+            userMessage.Receiver.PartyIds.First().Id = GetPropertyValue(submitMessage.MessageProperties, "ToPartyId");
+            userMessage.Receiver.PartyIds.First().Type = submitMessage.Receiver.PartyIds.First().Type;
+            userMessage.Receiver.Role = GetPropertyValue(submitMessage.MessageProperties, "ToPartyRole");
+        }
+
+        private static AS4Message CreateAS4Message(UserMessage userMessage, IEnumerable<PartInfo> payloadInfo, IEnumerable<Attachment> attachments)
+        {
+            userMessage.PayloadInfo = new List<PartInfo>(payloadInfo);
+
+            var result = AS4Message.Create(userMessage, null);
+
+            foreach (var attachment in attachments)
+            {
+                result.AddAttachment(attachment);
+            }
+
+            return result;
         }
 
         private static void AssignPModeToContext(MessagingContext context)
@@ -87,30 +124,6 @@ namespace Eu.EDelivery.AS4.Transformers.ConformanceTestTransformers
             context.SendingPMode = pmode;
         }
 
-        private static void TransformUserMessage(UserMessage userMessage, IList<MessageProperty> properties)
-        {
-            SetMessageInfoProperties(userMessage, properties);
-            SetCollaborationInfoProperties(userMessage, properties);
-            SetPartyProperties(userMessage, properties);
-
-            RemoveMessageInfoProperties(userMessage);
-        }
-
-        private static void RemoveMessageInfoProperties(UserMessage userMessage)
-        {
-            string[] whiteList = { "originalSender", "finalRecipient", "trackingIdentifier" };
-
-            userMessage.MessageProperties = userMessage.MessageProperties.Where(p => whiteList.Contains(p.Name, StringComparer.OrdinalIgnoreCase))
-                .ToList();
-        }
-
-        private static void SetMessageInfoProperties(UserMessage userMessage, IList<MessageProperty> properties)
-        {
-            userMessage.MessageId = GetPropertyValue(properties, "MessageId");
-            userMessage.RefToMessageId = GetPropertyValue(properties, "RefToMessageId");
-            userMessage.Timestamp = DateTimeOffset.Now;
-        }
-
         private static void SetCollaborationInfoProperties(UserMessage userMessage, IList<MessageProperty> properties)
         {
             userMessage.CollaborationInfo.ConversationId = GetPropertyValue(properties, "ConversationId");
@@ -120,16 +133,7 @@ namespace Eu.EDelivery.AS4.Transformers.ConformanceTestTransformers
             // AgreementRef must not be present in the AS4Message for minder.
             userMessage.CollaborationInfo.AgreementReference = null;
         }
-
-        private static void SetPartyProperties(UserMessage userMessage, IList<MessageProperty> properties)
-        {
-            userMessage.Sender.PartyIds.First().Id = GetPropertyValue(properties, "FromPartyId");
-            userMessage.Sender.Role = GetPropertyValue(properties, "FromPartyRole");
-
-            userMessage.Receiver.PartyIds.First().Id = GetPropertyValue(properties, "ToPartyId");
-            userMessage.Receiver.Role = GetPropertyValue(properties, "ToPartyRole");
-        }
-
+       
         private static string GetPropertyValue(IList<MessageProperty> properties, string propertyName)
         {
             return properties.FirstOrDefault(p => p.Name.Equals(propertyName, StringComparison.OrdinalIgnoreCase))?.Value;

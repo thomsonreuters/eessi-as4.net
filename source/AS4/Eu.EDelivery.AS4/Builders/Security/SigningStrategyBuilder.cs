@@ -44,7 +44,7 @@ namespace Eu.EDelivery.AS4.Builders.Security
         /// <param name="securityTokenReferenceMethod">An <see cref="X509ReferenceType"/> value</param>
         public SigningStrategyBuilder(AS4Message message, X509ReferenceType securityTokenReferenceMethod)
         {
-            _envelopeDocument = AS4XmlSerializer.ToSoapEnvelopeDocument(message, CancellationToken.None);
+            _envelopeDocument = message.EnvelopeDocument?? AS4XmlSerializer.ToSoapEnvelopeDocument(message, CancellationToken.None);
             _securityTokenReference = _tokenProvider.Get(securityTokenReferenceMethod);
             _isSigned = message.IsSigned;
         }
