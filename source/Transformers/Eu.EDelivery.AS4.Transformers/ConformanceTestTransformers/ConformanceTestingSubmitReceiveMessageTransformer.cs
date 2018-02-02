@@ -85,9 +85,21 @@ namespace Eu.EDelivery.AS4.Transformers.ConformanceTestTransformers
 
             SetPartyInformation(userMessage, submitMessage);
 
+            SetMessageProperties(userMessage, submitMessage.MessageProperties);
+
             AS4Message result = CreateAS4Message(userMessage, submitMessage.PayloadInfo, attachments);
 
             return result;
+        }
+
+        private static void SetCollaborationInfoProperties(UserMessage userMessage, IList<MessageProperty> properties)
+        {
+            userMessage.CollaborationInfo.ConversationId = GetPropertyValue(properties, "ConversationId");
+            userMessage.CollaborationInfo.Service.Value = GetPropertyValue(properties, "Service");
+            userMessage.CollaborationInfo.Action = GetPropertyValue(properties, "Action");
+
+            // AgreementRef must not be present in the AS4Message for minder.
+            userMessage.CollaborationInfo.AgreementReference = null;
         }
 
         private static void SetPartyInformation(UserMessage userMessage, UserMessage submitMessage)
@@ -99,6 +111,14 @@ namespace Eu.EDelivery.AS4.Transformers.ConformanceTestTransformers
             userMessage.Receiver.PartyIds.First().Id = GetPropertyValue(submitMessage.MessageProperties, "ToPartyId");
             userMessage.Receiver.PartyIds.First().Type = submitMessage.Receiver.PartyIds.First().Type;
             userMessage.Receiver.Role = GetPropertyValue(submitMessage.MessageProperties, "ToPartyRole");
+        }
+
+        private static void SetMessageProperties(UserMessage userMessage, IList<MessageProperty> properties)
+        {
+            string[] whiteList = { "originalSender", "finalRecipient", "trackingIdentifier" };
+
+            userMessage.MessageProperties = properties.Where(p => whiteList.Contains(p.Name, StringComparer.OrdinalIgnoreCase))
+                                                         .ToList();
         }
 
         private static AS4Message CreateAS4Message(UserMessage userMessage, IEnumerable<PartInfo> payloadInfo, IEnumerable<Attachment> attachments)
@@ -122,16 +142,6 @@ namespace Eu.EDelivery.AS4.Transformers.ConformanceTestTransformers
             // The PMode that must be used is defined in the CollaborationInfo.Service property.
             var pmode = Config.Instance.GetSendingPMode(as4Message.PrimaryUserMessage.CollaborationInfo.Action);
             context.SendingPMode = pmode;
-        }
-
-        private static void SetCollaborationInfoProperties(UserMessage userMessage, IList<MessageProperty> properties)
-        {
-            userMessage.CollaborationInfo.ConversationId = GetPropertyValue(properties, "ConversationId");
-            userMessage.CollaborationInfo.Service.Value = GetPropertyValue(properties, "Service");
-            userMessage.CollaborationInfo.Action = GetPropertyValue(properties, "Action");
-
-            // AgreementRef must not be present in the AS4Message for minder.
-            userMessage.CollaborationInfo.AgreementReference = null;
         }
        
         private static string GetPropertyValue(IList<MessageProperty> properties, string propertyName)
