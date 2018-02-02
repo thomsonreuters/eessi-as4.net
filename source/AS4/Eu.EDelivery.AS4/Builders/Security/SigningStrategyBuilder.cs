@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Xml;
@@ -210,27 +209,14 @@ namespace Eu.EDelivery.AS4.Builders.Security
                 throw new ArgumentNullException(nameof(envelopeDocument));
             }
 
-            XmlElement[] tokenNodes =
-                envelopeDocument.SelectNodes(@"//*[local-name()='Signature']//*[local-name()='SecurityTokenReference']")
-                                ?.OfType<XmlElement>().ToArray();
+            var securityToken = _tokenProvider.Get(envelopeDocument, SecurityTokenType.Signing);
 
-            if (tokenNodes != null)
+            if (securityToken == null)
             {
-                Logger.Info($"{tokenNodes.Length} Signature Tokens retrieved.");
-
-                XmlElement securityTokenElement = tokenNodes.FirstOrDefault();
-
-                if (securityTokenElement != null)
-                {
-                    SecurityTokenReference token = _tokenProvider.Get(securityTokenElement, SecurityTokenType.Signing);
-
-                    Logger.Debug($"Verify with Security Token Reference: {token.GetType().Name}");
-
-                    return token;
-                }
+                throw new XmlException("No Security Token Reference element found for Signature in given Xml Document");
             }
 
-            throw new XmlException("No Security Token Reference element found in given Xml Document");
+            return securityToken;
         }
     }
 }

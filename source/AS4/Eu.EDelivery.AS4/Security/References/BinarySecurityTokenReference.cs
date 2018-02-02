@@ -12,6 +12,7 @@ namespace Eu.EDelivery.AS4.Security.References
     {
 
         private byte[] _certificateBytes;
+        //    public string ReferenceId { get; private set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="BinarySecurityTokenReference"/> class.
@@ -57,7 +58,7 @@ namespace Eu.EDelivery.AS4.Security.References
             }
         }
 
-        private static XmlElement GetReferenceElement(XmlNode node)
+        private static XmlElement GetReferenceElement(XmlElement node)
         {
             return
                 node.ChildNodes.OfType<XmlElement>()

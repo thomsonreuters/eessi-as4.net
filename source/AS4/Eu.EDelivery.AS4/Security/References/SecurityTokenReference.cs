@@ -36,6 +36,7 @@ namespace Eu.EDelivery.AS4.Security.References
         /// <summary>
         /// Gets or sets the reference id.
         /// </summary>
+        [Obsolete]
         public string ReferenceId { get; protected set; } = "cert-" + Guid.NewGuid();
 
         public virtual XmlElement AppendSecurityTokenTo(XmlElement element, XmlDocument document)
@@ -48,5 +49,7 @@ namespace Eu.EDelivery.AS4.Security.References
         public abstract override XmlElement GetXml();
 
         public abstract override void LoadXml(XmlElement element);
+
+        
     }
 }

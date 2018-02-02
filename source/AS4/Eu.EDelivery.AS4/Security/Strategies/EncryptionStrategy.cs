@@ -84,6 +84,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
             _attachments = attachments.ToList();
 
             // TODO: review this.  This is probably only necessary for decryption; maybe seperate decrypt and encrypt strategy.
+
             var encryptedKeyElement = document.SelectSingleNode("//*[local-name()='EncryptedKey']") as XmlElement;
 
             if (encryptedKeyElement != null)
@@ -92,7 +93,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
 
                 var provider = new SecurityTokenReferenceProvider(Registry.Instance.CertificateRepository);
 
-                _keyEncryptionConfig.SecurityTokenReference = provider.Get(encryptedKeyElement, SecurityTokenType.Encryption);
+               _keyEncryptionConfig.SecurityTokenReference = provider.Get(document, SecurityTokenType.Encryption);
             }
 
             // End review.

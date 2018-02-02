@@ -30,44 +30,53 @@ namespace Eu.EDelivery.AS4.Security.References
             }
         }
 
-        public SecurityTokenReference Get(XmlElement envelopeDocument, SecurityTokenType type)
+        public SecurityTokenReference Get(XmlDocument envelopeDocument, SecurityTokenType type)
         {
-            string xpathQuery = "";
+            XmlElement keyInfoElement;
 
             if (type == SecurityTokenType.Signing)
             {
-                xpathQuery = "//*[local-name()='{0}']";
+                keyInfoElement =
+                    envelopeDocument.SelectSingleNode(
+                        @"//*[local-name()='Header']/*[local-name()='Security']/*[local-name()='Signature']/*[local-name()='KeyInfo']/*[local-name()='SecurityTokenReference']") as XmlElement;
             }
             else if (type == SecurityTokenType.Encryption)
             {
-                xpathQuery = ".//*[local-name()='{0}']";
+                keyInfoElement =
+                    envelopeDocument.SelectSingleNode(
+                        @"//*[local-name()='Header']/*[local-name()='Security']/*[local-name()='EncryptedKey']/*[local-name()='KeyInfo']/*[local-name()='SecurityTokenReference']") as XmlElement;
             }
             else
             {
                 throw new ArgumentOutOfRangeException(nameof(type));
             }
 
-            if (HasEnvelopeTag(envelopeDocument, xpathSelector: String.Format(xpathQuery, "BinarySecurityToken")))
+            if (keyInfoElement == null)
             {
-                return new BinarySecurityTokenReference(envelopeDocument);
+                return null; // ? TODO: what should we do here ?
             }
 
-            if (HasEnvelopeTag(envelopeDocument, xpathSelector: String.Format(xpathQuery, "X509SerialNumber")))
+            if (HasEnvelopeTag(keyInfoElement, securityTokenNodeName: "Reference"))
             {
-                return new IssuerSecurityTokenReference(envelopeDocument, _certificateRepository);
+                return new BinarySecurityTokenReference(keyInfoElement);
             }
 
-            if (HasEnvelopeTag(envelopeDocument, xpathSelector: String.Format(xpathQuery, "KeyIdentifier")))
+            if (HasEnvelopeTag(keyInfoElement, securityTokenNodeName: "KeyIdentifier"))
             {
-                return new KeyIdentifierSecurityTokenReference(envelopeDocument, _certificateRepository);
+                return new KeyIdentifierSecurityTokenReference(keyInfoElement, _certificateRepository);
             }
 
-            return new BinarySecurityTokenReference(envelopeDocument);
+            if (HasEnvelopeTag(keyInfoElement, securityTokenNodeName: "X509Data"))
+            {
+                return new IssuerSecurityTokenReference(keyInfoElement, _certificateRepository);
+            }
+
+            throw new NotSupportedException("Unable to retrieve SecurityTokenReference of type " + keyInfoElement.OuterXml);
         }
 
-        private static bool HasEnvelopeTag(XmlNode element, string xpathSelector)
+        private static bool HasEnvelopeTag(XmlNode element, string securityTokenNodeName)
         {
-            return element?.SelectSingleNode(xpathSelector) != null;
+            return element?.SelectSingleNode($"./*[local-name()='{securityTokenNodeName}']") != null;
         }
     }
 
@@ -84,6 +93,6 @@ namespace Eu.EDelivery.AS4.Security.References
     public interface ISecurityTokenReferenceProvider
     {
         SecurityTokenReference Get(X509ReferenceType referenceType);
-        SecurityTokenReference Get(XmlElement envelopeDocument, SecurityTokenType type);
+        SecurityTokenReference Get(XmlDocument envelopeDocument, SecurityTokenType type);
     }
 }

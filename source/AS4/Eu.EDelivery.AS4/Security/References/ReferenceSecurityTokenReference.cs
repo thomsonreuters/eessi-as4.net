@@ -7,6 +7,9 @@ namespace Eu.EDelivery.AS4.Security.References
     /// <summary>
     /// Encryption Key Info Reference Token Reference.
     /// </summary>
+    
+        // TODO: isn't this just a BinarySEcurityTokenReference ?
+
     public class ReferenceSecurityTokenReference : SecurityTokenReference
     {
         /// <summary>
