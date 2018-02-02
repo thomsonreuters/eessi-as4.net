@@ -47,7 +47,7 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
                 || party.Role == null)
             {
                 throw new InvalidOperationException(
-                    "Given invalid 'ToParty', requires 'Role', 'PartyId', and 'PartyType'");
+                    $"Given invalid 'ToParty', requires 'Role' = {party.Role}, 'PartyId' = {party.PrimaryPartyId}, and 'PartyType' = {party.PrimaryPartyType}");
             }
 
             SmpConfiguration configuration = FindSmpResponseForToParty(party);

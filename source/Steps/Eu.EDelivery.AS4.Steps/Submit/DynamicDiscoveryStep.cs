@@ -52,7 +52,11 @@ namespace Eu.EDelivery.AS4.Steps.Submit
             ValidatePMode(sendingPMode);
 
             messagingContext.SendingPMode = sendingPMode;
-            messagingContext.SubmitMessage.PMode = sendingPMode;
+            if (messagingContext.SubmitMessage != null)
+            {
+                messagingContext.SubmitMessage.PMode = sendingPMode;
+            }
+
             return StepResult.Success(messagingContext);
         }
 

@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using Eu.EDelivery.AS4.Common;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.IntegrationTests.Common
@@ -42,6 +43,22 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
                 }
                 throw new Exception("Local IP Address Not Found!");
             }
+        }
+
+        /// <summary>
+        /// Gets the <see cref="IConfig"/> implementation for the given <see cref="AS4Component"/>.
+        /// </summary>
+        /// <returns></returns>
+        public IConfig GetConfiguration()
+        {
+            Config config = Config.Instance;
+
+            if (config.IsInitialized == false)
+            {
+                config.Initialize();
+            }
+
+            return config;
         }
 
         /// <summary>
