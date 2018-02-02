@@ -321,6 +321,13 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
         {
             AS4Component.Dispose();
 
+            WriteLogFilesToConsole();
+
+            DisposeChild();
+        }
+
+        private static void WriteLogFilesToConsole()
+        {
             Console.WriteLine(Environment.NewLine);
             Console.WriteLine(@"AS4.NET Component Logs:");
             Console.WriteLine(Environment.NewLine);
@@ -336,9 +343,6 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
 
                 Console.WriteLine(Environment.NewLine);
             }
-
-
-            DisposeChild();
         }
 
         /// <summary>
