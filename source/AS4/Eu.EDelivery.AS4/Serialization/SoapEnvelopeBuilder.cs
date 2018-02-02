@@ -25,7 +25,7 @@ namespace Eu.EDelivery.AS4.Serialization
 
             private static readonly XmlSerializerNamespaces XmlSerializerNamespaceInfo
                 = new XmlSerializerNamespaces(NamespaceInformation.Values.ToArray());
-         
+
             private readonly XmlElement _bodyElement;
             private readonly XmlDocument _document;
             private readonly XmlElement _envelopeElement;
@@ -201,7 +201,7 @@ namespace Eu.EDelivery.AS4.Serialization
                     }
                     else
                     {
-                        _headerElement.AppendChild(_securityHeaderElement);
+                        _headerElement.InsertBefore(_securityHeaderElement, _headerElement.FirstChild);
                     }
                 }
 

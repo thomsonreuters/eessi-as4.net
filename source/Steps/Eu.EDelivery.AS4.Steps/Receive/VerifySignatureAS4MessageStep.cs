@@ -123,11 +123,13 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
                     if (!nrrReceipt.VerifyNonRepudiationInfo(referencedUserMessage))
                     {
+                        Logger.Error($"[{as4Message.GetPrimaryMessageId()}] Incoming Receipt hasn't got valid NRI References");
                         return false;
                     }
                 }
             }
 
+            Logger.Info($"[{as4Message.GetPrimaryMessageId()}] Incoming Receipt has valid NRI References");
             return true;
         }
 
