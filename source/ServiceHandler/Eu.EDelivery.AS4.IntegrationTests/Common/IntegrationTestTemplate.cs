@@ -42,7 +42,8 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
             CopyDirectory(@".\config\integrationtest-settings\integrationtest-pmodes\send-pmodes", @".\config\send-pmodes");
             CopyDirectory(@".\config\integrationtest-settings\integrationtest-pmodes\receive-pmodes", @".\config\receive-pmodes");
 
-            CleanUpFiles(@".\database", recursive: true);            
+            CleanUpFiles(@".\database", recursive: true);   
+            CleanUpFiles(@".\logs");
             CleanUpFiles(AS4FullInputPath);
             CleanUpFiles(AS4FullOutputPath);
             CleanUpFiles(AS4ReceiptsPath);
@@ -319,6 +320,23 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
         public void Dispose()
         {
             AS4Component.Dispose();
+
+            Console.WriteLine(Environment.NewLine);
+            Console.WriteLine(@"AS4.NET Component Logs:");
+            Console.WriteLine(Environment.NewLine);
+
+            foreach (string file in Directory.GetFiles(Path.GetFullPath(@".\logs")))
+            {
+                Console.WriteLine($@"From file: '{file}':");
+
+                foreach (string line in File.ReadAllLines(file))
+                {
+                    Console.WriteLine(line);
+                }
+
+                Console.WriteLine(Environment.NewLine);
+            }
+
 
             DisposeChild();
         }
