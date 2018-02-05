@@ -31,15 +31,6 @@ namespace Eu.EDelivery.AS4.Security.References
             LoadXml(securityTokenElement);
         }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="BinarySecurityTokenReference"/> class.
-        /// </summary>
-        public BinarySecurityTokenReference(string referenceId, byte[] certificate)
-        {
-            ReferenceId = referenceId;
-            _certificateBytes = certificate;
-        }
-
         protected override X509Certificate2 LoadCertificate()
         {
             if (_certificateBytes == null || _certificateBytes.Any() == false)
@@ -186,7 +177,6 @@ namespace Eu.EDelivery.AS4.Security.References
 
         private void SetReferenceSecurityAttributes(XmlElement referenceElement)
         {
-            referenceElement.SetAttribute("ValueType", Constants.Namespaces.ValueType);
             referenceElement.SetAttribute("URI", "#" + ReferenceId);
         }
     }

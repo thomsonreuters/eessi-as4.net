@@ -147,7 +147,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
             return new EncryptedDataBuilder()
                 .WithDataEncryptionConfiguration(_dataEncryptionConfig)
                 .WithMimeType(attachment.ContentType)
-                .WithReferenceId(encryptedKey.GetReferenceId())
+                .WithSecurityTokenReference(_keyEncryptionConfig.SecurityTokenReference)
                 .WithUri(attachment.Id)
                 .Build();
         }

@@ -11,6 +11,7 @@ using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Security.Encryption;
+using Eu.EDelivery.AS4.Security.References;
 using Eu.EDelivery.AS4.Security.Strategies;
 using NLog;
 
@@ -86,8 +87,13 @@ namespace Eu.EDelivery.AS4.Steps.Send
             builder.WithDataEncryptionConfiguration(
                 new DataEncryptionConfiguration(encryption.Algorithm, algorithmKeySize: encryption.AlgorithmKeySize));
 
+            // Binary Security Token is always used in encryption since
+            // the sending PMode does not contain an element where the SecurityToken-type that
+            // must be used can be specified.
+            var securityToken = new SecurityTokenReferenceProvider(_certificateRepository).Get(X509ReferenceType.BSTReference);
+
             builder.WithKeyEncryptionConfiguration(
-                new KeyEncryptionConfiguration(tokenReference: null, keyEncryption: encryption.KeyTransport));
+                new KeyEncryptionConfiguration(securityToken, keyEncryption: encryption.KeyTransport));
 
             builder.WithCertificate(certificate);
 

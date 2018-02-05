@@ -14,6 +14,7 @@ namespace Eu.EDelivery.AS4.Security.Builders
         private DataEncryptionConfiguration _data;
         private string _mimeType;
         private string _uri;
+        private SecurityTokenReference _securityToken;
         private string _referenceId;
 
         /// <summary>
@@ -21,9 +22,16 @@ namespace Eu.EDelivery.AS4.Security.Builders
         /// </summary>
         /// <param name="referenceId"></param>
         /// <returns></returns>
+        [Obsolete]
         public EncryptedDataBuilder WithReferenceId(string referenceId)
         {
             _referenceId = referenceId;
+            return this;
+        }
+
+        public EncryptedDataBuilder WithSecurityTokenReference(SecurityTokenReference securityToken)
+        {
+            _securityToken = securityToken;
             return this;
         }
 
@@ -34,7 +42,7 @@ namespace Eu.EDelivery.AS4.Security.Builders
         /// <returns></returns>
         public EncryptedDataBuilder WithUri(string uri)
         {
-            this._uri = uri;
+            _uri = uri;
             return this;
         }
 
@@ -45,7 +53,7 @@ namespace Eu.EDelivery.AS4.Security.Builders
         /// <returns></returns>
         public EncryptedDataBuilder WithMimeType(string mimeType)
         {
-            this._mimeType = mimeType;
+            _mimeType = mimeType;
             return this;
         }
 
@@ -56,7 +64,7 @@ namespace Eu.EDelivery.AS4.Security.Builders
         /// <returns></returns>
         public EncryptedDataBuilder WithDataEncryptionConfiguration(DataEncryptionConfiguration data)
         {
-            this._data = data;
+            _data = data;
             return this;
         }
 
@@ -77,18 +85,18 @@ namespace Eu.EDelivery.AS4.Security.Builders
             return new EncryptedData
             {
                 Id = "ed-" + Guid.NewGuid(),
-                Type = this._data.EncryptionType,
-                EncryptionMethod = new EncryptionMethod(this._data.EncryptionMethod),
+                Type = _data.EncryptionType,
+                EncryptionMethod = new EncryptionMethod(_data.EncryptionMethod),
                 CipherData = new CipherData(),
-                MimeType = this._mimeType
+                MimeType = _mimeType
             };
         }
 
         private void AssemblyEncryptedData(EncryptedData encryptedData)
         {
-            encryptedData.CipherData.CipherReference = new CipherReference("cid:" + this._uri);
+            encryptedData.CipherData.CipherReference = new CipherReference("cid:" + _uri);
             encryptedData.CipherData.CipherReference.TransformChain.Add(new AttachmentCiphertextTransform());
-            encryptedData.KeyInfo.AddClause(new ReferenceSecurityTokenReference(_referenceId));
+            encryptedData.KeyInfo.AddClause(_securityToken);
         }
     }
 }
