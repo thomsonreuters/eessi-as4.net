@@ -9,7 +9,7 @@ namespace Eu.EDelivery.AS4.Security.References
     /// </summary>
     
         // TODO: isn't this just a BinarySEcurityTokenReference ?
-[Obsolete]
+    [Obsolete]
     public class ReferenceSecurityTokenReference : SecurityTokenReference
     {
         public string ReferenceId { get; private set; }

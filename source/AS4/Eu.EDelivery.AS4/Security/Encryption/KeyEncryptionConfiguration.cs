@@ -1,4 +1,5 @@
-﻿using Eu.EDelivery.AS4.Model.PMode;
+﻿using System;
+using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Security.References;
 
 namespace Eu.EDelivery.AS4.Security.Encryption
@@ -15,7 +16,12 @@ namespace Eu.EDelivery.AS4.Security.Encryption
         /// <param name="keyEncryption">The key encryption.</param>
         public KeyEncryptionConfiguration(SecurityTokenReference tokenReference, KeyEncryption keyEncryption)
         {
-            SecurityTokenReference = tokenReference ?? new BinarySecurityTokenReference();
+            if (tokenReference == null)
+            {
+                throw new ArgumentNullException(nameof(tokenReference));
+            }
+
+            SecurityTokenReference = tokenReference;
             EncryptionMethod = keyEncryption.TransportAlgorithm;
             DigestMethod = keyEncryption.DigestAlgorithm;
             Mgf = keyEncryption.MgfAlgorithm;
