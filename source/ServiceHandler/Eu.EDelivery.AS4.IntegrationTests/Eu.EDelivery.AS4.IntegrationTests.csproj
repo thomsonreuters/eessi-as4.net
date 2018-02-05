@@ -256,7 +256,7 @@
     <Compile Include="Positive Send Scenarios\8.1.15 Send Single Payload with HTTP Submit\SendSinglePayloadHttpSubmitTest.cs" />
     <Compile Include="Positive Send Scenarios\8.1.16 Send Message via Pulling\SendMessageViaPullingTest.cs" />
     <Compile Include="Positive Send Scenarios\8.1.18 Send Message via Pulling result in Error\SendMessageViaPullingResultInErrorTest.cs" />
-    <Compile Include="Positive Send Scenarios\8.1.19 20 Send Message via Dynamic Discovery\SendMessageViaDynamicDiscoveryTest.cs" />
+    <Compile Include="Positive Send Scenarios\8.1.19 20 21 Send Message via Dynamic Discovery\SendMessageViaDynamicDiscoveryTest.cs" />
     <Compile Include="Positive Send Scenarios\8.1.2. Send Multiple Payloads with FILE Submit\MultiplePayloadIntegrationTest.cs" />
     <Compile Include="Positive Send Scenarios\8.1.3. Send Multiple Payloads Compressed\MultiplePayloadsCompressedIntegrationTest.cs" />
     <Compile Include="Positive Send Scenarios\8.1.4. Send Multiple Payloads Signed\MultiplePayloadsSignedIntegrationTest.cs" />
@@ -289,6 +289,7 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="packages.config" />
+    <Content Include="Resources\8.1.21-message.xml" />
     <None Include="Resources\AccessPointB.cer" />
     <None Include="Resources\as4message_external_payloads.txt" />
     <None Include="Resources\as4message_missing_mime_property.txt" />

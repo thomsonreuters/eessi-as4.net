@@ -11,13 +11,14 @@ using Eu.EDelivery.AS4.Streaming;
 using Xunit;
 using static Eu.EDelivery.AS4.IntegrationTests.Properties.Resources;
 
-namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._19_20_Send_Message_Via_Dynamic_Discovery
+namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._19_20_21_Send_Message_Via_Dynamic_Discovery
 {
     public class SendMessageViaDynamicDiscoveryTest : IntegrationTestTemplate
     {
         public static readonly string ReceiveAgentEndpoint = "http://localhost:9090/msh",
                                       HolodeckBId = "org:holodeckb2b:example:company:B",
-                                      HolodeckPartyRole = "Receiver";
+                                      HolodeckPartyRole = "Receiver",
+                                      DynamicDiscoverySettings = "8.1.19-settings.xml";
 
         /// <summary>
         /// 8.1.19 Integration Test with Dynamic Discovery:
@@ -29,7 +30,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._19_20
             // Arrange
             Holodeck.CopyPModeToHolodeckB("8.1.19-pmode.xml");
 
-            AS4Component.OverrideSettings("8.1.19-settings.xml");
+            AS4Component.OverrideSettings(DynamicDiscoverySettings);
             AS4Component.Start();
 
             InsertSmpConfigurationWith(url: ReceiveAgentEndpoint, enableEncryption: false);
@@ -55,7 +56,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._19_20
             // Arrange
             Holodeck.CopyPModeToHolodeckB("8.1.20-pmode.xml");
 
-            AS4Component.OverrideSettings("8.1.20-settings.xml");
+            AS4Component.OverrideSettings(DynamicDiscoverySettings);
             AS4Component.Start();
 
             InsertSmpConfigurationWith(url: ReceiveAgentEndpoint, enableEncryption: true);
@@ -67,8 +68,56 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._19_20
 
             // Assert
             Assert.True(
-                PollingAt(AS4ReceiptsPath), 
+                PollingAt(AS4ReceiptsPath),
                 "No Receipt found at AS4.NET Component for Encrypted Dynamic Discovery Test");
+        }
+
+        [Fact]
+        public void AS4ComponentDoesntAlterSignatureFromOrignalHolodeckMessage()
+        {
+            // Arrange
+            Holodeck.CopyPModeToHolodeckB("8.1.21-pmode.xml");
+
+            AS4Component.OverrideSettings(DynamicDiscoverySettings);
+            AS4Component.Start();
+
+            InsertHolodeckSmpConfigurationWith(url: ReceiveAgentEndpoint, encryption: true);
+
+            // Act
+            new StubSender().SendMessage(_8_1_21_message, Constants.ContentTypes.Soap);
+
+            // Assert
+            Assert.True(
+                PollingAt(AS4ReceiptsPath),
+                "No Receipt found at AS4.NET Component for Simple Dynamic Discovery Test");
+        }
+
+        private void InsertHolodeckSmpConfigurationWith(string url, bool encryption)
+        {
+            var smpConfig = new SmpConfiguration
+            {
+                TlsEnabled = false,
+                EncryptionEnabled = encryption,
+                PartyRole = HolodeckPartyRole,
+                ToPartyId = "org:eu:europa:as4:example",
+                PartyType = "org:eu:europa:as4:example",
+                Url = url,
+                Action = "StoreMessage",
+                ServiceType = "org:holodeckb2b:services",
+                ServiceValue = "Test",
+                FinalRecipient = "org:eu:europa:as4:example",
+                EncryptAlgorithm = Encryption.Default.Algorithm,
+                EncryptPublicKeyCertificate = Convert.ToBase64String(AccessPointB_PublicCert),
+                EncryptAlgorithmKeySize = Encryption.Default.AlgorithmKeySize,
+                EncryptKeyDigestAlgorithm = KeyEncryption.Default.DigestAlgorithm,
+                EncryptKeyMgfAlorithm = KeyEncryption.Default.MgfAlgorithm,
+                EncryptKeyTransportAlgorithm = KeyEncryption.Default.TransportAlgorithm
+            };
+
+            PollingAt(Path.GetFullPath(@".\database"), "*.db");
+
+            var spy = new DatastoreSpy(AS4Component.GetConfiguration());
+            spy.InsertSmpConfiguration(smpConfig);
         }
 
         private void InsertSmpConfigurationWith(string url, bool enableEncryption)
