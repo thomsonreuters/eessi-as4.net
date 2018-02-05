@@ -16,7 +16,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.References
                 var token = provider.Get(GetBinarySecurityTokenEnvelope(), SecurityTokenType.Signing);
 
                 Assert.NotNull(token);
-                Assert.True(token is BinarySecurityTokenReference);
+                Assert.IsType<BinarySecurityTokenReference>(token);
                 Assert.NotNull(token.Certificate);
             }
 
@@ -27,7 +27,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.References
                 var token = provider.Get(GetKeyIdentifierSecurityTokenEnvelope(), SecurityTokenType.Signing);
 
                 Assert.NotNull(token);
-                Assert.True(token is KeyIdentifierSecurityTokenReference);
+                Assert.IsType<KeyIdentifierSecurityTokenReference>(token);
             }
 
             [Fact]
@@ -37,7 +37,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.References
                 var token = provider.Get(GetIssuerSecurityTokenEnvelope(), SecurityTokenType.Signing);
 
                 Assert.NotNull(token);
-                Assert.True(token is IssuerSecurityTokenReference);
+                Assert.IsType<IssuerSecurityTokenReference>(token);
             }
 
             private static XmlDocument GetBinarySecurityTokenEnvelope()
