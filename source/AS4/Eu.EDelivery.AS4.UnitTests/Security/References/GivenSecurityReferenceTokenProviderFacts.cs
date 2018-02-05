@@ -16,7 +16,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.References
                 var token = provider.Get(GetBinarySecurityTokenEnvelope(), SecurityTokenType.Signing);
 
                 Assert.NotNull(token);
-                Assert.True(token is BinarySecurityTokenReference );
+                Assert.True(token is BinarySecurityTokenReference);
                 Assert.NotNull(token.Certificate);
             }
 
@@ -66,11 +66,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.References
 
                 return doc;
             }
-        }
-
-        public class Decryption
-        {
-            
         }
     }
 }
