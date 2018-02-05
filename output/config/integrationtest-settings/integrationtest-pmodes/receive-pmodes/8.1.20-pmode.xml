@@ -28,14 +28,6 @@
   </ExceptionHandling>
   <MessagePackaging>
     <PartyInfo>
-      <FromParty>
-        <PartyIds>
-          <PartyId>
-            <Id>org:eu:europa:as4:example:accesspoint:A</Id>
-          </PartyId>
-        </PartyIds>
-        <Role>Sender</Role>
-      </FromParty>
       <ToParty>
         <PartyIds>
           <PartyId>
