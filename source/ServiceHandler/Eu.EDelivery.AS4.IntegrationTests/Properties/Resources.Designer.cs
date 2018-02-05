@@ -61,6 +61,16 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] AccessPointB_PublicCert {
+            get {
+                object obj = ResourceManager.GetObject("AccessPointB_PublicCert", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to \messages\errors.
         /// </summary>
         internal static string as4_component_errors_path {
