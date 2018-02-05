@@ -16,7 +16,8 @@ using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Encodings;
 using Org.BouncyCastle.Security;
 
-namespace Eu.EDelivery.AS4.Security.Strategies {
+namespace Eu.EDelivery.AS4.Security.Strategies
+{
     public class DecryptionStrategy : CryptoStrategy, IDecryptionStrategy
     {
 
@@ -27,7 +28,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies {
         /// <summary>
         /// Initializes a new instance of the <see cref="DecryptionStrategy"/> class.
         /// </summary>
-        internal DecryptionStrategy(XmlDocument envelopeDocument , IEnumerable<Attachment> attachments, X509Certificate2 certificate)
+        internal DecryptionStrategy(XmlDocument envelopeDocument, IEnumerable<Attachment> attachments, X509Certificate2 certificate)
         {
             _soapEnvelope = envelopeDocument;
             _attachments = attachments;
