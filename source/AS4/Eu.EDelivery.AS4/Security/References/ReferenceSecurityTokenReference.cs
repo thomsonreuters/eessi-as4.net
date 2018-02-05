@@ -7,8 +7,13 @@ namespace Eu.EDelivery.AS4.Security.References
     /// <summary>
     /// Encryption Key Info Reference Token Reference.
     /// </summary>
+    
+        // TODO: isn't this just a BinarySEcurityTokenReference ?
+[Obsolete]
     public class ReferenceSecurityTokenReference : SecurityTokenReference
     {
+        public string ReferenceId { get; private set; }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="ReferenceSecurityTokenReference"/> class.
         /// </summary>

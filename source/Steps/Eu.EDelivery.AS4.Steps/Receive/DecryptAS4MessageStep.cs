@@ -1,19 +1,16 @@
-﻿
-using System;
+﻿using System;
 using System.ComponentModel;
 using System.Configuration;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Builders.Security;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
-using Eu.EDelivery.AS4.Security.Strategies;
 using NLog;
 using Org.BouncyCastle.Crypto;
 
@@ -105,8 +102,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             {
                 Logger.Info($"{messagingContext.EbmsMessageId} Start decrypting AS4 Message ...");
 
-                IEncryptionStrategy strategy = CreateDecryptStrategy(messagingContext);
-                messagingContext.AS4Message.SecurityHeader.Decrypt(strategy);
+                messagingContext.AS4Message.Decrypt(GetCertificate(messagingContext));
 
                 Logger.Info($"{messagingContext.EbmsMessageId} AS4 Message is decrypted correctly");
 
@@ -122,23 +118,6 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
                 return StepResult.Failed(messagingContext);
             }
-        }
-
-        private IEncryptionStrategy CreateDecryptStrategy(MessagingContext messagingContext)
-        {
-            AS4Message as4Message = messagingContext.AS4Message;
-            X509Certificate2 certificate = GetCertificate(messagingContext);
-
-            if (!certificate.HasPrivateKey)
-            {
-                throw new CryptoException("Decryption failed - No private key found.");
-            }
-
-            return EncryptionStrategyBuilder
-                .Create(as4Message.EnvelopeDocument)
-                .WithCertificate(certificate)
-                .WithAttachments(as4Message.Attachments)
-                .Build();
         }
 
         private X509Certificate2 GetCertificate(MessagingContext messagingContext)

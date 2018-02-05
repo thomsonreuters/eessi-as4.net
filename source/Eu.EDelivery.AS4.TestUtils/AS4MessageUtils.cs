@@ -25,7 +25,6 @@ namespace Eu.EDelivery.AS4.TestUtils
         {
             var encryption = EncryptionStrategyBuilder.Create(message)
                                                       .WithCertificate(certificate)
-                                                      .WithAttachments(message.Attachments)
                                                       .Build();
 
             message.SecurityHeader.Encrypt(encryption);

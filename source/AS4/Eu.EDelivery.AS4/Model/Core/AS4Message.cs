@@ -3,13 +3,17 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
+using Eu.EDelivery.AS4.Builders.Security;
 using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.PMode;
+using Eu.EDelivery.AS4.Security.References;
 using Eu.EDelivery.AS4.Security.Signing;
+using Eu.EDelivery.AS4.Security.Strategies;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Streaming;
 using MimeKit;
@@ -370,6 +374,19 @@ namespace Eu.EDelivery.AS4.Model.Core
             attachment.Properties["CompressionType"] = "application/gzip";
             attachment.Properties["MimeType"] = attachment.ContentType;
             attachment.ContentType = "application/gzip";
+        }
+
+        /// <summary>
+        /// Decrypt the AS4 Message using the specified <paramref name="certificate"/>.
+        /// </summary>
+        /// <param name="certificate"></param>
+        public void Decrypt(X509Certificate2 certificate)
+        {
+            var decryptor = DecryptionStrategyBuilder.Create(this)
+                                                   .WithCertificate(certificate)
+                                                   .Build();
+            
+            decryptor.DecryptMessage();
         }
 
         /// <summary>Indicates whether the current object is equal to another object of the same type.</summary>

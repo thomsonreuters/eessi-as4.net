@@ -245,7 +245,6 @@ namespace Eu.EDelivery.AS4.Serialization
             }
 
             ISigningStrategy signingStrategy = null;
-            IEncryptionStrategy encryptionStrategy = null;
 
             var signatureElement = securityHeader.SelectSingleNode("//ds:Signature", nsMgr);
 
@@ -256,12 +255,7 @@ namespace Eu.EDelivery.AS4.Serialization
 
             var encryptionElement = securityHeader.SelectSingleNode("//xenc:EncryptedData", nsMgr);
 
-            if (encryptionElement != null)
-            {
-                encryptionStrategy = EncryptionStrategyBuilder.Create(envelopeDocument).Build();
-            }
-
-            return new SecurityHeader(signingStrategy, encryptionStrategy);
+            return new SecurityHeader(signingStrategy, encryptionElement != null);
         }
 
         private static Messaging DeserializeMessagingHeader(XmlDocument document, XmlNamespaceManager nsMgr)

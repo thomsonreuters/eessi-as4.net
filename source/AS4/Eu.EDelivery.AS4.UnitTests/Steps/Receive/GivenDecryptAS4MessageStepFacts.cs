@@ -91,7 +91,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             {
                 // Arrange
                 AS4Message as4Message = AS4Message.Empty;
-                as4Message.SecurityHeader = new SecurityHeader(null, _mockedEncryptedStrategy.Object);
+                as4Message.SecurityHeader = new SecurityHeader(null, true);
 
                 var internalMessage = new MessagingContext(as4Message, MessagingContextMode.Receive) { ReceivingPMode = new ReceivingProcessingMode() };
                 internalMessage.ReceivingPMode.Security.Decryption.Encryption = Limit.NotAllowed;

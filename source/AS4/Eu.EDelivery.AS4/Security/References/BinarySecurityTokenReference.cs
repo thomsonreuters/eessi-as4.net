@@ -10,13 +10,17 @@ namespace Eu.EDelivery.AS4.Security.References
     /// </summary>
     internal sealed class BinarySecurityTokenReference : SecurityTokenReference
     {
-
         private byte[] _certificateBytes;
+
+        public string ReferenceId { get; private set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="BinarySecurityTokenReference"/> class.
         /// </summary>
-        public BinarySecurityTokenReference() { }
+        public BinarySecurityTokenReference()
+        {
+            ReferenceId = "cert-" + Guid.NewGuid();
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="BinarySecurityTokenReference"/> class.
@@ -25,6 +29,15 @@ namespace Eu.EDelivery.AS4.Security.References
         public BinarySecurityTokenReference(XmlElement securityTokenElement)
         {
             LoadXml(securityTokenElement);
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BinarySecurityTokenReference"/> class.
+        /// </summary>
+        public BinarySecurityTokenReference(string referenceId, byte[] certificate)
+        {
+            ReferenceId = referenceId;
+            _certificateBytes = certificate;
         }
 
         protected override X509Certificate2 LoadCertificate()
@@ -57,7 +70,7 @@ namespace Eu.EDelivery.AS4.Security.References
             }
         }
 
-        private static XmlElement GetReferenceElement(XmlNode node)
+        private static XmlElement GetReferenceElement(XmlElement node)
         {
             return
                 node.ChildNodes.OfType<XmlElement>()
