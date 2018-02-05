@@ -5,7 +5,7 @@ using Eu.EDelivery.AS4.Repositories;
 namespace Eu.EDelivery.AS4.Security.References
 {
 
-    public class SecurityTokenReferenceProvider : ISecurityTokenReferenceProvider
+    public class SecurityTokenReferenceProvider
     {
         private readonly ICertificateRepository _certificateRepository;
 
@@ -20,8 +20,10 @@ namespace Eu.EDelivery.AS4.Security.References
             {
                 case X509ReferenceType.BSTReference:
                     return new BinarySecurityTokenReference();
+
                 case X509ReferenceType.IssuerSerial:
                     return new IssuerSecurityTokenReference(_certificateRepository);
+
                 case X509ReferenceType.KeyIdentifier:
                     return new KeyIdentifierSecurityTokenReference(_certificateRepository);
 
@@ -34,26 +36,27 @@ namespace Eu.EDelivery.AS4.Security.References
         {
             XmlElement keyInfoElement;
 
-            if (type == SecurityTokenType.Signing)
+            switch (type)
             {
-                keyInfoElement =
-                    envelopeDocument.SelectSingleNode(
-                        @"//*[local-name()='Header']/*[local-name()='Security']/*[local-name()='Signature']/*[local-name()='KeyInfo']/*[local-name()='SecurityTokenReference']") as XmlElement;
-            }
-            else if (type == SecurityTokenType.Encryption)
-            {
-                keyInfoElement =
-                    envelopeDocument.SelectSingleNode(
-                        @"//*[local-name()='Header']/*[local-name()='Security']/*[local-name()='EncryptedKey']/*[local-name()='KeyInfo']/*[local-name()='SecurityTokenReference']") as XmlElement;
-            }
-            else
-            {
-                throw new ArgumentOutOfRangeException(nameof(type));
+                case SecurityTokenType.Signing:
+                    keyInfoElement =
+                        envelopeDocument.SelectSingleNode(
+                            @"//*[local-name()='Header']/*[local-name()='Security']/*[local-name()='Signature']/*[local-name()='KeyInfo']/*[local-name()='SecurityTokenReference']") as XmlElement;
+                    break;
+
+                case SecurityTokenType.Encryption:
+                    keyInfoElement =
+                        envelopeDocument.SelectSingleNode(
+                            @"//*[local-name()='Header']/*[local-name()='Security']/*[local-name()='EncryptedKey']/*[local-name()='KeyInfo']/*[local-name()='SecurityTokenReference']") as XmlElement;
+                    break;
+
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(type));
             }
 
             if (keyInfoElement == null)
             {
-                return null; // ? TODO: what should we do here ?
+                return null;
             }
 
             if (HasEnvelopeTag(keyInfoElement, securityTokenNodeName: "Reference"))
@@ -84,15 +87,5 @@ namespace Eu.EDelivery.AS4.Security.References
     {
         Signing,
         Encryption
-    }
-
-    /// <summary>
-    /// Interface to declare the selection of 
-    /// <see cref="SecurityTokenReference"/> implementations
-    /// </summary>
-    public interface ISecurityTokenReferenceProvider
-    {
-        SecurityTokenReference Get(X509ReferenceType referenceType);
-        SecurityTokenReference Get(XmlDocument envelopeDocument, SecurityTokenType type);
     }
 }
