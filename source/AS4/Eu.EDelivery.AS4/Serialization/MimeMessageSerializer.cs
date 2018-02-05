@@ -214,7 +214,7 @@ namespace Eu.EDelivery.AS4.Serialization
                 throw new ArgumentNullException(nameof(contentType));
             }
         }
-
+        
         private async Task<AS4Message> ParseStreamToAS4MessageAsync(
             Stream inputStream,
             string contentType,
@@ -232,6 +232,7 @@ namespace Eu.EDelivery.AS4.Serialization
                 .DeserializeAsync(envelopeStream, contentType, cancellationToken).ConfigureAwait(false);
 
             AddBodyPartsAsAttachmentsToMessage(bodyParts, message);
+            message.ContentType = contentType;
 
             return message;
         }

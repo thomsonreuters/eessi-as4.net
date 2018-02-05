@@ -64,6 +64,21 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
             return TryHandleWebResponse(webRequest);
         }
 
+        /// <summary>
+        /// Sends the given message stream with <paramref name="contentType"/> to the AS4.NET Component.
+        /// </summary>
+        /// <param name="message">The message.</param>
+        /// <param name="contentType">Type of the content.</param>
+        /// <returns></returns>
+        public WebResponse SendMessage(Stream message, string contentType)
+        {
+            WaitToMakeSureAS4ComponentIsStarted();
+            HttpWebRequest webRequest = CreateWebRequest(contentType);
+            SendWebRequest(webRequest, message);
+
+            return TryHandleRawResponse(webRequest);
+        }
+
         private static void WaitToMakeSureAS4ComponentIsStarted()
         {
             Thread.Sleep(TimeSpan.FromSeconds(10));
@@ -80,6 +95,15 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
             ServicePointManager.Expect100Continue = false;
 
             return request;
+        }
+
+        private void SendWebRequest(WebRequest webRequest, Stream message)
+        {
+            Console.WriteLine($@"Send Web Request to: {Url}");
+            using (Stream requestStream = webRequest.GetRequestStream())
+            {
+                message.CopyTo(requestStream);
+            }
         }
 
         private void SendWebRequest(WebRequest webRequest, string message)

@@ -66,7 +66,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                 AS4Message as4Message = await ExerciseMimeDeserializeAnonymousUserMessage();
 
                 // Assert
-                Assert.NotEqual(AnonymousContentType, as4Message.ContentType);
+                Assert.Equal(AnonymousContentType, as4Message.ContentType);
                 Assert.Contains(Constants.ContentTypes.Mime, as4Message.ContentType);
             }
             

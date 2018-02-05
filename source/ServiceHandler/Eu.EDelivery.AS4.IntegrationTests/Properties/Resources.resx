@@ -384,4 +384,10 @@
   &lt;/Payloads&gt;
 &lt;/SubmitMessage&gt;</value>
   </data>
+  <data name="AccessPointB_PublicCert" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\accesspointb.cer;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="_8_1_21_message" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\8.1.21-message.xml;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
+  </data>
 </root>

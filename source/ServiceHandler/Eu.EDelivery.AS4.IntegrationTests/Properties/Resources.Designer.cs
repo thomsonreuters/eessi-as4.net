@@ -61,6 +61,33 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to &lt;soapenv:Envelope 
+        ///    xmlns:soapenv=&quot;http://www.w3.org/2003/05/soap-envelope&quot; 
+        ///    xmlns:xsd=&quot;http://www.w3.org/1999/XMLSchema&quot; 
+        ///    xmlns:eb3=&quot;http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/&quot; 
+        ///    xmlns:xsi=&quot;http://www.w3.org/1999/XMLSchema-instance/&quot;&gt;
+        ///    &lt;soapenv:Header&gt;
+        ///        &lt;wsse:Security 
+        ///            xmlns:wsse=&quot;http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd&quot; 
+        ///            xmlns:wsu=&quot;http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-ws [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string _8_1_21_message {
+            get {
+                return ResourceManager.GetString("_8_1_21_message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] AccessPointB_PublicCert {
+            get {
+                object obj = ResourceManager.GetObject("AccessPointB_PublicCert", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to \messages\errors.
         /// </summary>
         internal static string as4_component_errors_path {
