@@ -158,7 +158,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.References
                 Assert.NotNull(xmlElement);
                 Assert.NotNull(xmlElement.FirstChild.Attributes);
 
-                var uriAttribute = xmlElement.Attributes.OfType<XmlAttribute>().FirstOrDefault(a => a.LocalName == "URI");
+                var uriAttribute = xmlElement.FirstChild.Attributes.OfType<XmlAttribute>().FirstOrDefault(a => a.LocalName == "URI");
 
                 Assert.NotNull(uriAttribute);
                 Assert.Equal($"#{_reference.ReferenceId}", uriAttribute.Value);
