@@ -36,9 +36,9 @@ namespace Eu.EDelivery.AS4.PerformanceTests.LargeMessages
         private void AssertMessages(int expectedSize)
         {
             int actualSize = Corner3.FirstDeliveredMessageLength("*.jpg");
-            Func<int, int> floor = i => i - (i % 10);
+            int Floor(int i) => (int) Math.Floor(i * 0.1) * 10;
 
-            Assert.Equal(floor(expectedSize), floor(actualSize));
+            Assert.Equal(Floor(expectedSize), Floor(actualSize));
         }
     }
 }

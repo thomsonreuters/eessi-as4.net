@@ -34,7 +34,7 @@
       <Encryption>Allowed</Encryption>
       <CertificateFindCriteria>
         <CertificateFindType>FindBySubjectName</CertificateFindType>
-        <CertificateFindValue>as4-net-c3</CertificateFindValue>
+        <CertificateFindValue>AccessPointB</CertificateFindValue>
       </CertificateFindCriteria>
     </Decryption>
   </Security>

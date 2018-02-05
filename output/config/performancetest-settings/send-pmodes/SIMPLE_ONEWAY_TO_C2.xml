@@ -50,7 +50,7 @@
       <IsEnabled>true</IsEnabled>
       <CertificateFindCriteria>
         <CertificateFindType>FindBySubjectName</CertificateFindType>
-        <CertificateFindValue>as4-net-c3</CertificateFindValue>
+        <CertificateFindValue>AccessPointB</CertificateFindValue>
       </CertificateFindCriteria>
       <KeyReferenceMethod>BSTReference</KeyReferenceMethod>
       <Algorithm>http://www.w3.org/2001/04/xmldsig-more#rsa-sha256</Algorithm>
@@ -61,7 +61,7 @@
       <Algorithm>http://www.w3.org/2009/xmlenc11#aes128-gcm</Algorithm>
       <CertificateFindCriteria>
         <CertificateFindType>FindBySubjectName</CertificateFindType>
-        <CertificateFindValue>as4-net-c2</CertificateFindValue>
+        <CertificateFindValue>AccessPointA</CertificateFindValue>
       </CertificateFindCriteria>
     </Encryption>
   </Security>
