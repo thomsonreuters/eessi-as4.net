@@ -27,7 +27,7 @@ namespace Eu.EDelivery.AS4.Builders.Security
 
         private readonly List<Tuple<SigningId, string>> _references = new List<Tuple<SigningId, string>>();
 
-        private readonly ISecurityTokenReferenceProvider _tokenProvider =
+        private readonly SecurityTokenReferenceProvider _tokenProvider =
             new SecurityTokenReferenceProvider(Registry.Instance.CertificateRepository);
 
         private X509Certificate2 _certificate;
