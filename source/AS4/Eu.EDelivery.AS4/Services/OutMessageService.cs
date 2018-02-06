@@ -57,12 +57,12 @@ namespace Eu.EDelivery.AS4.Services
         public async Task<IEnumerable<AS4Message>> GetAS4UserMessagesForIds(
             IEnumerable<string> messageIds, IAS4MessageBodyStore store)
         {
-            IEnumerable<InMessage> messages = _repository.GetInMessagesData(messageIds, m => m).Where(m => m != null);
+            IEnumerable<OutMessage> messages = _repository.GetOutMessagesData(messageIds, m => m).Where(m => m != null);
             if (!messages.Any()) { return Enumerable.Empty<AS4Message>(); }
 
             var foundMessages = new List<AS4Message>();
 
-            foreach (InMessage m in messages)
+            foreach (OutMessage m in messages)
             {
                 Stream body = await store.LoadMessageBodyAsync(m.MessageLocation);
 
