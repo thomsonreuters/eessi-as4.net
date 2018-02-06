@@ -47,6 +47,8 @@ Copy-Item -Path .\Eu.EDelivery.AS4.Fe.xml .\Staging\bin\
 Copy-Item -Path .\Eu.EDelivery.AS4.PayloadService.exe .\Staging\bin\
 Copy-Item -Path .\Eu.EDelivery.AS4.PayloadService.xml .\Staging\bin\
 Copy-Item -Path .\appsettings.payloadservice.json .\Staging\bin\
+Copy-Item -Path .\Eu.EDelivery.AS4.WindowsService.exe .\Staging\bin
+Copy-Item -Path .\Eu.EDelivery.AS4.WindowsService.exe.config .\Staging\bin
 
 
 If (Test-Path .\Eu.EDelivery.AS4.dll.config) {
@@ -64,3 +66,5 @@ Copy-Item -Path .\samples\certificates\*.* .\Staging\samples\certificates\
 Copy-Item -Path .\samples\messages\*.* .\Staging\samples\messages\
 Copy-Item -Path .\samples\pmodes\*.* .\Staging\samples\pmodes\
 Copy-Item -Path .\samples\pmodes\eessi\*.* .\Staging\samples\pmodes\eessi\
+Copy-Item -Path .\install-windows-service.bat .\Staging\bin
+Copy-Item -Path .\uninstall-windows-service.bat .\Staging\bin
