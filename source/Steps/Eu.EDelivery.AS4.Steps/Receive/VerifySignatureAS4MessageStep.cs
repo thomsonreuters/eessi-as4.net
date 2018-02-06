@@ -106,7 +106,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         private async Task<bool> VerifyNonRepudiationsHashes(AS4Message as4Message)
         {
             IEnumerable<Receipt> receipts = as4Message.SignalMessages
-                .Where(m => m is Receipt)
+                .Where(m => m is Receipt r && r.NonRepudiationInformation != null)
                 .Cast<Receipt>();
 
             IEnumerable<AS4Message> userMessages = 
