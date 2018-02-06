@@ -6,6 +6,9 @@ using System.Linq;
 using System.Runtime.Caching;
 using System.Xml.Serialization;
 using Eu.EDelivery.AS4.Model.PMode;
+using Eu.EDelivery.AS4.Validators;
+using FluentValidation;
+using FluentValidation.Results;
 using NLog;
 
 namespace Eu.EDelivery.AS4.Watchers
@@ -16,17 +19,22 @@ namespace Eu.EDelivery.AS4.Watchers
     /// <typeparam name="T"></typeparam>
     public class PModeWatcher<T> : IDisposable where T : class, IPMode
     {
+
         private readonly ConcurrentDictionary<string, ConfiguredPMode> _pmodes = new ConcurrentDictionary<string, ConfiguredPMode>(StringComparer.OrdinalIgnoreCase);
         private readonly ConcurrentDictionary<string, string> _filePModeIdMap = new ConcurrentDictionary<string, string>();
 
+        private readonly AbstractValidator<T> _pmodeValidator;
         private readonly FileSystemWatcher _watcher;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="PModeWatcher{T}"/> class
+        /// Initializes a new instance of the <see cref="PModeWatcher{T}" /> class
         /// </summary>
-        /// <param name="path"></param>        
-        public PModeWatcher(string path)
+        /// <param name="path">The path on which this watcher should look for <see cref="IPMode"/> implementations.</param>
+        /// <param name="validator">The validator to use when retrieving <see cref="IPMode"/> implementations.</param>
+        public PModeWatcher(string path, AbstractValidator<T> validator)
         {
+            _pmodeValidator = validator;
+
             _watcher = new FileSystemWatcher(path, "*.xml") { IncludeSubdirectories = true };
             _watcher.Changed += OnChanged;
             _watcher.Created += OnCreated;
@@ -63,9 +71,7 @@ namespace Eu.EDelivery.AS4.Watchers
                 throw new ArgumentException(@"The specified PMode key is invalid.", nameof(key));
             }
 
-            ConfiguredPMode configuredPMode;
-
-            _pmodes.TryGetValue(key, out configuredPMode);
+            _pmodes.TryGetValue(key, out ConfiguredPMode configuredPMode);
 
             return configuredPMode?.PMode;
         }
@@ -140,9 +146,14 @@ namespace Eu.EDelivery.AS4.Watchers
                 _fileEventCache.Add(fullPath, fullPath, _policy);
             }
 
-            IPMode pmode = TryDeserialize(fullPath);
-            if (pmode == null)
+            T pmode = TryDeserialize(fullPath);
+            ValidationResult pmodeValidation = _pmodeValidator.Validate(pmode);
+
+            if (pmode == null || !pmodeValidation.IsValid)
             {
+                LogManager.GetCurrentClassLogger().Warn("Invalid PMode at: '" + fullPath + "'");
+                pmodeValidation.LogErrors(LogManager.GetCurrentClassLogger());
+
                 // Since the PMode that we expect in this file is invalid, it
                 // must be removed from our cache.
                 if (_filePModeIdMap.TryGetValue(fullPath, out string pmodeId))
@@ -169,8 +180,8 @@ namespace Eu.EDelivery.AS4.Watchers
         // cache which keeps track of the date and time a PMode file was last handled by the FileSystemWatcher.
         // Due to an issue with FileSystemWatcher, events can be triggered multiple times for the same operation on the 
         // same file.
-        private readonly System.Runtime.Caching.MemoryCache _fileEventCache = System.Runtime.Caching.MemoryCache.Default;
-        private readonly System.Runtime.Caching.CacheItemPolicy _policy = new CacheItemPolicy() { SlidingExpiration = TimeSpan.FromMilliseconds(500) };
+        private readonly MemoryCache _fileEventCache = MemoryCache.Default;
+        private readonly CacheItemPolicy _policy = new CacheItemPolicy { SlidingExpiration = TimeSpan.FromMilliseconds(500) };
 
         private static T TryDeserialize(string path)
         {
