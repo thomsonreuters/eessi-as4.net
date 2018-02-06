@@ -1,0 +1,56 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<PMode 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+  xmlns="eu:edelivery:as4:pmode">
+  <Id>8.1.19-pmode</Id>
+  <AllowOverride>true</AllowOverride>
+  <Mep>OneWay</Mep>
+  <MepBinding>Push</MepBinding>
+  <DynamicDiscovery>
+    <SmpProfile>Eu.EDelivery.AS4.Services.DynamicDiscovery.LocalDynamicDiscoveryProfile, Eu.EDelivery.AS4, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</SmpProfile>
+  </DynamicDiscovery>
+  <ReceiptHandling>
+    <NotifyMessageProducer>true</NotifyMessageProducer>
+    <NotifyMethod>
+      <Type>FILE</Type>
+      <Parameters>
+        <Parameter name="location" value=".\messages\receipts\" />
+      </Parameters>
+    </NotifyMethod>
+  </ReceiptHandling>
+  <ErrorHandling>
+    <NotifyMessageProducer>true</NotifyMessageProducer>
+    <NotifyMethod>
+      <Type>FILE</Type>
+      <Parameters>
+        <Parameter name="location" value=".\messages\errors\" />
+      </Parameters>
+    </NotifyMethod>
+  </ErrorHandling>
+  <ExceptionHandling>
+    <NotifyMessageProducer>true</NotifyMessageProducer>
+    <NotifyMethod>
+      <Type>FILE</Type>
+      <Parameters>
+        <Parameter name="location" value=".\messages\exceptions\" />
+      </Parameters>
+    </NotifyMethod>
+  </ExceptionHandling>
+  <MessagePackaging>
+    <PartyInfo>
+      <ToParty>
+        <PartyIds>
+          <PartyId>
+            <Id>org:holodeckb2b:example:company:B</Id>
+            <Type>org:holodeckb2b:example:company:B</Type>
+          </PartyId>
+        </PartyIds>
+        <Role>Receiver</Role>
+      </ToParty>
+    </PartyInfo>
+    <UseAS4Compression>false</UseAS4Compression>
+    <IsMultiHop>true</IsMultiHop>
+    <IncludePModeId>false</IncludePModeId>
+  </MessagePackaging>
+</PMode>
