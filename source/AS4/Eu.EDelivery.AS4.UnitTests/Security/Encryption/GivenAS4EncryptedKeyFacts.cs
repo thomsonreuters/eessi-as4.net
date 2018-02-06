@@ -2,6 +2,7 @@
 using System.Security.Cryptography.X509Certificates;
 using System.Security.Cryptography.Xml;
 using System.Xml;
+using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Security.Encryption;
 using Eu.EDelivery.AS4.Security.Strategies;
 using Xunit;
@@ -20,7 +21,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Encryption
             public void ThenGetReferenceIdSucceeds(string id)
             {
                 // Arrange
-                var encryptedKey = new EncryptedKey {Id = id};
+                var encryptedKey = new EncryptedKey { Id = id };
 
                 AS4EncryptedKey as4EncryptedKey = AS4EncryptedKey.FromEncryptedKey(encryptedKey);
 
@@ -56,8 +57,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Encryption
             public void ThenGetCipherDataSucceeds()
             {
                 // Arrange
-                var cipherData = new CipherData {CipherValue = new byte[] {20}};
-                var encryptedKey = new EncryptedKey {CipherData = cipherData};
+                var cipherData = new CipherData { CipherValue = new byte[] { 20 } };
+                var encryptedKey = new EncryptedKey { CipherData = cipherData };
 
                 AS4EncryptedKey as4EncryptedKey = AS4EncryptedKey.FromEncryptedKey(encryptedKey);
 
@@ -90,7 +91,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Encryption
         {
             byte[] encryptionKey;
 
-            using (var generator = new RijndaelManaged {BlockSize = 256})
+            using (var generator = new RijndaelManaged { BlockSize = 256 })
             {
                 encryptionKey = generator.Key;
             }
@@ -114,10 +115,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Encryption
                 byte[] encryptionKey = GenerateEncryptionKey();
 
                 AS4EncryptedKey key =
-                    AS4EncryptedKey.CreateEncryptedKeyBuilderForKey(encryptionKey, GetCertificate()).Build();
+                    AS4EncryptedKey.CreateEncryptedKeyBuilderForKey(encryptionKey, new KeyEncryptionConfiguration(GetCertificate())).Build();
 
                 Assert.Equal(EncryptionStrategy.XmlEncRSAOAEPUrlWithMgf, key.GetEncryptionAlgorithm());
-                Assert.Equal(EncryptionStrategy.XmlEncSHA1Url, key.GetDigestAlgorithm());
+                Assert.Equal(EncryptionStrategy.XmlEncSHA256Url, key.GetDigestAlgorithm());
             }
         }
 
@@ -131,11 +132,17 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Encryption
             {
                 byte[] encryptionKey = GenerateEncryptionKey();
 
+                var keyEncryption = new KeyEncryption
+                {
+                    TransportAlgorithm = algorithm,
+                    DigestAlgorithm = digest,
+                    MgfAlgorithm = mgf
+                };
+
+                var keyEncryptionConfiguration = new KeyEncryptionConfiguration(GetCertificate(), keyEncryption);
+
                 AS4EncryptedKey key =
-                    AS4EncryptedKey.CreateEncryptedKeyBuilderForKey(encryptionKey, GetCertificate())
-                                   .WithEncryptionMethod("http://www.w3.org/2009/xmlenc11#rsa-oaep")
-                                   .WithDigest(EncryptedXml.XmlEncSHA256Url)
-                                   .WithMgf(mgf)
+                    AS4EncryptedKey.CreateEncryptedKeyBuilderForKey(encryptionKey, keyEncryptionConfiguration)
                                    .Build();
 
                 Assert.Equal(algorithm, key.GetEncryptionAlgorithm());

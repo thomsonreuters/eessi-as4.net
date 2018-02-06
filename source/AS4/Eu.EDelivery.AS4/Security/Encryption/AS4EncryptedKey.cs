@@ -18,77 +18,54 @@ namespace Eu.EDelivery.AS4.Security.Encryption
     public class AS4EncryptedKey
     {
         #region Builder
+
         internal class EncryptedKeyBuilder
         {
-            private readonly X509Certificate2 _certificate;
             private byte[] _key;
-            private string _algorithmUri = EncryptionStrategy.XmlEncRSAOAEPUrlWithMgf;
-            private string _digestAlgorithmUri = EncryptionStrategy.XmlEncSHA1Url;
-            private string _mgfAlgorithmUri = null;
-            private SecurityTokenReference _securityTokenReference;
+            private readonly KeyEncryptionConfiguration _keyEncryptionConfiguration; // = KeyEncryptionConfiguration;
+                                                                                     //private string _algorithmUri = EncryptionStrategy.XmlEncRSAOAEPUrlWithMgf;
+                                                                                     //private string _digestAlgorithmUri = EncryptionStrategy.XmlEncSHA1Url;
+                                                                                     //private string _mgfAlgorithmUri = null;
+                                                                                     // private readonly SecurityTokenReference _securityTokenReference;
 
-            private EncryptedKeyBuilder(X509Certificate2 certificate, byte[] key)
+            private EncryptedKeyBuilder(byte[] symmetricKey, KeyEncryptionConfiguration keyEncryptionConfiguration)
             {
-                _certificate = certificate;
-                _key = key;
+                _key = symmetricKey;
+                _keyEncryptionConfiguration = keyEncryptionConfiguration;
             }
 
-            public static EncryptedKeyBuilder ForKey(byte[] symmetricKey, X509Certificate2 certificate)
+            public static EncryptedKeyBuilder ForKey(byte[] symmetricKey, KeyEncryptionConfiguration keyEncryptionConfig)
             {
-                return new EncryptedKeyBuilder(certificate, symmetricKey);
+                return new EncryptedKeyBuilder(symmetricKey, keyEncryptionConfig);
             }
 
-            public EncryptedKeyBuilder WithEncryptionMethod(string algorithmUri)
-            {
-                _algorithmUri = algorithmUri;
-                return this;
-            }
-
-            public EncryptedKeyBuilder WithDigest(string algorithmUri)
-            {
-                _digestAlgorithmUri = algorithmUri;
-                return this;
-            }
-
-            public EncryptedKeyBuilder WithMgf(string mgfAlgorithmUri)
-            {
-                _mgfAlgorithmUri = mgfAlgorithmUri;
-                return this;
-            }
-
-            public EncryptedKeyBuilder WithSecurityTokenReference(SecurityTokenReference reference)
-            {
-                this._securityTokenReference = reference;
-                return this;
-            }
 
             public AS4EncryptedKey Build()
             {
-                return new AS4EncryptedKey(BuildEncryptedKey(), _digestAlgorithmUri, _mgfAlgorithmUri);
+                return new AS4EncryptedKey(BuildEncryptedKey(),
+                                           _keyEncryptionConfiguration.BuildSecurityTokenReference(),
+                                           _keyEncryptionConfiguration.DigestMethod,
+                                           _keyEncryptionConfiguration.Mgf);
             }
 
             private EncryptedKey BuildEncryptedKey()
             {
-                var encoding = EncodingFactory.Instance.Create(digestAlgorithm: _digestAlgorithmUri, mgfAlgorithm: _mgfAlgorithmUri);
+                var encoding = EncodingFactory.Instance.Create(digestAlgorithm: _keyEncryptionConfiguration.DigestMethod,
+                                                               mgfAlgorithm: _keyEncryptionConfiguration.Mgf);
 
-                RSA rsaPublicKey = _certificate.GetRSAPublicKey();
+                RSA rsaPublicKey = _keyEncryptionConfiguration.EncryptionCertificate.GetRSAPublicKey();
                 RsaKeyParameters publicKey = DotNetUtilities.GetRsaPublicKey(rsaPublicKey);
                 encoding.Init(forEncryption: true, param: publicKey);
 
                 var encryptedKey = new EncryptedKey
                 {
                     Id = "ek-" + Guid.NewGuid(),
-                    EncryptionMethod = new EncryptionMethod(_algorithmUri),
+                    EncryptionMethod = new EncryptionMethod(_keyEncryptionConfiguration.EncryptionMethod),
                     CipherData = new CipherData
                     {
                         CipherValue = encoding.ProcessBlock(_key, inOff: 0, inLen: _key.Length)
                     }
                 };
-
-                if (_securityTokenReference != null)
-                {
-                    encryptedKey.KeyInfo.AddClause(this._securityTokenReference);
-                }
 
                 _key = null;
 
@@ -102,11 +79,20 @@ namespace Eu.EDelivery.AS4.Security.Encryption
         private readonly string _digestAlgorithm;
         private readonly string _mgfAlgorithm;
 
-        private AS4EncryptedKey(EncryptedKey encryptedKey, string digestAlgorithm, string mgfAlgorithm)
+        public SecurityTokenReference SecurityTokenReference { get; }
+
+        private AS4EncryptedKey(EncryptedKey encryptedKey, SecurityTokenReference securityTokenReference, string digestAlgorithm, string mgfAlgorithm)
         {
             _encryptedKey = encryptedKey;
             _digestAlgorithm = digestAlgorithm;
             _mgfAlgorithm = mgfAlgorithm;
+
+            SecurityTokenReference = securityTokenReference;
+
+            if (SecurityTokenReference != null)
+            {
+                encryptedKey.KeyInfo.AddClause(SecurityTokenReference);
+            }
         }
 
         /// <summary>
@@ -127,18 +113,19 @@ namespace Eu.EDelivery.AS4.Security.Encryption
 
             encryptedKey.LoadXml(encryptedKeyElement);
 
-            return new AS4EncryptedKey(encryptedKey, GetDigestAlgorithm(encryptedKey), GetMgfAlgorithm(encryptedKey));
+            return new AS4EncryptedKey(encryptedKey, null, GetDigestAlgorithm(encryptedKey), GetMgfAlgorithm(encryptedKey));
         }
 
         /// <summary>
         /// Initializes an <see cref="EncryptedKeyBuilder"/> instance which can be used to instantiate an AS4EncryptedKey instance.
         /// </summary>
         /// <param name="symmetricKey">The encryption key that should be encrypted.</param>
-        /// <param name="certificate">The certificate that should be used for encryption.</param>
+        /// <param name="keyEncryptionConfiguration">An instance of <see cref="KeyEncryptionConfiguration"/> that contains all information that 
+        /// is required to encrypt the symmetric key..</param>
         /// <returns></returns>
-        internal static EncryptedKeyBuilder CreateEncryptedKeyBuilderForKey(byte[] symmetricKey, X509Certificate2 certificate)
+        internal static EncryptedKeyBuilder CreateEncryptedKeyBuilderForKey(byte[] symmetricKey, KeyEncryptionConfiguration keyEncryptionConfiguration)
         {
-            return EncryptedKeyBuilder.ForKey(symmetricKey, certificate);
+            return EncryptedKeyBuilder.ForKey(symmetricKey, keyEncryptionConfiguration);
         }
 
         /// <summary>
@@ -149,7 +136,7 @@ namespace Eu.EDelivery.AS4.Security.Encryption
         /// <returns></returns>
         internal static AS4EncryptedKey FromEncryptedKey(EncryptedKey encryptedKey)
         {
-            return new AS4EncryptedKey(encryptedKey, EncryptionStrategy.XmlEncSHA1Url, null);
+            return new AS4EncryptedKey(encryptedKey, null, EncryptionStrategy.XmlEncSHA1Url, null);
         }
 
         /// <summary>

@@ -61,8 +61,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Strategies
                 X509Certificate2 certificate = CreateDecryptCertificate();
 
                 return EncryptionStrategyBuilder
-                    .Create(message)
-                    .WithCertificate(certificate)
+                    .Create(message, new KeyEncryptionConfiguration(certificate))
                     .Build();
             }
         }
@@ -83,13 +82,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Strategies
                 // Arrange
                 AS4Message as4Message = await GetEncryptedMessageAsync();
                 var certificate = new StubCertificateRepository().GetStubCertificate();
-                
+
                 // Act&Assert
                 Assert.ThrowsAny<Exception>(() => as4Message.Decrypt(certificate));
             }
 
             [Fact]
-            public async Task FailsToDecrypt_IfInvalidKeySize()
+            public async Task FailsToEncrypt_IfInvalidKeySize()
             {
                 // Arrange
                 AS4Message as4Message = await GetEncryptedMessageAsync();
@@ -107,7 +106,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Strategies
                 var dataEncryptConfig = new DataEncryptionConfiguration(encryption.Algorithm, algorithmKeySize: encryption.AlgorithmKeySize);
 
                 return EncryptionStrategyBuilder
-                    .Create(as4Message)
+                    .Create(as4Message, new KeyEncryptionConfiguration(new StubCertificateRepository().GetStubCertificate()))
                     .WithDataEncryptionConfiguration(dataEncryptConfig)
                     .Build();
             }

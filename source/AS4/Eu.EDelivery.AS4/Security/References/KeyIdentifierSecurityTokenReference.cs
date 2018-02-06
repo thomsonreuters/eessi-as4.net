@@ -20,17 +20,17 @@ namespace Eu.EDelivery.AS4.Security.References
         /// <summary>
         /// Initializes a new instance of the <see cref="KeyIdentifierSecurityTokenReference"/> class. 
         /// </summary>
-        /// <param name="certificateRepository">Repository to obtain the certificate needed to embed it into the Key Identifier Security Token Reference.</param>
-        public KeyIdentifierSecurityTokenReference(ICertificateRepository certificateRepository)
+        /// <param name="certificate">The Certificate for which a SecurityTokenReference must be created.</param>
+        public KeyIdentifierSecurityTokenReference(X509Certificate2 certificate)
         {
-            _certificateRepository = certificateRepository;
             _keyInfoId = $"KI-{Guid.NewGuid()}";
+            Certificate = certificate;
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="KeyIdentifierSecurityTokenReference"/> class.
         /// </summary>
-        /// <param name="envelope">SOAP Envelope with a Key Identifier Security Token Reference.</param>
+        /// <param name="envelope">XML Element that contains a Key Identifier Security Token Reference.</param>
         /// <param name="certificateRepository">Repository to obtain the certificate needed to embed it into the Key Identifier Security Token Reference.</param>
         public KeyIdentifierSecurityTokenReference(XmlElement envelope, ICertificateRepository certificateRepository)
         {

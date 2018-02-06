@@ -26,7 +26,7 @@ namespace Eu.EDelivery.AS4.Security.References
                 }
                 return _certificate;
             }
-            set
+            protected set
             {
                 _certificate = value;
             }

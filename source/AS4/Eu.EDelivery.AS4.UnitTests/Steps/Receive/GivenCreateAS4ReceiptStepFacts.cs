@@ -161,9 +161,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             AS4Message as4Message = message.AS4Message;
             X509Certificate2 certificate = new StubCertificateRepository().GetStubCertificate();
 
-            SigningStrategyBuilder builder = new SigningStrategyBuilder(as4Message, X509ReferenceType.BSTReference)
+            SigningStrategyBuilder builder = new SigningStrategyBuilder(as4Message)
                 .WithSignatureAlgorithm(Algorithm)
-                .WithCertificate(certificate)
+                .WithCertificate(certificate, X509ReferenceType.BSTReference)
                 .WithSigningId(as4Message.SigningId, HashFunction);
 
             return builder.Build();

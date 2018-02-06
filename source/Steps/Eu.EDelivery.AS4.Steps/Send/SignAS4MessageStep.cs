@@ -133,9 +133,9 @@ namespace Eu.EDelivery.AS4.Steps.Send
             AS4Message message = messagingContext.AS4Message;
             Signing signing = messagingContext.SendingPMode.Security.Signing;
 
-            SigningStrategyBuilder builder = new SigningStrategyBuilder(messagingContext.AS4Message, signing.KeyReferenceMethod)
+            SigningStrategyBuilder builder = new SigningStrategyBuilder(messagingContext.AS4Message)
                 .WithSignatureAlgorithm(signing.Algorithm)
-                .WithCertificate(certificate)
+                .WithCertificate(certificate, signing.KeyReferenceMethod)
                 .WithSigningId(message.SigningId, signing.HashFunction);
 
             foreach (Attachment attachment in message.Attachments)
