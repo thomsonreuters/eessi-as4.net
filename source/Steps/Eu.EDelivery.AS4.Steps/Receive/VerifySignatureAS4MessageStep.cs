@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Security.Cryptography;
@@ -104,33 +105,40 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
         private async Task<bool> VerifyNonRepudiationsHashes(AS4Message as4Message)
         {
+            IEnumerable<Receipt> receipts = as4Message.SignalMessages
+                .Where(m => m is Receipt)
+                .Cast<Receipt>();
+
+            IEnumerable<AS4Message> userMessages = 
+                (await ReferencedUserMessagesOf(receipts)).Where(m => m != null && m.IsSigned);
+
+            if (receipts.All(nrrReceipt =>
+            {
+                AS4Message refUserMessage = userMessages.FirstOrDefault(u => 
+                    u.GetPrimaryMessageId() == nrrReceipt.RefToMessageId);
+
+                return refUserMessage == null 
+                    || nrrReceipt.VerifyNonRepudiationInfo(refUserMessage);
+            }))
+            {
+                Logger.Info($"[{as4Message.GetPrimaryMessageId()}] Incoming Receipt has valid NRI References");
+                return true;
+            }
+
+            Logger.Error($"[{as4Message.GetPrimaryMessageId()}] Incoming Receipt hasn't got valid NRI References");
+            return false;
+        }
+
+        private Task<AS4Message[]> ReferencedUserMessagesOf(IEnumerable<Receipt> receipts)
+        {
             using (DatastoreContext context = _storeExpression())
             {
                 var service = new OutMessageService(_config, new DatastoreRepository(context), _bodyStore);
 
-                foreach (Receipt nrrReceipt in as4Message.SignalMessages.Where(m => m is Receipt).Cast<Receipt>())
-                {
-                    // TODO: this is not optimal.  It would be better to retrieve all
-                    //       related UserMessages in one call, outside this loop and use 
-                    //       the retrieved messages afterwards to verify the NRI of each Receipt.
-
-                    AS4Message referencedUserMessage = await service.GetAS4UserMessageForId(
-                        nrrReceipt.RefToMessageId,
-                        _bodyStore);
-
-                    if (referencedUserMessage == null
-                        || referencedUserMessage.IsSigned == false) { continue; }
-
-                    if (!nrrReceipt.VerifyNonRepudiationInfo(referencedUserMessage))
-                    {
-                        Logger.Error($"[{as4Message.GetPrimaryMessageId()}] Incoming Receipt hasn't got valid NRI References");
-                        return false;
-                    }
-                }
+                return Task.WhenAll(receipts
+                    .Select(r => service.GetAS4UserMessageForId(r.RefToMessageId, _bodyStore))
+                    .ToArray());
             }
-
-            Logger.Info($"[{as4Message.GetPrimaryMessageId()}] Incoming Receipt has valid NRI References");
-            return true;
         }
 
         private static bool MessageDoesNotNeedToBeVerified(MessagingContext message)
