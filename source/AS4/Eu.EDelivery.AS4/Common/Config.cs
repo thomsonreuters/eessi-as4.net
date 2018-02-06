@@ -12,6 +12,7 @@ using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Services.PullRequestAuthorization;
+using Eu.EDelivery.AS4.Validators;
 using Eu.EDelivery.AS4.Watchers;
 using NLog;
 
@@ -84,8 +85,15 @@ namespace Eu.EDelivery.AS4.Common
                 IsInitialized = true;
                 RetrieveLocalConfiguration();
 
-                _sendingPModeWatcher = new PModeWatcher<SendingProcessingMode>(GetSendPModeFolder());
-                _receivingPModeWatcher = new PModeWatcher<ReceivingProcessingMode>(GetReceivePModeFolder());
+                _sendingPModeWatcher = 
+                    new PModeWatcher<SendingProcessingMode>(
+                        GetSendPModeFolder(), 
+                        SendingProcessingModeValidator.Instance);
+
+                _receivingPModeWatcher = 
+                    new PModeWatcher<ReceivingProcessingMode>(
+                        GetReceivePModeFolder(), 
+                        ReceivingProcessingModeValidator.Instance);
 
                 LoadExternalAssemblies();
 
