@@ -129,15 +129,17 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             return false;
         }
 
-        private Task<AS4Message[]> ReferencedUserMessagesOf(IEnumerable<Receipt> receipts)
+        /// <summary>
+        /// Referenceds the user messages of.
+        /// </summary>
+        /// <param name="receipts">The receipts.</param>
+        /// <returns></returns>
+        private async Task<IEnumerable<AS4Message>> ReferencedUserMessagesOf(IEnumerable<Receipt> receipts)
         {
             using (DatastoreContext context = _storeExpression())
             {
                 var service = new OutMessageService(_config, new DatastoreRepository(context), _bodyStore);
-
-                return Task.WhenAll(receipts
-                    .Select(r => service.GetAS4UserMessageForId(r.RefToMessageId, _bodyStore))
-                    .ToArray());
+                return await service.GetAS4UserMessagesForIds(receipts.Select(r => r.RefToMessageId), _bodyStore);
             }
         }
 

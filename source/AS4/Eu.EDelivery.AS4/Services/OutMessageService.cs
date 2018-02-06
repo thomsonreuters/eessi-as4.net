@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Management.Instrumentation;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Entities;
@@ -47,6 +46,26 @@ namespace Eu.EDelivery.AS4.Services
             _configuration = config;
             _repository = respository;
             _messageBodyStore = messageBodyStore;
+        }
+
+        /// <summary>
+        /// Gets AS4 UserMessages for identifiers.
+        /// </summary>
+        /// <param name="messageIds">The message identifiers.</param>
+        /// <param name="store">The provider.</param>
+        /// <returns></returns>
+        public async Task<IEnumerable<AS4Message>> GetAS4UserMessagesForIds(
+            IEnumerable<string> messageIds, IAS4MessageBodyStore store)
+        {
+            var messages = new List<AS4Message>();
+
+            foreach (string messageId in messageIds)
+            {
+                AS4Message userMessage = await GetAS4UserMessageForId(messageId, store);
+                messages.Add(userMessage);
+            }
+
+            return messages;
         }
 
         /// <summary>
