@@ -47,7 +47,7 @@ namespace Eu.EDelivery.AS4.Services
             _repository = respository;
             _messageBodyStore = messageBodyStore;
         }
-
+        
         /// <summary>
         /// Gets AS4 UserMessages for identifiers.
         /// </summary>
@@ -55,9 +55,15 @@ namespace Eu.EDelivery.AS4.Services
         /// <param name="store">The provider.</param>
         /// <returns></returns>
         public async Task<IEnumerable<AS4Message>> GetAS4UserMessagesForIds(
-            IEnumerable<string> messageIds, IAS4MessageBodyStore store)
+            IEnumerable<string> messageIds, 
+            IAS4MessageBodyStore store)
         {
-            IEnumerable<OutMessage> messages = _repository.GetOutMessagesData(messageIds, m => m).Where(m => m != null);
+            IEnumerable<OutMessage> messages = _repository
+                .GetOutMessagesData(m => 
+                    messageIds.Contains(m.EbmsMessageId) && m.Intermediary == false, 
+                    m => m)
+                .Where(m => m != null);
+
             if (!messages.Any()) { return Enumerable.Empty<AS4Message>(); }
 
             var foundMessages = new List<AS4Message>();
