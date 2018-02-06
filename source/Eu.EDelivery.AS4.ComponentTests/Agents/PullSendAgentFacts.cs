@@ -136,11 +136,11 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
         private static AS4Message SignPullRequest(AS4Message message, X509Certificate2 certificate)
         {
-            var signer =
-                new SigningStrategyBuilder(message, X509ReferenceType.BSTReference).WithSigningId(message.SigningId, Constants.HashFunctions.First())
-                                                                                   .WithSignatureAlgorithm(Constants.Algoritms.First())
-                                                                                   .WithCertificate(certificate)
-                                                                                   .Build();
+            var signer = new SigningStrategyBuilder(message)
+                                .WithSigningId(message.SigningId, Constants.HashFunctions.First())
+                                .WithSignatureAlgorithm(Constants.Algoritms.First())
+                                .WithCertificate(certificate, X509ReferenceType.BSTReference)
+                                .Build();
 
             message.SecurityHeader.Sign(signer);
 
@@ -169,7 +169,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                 File.Copy(originalAuthorizationMapBackupFile, @".\config\security\pull_authorizationmap.xml", true);
                 File.Delete(originalAuthorizationMapBackupFile);
             }
-        }        
+        }
 
         protected override void Disposing(bool isDisposing)
         {

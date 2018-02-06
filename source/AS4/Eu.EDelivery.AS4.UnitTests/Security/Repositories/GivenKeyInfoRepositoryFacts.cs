@@ -31,10 +31,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Repositories
 
             private static KeyInfo CreateKeyInfoWithSecurityTokenReference(X509Certificate2 expectedCertificate)
             {
-                var binarySecurityTokenReference = new BinarySecurityTokenReference
-                {
-                    Certificate = expectedCertificate
-                };
+                var binarySecurityTokenReference = new BinarySecurityTokenReference(expectedCertificate);
 
                 var keyInfo = new KeyInfo();
                 keyInfo.AddClause(binarySecurityTokenReference);
@@ -75,7 +72,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Repositories
             {
                 // Arrange
                 var keyInfo = new KeyInfo();
-                keyInfo.AddClause(new BinarySecurityTokenReference());
+                keyInfo.AddClause(new BinarySecurityTokenReference(certificate: null));
                 var repository = new KeyInfoRepository(keyInfo);
 
                 // Act

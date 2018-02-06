@@ -82,20 +82,12 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
             X509Certificate2 certificate = RetrieveCertificate(messagingContext);
 
-            EncryptionStrategyBuilder builder = EncryptionStrategyBuilder.Create(messagingContext.AS4Message);
+            var keyConfiguration = new KeyEncryptionConfiguration(certificate, keyEncryption: encryption.KeyTransport);
+
+            EncryptionStrategyBuilder builder = EncryptionStrategyBuilder.Create(messagingContext.AS4Message, keyConfiguration);
 
             builder.WithDataEncryptionConfiguration(
                 new DataEncryptionConfiguration(encryption.Algorithm, algorithmKeySize: encryption.AlgorithmKeySize));
-
-            // Binary Security Token is always used in encryption since
-            // the sending PMode does not contain an element where the SecurityToken-type that
-            // must be used can be specified.
-            var securityToken = new SecurityTokenReferenceProvider(_certificateRepository).Get(X509ReferenceType.BSTReference);
-
-            builder.WithKeyEncryptionConfiguration(
-                new KeyEncryptionConfiguration(securityToken, keyEncryption: encryption.KeyTransport));
-
-            builder.WithCertificate(certificate);
 
             return builder.Build();
         }

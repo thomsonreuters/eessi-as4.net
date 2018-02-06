@@ -84,7 +84,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Security
                 X509Certificate2 certificate = new StubCertificateRepository().GetStubCertificate();
 
                 // Act
-                ISigningStrategy signingStrategy = CreateBuilder().WithCertificate(certificate).Build();
+                ISigningStrategy signingStrategy = CreateBuilder().WithCertificate(certificate, X509ReferenceType.BSTReference).Build();
 
                 // Assert
                 var concreteStrategy = signingStrategy as SigningStrategy;
@@ -165,7 +165,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Security
 
         protected SigningStrategyBuilder CreateBuilder()
         {
-            return new SigningStrategyBuilder(AS4Message.Empty, X509ReferenceType.BSTReference);
+            return new SigningStrategyBuilder(AS4Message.Empty)
+                .WithCertificate(new StubCertificateRepository().GetStubCertificate(), X509ReferenceType.BSTReference);
         }
     }
 }

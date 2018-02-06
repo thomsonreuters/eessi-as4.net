@@ -19,32 +19,32 @@ namespace Eu.EDelivery.AS4.Builders.Security
     /// </summary>
     public class SigningStrategyBuilder
     {
+        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+
         private readonly ISignatureAlgorithmProvider _algorithmProvider = new SignatureAlgorithmProvider();
         private readonly List<Tuple<Attachment, string>> _attachmentReferences = new List<Tuple<Attachment, string>>();
 
-        private readonly XmlDocument _envelopeDocument;
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
-
+        private readonly XmlDocument _envelopeDocument;        
         private readonly List<Tuple<SigningId, string>> _references = new List<Tuple<SigningId, string>>();
 
-        private readonly SecurityTokenReferenceProvider _tokenProvider =
-            new SecurityTokenReferenceProvider(Registry.Instance.CertificateRepository);
+        private readonly bool _isSigned;
+
+        private readonly SecurityTokenReferenceProvider _tokenProvider = SecurityTokenReferenceProvider.Default;
 
         private X509Certificate2 _certificate;
-        private readonly SecurityTokenReference _securityTokenReference;
-        private readonly bool _isSigned;
+        
+        private SecurityTokenReference _securityTokenReference;
 
         private SignatureAlgorithm _signatureAlgorithm;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SigningStrategyBuilder" /> class.
         /// </summary>
-        /// <param name="message">The message.</param>
-        /// <param name="securityTokenReferenceMethod">An <see cref="X509ReferenceType"/> value</param>
-        public SigningStrategyBuilder(AS4Message message, X509ReferenceType securityTokenReferenceMethod)
+        /// <param name="message">The message.</param>        
+        public SigningStrategyBuilder(AS4Message message)
         {
-            _envelopeDocument = message.EnvelopeDocument?? AS4XmlSerializer.ToSoapEnvelopeDocument(message, CancellationToken.None);
-            _securityTokenReference = _tokenProvider.Get(securityTokenReferenceMethod);
+            _envelopeDocument = message.EnvelopeDocument ?? AS4XmlSerializer.ToSoapEnvelopeDocument(message, CancellationToken.None);
+
             _isSigned = message.IsSigned;
         }
 
@@ -102,7 +102,7 @@ namespace Eu.EDelivery.AS4.Builders.Security
                 // Load the xml into the 'SignedXml' class so the message contains the full signing information.
                 strategy.LoadSignature();
             }
-            
+
             return strategy;
         }
 
@@ -124,9 +124,11 @@ namespace Eu.EDelivery.AS4.Builders.Security
         /// <summary>
         /// Add a <see cref="X509Certificate2" /> to the Security Header
         /// </summary>
-        /// <param name="certificate"></param>
+        /// <param name="certificate">The certificate that must be used for signing</param>
+        /// <param name="referenceTokenType">An <see cref="X509ReferenceType"/> value that defines how the signing certificate
+        /// should be referenced inside the SecurityHeader.</param>
         /// <returns></returns>
-        public SigningStrategyBuilder WithCertificate(X509Certificate2 certificate)
+        public SigningStrategyBuilder WithCertificate(X509Certificate2 certificate, X509ReferenceType referenceTokenType)
         {
             Logger.Debug($"Using certificate {certificate.FriendlyName}");
 
@@ -137,6 +139,9 @@ namespace Eu.EDelivery.AS4.Builders.Security
             }
 
             _certificate = certificate;
+
+            _securityTokenReference = _tokenProvider.Create(certificate, referenceTokenType);
+
             return this;
         }
 
@@ -209,7 +214,7 @@ namespace Eu.EDelivery.AS4.Builders.Security
                 throw new ArgumentNullException(nameof(envelopeDocument));
             }
 
-            var securityToken = _tokenProvider.Get(envelopeDocument, SecurityTokenType.Signing);
+            var securityToken = _tokenProvider.Get(envelopeDocument, SecurityTokenType.Signing, Registry.Instance.CertificateRepository);
 
             if (securityToken == null)
             {

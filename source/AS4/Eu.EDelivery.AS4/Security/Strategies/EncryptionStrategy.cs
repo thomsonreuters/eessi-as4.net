@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
-using System.Security.Cryptography.X509Certificates;
 using System.Security.Cryptography.Xml;
 using System.Xml;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Security.Builders;
 using Eu.EDelivery.AS4.Security.Encryption;
+using Eu.EDelivery.AS4.Security.References;
 using MimeKit.IO;
 using NLog;
 
@@ -24,7 +24,8 @@ namespace Eu.EDelivery.AS4.Security.Strategies
 
         private readonly KeyEncryptionConfiguration _keyEncryptionConfig;
         private readonly DataEncryptionConfiguration _dataEncryptionConfig;
-        private readonly X509Certificate2 _certificate;
+
+
         private readonly List<EncryptedData> _encryptedDatas = new List<EncryptedData>();
 
         private AS4EncryptedKey _as4EncryptedKey;
@@ -32,14 +33,11 @@ namespace Eu.EDelivery.AS4.Security.Strategies
         internal EncryptionStrategy(
             KeyEncryptionConfiguration keyEncryptionConfig,
             DataEncryptionConfiguration dataEncryptionConfig,
-            X509Certificate2 certificate,
             IEnumerable<Attachment> attachments)
         {
             _keyEncryptionConfig = keyEncryptionConfig;
             _dataEncryptionConfig = dataEncryptionConfig;
             _attachments = attachments.ToList();
-            _certificate = certificate;
-            _keyEncryptionConfig.SecurityTokenReference.Certificate = certificate;
         }
 
         /// <summary>
@@ -61,9 +59,12 @@ namespace Eu.EDelivery.AS4.Security.Strategies
             XmlDocument securityDocument = securityElement.OwnerDocument;
 
             // Add additional elements such as certificate references
-            _keyEncryptionConfig.SecurityTokenReference.AppendSecurityTokenTo(securityElement, securityDocument);
             if (_as4EncryptedKey != null)
             {
+                if (_as4EncryptedKey.SecurityTokenReference != null)
+                {
+                    _as4EncryptedKey.SecurityTokenReference.AppendSecurityTokenTo(securityElement, securityDocument);
+                }
                 _as4EncryptedKey.AppendEncryptedKey(securityElement);
             }
             else
@@ -93,7 +94,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
             _encryptedDatas.Clear();
 
             byte[] encryptionKey = GenerateSymmetricKey(_dataEncryptionConfig.AlgorithmKeySize);
-            AS4EncryptedKey as4EncryptedKey = GetEncryptedKey(encryptionKey, _certificate, _keyEncryptionConfig);
+            AS4EncryptedKey as4EncryptedKey = GetEncryptedKey(encryptionKey, _keyEncryptionConfig);
 
             using (SymmetricAlgorithm encryptionAlgorithm =
                 CreateSymmetricAlgorithm(_dataEncryptionConfig.EncryptionMethod, encryptionKey))
@@ -106,7 +107,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
 
         private static byte[] GenerateSymmetricKey(int keySize)
         {
-            using (var rijn = new RijndaelManaged {KeySize = keySize})
+            using (var rijn = new RijndaelManaged { KeySize = keySize })
             {
                 return rijn.Key;
             }
@@ -114,15 +115,10 @@ namespace Eu.EDelivery.AS4.Security.Strategies
 
         private static AS4EncryptedKey GetEncryptedKey(
             byte[] symmetricKey,
-            X509Certificate2 certificate,
             KeyEncryptionConfiguration keyEncryptionConfig)
         {
             return
-                AS4EncryptedKey.CreateEncryptedKeyBuilderForKey(symmetricKey, certificate)
-                               .WithEncryptionMethod(keyEncryptionConfig.EncryptionMethod)
-                               .WithDigest(keyEncryptionConfig.DigestMethod)
-                               .WithMgf(keyEncryptionConfig.Mgf)
-                               .WithSecurityTokenReference(keyEncryptionConfig.SecurityTokenReference)
+                AS4EncryptedKey.CreateEncryptedKeyBuilderForKey(symmetricKey, keyEncryptionConfig)
                                .Build();
         }
 
@@ -133,7 +129,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
             foreach (Attachment attachment in _attachments)
             {
                 attachment.Content = EncryptData(attachment.Content, encryptionAlgorithm);
-                EncryptedData encryptedData = CreateEncryptedDataForAttachment(attachment, encryptedKey);
+                EncryptedData encryptedData = CreateEncryptedDataForAttachment(attachment, encryptedKey.SecurityTokenReference);
 
                 _encryptedDatas.Add(encryptedData);
 
@@ -142,12 +138,12 @@ namespace Eu.EDelivery.AS4.Security.Strategies
             }
         }
 
-        private EncryptedData CreateEncryptedDataForAttachment(Attachment attachment, AS4EncryptedKey encryptedKey)
+        private EncryptedData CreateEncryptedDataForAttachment(Attachment attachment, SecurityTokenReference securityTokenReference)
         {
             return new EncryptedDataBuilder()
                 .WithDataEncryptionConfiguration(_dataEncryptionConfig)
                 .WithMimeType(attachment.ContentType)
-                .WithSecurityTokenReference(_keyEncryptionConfig.SecurityTokenReference)
+                .WithSecurityTokenReference(securityTokenReference)
                 .WithUri(attachment.Id)
                 .Build();
         }

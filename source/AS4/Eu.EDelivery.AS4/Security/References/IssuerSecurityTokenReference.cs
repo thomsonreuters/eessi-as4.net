@@ -23,19 +23,19 @@ namespace Eu.EDelivery.AS4.Security.References
         /// Initializes a new instance of the <see cref="IssuerSecurityTokenReference" /> class.
         /// to handle <see cref="X509ReferenceType.IssuerSerial" /> configuration
         /// </summary>
-        /// <param name="certificateRepository">Repository to obtain the certificate needed to append to the Issuer Security Token Reference.</param>
-        public IssuerSecurityTokenReference(ICertificateRepository certificateRepository)
+        /// <param name="certificate">The certificate for which a SecurityTokenReference needs to be created.</param>
+        public IssuerSecurityTokenReference(X509Certificate2 certificate)
         {
-            if (certificateRepository == null)
-            {
-                throw new ArgumentNullException(nameof(certificateRepository));
-            }
-
             _keyInfoId = $"KI-{Guid.NewGuid()}";
             _securityTokenReferenceId = $"STR-{Guid.NewGuid()}";
-            _certificateRepository = certificateRepository;
+            Certificate = certificate;
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="IssuerSecurityTokenReference"/>
+        /// </summary>
+        /// <param name="envelope">The Xml element that contains the securitytoken SecurityToken.</param>
+        /// <param name="certificateRepository">Repository to obtain the certificate that is needed.</param>
         public IssuerSecurityTokenReference(XmlElement envelope, ICertificateRepository certificateRepository)
         {
             _certificateRepository = certificateRepository;
@@ -178,7 +178,7 @@ namespace Eu.EDelivery.AS4.Security.References
                 x509SerialNumberElement.InnerText = TryGetIssuerSerialNumber(Certificate);
             }
 
-            x509IssuerSerialElement.AppendChild(x509SerialNumberElement);            
+            x509IssuerSerialElement.AppendChild(x509SerialNumberElement);
         }
 
         private static string TryGetIssuerSerialNumber(X509Certificate2 certificate)

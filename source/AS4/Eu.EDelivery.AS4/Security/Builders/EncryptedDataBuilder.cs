@@ -15,20 +15,7 @@ namespace Eu.EDelivery.AS4.Security.Builders
         private string _mimeType;
         private string _uri;
         private SecurityTokenReference _securityToken;
-        private string _referenceId;
-
-        /// <summary>
-        /// Add a <paramref name="referenceId"/> to the <see cref="EncryptedData"/>
-        /// </summary>
-        /// <param name="referenceId"></param>
-        /// <returns></returns>
-        [Obsolete]
-        public EncryptedDataBuilder WithReferenceId(string referenceId)
-        {
-            _referenceId = referenceId;
-            return this;
-        }
-
+        
         public EncryptedDataBuilder WithSecurityTokenReference(SecurityTokenReference securityToken)
         {
             _securityToken = securityToken;

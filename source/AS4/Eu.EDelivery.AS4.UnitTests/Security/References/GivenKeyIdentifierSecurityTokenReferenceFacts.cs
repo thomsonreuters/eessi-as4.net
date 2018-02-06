@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 using System.Xml;
 using Eu.EDelivery.AS4.Security.References;
 using Eu.EDelivery.AS4.UnitTests.Common;
@@ -18,10 +17,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.References
         {
             var repository = new StubCertificateRepository();
 
-            _reference = new KeyIdentifierSecurityTokenReference(repository)
-            {
-                Certificate = repository.GetStubCertificate()
-            };
+            _reference = new KeyIdentifierSecurityTokenReference(repository.GetStubCertificate());
         }
 
         /// <summary>
@@ -102,15 +98,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.References
             [SuppressMessage("ReSharper", "AssignNullToNotNullAttribute", Justification = "Test for null")]
             public void ThenLoadXmlGetsCertificateFromXml()
             {
-                // Arrange                
-                XmlElement keyIdentifierXml = _reference.GetXml();
-                _reference.Certificate = null;
+                // Arrange and Act
+                var reference = new KeyIdentifierSecurityTokenReference(_reference.GetXml(), new StubCertificateRepository());
 
-                // Act
-                _reference.LoadXml(keyIdentifierXml);
-
-                // Assert
-                Assert.Equal(new StubCertificateRepository().GetStubCertificate(), _reference.Certificate);
+                Assert.NotNull(reference.Certificate);
+                Assert.Equal(_reference.Certificate, reference.Certificate);
             }
         }
     }

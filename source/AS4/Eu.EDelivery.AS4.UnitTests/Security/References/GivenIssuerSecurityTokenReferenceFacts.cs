@@ -19,10 +19,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.References
         {
             var certRepository = new StubCertificateRepository();
             _dummyCertificate = certRepository.GetStubCertificate();
-            _reference = new IssuerSecurityTokenReference(certRepository)
-            {
-                Certificate = certRepository.GetStubCertificate()
-            };
+            _reference = new IssuerSecurityTokenReference(certRepository.GetStubCertificate());
         }
 
         /// <summary>
@@ -56,9 +53,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.References
             [Fact]
             public void ThenGetXmlContainsX509IssuerName()
             {
-                // Arrange
-                _reference.Certificate = _dummyCertificate;
-
                 // Act
                 XmlElement xmlElement = _reference.GetXml();
 
@@ -82,9 +76,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.References
             [Fact]
             public void ThenGetXmlContainsX509SerialNumber()
             {
-                // Arrange
-                _reference.Certificate = _dummyCertificate;
-
                 // Act
                 XmlElement xmlElement = _reference.GetXml();
 
@@ -106,16 +97,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.References
             [Fact]
             public void ThenLoadXmlGetsTheCertificateFromTheXml()
             {
-                // Arrange
-                _reference.Certificate = null;
-
-                XmlElement dummyXml = GetDummyXml();
-
-                // Act
-                _reference.LoadXml(dummyXml);
-
+                // Arrange and Act
+                var reference = new IssuerSecurityTokenReference(GetDummyXml(), new StubCertificateRepository());
+                
                 // Assert
-                Assert.Equal(_dummyCertificate, _reference.Certificate);
+                Assert.Equal(_dummyCertificate, reference.Certificate);
             }
         }
 

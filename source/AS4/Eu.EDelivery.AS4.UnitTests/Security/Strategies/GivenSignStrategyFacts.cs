@@ -3,9 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Xml;
-using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Builders.Security;
-using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Security.Algorithms;
 using Eu.EDelivery.AS4.Security.References;
@@ -77,10 +75,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Strategies
 
             private static SigningStrategy CreateDefaultSignStrategy(SigningId signingId, XmlDocument xmlDocument)
             {
-                var signStrategy = new SigningStrategy(xmlDocument, new BinarySecurityTokenReference());
+                var certificate = new StubCertificateRepository().GetStubCertificate();
+
+                var signStrategy = new SigningStrategy(xmlDocument, new BinarySecurityTokenReference(certificate));
 
                 signStrategy.AddAlgorithm(new RsaPkCs1Sha256SignatureAlgorithm());
-                signStrategy.AddCertificate(new StubCertificateRepository().GetStubCertificate());
+                signStrategy.AddCertificate(certificate);
                 signStrategy.AddXmlReference(signingId.HeaderSecurityId, Constants.HashFunctions.First());
                 signStrategy.AddXmlReference(signingId.BodySecurityId, Constants.HashFunctions.First());
 
@@ -141,10 +141,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Strategies
 
             private static SecurityTokenReference CreateSecurityTokenReference(XmlNode xmlDocument)
             {
-                SecurityTokenReference reference = new BinarySecurityTokenReference();
-                XmlNode securityTokenElement =
-                    xmlDocument.SelectSingleNode("//*[local-name()='SecurityTokenReference'] ");
-                reference.LoadXml((XmlElement)securityTokenElement);
+                
+                var securityTokenElement =
+                    xmlDocument.SelectSingleNode("//*[local-name()='SecurityTokenReference'] ") as XmlElement;
+
+                SecurityTokenReference reference = new BinarySecurityTokenReference(securityTokenElement);
 
                 return reference;
             }

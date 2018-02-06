@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Security.Cryptography.X509Certificates;
 using System.Xml;
 using Eu.EDelivery.AS4.Repositories;
 
@@ -7,32 +8,27 @@ namespace Eu.EDelivery.AS4.Security.References
 
     public class SecurityTokenReferenceProvider
     {
-        private readonly ICertificateRepository _certificateRepository;
+        public static readonly SecurityTokenReferenceProvider Default = new SecurityTokenReferenceProvider();
 
-        public SecurityTokenReferenceProvider(ICertificateRepository certificateRepository)
-        {
-            _certificateRepository = certificateRepository;
-        }
-
-        public SecurityTokenReference Get(X509ReferenceType referenceType)
+        public SecurityTokenReference Create(X509Certificate2 certificate, X509ReferenceType referenceType)
         {
             switch (referenceType)
             {
                 case X509ReferenceType.BSTReference:
-                    return new BinarySecurityTokenReference();
+                    return new BinarySecurityTokenReference(certificate);
 
                 case X509ReferenceType.IssuerSerial:
-                    return new IssuerSecurityTokenReference(_certificateRepository);
+                    return new IssuerSecurityTokenReference(certificate);
 
                 case X509ReferenceType.KeyIdentifier:
-                    return new KeyIdentifierSecurityTokenReference(_certificateRepository);
+                    return new KeyIdentifierSecurityTokenReference(certificate);
 
                 default:
-                    return new BinarySecurityTokenReference();
+                    return new BinarySecurityTokenReference(certificate);
             }
         }
 
-        public SecurityTokenReference Get(XmlDocument envelopeDocument, SecurityTokenType type)
+        public SecurityTokenReference Get(XmlDocument envelopeDocument, SecurityTokenType type, ICertificateRepository certificateRepository)
         {
             XmlElement keyInfoElement;
 
@@ -66,12 +62,12 @@ namespace Eu.EDelivery.AS4.Security.References
 
             if (HasEnvelopeTag(keyInfoElement, securityTokenNodeName: "KeyIdentifier"))
             {
-                return new KeyIdentifierSecurityTokenReference(keyInfoElement, _certificateRepository);
+                return new KeyIdentifierSecurityTokenReference(keyInfoElement, certificateRepository);
             }
 
             if (HasEnvelopeTag(keyInfoElement, securityTokenNodeName: "X509Data"))
             {
-                return new IssuerSecurityTokenReference(keyInfoElement, _certificateRepository);
+                return new IssuerSecurityTokenReference(keyInfoElement, certificateRepository);
             }
 
             throw new NotSupportedException("Unable to retrieve SecurityTokenReference of type " + keyInfoElement.OuterXml);

@@ -14,6 +14,7 @@ using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Resources;
+using Eu.EDelivery.AS4.Security.Encryption;
 using Eu.EDelivery.AS4.Security.Strategies;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Singletons;
@@ -644,8 +645,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
 
             // Act: Encrypt the message
             IEncryptionStrategy strategy =
-                EncryptionStrategyBuilder.Create(deserializedAS4Message)
-                                         .WithCertificate(new X509Certificate2(certificate_as4, certificate_password))
+                EncryptionStrategyBuilder.Create(deserializedAS4Message, new KeyEncryptionConfiguration(new X509Certificate2(certificate_as4, certificate_password)))
                                          .Build();
 
             deserializedAS4Message.SecurityHeader.Encrypt(strategy);

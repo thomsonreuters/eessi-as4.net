@@ -20,7 +20,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.References
         {
             _dummyCertificate = new StubCertificateRepository().GetStubCertificate();
 
-            _reference = new BinarySecurityTokenReference();
+            _reference = new BinarySecurityTokenReference(_dummyCertificate);
             _dummyReferenceId = _reference.ReferenceId;
         }
 
@@ -35,8 +35,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.References
             {
                 // Arrange
                 XmlDocument xmlDocument = CreateSecurityHeaderDocument();
-                XmlElement securityHeaderElement = GetSecurityHeaderElement(xmlDocument);
-                _reference.Certificate = _dummyCertificate;
+                XmlElement securityHeaderElement = GetSecurityHeaderElement(xmlDocument);                
 
                 // Act
                 XmlElement xmlElement = _reference.AppendSecurityTokenTo(securityHeaderElement, xmlDocument);
@@ -51,7 +50,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.References
                 // Arrange
                 XmlDocument xmlDocument = CreateSecurityHeaderDocument();
                 XmlElement securityHeaderElement = GetSecurityHeaderElement(xmlDocument);
-                _reference.Certificate = _dummyCertificate;
 
                 // Act
                 XmlElement xmlElement = _reference.AppendSecurityTokenTo(securityHeaderElement, xmlDocument);
@@ -67,8 +65,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.References
             {
                 // Arrange
                 XmlDocument xmlDocument = CreateSecurityHeaderDocument();
-                XmlElement securityHeaderElement = GetSecurityHeaderElement(xmlDocument);
-                _reference.Certificate = _dummyCertificate;
+                XmlElement securityHeaderElement = GetSecurityHeaderElement(xmlDocument);                
 
                 // Act
                 XmlElement xmlElement = _reference.AppendSecurityTokenTo(securityHeaderElement, xmlDocument);
@@ -85,7 +82,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.References
             {
                 // Arrange
                 XmlDocument xmlDocument = CreateSecurityHeaderDocument();
-                _reference.Certificate = _dummyCertificate;
 
                 // Act
                 XmlElement xmlElement = _reference.AppendSecurityTokenTo(
@@ -105,8 +101,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.References
             {
                 // Arrange
                 XmlDocument xmlDocument = CreateSecurityHeaderDocument();
-                XmlElement securityHeaderElement = GetSecurityHeaderElement(xmlDocument);
-                _reference.Certificate = _dummyCertificate;
+                XmlElement securityHeaderElement = GetSecurityHeaderElement(xmlDocument);                
 
                 // Act
                 XmlElement xmlElement = _reference.AppendSecurityTokenTo(securityHeaderElement, xmlDocument);
@@ -196,11 +191,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.References
             }
 
             private XmlElement CreateSecurityHeader(XmlDocument xmlDocument)
-            {
-                _reference.Certificate = _dummyCertificate;
+            {                
                 XmlElement securityHeaderElement = GetSecurityHeaderElement(xmlDocument);
                 XmlElement securityHeader = _reference.AppendSecurityTokenTo(securityHeaderElement, xmlDocument);
-                _reference.Certificate = null;
+             
                 return securityHeader;
             }
 

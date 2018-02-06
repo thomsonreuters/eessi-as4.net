@@ -67,8 +67,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
         {
             SigningKey = GetSigningKeyFromCertificate(certificate);
             KeyInfo = new KeyInfo();
-
-            SecurityTokenReference.Certificate = certificate;
+            
             KeyInfo.AddClause(SecurityTokenReference);
         }
 

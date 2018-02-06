@@ -12,8 +12,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.References
             [Fact]
             public void CanRetrieveBinarySecurityTokenFromEnvelope()
             {
-                var provider = new SecurityTokenReferenceProvider(new StubCertificateRepository());
-                var token = provider.Get(GetBinarySecurityTokenEnvelope(), SecurityTokenType.Signing);
+                var token = SecurityTokenReferenceProvider.Default.Get(GetBinarySecurityTokenEnvelope(), SecurityTokenType.Signing, new StubCertificateRepository());
 
                 Assert.NotNull(token);
                 Assert.IsType<BinarySecurityTokenReference>(token);
@@ -23,8 +22,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.References
             [Fact]
             public void CanRetrieveKeyIdentifierSecurityTokenFromEnvelope()
             {
-                var provider = new SecurityTokenReferenceProvider(new StubCertificateRepository());
-                var token = provider.Get(GetKeyIdentifierSecurityTokenEnvelope(), SecurityTokenType.Signing);
+                var provider = SecurityTokenReferenceProvider.Default;
+                var token = provider.Get(GetKeyIdentifierSecurityTokenEnvelope(), SecurityTokenType.Signing, new TestUtils.Stubs.StubCertificateRepository());
 
                 Assert.NotNull(token);
                 Assert.IsType<KeyIdentifierSecurityTokenReference>(token);
@@ -33,8 +32,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.References
             [Fact]
             public void CanRetrieveIssuerSecurityTokenFromEnvelope()
             {
-                var provider = new SecurityTokenReferenceProvider(new StubCertificateRepository());
-                var token = provider.Get(GetIssuerSecurityTokenEnvelope(), SecurityTokenType.Signing);
+                var token = SecurityTokenReferenceProvider.Default.Get(GetIssuerSecurityTokenEnvelope(), SecurityTokenType.Signing, new StubCertificateRepository());
 
                 Assert.NotNull(token);
                 Assert.IsType<IssuerSecurityTokenReference>(token);
