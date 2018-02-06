@@ -214,6 +214,23 @@ namespace Eu.EDelivery.AS4.Repositories
         }
 
         /// <summary>
+        /// Selects some information of specified OutMessages.
+        /// </summary>
+        /// <typeparam name="TResult"></typeparam>
+        /// <param name="messageIds"></param>
+        /// <param name="selection"></param>
+        /// <returns></returns>
+        public IEnumerable<TResult> GetOutMessagesData<TResult>(IEnumerable<string> messageIds, Expression<Func<OutMessage, TResult>> selection)
+        {
+            if (messageIds.Any() == false)
+            {
+                return new TResult[] { };
+            }
+
+            return _datastoreContext.OutMessages.Where(m => messageIds.Contains(m.EbmsMessageId)).Select(selection);
+        }
+
+        /// <summary>
         /// Insert a given <see cref="OutMessage"/>
         /// into the Data store
         /// </summary>

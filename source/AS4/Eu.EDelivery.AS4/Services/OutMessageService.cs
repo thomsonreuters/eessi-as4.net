@@ -57,15 +57,22 @@ namespace Eu.EDelivery.AS4.Services
         public async Task<IEnumerable<AS4Message>> GetAS4UserMessagesForIds(
             IEnumerable<string> messageIds, IAS4MessageBodyStore store)
         {
-            var messages = new List<AS4Message>();
+            IEnumerable<InMessage> messages = _repository.GetInMessagesData(messageIds, m => m).Where(m => m != null);
+            if (!messages.Any()) { return Enumerable.Empty<AS4Message>(); }
 
-            foreach (string messageId in messageIds)
+            var foundMessages = new List<AS4Message>();
+
+            foreach (InMessage m in messages)
             {
-                AS4Message userMessage = await GetAS4UserMessageForId(messageId, store);
-                messages.Add(userMessage);
+                Stream body = await store.LoadMessageBodyAsync(m.MessageLocation);
+
+                ISerializer serializer = Registry.Instance.SerializerProvider.Get(m.ContentType);
+                AS4Message foundMessage = await serializer.DeserializeAsync(body, m.ContentType, CancellationToken.None);
+
+                foundMessages.Add(foundMessage);
             }
 
-            return messages;
+            return foundMessages;
         }
 
         /// <summary>
