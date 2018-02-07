@@ -644,6 +644,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
 
             AS4Message deserializedAS4Message = await DeserializeToAS4Message(signed_holodeck_message, @"multipart/related;boundary=""MIMEBoundary_bcb27a6f984295aa9962b01ef2fb3e8d982de76d061ab23f""");
 
+            var originalSecurityHeader = deserializedAS4Message.SecurityHeader.GetXml().CloneNode(deep: true);
+
             X509Certificate2 encryptionCertificate = new X509Certificate2(certificate_as4, certificate_password);
 
             // Act: Encrypt the message
@@ -654,16 +656,15 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
 
             deserializedAS4Message.SecurityHeader.Encrypt(strategy);
 
-            // Serialize it again; the Soap envelope should remain intact, besides
-            // some changes that have been made to the security header.
-            var reserializedAS4Message = await AS4MessageUtils.SerializeDeserializeAsync(deserializedAS4Message);
-
             // Assert: the soap envelope of the encrypted message should not be equal to the
             //         envelope of the original message since there should be modifications in
             //         the security header.
+            Assert.NotEqual(originalSecurityHeader.OuterXml, deserializedAS4Message.EnvelopeDocument.OuterXml);
 
-            Assert.NotEqual(reserializedAS4Message.EnvelopeDocument.OuterXml, deserializedAS4Message.EnvelopeDocument.OuterXml);
-
+            // Serialize it again; the Soap envelope should remain intact, besides
+            // some changes that have been made to the security header.
+            var reserializedAS4Message = await AS4MessageUtils.SerializeDeserializeAsync(deserializedAS4Message);
+            
             // Assert: The soap envelopes of both messages should be equal if the 
             //         SecurityHeader is not taken into consideration.
 
@@ -684,7 +685,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
             return await serializer.DeserializeAsync(stream, contentType, CancellationToken.None);
         }
 
-        
+
 
         private static void RemoveSecurityHeaderFromMessageEnvelope(AS4Message as4Message)
         {
