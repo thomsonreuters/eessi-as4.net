@@ -6,11 +6,9 @@ using Eu.EDelivery.AS4.Repositories;
 namespace Eu.EDelivery.AS4.Security.References
 {
 
-    public class SecurityTokenReferenceProvider
+    public static class SecurityTokenReferenceProvider
     {
-        public static readonly SecurityTokenReferenceProvider Default = new SecurityTokenReferenceProvider();
-
-        public SecurityTokenReference Create(X509Certificate2 certificate, X509ReferenceType referenceType)
+        public static SecurityTokenReference Create(X509Certificate2 certificate, X509ReferenceType referenceType)
         {
             switch (referenceType)
             {
@@ -28,7 +26,7 @@ namespace Eu.EDelivery.AS4.Security.References
             }
         }
 
-        public SecurityTokenReference Get(XmlDocument envelopeDocument, SecurityTokenType type, ICertificateRepository certificateRepository)
+        public static SecurityTokenReference Get(XmlDocument envelopeDocument, SecurityTokenType type, ICertificateRepository certificateRepository)
         {
             XmlElement keyInfoElement;
 

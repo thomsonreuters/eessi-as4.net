@@ -12,7 +12,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.References
             [Fact]
             public void CanRetrieveBinarySecurityTokenFromEnvelope()
             {
-                var token = SecurityTokenReferenceProvider.Default.Get(GetBinarySecurityTokenEnvelope(), SecurityTokenType.Signing, new StubCertificateRepository());
+                var token = SecurityTokenReferenceProvider.Get(GetBinarySecurityTokenEnvelope(), SecurityTokenType.Signing, new StubCertificateRepository());
 
                 Assert.NotNull(token);
                 Assert.IsType<BinarySecurityTokenReference>(token);
@@ -22,8 +22,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.References
             [Fact]
             public void CanRetrieveKeyIdentifierSecurityTokenFromEnvelope()
             {
-                var provider = SecurityTokenReferenceProvider.Default;
-                var token = provider.Get(GetKeyIdentifierSecurityTokenEnvelope(), SecurityTokenType.Signing, new TestUtils.Stubs.StubCertificateRepository());
+                var token = SecurityTokenReferenceProvider.Get(GetKeyIdentifierSecurityTokenEnvelope(), SecurityTokenType.Signing, new TestUtils.Stubs.StubCertificateRepository());
 
                 Assert.NotNull(token);
                 Assert.IsType<KeyIdentifierSecurityTokenReference>(token);
@@ -32,7 +31,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.References
             [Fact]
             public void CanRetrieveIssuerSecurityTokenFromEnvelope()
             {
-                var token = SecurityTokenReferenceProvider.Default.Get(GetIssuerSecurityTokenEnvelope(), SecurityTokenType.Signing, new StubCertificateRepository());
+                var token = SecurityTokenReferenceProvider.Get(GetIssuerSecurityTokenEnvelope(), SecurityTokenType.Signing, new StubCertificateRepository());
 
                 Assert.NotNull(token);
                 Assert.IsType<IssuerSecurityTokenReference>(token);

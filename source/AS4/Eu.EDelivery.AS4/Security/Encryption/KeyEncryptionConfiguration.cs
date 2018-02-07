@@ -75,7 +75,7 @@ namespace Eu.EDelivery.AS4.Security.Encryption
         /// <returns></returns>
         public SecurityTokenReference BuildSecurityTokenReference()
         {
-            return SecurityTokenReferenceProvider.Default.Create(EncryptionCertificate, _securityTokenReferenceType);
+            return SecurityTokenReferenceProvider.Create(EncryptionCertificate, _securityTokenReferenceType);
         }
     }
 }

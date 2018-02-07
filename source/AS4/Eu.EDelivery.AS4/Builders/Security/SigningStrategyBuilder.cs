@@ -29,8 +29,6 @@ namespace Eu.EDelivery.AS4.Builders.Security
 
         private readonly bool _isSigned;
 
-        private readonly SecurityTokenReferenceProvider _tokenProvider = SecurityTokenReferenceProvider.Default;
-
         private X509Certificate2 _certificate;
         
         private SecurityTokenReference _securityTokenReference;
@@ -140,7 +138,7 @@ namespace Eu.EDelivery.AS4.Builders.Security
 
             _certificate = certificate;
 
-            _securityTokenReference = _tokenProvider.Create(certificate, referenceTokenType);
+            _securityTokenReference = SecurityTokenReferenceProvider.Create(certificate, referenceTokenType);
 
             return this;
         }
@@ -214,7 +212,7 @@ namespace Eu.EDelivery.AS4.Builders.Security
                 throw new ArgumentNullException(nameof(envelopeDocument));
             }
 
-            var securityToken = _tokenProvider.Get(envelopeDocument, SecurityTokenType.Signing, Registry.Instance.CertificateRepository);
+            var securityToken = SecurityTokenReferenceProvider.Get(envelopeDocument, SecurityTokenType.Signing, Registry.Instance.CertificateRepository);
 
             if (securityToken == null)
             {
