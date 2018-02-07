@@ -11,7 +11,7 @@ using Eu.EDelivery.AS4.Streaming;
 using Xunit;
 using static Eu.EDelivery.AS4.IntegrationTests.Properties.Resources;
 
-namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._19_20_21_Send_Message_Via_Dynamic_Discovery
+namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._19_22_Send_Message_via_Dynamic_Discovery
 {
     public class SendMessageViaDynamicDiscoveryTest : IntegrationTestTemplate
     {
@@ -81,7 +81,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._19_20
             AS4Component.OverrideSettings(DynamicDiscoverySettings);
             AS4Component.Start();
 
-            InsertHolodeckSmpConfigurationWith(url: ReceiveAgentEndpoint, encryption: true);
+            InsertEnabledEncryptionForHolodeck(url: ReceiveAgentEndpoint);
 
             // Act
             new StubSender().SendMessage(_8_1_21_message, Constants.ContentTypes.Soap);
@@ -92,12 +92,12 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._19_20
                 "No Receipt found at AS4.NET Component for Simple Dynamic Discovery Test");
         }
 
-        private void InsertHolodeckSmpConfigurationWith(string url, bool encryption)
+        private void InsertEnabledEncryptionForHolodeck(string url)
         {
             var smpConfig = new SmpConfiguration
             {
                 TlsEnabled = false,
-                EncryptionEnabled = encryption,
+                EncryptionEnabled = true,
                 PartyRole = HolodeckPartyRole,
                 ToPartyId = "org:eu:europa:as4:example",
                 PartyType = "org:eu:europa:as4:example",
@@ -114,10 +114,34 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._19_20
                 EncryptKeyTransportAlgorithm = KeyEncryption.Default.TransportAlgorithm
             };
 
-            PollingAt(Path.GetFullPath(@".\database"), "*.db");
+            InsertSmpConfiguration(smpConfig);
+        }
 
-            var spy = new DatastoreSpy(AS4Component.GetConfiguration());
-            spy.InsertSmpConfiguration(smpConfig);
+        [Fact]
+        public void AS4ComponentDoesntAlterEncryptedDataFromOriginalHolodeckMessage()
+        {
+            // Arrange
+            Holodeck.CopyPModeToHolodeckB("8.1.22-pmode.xml");
+
+            AS4Component.OverrideSettings(DynamicDiscoverySettings);
+            AS4Component.Start();
+
+            InsertSmpConfigurationWith(ReceiveAgentEndpoint, enableEncryption: false);
+
+            var str = VirtualStream.CreateVirtualStream();
+            str.Write(_8_1_22_message, 0, _8_1_22_message.Length);
+            str.Position = 0;
+
+            const string contentType =
+                "multipart/related; boundary= \"MIMEBoundary_cf5321acea839acad6a3b2bb554953c7dd08b613522d287b\"; type=\"application/soap+xml\";";
+
+            // Act
+            new StubSender().SendMessage(str, contentType);
+
+            // Assert
+            Assert.True(
+                PollingAt(AS4ReceiptsPath),
+                "No Receipt found at AS4.NET Component for Forward Encrypted/Signed Dynamic Discovery Test");
         }
 
         private void InsertSmpConfigurationWith(string url, bool enableEncryption)
@@ -142,7 +166,13 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._19_20
                 EncryptKeyTransportAlgorithm = KeyEncryption.Default.TransportAlgorithm
             };
 
+            InsertSmpConfiguration(smpConfig);
+        }
+
+        private void InsertSmpConfiguration(SmpConfiguration smpConfig)
+        {
             PollingAt(Path.GetFullPath(@".\database"), "*.db");
+            Thread.Sleep(TimeSpan.FromSeconds(5));
 
             var spy = new DatastoreSpy(AS4Component.GetConfiguration());
             spy.InsertSmpConfiguration(smpConfig);
