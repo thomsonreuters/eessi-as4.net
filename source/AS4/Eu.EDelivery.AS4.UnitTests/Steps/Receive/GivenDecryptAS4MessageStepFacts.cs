@@ -8,10 +8,11 @@ using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
-using Eu.EDelivery.AS4.Security.Strategies;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Steps.Receive;
+using Eu.EDelivery.AS4.TestUtils;
+using Eu.EDelivery.AS4.TestUtils.Stubs;
 using Moq;
 using Xunit;
 
@@ -21,15 +22,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
     /// Testing <see cref="DecryptAS4MessageStep" />
     /// </summary>
     public class GivenDecryptAS4MessageStepFacts
-    {
-        private readonly Mock<IEncryptionStrategy> _mockedEncryptedStrategy;
+    {        
         private readonly IStep _step;
 
         public GivenDecryptAS4MessageStepFacts()
         {
-            _mockedEncryptedStrategy = new Mock<IEncryptionStrategy>();
-
             var mockedRespository = new Mock<ICertificateRepository>();
+
             mockedRespository.Setup(r => r.GetCertificate(It.IsAny<X509FindType>(), It.IsAny<string>()))
                              .Returns(new X509Certificate2(Properties.Resources.holodeck_partyc_certificate, "ExampleC", X509KeyStorageFlags.Exportable));
 
@@ -90,8 +89,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             public async Task ThenExecuteStepFailsWithNotAllowedEncryptionAsync()
             {
                 // Arrange
-                AS4Message as4Message = AS4Message.Empty;
-                as4Message.SecurityHeader = new SecurityHeader(null, true);
+                var as4Message = await CreateEncryptedAS4Message();
 
                 var internalMessage = new MessagingContext(as4Message, MessagingContextMode.Receive) { ReceivingPMode = new ReceivingProcessingMode() };
                 internalMessage.ReceivingPMode.Security.Decryption.Encryption = Limit.NotAllowed;
@@ -100,8 +98,23 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 StepResult result = await _step.ExecuteAsync(internalMessage, CancellationToken.None);
 
                 // Assert
+                Assert.False(result.Succeeded);
+
                 ErrorResult error = result.MessagingContext.ErrorResult;
                 Assert.Equal(ErrorCode.Ebms0103, error.Code);
+            }
+
+            private static async Task<AS4Message> CreateEncryptedAS4Message()
+            {
+                var message = AS4Message.Create(new UserMessage("somemessage"));
+                message.AddAttachment(new Attachment("some-attachment")
+                {
+                    Content =  Stream.Null
+                });
+
+                var encryptedMessage = AS4MessageUtils.EncryptWithCertificate(message, new StubCertificateRepository().GetStubCertificate());
+
+                return await AS4MessageUtils.SerializeDeserializeAsync(encryptedMessage);
             }
 
             [Fact]

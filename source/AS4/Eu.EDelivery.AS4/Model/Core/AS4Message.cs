@@ -11,7 +11,6 @@ using System.Xml;
 using Eu.EDelivery.AS4.Builders.Security;
 using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.PMode;
-using Eu.EDelivery.AS4.Security.References;
 using Eu.EDelivery.AS4.Security.Signing;
 using Eu.EDelivery.AS4.Security.Strategies;
 using Eu.EDelivery.AS4.Serialization;
@@ -383,10 +382,21 @@ namespace Eu.EDelivery.AS4.Model.Core
         public void Decrypt(X509Certificate2 certificate)
         {
             var decryptor = DecryptionStrategyBuilder.Create(this)
-                                                   .WithCertificate(certificate)
-                                                   .Build();
+                                                     .WithCertificate(certificate)
+                                                     .Build();
             
             decryptor.DecryptMessage();
+        }
+
+        /// <summary>
+        /// Verifies if the digital signature on the AS4 Message is valid.
+        /// </summary>
+        /// <param name="config"></param>
+        /// <returns></returns>
+        public bool VerifySignature(VerifySignatureConfig config)
+        {
+            var verifier = new SignatureVerificationStrategy(this.EnvelopeDocument);
+            return verifier.VerifySignature(config);
         }
 
         /// <summary>Indicates whether the current object is equal to another object of the same type.</summary>

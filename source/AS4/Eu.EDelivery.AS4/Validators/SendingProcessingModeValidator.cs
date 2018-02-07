@@ -106,10 +106,10 @@ namespace Eu.EDelivery.AS4.Validators
 
             RuleFor(pmode => pmode.Security.Signing.Algorithm).NotEmpty().When(isSigningEnabled);
             RuleFor(pmode => pmode.Security.Signing.HashFunction).NotEmpty().When(isSigningEnabled);
-            RuleFor(pmode => Constants.Algoritms.Contains(pmode.Security.Signing.Algorithm))
+            RuleFor(pmode => Constants.SignAlgorithms.IsSupported(pmode.Security.Signing.Algorithm))
                 .NotNull()
                 .When(isSigningEnabled);
-            RuleFor(pmode => Constants.HashFunctions.Contains(pmode.Security.Signing.HashFunction))
+            RuleFor(pmode => Constants.HashFunctions.IsSupported(pmode.Security.Signing.HashFunction))
                 .NotNull()
                 .When(isSigningEnabled);
         }

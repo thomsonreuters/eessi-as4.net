@@ -8,18 +8,29 @@ namespace Eu.EDelivery.AS4
     /// </summary>
     public static class Constants
     {
-        /// <summary>
-        /// Supported Algoritms
-        /// </summary>
-        public static ICollection<string> Algoritms = new Collection<string>
+        public static class SignAlgorithms
         {
-            "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256"
-        };
+            public const string Sha256 = "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256";
 
-        public static ICollection<string> HashFunctions = new Collection<string>
+            private static readonly HashSet<string> _supportedAlgorithms = new HashSet<string> { Sha256 };
+
+            public static bool IsSupported(string algorithm)
+            {
+                return _supportedAlgorithms.Contains(algorithm);
+            }
+        }
+
+        public static class HashFunctions
         {
-            "http://www.w3.org/2001/04/xmlenc#sha256"
-        };
+            public const string Sha256 = "http://www.w3.org/2001/04/xmlenc#sha256";
+
+            private static readonly HashSet<string> _supportedAlgorithms = new HashSet<string>() { Sha256 };
+
+            public static bool IsSupported(string hashFunction)
+            {
+                return _supportedAlgorithms.Contains(hashFunction);
+            }
+        }
 
         /// <summary>
         /// Supported Content Types

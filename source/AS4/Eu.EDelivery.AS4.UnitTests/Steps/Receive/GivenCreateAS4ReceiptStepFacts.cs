@@ -1,18 +1,15 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Builders.Security;
 using Eu.EDelivery.AS4.Factories;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
-using Eu.EDelivery.AS4.Security.References;
-using Eu.EDelivery.AS4.Security.Strategies;
 using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Steps.Receive;
+using Eu.EDelivery.AS4.TestUtils;
 using Eu.EDelivery.AS4.UnitTests.Common;
 using Xunit;
 using CryptoReference = System.Security.Cryptography.Xml.Reference;
@@ -23,9 +20,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
     /// Testing <see cref="CreateAS4ReceiptStep" />
     /// </summary>
     public class GivenCreateAS4ReceiptStepFacts
-    {
-        private const string Algorithm = "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256";
-        private const string HashFunction = "http://www.w3.org/2001/04/xmlenc#sha256";
+    {        
         private readonly CreateAS4ReceiptStep _step;
 
         public GivenCreateAS4ReceiptStepFacts()
@@ -150,23 +145,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             MessagingContext messagingContext = CreateDefaultInternalMessage();
             AS4Message as4Message = messagingContext.AS4Message;
 
-            ISigningStrategy signingStrategy = CreateSignStrategy(messagingContext);
-            as4Message.SecurityHeader.Sign(signingStrategy);
+            AS4MessageUtils.SignWithCertificate(as4Message, new StubCertificateRepository().GetStubCertificate());
 
             return messagingContext;
-        }
-
-        private static ISigningStrategy CreateSignStrategy(MessagingContext message)
-        {
-            AS4Message as4Message = message.AS4Message;
-            X509Certificate2 certificate = new StubCertificateRepository().GetStubCertificate();
-
-            SigningStrategyBuilder builder = new SigningStrategyBuilder(as4Message)
-                .WithSignatureAlgorithm(Algorithm)
-                .WithCertificate(certificate, X509ReferenceType.BSTReference)
-                .WithSigningId(as4Message.SigningId, HashFunction);
-
-            return builder.Build();
         }
 
         protected UserMessage GetUserMessage()

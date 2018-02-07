@@ -89,7 +89,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             if (as4Message.IsSignalMessage &&
                 (messagingContext.SendingPMode?.ReceiptHandling?.VerifyNRR ?? true))
             {
-                if (!await VerifyNonRepudiationsHashes(as4Message))
+                if (!await VerifyNonRepudiationHashes(as4Message))
                 {
                     return InvalidSignatureResult(
                         "The digest value in the Signature References of the referenced UserMessage " +
@@ -102,7 +102,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             return await TryVerifyingSignature(messagingContext).ConfigureAwait(false);
         }
 
-        private async Task<bool> VerifyNonRepudiationsHashes(AS4Message as4Message)
+        private async Task<bool> VerifyNonRepudiationHashes(AS4Message as4Message)
         {
             using (DatastoreContext context = _storeExpression())
             {
@@ -165,6 +165,8 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
             Logger.Info($"{messagingContext.EbmsMessageId} AS4 Message has a valid Signature present");
 
+            // TODO: The step should not be responsible for the functionality below.
+            //       Responsability lies somewhere else (signing-strategy?)
             foreach (Attachment attachment in messagingContext.AS4Message.Attachments)
             {
                 attachment.ResetContentPosition();
@@ -175,7 +177,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
         private static bool IsValidSignature(AS4Message as4Message, VerifySignatureConfig options)
         {
-            return as4Message.SecurityHeader.Verify(options);
+            return as4Message.VerifySignature(options);            
         }
 
         private static VerifySignatureConfig CreateVerifyOptionsForAS4Message(AS4Message as4Message, ReceivingProcessingMode pmode)

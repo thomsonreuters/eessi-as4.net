@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -11,6 +12,7 @@ using Eu.EDelivery.AS4.Security.Signing;
 using Eu.EDelivery.AS4.Security.Strategies;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.UnitTests.Common;
+using Remotion.Linq.Parsing.Structure.IntermediateModel;
 using Xunit;
 using static Eu.EDelivery.AS4.UnitTests.Properties.Resources;
 
@@ -19,11 +21,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Strategies
     /// <summary>
     /// Testing <see cref="SigningStrategy" />
     /// </summary>
+    [Obsolete("SigningStrategy is obsolete which makes these tests obsolete as well.")]
     public class GivenSignStrategyFacts
-    {       
+    {
         public class GivenValidArguments : GivenSignStrategyFacts
         {
-            [Fact]
+            [Fact(Skip = "Replaced by GivenCalculateSignatureStrategyFacts.ThenSignStrategySignsCorrectlyAS4Message")]
             public void ThenSignStrategySignsCorrectlyAS4Message()
             {
                 // Arrange
@@ -81,8 +84,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Strategies
 
                 signStrategy.AddAlgorithm(new RsaPkCs1Sha256SignatureAlgorithm());
                 signStrategy.AddCertificate(certificate);
-                signStrategy.AddXmlReference(signingId.HeaderSecurityId, Constants.HashFunctions.First());
-                signStrategy.AddXmlReference(signingId.BodySecurityId, Constants.HashFunctions.First());
+                signStrategy.AddXmlReference(signingId.HeaderSecurityId, Constants.HashFunctions.Sha256);
+                signStrategy.AddXmlReference(signingId.BodySecurityId, Constants.HashFunctions.Sha256);
 
                 return signStrategy;
             }
@@ -107,7 +110,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Strategies
                 Assert.True(xmlReferences.Count == 3);
             }
 
-            [Fact]
+            [Fact(Skip = "Replaced by VerifySignatureStrategyFacts.GivenValidArguments.ThenSignStrategyVerifiesAS4MessageCorrectly")]
             public void ThenSignStrategyVerifiesAS4MessageCorrectly()
             {
                 // Arrange
@@ -141,7 +144,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Strategies
 
             private static SecurityTokenReference CreateSecurityTokenReference(XmlNode xmlDocument)
             {
-                
+
                 var securityTokenElement =
                     xmlDocument.SelectSingleNode("//*[local-name()='SecurityTokenReference'] ") as XmlElement;
 
@@ -153,7 +156,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Strategies
 
         public class GivenInvalidArgumens : GivenSignStrategyFacts
         {
-            [Fact]
+            [Fact(Skip = "Replaced by VerifySignatureStrategyFacts.GivenInvalidArguments.ThenVerifySignatureFailsWithUntrustedCertificate")]
             public void ThenVerifySignatureFailsWithUntrustedCertificate()
             {
                 // Arrange
@@ -178,7 +181,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Strategies
 
         protected VerifySignatureConfig EmptyVerifyConfig()
         {
-            return new VerifySignatureConfig {Attachments = new List<Attachment>()};
+            return new VerifySignatureConfig { Attachments = new List<Attachment>() };
         }
     }
 }
