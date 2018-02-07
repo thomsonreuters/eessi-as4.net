@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -50,7 +51,7 @@ namespace Eu.EDelivery.AS4.Services
         }
 
         /// <summary>
-        /// Gets a s4 user message for identifier.
+        /// Gets an AS4 UserMessage for a given ebMS Message Id.
         /// </summary>
         /// <param name="messageId">The message identifier.</param>
         /// <param name="store">The provider.</param>
@@ -58,7 +59,11 @@ namespace Eu.EDelivery.AS4.Services
         public async Task<AS4Message> GetAS4UserMessageForId(string messageId, IAS4MessageBodyStore store)
         {
             OutMessage message = GetOutMessageById(messageId);
-            if (message == null) { return null; }
+
+            if (message == null || String.IsNullOrWhiteSpace(message.MessageLocation))
+            {
+                return null;
+            }
 
             Stream messageBody = await store.LoadMessageBodyAsync(message.MessageLocation);
 
@@ -69,7 +74,7 @@ namespace Eu.EDelivery.AS4.Services
         private OutMessage GetOutMessageById(string messageId)
         {
             return _repository.GetOutMessageData(
-                m => m.EbmsMessageId.Equals(messageId) && m.Intermediary == false, 
+                m => m.EbmsMessageId.Equals(messageId) && m.Intermediary == false,
                 m => m);
         }
 
