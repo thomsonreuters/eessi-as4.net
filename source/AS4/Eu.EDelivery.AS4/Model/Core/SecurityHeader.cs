@@ -111,7 +111,11 @@ namespace Eu.EDelivery.AS4.Model.Core
         private static XmlElement CreateSecurityHeaderElement()
         {
             var xmlDocument = new XmlDocument() { PreserveWhitespace = true };
-            return xmlDocument.CreateElement("wsse", "Security", Constants.Namespaces.WssSecuritySecExt);
+
+            var securityHeaderElement = xmlDocument.CreateElement("wsse", "Security", Constants.Namespaces.WssSecuritySecExt);
+            xmlDocument.AppendChild(securityHeaderElement);
+
+            return securityHeaderElement;
         }
 
         private void InsertNewEncryptionElements()
@@ -170,18 +174,7 @@ namespace Eu.EDelivery.AS4.Model.Core
                 return new System.Security.Cryptography.Xml.Reference[] { };
             }
 
-            var signature = new SignedXml();
-
-            var nsMgr = GetNamespaceManager(securityHeader.OwnerDocument);
-
-            var signatureElement = securityHeader.SelectSingleNode("//ds:Signature", nsMgr) as XmlElement;
-
-            if (signatureElement == null)
-            {
-                return new System.Security.Cryptography.Xml.Reference[] { };
-            }
-
-            signature.LoadXml(signatureElement);
+            var signature = new SignatureVerificationStrategy(securityHeader.OwnerDocument);
 
             return signature.SignedInfo.References.OfType<System.Security.Cryptography.Xml.Reference>();
         }

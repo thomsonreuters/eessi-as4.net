@@ -29,12 +29,6 @@ namespace Eu.EDelivery.AS4.Security.Strategies
                 SafeCanonicalizationMethods.Add(AttachmentSignatureTransform.Url);
             }
 
-            // TODO: investigate if this is necessary 
-            var signAlgorithm = RetrieveSignatureAlgorithm(soapEnvelope);
-            SignedInfo.SignatureMethod = signAlgorithm.GetIdentifier();
-
-            CryptoConfig.AddAlgorithm(signAlgorithm.GetType(), signAlgorithm.GetIdentifier());
-
             _securityTokenReference =
                 SecurityTokenReferenceProvider.Get(soapEnvelope, SecurityTokenType.Signing, _certificateRepository);
 
