@@ -40,7 +40,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Strategies
 
             XmlNodeList xmlReferences = signatureElement.SelectNodes("//*[local-name()='Reference'] ");
             Assert.NotNull(xmlReferences);
-            Assert.True(xmlReferences.Count == 3);
+            Assert.True(xmlReferences.Count == 3, "The 3 required Reference elements are not present in the Signature.");
         }
 
     }
