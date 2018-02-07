@@ -214,6 +214,20 @@ namespace Eu.EDelivery.AS4.Repositories
         }
 
         /// <summary>
+        /// Selects some information of specified OutMessages.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <param name="where">The where.</param>
+        /// <param name="selection">The selection.</param>
+        /// <returns></returns>
+        public IEnumerable<TResult> GetOutMessagesData<TResult>(
+            Expression<Func<OutMessage, bool>> where,
+            Expression<Func<OutMessage, TResult>> selection)
+        {
+            return _datastoreContext.OutMessages.Where(where).Select(selection);
+        }
+
+        /// <summary>
         /// Insert a given <see cref="OutMessage"/>
         /// into the Data store
         /// </summary>

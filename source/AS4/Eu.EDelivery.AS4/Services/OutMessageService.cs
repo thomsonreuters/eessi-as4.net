@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Management.Instrumentation;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Entities;
@@ -47,6 +46,39 @@ namespace Eu.EDelivery.AS4.Services
             _configuration = config;
             _repository = respository;
             _messageBodyStore = messageBodyStore;
+        }
+        
+        /// <summary>
+        /// Gets AS4 UserMessages for identifiers.
+        /// </summary>
+        /// <param name="messageIds">The message identifiers.</param>
+        /// <param name="store">The provider.</param>
+        /// <returns></returns>
+        public async Task<IEnumerable<AS4Message>> GetAS4UserMessagesForIds(
+            IEnumerable<string> messageIds, 
+            IAS4MessageBodyStore store)
+        {
+            IEnumerable<OutMessage> messages = _repository
+                .GetOutMessagesData(m => 
+                    messageIds.Contains(m.EbmsMessageId) && m.Intermediary == false, 
+                    m => m)
+                .Where(m => m != null);
+
+            if (!messages.Any()) { return Enumerable.Empty<AS4Message>(); }
+
+            var foundMessages = new List<AS4Message>();
+
+            foreach (OutMessage m in messages)
+            {
+                Stream body = await store.LoadMessageBodyAsync(m.MessageLocation);
+
+                ISerializer serializer = Registry.Instance.SerializerProvider.Get(m.ContentType);
+                AS4Message foundMessage = await serializer.DeserializeAsync(body, m.ContentType, CancellationToken.None);
+
+                foundMessages.Add(foundMessage);
+            }
+
+            return foundMessages;
         }
 
         /// <summary>
