@@ -1,8 +1,7 @@
-﻿using System.Collections;
+﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Security.Cryptography.Xml;
-using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using CoreReference = Eu.EDelivery.AS4.Model.Core.Reference;
 using CryptoReference = System.Security.Cryptography.Xml.Reference;
@@ -14,14 +13,14 @@ namespace Eu.EDelivery.AS4.Builders.Core
     /// </summary>
     public class NonRepudiationInformationBuilder
     {
-        private ArrayList _references;
+        private IEnumerable<System.Security.Cryptography.Xml.Reference> _references;
 
         /// <summary>
         /// Add Signed References to the Builder
         /// </summary>
         /// <param name="references"></param>
         /// <returns></returns>
-        public NonRepudiationInformationBuilder WithSignedReferences(ArrayList references)
+        public NonRepudiationInformationBuilder WithSignedReferences(IEnumerable<System.Security.Cryptography.Xml.Reference> references)
         {
             _references = references;
             return this;

@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography.Xml;
 using System.Xml;
@@ -159,7 +159,7 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// Get the Signed References from the signature.
         /// </summary>
         /// <returns></returns>
-        public ArrayList GetReferences()
+        public IEnumerable<System.Security.Cryptography.Xml.Reference> GetReferences()
         {
             // TODO: this must be improved.
 
@@ -167,7 +167,7 @@ namespace Eu.EDelivery.AS4.Model.Core
 
             if (securityHeader == null)
             {
-                return new ArrayList();
+                return new System.Security.Cryptography.Xml.Reference[] { };
             }
 
             var signature = new SignedXml();
@@ -178,12 +178,12 @@ namespace Eu.EDelivery.AS4.Model.Core
 
             if (signatureElement == null)
             {
-                return new ArrayList();
+                return new System.Security.Cryptography.Xml.Reference[] { };
             }
 
             signature.LoadXml(signatureElement);
 
-            return signature.SignedInfo.References;
+            return signature.SignedInfo.References.OfType<System.Security.Cryptography.Xml.Reference>();
         }
 
         private static XmlNamespaceManager GetNamespaceManager(XmlDocument xmlDocument)

@@ -604,7 +604,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
 
         private static Receipt CreateReceiptWithNonRepudiationInfo()
         {
-            var nnri = new ArrayList { new System.Security.Cryptography.Xml.Reference() };
+            var nnri = new[] { new System.Security.Cryptography.Xml.Reference() };
 
             var receipt = new Receipt
             {
@@ -664,7 +664,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
             // Serialize it again; the Soap envelope should remain intact, besides
             // some changes that have been made to the security header.
             var reserializedAS4Message = await AS4MessageUtils.SerializeDeserializeAsync(deserializedAS4Message);
-            
+
             // Assert: The soap envelopes of both messages should be equal if the 
             //         SecurityHeader is not taken into consideration.
 
