@@ -24,7 +24,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Services
 
                 var signedPullRequest = SignAS4MessageWithCertificate(as4Message, certificate);
 
-                var service = new PullPullAuthorizationMapService(provider);
+                var service = new PullAuthorizationMapService(provider);
 
                 Assert.True(service.IsPullRequestAuthorized(signedPullRequest), "PullRequest should be allowed since entry exists for MPC and cert-thumbprint");
             }
@@ -43,7 +43,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Services
 
                 var signedPullRequest = SignAS4MessageWithCertificate(as4Message, certificate);
 
-                var service = new PullPullAuthorizationMapService(provider);
+                var service = new PullAuthorizationMapService(provider);
 
                 Assert.True(service.IsPullRequestAuthorized(signedPullRequest), "PullRequest should be allowed since no entries are present for MPC3 in Authorization Map");
             }
@@ -60,7 +60,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Services
 
                 var pullRequest = CreatePullRequest("mpc3");
 
-                var service = new PullPullAuthorizationMapService(provider);
+                var service = new PullAuthorizationMapService(provider);
 
                 Assert.True(service.IsPullRequestAuthorized(pullRequest));
             }
@@ -83,7 +83,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Services
 
                 var signedPullRequest = SignAS4MessageWithCertificate(as4Message, certificate);
 
-                var service = new PullPullAuthorizationMapService(provider);
+                var service = new PullAuthorizationMapService(provider);
 
                 Assert.False(service.IsPullRequestAuthorized(signedPullRequest), "PullRequest should not be allowed since certificate is not allowed in PullAuthorizationMap");
             }
@@ -102,7 +102,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Services
 
                 var signedPullRequest = SignAS4MessageWithCertificate(as4Message, certificate);
 
-                var service = new PullPullAuthorizationMapService(provider);
+                var service = new PullAuthorizationMapService(provider);
 
                 Assert.False(service.IsPullRequestAuthorized(signedPullRequest), "PullRequest should not be allowed since certificate is not present in PullAuthorizationMap");
             }
@@ -117,7 +117,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Services
 
                 var pullRequest = CreatePullRequest("mpc1");
 
-                var service = new PullPullAuthorizationMapService(provider);
+                var service = new PullAuthorizationMapService(provider);
 
                 Assert.False(service.IsPullRequestAuthorized(pullRequest), "PullRequest should not be allowed since PullRequest is not signed");
             }

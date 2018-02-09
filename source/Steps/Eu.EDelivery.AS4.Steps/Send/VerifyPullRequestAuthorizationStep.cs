@@ -38,7 +38,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
         {
             var as4Message = messagingContext.AS4Message;
 
-            var authorizationMap = new PullPullAuthorizationMapService(_pullAuthorizationMapProvider);
+            var authorizationMap = new PullAuthorizationMapService(_pullAuthorizationMapProvider);
 
             if (authorizationMap.IsPullRequestAuthorized(as4Message))
             {
