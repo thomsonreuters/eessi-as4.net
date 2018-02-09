@@ -20,6 +20,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Security
     /// <summary>
     /// Testing the <see cref="SigningStrategyBuilder" />
     /// </summary>
+    [Obsolete("SigningStrategyBuilder is obsolete which makes these tests obsolete as well.")]
     public class GivenSigningStrategyBuilderFacts
     {
         private SigningStrategyBuilder _builder;
@@ -29,11 +30,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Security
         /// </summary>
         public class GivenValidArgumentsBuilder : GivenSigningStrategyBuilderFacts
         {
-            [Fact]
+            [Fact(Skip = "SigningStrategyBuilder is obsolete")]
             public void ThenBuilderLoadsInfoFromXmlDocument()
             {
                 // Arrange
-                string algorithmNamespace = Constants.Algoritms.First();
+                string algorithmNamespace = Constants.SignAlgorithms.Sha256;
                 var xmlDocument = new XmlDocument();
                 string xml = Properties.Resources.as4_soap_signed_message;
                 xmlDocument.LoadXml(xml);
@@ -51,7 +52,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Security
                 Assert.Equal(algorithmNamespace, signedXml.SignedInfo.SignatureMethod);
             }
 
-            [Fact]
+            [Fact(Skip = "SigningStrategyBuilder is obsolete")]
             public void ThenBuilderMakesValidEmptySignStrategy()
             {
                 // Act
@@ -61,13 +62,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Security
                 Assert.NotNull(signingStrategy);
             }
 
-            [Fact]
+            [Fact(Skip = "SigningStrategyBuilder is obsolete")]
             public void ThenBuilderMakesValidSignStrategyWithAttachmentReference()
             {
                 // Arrange
                 var stream = new MemoryStream(Encoding.UTF8.GetBytes("Dummy Content"));
                 var attachment = new Attachment("earth") { Content = stream };
-                string hashFunction = Constants.HashFunctions.First();
+                string hashFunction = Constants.HashFunctions.Sha256;
 
                 // Act
                 ISigningStrategy signingStrategy = CreateBuilder().WithAttachment(attachment, hashFunction).Build();
@@ -77,7 +78,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Security
                 AssertReference("cid:" + attachment.Id, references);
             }
 
-            [Fact]
+            [Fact(Skip = "SigningStrategyBuilder is obsolete")]
             public void ThenBuilderMakesValidSignStrategyWithCertificate()
             {
                 // Arrange
@@ -91,7 +92,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Security
                 Assert.NotNull(concreteStrategy?.SecurityTokenReference.Certificate);
             }
 
-            [Fact]
+            [Fact(Skip = "SigningStrategyBuilder is obsolete")]
             public void ThenBuilderMakesValidSignStrategyWithSecurityTokenReference()
             {
                 // Act
@@ -104,11 +105,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Security
                 Assert.NotNull(concreteStrategy?.SecurityTokenReference);
             }
 
-            [Fact]
+            [Fact(Skip = "SigningStrategyBuilder is obsolete")]
             public void ThenBuilderMakesValidSignStrategyWithSignatureAlgorithm()
             {
                 // Arrange
-                string algorithmNamespace = Constants.Algoritms.First();
+                string algorithmNamespace = Constants.SignAlgorithms.Sha256;
 
                 // Act
                 ISigningStrategy signingStrategy = CreateBuilder().WithSignatureAlgorithm(algorithmNamespace).Build();
@@ -120,12 +121,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Security
                 Assert.Equal(algorithmNamespace, signedXml.SignedInfo.SignatureMethod);
             }
 
-            [Fact]
+            [Fact(Skip = "SigningStrategyBuilder is obsolete")]
             public void ThenBuilerMakesValidSignStrategyWithSigningId()
             {
                 // Arrange
                 var signingId = new SigningId("header-id", "body-id");
-                string hashFunction = Constants.HashFunctions.First();
+                string hashFunction = Constants.HashFunctions.Sha256;
 
                 // Act
                 ISigningStrategy signingStrategy = CreateBuilder().WithSigningId(signingId, hashFunction).Build();
@@ -138,7 +139,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Security
 
             private static void AssertReference(string uri, IEnumerable<CryptoReference> references)
             {
-                string hashFunction = Constants.HashFunctions.First();
+                string hashFunction = Constants.HashFunctions.Sha256;
                 CryptoReference reference =
                     references.FirstOrDefault(r => r.Uri.Equals(uri) && r.DigestMethod.Equals(hashFunction));
 
@@ -148,7 +149,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Security
 
         public class GivenInvalidArguments : GivenSigningStrategyBuilderFacts
         {
-            [Fact]
+            [Fact(Skip = "SigningStrategyBuilder is obsolete")]
             public void ThenBuilderFailsWithMissingSecurityTokenReferenceXmlElement()
             {
                 // Arrange

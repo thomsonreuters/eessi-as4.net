@@ -1,7 +1,9 @@
-﻿using System.Collections;
-using System.Security.Cryptography.X509Certificates;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Cryptography.Xml;
 using System.Xml;
-using Eu.EDelivery.AS4.Security.Signing;
+using Eu.EDelivery.AS4.Security.References;
 using Eu.EDelivery.AS4.Security.Strategies;
 
 namespace Eu.EDelivery.AS4.Model.Core
@@ -11,11 +13,10 @@ namespace Eu.EDelivery.AS4.Model.Core
     /// </summary>
     public class SecurityHeader
     {
-        private ISigningStrategy _signingStrategy;
-        private IEncryptionStrategy _encryptionStrategy;
-
-        public bool IsSigned => _signingStrategy != null;
+        public bool IsSigned { get; private set; }
         public bool IsEncrypted { get; private set; }
+
+        private XmlElement _securityHeaderElement;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SecurityHeader"/> class. 
@@ -23,73 +24,43 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// </summary>
         public SecurityHeader() { }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="SecurityHeader"/> class. 
-        /// </summary>
-        /// <param name="signingStrategy">
-        /// </param>
-        /// <param name="isEncrypted">
-        /// Indicates whether the message is encrypted or not.
-        /// </param>
-        public SecurityHeader(ISigningStrategy signingStrategy, bool isEncrypted)
+        public SecurityHeader(XmlElement securityHeaderElement)
         {
-            _signingStrategy = signingStrategy;
-            IsEncrypted = isEncrypted;
+            _securityHeaderElement = securityHeaderElement;
+
+            if (_securityHeaderElement != null)
+            {
+                var nsMgr = GetNamespaceManager(_securityHeaderElement.OwnerDocument);
+
+                IsSigned = _securityHeaderElement.SelectSingleNode("//ds:Signature", nsMgr) != null;
+                IsEncrypted = _securityHeaderElement.SelectSingleNode("//xenc:EncryptedData", nsMgr) != null;
+            }
+            else
+            {
+                IsSigned = false;
+                IsEncrypted = false;
+            }
         }
 
-        /// <summary>
-        /// Gets the certificate that's being used for the signing.
-        /// </summary>
-        /// <value>The signing certificate.</value>
-        public X509Certificate2 SigningCertificate => _signingStrategy?.SecurityTokenReference?.Certificate;
+        private Signature _signature;
 
         /// <summary>
-        /// Set the <see cref="ISigningStrategy"/> implementation
-        /// used inside the <see cref="SecurityHeader"/>
+        /// Sign using the given <paramref name="signingStrategy"/>
         /// </summary>
         /// <param name="signingStrategy"></param>
-        public void Sign(ISigningStrategy signingStrategy)
+        public void Sign(ICalculateSignatureStrategy signingStrategy)
         {
-            _signingStrategy = signingStrategy;
-            _signingStrategy.SignSignature();
+            if (signingStrategy == null)
+            {
+                throw new ArgumentNullException(nameof(signingStrategy));
+            }
+
+            _signature = signingStrategy.SignDocument();
+
+            IsSigned = true;
         }
 
-        /// <summary>
-        /// Gets the full security XML element.
-        /// </summary>
-        /// <returns></returns>
-        public XmlElement GetXml()
-        {
-            var xmlDocument = new XmlDocument() { PreserveWhitespace = true };
-            XmlElement securityElement = xmlDocument
-                .CreateElement("wsse", "Security", Constants.Namespaces.WssSecuritySecExt);
-
-            _encryptionStrategy?.AppendEncryptionElements(securityElement);
-            _signingStrategy?.AppendSignature(securityElement);
-
-            return securityElement;
-        }
-
-        /// <summary>
-        /// Get the Signed References from the 
-        /// <see cref="ISigningStrategy"/> implementation
-        /// </summary>
-        /// <returns></returns>
-        public ArrayList GetReferences()
-        {
-            return _signingStrategy == null ? new ArrayList() : _signingStrategy.GetSignedReferences();
-        }
-
-        /// <summary>
-        /// Verify the Signature of the Security Header
-        /// </summary>
-        /// <param name="options"> The options. </param>
-        /// <returns>
-        /// </returns>
-        public bool Verify(VerifySignatureConfig options)
-        {
-            return _signingStrategy.VerifySignature(options);
-        }
+        private XmlNodeList _encryptionElements;
 
         /// <summary>
         /// Encrypts the message and its attachments.
@@ -97,9 +68,125 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// <param name="encryptionStrategy"></param>
         public void Encrypt(IEncryptionStrategy encryptionStrategy)
         {
-            _encryptionStrategy = encryptionStrategy;
-            _encryptionStrategy.EncryptMessage();
+            if (encryptionStrategy == null)
+            {
+                throw new ArgumentNullException(nameof(encryptionStrategy));
+            }
+
+            encryptionStrategy.EncryptMessage();
             IsEncrypted = true;
+
+            var securityHeader = CreateSecurityHeaderElement();
+
+            encryptionStrategy.AppendEncryptionElements(securityHeader);
+
+            _encryptionElements = securityHeader.ChildNodes;
+        }
+
+        /// <summary>
+        /// Gets the full Security XML element.
+        /// </summary>
+        /// <returns></returns>
+        public XmlElement GetXml()
+        {
+            if (_securityHeaderElement == null && _signature == null && _encryptionElements == null)
+            {
+                return null;
+            }
+
+            if (_securityHeaderElement == null)
+            {
+                _securityHeaderElement = CreateSecurityHeaderElement();
+            }
+
+            // Append the encryption elements as first
+            InsertNewEncryptionElements();
+
+            // Signature elements should occur last in the header.
+            InsertNewSignatureElements();
+
+            return _securityHeaderElement;
+        }
+
+        private static XmlElement CreateSecurityHeaderElement()
+        {
+            var xmlDocument = new XmlDocument() { PreserveWhitespace = true };
+
+            var securityHeaderElement = xmlDocument.CreateElement("wsse", "Security", Constants.Namespaces.WssSecuritySecExt);
+            xmlDocument.AppendChild(securityHeaderElement);
+
+            return securityHeaderElement;
+        }
+
+        private void InsertNewEncryptionElements()
+        {
+            if (_encryptionElements == null)
+            {
+                return;
+            }
+
+            // Encryption elements must occur as the first items in the list.
+            var referenceNode = _securityHeaderElement.ChildNodes.OfType<XmlNode>().FirstOrDefault();
+
+            foreach (XmlNode encryptionElement in _encryptionElements)
+            {
+                var nodeToImport = _securityHeaderElement.OwnerDocument.ImportNode(encryptionElement, deep: true);
+                _securityHeaderElement.InsertBefore(nodeToImport, referenceNode);
+            }
+
+            _encryptionElements = null;
+        }
+
+        private void InsertNewSignatureElements()
+        {
+            if (_signature == null)
+            {
+                return;
+            }
+
+            // The SecurityToken that was used for the signature must occur before the 
+            // signature and its references.
+            foreach (SecurityTokenReference reference in _signature.KeyInfo.OfType<SecurityTokenReference>())
+            {
+                reference.AppendSecurityTokenTo(_securityHeaderElement, _securityHeaderElement.OwnerDocument);
+            }
+
+            var signatureElement = _signature.GetXml();
+            signatureElement =
+                _securityHeaderElement.OwnerDocument.ImportNode(signatureElement, deep: true) as XmlElement;
+            _securityHeaderElement.AppendChild(signatureElement);
+
+            _signature = null;
+        }
+
+        /// <summary>
+        /// Get the Signed References from the signature.
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerable<System.Security.Cryptography.Xml.Reference> GetReferences()
+        {
+            // TODO: this must be improved.
+
+            var securityHeader = this.GetXml();
+
+            if (securityHeader == null)
+            {
+                return new System.Security.Cryptography.Xml.Reference[] { };
+            }
+
+            var signature = new SignatureVerificationStrategy(securityHeader.OwnerDocument);
+
+            return signature.SignedInfo.References.OfType<System.Security.Cryptography.Xml.Reference>();
+        }
+
+        private static XmlNamespaceManager GetNamespaceManager(XmlDocument xmlDocument)
+        {
+            var nsMgr = new XmlNamespaceManager(xmlDocument.NameTable);
+
+            nsMgr.AddNamespace("ds", Constants.Namespaces.XmlDsig);
+            nsMgr.AddNamespace("xenc", Constants.Namespaces.XmlEnc);
+
+            return nsMgr;
         }
     }
 }

@@ -88,7 +88,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
         private static NonRepudiationInformation GetNonRepudiationInformationFrom(AS4Message receivedAS4Message)
         {
-            ArrayList references = receivedAS4Message.SecurityHeader.GetReferences();
+            var references = receivedAS4Message.SecurityHeader.GetReferences();
 
             return new NonRepudiationInformationBuilder()
                 .WithSignedReferences(references).Build();

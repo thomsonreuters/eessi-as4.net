@@ -197,7 +197,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Agents
             /// <returns></returns>
             public Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
             {
-                var result = new ErrorResult(description: null, code: default(ErrorCode), alias: default(ErrorAlias));
+                var result = new ErrorResult(description: null, alias: default(ErrorAlias));
 
                 return Task.FromResult(StepResult.Failed(new HappyContext {ErrorResult = result}));
             }

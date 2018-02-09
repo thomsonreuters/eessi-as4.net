@@ -1,20 +1,36 @@
 ﻿using System;
 using System.Linq;
+using System.Threading;
+using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
+using Eu.EDelivery.AS4.Repositories;
+using Eu.EDelivery.AS4.Security.References;
+using Eu.EDelivery.AS4.Serialization;
 
 namespace Eu.EDelivery.AS4.Services.PullRequestAuthorization
 {
     public class PullPullAuthorizationMapService : IPullAuthorizationMapService
     {
         private readonly IPullAuthorizationMapProvider _mapProvider;
+        private readonly ICertificateRepository _certificateRepository;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PullPullAuthorizationMapService"/> class.
         /// </summary>
-        public PullPullAuthorizationMapService(IPullAuthorizationMapProvider pullAuthorizationMapProvider)
+        public PullPullAuthorizationMapService(IPullAuthorizationMapProvider pullAuthorizationMapProvider) :
+            this(pullAuthorizationMapProvider, Registry.Instance.CertificateRepository)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PullPullAuthorizationMapService"/> class.
+        /// </summary>
+        public PullPullAuthorizationMapService(IPullAuthorizationMapProvider pullAuthorizationMapProvider,
+                                               ICertificateRepository certificateRepository)
         {
             _mapProvider = pullAuthorizationMapProvider;
+            _certificateRepository = certificateRepository;
         }
 
         /// <summary>
@@ -48,7 +64,7 @@ namespace Eu.EDelivery.AS4.Services.PullRequestAuthorization
                 return false;
             }
 
-            var certificateThumbPrint = RetrieveSigningCertificateThumbPrint(pullRequestMessage);
+            var certificateThumbPrint = RetrieveSigningCertificateThumbPrint(pullRequestMessage, _certificateRepository);
 
             var authorizationEntriesForCertificate =
                 authorizationEntries.Where(a => StringComparer.OrdinalIgnoreCase.Equals(a.CertificateThumbprint, certificateThumbPrint));
@@ -56,9 +72,14 @@ namespace Eu.EDelivery.AS4.Services.PullRequestAuthorization
             return authorizationEntriesForCertificate.Any() && authorizationEntriesForCertificate.All(a => a.Allowed);
         }
 
-        private static string RetrieveSigningCertificateThumbPrint(AS4Message as4Message)
+        private static string RetrieveSigningCertificateThumbPrint(AS4Message as4Message, ICertificateRepository certificateRepository)
         {
-            return as4Message.SecurityHeader.SigningCertificate.Thumbprint;
+            var token =
+                SecurityTokenReferenceProvider.Get(as4Message.EnvelopeDocument ?? AS4XmlSerializer.ToSoapEnvelopeDocument(as4Message, CancellationToken.None),
+                                                   SecurityTokenType.Signing,
+                                                   certificateRepository);
+
+            return token.Certificate.Thumbprint;
         }
     }
 }

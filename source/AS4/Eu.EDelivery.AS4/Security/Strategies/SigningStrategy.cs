@@ -16,6 +16,7 @@ using Eu.EDelivery.AS4.Security.Signing;
 using Eu.EDelivery.AS4.Security.Transforms;
 using Eu.EDelivery.AS4.Streaming;
 using CryptoReference = System.Security.Cryptography.Xml.Reference;
+using Signature = Org.BouncyCastle.Asn1.Ocsp.Signature;
 
 namespace Eu.EDelivery.AS4.Security.Strategies
 {
@@ -23,6 +24,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
     /// <see cref="ISigningStrategy"/> implementation
     /// Responsible for the Signing of the <see cref="AS4Message"/>
     /// </summary>
+    [Obsolete("Replaced by 2 other strategies")]
     internal class SigningStrategy : SignedXml, ISigningStrategy
     {
         private const string CidPrefix = "cid:";
@@ -67,7 +69,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
         {
             SigningKey = GetSigningKeyFromCertificate(certificate);
             KeyInfo = new KeyInfo();
-            
+
             KeyInfo.AddClause(SecurityTokenReference);
         }
 

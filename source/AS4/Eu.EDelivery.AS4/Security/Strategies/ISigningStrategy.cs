@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Xml;
 using Eu.EDelivery.AS4.Model.Core;
@@ -6,6 +7,7 @@ using Eu.EDelivery.AS4.Security.Signing;
 
 namespace Eu.EDelivery.AS4.Security.Strategies
 {
+    [Obsolete("Replaced by ICalculateSignature and ISignatureVerification")]
     public interface ISigningStrategy
     {
         /// <summary>

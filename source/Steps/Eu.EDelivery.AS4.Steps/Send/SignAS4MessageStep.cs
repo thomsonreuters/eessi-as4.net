@@ -13,6 +13,7 @@ using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Security.Strategies;
 using NLog;
 using System.Security.Cryptography;
+using Eu.EDelivery.AS4.Security.Signing;
 
 namespace Eu.EDelivery.AS4.Steps.Send
 {
@@ -65,6 +66,9 @@ namespace Eu.EDelivery.AS4.Steps.Send
             }
 
             TrySignAS4Message(messagingContext);
+
+            // TODO: this is something that should be moved to another place.
+            //       The step should not be responsible to do this.
             ResetAttachmentContents(messagingContext.AS4Message);
 
             return await StepResult.SuccessAsync(messagingContext);
@@ -98,7 +102,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 throw new CryptographicException($"{message.EbmsMessageId} Certificate does not have a private key");
             }
 
-            ISigningStrategy signingStrategy = CreateSignStrategy(message, certificate);
+            ICalculateSignatureStrategy signingStrategy = CreateSignStrategy(message, certificate);
             message.AS4Message.SecurityHeader.Sign(signingStrategy);
         }
 
@@ -128,22 +132,17 @@ namespace Eu.EDelivery.AS4.Steps.Send
             throw new NotSupportedException("The signing certificate information specified in the PMode could not be used to retrieve the certificate");
         }
 
-        private static ISigningStrategy CreateSignStrategy(MessagingContext messagingContext, X509Certificate2 certificate)
+        private static ICalculateSignatureStrategy CreateSignStrategy(MessagingContext messagingContext, X509Certificate2 certificate)
         {
             AS4Message message = messagingContext.AS4Message;
             Signing signing = messagingContext.SendingPMode.Security.Signing;
 
-            SigningStrategyBuilder builder = new SigningStrategyBuilder(messagingContext.AS4Message)
-                .WithSignatureAlgorithm(signing.Algorithm)
-                .WithCertificate(certificate, signing.KeyReferenceMethod)
-                .WithSigningId(message.SigningId, signing.HashFunction);
+            var config = new CalculateSignatureConfig(certificate,
+                                                      signing.KeyReferenceMethod,
+                                                      signing.Algorithm,
+                                                      signing.HashFunction);
 
-            foreach (Attachment attachment in message.Attachments)
-            {
-                builder.WithAttachment(attachment, signing.HashFunction);
-            }
-
-            return builder.Build();
+            return CalculateSignatureStrategy.ForAS4Message(message, config);
         }
 
         private static void ResetAttachmentContents(AS4Message as4Message)

@@ -20,6 +20,7 @@ using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Singletons;
 using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Steps.Receive;
+using Eu.EDelivery.AS4.TestUtils;
 using Eu.EDelivery.AS4.UnitTests.Extensions;
 using Eu.EDelivery.AS4.UnitTests.Model;
 using Eu.EDelivery.AS4.UnitTests.Resources;
@@ -603,7 +604,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
 
         private static Receipt CreateReceiptWithNonRepudiationInfo()
         {
-            var nnri = new ArrayList { new System.Security.Cryptography.Xml.Reference() };
+            var nnri = new[] { new System.Security.Cryptography.Xml.Reference() };
 
             var receipt = new Receipt
             {
@@ -628,13 +629,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
     {
         [Fact]
         public async Task ReserializedMessageHasUntouchedSoapEnvelope()
-        {            
+        {
             AS4Message deserializedAS4Message = await DeserializeToAS4Message(rssbus_message, @"multipart/related;boundary=""NSMIMEBoundary__e5cfd617-6cec-4276-b190-23f0b25d9d4d"";type=""application/soap+xml"";start=""<_7a711d7c-4d1c-4ce7-ab38-794a01b445e1>""");
-            AS4Message reserializedAS4Message = await SerializeDeserializeAsync(deserializedAS4Message);
+            AS4Message reserializedAS4Message = await AS4MessageUtils.SerializeDeserializeAsync(deserializedAS4Message);
 
             Assert.Equal(deserializedAS4Message.EnvelopeDocument.OuterXml, reserializedAS4Message.EnvelopeDocument.OuterXml);
         }
-        
+
         [Fact]
         public async Task CanDeserializeEncryptAndSerializeSignedMessageWithUntouchedMessagingHeader()
         {
@@ -643,22 +644,26 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
 
             AS4Message deserializedAS4Message = await DeserializeToAS4Message(signed_holodeck_message, @"multipart/related;boundary=""MIMEBoundary_bcb27a6f984295aa9962b01ef2fb3e8d982de76d061ab23f""");
 
+            var originalSecurityHeader = deserializedAS4Message.SecurityHeader.GetXml().CloneNode(deep: true);
+
+            X509Certificate2 encryptionCertificate = new X509Certificate2(certificate_as4, certificate_password);
+
             // Act: Encrypt the message
             IEncryptionStrategy strategy =
-                EncryptionStrategyBuilder.Create(deserializedAS4Message, new KeyEncryptionConfiguration(new X509Certificate2(certificate_as4, certificate_password)))
+                EncryptionStrategyBuilder.Create(deserializedAS4Message,
+                                                 new KeyEncryptionConfiguration(encryptionCertificate))
                                          .Build();
 
             deserializedAS4Message.SecurityHeader.Encrypt(strategy);
 
-            // Serialize it again; the Soap envelope should remain intact, besides
-            // some changes that have been made to the security header.
-            var reserializedAS4Message = await SerializeDeserializeAsync(deserializedAS4Message);
-
             // Assert: the soap envelope of the encrypted message should not be equal to the
             //         envelope of the original message since there should be modifications in
             //         the security header.
+            Assert.NotEqual(originalSecurityHeader.OuterXml, deserializedAS4Message.EnvelopeDocument.OuterXml);
 
-            Assert.NotEqual(reserializedAS4Message.EnvelopeDocument.OuterXml, deserializedAS4Message.EnvelopeDocument.OuterXml);
+            // Serialize it again; the Soap envelope should remain intact, besides
+            // some changes that have been made to the security header.
+            var reserializedAS4Message = await AS4MessageUtils.SerializeDeserializeAsync(deserializedAS4Message);
 
             // Assert: The soap envelopes of both messages should be equal if the 
             //         SecurityHeader is not taken into consideration.
@@ -680,19 +685,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
             return await serializer.DeserializeAsync(stream, contentType, CancellationToken.None);
         }
 
-        private static async Task<AS4Message> SerializeDeserializeAsync(AS4Message message)
-        {
-            var serializer = SerializerProvider.Default.Get(message.ContentType);
 
-            using (var targetStream = new MemoryStream())
-            {
-                serializer.Serialize(message, targetStream, CancellationToken.None);
-
-                targetStream.Position = 0;
-
-                return await serializer.DeserializeAsync(targetStream, message.ContentType, CancellationToken.None);
-            }
-        }
 
         private static void RemoveSecurityHeaderFromMessageEnvelope(AS4Message as4Message)
         {

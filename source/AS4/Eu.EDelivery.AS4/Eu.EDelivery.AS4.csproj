@@ -329,9 +329,13 @@
     <Compile Include="Builders\Entities\OutMessageBuilder.cs" />
     <Compile Include="Builders\GenericTypeBuilder.cs" />
     <Compile Include="Builders\Security\DecryptionStrategyBuilder.cs" />
+    <Compile Include="Security\Signing\CalculateSignatureConfig.cs" />
+    <Compile Include="Security\Strategies\CalculateSignatureStrategy.cs" />
     <Compile Include="Security\Strategies\CryptoStrategy.cs" />
     <Compile Include="Security\Strategies\DecryptionStrategy.cs" />
     <Compile Include="Security\Strategies\IDecryptionStrategy.cs" />
+    <Compile Include="Security\Strategies\SignatureStrategy.cs" />
+    <Compile Include="Security\Strategies\SignatureVerificationStrategy.cs" />
     <Compile Include="Serialization\SoapEnvelopeBuilder.cs" />
     <Compile Include="Common\TraceLogger.cs" />
     <Compile Include="Common\TraceLoggerProvider.cs" />

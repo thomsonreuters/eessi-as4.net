@@ -1,7 +1,6 @@
 ﻿using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Factories;
 using Eu.EDelivery.AS4.Model.Core;
@@ -11,7 +10,6 @@ using Eu.EDelivery.AS4.Security.Signing;
 using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Steps.Receive;
 using Eu.EDelivery.AS4.UnitTests.Common;
-using Eu.EDelivery.AS4.UnitTests.Repositories;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
@@ -47,10 +45,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             public async Task ThenErrorIsCreatedWithAS4ExceptionAsync()
             {
                 // Arrange
-                const ErrorCode code = ErrorCode.Ebms0001;
                 var internalMessage = new MessagingContext(CreateFilledAS4Message(), MessagingContextMode.Unknown)
                 {
-                    ErrorResult = new ErrorResult(string.Empty, code, ErrorAlias.ConnectionFailure),
+                    ErrorResult = new ErrorResult(string.Empty, ErrorAlias.ConnectionFailure),
                     SendingPMode = new SendingProcessingMode(),
                     ReceivingPMode = new ReceivingProcessingMode()
                 };
@@ -63,7 +60,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
                 Assert.NotNull(error);
                 Assert.Equal("message-id", error.RefToMessageId);
-                Assert.Equal("EBMS:0001", error.Errors.First().ErrorCode);
+                Assert.Equal("EBMS:0005", error.Errors.First().ErrorCode);
             }
 
             [Fact]

@@ -20,7 +20,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Core
                 // Arrange
                 var result = new ErrorResult(
                     Guid.NewGuid().ToString(),
-                    ErrorCode.Ebms0001,
                     default(ErrorAlias));
                 string messageId = Guid.NewGuid().ToString();
 

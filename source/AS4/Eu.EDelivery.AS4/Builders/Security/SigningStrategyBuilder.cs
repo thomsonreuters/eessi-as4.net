@@ -17,6 +17,7 @@ namespace Eu.EDelivery.AS4.Builders.Security
     /// <summary>
     /// Builder used to create <see cref="ISigningStrategy" /> implementation Models
     /// </summary>
+    [Obsolete]
     public class SigningStrategyBuilder
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
@@ -24,13 +25,13 @@ namespace Eu.EDelivery.AS4.Builders.Security
         private readonly ISignatureAlgorithmProvider _algorithmProvider = new SignatureAlgorithmProvider();
         private readonly List<Tuple<Attachment, string>> _attachmentReferences = new List<Tuple<Attachment, string>>();
 
-        private readonly XmlDocument _envelopeDocument;        
+        private readonly XmlDocument _envelopeDocument;
         private readonly List<Tuple<SigningId, string>> _references = new List<Tuple<SigningId, string>>();
 
         private readonly bool _isSigned;
 
         private X509Certificate2 _certificate;
-        
+
         private SecurityTokenReference _securityTokenReference;
 
         private SignatureAlgorithm _signatureAlgorithm;
