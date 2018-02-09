@@ -11,7 +11,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Samples
         [InlineData("01-sample-message.xml", "earth.jpg", "*@*.xml")]
         [InlineData("02-sample-message.xml", "earth.jpg", "xml-sample.xml", "*@*.xml")]
         [InlineData("03-sample-message.xml", "earth.jpg", "xml-sample.xml", "*@*.xml")]
-        public void Sending_Sample_01_Result_In_Delivered_And_Notified_Files(string file, params string[] deliverMessages)
+        public void Sending_Sample_Result_In_Delivered_And_Notified_Files(string file, params string[] deliverMessages)
         {
             PutSample(file);
 
