@@ -7,6 +7,17 @@
   <AllowOverride>false</AllowOverride>
   <Mep>OneWay</Mep>
   <MepBinding>Push</MepBinding>
+  <PushConfiguration>
+    <Protocol>
+      <Url>http://localhost:9090/msh/receive</Url>
+      <UseChunking>false</UseChunking>
+      <UseHttpCompression>false</UseHttpCompression>
+    </Protocol>
+    <TlsConfiguration>
+      <IsEnabled>false</IsEnabled>
+      <TlsVersion>Tls12</TlsVersion>
+    </TlsConfiguration>
+  </PushConfiguration>
   <Security>
     <Signing>
       <IsEnabled>true</IsEnabled>

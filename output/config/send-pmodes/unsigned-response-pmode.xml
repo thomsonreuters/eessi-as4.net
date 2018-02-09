@@ -9,14 +9,13 @@
   <MepBinding>Push</MepBinding>
   <PushConfiguration>
     <Protocol>
-      <Url>http://localhost:9090/msh</Url>
+      <Url>http://localhost:9090/msh/receive</Url>
       <UseChunking>false</UseChunking>
       <UseHttpCompression>false</UseHttpCompression>
     </Protocol>
     <TlsConfiguration>
       <IsEnabled>false</IsEnabled>
       <TlsVersion>Tls12</TlsVersion>
-      <ClientCertificateReference />
     </TlsConfiguration>
   </PushConfiguration>
   <Security>
