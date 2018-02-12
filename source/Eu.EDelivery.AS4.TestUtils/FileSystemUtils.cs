@@ -8,7 +8,7 @@ namespace Eu.EDelivery.AS4.TestUtils
         {
             if (Directory.Exists(sourceDirName) == false)
             {
-                throw new DirectoryNotFoundException($"The {sourceDirName} directory can not be found.");
+                throw new DirectoryNotFoundException($"The {sourceDirName} directory cannot be found.");
             }
 
             if (Directory.Exists(destDirName) == false)
@@ -28,7 +28,7 @@ namespace Eu.EDelivery.AS4.TestUtils
         {
             if (Directory.Exists(directoryName) == false)
             {
-                throw new DirectoryNotFoundException($"The {directoryName} directory can not be found.");
+                throw new DirectoryNotFoundException($"The {directoryName} directory cannot be found.");
             }
 
             var subDirectories = Directory.GetDirectories(directoryName);

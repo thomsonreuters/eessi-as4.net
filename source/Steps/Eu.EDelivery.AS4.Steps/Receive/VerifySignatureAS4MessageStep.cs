@@ -175,13 +175,6 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
             Logger.Info($"{messagingContext.EbmsMessageId} AS4 Message has a valid Signature present");
 
-            // TODO: The step should not be responsible for the functionality below.
-            //       Responsability lies somewhere else (signing-strategy?)
-            foreach (Attachment attachment in messagingContext.AS4Message.Attachments)
-            {
-                attachment.ResetContentPosition();
-            }
-
             return await StepResult.SuccessAsync(messagingContext);
         }
 
