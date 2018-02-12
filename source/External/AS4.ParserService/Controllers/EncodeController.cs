@@ -77,7 +77,7 @@ namespace AS4.ParserService.Controllers
 
                 var result = new EncodeResult
                 {
-                    SendToUrl = context.SendingPMode.PushConfiguration.Protocol.Url,
+                    SendToUrl = context.SendingPMode?.PushConfiguration?.Protocol?.Url,
                     AS4Message = stream.ToArray(),
                     ContentType = context.AS4Message.ContentType.Replace("\"utf-8\"", "utf-8"),
                     EbmsMessageId = context.AS4Message.GetPrimaryMessageId()

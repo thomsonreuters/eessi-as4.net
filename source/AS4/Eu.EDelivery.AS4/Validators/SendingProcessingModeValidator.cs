@@ -21,7 +21,6 @@ namespace Eu.EDelivery.AS4.Validators
         {
             RuleFor(pmode => pmode.Id).NotEmpty();
 
-            RulesForDynamicDiscoveryConfiguration();
             RulesForPullConfiguration();
             RulesForReceiptHandling();
             RulesForErrorHandling();
@@ -31,18 +30,6 @@ namespace Eu.EDelivery.AS4.Validators
         }
 
         public static readonly SendingProcessingModeValidator Instance = new SendingProcessingModeValidator();
-
-        private void RulesForDynamicDiscoveryConfiguration()
-        {
-            Func<SendingProcessingMode, bool> isPushing = pmode => pmode.MepBinding == MessageExchangePatternBinding.Push;
-
-            When(p => isPushing(p), delegate
-            {
-                RuleFor(pmode => pmode.DynamicDiscovery).NotNull()
-                                                        .When(pmode => pmode.PushConfigurationSpecified == false)
-                                                        .WithMessage("The DynamicDiscovery or PushConfiguration element must be specified.");
-            });
-        }
 
         private void RulesForPullConfiguration()
         {
