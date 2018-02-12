@@ -14,7 +14,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Strategies
         public void ThenSignStrategySignsCorrectlyAS4Message()
         {
             // Arrange
-            ICalculateSignatureStrategy signingStrategy = CreateSignStrategyForSigning();
+            ISignStrategy signingStrategy = CreateSignStrategyForSigning();
 
             // Act
             var signature = signingStrategy.SignDocument();
@@ -22,7 +22,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Strategies
             AssertSecurityElement(signature.GetXml());
         }
 
-        private static ICalculateSignatureStrategy CreateSignStrategyForSigning()
+        private static ISignStrategy CreateSignStrategyForSigning()
         {
             var signingId = new SigningId("header-id", "body-id");
             AS4Message as4Message = AS4Message.Empty;
@@ -31,7 +31,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Strategies
             var signingConfig = new CalculateSignatureConfig(new StubCertificateRepository().GetStubCertificate(),
                 X509ReferenceType.BSTReference, Constants.SignAlgorithms.Sha256, Constants.HashFunctions.Sha256);
 
-            return CalculateSignatureStrategy.ForAS4Message(as4Message, signingConfig);
+            return SignStrategy.ForAS4Message(as4Message, signingConfig);
         }
 
         private static void AssertSecurityElement(XmlNode signatureElement)
