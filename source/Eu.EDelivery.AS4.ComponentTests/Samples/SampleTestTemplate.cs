@@ -24,6 +24,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Samples
             FileSystemUtils.ClearDirectory(@".\messages\out");
             FileSystemUtils.ClearDirectory(@".\messages\in");
             FileSystemUtils.ClearDirectory(@".\messages\receipts");
+            FileSystemUtils.ClearDirectory(@".\messages\errors");
 
             Msh = AS4Component.Start(Environment.CurrentDirectory);
         }

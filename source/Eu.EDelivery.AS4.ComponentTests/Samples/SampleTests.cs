@@ -12,6 +12,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Samples
     {
         private const string DeliverPath = @".\messages\in",
                              NotifyReceiptPath = @".\messages\receipts",
+                             NotifyErrorPath = @".\messages\errors",
                              GeneratedIdPattern = "*@*.xml";
 
         [Theory]
@@ -35,12 +36,18 @@ namespace Eu.EDelivery.AS4.ComponentTests.Samples
             });
 
             AssertFiles(DeliverPath, GeneratedIdPattern);
-            AssertFiles(NotifyReceiptPath, GeneratedIdPattern);
+            AssertReceipt();
         }
 
         private static void AssertFiles(string path, string searchPattern)
         {
             Assert.NotEmpty(Directory.EnumerateFiles(path, searchPattern));
+        }
+
+        private static void AssertReceipt()
+        {
+            Assert.Equal(1, Directory.EnumerateFiles(NotifyReceiptPath, GeneratedIdPattern).Count());
+            Assert.Empty(Directory.EnumerateFiles(NotifyErrorPath, GeneratedIdPattern));
         }
 
         private static string GetOriginalPayload(string name)
