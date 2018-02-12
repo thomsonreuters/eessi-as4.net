@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -36,7 +37,7 @@ namespace Eu.EDelivery.AS4.Model.Core
             ContentType = "application/soap+xml";
             SigningId = new SigningId();
             SecurityHeader = new SecurityHeader();
-            Attachments = new List<Attachment>();
+            Attachments = Enumerable.Empty<Attachment>();
             _messageUnits = new List<MessageUnit>();
         }
 
@@ -89,7 +90,7 @@ namespace Eu.EDelivery.AS4.Model.Core
 
         public IEnumerable<SignalMessage> SignalMessages => MessageUnits.OfType<SignalMessage>();
 
-        public ICollection<Attachment> Attachments { get; private set; }
+        public IEnumerable<Attachment> Attachments { get; private set; }
 
         public SigningId SigningId { get; set; }
 
@@ -255,14 +256,17 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// <param name="attachment"></param>
         public void AddAttachment(Attachment attachment)
         {
-            Attachments.Add(attachment);
-            UpdateContentTypeHeader();
+            Attachments = Attachments.Concat(new[] {attachment}).ToList().AsReadOnly();
+            if (!ContentType.Contains(Constants.ContentTypes.Mime))
+            {
+                UpdateContentTypeHeader(); 
+            }
         }
 
         private void UpdateContentTypeHeader()
         {
             string contentTypeString = Constants.ContentTypes.Soap;
-            if (Attachments.Count > 0)
+            if (Attachments.Any())
             {
                 ContentType contentType = new Multipart("related").ContentType;
                 contentType.Parameters["type"] = contentTypeString;
@@ -373,6 +377,32 @@ namespace Eu.EDelivery.AS4.Model.Core
             attachment.Properties["CompressionType"] = "application/gzip";
             attachment.Properties["MimeType"] = attachment.ContentType;
             attachment.ContentType = "application/gzip";
+        }
+
+        /// <summary>
+        /// Removes the given attachment from this message.
+        /// </summary>
+        /// <param name="tobeRemoved">The tobe removed.</param>
+        public void RemoveAttachment(Attachment tobeRemoved)
+        {
+            Attachments = Attachments.Where(a => !a.Id?.Equals(tobeRemoved.Id) == true).ToList().AsReadOnly();
+
+            if (!Attachments.Any())
+            {
+                ContentType = Constants.ContentTypes.Soap;
+            }
+
+            tobeRemoved.Content?.Dispose();
+        }
+
+        /// <summary>
+        /// Removes all the attachments present in this message.
+        /// </summary>
+        public void RemoveAllAttachments()
+        {
+            CloseAttachments();
+            Attachments = Enumerable.Empty<Attachment>();
+            ContentType = Constants.ContentTypes.Soap;
         }
 
         /// <summary>

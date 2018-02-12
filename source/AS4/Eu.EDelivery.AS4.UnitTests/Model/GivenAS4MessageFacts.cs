@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -13,6 +14,8 @@ using Eu.EDelivery.AS4.Model.Submit;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.UnitTests.Common;
 using Eu.EDelivery.AS4.UnitTests.Extensions;
+using FsCheck;
+using FsCheck.Xunit;
 using MimeKit;
 using Xunit;
 
@@ -79,6 +82,24 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
 
                 // Assert
                 Assert.False(sut.HasAttachments);
+            }
+
+            [Property]
+            public void ThenMessageRemainsSoapAfterAttachmentsAreRemoved(NonEmptyArray<string> ids)
+            {
+                // Arrange
+                AS4Message sut = AS4Message.Empty;
+                IEnumerable<Attachment> attachments = ids.Get.Select(i => new Attachment(i));
+
+                // Act / Assert
+                Assert.All(attachments, a =>
+                {
+                    sut.AddAttachment(a);
+                    Assert.NotEqual(Constants.ContentTypes.Soap, sut.ContentType);
+                });
+
+                Assert.All(attachments, a => sut.RemoveAttachment(a));                
+                Assert.Equal(Constants.ContentTypes.Soap, sut.ContentType);
             }
         }
 

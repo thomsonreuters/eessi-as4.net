@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -56,7 +57,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
 
                 // Assert
                 Assert.NotNull(as4Message);
-                Assert.Equal(2, as4Message.Attachments.Count);
+                Assert.Equal(2, as4Message.Attachments.Count());
             }
 
             [Fact]

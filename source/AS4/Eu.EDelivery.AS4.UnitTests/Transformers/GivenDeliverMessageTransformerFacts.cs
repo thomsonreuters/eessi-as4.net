@@ -55,7 +55,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             MessagingContext actualMessage = await ExerciseTransform(expectedId, message);
 
             // Assert
-            Assert.Equal(1, actualMessage.AS4Message.Attachments.Count);
+            Assert.Equal(1, actualMessage.AS4Message.Attachments.Count());
         }
 
         private static Attachment FilledAttachment(string attachmentId = "attachment-id")
