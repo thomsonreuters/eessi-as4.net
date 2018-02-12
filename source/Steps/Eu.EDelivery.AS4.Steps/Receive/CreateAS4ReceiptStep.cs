@@ -66,11 +66,22 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         private static void AdaptReceiptMessage(Receipt receipt, MessagingContext messagingContext)
         {
             AS4Message receivedAS4Message = messagingContext.AS4Message;
-            if (messagingContext.ReceivingPMode?.ReplyHandling.ReceiptHandling.UseNRRFormat == true)
+            bool useNRRFormat = messagingContext.ReceivingPMode?.ReplyHandling.ReceiptHandling.UseNRRFormat ?? false;
+
+            if (useNRRFormat && receivedAS4Message.IsSigned)
             {
                 Logger.Debug(
                     $"{receivedAS4Message.GetPrimaryMessageId()} Use Non-Repudiation for Receipt {receipt.MessageId} Creation");
                 receipt.NonRepudiationInformation = GetNonRepudiationInformationFrom(receivedAS4Message);
+            }
+            else if (useNRRFormat && !receivedAS4Message.IsSigned)
+            {
+                Logger.Warn(
+                    $"[{receivedAS4Message.GetPrimaryMessageId()}] " +
+                    $"Receiving PMode ({messagingContext.ReceivingPMode?.Id}) is configured to reply with Non-Repudation Receipts," +
+                    "but incoming UserMessage isn't signed.");
+
+                receipt.UserMessage = receivedAS4Message.PrimaryUserMessage;
             }
             else
             {
