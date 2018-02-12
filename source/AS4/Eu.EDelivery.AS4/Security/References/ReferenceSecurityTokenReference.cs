@@ -7,7 +7,6 @@ namespace Eu.EDelivery.AS4.Security.References
     /// <summary>
     /// Represents a SecurityTokenReference that references another defined SecurityToken
     /// </summary>
-   
     internal class ReferenceSecurityTokenReference : SecurityTokenReference
     {
         public string ReferenceId { get; }
