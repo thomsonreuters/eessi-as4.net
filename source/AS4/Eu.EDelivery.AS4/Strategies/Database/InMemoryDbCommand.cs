@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Threading.Tasks;
@@ -42,6 +43,29 @@ namespace Eu.EDelivery.AS4.Strategies.Database
             return DatastoreTable.FromTableName(tableName)(_context)
                 .Where(filterExpression)
                 .ToList();
+        }
+
+        /// <summary>
+        /// Delete the Messages Entities that are inserted passed a given <paramref name="retentionPeriod"/> 
+        /// and has a <see cref="Operation"/> within the given <paramref name="allowedOperations"/>.
+        /// </summary>
+        /// <param name="retentionPeriod">The retention period.</param>
+        /// <param name="allowedOperations">The allowed operations.</param>
+        public void BatchDeleteMessagesOverRetentionPeriod(
+            TimeSpan retentionPeriod,
+            IEnumerable<Operation> allowedOperations)
+        {
+            // TODO: needs to be implemented?
+
+            foreach (string table in DatastoreTable.MessageTables)
+            {
+                IQueryable<Entity> entities = 
+                    DatastoreTable.FromTableName(table)(_context)
+                                  .Where(x => x.InsertionTime < DateTimeOffset.UtcNow.Subtract(retentionPeriod));
+
+                _context.RemoveRange(entities);
+                _context.SaveChanges();
+            }
         }
     }
 }

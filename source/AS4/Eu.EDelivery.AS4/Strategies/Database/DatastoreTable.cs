@@ -15,7 +15,7 @@ namespace Eu.EDelivery.AS4.Strategies.Database
     {
         private static readonly ConcurrentDictionary<string, bool> KnownTables = new ConcurrentDictionary<string, bool>();
 
-        private static readonly IDictionary<string, Func<DatastoreContext, IQueryable<Entity>>> _tablesByName =
+        private static readonly IDictionary<string, Func<DatastoreContext, IQueryable<Entity>>> TablesByName =
             new Dictionary<string, Func<DatastoreContext, IQueryable<Entity>>>
             {
                 {"InMessages", c => c.InMessages},
@@ -24,6 +24,12 @@ namespace Eu.EDelivery.AS4.Strategies.Database
                 {"OutExceptions", c => c.OutExceptions},
                 {"ReceptionAwareness", c => c.ReceptionAwareness}
             };
+
+        /// <summary>
+        /// Gets the message tables.
+        /// </summary>
+        /// <value>The message tables.</value>
+        public static IEnumerable<string> MessageTables => TablesByName.Keys.Where(k => !k.Equals("ReceptionAwareness"));
 
         /// <summary>
         /// Determines whether [is table name known] [the specified table name].
@@ -39,12 +45,12 @@ namespace Eu.EDelivery.AS4.Strategies.Database
 
         public static Func<DatastoreContext, IQueryable<Entity>> FromTableName(string tableName)
         {
-            if (!_tablesByName.ContainsKey(tableName))
+            if (!TablesByName.ContainsKey(tableName))
             {
                 throw new ConfigurationErrorsException($"The configured table {tableName} could not be found");
             }
 
-            return _tablesByName[tableName];
+            return TablesByName[tableName];
         }
     }
 }

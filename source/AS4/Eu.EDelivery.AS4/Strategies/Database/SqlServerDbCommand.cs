@@ -7,6 +7,7 @@ using Eu.EDelivery.AS4.Entities;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Dynamic.Core;
 using System.Threading.Tasks;
+using NLog;
 
 namespace Eu.EDelivery.AS4.Strategies.Database
 {
@@ -66,6 +67,28 @@ namespace Eu.EDelivery.AS4.Strategies.Database
         private static string CreateSqlStatement(string tableName)
         {
             return $"SELECT * FROM {tableName} WITH (xlock, readpast)";
+        }
+
+        /// <summary>
+        /// Delete the Messages Entities that are inserted passed a given <paramref name="retentionPeriod"/> 
+        /// and has a <see cref="Operation"/> within the given <paramref name="allowedOperations"/>.
+        /// </summary>
+        /// <param name="retentionPeriod">The retention period.</param>
+        /// <param name="allowedOperations">The allowed operations.</param>
+        public void BatchDeleteMessagesOverRetentionPeriod(TimeSpan retentionPeriod, IEnumerable<Operation> allowedOperations)
+        {
+            foreach (string table in DatastoreTable.MessageTables)
+            {
+                DateTimeOffset retentionDate = DateTimeOffset.UtcNow.Subtract(retentionPeriod);
+
+                string sql = $"DELETE FROM {table} " +
+                             $"WHERE InsertionTime < CAST('{retentionDate:d}' AS datetimeoffset) " +
+                             $"AND Operation IN ({string.Join(", ", allowedOperations.Select(x => "'" + x.ToString() + "'"))})";
+
+                _context.Database.ExecuteSqlCommand(sql);
+
+                LogManager.GetCurrentClassLogger().Debug($"Done cleaning '{table}'");
+            }
         }
     }
 }

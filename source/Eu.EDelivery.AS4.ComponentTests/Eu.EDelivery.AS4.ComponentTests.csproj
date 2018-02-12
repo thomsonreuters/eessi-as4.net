@@ -153,6 +153,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Agents\CleanUpAgentsFacts.cs" />
     <Compile Include="Agents\DeliverAgentFacts.cs" />
     <Compile Include="Agents\ForwardAgentFacts.cs" />
     <Compile Include="Agents\PullReceiveAgentFacts.cs" />
