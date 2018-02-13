@@ -102,7 +102,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 throw new CryptographicException($"{message.EbmsMessageId} Certificate does not have a private key");
             }
 
-            ICalculateSignatureStrategy signingStrategy = CreateSignStrategy(message, certificate);
+            ISignStrategy signingStrategy = CreateSignStrategy(message, certificate);
             message.AS4Message.SecurityHeader.Sign(signingStrategy);
         }
 
@@ -132,7 +132,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             throw new NotSupportedException("The signing certificate information specified in the PMode could not be used to retrieve the certificate");
         }
 
-        private static ICalculateSignatureStrategy CreateSignStrategy(MessagingContext messagingContext, X509Certificate2 certificate)
+        private static ISignStrategy CreateSignStrategy(MessagingContext messagingContext, X509Certificate2 certificate)
         {
             AS4Message message = messagingContext.AS4Message;
             Signing signing = messagingContext.SendingPMode.Security.Signing;
@@ -142,7 +142,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
                                                       signing.Algorithm,
                                                       signing.HashFunction);
 
-            return CalculateSignatureStrategy.ForAS4Message(message, config);
+            return SignStrategy.ForAS4Message(message, config);
         }
 
         private static void ResetAttachmentContents(AS4Message as4Message)
