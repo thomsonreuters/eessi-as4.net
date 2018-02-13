@@ -12,6 +12,15 @@ namespace Eu.EDelivery.AS4.Strategies.Database
     {
         private readonly DatastoreContext _context;
 
+        private static readonly IDictionary<string, Func<Entity, string>> GetOperationString = 
+            new Dictionary<string, Func<Entity, string>>
+            {
+                ["OutMessages"] = e => (e as OutMessage)?.Operation,
+                ["InMessages"] = e => (e as InMessage)?.Operation,
+                ["OutExceptions"] = e => (e as OutException)?.Operation,
+                ["InExceptions"] = e => (e as InException)?.Operation
+            };
+
         /// <summary>
         /// Initializes a new instance of the <see cref="InMemoryDbCommand" /> class.
         /// </summary>
@@ -55,13 +64,15 @@ namespace Eu.EDelivery.AS4.Strategies.Database
             TimeSpan retentionPeriod,
             IEnumerable<Operation> allowedOperations)
         {
-            // TODO: needs to be implemented?
-
             foreach (string table in DatastoreTable.MessageTables)
             {
-                IQueryable<Entity> entities = 
+                IQueryable<Entity> entities =
                     DatastoreTable.FromTableName(table)(_context)
-                                  .Where(x => x.InsertionTime < DateTimeOffset.UtcNow.Subtract(retentionPeriod));
+                                  .Where(x => x.InsertionTime < DateTimeOffset.UtcNow.Subtract(retentionPeriod)
+                                              && allowedOperations.Contains(
+                                                  OperationUtils.Parse(
+                                                      GetOperationString[table](x) ??
+                                                      Operation.NotApplicable.ToString())));
 
                 _context.RemoveRange(entities);
                 _context.SaveChanges();
