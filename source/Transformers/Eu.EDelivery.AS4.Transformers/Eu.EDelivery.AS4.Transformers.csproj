@@ -222,6 +222,7 @@
     <Compile Include="ConformanceTestTransformers\ConformanceTestingExceptionNotifyMessageTransformer.cs" />
     <Compile Include="ConformanceTestTransformers\ConformanceTestingNotifyMessageTransformer.cs" />
     <Compile Include="DeliverMessageTransformer.cs" />
+    <Compile Include="ExceptionToNotifyMessageTransformer.cs" />
     <Compile Include="ForwardMessageTransformer.cs" />
     <Compile Include="InteropTestTransformers\InteropTestingExceptionNotifyMessageTransformer.cs" />
     <Compile Include="InteropTestTransformers\InteropTestingNotifyMessageTransformer.cs" />
