@@ -79,10 +79,8 @@ namespace Eu.EDelivery.AS4.Strategies.Database
         {
             foreach (string table in DatastoreTable.MessageTables)
             {
-                DateTimeOffset retentionDate = DateTimeOffset.UtcNow.Subtract(retentionPeriod);
-
                 string sql = $"DELETE FROM {table} " +
-                             $"WHERE InsertionTime < CAST('{retentionDate:d}' AS datetimeoffset) " +
+                             $"WHERE InsertionTime < GETDATE() - {retentionPeriod.TotalDays:##.##}" +
                              $"AND Operation IN ({string.Join(", ", allowedOperations.Select(x => "'" + x.ToString() + "'"))})";
 
                 _context.Database.ExecuteSqlCommand(sql);
