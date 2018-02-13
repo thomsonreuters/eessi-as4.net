@@ -330,7 +330,7 @@
     <Compile Include="Builders\GenericTypeBuilder.cs" />
     <Compile Include="Builders\Security\DecryptionStrategyBuilder.cs" />
     <Compile Include="Security\Signing\CalculateSignatureConfig.cs" />
-    <Compile Include="Security\Strategies\CalculateSignatureStrategy.cs" />
+    <Compile Include="Security\Strategies\SignStrategy.cs" />
     <Compile Include="Security\Strategies\CryptoStrategy.cs" />
     <Compile Include="Security\Strategies\DecryptionStrategy.cs" />
     <Compile Include="Security\Strategies\IDecryptionStrategy.cs" />

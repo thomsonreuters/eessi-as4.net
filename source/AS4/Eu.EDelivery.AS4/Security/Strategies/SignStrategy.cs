@@ -15,11 +15,11 @@ using Reference = System.Security.Cryptography.Xml.Reference;
 
 namespace Eu.EDelivery.AS4.Security.Strategies
 {
-    public class CalculateSignatureStrategy : SignatureStrategy, ICalculateSignatureStrategy
+    public class SignStrategy : SignatureStrategy, ISignStrategy
     {
-        public static CalculateSignatureStrategy ForAS4Message(AS4Message as4Message, CalculateSignatureConfig config)
+        public static SignStrategy ForAS4Message(AS4Message as4Message, CalculateSignatureConfig config)
         {
-            return new CalculateSignatureStrategy(
+            return new SignStrategy(
                 as4Message,
                 as4Message.EnvelopeDocument ?? AS4XmlSerializer.ToSoapEnvelopeDocument(as4Message, CancellationToken.None),
                 config);
@@ -28,7 +28,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
         private readonly AS4Message _as4Message;
         private readonly CalculateSignatureConfig _config;
 
-        private CalculateSignatureStrategy(AS4Message message, XmlDocument soapEnvelope, CalculateSignatureConfig config)
+        private SignStrategy(AS4Message message, XmlDocument soapEnvelope, CalculateSignatureConfig config)
             : base(soapEnvelope)
         {
             _as4Message = message;
@@ -130,7 +130,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
         }
     }
 
-    public interface ICalculateSignatureStrategy
+    public interface ISignStrategy
     {
         System.Security.Cryptography.Xml.Signature SignDocument();
     }
