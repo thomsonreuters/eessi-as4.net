@@ -22,14 +22,14 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         {
             OverrideSettings("no_agents_settings.xml");
 
-            string retention = TimeSpan.FromDays(1).ToString("c");
-
             const string settingsXml = @".\config\settings.xml";
             var doc = new XmlDocument();
             doc.Load(settingsXml);
 
             XmlElement retentionNode = doc.CreateElement(nameof(Settings.RetentionPeriod), "eu:edelivery:as4");
-            retentionNode.InnerText = retention;
+
+            // Retention Period in Days
+            retentionNode.InnerText = 1.ToString();
             doc.DocumentElement?.AppendChild(retentionNode);
             doc.Save(settingsXml);
         }

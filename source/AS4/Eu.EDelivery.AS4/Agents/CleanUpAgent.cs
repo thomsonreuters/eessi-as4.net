@@ -10,6 +10,11 @@ using NLog;
 
 namespace Eu.EDelivery.AS4.Agents
 {
+    /// <summary>
+    /// <see cref="IAgent"/> implementation that runs a Clean Up job every day.
+    /// This job consists of deleting messages that are inserted older that the given retention period (local configuration settings specifies this in days).
+    /// </summary>
+    /// <seealso cref="IAgent" />
     public class CleanUpAgent : IAgent
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
@@ -20,7 +25,7 @@ namespace Eu.EDelivery.AS4.Agents
         /// <summary>
         /// Initializes a new instance of the <see cref="CleanUpAgent"/> class.
         /// </summary>
-        public CleanUpAgent() : this(() => new DatastoreContext(Config.Instance), Config.Instance.RetentionPeriod) { }
+        public CleanUpAgent() : this(() => new DatastoreContext(Config.Instance), TimeSpan.FromDays(Config.Instance.RetentionPeriod)) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CleanUpAgent" /> class.

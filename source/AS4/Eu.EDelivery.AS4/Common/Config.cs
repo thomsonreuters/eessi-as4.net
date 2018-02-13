@@ -53,10 +53,10 @@ namespace Eu.EDelivery.AS4.Common
         public bool PayloadServiceInProcess { get; private set; }
 
         /// <summary>
-        /// Gets the retention date for which the stored entities are cleaned-up.
+        /// Gets the retention period (in days) for which the stored entities are cleaned-up.
         /// </summary>
-        /// <value>The retention date.</value>
-        public TimeSpan RetentionPeriod { get; private set; }
+        /// <value>The retention period in days.</value>
+        public int RetentionPeriod { get; private set; }
 
         /// <summary>
         /// Gets the in message store location.
@@ -295,7 +295,7 @@ namespace Eu.EDelivery.AS4.Common
             FeInProcess = _settings.FeInProcess;
             PayloadServiceInProcess = _settings.PayloadServiceInProcess;
 
-            if (TimeSpan.TryParse(_settings.RetentionPeriod, out TimeSpan r))
+            if (int.TryParse(_settings.RetentionPeriod, out int r))
             {
                 RetentionPeriod = r;
             }
