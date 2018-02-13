@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Linq;
 using System.Threading;
 using System.Xml;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.ComponentTests.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Core;
+using Eu.EDelivery.AS4.Model.Internal;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.ComponentTests.Agents
@@ -26,7 +28,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             var doc = new XmlDocument();
             doc.Load(settingsXml);
 
-            XmlElement retentionNode = doc.CreateElement("RetentionPeriod", "eu:edelivery:as4");
+            XmlElement retentionNode = doc.CreateElement(nameof(Settings.RetentionPeriod), "eu:edelivery:as4");
             retentionNode.InnerText = retention;
             doc.DocumentElement?.AppendChild(retentionNode);
             doc.Save(settingsXml);
@@ -35,7 +37,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         [Fact]
         public void MessageOlderThanRetentionDateWillBeDeleted()
         {
-            // Arrange
+            // Arrange: Insert a "retired" OutMessage with a referenced Reception Awareness.
             Config config = Config.Instance;
             config.Initialize();
 
@@ -43,25 +45,48 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
             var databaseSpy = new DatabaseSpy(config);
             databaseSpy.InsertOutMessage(
-                new OutMessage(ebmsMessageId: ebmsMessageId)
-                {
-                    MessageLocation = Registry.Instance.MessageBodyStore.SaveAS4Message(Config.Instance.InMessageStoreLocation, AS4Message.Empty),
-                    InsertionTime = DateTimeOffset.UtcNow.AddDays(-2)
-                });
+                CreateOutMessage(ebmsMessageId, insertionTime: DateTimeOffset.UtcNow.AddDays(-2)));
 
-            databaseSpy.InsertOutMessage(
-                new OutMessage(ebmsMessageId: Guid.NewGuid().ToString())
-                {
-                    MessageLocation = Registry.Instance.MessageBodyStore.SaveAS4Message(Config.Instance.InMessageStoreLocation, AS4Message.Empty),
-                    InsertionTime = DateTimeOffset.UtcNow.AddDays(-2)
-                });
+            InsertReferencedReceptionAwareness(config, ebmsMessageId);
 
-            // Act
+            // Act: AS4.NET Component will start the Clean Up Agent.
             _msh = AS4Component.Start(Environment.CurrentDirectory);
 
-            // Assert
+            // Assert: No OutMessage or Reception Awareness entries must be found for a given EbmsMessageId.
+            // Wait till AS4.NET Component has cleaned up the Messages Tables.
             Thread.Sleep(TimeSpan.FromSeconds(2));
+
             Assert.Null(databaseSpy.GetOutMessageFor(m => m.EbmsMessageId.Equals(ebmsMessageId)));
+            Assert.Null(GetReferencedReceptionAwareness(config, ebmsMessageId));
+        }
+
+        private static OutMessage CreateOutMessage(string ebmsMessageId, DateTimeOffset insertionTime)
+        {
+            return new OutMessage(ebmsMessageId: ebmsMessageId)
+            {
+                MessageLocation = Registry.Instance.MessageBodyStore.SaveAS4Message(Config.Instance.InMessageStoreLocation, AS4Message.Empty),
+                InsertionTime = insertionTime
+            };
+        }
+
+        private static void InsertReferencedReceptionAwareness(IConfig config, string ebmsMessageId)
+        {
+            using (var ctx = new DatastoreContext(config))
+            {
+                ctx.ReceptionAwareness.Add(new ReceptionAwareness
+                {
+                    InternalMessageId = ebmsMessageId
+                });
+                ctx.SaveChanges();
+            }
+        }
+
+        private static ReceptionAwareness GetReferencedReceptionAwareness(IConfig config, string ebmsMessageId)
+        {
+            using (var ctx = new DatastoreContext(config))
+            {
+                return ctx.ReceptionAwareness.FirstOrDefault(r => r.InternalMessageId.Equals(ebmsMessageId));
+            }
         }
 
         protected override void Disposing(bool isDisposing)
@@ -70,3 +95,4 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         }
     }
 }
+

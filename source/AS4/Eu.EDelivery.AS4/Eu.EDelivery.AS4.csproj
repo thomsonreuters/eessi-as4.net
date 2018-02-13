@@ -347,6 +347,7 @@
     <Compile Include="Builders\Entities\OutMessageBuilder.cs" />
     <Compile Include="Builders\GenericTypeBuilder.cs" />
     <Compile Include="Builders\Security\DecryptionStrategyBuilder.cs" />
+    <Compile Include="Migrations\20180212143022_ReceptionAwarenessRelation.cs" />
     <Compile Include="Security\Signing\CalculateSignatureConfig.cs" />
     <Compile Include="Security\Strategies\CalculateSignatureStrategy.cs" />
     <Compile Include="Security\Strategies\CryptoStrategy.cs" />
