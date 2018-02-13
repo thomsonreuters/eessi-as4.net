@@ -4,7 +4,6 @@ using System.Configuration;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Builders.Security;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
@@ -66,10 +65,6 @@ namespace Eu.EDelivery.AS4.Steps.Send
             }
 
             TrySignAS4Message(messagingContext);
-
-            // TODO: this is something that should be moved to another place.
-            //       The step should not be responsible to do this.
-            ResetAttachmentContents(messagingContext.AS4Message);
 
             return await StepResult.SuccessAsync(messagingContext);
         }
@@ -143,14 +138,6 @@ namespace Eu.EDelivery.AS4.Steps.Send
                                                       signing.HashFunction);
 
             return SignStrategy.ForAS4Message(message, config);
-        }
-
-        private static void ResetAttachmentContents(AS4Message as4Message)
-        {
-            foreach (Attachment attachment in as4Message.Attachments)
-            {
-                attachment.ResetContentPosition();
-            }
         }
     }
 }
