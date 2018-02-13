@@ -36,7 +36,8 @@ namespace Eu.EDelivery.AS4.ComponentTests.Samples
             });
 
             AssertFiles(DeliverPath, GeneratedIdPattern);
-            AssertReceipt();
+            AssertSignalMessages(NotifyReceiptPath, 1);
+            AssertSignalMessages(NotifyErrorPath, 0);
         }
 
         private static void AssertFiles(string path, string searchPattern)
@@ -44,10 +45,9 @@ namespace Eu.EDelivery.AS4.ComponentTests.Samples
             Assert.NotEmpty(Directory.EnumerateFiles(path, searchPattern));
         }
 
-        private static void AssertReceipt()
+        private static void AssertSignalMessages(string path, int numberOfExpectedMessages)
         {
-            Assert.Equal(1, Directory.EnumerateFiles(NotifyReceiptPath, GeneratedIdPattern).Count());
-            Assert.Empty(Directory.EnumerateFiles(NotifyErrorPath, GeneratedIdPattern));
+            Assert.Equal(numberOfExpectedMessages, Directory.EnumerateFiles(path, GeneratedIdPattern).Count());
         }
 
         private static string GetOriginalPayload(string name)
