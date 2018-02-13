@@ -80,7 +80,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
             }
         }
 
-        private void AddUnrecognizedAttachmentReferences(ICollection<Attachment> attachments)
+        private void AddUnrecognizedAttachmentReferences(IEnumerable<Attachment> attachments)
         {
             IEnumerable<Reference> references = SignedInfo
                 .References.Cast<Reference>().Where(ReferenceIsCidReference()).ToArray();

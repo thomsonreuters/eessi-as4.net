@@ -181,7 +181,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Strategies
 
         protected VerifySignatureConfig EmptyVerifyConfig()
         {
-            return new VerifySignatureConfig { Attachments = new List<Attachment>() };
+            return new VerifySignatureConfig(allowUnknownRootCertificateAuthority: false, attachments: new List<Attachment>());
         }
     }
 }
