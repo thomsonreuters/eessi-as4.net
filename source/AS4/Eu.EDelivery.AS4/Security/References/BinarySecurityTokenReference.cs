@@ -179,6 +179,7 @@ namespace Eu.EDelivery.AS4.Security.References
         private void SetReferenceSecurityAttributes(XmlElement referenceElement)
         {
             referenceElement.SetAttribute("URI", "#" + ReferenceId);
+            referenceElement.SetAttribute("ValueType", Constants.Namespaces.ValueType);
         }
     }
 }

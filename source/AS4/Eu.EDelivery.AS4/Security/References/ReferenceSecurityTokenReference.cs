@@ -5,14 +5,11 @@ using System.Xml;
 namespace Eu.EDelivery.AS4.Security.References
 {
     /// <summary>
-    /// Encryption Key Info Reference Token Reference.
+    /// Represents a SecurityTokenReference that references another defined SecurityToken
     /// </summary>
-    
-        // TODO: isn't this just a BinarySEcurityTokenReference ?
-    [Obsolete]
-    public class ReferenceSecurityTokenReference : SecurityTokenReference
+    internal class ReferenceSecurityTokenReference : SecurityTokenReference
     {
-        public string ReferenceId { get; private set; }
+        public string ReferenceId { get; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ReferenceSecurityTokenReference"/> class.

@@ -8,7 +8,6 @@ using System.Xml;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Security.Builders;
 using Eu.EDelivery.AS4.Security.Encryption;
-using Eu.EDelivery.AS4.Security.References;
 using MimeKit.IO;
 using NLog;
 
@@ -96,13 +95,13 @@ namespace Eu.EDelivery.AS4.Security.Strategies
             byte[] encryptionKey = GenerateSymmetricKey(_dataEncryptionConfig.AlgorithmKeySize);
             AS4EncryptedKey as4EncryptedKey = GetEncryptedKey(encryptionKey, _keyEncryptionConfig);
 
+            _as4EncryptedKey = as4EncryptedKey;
+
             using (SymmetricAlgorithm encryptionAlgorithm =
                 CreateSymmetricAlgorithm(_dataEncryptionConfig.EncryptionMethod, encryptionKey))
             {
                 EncryptAttachmentsWithAlgorithm(as4EncryptedKey, encryptionAlgorithm);
             }
-
-            _as4EncryptedKey = as4EncryptedKey;
         }
 
         private static byte[] GenerateSymmetricKey(int keySize)
@@ -129,7 +128,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
             foreach (Attachment attachment in _attachments)
             {
                 attachment.Content = EncryptData(attachment.Content, encryptionAlgorithm);
-                EncryptedData encryptedData = CreateEncryptedDataForAttachment(attachment, encryptedKey.SecurityTokenReference);
+                EncryptedData encryptedData = CreateEncryptedDataForAttachment(attachment, encryptedKey);
 
                 _encryptedDatas.Add(encryptedData);
 
@@ -138,12 +137,12 @@ namespace Eu.EDelivery.AS4.Security.Strategies
             }
         }
 
-        private EncryptedData CreateEncryptedDataForAttachment(Attachment attachment, SecurityTokenReference securityTokenReference)
-        {
+        private EncryptedData CreateEncryptedDataForAttachment(Attachment attachment, AS4EncryptedKey encryptedKey)
+       {
             return new EncryptedDataBuilder()
                 .WithDataEncryptionConfiguration(_dataEncryptionConfig)
                 .WithMimeType(attachment.ContentType)
-                .WithSecurityTokenReference(securityTokenReference)
+                .WithEncryptionKey(encryptedKey)
                 .WithUri(attachment.Id)
                 .Build();
         }
