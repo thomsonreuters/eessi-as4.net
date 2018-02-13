@@ -265,9 +265,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
             }
         }
 
-        /// <summary>
-        /// Testing if the AS4Message Succeeds
-        /// </summary>
         public class AS4MessageSerializeFacts : GivenAS4MessageFacts
         {
             [Property]
@@ -305,36 +302,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                     XmlAttribute mpcAttribute = GetMpcAttribute(document);
                     Assert.NotNull(mpcAttribute);
                     Assert.Equal(mpc.ToString(), mpcAttribute.Value);
-                }
-            }
-
-            [Property]
-            public void ThenSerializeWithAttachmentsReturnsMimeMessage(NonEmptyString messageContents)
-            {
-                // Arrange
-                var attachmentStream = new MemoryStream(Encoding.UTF8.GetBytes(messageContents.Get));
-                var attachment = new Attachment("attachment-id") { Content = attachmentStream };
-
-                UserMessage userMessage = CreateUserMessage();
-
-                AS4Message message = AS4Message.Create(userMessage);
-                message.AddAttachment(attachment);
-
-                // Act
-                AssertMimeMessageIsValid(message);
-            }
-
-            private void AssertMimeMessageIsValid(AS4Message message)
-            {
-                using (var mimeStream = new MemoryStream())
-                {
-                    MimeMessage mimeMessage = SerializeMimeMessage(message, mimeStream);
-                    Stream envelopeStream = mimeMessage.BodyParts.OfType<MimePart>().First().ContentObject.Open();
-                    string rawXml = new StreamReader(envelopeStream).ReadToEnd();
-
-                    // Assert
-                    Assert.NotNull(rawXml);
-                    Assert.Contains("Envelope", rawXml);
                 }
             }
 
@@ -409,17 +376,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
             document.Load(soapStream);
 
             return document;
-        }
-
-        private static MimeMessage SerializeMimeMessage(AS4Message message, Stream mimeStream)
-        {
-            ISerializer serializer = new MimeMessageSerializer(new SoapEnvelopeSerializer());
-            serializer.Serialize(message, mimeStream, CancellationToken.None);
-
-            message.ContentType = Constants.ContentTypes.Mime;
-            mimeStream.Position = 0;
-
-            return MimeMessage.Load(mimeStream);
         }
 
         private static AS4Message BuildAS4Message(string mpc, UserMessage userMessage)
