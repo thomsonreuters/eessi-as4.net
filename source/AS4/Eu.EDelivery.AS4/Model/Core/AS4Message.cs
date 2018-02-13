@@ -385,14 +385,18 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// <param name="tobeRemoved">The tobe removed.</param>
         public void RemoveAttachment(Attachment tobeRemoved)
         {
-            _attachmens.RemoveAll(a => a.Id?.Equals(tobeRemoved.Id) == true);
+            Attachment foundAttachment = _attachmens.FirstOrDefault(a => a.Id?.Equals(tobeRemoved.Id) == true);
+
+            if (foundAttachment != null)
+            {
+                foundAttachment.Content.Dispose();
+                _attachmens.Remove(foundAttachment);
+            }
 
             if (!Attachments.Any())
             {
                 ContentType = Constants.ContentTypes.Soap;
             }
-
-            tobeRemoved.Content?.Dispose();
         }
 
         /// <summary>
