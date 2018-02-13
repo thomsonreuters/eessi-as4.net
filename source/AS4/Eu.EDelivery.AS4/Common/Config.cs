@@ -80,19 +80,28 @@ namespace Eu.EDelivery.AS4.Common
         /// </summary>
         public void Initialize()
         {
+           Initialize(Properties.Resources.settingsfilename);
+        }
+
+        /// <summary>
+        /// Initializes the specified settings file name.
+        /// </summary>
+        /// <param name="settingsFileName">Name of the settings file.</param>
+        public void Initialize(string settingsFileName)
+        {
             try
             {
                 IsInitialized = true;
-                RetrieveLocalConfiguration();
+                RetrieveLocalConfiguration(settingsFileName);
 
-                _sendingPModeWatcher = 
+                _sendingPModeWatcher =
                     new PModeWatcher<SendingProcessingMode>(
-                        GetSendPModeFolder(), 
+                        GetSendPModeFolder(),
                         SendingProcessingModeValidator.Instance);
 
-                _receivingPModeWatcher = 
+                _receivingPModeWatcher =
                     new PModeWatcher<ReceivingProcessingMode>(
-                        GetReceivePModeFolder(), 
+                        GetReceivePModeFolder(),
                         ReceivingProcessingModeValidator.Instance);
 
                 LoadExternalAssemblies();
@@ -219,11 +228,13 @@ namespace Eu.EDelivery.AS4.Common
             return BaseDirCombine(Properties.Resources.configurationfolder, Properties.Resources.receivepmodefolder);
         }
 
-        private void RetrieveLocalConfiguration()
+        private void RetrieveLocalConfiguration(string settingsFileName)
         {
-            string path = BaseDirCombine(Properties.Resources.configurationfolder, Properties.Resources.settingsfilename);
+            string path = BaseDirCombine(Properties.Resources.configurationfolder, settingsFileName);
 
             string fullPath = Path.GetFullPath(path);
+
+            _logger.Trace($"Using local configuration settings at path: '{fullPath}'");
 
             if (Path.IsPathRooted(path) == false ||
                 (File.Exists(fullPath) == false && StringComparer.OrdinalIgnoreCase.Equals(path, fullPath) == false))

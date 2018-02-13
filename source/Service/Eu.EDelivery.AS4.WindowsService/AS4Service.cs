@@ -41,7 +41,7 @@ namespace Eu.EDelivery.AS4.WindowsService
             {
                 Config configuration = Config.Instance;
                 Registry registration = Registry.Instance;
-                configuration.Initialize();
+                configuration.Initialize("settings-service.xml");
             
                 if (!configuration.IsInitialized)
                 {
