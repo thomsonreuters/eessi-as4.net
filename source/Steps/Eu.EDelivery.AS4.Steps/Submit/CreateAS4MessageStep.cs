@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
@@ -107,7 +108,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
                         context.SubmitMessage.Payloads,
                         async payload => await RetrieveAttachmentContent(payload).ConfigureAwait(false)).ConfigureAwait(false);
 
-                    Logger.Info($"{context.EbmsMessageId} Number of Payloads retrieved: {as4Message.Attachments.Count}");
+                    Logger.Info($"{context.EbmsMessageId} Number of Payloads retrieved: {as4Message.Attachments.Count()}");
                 }
                 else
                 {

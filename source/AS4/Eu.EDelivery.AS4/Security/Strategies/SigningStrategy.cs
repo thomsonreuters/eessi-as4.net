@@ -303,7 +303,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
             }
         }
 
-        private void AddUnrecognizedAttachmentReferences(ICollection<Attachment> attachments)
+        private void AddUnrecognizedAttachmentReferences(IEnumerable<Attachment> attachments)
         {
             IEnumerable<CryptoReference> references = SignedInfo
                 .References.Cast<CryptoReference>().Where(ReferenceIsCidReference()).ToArray();

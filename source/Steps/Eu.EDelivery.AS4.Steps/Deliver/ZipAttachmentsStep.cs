@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Model.Core;
@@ -52,7 +53,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
 
         private static bool HasAS4MessageMultipleAttachments(AS4Message as4Message)
         {
-            return as4Message.Attachments.Count > 1;
+            return as4Message.Attachments.Count() > 1;
         }
 
         private async Task<Stream> ZipAttachmentsInAS4Message(AS4Message message)
@@ -104,8 +105,8 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
 
         private static void OverwriteAttachmentEntries(AS4Message message, Attachment zipAttachment)
         {
-            message.Attachments.Clear();
-            message.Attachments.Add(zipAttachment);
+            message.RemoveAllAttachments();
+            message.AddAttachment(zipAttachment);
         }
     }
 }
