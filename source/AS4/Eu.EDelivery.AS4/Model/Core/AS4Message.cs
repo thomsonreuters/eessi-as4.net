@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -26,6 +25,8 @@ namespace Eu.EDelivery.AS4.Model.Core
     public class AS4Message : IEquatable<AS4Message>
     {
         private readonly bool _serializeAsMultiHop;
+        private readonly List<Attachment> _attachmens;
+        private readonly List<MessageUnit> _messageUnits;
 
         /// <summary>
         /// Prevents a default instance of the <see cref="AS4Message"/> class from being created.
@@ -34,11 +35,12 @@ namespace Eu.EDelivery.AS4.Model.Core
         private AS4Message(bool serializeAsMultiHop = false)
         {
             _serializeAsMultiHop = serializeAsMultiHop;
+            _attachmens = new List<Attachment>();
+            _messageUnits = new List<MessageUnit>();
+
             ContentType = "application/soap+xml";
             SigningId = new SigningId();
             SecurityHeader = new SecurityHeader();
-            Attachments = Enumerable.Empty<Attachment>();
-            _messageUnits = new List<MessageUnit>();
         }
 
         public static AS4Message Empty => new AS4Message(serializeAsMultiHop: false);
@@ -82,15 +84,13 @@ namespace Eu.EDelivery.AS4.Model.Core
             return !string.IsNullOrWhiteSpace(role) && role.Equals(Constants.Namespaces.EbmsNextMsh);
         }
 
-        private readonly List<MessageUnit> _messageUnits;
-
         public IEnumerable<MessageUnit> MessageUnits => _messageUnits.AsReadOnly();
 
         public IEnumerable<UserMessage> UserMessages => MessageUnits.OfType<UserMessage>();
 
         public IEnumerable<SignalMessage> SignalMessages => MessageUnits.OfType<SignalMessage>();
 
-        public IEnumerable<Attachment> Attachments { get; private set; }
+        public IEnumerable<Attachment> Attachments => _attachmens.AsReadOnly();
 
         public SigningId SigningId { get; set; }
 
@@ -256,7 +256,7 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// <param name="attachment"></param>
         public void AddAttachment(Attachment attachment)
         {
-            Attachments = Attachments.Concat(new[] {attachment}).ToList().AsReadOnly();
+            _attachmens.Add(attachment);
             if (!ContentType.Contains(Constants.ContentTypes.Mime))
             {
                 UpdateContentTypeHeader(); 
@@ -385,7 +385,7 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// <param name="tobeRemoved">The tobe removed.</param>
         public void RemoveAttachment(Attachment tobeRemoved)
         {
-            Attachments = Attachments.Where(a => !a.Id?.Equals(tobeRemoved.Id) == true).ToList().AsReadOnly();
+            _attachmens.RemoveAll(a => a.Id?.Equals(tobeRemoved.Id) == true);
 
             if (!Attachments.Any())
             {
@@ -401,7 +401,7 @@ namespace Eu.EDelivery.AS4.Model.Core
         public void RemoveAllAttachments()
         {
             CloseAttachments();
-            Attachments = Enumerable.Empty<Attachment>();
+            _attachmens.Clear();
             ContentType = Constants.ContentTypes.Soap;
         }
 
