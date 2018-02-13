@@ -4,6 +4,11 @@ namespace Eu.EDelivery.AS4.Security.Encryption
 {
     public class DataEncryptionConfiguration
     {
+
+        public static readonly DataEncryptionConfiguration Default =
+            new DataEncryptionConfiguration(Model.PMode.Encryption.Default.Algorithm,
+                                            Model.PMode.Encryption.Default.AlgorithmKeySize);
+
         /// <summary>
         /// Initializes a new instance of the <see cref="DataEncryptionConfiguration"/> class.
         /// </summary>
@@ -27,24 +32,24 @@ namespace Eu.EDelivery.AS4.Security.Encryption
         /// Gets the encryption method.
         /// </summary>
         /// <value>The encryption method.</value>
-        public string EncryptionMethod { get; private set; }
+        public string EncryptionMethod { get; }
 
         /// <summary>
         /// Gets the type of the encryption.
         /// </summary>
         /// <value>The type of the encryption.</value>
-        public string EncryptionType { get; private set; }
+        public string EncryptionType { get; }
 
         /// <summary>
         /// Gets the transform algorithm.
         /// </summary>
         /// <value>The transform algorithm.</value>
-        public string TransformAlgorithm { get; private set; }
+        public string TransformAlgorithm { get; }
 
         /// <summary>
         /// Gets or sets the size of the algorithm key.
         /// </summary>
         /// <value>The size of the algorithm key.</value>
-        public int AlgorithmKeySize { get; set; }
+        public int AlgorithmKeySize { get; }
     }
 }
