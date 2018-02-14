@@ -175,6 +175,13 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
             Logger.Info($"{messagingContext.EbmsMessageId} AS4 Message has a valid Signature present");
 
+            // TODO: The step should not be responsible for the functionality below.
+            //       Responsability lies somewhere else (signing-strategy?)
+            foreach (Attachment attachment in messagingContext.AS4Message.Attachments)
+            {
+                attachment.ResetContentPosition();
+            }
+
             return await StepResult.SuccessAsync(messagingContext);
         }
 
@@ -185,13 +192,13 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
         private static VerifySignatureConfig CreateVerifyOptionsForAS4Message(AS4Message as4Message, ReceivingProcessingMode pmode)
         {
-            return new VerifySignatureConfig
-            {
-                Attachments = as4Message.Attachments,
-                AllowUnknownRootCertificateAuthority =
-                    pmode?.Security?.SigningVerification?.AllowUnknownRootCertificate
-                    ?? new ReceivingProcessingMode().Security.SigningVerification.AllowUnknownRootCertificate
-            };
+            bool allowUnknownRootCertificateAuthority =
+                pmode?.Security?.SigningVerification?.AllowUnknownRootCertificate
+                ?? new ReceivingProcessingMode().Security.SigningVerification.AllowUnknownRootCertificate;
+
+            return new VerifySignatureConfig(
+                allowUnknownRootCertificateAuthority, 
+                as4Message.Attachments);
         }
 
         private static StepResult InvalidSignatureResult(string description, ErrorAlias errorAlias, MessagingContext context)

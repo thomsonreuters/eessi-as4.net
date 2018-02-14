@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -25,7 +26,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Strategies
 
                 var verificationStrategy = new SignatureVerificationStrategy(as4Message.EnvelopeDocument);
 
-                bool validSignature = verificationStrategy.VerifySignature(new VerifySignatureConfig() { AllowUnknownRootCertificateAuthority = true });
+                bool validSignature = verificationStrategy.VerifySignature(AllowedUnknownRootCertAuthorityConfig());
 
                 Assert.True(validSignature);
             }
@@ -45,7 +46,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Strategies
 
                 // Act / Assert
                 Assert.Throws<System.Security.Cryptography.CryptographicException>(
-                    () => verificationStrategy.VerifySignature(new VerifySignatureConfig { AllowUnknownRootCertificateAuthority = true }));
+                    () => verificationStrategy.VerifySignature(AllowedUnknownRootCertAuthorityConfig()));
             }
         }
 
@@ -57,6 +58,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Strategies
             {
                 return await serializer.DeserializeAsync(stream, "soap/xml", CancellationToken.None);
             }
+        }
+
+        private static VerifySignatureConfig AllowedUnknownRootCertAuthorityConfig()
+        {
+            return new VerifySignatureConfig(allowUnknownRootCertificateAuthority: true, attachments: new List<Attachment>());
         }
     }
 }

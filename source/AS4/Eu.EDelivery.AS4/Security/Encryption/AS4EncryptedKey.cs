@@ -22,11 +22,7 @@ namespace Eu.EDelivery.AS4.Security.Encryption
         internal class EncryptedKeyBuilder
         {
             private byte[] _key;
-            private readonly KeyEncryptionConfiguration _keyEncryptionConfiguration; // = KeyEncryptionConfiguration;
-                                                                                     //private string _algorithmUri = EncryptionStrategy.XmlEncRSAOAEPUrlWithMgf;
-                                                                                     //private string _digestAlgorithmUri = EncryptionStrategy.XmlEncSHA1Url;
-                                                                                     //private string _mgfAlgorithmUri = null;
-                                                                                     // private readonly SecurityTokenReference _securityTokenReference;
+            private readonly KeyEncryptionConfiguration _keyEncryptionConfiguration; 
 
             private EncryptedKeyBuilder(byte[] symmetricKey, KeyEncryptionConfiguration keyEncryptionConfiguration)
             {
@@ -110,7 +106,6 @@ namespace Eu.EDelivery.AS4.Security.Encryption
             }
 
             var encryptedKey = new EncryptedKey();
-
             encryptedKey.LoadXml(encryptedKeyElement);
 
             return new AS4EncryptedKey(encryptedKey, null, GetDigestAlgorithm(encryptedKey), GetMgfAlgorithm(encryptedKey));

@@ -17,6 +17,7 @@ using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Security.Strategies
 {
+    [Obsolete("Replaced by 2 dedicated testclasses")]
     public class GivenEncryptionStrategyFacts
     {
         public class GivenValidArgumentsForDecryptMessage : GivenEncryptionStrategyFacts

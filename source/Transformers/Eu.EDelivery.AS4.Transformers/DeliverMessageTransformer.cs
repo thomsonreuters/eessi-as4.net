@@ -97,16 +97,11 @@ namespace Eu.EDelivery.AS4.Transformers
             // Remove the attachments that are not part of the UserMessage that is to be delivered.
             List<Attachment> attachments = SelectToBeDeliveredUserMessageAttachments(as4Message);
 
-            var attachmentCollection = (List<Attachment>)as4Message.Attachments;
-
-            for (int i = attachmentCollection.Count - 1; i >= 0; i--)
+            foreach (Attachment attachment in as4Message.Attachments)
             {
-                Attachment attachment = attachmentCollection[i];
-
                 if (attachments.Exists(a => a.Id == null || a.Id.Equals(attachment?.Id)) == false)
                 {
-                    attachment.Content.Dispose();
-                    attachmentCollection.Remove(attachment);
+                    as4Message.RemoveAttachment(attachment);
                 }
             }
 
@@ -115,11 +110,10 @@ namespace Eu.EDelivery.AS4.Transformers
 
         private static List<Attachment> SelectToBeDeliveredUserMessageAttachments(AS4Message as4Message)
         {
-            return
-                as4Message.PrimaryUserMessage.PayloadInfo.Select(
-                              partInfo => as4Message.Attachments.FirstOrDefault(a => a.Matches(partInfo)))
-                          .Where(a => a != null)
-                          .ToList();
+            return as4Message.PrimaryUserMessage.PayloadInfo
+                .Select(partInfo => as4Message.Attachments.FirstOrDefault(a => a.Matches(partInfo)))
+                .Where(a => a != null)
+                .ToList();
         }
     }
 }

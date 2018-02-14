@@ -1,4 +1,5 @@
-﻿using System.Xml;
+﻿using System.Collections.Generic;
+using System.Xml;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Security.References;
 using Eu.EDelivery.AS4.Security.Signing;
@@ -43,5 +44,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Strategies
             Assert.True(xmlReferences.Count == 3, "The 3 required Reference elements are not present in the Signature.");
         }
 
+        protected VerifySignatureConfig EmptyVerifyConfig()
+        {
+            return new VerifySignatureConfig(allowUnknownRootCertificateAuthority: false, attachments: new List<Attachment>());
+        }
     }
 }
