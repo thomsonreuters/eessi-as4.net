@@ -301,7 +301,8 @@ namespace Eu.EDelivery.AS4.Common
             }
             else
             {
-                LogManager.GetCurrentClassLogger().Warn($"'{_settings.RetentionPeriod ?? "(null)"}' is not a valid TimeSpan representation");
+                RetentionPeriod = 1;
+                LogManager.GetCurrentClassLogger().Warn($"No Retention Period found: '{_settings.RetentionPeriod ?? "(null)"}', 1 day as default will be used.");
             }
 
             // TODO: this is hardcoded right now, should be configurable in the settings.xml
