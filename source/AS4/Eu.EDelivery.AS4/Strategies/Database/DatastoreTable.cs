@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
@@ -11,10 +10,8 @@ namespace Eu.EDelivery.AS4.Strategies.Database
     /// <summary>
     /// Validate the name of the Datastore Table.
     /// </summary>
-    public class DatastoreTable
+    public static class DatastoreTable
     {
-        private static readonly ConcurrentDictionary<string, bool> KnownTables = new ConcurrentDictionary<string, bool>();
-
         private static readonly IDictionary<string, Func<DatastoreContext, IQueryable<Entity>>> TablesByName =
             new Dictionary<string, Func<DatastoreContext, IQueryable<Entity>>>
             {
@@ -40,7 +37,7 @@ namespace Eu.EDelivery.AS4.Strategies.Database
         /// </returns>
         public static bool IsTableNameKnown(string tableName)
         {
-            return KnownTables.GetOrAdd(tableName, t => typeof(DatastoreContext).GetProperty(t) != null);
+            return TablesByName.ContainsKey(tableName);
         }
 
         public static Func<DatastoreContext, IQueryable<Entity>> FromTableName(string tableName)
