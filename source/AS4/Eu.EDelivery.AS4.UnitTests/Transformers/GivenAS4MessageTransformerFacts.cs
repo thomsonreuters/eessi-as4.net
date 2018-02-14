@@ -3,11 +3,9 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
-using Eu.EDelivery.AS4.Factories;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Transformers;
-using Eu.EDelivery.AS4.UnitTests.Common;
 using Eu.EDelivery.AS4.UnitTests.Extensions;
 using Xunit;
 using static Eu.EDelivery.AS4.UnitTests.Properties.Resources;
@@ -19,11 +17,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
     /// </summary>
     public class GivenAS4MessageTransformerFacts
     {
-        public GivenAS4MessageTransformerFacts()
-        {
-            IdentifierFactory.Instance.SetContext(StubConfig.Default);
-        }
-
         /// <summary>
         /// Testing if the Transformer succeeds
         /// for the "Transform" Method

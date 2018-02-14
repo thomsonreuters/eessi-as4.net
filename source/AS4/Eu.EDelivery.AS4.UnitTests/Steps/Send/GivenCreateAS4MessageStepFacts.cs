@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Exceptions;
-using Eu.EDelivery.AS4.Factories;
 using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
@@ -14,7 +13,6 @@ using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Steps.Submit;
 using Eu.EDelivery.AS4.Strategies.Retriever;
-using Eu.EDelivery.AS4.UnitTests.Common;
 using Eu.EDelivery.AS4.UnitTests.Model;
 using Moq;
 using Xunit;
@@ -31,11 +29,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
     /// </summary>
     public class GivenCreateAS4MessageStepFacts
     {
-        public GivenCreateAS4MessageStepFacts()
-        {
-            IdentifierFactory.Instance.SetContext(StubConfig.Default);
-        }
-
         public class GivenValidArguments : GivenCreateAS4MessageStepFacts
         {
             [Fact]

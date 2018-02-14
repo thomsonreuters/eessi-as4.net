@@ -1,8 +1,6 @@
 ﻿using System;
-using Eu.EDelivery.AS4.Factories;
 using Eu.EDelivery.AS4.Mappings.Core;
 using Eu.EDelivery.AS4.Singletons;
-using Eu.EDelivery.AS4.UnitTests.Common;
 using Eu.EDelivery.AS4.Xml;
 using Xunit;
 
@@ -13,10 +11,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Core
     /// </summary>
     public class GivenErrorMapFacts
     {
-        public GivenErrorMapFacts()
-        {
-            IdentifierFactory.Instance.SetContext(StubConfig.Default);
-        }
 
         public class GivenValidArguments : GivenErrorMapFacts
         {

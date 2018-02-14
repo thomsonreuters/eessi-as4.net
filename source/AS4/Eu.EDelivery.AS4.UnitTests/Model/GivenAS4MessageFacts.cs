@@ -5,13 +5,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 using Eu.EDelivery.AS4.Exceptions;
-using Eu.EDelivery.AS4.Factories;
 using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Model.Submit;
 using Eu.EDelivery.AS4.Serialization;
-using Eu.EDelivery.AS4.UnitTests.Common;
 using Eu.EDelivery.AS4.UnitTests.Extensions;
 using MimeKit;
 using Xunit;
@@ -23,10 +21,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
     /// </summary>
     public class GivenAS4MessageFacts
     {
-        public GivenAS4MessageFacts()
-        {
-            IdentifierFactory.Instance.SetContext(StubConfig.Default);
-        }
 
         public class Empty
         {

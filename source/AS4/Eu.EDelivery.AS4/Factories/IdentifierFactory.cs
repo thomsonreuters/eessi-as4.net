@@ -17,7 +17,6 @@ namespace Eu.EDelivery.AS4.Factories
         private static readonly Regex MacroMatchRegex;
         private static readonly Dictionary<string, Func<string>> Macros;
 
-        private static IConfig _config;
         public static readonly IdentifierFactory Instance = new IdentifierFactory();
 
         static IdentifierFactory()
@@ -34,10 +33,10 @@ namespace Eu.EDelivery.AS4.Factories
         private static string GetHostIpAddress()
         {
             string hostName = Dns.GetHostName();
-            IPAddress[] addressList = Dns.GetHostEntry(hostName).AddressList;
-            Func<IPAddress, bool> whereIpIsInterNetwork = ip => ip.AddressFamily == AddressFamily.InterNetwork;
 
-            return addressList.FirstOrDefault(whereIpIsInterNetwork)?.ToString();
+            return Dns.GetHostEntry(hostName).AddressList
+                .FirstOrDefault(ip => ip.AddressFamily == AddressFamily.InterNetwork)?
+                .ToString();
         }
 
         /// <summary>
@@ -46,30 +45,16 @@ namespace Eu.EDelivery.AS4.Factories
         /// <returns></returns>
         public string Create()
         {
-            _config = _config ?? Config.Instance;
-
-            if (!_config.IsInitialized)
+            if (Config.Instance.IsInitialized)
             {
-                _config.Initialize();
+                string defaultFormat = Config.Instance.GetSetting("idformat");
+                if (!string.IsNullOrEmpty(defaultFormat))
+                {
+                    return Create(defaultFormat);
+                }
             }
 
-            string defaultFormat = _config.GetSetting("idformat");
-            if (string.IsNullOrEmpty(defaultFormat))
-            {
-                defaultFormat = "{GUID}@{IPADDRESS}";
-            }
-
-            return Create(defaultFormat);
-        }
-
-        /// <summary>
-        /// Set a given <see cref="IConfig"/>
-        /// to use when generating the Id
-        /// </summary>
-        /// <param name="config"></param>
-        public void SetContext(IConfig config)
-        {
-            _config = config;
+            return Create("{GUID}@{IPADDRESS}");
         }
 
         /// <summary>

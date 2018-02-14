@@ -76,14 +76,6 @@ namespace Eu.EDelivery.AS4.Common
         public bool IsInitialized { get; private set; }
 
         /// <summary>
-        /// Initialize Configuration
-        /// </summary>
-        public void Initialize()
-        {
-           Initialize(Properties.Resources.settingsfilename);
-        }
-
-        /// <summary>
         /// Initializes the specified settings file name.
         /// </summary>
         /// <param name="settingsFileName">Name of the settings file.</param>
