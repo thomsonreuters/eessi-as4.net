@@ -60,6 +60,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
 
             CryptoConfig.AddAlgorithm(algorithm.GetType(), algorithm.GetIdentifier());
         }
+
         private void SetSecurityTokenReference(X509Certificate2 signingCertificate, X509ReferenceType securityTokenType)
         {
             var securityTokenReference = SecurityTokenReferenceProvider.Create(signingCertificate, securityTokenType);
