@@ -17,6 +17,7 @@ namespace Eu.EDelivery.AS4.Entities
         public string PartyType { get; set; }
 
         [Column("URL")]
+        [MaxLength(256)]
         public string Url { get; set; }
 
         [MaxLength(256)]
