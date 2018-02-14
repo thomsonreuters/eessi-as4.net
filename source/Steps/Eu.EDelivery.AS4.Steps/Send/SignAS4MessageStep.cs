@@ -66,7 +66,6 @@ namespace Eu.EDelivery.AS4.Steps.Send
             }
 
             TrySignAS4Message(messagingContext);
-            ResetAttachmentContents(messagingContext.AS4Message);
 
             return await StepResult.SuccessAsync(messagingContext);
         }
@@ -140,14 +139,6 @@ namespace Eu.EDelivery.AS4.Steps.Send
                                                       signing.HashFunction);
 
             return SignStrategy.ForAS4Message(message, config);
-        }
 
-        private static void ResetAttachmentContents(AS4Message as4Message)
-        {
-            foreach (Attachment attachment in as4Message.Attachments)
-            {
-                attachment.ResetContentPosition();
-            }
         }
     }
-}

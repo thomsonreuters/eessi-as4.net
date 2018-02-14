@@ -47,6 +47,8 @@ namespace Eu.EDelivery.AS4.Security.Strategies
 
             ComputeSignature();
 
+            ResetAttachmentContents(_as4Message);
+
             return Signature;
         }
 
@@ -127,6 +129,14 @@ namespace Eu.EDelivery.AS4.Security.Strategies
             SetReferenceStream(attachmentReference, attachment);
             SetAttachmentTransformContentType(attachmentReference, attachment);
             ResetReferenceStreamPosition(attachmentReference);
+        }
+
+        private static void ResetAttachmentContents(AS4Message as4Message)
+        {
+            foreach (Attachment attachment in as4Message.Attachments)
+            {
+                attachment.ResetContentPosition();
+            }
         }
     }
 
