@@ -52,8 +52,9 @@ namespace Eu.EDelivery.AS4.Strategies.Retriever
         {
             try
             {
+                Logger.Debug($"Removing temporary file at location: {absolutePath}");
                 File.Delete(absolutePath);
-                Logger.Debug("Removing temporary file at location: " + absolutePath);
+                Logger.Debug($"Temporary file {absolutePath} removed.");
             }
             catch (Exception ex)
             {
