@@ -72,17 +72,21 @@ namespace Eu.EDelivery.AS4.Receivers
 
         private IEnumerable<Entity> GetMessagesEntitiesForConfiguredExpression()
         {
-            // Use a TransactionScope to get the highest TransactionIsolation level.
             IEnumerable<Entity> entities = Enumerable.Empty<Entity>();
 
             using (DatastoreContext context = _storeExpression())
             {
+                context.Database.BeginTransaction();
+
                 try
                 {
                     entities = FindAnyMessageEntitiesWithConfiguredExpression(context);
+
+                    context.Database.CommitTransaction();
                 }
                 catch (Exception exception)
                 {
+                    context.Database.RollbackTransaction();
                     LogExceptionAndInner(exception);
                 }
             }
