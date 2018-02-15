@@ -16,7 +16,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
 {
     internal class SignatureVerificationStrategy : SignatureStrategy, ISignatureVerificationStrategy
     {
-        
+
         private readonly SecurityTokenReference _securityTokenReference;
         private readonly ICertificateRepository _certificateRepository = Registry.Instance.CertificateRepository;
 
@@ -48,7 +48,14 @@ namespace Eu.EDelivery.AS4.Security.Strategies
             LoadXml(GetSignatureElement());
             AddUnrecognizedAttachmentReferences(options.Attachments);
 
-            return CheckSignature(_securityTokenReference.Certificate, verifySignatureOnly: true);
+            bool validSignature = CheckSignature(_securityTokenReference.Certificate, verifySignatureOnly: true);
+
+            foreach (Attachment attachment in options.Attachments)
+            {
+                attachment.ResetContentPosition();
+            }
+
+            return validSignature;
         }
 
         private static bool VerifyCertificate(X509Certificate2 certificate, bool allowUnknownRootAuthority, out X509ChainStatus[] errorMessages)
