@@ -4,11 +4,13 @@ using System.Configuration;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Xml;
+using Castle.Core.Internal;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Serialization;
+using NLog;
 
 namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
 {
@@ -100,12 +102,12 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
 
             pmode.MessagePackaging.CollaborationInfo =
                 pmode.MessagePackaging.CollaborationInfo ?? new CollaborationInfo();
-            pmode.MessagePackaging.CollaborationInfo.Service = new Service {Type = smpResponse.ServiceType, Value = smpResponse.ServiceValue};
+            pmode.MessagePackaging.CollaborationInfo.Service = new Service { Type = smpResponse.ServiceType, Value = smpResponse.ServiceValue };
             pmode.MessagePackaging.CollaborationInfo.Action = smpResponse.Action;
 
             pmode.PushConfiguration = new PushConfiguration
             {
-                Protocol = new Protocol {Url = smpResponse.Url},
+                Protocol = new Protocol { Url = smpResponse.Url },
                 TlsConfiguration = new TlsConfiguration
                 {
                     IsEnabled = smpResponse.TlsEnabled
@@ -119,7 +121,7 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
                 Algorithm = smpResponse.EncryptAlgorithm,
                 AlgorithmKeySize = smpResponse.EncryptAlgorithmKeySize,
                 CertificateType = PublicKeyCertificateChoiceType.PublicKeyCertificate,
-                EncryptionCertificateInformation = new PublicKeyCertificate { Certificate = Convert.ToBase64String(smpResponse.EncryptPublicKeyCertificate) },
+                EncryptionCertificateInformation = new PublicKeyCertificate { Certificate = TryConvertToBase64String(smpResponse.EncryptPublicKeyCertificate) },
                 KeyTransport = new KeyEncryption
                 {
                     DigestAlgorithm = smpResponse.EncryptKeyDigestAlgorithm,
@@ -129,6 +131,21 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
             };
 
             return pmode;
+        }
+
+        private static string TryConvertToBase64String(byte[] arr)
+        {
+            if (arr == null || arr.IsNullOrEmpty()) { return null; }
+
+            try
+            {
+                return Convert.ToBase64String(arr);
+            }
+            catch (Exception ex)
+            {
+                LogManager.GetCurrentClassLogger().Error(ex);
+                return null;
+            }
         }
     }
 }
