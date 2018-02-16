@@ -20,7 +20,7 @@ namespace Eu.EDelivery.AS4.Migrations
                     EncryptKeyDigestAlgorithm = table.Column<string>(maxLength: 256, nullable: true),
                     EncryptKeyMgfAlorithm = table.Column<string>(nullable: true),
                     EncryptKeyTransportAlgorithm = table.Column<string>(maxLength: 256, nullable: true),
-                    EncryptPublicKeyCertificate = table.Column<string>(maxLength: 256, nullable: true),
+                    EncryptPublicKeyCertificate = table.Column<byte[]>(maxLength: int.MaxValue, nullable: true),
                     EncryptionEnabled = table.Column<bool>(nullable: false),
                     FinalRecipient = table.Column<string>(maxLength: 256, nullable: true),
                     PartyRole = table.Column<string>(maxLength: 256, nullable: false),

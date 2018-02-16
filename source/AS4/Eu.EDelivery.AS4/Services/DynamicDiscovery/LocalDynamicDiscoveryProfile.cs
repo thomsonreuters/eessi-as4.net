@@ -119,7 +119,7 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
                 Algorithm = smpResponse.EncryptAlgorithm,
                 AlgorithmKeySize = smpResponse.EncryptAlgorithmKeySize,
                 CertificateType = PublicKeyCertificateChoiceType.PublicKeyCertificate,
-                EncryptionCertificateInformation = new PublicKeyCertificate { Certificate = smpResponse.EncryptPublicKeyCertificate},
+                EncryptionCertificateInformation = new PublicKeyCertificate { Certificate = Convert.ToBase64String(smpResponse.EncryptPublicKeyCertificate) },
                 KeyTransport = new KeyEncryption
                 {
                     DigestAlgorithm = smpResponse.EncryptKeyDigestAlgorithm,
