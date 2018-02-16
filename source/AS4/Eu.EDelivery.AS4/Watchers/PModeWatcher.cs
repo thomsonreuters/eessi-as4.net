@@ -147,21 +147,25 @@ namespace Eu.EDelivery.AS4.Watchers
             }
 
             T pmode = TryDeserialize(fullPath);
-            ValidationResult pmodeValidation = _pmodeValidator.Validate(pmode);
+            if (pmode == null)
+            {
+                LogManager.GetCurrentClassLogger().Warn("File at: '" + fullPath + "' cannot be converted to a PMode because the XML in the file isn't valid.");
 
-            if (pmode == null || !pmodeValidation.IsValid)
+                // Since the PMode that we expect in this file is invalid, it
+                // must be removed from our cache.
+                RemoveLocalPModeFromCache(fullPath);
+                return;
+            }
+
+            ValidationResult pmodeValidation = _pmodeValidator.Validate(pmode);
+            if (!pmodeValidation.IsValid)
             {
                 LogManager.GetCurrentClassLogger().Warn("Invalid PMode at: '" + fullPath + "'");
                 pmodeValidation.LogErrors(LogManager.GetCurrentClassLogger());
 
-                // Since the PMode that we expect in this file is invalid, it
+                // Since the PMode that we expect isn't valid according to the validator, it
                 // must be removed from our cache.
-                if (_filePModeIdMap.TryGetValue(fullPath, out string pmodeId))
-                {
-                    _pmodes.TryRemove(pmodeId, out _);
-                    _filePModeIdMap.TryRemove(fullPath, out _);
-                }
-
+                RemoveLocalPModeFromCache(fullPath);
                 return;
             }
 
@@ -178,9 +182,13 @@ namespace Eu.EDelivery.AS4.Watchers
         }
 
         // cache which keeps track of the date and time a PMode file was last handled by the FileSystemWatcher.
+
         // Due to an issue with FileSystemWatcher, events can be triggered multiple times for the same operation on the 
+
         // same file.
+
         private readonly MemoryCache _fileEventCache = MemoryCache.Default;
+
         private readonly CacheItemPolicy _policy = new CacheItemPolicy { SlidingExpiration = TimeSpan.FromMilliseconds(500) };
 
         private static T TryDeserialize(string path)
@@ -199,6 +207,15 @@ namespace Eu.EDelivery.AS4.Watchers
                     logger.Error(ex.InnerException.Message);
                 }
                 return null;
+            }
+        }
+
+        private void RemoveLocalPModeFromCache(string fullPath)
+        {
+            if (_filePModeIdMap.TryGetValue(fullPath, out string pmodeId))
+            {
+                _pmodes.TryRemove(pmodeId, out _);
+                _filePModeIdMap.TryRemove(fullPath, out _);
             }
         }
 
