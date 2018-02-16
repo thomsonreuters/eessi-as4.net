@@ -301,8 +301,9 @@ namespace Eu.EDelivery.AS4.Common
             }
             else
             {
-                RetentionPeriod = 1;
-                LogManager.GetCurrentClassLogger().Warn($"No Retention Period found: '{_settings.RetentionPeriod ?? "(null)"}', 1 day as default will be used.");
+                const int defaultRetentionPeriod = 90;
+                RetentionPeriod = defaultRetentionPeriod;
+                LogManager.GetCurrentClassLogger().Warn($"No Retention Period found: '{_settings.RetentionPeriod ?? "(null)"}', {defaultRetentionPeriod} days as default will be used.");
             }
 
             // TODO: this is hardcoded right now, should be configurable in the settings.xml
