@@ -67,8 +67,16 @@ namespace Eu.EDelivery.AS4.Strategies.Database
         {
             DatastoreTable.EnsureTableNameIsKnown(tableName);
 
+            string receptionAwarenessJoin =
+                tableName.Equals("OutMessages")
+                    ? "LEFT JOIN ReceptionAwareness r " +
+                      "ON r.InternalMessageId = m.EbmsMessageId " +
+                      "AND r.CurrentRetryCount = r.TotalRetryCount"
+                    : string.Empty;
+
             string command =
                 $"DELETE FROM {tableName} " +
+                receptionAwarenessJoin +
                 $"WHERE InsertionTime<datetime('now', '-{retentionPeriod.TotalDays} day') " +
                 $"AND Operation IN({string.Join(", ", allowedOperations.Select(x => "'" + x.ToString() + "'"))})";
 
