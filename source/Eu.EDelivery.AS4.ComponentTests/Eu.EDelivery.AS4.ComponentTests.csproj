@@ -173,6 +173,8 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="Samples\SampleTests.cs" />
+    <Compile Include="Samples\SampleTestTemplate.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

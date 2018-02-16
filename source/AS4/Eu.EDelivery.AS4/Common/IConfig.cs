@@ -13,9 +13,10 @@ namespace Eu.EDelivery.AS4.Common
         // TODO: add typed properties for mandatory configuration items ? (IdFormat, Database connectionstring, etc...) ?
 
         /// <summary>
-        /// Initialize Configuration
+        /// Initializes the specified settings file name.
         /// </summary>
-        void Initialize();
+        /// <param name="settingsFileName">Name of the settings file.</param>
+        void Initialize(string settingsFileName);
 
         /// <summary>
         /// Gets a value indicating whether if the Configuration is IsInitialized

@@ -1,8 +1,6 @@
 ﻿using System.Linq;
-using Eu.EDelivery.AS4.Factories;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
-using Eu.EDelivery.AS4.UnitTests.Common;
 
 namespace Eu.EDelivery.AS4.UnitTests.Builders.Core
 {
@@ -115,7 +113,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Core
 
         private static UserMessage CreateDefaultUserMessage(string messageId)
         {
-            IdentifierFactory.Instance.SetContext(StubConfig.Default);
             var userMessage = new UserMessage
             {
                 CollaborationInfo = { AgreementReference = new AgreementReference() },

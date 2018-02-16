@@ -269,7 +269,9 @@
     <Compile Include="Receivers\GivenFileReceiverFacts.cs" />
     <Compile Include="Repositories\DatastoreExtensions.cs" />
     <Compile Include="Security\References\GivenSecurityReferenceTokenProviderFacts.cs" />
-    <Compile Include="Security\Strategies\GivenCalculateSignatureStrategyFacts.cs" />
+    <Compile Include="Security\Strategies\GivenSignStrategyFacts.cs" />
+    <Compile Include="Security\Strategies\GivenDecryptStrategyFacts.cs" />
+    <Compile Include="Security\Strategies\GivenEncryptStrategyFacts.cs" />
     <Compile Include="Security\Strategies\GivenVerifySignatureStrategyFacts.cs" />
     <Compile Include="Serialization\GivenInvalidMessageSerializationFacts.cs" />
     <Compile Include="Serialization\GivenSoapEnvelopeDeserializingFacts.cs" />
@@ -313,7 +315,6 @@
     <Compile Include="Builders\Core\GivenNonRepudiationInformationBuilderFacts.cs" />
     <Compile Include="Builders\Entities\GivenInMessageBuilderFacts.cs" />
     <Compile Include="Builders\Entities\GivenOutMessageBuilderFacts.cs" />
-    <Compile Include="Builders\Security\GivenSigningStrategyBuilderFacts.cs" />
     <Compile Include="Builders\Internal\GivenSoapEnvelopeBuilderFacts.cs" />
     <Compile Include="Common\GivenDataStoreFacts.cs" />
     <Compile Include="Common\GivenDatastoreStepFacts.cs" />
@@ -392,14 +393,12 @@
     <Compile Include="Security\Repositories\GivenKeyInfoRepositoryFacts.cs" />
     <Compile Include="Security\Repositories\GivenSignedXmlRepositoryFacts.cs" />
     <Compile Include="Security\Serializers\GivenEncryptedDataSerializerFacts.cs" />
-    <Compile Include="Security\Strategies\GivenEncryptionStrategyFacts.cs" />
     <Compile Include="Serialization\FixedValueSerializer.cs" />
     <Compile Include="Serialization\GivenAS4XmlSerializerfacts.cs" />
     <Compile Include="Serialization\GivenMimeMessageSerializerFacts.cs" />
     <Compile Include="Serialization\GivenSerializerProviderFacts.cs" />
     <Compile Include="Serialization\GivenSoapEnvelopeSerializerFacts.cs" />
     <Compile Include="Security\References\GivenKeyIdentifierSecurityTokenReferenceFacts.cs" />
-    <Compile Include="Security\Strategies\GivenSignStrategyFacts.cs" />
     <Compile Include="Common\StubCertificateRepository.cs" />
     <Compile Include="Security\References\GivenBinarySecurityTokenReferenceFacts.cs" />
     <Compile Include="Security\Transforms\GivenAttachmentSignatureTransformFacts.cs" />
@@ -580,6 +579,7 @@
     <Content Include="Resources\holodeck-as4message.xml" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Builders\Security\" />
     <Folder Include="Steps\Participant\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

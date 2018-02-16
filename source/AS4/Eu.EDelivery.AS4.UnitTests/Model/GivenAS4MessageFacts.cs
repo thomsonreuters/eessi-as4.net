@@ -1,18 +1,19 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 using Eu.EDelivery.AS4.Exceptions;
-using Eu.EDelivery.AS4.Factories;
 using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Model.Submit;
 using Eu.EDelivery.AS4.Serialization;
-using Eu.EDelivery.AS4.UnitTests.Common;
 using Eu.EDelivery.AS4.UnitTests.Extensions;
+using FsCheck;
+using FsCheck.Xunit;
 using MimeKit;
 using Xunit;
 
@@ -23,10 +24,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
     /// </summary>
     public class GivenAS4MessageFacts
     {
-        public GivenAS4MessageFacts()
-        {
-            IdentifierFactory.Instance.SetContext(StubConfig.Default);
-        }
 
         public class Empty
         {
@@ -79,6 +76,24 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
 
                 // Assert
                 Assert.False(sut.HasAttachments);
+            }
+
+            [Property]
+            public void ThenMessageRemainsSoapAfterAttachmentsAreRemoved(NonEmptyArray<NonNull<string>> ids)
+            {
+                // Arrange
+                AS4Message sut = AS4Message.Empty;
+                IEnumerable<Attachment> attachments = ids.Get.Select(i => new Attachment(i.Get));
+
+                // Act / Assert
+                Assert.All(attachments, a =>
+                {
+                    sut.AddAttachment(a);
+                    Assert.NotEqual(Constants.ContentTypes.Soap, sut.ContentType);
+                });
+
+                Assert.All(attachments, a => sut.RemoveAttachment(a));                
+                Assert.Equal(Constants.ContentTypes.Soap, sut.ContentType);
             }
         }
 

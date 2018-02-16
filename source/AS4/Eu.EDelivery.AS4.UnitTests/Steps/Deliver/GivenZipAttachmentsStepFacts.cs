@@ -4,11 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Factories;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Steps.Deliver;
-using Eu.EDelivery.AS4.UnitTests.Common;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
@@ -18,10 +16,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
     /// </summary>
     public class GivenZipAttachmentsStepFacts
     {
-        public GivenZipAttachmentsStepFacts()
-        {
-            IdentifierFactory.Instance.SetContext(StubConfig.Default);
-        }
 
         public class GivenValidArguments : GivenZipAttachmentsStepFacts
         {
@@ -53,8 +47,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
                 await new ZipAttachmentsStep().ExecuteAsync(internalMessage, CancellationToken.None);
 
                 // Assert
-                ICollection<Attachment> attachments = internalMessage.AS4Message.Attachments;
-                Assert.Equal(1, attachments.Count);
+                IEnumerable<Attachment> attachments = internalMessage.AS4Message.Attachments;
+                Assert.Equal(1, attachments.Count());
                 Assert.Equal("application/zip", attachments.First().ContentType);
             }
 

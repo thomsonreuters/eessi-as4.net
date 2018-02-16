@@ -349,7 +349,7 @@
     <Compile Include="Builders\Security\DecryptionStrategyBuilder.cs" />
     <Compile Include="Migrations\20180212143022_ReceptionAwarenessRelation.cs" />
     <Compile Include="Security\Signing\CalculateSignatureConfig.cs" />
-    <Compile Include="Security\Strategies\CalculateSignatureStrategy.cs" />
+    <Compile Include="Security\Strategies\SignStrategy.cs" />
     <Compile Include="Security\Strategies\CryptoStrategy.cs" />
     <Compile Include="Security\Strategies\DecryptionStrategy.cs" />
     <Compile Include="Security\Strategies\IDecryptionStrategy.cs" />
@@ -418,7 +418,6 @@
     <Compile Include="Repositories\IDatastoreRepository.cs" />
     <Compile Include="Security\Builders\EncryptedDataBuilder.cs" />
     <Compile Include="Builders\Security\EncryptionStrategyBuilder.cs" />
-    <Compile Include="Builders\Security\SigningStrategyBuilder.cs" />
     <Compile Include="Common\IRegistry.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="Common\DatastoreContext.cs" />
@@ -507,7 +506,6 @@
     <Compile Include="Model\Common\Service.cs" />
     <Compile Include="Model\Submit\SubmitMessage.cs" />
     <Compile Include="Model\Internal\ReceivedMessage.cs" />
-    <Compile Include="Security\Strategies\ISigningStrategy.cs" />
     <Compile Include="Security\Transforms\AesGcmDecryptTransform.cs" />
     <Compile Include="Security\Transforms\AesGcmEncryptTransform.cs" />
     <Compile Include="Security\Transforms\AttachmentCiphertextTransform.cs" />
@@ -540,7 +538,6 @@
     <Compile Include="Security\Algorithms\SignatureAlgorithm.cs" />
     <Compile Include="Security\Signing\SigningId.cs" />
     <Compile Include="Security\References\BinarySecurityTokenReference.cs" />
-    <Compile Include="Security\Strategies\SigningStrategy.cs" />
     <Compile Include="Steps\StepBuilder.cs" />
     <Compile Include="Strategies\Retriever\FtpPayloadRetriever.cs" />
     <Compile Include="Strategies\Sender\IDeliverSender.cs" />

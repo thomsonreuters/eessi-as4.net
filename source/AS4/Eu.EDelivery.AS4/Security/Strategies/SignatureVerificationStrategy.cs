@@ -7,7 +7,6 @@ using System.Xml;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Repositories;
-using Eu.EDelivery.AS4.Security.Algorithms;
 using Eu.EDelivery.AS4.Security.References;
 using Eu.EDelivery.AS4.Security.Signing;
 using Eu.EDelivery.AS4.Security.Transforms;
@@ -17,7 +16,6 @@ namespace Eu.EDelivery.AS4.Security.Strategies
 {
     internal class SignatureVerificationStrategy : SignatureStrategy, ISignatureVerificationStrategy
     {
-        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         private readonly SecurityTokenReference _securityTokenReference;
         private readonly ICertificateRepository _certificateRepository = Registry.Instance.CertificateRepository;
@@ -35,16 +33,8 @@ namespace Eu.EDelivery.AS4.Security.Strategies
             LoadSignature();
         }
 
-        private static SignatureAlgorithm RetrieveSignatureAlgorithm(XmlDocument envelopeDocument)
-        {
-            SignatureAlgorithm algorithm = new SignatureAlgorithmProvider().Get(envelopeDocument);
-
-            Logger.Debug($"Verify with Signature Algorithm: {algorithm.GetIdentifier()}");
-            return algorithm;
-        }
-
         /// <summary>
-        /// Verify the Signature of the <see cref="ISigningStrategy"/>
+        /// Verify the Signature of the AS4 message
         /// </summary>
         /// <param name="options"></param>
         /// <returns></returns>
@@ -58,7 +48,14 @@ namespace Eu.EDelivery.AS4.Security.Strategies
             LoadXml(GetSignatureElement());
             AddUnrecognizedAttachmentReferences(options.Attachments);
 
-            return CheckSignature(_securityTokenReference.Certificate, verifySignatureOnly: true);
+            bool validSignature = CheckSignature(_securityTokenReference.Certificate, verifySignatureOnly: true);
+
+            foreach (Attachment attachment in options.Attachments)
+            {
+                attachment.ResetContentPosition();
+            }
+
+            return validSignature;
         }
 
         private static bool VerifyCertificate(X509Certificate2 certificate, bool allowUnknownRootAuthority, out X509ChainStatus[] errorMessages)
@@ -80,7 +77,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
             }
         }
 
-        private void AddUnrecognizedAttachmentReferences(ICollection<Attachment> attachments)
+        private void AddUnrecognizedAttachmentReferences(IEnumerable<Attachment> attachments)
         {
             IEnumerable<Reference> references = SignedInfo
                 .References.Cast<Reference>().Where(ReferenceIsCidReference()).ToArray();

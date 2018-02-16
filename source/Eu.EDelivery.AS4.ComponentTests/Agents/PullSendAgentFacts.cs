@@ -142,7 +142,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                 Constants.SignAlgorithms.Sha256,
                 Constants.HashFunctions.Sha256);
 
-            var signer = CalculateSignatureStrategy.ForAS4Message(message, config);
+            var signer = SignStrategy.ForAS4Message(message, config);
 
             message.SecurityHeader.Sign(signer);
 

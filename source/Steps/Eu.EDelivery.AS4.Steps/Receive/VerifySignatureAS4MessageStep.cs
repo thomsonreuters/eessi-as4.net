@@ -109,15 +109,15 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 .Where(m => m is Receipt r && r.NonRepudiationInformation != null)
                 .Cast<Receipt>();
 
-            IEnumerable<AS4Message> userMessages = 
+            IEnumerable<AS4Message> userMessages =
                 (await ReferencedUserMessagesOf(receipts)).Where(m => m != null && m.IsSigned);
 
             if (receipts.All(nrrReceipt =>
             {
-                AS4Message refUserMessage = userMessages.FirstOrDefault(u => 
+                AS4Message refUserMessage = userMessages.FirstOrDefault(u =>
                     u.GetPrimaryMessageId() == nrrReceipt.RefToMessageId);
 
-                return refUserMessage == null 
+                return refUserMessage == null
                     || nrrReceipt.VerifyNonRepudiationInfo(refUserMessage);
             }))
             {
@@ -175,30 +175,23 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
             Logger.Info($"{messagingContext.EbmsMessageId} AS4 Message has a valid Signature present");
 
-            // TODO: The step should not be responsible for the functionality below.
-            //       Responsability lies somewhere else (signing-strategy?)
-            foreach (Attachment attachment in messagingContext.AS4Message.Attachments)
-            {
-                attachment.ResetContentPosition();
-            }
-
             return await StepResult.SuccessAsync(messagingContext);
         }
 
         private static bool IsValidSignature(AS4Message as4Message, VerifySignatureConfig options)
         {
-            return as4Message.VerifySignature(options);            
+            return as4Message.VerifySignature(options);
         }
 
         private static VerifySignatureConfig CreateVerifyOptionsForAS4Message(AS4Message as4Message, ReceivingProcessingMode pmode)
         {
-            return new VerifySignatureConfig
-            {
-                Attachments = as4Message.Attachments,
-                AllowUnknownRootCertificateAuthority =
-                    pmode?.Security?.SigningVerification?.AllowUnknownRootCertificate
-                    ?? new ReceivingProcessingMode().Security.SigningVerification.AllowUnknownRootCertificate
-            };
+            bool allowUnknownRootCertificateAuthority =
+                pmode?.Security?.SigningVerification?.AllowUnknownRootCertificate
+                ?? new ReceivingProcessingMode().Security.SigningVerification.AllowUnknownRootCertificate;
+
+            return new VerifySignatureConfig(
+                allowUnknownRootCertificateAuthority,
+                as4Message.Attachments);
         }
 
         private static StepResult InvalidSignatureResult(string description, ErrorAlias errorAlias, MessagingContext context)

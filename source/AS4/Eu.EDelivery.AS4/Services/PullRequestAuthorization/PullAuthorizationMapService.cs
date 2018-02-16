@@ -10,24 +10,24 @@ using Eu.EDelivery.AS4.Serialization;
 
 namespace Eu.EDelivery.AS4.Services.PullRequestAuthorization
 {
-    public class PullPullAuthorizationMapService : IPullAuthorizationMapService
+    public class PullAuthorizationMapService : IPullAuthorizationMapService
     {
         private readonly IPullAuthorizationMapProvider _mapProvider;
         private readonly ICertificateRepository _certificateRepository;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="PullPullAuthorizationMapService"/> class.
+        /// Initializes a new instance of the <see cref="PullAuthorizationMapService"/> class.
         /// </summary>
-        public PullPullAuthorizationMapService(IPullAuthorizationMapProvider pullAuthorizationMapProvider) :
+        public PullAuthorizationMapService(IPullAuthorizationMapProvider pullAuthorizationMapProvider) :
             this(pullAuthorizationMapProvider, Registry.Instance.CertificateRepository)
         {
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="PullPullAuthorizationMapService"/> class.
+        /// Initializes a new instance of the <see cref="PullAuthorizationMapService"/> class.
         /// </summary>
-        public PullPullAuthorizationMapService(IPullAuthorizationMapProvider pullAuthorizationMapProvider,
-                                               ICertificateRepository certificateRepository)
+        public PullAuthorizationMapService(IPullAuthorizationMapProvider pullAuthorizationMapProvider,
+                                           ICertificateRepository certificateRepository)
         {
             _mapProvider = pullAuthorizationMapProvider;
             _certificateRepository = certificateRepository;
