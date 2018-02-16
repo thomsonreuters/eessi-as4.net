@@ -149,7 +149,7 @@ namespace Eu.EDelivery.AS4.Watchers
             T pmode = TryDeserialize(fullPath);
             if (pmode == null)
             {
-                LogManager.GetCurrentClassLogger().Warn("Invalid PMode at: '" + fullPath + "'");
+                LogManager.GetCurrentClassLogger().Warn("File at: '" + fullPath + "' cannot be converted to a PMode because the XML in the file isn't valid.");
 
                 // Since the PMode that we expect in this file is invalid, it
                 // must be removed from our cache.
