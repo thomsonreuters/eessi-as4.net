@@ -14,6 +14,8 @@ namespace Eu.EDelivery.AS4.Factories
     /// </summary>
     public class IdentifierFactory
     {
+        private const string DefaultIdFormat = "{GUID}@{IPADDRESS}";
+
         private static readonly Regex MacroMatchRegex;
         private static readonly Dictionary<string, Func<string>> Macros;
 
@@ -45,16 +47,18 @@ namespace Eu.EDelivery.AS4.Factories
         /// <returns></returns>
         public string Create()
         {
-            if (Config.Instance.IsInitialized)
+            if (!Config.Instance.IsInitialized) 
             {
-                string defaultFormat = Config.Instance.GetSetting("idformat");
-                if (!string.IsNullOrEmpty(defaultFormat))
-                {
-                    return Create(defaultFormat);
-                }
+                return Create(DefaultIdFormat);
             }
 
-            return Create("{GUID}@{IPADDRESS}");
+            string defaultFormat = Config.Instance.GetSetting("idformat");
+            if (!string.IsNullOrEmpty(defaultFormat))
+            {
+                return Create(defaultFormat);
+            }
+
+            return Create(DefaultIdFormat);
         }
 
         /// <summary>
