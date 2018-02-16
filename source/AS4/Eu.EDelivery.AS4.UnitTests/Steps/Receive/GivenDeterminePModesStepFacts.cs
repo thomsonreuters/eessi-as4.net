@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Exceptions;
-using Eu.EDelivery.AS4.Factories;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
@@ -29,7 +28,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
         public GivenDeterminePModesStepFacts()
         {
-            IdentifierFactory.Instance.SetContext(StubConfig.Default);
             _mockedConfig = new Mock<IConfig>();
             _step = new DeterminePModesStep(_mockedConfig.Object, GetDataStoreContext);
         }

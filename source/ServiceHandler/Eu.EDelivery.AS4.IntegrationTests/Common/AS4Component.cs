@@ -55,7 +55,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
 
             if (config.IsInitialized == false)
             {
-                config.Initialize();
+                config.Initialize("settings.xml");
             }
 
             return config;

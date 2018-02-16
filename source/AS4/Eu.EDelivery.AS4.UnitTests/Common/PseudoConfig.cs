@@ -14,7 +14,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
         /// <summary>
         /// Initialize Configuration
         /// </summary>
-        public virtual void Initialize()
+        public virtual void Initialize(string settingsFileName)
         {
             throw new NotImplementedException();
         }
@@ -117,7 +117,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
         public void FailsToInitialize()
         {
             Assert.False(new PseudoConfig().IsInitialized);
-            Assert.ThrowsAny<Exception>(() => Initialize());
+            Assert.ThrowsAny<Exception>(() =>
+            {
+                Initialize("settings.xml");
+            });
         }
 
         [Fact]

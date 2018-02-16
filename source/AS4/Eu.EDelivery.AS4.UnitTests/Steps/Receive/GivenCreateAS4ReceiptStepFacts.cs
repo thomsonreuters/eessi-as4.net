@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Factories;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
@@ -19,15 +18,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
     /// Testing <see cref="CreateAS4ReceiptStep" />
     /// </summary>
     public class GivenCreateAS4ReceiptStepFacts
-    {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="GivenCreateAS4ReceiptStepFacts"/> class.
-        /// </summary>
-        public GivenCreateAS4ReceiptStepFacts()
-        {
-            IdentifierFactory.Instance.SetContext(StubConfig.Default);
-        }
-
+    {        
         public class GivenValidArguments : GivenCreateAS4ReceiptStepFacts
         {
             [Fact]

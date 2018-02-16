@@ -5,14 +5,12 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Entities;
-using Eu.EDelivery.AS4.Factories;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Steps.Send.Response;
 using Eu.EDelivery.AS4.UnitTests.Builders.Core;
-using Eu.EDelivery.AS4.UnitTests.Common;
 using Eu.EDelivery.AS4.UnitTests.Model;
 using Moq;
 using Xunit;
@@ -25,14 +23,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
     /// </summary>
     public class GivenResponseHandlerFacts
     {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="GivenResponseHandlerFacts"/> class.
-        /// </summary>
-        public GivenResponseHandlerFacts()
-        {
-            IdentifierFactory.Instance.SetContext(StubConfig.Default);
-        }
-
         public class GivenTailResponseHandlerFacts : GivenResponseHandlerFacts
         {
             [Fact]

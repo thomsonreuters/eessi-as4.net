@@ -85,7 +85,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler.ConsoleHost
             Config config = Config.Instance;
             Registry registry = Registry.Instance;
 
-            config.Initialize();
+            config.Initialize("settings.xml");
 
             if (!config.IsInitialized)
             {
