@@ -39,7 +39,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         {
             // Arrange: Insert a "retired" OutMessage with a referenced Reception Awareness.
             Config config = Config.Instance;
-            config.Initialize();
+            config.Initialize("settings.xml");
 
             string ebmsMessageId = Guid.NewGuid().ToString();
 

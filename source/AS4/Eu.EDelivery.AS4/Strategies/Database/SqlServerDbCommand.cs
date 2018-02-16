@@ -73,20 +73,23 @@ namespace Eu.EDelivery.AS4.Strategies.Database
         /// Delete the Messages Entities that are inserted passed a given <paramref name="retentionPeriod"/> 
         /// and has a <see cref="Operation"/> within the given <paramref name="allowedOperations"/>.
         /// </summary>
+        /// <param name="tableName"></param>
         /// <param name="retentionPeriod">The retention period.</param>
         /// <param name="allowedOperations">The allowed operations.</param>
-        public void BatchDeleteMessagesOverRetentionPeriod(TimeSpan retentionPeriod, IEnumerable<Operation> allowedOperations)
+        public void BatchDeleteOverRetentionPeriod(
+            string tableName,
+            TimeSpan retentionPeriod,
+            IEnumerable<Operation> allowedOperations)
         {
-            foreach (string table in DatastoreTable.MessageTables)
-            {
-                string sql = $"DELETE FROM {table} " +
-                             $"WHERE InsertionTime < GETDATE() - {retentionPeriod.TotalDays:##.##}" +
-                             $"AND Operation IN ({string.Join(", ", allowedOperations.Select(x => "'" + x.ToString() + "'"))})";
+            DatastoreTable.EnsureTableNameIsKnown(tableName);
 
-                _context.Database.ExecuteSqlCommand(sql);
+            string sql = $"DELETE FROM {tableName} " +
+                         $"WHERE InsertionTime < GETDATE() - {retentionPeriod.TotalDays:##.##}" +
+                         $"AND Operation IN ({string.Join(", ", allowedOperations.Select(x => "'" + x.ToString() + "'"))})";
 
-                LogManager.GetCurrentClassLogger().Debug($"Done cleaning '{table}'");
-            }
+            _context.Database.ExecuteSqlCommand(sql);
+
+            LogManager.GetCurrentClassLogger().Debug($"Done cleaning '{tableName}'");
         }
     }
 }

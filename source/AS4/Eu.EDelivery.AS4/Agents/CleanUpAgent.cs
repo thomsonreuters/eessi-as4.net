@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
@@ -6,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
+using Eu.EDelivery.AS4.Strategies.Database;
 using NLog;
 
 namespace Eu.EDelivery.AS4.Agents
@@ -81,8 +83,11 @@ namespace Eu.EDelivery.AS4.Agents
                     Operation.Undetermined
                 };
 
-                context.NativeCommands
-                       .BatchDeleteMessagesOverRetentionPeriod(_retentionPeriod, allowedOperations);
+                foreach (string table in DatastoreTable.TablesByName.Keys.Where(k => !k.Equals("ReceptionAwareness")))
+                {
+                    context.NativeCommands
+                           .BatchDeleteOverRetentionPeriod(table, _retentionPeriod, allowedOperations);
+                }
             }
         }
 

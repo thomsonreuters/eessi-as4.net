@@ -12,7 +12,7 @@ namespace Eu.EDelivery.AS4.Strategies.Database
     /// </summary>
     public static class DatastoreTable
     {
-        private static readonly IDictionary<string, Func<DatastoreContext, IQueryable<Entity>>> TablesByName =
+        public static readonly IDictionary<string, Func<DatastoreContext, IQueryable<Entity>>> TablesByName =
             new Dictionary<string, Func<DatastoreContext, IQueryable<Entity>>>
             {
                 {"InMessages", c => c.InMessages},
@@ -38,6 +38,14 @@ namespace Eu.EDelivery.AS4.Strategies.Database
         public static bool IsTableNameKnown(string tableName)
         {
             return TablesByName.ContainsKey(tableName);
+        }
+
+        public static void EnsureTableNameIsKnown(string tableName)
+        {
+            if (!IsTableNameKnown(tableName))
+            {
+                throw new ConfigurationErrorsException($"The configured table {tableName} could not be found");
+            }
         }
 
         public static Func<DatastoreContext, IQueryable<Entity>> FromTableName(string tableName)

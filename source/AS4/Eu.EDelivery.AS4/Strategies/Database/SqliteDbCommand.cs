@@ -41,10 +41,7 @@ namespace Eu.EDelivery.AS4.Strategies.Database
         /// <returns></returns>
         public IEnumerable<Entity> ExclusivelyRetrieveEntities(string tableName, string filter, int takeRows)
         {
-            if (!DatastoreTable.IsTableNameKnown(tableName))
-            {
-                throw new ConfigurationErrorsException($"The configured table {tableName} could not be found");
-            }
+            DatastoreTable.EnsureTableNameIsKnown(tableName);
 
             _context.Database.ExecuteSqlCommand("BEGIN EXCLUSIVE");
             string filterExpression = filter.Replace("\'", "\"");
@@ -60,21 +57,24 @@ namespace Eu.EDelivery.AS4.Strategies.Database
         /// Delete the Messages Entities that are inserted passed a given <paramref name="retentionPeriod"/> 
         /// and has a <see cref="Operation"/> within the given <paramref name="allowedOperations"/>.
         /// </summary>
+        /// <param name="tableName"></param>
         /// <param name="retentionPeriod">The retention period.</param>
         /// <param name="allowedOperations">The allowed operations.</param>
-        public void BatchDeleteMessagesOverRetentionPeriod(TimeSpan retentionPeriod, IEnumerable<Operation> allowedOperations)
+        public void BatchDeleteOverRetentionPeriod(
+            string tableName,
+            TimeSpan retentionPeriod,
+            IEnumerable<Operation> allowedOperations)
         {
-            foreach (string table in DatastoreTable.MessageTables)
-            {
-                string command =
-                    $"DELETE FROM {table} " +
-                    $"WHERE InsertionTime<datetime('now', '-{retentionPeriod.TotalDays} day') " +
-                    $"AND Operation IN({string.Join(", ", allowedOperations.Select(x => "'" + x.ToString() + "'"))})";
+            DatastoreTable.EnsureTableNameIsKnown(tableName);
 
-                _context.Database.ExecuteSqlCommand(command);
+            string command =
+                $"DELETE FROM {tableName} " +
+                $"WHERE InsertionTime<datetime('now', '-{retentionPeriod.TotalDays} day') " +
+                $"AND Operation IN({string.Join(", ", allowedOperations.Select(x => "'" + x.ToString() + "'"))})";
 
-                LogManager.GetCurrentClassLogger().Debug($"Done cleaning '{table}'");
-            }
+            _context.Database.ExecuteSqlCommand(command);
+
+            LogManager.GetCurrentClassLogger().Debug($"Done cleaning '{tableName}'");
         }
     }
 }

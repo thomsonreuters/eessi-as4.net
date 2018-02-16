@@ -58,25 +58,24 @@ namespace Eu.EDelivery.AS4.Strategies.Database
         /// Delete the Messages Entities that are inserted passed a given <paramref name="retentionPeriod"/> 
         /// and has a <see cref="Operation"/> within the given <paramref name="allowedOperations"/>.
         /// </summary>
+        /// <param name="tableName"></param>
         /// <param name="retentionPeriod">The retention period.</param>
         /// <param name="allowedOperations">The allowed operations.</param>
-        public void BatchDeleteMessagesOverRetentionPeriod(
+        public void BatchDeleteOverRetentionPeriod(
+            string tableName,
             TimeSpan retentionPeriod,
             IEnumerable<Operation> allowedOperations)
         {
-            foreach (string table in DatastoreTable.MessageTables)
-            {
-                IQueryable<Entity> entities =
-                    DatastoreTable.FromTableName(table)(_context)
-                                  .Where(x => x.InsertionTime < DateTimeOffset.UtcNow.Subtract(retentionPeriod)
-                                              && allowedOperations.Contains(
-                                                  OperationUtils.Parse(
-                                                      GetOperationString[table](x) ??
-                                                      Operation.NotApplicable.ToString())));
+            IQueryable<Entity> entities =
+                DatastoreTable.FromTableName(tableName)(_context)
+                              .Where(x => x.InsertionTime < DateTimeOffset.UtcNow.Subtract(retentionPeriod)
+                                          && allowedOperations.Contains(
+                                              OperationUtils.Parse(
+                                                  GetOperationString[tableName](x) ??
+                                                  Operation.NotApplicable.ToString())));
 
-                _context.RemoveRange(entities);
-                _context.SaveChanges();
-            }
+            _context.RemoveRange(entities);
+            _context.SaveChanges();
         }
     }
 }
