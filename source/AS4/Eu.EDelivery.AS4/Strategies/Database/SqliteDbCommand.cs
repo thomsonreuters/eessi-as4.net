@@ -69,16 +69,21 @@ namespace Eu.EDelivery.AS4.Strategies.Database
 
             string receptionAwarenessJoin =
                 tableName.Equals("OutMessages")
-                    ? "LEFT JOIN ReceptionAwareness r " +
-                      "ON r.InternalMessageId = m.EbmsMessageId " +
-                      "AND r.CurrentRetryCount = r.TotalRetryCount"
+                    ? "AND EbmsMessageId IN( " +
+                      "SELECT EbmsMessageId " +
+                      "FROM OutMessages " +
+                      "LEFT JOIN ReceptionAwareness " +
+                      "ON InternalMessageId = EbmsMessageId " +
+                      "AND CurrentRetryCount = TotalRetryCount)"
                     : string.Empty;
 
+            string operations = string.Join(", ", allowedOperations.Select(x => "'" + x.ToString() + "'"));
+
             string command =
-                $"DELETE FROM {tableName} m " +
-                receptionAwarenessJoin +
-                $"WHERE m.InsertionTime<datetime('now', '-{retentionPeriod.TotalDays} day') " +
-                $"AND m.Operation IN({string.Join(", ", allowedOperations.Select(x => "'" + x.ToString() + "'"))})";
+                $"DELETE FROM {tableName} " +
+                $"WHERE InsertionTime<datetime('now', '-{retentionPeriod.TotalDays} day') " +
+                $"AND Operation IN({operations}) " +
+                receptionAwarenessJoin;
 
             _context.Database.ExecuteSqlCommand(command);
 
