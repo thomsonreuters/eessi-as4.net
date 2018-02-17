@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 
 namespace Eu.EDelivery.AS4.Strategies.Database
@@ -25,5 +27,13 @@ namespace Eu.EDelivery.AS4.Strategies.Database
             string tableName,
             string filter,
             int takeRows);
+
+        /// <summary>
+        /// Wraps the given <paramref name="funcToWrap"/> into a DBMS storage type specific transaction.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="funcToWrap">The function to wrap.</param>
+        /// <returns></returns>
+        T WrapInTransaction<T>(Func<DatastoreContext, T> funcToWrap);
     }
 }

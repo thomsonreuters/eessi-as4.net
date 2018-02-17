@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
 using System.Linq.Dynamic.Core;
@@ -31,6 +32,18 @@ namespace Eu.EDelivery.AS4.Strategies.Database
         }
 
         /// <summary>
+        /// Wraps the given <paramref name="funcToWrap"/> into a DBMS storage type specific transaction.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="funcToWrap">The function to wrap.</param>
+        /// <returns></returns>
+        public T WrapInTransaction<T>(Func<DatastoreContext, T> funcToWrap)
+        {
+            _context.Database.ExecuteSqlCommand("BEGIN EXCLUSIVE");
+            return funcToWrap(_context);
+        }
+
+        /// <summary>
         /// Exclusively retrieves the entities.
         /// </summary>
         /// <param name="tableName">Name of the Db table.</param>
@@ -44,7 +57,6 @@ namespace Eu.EDelivery.AS4.Strategies.Database
                 throw new ConfigurationErrorsException($"The configured table {tableName} could not be found");
             }
 
-            _context.Database.ExecuteSqlCommand("BEGIN EXCLUSIVE");
             string filterExpression = filter.Replace("\'", "\"");
 
             return DatastoreTable.FromTableName(tableName)(_context)

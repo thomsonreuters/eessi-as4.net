@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Threading.Tasks;
@@ -26,6 +27,17 @@ namespace Eu.EDelivery.AS4.Strategies.Database
         public async Task CreateDatabase()
         {
             await _context.Database.EnsureCreatedAsync();
+        }
+
+        /// <summary>
+        /// Wraps the given <paramref name="funcToWrap"/> into a DBMS storage type specific transaction.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="funcToWrap">The function to wrap.</param>
+        /// <returns></returns>
+        public T WrapInTransaction<T>(Func<DatastoreContext, T> funcToWrap)
+        {
+            return funcToWrap(_context);
         }
 
         /// <summary>

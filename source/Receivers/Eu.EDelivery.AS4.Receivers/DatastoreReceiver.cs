@@ -76,17 +76,13 @@ namespace Eu.EDelivery.AS4.Receivers
 
             using (DatastoreContext context = _storeExpression())
             {
-                context.Database.BeginTransaction();
-
                 try
                 {
-                    entities = FindAnyMessageEntitiesWithConfiguredExpression(context);
-
-                    context.Database.CommitTransaction();
+                    entities = context.NativeCommands.WrapInTransaction(
+                        FindAnyMessageEntitiesWithConfiguredExpression);
                 }
                 catch (Exception exception)
                 {
-                    context.Database.RollbackTransaction();
                     LogExceptionAndInner(exception);
                 }
             }
