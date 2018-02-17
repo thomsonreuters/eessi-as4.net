@@ -75,10 +75,10 @@ namespace Eu.EDelivery.AS4.Strategies.Database
                     : string.Empty;
 
             string command =
-                $"DELETE FROM {tableName} " +
+                $"DELETE FROM {tableName} m " +
                 receptionAwarenessJoin +
-                $"WHERE InsertionTime<datetime('now', '-{retentionPeriod.TotalDays} day') " +
-                $"AND Operation IN({string.Join(", ", allowedOperations.Select(x => "'" + x.ToString() + "'"))})";
+                $"WHERE m.InsertionTime<datetime('now', '-{retentionPeriod.TotalDays} day') " +
+                $"AND m.Operation IN({string.Join(", ", allowedOperations.Select(x => "'" + x.ToString() + "'"))})";
 
             _context.Database.ExecuteSqlCommand(command);
 
