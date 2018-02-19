@@ -39,8 +39,8 @@
             // 
             // as4ServiceInstaller
             // 
-            this.as4ServiceInstaller.Description = "Windows Service Installer for the AS4.NET Component.";
-            this.as4ServiceInstaller.DisplayName = "AS4.NET Windows Service";
+            this.as4ServiceInstaller.Description = "AS4.NET Message Service Handler for sending and receiving AS4 Messages";
+            this.as4ServiceInstaller.DisplayName = "AS4.NET Message Service Handler";
             this.as4ServiceInstaller.ServiceName = "AS4Service";
             // 
             // ProjectInstaller
