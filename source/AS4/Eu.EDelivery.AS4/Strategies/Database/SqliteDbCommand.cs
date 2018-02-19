@@ -37,7 +37,7 @@ namespace Eu.EDelivery.AS4.Strategies.Database
         /// <typeparam name="T"></typeparam>
         /// <param name="funcToWrap">The function to wrap.</param>
         /// <returns></returns>
-        public T WrapInTransaction<T>(Func<DatastoreContext, T> funcToWrap)
+        public T WithTransaction<T>(Func<DatastoreContext, T> funcToWrap)
         {
             _context.Database.ExecuteSqlCommand("BEGIN EXCLUSIVE");
             return funcToWrap(_context);

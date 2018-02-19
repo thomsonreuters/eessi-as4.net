@@ -78,7 +78,7 @@ namespace Eu.EDelivery.AS4.Receivers
             {
                 try
                 {
-                    entities = context.NativeCommands.WrapInTransaction(
+                    entities = context.NativeCommands.WithTransaction(
                         FindAnyMessageEntitiesWithConfiguredExpression);
                 }
                 catch (Exception exception)

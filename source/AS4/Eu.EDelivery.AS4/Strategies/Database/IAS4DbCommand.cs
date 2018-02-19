@@ -34,6 +34,6 @@ namespace Eu.EDelivery.AS4.Strategies.Database
         /// <typeparam name="T"></typeparam>
         /// <param name="funcToWrap">The function to wrap.</param>
         /// <returns></returns>
-        T WrapInTransaction<T>(Func<DatastoreContext, T> funcToWrap);
+        T WithTransaction<T>(Func<DatastoreContext, T> funcToWrap);
     }
 }
