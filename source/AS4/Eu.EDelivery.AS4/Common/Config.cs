@@ -53,6 +53,12 @@ namespace Eu.EDelivery.AS4.Common
         public bool PayloadServiceInProcess { get; private set; }
 
         /// <summary>
+        /// Gets the retention period (in days) for which the stored entities are cleaned-up.
+        /// </summary>
+        /// <value>The retention period in days.</value>
+        public int RetentionPeriod { get; private set; }
+
+        /// <summary>
         /// Gets the in message store location.
         /// </summary>
         /// <value>The in message store location.</value>
@@ -291,6 +297,17 @@ namespace Eu.EDelivery.AS4.Common
 
             FeInProcess = _settings.FeInProcess;
             PayloadServiceInProcess = _settings.PayloadServiceInProcess;
+
+            if (int.TryParse(_settings.RetentionPeriod, out int r))
+            {
+                RetentionPeriod = r;
+            }
+            else
+            {
+                const int defaultRetentionPeriod = 90;
+                RetentionPeriod = defaultRetentionPeriod;
+                LogManager.GetCurrentClassLogger().Warn($"No Retention Period found: '{_settings.RetentionPeriod ?? "(null)"}', {defaultRetentionPeriod} days as default will be used.");
+            }
 
             // TODO: this is hardcoded right now, should be configurable in the settings.xml
             string authorizationMap = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, Properties.Resources.configurationfolder, "Security\\pull_authorizationmap.xml");
