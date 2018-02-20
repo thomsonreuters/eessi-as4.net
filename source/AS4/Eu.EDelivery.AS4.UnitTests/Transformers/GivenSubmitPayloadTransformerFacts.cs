@@ -52,7 +52,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             Assert.Collection(result.SubmitMessage.Payloads, p =>
             {
                 Assert.Equal(payloadId, p.Id);
-                Assert.Equal(TempFilePayloadRetriever.Key + payloadPath, p.Location);
+                Assert.Equal(FilePayloadRetriever.Key + payloadPath, p.Location);
             });
         }
 

@@ -77,7 +77,7 @@ namespace Eu.EDelivery.AS4.Transformers
                     {
                         Id = payloadId,
                         MimeType = message.ContentType,
-                        Location = TempFilePayloadRetriever.Key + payloadPath
+                        Location = payloadPath
                     }
                 }
             };
@@ -91,7 +91,7 @@ namespace Eu.EDelivery.AS4.Transformers
             {
                 string payloadPath = file.Name;
                 string payloadId = Path.GetFileNameWithoutExtension(new FileInfo(payloadPath).Name);
-                return (payloadId, payloadPath);
+                return (payloadId, FilePayloadRetriever.Key + payloadPath);
             }
             else
             {
@@ -105,7 +105,7 @@ namespace Eu.EDelivery.AS4.Transformers
                     incoming.UnderlyingStream.CopyTo(tempStream);
                 }
 
-                return (payloadId, payloadPath);
+                return (payloadId, TempFilePayloadRetriever.Key + payloadPath);
             }
         }
     }

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Settings 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+  xmlns="eu:edelivery:as4">
+  <IdFormat>{GUID}@{IPADDRESS}</IdFormat>
+  <FeInProcess>false</FeInProcess>
+  <PayloadServiceInProcess>false</PayloadServiceInProcess>
+  <Database>
+    <Provider>Sqlite</Provider>
+    <ConnectionString>Filename=database\messages.db</ConnectionString>
+  </Database>
+  <CertificateStore>
+    <StoreName>My</StoreName>
+    <Repository type="Eu.EDelivery.AS4.Repositories.CertificateRepository, Eu.EDelivery.AS4, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+  </CertificateStore>
+  <Agents />
+</Settings>

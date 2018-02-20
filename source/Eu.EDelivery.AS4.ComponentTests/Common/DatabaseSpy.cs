@@ -46,12 +46,35 @@ namespace Eu.EDelivery.AS4.ComponentTests.Common
             }
         }
 
-        public void InsertOutMessage(OutMessage message)
+        /// <summary>
+        /// Inserts the given <see cref="OutMessage"/> into the <see cref="DatastoreContext"/>.
+        /// </summary>
+        /// <param name="message">The message.</param>
+        public void InsertOutMessage(OutMessage message) => ChangeContext(ctx => ctx.OutMessages.Add(message));
+
+        /// <summary>
+        /// Inserts the given <see cref="InMessage"/> into the <see cref="DatastoreContext"/>.
+        /// </summary>
+        /// <param name="message">The message.</param>
+        public void InsertInMessage(InMessage message) => ChangeContext(ctx => ctx.InMessages.Add(message));
+
+        /// <summary>
+        /// Inserts the given <see cref="OutException"/> into the <see cref="DatastoreContext"/>.
+        /// </summary>
+        /// <param name="ex">The message.</param>
+        public void InsertOutException(OutException ex) => ChangeContext(ctx => ctx.OutExceptions.Add(ex));
+
+        /// <summary>
+        /// Inserts the given <see cref="InException"/> into the <see cref="DatastoreContext"/>.
+        /// </summary>
+        /// <param name="ex">The message.</param>
+        public void InsertInException(InException ex) => ChangeContext(ctx => ctx.InExceptions.Add(ex));
+
+        private void ChangeContext(Action<DatastoreContext> changement)
         {
             using (var context = new DatastoreContext(_configuration))
             {
-                context.OutMessages.Add(message);
-
+                changement(context);
                 context.SaveChanges();
             }
         }
@@ -68,5 +91,57 @@ namespace Eu.EDelivery.AS4.ComponentTests.Common
                 return context.InExceptions.Where(expression).ToList();
             }
         }
+
+        /// <summary>
+        /// Gets the <see cref="OutMessage"/> entities where the <see cref="OutMessage.EbmsMessageId"/> is one of the given <paramref name="ebmsMessageIds"/>.
+        /// </summary>
+        /// <param name="ebmsMessageIds">The ebms message ids.</param>
+        /// <returns></returns>
+        public IEnumerable<OutMessage> GetOutMessages(params string[] ebmsMessageIds)
+        {
+            return UseContext(
+                ctx => ctx.OutMessages.Where(m => ebmsMessageIds.Contains(m.EbmsMessageId)).ToArray());
+        }
+
+        /// <summary>
+        /// Gets the <see cref="InMessage"/> entities where the <see cref="InMessage.EbmsMessageId"/> is one of the given <paramref name="ebmsMessageIds"/>.
+        /// </summary>
+        /// <param name="ebmsMessageIds">The ebms message ids.</param>
+        /// <returns></returns>
+        public IEnumerable<InMessage> GetInMessages(params string[] ebmsMessageIds)
+        {
+            return UseContext(
+                ctx => ctx.InMessages.Where(m => ebmsMessageIds.Contains(m.EbmsMessageId)).ToArray());
+        }
+
+        /// <summary>
+        /// Gets the <see cref="OutException"/> entities where the <see cref="OutException.EbmsRefToMessageId"/> is one of the given <paramref name="ebmsMessageIds"/>.
+        /// </summary>
+        /// <param name="ebmsMessageIds">The ebms message ids.</param>
+        /// <returns></returns>
+        public IEnumerable<OutException> GetOutExceptions(params string[] ebmsMessageIds)
+        {
+            return UseContext(
+                ctx => ctx.OutExceptions.Where(ex => ebmsMessageIds.Contains(ex.EbmsRefToMessageId)).ToArray());
+        }
+
+        /// <summary>
+        /// Gets the <see cref="InException"/> entities where the <see cref="InException.EbmsRefToMessageId"/> is one of the given <paramref name="ebmsMessageIds"/>.
+        /// </summary>
+        /// <param name="ebmsMessageIds">The ebms message ids.</param>
+        /// <returns></returns>
+        public IEnumerable<InException> GetInExceptions(params string[] ebmsMessageIds)
+        {
+            return UseContext(
+                ctx => ctx.InExceptions.Where(ex => ebmsMessageIds.Contains(ex.EbmsRefToMessageId)).ToArray());
+        }
+
+        private T UseContext<T>(Func<DatastoreContext, T> selector)
+        {
+            using (var context = new DatastoreContext(_configuration))
+            {
+                return selector(context);
+            }
+        } 
     }
 }

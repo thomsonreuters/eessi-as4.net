@@ -34,5 +34,17 @@ namespace Eu.EDelivery.AS4.Strategies.Database
             string tableName,
             string filter,
             int takeRows);
+
+        /// <summary>
+        /// Delete the Messages Entities that are inserted passed a given <paramref name="retentionPeriod"/> 
+        /// and has a <see cref="Operation"/> within the given <paramref name="allowedOperations"/>.
+        /// </summary>
+        /// <param name="tableName"></param>
+        /// <param name="retentionPeriod">The retention period.</param>
+        /// <param name="allowedOperations">The allowed operations.</param>
+        void BatchDeleteOverRetentionPeriod(
+            string tableName,
+            TimeSpan retentionPeriod,
+            IEnumerable<Operation> allowedOperations);
     }
 }

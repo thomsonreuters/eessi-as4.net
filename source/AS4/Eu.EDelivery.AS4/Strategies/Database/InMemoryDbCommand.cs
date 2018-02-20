@@ -13,6 +13,15 @@ namespace Eu.EDelivery.AS4.Strategies.Database
     {
         private readonly DatastoreContext _context;
 
+        private static readonly IDictionary<string, Func<Entity, string>> GetOperationString = 
+            new Dictionary<string, Func<Entity, string>>
+            {
+                ["OutMessages"] = e => (e as OutMessage)?.Operation,
+                ["InMessages"] = e => (e as InMessage)?.Operation,
+                ["OutExceptions"] = e => (e as OutException)?.Operation,
+                ["InExceptions"] = e => (e as InException)?.Operation
+            };
+
         /// <summary>
         /// Initializes a new instance of the <see cref="InMemoryDbCommand" /> class.
         /// </summary>
@@ -61,6 +70,30 @@ namespace Eu.EDelivery.AS4.Strategies.Database
             return DatastoreTable.FromTableName(tableName)(_context)
                 .Where(filterExpression)
                 .ToList();
+        }
+
+        /// <summary>
+        /// Delete the Messages Entities that are inserted passed a given <paramref name="retentionPeriod"/> 
+        /// and has a <see cref="Operation"/> within the given <paramref name="allowedOperations"/>.
+        /// </summary>
+        /// <param name="tableName"></param>
+        /// <param name="retentionPeriod">The retention period.</param>
+        /// <param name="allowedOperations">The allowed operations.</param>
+        public void BatchDeleteOverRetentionPeriod(
+            string tableName,
+            TimeSpan retentionPeriod,
+            IEnumerable<Operation> allowedOperations)
+        {
+            IQueryable<Entity> entities =
+                DatastoreTable.FromTableName(tableName)(_context)
+                              .Where(x => x.InsertionTime < DateTimeOffset.UtcNow.Subtract(retentionPeriod)
+                                          && allowedOperations.Contains(
+                                              OperationUtils.Parse(
+                                                  GetOperationString[tableName](x) ??
+                                                  Operation.NotApplicable.ToString())));
+
+            _context.RemoveRange(entities);
+            _context.SaveChanges();
         }
     }
 }
