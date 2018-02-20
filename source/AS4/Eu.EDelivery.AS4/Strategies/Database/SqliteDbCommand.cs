@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Data;
 using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Threading.Tasks;
@@ -24,23 +25,17 @@ namespace Eu.EDelivery.AS4.Strategies.Database
         }
 
         /// <summary>
+        /// Gets the exclusive lock isolation for the transaction of retrieval of entities.
+        /// </summary>
+        /// <value>The exclusive lock isolation.</value>
+        public IsolationLevel? ExclusiveLockIsolation => IsolationLevel.Serializable;
+
+        /// <summary>
         /// Initialization process for the different DBMS storage types.
         /// </summary>
         public async Task CreateDatabase()
         {
             await _context.Database.MigrateAsync();
-        }
-
-        /// <summary>
-        /// Wraps the given <paramref name="funcToWrap"/> into a DBMS storage type specific transaction.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="funcToWrap">The function to wrap.</param>
-        /// <returns></returns>
-        public T WithTransaction<T>(Func<DatastoreContext, T> funcToWrap)
-        {
-            _context.Database.ExecuteSqlCommand("BEGIN EXCLUSIVE");
-            return funcToWrap(_context);
         }
 
         /// <summary>

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Threading.Tasks;
@@ -20,6 +21,12 @@ namespace Eu.EDelivery.AS4.Strategies.Database
         {
             _context = context;
         }
+
+        /// <summary>
+        /// Gets the exclusive lock isolation for the transaction of retrieval of entities.
+        /// </summary>
+        /// <value>The exclusive lock isolation.</value>
+        public IsolationLevel? ExclusiveLockIsolation => new IsolationLevel();
 
         /// <summary>
         /// Initialization process for the different DBMS storage types.
