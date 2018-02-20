@@ -74,6 +74,13 @@ namespace Eu.EDelivery.AS4.Strategies.Database
                                                   GetOperationString[tableName](x) ??
                                                   Operation.NotApplicable.ToString())));
 
+            if (tableName.Equals("OutMessages"))
+            {
+                string[] ebmsMessageIds = entities.ToArray().Cast<OutMessage>().Select(m => m.EbmsMessageId).ToArray();
+                _context.ReceptionAwareness.RemoveRange(
+                    _context.ReceptionAwareness.Where(r => ebmsMessageIds.Contains(r.InternalMessageId)).ToArray());
+            }
+
             _context.RemoveRange(entities);
             _context.SaveChanges();
         }
