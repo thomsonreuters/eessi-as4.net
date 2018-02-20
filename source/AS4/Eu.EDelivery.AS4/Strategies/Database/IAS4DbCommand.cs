@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Threading.Tasks;
+using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 
 namespace Eu.EDelivery.AS4.Strategies.Database
@@ -10,6 +12,12 @@ namespace Eu.EDelivery.AS4.Strategies.Database
     /// </summary>
     public interface IAS4DbCommand
     {
+        /// <summary>
+        /// Gets the exclusive lock isolation for the transaction of retrieval of entities.
+        /// </summary>
+        /// <value>The exclusive lock isolation.</value>
+        IsolationLevel? ExclusiveLockIsolation { get; }
+
         /// <summary>
         /// Initialization process for the different DBMS storage types.
         /// </summary>

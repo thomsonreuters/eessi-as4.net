@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Data;
 using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Threading.Tasks;
@@ -25,6 +26,12 @@ namespace Eu.EDelivery.AS4.Strategies.Database
         }
 
         /// <summary>
+        /// Gets the exclusive lock isolation for the transaction of retrieval of entities.
+        /// </summary>
+        /// <value>The exclusive lock isolation.</value>
+        public IsolationLevel? ExclusiveLockIsolation => IsolationLevel.Serializable;
+
+        /// <summary>
         /// Initialization process for the different DBMS storage types.
         /// </summary>
         public async Task CreateDatabase()
@@ -43,7 +50,6 @@ namespace Eu.EDelivery.AS4.Strategies.Database
         {
             DatastoreTable.EnsureTableNameIsKnown(tableName);
 
-            _context.Database.ExecuteSqlCommand("BEGIN EXCLUSIVE");
             string filterExpression = filter.Replace("\'", "\"");
 
             return DatastoreTable.FromTableName(tableName)(_context)

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Data;
 using System.Linq;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
@@ -34,6 +35,12 @@ namespace Eu.EDelivery.AS4.Strategies.Database
         {
             _context = context;
         }
+
+        /// <summary>
+        /// Gets the exclusive lock isolation for the transaction of retrieval of entities.
+        /// </summary>
+        /// <value>The exclusive lock isolation.</value>
+        public IsolationLevel? ExclusiveLockIsolation => new IsolationLevel?();
 
         /// <summary>
         /// Initialization process for the different DBMS storage types.
