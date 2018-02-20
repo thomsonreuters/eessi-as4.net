@@ -14,22 +14,22 @@ namespace Eu.EDelivery.AS4.Migrations
                 {
                     Id = table.Column<long>(nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    Action = table.Column<string>(maxLength: 255, nullable: true),
-                    EncryptAlgorithm = table.Column<string>(nullable: true),
+                    Action = table.Column<string>(maxLength: 256, nullable: true),
+                    EncryptAlgorithm = table.Column<string>(maxLength: 256, nullable: true),
                     EncryptAlgorithmKeySize = table.Column<int>(nullable: false),
-                    EncryptKeyDigestAlgorithm = table.Column<string>(nullable: true),
+                    EncryptKeyDigestAlgorithm = table.Column<string>(maxLength: 256, nullable: true),
                     EncryptKeyMgfAlorithm = table.Column<string>(nullable: true),
-                    EncryptKeyTransportAlgorithm = table.Column<string>(nullable: true),
-                    EncryptPublicKeyCertificate = table.Column<string>(nullable: true),
+                    EncryptKeyTransportAlgorithm = table.Column<string>(maxLength: 256, nullable: true),
+                    EncryptPublicKeyCertificate = table.Column<byte[]>(maxLength: int.MaxValue, nullable: true),
                     EncryptionEnabled = table.Column<bool>(nullable: false),
-                    FinalRecipient = table.Column<string>(nullable: true),
-                    PartyRole = table.Column<string>(maxLength: 255, nullable: false),
-                    PartyType = table.Column<string>(maxLength: 255, nullable: false),
-                    ServiceType = table.Column<string>(maxLength: 255, nullable: true),
-                    ServiceValue = table.Column<string>(maxLength: 255, nullable: true),
+                    FinalRecipient = table.Column<string>(maxLength: 256, nullable: true),
+                    PartyRole = table.Column<string>(maxLength: 256, nullable: false),
+                    PartyType = table.Column<string>(maxLength: 256, nullable: false),
+                    ServiceType = table.Column<string>(maxLength: 256, nullable: true),
+                    ServiceValue = table.Column<string>(maxLength: 256, nullable: true),
                     TLSEnabled = table.Column<bool>(nullable: false),
-                    ToPartyId = table.Column<string>(maxLength: 255, nullable: false),
-                    URL = table.Column<string>(nullable: false)
+                    ToPartyId = table.Column<string>(maxLength: 256, nullable: false),
+                    URL = table.Column<string>(maxLength: 256, nullable: false)
                 },
                 constraints: table =>
                 {
