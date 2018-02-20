@@ -17,6 +17,8 @@ namespace Eu.EDelivery.AS4.Steps.Receive
     [Info("Send AS4 signal message")]
     public class SendAS4SignalMessageStep : IStep
     {
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+
         private readonly Func<DatastoreContext> _createDatastoreContext;
         private readonly IAS4MessageBodyStore _messageBodyStore;
 
@@ -67,6 +69,13 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 return CreateEmptySoapResult(messagingContext);
             }
 
+            if (Logger.IsInfoEnabled)
+            {
+                var signalMessageType = messagingContext.AS4Message.PrimarySignalMessage is Receipt ? "Receipt" : "Error";
+
+                Logger.Info($"{messagingContext.EbmsMessageId} {signalMessageType} will be written to Response-Stream.");
+            }
+
             return StepResult.Success(messagingContext);
         }
 
@@ -77,8 +86,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
         private static StepResult CreateEmptySoapResult(MessagingContext messagingContext)
         {
-            LogManager.GetCurrentClassLogger()
-                      .Info($"{messagingContext.EbmsMessageId} Empty SOAP Envelope will be send to requested party");
+            Logger.Info($"{messagingContext.EbmsMessageId} Empty Accepted response will be send to requested party since signal will be sent async.");
 
             AS4Message as4Message = AS4Message.Create(messagingContext.SendingPMode);
             var emptyContext = new MessagingContext(as4Message, MessagingContextMode.Receive)

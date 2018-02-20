@@ -5,6 +5,7 @@ using System.Security.Cryptography.Xml;
 using System.Xml;
 using Eu.EDelivery.AS4.Security.References;
 using Eu.EDelivery.AS4.Security.Strategies;
+using NLog;
 
 namespace Eu.EDelivery.AS4.Model.Core
 {
@@ -48,7 +49,7 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// Sign using the given <paramref name="signingStrategy"/>
         /// </summary>
         /// <param name="signingStrategy"></param>
-        public void Sign(ICalculateSignatureStrategy signingStrategy)
+        public void Sign(ISignStrategy signingStrategy)
         {
             if (signingStrategy == null)
             {
@@ -167,16 +168,24 @@ namespace Eu.EDelivery.AS4.Model.Core
         {
             // TODO: this must be improved.
 
-            var securityHeader = this.GetXml();
-
-            if (securityHeader == null)
+            try
             {
-                return new System.Security.Cryptography.Xml.Reference[] { };
+                var securityHeader = this.GetXml();
+
+                if (securityHeader == null)
+                {
+                    return new System.Security.Cryptography.Xml.Reference[] { };
+                }
+
+                var signature = new SignatureVerificationStrategy(securityHeader.OwnerDocument);
+
+                return signature.SignedInfo.References.OfType<System.Security.Cryptography.Xml.Reference>();
             }
-
-            var signature = new SignatureVerificationStrategy(securityHeader.OwnerDocument);
-
-            return signature.SignedInfo.References.OfType<System.Security.Cryptography.Xml.Reference>();
+            catch (Exception ex)
+            {
+                LogManager.GetCurrentClassLogger().Error(ex);
+                return Enumerable.Empty<System.Security.Cryptography.Xml.Reference>();
+            }
         }
 
         private static XmlNamespaceManager GetNamespaceManager(XmlDocument xmlDocument)

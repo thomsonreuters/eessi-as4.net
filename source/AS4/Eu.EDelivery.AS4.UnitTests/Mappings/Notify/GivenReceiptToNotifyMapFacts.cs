@@ -1,9 +1,7 @@
-﻿using Eu.EDelivery.AS4.Factories;
-using Eu.EDelivery.AS4.Mappings.Notify;
+﻿using Eu.EDelivery.AS4.Mappings.Notify;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Notify;
 using Eu.EDelivery.AS4.Singletons;
-using Eu.EDelivery.AS4.UnitTests.Common;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Mappings.Notify
@@ -13,10 +11,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Notify
     /// </summary>
     public class GivenReceiptToNotifyMapFacts
     {
-        public GivenReceiptToNotifyMapFacts()
-        {
-            IdentifierFactory.Instance.SetContext(StubConfig.Default);
-        }
 
         public class GivenValidArguments : GivenReceiptToNotifyMapFacts
         {

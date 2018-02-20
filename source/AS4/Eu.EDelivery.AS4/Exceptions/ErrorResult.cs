@@ -7,20 +7,6 @@ namespace Eu.EDelivery.AS4.Exceptions
         /// <summary>
         /// Initializes a new instance of the <see cref="ErrorResult" /> class.
         /// </summary>
-        /// <param name="description">The description.</param>
-        /// <param name="code">The code.</param>
-        /// <param name="alias">The alias.</param>
-        [Obsolete("Use the 2 arg ctor instead")]
-        public ErrorResult(string description, ErrorCode code, ErrorAlias alias)
-        {
-            Description = description;
-            Code = code;
-            Alias = alias;
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ErrorResult" /> class.
-        /// </summary>
         public ErrorResult(string description, ErrorAlias alias)
         {
             Description = description;

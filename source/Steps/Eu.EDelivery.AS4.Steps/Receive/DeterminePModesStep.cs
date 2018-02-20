@@ -115,6 +115,8 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 string description =
                     $"No Receiving PMode was found for Message with Id: {messagingContext.AS4Message.GetPrimaryMessageId()}";
 
+                Logger.Error(description);
+
                 if (messagingContext.AS4Message.IsUserMessage)
                 {
                     return FailedStepResult(description, messagingContext);

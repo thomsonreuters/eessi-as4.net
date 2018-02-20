@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
 using System.Linq.Dynamic.Core;
@@ -6,6 +7,7 @@ using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Microsoft.EntityFrameworkCore;
+using NLog;
 
 namespace Eu.EDelivery.AS4.Strategies.Database
 {
@@ -39,10 +41,7 @@ namespace Eu.EDelivery.AS4.Strategies.Database
         /// <returns></returns>
         public IEnumerable<Entity> ExclusivelyRetrieveEntities(string tableName, string filter, int takeRows)
         {
-            if (!DatastoreTable.IsTableNameKnown(tableName))
-            {
-                throw new ConfigurationErrorsException($"The configured table {tableName} could not be found");
-            }
+            DatastoreTable.EnsureTableNameIsKnown(tableName);
 
             _context.Database.ExecuteSqlCommand("BEGIN EXCLUSIVE");
             string filterExpression = filter.Replace("\'", "\"");
@@ -52,6 +51,43 @@ namespace Eu.EDelivery.AS4.Strategies.Database
                 .OrderBy(x => x.InsertionTime)
                 .Take(takeRows)
                 .ToList();
+        }
+
+        /// <summary>
+        /// Delete the Messages Entities that are inserted passed a given <paramref name="retentionPeriod"/> 
+        /// and has a <see cref="Operation"/> within the given <paramref name="allowedOperations"/>.
+        /// </summary>
+        /// <param name="tableName"></param>
+        /// <param name="retentionPeriod">The retention period.</param>
+        /// <param name="allowedOperations">The allowed operations.</param>
+        public void BatchDeleteOverRetentionPeriod(
+            string tableName,
+            TimeSpan retentionPeriod,
+            IEnumerable<Operation> allowedOperations)
+        {
+            DatastoreTable.EnsureTableNameIsKnown(tableName);
+
+            string receptionAwarenessJoin =
+                tableName.Equals("OutMessages")
+                    ? "AND EbmsMessageId IN( " +
+                      "SELECT EbmsMessageId " +
+                      "FROM OutMessages " +
+                      "LEFT JOIN ReceptionAwareness " +
+                      "ON InternalMessageId = EbmsMessageId " +
+                      "AND CurrentRetryCount = TotalRetryCount)"
+                    : string.Empty;
+
+            string operations = string.Join(", ", allowedOperations.Select(x => "'" + x.ToString() + "'"));
+
+            string command =
+                $"DELETE FROM {tableName} " +
+                $"WHERE InsertionTime<datetime('now', '-{retentionPeriod.TotalDays} day') " +
+                $"AND Operation IN({operations}) " +
+                receptionAwarenessJoin;
+
+            _context.Database.ExecuteSqlCommand(command);
+
+            LogManager.GetCurrentClassLogger().Debug($"Done cleaning '{tableName}'");
         }
     }
 }

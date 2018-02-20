@@ -71,8 +71,7 @@ namespace Eu.EDelivery.AS4.Transformers
             var as4Message = messagingContext.AS4Message;
 
             // No attachments are needed in order to create notify messages.
-            as4Message.CloseAttachments();
-            as4Message.Attachments.Clear();
+            as4Message.RemoveAllAttachments();
 
             // Remove all signal-messages except the one that we should be notifying
             // Create the DeliverMessage for this specific UserMessage that has been received.

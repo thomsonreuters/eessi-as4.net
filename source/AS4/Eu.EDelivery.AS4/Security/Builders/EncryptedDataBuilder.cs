@@ -14,11 +14,12 @@ namespace Eu.EDelivery.AS4.Security.Builders
         private DataEncryptionConfiguration _data;
         private string _mimeType;
         private string _uri;
-        private SecurityTokenReference _securityToken;
-        
-        public EncryptedDataBuilder WithSecurityTokenReference(SecurityTokenReference securityToken)
+        private AS4EncryptedKey _encryptionKey;
+
+    
+        public EncryptedDataBuilder WithEncryptionKey(AS4EncryptedKey encryptionKey)
         {
-            _securityToken = securityToken;
+            _encryptionKey = encryptionKey;
             return this;
         }
 
@@ -62,7 +63,7 @@ namespace Eu.EDelivery.AS4.Security.Builders
         public EncryptedData Build()
         {
             EncryptedData encryptedData = CreateEncryptedData();
-            AssemblyEncryptedData(encryptedData);
+            AssembleEncryptedData(encryptedData);
 
             return encryptedData;
         }
@@ -79,11 +80,15 @@ namespace Eu.EDelivery.AS4.Security.Builders
             };
         }
 
-        private void AssemblyEncryptedData(EncryptedData encryptedData)
+        private void AssembleEncryptedData(EncryptedData encryptedData)
         {
             encryptedData.CipherData.CipherReference = new CipherReference("cid:" + _uri);
             encryptedData.CipherData.CipherReference.TransformChain.Add(new AttachmentCiphertextTransform());
-            encryptedData.KeyInfo.AddClause(_securityToken);
+
+            if (_encryptionKey != null)
+            {
+                encryptedData.KeyInfo.AddClause(new ReferenceSecurityTokenReference(_encryptionKey.GetReferenceId()));
+            }            
         }
     }
 }

@@ -3,11 +3,9 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Factories;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Transformers;
-using Eu.EDelivery.AS4.UnitTests.Common;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Transformers
@@ -17,11 +15,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
     /// </summary>
     public class GivenPayloadTransformerFacts
     {
-        public GivenPayloadTransformerFacts()
-        {
-            IdentifierFactory.Instance.SetContext(StubConfig.Default);
-        }
-
         public class GivenValidArguments : GivenPayloadTransformerFacts
         {
             [Fact]

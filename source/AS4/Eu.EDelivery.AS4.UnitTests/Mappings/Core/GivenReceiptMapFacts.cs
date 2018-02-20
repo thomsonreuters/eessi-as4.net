@@ -4,12 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Factories;
 using Eu.EDelivery.AS4.Mappings.Core;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Singletons;
-using Eu.EDelivery.AS4.UnitTests.Common;
 using Eu.EDelivery.AS4.Xml;
 using Xunit;
 using CoreInformation = Eu.EDelivery.AS4.Model.Core.MessagePartNRInformation;
@@ -24,10 +22,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Core
     /// </summary>
     public class GivenReceiptMapFacts
     {
-        public GivenReceiptMapFacts()
-        {
-            IdentifierFactory.Instance.SetContext(StubConfig.Default);
-        }
 
         public class GivenValidArguments : GivenReceiptMapFacts
         {

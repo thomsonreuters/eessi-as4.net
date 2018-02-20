@@ -15,11 +15,11 @@ using Reference = System.Security.Cryptography.Xml.Reference;
 
 namespace Eu.EDelivery.AS4.Security.Strategies
 {
-    public class CalculateSignatureStrategy : SignatureStrategy, ICalculateSignatureStrategy
+    public class SignStrategy : SignatureStrategy, ISignStrategy
     {
-        public static CalculateSignatureStrategy ForAS4Message(AS4Message as4Message, CalculateSignatureConfig config)
+        public static SignStrategy ForAS4Message(AS4Message as4Message, CalculateSignatureConfig config)
         {
-            return new CalculateSignatureStrategy(
+            return new SignStrategy(
                 as4Message,
                 as4Message.EnvelopeDocument ?? AS4XmlSerializer.ToSoapEnvelopeDocument(as4Message, CancellationToken.None),
                 config);
@@ -28,7 +28,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
         private readonly AS4Message _as4Message;
         private readonly CalculateSignatureConfig _config;
 
-        private CalculateSignatureStrategy(AS4Message message, XmlDocument soapEnvelope, CalculateSignatureConfig config)
+        private SignStrategy(AS4Message message, XmlDocument soapEnvelope, CalculateSignatureConfig config)
             : base(soapEnvelope)
         {
             _as4Message = message;
@@ -47,6 +47,8 @@ namespace Eu.EDelivery.AS4.Security.Strategies
 
             ComputeSignature();
 
+            ResetAttachmentContents(_as4Message);
+
             return Signature;
         }
 
@@ -58,6 +60,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
 
             CryptoConfig.AddAlgorithm(algorithm.GetType(), algorithm.GetIdentifier());
         }
+
         private void SetSecurityTokenReference(X509Certificate2 signingCertificate, X509ReferenceType securityTokenType)
         {
             var securityTokenReference = SecurityTokenReferenceProvider.Create(signingCertificate, securityTokenType);
@@ -128,9 +131,17 @@ namespace Eu.EDelivery.AS4.Security.Strategies
             SetAttachmentTransformContentType(attachmentReference, attachment);
             ResetReferenceStreamPosition(attachmentReference);
         }
+
+        private static void ResetAttachmentContents(AS4Message as4Message)
+        {
+            foreach (Attachment attachment in as4Message.Attachments)
+            {
+                attachment.ResetContentPosition();
+            }
+        }
     }
 
-    public interface ICalculateSignatureStrategy
+    public interface ISignStrategy
     {
         System.Security.Cryptography.Xml.Signature SignDocument();
     }

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using Eu.EDelivery.AS4.Entities;
-using Eu.EDelivery.AS4.Factories;
 using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Deliver;
@@ -9,7 +8,6 @@ using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.Notify;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Model.Submit;
-using Eu.EDelivery.AS4.UnitTests.Common;
 using Xunit;
 using MessageInfo = Eu.EDelivery.AS4.Model.Common.MessageInfo;
 
@@ -20,10 +18,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
     /// </summary>
     public class GivenMessagingContextFacts
     {
-        public GivenMessagingContextFacts()
-        {
-            IdentifierFactory.Instance.SetContext(StubConfig.Default);
-        }
 
         /// <summary>
         /// Testing the Internal Message

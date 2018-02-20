@@ -1,12 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Eu.EDelivery.AS4.Factories;
 using Eu.EDelivery.AS4.Mappings.Submit;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Model.Submit;
 using Eu.EDelivery.AS4.Serialization;
-using Eu.EDelivery.AS4.UnitTests.Common;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
@@ -16,10 +14,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
     /// </summary>
     public class GivenSubmitPayloadInfoResolverFacts
     {
-        public GivenSubmitPayloadInfoResolverFacts()
-        {
-            IdentifierFactory.Instance.SetContext(StubConfig.Default);
-        }
 
         public class GivenValidArguments : GivenSubmitPayloadInfoResolverFacts
         {

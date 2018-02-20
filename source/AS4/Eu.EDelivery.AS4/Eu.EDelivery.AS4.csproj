@@ -269,6 +269,21 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="System.Numerics" />
+    <Reference Include="System.Reactive.Core, Version=3.0.3000.0, Culture=neutral, PublicKeyToken=94bc3704cddfc263, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\System.Reactive.Core.3.1.1\lib\net46\System.Reactive.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Reactive.Interfaces, Version=3.0.1000.0, Culture=neutral, PublicKeyToken=94bc3704cddfc263, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\System.Reactive.Interfaces.3.1.1\lib\net45\System.Reactive.Interfaces.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Reactive.Linq, Version=3.0.3000.0, Culture=neutral, PublicKeyToken=94bc3704cddfc263, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\System.Reactive.Linq.3.1.1\lib\net46\System.Reactive.Linq.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Reactive.PlatformServices, Version=3.0.3000.0, Culture=neutral, PublicKeyToken=94bc3704cddfc263, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\System.Reactive.PlatformServices.3.1.1\lib\net46\System.Reactive.PlatformServices.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Reactive.Windows.Threading, Version=3.0.1000.0, Culture=neutral, PublicKeyToken=94bc3704cddfc263, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\System.Reactive.Windows.Threading.3.1.1\lib\net45\System.Reactive.Windows.Threading.dll</HintPath>
+    </Reference>
     <Reference Include="System.Runtime.Caching" />
     <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.2.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\..\packages\System.Runtime.CompilerServices.Unsafe.4.3.0\lib\netstandard1.0\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
@@ -307,6 +322,7 @@
     <Reference Include="System.Web.Http, Version=5.2.3.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Microsoft.AspNet.WebApi.Core.5.2.3\lib\net45\System.Web.Http.dll</HintPath>
     </Reference>
+    <Reference Include="System.Windows" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -316,6 +332,7 @@
       <HintPath>..\..\packages\System.Xml.ReaderWriter.4.3.0\lib\net46\System.Xml.ReaderWriter.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="WindowsBase" />
     <Reference Include="Z.EntityFramework.Plus.EFCore, Version=1.6.10.0, Culture=neutral, PublicKeyToken=59b66d028979105b, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Z.EntityFramework.Plus.EFCore.1.6.10\lib\net451\Z.EntityFramework.Plus.EFCore.dll</HintPath>
     </Reference>
@@ -323,14 +340,16 @@
   <ItemGroup>
     <Compile Include="Agents\Agent.cs" />
     <Compile Include="Agents\AgentConfig.cs" />
+    <Compile Include="Agents\CleanUpAgent.cs" />
     <Compile Include="Builders\Core\ErrorBuilder.cs" />
     <Compile Include="Builders\Core\NonRepudiationInformationBuilder.cs" />
     <Compile Include="Builders\Entities\InMessageBuilder.cs" />
     <Compile Include="Builders\Entities\OutMessageBuilder.cs" />
     <Compile Include="Builders\GenericTypeBuilder.cs" />
     <Compile Include="Builders\Security\DecryptionStrategyBuilder.cs" />
+    <Compile Include="Migrations\20180212143022_ReceptionAwarenessRelation.cs" />
     <Compile Include="Security\Signing\CalculateSignatureConfig.cs" />
-    <Compile Include="Security\Strategies\CalculateSignatureStrategy.cs" />
+    <Compile Include="Security\Strategies\SignStrategy.cs" />
     <Compile Include="Security\Strategies\CryptoStrategy.cs" />
     <Compile Include="Security\Strategies\DecryptionStrategy.cs" />
     <Compile Include="Security\Strategies\IDecryptionStrategy.cs" />
@@ -399,7 +418,6 @@
     <Compile Include="Repositories\IDatastoreRepository.cs" />
     <Compile Include="Security\Builders\EncryptedDataBuilder.cs" />
     <Compile Include="Builders\Security\EncryptionStrategyBuilder.cs" />
-    <Compile Include="Builders\Security\SigningStrategyBuilder.cs" />
     <Compile Include="Common\IRegistry.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="Common\DatastoreContext.cs" />
@@ -488,7 +506,6 @@
     <Compile Include="Model\Common\Service.cs" />
     <Compile Include="Model\Submit\SubmitMessage.cs" />
     <Compile Include="Model\Internal\ReceivedMessage.cs" />
-    <Compile Include="Security\Strategies\ISigningStrategy.cs" />
     <Compile Include="Security\Transforms\AesGcmDecryptTransform.cs" />
     <Compile Include="Security\Transforms\AesGcmEncryptTransform.cs" />
     <Compile Include="Security\Transforms\AttachmentCiphertextTransform.cs" />
@@ -521,7 +538,6 @@
     <Compile Include="Security\Algorithms\SignatureAlgorithm.cs" />
     <Compile Include="Security\Signing\SigningId.cs" />
     <Compile Include="Security\References\BinarySecurityTokenReference.cs" />
-    <Compile Include="Security\Strategies\SigningStrategy.cs" />
     <Compile Include="Steps\StepBuilder.cs" />
     <Compile Include="Strategies\Retriever\FtpPayloadRetriever.cs" />
     <Compile Include="Strategies\Sender\IDeliverSender.cs" />

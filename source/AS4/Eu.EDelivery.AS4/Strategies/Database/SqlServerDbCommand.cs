@@ -7,6 +7,7 @@ using Eu.EDelivery.AS4.Entities;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Dynamic.Core;
 using System.Threading.Tasks;
+using NLog;
 
 namespace Eu.EDelivery.AS4.Strategies.Database
 {
@@ -66,6 +67,40 @@ namespace Eu.EDelivery.AS4.Strategies.Database
         private static string CreateSqlStatement(string tableName)
         {
             return $"SELECT * FROM {tableName} WITH (xlock, readpast)";
+        }
+
+        /// <summary>
+        /// Delete the Messages Entities that are inserted passed a given <paramref name="retentionPeriod"/> 
+        /// and has a <see cref="Operation"/> within the given <paramref name="allowedOperations"/>.
+        /// </summary>
+        /// <param name="tableName"></param>
+        /// <param name="retentionPeriod">The retention period.</param>
+        /// <param name="allowedOperations">The allowed operations.</param>
+        public void BatchDeleteOverRetentionPeriod(
+            string tableName,
+            TimeSpan retentionPeriod,
+            IEnumerable<Operation> allowedOperations)
+        {
+            DatastoreTable.EnsureTableNameIsKnown(tableName);
+
+            string receptionAwarenessJoin =
+                tableName.Equals("OutMessages")
+                    ? "LEFT JOIN ReceptionAwareness " +
+                      "ON InternalMessageId = EbmsMessageId " +
+                      "AND CurrentRetryCount = TotalRetryCount "
+                    : string.Empty;
+
+            string operations = string.Join(", ", allowedOperations.Select(x => "'" + x.ToString() + "'"));
+
+            string sql = 
+                $"DELETE m FROM {tableName} m " +
+                receptionAwarenessJoin +
+                $"WHERE m.InsertionTime < GETDATE() - {retentionPeriod.TotalDays:##.##} " +
+                $"AND Operation IN ({operations})";
+
+            _context.Database.ExecuteSqlCommand(sql);
+
+            LogManager.GetCurrentClassLogger().Debug($"Done cleaning '{tableName}'");
         }
     }
 }

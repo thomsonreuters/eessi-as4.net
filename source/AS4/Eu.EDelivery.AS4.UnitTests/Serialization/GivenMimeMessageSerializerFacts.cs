@@ -60,7 +60,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
 
                 // Assert
                 Assert.NotNull(as4Message);
-                Assert.Equal(2, as4Message.Attachments.Count);
+                Assert.Equal(2, as4Message.Attachments.Count());
             }
 
             [Fact]

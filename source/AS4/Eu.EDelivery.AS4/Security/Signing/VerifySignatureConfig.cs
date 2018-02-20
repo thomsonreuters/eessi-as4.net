@@ -9,8 +9,19 @@ namespace Eu.EDelivery.AS4.Security.Signing
     /// </summary>
     public class VerifySignatureConfig
     {
-        public bool AllowUnknownRootCertificateAuthority { get; set; }
+        /// <summary>
+        /// Initializes a new instance of the <see cref="VerifySignatureConfig"/> class.
+        /// </summary>
+        /// <param name="allowUnknownRootCertificateAuthority">if set to <c>true</c> [allow unknown root certificate authority].</param>
+        /// <param name="attachments">The attachments.</param>
+        public VerifySignatureConfig(bool allowUnknownRootCertificateAuthority, IEnumerable<Attachment> attachments)
+        {
+            AllowUnknownRootCertificateAuthority = allowUnknownRootCertificateAuthority;
+            Attachments = attachments;
+        }
 
-        public ICollection<Attachment> Attachments { get; set; }
+        public bool AllowUnknownRootCertificateAuthority { get; }
+
+        public IEnumerable<Attachment> Attachments { get; }
     }
 }
