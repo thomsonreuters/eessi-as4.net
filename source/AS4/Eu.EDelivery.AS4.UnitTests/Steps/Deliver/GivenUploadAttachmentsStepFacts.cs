@@ -1,7 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
@@ -9,6 +7,7 @@ using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Steps.Deliver;
 using Eu.EDelivery.AS4.Strategies.Uploader;
+using Eu.EDelivery.AS4.UnitTests.Extensions;
 using Eu.EDelivery.AS4.UnitTests.Strategies.Uploader;
 using Moq;
 using Xunit;
@@ -33,11 +32,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
                 var step = new UploadAttachmentsStep(stubProvider);
 
                 // Act
-                StepResult result = await step.ExecuteAsync(CreateAS4MessageWithAttachment(), CancellationToken.None);
+                StepResult result = await step.ExecuteAsync(CreateAS4MessageWithAttachment());
 
                 // Assert
-                Attachment firstAttachment = result.MessagingContext.AS4Message.Attachments.First();
-                Assert.Equal(expectedLocation, firstAttachment.Location);
+                Assert.Collection(
+                    result.MessagingContext.AS4Message.Attachments, 
+                    a => Assert.Equal(expectedLocation, a.Location));
             }
         }
 
@@ -55,7 +55,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
 
                 // Act / Assert
                 await Assert.ThrowsAnyAsync<Exception>(
-                    () => step.ExecuteAsync(CreateAS4MessageWithAttachment(), CancellationToken.None));
+                    () => step.ExecuteAsync(CreateAS4MessageWithAttachment()));
             }
         }
 
@@ -63,19 +63,21 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
         {
             const string attachmentId = "attachment-id";
 
-            var userMessage = new UserMessage(Guid.NewGuid().ToString());
-            userMessage.PayloadInfo.Add(new PartInfo($"cid:{attachmentId}"));
+            AS4Message as4Message = AS4Message.Create(
+                new UserMessage(Guid.NewGuid().ToString())
+                {
+                    PayloadInfo = {new PartInfo($"cid:{attachmentId}")}
+                });
 
-            AS4Message as4Message = AS4Message.Create(userMessage);
-
-            as4Message.AddAttachment(new Attachment(attachmentId) { Content = Stream.Null });
-
-            var pmode = new ReceivingProcessingMode();
-            pmode.MessageHandling.DeliverInformation.PayloadReferenceMethod = new Method { Type = "FILE" };
+            as4Message.AddAttachment(
+                new Attachment(attachmentId) { Content = Stream.Null });
 
             return new MessagingContext(as4Message, MessagingContextMode.Unknown)
             {
-                ReceivingPMode = pmode
+                ReceivingPMode = new ReceivingProcessingMode
+                {
+                    MessageHandling = {DeliverInformation = {PayloadReferenceMethod = new Method {Type = "FILE"}}}
+                }
             };
         }
     }

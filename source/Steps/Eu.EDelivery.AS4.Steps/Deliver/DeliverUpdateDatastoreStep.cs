@@ -3,7 +3,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
-using Eu.EDelivery.AS4.Model.Deliver;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Repositories;
 using NLog;
@@ -15,20 +14,9 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
     /// </summary>
     [Description("This step makes sure that the status of the message is correctly set after the message has been delivered.")]
     [Info("Update message status after delivery")]
-
     public class DeliverUpdateDatastoreStep : IStep
     {
-        private readonly ILogger _logger;
-
-        private MessagingContext _messagingContext;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="DeliverUpdateDatastoreStep"/> class
-        /// </summary>
-        public DeliverUpdateDatastoreStep()
-        {
-            _logger = LogManager.GetCurrentClassLogger();
-        }
+        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 
         /// <summary>
         /// Start updating the InMessages
@@ -38,32 +26,24 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
         {
-            _messagingContext = messagingContext;
-            _logger.Info($"{_messagingContext.EbmsMessageId} Update AS4 UserMessages in Datastore");
+            Logger.Info($"{messagingContext.EbmsMessageId} Update AS4 UserMessages in Datastore");
 
-            await UpdateUserMessageAsync(messagingContext.DeliverMessage).ConfigureAwait(false);
-            return await StepResult.SuccessAsync(messagingContext);
-        }
-
-        private async Task UpdateUserMessageAsync(DeliverMessageEnvelope deliverMessage)
-        {
-            using (var context = Registry.Instance.CreateDatastoreContext())
+            using (DatastoreContext context = Registry.Instance.CreateDatastoreContext())
             {
                 var repository = new DatastoreRepository(context);
 
-                string messageId = deliverMessage.MessageInfo.MessageId;
-                _logger.Info($"{_messagingContext.EbmsMessageId} Update InMessage with Delivered Status and Operation");
+                string messageId = messagingContext.DeliverMessage.MessageInfo.MessageId;
+                Logger.Info($"[{messageId}] Update InMessage with Delivered Status and Operation");
 
-                repository.UpdateInMessage(messageId, UpdateNotifiedInMessage);
+                repository.UpdateInMessage(messageId, inMessage =>
+                {
+                    inMessage.SetStatus(InStatus.Delivered);
+                    inMessage.SetOperation(Operation.Delivered);
+                });
 
                 await context.SaveChangesAsync().ConfigureAwait(false);
             }
-        }
-
-        private static void UpdateNotifiedInMessage(InMessage inMessage)
-        {
-            inMessage.SetStatus(InStatus.Delivered);
-            inMessage.SetOperation(Operation.Delivered);
+            return await StepResult.SuccessAsync(messagingContext);
         }
     }
 }
