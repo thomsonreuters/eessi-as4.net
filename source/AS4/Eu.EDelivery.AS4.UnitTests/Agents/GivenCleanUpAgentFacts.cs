@@ -115,7 +115,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Agents
             var sut = new CleanUpAgent(GetDataStoreContext, TimeSpan.FromDays(retention).Negate());
 
             var cancellation = new CancellationTokenSource();
-            cancellation.CancelAfter(TimeSpan.FromTicks(1));
+            cancellation.CancelAfter(TimeSpan.FromMilliseconds(500));
             sut.Start(cancellation.Token).GetAwaiter().GetResult();
         }
 
