@@ -29,6 +29,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Agents
             // Assert
             bool hasEntries = GetOutMessagesFor(id).Any();
             return (hasEntries == insertion > retention)
+                .When(insertion != retention)
                 .Classify(hasEntries, "OutMessage isn't deleted")
                 .Classify(!hasEntries, "OutMessage is deleted");
         }
@@ -50,6 +51,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Agents
             bool hasEntries = hasOutMessages && hasReferenced;
 
             return (hasEntries == insertion > retention)
+                .When(insertion != retention)
                 .Classify(hasEntries, "OutMessage and Reference aren't deleted")
                 .Classify(!hasEntries, "OutMessage and Reference are deleted");
         }
@@ -115,7 +117,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Agents
             var sut = new CleanUpAgent(GetDataStoreContext, TimeSpan.FromDays(retention).Negate());
 
             var cancellation = new CancellationTokenSource();
-            cancellation.CancelAfter(TimeSpan.FromMilliseconds(500));
+            cancellation.CancelAfter(TimeSpan.FromTicks(1));
             sut.Start(cancellation.Token).GetAwaiter().GetResult();
         }
 
