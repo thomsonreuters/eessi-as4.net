@@ -36,6 +36,34 @@ namespace Eu.EDelivery.AS4.UnitTests.Repositories
         }
 
         /// <summary>
+        /// Inserts the in exception.
+        /// </summary>
+        /// <param name="createContext">The create context.</param>
+        /// <param name="inException">The in exception.</param>
+        public static void InsertInException(this Func<DatastoreContext> createContext, InException inException)
+        {
+            using (DatastoreContext context = createContext())
+            {
+                context.InExceptions.Add(inException);
+                context.SaveChanges();
+            }
+        }
+
+        /// <summary>
+        /// Inserts the out exception.
+        /// </summary>
+        /// <param name="createContext">The create context.</param>
+        /// <param name="outException">The out exception.</param>
+        public static void InsertOutException(this Func<DatastoreContext> createContext, OutException outException)
+        {
+            using (DatastoreContext context = createContext())
+            {
+                context.OutExceptions.Add(outException);
+                context.SaveChanges();
+            }
+        }
+
+        /// <summary>
         /// Asserts the in message.
         /// </summary>
         /// <param name="createContext">The create context.</param>

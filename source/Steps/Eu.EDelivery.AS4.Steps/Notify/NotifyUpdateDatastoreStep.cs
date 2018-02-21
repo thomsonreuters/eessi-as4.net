@@ -20,14 +20,12 @@ namespace Eu.EDelivery.AS4.Steps.Notify
         private readonly Func<DatastoreContext> _createDatastoreContext;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="NotifyUpdateDatastoreStep"/> class.
+        /// Initializes a new instance of the <see cref="NotifyUpdateDatastoreStep" /> class.
         /// </summary>
-        public NotifyUpdateDatastoreStep() : this(Registry.Instance.CreateDatastoreContext)
-        {
-        }
+        public NotifyUpdateDatastoreStep() : this(Registry.Instance.CreateDatastoreContext) { }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="NotifyUpdateDatastoreStep"/> class.
+        /// Initializes a new instance of the <see cref="NotifyUpdateDatastoreStep" /> class.
         /// </summary>
         public NotifyUpdateDatastoreStep(Func<DatastoreContext> createDatastoreContext)
         {
@@ -51,7 +49,7 @@ namespace Eu.EDelivery.AS4.Steps.Notify
 
         private async Task UpdateDatastoreAsync(NotifyMessageEnvelope notifyMessage)
         {
-            using (var context = _createDatastoreContext())
+            using (DatastoreContext context = _createDatastoreContext())
             {
                 var repository = new DatastoreRepository(context);
 
@@ -73,11 +71,11 @@ namespace Eu.EDelivery.AS4.Steps.Notify
                 }
                 else if (notifyMessage.EntityType == typeof(InException))
                 {
-                    repository.UpdateInException(notifyMessage.MessageInfo.RefToMessageId, UpdateNotifiedException);
+                    repository.UpdateInException(notifyMessage.MessageInfo.RefToMessageId, ex => ex.SetOperation(Operation.Notified));
                 }
                 else if (notifyMessage.EntityType == typeof(OutException))
                 {
-                    repository.UpdateOutException(notifyMessage.MessageInfo.RefToMessageId, UpdateNotifiedException);
+                    repository.UpdateOutException(notifyMessage.MessageInfo.RefToMessageId, ex => ex.SetOperation(Operation.Notified));
                 }
                 else
                 {
@@ -86,11 +84,6 @@ namespace Eu.EDelivery.AS4.Steps.Notify
 
                 await context.SaveChangesAsync().ConfigureAwait(false);
             }
-        }
-
-        private static void UpdateNotifiedException(ExceptionEntity exceptionMessage)
-        {
-            exceptionMessage.SetOperation(Operation.Notified);
         }
     }
 }
