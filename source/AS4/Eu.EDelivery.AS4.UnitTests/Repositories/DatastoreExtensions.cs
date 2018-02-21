@@ -64,6 +64,22 @@ namespace Eu.EDelivery.AS4.UnitTests.Repositories
         }
 
         /// <summary>
+        /// Inserts the reception awareness into the Datastore.
+        /// </summary>
+        /// <param name="createContext">The create context.</param>
+        /// <param name="awareness">The awareness.</param>
+        public static void InsertReceptionAwareness(
+            this Func<DatastoreContext> createContext,
+            ReceptionAwareness awareness)
+        {
+            using (DatastoreContext context = createContext())
+            {
+                context.ReceptionAwareness.Add(awareness);
+                context.SaveChanges();
+            }
+        }
+
+        /// <summary>
         /// Asserts the in message.
         /// </summary>
         /// <param name="createContext">The create context.</param>
