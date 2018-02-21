@@ -261,6 +261,7 @@
     <Compile Include="Exceptions\Handlers\GivenPullSendAgentExceptionHandlerFacts.cs" />
     <Compile Include="Exceptions\Handlers\GivenSafeExceptionHandlerFacts.cs" />
     <Compile Include="Factories\GivenPayloadFileNameFactoryFacts.cs" />
+    <Compile Include="Gens.cs" />
     <Compile Include="Mappings\Core\GivenRoutingInputUserMessageMapFacts.cs" />
     <Compile Include="Model\Deliver\EmptyDeliverEnvelope.cs" />
     <Compile Include="Model\Notify\EmptyNotifyEnvelope.cs" />
@@ -412,10 +413,6 @@
     <Compile Include="Steps\Deliver\GivenUploadAttachmentsStepFacts.cs" />
     <Compile Include="Steps\Deliver\GivenZipAttachmentsStepFacts.cs" />
     <Compile Include="Steps\GivenStepResultFacts.cs" />
-    <Compile Include="Steps\Notify\GivenNotifyOutUpdateDatastoreStepFacts.cs" />
-    <Compile Include="Steps\Notify\GivenNotifyInUpdateDatastoreStepFacts.cs" />
-    <Compile Include="Steps\Notify\GivenNotifyUpdateInExceptionDatastoreStepFacts.cs" />
-    <Compile Include="Steps\Notify\GivenNotifyUpdateOutExceptionDatastoreStepFacts.cs" />
     <Compile Include="Steps\Notify\GivenSendNotifyMessageStepFacts.cs" />
     <Compile Include="Steps\Receive\GivenCreateAS4ErrorStepFacts.cs" />
     <Compile Include="Steps\Receive\GivenDecryptAS4MessageStepFacts.cs" />

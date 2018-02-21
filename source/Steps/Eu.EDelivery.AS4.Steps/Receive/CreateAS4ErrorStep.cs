@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Threading;
@@ -14,6 +15,7 @@ using Eu.EDelivery.AS4.Xml;
 using NLog;
 using Error = Eu.EDelivery.AS4.Model.Core.Error;
 using PullRequest = Eu.EDelivery.AS4.Model.Core.PullRequest;
+using SignalMessage = Eu.EDelivery.AS4.Model.Core.SignalMessage;
 using UserMessage = Eu.EDelivery.AS4.Model.Core.UserMessage;
 
 namespace Eu.EDelivery.AS4.Steps.Receive
@@ -26,11 +28,9 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         private readonly Func<DatastoreContext> _createDatastoreContext;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="CreateAS4ErrorStep"/> class.
+        /// Initializes a new instance of the <see cref="CreateAS4ErrorStep" /> class.
         /// </summary>
-        public CreateAS4ErrorStep() : this(Registry.Instance.CreateDatastoreContext)
-        {
-        }
+        public CreateAS4ErrorStep() : this(Registry.Instance.CreateDatastoreContext) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CreateAS4ErrorStep"/> class.
@@ -49,7 +49,8 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// <exception cref="System.Exception">A delegate callback throws an exception.</exception>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
         {
-            if ((messagingContext.AS4Message == null || messagingContext.AS4Message.IsEmpty) && messagingContext.ErrorResult == null)
+            bool noAS4MessagePresent = messagingContext.AS4Message == null || messagingContext.AS4Message.IsEmpty;
+            if (noAS4MessagePresent && messagingContext.ErrorResult == null)
             {
                 return await StepResult.SuccessAsync(messagingContext);
             }
@@ -73,32 +74,24 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
         private async Task CreateExceptionForReceivedSignalMessages(MessagingContext context)
         {
-            var signalMessages = context.AS4Message.SignalMessages;
+            IEnumerable<SignalMessage> signalMessages = context.AS4Message.SignalMessages;
+            if (signalMessages.Any() == false) { return; }
 
-            if (signalMessages.Any() == false)
-            {
-                return;
-            }
-
-            using (var dbContext = _createDatastoreContext())
+            using (DatastoreContext dbContext = _createDatastoreContext())
             {
                 var repository = new DatastoreRepository(dbContext);
-
-                foreach (var signal in signalMessages)
+                foreach (SignalMessage signal in signalMessages.Where(s => !(s is PullRequest)))
                 {
-                    if (signal is PullRequest)
-                    {
-                        continue;
-                    }
+                    var ex = new InException(signal.MessageId, context.ErrorResult.Description);
+                    await ex.SetPModeInformationAsync(context.ReceivingPMode);
 
-                    var inException = new InException(signal.MessageId, context.ErrorResult.Description);
-                    await inException.SetPModeInformationAsync(context.ReceivingPMode);
-
-                    repository.InsertInException(inException);
+                    repository.InsertInException(ex);
                 }
 
-                repository.UpdateInMessages(m => signalMessages.Select(s => s.MessageId).Contains(m.EbmsMessageId),
-                                            m => m.SetStatus(InStatus.Exception));
+                IEnumerable<string> ebmsMessageIds = signalMessages.Select(s => s.MessageId).ToArray();
+                repository.UpdateInMessages(
+                    m => ebmsMessageIds.Contains(m.EbmsMessageId),
+                    m => m.SetStatus(InStatus.Exception));
 
                 await dbContext.SaveChangesAsync();
             }

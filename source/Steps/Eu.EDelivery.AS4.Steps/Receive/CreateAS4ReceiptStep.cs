@@ -1,4 +1,4 @@
-﻿using System.Collections;
+﻿using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Threading;
@@ -11,6 +11,7 @@ using Eu.EDelivery.AS4.Xml;
 using NLog;
 using NonRepudiationInformation = Eu.EDelivery.AS4.Model.Core.NonRepudiationInformation;
 using Receipt = Eu.EDelivery.AS4.Model.Core.Receipt;
+using Reference = System.Security.Cryptography.Xml.Reference;
 
 namespace Eu.EDelivery.AS4.Steps.Receive
 {
@@ -30,41 +31,31 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// <param name="cancellationToken"></param>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
         {
-            AS4Message receiptMessage = CreateReceiptAS4MessageFor(messagingContext);
-
-            messagingContext.ModifyContext(receiptMessage);
-
-            return await StepResult.SuccessAsync(messagingContext);
-        }
-
-        private static AS4Message CreateReceiptAS4MessageFor(MessagingContext messagingContext)
-        {
             AS4Message receivedAS4Message = messagingContext.AS4Message;
 
             // Should we create a Receipt for each and every UserMessage that can be present in the bundle ?
             // If no UserMessages are present, an Empty AS4Message should be returned.
             AS4Message receiptMessage = AS4Message.Create(messagingContext.SendingPMode);
+            receiptMessage.SigningId = receivedAS4Message.SigningId;
 
             foreach (string messageId in receivedAS4Message.UserMessages.Select(m => m.MessageId))
             {
-                var receipt = new Receipt { RefToMessageId = messageId };
-                AdaptReceiptMessage(receipt, messagingContext);
-
+                Receipt receipt = CreateReferencedReceipt(messageId, messagingContext);
                 receiptMessage.AddMessageUnit(receipt);
             }
-
-            receiptMessage.SigningId = receivedAS4Message.SigningId;
 
             if (Logger.IsInfoEnabled && receiptMessage.MessageUnits.Any())
             {
                 Logger.Info("Receipt message has been created for received AS4 UserMessages.");
             }
 
-            return receiptMessage;
+            messagingContext.ModifyContext(receiptMessage);
+            return await StepResult.SuccessAsync(messagingContext);
         }
 
-        private static void AdaptReceiptMessage(Receipt receipt, MessagingContext messagingContext)
+        private static Receipt CreateReferencedReceipt(string ebmsMessageId, MessagingContext messagingContext)
         {
+            var receipt = new Receipt { RefToMessageId = ebmsMessageId };
             AS4Message receivedAS4Message = messagingContext.AS4Message;
             bool useNRRFormat = messagingContext.ReceivingPMode?.ReplyHandling.ReceiptHandling.UseNRRFormat ?? false;
 
@@ -73,7 +64,9 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 if (receivedAS4Message.IsSigned)
                 {
                     Logger.Debug(
-                        $"{receivedAS4Message.GetPrimaryMessageId()} Use Non-Repudiation for Receipt {receipt.MessageId} Creation");
+                        $"[{receivedAS4Message.GetPrimaryMessageId()}] " +
+                        $"Use Non-Repudiation for Receipt {receipt.MessageId} Creation");
+
                     receipt.NonRepudiationInformation = GetNonRepudiationInformationFrom(receivedAS4Message);
                 }
                 else
@@ -86,26 +79,30 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                     receipt.UserMessage = receivedAS4Message.PrimaryUserMessage;
                 }
             }
-            else
-            {
-                receipt.UserMessage = receivedAS4Message.PrimaryUserMessage;
-            }
+            else { receipt.UserMessage = receivedAS4Message.PrimaryUserMessage; }
 
             // If the Receipt is a Receipt on a MultihopMessage, then we'll need to add some routing-info.
             if (receivedAS4Message.IsMultiHopMessage)
             {
-                Logger.Debug("The received UserMessage has been sent via MultiHop.  Send Receipt as MultiHop as well.");
+                Logger.Debug(
+                    $"[{receivedAS4Message.GetPrimaryMessageId()}] " +
+                    "The received UserMessage has been sent via MultiHop. Send Receipt as MultiHop as well.");
 
-                receipt.MultiHopRouting = AS4Mapper.Map<RoutingInputUserMessage>(receivedAS4Message.PrimaryUserMessage);
+                receipt.MultiHopRouting = 
+                    AS4Mapper.Map<RoutingInputUserMessage>(receivedAS4Message.PrimaryUserMessage);
             }
+
+            return receipt;
         }
 
         private static NonRepudiationInformation GetNonRepudiationInformationFrom(AS4Message receivedAS4Message)
         {
-            var references = receivedAS4Message.SecurityHeader.GetReferences();
+            IEnumerable<Reference> references = 
+                receivedAS4Message.SecurityHeader.GetReferences();
 
             return new NonRepudiationInformationBuilder()
-                .WithSignedReferences(references).Build();
+                .WithSignedReferences(references)
+                .Build();
         }
     }
 }

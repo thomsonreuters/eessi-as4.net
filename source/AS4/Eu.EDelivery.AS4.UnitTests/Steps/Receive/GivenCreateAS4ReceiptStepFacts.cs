@@ -9,6 +9,7 @@ using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Steps.Receive;
 using Eu.EDelivery.AS4.TestUtils;
 using Eu.EDelivery.AS4.UnitTests.Common;
+using Eu.EDelivery.AS4.UnitTests.Model;
 using Xunit;
 using CryptoReference = System.Security.Cryptography.Xml.Reference;
 
@@ -118,15 +119,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
             private static void AssertSignedReferences(Receipt receiptMessage, SecurityHeader securityHeader)
             {
-                var cryptoReferences = securityHeader.GetReferences();
-                IEnumerable<Reference> receiptReferences =
+                IEnumerable<CryptoReference> cryptoRefs = securityHeader.GetReferences();
+                IEnumerable<Reference> receiptRefs =
                     receiptMessage.NonRepudiationInformation.MessagePartNRInformation.Select(i => i.Reference);
 
-                foreach (CryptoReference cryptoRef in cryptoReferences)
-                {
-                    Reference reference = receiptReferences.FirstOrDefault(r => r.URI.Equals(cryptoRef.Uri));
-                    Assert.NotNull(reference);
-                }
+                Assert.All(cryptoRefs, cryptoRef => Assert.True(receiptRefs.Any(r => r.URI.Equals(cryptoRef.Uri))));
             }
         }
 
@@ -134,15 +131,16 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
         {
             var pmode = new ReceivingProcessingMode();
             pmode.ReplyHandling.ReceiptHandling.UseNRRFormat = false;
+
             return pmode;
         }
 
         protected MessagingContext CreateDefaultInternalMessage()
         {
-            return new MessagingContext(AS4Message.Create(GetUserMessage()), MessagingContextMode.Receive)
-            {
-                ReceivingPMode = GetReceivingPMode()
-            };
+            return new MessagingContext(
+                AS4Message.Create(new FilledUserMessage()), 
+                MessagingContextMode.Receive)
+                {ReceivingPMode = GetReceivingPMode()};
         }
 
         protected MessagingContext CreateSignedInternalMessage()
@@ -161,11 +159,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             StepResult result = await sut.ExecuteAsync(ctx, CancellationToken.None);
 
             return result.MessagingContext.AS4Message;
-        }
-
-        protected UserMessage GetUserMessage()
-        {
-            return new UserMessage("message-id");
         }
     }
 }

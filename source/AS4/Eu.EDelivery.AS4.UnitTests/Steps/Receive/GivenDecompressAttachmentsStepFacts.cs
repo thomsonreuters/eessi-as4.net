@@ -19,9 +19,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
     /// </summary>
     public class GivenDecompressAttachmentsStepFacts
     {
-        /// <summary>
-        /// Testing the Step with valid arguments
-        /// </summary>
         public class GivenValidArguments : GivenDecompressAttachmentsStepFacts
         {
             [Fact]

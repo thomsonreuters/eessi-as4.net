@@ -138,7 +138,11 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         {
             using (DatastoreContext context = _storeExpression())
             {
-                var service = new OutMessageService(_config, new DatastoreRepository(context), _bodyStore);
+                var service = new OutMessageService(
+                    _config, 
+                    new DatastoreRepository(context),
+                    _bodyStore);
+
                 return await service.GetAS4UserMessagesForIds(receipts.Select(r => r.RefToMessageId), _bodyStore);
             }
         }
@@ -146,9 +150,9 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         private static bool MessageDoesNotNeedToBeVerified(MessagingContext message)
         {
             AS4Message as4Message = message.AS4Message;
+            bool signatureIgnored = message.ReceivingPMode?.Security.SigningVerification.Signature == Limit.Ignored;
 
-            return !as4Message.IsSigned ||
-                    message.ReceivingPMode?.Security.SigningVerification.Signature == Limit.Ignored;
+            return !as4Message.IsSigned || signatureIgnored;
         }
 
         private static async Task<StepResult> TryVerifyingSignature(MessagingContext messagingContext)
@@ -166,21 +170,18 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
         private static async Task<StepResult> VerifySignature(MessagingContext messagingContext)
         {
-            if (!IsValidSignature(messagingContext.AS4Message, CreateVerifyOptionsForAS4Message(messagingContext.AS4Message, messagingContext.ReceivingPMode)))
+            VerifySignatureConfig options = 
+                CreateVerifyOptionsForAS4Message(messagingContext.AS4Message, messagingContext.ReceivingPMode);
+
+            if (!messagingContext.AS4Message.VerifySignature(options))
             {
-                string description = "The signature is invalid";
+                const string description = "The signature is invalid";
                 Logger.Error(description);
                 return InvalidSignatureResult(description, ErrorAlias.FailedAuthentication, messagingContext);
             }
 
             Logger.Info($"{messagingContext.EbmsMessageId} AS4 Message has a valid Signature present");
-
             return await StepResult.SuccessAsync(messagingContext);
-        }
-
-        private static bool IsValidSignature(AS4Message as4Message, VerifySignatureConfig options)
-        {
-            return as4Message.VerifySignature(options);
         }
 
         private static VerifySignatureConfig CreateVerifyOptionsForAS4Message(AS4Message as4Message, ReceivingProcessingMode pmode)
