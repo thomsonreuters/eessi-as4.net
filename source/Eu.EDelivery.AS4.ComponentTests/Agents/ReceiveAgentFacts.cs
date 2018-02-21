@@ -28,6 +28,7 @@ using MessagePartNRInformation = Eu.EDelivery.AS4.Model.Core.MessagePartNRInform
 using Parameter = Eu.EDelivery.AS4.Model.PMode.Parameter;
 using PartyId = Eu.EDelivery.AS4.Model.Core.PartyId;
 using Receipt = Eu.EDelivery.AS4.Model.Core.Receipt;
+using SignalMessage = Eu.EDelivery.AS4.Model.Core.SignalMessage;
 using UserMessage = Eu.EDelivery.AS4.Model.Core.UserMessage;
 
 namespace Eu.EDelivery.AS4.ComponentTests.Agents
@@ -142,13 +143,20 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             HttpResponseMessage response = await StubSender.SendAS4Message(_receiveAgentUrl, message);
 
             // Assert
-            Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
-            var inMessageRecord = _databaseSpy.GetInMessageFor(m => m.EbmsMessageId == messageId);
-            var inExceptionRecord = _databaseSpy.GetInExceptions(e => e.EbmsRefToMessageId == messageId).FirstOrDefault();
+            AS4Message result = await SerializerProvider.Default
+                .Get(Constants.ContentTypes.Soap)
+                .DeserializeAsync(await response.Content.ReadAsStreamAsync(), Constants.ContentTypes.Soap, CancellationToken.None);
 
-            Assert.Equal(InStatus.Exception, InStatusUtils.Parse(inMessageRecord.Status));
-            Assert.NotNull(inExceptionRecord);
+            var errorMsg = result.PrimarySignalMessage as Error;
+            Assert.NotNull(errorMsg);
+            Assert.Collection(
+                errorMsg.Errors, 
+                e => Assert.Equal($"EBMS:{(int)ErrorCode.Ebms0010:0000}", e.ErrorCode));
+
+            InMessage inMessageRecord = _databaseSpy.GetInMessageFor(m => m.EbmsMessageId == messageId);
+            Assert.Equal(InStatus.Received, InStatusUtils.Parse(inMessageRecord.Status));
         }
 
         [Fact]
