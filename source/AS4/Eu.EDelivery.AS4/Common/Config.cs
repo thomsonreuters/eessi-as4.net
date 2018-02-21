@@ -111,6 +111,8 @@ namespace Eu.EDelivery.AS4.Common
             {
                 IsInitialized = false;
                 _logger.Error(exception.Message);
+
+                throw;
             }
         }
 
