@@ -3,6 +3,7 @@ using System.IO;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.PayloadService.Models;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Extensions.Primitives;
 using Microsoft.Net.Http.Headers;
 
 namespace Eu.EDelivery.AS4.PayloadService.Infrastructure
@@ -56,13 +57,13 @@ namespace Eu.EDelivery.AS4.PayloadService.Infrastructure
             while (section != null)
             {
                 bool hasContentDispositionHeader = ContentDispositionHeaderValue.TryParse(
-                    section.ContentDisposition, out var contentDisposition);
+                    section.ContentDisposition, out ContentDispositionHeaderValue contentDisposition);
 
                 if (hasContentDispositionHeader)
                 {
                     if (HasFileContentDisposition(contentDisposition))
                     {
-                        await onNextSection(new Payload(section.Body, new PayloadMeta(contentDisposition.FileName)));
+                        await onNextSection(new Payload(section.Body, new PayloadMeta(contentDisposition.FileName.Value)));
                     }
                 }
 
@@ -72,9 +73,9 @@ namespace Eu.EDelivery.AS4.PayloadService.Infrastructure
 
         private static string GetBoundary(string contentType)
         {
-            string boundary = HeaderUtilities.RemoveQuotes(MediaTypeHeaderValue.Parse(contentType).Boundary);
+            StringSegment boundary = HeaderUtilities.RemoveQuotes(MediaTypeHeaderValue.Parse(contentType).Boundary);
 
-            if (string.IsNullOrWhiteSpace(boundary))
+            if (string.IsNullOrWhiteSpace(boundary.Value))
             {
                 throw new InvalidDataException("Missing content-type boundary.");
             }
@@ -84,15 +85,15 @@ namespace Eu.EDelivery.AS4.PayloadService.Infrastructure
                 throw new InvalidDataException($"Multipart boundary length limit {100} exceeded.");
             }
 
-            return boundary;
+            return boundary.Value;
         }
 
         private static bool HasFileContentDisposition(ContentDispositionHeaderValue contentDisposition)
         {
             return contentDisposition != null
                    && contentDisposition.DispositionType.Equals("form-data")
-                   && (!string.IsNullOrEmpty(contentDisposition.FileName)
-                       || !string.IsNullOrEmpty(contentDisposition.FileNameStar));
+                   && (!string.IsNullOrEmpty(contentDisposition.FileName.Value)
+                       || !string.IsNullOrEmpty(contentDisposition.FileNameStar.Value));
         }
 
         /// <summary>

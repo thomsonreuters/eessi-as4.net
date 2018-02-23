@@ -49,7 +49,7 @@ namespace Eu.EDelivery.AS4.PayloadService
             host
                 .UseUrls(url)
                 .Build()
-                .Run(cancellationToken);
+                .Run();
 
             Console.WriteLine("Payload Service shutdown");
         }

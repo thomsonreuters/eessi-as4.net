@@ -2,6 +2,7 @@ using System;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Repositories;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
@@ -46,7 +47,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
                                                                .ConfigureWarnings(
                                                                    w =>
                                                                        w.Ignore(
-                                                                           InMemoryEventId.TransactionIgnoredWarning))
+                                                                           RelationalEventId.AmbientTransactionWarning))
                                                                .Options;
         }
 

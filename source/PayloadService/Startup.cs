@@ -3,6 +3,7 @@ using System.Reflection;
 using Eu.EDelivery.AS4.PayloadService.Infrastructure.SwaggerUtils;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.DotNet.PlatformAbstractions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -93,7 +94,7 @@ namespace Eu.EDelivery.AS4.PayloadService
         private static string GetXmlCommentsPath()
         {
             const string xml = "Eu.EDelivery.AS4.PayloadService.xml";
-            ApplicationEnvironment app = PlatformServices.Default.Application;
+            var app = PlatformServices.Default.Application;
             var binPath = Path.Combine(app.ApplicationBasePath, "bin", xml);
             return File.Exists(binPath) ? binPath : Path.Combine(app.ApplicationBasePath, xml);
         }

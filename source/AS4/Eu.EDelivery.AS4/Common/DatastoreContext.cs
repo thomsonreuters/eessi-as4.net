@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Strategies.Database;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -144,7 +144,7 @@ namespace Eu.EDelivery.AS4.Common
             _providers[providerKey](connectionString);
 
             // Make sure no InvalidOperation is thrown when an ambient transaction is detected.
-            optionsBuilder.ConfigureWarnings(x => x.Ignore(RelationalEventId.AmbientTransactionWarning));
+            optionsBuilder.ConfigureWarnings(x => x.Ignore(CoreEventId.IncludeIgnoredWarning));
 
             var logger = new LoggerFactory();
             logger.AddProvider(new TraceLoggerProvider());
@@ -183,7 +183,7 @@ namespace Eu.EDelivery.AS4.Common
             // TODO: add other providers
             _providers["InMemory"] = _ => 
                 optionsBuilder.UseInMemoryDatabase(Guid.NewGuid().ToString())
-                              .ConfigureWarnings(w => w.Ignore(InMemoryEventId.TransactionIgnoredWarning));
+                              .ConfigureWarnings(w => w.Ignore(RelationalEventId.AmbientTransactionWarning));
         }
 
         /// <summary>

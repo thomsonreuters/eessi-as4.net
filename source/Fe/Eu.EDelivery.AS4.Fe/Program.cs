@@ -49,7 +49,7 @@ namespace Eu.EDelivery.AS4.Fe
 
             OpenPortal(inProcess, config);
 
-            host.Run(cancellationToken);
+            host.Run();
         }
 
         private static void OpenPortal(bool isInProcess, IConfigurationRoot config)
