@@ -3,6 +3,7 @@
     <IdFormat>{GUID}@{IPADDRESS}</IdFormat>
     <FeInProcess>true</FeInProcess>
     <PayloadServiceInProcess>true</PayloadServiceInProcess>
+    <RetentionPeriod>90</RetentionPeriod>
     <Database>
         <Provider>Sqlite</Provider>
         <ConnectionString>Filename=database\messages.db</ConnectionString>
