@@ -66,7 +66,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                     return StepResult.Success(messagingContext);
                 }
 
-                SendPMode pmode = await DetermineSendingPModeForSignalMessage(as4Message.PrimarySignalMessage);
+                SendPMode pmode = await DetermineSendingPModeForSignalMessageAsync(as4Message.PrimarySignalMessage);
 
                 if (pmode != null)
                 {
@@ -80,10 +80,10 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 }
             }
 
-            return await DetermineReceivingPMode(messagingContext);
+            return await DetermineReceivingPModeAsync(messagingContext);
         }
 
-        private async Task<SendPMode> DetermineSendingPModeForSignalMessage(SignalMessage signalMessage)
+        private async Task<SendPMode> DetermineSendingPModeForSignalMessageAsync(SignalMessage signalMessage)
         {
             if (String.IsNullOrWhiteSpace(signalMessage.RefToMessageId))
             {
@@ -105,7 +105,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             }
         }
 
-        private async Task<StepResult> DetermineReceivingPMode(MessagingContext messagingContext)
+        private async Task<StepResult> DetermineReceivingPModeAsync(MessagingContext messagingContext)
         {
             UserMessage userMessage = RetrieveUserMessage(messagingContext.AS4Message);
 

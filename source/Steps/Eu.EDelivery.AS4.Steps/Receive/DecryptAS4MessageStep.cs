@@ -81,7 +81,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 return StepResult.Success(context);
             }
 
-            return await TryDecryptAS4Message(context).ConfigureAwait(false);
+            return await TryDecryptAS4MessageAsync(context).ConfigureAwait(false);
         }
 
         private static StepResult FailedDecryptResult(string description, ErrorAlias errorAlias, MessagingContext context)
@@ -103,7 +103,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             return isIgnored;
         }
 
-        private async Task<StepResult> TryDecryptAS4Message(MessagingContext messagingContext)
+        private async Task<StepResult> TryDecryptAS4MessageAsync(MessagingContext messagingContext)
         {
             try
             {

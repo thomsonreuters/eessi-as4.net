@@ -59,7 +59,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
             if (messagingContext.ErrorResult != null)
             {
-                await CreateExceptionForReceivedSignalMessages(messagingContext);
+                await CreateExceptionForReceivedSignalMessagesAsync(messagingContext);
             }
 
             messagingContext.ModifyContext(errorMessage);
@@ -72,7 +72,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             return await StepResult.SuccessAsync(messagingContext);
         }
 
-        private async Task CreateExceptionForReceivedSignalMessages(MessagingContext context)
+        private async Task CreateExceptionForReceivedSignalMessagesAsync(MessagingContext context)
         {
             IEnumerable<SignalMessage> signalMessages = context.AS4Message.SignalMessages;
             if (signalMessages.Any() == false) { return; }

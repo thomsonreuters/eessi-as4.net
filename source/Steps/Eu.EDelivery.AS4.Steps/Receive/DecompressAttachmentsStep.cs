@@ -45,14 +45,14 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 return StepResult.Success(messagingContext);
             }
 
-            return await TryDecompressAttachments(messagingContext).ConfigureAwait(false);
+            return await TryDecompressAttachmentsAsync(messagingContext).ConfigureAwait(false);
         }
 
-        private static async Task<StepResult> TryDecompressAttachments(MessagingContext context)
+        private static async Task<StepResult> TryDecompressAttachmentsAsync(MessagingContext context)
         {
             try
             {
-                return await DecompressAttachments(context).ConfigureAwait(false);
+                return await DecompressAttachmentsAsync(context).ConfigureAwait(false);
             }
             catch (Exception exception)
             when (
@@ -64,7 +64,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             }
         }
 
-        private static async Task<StepResult> DecompressAttachments(MessagingContext context)
+        private static async Task<StepResult> DecompressAttachmentsAsync(MessagingContext context)
         {
             AS4Message as4Message = context.AS4Message;
 

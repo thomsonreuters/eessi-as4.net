@@ -56,7 +56,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 throw new InvalidOperationException("SaveReceivedMessageStep requires a ReceivedStream");
             }
 
-            MessagingContext resultContext = await InsertReceivedAS4Message(messagingContext, token);
+            MessagingContext resultContext = await InsertReceivedAS4MessageAsync(messagingContext, token);
 
             if (resultContext != null && resultContext.Exception == null)
             {
@@ -78,7 +78,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             return StepResult.Failed(resultContext);
         }
 
-        private async Task<MessagingContext> InsertReceivedAS4Message(
+        private async Task<MessagingContext> InsertReceivedAS4MessageAsync(
             MessagingContext messagingContext, 
             CancellationToken token)
         {
