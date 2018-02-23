@@ -57,7 +57,10 @@ namespace Eu.EDelivery.AS4.Steps.Notify
             if (messagingContext.SendingPMode == null)
             {
                 SendingProcessingMode pmode = RetrieveSendingPMode(messagingContext);
-                if (pmode != null) { messagingContext.SendingPMode = pmode; }
+                if (pmode != null)
+                {
+                    messagingContext.SendingPMode = pmode;
+                }
             }
 
             Logger.Info($"{messagingContext.EbmsMessageId} Start sending Notify Message...");
