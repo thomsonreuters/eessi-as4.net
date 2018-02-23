@@ -16,9 +16,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Agents
     public class GivenCleanUpAgentFacts : GivenDatastoreFacts
     {
         [Property]
-        public Property Only_Overdue_Entries_Are_Deleted(int insertion, int retention)
+        public Property Only_Overdue_Entries_Are_Deleted(NegativeInt negative, int retention)
         {
             // Arrange
+            int insertion = negative.Get;
             string id = Guid.NewGuid().ToString();
             GetDataStoreContext.InsertOutMessage(
                 CreateOutMessage(id, DateTimeOffset.UtcNow.Add(TimeSpan.FromDays(insertion))));
@@ -35,9 +36,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Agents
         }
 
         [Property]
-        public Property Referenced_Reception_Awareness_Entries_Are_Also_Deleted(int insertion, int retention)
+        public Property Referenced_Reception_Awareness_Entries_Are_Also_Deleted(NegativeInt negative, int retention)
         {
             // Arrange
+            int insertion = negative.Get;
             string id = Guid.NewGuid().ToString();
             GetDataStoreContext.InsertOutMessage(CreateOutMessage(id, DateTimeOffset.UtcNow.Add(TimeSpan.FromDays(insertion))));
             GetDataStoreContext.InsertReceptionAwareness(new ReceptionAwareness{InternalMessageId = id});
