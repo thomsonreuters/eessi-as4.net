@@ -115,8 +115,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
                 return await StepResult.SuccessAsync(messagingContext);
             }
-            catch (Exception ex) 
-            when (ex is CryptoException || ex is CryptographicException)
+            catch (Exception ex) when (ex is CryptoException || ex is CryptographicException)
             {
                 messagingContext.ErrorResult = new ErrorResult(
                     description: $"Decryption failed: {ex.Message}",
