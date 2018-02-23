@@ -64,22 +64,25 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 if (receivedAS4Message.IsSigned)
                 {
                     Logger.Debug(
-                        $"[{receivedAS4Message.GetPrimaryMessageId()}] " +
-                        $"Use Non-Repudiation for Receipt {receipt.MessageId} Creation");
+                        $"[{receivedAS4Message.GetPrimaryMessageId()}] "
+                        + $"Use Non-Repudiation for Receipt {receipt.MessageId} Creation");
 
                     receipt.NonRepudiationInformation = GetNonRepudiationInformationFrom(receivedAS4Message);
                 }
                 else
                 {
                     Logger.Warn(
-                        $"[{receivedAS4Message.GetPrimaryMessageId()}] " +
-                        $"Receiving PMode ({messagingContext.ReceivingPMode?.Id}) is configured to reply with Non-Repudation Receipts," +
-                        "but incoming UserMessage isn't signed.");
+                        $"[{receivedAS4Message.GetPrimaryMessageId()}] "
+                        + $"Receiving PMode ({messagingContext.ReceivingPMode?.Id}) is configured to reply with Non-Repudation Receipts,"
+                        + "but incoming UserMessage isn't signed.");
 
                     receipt.UserMessage = receivedAS4Message.PrimaryUserMessage;
                 }
             }
-            else { receipt.UserMessage = receivedAS4Message.PrimaryUserMessage; }
+            else
+            {
+                receipt.UserMessage = receivedAS4Message.PrimaryUserMessage;
+            }
 
             // If the Receipt is a Receipt on a MultihopMessage, then we'll need to add some routing-info.
             if (receivedAS4Message.IsMultiHopMessage)

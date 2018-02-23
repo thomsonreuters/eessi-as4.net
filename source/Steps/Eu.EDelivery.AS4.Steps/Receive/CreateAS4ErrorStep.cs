@@ -75,7 +75,10 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         private async Task CreateExceptionForReceivedSignalMessagesAsync(MessagingContext context)
         {
             IEnumerable<SignalMessage> signalMessages = context.AS4Message.SignalMessages;
-            if (signalMessages.Any() == false) { return; }
+            if (signalMessages.Any() == false)
+            {
+                return;
+            }
 
             using (DatastoreContext dbContext = _createDatastoreContext())
             {
