@@ -65,9 +65,10 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
 
             foreach (UserMessage um in as4Message.UserMessages)
             {
-                await Task.WhenAll(as4Message.Attachments
-                    .Where(a => a.MatchesAny(um.PayloadInfo))
-                    .Select(p => TryUploadAttachment(p, um, uploader)));
+                foreach (Attachment att in as4Message.Attachments.Where(a => a.MatchesAny(um.PayloadInfo)))
+                {
+                    await TryUploadAttachmentAsync(att, um, uploader).ConfigureAwait(false);
+                }
             }
 
             return await StepResult.SuccessAsync(messagingContext);
@@ -90,7 +91,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
             return uploader;
         }
 
-        private static async Task TryUploadAttachment(Attachment attachment, UserMessage referringUserMessage, IAttachmentUploader uploader)
+        private static async Task TryUploadAttachmentAsync(Attachment attachment, UserMessage referringUserMessage, IAttachmentUploader uploader)
         {
             try
             {
