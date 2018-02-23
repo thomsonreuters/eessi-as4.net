@@ -79,12 +79,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         {
             XmlNode bodyNode = message.EnvelopeDocument.SelectSingleNode("/soap12:Envelope/soap12:Body", Namespaces);
 
-            if (bodyNode != null && String.IsNullOrWhiteSpace(bodyNode.InnerText) == false)
-            {
-                return true;
-            }
-
-            return false;
+            return bodyNode != null && String.IsNullOrWhiteSpace(bodyNode.InnerText) == false;
         }
 
         private static ErrorResult SoapBodyAttachmentsNotSupported()

@@ -32,9 +32,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             _step = new DeterminePModesStep(_mockedConfig.Object, GetDataStoreContext);
         }
 
-        /// <summary>
-        /// Testing the step with valid arguments
-        /// </summary>
         public class GivenValidArguments : GivenDeterminePModesStepFacts
         {
             [Fact]
@@ -298,15 +295,15 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
         protected ReceivePMode CreateDefaultPMode(string id)
         {
-            var pmode = new ReceivePMode
+            return new ReceivePMode
             {
                 Id = id,
-                MessagePackaging =
-                    new MessagePackaging { CollaborationInfo = new CollaborationInfo(), PartyInfo = new PartyInfo() },
-                ReplyHandling = { SendingPMode = "response_pmode" }
+                MessagePackaging = new MessagePackaging
+                {
+                    CollaborationInfo = new CollaborationInfo(), PartyInfo = new PartyInfo()
+                },
+                ReplyHandling = {SendingPMode = "response_pmode"}
             };
-
-            return pmode;
         }
 
         protected void SetupPModes(params ReceivePMode[] pmodes)
