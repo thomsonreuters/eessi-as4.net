@@ -1,12 +1,10 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+﻿using System.IO;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Steps.Deliver;
+using Eu.EDelivery.AS4.UnitTests.Extensions;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
@@ -28,28 +26,30 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
                 AS4Message as4Message = AS4Message.Empty;
                 as4Message.AddAttachment(new Attachment("attachment-id") { ContentType = contentType });
 
-                var context = new MessagingContext(as4Message, MessagingContextMode.Unknown);
-
                 // Act
-                await new ZipAttachmentsStep().ExecuteAsync(context, CancellationToken.None);
+                await new ZipAttachmentsStep().ExecuteAsync(
+                    new MessagingContext(as4Message, MessagingContextMode.Unknown));
 
                 // Assert
-                Assert.Equal(contentType, context.AS4Message.Attachments.First().ContentType);
+                Assert.Collection(
+                    as4Message.Attachments,
+                    a => Assert.Equal(contentType, a.ContentType));
             }
 
             [Fact]
             public async Task ThenStepWillZipMultipleAttachments()
             {
                 // Arrange
-                var internalMessage = new MessagingContext(AS4MessageWithTwoAttachments(), MessagingContextMode.Unknown);
+                AS4Message as4Message = AS4MessageWithTwoAttachments();
 
                 // Act
-                await new ZipAttachmentsStep().ExecuteAsync(internalMessage, CancellationToken.None);
+                await new ZipAttachmentsStep().ExecuteAsync(
+                    new MessagingContext(as4Message, MessagingContextMode.Unknown));
 
                 // Assert
-                IEnumerable<Attachment> attachments = internalMessage.AS4Message.Attachments;
-                Assert.Equal(1, attachments.Count());
-                Assert.Equal("application/zip", attachments.First().ContentType);
+                Assert.Collection(
+                    as4Message.Attachments,
+                    a => Assert.Equal("application/zip", a.ContentType));
             }
 
             private static AS4Message AS4MessageWithTwoAttachments()
