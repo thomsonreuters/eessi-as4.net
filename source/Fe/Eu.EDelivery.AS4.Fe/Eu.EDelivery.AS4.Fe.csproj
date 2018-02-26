@@ -72,7 +72,7 @@
         <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="5.1.4" />
     </ItemGroup>
     <ItemGroup>
-        <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="1.0.1" />
+        <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="2.0.0" />
     </ItemGroup>
     <ItemGroup>
       <Reference Include="Microsoft.Extensions.PlatformAbstractions">
