@@ -10,6 +10,7 @@ using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Streaming;
 using MimeKit;
 using MimeKit.IO;
+using NLog;
 
 namespace Eu.EDelivery.AS4.Serialization
 {
@@ -154,8 +155,9 @@ namespace Eu.EDelivery.AS4.Serialization
                 };
                 bodyMultipart.Add(attachmentMimePart);
             }
-            catch (ArgumentException)
+            catch (ArgumentException ex)
             {
+                LogManager.GetCurrentClassLogger().Error(ex);
                 throw new NotSupportedException($"Attachment {attachment.Id} has a content-type that is not supported ({attachment.ContentType}).");
             }
         }
