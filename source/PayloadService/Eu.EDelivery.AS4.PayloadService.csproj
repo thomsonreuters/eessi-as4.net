@@ -22,7 +22,7 @@
         <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.0.2" />
         <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" Version="2.0.1" />
         <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.0.1" />
-        <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="1.1.2" />
+        <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="2.0.0" />
         <PackageReference Include="Microsoft.Extensions.PlatformAbstractions" Version="1.1.0" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="2.0.0" />
         <PackageReference Include="System.ValueTuple" Version="4.4.0" />
@@ -30,9 +30,6 @@
     <ItemGroup>
       <Reference Include="Microsoft.Extensions.PlatformAbstractions">
         <HintPath>..\packages\Microsoft.Extensions.PlatformAbstractions.1.1.0\lib\net451\Microsoft.Extensions.PlatformAbstractions.dll</HintPath>
-      </Reference>
-      <Reference Include="netstandard">
-        <HintPath>..\..\output\netstandard.dll</HintPath>
       </Reference>
     </ItemGroup>
     <ItemGroup>
