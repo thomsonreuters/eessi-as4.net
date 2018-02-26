@@ -60,14 +60,13 @@
         <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="2.0.0" />
         <PackageReference Include="Microsoft.Extensions.Configuration" Version="2.0.0" />
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.0.0" />
-        <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="1.1.2" />
+        <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="2.0.0" />
         <PackageReference Include="Microsoft.Extensions.PlatformAbstractions" Version="1.1.0" />
         <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="5.1.4" />
         <PackageReference Include="Mono.Cecil" Version="0.10.0-beta2" />
         <PackageReference Include="NETStandard.Library" Version="2.0.1" />
-        <PackageReference Include="Newtonsoft.Json" Version="10.0.1" />
+        <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
         <PackageReference Include="NLog" Version="4.3.5" />
-        <PackageReference Include="NLog.Extensions.Logging" Version="1.0.0-rtm-alpha4" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="2.0.0" />
         <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="5.1.4" />
     </ItemGroup>
@@ -77,9 +76,6 @@
     <ItemGroup>
       <Reference Include="Microsoft.Extensions.PlatformAbstractions">
         <HintPath>..\..\packages\Microsoft.Extensions.PlatformAbstractions.1.1.0\lib\net451\Microsoft.Extensions.PlatformAbstractions.dll</HintPath>
-      </Reference>
-      <Reference Include="netstandard">
-        <HintPath>..\..\..\output\netstandard.dll</HintPath>
       </Reference>
     </ItemGroup>
     <ItemGroup>
