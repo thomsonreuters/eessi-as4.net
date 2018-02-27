@@ -60,7 +60,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
                 {
                     PartyInfo = new PartyInfo
                     {
-                        ToParty = new Party(new PartyId(Guid.NewGuid().ToString()))
+                        ToParty = new Party(role: Guid.NewGuid().ToString(), partyId: new PartyId(Guid.NewGuid().ToString()))
                     }
                 }
             };
