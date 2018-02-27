@@ -36,7 +36,7 @@ namespace Eu.EDelivery.AS4.Fe.Settings
                 using (var textWriter = new StringWriter())
                 {
                     xmlSerializer.Serialize(textWriter, settings);
-                    File.WriteAllText(appSettings.Value.SettingsXml, textWriter.ToString(), Encoding.Unicode);
+                    File.WriteAllText(appSettings.Value.SettingsXml, textWriter.ToString(), Encoding.UTF8);
                 }
             });
         }
