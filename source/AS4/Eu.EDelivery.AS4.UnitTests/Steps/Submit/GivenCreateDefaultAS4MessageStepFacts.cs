@@ -10,6 +10,8 @@ using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Steps.Submit;
 using Eu.EDelivery.AS4.UnitTests.Common;
 using Eu.EDelivery.AS4.UnitTests.Model.PMode;
+using FsCheck;
+using FsCheck.Xunit;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
@@ -19,21 +21,26 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
     /// </summary>
     public class GivenCreateDefaultAS4MessageStepFacts : PseudoConfig
     {
-        [Fact]
-        public async Task CreatesExpectedMessageFromPMode()
+        [Property]
+        public void CreatesExpectedMessageFromPMode(NonEmptyString id)
         {
             // Arrange
+            AS4Message message = AS4Message.Empty;
+            var attachment = new Attachment(id.Get);
+            message.AddAttachment(attachment);
+
             var sut = new CreateDefaultAS4MessageStep(this);
             sut.Configure(properties: null);
-            const string attachmentId = "attachment id";
 
             // Act
-            StepResult result = await sut.ExecuteAsync(AttachmentWithoutUserMessage(attachmentId), CancellationToken.None);
+            StepResult result = sut.ExecuteAsync(
+                new MessagingContext(message, MessagingContextMode.Unknown), 
+                CancellationToken.None).GetAwaiter().GetResult();
 
             // Assert
-            AS4Message as4Message = result.MessagingContext.AS4Message;
-            Assert.Equal(1, as4Message.UserMessages.Count());
-            Assert.Contains(attachmentId, as4Message.PrimaryUserMessage.PayloadInfo.First().Href);
+            Assert.Collection(
+                result.MessagingContext.AS4Message.UserMessages, 
+                m => Assert.Contains(attachment.Id, m.PayloadInfo.First().Href));
         }
 
         /// <summary>
@@ -48,14 +55,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
             pmode.MessagePackaging.MessageProperties = new List<MessageProperty>();
 
             return pmode;
-        }
-
-        private static MessagingContext AttachmentWithoutUserMessage(string atttachmentId)
-        {
-            AS4Message message = AS4Message.Empty;
-            message.AddAttachment(new Attachment(atttachmentId));
-
-            return new MessagingContext(message, MessagingContextMode.Unknown);
         }
     }
 }
