@@ -10,7 +10,7 @@
         <DocumentationFile>..\..\output\Eu.EDelivery.AS4.PayloadService.xml</DocumentationFile>
         <OutputPath>..\..\output\</OutputPath>
         <DefineConstants>TRACE;DEBUG;NET461</DefineConstants>
-        <PlatformTarget>x86</PlatformTarget>
+        <PlatformTarget>AnyCPU</PlatformTarget>
         <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     </PropertyGroup>
 
