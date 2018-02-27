@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
-        <TargetFrameworks>netcoreapp2.0;net461</TargetFrameworks>
+        <TargetFrameworks>netstandard2.0;net461</TargetFrameworks>
         <AssetTargetFallback>$(AssetTargetFallback);portable-net45+win8+wp8+wpa81;</AssetTargetFallback>
         <Configurations>Debug;Release</Configurations>
         <Platforms>AnyCPU;x86</Platforms>
@@ -44,7 +44,7 @@
         <PackageReference Include="Microsoft.AspNet.SignalR.Owin" Version="1.2.2" />
     </ItemGroup>
   
-    <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.0' ">
+    <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
         <PackageReference Include="Microsoft.AspNetCore" Version="2.0.1" />
         <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="2.0.1" />
         <PackageReference Include="Microsoft.AspNetCore.Http.Extensions" Version="2.0.1" />
