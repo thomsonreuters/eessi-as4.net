@@ -267,6 +267,7 @@
     <Compile Include="Mappings\Core\GivenRoutingInputUserMessageMapFacts.cs" />
     <Compile Include="Model\Deliver\EmptyDeliverEnvelope.cs" />
     <Compile Include="Model\Notify\EmptyNotifyEnvelope.cs" />
+    <Compile Include="Model\PMode\GivenMessagePackagingFacts.cs" />
     <Compile Include="Model\PMode\GivenSendingPModeFacts.cs" />
     <Compile Include="ModuleInitializer.cs" />
     <Compile Include="Receivers\GivenFileReceiverFacts.cs" />
