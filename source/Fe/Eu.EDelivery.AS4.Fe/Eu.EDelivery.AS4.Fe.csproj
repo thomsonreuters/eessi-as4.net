@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
-        <TargetFrameworks>netcoreapp2.0;net461</TargetFrameworks>
+        <TargetFrameworks>netcoreapp2.0;net45</TargetFrameworks>
         <AssetTargetFallback>$(AssetTargetFallback);portable-net45+win8+wp8+wpa81;</AssetTargetFallback>
         <Configurations>Debug;Release</Configurations>
         <Platforms>AnyCPU;x86</Platforms>
