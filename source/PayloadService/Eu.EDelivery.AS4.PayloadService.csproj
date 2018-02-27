@@ -2,6 +2,7 @@
 
     <PropertyGroup>
         <TargetFrameworks>netcoreapp2.0;net461</TargetFrameworks>
+        <PackageTargetFallback>$(PackageTargetFallback);portable-net45+win8+wp8+wpa81;</PackageTargetFallback>
         <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
         <Configurations>Debug;Release</Configurations>
         <Platforms>AnyCPU</Platforms>
