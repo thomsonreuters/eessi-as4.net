@@ -48,8 +48,8 @@ Copy-Item -Path .\Eu.EDelivery.AS4.Fe.xml .\Staging\bin\
 Copy-Item -Path .\Eu.EDelivery.AS4.PayloadService.exe .\Staging\bin\
 Copy-Item -Path .\Eu.EDelivery.AS4.PayloadService.xml .\Staging\bin\
 Copy-Item -Path .\appsettings.payloadservice.json .\Staging\bin\
-Copy-Item -Path .\Eu.EDelivery.AS4.WindowsService.exe .\Staging\bin
-Copy-Item -Path .\Eu.EDelivery.AS4.WindowsService.exe.config .\Staging\bin
+Copy-Item -Path .\Eu.EDelivery.AS4.WindowsService.exe .\Staging\
+Copy-Item -Path .\Eu.EDelivery.AS4.WindowsService.exe.config .\Staging\
 
 
 If (Test-Path .\Eu.EDelivery.AS4.dll.config) {
