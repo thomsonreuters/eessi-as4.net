@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Xml;
@@ -29,6 +28,8 @@ namespace Eu.EDelivery.AS4.Model.Internal
         public bool FeInProcess { get; set; }
 
         public bool PayloadServiceInProcess { get; set; }
+
+        public string RetentionPeriod { get; set; }
 
         public SettingsDatabase Database { get; set; }
 

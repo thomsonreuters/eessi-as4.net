@@ -5,6 +5,7 @@ cd ..\output
 MkDir .\Staging
 MkDir .\Staging\Assets
 MkDir .\Staging\bin
+MkDir .\Staging\service-setup
 MkDir .\Staging\config
 MkDir .\Staging\config\send-pmodes
 MkDir .\Staging\config\receive-pmodes
@@ -61,10 +62,11 @@ Copy-Item -Path .\x64\*.* -Destination .\Staging\x64\
 Copy-Item -Path .\appsettings.inprocess.json .\Staging\bin\
 Copy-Item -Path .\appsettings.json .\Staging\bin\
 Copy-Item -Path .\config\settings.xml .\Staging\config\
+Copy-Item -Path .\config\settings-service.xml .\Staging\config\
 Copy-Item -Path .\messages\attachments\*.* .\Staging\messages\attachments\
 Copy-Item -Path .\samples\certificates\*.* .\Staging\samples\certificates\
 Copy-Item -Path .\samples\messages\*.* .\Staging\samples\messages\
 Copy-Item -Path .\samples\pmodes\*.* .\Staging\samples\pmodes\
 Copy-Item -Path .\samples\pmodes\eessi\*.* .\Staging\samples\pmodes\eessi\
-Copy-Item -Path .\install-windows-service.bat .\Staging\bin
-Copy-Item -Path .\uninstall-windows-service.bat .\Staging\bin
+Copy-Item -Path .\install-windows-service.bat .\Staging\service-setup
+Copy-Item -Path .\uninstall-windows-service.bat .\Staging\service-setup

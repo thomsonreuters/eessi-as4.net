@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using Eu.EDelivery.AS4.Agents;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Exceptions.Handlers;
@@ -18,8 +19,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
     public class AgentProvider
     {
         private readonly IConfig _config;
-        private readonly List<IAgent> _agents;
-        private readonly ILogger _logger;
+        private readonly IEnumerable<IAgent> _agents;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AgentProvider"/> class. Create a <see cref="AgentProvider"/> with the Core and Custom Agents
@@ -28,10 +28,19 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
         public AgentProvider(IConfig config)
         {
             _config = config;
-            _logger = LogManager.GetCurrentClassLogger();
             _agents = new List<IAgent>();
 
-            TryAddCustomAgentsToProvider();
+            try
+            {
+                _agents = CreateCustomAgents()
+                    .Concat(CreateMinderAgents())
+                    .Concat(new IAgent[] {new CleanUpAgent()});
+            }
+            catch (Exception exception)
+            {
+                LogManager.GetCurrentClassLogger().Error(exception.Message);
+            }
+            
         }
 
         /// <summary>
@@ -43,25 +52,9 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
             return _agents.ToArray();
         }
 
-        private void TryAddCustomAgentsToProvider()
+        private IEnumerable<Agent> CreateCustomAgents()
         {
-            try
-            {
-                AddCustomAgentsToProvider();
-                AddMinderAgentsToProvider();
-            }
-            catch (Exception exception)
-            {
-                _logger.Error(exception.Message);
-            }
-        }
-
-        private void AddCustomAgentsToProvider()
-        {
-            foreach (AgentConfig config in _config.GetAgentsConfiguration())
-            {
-                _agents.Add(CreateAgentBaseFromSettings(config));
-            }
+            return _config.GetAgentsConfiguration().Select(CreateAgentBaseFromSettings);
         }
 
         private static Agent CreateAgentBaseFromSettings(AgentConfig config)
@@ -76,22 +69,30 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
                 stepConfiguration: config.Settings.StepConfiguration ?? GetDefaultStepConfigurationForAgentType(config.Type));
         }
 
+        /// <summary>
+        /// Gets the default implementation of the <see cref="StepConfiguration"/> for the given <paramref name="agentType"/>.
+        /// </summary>
+        /// <param name="agentType">Type of the agent.</param>
+        /// <returns></returns>
         public static StepConfiguration GetDefaultStepConfigurationForAgentType(AgentType agentType)
         {
             return DefaultAgentStepRegistry.GetDefaultStepConfigurationFor(agentType);
         }
 
+        /// <summary>
+        /// Gets the default implementation of the <see cref="TransformerConfigEntry"/> for the given <paramref name="agentType"/>.
+        /// </summary>
+        /// <param name="agentType">Type of the agent.</param>
+        /// <returns></returns>
         public static TransformerConfigEntry GetDefaultTransformerForAgentType(AgentType agentType)
         {
             return DefaultAgentTransformerRegistry.GetDefaultTransformerFor(agentType);
         }        
 
         [ExcludeFromCodeCoverage]
-        private void AddMinderAgentsToProvider()
+        private IEnumerable<Agent> CreateMinderAgents()
         {
-            var minderTestAgents = MinderAgentProvider.GetMinderSpecificAgentsFromConfig(_config);
-
-            _agents.AddRange(minderTestAgents);
+            return MinderAgentProvider.GetMinderSpecificAgentsFromConfig(_config);
         }
     }
 }

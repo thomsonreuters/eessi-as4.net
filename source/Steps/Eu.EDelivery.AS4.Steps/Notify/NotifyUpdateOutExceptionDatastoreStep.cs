@@ -17,15 +17,7 @@ namespace Eu.EDelivery.AS4.Steps.Notify
     [NotConfigurable]
     public class NotifyUpdateOutExceptionDatastoreStep : IStep
     {
-        private readonly ILogger _logger;
-
-        /// <summary>
-        /// Initializes a new instance of the type <see cref="NotifyUpdateInExceptionDatastoreStep"/> class
-        /// </summary>
-        public NotifyUpdateOutExceptionDatastoreStep()
-        {
-            _logger = LogManager.GetCurrentClassLogger();
-        }
+        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 
         /// <summary>
         /// Start updating the OutExceptions table for a given <see cref="NotifyMessage"/>
@@ -35,28 +27,19 @@ namespace Eu.EDelivery.AS4.Steps.Notify
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
         {
-            var notifyMessage = messagingContext.NotifyMessage;
-            _logger.Info($"{messagingContext.EbmsMessageId} Update Notify Message {notifyMessage.MessageInfo.MessageId}");
+            NotifyMessageEnvelope notifyMessage = messagingContext.NotifyMessage;
+            Logger.Info($"{messagingContext.EbmsMessageId} Update Notify Message {notifyMessage.MessageInfo.MessageId}");
 
-            await UpdateDatastoreAsync(notifyMessage).ConfigureAwait(false);
-            return await StepResult.SuccessAsync(messagingContext);
-        }
-
-        private static async Task UpdateDatastoreAsync(NotifyMessageEnvelope notifyMessage)
-        {
-            using (var context = Registry.Instance.CreateDatastoreContext())
+            using (DatastoreContext context = Registry.Instance.CreateDatastoreContext())
             {
                 var repository = new DatastoreRepository(context);
-
-                repository.UpdateOutException(notifyMessage.MessageInfo.RefToMessageId, UpdateNotifiedOutException);
+                repository.UpdateOutException(
+                    notifyMessage.MessageInfo.RefToMessageId, 
+                    ex => ex.SetOperation(Operation.Notified));
 
                 await context.SaveChangesAsync().ConfigureAwait(false);
             }
-        }
-
-        private static void UpdateNotifiedOutException(OutException outException)
-        {
-            outException.SetOperation(Operation.Notified);
+            return StepResult.Success(messagingContext);
         }
     }
 }

@@ -145,4 +145,7 @@
   <data name="receiveagent_wrong_encrypted_message" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\resources\receiveagent-wrong-encrypted-message.as4;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
+  <data name="signed_holodeck_message" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\signed_holodeck_message.as4;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
 </root>

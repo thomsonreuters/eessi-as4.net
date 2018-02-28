@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections;
 using System.Linq;
 using System.Security.Cryptography.Xml;
 using Eu.EDelivery.AS4.Builders.Core;
-using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Security.Transforms;
 using Xunit;
@@ -31,7 +29,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Core
             {
                 // Arrange
                 Reference reference = CreateDefaultSignedReference();
-                var references = new ArrayList {reference};
+                var references = new[] { reference };
 
                 // Act
                 NonRepudiationInformation nonRepudiation =
@@ -46,7 +44,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Core
             {
                 // Arrange
                 Reference reference = CreateDefaultSignedReference();
-                var references = new ArrayList {reference};
+                var references = new[] { reference };
 
                 // Act
                 NonRepudiationInformation nonRepudiation =
@@ -63,7 +61,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Core
             {
                 // Arrange
                 Reference reference = CreateDefaultSignedReference();
-                var references = new ArrayList {reference};
+                var references = new[] { reference };
 
                 // Act
                 NonRepudiationInformation nonRepudiation =

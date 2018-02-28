@@ -10,6 +10,7 @@ using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Streaming;
 using MimeKit;
 using MimeKit.IO;
+using NLog;
 
 namespace Eu.EDelivery.AS4.Serialization
 {
@@ -154,8 +155,9 @@ namespace Eu.EDelivery.AS4.Serialization
                 };
                 bodyMultipart.Add(attachmentMimePart);
             }
-            catch (ArgumentException)
+            catch (ArgumentException ex)
             {
+                LogManager.GetCurrentClassLogger().Error(ex);
                 throw new NotSupportedException($"Attachment {attachment.Id} has a content-type that is not supported ({attachment.ContentType}).");
             }
         }
@@ -199,7 +201,7 @@ namespace Eu.EDelivery.AS4.Serialization
             chainedStream.Add(inputStream, leaveOpen: true);
 
             return await ParseStreamToAS4MessageAsync(chainedStream, contentType, cancellationToken).ConfigureAwait(false);
-
+            
         }
 
         private void PreConditions(Stream inputStream, string contentType)
@@ -231,8 +233,14 @@ namespace Eu.EDelivery.AS4.Serialization
             AS4Message message = await _soapSerializer
                 .DeserializeAsync(envelopeStream, contentType, cancellationToken).ConfigureAwait(false);
 
-            AddBodyPartsAsAttachmentsToMessage(bodyParts, message);
-            message.ContentType = contentType;
+            IEnumerable<PartInfo> referencedPartInfos = 
+                message.PrimaryUserMessage?.PayloadInfo ?? Enumerable.Empty<PartInfo>();
+
+            foreach (Attachment a in BodyPartsAsAttachments(bodyParts, referencedPartInfos))
+            {
+                message.AddAttachment(a);
+                
+            }
 
             return message;
         }
@@ -252,17 +260,14 @@ namespace Eu.EDelivery.AS4.Serialization
             }
             catch (Exception exception)
             {
-                throw CreateAS4MimeInconsistencyException(exception);
+                throw new InvalidMessageException(
+                    "The use of MIME is not consistent with the required usage in this specification", exception);
             }
         }
 
-        private static InvalidMessageException CreateAS4MimeInconsistencyException(Exception exception)
-        {
-            return new InvalidMessageException(
-                "The use of MIME is not consistent with the required usage in this specification", exception);
-        }
-
-        private static void AddBodyPartsAsAttachmentsToMessage(IReadOnlyList<MimePart> bodyParts, AS4Message message)
+        private static IEnumerable<Attachment> BodyPartsAsAttachments(
+            IReadOnlyList<MimePart> bodyParts, 
+            IEnumerable<PartInfo> referencedPartInfos)
         {
             const int startAfterSoapHeader = 1;
             for (int i = startAfterSoapHeader; i < bodyParts.Count; i++)
@@ -270,12 +275,12 @@ namespace Eu.EDelivery.AS4.Serialization
                 MimePart bodyPart = bodyParts[i];
                 Attachment attachment = CreateAttachment(bodyPart);
 
-                (bool hasValue, PartInfo value) partInfo = SelectReferencedPartInfo(attachment, message);
+                (bool hasValue, PartInfo value) = SelectReferencedPartInfo(attachment, referencedPartInfos);
 
-                if (partInfo.hasValue)
+                if (hasValue)
                 {
-                    attachment.Properties = partInfo.value.Properties;
-                    message.AddAttachment(attachment);
+                    attachment.Properties = value.Properties;
+                    yield return attachment;
                 }
             }
         }
@@ -289,10 +294,11 @@ namespace Eu.EDelivery.AS4.Serialization
             };
         }
 
-        private static (bool, PartInfo) SelectReferencedPartInfo(Attachment attachment, AS4Message message)
+        private static (bool, PartInfo) SelectReferencedPartInfo(
+            Attachment attachment, 
+            IEnumerable<PartInfo> referencedPartInfos)
         {
-            PartInfo partInfo = message.PrimaryUserMessage?.PayloadInfo
-                            .FirstOrDefault(i => i.Href?.Contains(attachment.Id) == true);
+            PartInfo partInfo = referencedPartInfos.FirstOrDefault(i => i.Href?.Contains(attachment.Id) == true);
 
             return (partInfo != null, partInfo);
         }

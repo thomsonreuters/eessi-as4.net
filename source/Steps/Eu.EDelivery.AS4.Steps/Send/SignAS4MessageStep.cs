@@ -1,10 +1,10 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Configuration;
+using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Builders.Security;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
@@ -13,6 +13,7 @@ using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Security.Strategies;
 using NLog;
 using System.Security.Cryptography;
+using Eu.EDelivery.AS4.Security.Signing;
 
 namespace Eu.EDelivery.AS4.Steps.Send
 {
@@ -65,7 +66,6 @@ namespace Eu.EDelivery.AS4.Steps.Send
             }
 
             TrySignAS4Message(messagingContext);
-            ResetAttachmentContents(messagingContext.AS4Message);
 
             return await StepResult.SuccessAsync(messagingContext);
         }
@@ -98,7 +98,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 throw new CryptographicException($"{message.EbmsMessageId} Certificate does not have a private key");
             }
 
-            ISigningStrategy signingStrategy = CreateSignStrategy(message, certificate);
+            ISignStrategy signingStrategy = CreateSignStrategy(message, certificate);
             message.AS4Message.SecurityHeader.Sign(signingStrategy);
         }
 
@@ -122,36 +122,26 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
             if (embeddedCertInfo != null)
             {
-                return new X509Certificate2(Convert.FromBase64String(embeddedCertInfo.Certificate), embeddedCertInfo.Password, X509KeyStorageFlags.Exportable | X509KeyStorageFlags.MachineKeySet | X509KeyStorageFlags.PersistKeySet);
+                return new X509Certificate2(Convert.FromBase64String(embeddedCertInfo.Certificate), embeddedCertInfo.Password,
+                                            X509KeyStorageFlags.Exportable | X509KeyStorageFlags.MachineKeySet | X509KeyStorageFlags.PersistKeySet);
             }
 
-            throw new NotSupportedException("The signing certificate information specified in the PMode could not be used to retrieve the certificate");
+            throw new NotSupportedException(
+                "The signing certificate information specified in the PMode could not be used to retrieve the certificate");
         }
 
-        private static ISigningStrategy CreateSignStrategy(MessagingContext messagingContext, X509Certificate2 certificate)
+        private static ISignStrategy CreateSignStrategy(MessagingContext messagingContext, X509Certificate2 certificate)
         {
             AS4Message message = messagingContext.AS4Message;
             Signing signing = messagingContext.SendingPMode.Security.Signing;
 
-            SigningStrategyBuilder builder = new SigningStrategyBuilder(messagingContext.AS4Message)
-                .WithSignatureAlgorithm(signing.Algorithm)
-                .WithCertificate(certificate, signing.KeyReferenceMethod)
-                .WithSigningId(message.SigningId, signing.HashFunction);
+            var config = new CalculateSignatureConfig(certificate,
+                                                      signing.KeyReferenceMethod,
+                                                      signing.Algorithm,
+                                                      signing.HashFunction);
 
-            foreach (Attachment attachment in message.Attachments)
-            {
-                builder.WithAttachment(attachment, signing.HashFunction);
-            }
+            return SignStrategy.ForAS4Message(message, config);
 
-            return builder.Build();
-        }
-
-        private static void ResetAttachmentContents(AS4Message as4Message)
-        {
-            foreach (Attachment attachment in as4Message.Attachments)
-            {
-                attachment.ResetContentPosition();
-            }
         }
     }
 }

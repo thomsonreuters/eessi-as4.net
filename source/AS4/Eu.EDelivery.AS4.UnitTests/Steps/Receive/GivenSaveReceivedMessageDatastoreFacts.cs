@@ -4,7 +4,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
-using Eu.EDelivery.AS4.Factories;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
@@ -23,15 +22,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
     /// </summary>
     public class GivenSaveReceivedMessageDatastoreFacts : GivenDatastoreStepFacts
     {
-        private readonly string _userMessageId;
         private readonly InMemoryMessageBodyStore _messageBodyStore = new InMemoryMessageBodyStore();
 
         public GivenSaveReceivedMessageDatastoreFacts()
         {
-            IdentifierFactory.Instance.SetContext(StubConfig.Default);
-
-            _userMessageId = Guid.NewGuid().ToString();
-
             Step = new SaveReceivedMessageStep(GetDataStoreContext, _messageBodyStore);
         }
 
@@ -46,44 +40,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
         /// </summary>
         protected override IStep Step { get; }
 
-        /// <summary>
-        /// Testing the Step with valid arguments
-        /// </summary>
         public class GivenValidArguments : GivenSaveReceivedMessageDatastoreFacts
         {
-            private static void AddTestableDataToUserMessage(UserMessage userMessage)
-            {
-                userMessage.CollaborationInfo.Action = Constants.Namespaces.TestAction;
-                userMessage.CollaborationInfo.Service.Value = Constants.Namespaces.TestService;
-            }
-
-            private async Task InsertDuplicateUserMessage(MessageUnit userMessage)
-            {
-                using (DatastoreContext context = GetDataStoreContext())
-                {
-                    var inMessage = new InMessage(ebmsMessageId: userMessage.MessageId);
-                    context.InMessages.Add(inMessage);
-                    await context.SaveChangesAsync();
-                }
-            }
-
-            private async Task AssertUserInMessageAsync(MessageUnit userMessage, Func<InMessage, bool> condition = null)
-            {
-                using (DatastoreContext context = GetDataStoreContext())
-                {
-                    InMessage inMessage = await context.InMessages
-                        .FirstOrDefaultAsync(m => m.EbmsMessageId.Equals(userMessage.MessageId));
-
-                    Assert.NotNull(inMessage);
-                    Assert.Equal(MessageType.UserMessage, MessageTypeUtils.Parse(inMessage.EbmsMessageType));
-
-                    if (condition != null)
-                    {
-                        Assert.True(condition(inMessage));
-                    }
-                }
-            }
-
             [Fact]
             public async Task ThenExecuteStepIsTestUserMessageAsync()
             {
@@ -102,7 +60,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                     await Step.ExecuteAsync(messagingContext, CancellationToken.None);
 
                     // Assert
-                    await AssertUserInMessageAsync(userMessage, m => OperationUtils.Parse(m.Operation) == Operation.NotApplicable);
+                    InMessage m = await GettUserInMessage(userMessage);
+                    Assert.Equal(Operation.NotApplicable, OperationUtils.Parse(m.Operation));
                 }
             }
 
@@ -121,7 +80,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                     Assert.False(stepResult.MessagingContext.AS4Message.PrimarySignalMessage.IsDuplicate);
                 }
 
-                using (var messagingContext = CreateReceivedMessagingContext(AS4Message.Create(signalMessage), null))
+                using (MessagingContext messagingContext = 
+                    CreateReceivedMessagingContext(AS4Message.Create(signalMessage), null))
                 {
                     StepResult stepResult = await Step.ExecuteAsync(messagingContext, CancellationToken.None);
 
@@ -140,13 +100,41 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 var pmode = new ReceivingProcessingMode();
                 pmode.Reliability.DuplicateElimination.IsEnabled = true;
 
-                using (var context = CreateReceivedMessagingContext(AS4Message.Create(userMessage), pmode))
+                using (MessagingContext context = 
+                    CreateReceivedMessagingContext(AS4Message.Create(userMessage), pmode))
                 {
                     // Act
                     await Step.ExecuteAsync(context, CancellationToken.None);
 
                     // Assert
-                    await AssertUserInMessageAsync(userMessage, m => OperationUtils.Parse(m.Operation) == Operation.NotApplicable);
+                    InMessage m = await GettUserInMessage(userMessage);
+                    Assert.Equal(Operation.NotApplicable, OperationUtils.Parse(m.Operation));
+                }
+            }
+
+            
+
+            private async Task InsertDuplicateUserMessage(MessageUnit userMessage)
+            {
+                using (DatastoreContext context = GetDataStoreContext())
+                {
+                    var inMessage = new InMessage(ebmsMessageId: userMessage.MessageId);
+                    context.InMessages.Add(inMessage);
+                    await context.SaveChangesAsync();
+                }
+            }
+
+            private async Task<InMessage> GettUserInMessage(MessageUnit userMessage)
+            {
+                using (DatastoreContext context = GetDataStoreContext())
+                {
+                    InMessage inMessage = await context.InMessages
+                                                       .FirstOrDefaultAsync(m => m.EbmsMessageId.Equals(userMessage.MessageId));
+
+                    Assert.NotNull(inMessage);
+                    Assert.Equal(MessageType.UserMessage, MessageTypeUtils.Parse(inMessage.EbmsMessageType));
+
+                    return inMessage;
                 }
             }
 
@@ -154,7 +142,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             public async Task ThenExecuteStepSucceedsAsync()
             {
                 // Arrange
-                using (var context = CreateReceivedMessagingContext(AS4Message.Empty, null))
+                using (MessagingContext context = 
+                    CreateReceivedMessagingContext(AS4Message.Empty, receivingPMode: null))
                 {
                     // Act
                     StepResult result = await Step.ExecuteAsync(context, CancellationToken.None);
@@ -171,22 +160,27 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
         /// <returns></returns>
         protected UserMessage CreateUserMessage()
         {
-            return new UserMessage(_userMessageId) { RefToMessageId = _userMessageId };
+            string userMessageId = Guid.NewGuid().ToString();
+            return new UserMessage(userMessageId) { RefToMessageId = userMessageId };
+        }
+
+        private static void AddTestableDataToUserMessage(UserMessage userMessage)
+        {
+            userMessage.CollaborationInfo.Action = Constants.Namespaces.TestAction;
+            userMessage.CollaborationInfo.Service.Value = Constants.Namespaces.TestService;
         }
 
         protected MessagingContext CreateReceivedMessagingContext(AS4Message as4Message, ReceivingProcessingMode receivingPMode)
         {
-            MemoryStream stream = new MemoryStream();
+            var stream = new MemoryStream();
 
             SerializerProvider.Default.Get(as4Message.ContentType).Serialize(as4Message, stream, CancellationToken.None);
             stream.Position = 0;
 
-            var receivedMessage = new ReceivedMessage(stream, as4Message.ContentType);
-
-            var messagingContext = new MessagingContext(receivedMessage, MessagingContextMode.Receive);
-            messagingContext.ReceivingPMode = receivingPMode;
-
-            return messagingContext;
+            return new MessagingContext(
+                new ReceivedMessage(stream, as4Message.ContentType), 
+                MessagingContextMode.Receive)
+                {ReceivingPMode = receivingPMode};
         }
     }
 }

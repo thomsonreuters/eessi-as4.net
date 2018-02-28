@@ -1,10 +1,14 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Serialization;
+using FsCheck;
+using FsCheck.Xunit;
+using MimeKit;
 using Xunit;
 using static Eu.EDelivery.AS4.UnitTests.Properties.Resources;
 
@@ -56,7 +60,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
 
                 // Assert
                 Assert.NotNull(as4Message);
-                Assert.Equal(2, as4Message.Attachments.Count);
+                Assert.Equal(2, as4Message.Attachments.Count());
             }
 
             [Fact]
@@ -120,6 +124,47 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                     Content = new MemoryStream(Encoding.UTF8.GetBytes("attachment-stream")),
                     ContentType = "text/plain"
                 };
+            }
+
+            [Property]
+            public void ThenSerializeWithAttachmentsReturnsMimeMessage(NonEmptyString messageContents)
+            {
+                // Arrange
+                var attachmentStream = new MemoryStream(Encoding.UTF8.GetBytes(messageContents.Get));
+                var attachment = new Attachment("attachment-id") { Content = attachmentStream };
+
+                var userMessage = new UserMessage("message-id") { CollaborationInfo = { AgreementReference = new AgreementReference() } };
+
+                AS4Message message = AS4Message.Create(userMessage);
+                message.AddAttachment(attachment);
+
+                // Act
+                AssertMimeMessageIsValid(message);
+            }
+
+            private static void AssertMimeMessageIsValid(AS4Message message)
+            {
+                using (var mimeStream = new MemoryStream())
+                {
+                    MimeMessage mimeMessage = SerializeMimeMessage(message, mimeStream);
+                    Stream envelopeStream = mimeMessage.BodyParts.OfType<MimePart>().First().ContentObject.Open();
+                    string rawXml = new StreamReader(envelopeStream).ReadToEnd();
+
+                    // Assert
+                    Assert.NotNull(rawXml);
+                    Assert.Contains("Envelope", rawXml);
+                }
+            }
+
+            private static MimeMessage SerializeMimeMessage(AS4Message message, Stream mimeStream)
+            {
+                ISerializer serializer = new MimeMessageSerializer(new SoapEnvelopeSerializer());
+                serializer.Serialize(message, mimeStream, CancellationToken.None);
+
+                message.ContentType = Constants.ContentTypes.Mime;
+                mimeStream.Position = 0;
+
+                return MimeMessage.Load(mimeStream);
             }
         }
 

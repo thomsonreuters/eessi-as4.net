@@ -94,6 +94,11 @@ namespace Eu.EDelivery.AS4.Receivers
                                                  properties.ReadOptionalProperty(SettingKeys.FileMask, "*.*"),
                                                  batchSize,
                                                  ReadPollingIntervalFromProperties(properties));
+
+            if (!Directory.Exists(FilePath))
+            {
+                Logger.Warn($"Directory: '{FilePath}' does not exists");
+            }
         }
 
         private static TimeSpan ReadPollingIntervalFromProperties(Dictionary<string, string> properties)
@@ -206,7 +211,7 @@ namespace Eu.EDelivery.AS4.Receivers
             }
             catch (IOException ex)
             {
-                Logger.Error("The lock file cannot be added, reason: " + ex.Message);
+                Logger.Trace(ex, "The lock file cannot be added, reason: " + ex.Message);
                 return FileLock.Failure;
             }
         }
@@ -219,7 +224,7 @@ namespace Eu.EDelivery.AS4.Receivers
             }
             catch (IOException ex)
             {
-                Logger.Error("The lock file cannot be removed, reason: " + ex.Message);
+                Logger.Trace(ex, "The lock file cannot be removed, reason: " + ex.Message);
             }
         }
 

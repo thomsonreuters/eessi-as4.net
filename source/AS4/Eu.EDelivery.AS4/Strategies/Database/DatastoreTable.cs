@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
@@ -11,11 +10,9 @@ namespace Eu.EDelivery.AS4.Strategies.Database
     /// <summary>
     /// Validate the name of the Datastore Table.
     /// </summary>
-    public class DatastoreTable
+    public static class DatastoreTable
     {
-        private static readonly ConcurrentDictionary<string, bool> KnownTables = new ConcurrentDictionary<string, bool>();
-
-        private static readonly IDictionary<string, Func<DatastoreContext, IQueryable<Entity>>> _tablesByName =
+        public static readonly IDictionary<string, Func<DatastoreContext, IQueryable<Entity>>> TablesByName =
             new Dictionary<string, Func<DatastoreContext, IQueryable<Entity>>>
             {
                 {"InMessages", c => c.InMessages},
@@ -26,6 +23,12 @@ namespace Eu.EDelivery.AS4.Strategies.Database
             };
 
         /// <summary>
+        /// Gets the message tables.
+        /// </summary>
+        /// <value>The message tables.</value>
+        public static IEnumerable<string> MessageTables => TablesByName.Keys.Where(k => !k.Equals("ReceptionAwareness"));
+
+        /// <summary>
         /// Determines whether [is table name known] [the specified table name].
         /// </summary>
         /// <param name="tableName">Name of the table.</param>
@@ -34,17 +37,25 @@ namespace Eu.EDelivery.AS4.Strategies.Database
         /// </returns>
         public static bool IsTableNameKnown(string tableName)
         {
-            return KnownTables.GetOrAdd(tableName, t => typeof(DatastoreContext).GetProperty(t) != null);
+            return TablesByName.ContainsKey(tableName);
+        }
+
+        public static void EnsureTableNameIsKnown(string tableName)
+        {
+            if (!IsTableNameKnown(tableName))
+            {
+                throw new ConfigurationErrorsException($"The configured table {tableName} could not be found");
+            }
         }
 
         public static Func<DatastoreContext, IQueryable<Entity>> FromTableName(string tableName)
         {
-            if (!_tablesByName.ContainsKey(tableName))
+            if (!TablesByName.ContainsKey(tableName))
             {
                 throw new ConfigurationErrorsException($"The configured table {tableName} could not be found");
             }
 
-            return _tablesByName[tableName];
+            return TablesByName[tableName];
         }
     }
 }

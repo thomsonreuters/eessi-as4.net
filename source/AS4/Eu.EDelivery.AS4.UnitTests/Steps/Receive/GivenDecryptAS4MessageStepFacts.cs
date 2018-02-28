@@ -8,10 +8,11 @@ using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
-using Eu.EDelivery.AS4.Security.Strategies;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Steps.Receive;
+using Eu.EDelivery.AS4.TestUtils;
+using Eu.EDelivery.AS4.TestUtils.Stubs;
 using Moq;
 using Xunit;
 
@@ -22,20 +23,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
     /// </summary>
     public class GivenDecryptAS4MessageStepFacts
     {
-        private readonly Mock<IEncryptionStrategy> _mockedEncryptedStrategy;
-        private readonly IStep _step;
-
-        public GivenDecryptAS4MessageStepFacts()
-        {
-            _mockedEncryptedStrategy = new Mock<IEncryptionStrategy>();
-
-            var mockedRespository = new Mock<ICertificateRepository>();
-            mockedRespository.Setup(r => r.GetCertificate(It.IsAny<X509FindType>(), It.IsAny<string>()))
-                             .Returns(new X509Certificate2(Properties.Resources.holodeck_partyc_certificate, "ExampleC", X509KeyStorageFlags.Exportable));
-
-            _step = new DecryptAS4MessageStep(mockedRespository.Object);
-        }
-
         public class GivenValidArguments : GivenDecryptAS4MessageStepFacts
         {
             [Fact]
@@ -45,18 +32,22 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 AS4Message as4Message = await GetEncryptedAS4MessageAsync();
                 var context = new MessagingContext(as4Message, MessagingContextMode.Receive)
                 {
-                    ReceivingPMode = new ReceivingProcessingMode()
-                };
-                context.ReceivingPMode.Security.Decryption.Encryption = Limit.Allowed;
-                context.ReceivingPMode.Security.Decryption.DecryptCertificateInformation =
-                    new CertificateFindCriteria
+                    ReceivingPMode = new ReceivingProcessingMode
                     {
-                        CertificateFindValue = "",
-                        CertificateFindType = X509FindType.FindByIssuerName
-                    };
+                        Security = {Decryption =
+                        {
+                            Encryption = Limit.Allowed,
+                            DecryptCertificateInformation = new CertificateFindCriteria
+                            {
+                                CertificateFindValue = "",
+                                CertificateFindType = X509FindType.FindByIssuerName
+                            }
+                        }}
+                    }
+                };
 
                 // Act
-                StepResult stepResult = await _step.ExecuteAsync(context, CancellationToken.None);
+                StepResult stepResult = await ExerciseDecryption(context);
 
                 // Assert
                 Assert.True(stepResult.MessagingContext.AS4Message.IsEncrypted);
@@ -67,16 +58,20 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             {
                 // Arrange
                 AS4Message as4Message = await GetEncryptedAS4MessageAsync();
-                var context = new MessagingContext(as4Message, MessagingContextMode.Receive) { ReceivingPMode = new ReceivingProcessingMode() };
-                context.ReceivingPMode.Security.Decryption.Encryption = Limit.Allowed;
-                context.ReceivingPMode.Security.Decryption.DecryptCertificateInformation =
-                    new CertificateFindCriteria()
+                var context = new MessagingContext(as4Message, MessagingContextMode.Receive)
+                {
+                    ReceivingPMode = new ReceivingProcessingMode
                     {
-                        CertificateFindType = X509FindType.FindBySerialNumber
-                    };
+                        Security = {Decryption =
+                        {
+                            Encryption = Limit.Allowed,
+                            DecryptCertificateInformation = new CertificateFindCriteria {CertificateFindType =  X509FindType.FindBySerialNumber}
+                        }}
+                    }
+                };
 
                 // Act
-                StepResult result = await _step.ExecuteAsync(context, CancellationToken.None);
+                StepResult result = await ExerciseDecryption(context);
 
                 // Assert
                 IEnumerable<Attachment> attachments = result.MessagingContext.AS4Message.Attachments;
@@ -90,35 +85,74 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             public async Task ThenExecuteStepFailsWithNotAllowedEncryptionAsync()
             {
                 // Arrange
-                AS4Message as4Message = AS4Message.Empty;
-                as4Message.SecurityHeader = new SecurityHeader(null, true);
-
-                var internalMessage = new MessagingContext(as4Message, MessagingContextMode.Receive) { ReceivingPMode = new ReceivingProcessingMode() };
-                internalMessage.ReceivingPMode.Security.Decryption.Encryption = Limit.NotAllowed;
+                AS4Message as4Message = await CreateEncryptedAS4Message();
+                var internalMessage = new MessagingContext(as4Message, MessagingContextMode.Receive)
+                {
+                    ReceivingPMode = new ReceivingProcessingMode
+                    {
+                        Security = {Decryption = {Encryption = Limit.NotAllowed}}
+                    }
+                };
 
                 // Act
-                StepResult result = await _step.ExecuteAsync(internalMessage, CancellationToken.None);
+                StepResult result = await ExerciseDecryption(internalMessage);
 
                 // Assert
+                Assert.False(result.Succeeded);
+
                 ErrorResult error = result.MessagingContext.ErrorResult;
                 Assert.Equal(ErrorCode.Ebms0103, error.Code);
+            }
+
+            private static async Task<AS4Message> CreateEncryptedAS4Message()
+            {
+                AS4Message message = AS4Message.Create(new UserMessage("somemessage"));
+                message.AddAttachment(new Attachment("some-attachment")
+                {
+                    Content = Stream.Null
+                });
+
+                AS4Message encryptedMessage =
+                    AS4MessageUtils.EncryptWithCertificate(
+                        message, new StubCertificateRepository().GetStubCertificate());
+
+                return await AS4MessageUtils.SerializeDeserializeAsync(encryptedMessage);
             }
 
             [Fact]
             public async Task ThenExecuteStepFailsWithRequiredEncryptionAsync()
             {
                 // Arrange
-                var context = new MessagingContext(AS4Message.Empty, MessagingContextMode.Receive) { ReceivingPMode = new ReceivingProcessingMode() };
-
-                context.ReceivingPMode.Security.Decryption.Encryption = Limit.Required;
+                var context = new MessagingContext(AS4Message.Empty, MessagingContextMode.Receive)
+                {
+                    ReceivingPMode = new ReceivingProcessingMode
+                    {
+                        Security = {Decryption = {Encryption = Limit.Required}}
+                    }
+                };
 
                 // Act
-                StepResult result = await _step.ExecuteAsync(context, CancellationToken.None);
+                StepResult result = await ExerciseDecryption(context);
 
                 // Assert
                 ErrorResult error = result.MessagingContext.ErrorResult;
                 Assert.Equal(ErrorCode.Ebms0103, error.Code);
             }
+        }
+
+        private static Task<StepResult> ExerciseDecryption(MessagingContext ctx)
+        {
+            var mockedRespository = new Mock<ICertificateRepository>();
+
+            mockedRespository
+                .Setup(r => r.GetCertificate(It.IsAny<X509FindType>(), It.IsAny<string>()))
+                .Returns(new X509Certificate2(
+                    rawData: Properties.Resources.holodeck_partyc_certificate, 
+                    password: "ExampleC", 
+                    keyStorageFlags: X509KeyStorageFlags.Exportable));
+
+            var sut = new DecryptAS4MessageStep(mockedRespository.Object);
+            return sut.ExecuteAsync(ctx, CancellationToken.None);
         }
 
         [Fact]

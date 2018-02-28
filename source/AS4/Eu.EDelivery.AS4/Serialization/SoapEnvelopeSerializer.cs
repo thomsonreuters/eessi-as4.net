@@ -8,11 +8,9 @@ using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
-using Eu.EDelivery.AS4.Builders.Security;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Resources;
-using Eu.EDelivery.AS4.Security.Strategies;
 using Eu.EDelivery.AS4.Singletons;
 using Eu.EDelivery.AS4.Xml;
 using NLog;
@@ -237,25 +235,14 @@ namespace Eu.EDelivery.AS4.Serialization
 
         private static SecurityHeader DeserializeSecurityHeader(XmlDocument envelopeDocument, XmlNamespaceManager nsMgr)
         {
-            var securityHeader = envelopeDocument.SelectSingleNode("/s:Envelope/s:Header/wsse:Security", nsMgr);
+            var securityHeader = envelopeDocument.SelectSingleNode("/s:Envelope/s:Header/wsse:Security", nsMgr) as XmlElement;
 
             if (securityHeader == null)
             {
                 return new SecurityHeader();
             }
 
-            ISigningStrategy signingStrategy = null;
-
-            var signatureElement = securityHeader.SelectSingleNode("//ds:Signature", nsMgr);
-
-            if (signatureElement != null)
-            {
-                signingStrategy = new SigningStrategyBuilder(envelopeDocument).Build();
-            }
-
-            var encryptionElement = securityHeader.SelectSingleNode("//xenc:EncryptedData", nsMgr);
-
-            return new SecurityHeader(signingStrategy, encryptionElement != null);
+            return new SecurityHeader(securityHeader);
         }
 
         private static Messaging DeserializeMessagingHeader(XmlDocument document, XmlNamespaceManager nsMgr)
@@ -272,8 +259,7 @@ namespace Eu.EDelivery.AS4.Serialization
 
             return result as Messaging;
         }
-
-        // TODO: extract to another class
+        
         public static IEnumerable<MessageUnit> GetMessageUnitsFromMessagingHeader(Messaging messagingHeader)
         {
             if (messagingHeader.SignalMessage != null)
@@ -326,7 +312,6 @@ namespace Eu.EDelivery.AS4.Serialization
             var result = s.Deserialize(new XmlNodeReader(bodyElement));
 
             return result as Body1;
-
         }
     }
 }

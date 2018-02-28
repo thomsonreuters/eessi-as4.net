@@ -4,14 +4,20 @@ using System.IO;
 using System.Linq;
 using System.Xml.Serialization;
 using Eu.EDelivery.AS4.Factories;
-using MimeKit.IO;
 using Eu.EDelivery.AS4.Streaming;
 
 namespace Eu.EDelivery.AS4.Model.Core
 {
     public class Attachment
     {
-        public string Id { get; set; }
+        private string _id;
+
+        public string Id
+        {
+            get => _id;
+            set => _id = value?.Replace(" ", string.Empty);
+        }
+
         public string ContentType { get; set; }
 
         private Stream _content;

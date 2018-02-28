@@ -6,7 +6,14 @@ namespace Eu.EDelivery.AS4.Model.Core
     [DebuggerDisplay("Href {Href}")]
     public class PartInfo
     {
-        public string Href { get; set; }
+        private string _href;
+
+        public string Href
+        {
+            get => _href;
+            set => _href = value?.Replace(" ", string.Empty);
+        }
+
         public Dictionary<string, string> Properties { get; set; }
         public List<Schema> Schemas { get; set; }
 

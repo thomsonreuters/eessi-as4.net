@@ -13,10 +13,11 @@ namespace Eu.EDelivery.AS4.WindowsService
 {
     public partial class AS4Service : ServiceBase
     {
+        private readonly EventLog _eventLog;
+
         private Kernel _kernel;
         private Task _rootTask, _feTask, _payloadServiceTask;
         private CancellationTokenSource _cancellation;
-        private readonly EventLog _eventLog;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AS4Service"/> class.
@@ -41,7 +42,7 @@ namespace Eu.EDelivery.AS4.WindowsService
             {
                 Config configuration = Config.Instance;
                 Registry registration = Registry.Instance;
-                configuration.Initialize();
+                configuration.Initialize("settings-service.xml");
             
                 if (!configuration.IsInitialized)
                 {
@@ -107,13 +108,13 @@ namespace Eu.EDelivery.AS4.WindowsService
 
             try
             {
-                _cancellation.Cancel();
+                _cancellation?.Cancel();
 
                 StopTask(_rootTask);
                 StopTask(_feTask);
                 StopTask(_payloadServiceTask);
 
-                _kernel.Dispose();
+                _kernel?.Dispose();
                 Config.Instance.Dispose();
 
                 _eventLog.WriteEntry("AS4.NET Component Service is stopped");
@@ -126,6 +127,8 @@ namespace Eu.EDelivery.AS4.WindowsService
 
         private static void StopTask(Task task)
         {
+            if (task == null) { return; }
+
             try
             {
                 task.GetAwaiter().GetResult();

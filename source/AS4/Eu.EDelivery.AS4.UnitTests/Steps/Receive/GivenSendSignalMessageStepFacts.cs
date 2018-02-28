@@ -6,9 +6,7 @@ using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Steps.Receive;
 using Eu.EDelivery.AS4.UnitTests.Common;
-using Eu.EDelivery.AS4.UnitTests.Model;
 using Eu.EDelivery.AS4.UnitTests.Repositories;
-using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 {
@@ -24,82 +22,47 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             Step = new SendAS4SignalMessageStep(GetDataStoreContext, _messageBodyStore);
         }
 
+        /// <summary>
+        /// Gets a <see cref="IStep" /> implementation to exercise the datastore.
+        /// </summary>
+        protected override IStep Step { get; }
+
         protected override void Disposing()
         {
             _messageBodyStore.Dispose();
             base.Disposing();
         }
 
-        [Fact]
-        public async Task ReturnsEmptySoapForReceipt_IfReplyPatternIsCallback()
+        [CustomProperty]
+        public bool Returns_Empty_Soap_For_Signals_If_ReplyPattern_Is_Callback(SignalMessage signal)
         {
             // Arrange
-            var receivePMode = new ReceivingProcessingMode();
-            receivePMode.ReplyHandling.ReplyPattern = ReplyPattern.Callback;
+            var receivePMode =
+                new ReceivingProcessingMode {ReplyHandling = {ReplyPattern = ReplyPattern.Callback}};
 
-            var sendPMode = new SendingProcessingMode();
-            sendPMode.Id = "sending-pmode";
-
-            MessagingContext context = ContextWithSignal(new FilledNRRReceipt(), receivePMode);
-            context.SendingPMode = sendPMode;
+            MessagingContext context = ContextWithSignal(signal, receivePMode);
+            context.SendingPMode = new SendingProcessingMode {Id = "sending-pmode"};
 
             // Act
-            AS4Message result = await ExerciseSendSignal(context);
+            AS4Message result = ExerciseSendSignal(context).GetAwaiter().GetResult();
 
             // Assert
-            Assert.True(result.IsEmpty);
+            return result.IsEmpty;
         }
 
-        [Fact]
-        public async Task ReturnsEmptySoapForError_IfReplyPatternIsCallback()
+        [CustomProperty]
+        public bool ReturnsSameResultForReceipt_IfReplyPatternIsResponse(SignalMessage signal)
         {
             // Arrange
-            var receivePMode = new ReceivingProcessingMode();
-            receivePMode.ReplyHandling.ReplyPattern = ReplyPattern.Callback;
-            receivePMode.ReplyHandling.SendingPMode = "sending-pmode";
-            var sendPMode = new SendingProcessingMode();
-            sendPMode.Id = "sending-pmode";
-
-            MessagingContext context = ContextWithSignal(new Error(), receivePMode);
-            context.SendingPMode = sendPMode;
+            var pmode = new ReceivingProcessingMode {ReplyHandling = {ReplyPattern = ReplyPattern.Response}};
+            MessagingContext context = ContextWithSignal(signal, pmode);
 
             // Act
-            AS4Message result = await ExerciseSendSignal(context);
-
-            // Assert
-            Assert.True(result.IsEmpty);
-        }
-
-        [Fact]
-        public async Task ReturnsSameResultForReceipt_IfReplyPatternIsResponse()
-        {
-            // Arrange
-            var pmode = new ReceivingProcessingMode();
-            pmode.ReplyHandling.ReplyPattern = ReplyPattern.Response;
-            MessagingContext context = ContextWithSignal(new FilledNRRReceipt(), pmode);
-
-            // Act
-            AS4Message actual = await ExerciseSendSignal(context);
+            AS4Message actual = ExerciseSendSignal(context).GetAwaiter().GetResult();
 
             // Assert
             AS4Message expected = context.AS4Message;
-            Assert.Equal(expected, actual);
-        }
-
-        [Fact]
-        public async Task ReturnsSameResultForError_IfReplyPatternIsResponse()
-        {
-            // Arrange
-            var pmode = new ReceivingProcessingMode();
-            pmode.ReplyHandling.ReplyPattern = ReplyPattern.Response;
-            MessagingContext context = ContextWithSignal(new FilledNRRReceipt(), pmode);
-
-            // Act
-            AS4Message actual = await ExerciseSendSignal(context);
-
-            // Assert
-            AS4Message expected = context.AS4Message;
-            Assert.Equal(expected, actual);
+            return expected.Equals(actual);
         }
 
         private static MessagingContext ContextWithSignal(SignalMessage signal, ReceivingProcessingMode pmode)
@@ -116,10 +79,5 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
             return result.MessagingContext.AS4Message;
         }
-
-        /// <summary>
-        /// Gets a <see cref="IStep" /> implementation to exercise the datastore.
-        /// </summary>
-        protected override IStep Step { get; }
     }
 }

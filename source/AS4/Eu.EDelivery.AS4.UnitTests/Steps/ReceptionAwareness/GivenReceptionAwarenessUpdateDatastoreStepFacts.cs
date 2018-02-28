@@ -4,7 +4,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
-using Eu.EDelivery.AS4.Factories;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Steps.ReceptionAwareness;
@@ -21,11 +20,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.ReceptionAwareness
     public class GivenReceptionAwarenessUpdateDatastoreStepFacts : GivenDatastoreFacts
     {
         private readonly InMemoryMessageBodyStore _messageBodyStore = new InMemoryMessageBodyStore();
-
-        public GivenReceptionAwarenessUpdateDatastoreStepFacts()
-        {
-            IdentifierFactory.Instance.SetContext(StubConfig.Default);
-        }
 
         protected override void Disposing()
         {

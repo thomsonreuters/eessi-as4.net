@@ -10,6 +10,7 @@ using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Receivers.Utilities;
+using Microsoft.EntityFrameworkCore;
 using NLog;
 using Function =
     System.Func<Eu.EDelivery.AS4.Model.Internal.ReceivedMessage, System.Threading.CancellationToken,
@@ -72,22 +73,31 @@ namespace Eu.EDelivery.AS4.Receivers
 
         private IEnumerable<Entity> GetMessagesEntitiesForConfiguredExpression()
         {
-            // Use a TransactionScope to get the highest TransactionIsolation level.
-            IEnumerable<Entity> entities = Enumerable.Empty<Entity>();
-
             using (DatastoreContext context = _storeExpression())
             {
+                if (context.NativeCommands.ExclusiveLockIsolation.HasValue)
+                {
+                    context.Database.BeginTransaction(context.NativeCommands.ExclusiveLockIsolation.Value);
+                }
+                else
+                {
+                    context.Database.BeginTransaction();
+                }
+
                 try
                 {
-                    entities = FindAnyMessageEntitiesWithConfiguredExpression(context);
+                    IEnumerable<Entity> entities = FindAnyMessageEntitiesWithConfiguredExpression(context);
+                    context.Database.CommitTransaction();
+                    return entities;
                 }
                 catch (Exception exception)
                 {
+                    context.Database.RollbackTransaction();
                     LogExceptionAndInner(exception);
                 }
-            }
 
-            return entities;
+                return Enumerable.Empty<Entity>();
+            }
         }
 
         // ReSharper disable once InconsistentNaming

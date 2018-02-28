@@ -11,7 +11,6 @@ using System.Xml;
 using Eu.EDelivery.AS4.Builders.Security;
 using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.PMode;
-using Eu.EDelivery.AS4.Security.References;
 using Eu.EDelivery.AS4.Security.Signing;
 using Eu.EDelivery.AS4.Security.Strategies;
 using Eu.EDelivery.AS4.Serialization;
@@ -26,6 +25,8 @@ namespace Eu.EDelivery.AS4.Model.Core
     public class AS4Message : IEquatable<AS4Message>
     {
         private readonly bool _serializeAsMultiHop;
+        private readonly List<Attachment> _attachmens;
+        private readonly List<MessageUnit> _messageUnits;
 
         /// <summary>
         /// Prevents a default instance of the <see cref="AS4Message"/> class from being created.
@@ -34,11 +35,12 @@ namespace Eu.EDelivery.AS4.Model.Core
         private AS4Message(bool serializeAsMultiHop = false)
         {
             _serializeAsMultiHop = serializeAsMultiHop;
+            _attachmens = new List<Attachment>();
+            _messageUnits = new List<MessageUnit>();
+
             ContentType = "application/soap+xml";
             SigningId = new SigningId();
             SecurityHeader = new SecurityHeader();
-            Attachments = new List<Attachment>();
-            _messageUnits = new List<MessageUnit>();
         }
 
         public static AS4Message Empty => new AS4Message(serializeAsMultiHop: false);
@@ -82,15 +84,13 @@ namespace Eu.EDelivery.AS4.Model.Core
             return !string.IsNullOrWhiteSpace(role) && role.Equals(Constants.Namespaces.EbmsNextMsh);
         }
 
-        private readonly List<MessageUnit> _messageUnits;
-
         public IEnumerable<MessageUnit> MessageUnits => _messageUnits.AsReadOnly();
 
         public IEnumerable<UserMessage> UserMessages => MessageUnits.OfType<UserMessage>();
 
         public IEnumerable<SignalMessage> SignalMessages => MessageUnits.OfType<SignalMessage>();
 
-        public ICollection<Attachment> Attachments { get; private set; }
+        public IEnumerable<Attachment> Attachments => _attachmens.AsReadOnly();
 
         public SigningId SigningId { get; set; }
 
@@ -256,14 +256,17 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// <param name="attachment"></param>
         public void AddAttachment(Attachment attachment)
         {
-            Attachments.Add(attachment);
-            UpdateContentTypeHeader();
+            _attachmens.Add(attachment);
+            if (!ContentType.Contains(Constants.ContentTypes.Mime))
+            {
+                UpdateContentTypeHeader(); 
+            }
         }
 
         private void UpdateContentTypeHeader()
         {
             string contentTypeString = Constants.ContentTypes.Soap;
-            if (Attachments.Count > 0)
+            if (Attachments.Any())
             {
                 ContentType contentType = new Multipart("related").ContentType;
                 contentType.Parameters["type"] = contentTypeString;
@@ -377,16 +380,57 @@ namespace Eu.EDelivery.AS4.Model.Core
         }
 
         /// <summary>
+        /// Removes the given attachment from this message.
+        /// </summary>
+        /// <param name="tobeRemoved">The tobe removed.</param>
+        public void RemoveAttachment(Attachment tobeRemoved)
+        {
+            Attachment foundAttachment = _attachmens.FirstOrDefault(a => a.Id?.Equals(tobeRemoved?.Id) == true);
+
+            if (foundAttachment != null)
+            {
+                _attachmens.Remove(foundAttachment);
+                foundAttachment.Content?.Dispose();
+            }
+
+            if (!Attachments.Any())
+            {
+                ContentType = Constants.ContentTypes.Soap;
+            }
+        }
+
+        /// <summary>
+        /// Removes all the attachments present in this message.
+        /// </summary>
+        public void RemoveAllAttachments()
+        {
+            CloseAttachments();
+            _attachmens.Clear();
+            ContentType = Constants.ContentTypes.Soap;
+        }
+
+        /// <summary>
         /// Decrypt the AS4 Message using the specified <paramref name="certificate"/>.
         /// </summary>
         /// <param name="certificate"></param>
         public void Decrypt(X509Certificate2 certificate)
         {
             var decryptor = DecryptionStrategyBuilder.Create(this)
-                                                   .WithCertificate(certificate)
-                                                   .Build();
+                                                     .WithCertificate(certificate)
+                                                     .Build();
             
             decryptor.DecryptMessage();
+        }
+
+        /// <summary>
+        /// Verifies if the digital signature on the AS4 Message is valid.
+        /// </summary>
+        /// <param name="config"></param>
+        /// <returns></returns>
+        public bool VerifySignature(VerifySignatureConfig config)
+        {
+            var verifier = new SignatureVerificationStrategy(this.EnvelopeDocument);
+            return verifier.VerifySignature(config);
         }
 
         /// <summary>Indicates whether the current object is equal to another object of the same type.</summary>

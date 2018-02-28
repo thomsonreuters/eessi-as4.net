@@ -21,7 +21,6 @@ namespace Eu.EDelivery.AS4.Validators
         {
             RuleFor(pmode => pmode.Id).NotEmpty();
 
-            RulesForDynamicDiscoveryConfiguration();
             RulesForPullConfiguration();
             RulesForReceiptHandling();
             RulesForErrorHandling();
@@ -31,18 +30,6 @@ namespace Eu.EDelivery.AS4.Validators
         }
 
         public static readonly SendingProcessingModeValidator Instance = new SendingProcessingModeValidator();
-
-        private void RulesForDynamicDiscoveryConfiguration()
-        {
-            Func<SendingProcessingMode, bool> isPushing = pmode => pmode.MepBinding == MessageExchangePatternBinding.Push;
-
-            When(p => isPushing(p), delegate
-            {
-                RuleFor(pmode => pmode.DynamicDiscovery).NotNull()
-                                                        .When(pmode => pmode.PushConfigurationSpecified == false)
-                                                        .WithMessage("The DynamicDiscovery or PushConfiguration element must be specified.");
-            });
-        }
 
         private void RulesForPullConfiguration()
         {
@@ -106,10 +93,10 @@ namespace Eu.EDelivery.AS4.Validators
 
             RuleFor(pmode => pmode.Security.Signing.Algorithm).NotEmpty().When(isSigningEnabled);
             RuleFor(pmode => pmode.Security.Signing.HashFunction).NotEmpty().When(isSigningEnabled);
-            RuleFor(pmode => Constants.Algoritms.Contains(pmode.Security.Signing.Algorithm))
+            RuleFor(pmode => Constants.SignAlgorithms.IsSupported(pmode.Security.Signing.Algorithm))
                 .NotNull()
                 .When(isSigningEnabled);
-            RuleFor(pmode => Constants.HashFunctions.Contains(pmode.Security.Signing.HashFunction))
+            RuleFor(pmode => Constants.HashFunctions.IsSupported(pmode.Security.Signing.HashFunction))
                 .NotNull()
                 .When(isSigningEnabled);
         }

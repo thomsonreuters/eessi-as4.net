@@ -1,19 +1,19 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
 using System.Xml;
 using System.Net;
 using System.Net.Http;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Builders.Security;
 using Eu.EDelivery.AS4.ComponentTests.Common;
 using Eu.EDelivery.AS4.ComponentTests.Extensions;
 using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Submit;
 using Eu.EDelivery.AS4.Security.References;
+using Eu.EDelivery.AS4.Security.Signing;
+using Eu.EDelivery.AS4.Security.Strategies;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.TestUtils.Stubs;
 using Xunit;
@@ -136,11 +136,13 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
         private static AS4Message SignPullRequest(AS4Message message, X509Certificate2 certificate)
         {
-            var signer = new SigningStrategyBuilder(message)
-                                .WithSigningId(message.SigningId, Constants.HashFunctions.First())
-                                .WithSignatureAlgorithm(Constants.Algoritms.First())
-                                .WithCertificate(certificate, X509ReferenceType.BSTReference)
-                                .Build();
+            
+            CalculateSignatureConfig config = new CalculateSignatureConfig(certificate,
+                X509ReferenceType.BSTReference,
+                Constants.SignAlgorithms.Sha256,
+                Constants.HashFunctions.Sha256);
+
+            var signer = SignStrategy.ForAS4Message(message, config);
 
             message.SecurityHeader.Sign(signer);
 

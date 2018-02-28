@@ -1,11 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
+using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
@@ -22,16 +22,13 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
     public class UploadAttachmentsStep : IStep
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+
         private readonly IAttachmentUploaderProvider _provider;
 
-        private MessagingContext _messagingContext;
-
         /// <summary>
-        /// Initializes a new instance of the <see cref="UploadAttachmentsStep"/> class.
+        /// Initializes a new instance of the <see cref="UploadAttachmentsStep" /> class.
         /// </summary>
-        public UploadAttachmentsStep() : this(Registry.Instance.AttachmentUploader)
-        {
-        }
+        public UploadAttachmentsStep() : this(Registry.Instance.AttachmentUploader) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="UploadAttachmentsStep"/> class.
@@ -52,26 +49,26 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
         {
-            if (!messagingContext.AS4Message.HasAttachments)
+            AS4Message as4Message = messagingContext.AS4Message;
+            if (!as4Message.HasAttachments)
             {
-                return await StepResult.SuccessAsync(messagingContext);
+                return StepResult.Success(messagingContext);
             }
 
-            _messagingContext = messagingContext;
-
-            if (_messagingContext.ReceivingPMode?.MessageHandling?.DeliverInformation == null)
+            if (messagingContext.ReceivingPMode?.MessageHandling?.DeliverInformation == null)
             {
-                throw new InvalidOperationException("Unable to send DeliverMessage: the ReceivingPMode does not contain any DeliverInformation");
+                throw new InvalidOperationException(
+                    "Unable to send DeliverMessage: the ReceivingPMode does not contain any DeliverInformation");
             }
 
-            var uploader = GetAttachmentUploader(_messagingContext.ReceivingPMode);
+            IAttachmentUploader uploader = GetAttachmentUploader(messagingContext.ReceivingPMode);
 
-            // Retrieve and upload all payloads per user-message.
-            foreach (var um in _messagingContext.AS4Message.UserMessages)
+            foreach (UserMessage um in as4Message.UserMessages)
             {
-                var payloads = _messagingContext.AS4Message.Attachments.Where(a => a.MatchesAny(um.PayloadInfo));
-
-                await UploadAttachments(payloads, um, uploader).ConfigureAwait(false);
+                foreach (Attachment att in as4Message.Attachments.Where(a => a.MatchesAny(um.PayloadInfo)))
+                {
+                    await TryUploadAttachmentAsync(att, um, uploader).ConfigureAwait(false);
+                }
             }
 
             return await StepResult.SuccessAsync(messagingContext);
@@ -80,31 +77,30 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         private IAttachmentUploader GetAttachmentUploader(ReceivingProcessingMode pmode)
         {
             Method payloadReferenceMethod = pmode.MessageHandling.DeliverInformation.PayloadReferenceMethod;
-            PreConditionsPayloadReferenceMethod(pmode, payloadReferenceMethod);
+            if (payloadReferenceMethod.Type == null)
+            {
+                string description = $"Invalid configured Payload Reference Method in receive PMode {((IPMode) pmode).Id}";
+                Logger.Error(description);
+
+                throw new InvalidDataException(description);
+            }
 
             IAttachmentUploader uploader = _provider.Get(payloadReferenceMethod.Type);
-
             uploader.Configure(payloadReferenceMethod);
 
             return uploader;
         }
 
-        private static async Task UploadAttachments(IEnumerable<Attachment> attachments, UserMessage referringUserMessage, IAttachmentUploader uploader)
-        {
-            foreach (var attachment in attachments)
-            {
-                await TryUploadAttachment(attachment, referringUserMessage, uploader);
-            }
-        }
-
-        private static async Task TryUploadAttachment(Attachment attachment, UserMessage referringUserMessage, IAttachmentUploader uploader)
+        private static async Task TryUploadAttachmentAsync(Attachment attachment, UserMessage referringUserMessage, IAttachmentUploader uploader)
         {
             try
             {
                 Logger.Info($"{referringUserMessage.MessageId} Start Uploading Attachment...");
 
-                await UploadAttachment(attachment, referringUserMessage, uploader).ConfigureAwait(false);
+                UploadResult attachmentResult = 
+                    await uploader.UploadAsync(attachment, referringUserMessage).ConfigureAwait(false);
 
+                attachment.Location = attachmentResult.DownloadUrl;
                 attachment.ResetContentPosition();
             }
             catch (Exception exception)
@@ -113,24 +109,6 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
                 Logger.Error(exception.Message);
 
                 throw;
-            }
-        }
-
-        private static async Task UploadAttachment(Attachment attachment, UserMessage belongsToUserMessage, IAttachmentUploader uploader)
-        {
-            UploadResult attachmentResult = await uploader.UploadAsync(attachment, belongsToUserMessage).ConfigureAwait(false);
-
-            attachment.Location = attachmentResult.DownloadUrl;
-        }
-
-        private static void PreConditionsPayloadReferenceMethod(IPMode pmode, Method payloadReferenceMethod)
-        {
-            if (payloadReferenceMethod.Type == null)
-            {
-                string description = $"Invalid configured Payload Reference Method in receive PMode {pmode.Id}";
-                Logger.Error(description);
-
-                throw new InvalidDataException(description);
             }
         }
     }

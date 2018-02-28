@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
@@ -20,14 +19,19 @@ using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Singletons;
 using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Steps.Receive;
+using Eu.EDelivery.AS4.TestUtils;
 using Eu.EDelivery.AS4.UnitTests.Extensions;
 using Eu.EDelivery.AS4.UnitTests.Model;
 using Eu.EDelivery.AS4.UnitTests.Resources;
 using Eu.EDelivery.AS4.Xml;
+using FsCheck;
+using FsCheck.Xunit;
+using MimeKit;
 using Xunit;
 using static Eu.EDelivery.AS4.UnitTests.Properties.Resources;
 using Error = Eu.EDelivery.AS4.Model.Core.Error;
 using PartyId = Eu.EDelivery.AS4.Model.Core.PartyId;
+using PullRequest = Eu.EDelivery.AS4.Model.Core.PullRequest;
 using Receipt = Eu.EDelivery.AS4.Model.Core.Receipt;
 using UserMessage = Eu.EDelivery.AS4.Model.Core.UserMessage;
 
@@ -38,13 +42,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
     /// </summary>
     public class GivenSoapEnvelopeSerializerFacts
     {
-        private readonly SoapEnvelopeSerializer _serializer;
-
-        public GivenSoapEnvelopeSerializerFacts()
-        {
-            _serializer = new SoapEnvelopeSerializer();
-        }
-
         /// <summary>
         /// Testing if the serializer succeeds
         /// </summary>
@@ -84,8 +81,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                 using (MemoryStream memoryStream = AnonymousAS4UserMessage().ToStream())
                 {
                     // Act
-                    AS4Message message = await _serializer
-                        .DeserializeAsync(memoryStream, Constants.ContentTypes.Soap, CancellationToken.None);
+                    AS4Message message = await DeserializeAsSoap(memoryStream);
 
                     // Assert
                     Assert.Equal(1, message.UserMessages.Count());
@@ -98,8 +94,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                 using (var memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(Samples.UserMessage)))
                 {
                     // Act
-                    AS4Message message = await _serializer
-                        .DeserializeAsync(memoryStream, Constants.ContentTypes.Soap, CancellationToken.None);
+                    AS4Message message = await DeserializeAsSoap(memoryStream);
 
                     // Assert
                     UserMessage userMessage = message.UserMessages.First();
@@ -115,8 +110,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                 using (var memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(Samples.UserMessage)))
                 {
                     // Act
-                    AS4Message message = await _serializer
-                        .DeserializeAsync(memoryStream, Constants.ContentTypes.Soap, CancellationToken.None);
+                    AS4Message message = await DeserializeAsSoap(memoryStream);
 
                     // Assert
                     UserMessage userMessage = message.UserMessages.First();
@@ -132,8 +126,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                 using (var memoryStream = new MemoryStream(Encoding.UTF32.GetBytes(Samples.UserMessage)))
                 {
                     // Act
-                    AS4Message message = await _serializer
-                        .DeserializeAsync(memoryStream, Constants.ContentTypes.Soap, CancellationToken.None);
+                    AS4Message message = await DeserializeAsSoap(memoryStream);
 
                     // Assert
                     UserMessage userMessage = message.UserMessages.First();
@@ -149,14 +142,18 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                 using (var memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(Samples.UserMessage)))
                 {
                     // Act
-                    AS4Message message = await _serializer
-                        .DeserializeAsync(memoryStream, Constants.ContentTypes.Soap, CancellationToken.None);
+                    AS4Message message = await DeserializeAsSoap(memoryStream);
 
                     // Assert
                     UserMessage userMessage = message.UserMessages.First();
                     Assert.Equal("org:eu:europa:as4:example", userMessage.Sender.PartyIds.First().Id);
                     Assert.Equal("Sender", userMessage.Sender.Role);
                 }
+            }
+
+            private static Task<AS4Message> DeserializeAsSoap(Stream str)
+            {
+                return new SoapEnvelopeSerializer().DeserializeAsync(str, Constants.ContentTypes.Soap, CancellationToken.None);
             }
 
             [Fact]
@@ -185,7 +182,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                 using (var messageStream = new MemoryStream(as4_multihop_message))
                 {
                     // Arrange
-                    AS4Message receiptMessage = await new MimeMessageSerializer(_serializer).DeserializeAsync(
+                    AS4Message receiptMessage = await new MimeMessageSerializer(new SoapEnvelopeSerializer()).DeserializeAsync(
                         inputStream: messageStream,
                         contentType: "multipart/related; boundary=\"=-M/sMGEhQK8RBNg/21Nf7Ig==\";\ttype=\"application/soap+xml\"",
                         cancellationToken: CancellationToken.None);
@@ -205,12 +202,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                 await TestValidEbmsMessageEnvelopeFrom(errorMessage);
             }
 
-            private async Task TestValidEbmsMessageEnvelopeFrom(AS4Message message)
+            private static async Task TestValidEbmsMessageEnvelopeFrom(AS4Message message)
             {
                 using (var targetStream = new MemoryStream())
                 {
                     // Act
-                    await _serializer.SerializeAsync(message, targetStream, CancellationToken.None);
+                    await new SoapEnvelopeSerializer().SerializeAsync(message, targetStream, CancellationToken.None);
 
                     // Assert
                     XmlDocument envelope = LoadInEnvelopeDocument(targetStream);
@@ -268,20 +265,125 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
             }
         }
 
-        [Fact]
-        public void ThenXmlDocumentContainsOneMessagingHeader()
+        public class AS4MessageSerializeFacts : GivenAS4MessageFacts
         {
-            // Arrange
-            using (var memoryStream = new MemoryStream())
+            [Property]
+            public void ThenSerializeWithoutAttachmentsReturnsSoapMessage(Guid mpc)
             {
-                AS4Message dummyMessage = AnonymousAS4UserMessage();
+                // Act
+                UserMessage userMessage = CreateUserMessage();
+                AS4Message message = BuildAS4Message(mpc.ToString(), userMessage);
+
+                using (var soapStream = new MemoryStream())
+                {
+                    XmlDocument document = SerializeSoapMessage(message, soapStream);
+                    XmlNode envelopeElement = document.DocumentElement;
+
+                    // Assert
+                    Assert.NotNull(envelopeElement);
+                    Assert.Equal(Constants.Namespaces.Soap12, envelopeElement.NamespaceURI);
+                }
+            }
+
+            [Property]
+            public void ThenPullRequestCorrectlySerialized(Guid mpc)
+            {
+                // Arrange
+                UserMessage userMessage = CreateUserMessage();
+
+                AS4Message message = BuildAS4Message(mpc.ToString(), userMessage);
 
                 // Act
-                _serializer.Serialize(dummyMessage, stream: memoryStream, cancellationToken: CancellationToken.None);
+                using (var soapStream = new MemoryStream())
+                {
+                    XmlDocument document = SerializeSoapMessage(message, soapStream);
 
-                // Assert
-                AssertXmlDocumentContainsMessagingTag(memoryStream);
+                    // Assert
+                    XmlAttribute mpcAttribute = GetMpcAttribute(document);
+                    Assert.NotNull(mpcAttribute);
+                    Assert.Equal(mpc.ToString(), mpcAttribute.Value);
+                }
             }
+
+            private static XmlAttribute GetMpcAttribute(XmlDocument document)
+            {
+                const string node = "/s:Envelope/s:Header/ebms:Messaging/ebms:SignalMessage/ebms:PullRequest";
+                XmlAttributeCollection attributes = document.SelectXmlNode(node).Attributes;
+
+                return attributes?.Cast<XmlAttribute>().FirstOrDefault(x => x.Name == "mpc");
+            }
+
+            [Fact]
+            public void ThenSaveToUserMessageCorrectlySerialized()
+            {
+                // Arrange
+                UserMessage userMessage = CreateUserMessage();
+                AS4Message message = AS4Message.Create(userMessage);
+
+                // Act
+                using (var soapStream = new MemoryStream())
+                {
+                    message.ContentType = Constants.ContentTypes.Soap;
+                    XmlDocument document = SerializeSoapMessage(message, soapStream);
+
+                    // Assert
+                    Assert.NotNull(document.DocumentElement);
+                    Assert.Contains("Envelope", document.DocumentElement.Name);
+                }
+            }
+
+            [Fact]
+            public void ThenXmlDocumentContainsOneMessagingHeader()
+            {
+                // Arrange
+                using (var memoryStream = new MemoryStream())
+                {
+                    AS4Message dummyMessage = AnonymousAS4UserMessage();
+
+                    // Act
+                    new SoapEnvelopeSerializer().Serialize(dummyMessage, stream: memoryStream, cancellationToken: CancellationToken.None);
+
+                    // Assert
+                    AssertXmlDocumentContainsMessagingTag(memoryStream);
+                }
+            }
+
+            private static void AssertXmlDocumentContainsMessagingTag(Stream stream)
+            {
+                stream.Position = 0;
+                using (var reader = new XmlTextReader(stream))
+                {
+                    var document = new XmlDocument();
+                    document.Load(reader);
+                    XmlNodeList nodeList = document.GetElementsByTagName("eb:Messaging");
+                    Assert.Equal(1, nodeList.Count);
+                }
+            }
+        }
+
+        private static UserMessage CreateUserMessage()
+        {
+            return new UserMessage("message-id") { CollaborationInfo = { AgreementReference = new AgreementReference() } };
+        }
+
+        private static XmlDocument SerializeSoapMessage(AS4Message message, Stream soapStream)
+        {
+            ISerializer serializer = new SoapEnvelopeSerializer();
+            serializer.Serialize(message, soapStream, CancellationToken.None);
+
+            soapStream.Position = 0;
+            var document = new XmlDocument();
+            document.Load(soapStream);
+
+            return document;
+        }
+
+        private static AS4Message BuildAS4Message(string mpc, UserMessage userMessage)
+        {
+            AS4Message as4Message = AS4Message.Create(userMessage);
+            as4Message.AddMessageUnit(new PullRequest(mpc));
+
+            return as4Message;
         }
 
         private static AS4Message AnonymousAS4UserMessage()
@@ -296,18 +398,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                 Receiver = new Party("Receiver", new PartyId()),
                 Sender = new Party("Sender", new PartyId())
             };
-        }
-
-        private static void AssertXmlDocumentContainsMessagingTag(Stream stream)
-        {
-            stream.Position = 0;
-            using (var reader = new XmlTextReader(stream))
-            {
-                var document = new XmlDocument();
-                document.Load(reader);
-                XmlNodeList nodeList = document.GetElementsByTagName("eb:Messaging");
-                Assert.Equal(1, nodeList.Count);
-            }
         }
     }
 
@@ -603,7 +693,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
 
         private static Receipt CreateReceiptWithNonRepudiationInfo()
         {
-            var nnri = new ArrayList { new System.Security.Cryptography.Xml.Reference() };
+            var nnri = new[] { new System.Security.Cryptography.Xml.Reference() };
 
             var receipt = new Receipt
             {
@@ -628,13 +718,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
     {
         [Fact]
         public async Task ReserializedMessageHasUntouchedSoapEnvelope()
-        {            
+        {
             AS4Message deserializedAS4Message = await DeserializeToAS4Message(rssbus_message, @"multipart/related;boundary=""NSMIMEBoundary__e5cfd617-6cec-4276-b190-23f0b25d9d4d"";type=""application/soap+xml"";start=""<_7a711d7c-4d1c-4ce7-ab38-794a01b445e1>""");
-            AS4Message reserializedAS4Message = await SerializeDeserializeAsync(deserializedAS4Message);
+            AS4Message reserializedAS4Message = await AS4MessageUtils.SerializeDeserializeAsync(deserializedAS4Message);
 
             Assert.Equal(deserializedAS4Message.EnvelopeDocument.OuterXml, reserializedAS4Message.EnvelopeDocument.OuterXml);
         }
-        
+
         [Fact]
         public async Task CanDeserializeEncryptAndSerializeSignedMessageWithUntouchedMessagingHeader()
         {
@@ -643,22 +733,26 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
 
             AS4Message deserializedAS4Message = await DeserializeToAS4Message(signed_holodeck_message, @"multipart/related;boundary=""MIMEBoundary_bcb27a6f984295aa9962b01ef2fb3e8d982de76d061ab23f""");
 
+            var originalSecurityHeader = deserializedAS4Message.SecurityHeader.GetXml().CloneNode(deep: true);
+
+            X509Certificate2 encryptionCertificate = new X509Certificate2(certificate_as4, certificate_password);
+
             // Act: Encrypt the message
             IEncryptionStrategy strategy =
-                EncryptionStrategyBuilder.Create(deserializedAS4Message, new KeyEncryptionConfiguration(new X509Certificate2(certificate_as4, certificate_password)))
+                EncryptionStrategyBuilder.Create(deserializedAS4Message,
+                                                 new KeyEncryptionConfiguration(encryptionCertificate))
                                          .Build();
 
             deserializedAS4Message.SecurityHeader.Encrypt(strategy);
 
-            // Serialize it again; the Soap envelope should remain intact, besides
-            // some changes that have been made to the security header.
-            var reserializedAS4Message = await SerializeDeserializeAsync(deserializedAS4Message);
-
             // Assert: the soap envelope of the encrypted message should not be equal to the
             //         envelope of the original message since there should be modifications in
             //         the security header.
+            Assert.NotEqual(originalSecurityHeader.OuterXml, deserializedAS4Message.EnvelopeDocument.OuterXml);
 
-            Assert.NotEqual(reserializedAS4Message.EnvelopeDocument.OuterXml, deserializedAS4Message.EnvelopeDocument.OuterXml);
+            // Serialize it again; the Soap envelope should remain intact, besides
+            // some changes that have been made to the security header.
+            var reserializedAS4Message = await AS4MessageUtils.SerializeDeserializeAsync(deserializedAS4Message);
 
             // Assert: The soap envelopes of both messages should be equal if the 
             //         SecurityHeader is not taken into consideration.
@@ -680,19 +774,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
             return await serializer.DeserializeAsync(stream, contentType, CancellationToken.None);
         }
 
-        private static async Task<AS4Message> SerializeDeserializeAsync(AS4Message message)
-        {
-            var serializer = SerializerProvider.Default.Get(message.ContentType);
 
-            using (var targetStream = new MemoryStream())
-            {
-                serializer.Serialize(message, targetStream, CancellationToken.None);
-
-                targetStream.Position = 0;
-
-                return await serializer.DeserializeAsync(targetStream, message.ContentType, CancellationToken.None);
-            }
-        }
 
         private static void RemoveSecurityHeaderFromMessageEnvelope(AS4Message as4Message)
         {
