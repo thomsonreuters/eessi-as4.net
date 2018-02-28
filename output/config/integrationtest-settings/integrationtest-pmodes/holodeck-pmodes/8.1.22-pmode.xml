@@ -13,8 +13,8 @@ install this P-Mode on instance A.
     <mep>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/oneWay</mep>
     <mepBinding>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/push</mepBinding>
     <Initiator>
-        <PartyId>http://docs.oasis-open.org/ebxml-msg/ebMS/v3.0/ns/core/200704/defaultFrom</PartyId>
-        <Role>http://docs.oasis-open.org/ebxml-msg/ebMS/v3.0/ns/core/200704/defaultFrom</Role>
+        <PartyId>org:holodeckb2b:example:company:A</PartyId>
+        <Role>Sender</Role>
         <SecurityConfiguration>
             <Encryption>
                 <KeystoreAlias password="Pz4cZK4SULUwmraZb">accesspointb</KeystoreAlias>
@@ -27,7 +27,7 @@ install this P-Mode on instance A.
         </SecurityConfiguration>
     </Initiator>
     <Responder>
-        <PartyId type="org:holodeckb2b:example:company:B">org:holodeckb2b:example:company:B</PartyId>
+        <PartyId>org:eu:europa:as4:example</PartyId>
         <Role>Receiver</Role>
         <SecurityConfiguration>
             <Encryption>
@@ -55,10 +55,10 @@ install this P-Mode on instance A.
         </DefaultDelivery>
         <UserMessageFlow>
             <BusinessInfo>
-                <Action>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/test</Action>
+                <Action>StoreMessage</Action>
                 <Service>
-                    <name>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service</name>
-                    <type>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service</type>
+                    <name>Test</name>
+                    <type>org:holodeckb2b:services</type>
                 </Service>
             </BusinessInfo>         
         </UserMessageFlow>
