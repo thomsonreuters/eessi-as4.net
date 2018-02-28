@@ -172,6 +172,8 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._19_22
         private void InsertSmpConfiguration(SmpConfiguration smpConfig)
         {
             PollingAt(Path.GetFullPath(@".\database"), "*.db");
+
+            // Wait for migrations to complete on datastore
             Thread.Sleep(TimeSpan.FromSeconds(5));
 
             var spy = new DatastoreSpy(AS4Component.GetConfiguration());
