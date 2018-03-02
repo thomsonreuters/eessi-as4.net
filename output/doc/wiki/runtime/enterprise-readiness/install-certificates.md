@@ -5,26 +5,26 @@ This procedure describes how to install certificates.
 - Click **Start → Run**
 - Type _mmc_ and click Open
 
-![mmc](mmc.png)
+![mmc](images/mmc.png)
 
 - Choose **File → Add/Remove Snap-In**
 - Select **Certificates** and click **Add**
 - Choose **Computer Account** and click **Next**
 
-![cert-snapin](cert-snapin.png)
+![cert-snapin](images/cert-snapin.png)
 
 - Keep **Local Computer** selected and click **Finish**
 
-![select-computer](select-computer.png)
+![select-computer](images/select-computer.png)
 
 - Click **OK**
 
-![add-remove-snapin](add-remove-snapin.png)
+![add-remove-snapin](images/add-remove-snapin.png)
 
 - Right click on the correct certificate store and choose **All Tasks → Import**
 - Click **Next**
 
-![import-cert](import-cert.png)
+![import-cert](images/import-cert.png)
 
 - Click **Browse**
 - To import a public certificate, you can select the `*.cer` certificate.
@@ -34,6 +34,6 @@ This procedure describes how to install certificates.
     - Specify the password (see `samples\certificates\README.txt`)
     - Mark the certificate as exportable
 
-![export-cert](export-cert.png)
+![export-cert](images/export-cert.png)
 
 - Click **Next**, **Next** and **Finish**

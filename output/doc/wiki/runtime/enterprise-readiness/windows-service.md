@@ -26,4 +26,4 @@ Both the Frontend and Payload Service is enabled on this settings.
 
 When running the service, the log messages are written to **Event Log**:
 
-![img](eventlog.png)
+![img](images/eventlog.png)

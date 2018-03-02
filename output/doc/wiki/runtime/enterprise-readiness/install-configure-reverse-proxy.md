@@ -18,31 +18,31 @@ On a local machine, default the ISS Manager isn’t activated as Windows Compone
 - Expand **Internet Information Services** à **Web Management Tools**
 - Check **IIS Management Console**
 
-![windows-features](windows-features.png)
+![windows-features](images/windows-features.png)
 
 ## Open IIS Manager
 
 - Click **Start → Run**
 - Type _inetmgr_ and click Open
 
-![iis-manager](iis-manager.png)
+![iis-manager](images/iis-manager.png)
 
 ## Rules
 
 - In the left column **Connections**, Choose **Sites → Default Web Site**
 
-![rules](rules.png)
+![rules](images/rules.png)
 
 - On the left pane **Actions**, click **Add rule(s)**
 - Select **Reverse Proxy**
 - Click **OK**
 
-![add-rule](add-rule.png)
+![add-rule](images/add-rule.png)
 
 - Enter the IP of the **Receiving MSH** ([localhost:9090/msh]() in the example)
 - Leave the **Outbound Rules** unchecked
 
-![edit-inbound-rule](edit-inbound-rule.png)
+![edit-inbound-rule](images/edit-inbound-rule.png)
 
 - Use http://localhost:9090/{R:1} as **Rewrite URL**
 - In the right pane **Actions**, click **Apply**
@@ -54,11 +54,11 @@ We need to specify in the bindings what’s the port number and certificate we u
 - In the left column **Connections**, Choose **Sites → Default Web Site**
 - In the right pane **Actions**, click **Bindings**
 
-![site-bindings](site-bindings.png)
+![site-bindings](images/site-bindings.png)
 
 - Click **Add**
 
-![edit-site-binding](edit-site-binding.png)
+![edit-site-binding](images/edit-site-binding.png)
 
 - Select as **Type**: **https**
 - Insert **443** as **Port**
@@ -71,12 +71,12 @@ As extra, we configure the reverse proxy so it requires a certificate.
 - In the left column **Connections**, Choose **Sites → Default Web Site**
 - In the main view, click on **SLL Settings**
 
-![ssl-settings](ssl-settings.png)
+![ssl-settings](images/ssl-settings.png)
 
 - Check the **Require SSL** checkbox
 - Select the **Require** radio button
 
-![require-ssl-settings](require-ssl-settings.png)
+![require-ssl-settings](images/require-ssl-settings.png)
 
 
 

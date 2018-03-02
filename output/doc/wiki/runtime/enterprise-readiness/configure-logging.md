@@ -4,10 +4,10 @@ The AS4 .NET Component uses NLog for logging. The logging levels can be configur
 
 The sample NLog configuration file is named: `App.config`, below you find the default configuration:
 
-![app-config](app.config.png)
+![app-config](images/app.config.png)
 
 When there are issues with signature-verification of a received AS4 Message, it is possible to enable extensive logging which can be helpful in pinpointing the problem.
 Signature verification logging can be enabled by enabling the `XmlDsigLogSwitch` trace-switch that can be found in the `App.config` configuration file:
 
-![app-config-details](app.config-detail.png)
+![app-config-details](images/app.config-detail.png)
 
