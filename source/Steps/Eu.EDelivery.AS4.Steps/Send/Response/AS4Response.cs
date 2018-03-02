@@ -81,19 +81,9 @@ namespace Eu.EDelivery.AS4.Steps.Send.Response
 
         private static void LogReceivedAS4Response(AS4Message as4Message)
         {
-            foreach (var mu in as4Message.MessageUnits)
+            foreach (MessageUnit mu in as4Message.MessageUnits)
             {
-                string messageType = "";
-
-                if (mu is Receipt)
-                {
-                    messageType = "Receipt";
-                }
-                else if (mu is Error)
-                {
-                    messageType = "Error";
-                }
-                Logger.Info($"{messageType} received for message with ebMS Id {mu.RefToMessageId}");
+                Logger.Info($"{mu.GetType().Name} Message Response received for message with ebMS Id {mu.RefToMessageId}");
             }
         }
 
