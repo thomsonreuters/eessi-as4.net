@@ -1,13 +1,13 @@
 /* tslint:disable */
 import { FormBuilder, FormGroup, FormArray } from '@angular/forms';
-import { ClientCertificateReference } from "./ClientCertificateReference";
+import { ClientCertificateInformation } from "./ClientCertificateInformation";
 
 export class TlsConfiguration {
 	isEnabled: boolean;
 	tlsVersion: number;
-	clientCertificateReference: ClientCertificateReference;
+	clientCertificateInformation: ClientCertificateInformation;
 
 	static FIELD_isEnabled: string = 'isEnabled';
 	static FIELD_tlsVersion: string = 'tlsVersion';
-	static FIELD_clientCertificateReference: string = 'clientCertificateReference';	
+	static FIELD_clientCertificateInformation: string = 'clientCertificateInformation';	
 }

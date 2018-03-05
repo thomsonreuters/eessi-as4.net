@@ -52,6 +52,37 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
             }
 
             [Fact]
+            public async Task SendingPModeWithTlsConfiguration()
+            {
+                var expected = new ClientCertificateReference
+                {
+                    ClientCertificateFindType = X509FindType.FindBySubjectName,
+                    ClientCertificateFindValue = "subject"
+                };
+                var before = new SendingProcessingMode
+                {
+                    PushConfiguration = new PushConfiguration
+                    {
+                        TlsConfiguration =
+                        {
+                            IsEnabled = true,
+                            ClientCertificateInformation = expected
+                        }
+                    }
+                };
+
+                Stream str = await AS4XmlSerializer.ToStreamAsync(before);
+
+                SendingProcessingMode after = DeserializeExpectedPMode(str);
+
+                var actual = after.PushConfiguration.TlsConfiguration.ClientCertificateInformation as ClientCertificateReference;
+
+                Assert.NotNull(actual);
+                Assert.Equal(expected.ClientCertificateFindType, actual.ClientCertificateFindType);
+                Assert.Equal(expected.ClientCertificateFindValue, actual.ClientCertificateFindValue);
+            }
+
+            [Fact]
             public async Task SendingPModeWithEncryptionFindCriteria()
             {
                 // Arrange

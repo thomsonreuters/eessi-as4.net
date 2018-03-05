@@ -1,11 +1,39 @@
+using System.Security.Cryptography.X509Certificates;
 using Eu.EDelivery.AS4.Fe.Pmodes.Model;
 using Eu.EDelivery.AS4.Model.PMode;
+using Newtonsoft.Json.Linq;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.Fe.UnitTests
 {
     public class SendingBasePmodeTests
     {
+        [Fact]
+        public void Contains_TlsConfiguration_When_Present_As_Json()
+        {
+            var certFindCriteria = new ClientCertificateReference
+            {
+                ClientCertificateFindType = X509FindType.FindBySubjectName,
+                ClientCertificateFindValue = "subject"
+            };
+            var pmode = new SendingBasePmode
+            {
+                Pmode = new SendingProcessingMode
+                {
+                    PushConfiguration = new PushConfiguration
+                    {
+                        TlsConfiguration =
+                        {
+                            IsEnabled = true,
+                            ClientCertificateInformation = JObject.FromObject(certFindCriteria)
+                        }
+                    }
+                }
+            };
+
+            Assert.IsType<ClientCertificateReference>(pmode.Pmode.PushConfiguration.TlsConfiguration.ClientCertificateInformation);
+        }
+
         [Fact]
         public void IsDynamicDiscoveryEnabled_True_Will_Set_PushConfigurationNode_To_Null()
         {
