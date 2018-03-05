@@ -15,16 +15,16 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Services
             Func<ReceptionAwarenessService, TResult> act)
         {
             // Act
-            return act(CreateServideWith(repository));
+            return act(CreateServiceWith(repository));
         }
 
         private static void ExerciseService(IDatastoreRepository repository, Action<ReceptionAwarenessService> act)
         {
             // Act
-            act(CreateServideWith(repository));
+            act(CreateServiceWith(repository));
         }
 
-        private static ReceptionAwarenessService CreateServideWith(IDatastoreRepository repository)
+        private static ReceptionAwarenessService CreateServiceWith(IDatastoreRepository repository)
         {
             return new ReceptionAwarenessService(repository);
         }
@@ -69,7 +69,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Services
             {
                 var stub = new Mock<IDatastoreRepository>();
 
-                stub.Setup(r => r.GetOutMessageData(It.IsAny<string>(), It.IsAny<Expression<Func<OutMessage, Operation>>>()))
+                stub.Setup(r => r.GetOutMessageData(It.IsAny<long>(), It.IsAny<Expression<Func<OutMessage, Operation>>>()))
                     .Returns(operation);
 
                 return stub.Object;
@@ -83,7 +83,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Services
                 // Arrange
                 IDatastoreRepository stubRepository = GetStubRepositoryWithOutMessageOperation(referencedOperation);
 
-                var awareness = new AS4.Entities.ReceptionAwareness
+                var awareness = new AS4.Entities.ReceptionAwareness(1, "message-id")
                 {
                     CurrentRetryCount = 1,
                     TotalRetryCount = 5,
@@ -105,22 +105,22 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Services
         public class ModifyStatus
         {
             [Fact]
-            public void CompletesReferecedMessage()
+            public void CompletesReferencedMessage()
             {
                 // Arrange
                 var mockStore = new Mock<IDatastoreRepository>();
-                var actual = new AS4.Entities.ReceptionAwareness { InternalMessageId = "message-id" };
+                var actual = new AS4.Entities.ReceptionAwareness(1, "message-id");
                 actual.SetStatus(ReceptionStatus.Busy);
 
                 mockStore.Setup(
                             s =>
                                 s.UpdateReceptionAwareness(
-                                    It.IsAny<string>(),
+                                    It.IsAny<long>(),
                                     It.IsAny<Action<AS4.Entities.ReceptionAwareness>>()))
                         .Callback(
-                             (string id, Action<AS4.Entities.ReceptionAwareness> updatedEntity) =>
+                             (long id, Action<AS4.Entities.ReceptionAwareness> updatedEntity) =>
                              {
-                                 Assert.Equal(actual.InternalMessageId, id);
+                                 Assert.Equal(actual.Id, id);
                                  updatedEntity(actual);
                              });
 
@@ -139,23 +139,26 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Services
             {
                 // Arrange
                 var mockRepository = new Mock<IDatastoreRepository>();
-                var awareness = new AS4.Entities.ReceptionAwareness { InternalMessageId = "not empty message-id" };
-                var actual = new OutMessage(Guid.NewGuid().ToString());
-                actual.SetOperation(Operation.Sent);
+                var outMessage = new OutMessage(Guid.NewGuid().ToString());
+                outMessage.InitializeIdFromDatabase(1);
+                outMessage.SetOperation(Operation.Sent);
 
-                mockRepository.Setup(r => r.UpdateOutMessage(It.IsAny<string>(), It.IsAny<Action<OutMessage>>()))
+                var awareness = new AS4.Entities.ReceptionAwareness(outMessage.Id, "not empty message-id");
+                awareness.InitializeIdFromDatabase(2);
+
+                mockRepository.Setup(r => r.UpdateOutMessage(It.IsAny<long>(), It.IsAny<Action<OutMessage>>()))
                               .Callback(
-                                  (string id, Action<OutMessage> updateEntity) =>
+                                  (long id, Action<OutMessage> updateEntity) =>
                                   {
-                                      Assert.Equal(awareness.InternalMessageId, id);
-                                      updateEntity(actual);
+                                      Assert.Equal(awareness.RefToOutMessageId, id);
+                                      updateEntity(outMessage);
                                   });
 
                 // Act
                 ExerciseService(mockRepository.Object, s => s.MarkReferencedMessageForResend(awareness));
 
                 // Assert
-                Assert.Equal(Operation.ToBeSent, OperationUtils.Parse(actual.Operation));
+                Assert.Equal(Operation.ToBeSent, OperationUtils.Parse(outMessage.Operation));
             }
 
             [Fact]
@@ -163,22 +166,19 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Services
             {
                 // Arrange
                 var mockRepository = new Mock<IDatastoreRepository>();
-                var awareness = new AS4.Entities.ReceptionAwareness
-                {
-                    InternalMessageId = "not empty message-id"
-                };
-
+                var awareness = new AS4.Entities.ReceptionAwareness(1, "not-empty-message-id");
+                
                 awareness.SetStatus(ReceptionStatus.Busy);
 
                 mockRepository.Setup(
                                   r =>
                                       r.UpdateReceptionAwareness(
-                                          It.IsAny<string>(),
+                                          It.IsAny<long>(),
                                           It.IsAny<Action<AS4.Entities.ReceptionAwareness>>()))
                               .Callback(
-                                  (string id, Action<AS4.Entities.ReceptionAwareness> updateEntry) =>
+                                  (long id, Action<AS4.Entities.ReceptionAwareness> updateEntry) =>
                                   {
-                                      Assert.Equal(awareness.InternalMessageId, id);
+                                      Assert.Equal(awareness.Id, id);
                                       updateEntry(awareness);
                                   });
 
@@ -205,17 +205,18 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Services
                 const string messageId = "message id";
 
                 var selectArgument = new OutMessage(ebmsMessageId: messageId);
+                selectArgument.InitializeIdFromDatabase(1);
                 selectArgument.SetStatus(status);
 
-                stubRepository.Setup(r => r.GetOutMessageData(It.IsAny<string>(), It.IsAny<Expression<Func<OutMessage, bool>>>()))
+                stubRepository.Setup(r => r.GetOutMessageData(It.IsAny<long>(), It.IsAny<Expression<Func<OutMessage, bool>>>()))
                               .Returns(
-                                  (string id, Expression<Func<OutMessage, bool>> selection) =>
+                                  (long id, Expression<Func<OutMessage, bool>> selection) =>
                                   {
                                       var f = selection.Compile();
                                       return f(selectArgument);
                                   });
 
-                var awareness = new AS4.Entities.ReceptionAwareness { InternalMessageId = messageId };
+                var awareness = new AS4.Entities.ReceptionAwareness(selectArgument.Id, selectArgument.EbmsMessageId);
 
                 // Act
                 bool actual = ExerciseService(stubRepository.Object, s => s.IsMessageAlreadyAnswered(awareness));
@@ -223,7 +224,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Services
                 // Assert
                 Assert.Equal(expected, actual);
                 stubRepository.Verify(
-                    expression: r => r.GetOutMessageData(It.IsAny<string>(), It.IsAny<Expression<Func<OutMessage, bool>>>()),
+                    expression: r => r.GetOutMessageData(It.IsAny<long>(), It.IsAny<Expression<Func<OutMessage, bool>>>()),
                     times: Times.Once);
             }
         }
@@ -235,18 +236,18 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Services
             {
                 // Arrange
                 var mockRepository = new Mock<IDatastoreRepository>();
-                var actual = new AS4.Entities.ReceptionAwareness();
+                var actual = new AS4.Entities.ReceptionAwareness(1, "some-message-id");
                 actual.SetStatus(ReceptionStatus.Busy);
 
                 mockRepository.Setup(
                                   r =>
                                       r.UpdateReceptionAwareness(
-                                          It.IsAny<string>(),
+                                          It.IsAny<long>(),
                                           It.IsAny<Action<AS4.Entities.ReceptionAwareness>>()))
                               .Callback(
-                                  (string id, Action<AS4.Entities.ReceptionAwareness> updateEntry) =>
+                                  (long id, Action<AS4.Entities.ReceptionAwareness> updateEntry) =>
                                   {
-                                      Assert.Equal(actual.InternalMessageId, id);
+                                      Assert.Equal(actual.Id, id);
                                       updateEntry(actual);
                                   });
 

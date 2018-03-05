@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.UnitTests.Common;
@@ -18,8 +15,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
 
             using (var db = GetDataStoreContext())
             {
-                var ra = new ReceptionAwareness();
-                ra.InternalMessageId = "id";
+                var ra = new ReceptionAwareness(1, "id");                
                 ra.SetStatus(ReceptionStatus.Busy);
 
                 db.ReceptionAwareness.Add(ra);

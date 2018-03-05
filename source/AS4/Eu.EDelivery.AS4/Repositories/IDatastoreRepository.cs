@@ -78,13 +78,13 @@ namespace Eu.EDelivery.AS4.Repositories
         bool OutMessageExists(Expression<Func<OutMessage, bool>> predicate);
 
         /// <summary>
-        /// Firsts the or default out message.
+        /// Retrieves the data of the OutMessage that has the specified <paramref name="messageId"/>
         /// </summary>
-        /// <typeparam name="TResult">The type of the result.</typeparam>
-        /// <param name="messageId">The message identifier.</param>
-        /// <param name="selection">The selection.</param>
+        /// <typeparam name="TResult"></typeparam>
+        /// <param name="messageId"></param>
+        /// <param name="selection"></param>
         /// <returns></returns>
-        TResult GetOutMessageData<TResult>(string messageId, Expression<Func<OutMessage, TResult>> selection);
+        TResult GetOutMessageData<TResult>(long messageId, Expression<Func<OutMessage, TResult>> selection);
 
         /// <summary>
         /// Gets the out message data.
@@ -113,9 +113,9 @@ namespace Eu.EDelivery.AS4.Repositories
         /// <summary>
         /// Updates the out message.
         /// </summary>
-        /// <param name="messageId">The message identifier.</param>
+        /// <param name="outMessageId">The ID that uniquely identifies the OutMessage record that must be updated..</param>
         /// <param name="updateAction">The update action.</param>
-        void UpdateOutMessage(string messageId, Action<OutMessage> updateAction);
+        void UpdateOutMessage(long outMessageId, Action<OutMessage> updateAction);
 
         void UpdateOutMessages(Expression<Func<OutMessage, bool>> predicate, Action<OutMessage> updateAction);
 
@@ -166,16 +166,16 @@ namespace Eu.EDelivery.AS4.Repositories
         /// <summary>
         /// Updates the reception awareness.
         /// </summary>
-        /// <param name="messageId">The message identifier.</param>
+        /// <param name="receptionAwarenessId">The Id that uniquely identifies the ReceptionAwareness record.</param>
         /// <param name="updateAction">The update action.</param>
-        void UpdateReceptionAwareness(string messageId, Action<ReceptionAwareness> updateAction);
+        void UpdateReceptionAwareness(long receptionAwarenessId, Action<ReceptionAwareness> updateAction);
 
         /// <summary>
-        /// Gets the reception awareness.
+        /// Retrieves the ReceptionAwareness instance for the specified <paramref name="outMessageId"/>
         /// </summary>
-        /// <param name="messageIds">The message ids.</param>
-        /// <returns></returns>
-        IEnumerable<ReceptionAwareness> GetReceptionAwareness(IEnumerable<string> messageIds);
+        /// <param name="outMessageId">The unique OutMessage identifier.</param>
+        /// <returns></returns>        
+        ReceptionAwareness GetReceptionAwarenessForOutMessage(long outMessageId);
 
         #endregion
     }

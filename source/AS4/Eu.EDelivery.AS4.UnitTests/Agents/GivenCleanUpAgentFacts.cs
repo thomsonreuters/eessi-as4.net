@@ -22,8 +22,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Agents
             int insertion = negative.Get;
             string id = Guid.NewGuid().ToString();
             GetDataStoreContext.InsertOutMessage(
-                CreateOutMessage(id, DateTimeOffset.UtcNow.Add(TimeSpan.FromDays(insertion))));
-            
+                CreateOutMessage(id, DateTimeOffset.UtcNow.Add(TimeSpan.FromDays(insertion))),
+                withReceptionAwareness: false);
+
             // Act
             ExerciseCleaningEntries(retention);
 
@@ -41,8 +42,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Agents
             // Arrange
             int insertion = negative.Get;
             string id = Guid.NewGuid().ToString();
-            GetDataStoreContext.InsertOutMessage(CreateOutMessage(id, DateTimeOffset.UtcNow.Add(TimeSpan.FromDays(insertion))));
-            GetDataStoreContext.InsertReceptionAwareness(new ReceptionAwareness{InternalMessageId = id});
+            GetDataStoreContext.InsertOutMessage(CreateOutMessage(id, DateTimeOffset.UtcNow.Add(TimeSpan.FromDays(insertion))),
+                                                 withReceptionAwareness: true);
 
             // Act
             ExerciseCleaningEntries(retention);
@@ -81,7 +82,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Agents
         {
             using (DatastoreContext ctx = GetDataStoreContext())
             {
-                return ctx.ReceptionAwareness.Where(r => r.InternalMessageId.Equals(refId)).ToArray();
+                return ctx.ReceptionAwareness.Where(r => r.RefToEbmsMessageId.Equals(refId)).ToArray();
             }
         }
 
@@ -141,6 +142,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Agents
                 Operation.NotApplicable,
                 Operation.Undetermined
             };
-}
+    }
 }
 

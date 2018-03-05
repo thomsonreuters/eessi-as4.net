@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -34,8 +35,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             {
                 // Arrange
                 const string messageId = "message-id";
-                AS4.Model.PMode.ReceptionAwareness receptionAwareness = CreatePModeReceptionAwareness();
-                MessagingContext messagingContext = CreateDefaultInternalMessage(messageId, receptionAwareness);
+                AS4.Model.PMode.ReceptionAwareness pmodeWithReceptionAwareness = CreatePModeReceptionAwareness();
+                MessagingContext messagingContext = SetupMessagingContext(messageId, pmodeWithReceptionAwareness);
                 var step = new SetReceptionAwarenessStep();
 
                 // Act                
@@ -46,8 +47,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
                     messageId,
                     awareness =>
                     {
-                        Assert.Equal(receptionAwareness.RetryCount, awareness.TotalRetryCount);
-                        Assert.Equal(receptionAwareness.RetryInterval, awareness.RetryInterval);
+                        Assert.Equal(pmodeWithReceptionAwareness.RetryCount, awareness.TotalRetryCount);
+                        Assert.Equal(pmodeWithReceptionAwareness.RetryInterval, awareness.RetryInterval);
                     });
             }
 
@@ -56,7 +57,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
                 using (DatastoreContext context = GetDataStoreContext())
                 {
                     EntityReceptionAwareness receptionAwareness =
-                        context.ReceptionAwareness.FirstOrDefault(a => a.InternalMessageId.Equals(messageId));
+                        context.ReceptionAwareness.FirstOrDefault(a => a.RefToEbmsMessageId.Equals(messageId));
 
                     Assert.NotNull(receptionAwareness);
                     Assert.Equal(-1, receptionAwareness.CurrentRetryCount);
@@ -67,15 +68,36 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
                 }
             }
 
-            private static MessagingContext CreateDefaultInternalMessage(
+            private MessagingContext SetupMessagingContext(
                 string messageId,
-                AS4.Model.PMode.ReceptionAwareness receptionAwareness)
+                AS4.Model.PMode.ReceptionAwareness receptionAwarenessSettings)
             {
-                var pmode = new SendingProcessingMode { Reliability = { ReceptionAwareness = receptionAwareness } };
+                var pmode = new SendingProcessingMode { Reliability = { ReceptionAwareness = receptionAwarenessSettings } };
                 var userMessage = new UserMessage(messageId);
                 AS4Message as4Message = AS4Message.Create(userMessage, pmode);
 
-                return new MessagingContext(as4Message, MessagingContextMode.Unknown) { SendingPMode = pmode };
+                OutMessage outMessage;
+
+                using (var dbContext = GetDataStoreContext())
+                {
+                    outMessage = new OutMessage(messageId);
+                    outMessage.SetPModeInformation(pmode);
+
+                    dbContext.OutMessages.Add(outMessage);
+
+                    dbContext.SaveChanges();
+                }
+
+                var receivedMessage = new ReceivedMessageEntityMessage(outMessage, Stream.Null, as4Message.ContentType);
+
+                var context = new MessagingContext(receivedMessage, MessagingContextMode.Unknown)
+                {
+                    SendingPMode = pmode
+                };
+
+                context.ModifyContext(as4Message);
+
+                return context;
             }
         }
 

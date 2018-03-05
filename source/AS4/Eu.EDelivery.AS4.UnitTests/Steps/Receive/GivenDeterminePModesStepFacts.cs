@@ -57,7 +57,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 var outMessage = new OutMessage(ebmsMessageId: messageId);
                 outMessage.SetPModeInformation(pmode);
 
-                GetDataStoreContext.InsertOutMessage(outMessage);
+                GetDataStoreContext.InsertOutMessage(outMessage, withReceptionAwareness: false);
             }
 
             private async Task<StepResult> ExerciseDeterminePModes(AS4Message message)
@@ -259,7 +259,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             {
                 ReceivePMode pmode = CreatePModeWithActionService(service, action);
                 pmode.MessagePackaging.CollaborationInfo.AgreementReference.Value = "not-equal";
-                DifferntiatePartyInfo(pmode);
+                DifferentiatePartyInfo(pmode);
                 SetupPModes(pmode, new ReceivePMode());
             }
 
@@ -288,7 +288,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             private void ArrangePModeThenAgreementRefIsNotEnough(AgreementReference agreementRef)
             {
                 ReceivePMode pmode = CreatePModeWithAgreementRef(agreementRef);
-                DifferntiatePartyInfo(pmode);
+                DifferentiatePartyInfo(pmode);
                 SetupPModes(pmode, new ReceivePMode());
             }
         }
@@ -300,9 +300,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 Id = id,
                 MessagePackaging = new MessagePackaging
                 {
-                    CollaborationInfo = new CollaborationInfo(), PartyInfo = new PartyInfo()
+                    CollaborationInfo = new CollaborationInfo(),
+                    PartyInfo = new PartyInfo()
                 },
-                ReplyHandling = {SendingPMode = "response_pmode"}
+                ReplyHandling = { SendingPMode = "response_pmode" }
             };
         }
 
@@ -335,7 +336,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             Assert.Equal(expectedPMode, result.MessagingContext.ReceivingPMode);
         }
 
-        private static void DifferntiatePartyInfo(ReceivePMode pmode)
+        private static void DifferentiatePartyInfo(ReceivePMode pmode)
         {
             const string fromId = "from-Id";
             const string toId = "to-Id";

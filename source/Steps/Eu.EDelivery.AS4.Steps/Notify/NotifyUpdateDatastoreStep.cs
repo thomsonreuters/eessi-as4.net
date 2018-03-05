@@ -43,11 +43,11 @@ namespace Eu.EDelivery.AS4.Steps.Notify
             var notifyMessage = messagingContext.NotifyMessage;
             Logger.Info($"{messagingContext.EbmsMessageId} Update Notify Message {notifyMessage.MessageInfo.MessageId}");
 
-            await UpdateDatastoreAsync(notifyMessage).ConfigureAwait(false);
+            await UpdateDatastoreAsync(notifyMessage, messagingContext).ConfigureAwait(false);
             return await StepResult.SuccessAsync(messagingContext);
         }
 
-        private async Task UpdateDatastoreAsync(NotifyMessageEnvelope notifyMessage)
+        private async Task UpdateDatastoreAsync(NotifyMessageEnvelope notifyMessage, MessagingContext messagingContext)
         {
             using (DatastoreContext context = _createDatastoreContext())
             {
@@ -61,9 +61,9 @@ namespace Eu.EDelivery.AS4.Steps.Notify
                         m.SetOperation(Operation.Notified);
                     });
                 }
-                else if (notifyMessage.EntityType == typeof(OutMessage))
+                else if (notifyMessage.EntityType == typeof(OutMessage) && messagingContext.MessageEntityId != null)
                 {
-                    repository.UpdateOutMessage(notifyMessage.MessageInfo.MessageId, m =>
+                    repository.UpdateOutMessage(messagingContext.MessageEntityId.Value, m =>
                     {
                         m.SetStatus(OutStatus.Notified);
                         m.SetOperation(Operation.Notified);

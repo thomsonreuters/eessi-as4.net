@@ -87,7 +87,10 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
                 await SideEffectUsageRepository(
                     async repository =>
                     {
-                        repository.UpdateOutMessage(ebmsMessageId, m => m.SetStatus(OutStatus.Exception));
+                        if (context.MessageEntityId != null)
+                        {
+                            repository.UpdateOutMessage(context.MessageEntityId.Value, m => m.SetStatus(OutStatus.Exception));
+                        }
 
                         OutException outException = new OutException(ebmsMessageId, exception);
                         await DecorateExceptionEntityWithContextInfoAsync(outException, context);

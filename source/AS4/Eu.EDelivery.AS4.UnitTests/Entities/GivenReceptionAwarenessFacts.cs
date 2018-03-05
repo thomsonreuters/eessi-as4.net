@@ -11,7 +11,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
         [Fact]
         public void ReceptionAwarenessHasDefaultStatus()
         {
-            Assert.Equal(ReceptionStatus.Pending, ReceptionStatusUtils.Parse(new ReceptionAwareness().Status));
+            Assert.Equal(ReceptionStatus.Pending, ReceptionStatusUtils.Parse(new ReceptionAwareness(1, "message-id").Status));
         }
 
         [Fact]
@@ -19,7 +19,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
         {
             // Arrange
             const ReceptionStatus expectedStatus = ReceptionStatus.Busy;
-            var sut = new ReceptionAwareness();
+            var sut = new ReceptionAwareness(1, "message-id");
             sut.SetStatus(ReceptionStatus.Pending);
 
             // Act

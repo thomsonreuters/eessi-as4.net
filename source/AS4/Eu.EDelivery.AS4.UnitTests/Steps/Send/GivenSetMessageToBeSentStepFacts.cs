@@ -22,14 +22,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
         {
             // Assert
             string messageId = Guid.NewGuid().ToString(),
-                expected = Guid.NewGuid().ToString();
+                   expected = Guid.NewGuid().ToString();
 
             var sut = new SetMessageToBeSentStep(GetDataStoreContext, _messageBodyStore);
 
-            InsertOutMessageWith(messageId, Operation.Processing, expected);
+            var messagingContext = SetupMessagingContext(messageId, Operation.Processing, expected);
 
             // Act
-            await ExerciseSetToBeSent(messageId, sut);
+            await ExerciseSetToBeSent(messagingContext, sut);
 
             // Assert
             GetDataStoreContext.AssertOutMessage(
@@ -39,26 +39,33 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
                     Assert.Equal(expected, m.MessageLocation);
                     Assert.Equal(Operation.ToBeSent, OperationUtils.Parse(m.Operation));
                 });
-
         }
 
-        private static async Task ExerciseSetToBeSent(string id, IStep sut)
+        private MessagingContext SetupMessagingContext(string ebmsMessageId, Operation operation, string messageLocation)
         {
-            AS4Message as4Message = AS4Message.Create(new FilledUserMessage(id));
-
-            await sut.ExecuteAsync(new MessagingContext(as4Message, MessagingContextMode.Send), CancellationToken.None);
-        }
-
-        private void InsertOutMessageWith(string id, Operation processing, string notUpdatedLocation)
-        {
-            var outMessage = new OutMessage(ebmsMessageId: id)
+            var outMessage = new OutMessage(ebmsMessageId: ebmsMessageId)
             {
-                MessageLocation = notUpdatedLocation
+                MessageLocation = messageLocation
             };
 
-            outMessage.SetOperation(processing);
+            outMessage.SetOperation(operation);
 
-            GetDataStoreContext.InsertOutMessage(outMessage);
+            var insertedOutMessage = GetDataStoreContext.InsertOutMessage(outMessage, withReceptionAwareness: false);
+
+            Assert.NotEqual(default(long), insertedOutMessage.Id);
+
+            var receivedMessage = new ReceivedEntityMessage(insertedOutMessage);
+
+            MessagingContext context = new MessagingContext(receivedMessage, MessagingContextMode.Send);
+
+            context.ModifyContext(AS4Message.Create(new FilledUserMessage(ebmsMessageId)));
+
+            return context;
+        }
+
+        private static async Task ExerciseSetToBeSent(MessagingContext context, IStep sut)
+        {
+            await sut.ExecuteAsync(context, CancellationToken.None);
         }
 
         protected override void Disposing()

@@ -77,7 +77,7 @@ namespace Eu.EDelivery.AS4.Steps.Notify
                 var repository = new DatastoreRepository(context);
 
                 return repository.GetOutMessageData(
-                    messageId: messagingContext.NotifyMessage.MessageInfo.RefToMessageId,
+                    where: m => m.EbmsMessageId == messagingContext.NotifyMessage.MessageInfo.RefToMessageId && m.Intermediary == false,
                     selection: m => AS4XmlSerializer.FromString<SendingProcessingMode>(m.PMode));
             }
         }
@@ -111,8 +111,8 @@ namespace Eu.EDelivery.AS4.Steps.Notify
         {
             bool isNotifyMessageFormedBySending = sendPMode?.Id != null;
 
-            return isNotifyMessageFormedBySending 
-                ? sendHandling?.NotifyMethod 
+            return isNotifyMessageFormedBySending
+                ? sendHandling?.NotifyMethod
                 : receiveHandling?.NotifyMethod;
         }
     }

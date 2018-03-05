@@ -17,8 +17,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Model.Internal
         /// <summary>
         /// Assign custom properties to the <see cref="ReceivedMessage" />
         /// </summary>
-        /// <param name="message"></param>
-        public override void AssignPropertiesTo(MessagingContext message)
+        /// <param name="messagingContext"></param>
+        public override void AssignPropertiesTo(MessagingContext messagingContext)
         {
             throw new SaboteurException("Sabotage assignment of properties");
         }

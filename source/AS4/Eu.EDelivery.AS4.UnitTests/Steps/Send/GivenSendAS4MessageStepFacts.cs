@@ -3,7 +3,6 @@ using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
@@ -39,21 +38,48 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             Assert.False(actualResult.CanProceed);
         }
 
+        private MessagingContext SetupMessagingContext(string ebmsMessageId)
+        {
+            var as4Message = AS4Message.Create(new FilledUserMessage(ebmsMessageId));
+
+            OutMessage outMessage = null;
+
+            using (var context = GetDataStoreContext())
+            {
+                outMessage = new OutMessage(ebmsMessageId: ebmsMessageId);
+                context.OutMessages.Add(outMessage);
+                context.SaveChanges();
+            }
+
+            var receivedMessage = new ReceivedMessageEntityMessage(outMessage,
+                                                                   as4Message.ToStream(),
+                                                                   as4Message.ContentType);
+
+            var messagingContext = new MessagingContext(receivedMessage, MessagingContextMode.Send)
+            {
+                SendingPMode = CreateValidSendingPMode()
+            };
+
+            messagingContext.ModifyContext(as4Message);
+
+            return messagingContext;
+        }
+
         [Fact]
         public async Task StepUpdatesRequestOperationAndStatus_IfRequestIsBeingSent()
         {
             // Arrange
-            var as4Message = AS4Message.Create(new FilledUserMessage());
-            InsertToBeSentUserMessage(as4Message);
-            MessagingContext context = CreateSendMessagingContext(as4Message);
+            var messagingContext = SetupMessagingContext("some-message-id");
+
+            long outMessageId = ((ReceivedEntityMessage)messagingContext.ReceivedMessage).Entity.Id;
 
             // Act 
             var step = new SendAS4MessageStep(GetDataStoreContext, StubHttpClient.ThatReturns(CreateAnonymousReceipt()));
-            await step.ExecuteAsync(context, CancellationToken.None);
+            await step.ExecuteAsync(messagingContext, CancellationToken.None);
 
             // Assert
             AssertSentUserMessage(
-                as4Message,
+                outMessageId,
                 message =>
                 {
                     Assert.Equal(Operation.Sent, OperationUtils.Parse(message.Operation));
@@ -61,26 +87,17 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
                 });
         }
 
-        private void InsertToBeSentUserMessage(AS4Message as4Message)
-        {
-            using (var context = GetDataStoreContext())
-            {
-                context.OutMessages.Add(new OutMessage(ebmsMessageId: as4Message.PrimaryUserMessage.MessageId));
-                context.SaveChanges();
-            }
-        }
-
         private static AS4Message CreateAnonymousReceipt()
         {
             return AS4Message.Create(new Receipt());
         }
 
-        private void AssertSentUserMessage(AS4Message as4Message, Action<OutMessage> assertion)
+        private void AssertSentUserMessage(long outMessageId, Action<OutMessage> assertion)
         {
             using (var context = GetDataStoreContext())
             {
                 OutMessage outMessage = context.OutMessages.FirstOrDefault(
-                    m => m.EbmsMessageId.Equals(as4Message.PrimaryUserMessage.MessageId));
+                    m => m.Id == outMessageId);
 
                 assertion(outMessage);
             }

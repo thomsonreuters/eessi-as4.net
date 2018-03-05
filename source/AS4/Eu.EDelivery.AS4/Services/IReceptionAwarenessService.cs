@@ -8,10 +8,11 @@ namespace Eu.EDelivery.AS4.Services
         /// <summary>
         /// Deadletters the out message asynchronous.
         /// </summary>
-        /// <param name="messageId">The message identifier.</param>
+        /// <param name="outMessageId">The ID that uniquely identifies the OutMessage that must be deadlettered.</param>
+        /// <param name="ebmsMessageId">The EBMS MessageId of the Message that must be deadlettered.</param>
         /// <param name="messageBodyStore">The message body persister.</param>
         /// <returns></returns>
-        void DeadletterOutMessage(string messageId, IAS4MessageBodyStore messageBodyStore);
+        void DeadletterOutMessage(long outMessageId, string ebmsMessageId, IAS4MessageBodyStore messageBodyStore);
 
         /// <summary>
         /// Messages the needs to be resend.

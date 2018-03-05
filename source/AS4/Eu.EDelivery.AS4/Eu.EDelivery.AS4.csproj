@@ -347,7 +347,10 @@
     <Compile Include="Builders\Entities\OutMessageBuilder.cs" />
     <Compile Include="Builders\GenericTypeBuilder.cs" />
     <Compile Include="Builders\Security\DecryptionStrategyBuilder.cs" />
-    <Compile Include="Migrations\20180212143022_ReceptionAwarenessRelation.cs" />
+    <Compile Include="Migrations\20180302141116_RemoveOutMessagesConstraint.cs" />
+    <Compile Include="Migrations\20180302141116_RemoveOutMessagesConstraint.designer.cs">
+      <DependentUpon>20180302141116_RemoveOutMessagesConstraint.cs</DependentUpon>
+    </Compile>
     <Compile Include="Security\Signing\CalculateSignatureConfig.cs" />
     <Compile Include="Security\Strategies\SignStrategy.cs" />
     <Compile Include="Security\Strategies\CryptoStrategy.cs" />
