@@ -37,6 +37,15 @@ namespace Eu.EDelivery.AS4.Common
 
         private RetryPolicy _policy;
 
+        // TODO: FE needs this in the Monitoring?
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DatastoreContext"/> class.
+        /// </summary>
+        public DatastoreContext(DbContextOptions<DatastoreContext> options) : this(options, Config.Instance)
+        {
+
+        }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="DatastoreContext"/> class.
         /// </summary>
