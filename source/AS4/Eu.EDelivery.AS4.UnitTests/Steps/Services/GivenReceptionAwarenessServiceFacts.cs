@@ -10,25 +10,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Services
 {
     public class GivenReceptionAwarenessServiceFacts
     {
-        private static TResult ExerciseService<TResult>(
-            IDatastoreRepository repository,
-            Func<ReceptionAwarenessService, TResult> act)
-        {
-            // Act
-            return act(CreateServiceWith(repository));
-        }
-
-        private static void ExerciseService(IDatastoreRepository repository, Action<ReceptionAwarenessService> act)
-        {
-            // Act
-            act(CreateServiceWith(repository));
-        }
-
-        private static ReceptionAwarenessService CreateServiceWith(IDatastoreRepository repository)
-        {
-            return new ReceptionAwarenessService(repository);
-        }
-
         public class MessageNeedsToBeResendFacts
         {
             [Fact]
@@ -257,6 +238,25 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Services
                 // Assert
                 Assert.Equal(ReceptionStatus.Pending, ReceptionStatusUtils.Parse(actual.Status));
             }
+        }
+
+        private static TResult ExerciseService<TResult>(
+            IDatastoreRepository repository,
+            Func<ReceptionAwarenessService, TResult> act)
+        {
+            // Act
+            return act(CreateServiceWith(repository));
+        }
+
+        private static void ExerciseService(IDatastoreRepository repository, Action<ReceptionAwarenessService> act)
+        {
+            // Act
+            act(CreateServiceWith(repository));
+        }
+
+        private static ReceptionAwarenessService CreateServiceWith(IDatastoreRepository repository)
+        {
+            return new ReceptionAwarenessService(repository);
         }
     }
 }
