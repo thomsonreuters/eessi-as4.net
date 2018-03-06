@@ -63,7 +63,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
 
             if (privateKey == null)
             {
-                throw new CryptographicException("The decryption certificate does not contain private key.");
+                throw new CryptographicException("The decryption certificate does not contain a private key.");
             }
 
             AsymmetricCipherKeyPair encryptionCertificateKeyPair =
