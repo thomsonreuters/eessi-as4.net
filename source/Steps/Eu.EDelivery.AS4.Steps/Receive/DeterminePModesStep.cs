@@ -102,7 +102,8 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                                   where: m => m.EbmsMessageId == signalMessage.RefToMessageId && m.Intermediary == false,
                                   selection: m => new { m.PMode, m.ModificationTime })
                               .OrderByDescending(m => m.ModificationTime)
-                              .FirstOrDefault()?.PMode;
+                              .FirstOrDefault()
+                              ?.PMode;
 
                 return await AS4XmlSerializer.FromStringAsync<SendPMode>(pmodeString);
             }
