@@ -23,22 +23,30 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
     public class GivenSendAS4MessageStepFacts : GivenDatastoreFacts
     {
         [Fact]
-        public async Task StepReturnsStopExecutionResult_IfResponseIsPullRequestError()
+        public async Task StepUpdatesRequestOperationAndStatus_IfRequestIsBeingSent()
         {
             // Arrange
-            AS4Message as4Message = AS4Message.Create(new PullRequestError());
-            var step = new SendAS4MessageStep(GetDataStoreContext, StubHttpClient.ThatReturns(as4Message));
+            var messagingContext = SetupMessagingContextWithToBeSentMessage("some-message-id");
 
-            MessagingContext dummyMessage = CreateDefaultPullRequest();
+            long outMessageId = ((ReceivedEntityMessage)messagingContext.ReceivedMessage).Entity.Id;
 
-            // Act
-            StepResult actualResult = await step.ExecuteAsync(dummyMessage, CancellationToken.None);
+            // Act 
+            var step = new SendAS4MessageStep(GetDataStoreContext,
+                                              StubHttpClient.ThatReturns(AS4Message.Create(new Receipt())));
+
+            await step.ExecuteAsync(messagingContext, CancellationToken.None);
 
             // Assert
-            Assert.False(actualResult.CanProceed);
+            AssertSentUserMessage(
+                outMessageId,
+                message =>
+                {
+                    Assert.Equal(Operation.Sent, OperationUtils.Parse(message.Operation));
+                    Assert.Equal(OutStatus.Sent, OutStatusUtils.Parse(message.Status));
+                });
         }
 
-        private MessagingContext SetupMessagingContext(string ebmsMessageId)
+        private MessagingContext SetupMessagingContextWithToBeSentMessage(string ebmsMessageId)
         {
             var as4Message = AS4Message.Create(new FilledUserMessage(ebmsMessageId));
 
@@ -65,33 +73,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             return messagingContext;
         }
 
-        [Fact]
-        public async Task StepUpdatesRequestOperationAndStatus_IfRequestIsBeingSent()
-        {
-            // Arrange
-            var messagingContext = SetupMessagingContext("some-message-id");
-
-            long outMessageId = ((ReceivedEntityMessage)messagingContext.ReceivedMessage).Entity.Id;
-
-            // Act 
-            var step = new SendAS4MessageStep(GetDataStoreContext, StubHttpClient.ThatReturns(CreateAnonymousReceipt()));
-            await step.ExecuteAsync(messagingContext, CancellationToken.None);
-
-            // Assert
-            AssertSentUserMessage(
-                outMessageId,
-                message =>
-                {
-                    Assert.Equal(Operation.Sent, OperationUtils.Parse(message.Operation));
-                    Assert.Equal(OutStatus.Sent, OutStatusUtils.Parse(message.Status));
-                });
-        }
-
-        private static AS4Message CreateAnonymousReceipt()
-        {
-            return AS4Message.Create(new Receipt());
-        }
-
         private void AssertSentUserMessage(long outMessageId, Action<OutMessage> assertion)
         {
             using (var context = GetDataStoreContext())
@@ -104,11 +85,27 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
         }
 
         [Fact]
+        public async Task StepReturnsStopExecutionResult_IfResponseIsPullRequestError()
+        {
+            // Arrange
+            AS4Message as4Message = AS4Message.Create(new PullRequestError());
+            var step = new SendAS4MessageStep(GetDataStoreContext, StubHttpClient.ThatReturns(as4Message));
+
+            MessagingContext dummyMessage = CreateMessagingContextWithDefaultPullRequest();
+
+            // Act
+            StepResult actualResult = await step.ExecuteAsync(dummyMessage, CancellationToken.None);
+
+            // Assert
+            Assert.False(actualResult.CanProceed);
+        }
+
+        [Fact]
         public async Task SendReturnsEmptyResponseForEmptyRequest()
         {
             // Arrange
             var step = new SendAS4MessageStep(GetDataStoreContext, StubHttpClient.ThatReturns(HttpStatusCode.Accepted));
-            MessagingContext dummyMessage = CreateDefaultPullRequest();
+            MessagingContext dummyMessage = CreateMessagingContextWithDefaultPullRequest();
 
             // Act
             StepResult actualResult = await step.ExecuteAsync(dummyMessage, CancellationToken.None);
@@ -118,7 +115,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             Assert.False(actualResult.CanProceed);
         }
 
-        private static MessagingContext CreateDefaultPullRequest()
+        private static MessagingContext CreateMessagingContextWithDefaultPullRequest()
         {
             var pullRequest = AS4Message.Create(new PullRequest(mpc: null, messageId: "message-id"));
 
@@ -128,13 +125,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             context.SendingPMode = CreateValidSendingPMode();
 
             return context;
-        }
-
-        public static MessagingContext CreateSendMessagingContext(AS4Message message)
-        {
-            var receivedMessage = new ReceivedMessage(message.ToStream(), message.ContentType);
-
-            return new MessagingContext(receivedMessage, MessagingContextMode.Send) { SendingPMode = CreateValidSendingPMode() };
         }
 
         private static SendingProcessingMode CreateValidSendingPMode()
