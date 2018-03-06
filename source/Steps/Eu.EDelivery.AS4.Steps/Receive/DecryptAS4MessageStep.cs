@@ -97,7 +97,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
             if (isIgnored)
             {
-                Logger.Info($"{messagingContext.EbmsMessageId} Decryption Receiving PMode {pmode.Id} is ignored");
+                Logger.Info($"{messagingContext.EbmsMessageId} Decryption is ignored in Receiving PMode {pmode.Id}");
             }
 
             return isIgnored;
