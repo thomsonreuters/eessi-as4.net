@@ -53,7 +53,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Exceptions.Handlers
         [InlineData(false, default(Operation))]
         public async Task InsertOutException_IfStepExecutionException(bool notifyProducer, Operation expected)
         {
-            var context = SetupMessagingContext(_expectedId);
+            var context = SetupMessagingContextForOutMessage(_expectedId);
 
             context.ModifyContext(AS4Message.Create(new FilledUserMessage(_expectedId)));
             context.SendingPMode = new SendingProcessingMode { ExceptionHandling = { NotifyMessageProducer = notifyProducer } };
@@ -69,7 +69,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Exceptions.Handlers
         [InlineData(false, default(Operation))]
         public async Task InsertOutException_IfErrorException(bool notifyProducer, Operation expected)
         {
-            var context = SetupMessagingContext(_expectedId);
+            var context = SetupMessagingContextForOutMessage(_expectedId);
 
             context.ModifyContext(AS4Message.Create(new FilledUserMessage(_expectedId)));
             context.SendingPMode = new SendingProcessingMode { ExceptionHandling = { NotifyMessageProducer = notifyProducer } };
@@ -83,7 +83,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Exceptions.Handlers
         [Fact]
         public async Task InsertOutException_IfDeliverMessage()
         {
-            var context = SetupMessagingContext(_expectedId);
+            var context = SetupMessagingContextForOutMessage(_expectedId);
 
             var deliverEnvelope = new EmptyDeliverEnvelope(_expectedId);
 
@@ -98,7 +98,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Exceptions.Handlers
         [Fact]
         public async Task InsertOutException_IfNotifyMessage()
         {
-            var context = SetupMessagingContext(_expectedId);
+            var context = SetupMessagingContextForOutMessage(_expectedId);
 
             var notifyEnvelope = new EmptyNotifyEnvelope(_expectedId);
 
@@ -123,7 +123,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Exceptions.Handlers
             GetDataStoreContext.AssertOutException(ex => Assert.NotNull(ex.MessageBody));
         }
 
-        private MessagingContext SetupMessagingContext(string ebmsMessageId)
+        private MessagingContext SetupMessagingContextForOutMessage(string ebmsMessageId)
         {
             // Arrange
             var message = new OutMessage(ebmsMessageId: ebmsMessageId);
