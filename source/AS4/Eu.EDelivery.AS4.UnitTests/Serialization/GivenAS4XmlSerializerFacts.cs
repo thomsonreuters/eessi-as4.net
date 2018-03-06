@@ -132,6 +132,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
 
             private static SendingProcessingMode DeserializeExpectedPMode(Stream actualPModeStream)
             {
+                using (actualPModeStream)
                 using (var memoryStream = new MemoryStream())
                 {
                     actualPModeStream.CopyTo(memoryStream);
