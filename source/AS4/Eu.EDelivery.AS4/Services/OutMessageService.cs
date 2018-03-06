@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -55,7 +54,7 @@ namespace Eu.EDelivery.AS4.Services
         /// <param name="messageIds">The message identifiers.</param>
         /// <param name="store">The provider.</param>
         /// <returns></returns>
-        public async Task<IEnumerable<AS4Message>> GetAS4UserMessagesForIds(
+        public async Task<IEnumerable<AS4Message>> GetNonIntermediaryAS4UserMessagesForIds(
             IEnumerable<string> messageIds, 
             IAS4MessageBodyStore store)
         {
@@ -65,7 +64,10 @@ namespace Eu.EDelivery.AS4.Services
                     m => m)
                 .Where(m => m != null);
 
-            if (!messages.Any()) { return Enumerable.Empty<AS4Message>(); }
+            if (!messages.Any())
+            {
+                return Enumerable.Empty<AS4Message>();
+            }
 
             var foundMessages = new List<AS4Message>();
 
@@ -80,34 +82,6 @@ namespace Eu.EDelivery.AS4.Services
             }
 
             return foundMessages;
-        }
-
-        /// <summary>
-        /// Gets an AS4 UserMessage for a given ebMS Message Id.
-        /// </summary>
-        /// <param name="messageId">The message identifier.</param>
-        /// <param name="store">The provider.</param>
-        /// <returns></returns>
-        public async Task<AS4Message> GetAS4UserMessageForId(string messageId, IAS4MessageBodyStore store)
-        {
-            OutMessage message = GetOutMessageById(messageId);
-
-            if (message == null || String.IsNullOrWhiteSpace(message.MessageLocation))
-            {
-                return null;
-            }
-
-            Stream messageBody = await store.LoadMessageBodyAsync(message.MessageLocation);
-
-            ISerializer serializer = Registry.Instance.SerializerProvider.Get(message.ContentType);
-            return await serializer.DeserializeAsync(messageBody, message.ContentType, CancellationToken.None);
-        }
-
-        private OutMessage GetOutMessageById(string messageId)
-        {
-            return _repository.GetOutMessageData(
-                m => m.EbmsMessageId.Equals(messageId) && m.Intermediary == false,
-                m => m);
         }
 
         /// <summary>
@@ -247,14 +221,6 @@ namespace Eu.EDelivery.AS4.Services
 
     public interface IOutMessageService
     {
-        /// <summary>
-        /// Gets a s4 user message for identifier.
-        /// </summary>
-        /// <param name="messageId">The message identifier.</param>
-        /// <param name="store">The provider.</param>
-        /// <returns></returns>
-        Task<AS4Message> GetAS4UserMessageForId(string messageId, IAS4MessageBodyStore store);
-
         /// <summary>
         /// Inserts a s4 message.
         /// </summary>
