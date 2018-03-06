@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <PMode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="eu:edelivery:as4:pmode">
-  <Id>receive-forwarded-from-c3</Id>
+  <Id>receive-forwarded-from-c2</Id>
   <Reliability>
     <DuplicateElimination>
       <IsEnabled>false</IsEnabled>
@@ -34,7 +34,7 @@
       <Encryption>Allowed</Encryption>
 	    <CertificateFindCriteria>
         <CertificateFindType>FindBySubjectName</CertificateFindType>
-        <CertificateFindValue>AccessPointA</CertificateFindValue>
+        <CertificateFindValue>AccessPointB</CertificateFindValue>
       </CertificateFindCriteria>
     </Decryption>
   </Security>
@@ -43,7 +43,7 @@
       <FromParty>
         <PartyIds>
           <PartyId>
-            <Id>org:eu:europa:as4:example:accesspoint:B</Id>
+            <Id>org:eu:europa:as4:example:accesspoint:A</Id>
           </PartyId>
         </PartyIds>
         <Role>Sender</Role>
@@ -51,7 +51,7 @@
       <ToParty>
         <PartyIds>
           <PartyId>
-            <Id>org:eu:europa:as4:example:accesspoint:A</Id>
+            <Id>org:eu:europa:as4:example:accesspoint:B</Id>
           </PartyId>
         </PartyIds>
         <Role>Receiver</Role>
@@ -70,7 +70,7 @@
   </MessagePackaging>
   <MessageHandling>
     <Forward>
-	    <SendingPMode>forward-to-c1</SendingPMode>
+	    <SendingPMode>forward-to-c4</SendingPMode>
     </Forward>
   </MessageHandling>
 </PMode>
