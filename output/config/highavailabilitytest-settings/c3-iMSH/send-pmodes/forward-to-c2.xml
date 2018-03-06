@@ -33,7 +33,7 @@
       <Algorithm>http://www.w3.org/2009/xmlenc11#aes128-gcm</Algorithm>
       <CertificateFindCriteria>
         <CertificateFindType>FindBySubjectName</CertificateFindType>
-        <CertificateFindValue>AccessPointB</CertificateFindValue>
+        <CertificateFindValue>AccessPointA</CertificateFindValue>
       </CertificateFindCriteria>
     </Encryption>
   </Security>

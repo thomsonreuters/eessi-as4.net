@@ -34,7 +34,7 @@
       <Encryption>Required</Encryption>
 	    <CertificateFindCriteria>
         <CertificateFindType>FindBySubjectName</CertificateFindType>
-        <CertificateFindValue>AccessPointB</CertificateFindValue>
+        <CertificateFindValue>AccessPointA</CertificateFindValue>
       </CertificateFindCriteria>
     </Decryption>
   </Security>
