@@ -93,16 +93,7 @@ namespace Eu.EDelivery.AS4.Repositories
         /// <param name="where">The where.</param>
         /// <param name="selection">The selection.</param>
         /// <returns></returns>
-        TResult GetOutMessageData<TResult>(Expression<Func<OutMessage, bool>> where, Expression<Func<OutMessage, TResult>> selection);
-
-        /// <summary>
-        /// Selects some information of specified OutMessages.
-        /// </summary>
-        /// <typeparam name="TResult">The type of the result.</typeparam>
-        /// <param name="where">The where.</param>
-        /// <param name="selection">The selection.</param>
-        /// <returns></returns>
-        IEnumerable<TResult> GetOutMessagesData<TResult>(Expression<Func<OutMessage, bool>> where, Expression<Func<OutMessage, TResult>> selection);
+        IEnumerable<TResult> GetOutMessageData<TResult>(Expression<Func<OutMessage, bool>> where, Expression<Func<OutMessage, TResult>> selection);
 
         /// <summary>
         /// Inserts the out message.

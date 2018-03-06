@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
@@ -56,7 +57,11 @@ namespace Eu.EDelivery.AS4.Steps.Notify
         {
             if (messagingContext.SendingPMode == null)
             {
-                SendingProcessingMode pmode = RetrieveSendingPMode(messagingContext);
+                SendingProcessingMode pmode =
+                    RetrieveSendingPModeForMessageWithEbmsMessageId(messagingContext.NotifyMessage
+                                                                                    .MessageInfo
+                                                                                    .RefToMessageId);
+
                 if (pmode != null)
                 {
                     messagingContext.SendingPMode = pmode;
@@ -70,15 +75,24 @@ namespace Eu.EDelivery.AS4.Steps.Notify
             return StepResult.Success(messagingContext);
         }
 
-        private SendingProcessingMode RetrieveSendingPMode(MessagingContext messagingContext)
+        private SendingProcessingMode RetrieveSendingPModeForMessageWithEbmsMessageId(string ebmsMessageId)
         {
             using (DatastoreContext context = _createContext())
             {
                 var repository = new DatastoreRepository(context);
 
-                return repository.GetOutMessageData(
-                    where: m => m.EbmsMessageId == messagingContext.NotifyMessage.MessageInfo.RefToMessageId && m.Intermediary == false,
-                    selection: m => AS4XmlSerializer.FromString<SendingProcessingMode>(m.PMode));
+                var outMessageData = 
+                    repository.GetOutMessageData(where: m => m.EbmsMessageId == ebmsMessageId && m.Intermediary == false,
+                                                selection: m => new { m.PMode, m.ModificationTime })
+                              .OrderByDescending(m => m.ModificationTime)
+                              .FirstOrDefault();
+
+                if (outMessageData == null)
+                {
+                    return null;
+                }
+
+                return AS4XmlSerializer.FromString<SendingProcessingMode>(outMessageData.PMode);
             }
         }
 

@@ -97,9 +97,12 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 // We must take into account that it is possible that we have an OutMessage that has
                 // been forwarded; in that case, we must not retrieve the sending - pmode since we 
                 // will have to forward the signalmessage.
-                string pmodeString = repository.GetOutMessageData(
-                    m => m.EbmsMessageId == signalMessage.RefToMessageId && m.Intermediary == false,
-                    m => m.PMode);
+                string pmodeString =
+                    repository.GetOutMessageData(
+                                  where: m => m.EbmsMessageId == signalMessage.RefToMessageId && m.Intermediary == false,
+                                  selection: m => new { m.PMode, m.ModificationTime })
+                              .OrderByDescending(m => m.ModificationTime)
+                              .FirstOrDefault()?.PMode;
 
                 return await AS4XmlSerializer.FromStringAsync<SendPMode>(pmodeString);
             }

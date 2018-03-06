@@ -47,7 +47,7 @@ namespace Eu.EDelivery.AS4.Services
             _repository = respository;
             _messageBodyStore = messageBodyStore;
         }
-        
+
         /// <summary>
         /// Gets AS4 UserMessages for identifiers.
         /// </summary>
@@ -59,8 +59,8 @@ namespace Eu.EDelivery.AS4.Services
             IAS4MessageBodyStore store)
         {
             IEnumerable<OutMessage> messages = _repository
-                .GetOutMessagesData(m => 
-                    messageIds.Contains(m.EbmsMessageId) && m.Intermediary == false, 
+                .GetOutMessageData(m =>
+                    messageIds.Contains(m.EbmsMessageId) && m.Intermediary == false,
                     m => m)
                 .Where(m => m != null);
 
@@ -204,8 +204,8 @@ namespace Eu.EDelivery.AS4.Services
         /// <returns></returns>
         public void UpdateAS4MessageToBeSent(long outMessageId, AS4Message message)
         {
-            string messageBodyLocation = 
-                _repository.GetOutMessageData(m => m.Id == outMessageId, m => m.MessageLocation);
+            string messageBodyLocation =
+                _repository.GetOutMessageData(outMessageId, m => m.MessageLocation);
 
             _messageBodyStore.UpdateAS4Message(messageBodyLocation, message);
 
