@@ -68,7 +68,7 @@
         </SendAgent>
         <ReceiveAgent name="Receive Agent">
             <Receiver type="Eu.EDelivery.AS4.Receivers.HttpReceiver, Eu.EDelivery.AS4.Receivers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-                <Setting key="Url">http://*:9090/msh/receive-and-forward/</Setting>
+                <Setting key="Url">http://*:9091/msh/receive-and-forward/</Setting>
             </Receiver>
             <Transformer type="Eu.EDelivery.AS4.Transformers.ReceiveMessageTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
             <StepConfiguration>
