@@ -8,9 +8,10 @@ using Eu.EDelivery.AS4.Common;
 namespace Eu.EDelivery.AS4.Migrations
 {
     [DbContext(typeof(DatastoreContext))]
-    partial class DatastoreContextModelSnapshot : ModelSnapshot
+    [Migration("20180302141116_RemoveOutMessagesConstraint")]
+    partial class RemoveOutMessagesConstraint
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
             modelBuilder
                 .HasAnnotation("ProductVersion", "1.1.2")
@@ -198,7 +199,6 @@ namespace Eu.EDelivery.AS4.Migrations
                         .HasMaxLength(50);
 
                     b.Property<string>("EbmsMessageId")
-                        .IsRequired()
                         .HasMaxLength(256);
 
                     b.Property<string>("EbmsMessageType")
@@ -284,11 +284,9 @@ namespace Eu.EDelivery.AS4.Migrations
                     b.Property<DateTimeOffset>("ModificationTime");
 
                     b.Property<string>("RefToEbmsMessageId")
-                        .IsRequired()
                         .HasMaxLength(256);
 
-                    b.Property<long>("RefToOutMessageId")
-                        .IsRequired();
+                    b.Property<long>("RefToOutMessageId");
 
                     b.Property<string>("RetryInterval")
                         .HasMaxLength(12);

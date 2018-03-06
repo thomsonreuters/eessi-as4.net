@@ -93,7 +93,7 @@ namespace Eu.EDelivery.AS4.Strategies.Database
             string receptionAwarenessJoin =
                 tableName.Equals("OutMessages")
                     ? "LEFT JOIN ReceptionAwareness " +
-                      "ON InternalMessageId = EbmsMessageId " +
+                      "ON ReceptionAwareness.RefToOutMessageId = m.Id " +
                       "AND CurrentRetryCount = TotalRetryCount "
                     : string.Empty;
 

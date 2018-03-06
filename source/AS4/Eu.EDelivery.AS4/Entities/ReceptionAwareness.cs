@@ -9,8 +9,12 @@ namespace Eu.EDelivery.AS4.Entities
     /// </summary>
     public class ReceptionAwareness : Entity
     {
+        [Required]
+        public long RefToOutMessageId { get; private set; }
+
+        [Required]
         [MaxLength(256)]
-        public string InternalMessageId { get; set; }
+        public string RefToEbmsMessageId { get; private set; }
 
         public int CurrentRetryCount { get; set; }
 
@@ -40,9 +44,23 @@ namespace Eu.EDelivery.AS4.Entities
         /// <summary>
         /// Initializes a new instance of the <see cref="ReceptionAwareness"/> class.
         /// </summary>
-        public ReceptionAwareness()
+        private ReceptionAwareness()
         {
             SetStatus(default(ReceptionStatus));
+        }
+
+        public ReceptionAwareness(long refToOutMessageId, string refToEbmsMessageId) : this()
+        {
+            RefToOutMessageId = refToOutMessageId;
+            RefToEbmsMessageId = refToEbmsMessageId;
+        }
+
+        public static ReceptionAwareness GetDetachedEntityForDatabaseUpdate(long receptionAwarenessId)
+        {
+            var ra = new ReceptionAwareness();
+            ra.InitializeIdFromDatabase(receptionAwarenessId);
+
+            return ra;
         }
 
         /// <summary>
@@ -51,7 +69,6 @@ namespace Eu.EDelivery.AS4.Entities
         /// <param name="value">Value indicating the <see cref="Entity"/> is locked.</param>
         public override void Lock(string value)
         {
-            // TODO: use enum-utils method.
             var updatedStatus = ReceptionStatusUtils.Parse(value);
 
             SetStatus(updatedStatus);

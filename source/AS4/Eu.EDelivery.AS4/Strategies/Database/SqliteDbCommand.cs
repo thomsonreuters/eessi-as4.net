@@ -75,12 +75,11 @@ namespace Eu.EDelivery.AS4.Strategies.Database
 
             string receptionAwarenessJoin =
                 tableName.Equals("OutMessages")
-                    ? "AND EbmsMessageId IN( " +
-                      "SELECT EbmsMessageId " +
-                      "FROM OutMessages " +
-                      "LEFT JOIN ReceptionAwareness " +
-                      "ON InternalMessageId = EbmsMessageId " +
-                      "AND CurrentRetryCount = TotalRetryCount)"
+                    ? "AND Id IN( " +
+                      "    SELECT RefToOutMessageId " +
+                      "    FROM ReceptionAwareness r " +
+                      "    WHERE r.RefToOutMessageId = OutMessages.Id " +                      
+                      "      AND CurrentRetryCount = TotalRetryCount)"
                     : string.Empty;
 
             string operations = string.Join(", ", allowedOperations.Select(x => "'" + x.ToString() + "'"));
