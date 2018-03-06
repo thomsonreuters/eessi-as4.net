@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
-using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Steps.Send;
 using Eu.EDelivery.AS4.UnitTests.Common;
 using Eu.EDelivery.AS4.UnitTests.Model;
@@ -29,7 +28,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             var messagingContext = SetupMessagingContext(messageId, Operation.Processing, expected);
 
             // Act
-            await ExerciseSetToBeSent(messagingContext, sut);
+            await sut.ExecuteAsync(messagingContext, CancellationToken.None);
 
             // Assert
             GetDataStoreContext.AssertOutMessage(
@@ -61,11 +60,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             context.ModifyContext(AS4Message.Create(new FilledUserMessage(ebmsMessageId)));
 
             return context;
-        }
-
-        private static async Task ExerciseSetToBeSent(MessagingContext context, IStep sut)
-        {
-            await sut.ExecuteAsync(context, CancellationToken.None);
         }
 
         protected override void Disposing()
