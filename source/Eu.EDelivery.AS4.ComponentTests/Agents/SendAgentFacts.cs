@@ -223,7 +223,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
         private static SendingProcessingMode CreateMultihopPMode(string sendToUrl)
         {
-            var pmode = new SendingProcessingMode()
+            return new SendingProcessingMode()
             {
                 Id = "PMode-Id",
                 PushConfiguration = new PushConfiguration()
@@ -267,8 +267,6 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                 }
 
             };
-
-            return pmode;
         }
     }
 }
