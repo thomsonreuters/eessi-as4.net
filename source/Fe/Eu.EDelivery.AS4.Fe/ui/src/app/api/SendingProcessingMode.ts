@@ -7,6 +7,7 @@ import { Security } from "./Security";
 import { SendMessagePackaging } from "./SendMessagePackaging";
 import { MessagePackaging } from './MessagePackaging';
 import { DynamicDiscovery } from './DynamicDiscovery';
+import { SendReceiptHandling } from './SendReceiptHandling';
 
 export class SendingProcessingMode {
 	id: string;
@@ -16,7 +17,7 @@ export class SendingProcessingMode {
 	pushConfiguration: PushConfiguration = new PushConfiguration();
 	dynamicDiscovery: DynamicDiscovery = new DynamicDiscovery();
 	reliability: SendReliability = new SendReliability();
-	receiptHandling: SendHandling = new SendHandling();
+	receiptHandling: SendReceiptHandling = new SendReceiptHandling();
 	errorHandling: SendHandling = new SendHandling();
 	exceptionHandling: SendHandling = new SendHandling();
 	security: Security = new Security();
