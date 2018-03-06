@@ -6,7 +6,7 @@ namespace Eu.EDelivery.AS4.Services
     public interface IReceptionAwarenessService
     {
         /// <summary>
-        /// Deadletters the out message asynchronous.
+        /// Deadletters the OutMessage that has the specified <paramref name="outMessageId"/>
         /// </summary>
         /// <param name="outMessageId">The ID that uniquely identifies the OutMessage that must be deadlettered.</param>
         /// <param name="ebmsMessageId">The EBMS MessageId of the Message that must be deadlettered.</param>
