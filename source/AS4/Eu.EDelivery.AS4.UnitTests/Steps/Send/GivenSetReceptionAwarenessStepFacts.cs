@@ -35,7 +35,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             {
                 // Arrange
                 const string messageId = "message-id";
-                AS4.Model.PMode.ReceptionAwareness pmodeWithReceptionAwareness = CreatePModeReceptionAwareness();
+                var pmodeWithReceptionAwareness = CreatePModeWithReceptionAwareness();
+
                 MessagingContext messagingContext = SetupMessagingContext(messageId, pmodeWithReceptionAwareness);
                 var step = new SetReceptionAwarenessStep();
 
@@ -47,8 +48,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
                     messageId,
                     awareness =>
                     {
-                        Assert.Equal(pmodeWithReceptionAwareness.RetryCount, awareness.TotalRetryCount);
-                        Assert.Equal(pmodeWithReceptionAwareness.RetryInterval, awareness.RetryInterval);
+                        Assert.Equal(pmodeWithReceptionAwareness.Reliability.ReceptionAwareness.RetryCount, awareness.TotalRetryCount);
+                        Assert.Equal(pmodeWithReceptionAwareness.Reliability.ReceptionAwareness.RetryInterval, awareness.RetryInterval);
                     });
             }
 
@@ -70,18 +71,17 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
 
             private MessagingContext SetupMessagingContext(
                 string messageId,
-                AS4.Model.PMode.ReceptionAwareness receptionAwarenessSettings)
+                SendingProcessingMode sendingPMode)
             {
-                var pmode = new SendingProcessingMode { Reliability = { ReceptionAwareness = receptionAwarenessSettings } };
                 var userMessage = new UserMessage(messageId);
-                AS4Message as4Message = AS4Message.Create(userMessage, pmode);
+                AS4Message as4Message = AS4Message.Create(userMessage, sendingPMode);
 
                 OutMessage outMessage;
 
                 using (var dbContext = GetDataStoreContext())
                 {
                     outMessage = new OutMessage(messageId);
-                    outMessage.SetPModeInformation(pmode);
+                    outMessage.SetPModeInformation(sendingPMode);
 
                     dbContext.OutMessages.Add(outMessage);
 
@@ -92,7 +92,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
 
                 var context = new MessagingContext(receivedMessage, MessagingContextMode.Unknown)
                 {
-                    SendingPMode = pmode
+                    SendingPMode = sendingPMode
                 };
 
                 context.ModifyContext(as4Message);
@@ -101,9 +101,20 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             }
         }
 
-        protected AS4.Model.PMode.ReceptionAwareness CreatePModeReceptionAwareness()
+        protected SendingProcessingMode CreatePModeWithReceptionAwareness()
         {
-            return new AS4.Model.PMode.ReceptionAwareness { IsEnabled = true, RetryCount = 3, RetryInterval = "00:05:00" };
+            var receptionAwarenessSetting =
+                new AS4.Model.PMode.ReceptionAwareness
+                {
+                    IsEnabled = true,
+                    RetryCount = 3,
+                    RetryInterval = "00:05:00"
+                };
+
+            return new SendingProcessingMode
+            {
+                Reliability = { ReceptionAwareness = receptionAwarenessSetting }
+            };
         }
     }
 }
