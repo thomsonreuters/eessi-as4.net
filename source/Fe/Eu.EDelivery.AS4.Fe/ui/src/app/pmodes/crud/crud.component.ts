@@ -163,7 +163,7 @@ export class CrudComponent implements OnInit, OnDestroy {
             .deleteConfirm('pmode')
             .filter((result) => result)
             .subscribe((result) => {
-                this._crudService.delete(this.currentPmode!.name, false);
+                this._crudService.delete(this.currentPmode!.name, this.isNewMode);
                 this._routerService.setCurrentValue(this._activatedRoute, null);
             });
     }
