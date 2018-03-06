@@ -73,7 +73,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.ReceptionAwareness
             public async Task ThenMessageIsUnansweredAsync()
             {
                 // Arrange
-                EntityReceptionAwareness awareness = CreateReceptionAwareness();
+                EntityReceptionAwareness awareness = CreateOutMessageWithReceptionAwareness();
                 awareness.CurrentRetryCount = awareness.TotalRetryCount;
 
                 var messagingContext = new MessagingContext(awareness);
@@ -104,7 +104,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.ReceptionAwareness
             {
                 // Arrange
                 EntityReceptionAwareness awareness =
-                    CreateReceptionAwareness(currentRetryCount: 0, status: ReceptionStatus.Busy);
+                    CreateOutMessageWithReceptionAwareness(currentRetryCount: 0, status: ReceptionStatus.Busy);
 
                 var internalMessage = new MessagingContext(awareness);
                 var step = new ReceptionAwarenessUpdateDatastoreStep(_messageBodyStore, GetDataStoreContext);
@@ -119,7 +119,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.ReceptionAwareness
                     x => Assert.Equal(ReceptionStatus.Pending, ReceptionStatusUtils.Parse(x.Status)));
             }
 
-            private EntityReceptionAwareness CreateReceptionAwareness(int currentRetryCount = 0, ReceptionStatus status = ReceptionStatus.Pending)
+            private EntityReceptionAwareness CreateOutMessageWithReceptionAwareness(int currentRetryCount = 0, ReceptionStatus status = ReceptionStatus.Pending)
             {
                 string ebmsMessageId = Guid.NewGuid().ToString();
 
