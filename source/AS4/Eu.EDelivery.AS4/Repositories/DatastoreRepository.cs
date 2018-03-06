@@ -5,7 +5,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
-using Microsoft.Extensions.Caching.Memory;
 using NLog;
 using ReceptionAwareness = Eu.EDelivery.AS4.Entities.ReceptionAwareness;
 
