@@ -6,6 +6,7 @@ export class SigningVerificationForm {
     public static getForm(formBuilder: FormWrapper, current: SigningVerification, path: string, runtime: ItemType[]): FormWrapper {
         return formBuilder.group({
             signature: [formBuilder.createFieldValue(current, SigningVerification.FIELD_signature, path, null, runtime)],
+            allowUnknownRootCertificate: [formBuilder.createFieldValue(current, SigningVerification.FIELD_allowUnknownRootCertificate, path, false, runtime)]
         });
     }
 }
