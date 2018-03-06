@@ -301,17 +301,12 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
                 if (receptionAwareness != null)
                 {
-                    UpdateReceptionAwareness(receptionAwareness);
+                    receptionAwareness.LastSendTime = DateTimeOffset.Now;
+                    receptionAwareness.CurrentRetryCount += 1;
                 }
 
                 await context.SaveChangesAsync().ConfigureAwait(false);
             }
-        }
-
-        private static void UpdateReceptionAwareness(Entities.ReceptionAwareness receptionAwareness)
-        {
-            receptionAwareness.LastSendTime = DateTimeOffset.Now;
-            receptionAwareness.CurrentRetryCount += 1;
         }
 
         private static async Task<StepResult> HandleAS4Response(
