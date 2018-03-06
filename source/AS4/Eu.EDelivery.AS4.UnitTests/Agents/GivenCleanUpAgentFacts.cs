@@ -42,8 +42,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Agents
             // Arrange
             int insertion = negative.Get;
             string id = Guid.NewGuid().ToString();
-            GetDataStoreContext.InsertOutMessage(CreateOutMessage(id, DateTimeOffset.UtcNow.Add(TimeSpan.FromDays(insertion))),
-                                                 withReceptionAwareness: true);
+            GetDataStoreContext.InsertOutMessage(
+                CreateOutMessage(id, DateTimeOffset.UtcNow.Add(TimeSpan.FromDays(insertion))),
+                withReceptionAwareness: true);
 
             // Act
             ExerciseCleaningEntries(retention);
