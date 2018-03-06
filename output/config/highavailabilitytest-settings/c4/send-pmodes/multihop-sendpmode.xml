@@ -1,12 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <PMode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="eu:edelivery:as4:pmode">
-  <Id>05-forward-send-pmode</Id>
+  <Id>04-staticsubmit-sendpmode</Id>
   <AllowOverride>false</AllowOverride>
   <Mep>OneWay</Mep>
   <MepBinding>Push</MepBinding>
   <PushConfiguration>
     <Protocol>
-      <Url>http://52.174.142.72:8081/msh/receive</Url>
+      <Url>http://168.63.100.215:9090/msh/receive-and-forward</Url>
       <UseChunking>false</UseChunking>
       <UseHttpCompression>false</UseHttpCompression>
     </Protocol>
@@ -18,8 +18,8 @@
   <Reliability>
     <ReceptionAwareness>
       <IsEnabled>true</IsEnabled>
-      <RetryCount>5</RetryCount>
-      <RetryInterval>00:00:05</RetryInterval>
+      <RetryCount>3</RetryCount>
+      <RetryInterval>00:00:15</RetryInterval>
     </ReceptionAwareness>
   </Reliability>
   <ReceiptHandling>
@@ -51,15 +51,17 @@
   </ExceptionHandling>
   <Security>
     <Signing>
-      <IsEnabled>false</IsEnabled>
-    </Signing>
-    <Encryption>
       <IsEnabled>true</IsEnabled>
-      <Algorithm>http://www.w3.org/2009/xmlenc11#aes128-gcm</Algorithm>
       <CertificateFindCriteria>
         <CertificateFindType>FindBySubjectName</CertificateFindType>
-        <CertificateFindValue>AccessPointA</CertificateFindValue>
+        <CertificateFindValue>AccessPointB</CertificateFindValue>
       </CertificateFindCriteria>
+      <KeyReferenceMethod>BSTReference</KeyReferenceMethod>
+      <Algorithm>http://www.w3.org/2001/04/xmldsig-more#rsa-sha256</Algorithm>
+      <HashFunction>http://www.w3.org/2001/04/xmlenc#sha256</HashFunction>
+    </Signing>
+    <Encryption>
+      <IsEnabled>false</IsEnabled>
     </Encryption>
   </Security>
   <MessagePackaging>
@@ -81,9 +83,19 @@
         <Role>Receiver</Role>
       </ToParty>
     </PartyInfo>
-    
-    <UseAS4Compression>false</UseAS4Compression>
-    <IsMultiHop>false</IsMultiHop>
+    <CollaborationInfo>
+      <AgreementReference>
+        <Value>http://agreements.europa.org/agreement</Value>
+      </AgreementReference>
+      <Service>
+        <Value>getting:started-staticsubmit</Value>
+        <Type>org:europa:services</Type>
+      </Service>
+      <Action>eu:sample:04</Action>
+      <ConversationId>eu:edelivery:as4:sampleconversation</ConversationId>
+    </CollaborationInfo>
+    <UseAS4Compression>true</UseAS4Compression>
+    <IsMultiHop>true</IsMultiHop>
     <IncludePModeId>true</IncludePModeId>
   </MessagePackaging>
 </PMode>

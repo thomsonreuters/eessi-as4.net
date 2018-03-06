@@ -2,10 +2,10 @@
 <Settings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="eu:edelivery:as4">
     <IdFormat>{GUID}@{IPADDRESS}</IdFormat>
     <FeInProcess>false</FeInProcess>
-    <PayloadServiceInProcess>true</PayloadServiceInProcess>
+    <PayloadServiceInProcess>false</PayloadServiceInProcess>
     <Database>
         <Provider>SqlServer</Provider>
-        <ConnectionString>Server=.;Database=as4msh;Trusted_Connection=True</ConnectionString>
+        <ConnectionString>Server=.;Database=as4msh_c4;Trusted_Connection=True</ConnectionString>
     </Database>
     <CertificateStore>
         <StoreName>My</StoreName>

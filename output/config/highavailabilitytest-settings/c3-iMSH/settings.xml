@@ -5,80 +5,14 @@
     <PayloadServiceInProcess>false</PayloadServiceInProcess>
     <Database>
         <Provider>SqlServer</Provider>
-        <ConnectionString>Server=.;Database=as4msh_c1;Trusted_Connection=True</ConnectionString>
+        <ConnectionString>Server=.;Database=as4msh_c3;Trusted_Connection=True</ConnectionString>
     </Database>
     <CertificateStore>
         <StoreName>My</StoreName>
         <Repository type="Eu.EDelivery.AS4.Repositories.CertificateRepository, Eu.EDelivery.AS4, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
     </CertificateStore>
     <Agents>
-	    <SubmitAgent name="Static FILE Submit Agent">
-            <Receiver type="Eu.EDelivery.AS4.Receivers.FileReceiver, Eu.EDelivery.AS4.Receivers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-                <Setting key="FilePath">.\messages\received-payloads\</Setting>
-                <Setting key="FileMask">*.*</Setting>
-                <Setting key="PollingInterval">0:00:04</Setting>
-            </Receiver>
-            <Transformer type="Eu.EDelivery.AS4.Transformers.SubmitPayloadTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-		<Setting key="SendingPMode">staticsubmit-sendpmode</Setting>
-	    </Transformer>
-            <StepConfiguration>
-                <NormalPipeline>
-                    <Step type="Eu.EDelivery.AS4.Steps.Submit.RetrieveSendingPModeStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-                    <Step type="Eu.EDelivery.AS4.Steps.Submit.DynamicDiscoveryStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"/>
-                    <Step type="Eu.EDelivery.AS4.Steps.Submit.CreateAS4MessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-                    <Step type="Eu.EDelivery.AS4.Steps.Submit.StoreAS4MessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-                </NormalPipeline>
-            </StepConfiguration>
-        </SubmitAgent>
-        <SubmitAgent name="FILE Submit Agent">
-            <Receiver type="Eu.EDelivery.AS4.Receivers.FileReceiver, Eu.EDelivery.AS4.Receivers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-                <Setting key="FilePath">.\messages\out</Setting>
-                <Setting key="FileMask">*.xml</Setting>
-                <Setting key="PollingInterval">0:00:04</Setting>
-            </Receiver>
-            <Transformer type="Eu.EDelivery.AS4.Transformers.SubmitMessageXmlTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-            <StepConfiguration>
-                <NormalPipeline>
-                    <Step type="Eu.EDelivery.AS4.Steps.Submit.RetrieveSendingPModeStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-                    <Step type="Eu.EDelivery.AS4.Steps.Submit.DynamicDiscoveryStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"/>
-                    <Step type="Eu.EDelivery.AS4.Steps.Submit.CreateAS4MessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-                    <Step type="Eu.EDelivery.AS4.Steps.Submit.StoreAS4MessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-                </NormalPipeline>
-            </StepConfiguration>
-        </SubmitAgent>
-	    <SubmitAgent name="FILE Submit Agent">
-            <Receiver type="Eu.EDelivery.AS4.Receivers.FileReceiver, Eu.EDelivery.AS4.Receivers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-                <Setting key="FilePath">.\messages\out</Setting>
-                <Setting key="FileMask">*.xml</Setting>
-                <Setting key="PollingInterval">0:00:06</Setting>
-            </Receiver>
-            <Transformer type="Eu.EDelivery.AS4.Transformers.SubmitMessageXmlTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-            <StepConfiguration>
-                <NormalPipeline>
-                    <Step type="Eu.EDelivery.AS4.Steps.Submit.RetrieveSendingPModeStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-                    <Step type="Eu.EDelivery.AS4.Steps.Submit.DynamicDiscoveryStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"/>
-                    <Step type="Eu.EDelivery.AS4.Steps.Submit.CreateAS4MessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-                    <Step type="Eu.EDelivery.AS4.Steps.Submit.StoreAS4MessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-                </NormalPipeline>
-            </StepConfiguration>
-        </SubmitAgent>
-        <SubmitAgent name="HTTP Submit Agent">
-            <Receiver type="Eu.EDelivery.AS4.Receivers.HttpReceiver, Eu.EDelivery.AS4.Receivers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-                <Setting key="Url">http://*:8081/msh/submit/</Setting>
-            </Receiver>
-            <Transformer type="Eu.EDelivery.AS4.Transformers.SubmitMessageXmlTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-            <StepConfiguration>
-                <NormalPipeline>
-                    <Step type="Eu.EDelivery.AS4.Steps.Submit.RetrieveSendingPModeStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-                    <Step type="Eu.EDelivery.AS4.Steps.Submit.DynamicDiscoveryStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-                        <Setting key="SmpProfile">Eu.EDelivery.AS4.Services.DynamicDiscovery.ESensDynamicDiscoveryProfile</Setting>
-                    </Step>
-                    <Step type="Eu.EDelivery.AS4.Steps.Submit.CreateAS4MessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-                    <Step type="Eu.EDelivery.AS4.Steps.Submit.StoreAS4MessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-                </NormalPipeline>
-            </StepConfiguration>
-        </SubmitAgent>
-        <OutboundProcessingAgent name="OutBound Processing Agent">
+	    <OutboundProcessingAgent name="OutBound Processing Agent">
             <Receiver type="Eu.EDelivery.AS4.Receivers.DatastoreReceiver, Eu.EDelivery.AS4.Receivers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
                 <Setting key="Table">OutMessages</Setting>
                 <Setting key="Filter">Operation = 'ToBeProcessed'</Setting>
@@ -134,7 +68,7 @@
         </SendAgent>
         <ReceiveAgent name="Receive Agent">
             <Receiver type="Eu.EDelivery.AS4.Receivers.HttpReceiver, Eu.EDelivery.AS4.Receivers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-                <Setting key="Url">http://*:8081/msh/receive/</Setting>
+                <Setting key="Url">http://*:9090/msh/receive-and-forward/</Setting>
             </Receiver>
             <Transformer type="Eu.EDelivery.AS4.Transformers.ReceiveMessageTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
             <StepConfiguration>
@@ -157,78 +91,8 @@
                 </ErrorPipeline>
             </StepConfiguration>
         </ReceiveAgent>
-        <DeliverAgent name="InMessage Deliver Agent">
-            <Receiver type="Eu.EDelivery.AS4.Receivers.DatastoreReceiver, Eu.EDelivery.AS4.Receivers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-                <Setting key="Table">InMessages</Setting>
-                <Setting key="Filter">Operation = 'ToBeDelivered'</Setting>
-                <Setting key="Update" field="Operation">Delivering</Setting>
-            </Receiver>
-            <Transformer type="Eu.EDelivery.AS4.Transformers.DeliverMessageTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-            <StepConfiguration>
-                <NormalPipeline>
-                    <Step type="Eu.EDelivery.AS4.Steps.Deliver.UploadAttachmentsStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-                    <Step type="Eu.EDelivery.AS4.Steps.Deliver.CreateDeliverEnvelopeStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-                    <Step type="Eu.EDelivery.AS4.Steps.Deliver.SendDeliverMessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-                    <Step type="Eu.EDelivery.AS4.Steps.Deliver.DeliverUpdateDatastoreStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-                </NormalPipeline>
-            </StepConfiguration>
-        </DeliverAgent>
-        <NotifyAgent name="InMessages Notify Agent">
-            <Receiver type="Eu.EDelivery.AS4.Receivers.DatastoreReceiver, Eu.EDelivery.AS4.Receivers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-                <Setting key="Table">InMessages</Setting>
-                <Setting key="Filter">Operation = 'ToBeNotified'</Setting>
-                <Setting key="Update" field="Operation">Notifying</Setting>
-            </Receiver>
-            <Transformer type="Eu.EDelivery.AS4.Transformers.NotifyMessageTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-            <StepConfiguration>
-                <NormalPipeline>
-                    <Step type="Eu.EDelivery.AS4.Steps.Notify.SendNotifyMessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-                    <Step type="Eu.EDelivery.AS4.Steps.Notify.NotifyUpdateDatastoreStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-                </NormalPipeline>
-            </StepConfiguration>
-        </NotifyAgent>
-        <NotifyAgent name="InExceptions Notify Agent">
-            <Receiver type="Eu.EDelivery.AS4.Receivers.DatastoreReceiver, Eu.EDelivery.AS4.Receivers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-                <Setting key="Table">InExceptions</Setting>
-                <Setting key="Filter">Operation = 'ToBeNotified'</Setting>
-                <Setting key="Update" field="Operation">Notifying</Setting>
-            </Receiver>
-            <Transformer type="Eu.EDelivery.AS4.Transformers.NotifyMessageTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-            <StepConfiguration>
-                <NormalPipeline>
-                    <Step type="Eu.EDelivery.AS4.Steps.Notify.SendNotifyMessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-                    <Step type="Eu.EDelivery.AS4.Steps.Notify.NotifyUpdateDatastoreStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-                </NormalPipeline>
-            </StepConfiguration>
-        </NotifyAgent>
-        <NotifyAgent name="OutMessages Notify Agent">
-            <Receiver type="Eu.EDelivery.AS4.Receivers.DatastoreReceiver, Eu.EDelivery.AS4.Receivers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-                <Setting key="Table">OutMessages</Setting>
-                <Setting key="Filter">Operation = 'ToBeNotified'</Setting>
-                <Setting key="Update" field="Operation">Notifying</Setting>
-            </Receiver>
-            <Transformer type="Eu.EDelivery.AS4.Transformers.NotifyMessageTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-            <StepConfiguration>
-                <NormalPipeline>
-                    <Step type="Eu.EDelivery.AS4.Steps.Notify.SendNotifyMessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-                    <Step type="Eu.EDelivery.AS4.Steps.Notify.NotifyUpdateDatastoreStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-                </NormalPipeline>
-            </StepConfiguration>
-        </NotifyAgent>
-        <NotifyAgent name="OutExceptions Notify Agent">
-            <Receiver type="Eu.EDelivery.AS4.Receivers.DatastoreReceiver, Eu.EDelivery.AS4.Receivers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-                <Setting key="Table">OutExceptions</Setting>
-                <Setting key="Filter">Operation = 'ToBeNotified'</Setting>
-                <Setting key="Update" field="Operation">Notifying</Setting>
-            </Receiver>
-            <Transformer type="Eu.EDelivery.AS4.Transformers.NotifyMessageTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-            <StepConfiguration>
-                <NormalPipeline>
-                    <Step type="Eu.EDelivery.AS4.Steps.Notify.SendNotifyMessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-                    <Step type="Eu.EDelivery.AS4.Steps.Notify.NotifyUpdateDatastoreStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-                </NormalPipeline>
-            </StepConfiguration>
-        </NotifyAgent>
+        
+        
         <ReceptionAwarenessAgent name="Reception Awareness Agent">
             <Receiver type="Eu.EDelivery.AS4.Receivers.DatastoreReceiver, Eu.EDelivery.AS4.Receivers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
                 <Setting key="Table">ReceptionAwareness</Setting>
@@ -271,5 +135,21 @@
             </StepConfiguration>
         </PullReceiveAgent>
         -->
+	    <ForwardAgent name="Forward Agent">
+            <Receiver type="Eu.EDelivery.AS4.Receivers.DatastoreReceiver, Eu.EDelivery.AS4.Receivers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+                <Setting key="Table">InMessages</Setting>
+                <Setting key="Filter">Operation = 'ToBeForwarded'</Setting>
+                <Setting key="Update" field="Operation">Forwarding</Setting>
+            </Receiver>        
+            <Transformer type="Eu.EDelivery.AS4.Transformers.ForwardMessageTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />            
+            <StepConfiguration>
+                <NormalPipeline>
+                    <Step type="Eu.EDelivery.AS4.Steps.Forward.DetermineRoutingStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+                    <Step type="Eu.EDelivery.AS4.Steps.Submit.DynamicDiscoveryStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+                    <Step type="Eu.EDelivery.AS4.Steps.Forward.CreateForwardMessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />                 
+                </NormalPipeline>
+                <ErrorPipeline />                    
+            </StepConfiguration>
+        </ForwardAgent>
     </Agents>
 </Settings>

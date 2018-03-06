@@ -1,12 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <PMode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="eu:edelivery:as4:pmode">
-  <Id>04-staticsubmit-sendpmode</Id>
+  <Id>staticsubmit-sendpmode</Id>
   <AllowOverride>false</AllowOverride>
   <Mep>OneWay</Mep>
   <MepBinding>Push</MepBinding>
   <PushConfiguration>
     <Protocol>
-      <Url>http://168.63.100.215:9091/msh/receive</Url>
+      <Url>http://52.174.142.72:9090/msh/receive</Url>
       <UseChunking>false</UseChunking>
       <UseHttpCompression>false</UseHttpCompression>
     </Protocol>

@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<PMode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="eu:edelivery:as4:pmode">
+  <Id>forward-to-c1</Id>
+  <AllowOverride>false</AllowOverride>
+  <Mep>OneWay</Mep>
+  <MepBinding>Push</MepBinding>
+  <PushConfiguration>
+    <Protocol>
+      <Url>http://168.63.100.215:9091/msh/receive</Url>
+      <UseChunking>false</UseChunking>
+      <UseHttpCompression>false</UseHttpCompression>
+    </Protocol>
+    <TlsConfiguration>
+      <IsEnabled>false</IsEnabled>
+      <TlsVersion>Tls12</TlsVersion>
+    </TlsConfiguration>
+  </PushConfiguration>
+  <ExceptionHandling>
+    <NotifyMessageProducer>true</NotifyMessageProducer>
+    <NotifyMethod>
+      <Type>FILE</Type>
+      <Parameters>
+        <Parameter name="location" value=".\messages\exceptions\" />
+      </Parameters>
+    </NotifyMethod>
+  </ExceptionHandling>
+  <Security>
+    <Signing>
+      <IsEnabled>false</IsEnabled>
+    </Signing>
+    <Encryption>
+      <IsEnabled>false</IsEnabled>
+    </Encryption>
+  </Security>
+ <MessagePackaging>   
+    <UseAS4Compression>true</UseAS4Compression>
+    <IsMultiHop>true</IsMultiHop>
+    <IncludePModeId>true</IncludePModeId>
+  </MessagePackaging>
+</PMode>

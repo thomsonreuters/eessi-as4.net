@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <PMode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="eu:edelivery:as4:pmode">
-  <Id>01-sample-pmode</Id>
+  <Id>receive-multihop-from-c4</Id>
   <Reliability>
     <DuplicateElimination>
       <IsEnabled>false</IsEnabled>
@@ -8,9 +8,9 @@
   </Reliability>
   <ReplyHandling>
     <ReplyPattern>Response</ReplyPattern>
-    <SendingPMode>unsigned-response-pmode</SendingPMode>
+    <SendingPMode>signed-response-pmode</SendingPMode>
     <ReceiptHandling>
-      <UseNRRFormat>false</UseNRRFormat>
+      <UseNRRFormat>true</UseNRRFormat>
     </ReceiptHandling>
     <ErrorHandling>
       <UseSoapFault>false</UseSoapFault>
@@ -58,27 +58,15 @@
         <Value>http://agreements.europa.org/agreement</Value>
       </AgreementReference>
       <Service>
-        <Value>getting:started</Value>
-        <Type>eu:europa:services</Type>
+        <Value>getting:started-staticsubmit</Value>
+        <Type>org:europa:services</Type>
       </Service>
-      <Action>eu:sample:01</Action>
+      <Action>eu:sample:04</Action>
     </CollaborationInfo>
   </MessagePackaging>
   <MessageHandling>
-    <Deliver>
-      <IsEnabled>true</IsEnabled>
-      <PayloadReferenceMethod>
-        <Type>FILE</Type>
-        <Parameters>
-          <Parameter name="location" value=".\messages\in\" />
-        </Parameters>
-      </PayloadReferenceMethod>
-      <DeliverMethod>
-        <Type>FILE</Type>
-        <Parameters>
-          <Parameter name="location" value=".\messages\in\" />
-        </Parameters>
-      </DeliverMethod>
-    </Deliver>
+    <Forward>
+	    <SendingPMode>forward-to-c2</SendingPMode>
+    </Forward>
   </MessageHandling>
 </PMode>
