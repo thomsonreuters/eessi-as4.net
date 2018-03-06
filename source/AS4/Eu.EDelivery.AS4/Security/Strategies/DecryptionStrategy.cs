@@ -59,8 +59,15 @@ namespace Eu.EDelivery.AS4.Security.Strategies
                                                    .Create(encryptedKey.GetDigestAlgorithm(), encryptedKey.GetMaskGenerationFunction());
 
             // We do not look at the KeyInfo element in here, but rather decrypt it with the certificate provided as argument.
+            RSA privateKey = certificate.GetRSAPrivateKey();
+
+            if (privateKey == null)
+            {
+                throw new CryptographicException("The decryption certificate does not contain private key.");
+            }
+
             AsymmetricCipherKeyPair encryptionCertificateKeyPair =
-                DotNetUtilities.GetRsaKeyPair(certificate.GetRSAPrivateKey());
+                DotNetUtilities.GetRsaKeyPair(privateKey);
 
             encoding.Init(false, encryptionCertificateKeyPair.Private);
 
