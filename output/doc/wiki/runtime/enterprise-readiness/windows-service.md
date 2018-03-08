@@ -12,7 +12,7 @@ This folder contains two installation files:
 
 **Both script files needs to be executed as Administrator; because installing a Windows Service requires those permissions!**
 
-After the service is correctly installed, you can run it from the **Windows Services Control Manager** tab; we're it's called: **AS4.NET Message Service Handler**.
+After the service is correctly installed, you can run it from the **Windows Services Control Manager**; we're it's called: **AS4.NET Message Service Handler**.
 
 ## Configuration
 
