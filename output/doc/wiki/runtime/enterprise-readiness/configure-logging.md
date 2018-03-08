@@ -1,8 +1,8 @@
 # Configure Logging
 
-The AS4 .NET Component uses NLog for logging. The logging levels can be configured to minimum: **Info**, and maximum: **Debug**. Further configuration can be found on the NLog support itself (https://github.com/nlog/nlog/wiki/Configuration-file )
+The AS4 .NET Component uses NLog for logging. The logging levels can be configured to minimum: **Fatal**, and maximum: **Trace**. Further configuration can be found on the NLog support itself (https://github.com/nlog/nlog/wiki/Configuration-file )
 
-The sample NLog configuration file is named: `App.config`, below you find the default configuration:
+The **NLog** configuration can be found in the `Eu.EDelivery.AS4.ServiceHandler.ConsoleHost.config` file.
 
 ![app-config](images/app.config.png)
 
