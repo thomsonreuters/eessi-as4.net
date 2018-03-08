@@ -227,6 +227,14 @@ namespace Eu.EDelivery.AS4.Model.Internal
             AS4Message = as4Message;
         }
 
+        public MessagingContext ModifyContext(AS4Message as4Message, MessagingContextMode mode)
+        {
+            PrepareContextChange();
+            AS4Message = as4Message;
+            Mode = mode;
+            return this;
+        }
+
         public void ModifyContext(ReceivedMessage receivedMessage, MessagingContextMode mode)
         {
             PrepareContextChange();

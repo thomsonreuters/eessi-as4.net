@@ -1,5 +1,4 @@
 ﻿using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 
@@ -32,7 +31,8 @@ namespace Eu.EDelivery.AS4.Steps.Send.Response
             
             if (isEmptyChannelWarning)
             {
-                return StepResult.Success(new MessagingContext(response.ReceivedAS4Message, MessagingContextMode.Send)).AndStopExecution();
+                response.OriginalRequest.ModifyContext(response.ReceivedAS4Message, MessagingContextMode.Send);
+                return StepResult.Success(response.OriginalRequest).AndStopExecution();
             }
 
             return await _nextHandler.HandleResponse(response);
