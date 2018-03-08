@@ -1,6 +1,6 @@
 # Configuration
 
-Following items describe all the introduction folders and files that you find in the package.
+The paragraphs in this section describe the contents of the package and provide a brief overview of the configuration.
 
 ## Package
 
