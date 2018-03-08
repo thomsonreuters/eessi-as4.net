@@ -1,4 +1,5 @@
 export class Message {
+    public id: number;
     public operation: string;
     public operationMethod: string;
     public contentType: string;
