@@ -54,6 +54,18 @@ namespace Eu.EDelivery.AS4.Repositories
         }
 
         /// <summary>
+        /// Retrieves information for specified InMessages.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <param name="where">The where.</param>
+        /// <param name="selection">The selection.</param>
+        /// <returns></returns>
+        public IEnumerable<TResult> GetInMessageData<TResult>(Expression<Func<InMessage, bool>> where, Expression<Func<InMessage, TResult>> selection)
+        {
+            return _datastoreContext.InMessages.Where(where).Select(selection);
+        }
+
+        /// <summary>
         /// Selects some information of specified InMessages.
         /// </summary>
         /// <typeparam name="TResult"></typeparam>

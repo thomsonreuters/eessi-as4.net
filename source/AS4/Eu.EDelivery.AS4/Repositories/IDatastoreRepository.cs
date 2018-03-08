@@ -48,6 +48,15 @@ namespace Eu.EDelivery.AS4.Repositories
         TResult GetInMessageData<TResult>(string messageId, Expression<Func<InMessage, TResult>> selection);
 
         /// <summary>
+        /// Retrieves information for specified InMessages.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <param name="where">The where.</param>
+        /// <param name="selection">The selection.</param>
+        /// <returns></returns>
+        IEnumerable<TResult> GetInMessageData<TResult>(Expression<Func<InMessage, bool>> where, Expression<Func<InMessage, TResult>> selection);
+
+        /// <summary>
         /// Selects some information of specified InMessages.
         /// </summary>
         /// <typeparam name="TResult"></typeparam>

@@ -204,14 +204,11 @@ namespace Eu.EDelivery.AS4.Fe.Monitor
                 throw new InvalidEnumArgumentException(nameof(direction), (int)direction, typeof(Direction));
             }
 
-            if (direction == Direction.Inbound)
-            {
-                return await datastoreRepository.GetInMessageData(messageId, x => x.RetrieveMessageBody(Registry.Instance.MessageBodyStore));
-            }
-            // TODO: this must be reworked to retrieve the message-body based on the Primary Key.
-            return await datastoreRepository.GetOutMessageData(m => m.EbmsMessageId == messageId, 
-                                                               x => x.RetrieveMessageBody(Registry.Instance.MessageBodyStore))
-                                            .SingleOrDefault();
+            return await(direction == Direction.Inbound
+                ? datastoreRepository.GetInMessageData(m => m.Id.ToString() == messageId, x => (MessageEntity) x)
+                : datastoreRepository.GetOutMessageData(m => m.Id.ToString() == messageId, x => x))
+                .Single()
+                .RetrieveMessageBody(Registry.Instance.MessageBodyStore);
         }
 
         /// <summary>
