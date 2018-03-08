@@ -12,4 +12,4 @@ This section expands on the enterprise usage of the AS4.NET component.
 
 For these situations, we recommend to use **SQL Server** as datastore system; because of its stability, better performance and fine grained locking
 
-> NOTE: this is only supported starting from AS4.NET sv3.0
+> NOTE: this is only supported starting from AS4.NET v3.0
