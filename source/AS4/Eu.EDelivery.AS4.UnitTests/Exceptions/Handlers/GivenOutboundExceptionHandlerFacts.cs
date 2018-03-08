@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Entities;
@@ -52,9 +53,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Exceptions.Handlers
         [InlineData(false, default(Operation))]
         public async Task InsertOutException_IfStepExecutionException(bool notifyProducer, Operation expected)
         {
+            var context = SetupMessagingContextForOutMessage(_expectedId);
+
+            context.ModifyContext(AS4Message.Create(new FilledUserMessage(_expectedId)));
+            context.SendingPMode = new SendingProcessingMode { ExceptionHandling = { NotifyMessageProducer = notifyProducer } };
+
             await TestHandleExecutionException(
                 expected,
-                ContextWithAS4UserMessage(notifyProducer, _expectedId),
+                context,
                 sut => sut.HandleExecutionException);
         }
 
@@ -63,39 +69,44 @@ namespace Eu.EDelivery.AS4.UnitTests.Exceptions.Handlers
         [InlineData(false, default(Operation))]
         public async Task InsertOutException_IfErrorException(bool notifyProducer, Operation expected)
         {
+            var context = SetupMessagingContextForOutMessage(_expectedId);
+
+            context.ModifyContext(AS4Message.Create(new FilledUserMessage(_expectedId)));
+            context.SendingPMode = new SendingProcessingMode { ExceptionHandling = { NotifyMessageProducer = notifyProducer } };
+
             await TestHandleExecutionException(
                 expected,
-                ContextWithAS4UserMessage(notifyProducer, _expectedId),
+                context,
                 sut => sut.HandleErrorException);
-        }
-
-        private static MessagingContext ContextWithAS4UserMessage(bool notifyProducer, string id)
-        {
-            return new MessagingContext(AS4Message.Create(new FilledUserMessage(id)), default(MessagingContextMode))
-            {
-                SendingPMode = new SendingProcessingMode { ExceptionHandling = { NotifyMessageProducer = notifyProducer } }
-            };
         }
 
         [Fact]
         public async Task InsertOutException_IfDeliverMessage()
         {
+            var context = SetupMessagingContextForOutMessage(_expectedId);
+
             var deliverEnvelope = new EmptyDeliverEnvelope(_expectedId);
+
+            context.ModifyContext(deliverEnvelope);
 
             await TestHandleExecutionException(
                 default(Operation),
-                new MessagingContext(deliverEnvelope),
+                context,
                 sut => sut.HandleExecutionException);
         }
 
         [Fact]
         public async Task InsertOutException_IfNotifyMessage()
         {
+            var context = SetupMessagingContextForOutMessage(_expectedId);
+
             var notifyEnvelope = new EmptyNotifyEnvelope(_expectedId);
+
+            context.ModifyContext(notifyEnvelope);
 
             await TestHandleExecutionException(
                 default(Operation),
-                new MessagingContext(notifyEnvelope),
+                context,
                 sut => sut.HandleExecutionException);
         }
 
@@ -112,17 +123,26 @@ namespace Eu.EDelivery.AS4.UnitTests.Exceptions.Handlers
             GetDataStoreContext.AssertOutException(ex => Assert.NotNull(ex.MessageBody));
         }
 
+        private MessagingContext SetupMessagingContextForOutMessage(string ebmsMessageId)
+        {
+            // Arrange
+            var message = new OutMessage(ebmsMessageId: ebmsMessageId);
+            message.SetStatus(OutStatus.Sent);
+
+            GetDataStoreContext.InsertOutMessage(message, withReceptionAwareness: false);
+
+            var receivedMessage = new ReceivedEntityMessage(message, Stream.Null, string.Empty);
+
+            var context = new MessagingContext(receivedMessage, MessagingContextMode.Unknown);
+
+            return context;
+        }
+
         private async Task TestHandleExecutionException(
             Operation expected,
             MessagingContext context,
             Func<IAgentExceptionHandler, Func<Exception, MessagingContext, Task<MessagingContext>>> getExercise)
         {
-            // Arrange
-            var message = new OutMessage(ebmsMessageId: _expectedId);
-            message.SetStatus(OutStatus.Sent);
-
-            GetDataStoreContext.InsertOutMessage(message);
-
             var sut = new OutboundExceptionHandler(GetDataStoreContext);
             Func<Exception, MessagingContext, Task<MessagingContext>> exercise = getExercise(sut);
 

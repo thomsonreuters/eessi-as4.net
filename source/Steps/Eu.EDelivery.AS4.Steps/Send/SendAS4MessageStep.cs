@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Configuration;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
@@ -119,7 +117,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             }
             finally
             {
-                await UpdateMessageStatusAsync(as4Message, Operation.Sent, OutStatus.Sent).ConfigureAwait(false);
+                await UpdateMessageStatusAsync(messagingContext, Operation.Sent, OutStatus.Sent).ConfigureAwait(false);
             }
         }
 
@@ -279,9 +277,9 @@ namespace Eu.EDelivery.AS4.Steps.Send
             throw CreateFailedSendException(request.RequestUri.ToString(), response.exception);
         }
 
-        private async Task UpdateMessageStatusAsync(AS4Message as4Message, Operation operation, OutStatus status)
+        private async Task UpdateMessageStatusAsync(MessagingContext messagingContext, Operation operation, OutStatus status)
         {
-            if (as4Message == null)
+            if (messagingContext.MessageEntityId == null)
             {
                 return;
             }
@@ -290,28 +288,24 @@ namespace Eu.EDelivery.AS4.Steps.Send
             {
                 var repository = new DatastoreRepository(context);
 
-                repository.UpdateOutMessages(
-                    outMessage => as4Message.MessageIds.Contains(outMessage.EbmsMessageId),
-                    outMessage =>
+                repository.UpdateOutMessage(
+                    messagingContext.MessageEntityId.Value,
+                    updateAction: outMessage =>
                     {
                         outMessage.SetOperation(operation);
                         outMessage.SetStatus(status);
                     });
 
-                var receptionAwareness = repository.GetReceptionAwareness(as4Message.MessageIds);
+                var receptionAwareness =
+                    repository.GetReceptionAwarenessForOutMessage(messagingContext.MessageEntityId.Value);
 
-                UpdateReceptionAwareness(receptionAwareness);
+                if (receptionAwareness != null)
+                {
+                    receptionAwareness.LastSendTime = DateTimeOffset.Now;
+                    receptionAwareness.CurrentRetryCount += 1;
+                }
 
                 await context.SaveChangesAsync().ConfigureAwait(false);
-            }
-        }
-
-        private static void UpdateReceptionAwareness(IEnumerable<Entities.ReceptionAwareness> receptionAwarenessItems)
-        {
-            foreach (var item in receptionAwarenessItems)
-            {
-                item.LastSendTime = DateTimeOffset.Now;
-                item.CurrentRetryCount += 1;
             }
         }
 

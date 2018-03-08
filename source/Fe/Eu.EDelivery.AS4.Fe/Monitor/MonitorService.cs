@@ -195,15 +195,21 @@ namespace Eu.EDelivery.AS4.Fe.Monitor
         /// <exception cref="InvalidEnumArgumentException">direction</exception>
         public async Task<Stream> DownloadMessageBody(Direction direction, string messageId)
         {
-            if (string.IsNullOrEmpty(messageId)) throw new ArgumentNullException(nameof(messageId), @"messageId parameter cannot be null");
-            if (!Enum.IsDefined(typeof(Direction), direction)) throw new InvalidEnumArgumentException(nameof(direction), (int)direction, typeof(Direction));
+            if (string.IsNullOrEmpty(messageId))
+            {
+                throw new ArgumentNullException(nameof(messageId), @"messageId parameter cannot be null");
+            }
+            if (!Enum.IsDefined(typeof(Direction), direction))
+            {
+                throw new InvalidEnumArgumentException(nameof(direction), (int)direction, typeof(Direction));
+            }
 
             if (direction == Direction.Inbound)
             {
                 return await datastoreRepository.GetInMessageData(messageId, x => x.RetrieveMessageBody(Registry.Instance.MessageBodyStore));
             }
 
-            return await datastoreRepository.GetOutMessageData(messageId, x => x.RetrieveMessageBody(Registry.Instance.MessageBodyStore));
+            return await datastoreRepository.GetOutMessageData(m => m.EbmsMessageId == messageId, x => x.RetrieveMessageBody(Registry.Instance.MessageBodyStore));
         }
 
         /// <summary>

@@ -1,7 +1,7 @@
 /* tslint:disable */
 import { FormBuilder, FormGroup, FormArray, Validators, FormControl } from '@angular/forms';
 
-export class ClientCertificateReference {
+export class ClientCertificateInformation {
 	clientCertificateFindType: number;
 	clientCertificateFindValue: string;
 

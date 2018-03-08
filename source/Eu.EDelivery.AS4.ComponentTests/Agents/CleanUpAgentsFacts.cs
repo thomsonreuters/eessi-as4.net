@@ -49,6 +49,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                    inExceptionId = Guid.NewGuid().ToString();
 
             var databaseSpy = new DatabaseSpy(config);
+
             databaseSpy.InsertOutMessage(CreateOutMessage(outReferenceId, insertionTime: overdueTime));
             databaseSpy.InsertOutMessage(CreateOutMessage(outStandaloneId, insertionTime: overdueTime));
             databaseSpy.InsertInMessage(CreateInMessage(inMessageId, overdueTime));
@@ -111,10 +112,9 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         {
             using (var ctx = new DatastoreContext(config))
             {
-                ctx.ReceptionAwareness.Add(new ReceptionAwareness
-                {
-                    InternalMessageId = ebmsMessageId
-                });
+                long outMessageId = ctx.OutMessages.First(m => m.EbmsMessageId.Equals(ebmsMessageId)).Id;
+
+                ctx.ReceptionAwareness.Add(new ReceptionAwareness(outMessageId, ebmsMessageId));
                 ctx.SaveChanges();
             }
         }
@@ -131,7 +131,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         {
             using (var ctx = new DatastoreContext(config))
             {
-                return ctx.ReceptionAwareness.FirstOrDefault(r => r.InternalMessageId.Equals(ebmsMessageId));
+                return ctx.ReceptionAwareness.FirstOrDefault(r => r.RefToEbmsMessageId.Equals(ebmsMessageId));
             }
         }
 

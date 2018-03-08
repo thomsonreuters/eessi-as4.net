@@ -2,7 +2,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 import { FormWrapper } from './../common/form.service';
 import { TlsConfiguration } from './TlsConfiguration';
-import { ClientCertificateReferenceForm } from './ClientCertificateReferenceForm';
+import { ClientCertificateInformationForm } from './ClientCertificateInformationForm';
 import { ItemType } from './ItemType';
 
 export class TlsConfigurationForm {
@@ -11,15 +11,15 @@ export class TlsConfigurationForm {
             .group({
                 [TlsConfiguration.FIELD_isEnabled]: [!!(current && current.isEnabled)],
                 [TlsConfiguration.FIELD_tlsVersion]: [formBuilder.createFieldValue(current, TlsConfiguration.FIELD_tlsVersion, path, 0, runtime)],
-                [TlsConfiguration.FIELD_clientCertificateReference]: ClientCertificateReferenceForm.getForm(formBuilder.subForm(TlsConfiguration.FIELD_clientCertificateReference), current && current.clientCertificateReference, `${path}.{TlsConfiguration.FIELD_clientCertificateReference}`, runtime).form,
+                [TlsConfiguration.FIELD_clientCertificateInformation]: ClientCertificateInformationForm.getForm(formBuilder.subForm(TlsConfiguration.FIELD_clientCertificateInformation), current && current.clientCertificateInformation, `${path}.{TlsConfiguration.FIELD_clientCertificateInformation}`, runtime).form,
             })
             .onChange<boolean>(TlsConfiguration.FIELD_isEnabled, (isEnabled, wrapper) => {
                 if (isEnabled) {
                     wrapper.form!.get(TlsConfiguration.FIELD_tlsVersion)!.enable();
-                    wrapper.form!.get(TlsConfiguration.FIELD_clientCertificateReference)!.enable();
+                    wrapper.form!.get(TlsConfiguration.FIELD_clientCertificateInformation)!.enable();
                 } else {
                     wrapper.form!.get(TlsConfiguration.FIELD_tlsVersion)!.disable();
-                    wrapper.form!.get(TlsConfiguration.FIELD_clientCertificateReference)!.disable();
+                    wrapper.form!.get(TlsConfiguration.FIELD_clientCertificateInformation)!.disable();
                 }
             })
             .onStatusChange(undefined, (status, wrapper) => {
@@ -30,7 +30,7 @@ export class TlsConfigurationForm {
                     }
                 } else {
                     wrapper.form!.get(TlsConfiguration.FIELD_tlsVersion)!.disable();
-                    wrapper.form!.get(TlsConfiguration.FIELD_clientCertificateReference)!.disable();
+                    wrapper.form!.get(TlsConfiguration.FIELD_clientCertificateInformation)!.disable();
                 }
             })
             .triggerHandler(TlsConfiguration.FIELD_isEnabled, current && current.isEnabled);

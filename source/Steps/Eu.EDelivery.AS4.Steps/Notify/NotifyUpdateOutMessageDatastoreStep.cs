@@ -34,14 +34,14 @@ namespace Eu.EDelivery.AS4.Steps.Notify
             {
                 var repository = new DatastoreRepository(context);
                 repository.UpdateOutMessage(
-                    notifyMessage.MessageInfo.MessageId, 
+                    messagingContext.MessageEntityId.Value, 
                     m =>
                     {
                         m.SetStatus(OutStatus.Notified);
                         m.SetOperation(Operation.Notified);
                     });
 
-                await context.SaveChangesAsync().ConfigureAwait(false);
+                await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
             }
             return await StepResult.SuccessAsync(messagingContext);
 

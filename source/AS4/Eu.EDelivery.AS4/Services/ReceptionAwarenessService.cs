@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Builders.Entities;
 using Eu.EDelivery.AS4.Common;
@@ -39,22 +37,18 @@ namespace Eu.EDelivery.AS4.Services
             _repository = repository;
         }
 
-        /// <summary>
-        /// Deadletters the out message asynchronous.
-        /// </summary>
-        /// <param name="messageId">The message identifier.</param>
-        /// <param name="messageBodyStore">The message body persister.</param>
-        /// <returns></returns>
-        public void DeadletterOutMessage(string messageId, IAS4MessageBodyStore messageBodyStore)
+        /// <inheritdoc />
+        public void DeadletterOutMessage(long outMessageId, string ebmsMessageId, IAS4MessageBodyStore messageBodyStore)
         {
-            InMessage inMessage = CreateErrorInMessage(messageId, messageBodyStore);
+            InMessage inMessage = CreateErrorInMessage(outMessageId, ebmsMessageId, messageBodyStore);
             _repository.InsertInMessage(inMessage);
 
-            _repository.UpdateOutMessage(messageId, x => x.SetOperation(Operation.DeadLettered));
+            _repository.UpdateOutMessage(outMessageId, x => x.SetOperation(Operation.DeadLettered));
         }
 
         private InMessage CreateErrorInMessage(
-            string messageId,
+            long outMessageId,
+            string ebmsMessageId,
             IAS4MessageBodyStore messageBodyStore)
         {
             // TODO: should this not be an OutException instead of an InMessage ?
@@ -62,14 +56,14 @@ namespace Eu.EDelivery.AS4.Services
             //       regarding the type of Error ?
 
             var outMessageData = _repository.GetOutMessageData(
-                messageId,
-                m => new
+                where: m => m.Id == outMessageId,
+                selection: m => new
                 {
                     pmode = AS4XmlSerializer.FromString<SendingProcessingMode>(m.PMode),
                     mep = MessageExchangePatternUtils.Parse(m.MEP)
                 });
 
-            Error errorMessage = CreateError(messageId);
+            Error errorMessage = CreateError(ebmsMessageId);
             AS4Message as4Message = AS4Message.Create(errorMessage, outMessageData.pmode);
 
             // We do not use the InMessageService to persist the incoming message here, since this is not really
@@ -115,8 +109,8 @@ namespace Eu.EDelivery.AS4.Services
         public bool IsMessageAlreadyAnswered(ReceptionAwareness awareness)
         {
             return _repository.GetOutMessageData(
-                awareness.InternalMessageId,
-                m => m.Status == OutStatus.Ack.ToString() || m.Status == OutStatus.Nack.ToString());
+                messageId: awareness.RefToOutMessageId,
+                selection: m => m.Status == OutStatus.Ack.ToString() || m.Status == OutStatus.Nack.ToString());
         }
 
         /// <summary>
@@ -137,7 +131,8 @@ namespace Eu.EDelivery.AS4.Services
             return ReceptionStatusUtils.Parse(awareness.Status) != ReceptionStatus.Completed
                    && awareness.CurrentRetryCount < awareness.TotalRetryCount
                    && DateTimeOffset.Now > deadlineForResend
-                   && _repository.GetOutMessageData(awareness.InternalMessageId, m => m.Operation) != Operation.Sending.ToString();
+                   && _repository.GetOutMessageData(where: m => m.Id == awareness.RefToOutMessageId,
+                                                    selection: m => m.Operation) != Operation.Sending.ToString();
         }
 
         /// <summary>
@@ -146,7 +141,7 @@ namespace Eu.EDelivery.AS4.Services
         /// <param name="awareness">The awareness.</param>
         public void MarkReferencedMessageAsComplete(ReceptionAwareness awareness)
         {
-            Logger.Info($"[{awareness.InternalMessageId}] Reception Awareness completed");
+            Logger.Info($"[{awareness.RefToEbmsMessageId}] Reception Awareness completed");
 
             UpdateReceptionAwareness(awareness, ReceptionStatus.Completed);
         }
@@ -157,11 +152,10 @@ namespace Eu.EDelivery.AS4.Services
         /// <param name="awareness">The awareness.</param>
         public void MarkReferencedMessageForResend(ReceptionAwareness awareness)
         {
-            string messageId = awareness.InternalMessageId;
             Logger.Info(
-                $"[{messageId}] Update datastore so the ebMS message can be resend. (RetryCount = {awareness.CurrentRetryCount + 1})");
+                $"[{awareness.RefToEbmsMessageId}] Update datastore so the ebMS message can be resend. (RetryCount = {awareness.CurrentRetryCount + 1})");
 
-            _repository.UpdateOutMessage(messageId, m => m.SetOperation(Operation.ToBeSent));
+            _repository.UpdateOutMessage(awareness.RefToOutMessageId, m => m.SetOperation(Operation.ToBeSent));
             UpdateReceptionAwareness(awareness, ReceptionStatus.Pending);
         }
 
@@ -171,14 +165,14 @@ namespace Eu.EDelivery.AS4.Services
         /// <param name="awarenes">The awarenes.</param>
         public void ResetReferencedMessage(ReceptionAwareness awarenes)
         {
-            Logger.Info($"[{awarenes.InternalMessageId}] Modify Reception Awareness Status");
+            Logger.Info($"[{awarenes.RefToEbmsMessageId}] Modify Reception Awareness Status");
 
             UpdateReceptionAwareness(awarenes, ReceptionStatus.Pending);
         }
 
         private void UpdateReceptionAwareness(ReceptionAwareness awarenes, ReceptionStatus receptionStatus)
         {
-            _repository.UpdateReceptionAwareness(awarenes.InternalMessageId, r => r.SetStatus(receptionStatus));
+            _repository.UpdateReceptionAwareness(awarenes.Id, r => r.SetStatus(receptionStatus));
         }
     }
 }

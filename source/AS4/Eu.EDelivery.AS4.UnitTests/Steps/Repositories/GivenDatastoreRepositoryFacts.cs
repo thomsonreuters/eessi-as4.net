@@ -32,7 +32,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Repositories
                     var repository = new DatastoreRepository(context);
 
                     // Act
-                    Operation actual = repository.GetOutMessageData(sharedId, m => OperationUtils.Parse(m.Operation));
+                    Operation actual =
+                        repository.GetOutMessageData(m => m.EbmsMessageId == sharedId,
+                                                     m => OperationUtils.Parse(m.Operation));
 
                     // Assert
                     Assert.Equal(expected, actual);
@@ -62,13 +64,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Repositories
             {
                 // Arrange
                 const string sharedId = "message-id";
-                InsertOutMessage(sharedId, Operation.ToBeSent);
+                long outMessageId = InsertOutMessage(sharedId, Operation.ToBeSent).Id;
 
                 // Act
                 using (DatastoreContext context = GetDataStoreContext())
                 {
                     new DatastoreRepository(context).UpdateOutMessage(
-                       sharedId,
+                       outMessageId,
                        m => m.SetOperation(Operation.Sent));
 
                     context.SaveChanges();
@@ -78,12 +80,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Repositories
                 AssertOutMessage(sharedId, m => Assert.Equal(Operation.Sent.ToString(), m.Operation));
             }
 
-            private void InsertOutMessage(string ebmsMessageId, Operation operation = Operation.NotApplicable)
+            private OutMessage InsertOutMessage(string ebmsMessageId, Operation operation = Operation.NotApplicable)
             {
                 var outMessage = new OutMessage(ebmsMessageId: ebmsMessageId);
                 outMessage.SetOperation(operation);
 
-                GetDataStoreContext.InsertOutMessage(outMessage);
+                GetDataStoreContext.InsertOutMessage(outMessage, withReceptionAwareness: false);
+
+                return outMessage;
             }
 
             private void AssertOutMessage(string messageId, Action<OutMessage> assertAction)

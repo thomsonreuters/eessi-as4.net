@@ -143,7 +143,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                     new DatastoreRepository(context),
                     _bodyStore);
 
-                return await service.GetAS4UserMessagesForIds(receipts.Select(r => r.RefToMessageId), _bodyStore);
+                return await service.GetNonIntermediaryAS4UserMessagesForIds(receipts.Select(r => r.RefToMessageId), _bodyStore);
             }
         }
 

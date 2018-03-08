@@ -27,6 +27,11 @@ namespace Eu.EDelivery.AS4.Model.Internal
             DeliverMessage = null;
             NotifyMessage = null;
             Mode = mode;
+
+            if (ReceivedMessage is ReceivedEntityMessage receivedEntityMessage)
+            {
+                MessageEntityId = receivedEntityMessage.Entity?.Id;
+            }
         }
 
         /// <summary>
@@ -109,46 +114,7 @@ namespace Eu.EDelivery.AS4.Model.Internal
             Mode = MessagingContextMode.Unknown;
         }
 
-        public ReceivedMessage ReceivedMessage { get; private set; }
-
-        public AS4Message AS4Message { get; private set; }
-
-        public SubmitMessage SubmitMessage { get; private set; }
-
-        public DeliverMessageEnvelope DeliverMessage { get; private set; }
-
-        public NotifyMessageEnvelope NotifyMessage { get; private set; }
-
-        public ReceptionAwareness ReceptionAwareness { get; }
-
-        public MessagingContextMode Mode { get; private set; }
-
-        public Exception Exception { get; set; }
-
-        public ErrorResult ErrorResult { get; set; }
-
-        public SendingProcessingMode SendingPMode { get; set; }
-
-        private ReceivingProcessingMode _receivingPMode;
-
-        public ReceivingProcessingMode ReceivingPMode
-        {
-            get
-            {
-                return _receivingPMode;
-            }
-
-            set
-            {
-                if (_receivingPMode != value)
-                {
-                    _receivingPMode = value;
-                    _receivingPModeString = null;
-                }
-            }
-        }
-
-        private string _receivingPModeString;
+        public long? MessageEntityId { get; }
 
         /// <summary>
         /// Gets the Id of the Message that is handled by this context.
@@ -192,6 +158,47 @@ namespace Eu.EDelivery.AS4.Model.Internal
                 return string.Empty;
             }
         }
+
+        public ReceivedMessage ReceivedMessage { get; private set; }
+
+        public AS4Message AS4Message { get; private set; }
+
+        public SubmitMessage SubmitMessage { get; private set; }
+
+        public DeliverMessageEnvelope DeliverMessage { get; private set; }
+
+        public NotifyMessageEnvelope NotifyMessage { get; private set; }
+
+        public ReceptionAwareness ReceptionAwareness { get; }
+
+        public MessagingContextMode Mode { get; private set; }
+
+        public Exception Exception { get; set; }
+
+        public ErrorResult ErrorResult { get; set; }
+
+        public SendingProcessingMode SendingPMode { get; set; }
+
+        private ReceivingProcessingMode _receivingPMode;
+
+        public ReceivingProcessingMode ReceivingPMode
+        {
+            get
+            {
+                return _receivingPMode;
+            }
+
+            set
+            {
+                if (_receivingPMode != value)
+                {
+                    _receivingPMode = value;
+                    _receivingPModeString = null;
+                }
+            }
+        }
+
+        private string _receivingPModeString;
 
         /// <summary>
         /// Gets the receiving p mode string.
