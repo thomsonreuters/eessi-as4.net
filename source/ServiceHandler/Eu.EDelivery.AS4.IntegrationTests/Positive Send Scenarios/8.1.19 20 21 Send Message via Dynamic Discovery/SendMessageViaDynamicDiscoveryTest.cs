@@ -33,7 +33,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._19_20
             AS4Component.OverrideSettings(DynamicDiscoverySettings);
             AS4Component.Start();
 
-            InsertSmpConfigurationWith(url: ReceiveAgentEndpoint, enableEncryption: false);
+            InsertSmpConfigurationForAS4Component(url: ReceiveAgentEndpoint, enableEncryption: false);
 
             AS4Message userMessage = UserMessageWithAttachment(argRefPModeId: "8.1.19-pmode");
 
@@ -59,7 +59,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._19_20
             AS4Component.OverrideSettings(DynamicDiscoverySettings);
             AS4Component.Start();
 
-            InsertSmpConfigurationWith(url: ReceiveAgentEndpoint, enableEncryption: true);
+            InsertSmpConfigurationForAS4Component(url: ReceiveAgentEndpoint, enableEncryption: true);
 
             AS4Message userMessage = UserMessageWithAttachment(argRefPModeId: "8.1.20-pmode");
 
@@ -81,7 +81,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._19_20
             AS4Component.OverrideSettings(DynamicDiscoverySettings);
             AS4Component.Start();
 
-            InsertHolodeckSmpConfigurationWith(url: ReceiveAgentEndpoint, encryption: true);
+            InsertEnabledEncryptionForHolodeck(url: ReceiveAgentEndpoint);
 
             // Act
             new StubSender().SendMessage(_8_1_21_message, Constants.ContentTypes.Soap);
@@ -92,12 +92,12 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._19_20
                 "No Receipt found at AS4.NET Component for Simple Dynamic Discovery Test");
         }
 
-        private void InsertHolodeckSmpConfigurationWith(string url, bool encryption)
+        private void InsertEnabledEncryptionForHolodeck(string url)
         {
             var smpConfig = new SmpConfiguration
             {
                 TlsEnabled = false,
-                EncryptionEnabled = encryption,
+                EncryptionEnabled = true,
                 PartyRole = HolodeckPartyRole,
                 ToPartyId = "org:eu:europa:as4:example",
                 PartyType = "org:eu:europa:as4:example",
@@ -114,13 +114,11 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._19_20
                 EncryptKeyTransportAlgorithm = KeyEncryption.Default.TransportAlgorithm
             };
 
-            PollingAt(Path.GetFullPath(@".\database"), "*.db");
-
-            var spy = new DatastoreSpy(AS4Component.GetConfiguration());
-            spy.InsertSmpConfiguration(smpConfig);
+            InsertSmpConfiguration(smpConfig);
         }
 
-        private void InsertSmpConfigurationWith(string url, bool enableEncryption)
+
+        private void InsertSmpConfigurationForAS4Component(string url, bool enableEncryption)
         {
             var smpConfig = new SmpConfiguration
             {
@@ -142,7 +140,15 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._19_20
                 EncryptKeyTransportAlgorithm = KeyEncryption.Default.TransportAlgorithm
             };
 
+            InsertSmpConfiguration(smpConfig);
+        }
+
+        private void InsertSmpConfiguration(SmpConfiguration smpConfig)
+        {
             PollingAt(Path.GetFullPath(@".\database"), "*.db");
+
+            // Wait for migrations to complete on datastore
+            Thread.Sleep(TimeSpan.FromSeconds(5));
 
             var spy = new DatastoreSpy(AS4Component.GetConfiguration());
             spy.InsertSmpConfiguration(smpConfig);
@@ -200,9 +206,9 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._19_20
             {
                 ContentType = "image/jpg",
                 Content = new FileStream(
-                    Path.GetFullPath($@".\{submitmessage_single_payload_path}"), 
+                    Path.GetFullPath($@".\{submitmessage_single_payload_path}"),
                     FileMode.Open,
-                    FileAccess.Read, 
+                    FileAccess.Read,
                     FileShare.Read)
             };
         }
