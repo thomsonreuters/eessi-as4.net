@@ -1,6 +1,6 @@
 # Message Test Tool
 
-> Note: The configuration for this tool can be changed in the `SubmitTool` setting, for this we refer to section about [Appsettings.json](../portal-configuration/page.md).
+> Note: The configuration for this tool can be changed in the `SubmitTool` configuration section, for this we refer to section about [Appsettings.json](../portal-configuration/page.md).
 
 - The portal contains functionality to create your own AS4 messages. To open the tool, click on the “Test” item in the navigation menu.
 
