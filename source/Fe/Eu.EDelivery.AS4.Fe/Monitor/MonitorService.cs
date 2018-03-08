@@ -208,8 +208,10 @@ namespace Eu.EDelivery.AS4.Fe.Monitor
             {
                 return await datastoreRepository.GetInMessageData(messageId, x => x.RetrieveMessageBody(Registry.Instance.MessageBodyStore));
             }
-
-            return await datastoreRepository.GetOutMessageData(m => m.EbmsMessageId == messageId, x => x.RetrieveMessageBody(Registry.Instance.MessageBodyStore));
+            // TODO: this must be reworked to retrieve the message-body based on the Primary Key.
+            return await datastoreRepository.GetOutMessageData(m => m.EbmsMessageId == messageId, 
+                                                               x => x.RetrieveMessageBody(Registry.Instance.MessageBodyStore))
+                                            .SingleOrDefault();
         }
 
         /// <summary>

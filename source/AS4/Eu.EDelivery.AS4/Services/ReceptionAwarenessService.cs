@@ -56,7 +56,7 @@ namespace Eu.EDelivery.AS4.Services
             //       regarding the type of Error ?
 
             var outMessageData = _repository.GetOutMessageData(
-                where: m => m.Id == outMessageId,
+                messageId: outMessageId,
                 selection: m => new
                 {
                     pmode = AS4XmlSerializer.FromString<SendingProcessingMode>(m.PMode),
@@ -131,7 +131,7 @@ namespace Eu.EDelivery.AS4.Services
             return ReceptionStatusUtils.Parse(awareness.Status) != ReceptionStatus.Completed
                    && awareness.CurrentRetryCount < awareness.TotalRetryCount
                    && DateTimeOffset.Now > deadlineForResend
-                   && _repository.GetOutMessageData(where: m => m.Id == awareness.RefToOutMessageId,
+                   && _repository.GetOutMessageData(messageId: awareness.RefToOutMessageId,
                                                     selection: m => m.Operation) != Operation.Sending.ToString();
         }
 

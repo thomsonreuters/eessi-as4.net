@@ -188,32 +188,17 @@ namespace Eu.EDelivery.AS4.Repositories
 
         public TResult GetOutMessageData<TResult>(long messageId, Expression<Func<OutMessage, TResult>> selection)
         {
-            return GetOutMessageData(m => m.Id == messageId, selection);
+            return GetOutMessageData(m => m.Id == messageId, selection).SingleOrDefault();
         }
 
         /// <summary>
-        /// Gets the out message data.
-        /// </summary>
-        /// <remarks>The where clause must make sure that only one entity is retrieved.</remarks>
-        /// <typeparam name="TResult">The type of the result.</typeparam>
-        /// <param name="where">The where.</param>
-        /// <param name="selection">The selection.</param>
-        /// <returns></returns>
-        public TResult GetOutMessageData<TResult>(Expression<Func<OutMessage, bool>> where, Expression<Func<OutMessage, TResult>> selection)
-        {
-            return _datastoreContext.OutMessages.Where(where).Select(selection).SingleOrDefault();
-        }
-
-        /// <summary>
-        /// Selects some information of specified OutMessages.
+        /// Retrieves information for specified OutMessages.
         /// </summary>
         /// <typeparam name="TResult">The type of the result.</typeparam>
         /// <param name="where">The where.</param>
         /// <param name="selection">The selection.</param>
         /// <returns></returns>
-        public IEnumerable<TResult> GetOutMessagesData<TResult>(
-            Expression<Func<OutMessage, bool>> where,
-            Expression<Func<OutMessage, TResult>> selection)
+        public IEnumerable<TResult> GetOutMessageData<TResult>(Expression<Func<OutMessage, bool>> where, Expression<Func<OutMessage, TResult>> selection)
         {
             return _datastoreContext.OutMessages.Where(where).Select(selection);
         }

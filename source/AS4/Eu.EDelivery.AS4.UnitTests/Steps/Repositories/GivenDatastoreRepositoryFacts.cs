@@ -23,9 +23,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Repositories
             public void ThenGetOutMessageSucceeded()
             {
                 // Arrange
-                const string sharedId = "message-id";
+                const string ebmsMessageId = "message-id";
                 const Operation expected = Operation.Delivered;
-                InsertOutMessage(sharedId, expected);
+                InsertOutMessage(ebmsMessageId, expected);
 
                 using (DatastoreContext context = GetDataStoreContext())
                 {
@@ -33,8 +33,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Repositories
 
                     // Act
                     Operation actual =
-                        repository.GetOutMessageData(m => m.EbmsMessageId == sharedId,
-                                                     m => OperationUtils.Parse(m.Operation));
+                        repository.GetOutMessageData(where: m => m.EbmsMessageId == ebmsMessageId,
+                                                     selection: m => OperationUtils.Parse(m.Operation))
+                                  .SingleOrDefault();
 
                     // Assert
                     Assert.Equal(expected, actual);
