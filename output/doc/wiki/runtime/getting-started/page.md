@@ -1,6 +1,6 @@
 # Getting Started
 
-Now the basics are explained, we can now start with the preparation of the samples.  The following prerequisites need to be performed, before the samples can be executed.  Remark that the AS4.NET component can solely run on a Windows machine.
+Now the basics are explained, we can now start with the preparation of the samples.  The following prerequisites need to be performed before the samples can be executed.  Remark that the AS4.NET component can solely run on a Windows machine.
 
 ## Create Two Instances of the MSH
 
@@ -9,14 +9,12 @@ To send/receive messages from two different MSH’s you can use your own MSH con
 **AS4 .NET Sender** (acts as Access Point A)
 **AS4 .NET Receiver** (acts as Access Point B)
 
-When we have two instances, we can configure the one for sending and another for receiving.
-When you’re done copying the **Sender/Receiver** folders for the Component Instances; we can continue with the configuration of the two.
-
 ## Change the HTTP Port of the Receiver Instance
 
-The two instances having an own `HttpReceiver` in place which can be hosted on a port. Default is this `8081`. It’s logical that we can’t have to HTTP endpoints on the same port, that’s why you must configure one of the two to another port. The samples are made so that the **Receiver** instance is on port 9090 and the **Sender** on port 8081.
+The two instances both have a `ReceiveAgent` configured that uses a `HttpReceiver`. When both the **Sending** and the **Receiving** instance runs on the same machine, it is logical they cannot share the same HTTP endpoint. Therefore, the HTTP endpoint of one of the two AS4.NET instances must be modified.
+The samples that are present in the package assume that the Receiver instance listens on port 9090 and the Sender listens on port 8081.
 
-This can be configured in the **AS4 .NET** Receiver `.\config\settings.xml` in the Receive Agent’s HTTP Receiver. In the settings of this receiver, change the port to `9090`.
+Therefore, modify the HTTP receiver in the `.\config\settings.xml` of the **AS4.NET Receiver** so that port 9090 is used.
 
 Note that there are two agents defined in the settings.xml file that use a HttpReceiver:
 
@@ -79,7 +77,7 @@ You can also change the AS4.NET Portal and PayloadService ports of either the re
 
 ## Sending Simple AS4 Message
 
-The first example consists of a AS4 message with a single payload that’s being send from one AS4 .NET Instance to another. This example is the simplest form of sending a message, <u>it contains no compression, signing or encryption</u>.
+The first example consists of a AS4 message with a single payload that is being sent from one AS4 .NET Instance to another. This example is the simplest form of sending a message, <u>it contains no compression, signing or encryption</u>.
 
 Go to `AS4 .NET Sender\samples\messages` folder and copy the `01-sample-message.xml` to the configured `AS4 .NET Sender in the messages\out` folder.
 
