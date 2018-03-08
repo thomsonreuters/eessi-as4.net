@@ -54,7 +54,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
 
         private void SetSigningAlgorithm(string signingAlgorithm)
         {
-            var algorithm = new SignatureAlgorithmProvider().Get(signingAlgorithm);
+            var algorithm = SignatureAlgorithmProvider.Get(signingAlgorithm);
 
             SignedInfo.SignatureMethod = algorithm.GetIdentifier();
 
