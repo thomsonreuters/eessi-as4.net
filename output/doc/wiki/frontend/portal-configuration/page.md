@@ -5,7 +5,7 @@
 In process mode means that the portal and the runtime will run in the same process. This means that when you start the “Eu.EDelivery.AS4.ServiceHandler.ConsoleHost.exe” then also the portal will be available.
 This configuration is managed in the “settings.xml” file with the following option: 
 
-![fe-inprocess](fe-inprocess.png)
+![fe-inprocess](images/fe-inprocess.png)
 
 Setting the “FeInProcess” value to true means that the “in process” mode is enabled.
 
@@ -15,7 +15,7 @@ Setting the “FeInProcess” value to true means that the “in process” mode
 
 It’s also possible to run the portal in its own process, this can be achieved by setting the “FeInProcess” to false in the “settings.xml” file.
 
-![dedicated-process](dedicated-process.png)
+![dedicated-process](images/dedicated-process.png)
 
 Now when you start the “…consolehost.exe”, the portal won’t be started.
 From now on you will have to start the portal using “EU.EDelivery.AS4.Fe.exe”.
@@ -29,37 +29,37 @@ Note: Running the portal in its own dedicated process is not the recommended way
 - Install the latest ASP.NET Core Module, https://github.com/aspnet/AspNetCoreModule, download & install the Windows Hosting package. After that restart IIS.
 - To verify if the module has been installed successfully, open “Internet Information (IIS) Manager” and view the modules and make the following module is listed.
 
-![iis-manager](iis-manager.png)
+![iis-manager](images/iis-manager.png)
 
 - Open IIS Modules View
 
-![modules](modules.png)
+![modules](images/modules.png)
 
 - “Add Website” in IIS manager
 
-![add-website](add-website.png)
+![add-website](images/add-website.png)
 
 - Enter details for the new website, “Physical path” should point to the root of the extracted AS4 zip package.
 
-![edit-website-details](edit-website-details.png)
+![edit-website-details](images/eimages/dit-website-details.png)
 
 - In the root of the AS4 folder create a file “web.config” with the following contents:
 
-![web-config](web-config.jpg)
+![web-config](images/web-config.jpg)
   
 > Note: If the API doesn’t start, then you can enable the logging output by setting the stdoutLogEnabled option to true. After that all logging will be available in the logs folder.
 
 - Next step is to allow the application pool user write access the following folders, this can be done by right clicking on the folders and going to “security” tab and giving the “IUSER_USRS”
 
-![config-permissions](config-permissions.png)
+![config-permissions](images/config-permissions.png)
 
 - Folders to give write access:
 
-![folders-write-access](folders-write-access.png)
+![folders-write-access](images/folders-write-access.png)
 
 - Verify that the installation is working by navigating to the configured URL, a setup dialog should appear:
 
-![as4.net-setup](as4.net-setup.png)
+![as4.net-setup](images/as4.net-setup.png)
 
 ## Enable Microsoft Sql Server
 
@@ -68,14 +68,14 @@ Note: Running the portal in its own dedicated process is not the recommended way
 - Open appsettings.json
 - Change the “Provider” & “ConnectionString” properties to “sqlserver” & the ConnectionString matching your sql server setup.
 
-![sql-connection](sql-connection.png)
+![sql-connection](images/sql-connection.png)
 
 ### AS4 Runtime Messages Database
 
 - Open appsettings.json
 - Change the “Provider” & “ConnectionString” properties to “sqlserver” & the ConnectionString matching your sql server setup.
 
-![sql-runtime](sql-runtime.png)
+![sql-runtime](images/sql-runtime.png)
 
 ## Appsettings.json
 

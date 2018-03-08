@@ -23,7 +23,7 @@ Note that there are two agents defined in the settings.xml file that use a HttpR
 * Change the address of the submitagent to http://localhost:9090/msh/submit/
 * Change the address of the receiveagent to http://localhost:9090/msh/receive/
 
-![settings](settings.jpg)
+![settings](images/settings.jpg)
 
 ## Copy the required sample PModes
 
@@ -64,16 +64,16 @@ For instructions on how to Import the certificates files see the section: <u>Ins
 
 Start both instances by right clicking on `Eu.EDelivery.AS4.ServiceHandler.ConsoleHost.exe` and choosing *Run as Administrator*.
 
-![send-msh](send-msh.jpg)
+![send-msh](images/send-msh.jpg)
 
 When starting the 2nd instance you will get an error message saying that port 3000 and 5000 are already in use.
 
-![receive-msh](receive-msh.jpg)
+![receive-msh](images/receive-msh.jpg)
 
 These ports are used to run the *AS4.NET Portal* and the *PayloadService*.
 For this sample scenario you can ignore this error as it will have no impact. To avoid this error you can disable the AS4.NET Portal and PayloadService in the `settings.xml` file by changing the `FeInProcess` and `PayloadServiceInProcess` tags to `false`.
 
-![disable](disable-fe-payloadservice.jpg)
+![disable](images/disable-fe-payloadservice.jpg)
 
 You can also change the AS4.NET Portal and PayloadService ports of either the receive or send instance, this configuration is done in the **AS4 .NET Receiver** (or **Sender**)`\bin\appsettings.inprocess.json` file.
 
@@ -113,7 +113,7 @@ The AS4.NET Component can act as an ebMS endpoint in the EESSI profile and can r
 
 To configure an AS4.NET MessageHandler to act as an ebMS endpoint that receives AS4 Messages from EESSI the following PModes are required:
 
-![pulling-eessi](pulling-receiver-eessi.png)
+![pulling-eessi](images/pulling-receiver-eessi.png)
 
 * A Sending PMode which is used to send AS4 Messages via MultiHop in the *Push Message Exchange Pattern*. (`eessi-push-send-pmode-AP`)
 * A Sending PMode that is used by a PullReceive Agent.  The PullReceive Agent uses this PMode to send PullRequest signal-messages. (`eessi-pull-send-pmode`)

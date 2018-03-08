@@ -3,12 +3,12 @@
 By default, the portal uses ASP.NET identity provider for authentication and a database for storage.
 To manage users, open the “users” menu from the navigation menu.
 
-![user-management](user-management.png)
+![user-management](images/user-management.png)
 
 The following UI will be shown:
 
 
-![user-management-ui](user-management-ui.png)
+![user-management-ui](images/user-management-ui.png)
 
 ## Roles
 
@@ -23,7 +23,7 @@ The user UI won’t show the user password, so it’s impossible to retrieve an 
 
 - Select an existing user from the “Username” dropdown.
 
-    ![username](username.png)
+    ![username](images/username.png)
 
 - Enter a new password in the “Password” field. The password must meet the following complexity:
 
@@ -34,4 +34,4 @@ The user UI won’t show the user password, so it’s impossible to retrieve an 
     - At least one uppercase character
     - Minimum length is 6 characters
 
-    ![password](password.png)
+    ![password](images/password.png)

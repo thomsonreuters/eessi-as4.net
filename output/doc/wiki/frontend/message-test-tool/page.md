@@ -4,11 +4,11 @@
 
 - The portal contains functionality to create your own AS4 messages. To open the tool, click on the “Test” item in the navigation menu.
 
-    ![portal-test](portal-test.png)
+    ![portal-test](images/portal-test.png)
 
 - The following UI will appear.
 
-    ![test-ui](test-ui.png)
+    ![test-ui](images/test-ui.png)
 
 <table class="wrapped relative-table confluenceTable" style="width: 86.4525%;">
     <colgroup>
@@ -57,11 +57,11 @@
 - After the messages are configured, click on the “Send” button and the logging tab will be opened.
 - This tab will be updated with real time information about the sending process. From the logging tab, you can also do the following things.
 
-    ![logs](logs.png)
+    ![logs](images/logs.png)
 
     1. will open a dialog showing you the xml of the AS4 message.
 
-        ![pmode-dialog](pmode-dialog.png)
+        ![pmode-dialog](images/pmode-dialog.png)
 
     2. “Open message in monitor” will open a new tab showing the message in the monitor.
 
