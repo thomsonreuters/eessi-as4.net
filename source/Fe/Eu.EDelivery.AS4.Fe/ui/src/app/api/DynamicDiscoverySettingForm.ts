@@ -1,6 +1,5 @@
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
-import { ItemType } from './ItemType';
 import { DynamicDiscoverySetting } from './DynamicDiscoverySetting';
 
 export class DynamicDiscoverySettingForm {

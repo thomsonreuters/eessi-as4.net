@@ -1,8 +1,8 @@
 <div [formGroup]="group">
     <as4-input [label]="label" [runtimeTooltip]="runtime">
         <select class="form-control" (change)="typeChanged($event.target.value)" as4-auth formControlName="smpProfile">
-            <option value="">Select a value</option>
-            <option *ngFor="let type of types" [value]="type.name">{{type.name}}{{type | json}}</option>
+            <option [ngValue]="">Select a value</option>
+            <option *ngFor="let type of types" [value]="type.technicalName">{{type.name}}</option>
         </select>
     </as4-input>
     <as4-input label="DynamicDiscovery settings" *ngIf="!!settingsControl && settingsControl.length > 0" runtimeTooltip="profile.settings" [isLabelBold]="false">
@@ -17,7 +17,7 @@
             </tr>
             <tr *ngFor="let setting of settingsControl; let i = index" [formGroupName]="i">
                 <td>
-                    {{(types | gettype:group.get('smpProfile')?.value | getitemtypeproperty:settingsControl[i].value.key)?.friendlyName}}
+                    {{(types | gettype:group.get('smpProfile')?.value:true | getitemtypeproperty:settingsControl[i].value.key)?.friendlyName}}
                     <as4-info tooltip="{{(types | gettype:group.get('smpProfile')?.value | getitemtypeproperty:settingsControl[i].value.key)?.description}}"></as4-info>
                 </td>
                 <td>

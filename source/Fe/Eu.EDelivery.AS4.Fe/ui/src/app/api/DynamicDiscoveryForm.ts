@@ -1,12 +1,11 @@
-import { FormGroup, AbstractControl, Validators } from '@angular/forms';
+import { Validators } from '@angular/forms';
 
-/* tslint:disable */
-import { SendingPmode } from './SendingPmode';
 import { FormWrapper } from './../common/form.service';
 import { DynamicDiscovery } from './DynamicDiscovery';
-import { ItemType } from './ItemType';
 import { DynamicDiscoverySettingForm } from './DynamicDiscoverySettingForm';
+import { ItemType } from './ItemType';
 
+/* tslint:disable */
 export class DynamicDiscoveryForm {
     public static getForm(formBuilder: FormWrapper, current: DynamicDiscovery | null, runtime: ItemType[], path: string): FormWrapper {
         return formBuilder
