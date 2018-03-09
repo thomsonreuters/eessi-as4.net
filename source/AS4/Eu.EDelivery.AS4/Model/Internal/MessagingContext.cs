@@ -220,19 +220,22 @@ namespace Eu.EDelivery.AS4.Model.Internal
         /// Modifies the MessagingContext
         /// </summary>
         /// <param name="as4Message">The as4 message.</param>
-        /// <returns></returns>
         public void ModifyContext(AS4Message as4Message)
         {
             PrepareContextChange();
             AS4Message = as4Message;
         }
 
-        public MessagingContext ModifyContext(AS4Message as4Message, MessagingContextMode mode)
+        /// <summary>
+        /// Modifies the <see cref="MessagingContext"/>.
+        /// </summary>
+        /// <param name="as4Message">The as4 message.</param>
+        /// <param name="mode">The mode.</param>
+        public void ModifyContext(AS4Message as4Message, MessagingContextMode mode)
         {
             PrepareContextChange();
             AS4Message = as4Message;
             Mode = mode;
-            return this;
         }
 
         public void ModifyContext(ReceivedMessage receivedMessage, MessagingContextMode mode)
