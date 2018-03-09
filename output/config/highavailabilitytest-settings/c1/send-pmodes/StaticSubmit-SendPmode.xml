@@ -6,7 +6,7 @@
   <MepBinding>Push</MepBinding>
   <PushConfiguration>
     <Protocol>
-      <Url>http://52.174.142.72:9090/msh/receive</Url>
+      <Url>http://52.174.142.72:9091/msh/receive-and-forward</Url>
       <UseChunking>false</UseChunking>
       <UseHttpCompression>false</UseHttpCompression>
     </Protocol>
