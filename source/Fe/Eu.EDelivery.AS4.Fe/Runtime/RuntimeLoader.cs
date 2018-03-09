@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using Eu.EDelivery.AS4.Fe.Settings;
+using Eu.EDelivery.AS4.Services.DynamicDiscovery;
 using Eu.EDelivery.AS4.Strategies.Uploader;
 using Microsoft.Extensions.Options;
 using Mono.Cecil;
@@ -24,6 +25,7 @@ namespace Eu.EDelivery.AS4.Fe.Runtime
         private static readonly string RuntimeDeliverSenderInterface = "Eu.EDelivery.AS4.Strategies.Sender.IDeliverSender";
         private static readonly string RuntimeNotifySenderInterface = "Eu.EDelivery.AS4.Strategies.Sender.INotifySender";
         private static readonly string RuntimeAttachmentUploaderInterface = typeof(IAttachmentUploader).FullName;
+        private static readonly string RuntimeDynamicDiscoveryProfileInterface = typeof(IDynamicDiscoveryProfile).FullName;
         private static readonly string RuntimePmodeInterface = "Eu.EDelivery.AS4.Model.PMode.IPMode";
         private static readonly string InfoAttribute = typeof(InfoAttribute).Name;
         private static readonly string NoUiAttribute = typeof(NotConfigurableAttribute).Name;
@@ -93,6 +95,13 @@ namespace Eu.EDelivery.AS4.Fe.Runtime
         /// </value>
         public IEnumerable<ItemType> AttachmentUploaders { get; private set; }
         /// <summary>
+        /// Gets the dynamic discovery profiles.
+        /// </summary>
+        /// <value>
+        /// The dynamic discovery profiles.
+        /// </value>
+        public IEnumerable<ItemType> DynamicDiscoveryProfiles { get; private set; }
+        /// <summary>
         /// Gets the receiving pmode.
         /// </summary>
         /// <value>
@@ -117,6 +126,7 @@ namespace Eu.EDelivery.AS4.Fe.Runtime
             DeliverSenders = LoadImplementationsForType(types, RuntimeDeliverSenderInterface);
             NotifySenders = LoadImplementationsForType(types, RuntimeNotifySenderInterface);
             AttachmentUploaders = LoadImplementationsForType(types, RuntimeAttachmentUploaderInterface);
+            DynamicDiscoveryProfiles = LoadImplementationsForType(types, RuntimeDynamicDiscoveryProfileInterface);
             ReceivingPmode = LoadImplementationsForType(types, RuntimePmodeInterface, false);
 
             return this;
@@ -137,7 +147,7 @@ namespace Eu.EDelivery.AS4.Fe.Runtime
                         // Since these dlls are not needed by the FE they're filtered out to avoid this exception.
                         // TODO: Probably fixed when AS4 targets dotnet core.
                         var file = Path.GetFileName(path) ?? string.Empty;
-                        return file != "libuv.dll" && !file.StartsWith("Microsoft") && !file.StartsWith("System") && file != "sqlite3.dll";
+                        return file != "libuv.dll" && !file.StartsWith("Microsoft") && !file.StartsWith("System") && file != "sqlite3.dll" && !file.Contains("Test");
                     })
                     .SelectMany(file => AssemblyDefinition.ReadAssembly(file).MainModule.Types)
                     .ToList();

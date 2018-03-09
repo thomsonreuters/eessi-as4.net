@@ -42,6 +42,11 @@ export class RuntimeService implements IRuntimeService {
             .get(this.getBaseUrl('getcertificaterepositories'))
             .subscribe((type) => this._runtimeStore.update('certificateRepositories', type.json()));
     }
+    public getDynamicDiscoveryProfiles() {
+        this._authHttp
+            .get(this.getBaseUrl('getdynamicdiscoveryprofiles'))
+            .subscribe((type) => this._runtimeStore.update('dynamicdiscoveryprofiles', type.json()));
+    }
     public getDescriptionByTechnicalName(technicalName: string): ItemType | undefined {
         // Flatten all types
         let result = Object
@@ -65,6 +70,7 @@ export class RuntimeService implements IRuntimeService {
                         deliverSenders: json.deliverSenders,
                         notifySenders: json.notifySenders,
                         attachmentUploaders: json.attachmentUploaders,
+                        dynamicDiscoveryProfiles: json.dynamicDiscoveryProfiles,
                         runtimeMetaData: json.runtimeMetaData
                     });
                     this.isLoaded = true;

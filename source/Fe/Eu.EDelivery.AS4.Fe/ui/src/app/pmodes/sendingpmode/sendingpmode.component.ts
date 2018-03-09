@@ -24,11 +24,14 @@ import { CanComponentDeactivate } from './../../common/candeactivate.guard';
 export class SendingPmodeComponent implements OnDestroy, CanComponentDeactivate {
     public mask: any[] = [/[0-9]/, /[0-9]/, ':', /[0-5]/, /[0-9]/, ':', /[0-5]/, /[0-9]/];
     public notifySenders$: Observable<ItemType[]>;
+    public dynamicdiscoveryprofiles$: Observable<ItemType[]>;
     @ViewChild(FormGroupDirective) private formGroup: FormGroupDirective;
     private subscriptions: Subscription[] = new Array<Subscription>();
     constructor(private _runtimeStore: RuntimeStore) {
         this.notifySenders$ = this
             ._runtimeStore.changes.filter((store) => !!store).map((store) => store.notifySenders);
+        this.dynamicdiscoveryprofiles$ = this
+            ._runtimeStore.changes.filter((store) => !!store).map((store) => store.dynamicDiscoveryProfiles);
     }
     public ngOnDestroy() {
         this.subscriptions.forEach((subs) => subs.unsubscribe);

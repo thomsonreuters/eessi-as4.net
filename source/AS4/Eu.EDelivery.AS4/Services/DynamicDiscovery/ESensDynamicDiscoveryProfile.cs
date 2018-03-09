@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Configuration;
 using System.IO;
 using System.Linq;
@@ -25,6 +26,14 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
 
         private const string DocumentIdentifier = "urn:oasis:names:specification:ubl:schema:xsd:Invoice-2::Invoice##urn:www.cenbii.eu:transaction:biitrns010:ver2.0:extended:urn:www.peppol.eu:bis:peppol5a:ver2.0::2.1";
         private const string DocumentIdentifierScheme = "busdox-docid-qns";
+
+        [Info("SML Scheme", defaultValue: "iso6523-actorid-upis")]
+        [Description("Used to build the SML Uri")]
+        private string SmlScheme { get; }
+
+        [Info("SMP Server Domain Name", defaultValue: "isaitb.acc.edelivery.tech.ec.europa.eu")]
+        [Description("Domain name that must be used in the Uri")]
+        private string SmpServerDomainName { get; }
 
         private class ESensConfig
         {
