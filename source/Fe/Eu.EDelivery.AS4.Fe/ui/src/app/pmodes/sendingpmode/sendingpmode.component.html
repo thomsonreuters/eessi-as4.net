@@ -45,8 +45,8 @@
                             </select>
                     </as4-input>
                     <div class="sub-header">TLS client certificate</div>
-                    <as4-input label="Client certificate find type" formGroupName="tlsConfiguration" runtimeTooltip="tlsconfiguration.clientcertificatereference.clientcertificatefindtype">
-                        <div formGroupName="clientCertificateReference">
+                    <as4-input label="Client certificate find type" formGroupName="tlsConfiguration" runtimeTooltip="tlsconfiguration.clientcertificateinformation.clientcertificatefindtype">
+                        <div formGroupName="clientCertificateInformation">
                             <select formControlName="clientCertificateFindType">
                                     <option value="0">Find by thumbprint</option>
                                     <option value="1">Find by subject name</option>
@@ -66,8 +66,8 @@
                                 </select>
                         </div>
                     </as4-input>
-                    <as4-input label="Certificate find value" formGroupName="tlsConfiguration" runtimeTooltip="tlsconfiguration.clientcertificatereference.clientcertificatefindvalue">
-                        <div formGroupName="clientCertificateReference">
+                    <as4-input label="Certificate find value" formGroupName="tlsConfiguration" runtimeTooltip="tlsconfiguration.clientcertificateinofrmation.clientcertificatefindvalue">
+                        <div formGroupName="clientCertificateInformation">
                             <as4-thumbprint-input formControlName="clientCertificateFindValue"></as4-thumbprint-input>
                         </div>
                     </as4-input>
@@ -91,8 +91,7 @@
             <div tabitem title="Message packaging" [isValid]="pmode.form.get('pmode.messagePackaging')" runtimeTooltip="messagepackaging">
                 <as4-message-packaging [form]="pmode.form.get('pmode.messagePackaging')" [disabled]="pmode.form.get('pmode.messagePackaging').disabled"></as4-message-packaging>
             </div>
-            <div tabitem title="Security" formGroupName="security" [isValid]="!!!pmode.currentPmode || pmode.form.get('pmode.security').valid"
-                runtimeTooltip="security">
+            <div tabitem title="Security" formGroupName="security" [isValid]="!!!pmode.currentPmode || pmode.form.get('pmode.security').valid" runtimeTooltip="security">
                 <div class="row">
                     <div formGroupName="signing" class="col-xs-12 col-md-6">
                         <div class="sub-header-1">Signing</div>
@@ -212,20 +211,17 @@
                 </as4-input>
                 <as4-method label="Notify method" runtime="notifymethod" [group]="pmode.form.get('pmode.receiptHandling.notifyMethod')" [types]="notifySenders$ | async"></as4-method>
             </div>
-        <div tabitem title="Error handling" formGroupName="errorHandling" [isValid]="!!!pmode.currentPmode || pmode.form.get('pmode.errorHandling').valid" 
-				runtimeTooltip="errorhandling">
+            <div tabitem title="Error handling" formGroupName="errorHandling" [isValid]="!!!pmode.currentPmode || pmode.form.get('pmode.errorHandling').valid" runtimeTooltip="errorhandling">
                 <as4-input label="Notify message producer" runtimeTooltip="notifymessageproducer">
                     <input type="checkbox" formControlName="notifyMessageProducer" />
                 </as4-input>
                 <as4-method label="Notify method" runtime="notifymethod" [group]="pmode.form.get('pmode.errorHandling.notifyMethod')" [types]="notifySenders$ | async"></as4-method>
             </div>
-        <div tabitem title="Exception handling" formGroupName="exceptionHandling" [isValid]="!!!pmode.currentPmode || pmode.form.get('pmode.exceptionHandling').valid" 
-				runtimeTooltip="exceptionhandling">
+            <div tabitem title="Exception handling" formGroupName="exceptionHandling" [isValid]="!!!pmode.currentPmode || pmode.form.get('pmode.exceptionHandling').valid" runtimeTooltip="exceptionhandling">
                 <as4-input label="Notify message producer" runtimeTooltip="notifymessageproducer">
                     <input type="checkbox" formControlName="notifyMessageProducer" />
                 </as4-input>
-	        <as4-method label="Notify method" runtime="notifymethod" [group]="pmode.form.get('pmode.exceptionHandling.notifyMethod')" 
-				[types]="notifySenders$ | async"></as4-method>
+                <as4-method label="Notify method" runtime="notifymethod" [group]="pmode.form.get('pmode.exceptionHandling.notifyMethod')" [types]="notifySenders$ | async"></as4-method>
             </div>
         </as4-tab>
     </div>
