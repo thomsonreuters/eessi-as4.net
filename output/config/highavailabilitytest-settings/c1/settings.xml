@@ -12,6 +12,22 @@
         <Repository type="Eu.EDelivery.AS4.Repositories.CertificateRepository, Eu.EDelivery.AS4, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
     </CertificateStore>
     <Agents>
+        <SubmitAgent name="Static HTTP Submit Agent">
+            <Receiver type="Eu.EDelivery.AS4.Receivers.HttpReceiver, Eu.EDelivery.AS4.Receivers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+                <Setting key="Url">http://*:8081/msh/staticsubmit/</Setting>
+            </Receiver>
+            <Transformer type="Eu.EDelivery.AS4.Transformers.SubmitPayloadTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+		        <Setting key="SendingPMode">staticsubmit-sendpmode</Setting>
+	        </Transformer>
+            <StepConfiguration>
+                <NormalPipeline>
+                    <Step type="Eu.EDelivery.AS4.Steps.Submit.RetrieveSendingPModeStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+                    <Step type="Eu.EDelivery.AS4.Steps.Submit.DynamicDiscoveryStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+                    <Step type="Eu.EDelivery.AS4.Steps.Submit.CreateAS4MessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+                    <Step type="Eu.EDelivery.AS4.Steps.Submit.StoreAS4MessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+                </NormalPipeline>
+            </StepConfiguration>
+        </SubmitAgent>
 	    <SubmitAgent name="Static FILE Submit Agent">
             <Receiver type="Eu.EDelivery.AS4.Receivers.FileReceiver, Eu.EDelivery.AS4.Receivers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
                 <Setting key="FilePath">.\messages\received-payloads\</Setting>
@@ -70,9 +86,7 @@
             <StepConfiguration>
                 <NormalPipeline>
                     <Step type="Eu.EDelivery.AS4.Steps.Submit.RetrieveSendingPModeStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-                    <Step type="Eu.EDelivery.AS4.Steps.Submit.DynamicDiscoveryStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-                        <Setting key="SmpProfile">Eu.EDelivery.AS4.Services.DynamicDiscovery.ESensDynamicDiscoveryProfile</Setting>
-                    </Step>
+                    <Step type="Eu.EDelivery.AS4.Steps.Submit.DynamicDiscoveryStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"/>
                     <Step type="Eu.EDelivery.AS4.Steps.Submit.CreateAS4MessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
                     <Step type="Eu.EDelivery.AS4.Steps.Submit.StoreAS4MessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
                 </NormalPipeline>
