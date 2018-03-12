@@ -108,21 +108,21 @@ namespace Eu.EDelivery.AS4.Services
                     location: _configuration.InMessageStoreLocation,
                     as4MessageStream: context.ReceivedMessage.UnderlyingStream,
                     cancellation: cancellationToken).ConfigureAwait(false);
-
             try
             {
                 context.ReceivedMessage.UnderlyingStream.Position = 0;
 
-                var deserializer = SerializerProvider.Default.Get(context.ReceivedMessage.ContentType);
+                ISerializer deserializer = SerializerProvider.Default.Get(context.ReceivedMessage.ContentType);
 
-                var as4Message = await deserializer.DeserializeAsync(context.ReceivedMessage.UnderlyingStream, context.ReceivedMessage.ContentType,
-                                                                     cancellationToken).ConfigureAwait(false);
+                AS4Message as4Message = await deserializer.DeserializeAsync(
+                    context.ReceivedMessage.UnderlyingStream,
+                    context.ReceivedMessage.ContentType,
+                    cancellationToken).ConfigureAwait(false);
 
-                InsertUserMessages(as4Message, mep, location);
-                InsertSignalMessages(as4Message, mep, location);
+                InsertUserMessages(as4Message, mep, location, context.SendingPMode);
+                InsertSignalMessages(as4Message, mep, location, context.SendingPMode);
 
                 context.ModifyContext(as4Message);
-
                 return context;
             }
             catch (Exception ex)
@@ -137,7 +137,11 @@ namespace Eu.EDelivery.AS4.Services
             }
         }
 
-        private void InsertUserMessages(AS4Message as4Message, MessageExchangePattern mep, string location)
+        private void InsertUserMessages(
+            AS4Message as4Message, 
+            MessageExchangePattern mep, 
+            string location,
+            SendingProcessingMode pmode)
         {
             IDictionary<string, bool> duplicateUserMessages =
                 DetermineDuplicateUserMessageIds(as4Message.UserMessages.Select(m => m.MessageId));
@@ -147,28 +151,66 @@ namespace Eu.EDelivery.AS4.Services
                 userMessage.IsTest = IsUserMessageTest(userMessage);
                 userMessage.IsDuplicate = IsUserMessageDuplicate(userMessage, duplicateUserMessages);
 
-                AttemptToInsertUserMessage(userMessage, as4Message, mep, location);
+                try
+                {
+                    InMessage inMessage = InMessageBuilder
+                        .ForUserMessage(userMessage, as4Message, mep)
+                        .Build();
+
+                    inMessage.SetPModeInformation(pmode);
+                    inMessage.MessageLocation = location;
+
+                    _repository.InsertInMessage(inMessage);
+                }
+                catch (Exception ex)
+                {
+                    string description = $"Unable to update UserMessage {userMessage.MessageId}";
+                    Logger.Error(description);
+
+                    throw new DataException(description, ex);
+                }
             }
         }
 
         private void InsertSignalMessages(
             AS4Message as4Message,
             MessageExchangePattern mep,
-            string location)
+            string location,
+            SendingProcessingMode pmode)
         {
-            if (as4Message.SignalMessages.Any())
+            if (!as4Message.SignalMessages.Any())
             {
-                IEnumerable<string> relatedUserMessageIds = as4Message.SignalMessages.Select(m => m.RefToMessageId)
-                                                                                     .Where(refToMessageId => !String.IsNullOrWhiteSpace(refToMessageId));
+                return;
+            }
 
-                IDictionary<string, bool> duplicateSignalMessages =
-                    DetermineDuplicateSignalMessageIds(relatedUserMessageIds);
+            IEnumerable<string> relatedUserMessageIds = as4Message.SignalMessages
+                .Select(m => m.RefToMessageId)
+                .Where(refToMessageId => !String.IsNullOrWhiteSpace(refToMessageId));
 
-                foreach (SignalMessage signalMessage in as4Message.SignalMessages)
+            IDictionary<string, bool> duplicateSignalMessages =
+                DetermineDuplicateSignalMessageIds(relatedUserMessageIds);
+
+            foreach (SignalMessage signalMessage in as4Message.SignalMessages)
+            {
+                signalMessage.IsDuplicate = IsSignalMessageDuplicate(signalMessage, duplicateSignalMessages);
+
+                try
                 {
-                    signalMessage.IsDuplicate = IsSignalMessageDuplicate(signalMessage, duplicateSignalMessages);
+                    InMessage inMessage = InMessageBuilder
+                        .ForSignalMessage(signalMessage, as4Message, mep)
+                        .Build();
 
-                    AttemptToInsertSignalMessage(signalMessage, as4Message, mep, location);
+                    inMessage.MessageLocation = location;
+                    inMessage.SetPModeInformation(pmode);
+
+                    _repository.InsertInMessage(inMessage);
+                }
+                catch (Exception exception)
+                {
+                    string description = $"Unable to update SignalMessage {signalMessage.MessageId}";
+                    Logger.Error(description);
+
+                    throw new DataException(description, exception);
                 }
             }
         }
@@ -180,7 +222,7 @@ namespace Eu.EDelivery.AS4.Services
         /// <exception cref="InvalidDataException"></exception>
         public void UpdateAS4MessageForMessageHandling(MessagingContext messageContext, IAS4MessageBodyStore messageBodyStore)
         {
-            if (MessageMustBeForwarded(messageContext))
+            if (messageContext.ReceivedMessageMustBeForwarded)
             {
                 var pmodeString = messageContext.GetReceivingPModeString();
                 var pmodeId = messageContext.ReceivingPMode?.Id;
@@ -252,7 +294,6 @@ namespace Eu.EDelivery.AS4.Services
 
             // Improvement: I think it will be safer if we retrieve the sending-pmodes of the related usermessages ourselves here
             // instead of relying on the SendingPMode that is available in the AS4Message object (which is set by another Step in the queue).
-
             var receipts = as4Message.SignalMessages.OfType<Receipt>();
 
             UpdateSignalMessages(receipts, () => messagingContext.SendingPMode?.ReceiptHandling?.NotifyMessageProducer ?? false, OutStatus.Ack);
@@ -317,41 +358,6 @@ namespace Eu.EDelivery.AS4.Services
             return isDuplicate;
         }
 
-        private void AttemptToInsertUserMessage(
-            UserMessage userMessage,
-            AS4Message belongsToAS4Message,
-            MessageExchangePattern mep,
-            string location)
-        {
-            try
-            {
-                InMessage inMessage = CreateUserInMessage(userMessage, belongsToAS4Message, mep, location);
-                _repository.InsertInMessage(inMessage);
-            }
-            catch (Exception ex)
-            {
-                string description = $"Unable to update UserMessage {userMessage.MessageId}";
-                Logger.Error(description);
-
-                throw new DataException(description, ex);
-            }
-        }
-
-        private static InMessage CreateUserInMessage(
-            UserMessage userMessage,
-            AS4Message belongsToAS4Message,
-            MessageExchangePattern mep,
-            string messageLocation)
-        {
-            InMessage inMessage =
-                InMessageBuilder.ForUserMessage(userMessage, belongsToAS4Message, mep)
-                                .Build();
-
-            inMessage.MessageLocation = messageLocation;
-
-            return inMessage;
-        }
-
         #endregion
 
         #region SignalMessage related
@@ -360,7 +366,7 @@ namespace Eu.EDelivery.AS4.Services
             MessageUnit signalMessage,
             IDictionary<string, bool> duplicateSignalMessages)
         {
-            if (String.IsNullOrWhiteSpace(signalMessage.RefToMessageId))
+            if (string.IsNullOrWhiteSpace(signalMessage.RefToMessageId))
             {
                 return false;
             }
@@ -375,36 +381,7 @@ namespace Eu.EDelivery.AS4.Services
             return isDuplicate;
         }
 
-        private void AttemptToInsertSignalMessage(
-            SignalMessage signalMessage,
-            AS4Message as4Message,
-            MessageExchangePattern mep,
-            string location)
-        {
-            try
-            {
-                InMessage inMessage = InMessageBuilder.ForSignalMessage(signalMessage, as4Message, mep)
-                                                      .Build();
-
-                inMessage.MessageLocation = location;
-
-                _repository.InsertInMessage(inMessage);
-            }
-            catch (Exception exception)
-            {
-                string description = $"Unable to update SignalMessage {signalMessage.MessageId}";
-                Logger.Error(description);
-
-                throw new DataException(description, exception);
-            }
-        }
-
         #endregion SignalMessage related
-
-        private static bool MessageMustBeForwarded(MessagingContext messagingContext)
-        {
-            return messagingContext.ReceivedMessageMustBeForwarded;
-        }
 
         private static bool UserMessageNeedsToBeDelivered(ReceivingProcessingMode pmode, UserMessage userMessage)
         {

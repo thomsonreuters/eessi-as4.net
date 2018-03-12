@@ -296,6 +296,10 @@ namespace Eu.EDelivery.AS4.Repositories
         /// <param name="receptionAwareness"></param>
         public void InsertReceptionAwareness(ReceptionAwareness receptionAwareness)
         {
+            receptionAwareness.InsertionTime 
+                = receptionAwareness.ModificationTime 
+                = DateTimeOffset.Now;
+
             _datastoreContext.ReceptionAwareness.Add(receptionAwareness);
         }
 
@@ -329,6 +333,7 @@ namespace Eu.EDelivery.AS4.Repositories
             }
 
             updateAction(entity);
+            entity.ModificationTime = DateTimeOffset.Now;
         }
 
         #endregion

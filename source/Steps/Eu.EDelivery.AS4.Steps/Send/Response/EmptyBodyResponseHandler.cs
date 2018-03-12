@@ -35,7 +35,8 @@ namespace Eu.EDelivery.AS4.Steps.Send.Response
             {
                 if (response.StatusCode == HttpStatusCode.Accepted)
                 {
-                    return StepResult.Success(new MessagingContext(response.ReceivedAS4Message, MessagingContextMode.Send)).AndStopExecution();
+                    response.OriginalRequest.ModifyContext(response.ReceivedAS4Message, MessagingContextMode.Send);
+                    return StepResult.Success(response.OriginalRequest).AndStopExecution();
                 }
 
                 Logger.Error($"Response with HTTP status {response.StatusCode} received.");
@@ -48,7 +49,8 @@ namespace Eu.EDelivery.AS4.Steps.Send.Response
                     }
                 }
 
-                return StepResult.Failed(new MessagingContext(response.ReceivedStream, MessagingContextMode.Send)).AndStopExecution();
+                response.OriginalRequest.ModifyContext(response.ReceivedStream, MessagingContextMode.Send);
+                return StepResult.Failed(response.OriginalRequest).AndStopExecution();
             }
 
             return await _nextHandler.HandleResponse(response);
