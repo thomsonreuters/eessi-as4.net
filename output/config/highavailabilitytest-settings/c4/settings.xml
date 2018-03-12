@@ -2,10 +2,10 @@
 <Settings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="eu:edelivery:as4">
     <IdFormat>{GUID}@{IPADDRESS}</IdFormat>
     <FeInProcess>false</FeInProcess>
-    <PayloadServiceInProcess>true</PayloadServiceInProcess>
+    <PayloadServiceInProcess>false</PayloadServiceInProcess>
     <Database>
         <Provider>SqlServer</Provider>
-        <ConnectionString>Server=.;Database=as4msh;Trusted_Connection=True</ConnectionString>
+        <ConnectionString>Server=.;Database=as4msh_c4;Trusted_Connection=True</ConnectionString>
     </Database>
     <CertificateStore>
         <StoreName>My</StoreName>
@@ -70,9 +70,7 @@
             <StepConfiguration>
                 <NormalPipeline>
                     <Step type="Eu.EDelivery.AS4.Steps.Submit.RetrieveSendingPModeStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-                    <Step type="Eu.EDelivery.AS4.Steps.Submit.DynamicDiscoveryStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-                        <Setting key="SmpProfile">Eu.EDelivery.AS4.Services.DynamicDiscovery.ESensDynamicDiscoveryProfile</Setting>
-                    </Step>
+                    <Step type="Eu.EDelivery.AS4.Steps.Submit.DynamicDiscoveryStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
                     <Step type="Eu.EDelivery.AS4.Steps.Submit.CreateAS4MessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
                     <Step type="Eu.EDelivery.AS4.Steps.Submit.StoreAS4MessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
                 </NormalPipeline>

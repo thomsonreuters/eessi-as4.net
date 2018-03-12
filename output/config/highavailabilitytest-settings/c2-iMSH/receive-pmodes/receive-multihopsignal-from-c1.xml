@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <PMode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="eu:edelivery:as4:pmode">
-  <Id>04-sample-receive-forwarding-pmode</Id>
+  <Id>receive-multihopsignal-from-c1</Id>
   <Reliability>
     <DuplicateElimination>
       <IsEnabled>false</IsEnabled>
@@ -32,14 +32,14 @@
     </SigningVerification>
     <Decryption>
       <Encryption>Ignored</Encryption>
-    </Decryption>
+	  <Decryption>
   </Security>
   <MessagePackaging>
     <PartyInfo>
       <FromParty>
         <PartyIds>
           <PartyId>
-            <Id>org:eu:europa:as4:example:accesspoint:B</Id>
+            <Id>org:eu:europa:as4:example:accesspoint:A</Id>
           </PartyId>
         </PartyIds>
         <Role>Sender</Role>
@@ -47,7 +47,7 @@
       <ToParty>
         <PartyIds>
           <PartyId>
-            <Id>org:eu:europa:as4:example:accesspoint:A</Id>
+            <Id>org:eu:europa:as4:example:accesspoint:B</Id>
           </PartyId>
         </PartyIds>
         <Role>Receiver</Role>
@@ -66,7 +66,7 @@
   </MessagePackaging>
   <MessageHandling>
     <Forward>
-	<SendingPMode>05-forward-send-pmode</SendingPMode>
+	    <SendingPMode>forward-to-c3</SendingPMode>
     </Forward>
   </MessageHandling>
 </PMode>

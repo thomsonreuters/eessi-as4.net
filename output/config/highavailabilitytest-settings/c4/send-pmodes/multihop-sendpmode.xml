@@ -1,12 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <PMode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="eu:edelivery:as4:pmode">
-  <Id>02-sample-pmode</Id>
+  <Id>04-staticsubmit-sendpmode</Id>
   <AllowOverride>false</AllowOverride>
   <Mep>OneWay</Mep>
   <MepBinding>Push</MepBinding>
   <PushConfiguration>
     <Protocol>
-      <Url>http://168.63.100.215:9091/msh/receive/</Url>
+      <Url>http://168.63.100.215:9091/msh/receive-and-forward</Url>
       <UseChunking>false</UseChunking>
       <UseHttpCompression>false</UseHttpCompression>
     </Protocol>
@@ -18,8 +18,8 @@
   <Reliability>
     <ReceptionAwareness>
       <IsEnabled>true</IsEnabled>
-      <RetryCount>5</RetryCount>
-      <RetryInterval>00:00:05</RetryInterval>
+      <RetryCount>3</RetryCount>
+      <RetryInterval>00:00:15</RetryInterval>
     </ReceptionAwareness>
   </Reliability>
   <ReceiptHandling>
@@ -54,7 +54,7 @@
       <IsEnabled>true</IsEnabled>
       <CertificateFindCriteria>
         <CertificateFindType>FindBySubjectName</CertificateFindType>
-        <CertificateFindValue>AccessPointA</CertificateFindValue>
+        <CertificateFindValue>AccessPointB</CertificateFindValue>
       </CertificateFindCriteria>
       <KeyReferenceMethod>BSTReference</KeyReferenceMethod>
       <Algorithm>http://www.w3.org/2001/04/xmldsig-more#rsa-sha256</Algorithm>
@@ -69,7 +69,7 @@
       <FromParty>
         <PartyIds>
           <PartyId>
-            <Id>org:eu:europa:as4:example:accesspoint:A</Id>
+            <Id>org:eu:europa:as4:example:accesspoint:B</Id>
           </PartyId>
         </PartyIds>
         <Role>Sender</Role>
@@ -77,7 +77,7 @@
       <ToParty>
         <PartyIds>
           <PartyId>
-            <Id>org:eu:europa:as4:example:accesspoint:B</Id>
+            <Id>org:eu:europa:as4:example:accesspoint:A</Id>
           </PartyId>
         </PartyIds>
         <Role>Receiver</Role>
@@ -88,14 +88,14 @@
         <Value>http://agreements.europa.org/agreement</Value>
       </AgreementReference>
       <Service>
-        <Value>getting:started</Value>
-        <Type>eu:europa:services</Type>
+        <Value>getting:started-staticsubmit</Value>
+        <Type>org:europa:services</Type>
       </Service>
-      <Action>eu:sample:02</Action>
+      <Action>eu:sample:04</Action>
       <ConversationId>eu:edelivery:as4:sampleconversation</ConversationId>
     </CollaborationInfo>
     <UseAS4Compression>true</UseAS4Compression>
-    <IsMultiHop>false</IsMultiHop>
-    <IncludePModeId>false</IncludePModeId>
+    <IsMultiHop>true</IsMultiHop>
+    <IncludePModeId>true</IncludePModeId>
   </MessagePackaging>
 </PMode>
