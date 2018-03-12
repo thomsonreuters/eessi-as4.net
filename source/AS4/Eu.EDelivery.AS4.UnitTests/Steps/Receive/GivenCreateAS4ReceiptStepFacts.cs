@@ -156,7 +156,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
         protected async Task<AS4Message> ExerciseCreateReceipt(MessagingContext ctx)
         {
             var sut = new CreateAS4ReceiptStep();
-            StepResult result = await sut.ExecuteAsync(ctx, CancellationToken.None);
+            StepResult result = await sut.ExecuteAsync(ctx);
 
             return result.MessagingContext.AS4Message;
         }

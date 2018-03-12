@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Linq;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Core;
@@ -147,7 +146,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
         private static async Task<DeliverMessageEnvelope> ExecuteStepWith(AS4Message as4Message)
         {
             var sut = new CreateDeliverEnvelopeStep();
-            StepResult result = await sut.ExecuteAsync(new MessagingContext(as4Message, MessagingContextMode.Unknown), CancellationToken.None);
+            StepResult result = await sut.ExecuteAsync(new MessagingContext(as4Message, MessagingContextMode.Unknown));
 
             return result.MessagingContext.DeliverMessage;
         }

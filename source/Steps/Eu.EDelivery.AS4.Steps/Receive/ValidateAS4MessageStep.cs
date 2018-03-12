@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 using Eu.EDelivery.AS4.Exceptions;
@@ -28,9 +27,8 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// Execute the step for a given <paramref name="context"/>.
         /// </summary>
         /// <param name="context">Message used during the step execution.</param>
-        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<StepResult> ExecuteAsync(MessagingContext context, CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(MessagingContext context)
         {
             Logger.Info("Validating the received AS4 Message ...");
 

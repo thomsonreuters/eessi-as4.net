@@ -18,7 +18,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Extensions
         /// <returns></returns>
         public static async Task<StepResult> ExecuteAsync(this IStep sut, MessagingContext ctx)
         {
-            return await sut.ExecuteAsync(ctx, CancellationToken.None);
+            return await sut.ExecuteAsync(ctx);
         }
     }
 }

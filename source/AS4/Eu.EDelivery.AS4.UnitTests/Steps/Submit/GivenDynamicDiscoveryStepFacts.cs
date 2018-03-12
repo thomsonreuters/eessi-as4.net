@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 using Eu.EDelivery.AS4.Model.Core;
@@ -71,8 +70,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
             var step = new DynamicDiscoveryStep();
 
             return await step.ExecuteAsync(
-                new MessagingContext(new SubmitMessage())  {SendingPMode = pmode},
-                CancellationToken.None);
+                new MessagingContext(new SubmitMessage()) {SendingPMode = pmode});
         }
 
         public class ChangeIdDiscoveryProfile : IDynamicDiscoveryProfile

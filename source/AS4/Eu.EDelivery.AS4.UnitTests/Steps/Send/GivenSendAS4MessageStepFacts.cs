@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using System.Net;
-using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Core;
@@ -34,7 +33,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             var step = new SendAS4MessageStep(GetDataStoreContext,
                                               StubHttpClient.ThatReturns(AS4Message.Create(new Receipt())));
 
-            await step.ExecuteAsync(messagingContext, CancellationToken.None);
+            await step.ExecuteAsync(messagingContext);
 
             // Assert
             AssertSentUserMessage(
@@ -94,7 +93,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             MessagingContext dummyMessage = CreateMessagingContextWithDefaultPullRequest();
 
             // Act
-            StepResult actualResult = await step.ExecuteAsync(dummyMessage, CancellationToken.None);
+            StepResult actualResult = await step.ExecuteAsync(dummyMessage);
 
             // Assert
             Assert.False(actualResult.CanProceed);
@@ -108,7 +107,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             MessagingContext dummyMessage = CreateMessagingContextWithDefaultPullRequest();
 
             // Act
-            StepResult actualResult = await step.ExecuteAsync(dummyMessage, CancellationToken.None);
+            StepResult actualResult = await step.ExecuteAsync(dummyMessage);
 
             // Assert
             Assert.True(actualResult.MessagingContext.AS4Message.IsEmpty);

@@ -152,7 +152,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                     keyStorageFlags: X509KeyStorageFlags.Exportable));
 
             var sut = new DecryptAS4MessageStep(mockedRespository.Object);
-            return sut.ExecuteAsync(ctx, CancellationToken.None);
+            return sut.ExecuteAsync(ctx);
         }
 
         [Fact]

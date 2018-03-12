@@ -1,6 +1,5 @@
 ﻿using System;
 using System.ComponentModel;
-using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Model.Internal;
@@ -40,9 +39,8 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// Execute the step for a given <paramref name="messagingContext"/>.
         /// </summary>
         /// <param name="messagingContext">Message used during the step execution.</param>
-        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
             Logger.Info($"[{messagingContext.AS4Message.GetPrimaryMessageId()}] Set the message's Operation = 'ToBeSent' ");
 
@@ -58,7 +56,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
                 service.UpdateAS4MessageToBeSent(messagingContext.MessageEntityId.Value, 
                                                  messagingContext.AS4Message);
-                await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+                await context.SaveChangesAsync().ConfigureAwait(false);
             }
 
             return StepResult.Success(messagingContext);

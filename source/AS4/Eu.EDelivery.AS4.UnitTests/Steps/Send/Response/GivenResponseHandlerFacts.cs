@@ -4,7 +4,6 @@ using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Serialization;
@@ -200,8 +199,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
         {
             return AS4Response.Create(
                 requestMessage: new EmptyMessagingContext(),
-                webResponse: new Mock<HttpWebResponse>().Object,
-                cancellation: CancellationToken.None).Result;
+                webResponse: new Mock<HttpWebResponse>().Object).Result;
         }
     }
 }

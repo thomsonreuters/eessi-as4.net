@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
@@ -65,8 +64,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 var sut = new DeterminePModesStep(null, GetDataStoreContext);
 
                 return await sut.ExecuteAsync(
-                           new MessagingContext(message, MessagingContextMode.Receive),
-                           default(CancellationToken));
+                    new MessagingContext(message, MessagingContextMode.Receive));
             }
 
             [Fact]
@@ -80,7 +78,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 MessagingContext messagingContext = new MessageContextBuilder().WithPModeId(sharedId).Build();
 
                 // Act
-                StepResult result = await _step.ExecuteAsync(messagingContext, CancellationToken.None);
+                StepResult result = await _step.ExecuteAsync(messagingContext);
 
                 // Assert
                 AssertPMode(pmode, result);
@@ -101,7 +99,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 MessagingContext messagingContext = new MessageContextBuilder().WithPartys(fromParty, toParty).Build();
 
                 // Act               
-                StepResult result = await _step.ExecuteAsync(messagingContext, CancellationToken.None);
+                StepResult result = await _step.ExecuteAsync(messagingContext);
 
                 // Assert
                 AssertPMode(pmode, result);
@@ -120,7 +118,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                                                 .Build();
 
                 // Act
-                StepResult result = await _step.ExecuteAsync(messagingContext, CancellationToken.None);
+                StepResult result = await _step.ExecuteAsync(messagingContext);
 
                 // Assert
                 AssertPMode(pmode, result);
@@ -148,7 +146,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                     new MessageContextBuilder().WithPModeId(sharedId).WithPartys(fromParty, toParty).Build();
 
                 // Act
-                StepResult result = await _step.ExecuteAsync(messagingContext, CancellationToken.None);
+                StepResult result = await _step.ExecuteAsync(messagingContext);
 
                 // Assert
                 AssertPMode(idPMode, result);
@@ -186,7 +184,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                                                 .Build();
 
                 // Act
-                StepResult result = await _step.ExecuteAsync(messagingContext, CancellationToken.None);
+                StepResult result = await _step.ExecuteAsync(messagingContext);
 
                 // Assert
                 AssertPMode(pmodeParties, result);
@@ -215,7 +213,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                                                 .Build();
 
                 // Act
-                StepResult result = await _step.ExecuteAsync(messagingContext, CancellationToken.None);
+                StepResult result = await _step.ExecuteAsync(messagingContext);
 
                 // Assert
                 AssertPMode(pmodeParties, result);
@@ -247,7 +245,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                     new MessageContextBuilder().WithServiceAction(service, action).Build();
 
                 // Act
-                StepResult result = await _step.ExecuteAsync(messagingContext, CancellationToken.None);
+                StepResult result = await _step.ExecuteAsync(messagingContext);
 
                 // Assert
                 Assert.False(result.Succeeded);
@@ -277,7 +275,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                                                 .Build();
 
                 // Act
-                StepResult result = await _step.ExecuteAsync(messagingContext, CancellationToken.None);
+                StepResult result = await _step.ExecuteAsync(messagingContext);
 
                 // Assert
                 Assert.False(result.Succeeded);

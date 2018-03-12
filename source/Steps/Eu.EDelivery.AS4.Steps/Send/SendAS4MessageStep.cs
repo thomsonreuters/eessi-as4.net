@@ -62,9 +62,8 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// Send the <see cref="AS4Message" />
         /// </summary>
         /// <param name="messagingContext"></param>
-        /// <param name="cancellation"></param>
         /// <returns></returns>
-        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellation)
+        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
             if (messagingContext.ReceivedMessage == null && messagingContext.AS4Message == null)
             {
@@ -97,7 +96,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 {
                     messagingContext.ModifyContext(as4Message);
 
-                    return await TryHandleHttpResponseAsync(request, messagingContext, cancellation).ConfigureAwait(false);
+                    return await TryHandleHttpResponseAsync(request, messagingContext).ConfigureAwait(false);
                 }
 
                 return StepResult.Failed(messagingContext);
@@ -259,8 +258,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
         private async Task<StepResult> TryHandleHttpResponseAsync(
             HttpWebRequest request,
-            MessagingContext messagingContext,
-            CancellationToken cancellationToken)
+            MessagingContext messagingContext)
         {
             Logger.Debug($"AS4 Message received from: {request.Address}");
 
@@ -270,7 +268,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 && ContentTypeSupporter.IsContentTypeSupported(response.webResponse.ContentType))
             {
                 return
-                    await HandleAS4Response(messagingContext, response.webResponse, cancellationToken)
+                    await HandleAS4Response(messagingContext, response.webResponse)
                         .ConfigureAwait(false);
             }
 
@@ -311,11 +309,10 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
         private static async Task<StepResult> HandleAS4Response(
             MessagingContext originalMessage,
-            WebResponse webResponse,
-            CancellationToken cancellation)
+            WebResponse webResponse)
         {
             using (AS4Response as4Response =
-                await AS4Response.Create(originalMessage, webResponse as HttpWebResponse, cancellation).ConfigureAwait(false))
+                await AS4Response.Create(originalMessage, webResponse as HttpWebResponse).ConfigureAwait(false))
             {
                 var responseHandler = new EmptyBodyResponseHandler(new PullRequestResponseHandler(new TailResponseHandler()));
                 return await responseHandler.HandleResponse(as4Response).ConfigureAwait(false);

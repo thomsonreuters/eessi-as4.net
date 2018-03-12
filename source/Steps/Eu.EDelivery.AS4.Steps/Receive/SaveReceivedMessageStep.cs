@@ -44,10 +44,9 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// Start updating the Data store
         /// </summary>
         /// <param name="messagingContext"></param>
-        /// <param name="token"></param>
         /// <returns></returns>
         /// <exception cref="Exception">A delegate callback throws an exception.</exception>
-        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken token)
+        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
             Logger.Info($"{messagingContext.EbmsMessageId} Insert received message in datastore");
 
@@ -56,7 +55,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 throw new InvalidOperationException("SaveReceivedMessageStep requires a ReceivedStream");
             }
 
-            MessagingContext resultContext = await InsertReceivedAS4MessageAsync(messagingContext, token);
+            MessagingContext resultContext = await InsertReceivedAS4MessageAsync(messagingContext);
 
             if (resultContext != null && resultContext.Exception == null)
             {
@@ -78,9 +77,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             return StepResult.Failed(resultContext);
         }
 
-        private async Task<MessagingContext> InsertReceivedAS4MessageAsync(
-            MessagingContext messagingContext, 
-            CancellationToken token)
+        private async Task<MessagingContext> InsertReceivedAS4MessageAsync(MessagingContext messagingContext)
         {
             using (DatastoreContext context = _createDatastoreContext())
             {
@@ -88,10 +85,10 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 MessageExchangePattern mep = DetermineMessageExchangePattern(messagingContext);
 
                 MessagingContext resultContext = await service
-                    .InsertAS4MessageAsync(messagingContext, mep, _messageBodyStore, token)
+                    .InsertAS4MessageAsync(messagingContext, mep, _messageBodyStore, CancellationToken.None)
                     .ConfigureAwait(false);
 
-                await context.SaveChangesAsync(token).ConfigureAwait(false);
+                await context.SaveChangesAsync().ConfigureAwait(false);
 
                 return resultContext;
             }

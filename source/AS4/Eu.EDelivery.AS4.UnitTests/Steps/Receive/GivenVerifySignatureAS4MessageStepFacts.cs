@@ -52,7 +52,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 UsingAllowedSigningVerification();
 
                 // Act
-                StepResult result = await _step.ExecuteAsync(_messagingContext, CancellationToken.None);
+                StepResult result = await _step.ExecuteAsync(_messagingContext);
 
                 // Assert
                 Assert.NotNull(result);
@@ -113,7 +113,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 UsingAllowedSigningVerification();
 
                 // Act
-                StepResult result = await _step.ExecuteAsync(_messagingContext, CancellationToken.None);
+                StepResult result = await _step.ExecuteAsync(_messagingContext);
 
                 // Assert
                 ErrorResult error = result.MessagingContext.ErrorResult;
@@ -130,7 +130,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 UsingAllowedSigningVerification();
 
                 // Act
-                StepResult result = await _step.ExecuteAsync(_messagingContext, CancellationToken.None);
+                StepResult result = await _step.ExecuteAsync(_messagingContext);
 
                 // Assert
                 ErrorResult error = result.MessagingContext.ErrorResult;
@@ -190,8 +190,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 {
                     SendingPMode = verifyNrrPMode,
                     ReceivingPMode = verifySignaturePMode
-                },
-                CancellationToken.None);
+                });
         }
 
         protected static async Task<AS4Message> NRRReceiptHashes(

@@ -30,7 +30,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
 
             // Act / Assert
             await Assert.ThrowsAnyAsync<Exception>(
-                    () => sut.ExecuteAsync(fixture, CancellationToken.None));
+                    () => sut.ExecuteAsync(fixture));
         }
 
         [Fact]
@@ -45,7 +45,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
             IStep sut = CreateSendNotifyStepWithSender(spySender);
 
             // Act
-            await sut.ExecuteAsync(fixture, CancellationToken.None);
+            await sut.ExecuteAsync(fixture);
 
             // Assert
             Assert.True(spySender.IsNotified);
@@ -63,7 +63,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
             IStep sut = CreateSendNotifyStepWithSender(spySender);
 
             // Act
-            await sut.ExecuteAsync(fixture, CancellationToken.None);
+            await sut.ExecuteAsync(fixture);
 
             // Assert
             Assert.True(spySender.IsNotified);

@@ -185,7 +185,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
         private static async Task<StepResult> ExerciseCreation(MessagingContext context)
         {
             var sut = new CreateAS4MessageStep();
-            return await sut.ExecuteAsync(context, CancellationToken.None);
+            return await sut.ExecuteAsync(context);
         }
     }
 }

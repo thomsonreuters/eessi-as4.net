@@ -156,7 +156,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
             context.ModifyContext(notifyMessage);
             // Act
             var sut = new NotifyUpdateDatastoreStep();
-            await sut.ExecuteAsync(context, CancellationToken.None);
+            await sut.ExecuteAsync(context);
         }
 
         private static NotifyMessageEnvelope CreateNotifyMessage(string id, Type type)

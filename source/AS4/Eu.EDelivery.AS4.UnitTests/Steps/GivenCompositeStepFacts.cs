@@ -29,7 +29,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps
                 var compositeStep = new CompositeStep(CreateMockStepWith(expectedStepResult).Object);
 
                 // Act
-                StepResult actualStepResult = await compositeStep.ExecuteAsync(dummyMessage, CancellationToken.None);
+                StepResult actualStepResult = await compositeStep.ExecuteAsync(dummyMessage);
 
                 // Assert
                 Assert.Equal(expectedStepResult.MessagingContext, actualStepResult.MessagingContext);
@@ -46,7 +46,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps
                 var compositeStep = new CompositeStep(CreateMockStepWith(stopExecutionResult).Object, spyStep);
 
                 // Act
-                StepResult actualResult = await compositeStep.ExecuteAsync(new EmptyMessagingContext(), CancellationToken.None);
+                StepResult actualResult = await compositeStep.ExecuteAsync(new EmptyMessagingContext());
 
                 // Assert  
                 Assert.False(spyStep.IsCalled);
@@ -66,7 +66,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps
             {
                 var mockStep = new Mock<IStep>();
 
-                mockStep.Setup(m => m.ExecuteAsync(It.IsAny<MessagingContext>(), It.IsAny<CancellationToken>()))
+                mockStep.Setup(m => m.ExecuteAsync(It.IsAny<MessagingContext>()))
                         .ReturnsAsync(stepResult);
 
                 return mockStep;
