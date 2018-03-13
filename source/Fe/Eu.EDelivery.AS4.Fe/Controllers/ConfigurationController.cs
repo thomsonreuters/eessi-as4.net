@@ -8,6 +8,7 @@ using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Fe.Authentication;
 using Eu.EDelivery.AS4.Fe.Logging;
 using Eu.EDelivery.AS4.Fe.Models;
+using Eu.EDelivery.AS4.Fe.Runtime;
 using Eu.EDelivery.AS4.Fe.Settings;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.ServiceHandler.Agents;
@@ -29,6 +30,7 @@ namespace Eu.EDelivery.AS4.Fe.Controllers
         private readonly IAs4SettingsService settingsService;
         private readonly IOptions<PortalSettings> portalSettings;
         private readonly IPortalSettingsService portalSettingsService;
+        private readonly IRuntimeLoader runtimeLoader;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ConfigurationController" /> class.
@@ -37,11 +39,18 @@ namespace Eu.EDelivery.AS4.Fe.Controllers
         /// <param name="logging">The logging.</param>
         /// <param name="portalSettings">The portal settings.</param>
         /// <param name="portalSettingsService">The portal settings service.</param>
-        public ConfigurationController(IAs4SettingsService settingsService, ILogging logging, IOptions<PortalSettings> portalSettings, IPortalSettingsService portalSettingsService)
+        /// <param name="runtimeLoader">The runtime loader.</param>
+        public ConfigurationController(
+            IAs4SettingsService settingsService, 
+            ILogging logging, 
+            IOptions<PortalSettings> portalSettings, 
+            IPortalSettingsService portalSettingsService,
+            IRuntimeLoader runtimeLoader)
         {
             this.settingsService = settingsService;
             this.portalSettings = portalSettings;
             this.portalSettingsService = portalSettingsService;
+            this.runtimeLoader = runtimeLoader;
         }
 
         /// <summary>
@@ -203,8 +212,15 @@ namespace Eu.EDelivery.AS4.Fe.Controllers
         [Route("defaultagenttransformer/{agentType}")]
         public IActionResult GetDefaultAgentTransformer(AgentType agentType)
         {
-            var transformer = AgentProvider.GetDefaultTransformerForAgentType(agentType);
-            return new OkObjectResult(transformer);
+            var transformerEntry = AgentProvider.GetDefaultTransformerForAgentType(agentType);
+            var availableTransformers = transformerEntry.OtherTransformers.Concat(new[] {transformerEntry.DefaultTransformer});
+            var types = runtimeLoader.Transformers.Where(t => availableTransformers.Any(x => x.Type == t.TechnicalName));
+
+            return new OkObjectResult(new
+            {
+                DefaultTransformer = types.First(t => t.TechnicalName == transformerEntry.DefaultTransformer.Type),
+                OtherTransformers = types.Where(t => t.TechnicalName != transformerEntry.DefaultTransformer.Type)
+            });
         }
 
         /// <summary>

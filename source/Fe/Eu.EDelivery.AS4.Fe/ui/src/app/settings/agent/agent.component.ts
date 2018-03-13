@@ -74,11 +74,14 @@ export class AgentSettingsComponent implements OnDestroy, CanComponentDeactivate
             .changes
             .filter((result) => !!result && !!result.Settings && !!result.Settings.agents[this.agent])
             .map((result) => result.Settings.agents[this.agent] as SettingsAgent[]);
+        const defaultTransformer = this.settingsService.getDefaultAgentTransformer(this.beType);
         let sub = Observable
-            .combineLatest(settingsStoreSelector, this.runtimeStore.changes)
-            .filter(([agents, transformers]) => !!agents && agents.length > 0 && !!transformers && !!transformers.transformers && transformers.transformers.length > 0)
+            .combineLatest(settingsStoreSelector, defaultTransformer)
+            .filter(([agents, transformers]) => !!agents && agents.length > 0 && !!transformers && !!transformers.defaultTransformer)
             .subscribe(([agents, transformers]) => {
-                this.transformers = transformers.transformers;
+                this.transformers = transformers
+                    .otherTransformers
+                    .concat([transformers.defaultTransformer]);
 
                 this.settings = agents;
                 if (!!this.currentAgent) {
@@ -122,8 +125,11 @@ export class AgentSettingsComponent implements OnDestroy, CanComponentDeactivate
                             .combineLatest(defaultTransformer, defaultSteps)
                             .subscribe(([transformer, steps]) => {
                                 newAgent.stepConfiguration = steps;
-                                newAgent.transformer = transformer;
+                                newAgent.transformer = new Transformer();
+                                newAgent.transformer.type = transformer.defaultTransformer.technicalName;
                                 setupCurrent(newAgent);
+
+                                this.transformers = transformer.otherTransformers;
                             });
                         return;
                     }
