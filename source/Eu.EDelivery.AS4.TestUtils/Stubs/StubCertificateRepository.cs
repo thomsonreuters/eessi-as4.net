@@ -7,6 +7,7 @@ namespace Eu.EDelivery.AS4.TestUtils.Stubs
     /// <summary>
     /// Stub Certificate for the Certificate Related Tests
     /// </summary>
+    [NotConfigurable]
     public sealed class StubCertificateRepository : ICertificateRepository, IDisposable
     {
         private readonly X509Certificate2 _dummyCertificate;

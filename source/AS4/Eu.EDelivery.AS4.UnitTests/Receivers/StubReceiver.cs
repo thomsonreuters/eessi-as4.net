@@ -8,6 +8,7 @@ using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Receivers
 {
+    [NotConfigurable]
     public class StubReceiver : IReceiver
     {
         /// <summary>

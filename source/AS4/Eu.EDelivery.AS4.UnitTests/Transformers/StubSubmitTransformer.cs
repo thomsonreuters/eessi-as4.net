@@ -7,6 +7,7 @@ using Eu.EDelivery.AS4.Transformers;
 
 namespace Eu.EDelivery.AS4.UnitTests.Transformers
 {
+    [NotConfigurable]
     public class StubSubmitTransformer : ITransformer
     {
         /// <summary>

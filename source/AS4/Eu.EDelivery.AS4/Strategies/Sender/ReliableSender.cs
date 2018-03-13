@@ -12,6 +12,7 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
     /// Decorator to add the 'reliable' functionality of the sending functionality 
     /// to both the <see cref="IDeliverSender"/> and <see cref="INotifySender"/> implementation.
     /// </summary>
+    [NotConfigurable]
     internal class ReliableSender : IDeliverSender, INotifySender
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();

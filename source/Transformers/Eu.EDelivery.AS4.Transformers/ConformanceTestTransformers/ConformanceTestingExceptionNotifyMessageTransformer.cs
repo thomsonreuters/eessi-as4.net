@@ -6,6 +6,7 @@ using Eu.EDelivery.AS4.Model.Notify;
 
 namespace Eu.EDelivery.AS4.Transformers.ConformanceTestTransformers
 {
+    [NotConfigurable]
     [ExcludeFromCodeCoverage]
     public class ConformanceTestingExceptionNotifyMessageTransformer : NotifyMessageTransformer
     {

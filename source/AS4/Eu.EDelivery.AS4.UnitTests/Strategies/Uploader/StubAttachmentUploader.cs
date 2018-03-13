@@ -7,6 +7,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Strategies.Uploader
     /// <summary>
     /// <see cref="IAttachmentUploader"/> implementation to return always a configured <see cref="UploadResult"/>.
     /// </summary>
+    [NotConfigurable]    
     internal class StubAttachmentUploader : IAttachmentUploader
     {
         private readonly UploadResult _configuredResult;

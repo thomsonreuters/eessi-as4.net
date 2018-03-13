@@ -10,6 +10,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Strategies.Sender
     /// <summary>
     /// <see cref="IDeliverSender"/>, <see cref="INotifySender"/> implementation to 'Spy' on the configuration.
     /// </summary>
+    [NotConfigurable]
     public class SpySender : IDeliverSender, INotifySender
     {
         /// <summary>

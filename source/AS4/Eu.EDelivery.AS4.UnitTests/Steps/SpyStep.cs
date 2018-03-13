@@ -9,6 +9,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps
     /// <summary>
     /// <see cref="IStep"/> implementation to "spy" on the step execution.
     /// </summary>
+    [NotConfigurable]
     public class SpyStep : IStep
     {
         /// <summary>

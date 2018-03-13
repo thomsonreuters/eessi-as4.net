@@ -8,6 +8,7 @@ using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Transformers
 {
+    [NotConfigurable]
     public class DummyTransformer : ITransformer
     {
         /// <summary>

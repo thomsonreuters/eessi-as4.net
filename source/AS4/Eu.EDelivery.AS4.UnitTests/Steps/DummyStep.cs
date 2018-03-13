@@ -7,6 +7,7 @@ using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Steps
 {
+    [NotConfigurable]
     public class DummyStep : IStep
     {
         /// <summary>

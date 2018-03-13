@@ -8,6 +8,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps
     /// <summary>
     /// <see cref="IStep"/> implementation to 'sink' the request.
     /// </summary>
+    [NotConfigurable]
     public class SinkStep : IStep
     {
         /// <summary>

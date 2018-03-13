@@ -17,6 +17,7 @@ using PartyId = Eu.EDelivery.AS4.Model.Core.PartyId;
 
 namespace Eu.EDelivery.AS4.Steps.Deliver
 {
+    [NotConfigurable]
     [ExcludeFromCodeCoverage]
     public class MinderTestCreateDeliverEnvelopeStep : IConfigStep
     {
