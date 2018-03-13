@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Diagnostics;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders;
@@ -41,7 +43,10 @@ namespace Eu.EDelivery.AS4.ServiceHandler.ConsoleHost
 
                 do
                 {
-                    Console.WriteLine("Press c to clear the screen, q to stop.");
+                    Console.WriteLine("Press following charaters during the running of the component to:");
+                    Console.WriteLine("    c    Clears the screen");
+                    Console.WriteLine("    q    Quites the application");
+                    Console.WriteLine("    r    Restarts the application");
 
                     key = Console.ReadKey();
 
@@ -50,6 +55,12 @@ namespace Eu.EDelivery.AS4.ServiceHandler.ConsoleHost
                         case ConsoleKey.C:
                             Console.Clear();
                             break;
+                        case ConsoleKey.R:
+                            string fileName = Assembly.GetExecutingAssembly().Location;
+                            Process.Start(fileName);
+
+                            Environment.Exit(0);
+                            break;                            
                     }
 
 
