@@ -79,17 +79,13 @@ export class AgentSettingsComponent implements OnDestroy, CanComponentDeactivate
             .combineLatest(settingsStoreSelector, defaultTransformer)
             .filter(([agents, transformers]) => !!agents && agents.length > 0 && !!transformers && !!transformers.defaultTransformer)
             .subscribe(([agents, transformers]) => {
-                this.transformers = transformers
-                    .otherTransformers
-                    .concat([transformers.defaultTransformer]);
-
                 this.settings = agents;
                 if (!!this.currentAgent) {
                     this.currentAgent = agents.find((agt) => agt.name === this.currentAgent!.name);
                 } else if (!!agents && agents.length > 0) {
                     this.currentAgent = agents[0];
                 }
-
+                this.transformers = [transformers.defaultTransformer].concat(transformers.otherTransformers);
                 this.form = SettingsAgentForm.getForm(this._formWrapper, this.currentAgent).build(!!!this.currentAgent);
             });
         this._subscription = sub;
