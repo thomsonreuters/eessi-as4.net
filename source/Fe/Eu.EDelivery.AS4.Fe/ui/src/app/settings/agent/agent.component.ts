@@ -129,7 +129,7 @@ export class AgentSettingsComponent implements OnDestroy, CanComponentDeactivate
                                 newAgent.transformer.type = transformer.defaultTransformer.technicalName;
                                 setupCurrent(newAgent);
 
-                                this.transformers = transformer.otherTransformers;
+                                this.transformers = [transformer.defaultTransformer].concat(transformer.otherTransformers);
                             });
                         return;
                     }
