@@ -9,8 +9,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps
     /// <summary>
     /// <see cref="IStep"/> implementation to sabotage the step execution.
     /// </summary>
-    [NotConfigurable]
-    public class SaboteurStep : IStep
+    internal class SaboteurStep : IStep
     {
         /// <summary>
         /// Execute the step for a given <paramref name="messagingContext"/>.

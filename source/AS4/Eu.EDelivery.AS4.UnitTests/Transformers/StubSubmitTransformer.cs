@@ -7,8 +7,7 @@ using Eu.EDelivery.AS4.Transformers;
 
 namespace Eu.EDelivery.AS4.UnitTests.Transformers
 {
-    [NotConfigurable]
-    public class StubSubmitTransformer : ITransformer
+    internal class StubSubmitTransformer : ITransformer
     {
         /// <summary>
         /// Configures the <see cref="ITransformer"/> implementation with specific user-defined properties.

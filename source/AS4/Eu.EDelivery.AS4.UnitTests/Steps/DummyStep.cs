@@ -7,8 +7,7 @@ using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Steps
 {
-    [NotConfigurable]
-    public class DummyStep : IStep
+    internal class DummyStep : IStep
     {
         /// <summary>
         /// Execute the step for a given <paramref name="internalMessage"/>.

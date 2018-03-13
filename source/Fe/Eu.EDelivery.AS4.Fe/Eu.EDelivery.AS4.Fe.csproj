@@ -1,21 +1,17 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
     <PropertyGroup>
-        <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
-        <TargetFramework>net461</TargetFramework>
-        <TypeScriptCompileBlocked>True</TypeScriptCompileBlocked>
-        <DefaultItemExcludes>$(DefaultItemExcludes);ui/node_modules/**</DefaultItemExcludes>
-    </PropertyGroup>
-
-    <PropertyGroup>
-        <OutputPath>..\..\..\output\</OutputPath>
-		<GenerateDocumentationFile>true</GenerateDocumentationFile>
-		<DocumentationFile>..\..\..\output\Eu.EDelivery.AS4.Fe.xml</DocumentationFile>        
-        <PlatformTarget>x86</PlatformTarget>
-        <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-    </PropertyGroup>
-
-    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+      <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
+      <TargetFramework>net461</TargetFramework>
+      <Configurations>Debug;Release</Configurations>
+      <TypeScriptCompileBlocked>True</TypeScriptCompileBlocked>
+      <DefaultItemExcludes>$(DefaultItemExcludes);ui/node_modules/**</DefaultItemExcludes>
+      <OutputPath>..\..\..\output\</OutputPath>
+		  <GenerateDocumentationFile>true</GenerateDocumentationFile>
+		  <DocumentationFile>..\..\..\output\Eu.EDelivery.AS4.Fe.xml</DocumentationFile>        
+      <PlatformTarget>AnyCPU</PlatformTarget>
+      <Platforms>x86;AnyCPU</Platforms>
+      <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
       <DefineConstants>DEBUG;TRACE;NET461</DefineConstants>
     </PropertyGroup>
 

@@ -8,8 +8,7 @@ using Eu.EDelivery.AS4.Receivers;
 
 namespace Eu.EDelivery.AS4.UnitTests.Receivers
 {
-    [NotConfigurable]
-    public class SpyReceiver : IReceiver
+    internal class SpyReceiver : IReceiver
     {
         private readonly ManualResetEvent _waitHandle = new ManualResetEvent(initialState: false);
         private MessagingContext _context;

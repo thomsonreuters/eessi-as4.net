@@ -8,8 +8,7 @@ using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Transformers
 {
-    [NotConfigurable]
-    public class DummyTransformer : ITransformer
+    internal class DummyTransformer : ITransformer
     {
         /// <summary>
         /// Configures the <see cref="ITransformer"/> implementation with specific user-defined properties.
