@@ -19,6 +19,9 @@ import '../common/rxjs/toBehaviorSubject';
             <as4-input [label]="'Message Id'">
                 <input type="text" class="form-control" name="idFormat" formControlName="idFormat"/>
             </as4-input>
+            <as4-input [label]="'Retention Period (in days)'">
+                <input type="number" class="form-control" name="retentionPeriod" formControlName="retentionPeriod" />
+            </as4-input>
             <as4-input [label]="'Certificate store'" formGroupName="certificateStore">
                 <input type="text" class="form-control" name="certificateStoreName" formControlName="storeName"/>
             </as4-input>            
