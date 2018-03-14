@@ -42,9 +42,11 @@ namespace Eu.EDelivery.AS4.Fe.Settings
                 var xmlSerializer = new XmlSerializer(typeof(Model.Internal.Settings));
 
                 using (var output = new FileStream(appSettings.Value.SettingsXml, FileMode.Create))
-                using (var xmlWriter = XmlWriter.Create(output, DefaultXmlWriterSettings))
                 {
-                    xmlSerializer.Serialize(xmlWriter, settings);
+                    using (var xmlWriter = XmlWriter.Create(output, DefaultXmlWriterSettings))
+                    {
+                        xmlSerializer.Serialize(xmlWriter, settings);
+                    }
                 }
             });
         }
