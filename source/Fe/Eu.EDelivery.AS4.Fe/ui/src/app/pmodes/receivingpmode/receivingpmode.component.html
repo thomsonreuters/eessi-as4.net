@@ -36,7 +36,7 @@
                     </as4-input>
                 </ng-container>
             </div>
-            <div tabitem title="Message handling" formGroupName="messageHandling" [isValid]="!!!pmode.currentPmode || pmode.form.get('pmode.messageHandling')" runtimeTooltip="messagehandling">
+            <div tabitem title="Message handling" formGroupName="messageHandling" [isValid]="!pmode.currentPmode || pmode.form.get('pmode.messageHandling').valid" runtimeTooltip="messagehandling">
                 <as4-input label="Type" runtimeTooltip="messagehandlingtype">
                     <select formControlName="messageHandlingType" #messageHandlingType>
                         <option [ngValue]="1">Deliver</option>

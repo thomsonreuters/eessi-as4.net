@@ -1,14 +1,14 @@
-import { RouterService } from './../../common/router.service';
+import { Component, Inject, OnDestroy, OnInit, OpaqueToken } from '@angular/core';
+import { FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { FormGroup, FormBuilder } from '@angular/forms';
-import { Component, OnInit, OpaqueToken, Inject, Output, OnDestroy } from '@angular/core';
-
-import { DialogService } from './../../common/dialog.service';
-import { IPmode } from './../../api/Pmode.interface';
-import { ModalService } from './../../common/modal/modal.service';
-import { getRawFormValues } from './../../common/getRawFormValues';
 import { Subscription } from 'rxjs/Subscription';
+
 import { ICrudPmodeService } from '../crudpmode.service.interface';
+import { IPmode } from './../../api/Pmode.interface';
+import { DialogService } from './../../common/dialog.service';
+import { getRawFormValues } from './../../common/getRawFormValues';
+import { ModalService } from './../../common/modal/modal.service';
+import { RouterService } from './../../common/router.service';
 
 export const PMODECRUD_SERVICE = new OpaqueToken('pmodecrudservice');
 
@@ -119,7 +119,6 @@ export class CrudComponent implements OnInit, OnDestroy {
     public pmodeChanged(name: string) {
         let select = () => {
             this.isNewMode = false;
-            let lookupPmode = this.pmodes.find((pmode) => pmode === name);
             this._crudService.get(name);
         };
         if ((this.form.dirty || this.isNewMode) && !!this.currentPmode) {

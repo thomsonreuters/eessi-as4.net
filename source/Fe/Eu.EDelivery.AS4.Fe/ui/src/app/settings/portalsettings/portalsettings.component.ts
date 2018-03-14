@@ -1,15 +1,14 @@
-import { Subscription } from 'rxjs/Subscription';
-import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { Component } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Subscription } from 'rxjs/Subscription';
 
-import { SettingsService } from './../settings.service';
 import { DialogService } from './../../common/dialog.service';
+import { SettingsService } from './../settings.service';
 
 @Component({
     selector: 'as4-portalsettings',
     templateUrl: 'portalsettings.component.html'
 })
-
 export class PortalSettingsComponent {
     public form: FormGroup;
     private _subscription: Subscription;
