@@ -4,8 +4,8 @@
         <div class="form-group">
             <label class="col-xs-2">Agent name</label>
             <div class="col-xs-10">
-                <input type="text" as4-no-auth class="form-control" #nameInput (keyup)="newName = $event.target.value" [value]="newName"
-                />
+	            <input type="text" as4-no-auth class="form-control" #nameInput (keyup)="newName = $event.target.value" [value]="newName"
+				/>
             </div>
         </div>
         <div class="form-group">
@@ -25,22 +25,20 @@
         <div content>
             <as4-input [label]="'Name'">
                 <div class="input-group">
-                    <select as4-no-auth name="name" (change)="selectAgent($event.target.value); agentSelect.value = currentAgent && currentAgent.name"
-                        class="form-control" #agentSelect>
+	                <select as4-no-auth name="name" (change)="selectAgent($event.target.value); agentSelect.value = currentAgent && currentAgent.name" 
+						class="form-control" #agentSelect>
                         <option value="undefined">Select an option</option>
                         <option *ngFor="let agent of settings" [ngValue]="agent.name" [selected]="currentAgent && currentAgent.name === agent.name">{{currentAgent && (currentAgent.name == agent.name) && !!form && !!form.controls ? form.controls.name.value : agent.name}}</option>
                     </select>
-                    <div class="input-group-btn" crud-buttons [current]="currentAgent" [isNewMode]="isNewMode" [form]="form" (rename)="rename()"
-                        (add)="addAgent()" (save)="save()" (delete)="delete()" (reset)="reset()"></div>
+	                <div class="input-group-btn" crud-buttons [current]="currentAgent" [isNewMode]="isNewMode" [form]="form" (rename)="rename()" 
+						(add)="addAgent()" (save)="save()" (delete)="delete()" (reset)="reset()"></div>
                 </div>
             </as4-input>
-            <div formGroupName="transformer">
-                <as4-input [label]="'Transformer'">
-                    <select class="form-control" formControlName="type" required>
-                        <option *ngFor="let transformer of transformers" [value]="transformer.technicalName">{{transformer.name}}</option>
-                    </select>
-                </as4-input>
-            </div>
+        </div>
+    </as4-box>
+    <as4-box [title]="'Transformer'">
+        <div content>
+            <as4-transformer [group]="form.get('transformer')" [types]="transformers"></as4-transformer>
         </div>
     </as4-box>
     <as4-box [title]="'Receiver'">
