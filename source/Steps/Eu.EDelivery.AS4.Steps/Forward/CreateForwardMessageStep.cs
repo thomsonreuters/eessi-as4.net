@@ -61,8 +61,7 @@ namespace Eu.EDelivery.AS4.Steps.Forward
             {
                 string outLocation = await _messageStore.SaveAS4MessageStreamAsync(
                     _configuration.OutMessageStoreLocation,
-                    originalInMessage, 
-                    CancellationToken.None);
+                    originalInMessage);
 
                 originalInMessage.Position = 0;
 

@@ -52,9 +52,8 @@ namespace Eu.EDelivery.AS4.Repositories
         /// </summary>
         /// <param name="location">The location where the AS4 message must be saved</param>
         /// <param name="as4MessageStream">A stream representing the AS4 message</param>
-        /// <param name="cancellation"></param>
         /// <returns></returns>
-        public async Task<string> SaveAS4MessageStreamAsync(string location, Stream as4MessageStream, CancellationToken cancellation)
+        public async Task<string> SaveAS4MessageStreamAsync(string location, Stream as4MessageStream)
         {
             if (as4MessageStream == null)
             {

@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Core;
@@ -33,13 +32,8 @@ namespace Eu.EDelivery.AS4.Services
         /// <param name="context"></param>
         /// <param name="mep">The MessageExchangePattern by which the message has been received</param>
         /// <param name="as4MessageBodyPersister"></param>
-        /// <param name="cancellationToken"></param>
         /// <returns>A MessagingContext instance that contains the parsed AS4 Message.</returns>
-        Task<MessagingContext> InsertAS4MessageAsync(
-            MessagingContext context,
-            MessageExchangePattern mep,
-            IAS4MessageBodyStore as4MessageBodyPersister,
-            CancellationToken cancellationToken);
+        Task<MessagingContext> InsertAS4MessageAsync(MessagingContext context, MessageExchangePattern mep, IAS4MessageBodyStore as4MessageBodyPersister);
 
         /// <summary>
         /// Update the given message for delivery and notification.
