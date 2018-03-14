@@ -367,6 +367,7 @@ namespace Eu.EDelivery.AS4.Common
                 return;
             }
 
+            _agentConfigs.Clear();
             if (_sendingPModeWatcher != null)
             {
                 _sendingPModeWatcher.Stop();

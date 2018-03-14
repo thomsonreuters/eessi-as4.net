@@ -56,10 +56,22 @@ namespace Eu.EDelivery.AS4.ServiceHandler.ConsoleHost
                             Console.Clear();
                             break;
                         case ConsoleKey.R:
-                            string fileName = Assembly.GetExecutingAssembly().Location;
-                            Process.Start(fileName);
+                            Console.WriteLine("Restarting...");
+                            cancellationTokenSource.Cancel();
 
-                            Environment.Exit(0);
+                            StopTask(task);
+                            StopTask(frontEndTask);
+                            StopTask(payloadServiceTask);
+
+                            kernel.Dispose();
+                            Config.Instance.Dispose();
+
+                            kernel = CreateKernel();
+                            cancellationTokenSource = new CancellationTokenSource();
+                            task = kernel.StartAsync(cancellationTokenSource.Token);
+                            frontEndTask = StartFeInProcess(cancellationTokenSource.Token);
+                            payloadServiceTask = StartPayloadServiceInProcess(cancellationTokenSource.Token);
+
                             break;                            
                     }
 
@@ -84,7 +96,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler.ConsoleHost
             }
             finally
             {
-                kernel.Dispose();
+                kernel?.Dispose();
                 Config.Instance.Dispose();
             }
 
