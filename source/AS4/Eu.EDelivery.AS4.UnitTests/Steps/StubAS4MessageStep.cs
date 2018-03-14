@@ -6,7 +6,7 @@ using Eu.EDelivery.AS4.Steps;
 
 namespace Eu.EDelivery.AS4.UnitTests.Steps
 {
-    public class StubAS4MessageStep : IStep
+    internal class StubAS4MessageStep : IStep
     {
         public Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
         {

@@ -155,8 +155,7 @@ namespace Eu.EDelivery.AS4.Fe.Runtime
         {
             var implementations = types
                 .Where(x => x.Interfaces.Any(iface => iface.InterfaceType.FullName == type))
-                .Where(x => !x.IsInterface)
-                .Where(x => !x.IsAbstract)
+                .Where(x => !x.IsInterface && !x.IsAbstract && x.IsPublic)
                 .Where(x => x.CustomAttributes.All(attr => attr.AttributeType.Name != NoUiAttribute));
             var itemTypes = implementations.Select(itemType => BuildItemType(itemType, BuildProperties(itemType.Properties, itemType.Name, onlyWithAttribute)));
             return itemTypes.Where(x => x != null);
