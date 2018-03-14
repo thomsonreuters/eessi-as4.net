@@ -74,18 +74,7 @@
                 </ng-container>
                 <ng-container formGroupName="dynamicDiscovery" *ngIf="pmode.form.get('isDynamicDiscoveryEnabled').value">
                     <div class="sub-header-1">SMP/SML Discovery</div>
-                    <as4-input label="SML scheme" runtimeTooltip="dynamicdiscovery.smlscheme">
-                        <input type="text" formControlName="smlScheme" />
-                    </as4-input>
-                    <as4-input label="SMP server domain name" runtimeTooltip="dynamicdiscovery.smpserverdomainname">
-                        <input type="text" formControlName="smpServerDomainName" />
-                    </as4-input>
-                    <as4-input label="Document identifier" runtimeTooltip="dynamicdiscovery.documentidentifier">
-                        <input type="text" formControlName="documentIdentifier" />
-                    </as4-input>
-                    <as4-input label="Document identifier scheme" runtimeTooltip="dynamicdiscovery.documentidentifierscheme">
-                        <input type="text" formControlName="documentIdentifierScheme" />
-                    </as4-input>
+                    <as4-dynamicdiscovery label="SMP Profile" runtime="dynamicdiscovery" [types]="dynamicdiscoveryprofiles$ | async" [group]="pmode.form.get('pmode.dynamicDiscovery')"></as4-dynamicdiscovery>
                 </ng-container>
             </div>
             <div tabitem title="Message packaging" [isValid]="pmode.form.get('pmode.messagePackaging')" runtimeTooltip="messagepackaging">

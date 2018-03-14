@@ -1,9 +1,8 @@
-import { CanDeactivateGuard } from './../common/candeactivate.guard';
-import { Component } from '@angular/core';
 import { Routes } from '@angular/router';
 
-import { WrapperComponent } from './../common/wrapper.component';
+import { CanDeactivateGuard } from './../common/candeactivate.guard';
 import { MustBeAuthorizedGuard } from './../common/mustbeauthorized.guard';
+import { WrapperComponent } from './../common/wrapper.component';
 import { ReceivingPmodeComponent } from './receivingpmode/receivingpmode.component';
 import { SendingPmodeComponent } from './sendingpmode/sendingpmode.component';
 

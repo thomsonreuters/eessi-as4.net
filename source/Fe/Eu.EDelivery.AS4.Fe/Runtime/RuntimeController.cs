@@ -98,6 +98,18 @@ namespace Eu.EDelivery.AS4.Fe.Runtime
         }
 
         /// <summary>
+        /// Gets the dynamic discovery profiles.
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("getdynamicdiscoveryprofiles")]
+        [SwaggerResponse((int) HttpStatusCode.OK, typeof(OkResult))]
+        public IEnumerable<ItemType> GetDynamicDiscoveryProfiles()
+        {
+            return runtimeLoader.DynamicDiscoveryProfiles;
+        }
+
+        /// <summary>
         /// Gets the notify senders.
         /// </summary>
         /// <returns></returns>
@@ -128,6 +140,7 @@ namespace Eu.EDelivery.AS4.Fe.Runtime
                 DeliverSenders = GetDeliverSenders(),
                 NotifySenders = GetNotifySenders(),
                 AttachmentUploaders = GetAttachmentUploaders(),
+                DynamicDiscoveryProfiles = GetDynamicDiscoveryProfiles(),
                 RuntimeMetaData = JObject.Parse(JsonConvert.SerializeObject(runtimeLoader.ReceivingPmode, Formatting.Indented, new FlattenRuntimeToJsonConverter()))
             });
         }

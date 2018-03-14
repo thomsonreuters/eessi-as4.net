@@ -12,6 +12,7 @@ interface State {
     deliverSenders: ItemType[];
     notifySenders: ItemType[],
     attachmentUploaders: ItemType[];
+    dynamicDiscoveryProfiles: ItemType[];
     runtimeMetaData: ItemType[];
 }
 
@@ -26,6 +27,7 @@ export class RuntimeStore extends Store<State> {
             deliverSenders: new Array<ItemType>(),
             notifySenders: new Array<ItemType>(),
             attachmentUploaders: new Array<ItemType>(),
+            dynamicDiscoveryProfiles: new Array<ItemType>(),
             runtimeMetaData: new Array<ItemType>()
         });
     }
@@ -38,6 +40,7 @@ export class RuntimeStore extends Store<State> {
             deliverSenders: new Array<ItemType>(),
             notifySenders: new Array<ItemType>(),
             attachmentUploaders: new Array<ItemType>(),
+            dynamicDiscoveryProfiles: new Array<ItemType>(),
             runtimeMetaData: new Array<ItemType>()
         });
     }
