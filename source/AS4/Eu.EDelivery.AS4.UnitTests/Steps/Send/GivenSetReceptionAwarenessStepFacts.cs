@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
@@ -41,7 +40,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
                 var step = new SetReceptionAwarenessStep();
 
                 // Act                
-                await step.ExecuteAsync(messagingContext, CancellationToken.None);
+                await step.ExecuteAsync(messagingContext);
 
                 // Assert
                 AssertReceptionAwareness(

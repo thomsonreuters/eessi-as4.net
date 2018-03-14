@@ -1,5 +1,4 @@
 ﻿using System.Net;
-using System.Threading;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Steps.Send.Response;
 using Moq;
@@ -51,8 +50,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
         {
             return AS4Response.Create(
                 requestMessage: messageRequest,
-                webResponse: webResponse,
-                cancellation: CancellationToken.None).Result;
+                webResponse: webResponse).Result;
         }
     }
 }

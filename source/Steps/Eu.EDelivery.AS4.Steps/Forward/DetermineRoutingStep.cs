@@ -1,7 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Configuration;
-using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Model.Internal;
@@ -35,9 +34,8 @@ namespace Eu.EDelivery.AS4.Steps.Forward
         /// Execute the step for a given <paramref name="messagingContext"/>.
         /// </summary>
         /// <param name="messagingContext">Message used during the step execution.</param>
-        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
+        public Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
             ValidateMessagingContext(messagingContext);
 

@@ -75,7 +75,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
         private async Task<AS4Message> ExerciseSendSignal(MessagingContext context)
         {
-            StepResult result = await Step.ExecuteAsync(context, default(CancellationToken));
+            StepResult result = await Step.ExecuteAsync(context);
 
             return result.MessagingContext.AS4Message;
         }

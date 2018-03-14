@@ -3,7 +3,6 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 using Eu.EDelivery.AS4.Model.Core;
@@ -74,7 +73,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
                 var sut = new EncryptAS4MessageStep(CreateStubCertificateRepository().Object);
 
                 // Act
-                return await sut.ExecuteAsync(message, CancellationToken.None);
+                return await sut.ExecuteAsync(message);
             }
 
             private static string FirstEncryptedDataMimeTypeAttributeValue(StepResult result)
@@ -97,7 +96,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
 
                 // Act / Assert
                 await Assert.ThrowsAnyAsync<Exception>(
-                    () => _step.ExecuteAsync(CreateEncryptedAS4Message(), CancellationToken.None));
+                    () => _step.ExecuteAsync(CreateEncryptedAS4Message()));
             }
 
             private static Mock<ICertificateRepository> CreateFailedMockedCertificateRepository()

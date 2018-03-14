@@ -52,9 +52,8 @@ namespace Eu.EDelivery.AS4.Steps.Send.Response
         /// </summary>
         /// <param name="requestMessage"></param>
         /// <param name="webResponse"></param>
-        /// <param name="cancellation"></param>
         /// <returns></returns>
-        public static async Task<AS4Response> Create(MessagingContext requestMessage, HttpWebResponse webResponse, CancellationToken cancellation)
+        public static async Task<AS4Response> Create(MessagingContext requestMessage, HttpWebResponse webResponse)
         {
             var response = new AS4Response(requestMessage, webResponse);
 
@@ -66,7 +65,7 @@ namespace Eu.EDelivery.AS4.Steps.Send.Response
             contentStream.Position = 0;
 
             response.ReceivedStream = new ReceivedMessage(contentStream, webResponse.ContentType);
-            response.ReceivedAS4Message = await TryDeserializeReceivedStream(response.ReceivedStream, cancellation);
+            response.ReceivedAS4Message = await TryDeserializeReceivedStream(response.ReceivedStream, CancellationToken.None);
 
             if (Logger.IsInfoEnabled)
             {

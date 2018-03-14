@@ -1,9 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Configuration;
-using System.Linq;
 using System.Security.Cryptography.X509Certificates;
-using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Model.Core;
@@ -50,9 +48,8 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// Sign the <see cref="AS4Message" />
         /// </summary>
         /// <param name="messagingContext"></param>
-        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
             if (messagingContext.AS4Message == null || messagingContext.AS4Message.IsEmpty)
             {

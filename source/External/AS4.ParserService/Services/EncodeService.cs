@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Threading;
 using System.Threading.Tasks;
 using AS4.ParserService.Infrastructure;
 using AS4.ParserService.Models;
@@ -29,7 +28,7 @@ namespace AS4.ParserService.Services
 
             var context = SetupMessagingContext(as4Message, pmode);
 
-            return await StepProcessor.ExecuteStepsAsync(context, StepRegistry.GetOutboundProcessingStepConfiguration(), CancellationToken.None);
+            return await StepProcessor.ExecuteStepsAsync(context, StepRegistry.GetOutboundProcessingStepConfiguration());
         }
 
         private static async Task<SendingProcessingMode> AssembleSendingPMode(EncodeMessageInfo encodeInfo)

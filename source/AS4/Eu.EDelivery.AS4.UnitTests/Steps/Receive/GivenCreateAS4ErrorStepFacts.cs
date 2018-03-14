@@ -30,7 +30,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 var fixture = new MessagingContext(AS4Message.Empty, MessagingContextMode.Receive);
 
                 // Act
-                StepResult result = await Step.ExecuteAsync(fixture, CancellationToken.None);
+                StepResult result = await Step.ExecuteAsync(fixture);
 
                 // Assert
                 Assert.Equal(fixture, result.MessagingContext);
@@ -51,7 +51,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                     };
 
                 // Act
-                StepResult result = await Step.ExecuteAsync(fixture, CancellationToken.None);
+                StepResult result = await Step.ExecuteAsync(fixture);
 
                 // Assert
                 var error = result.MessagingContext.AS4Message.PrimarySignalMessage as Error;
@@ -74,7 +74,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                     };
 
                 // Act
-                StepResult result = await Step.ExecuteAsync(fixture, CancellationToken.None);
+                StepResult result = await Step.ExecuteAsync(fixture);
 
                 // Assert
                 Assert.Equal(fixture.ReceivingPMode, result.MessagingContext.ReceivingPMode);
@@ -97,7 +97,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                     };
 
                 // Act
-                StepResult result = await Step.ExecuteAsync(fixture, CancellationToken.None);
+                StepResult result = await Step.ExecuteAsync(fixture);
 
                 // Assert
                 Assert.Equal(as4Message.SigningId, result.MessagingContext.AS4Message.SigningId);

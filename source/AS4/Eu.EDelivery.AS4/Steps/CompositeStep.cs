@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Model.Internal;
 
@@ -14,7 +12,7 @@ namespace Eu.EDelivery.AS4.Steps
     public class CompositeStep : IStep
     {
         private readonly IList<IStep> _steps;
-        
+
         /// <summary>
         /// Initializes a new instance of the <see cref="CompositeStep"/> class. 
         /// Create a <see cref="CompositeStep"/> that acts as a
@@ -36,16 +34,15 @@ namespace Eu.EDelivery.AS4.Steps
         /// Send message through the Use Case
         /// </summary>
         /// <param name="messagingContext"></param>
-        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
-        {            
+        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
+        {
             MessagingContext messageToSend = messagingContext;
             StepResult result = StepResult.Success(messageToSend);
 
             foreach (IStep step in _steps)
             {
-                result = await step.ExecuteAsync(messageToSend, cancellationToken).ConfigureAwait(false);
+                result = await step.ExecuteAsync(messageToSend).ConfigureAwait(false);
 
                 if (result.MessagingContext != null)
                 {
@@ -59,6 +56,6 @@ namespace Eu.EDelivery.AS4.Steps
             }
 
             return result;
-        }        
+        }
     }
 }

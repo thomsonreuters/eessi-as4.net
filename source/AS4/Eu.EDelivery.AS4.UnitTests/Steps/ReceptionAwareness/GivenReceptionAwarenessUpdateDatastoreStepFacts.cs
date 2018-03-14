@@ -39,7 +39,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.ReceptionAwareness
                 var step = new ReceptionAwarenessUpdateDatastoreStep(_messageBodyStore, GetDataStoreContext);
 
                 // Act
-                await step.ExecuteAsync(internalMessage, CancellationToken.None);
+                await step.ExecuteAsync(internalMessage);
 
                 // Assert
                 AssertReceptionAwareness(
@@ -80,7 +80,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.ReceptionAwareness
                 var step = new ReceptionAwarenessUpdateDatastoreStep(_messageBodyStore, GetDataStoreContext);
 
                 // Act
-                await step.ExecuteAsync(messagingContext, CancellationToken.None);
+                await step.ExecuteAsync(messagingContext);
 
                 // Assert
                 AssertNotNullInMessage(awareness.RefToEbmsMessageId);
@@ -106,11 +106,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.ReceptionAwareness
                 EntityReceptionAwareness awareness =
                     CreateOutMessageWithReceptionAwareness(currentRetryCount: 0, status: ReceptionStatus.Busy);
 
-                var internalMessage = new MessagingContext(awareness);
+                var messagingContext = new MessagingContext(awareness);
                 var step = new ReceptionAwarenessUpdateDatastoreStep(_messageBodyStore, GetDataStoreContext);
 
                 // Act
-                await step.ExecuteAsync(internalMessage, CancellationToken.None);
+                await step.ExecuteAsync(messagingContext);
 
                 // Assert
                 AssertOutMessage(awareness.RefToEbmsMessageId, x => Assert.Equal(Operation.ToBeSent, OperationUtils.Parse(x.Operation)));

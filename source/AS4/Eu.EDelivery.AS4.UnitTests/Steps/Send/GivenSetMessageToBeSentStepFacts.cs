@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Core;
@@ -28,7 +27,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             var messagingContext = SetupMessagingContext(messageId, Operation.Processing, expected);
 
             // Act
-            await sut.ExecuteAsync(messagingContext, CancellationToken.None);
+            await sut.ExecuteAsync(messagingContext);
 
             // Assert
             GetDataStoreContext.AssertOutMessage(

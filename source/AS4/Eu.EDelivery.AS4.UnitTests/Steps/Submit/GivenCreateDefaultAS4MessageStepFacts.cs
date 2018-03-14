@@ -34,8 +34,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
 
             // Act
             StepResult result = sut.ExecuteAsync(
-                new MessagingContext(message, MessagingContextMode.Unknown), 
-                CancellationToken.None).GetAwaiter().GetResult();
+                new MessagingContext(message, MessagingContextMode.Unknown)).GetAwaiter().GetResult();
 
             // Assert
             Assert.Collection(

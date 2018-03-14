@@ -222,8 +222,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
                     SendingPMode = new SendingProcessingMode(),
                     ReceivingPMode = new ReceivingProcessingMode()
                 },
-                webResponse: new Mock<HttpWebResponse>().Object,
-                cancellation: CancellationToken.None).Result;
+                webResponse: new Mock<HttpWebResponse>().Object).Result;
         }
 
         private static void AssertNoChangeInPModes(IAS4Response expected, StepResult actual)

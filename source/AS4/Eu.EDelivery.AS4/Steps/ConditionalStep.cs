@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Model.Internal;
 
@@ -35,21 +34,18 @@ namespace Eu.EDelivery.AS4.Steps
         /// Run the selected step
         /// </summary>
         /// <param name="messagingContext"></param>
-        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<StepResult> ExecuteAsync(
-            MessagingContext messagingContext,
-            CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
             if (_condition(messagingContext))
             {
                 IStep steps = StepBuilder.FromSettings(_thenSteps).Build();
-                return await steps.ExecuteAsync(messagingContext, cancellationToken).ConfigureAwait(false);
+                return await steps.ExecuteAsync(messagingContext).ConfigureAwait(false);
             }
             else
             {
                 IStep steps = StepBuilder.FromSettings(_elseSteps).Build();
-                return await steps.ExecuteAsync(messagingContext, cancellationToken).ConfigureAwait(false);
+                return await steps.ExecuteAsync(messagingContext).ConfigureAwait(false);
             }
         }
     }

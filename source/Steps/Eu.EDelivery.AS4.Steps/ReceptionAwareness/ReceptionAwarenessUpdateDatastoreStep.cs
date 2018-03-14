@@ -45,11 +45,8 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
         /// Start updating the Data store
         /// </summary>
         /// <param name="messagingContext"></param>        
-        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<StepResult> ExecuteAsync(
-            MessagingContext messagingContext,
-            CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
             Entities.ReceptionAwareness receptionAwareness = messagingContext.ReceptionAwareness;
 
@@ -63,7 +60,7 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
                 context.Attach(receptionAwareness);
 
                 RunReceptionAwarenessFlow(receptionAwareness, service);
-                await context.SaveChangesAsync(cancellationToken);
+                await context.SaveChangesAsync();
             }
 
             WaitRetryInterval(receptionAwareness);

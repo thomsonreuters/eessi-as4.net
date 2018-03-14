@@ -1,7 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Exceptions;
@@ -47,9 +46,8 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         /// to an <see cref="AS4Message"/>
         /// </summary>
         /// <param name="messagingContext"></param>
-        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
             AS4Message as4Message = CreateAS4MessageFromSubmit(messagingContext);
             await RetrieveAttachmentsForAS4Message(as4Message, messagingContext).ConfigureAwait(false);

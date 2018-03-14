@@ -57,7 +57,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 using (var messagingContext = CreateReceivedMessagingContext(as4Message, pmode))
                 {
                     // Act
-                    await Step.ExecuteAsync(messagingContext, CancellationToken.None);
+                    await Step.ExecuteAsync(messagingContext);
 
                     // Assert
                     InMessage m = await GettUserInMessage(userMessage);
@@ -76,14 +76,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 {
                     // Act           
                     // Execute the step twice.     
-                    StepResult stepResult = await Step.ExecuteAsync(messagingContext, CancellationToken.None);
+                    StepResult stepResult = await Step.ExecuteAsync(messagingContext);
                     Assert.False(stepResult.MessagingContext.AS4Message.PrimarySignalMessage.IsDuplicate);
                 }
 
                 using (MessagingContext messagingContext = 
                     CreateReceivedMessagingContext(AS4Message.Create(signalMessage), null))
                 {
-                    StepResult stepResult = await Step.ExecuteAsync(messagingContext, CancellationToken.None);
+                    StepResult stepResult = await Step.ExecuteAsync(messagingContext);
 
                     // Assert
                     Assert.True(stepResult.MessagingContext.AS4Message.PrimarySignalMessage.IsDuplicate);
@@ -104,7 +104,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                     CreateReceivedMessagingContext(AS4Message.Create(userMessage), pmode))
                 {
                     // Act
-                    await Step.ExecuteAsync(context, CancellationToken.None);
+                    await Step.ExecuteAsync(context);
 
                     // Assert
                     InMessage m = await GettUserInMessage(userMessage);
@@ -146,7 +146,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                     CreateReceivedMessagingContext(AS4Message.Empty, receivingPMode: null))
                 {
                     // Act
-                    StepResult result = await Step.ExecuteAsync(context, CancellationToken.None);
+                    StepResult result = await Step.ExecuteAsync(context);
 
                     // Assert
                     Assert.NotNull(result);

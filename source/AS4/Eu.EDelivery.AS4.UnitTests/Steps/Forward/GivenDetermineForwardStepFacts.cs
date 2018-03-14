@@ -44,7 +44,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Forward
                 };
 
                 var sut = new DetermineRoutingStep(config);
-                var result = await sut.ExecuteAsync(context, CancellationToken.None);
+                var result = await sut.ExecuteAsync(context);
 
                 Assert.True(result.Succeeded);
                 Assert.NotNull(result.MessagingContext.SendingPMode);
@@ -60,7 +60,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Forward
 
                 var step = new DetermineRoutingStep(StubConfig.Default);
 
-                await Assert.ThrowsAsync<InvalidOperationException>(() => step.ExecuteAsync(messagingContext, CancellationToken.None));
+                await Assert.ThrowsAsync<InvalidOperationException>(() => step.ExecuteAsync(messagingContext));
             }
 
 
@@ -82,7 +82,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Forward
 
                 var step = new DetermineRoutingStep(StubConfig.Default);
 
-                await Assert.ThrowsAsync<ConfigurationErrorsException>(() => step.ExecuteAsync(messagingContext, CancellationToken.None));
+                await Assert.ThrowsAsync<ConfigurationErrorsException>(() => step.ExecuteAsync(messagingContext));
             }
 
             [Fact]
@@ -106,7 +106,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Forward
 
                 var step = new DetermineRoutingStep(StubConfig.Default);
 
-                await Assert.ThrowsAsync<ConfigurationErrorsException>(() => step.ExecuteAsync(messagingContext, CancellationToken.None));
+                await Assert.ThrowsAsync<ConfigurationErrorsException>(() => step.ExecuteAsync(messagingContext));
             }
         }
     }

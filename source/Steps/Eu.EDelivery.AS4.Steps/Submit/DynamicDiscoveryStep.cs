@@ -2,7 +2,6 @@
 using System.ComponentModel;
 using System.Configuration;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 using Eu.EDelivery.AS4.Builders;
@@ -30,9 +29,8 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         /// Execute the step for a given <paramref name="messagingContext"/>.
         /// </summary>
         /// <param name="messagingContext">Message used during the step execution.</param>
-        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
             if (messagingContext.SendingPMode.DynamicDiscoverySpecified == false)
             {

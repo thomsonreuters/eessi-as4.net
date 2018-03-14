@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
@@ -23,9 +22,8 @@ namespace Eu.EDelivery.AS4.Steps.Notify
         /// Start updating the InExceptions table for a given <see cref="NotifyMessage"/>
         /// </summary>
         /// <param name="messagingContext"></param>
-        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
             NotifyMessageEnvelope notifyMessageEnv = messagingContext.NotifyMessage;
             Logger.Info($"{messagingContext.EbmsMessageId} Update Notify Message {notifyMessageEnv.MessageInfo.MessageId}");
@@ -37,7 +35,7 @@ namespace Eu.EDelivery.AS4.Steps.Notify
                     notifyMessageEnv.MessageInfo.RefToMessageId,
                     ex => ex.SetOperation(Operation.Notified));
 
-                await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+                await context.SaveChangesAsync().ConfigureAwait(false);
             }
 
             return await StepResult.SuccessAsync(messagingContext);

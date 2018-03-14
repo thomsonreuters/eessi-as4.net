@@ -1,5 +1,4 @@
-﻿using System.Threading;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Steps;
 using Xunit;
@@ -20,9 +19,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps
         /// Execute the step for a given <paramref name="messagingContext"/>.
         /// </summary>
         /// <param name="messagingContext">Message used during the step execution.</param>
-        /// <param name="cancellationToken">Cancellation during the step execution.</param>
         /// <returns></returns>
-        public Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
+        public Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
             IsCalled = true;
             return StepResult.SuccessAsync(messagingContext);
@@ -35,7 +33,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps
             var step = new SpyStep();
 
             // Act
-            await step.ExecuteAsync(messagingContext: null, cancellationToken: CancellationToken.None);
+            await step.ExecuteAsync(messagingContext: null);
 
             // Assert
             Assert.True(step.IsCalled);

@@ -212,7 +212,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             using (MessagingContext context = new MessagingContext(message, MessagingContextMode.Receive))
             {
                 var createReceipt = new CreateAS4ReceiptStep();
-                var result = createReceipt.ExecuteAsync(context, CancellationToken.None).Result;
+                var result = createReceipt.ExecuteAsync(context).Result;
 
                 Assert.True(result.Succeeded, "Unable to create Receipt");
                 Assert.True(result.MessagingContext.AS4Message.IsMultiHopMessage, "Receipt is not created as a multihop receipt");
