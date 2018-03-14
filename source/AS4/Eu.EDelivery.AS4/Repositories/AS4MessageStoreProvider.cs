@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Model.Core;
 
@@ -46,9 +45,9 @@ namespace Eu.EDelivery.AS4.Repositories
             return For(location).SaveAS4Message(location, message);
         }
 
-        public async Task<string> SaveAS4MessageStreamAsync(string location, Stream as4MessageStream, CancellationToken cancellation)
+        public async Task<string> SaveAS4MessageStreamAsync(string location, Stream as4MessageStream)
         {
-            return await For(location).SaveAS4MessageStreamAsync(location, as4MessageStream, cancellation);
+            return await For(location).SaveAS4MessageStreamAsync(location, as4MessageStream);
         }
 
         /// <summary>

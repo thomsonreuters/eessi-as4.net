@@ -89,13 +89,8 @@ namespace Eu.EDelivery.AS4.Services
         /// <param name="context"></param>
         /// <param name="mep"></param>
         /// <param name="messageBodyStore"></param>
-        /// <param name="cancellationToken"></param>
         /// <returns>A MessagingContext instance that contains the parsed AS4 Message.</returns>
-        public async Task<MessagingContext> InsertAS4MessageAsync(
-            MessagingContext context,
-            MessageExchangePattern mep,
-            IAS4MessageBodyStore messageBodyStore,
-            CancellationToken cancellationToken)
+        public async Task<MessagingContext> InsertAS4MessageAsync(MessagingContext context, MessageExchangePattern mep, IAS4MessageBodyStore messageBodyStore)
         {
             if (context.ReceivedMessage == null)
             {
@@ -106,8 +101,7 @@ namespace Eu.EDelivery.AS4.Services
             string location =
                 await messageBodyStore.SaveAS4MessageStreamAsync(
                     location: _configuration.InMessageStoreLocation,
-                    as4MessageStream: context.ReceivedMessage.UnderlyingStream,
-                    cancellation: cancellationToken).ConfigureAwait(false);
+                    as4MessageStream: context.ReceivedMessage.UnderlyingStream).ConfigureAwait(false);
             try
             {
                 context.ReceivedMessage.UnderlyingStream.Position = 0;
@@ -117,7 +111,7 @@ namespace Eu.EDelivery.AS4.Services
                 AS4Message as4Message = await deserializer.DeserializeAsync(
                     context.ReceivedMessage.UnderlyingStream,
                     context.ReceivedMessage.ContentType,
-                    cancellationToken).ConfigureAwait(false);
+                    CancellationToken.None).ConfigureAwait(false);
 
                 InsertUserMessages(as4Message, mep, location, context.SendingPMode);
                 InsertSignalMessages(as4Message, mep, location, context.SendingPMode);
