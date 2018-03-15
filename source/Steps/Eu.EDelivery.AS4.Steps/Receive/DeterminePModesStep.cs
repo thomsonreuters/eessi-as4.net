@@ -203,6 +203,15 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
         private SendPMode GetReferencedSendingPMode(ReceivePMode receivePMode)
         {
+            if (receivePMode.MessageHandling.MessageHandlingType == MessageHandlingChoiceType.Forward)
+            {
+                if (String.IsNullOrWhiteSpace(receivePMode.ReplyHandling?.SendingPMode) == false)
+                {
+                    Logger.Info("The received message must be forwarded, no SendingPMode must be retrieved since a SignalMessage may not be created.");
+                }
+                return null;
+            }
+
             if (string.IsNullOrWhiteSpace(receivePMode.ReplyHandling.SendingPMode))
             {
                 Logger.Warn("No SendingPMode defined in ReplyHandling of Received PMode.");
