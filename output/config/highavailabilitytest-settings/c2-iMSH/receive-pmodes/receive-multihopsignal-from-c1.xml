@@ -32,7 +32,7 @@
     </SigningVerification>
     <Decryption>
       <Encryption>Ignored</Encryption>
-	  <Decryption>
+	  </Decryption>
   </Security>
   <MessagePackaging>
     <PartyInfo>
