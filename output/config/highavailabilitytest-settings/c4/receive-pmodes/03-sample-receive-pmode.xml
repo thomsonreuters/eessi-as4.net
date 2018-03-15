@@ -29,6 +29,7 @@
   <Security>
     <SigningVerification>
       <Signature>Allowed</Signature>
+      <AllowUnknownRootCertificate>true</AllowUnknownRootCertificate>
     </SigningVerification>
     <Decryption>
       <Encryption>Allowed</Encryption>
