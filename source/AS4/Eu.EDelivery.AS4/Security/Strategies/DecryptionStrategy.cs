@@ -18,7 +18,7 @@ using Org.BouncyCastle.Security;
 
 namespace Eu.EDelivery.AS4.Security.Strategies
 {
-    public class DecryptionStrategy : CryptoStrategy, IDecryptionStrategy
+    internal class DecryptionStrategy : CryptoStrategy, IDecryptionStrategy
     {
 
         private readonly XmlDocument _soapEnvelope;
