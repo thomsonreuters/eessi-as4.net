@@ -2,7 +2,6 @@
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Builders.Security;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Security.Encryption;
 using Eu.EDelivery.AS4.Security.References;
@@ -30,10 +29,7 @@ namespace Eu.EDelivery.AS4.TestUtils
 
         public static AS4Message EncryptWithCertificate(AS4Message message, X509Certificate2 certificate)
         {
-            var encryption = EncryptionStrategyBuilder.Create(message, new KeyEncryptionConfiguration(certificate))
-                                                      .Build();
-
-            message.SecurityHeader.Encrypt(encryption);
+            message.Encrypt(new KeyEncryptionConfiguration(certificate), DataEncryptionConfiguration.Default);
 
             return message;
         }

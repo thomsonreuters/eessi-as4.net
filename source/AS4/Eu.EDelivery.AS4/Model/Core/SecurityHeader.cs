@@ -67,7 +67,7 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// Encrypts the message and its attachments.
         /// </summary>
         /// <param name="encryptionStrategy"></param>
-        public void Encrypt(IEncryptionStrategy encryptionStrategy)
+        internal void Encrypt(IEncryptionStrategy encryptionStrategy)
         {
             if (encryptionStrategy == null)
             {
@@ -84,6 +84,10 @@ namespace Eu.EDelivery.AS4.Model.Core
             _encryptionElements = securityHeader.ChildNodes;
         }
 
+        /// <summary>
+        /// Decrypts the message and its attachments.
+        /// </summary>
+        /// <param name="decryptionStrategy"></param>
         internal void Decrypt(IDecryptionStrategy decryptionStrategy)
         {
             if (decryptionStrategy == null)
