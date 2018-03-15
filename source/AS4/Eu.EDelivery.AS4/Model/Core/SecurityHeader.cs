@@ -84,6 +84,46 @@ namespace Eu.EDelivery.AS4.Model.Core
             _encryptionElements = securityHeader.ChildNodes;
         }
 
+        internal void Decrypt(IDecryptionStrategy decryptionStrategy)
+        {
+            if (decryptionStrategy == null)
+            {
+                throw new ArgumentNullException(nameof(decryptionStrategy));
+            }
+
+            decryptionStrategy.DecryptMessage();
+            IsEncrypted = false;
+            _encryptionElements = null;
+
+            RemoveExistingEncryptionElements();
+        }
+
+        private void RemoveExistingEncryptionElements()
+        {
+            if (_securityHeaderElement == null)
+            {
+                return;
+            }
+
+            var nsMgr = GetNamespaceManager(_securityHeaderElement.OwnerDocument);
+
+            var encryptedKeyNode = _securityHeaderElement.SelectSingleNode("//wsse:Security/xenc:EncryptedKey", nsMgr);
+            var encryptedDataNodes = _securityHeaderElement.SelectNodes("//wsse:Security/xenc:EncryptedData", nsMgr);
+
+            if (encryptedKeyNode != null)
+            {
+                _securityHeaderElement.RemoveChild(encryptedKeyNode);
+            }
+
+            if (encryptedDataNodes != null)
+            {
+                foreach (XmlNode encryptedDataNode in encryptedDataNodes)
+                {
+                    _securityHeaderElement.RemoveChild(encryptedDataNode);
+                }
+            }
+        }
+
         /// <summary>
         /// Gets the full Security XML element.
         /// </summary>
@@ -194,6 +234,7 @@ namespace Eu.EDelivery.AS4.Model.Core
 
             nsMgr.AddNamespace("ds", Constants.Namespaces.XmlDsig);
             nsMgr.AddNamespace("xenc", Constants.Namespaces.XmlEnc);
+            nsMgr.AddNamespace("wsse", Constants.Namespaces.WssSecuritySecExt);
 
             return nsMgr;
         }

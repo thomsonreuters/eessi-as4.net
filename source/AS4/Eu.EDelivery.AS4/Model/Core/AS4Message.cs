@@ -419,7 +419,7 @@ namespace Eu.EDelivery.AS4.Model.Core
                                                      .WithCertificate(certificate)
                                                      .Build();
             
-            decryptor.DecryptMessage();
+            SecurityHeader.Decrypt(decryptor);
         }
 
         /// <summary>
