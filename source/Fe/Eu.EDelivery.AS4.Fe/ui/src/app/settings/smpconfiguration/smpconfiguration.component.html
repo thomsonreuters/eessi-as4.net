@@ -1,0 +1,45 @@
+<as4-box [formGroup]="form">
+    <button type="button" class="btn btn-primary" (click)="addItem()">
+        <i class="fa fa-plus"></i>
+    </button>
+    <ng-container formArrayName="items">
+        <div class="panel" *ngFor="let control of itemsControl.controls; let i = index" [formGroupName]="i">
+            <button type="button" class="btn btn-primary" (click)="removeItem(i)">
+                <i class="fa fa-trash"></i>
+            </button>
+            <as4-input label="To party">
+                <input type="text" class="form-control" formControlName="toPartyId">
+            </as4-input>
+            <as4-input label="Party role">
+                <input type="text" class="form-control" formControlName="partyRole">
+            </as4-input>
+            <as4-input label="Party type">
+                <input type="text" class="form-control" formControlName="partyType">
+            </as4-input>
+            <as4-input label="URL">
+                <input type="text" class="form-control" formControlName="url">
+            </as4-input>
+            <as4-input label="Service value">
+                <input type="text" class="form-control" formControlName="serviceValue">
+            </as4-input>
+            <as4-input label="Service type">
+                <input type="text" class="form-control" formControlName="serviceType">
+            </as4-input>
+            <as4-input label="Action">
+                <input type="text" class="form-control" formControlName="action">
+            </as4-input>
+            <as4-input label="Tls enabled">
+                <input type="checkbox" formControlName="tlsEnabled">
+            </as4-input>
+            <as4-input label="Encryption">
+                <input type="checkbox" formControlName="encryptionEnabled">
+            </as4-input>
+            <as4-input label="Final recipient">
+                <input type="checkbox" formControlName="finalRecipient">
+            </as4-input>
+            <as4-input label="Encryption algorithm">
+                <input type="text" class="form-control" formControlName="encryptAlgorithm">
+            </as4-input>
+        </div>
+    </ng-container>
+</as4-box>
