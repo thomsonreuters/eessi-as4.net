@@ -5,9 +5,9 @@ using Eu.EDelivery.AS4.Security.Strategies;
 namespace Eu.EDelivery.AS4.Builders.Security
 {
     /// <summary>
-    /// Builder used to create an <see cref="IDecryptionStrategy"/> implementation
+    /// Builder used to create an <see cref="DecryptionStrategy"/> instance.
     /// </summary>
-    public class DecryptionStrategyBuilder
+    internal class DecryptionStrategyBuilder
     {
         private readonly AS4Message _message;
 
@@ -43,7 +43,7 @@ namespace Eu.EDelivery.AS4.Builders.Security
         /// Build the IDecryptionStrategy implementation.
         /// </summary>
         /// <returns></returns>
-        public IDecryptionStrategy Build()
+        public DecryptionStrategy Build()
         {
             return new DecryptionStrategy(_message.EnvelopeDocument, _message.Attachments, _certificate);
         }

@@ -88,7 +88,7 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// Decrypts the message and its attachments.
         /// </summary>
         /// <param name="decryptionStrategy"></param>
-        internal void Decrypt(IDecryptionStrategy decryptionStrategy)
+        internal void Decrypt(DecryptionStrategy decryptionStrategy)
         {
             if (decryptionStrategy == null)
             {

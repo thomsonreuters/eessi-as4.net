@@ -355,7 +355,6 @@
     <Compile Include="Security\Strategies\SignStrategy.cs" />
     <Compile Include="Security\Strategies\CryptoStrategy.cs" />
     <Compile Include="Security\Strategies\DecryptionStrategy.cs" />
-    <Compile Include="Security\Strategies\IDecryptionStrategy.cs" />
     <Compile Include="Security\Strategies\SignatureStrategy.cs" />
     <Compile Include="Security\Strategies\SignatureVerificationStrategy.cs" />
     <Compile Include="Serialization\SoapEnvelopeBuilder.cs" />
