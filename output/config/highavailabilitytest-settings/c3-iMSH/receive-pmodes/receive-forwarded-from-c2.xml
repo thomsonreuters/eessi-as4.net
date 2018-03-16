@@ -8,7 +8,6 @@
   </Reliability>
   <ReplyHandling>
     <ReplyPattern>Response</ReplyPattern>
-    <SendingPMode>signed-response-pmode</SendingPMode>
     <ReceiptHandling>
       <UseNRRFormat>true</UseNRRFormat>
     </ReceiptHandling>

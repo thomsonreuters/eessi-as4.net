@@ -33,7 +33,7 @@
     </Encryption>
   </Security>
  <MessagePackaging>   
-    <UseAS4Compression>true</UseAS4Compression>
+    <UseAS4Compression>false</UseAS4Compression>
     <IsMultiHop>true</IsMultiHop>
     <IncludePModeId>true</IncludePModeId>
   </MessagePackaging>

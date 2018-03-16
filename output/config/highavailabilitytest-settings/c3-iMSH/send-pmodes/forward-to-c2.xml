@@ -55,9 +55,8 @@
         </PartyIds>
         <Role>Receiver</Role>
       </ToParty>
-    </PartyInfo>
-   
-    <UseAS4Compression>true</UseAS4Compression>
+    </PartyInfo>   
+    <UseAS4Compression>false</UseAS4Compression>
     <IsMultiHop>true</IsMultiHop>
     <IncludePModeId>true</IncludePModeId>
   </MessagePackaging>
