@@ -14,7 +14,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Strategies
     public class GivenDecryptStrategyFacts
     {
         [Fact]
-        public async void ThenDecryptDecryptsTheAttachmentsCorrectly()
+        public async Task ThenDecryptDecryptsTheAttachmentsCorrectly()
         {
             // Arrange
             AS4Message as4Message = await GetEncryptedMessageAsync();
@@ -26,6 +26,39 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Strategies
             // Assert
             Assert.Equal(Properties.Resources.flower1, GetAttachmentContents(as4Message.Attachments.ElementAt(0)));
             Assert.Equal(Properties.Resources.flower2, GetAttachmentContents(as4Message.Attachments.ElementAt(1)));
+        }
+
+        [Fact]
+        public async Task ThenSecurityHeaderIsNoLongerMarkedAsEncrypted()
+        {
+            // Arrange
+            AS4Message as4Message = await GetEncryptedMessageAsync();
+            X509Certificate2 decryptCertificate = CreateDecryptCertificate();
+
+            Assert.True(as4Message.SecurityHeader.IsEncrypted);
+
+            // Act
+            as4Message.Decrypt(decryptCertificate);
+
+            Assert.False(as4Message.SecurityHeader.IsEncrypted);
+        }
+
+        [Fact]
+        public async Task ThenSecurityHeaderNoLongerContainsEncryptionElements()
+        {
+            // Arrange
+            AS4Message as4Message = await GetEncryptedMessageAsync();
+            X509Certificate2 decryptCertificate = CreateDecryptCertificate();
+
+            // Act
+            as4Message.Decrypt(decryptCertificate);
+
+            // Assert
+            var encryptedKeyNode = as4Message.SecurityHeader.GetXml().SelectSingleNode("//*[local-name()='EncryptedKey']");
+            Assert.Null(encryptedKeyNode);
+
+            var encryptedDatas = as4Message.SecurityHeader.GetXml().SelectNodes("//*[local-name()='EncryptedData']");
+            Assert.True(encryptedDatas == null || encryptedDatas.Count == 0);
         }
 
         [Fact]

@@ -4,13 +4,11 @@ using System.Configuration;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Builders.Security;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Security.Encryption;
-using Eu.EDelivery.AS4.Security.Strategies;
 using NLog;
 
 namespace Eu.EDelivery.AS4.Steps.Send
@@ -61,8 +59,13 @@ namespace Eu.EDelivery.AS4.Steps.Send
             Logger.Info($"{messagingContext.EbmsMessageId} Encrypt AS4 Message with given Encryption Information");
             try
             {
-                IEncryptionStrategy strategy = CreateEncryptStrategy(messagingContext);
-                messagingContext.AS4Message.SecurityHeader.Encrypt(strategy);
+                var encryptionSettings = messagingContext.SendingPMode.Security.Encryption;
+
+                var keyEncryptionConfig = RetrieveKeyEncryptionConfig(encryptionSettings);
+                var dataEncryptionConfig = new DataEncryptionConfiguration(encryptionSettings.Algorithm, 
+                                                                           algorithmKeySize: encryptionSettings.AlgorithmKeySize);
+
+                messagingContext.AS4Message.Encrypt(keyEncryptionConfig, dataEncryptionConfig);
             }
             catch (Exception exception)
             {
@@ -73,39 +76,28 @@ namespace Eu.EDelivery.AS4.Steps.Send
             }
         }
 
-        private IEncryptionStrategy CreateEncryptStrategy(MessagingContext messagingContext)
+        private KeyEncryptionConfiguration RetrieveKeyEncryptionConfig(Encryption encryptionSettings)
         {
-            Encryption encryption = messagingContext.SendingPMode.Security.Encryption;
+            X509Certificate2 certificate = RetrieveCertificate(encryptionSettings);
 
-            X509Certificate2 certificate = RetrieveCertificate(messagingContext);
-
-            var keyConfiguration = new KeyEncryptionConfiguration(certificate, keyEncryption: encryption.KeyTransport);
-
-            EncryptionStrategyBuilder builder = EncryptionStrategyBuilder.Create(messagingContext.AS4Message, keyConfiguration);
-
-            builder.WithDataEncryptionConfiguration(
-                new DataEncryptionConfiguration(encryption.Algorithm, algorithmKeySize: encryption.AlgorithmKeySize));
-
-            return builder.Build();
+            return new KeyEncryptionConfiguration(certificate, keyEncryption: encryptionSettings.KeyTransport);
         }
 
-        private X509Certificate2 RetrieveCertificate(MessagingContext messagingContext)
+        private X509Certificate2 RetrieveCertificate(Encryption encryptionSettings)
         {
-            Encryption encryption = messagingContext.SendingPMode.Security.Encryption;
-
-            if (encryption.EncryptionCertificateInformation == null)
+            if (encryptionSettings.EncryptionCertificateInformation == null)
             {
                 throw new ConfigurationErrorsException("No encryption certificate information found in PMode to perform encryption");
             }
 
-            var publicKeyFindCriteria = encryption.EncryptionCertificateInformation as CertificateFindCriteria;
+            var publicKeyFindCriteria = encryptionSettings.EncryptionCertificateInformation as CertificateFindCriteria;
 
             if (publicKeyFindCriteria != null)
             {
                 return _certificateRepository.GetCertificate(publicKeyFindCriteria.CertificateFindType, publicKeyFindCriteria.CertificateFindValue);
             }
 
-            var publicKeyCertificate = encryption.EncryptionCertificateInformation as PublicKeyCertificate;
+            var publicKeyCertificate = encryptionSettings.EncryptionCertificateInformation as PublicKeyCertificate;
 
             if (publicKeyCertificate != null)
             {

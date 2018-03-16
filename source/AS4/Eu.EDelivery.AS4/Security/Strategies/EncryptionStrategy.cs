@@ -17,7 +17,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
     /// An <see cref="IEncryptionStrategy"/> implementation
     /// responsible for the Encryption of the <see cref="AS4Message"/>
     /// </summary>
-    public class EncryptionStrategy : CryptoStrategy, IEncryptionStrategy
+    internal class EncryptionStrategy : CryptoStrategy, IEncryptionStrategy
     {
         private readonly List<Attachment> _attachments;
 
