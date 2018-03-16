@@ -56,7 +56,7 @@ namespace Eu.EDelivery.AS4.Builders.Security
             return this;
         }
 
-        public EncryptionStrategy Build()
+        public IEncryptionStrategy Build()
         {
             return new EncryptionStrategy(_keyConfiguration, _dataConfiguration, _as4Message.Attachments);
         }

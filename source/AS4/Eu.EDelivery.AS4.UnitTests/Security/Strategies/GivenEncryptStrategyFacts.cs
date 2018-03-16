@@ -37,7 +37,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Strategies
             // Arrange
             AS4Message as4Message = CreateAS4Message();
 
-            EncryptionStrategy sut = EncryptionStrategyFor(as4Message, CreateEncryptionCertificate(),
+            IEncryptionStrategy sut = EncryptionStrategyFor(as4Message, CreateEncryptionCertificate(),
                                                            new DataEncryptionConfiguration(AS4.Model.PMode.Encryption.Default.Algorithm, -1));
 
             // Act / Assert
@@ -55,7 +55,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Strategies
             return as4Message;
         }
 
-        private static EncryptionStrategy EncryptionStrategyFor(AS4Message as4Message, X509Certificate2 encryptionCertificate, DataEncryptionConfiguration configuration) // SendingProcessingMode pmode)
+        private static IEncryptionStrategy EncryptionStrategyFor(AS4Message as4Message, X509Certificate2 encryptionCertificate, DataEncryptionConfiguration configuration) // SendingProcessingMode pmode)
         {
             return EncryptionStrategyBuilder
                 .Create(as4Message, new KeyEncryptionConfiguration(encryptionCertificate))
