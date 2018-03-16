@@ -25,6 +25,56 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
         }
 
         [Fact]
+        public void ForwardPModeIsValid_EvenIfNoReplyHandlingIsPresent()
+        {
+            TestReceivingPModeValidation(pmode =>
+            {
+                pmode.ReplyHandling = null;
+                pmode.MessageHandling.Item = new Forward { SendingPMode = "somepmodeid" };
+            }, expected: true);
+        }
+
+        [Fact]
+        public void ForwardPModeIsValid_EvenIfReplySendingPModeIsMissing()
+        {
+            TestReceivingPModeValidation(pmode =>
+            {
+                pmode.ReplyHandling.SendingPMode = null;
+                pmode.MessageHandling.Item = new Forward { SendingPMode = "somepmodeid" };
+            }, expected: true);
+        }
+
+        [Fact]
+        public void DeliverPModeIsNotValid_IfReplyHandlingIsMissing()
+        {
+            TestReceivingPModeValidation(pmode =>
+            {
+                pmode.ReplyHandling = null;
+                pmode.MessageHandling.Item = new Deliver
+                {
+                    IsEnabled = false,
+                    DeliverMethod = new Method(),
+                    PayloadReferenceMethod = new Method()
+                };
+            }, expected: false);
+        }
+
+        [Fact]
+        public void DeliverPModeIsNotValid_IfReplySendingPModeIsMissing()
+        {
+            TestReceivingPModeValidation(pmode =>
+            {
+                pmode.ReplyHandling.SendingPMode = null;
+                pmode.MessageHandling.Item = new Deliver
+                {
+                    IsEnabled = false,
+                    DeliverMethod = new Method(),
+                    PayloadReferenceMethod = new Method()
+                };
+            }, expected: false);
+        }
+
+        [Fact]
         public void PModeIsNotValid_IfNoReceiptHandlingIsPresent()
         {
             TestReceivingPModeValidation(pmode => pmode.ReplyHandling.ReceiptHandling = null);
@@ -134,7 +184,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
         }
 
         [Fact]
-        public void PModeIsNotValid_WhenMessagaeHandlingIsEmpty()
+        public void PModeIsNotValid_WhenMessageHandlingIsEmpty()
         {
             TestReceivingPModeValidation(pmode => { pmode.MessageHandling.Item = null; });
         }
