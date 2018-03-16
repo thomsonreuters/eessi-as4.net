@@ -1,5 +1,4 @@
 ﻿using System.Configuration;
-using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Steps;
@@ -13,9 +12,8 @@ namespace AS4.ParserService.CustomSteps
         /// Validates whether the configured Sending PMode is valid and can be used.
         /// </summary>
         /// <param name="messagingContext">Message used during the step execution.</param>
-        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
+        public Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
             var result = SendingProcessingModeValidator.Instance.Validate(messagingContext.SendingPMode);
 

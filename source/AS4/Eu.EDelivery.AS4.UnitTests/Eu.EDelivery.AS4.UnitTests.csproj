@@ -261,7 +261,6 @@
     <Compile Include="Exceptions\Handlers\GivenOutboundExceptionHandlerFacts.cs" />
     <Compile Include="Exceptions\Handlers\GivenPullSendAgentExceptionHandlerFacts.cs" />
     <Compile Include="Exceptions\Handlers\GivenSafeExceptionHandlerFacts.cs" />
-    <Compile Include="Extensions\StepExtensions.cs" />
     <Compile Include="Factories\GivenPayloadFileNameFactoryFacts.cs" />
     <Compile Include="Gens.cs" />
     <Compile Include="Mappings\Core\GivenRoutingInputUserMessageMapFacts.cs" />
@@ -274,8 +273,8 @@
     <Compile Include="Repositories\DatastoreExtensions.cs" />
     <Compile Include="Security\References\GivenSecurityReferenceTokenProviderFacts.cs" />
     <Compile Include="Security\Strategies\GivenSignStrategyFacts.cs" />
-    <Compile Include="Security\Strategies\GivenDecryptStrategyFacts.cs" />
-    <Compile Include="Security\Strategies\GivenEncryptStrategyFacts.cs" />
+    <Compile Include="Security\Encryption\GivenDecryptMessageFacts.cs" />
+    <Compile Include="Security\Encryption\GivenEncryptMessageFacts.cs" />
     <Compile Include="Security\Strategies\GivenVerifySignatureStrategyFacts.cs" />
     <Compile Include="Serialization\GivenInvalidMessageSerializationFacts.cs" />
     <Compile Include="Serialization\GivenSoapEnvelopeDeserializingFacts.cs" />

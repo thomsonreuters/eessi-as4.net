@@ -129,7 +129,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             var sut = new DecompressAttachmentsStep();
 
             // Act
-            return await sut.ExecuteAsync(context, CancellationToken.None);
+            return await sut.ExecuteAsync(context);
         }
     }
 }

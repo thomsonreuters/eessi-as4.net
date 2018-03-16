@@ -5,7 +5,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
-using Microsoft.Extensions.Caching.Memory;
 using NLog;
 using ReceptionAwareness = Eu.EDelivery.AS4.Entities.ReceptionAwareness;
 
@@ -52,6 +51,18 @@ namespace Eu.EDelivery.AS4.Repositories
         {
             return
                 _datastoreContext.InMessages.Where(m => m.EbmsMessageId.Equals(messageId)).Select(selection).FirstOrDefault();
+        }
+
+        /// <summary>
+        /// Retrieves information for specified InMessages.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <param name="where">The where.</param>
+        /// <param name="selection">The selection.</param>
+        /// <returns></returns>
+        public IEnumerable<TResult> GetInMessageData<TResult>(Expression<Func<InMessage, bool>> where, Expression<Func<InMessage, TResult>> selection)
+        {
+            return _datastoreContext.InMessages.Where(where).Select(selection);
         }
 
         /// <summary>
@@ -155,7 +166,6 @@ namespace Eu.EDelivery.AS4.Repositories
             }
         }
 
-
         private InMessage GetInMessageEntityFor(string ebmsMessageId, long id)
         {
             var msg = new InMessage(ebmsMessageId: ebmsMessageId);
@@ -188,41 +198,19 @@ namespace Eu.EDelivery.AS4.Repositories
             return _datastoreContext.OutMessages.Any(predicate);
         }
 
-        /// <summary>
-        /// Firsts the or default out message.
-        /// </summary>
-        /// <typeparam name="TResult">The type of the result.</typeparam>
-        /// <param name="messageId">The message identifier.</param>
-        /// <param name="selection">The selection.</param>
-        /// <returns></returns>
-        public TResult GetOutMessageData<TResult>(string messageId, Expression<Func<OutMessage, TResult>> selection)
+        public TResult GetOutMessageData<TResult>(long messageId, Expression<Func<OutMessage, TResult>> selection)
         {
-            return GetOutMessageData(m => m.EbmsMessageId.Equals(messageId), selection);
+            return GetOutMessageData(m => m.Id == messageId, selection).SingleOrDefault();
         }
 
         /// <summary>
-        /// Gets the out message data.
-        /// </summary>
-        /// <remarks>The where clause must make sure that only one entity is retrieved.</remarks>
-        /// <typeparam name="TResult">The type of the result.</typeparam>
-        /// <param name="where">The where.</param>
-        /// <param name="selection">The selection.</param>
-        /// <returns></returns>
-        public TResult GetOutMessageData<TResult>(Expression<Func<OutMessage, bool>> where, Expression<Func<OutMessage, TResult>> selection)
-        {
-            return _datastoreContext.OutMessages.Where(where).Select(selection).SingleOrDefault();
-        }
-
-        /// <summary>
-        /// Selects some information of specified OutMessages.
+        /// Retrieves information for specified OutMessages.
         /// </summary>
         /// <typeparam name="TResult">The type of the result.</typeparam>
         /// <param name="where">The where.</param>
         /// <param name="selection">The selection.</param>
         /// <returns></returns>
-        public IEnumerable<TResult> GetOutMessagesData<TResult>(
-            Expression<Func<OutMessage, bool>> where,
-            Expression<Func<OutMessage, TResult>> selection)
+        public IEnumerable<TResult> GetOutMessageData<TResult>(Expression<Func<OutMessage, bool>> where, Expression<Func<OutMessage, TResult>> selection)
         {
             return _datastoreContext.OutMessages.Where(where).Select(selection);
         }
@@ -248,35 +236,29 @@ namespace Eu.EDelivery.AS4.Repositories
         /// <summary>
         /// Update a found OutMessage (by AS4 Message Id) in the Data store.
         /// </summary>
-        /// <param name="messageId"></param>
+        /// <param name="outMessageId"></param>
         /// <param name="updateAction"></param>
-        public void UpdateOutMessage(string messageId, Action<OutMessage> updateAction)
+        public void UpdateOutMessage(long outMessageId, Action<OutMessage> updateAction)
         {
-            // We need to know the Id, since Attaching only works when the Primary Key is known.            
-            Dictionary<string, long> keyMap = GetMessageIdsForEbmsMessageIds(_datastoreContext.OutMessages, _outMessageIdMap, messageId);
-
-            if (keyMap.ContainsKey(messageId))
-            {
-                OutMessage msg = GetOutMessageEntityFor(messageId, keyMap[messageId]);
-                UpdateMessageEntityIfNotNull(updateAction, msg);
-            }
+            OutMessage msg = GetOutMessageEntityFor(outMessageId);
+            UpdateMessageEntityIfNotNull(updateAction, msg);
         }
 
         public void UpdateOutMessages(Expression<Func<OutMessage, bool>> predicate, Action<OutMessage> updateAction)
         {
-            var keyMap = _datastoreContext.OutMessages.Where(predicate).Select(m => new { m.EbmsMessageId, m.Id }).ToArray();
+            var keys = _datastoreContext.OutMessages.Where(predicate).Select(m => new { m.Id }).ToArray();
 
-            foreach (var key in keyMap)
+            foreach (var key in keys)
             {
-                var msg = GetOutMessageEntityFor(key.EbmsMessageId, key.Id);
+                var msg = GetOutMessageEntityFor(key.Id);
                 UpdateMessageEntityIfNotNull(updateAction, msg);
             }
         }
 
-        private OutMessage GetOutMessageEntityFor(string ebmsMessageId, long id)
+        private OutMessage GetOutMessageEntityFor(long outMessageId)
         {
-            var msg = new OutMessage(ebmsMessageId: ebmsMessageId);
-            msg.InitializeIdFromDatabase(id);
+            var msg = new OutMessage(null);
+            msg.InitializeIdFromDatabase(outMessageId);
 
             if (_datastoreContext.IsEntityAttached(msg) == false)
             {
@@ -284,10 +266,10 @@ namespace Eu.EDelivery.AS4.Repositories
             }
             else
             {
-                msg = _datastoreContext.OutMessages.FirstOrDefault(m => m.EbmsMessageId == ebmsMessageId);
+                msg = _datastoreContext.OutMessages.FirstOrDefault(m => m.Id == outMessageId);
                 if (msg == null)
                 {
-                    LogManager.GetCurrentClassLogger().Error($"No OutMessage found for MessageId {ebmsMessageId}");
+                    LogManager.GetCurrentClassLogger().Error($"No OutMessage found for OutMessageId {outMessageId}");
                     return null;
                 }
             }
@@ -296,15 +278,6 @@ namespace Eu.EDelivery.AS4.Repositories
         }
 
         private static void UpdateMessageEntityIfNotNull(Action<OutMessage> updateAction, OutMessage msg)
-        {
-            if (msg != null)
-            {
-                updateAction(msg);
-                msg.ModificationTime = DateTimeOffset.Now;
-            }
-        }
-
-        private static void UpdateMessageEntityIfNotNull(Action<InMessage> updateAction, InMessage msg)
         {
             if (msg != null)
             {
@@ -323,38 +296,26 @@ namespace Eu.EDelivery.AS4.Repositories
         /// <param name="receptionAwareness"></param>
         public void InsertReceptionAwareness(ReceptionAwareness receptionAwareness)
         {
+            receptionAwareness.InsertionTime 
+                = receptionAwareness.ModificationTime 
+                = DateTimeOffset.Now;
+
             _datastoreContext.ReceptionAwareness.Add(receptionAwareness);
         }
 
-        public IEnumerable<ReceptionAwareness> GetReceptionAwareness(IEnumerable<string> messageIds)
+        public ReceptionAwareness GetReceptionAwarenessForOutMessage(long outMessageId)
         {
-            ReceptionAwareness[] entities = _datastoreContext.ReceptionAwareness.Where(r => messageIds.Contains(r.InternalMessageId)).ToArray();
-
-            foreach (ReceptionAwareness entity in entities)
-            {
-                _receptionAwarenessIdMap.Set(entity.InternalMessageId, entity.Id, CacheLifeTime);
-            }
-
-            return entities;
+            return _datastoreContext.ReceptionAwareness.FirstOrDefault(r => r.RefToOutMessageId == outMessageId);
         }
 
         /// <summary>
         /// Update a found <see cref="ReceptionAwareness"/> in the Data store.
         /// </summary>
-        /// <param name="refToMessageId"></param>
+        /// <param name="receptionAwarenessId">The Id that uniquely identifies the ReceptionAwareness record.</param>
         /// <param name="updateAction"></param>
-        public void UpdateReceptionAwareness(string refToMessageId, Action<ReceptionAwareness> updateAction)
+        public void UpdateReceptionAwareness(long receptionAwarenessId, Action<ReceptionAwareness> updateAction)
         {
-            long id = GetReceptionAwarenessIdForMessageId(_datastoreContext, refToMessageId);
-
-            if (id == default(long))
-            {
-                LogManager.GetCurrentClassLogger().Error($"Unable to update ReceptionAwareness entity. No record exists for MessageId {refToMessageId}");
-                return;
-            }
-
-            var entity = new ReceptionAwareness { InternalMessageId = refToMessageId };
-            entity.InitializeIdFromDatabase(id);
+            var entity = ReceptionAwareness.GetDetachedEntityForDatabaseUpdate(receptionAwarenessId);
 
             if (_datastoreContext.IsEntityAttached(entity) == false)
             {
@@ -362,16 +323,17 @@ namespace Eu.EDelivery.AS4.Repositories
             }
             else
             {
-                entity = _datastoreContext.ReceptionAwareness.FirstOrDefault(r => r.Id == id);
+                entity = _datastoreContext.ReceptionAwareness.FirstOrDefault(r => r.Id == receptionAwarenessId);
 
                 if (entity == null)
                 {
-                    LogManager.GetCurrentClassLogger().Error($"Unable to update ReceptionAwareness entity. No record exists for MessageId {refToMessageId}");
+                    LogManager.GetCurrentClassLogger().Error($"Unable to update ReceptionAwareness entity. No record exists for ReceptionAwareness.Id {receptionAwarenessId}");
                     return;
                 }
             }
 
             updateAction(entity);
+            entity.ModificationTime = DateTimeOffset.Now;
         }
 
         #endregion
@@ -439,85 +401,6 @@ namespace Eu.EDelivery.AS4.Repositories
                 updateAction(inException);
                 inException.ModificationTime = DateTimeOffset.Now;
             }
-        }
-
-        #endregion
-
-        #region MessageId <> Id mapping
-
-        // TODO: encapsulate in an inner class which implements IDisposable.
-        private static MemoryCache _outMessageIdMap = new MemoryCache(new MemoryCacheOptions());
-        private static MemoryCache _inMessageIdMap = new MemoryCache(new MemoryCacheOptions());
-        private static MemoryCache _receptionAwarenessIdMap = new MemoryCache(new MemoryCacheOptions());
-
-        private static readonly TimeSpan CacheLifeTime = TimeSpan.FromSeconds(30);
-
-        internal static void ResetCaches()
-        {
-            _outMessageIdMap = new MemoryCache(new MemoryCacheOptions());
-            _inMessageIdMap = new MemoryCache(new MemoryCacheOptions());
-            _receptionAwarenessIdMap = new MemoryCache(new MemoryCacheOptions());
-        }
-
-        public static void DisposeCaches()
-        {
-            _outMessageIdMap.Dispose();
-            _inMessageIdMap.Dispose();
-            _receptionAwarenessIdMap.Dispose();
-        }
-
-        private static Dictionary<string, long> GetMessageIdsForEbmsMessageIds<T>(IQueryable<T> messages, IMemoryCache cache, params string[] ebmsMessageIds) where T : MessageEntity
-        {
-            var result = new Dictionary<string, long>();
-
-            var nonCachedMessageIds = new HashSet<string>();
-
-            ebmsMessageIds = ebmsMessageIds.Distinct().ToArray();
-
-            // First try to retrieve the items that are already cached.
-            foreach (string messageId in ebmsMessageIds)
-            {
-                if (cache.TryGetValue(messageId, out long id))
-                {
-                    result.Add(messageId, id);
-                }
-                else
-                {
-                    nonCachedMessageIds.Add(messageId);
-                }
-            }
-
-            if (nonCachedMessageIds.Any())
-            {
-                var map = messages.Where(m => nonCachedMessageIds.Contains(m.EbmsMessageId)).Select(m => new { m.EbmsMessageId, m.Id });
-
-                foreach (var item in map)
-                {
-                    cache.Set(item.EbmsMessageId, item.Id, CacheLifeTime);
-                    if (result.ContainsKey(item.EbmsMessageId) == false)
-                    {
-                        result.Add(item.EbmsMessageId, item.Id);
-                    }
-                }
-            }
-
-            return result;
-        }
-
-        private static long GetReceptionAwarenessIdForMessageId(DatastoreContext context, string messageId)
-        {
-
-            if (_receptionAwarenessIdMap.TryGetValue(messageId, out long id) == false)
-            {
-                id = context.ReceptionAwareness.Where(r => r.InternalMessageId == messageId).Select(r => r.Id).FirstOrDefault();
-
-                if (id != default(long))
-                {
-                    _receptionAwarenessIdMap.Set(messageId, id, CacheLifeTime);
-                }
-            }
-
-            return id;
         }
 
         #endregion

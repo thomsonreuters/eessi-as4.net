@@ -58,7 +58,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Repositories
             return id;
         }
 
-        public Task<string> SaveAS4MessageStreamAsync(string location, Stream as4MessageStream, CancellationToken cancellation)
+        public Task<string> SaveAS4MessageStreamAsync(string location, Stream as4MessageStream)
         {
             string locationId = Guid.NewGuid().ToString();
 

@@ -3,7 +3,6 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Entities;
-using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Transformers;
 using Xunit;
@@ -21,7 +20,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             public async Task ThenTransformSucceedsWithValidReceptionAwarenessAsync()
             {
                 // Arrange
-                var awareness = new ReceptionAwareness();
+                var awareness = new ReceptionAwareness(4, "message-id");
                 var receivedMessage = new ReceivedEntityMessage(awareness);
                 var transformer = new ReceptionAwarenessTransformer();
 

@@ -2,7 +2,6 @@
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Core;
@@ -29,9 +28,8 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         /// Execute the step for a given <paramref name="messagingContext" />.
         /// </summary>
         /// <param name="messagingContext">Message used during the step execution.</param>
-        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
             AS4Message as4Message = messagingContext.AS4Message;
             DeliverMessage deliverMessage = CreateDeliverMessage(as4Message.PrimaryUserMessage, messagingContext);
@@ -80,8 +78,8 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
                     string description = $"Deliver Message {deliverMessage.MessageInfo.MessageId} was invalid:";
                     string errorMessage = result.AppendValidationErrorsToErrorMessage(description);
 
-                    throw new InvalidDataException(errorMessage);                    
+                    throw new InvalidDataException(errorMessage);
                 });
-        }       
+        }
     }
 }

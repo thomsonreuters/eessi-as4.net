@@ -1,6 +1,5 @@
 using System;
 using System.ComponentModel;
-using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
@@ -36,18 +35,17 @@ namespace Eu.EDelivery.AS4.Steps.Notify
         /// Start updating the Data store for the <see cref="NotifyMessage"/>
         /// </summary>
         /// <param name="messagingContext"></param>
-        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
             var notifyMessage = messagingContext.NotifyMessage;
             Logger.Info($"{messagingContext.EbmsMessageId} Update Notify Message {notifyMessage.MessageInfo.MessageId}");
 
-            await UpdateDatastoreAsync(notifyMessage).ConfigureAwait(false);
+            await UpdateDatastoreAsync(notifyMessage, messagingContext).ConfigureAwait(false);
             return await StepResult.SuccessAsync(messagingContext);
         }
 
-        private async Task UpdateDatastoreAsync(NotifyMessageEnvelope notifyMessage)
+        private async Task UpdateDatastoreAsync(NotifyMessageEnvelope notifyMessage, MessagingContext messagingContext)
         {
             using (DatastoreContext context = _createDatastoreContext())
             {
@@ -61,9 +59,9 @@ namespace Eu.EDelivery.AS4.Steps.Notify
                         m.SetOperation(Operation.Notified);
                     });
                 }
-                else if (notifyMessage.EntityType == typeof(OutMessage))
+                else if (notifyMessage.EntityType == typeof(OutMessage) && messagingContext.MessageEntityId != null)
                 {
-                    repository.UpdateOutMessage(notifyMessage.MessageInfo.MessageId, m =>
+                    repository.UpdateOutMessage(messagingContext.MessageEntityId.Value, m =>
                     {
                         m.SetStatus(OutStatus.Notified);
                         m.SetOperation(Operation.Notified);

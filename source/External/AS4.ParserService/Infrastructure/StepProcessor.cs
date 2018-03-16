@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Steps;
@@ -10,18 +9,18 @@ namespace AS4.ParserService.Infrastructure
 {
     internal class StepProcessor
     {
-        internal static async Task<MessagingContext> ExecuteStepsAsync(MessagingContext context, StepConfiguration stepConfig, CancellationToken cancellationToken)
+        internal static async Task<MessagingContext> ExecuteStepsAsync(MessagingContext context, StepConfiguration stepConfig)
         {
             try
             {
                 IEnumerable<IStep> steps = CreateSteps(stepConfig.NormalPipeline);
-                StepResult result = await ExecuteSteps(steps, context, cancellationToken);
+                StepResult result = await ExecuteSteps(steps, context);
 
                 bool weHaveAnyUnhappyPath = stepConfig.ErrorPipeline != null;
                 if (result.Succeeded == false && weHaveAnyUnhappyPath && result.MessagingContext.Exception == null)
                 {
                     IEnumerable<IStep> unhappySteps = CreateSteps(stepConfig.ErrorPipeline);
-                    result = await ExecuteSteps(unhappySteps, result.MessagingContext, cancellationToken);
+                    result = await ExecuteSteps(unhappySteps, result.MessagingContext);
                 }
 
                 return result.MessagingContext;
@@ -44,8 +43,7 @@ namespace AS4.ParserService.Infrastructure
 
         private static async Task<StepResult> ExecuteSteps(
             IEnumerable<IStep> steps,
-            MessagingContext context,
-            CancellationToken cancellation)
+            MessagingContext context)
         {
             StepResult result = StepResult.Success(context);
 
@@ -53,7 +51,7 @@ namespace AS4.ParserService.Infrastructure
 
             foreach (IStep step in steps)
             {
-                result = await step.ExecuteAsync(currentContext, cancellation).ConfigureAwait(false);
+                result = await step.ExecuteAsync(currentContext).ConfigureAwait(false);
 
                 if (result.CanProceed == false || result.Succeeded == false || result.MessagingContext?.Exception != null)
                 {

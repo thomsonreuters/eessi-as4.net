@@ -103,7 +103,7 @@ export class ReceivingPmodeService implements ICrudPmodeService {
         return ReceivingPmodeForm.getForm(this._form, <ReceivingPmode>pmode, this._runtimeStore.state.runtimeMetaData);
     }
     public patchName(form: FormGroup, name: string) {
-        form.setValue({ [ReceivingPmode.FIELD_name]: name });
+        form.patchValue({ [ReceivingPmode.FIELD_name]: name });
     }
     public getByName(name: string): Observable<IPmode> {
         let obs = new Subject<ReceivingPmode>();

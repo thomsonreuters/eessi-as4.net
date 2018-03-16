@@ -1,17 +1,5 @@
+import { AfterContentInit, Component, ContentChildren, OnDestroy, QueryList } from '@angular/core';
 import { Subscription } from 'rxjs/Subscription';
-import {
-    Component,
-    OnInit,
-    ContentChildren,
-    ViewChildren,
-    QueryList,
-    ViewEncapsulation,
-    ChangeDetectionStrategy,
-    AfterContentInit,
-    OnDestroy,
-    Output,
-    EventEmitter
-} from '@angular/core';
 
 import { TabItemDirective } from './tabitem.directive';
 
@@ -24,14 +12,13 @@ export class TabComponent implements AfterContentInit, OnDestroy {
     @ContentChildren(TabItemDirective) public tabItems: QueryList<TabItemDirective>;
     public activeTab: TabItemDirective;
     private _subscription: Subscription;
-    private _activeTabIndex: number;
     public ngAfterContentInit() {
         let current = 0;
         this.tabItems.forEach((item) => item.tabId = current++);
         this.activeTab = this.tabItems.first;
         this._subscription = this.tabItems
             .changes
-            .subscribe((result: TabItemDirective[]) => {
+            .subscribe(() => {
                 const exists = this.tabItems.find((item) => item === this.activeTab);
                 if (!!!exists) {
                     this.next();

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using System.Reflection;
-using Eu.EDelivery.AS4.Exceptions;
 using NLog;
 
 namespace Eu.EDelivery.AS4.Builders
@@ -76,7 +75,10 @@ namespace Eu.EDelivery.AS4.Builders
         /// <returns></returns>
         public T Build<T>() where T : class
         {
-            if (this._args != null) return Activator.CreateInstance(this._type, this._args) as T;
+            if (this._args != null)
+            {
+                return Activator.CreateInstance(this._type, this._args) as T;
+            }
             return Activator.CreateInstance(this._type) as T;
         }
     }

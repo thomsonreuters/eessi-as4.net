@@ -2,6 +2,7 @@
 
 namespace Eu.EDelivery.AS4.Transformers.InteropTestTransformers
 {
+    [NotConfigurable]
     [ExcludeFromCodeCoverage]
     public class InteropTestingNotifyMessageTransformer : MinderNotifyMessageTransformer
     {

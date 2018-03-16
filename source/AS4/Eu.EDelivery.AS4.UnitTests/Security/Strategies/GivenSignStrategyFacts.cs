@@ -15,7 +15,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Strategies
         public void ThenSignStrategySignsCorrectlyAS4Message()
         {
             // Arrange
-            ISignStrategy signingStrategy = CreateSignStrategyForSigning();
+            SignStrategy signingStrategy = CreateSignStrategyForSigning();
 
             // Act
             var signature = signingStrategy.SignDocument();
@@ -23,7 +23,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Strategies
             AssertSecurityElement(signature.GetXml());
         }
 
-        private static ISignStrategy CreateSignStrategyForSigning()
+        private static SignStrategy CreateSignStrategyForSigning()
         {
             var signingId = new SigningId("header-id", "body-id");
             AS4Message as4Message = AS4Message.Empty;

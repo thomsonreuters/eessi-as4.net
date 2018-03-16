@@ -22,12 +22,14 @@ import { PartyComponent } from './party/party.component';
 import { ROUTES } from './pmodes.routes';
 
 import { Http, RequestOptions } from '@angular/http';
+import { DynamicDiscoveryComponent } from './dynamicdiscoveryprofile/dynamicdiscoveryprofile.component';
 
 const components: any = [
     ReceivingPmodeComponent,
     SendingPmodeComponent,
     PmodeSelectComponent,
     MethodComponent,
+    DynamicDiscoveryComponent,
     PartyComponent,
     MessagePackagingComponent,
     CrudComponent

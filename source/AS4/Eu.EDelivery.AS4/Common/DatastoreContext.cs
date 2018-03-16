@@ -37,6 +37,15 @@ namespace Eu.EDelivery.AS4.Common
 
         private RetryPolicy _policy;
 
+        // TODO: FE needs this in the Monitoring?
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DatastoreContext"/> class.
+        /// </summary>
+        public DatastoreContext(DbContextOptions<DatastoreContext> options) : this(options, Config.Instance)
+        {
+
+        }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="DatastoreContext"/> class.
         /// </summary>
@@ -50,7 +59,7 @@ namespace Eu.EDelivery.AS4.Common
         // The Add-Migration command requires a default constructor on DatastoreContext
         // Also use a hard-coded 'NativeCommand' in the 'InitializeFields()' call.
 
-        //public DatastoreContext() : this(GetDbContextOptions(), Config.Instance)
+        //public DatastoreContext() : this(GetDbContextOptions(), null)
         //{
         //}
 
@@ -58,8 +67,8 @@ namespace Eu.EDelivery.AS4.Common
         //{
         //    var optionsBuilder = new DbContextOptionsBuilder<DatastoreContext>();
 
-        //    //optionsBuilder.UseSqlServer("Server=.;database=as4test;integrated security=sspi");
-        //    optionsBuilder.UseSqlite(@"Filename=database\messages.db");
+        //    optionsBuilder.UseSqlServer("Server=.;database=as4msh;integrated security=sspi");
+        //    //optionsBuilder.UseSqlite(@"Filename=database\messages.db");
 
         //    return optionsBuilder.Options;
         //}
@@ -181,7 +190,7 @@ namespace Eu.EDelivery.AS4.Common
             _providers["SqlServer"] = c => optionsBuilder.UseSqlServer(c);
 
             // TODO: add other providers
-            _providers["InMemory"] = _ => 
+            _providers["InMemory"] = _ =>
                 optionsBuilder.UseInMemoryDatabase(Guid.NewGuid().ToString())
                               .ConfigureWarnings(w => w.Ignore(InMemoryEventId.TransactionIgnoredWarning));
         }
@@ -222,7 +231,7 @@ namespace Eu.EDelivery.AS4.Common
 
             modelBuilder.Entity<OutMessage>().HasKey(im => im.Id);
             modelBuilder.Entity<OutMessage>().Property(im => im.Id).UseSqlServerIdentityColumn();
-            modelBuilder.Entity<OutMessage>().HasAlternateKey(im => im.EbmsMessageId);
+            modelBuilder.Entity<OutMessage>().HasIndex(im => im.EbmsMessageId);
             modelBuilder.Entity<OutMessage>().HasIndex(im => new { im.Operation, im.MEP, im.Mpc, im.InsertionTime });
             modelBuilder.Entity<OutMessage>().HasIndex(im => im.EbmsRefToMessageId);
             modelBuilder.Entity<OutMessage>().HasIndex(im => im.InsertionTime);
@@ -255,7 +264,7 @@ namespace Eu.EDelivery.AS4.Common
 
             modelBuilder.Entity<ReceptionAwareness>().HasKey(r => r.Id);
             modelBuilder.Entity<ReceptionAwareness>().Property(r => r.Id).UseSqlServerIdentityColumn();
-            modelBuilder.Entity<ReceptionAwareness>().HasAlternateKey(r => r.InternalMessageId);
+            modelBuilder.Entity<ReceptionAwareness>().HasAlternateKey(r => r.RefToOutMessageId);
             modelBuilder.Entity<ReceptionAwareness>().HasIndex(r => new { r.Status, r.CurrentRetryCount });
 
             modelBuilder.Entity<SmpConfiguration>().HasKey(sc => sc.Id);

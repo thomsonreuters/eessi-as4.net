@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using Eu.EDelivery.AS4.Fe.Settings;
+using Eu.EDelivery.AS4.Services.DynamicDiscovery;
 using Eu.EDelivery.AS4.Strategies.Uploader;
 using Microsoft.Extensions.Options;
 using Mono.Cecil;
@@ -24,6 +25,7 @@ namespace Eu.EDelivery.AS4.Fe.Runtime
         private static readonly string RuntimeDeliverSenderInterface = "Eu.EDelivery.AS4.Strategies.Sender.IDeliverSender";
         private static readonly string RuntimeNotifySenderInterface = "Eu.EDelivery.AS4.Strategies.Sender.INotifySender";
         private static readonly string RuntimeAttachmentUploaderInterface = typeof(IAttachmentUploader).FullName;
+        private static readonly string RuntimeDynamicDiscoveryProfileInterface = typeof(IDynamicDiscoveryProfile).FullName;
         private static readonly string RuntimePmodeInterface = "Eu.EDelivery.AS4.Model.PMode.IPMode";
         private static readonly string InfoAttribute = typeof(InfoAttribute).Name;
         private static readonly string NoUiAttribute = typeof(NotConfigurableAttribute).Name;
@@ -93,6 +95,13 @@ namespace Eu.EDelivery.AS4.Fe.Runtime
         /// </value>
         public IEnumerable<ItemType> AttachmentUploaders { get; private set; }
         /// <summary>
+        /// Gets the dynamic discovery profiles.
+        /// </summary>
+        /// <value>
+        /// The dynamic discovery profiles.
+        /// </value>
+        public IEnumerable<ItemType> DynamicDiscoveryProfiles { get; private set; }
+        /// <summary>
         /// Gets the receiving pmode.
         /// </summary>
         /// <value>
@@ -117,6 +126,7 @@ namespace Eu.EDelivery.AS4.Fe.Runtime
             DeliverSenders = LoadImplementationsForType(types, RuntimeDeliverSenderInterface);
             NotifySenders = LoadImplementationsForType(types, RuntimeNotifySenderInterface);
             AttachmentUploaders = LoadImplementationsForType(types, RuntimeAttachmentUploaderInterface);
+            DynamicDiscoveryProfiles = LoadImplementationsForType(types, RuntimeDynamicDiscoveryProfileInterface);
             ReceivingPmode = LoadImplementationsForType(types, RuntimePmodeInterface, false);
 
             return this;
@@ -155,8 +165,7 @@ namespace Eu.EDelivery.AS4.Fe.Runtime
         {
             var implementations = types
                 .Where(x => x.Interfaces.Any(iface => iface.InterfaceType.FullName == type))
-                .Where(x => !x.IsInterface)
-                .Where(x => !x.IsAbstract)
+                .Where(x => !x.IsInterface && !x.IsAbstract && x.IsPublic)
                 .Where(x => x.CustomAttributes.All(attr => attr.AttributeType.Name != NoUiAttribute));
             var itemTypes = implementations.Select(itemType => BuildItemType(itemType, BuildProperties(itemType.Properties, itemType.Name, onlyWithAttribute)));
             return itemTypes.Where(x => x != null);

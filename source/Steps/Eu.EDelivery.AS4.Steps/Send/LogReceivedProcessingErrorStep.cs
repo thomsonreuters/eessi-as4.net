@@ -33,16 +33,15 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// Execute the step for a given <paramref name="messagingContext" />.
         /// </summary>
         /// <param name="messagingContext">Message used during the step execution.</param>
-        /// <param name="cancellation"></param>
         /// <returns></returns>
-        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellation)
+        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
             if (messagingContext.ErrorResult == null)
             {
                 return StepResult.Success(messagingContext);
             }
 
-            await InsertReferencedInException(messagingContext, cancellation).ConfigureAwait(false);
+            await InsertReferencedInException(messagingContext, CancellationToken.None).ConfigureAwait(false);
             return StepResult.Success(messagingContext);
         }
 

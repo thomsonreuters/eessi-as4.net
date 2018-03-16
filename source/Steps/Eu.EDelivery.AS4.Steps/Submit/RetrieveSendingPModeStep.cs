@@ -1,7 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Configuration;
-using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Model.Common;
@@ -40,12 +39,11 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         }
 
         /// <summary>
-        /// Start retrieving the PMode for the <see cref="SubmitMessage" />
+        /// Retrieve the PMode that must be used to send the SubmitMessage that is in the current Messagingcontext />
         /// </summary>
         /// <param name="messagingContext"></param>
-        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
             messagingContext.SubmitMessage.PMode = RetrieveSendPMode(messagingContext);
             messagingContext.SendingPMode = messagingContext.SubmitMessage.PMode;
@@ -83,13 +81,13 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         }
 
         private static void ValidatePMode(SendingProcessingMode pmode)
-        {            
+        {
             SendingProcessingModeValidator.Instance.Validate(pmode).Result(
                 onValidationSuccess: result => Logger.Trace($"Sending PMode {pmode.Id} is valid for Submit Message"),
                 onValidationFailed: result =>
                 {
                     string description = result.AppendValidationErrorsToErrorMessage($"Sending PMode {pmode.Id} was invalid:");
-                    
+
                     Logger.Error(description);
 
                     throw new ConfigurationErrorsException(description);

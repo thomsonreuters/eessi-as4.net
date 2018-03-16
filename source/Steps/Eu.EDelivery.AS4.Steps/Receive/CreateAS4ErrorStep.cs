@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Common;
@@ -44,10 +43,9 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// Start creating <see cref="Error"/>
         /// </summary>
         /// <param name="messagingContext"></param>
-        /// <param name="cancellationToken"></param>
         /// <returns></returns>
         /// <exception cref="System.Exception">A delegate callback throws an exception.</exception>
-        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
             bool noAS4MessagePresent = messagingContext.AS4Message == null || messagingContext.AS4Message.IsEmpty;
             if (noAS4MessagePresent && messagingContext.ErrorResult == null)

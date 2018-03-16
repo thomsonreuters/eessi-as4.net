@@ -1,20 +1,8 @@
+import { AfterViewInit, Directive, ElementRef, Input, OnDestroy, Renderer } from '@angular/core';
 import { FormGroup } from '@angular/forms';
-import { Observable } from 'rxjs/Observable';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import { Observable } from 'rxjs/Observable';
 import { Subscription } from 'rxjs/Subscription';
-import {
-    Directive,
-    Input,
-    ElementRef,
-    Renderer,
-    ChangeDetectionStrategy,
-    AfterViewInit,
-    ContentChild,
-    TemplateRef,
-    OnDestroy
-} from '@angular/core';
-
-import { InputComponent } from './../input/input.component';
 
 @Directive({
     selector: '[tabitem]'
@@ -29,9 +17,6 @@ export class TabItemDirective implements AfterViewInit, OnDestroy {
         this.cleanup();
         if (isValid instanceof FormGroup) {
             this.cleanup();
-            const sub = isValid.statusChanges.subscribe((result: 'VALID' | 'DISABLED' | 'INVALID') => {
-                this._isValidTab.next(result === 'VALID' || result === 'DISABLED');
-            });
             this._isValidTab.next(isValid.status === 'VALID' || isValid.status === 'DISABLED');
             return;
         }

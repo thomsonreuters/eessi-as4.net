@@ -1,6 +1,5 @@
 ﻿using System;
 using System.ComponentModel;
-using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Model.Internal;
@@ -23,7 +22,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         /// <summary>
         /// Initializes a new instance of the <see cref="SendDeliverMessageStep"/> class
         /// </summary>
-        public SendDeliverMessageStep() : this(Registry.Instance.DeliverSenderProvider) {}
+        public SendDeliverMessageStep() : this(Registry.Instance.DeliverSenderProvider) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SendDeliverMessageStep"/> class
@@ -41,9 +40,8 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         /// to the consuming business application
         /// </summary>
         /// <param name="messagingContext"></param>
-        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
             Logger.Info(
                 $"[{messagingContext.DeliverMessage?.MessageInfo?.MessageId}]" +

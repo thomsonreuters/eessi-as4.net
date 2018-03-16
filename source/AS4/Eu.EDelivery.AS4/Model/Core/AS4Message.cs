@@ -11,6 +11,7 @@ using System.Xml;
 using Eu.EDelivery.AS4.Builders.Security;
 using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.PMode;
+using Eu.EDelivery.AS4.Security.Encryption;
 using Eu.EDelivery.AS4.Security.Signing;
 using Eu.EDelivery.AS4.Security.Strategies;
 using Eu.EDelivery.AS4.Serialization;
@@ -259,7 +260,7 @@ namespace Eu.EDelivery.AS4.Model.Core
             _attachmens.Add(attachment);
             if (!ContentType.Contains(Constants.ContentTypes.Mime))
             {
-                UpdateContentTypeHeader(); 
+                UpdateContentTypeHeader();
             }
         }
 
@@ -410,6 +411,22 @@ namespace Eu.EDelivery.AS4.Model.Core
         }
 
         /// <summary>
+        /// Encrypts the AS4 Message using the specified <paramref name="keyEncryptionConfig"/>
+        /// and <paramref name="dataEncryptionConfig"/>
+        /// </summary>
+        /// <param name="keyEncryptionConfig"></param>
+        /// <param name="dataEncryptionConfig"></param>
+        public void Encrypt(KeyEncryptionConfiguration keyEncryptionConfig, DataEncryptionConfiguration dataEncryptionConfig)
+        {
+            var encryptor =
+                EncryptionStrategyBuilder.Create(this, keyEncryptionConfig)
+                                         .WithDataEncryptionConfiguration(dataEncryptionConfig)
+                                         .Build();
+
+            SecurityHeader.Encrypt(encryptor);
+        }
+
+        /// <summary>
         /// Decrypt the AS4 Message using the specified <paramref name="certificate"/>.
         /// </summary>
         /// <param name="certificate"></param>
@@ -418,8 +435,18 @@ namespace Eu.EDelivery.AS4.Model.Core
             var decryptor = DecryptionStrategyBuilder.Create(this)
                                                      .WithCertificate(certificate)
                                                      .Build();
-            
-            decryptor.DecryptMessage();
+
+            SecurityHeader.Decrypt(decryptor);
+        }
+
+        /// <summary>
+        /// Digitally signs the AS4Message using the given <paramref name="signatureConfiguration"/>
+        /// </summary>
+        /// <param name="signatureConfiguration"></param>
+        public void Sign(CalculateSignatureConfig signatureConfiguration)
+        {
+            SignStrategy signingStrategy = SignStrategy.ForAS4Message(this, signatureConfiguration);
+            SecurityHeader.Sign(signingStrategy);
         }
 
         /// <summary>

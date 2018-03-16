@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Security.Cryptography;
-using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Exceptions;
@@ -59,9 +58,8 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// Start verifying the Signature of the <see cref="AS4Message"/>
         /// </summary>
         /// <param name="messagingContext"></param>
-        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
             ReceivingProcessingMode pmode = messagingContext.ReceivingPMode;
             SigningVerification verification = pmode?.Security.SigningVerification;
@@ -143,7 +141,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                     new DatastoreRepository(context),
                     _bodyStore);
 
-                return await service.GetAS4UserMessagesForIds(receipts.Select(r => r.RefToMessageId), _bodyStore);
+                return await service.GetNonIntermediaryAS4UserMessagesForIds(receipts.Select(r => r.RefToMessageId), _bodyStore);
             }
         }
 

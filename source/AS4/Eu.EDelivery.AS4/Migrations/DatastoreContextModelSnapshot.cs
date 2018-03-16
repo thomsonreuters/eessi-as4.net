@@ -258,7 +258,7 @@ namespace Eu.EDelivery.AS4.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasAlternateKey("EbmsMessageId");
+                    b.HasIndex("EbmsMessageId");
 
                     b.HasIndex("EbmsRefToMessageId");
 
@@ -279,13 +279,16 @@ namespace Eu.EDelivery.AS4.Migrations
 
                     b.Property<DateTimeOffset>("InsertionTime");
 
-                    b.Property<string>("InternalMessageId")
-                        .IsRequired()
-                        .HasMaxLength(256);
-
                     b.Property<DateTimeOffset?>("LastSendTime");
 
                     b.Property<DateTimeOffset>("ModificationTime");
+
+                    b.Property<string>("RefToEbmsMessageId")
+                        .IsRequired()
+                        .HasMaxLength(256);
+
+                    b.Property<long>("RefToOutMessageId")
+                        .IsRequired();
 
                     b.Property<string>("RetryInterval")
                         .HasMaxLength(12);
@@ -297,7 +300,7 @@ namespace Eu.EDelivery.AS4.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasAlternateKey("InternalMessageId");
+                    b.HasAlternateKey("RefToOutMessageId");
 
                     b.HasIndex("Status", "CurrentRetryCount");
 
@@ -312,49 +315,54 @@ namespace Eu.EDelivery.AS4.Migrations
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("Action")
-                        .HasMaxLength(255)
+                        .HasMaxLength(256)
                         .HasAnnotation("PropertyAccessMode", PropertyAccessMode.Field);
 
                     b.Property<string>("EncryptAlgorithm")
+                        .HasMaxLength(256)
                         .HasAnnotation("PropertyAccessMode", PropertyAccessMode.Field);
 
                     b.Property<int>("EncryptAlgorithmKeySize")
                         .HasAnnotation("PropertyAccessMode", PropertyAccessMode.Field);
 
                     b.Property<string>("EncryptKeyDigestAlgorithm")
+                        .HasMaxLength(256)
                         .HasAnnotation("PropertyAccessMode", PropertyAccessMode.Field);
 
                     b.Property<string>("EncryptKeyMgfAlorithm")
+                        .HasMaxLength(256)
                         .HasAnnotation("PropertyAccessMode", PropertyAccessMode.Field);
 
                     b.Property<string>("EncryptKeyTransportAlgorithm")
+                        .HasMaxLength(256)
                         .HasAnnotation("PropertyAccessMode", PropertyAccessMode.Field);
 
-                    b.Property<string>("EncryptPublicKeyCertificate")
+                    b.Property<byte[]>("EncryptPublicKeyCertificate")
                         .HasAnnotation("PropertyAccessMode", PropertyAccessMode.Field);
 
                     b.Property<bool>("EncryptionEnabled")
                         .HasAnnotation("PropertyAccessMode", PropertyAccessMode.Field);
 
                     b.Property<string>("FinalRecipient")
+                        .HasMaxLength(256)
                         .HasAnnotation("PropertyAccessMode", PropertyAccessMode.Field);
 
                     b.Property<string>("PartyRole")
                         .IsRequired()
-                        .HasMaxLength(255)
+                        .HasMaxLength(256)
                         .HasAnnotation("PropertyAccessMode", PropertyAccessMode.Field);
 
                     b.Property<string>("PartyType")
                         .IsRequired()
-                        .HasMaxLength(255)
+                        .HasMaxLength(256)
                         .HasAnnotation("PropertyAccessMode", PropertyAccessMode.Field);
 
                     b.Property<string>("ServiceType")
-                        .HasMaxLength(255)
+                        .HasMaxLength(256)
                         .HasAnnotation("PropertyAccessMode", PropertyAccessMode.Field);
 
                     b.Property<string>("ServiceValue")
-                        .HasMaxLength(255)
+                        .HasMaxLength(256)
                         .HasAnnotation("PropertyAccessMode", PropertyAccessMode.Field);
 
                     b.Property<bool>("TlsEnabled")
@@ -363,11 +371,12 @@ namespace Eu.EDelivery.AS4.Migrations
 
                     b.Property<string>("ToPartyId")
                         .IsRequired()
-                        .HasMaxLength(255)
+                        .HasMaxLength(256)
                         .HasAnnotation("PropertyAccessMode", PropertyAccessMode.Field);
 
                     b.Property<string>("Url")
                         .HasColumnName("URL")
+                        .HasMaxLength(2083)
                         .HasAnnotation("PropertyAccessMode", PropertyAccessMode.Field);
 
                     b.HasKey("Id");

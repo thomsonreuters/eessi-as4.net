@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
@@ -57,7 +56,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 var outMessage = new OutMessage(ebmsMessageId: messageId);
                 outMessage.SetPModeInformation(pmode);
 
-                GetDataStoreContext.InsertOutMessage(outMessage);
+                GetDataStoreContext.InsertOutMessage(outMessage, withReceptionAwareness: false);
             }
 
             private async Task<StepResult> ExerciseDeterminePModes(AS4Message message)
@@ -65,8 +64,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 var sut = new DeterminePModesStep(null, GetDataStoreContext);
 
                 return await sut.ExecuteAsync(
-                           new MessagingContext(message, MessagingContextMode.Receive),
-                           default(CancellationToken));
+                    new MessagingContext(message, MessagingContextMode.Receive));
             }
 
             [Fact]
@@ -80,7 +78,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 MessagingContext messagingContext = new MessageContextBuilder().WithPModeId(sharedId).Build();
 
                 // Act
-                StepResult result = await _step.ExecuteAsync(messagingContext, CancellationToken.None);
+                StepResult result = await _step.ExecuteAsync(messagingContext);
 
                 // Assert
                 AssertPMode(pmode, result);
@@ -101,7 +99,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 MessagingContext messagingContext = new MessageContextBuilder().WithPartys(fromParty, toParty).Build();
 
                 // Act               
-                StepResult result = await _step.ExecuteAsync(messagingContext, CancellationToken.None);
+                StepResult result = await _step.ExecuteAsync(messagingContext);
 
                 // Assert
                 AssertPMode(pmode, result);
@@ -120,7 +118,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                                                 .Build();
 
                 // Act
-                StepResult result = await _step.ExecuteAsync(messagingContext, CancellationToken.None);
+                StepResult result = await _step.ExecuteAsync(messagingContext);
 
                 // Assert
                 AssertPMode(pmode, result);
@@ -148,7 +146,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                     new MessageContextBuilder().WithPModeId(sharedId).WithPartys(fromParty, toParty).Build();
 
                 // Act
-                StepResult result = await _step.ExecuteAsync(messagingContext, CancellationToken.None);
+                StepResult result = await _step.ExecuteAsync(messagingContext);
 
                 // Assert
                 AssertPMode(idPMode, result);
@@ -186,7 +184,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                                                 .Build();
 
                 // Act
-                StepResult result = await _step.ExecuteAsync(messagingContext, CancellationToken.None);
+                StepResult result = await _step.ExecuteAsync(messagingContext);
 
                 // Assert
                 AssertPMode(pmodeParties, result);
@@ -215,7 +213,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                                                 .Build();
 
                 // Act
-                StepResult result = await _step.ExecuteAsync(messagingContext, CancellationToken.None);
+                StepResult result = await _step.ExecuteAsync(messagingContext);
 
                 // Assert
                 AssertPMode(pmodeParties, result);
@@ -247,7 +245,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                     new MessageContextBuilder().WithServiceAction(service, action).Build();
 
                 // Act
-                StepResult result = await _step.ExecuteAsync(messagingContext, CancellationToken.None);
+                StepResult result = await _step.ExecuteAsync(messagingContext);
 
                 // Assert
                 Assert.False(result.Succeeded);
@@ -259,7 +257,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             {
                 ReceivePMode pmode = CreatePModeWithActionService(service, action);
                 pmode.MessagePackaging.CollaborationInfo.AgreementReference.Value = "not-equal";
-                DifferntiatePartyInfo(pmode);
+                DifferentiatePartyInfo(pmode);
                 SetupPModes(pmode, new ReceivePMode());
             }
 
@@ -277,7 +275,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                                                 .Build();
 
                 // Act
-                StepResult result = await _step.ExecuteAsync(messagingContext, CancellationToken.None);
+                StepResult result = await _step.ExecuteAsync(messagingContext);
 
                 // Assert
                 Assert.False(result.Succeeded);
@@ -288,7 +286,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             private void ArrangePModeThenAgreementRefIsNotEnough(AgreementReference agreementRef)
             {
                 ReceivePMode pmode = CreatePModeWithAgreementRef(agreementRef);
-                DifferntiatePartyInfo(pmode);
+                DifferentiatePartyInfo(pmode);
                 SetupPModes(pmode, new ReceivePMode());
             }
         }
@@ -300,9 +298,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 Id = id,
                 MessagePackaging = new MessagePackaging
                 {
-                    CollaborationInfo = new CollaborationInfo(), PartyInfo = new PartyInfo()
+                    CollaborationInfo = new CollaborationInfo(),
+                    PartyInfo = new PartyInfo()
                 },
-                ReplyHandling = {SendingPMode = "response_pmode"}
+                ReplyHandling = { SendingPMode = "response_pmode" }
             };
         }
 
@@ -335,7 +334,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             Assert.Equal(expectedPMode, result.MessagingContext.ReceivingPMode);
         }
 
-        private static void DifferntiatePartyInfo(ReceivePMode pmode)
+        private static void DifferentiatePartyInfo(ReceivePMode pmode)
         {
             const string fromId = "from-Id";
             const string toId = "to-Id";

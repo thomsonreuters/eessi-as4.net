@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Entities;
@@ -21,10 +22,15 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
         {
             // Arrange
             string ebmsMessageId = Guid.NewGuid().ToString();
-            GetDataStoreContext.InsertInMessage(CreateInMessage(ebmsMessageId));
+
+            var inMessage = CreateInMessage(ebmsMessageId);
+
+            GetDataStoreContext.InsertInMessage(inMessage);
+
+            MessagingContext context = CreateMessagingContextForReceivedEntity(inMessage);
 
             // Act
-            await ExerciseUpdateDatastoreEntity<InMessage>(ebmsMessageId);
+            await ExerciseUpdateDatastoreEntity<InMessage>(context, ebmsMessageId);
 
             // Assert
             GetDataStoreContext.AssertInMessage(
@@ -45,15 +51,29 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
             return inMessage;
         }
 
+        private static MessagingContext CreateMessagingContextForReceivedEntity(Entity entity)
+        {
+            var receivedMessage = new ReceivedEntityMessage(entity, Stream.Null, string.Empty);
+
+            var context = new MessagingContext(receivedMessage, MessagingContextMode.Unknown);
+
+            return context;
+        }
+
         [Fact]
         public async Task Then_Update_OutMessage_Succeeds()
         {
             // Arrange
             string ebmsMessageId = Guid.NewGuid().ToString();
-            GetDataStoreContext.InsertOutMessage(CreateOutMessage(ebmsMessageId));
+
+            var outMessage = CreateOutMessage(ebmsMessageId);
+
+            GetDataStoreContext.InsertOutMessage(outMessage, withReceptionAwareness: false);
+
+            var messagingContext = CreateMessagingContextForReceivedEntity(outMessage);
 
             // Act
-            await ExerciseUpdateDatastoreEntity<OutMessage>(ebmsMessageId);
+            await ExerciseUpdateDatastoreEntity<OutMessage>(messagingContext, ebmsMessageId);
 
             // Assert
             GetDataStoreContext.AssertOutMessage(
@@ -79,10 +99,15 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
         {
             // Arrange
             string refToMessageId = Guid.NewGuid().ToString();
-            GetDataStoreContext.InsertInException(CreateInException(refToMessageId));
+
+            var inException = CreateInException(refToMessageId);
+
+            GetDataStoreContext.InsertInException(inException);
+
+            var context = CreateMessagingContextForReceivedEntity(inException);
 
             // Act
-            await ExerciseUpdateDatastoreEntity<InException>(refToMessageId);
+            await ExerciseUpdateDatastoreEntity<InException>(context, refToMessageId);
 
             // Assert
             GetDataStoreContext.AssertInException(
@@ -106,8 +131,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
             OutException outException = CreateOutException(refToMessageId);
             GetDataStoreContext.InsertOutException(outException);
 
+            var context = CreateMessagingContextForReceivedEntity(outException);
+
             // Act
-            await ExerciseUpdateDatastoreEntity<OutException>(refToMessageId);
+            await ExerciseUpdateDatastoreEntity<OutException>(context, refToMessageId);
 
             // Assert
             GetDataStoreContext.AssertOutException(
@@ -123,19 +150,19 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
             return exception;
         }
 
-        private static async Task ExerciseUpdateDatastoreEntity<T>(string ebmsMessageId)
+        private static async Task ExerciseUpdateDatastoreEntity<T>(MessagingContext context, string ebmsMessageId)
         {
             NotifyMessageEnvelope notifyMessage = CreateNotifyMessage(ebmsMessageId, typeof(T));
-
+            context.ModifyContext(notifyMessage);
             // Act
             var sut = new NotifyUpdateDatastoreStep();
-            await sut.ExecuteAsync(new MessagingContext(notifyMessage), CancellationToken.None);
+            await sut.ExecuteAsync(context);
         }
 
         private static NotifyMessageEnvelope CreateNotifyMessage(string id, Type type)
         {
             return new NotifyMessageEnvelope(
-                messageInfo: new MessageInfo {MessageId = id, RefToMessageId = id},
+                messageInfo: new MessageInfo { MessageId = id, RefToMessageId = id },
                 statusCode: Status.Delivered,
                 notifyMessage: null,
                 contentType: string.Empty,

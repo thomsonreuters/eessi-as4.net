@@ -18,19 +18,19 @@ namespace Eu.EDelivery.AS4.Model.Internal
             MessageEntity = messageEntity;
         }
 
-        public override void AssignPropertiesTo(MessagingContext message)
+        public override void AssignPropertiesTo(MessagingContext messagingContext)
         {
-            base.AssignPropertiesTo(message);
+            base.AssignPropertiesTo(messagingContext);
 
             if (MessageEntity is InMessage)
             {
-                message.ReceivingPMode = GetPMode<ReceivingProcessingMode>();
-                message.SendingPMode = null;
+                messagingContext.ReceivingPMode = GetPMode<ReceivingProcessingMode>();
+                messagingContext.SendingPMode = null;
             }
             else if (MessageEntity is OutMessage)
             {
-                message.ReceivingPMode = null;
-                message.SendingPMode = GetPMode<SendingProcessingMode>();
+                messagingContext.ReceivingPMode = null;
+                messagingContext.SendingPMode = GetPMode<SendingProcessingMode>();
             }
         }
 

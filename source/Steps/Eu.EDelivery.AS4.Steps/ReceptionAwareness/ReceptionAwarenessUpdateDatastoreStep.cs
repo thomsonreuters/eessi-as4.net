@@ -45,11 +45,8 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
         /// Start updating the Data store
         /// </summary>
         /// <param name="messagingContext"></param>        
-        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<StepResult> ExecuteAsync(
-            MessagingContext messagingContext,
-            CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
             Entities.ReceptionAwareness receptionAwareness = messagingContext.ReceptionAwareness;
 
@@ -63,7 +60,7 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
                 context.Attach(receptionAwareness);
 
                 RunReceptionAwarenessFlow(receptionAwareness, service);
-                await context.SaveChangesAsync(cancellationToken);
+                await context.SaveChangesAsync();
             }
 
             WaitRetryInterval(receptionAwareness);
@@ -93,7 +90,8 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
                         service.MarkReferencedMessageAsComplete(receptionAwareness);
 
                         service.DeadletterOutMessage(
-                            messageId: receptionAwareness.InternalMessageId,
+                            outMessageId: receptionAwareness.RefToOutMessageId,
+                            ebmsMessageId: receptionAwareness.RefToEbmsMessageId,
                             messageBodyStore: _inMessageBodyStore);
                     }
                     else
@@ -112,9 +110,8 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
         private static void WaitRetryInterval(Entities.ReceptionAwareness receptionAwareness)
         {
             TimeSpan retryInterval = TimeSpan.Parse(receptionAwareness.RetryInterval);
-            string messageId = receptionAwareness.InternalMessageId;
 
-            Logger.Info($"[{messageId}] Waiting retry interval...");
+            Logger.Info($"[{receptionAwareness.RefToEbmsMessageId}] Waiting retry interval...");
             Thread.Sleep(retryInterval);
         }
     }

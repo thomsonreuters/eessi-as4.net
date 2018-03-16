@@ -1,6 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
-using System.Threading;
+using System.Linq;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Model.Internal;
@@ -50,13 +50,16 @@ namespace Eu.EDelivery.AS4.Steps.Notify
         /// to the consuming business application
         /// </summary>
         /// <param name="messagingContext"></param>
-        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
             if (messagingContext.SendingPMode == null)
             {
-                SendingProcessingMode pmode = RetrieveSendingPMode(messagingContext);
+                SendingProcessingMode pmode =
+                    RetrieveSendingPModeForMessageWithEbmsMessageId(messagingContext.NotifyMessage
+                                                                                    .MessageInfo
+                                                                                    .RefToMessageId);
+
                 if (pmode != null)
                 {
                     messagingContext.SendingPMode = pmode;
@@ -70,15 +73,24 @@ namespace Eu.EDelivery.AS4.Steps.Notify
             return StepResult.Success(messagingContext);
         }
 
-        private SendingProcessingMode RetrieveSendingPMode(MessagingContext messagingContext)
+        private SendingProcessingMode RetrieveSendingPModeForMessageWithEbmsMessageId(string ebmsMessageId)
         {
             using (DatastoreContext context = _createContext())
             {
                 var repository = new DatastoreRepository(context);
 
-                return repository.GetOutMessageData(
-                    messageId: messagingContext.NotifyMessage.MessageInfo.RefToMessageId,
-                    selection: m => AS4XmlSerializer.FromString<SendingProcessingMode>(m.PMode));
+                var outMessageData = 
+                    repository.GetOutMessageData(where: m => m.EbmsMessageId == ebmsMessageId && m.Intermediary == false,
+                                                selection: m => new { m.PMode, m.ModificationTime })
+                              .OrderByDescending(m => m.ModificationTime)
+                              .FirstOrDefault();
+
+                if (outMessageData == null)
+                {
+                    return null;
+                }
+
+                return AS4XmlSerializer.FromString<SendingProcessingMode>(outMessageData.PMode);
             }
         }
 
@@ -111,8 +123,8 @@ namespace Eu.EDelivery.AS4.Steps.Notify
         {
             bool isNotifyMessageFormedBySending = sendPMode?.Id != null;
 
-            return isNotifyMessageFormedBySending 
-                ? sendHandling?.NotifyMethod 
+            return isNotifyMessageFormedBySending
+                ? sendHandling?.NotifyMethod
                 : receiveHandling?.NotifyMethod;
         }
     }

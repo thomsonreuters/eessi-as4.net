@@ -12,6 +12,7 @@ using MessageProperty = Eu.EDelivery.AS4.Model.Core.MessageProperty;
 
 namespace Eu.EDelivery.AS4.Transformers.ConformanceTestTransformers
 {
+    [NotConfigurable]
     [ExcludeFromCodeCoverage]
     public class ConformanceTestingSubmitReceiveMessageTransformer : ITransformer
     {

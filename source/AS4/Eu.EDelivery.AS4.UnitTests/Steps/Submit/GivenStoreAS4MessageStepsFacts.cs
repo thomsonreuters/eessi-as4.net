@@ -30,8 +30,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
 
             // Act
             await sut.ExecuteAsync(
-                new MessagingContext(AS4Message.Create(new FilledUserMessage(id)), MessagingContextMode.Submit),
-                CancellationToken.None);
+                new MessagingContext(AS4Message.Create(new FilledUserMessage(id)), MessagingContextMode.Submit));
 
             // Assert
             GetDataStoreContext.AssertOutMessage(

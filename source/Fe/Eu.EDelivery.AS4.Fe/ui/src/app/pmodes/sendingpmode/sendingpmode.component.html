@@ -45,8 +45,8 @@
                             </select>
                     </as4-input>
                     <div class="sub-header">TLS client certificate</div>
-                    <as4-input label="Client certificate find type" formGroupName="tlsConfiguration" runtimeTooltip="tlsconfiguration.clientcertificatereference.clientcertificatefindtype">
-                        <div formGroupName="clientCertificateReference">
+                    <as4-input label="Client certificate find type" formGroupName="tlsConfiguration" runtimeTooltip="tlsconfiguration.clientcertificateinformation.clientcertificatefindtype">
+                        <div formGroupName="clientCertificateInformation">
                             <select formControlName="clientCertificateFindType">
                                     <option value="0">Find by thumbprint</option>
                                     <option value="1">Find by subject name</option>
@@ -66,33 +66,21 @@
                                 </select>
                         </div>
                     </as4-input>
-                    <as4-input label="Certificate find value" formGroupName="tlsConfiguration" runtimeTooltip="tlsconfiguration.clientcertificatereference.clientcertificatefindvalue">
-                        <div formGroupName="clientCertificateReference">
+                    <as4-input label="Certificate find value" formGroupName="tlsConfiguration" runtimeTooltip="tlsconfiguration.clientcertificateinofrmation.clientcertificatefindvalue">
+                        <div formGroupName="clientCertificateInformation">
                             <as4-thumbprint-input formControlName="clientCertificateFindValue"></as4-thumbprint-input>
                         </div>
                     </as4-input>
                 </ng-container>
                 <ng-container formGroupName="dynamicDiscovery" *ngIf="pmode.form.get('isDynamicDiscoveryEnabled').value">
                     <div class="sub-header-1">SMP/SML Discovery</div>
-                    <as4-input label="SML scheme" runtimeTooltip="dynamicdiscovery.smlscheme">
-                        <input type="text" formControlName="smlScheme" />
-                    </as4-input>
-                    <as4-input label="SMP server domain name" runtimeTooltip="dynamicdiscovery.smpserverdomainname">
-                        <input type="text" formControlName="smpServerDomainName" />
-                    </as4-input>
-                    <as4-input label="Document identifier" runtimeTooltip="dynamicdiscovery.documentidentifier">
-                        <input type="text" formControlName="documentIdentifier" />
-                    </as4-input>
-                    <as4-input label="Document identifier scheme" runtimeTooltip="dynamicdiscovery.documentidentifierscheme">
-                        <input type="text" formControlName="documentIdentifierScheme" />
-                    </as4-input>
+                    <as4-dynamicdiscovery label="SMP Profile" runtime="dynamicdiscovery" [types]="dynamicdiscoveryprofiles$ | async" [group]="pmode.form.get('pmode.dynamicDiscovery')"></as4-dynamicdiscovery>
                 </ng-container>
             </div>
             <div tabitem title="Message packaging" [isValid]="pmode.form.get('pmode.messagePackaging')" runtimeTooltip="messagepackaging">
                 <as4-message-packaging [form]="pmode.form.get('pmode.messagePackaging')" [disabled]="pmode.form.get('pmode.messagePackaging').disabled"></as4-message-packaging>
             </div>
-            <div tabitem title="Security" formGroupName="security" [isValid]="!!!pmode.currentPmode || pmode.form.get('pmode.security').valid"
-                runtimeTooltip="security">
+            <div tabitem title="Security" formGroupName="security" [isValid]="!!!pmode.currentPmode || pmode.form.get('pmode.security').valid" runtimeTooltip="security">
                 <div class="row">
                     <div formGroupName="signing" class="col-xs-12 col-md-6">
                         <div class="sub-header-1">Signing</div>
@@ -203,27 +191,26 @@
                     </as4-input>
                 </div>
             </div>
-            <div tabitem title="Receipt handling" formGroupName="receiptHandling" [isValid]="!!!pmode.currentPmode || pmode.form.get('pmode.receiptHandling').valid"
-                runtimeTooltip="receipthandling">
+            <div tabitem title="Receipt handling" formGroupName="receiptHandling" [isValid]="!!!pmode.currentPmode || pmode.form.get('pmode.receiptHandling').valid" runtimeTooltip="receipthandling">
+                <as4-input label="Verify Non-Repudiation Information" runtimeTooltip="verifyNRR">
+                    <input type="checkbox" formControlName="verifyNRR" />
+                </as4-input>
                 <as4-input label="Notify message producer" runtimeTooltip="notifymessageproducer">
                     <input type="checkbox" formControlName="notifyMessageProducer" />
                 </as4-input>
                 <as4-method label="Notify method" runtime="notifymethod" [group]="pmode.form.get('pmode.receiptHandling.notifyMethod')" [types]="notifySenders$ | async"></as4-method>
             </div>
-            <div tabitem title="Error handling" formGroupName="errorHandling" [isValid]="!!!pmode.currentPmode || pmode.form.get('pmode.errorHandling').valid"
-                runtimeTooltip="errorhandling">
+            <div tabitem title="Error handling" formGroupName="errorHandling" [isValid]="!!!pmode.currentPmode || pmode.form.get('pmode.errorHandling').valid" runtimeTooltip="errorhandling">
                 <as4-input label="Notify message producer" runtimeTooltip="notifymessageproducer">
                     <input type="checkbox" formControlName="notifyMessageProducer" />
                 </as4-input>
                 <as4-method label="Notify method" runtime="notifymethod" [group]="pmode.form.get('pmode.errorHandling.notifyMethod')" [types]="notifySenders$ | async"></as4-method>
             </div>
-            <div tabitem title="Exception handling" formGroupName="exceptionHandling" [isValid]="!!!pmode.currentPmode || pmode.form.get('pmode.exceptionHandling').valid"
-                runtimeTooltip="exceptionhandling">
+            <div tabitem title="Exception handling" formGroupName="exceptionHandling" [isValid]="!!!pmode.currentPmode || pmode.form.get('pmode.exceptionHandling').valid" runtimeTooltip="exceptionhandling">
                 <as4-input label="Notify message producer" runtimeTooltip="notifymessageproducer">
                     <input type="checkbox" formControlName="notifyMessageProducer" />
                 </as4-input>
-                <as4-method label="Notify method" runtime="notifymethod" [group]="pmode.form.get('pmode.exceptionHandling.notifyMethod')"
-                    [types]="notifySenders$ | async"></as4-method>
+                <as4-method label="Notify method" runtime="notifymethod" [group]="pmode.form.get('pmode.exceptionHandling.notifyMethod')" [types]="notifySenders$ | async"></as4-method>
             </div>
         </as4-tab>
     </div>

@@ -2,6 +2,7 @@
 
 namespace Eu.EDelivery.AS4.Transformers.ConformanceTestTransformers
 {
+    [NotConfigurable]
     [ExcludeFromCodeCoverage]
     public class ConformanceTestingNotifyMessageTransformer : MinderNotifyMessageTransformer
     {

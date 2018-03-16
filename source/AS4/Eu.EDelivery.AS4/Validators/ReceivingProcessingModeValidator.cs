@@ -26,10 +26,17 @@ namespace Eu.EDelivery.AS4.Validators
 
         private void RulesForReplyHandling()
         {
-            RuleFor(pmode => pmode.ReplyHandling).NotNull().WithMessage("A ReplyHandling element must be present in the Receiving PMode.");
+            Func<ReceivingProcessingMode, bool> notForForwarding = pmode => pmode.MessageHandling?.ForwardInformation == null;
+
+            RuleFor(pmode => pmode.ReplyHandling).NotNull().WithMessage("A ReplyHandling element must be present in the Receiving PMode.")
+                                                 .When(notForForwarding);
+                                                 
             When(pmode => pmode.ReplyHandling != null, delegate
             {
-                RuleFor(pmode => pmode.ReplyHandling.SendingPMode).NotEmpty().WithMessage("A SendingPMode must be defined in the ReplyHandling section.");
+                RuleFor(pmode => pmode.ReplyHandling.SendingPMode)
+                    .NotEmpty().WithMessage("A SendingPMode must be defined in the ReplyHandling section.")
+                    .When(notForForwarding);
+
                 RuleFor(pmode => pmode.ReplyHandling.ReceiptHandling).NotNull().WithMessage("A ReceiptHandling element must be defined in the ReplyHandling section.");
                 RuleFor(pmode => pmode.ReplyHandling.ErrorHandling).NotNull().WithMessage("An ErrorHandling element must be defined in the ReplyHandling section.");
             });

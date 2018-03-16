@@ -25,6 +25,7 @@ import { RuntimeService } from './runtime.service';
 import { SettingsService } from './settings.service';
 import { AuthorizationMapComponent } from './authorizationmap/authorizationmap.component';
 import { AuthorizationMapService } from './authorizationmap/authorizationmapservice';
+import { TransformerComponent } from './transformer.component';
 
 const components: any = [
     SettingsComponent,
@@ -33,6 +34,7 @@ const components: any = [
     DatabaseSettingsComponent,
     AgentSettingsComponent,
     ReceiverComponent,
+    TransformerComponent,
     StepSettingsComponent,
     ReceptionAwarenessAgentComponent,
     PortalSettingsComponent,

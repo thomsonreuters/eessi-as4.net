@@ -205,7 +205,7 @@ namespace Eu.EDelivery.AS4.Receivers
             Function messageCallback,
             CancellationToken token)
         {
-            Logger.Info($"Received Message from Datastore with Ebms Message Id: {messageEntity.EbmsMessageId}");
+            Logger.Info($"Received Message from {Table} ({Filter}) with Ebms Message Id: {messageEntity.EbmsMessageId}");
 
             using (Stream stream = await messageEntity.RetrieveMessageBody(Registry.Instance.MessageBodyStore))
             {

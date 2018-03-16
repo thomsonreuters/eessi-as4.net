@@ -1,6 +1,5 @@
 using System;
 using Eu.EDelivery.AS4.Common;
-using Eu.EDelivery.AS4.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
@@ -32,8 +31,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
             Registry.Instance.CreateDatastoreContext = () => new DatastoreContext(Options, StubConfig.Default);
 
             BatchUpdateManager.InMemoryDbContextFactory = () => new DatastoreContext(StubConfig.Default);
-
-            DatastoreRepository.ResetCaches();
         }
 
         private DbContextOptions<DatastoreContext> CreateNewContextOptions()
@@ -55,7 +52,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
         {
             Disposing();
 
-            DatastoreRepository.DisposeCaches();
             GetDataStoreContext = null;
             Registry.Instance.CreateDatastoreContext = null;
             BatchUpdateManager.InMemoryDbContextFactory = null;

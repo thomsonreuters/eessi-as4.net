@@ -33,7 +33,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._19_22
             AS4Component.OverrideSettings(DynamicDiscoverySettings);
             AS4Component.Start();
 
-            InsertSmpConfigurationWith(url: ReceiveAgentEndpoint, enableEncryption: false);
+            InsertSmpConfigurationForAS4Component(url: ReceiveAgentEndpoint, enableEncryption: false);
 
             AS4Message userMessage = UserMessageWithAttachment(argRefPModeId: "8.1.19-pmode");
 
@@ -59,7 +59,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._19_22
             AS4Component.OverrideSettings(DynamicDiscoverySettings);
             AS4Component.Start();
 
-            InsertSmpConfigurationWith(url: ReceiveAgentEndpoint, enableEncryption: true);
+            InsertSmpConfigurationForAS4Component(url: ReceiveAgentEndpoint, enableEncryption: true);
 
             AS4Message userMessage = UserMessageWithAttachment(argRefPModeId: "8.1.20-pmode");
 
@@ -126,7 +126,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._19_22
             AS4Component.OverrideSettings(DynamicDiscoverySettings);
             AS4Component.Start();
 
-            InsertSmpConfigurationWith(ReceiveAgentEndpoint, enableEncryption: false);
+            InsertSmpConfigurationForAS4Component(ReceiveAgentEndpoint, enableEncryption: false);
 
             var str = VirtualStream.CreateVirtualStream();
             str.Write(_8_1_22_message, 0, _8_1_22_message.Length);
@@ -144,7 +144,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._19_22
                 "No Receipt found at AS4.NET Component for Forward Encrypted/Signed Dynamic Discovery Test");
         }
 
-        private void InsertSmpConfigurationWith(string url, bool enableEncryption)
+        private void InsertSmpConfigurationForAS4Component(string url, bool enableEncryption)
         {
             var smpConfig = new SmpConfiguration
             {
@@ -232,9 +232,9 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._19_22
             {
                 ContentType = "image/jpg",
                 Content = new FileStream(
-                    Path.GetFullPath($@".\{submitmessage_single_payload_path}"), 
+                    Path.GetFullPath($@".\{submitmessage_single_payload_path}"),
                     FileMode.Open,
-                    FileAccess.Read, 
+                    FileAccess.Read,
                     FileShare.Read)
             };
         }

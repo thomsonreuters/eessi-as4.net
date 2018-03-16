@@ -74,10 +74,13 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
         /// <returns></returns>
         public async Task<MessagingContext> HandleExecutionException(Exception exception, MessagingContext context)
         {
-            Logger.Error($"Exception occured while executing Steps:{exception.Message}");
+            Logger.Error($"Exception occured while executing Steps: {exception.Message}");
+            Logger.Trace(exception.StackTrace);
+
             if (exception.InnerException != null)
             {
                 Logger.Error(exception.InnerException.Message);
+                Logger.Trace(exception.InnerException.StackTrace);
             }
 
             string ebmsMessageId = await GetEbmsMessageId(context);
@@ -87,7 +90,10 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
                 await SideEffectUsageRepository(
                     async repository =>
                     {
-                        repository.UpdateOutMessage(ebmsMessageId, m => m.SetStatus(OutStatus.Exception));
+                        if (context.MessageEntityId != null)
+                        {
+                            repository.UpdateOutMessage(context.MessageEntityId.Value, m => m.SetStatus(OutStatus.Exception));
+                        }
 
                         OutException outException = new OutException(ebmsMessageId, exception);
                         await DecorateExceptionEntityWithContextInfoAsync(outException, context);

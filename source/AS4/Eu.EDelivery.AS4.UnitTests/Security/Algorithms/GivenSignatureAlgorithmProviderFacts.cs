@@ -9,13 +9,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Algorithms
     /// </summary>
     public class GivenSignatureAlgorithmProviderFacts
     {
-        private readonly SignatureAlgorithmProvider _provider;
-
-        public GivenSignatureAlgorithmProviderFacts()
-        {
-            _provider = new SignatureAlgorithmProvider();
-        }
-
         public class GivenValidArguments : GivenSignatureAlgorithmProviderFacts
         {
             [Fact]
@@ -25,7 +18,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Algorithms
                 const string key = "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256";
 
                 // Act
-                SignatureAlgorithm signatureAlgorithm = _provider.Get(key);
+                SignatureAlgorithm signatureAlgorithm = SignatureAlgorithmProvider.Get(key);
 
                 // Assert
                 Assert.NotNull(signatureAlgorithm);
@@ -40,7 +33,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Algorithms
                 XmlDocument xmlDocument = GetEnvelopeDocument(key);
 
                 // Act
-                SignatureAlgorithm signatureAlgorithm = _provider.Get(xmlDocument);
+                SignatureAlgorithm signatureAlgorithm = SignatureAlgorithmProvider.Get(xmlDocument);
 
                 // Assert
                 Assert.NotNull(signatureAlgorithm);
@@ -54,7 +47,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Algorithms
                 const string key = "http://www.w3.org/2001/04/xmldsig-more#rsa-sha384";
 
                 // Act
-                SignatureAlgorithm signatureAlgorithm = _provider.Get(key);
+                SignatureAlgorithm signatureAlgorithm = SignatureAlgorithmProvider.Get(key);
 
                 // Assert
                 Assert.NotNull(signatureAlgorithm);
@@ -69,7 +62,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Algorithms
                 XmlDocument xmlDocument = GetEnvelopeDocument(key);
 
                 // Act
-                SignatureAlgorithm signatureAlgorithm = _provider.Get(xmlDocument);
+                SignatureAlgorithm signatureAlgorithm = SignatureAlgorithmProvider.Get(xmlDocument);
 
                 // Assert
                 Assert.NotNull(signatureAlgorithm);
@@ -83,7 +76,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Algorithms
                 const string key = "http://www.w3.org/2001/04/xmldsig-more#rsa-sha512";
 
                 // Act
-                SignatureAlgorithm signatureAlgorithm = _provider.Get(key);
+                SignatureAlgorithm signatureAlgorithm = SignatureAlgorithmProvider.Get(key);
 
                 // Assert
                 Assert.NotNull(signatureAlgorithm);
@@ -98,7 +91,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Algorithms
                 XmlDocument xmlDocument = GetEnvelopeDocument(key);
 
                 // Act
-                SignatureAlgorithm signatureAlgorithm = _provider.Get(xmlDocument);
+                SignatureAlgorithm signatureAlgorithm = SignatureAlgorithmProvider.Get(xmlDocument);
 
                 // Assert
                 Assert.NotNull(signatureAlgorithm);

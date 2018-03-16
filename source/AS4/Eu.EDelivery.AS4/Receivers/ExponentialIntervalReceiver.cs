@@ -14,6 +14,7 @@ namespace Eu.EDelivery.AS4.Receivers
     /// Receive in a exponential interval <see cref="IntervalRequest"/> instances.
     /// </summary>
     /// <typeparam name="T"></typeparam>
+    [NotConfigurable]
     public abstract class ExponentialIntervalReceiver<T> : IReceiver where T : IntervalRequest
     {
         private readonly IDictionary<DateTime, List<T>> _runSchedule;

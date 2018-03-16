@@ -59,12 +59,19 @@ namespace Eu.EDelivery.AS4.Fe.Runtime
         /// </value>
         IEnumerable<ItemType> AttachmentUploaders { get; }
         /// <summary>
+        /// Gets the dynamic discovery profiles.
+        /// </summary>
+        /// <value>
+        /// The dynamic discovery profiles.
+        /// </value>
+        IEnumerable<ItemType> DynamicDiscoveryProfiles { get; }
+        /// <summary>
         /// Gets the receiving pmode.
         /// </summary>
         /// <value>
         /// The receiving pmode.
         /// </value>
-        IEnumerable<ItemType> ReceivingPmode { get; }
+        IEnumerable<ItemType> ReceivingPmode { get; }        
         /// <summary>
         /// Initializes this instance.
         /// </summary>

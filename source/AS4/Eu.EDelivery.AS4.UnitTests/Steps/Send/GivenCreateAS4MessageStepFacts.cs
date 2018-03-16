@@ -1,9 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
@@ -13,7 +11,6 @@ using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Steps.Submit;
 using Eu.EDelivery.AS4.Strategies.Retriever;
-using Eu.EDelivery.AS4.UnitTests.Model;
 using Moq;
 using Xunit;
 using Party = Eu.EDelivery.AS4.Model.Core.Party;
@@ -318,7 +315,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             var sut = new CreateAS4MessageStep(stubProvider.Object);
 
             // Act
-            return await sut.ExecuteAsync(context, CancellationToken.None);
+            return await sut.ExecuteAsync(context);
         }
     }
 }

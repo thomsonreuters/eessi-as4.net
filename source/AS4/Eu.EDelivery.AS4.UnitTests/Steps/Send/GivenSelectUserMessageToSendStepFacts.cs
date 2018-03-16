@@ -85,7 +85,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             MessagingContext context = ContextWithPullRequest(expectedMpc);
 
             // Act
-            return await sut.ExecuteAsync(context, CancellationToken.None);
+            return await sut.ExecuteAsync(context);
         }
 
         private void InsertUserMessage(string mpc, MessageExchangePattern pattern, Operation operation)

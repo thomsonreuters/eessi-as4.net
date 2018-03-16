@@ -94,9 +94,9 @@ namespace Eu.EDelivery.AS4.Strategies.Database
 
             if (tableName.Equals("OutMessages"))
             {
-                string[] ebmsMessageIds = entities.ToArray().Cast<OutMessage>().Select(m => m.EbmsMessageId).ToArray();
+                long[] outMessageIds = entities.ToArray().Cast<OutMessage>().Select(m => m.Id).ToArray();
                 _context.ReceptionAwareness.RemoveRange(
-                    _context.ReceptionAwareness.Where(r => ebmsMessageIds.Contains(r.InternalMessageId)).ToArray());
+                    _context.ReceptionAwareness.Where(r => outMessageIds.Contains(r.RefToOutMessageId)).ToArray());
             }
 
             _context.RemoveRange(entities);

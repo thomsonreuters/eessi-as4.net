@@ -3,7 +3,6 @@ using System.ComponentModel;
 using System.Configuration;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
-using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Exceptions;
@@ -47,11 +46,10 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// Start Decrypting <see cref="AS4Message"/>
         /// </summary>
         /// <param name="context"></param>
-        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<StepResult> ExecuteAsync(MessagingContext context, CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(MessagingContext context)
         {
-            if (context.AS4Message.IsSignalMessage) 
+            if (context.AS4Message.IsSignalMessage)
             {
                 return StepResult.Success(context);
             }
@@ -63,16 +61,16 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             if (decryption.Encryption == Limit.Required && !as4Message.IsEncrypted)
             {
                 return FailedDecryptResult(
-                    $"AS4 Message is not encrypted but Receiving PMode {pmode.Id} requires it", 
-                    ErrorAlias.PolicyNonCompliance, 
+                    $"AS4 Message is not encrypted but Receiving PMode {pmode.Id} requires it",
+                    ErrorAlias.PolicyNonCompliance,
                     context);
             }
 
             if (decryption.Encryption == Limit.NotAllowed && as4Message.IsEncrypted)
             {
                 return FailedDecryptResult(
-                    $"AS4 Message is encrypted but Receiving PMode {pmode.Id} doesn't allow it", 
-                    ErrorAlias.PolicyNonCompliance, 
+                    $"AS4 Message is encrypted but Receiving PMode {pmode.Id} doesn't allow it",
+                    ErrorAlias.PolicyNonCompliance,
                     context);
             }
 
@@ -97,7 +95,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
             if (isIgnored)
             {
-                Logger.Info($"{messagingContext.EbmsMessageId} Decryption Receiving PMode {pmode.Id} is ignored");
+                Logger.Info($"{messagingContext.EbmsMessageId} Decryption is ignored in Receiving PMode {pmode.Id}");
             }
 
             return isIgnored;
@@ -139,17 +137,17 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             if (decryption.DecryptCertificateInformation is CertificateFindCriteria certFindCriteria)
             {
                 return _certificateRepository.GetCertificate(
-                    certFindCriteria.CertificateFindType, 
+                    certFindCriteria.CertificateFindType,
                     certFindCriteria.CertificateFindValue);
             }
 
             if (decryption.DecryptCertificateInformation is PrivateKeyCertificate embeddedCertInfo)
             {
                 return new X509Certificate2(
-                    rawData: Convert.FromBase64String(embeddedCertInfo.Certificate), 
-                    password: embeddedCertInfo.Password, 
-                    keyStorageFlags: X509KeyStorageFlags.Exportable 
-                                     | X509KeyStorageFlags.MachineKeySet 
+                    rawData: Convert.FromBase64String(embeddedCertInfo.Certificate),
+                    password: embeddedCertInfo.Password,
+                    keyStorageFlags: X509KeyStorageFlags.Exportable
+                                     | X509KeyStorageFlags.MachineKeySet
                                      | X509KeyStorageFlags.PersistKeySet);
             }
 

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.ComponentModel;
-using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
@@ -25,7 +24,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// <summary>
         /// Initializes a new instance of the <see cref="SendAS4SignalMessageStep" /> class.
         /// </summary>
-        public SendAS4SignalMessageStep() 
+        public SendAS4SignalMessageStep()
             : this(Registry.Instance.CreateDatastoreContext, Registry.Instance.MessageBodyStore) { }
 
         /// <summary>
@@ -43,11 +42,8 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// Start executing the Receipt Decorator
         /// </summary>
         /// <param name="messagingContext"></param>
-        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<StepResult> ExecuteAsync(
-            MessagingContext messagingContext,
-            CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
             if (messagingContext.AS4Message == null || messagingContext.AS4Message.IsEmpty)
             {
@@ -57,12 +53,12 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             using (DatastoreContext dataContext = _createDatastoreContext())
             {
                 var outService = new OutMessageService(
-                    new DatastoreRepository(dataContext), 
+                    new DatastoreRepository(dataContext),
                     _messageBodyStore);
 
                 outService.InsertAS4Message(messagingContext, Operation.NotApplicable);
 
-                await dataContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+                await dataContext.SaveChangesAsync().ConfigureAwait(false);
             }
 
             if (IsReplyPatternCallback(messagingContext))
@@ -72,9 +68,9 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
             if (Logger.IsInfoEnabled)
             {
-                string signalMessageType = 
-                    messagingContext.AS4Message.PrimarySignalMessage is Receipt 
-                        ? "Receipt" 
+                string signalMessageType =
+                    messagingContext.AS4Message.PrimarySignalMessage is Receipt
+                        ? "Receipt"
                         : "Error";
 
                 Logger.Info(

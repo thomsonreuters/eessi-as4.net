@@ -29,7 +29,7 @@ namespace Eu.EDelivery.AS4.Migrations
                     ServiceValue = table.Column<string>(maxLength: 256, nullable: true),
                     TLSEnabled = table.Column<bool>(nullable: false),
                     ToPartyId = table.Column<string>(maxLength: 256, nullable: false),
-                    URL = table.Column<string>(maxLength: 256, nullable: false)
+                    URL = table.Column<string>(maxLength: 2083, nullable: false)
                 },
                 constraints: table =>
                 {

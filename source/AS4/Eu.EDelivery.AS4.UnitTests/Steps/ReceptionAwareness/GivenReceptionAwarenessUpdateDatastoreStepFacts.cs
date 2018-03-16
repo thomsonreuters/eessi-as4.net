@@ -30,7 +30,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.ReceptionAwareness
         public class GivenValidArguments : GivenReceptionAwarenessUpdateDatastoreStepFacts
         {
             [Fact]
-            public async Task ThenMessageIsAlreadyAwnseredAsync()
+            public async Task ThenMessageIsAlreadyAnsweredAsync()
             {
                 // Arrange
                 EntityReceptionAwareness awareness = InsertAlreadyAnsweredMessage();
@@ -39,33 +39,33 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.ReceptionAwareness
                 var step = new ReceptionAwarenessUpdateDatastoreStep(_messageBodyStore, GetDataStoreContext);
 
                 // Act
-                await step.ExecuteAsync(internalMessage, CancellationToken.None);
+                await step.ExecuteAsync(internalMessage);
 
                 // Assert
                 AssertReceptionAwareness(
-                    awareness.InternalMessageId,
+                    awareness.RefToEbmsMessageId,
                     x => Assert.Equal(ReceptionStatus.Completed, ReceptionStatusUtils.Parse(x.Status)));
             }
 
             private EntityReceptionAwareness InsertAlreadyAnsweredMessage()
             {
-                EntityReceptionAwareness awareness = CreateDefaultReceptionAwareness();
+                const string ebmsMessageId = "message-id";
 
-                InsertReceptionAwareness(awareness);
-                ArrangeMessageIsAlreadyAnswered(awareness.InternalMessageId);
-
-                return awareness;
-            }
-
-            private void ArrangeMessageIsAlreadyAnswered(string messageId)
-            {
                 using (var context = GetDataStoreContext())
                 {
-                    var outMessage = new OutMessage(ebmsMessageId: messageId);
+                    var outMessage = new OutMessage(ebmsMessageId: ebmsMessageId);
                     outMessage.SetStatus(OutStatus.Ack);
                     context.OutMessages.Add(outMessage);
 
                     context.SaveChanges();
+
+                    EntityReceptionAwareness awareness = CreateDefaultReceptionAwarenessFor(outMessage);
+
+                    context.ReceptionAwareness.Add(awareness);
+
+                    context.SaveChanges();
+
+                    return awareness;
                 }
             }
 
@@ -73,22 +73,19 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.ReceptionAwareness
             public async Task ThenMessageIsUnansweredAsync()
             {
                 // Arrange
-                EntityReceptionAwareness awareness = CreateDefaultReceptionAwareness();
+                EntityReceptionAwareness awareness = CreateOutMessageWithReceptionAwareness();
                 awareness.CurrentRetryCount = awareness.TotalRetryCount;
 
-                InsertReceptionAwareness(awareness);
-                InsertOutMessage(awareness.InternalMessageId);
-
-                var internalMessage = new MessagingContext(awareness);
+                var messagingContext = new MessagingContext(awareness);
                 var step = new ReceptionAwarenessUpdateDatastoreStep(_messageBodyStore, GetDataStoreContext);
 
                 // Act
-                await step.ExecuteAsync(internalMessage, CancellationToken.None);
+                await step.ExecuteAsync(messagingContext);
 
                 // Assert
-                AssertNotNullInMessage(awareness.InternalMessageId);
+                AssertNotNullInMessage(awareness.RefToEbmsMessageId);
                 AssertReceptionAwareness(
-                    awareness.InternalMessageId,
+                    awareness.RefToEbmsMessageId,
                     x => Assert.Equal(ReceptionStatus.Completed, ReceptionStatusUtils.Parse(x.Status)));
             }
 
@@ -106,26 +103,45 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.ReceptionAwareness
             public async Task ThenStatusIsResetToPending()
             {
                 // Arrange
-                EntityReceptionAwareness awareness = CreateDefaultReceptionAwareness();
-                awareness.CurrentRetryCount = 0;
+                EntityReceptionAwareness awareness =
+                    CreateOutMessageWithReceptionAwareness(currentRetryCount: 0, status: ReceptionStatus.Busy);
 
-                // When the DataReceiver receives a ReceptionAwareness item, it's status is Locked to Busy.
-                awareness.SetStatus(ReceptionStatus.Busy);
-
-                InsertReceptionAwareness(awareness);
-                InsertOutMessage(awareness.InternalMessageId);
-
-                var internalMessage = new MessagingContext(awareness);
+                var messagingContext = new MessagingContext(awareness);
                 var step = new ReceptionAwarenessUpdateDatastoreStep(_messageBodyStore, GetDataStoreContext);
 
                 // Act
-                await step.ExecuteAsync(internalMessage, CancellationToken.None);
+                await step.ExecuteAsync(messagingContext);
 
                 // Assert
-                AssertOutMessage(awareness.InternalMessageId, x => Assert.Equal(Operation.ToBeSent, OperationUtils.Parse(x.Operation)));
+                AssertOutMessage(awareness.RefToEbmsMessageId, x => Assert.Equal(Operation.ToBeSent, OperationUtils.Parse(x.Operation)));
                 AssertReceptionAwareness(
-                    awareness.InternalMessageId,
+                    awareness.RefToEbmsMessageId,
                     x => Assert.Equal(ReceptionStatus.Pending, ReceptionStatusUtils.Parse(x.Status)));
+            }
+
+            private EntityReceptionAwareness CreateOutMessageWithReceptionAwareness(int currentRetryCount = 0, ReceptionStatus status = ReceptionStatus.Pending)
+            {
+                string ebmsMessageId = Guid.NewGuid().ToString();
+
+                using (var context = GetDataStoreContext())
+                {
+                    var outMessage = new OutMessage(ebmsMessageId: ebmsMessageId);
+                    outMessage.SetPModeInformation(new SendingProcessingMode());
+                    context.OutMessages.Add(outMessage);
+
+                    context.SaveChanges();
+
+                    EntityReceptionAwareness awareness = CreateDefaultReceptionAwarenessFor(outMessage);
+
+                    awareness.CurrentRetryCount = currentRetryCount;
+                    awareness.SetStatus(status);
+
+                    context.ReceptionAwareness.Add(awareness);
+
+                    context.SaveChanges();
+
+                    return awareness;
+                }
             }
 
             private void AssertOutMessage(string messagId, Action<OutMessage> condition)
@@ -144,7 +160,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.ReceptionAwareness
                 using (DatastoreContext context = GetDataStoreContext())
                 {
                     EntityReceptionAwareness awareness =
-                        context.ReceptionAwareness.FirstOrDefault(a => a.InternalMessageId.Equals(messageId));
+                        context.ReceptionAwareness.FirstOrDefault(a => a.RefToEbmsMessageId.Equals(messageId));
 
                     Assert.NotNull(awareness);
                     condition(awareness);
@@ -152,29 +168,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.ReceptionAwareness
             }
         }
 
-        protected void InsertReceptionAwareness(EntityReceptionAwareness receptionAwareness)
+        protected EntityReceptionAwareness CreateDefaultReceptionAwarenessFor(OutMessage outMessage)
         {
-            using (DatastoreContext context = GetDataStoreContext())
-            {
-                context.ReceptionAwareness.Add(receptionAwareness);
-                context.SaveChanges();
-            }
-        }
-
-        protected void InsertOutMessage(string messageId)
-        {
-            var pmode = new SendingProcessingMode();
-            var outMessage = new OutMessage(ebmsMessageId: messageId);
-            outMessage.SetPModeInformation(pmode);
-            GetDataStoreContext.InsertOutMessage(outMessage);
-        }
-
-        protected EntityReceptionAwareness CreateDefaultReceptionAwareness()
-        {
-            var receptionAwareness = new EntityReceptionAwareness
+            var receptionAwareness = new EntityReceptionAwareness(outMessage.Id, outMessage.EbmsMessageId)
             {
                 CurrentRetryCount = 0,
-                InternalMessageId = "message-id",
                 LastSendTime = DateTimeOffset.Now.AddMinutes(-1),
                 RetryInterval = "00:00:00",
                 TotalRetryCount = 5

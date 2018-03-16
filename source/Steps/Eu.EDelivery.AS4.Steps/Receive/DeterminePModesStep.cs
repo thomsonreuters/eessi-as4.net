@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Exceptions;
@@ -53,9 +52,8 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// Start determine the Receiving Processing Mode
         /// </summary>
         /// <param name="messagingContext"></param>
-        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
             AS4Message as4Message = messagingContext.AS4Message;
 
@@ -97,9 +95,13 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 // We must take into account that it is possible that we have an OutMessage that has
                 // been forwarded; in that case, we must not retrieve the sending - pmode since we 
                 // will have to forward the signalmessage.
-                string pmodeString = repository.GetOutMessageData(
-                    m => m.EbmsMessageId == signalMessage.RefToMessageId && m.Intermediary == false,
-                    m => m.PMode);
+                string pmodeString =
+                    repository.GetOutMessageData(
+                                  where: m => m.EbmsMessageId == signalMessage.RefToMessageId && m.Intermediary == false,
+                                  selection: m => new { m.PMode, m.ModificationTime })
+                              .OrderByDescending(m => m.ModificationTime)
+                              .FirstOrDefault()
+                              ?.PMode;
 
                 return await AS4XmlSerializer.FromStringAsync<SendPMode>(pmodeString);
             }
@@ -201,6 +203,15 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
         private SendPMode GetReferencedSendingPMode(ReceivePMode receivePMode)
         {
+            if (receivePMode.MessageHandling.MessageHandlingType == MessageHandlingChoiceType.Forward)
+            {
+                if (String.IsNullOrWhiteSpace(receivePMode.ReplyHandling?.SendingPMode) == false)
+                {
+                    Logger.Info("The received message must be forwarded, no SendingPMode must be retrieved since a SignalMessage may not be created.");
+                }
+                return null;
+            }
+
             if (string.IsNullOrWhiteSpace(receivePMode.ReplyHandling.SendingPMode))
             {
                 Logger.Warn("No SendingPMode defined in ReplyHandling of Received PMode.");

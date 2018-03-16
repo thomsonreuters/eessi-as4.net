@@ -110,9 +110,11 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
                     var outException = new OutException(context.EbmsMessageId, exception);
                     repository.InsertOutException(outException);
 
-                    if (context.NotifyMessage.EntityType == typeof(OutMessage))
+                    if (context.NotifyMessage.EntityType == typeof(OutMessage) &&
+                        context.MessageEntityId != null)
                     {
-                        repository.UpdateOutMessage(context.EbmsMessageId, o => o.SetStatus(OutStatus.Exception));
+                        repository.UpdateOutMessage(context.MessageEntityId.Value,
+                                                    o => o.SetStatus(OutStatus.Exception));
                     }
                 }
 
@@ -120,6 +122,6 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
             }
 
             return new MessagingContext(exception);
-        }        
+        }
     }
 }

@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel;
-using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
@@ -22,9 +21,8 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         /// Start updating the InMessages
         /// </summary>
         /// <param name="messagingContext"></param>
-        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
             Logger.Info($"{messagingContext.EbmsMessageId} Update AS4 UserMessages in Datastore");
 

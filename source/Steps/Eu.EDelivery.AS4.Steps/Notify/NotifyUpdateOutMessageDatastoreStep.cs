@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
@@ -23,9 +22,8 @@ namespace Eu.EDelivery.AS4.Steps.Notify
         /// Start updating the Data store for the <see cref="NotifyMessage"/>
         /// </summary>
         /// <param name="messagingContext"></param>
-        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
             NotifyMessageEnvelope notifyMessage = messagingContext.NotifyMessage;
             Logger.Info($"{messagingContext.EbmsMessageId} Update Notify Message {notifyMessage.MessageInfo.MessageId}");
@@ -34,7 +32,7 @@ namespace Eu.EDelivery.AS4.Steps.Notify
             {
                 var repository = new DatastoreRepository(context);
                 repository.UpdateOutMessage(
-                    notifyMessage.MessageInfo.MessageId, 
+                    messagingContext.MessageEntityId.Value,
                     m =>
                     {
                         m.SetStatus(OutStatus.Notified);

@@ -1,12 +1,11 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
+using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Steps.Send.Response;
@@ -37,6 +36,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
 
                 // Assert
                 Assert.Equal(expectedResponse.ReceivedStream, actualResult.MessagingContext.ReceivedMessage);
+                AssertNoChangeInPModes(expectedResponse, actualResult);
             }
         }
 
@@ -54,6 +54,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
 
                 // Assert               
                 Assert.False(actualResult.CanProceed);
+                AssertNoChangeInPModes(as4Response, actualResult);
             }
 
             [Fact]
@@ -68,16 +69,20 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
 
                 // Assert               
                 Assert.False(actualResult.CanProceed);
+                AssertNoChangeInPModes(as4Response, actualResult);
             }
 
             private static IAS4Response CreateEmptyAS4ResponseWithStatus(HttpStatusCode statusCode)
             {
                 var stubAS4Response = new Mock<IAS4Response>();
+                var context = new MessageContextBuilder()
+                    .WithSendingPMode(new SendingProcessingMode())
+                    .WithReceivingPMode(new ReceivingProcessingMode())
+                    .Build();
 
+                stubAS4Response.Setup(r => r.OriginalRequest).Returns(context);
                 stubAS4Response.Setup(r => r.StatusCode).Returns(statusCode);
-
                 stubAS4Response.Setup(r => r.ReceivedAS4Message).Returns(AS4Message.Empty);                
-                stubAS4Response.Setup(r => r.OriginalRequest).Returns(new EmptyMessagingContext());
 
                 return stubAS4Response.Object;
             }
@@ -102,9 +107,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
             private static IAS4Response CreateAS4ResponseWithResultedMessage(AS4Message resultedMessage)
             {
                 var stubAS4Response = new Mock<IAS4Response>();
+                var context = new MessageContextBuilder()
+                    .WithSendingPMode(new SendingProcessingMode())
+                    .WithReceivingPMode(new ReceivingProcessingMode())
+                    .Build();
 
+                stubAS4Response.Setup(r => r.OriginalRequest).Returns(context);
                 stubAS4Response.Setup(r => r.ReceivedAS4Message).Returns(resultedMessage);
-                stubAS4Response.Setup(r => r.OriginalRequest).Returns(new EmptyMessagingContext());
 
                 return stubAS4Response.Object;
             }
@@ -122,10 +131,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
                 var handler = new PullRequestResponseHandler(spyHandler);
 
                 // Act
-                StepResult result = await handler.HandleResponse(as4Response);
+                await handler.HandleResponse(as4Response);
 
                 // Assert
-                Assert.True(spyHandler.IsCalled);                
+                Assert.True(spyHandler.IsCalled);  
             }
 
             [Fact]
@@ -140,13 +149,18 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
 
                 // Assert
                 Assert.False(actualResult.CanProceed);
+                AssertNoChangeInPModes(stubAS4Response, actualResult);
             }
 
             private static async Task<IAS4Response> CreatePullRequestWarning()
             {
                 var stubAS4Response = new Mock<IAS4Response>();
 
-                MessagingContext pullRequest = new MessageContextBuilder().WithSignalMessage(new PullRequest(null)).Build();
+                MessagingContext pullRequest = new MessageContextBuilder()
+                    .WithSignalMessage(new PullRequest(null))
+                    .WithSendingPMode(new SendingProcessingMode())
+                    .WithReceivingPMode(new ReceivingProcessingMode())
+                    .Build();
 
                 stubAS4Response.Setup(r => r.OriginalRequest).Returns(pullRequest);
                 stubAS4Response.Setup(r => r.ReceivedAS4Message).Returns(await PullResponseWarning());
@@ -174,17 +188,21 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
                 StepResult actualResult = await handler.HandleResponse(stubAS4Response);
 
                 // Assert
-                Assert.False(actualResult.CanProceed);                
+                Assert.False(actualResult.CanProceed);   
+                AssertNoChangeInPModes(stubAS4Response, actualResult);
             }
 
             private static IAS4Response CreateResponseWith(SignalMessage request, SignalMessage response)
             {
                 var stubAS4Response = new Mock<IAS4Response>();
 
-                Func<SignalMessage, MessagingContext> buildContext =
-                    m => new MessageContextBuilder().WithSignalMessage(m).Build();
+                MessagingContext context = new MessageContextBuilder()
+                    .WithSignalMessage(request)
+                    .WithSendingPMode(new SendingProcessingMode())
+                    .WithReceivingPMode(new ReceivingProcessingMode())
+                    .Build();
 
-                stubAS4Response.Setup(r => r.OriginalRequest).Returns(buildContext(request));
+                stubAS4Response.Setup(r => r.OriginalRequest).Returns(context);
                 stubAS4Response.Setup(r => r.ReceivedAS4Message).Returns(AS4Message.Create(response));
 
                 return stubAS4Response.Object;
@@ -199,9 +217,18 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
         private static AS4Response CreateAnonymousAS4Response()
         {
             return AS4Response.Create(
-                requestMessage: new EmptyMessagingContext(),
-                webResponse: new Mock<HttpWebResponse>().Object,
-                cancellation: CancellationToken.None).Result;
+                requestMessage: new EmptyMessagingContext
+                {
+                    SendingPMode = new SendingProcessingMode(),
+                    ReceivingPMode = new ReceivingProcessingMode()
+                },
+                webResponse: new Mock<HttpWebResponse>().Object).Result;
+        }
+
+        private static void AssertNoChangeInPModes(IAS4Response expected, StepResult actual)
+        {
+            Assert.Same(expected.OriginalRequest.SendingPMode, actual.MessagingContext.SendingPMode);
+            Assert.Same(expected.OriginalRequest.ReceivingPMode, actual.MessagingContext.ReceivingPMode);
         }
     }
 }

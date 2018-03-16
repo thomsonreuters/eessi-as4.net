@@ -1,8 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+    using System.Linq;
 using Eu.EDelivery.AS4.Agents;
 using Eu.EDelivery.AS4.ServiceHandler.Agents;
 using Eu.EDelivery.AS4.UnitTests.Common;
+using FsCheck;
+using FsCheck.Xunit;
+using Newtonsoft.Json;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Agents
@@ -34,6 +38,25 @@ namespace Eu.EDelivery.AS4.UnitTests.Agents
 
             // Assert
             Assert.NotEmpty(agents);
+        }
+
+        [Property]
+        public Property Default_Transformers_Are_Serializable(AgentType type)
+        {
+            // Arrange
+            TransformerConfigEntry expected = AgentProvider.GetDefaultTransformerForAgentType(type);
+            string json = JsonConvert.SerializeObject(expected);
+
+            // Act
+            var actual = JsonConvert.DeserializeObject<TransformerConfigEntry>(json);
+
+            // Assert
+            bool sameDefault = expected.DefaultTransformer.Type == actual.DefaultTransformer.Type;
+            bool sameOthers = expected.OtherTransformers
+                .Zip(actual.OtherTransformers, (t1, t2) => t1.Type == t2.Type)
+                .All(x => x);
+
+            return sameDefault.ToProperty().And(sameOthers);
         }
     }
 }

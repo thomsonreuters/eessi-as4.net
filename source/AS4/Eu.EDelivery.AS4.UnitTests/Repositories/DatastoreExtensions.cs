@@ -12,12 +12,21 @@ namespace Eu.EDelivery.AS4.UnitTests.Repositories
         /// </summary>
         /// <param name="createContext">The create context.</param>
         /// <param name="message">The message.</param>
-        public static void InsertOutMessage(this Func<DatastoreContext> createContext, OutMessage message)
+        /// <returns>The OutMessage that has been inserted</returns>
+        public static OutMessage InsertOutMessage(this Func<DatastoreContext> createContext, OutMessage message, bool withReceptionAwareness)
         {
             using (DatastoreContext context = createContext())
             {
                 context.OutMessages.Add(message);
                 context.SaveChanges();
+
+                if (withReceptionAwareness)
+                {
+                    context.Add(new ReceptionAwareness(message.Id, message.EbmsMessageId));
+                    context.SaveChanges();
+                }
+
+                return message;
             }
         }
 
@@ -64,17 +73,15 @@ namespace Eu.EDelivery.AS4.UnitTests.Repositories
         }
 
         /// <summary>
-        /// Inserts the reception awareness into the Datastore.
+        /// Inserts the reception awareness.
         /// </summary>
         /// <param name="createContext">The create context.</param>
-        /// <param name="awareness">The awareness.</param>
-        public static void InsertReceptionAwareness(
-            this Func<DatastoreContext> createContext,
-            ReceptionAwareness awareness)
+        /// <param name="ra">The ra.</param>
+        public static void InsertReceptionAwareness(this Func<DatastoreContext> createContext, ReceptionAwareness ra)
         {
             using (DatastoreContext context = createContext())
             {
-                context.ReceptionAwareness.Add(awareness);
+                context.ReceptionAwareness.Add(ra);
                 context.SaveChanges();
             }
         }

@@ -24,19 +24,46 @@ namespace Eu.EDelivery.AS4.Fe.Pmodes.Model
             set
             {
                 pmode = value;
-                if (value?.Security?.Encryption != null && value.Security.Encryption.EncryptionCertificateInformation is JObject json)
-                {
-                    if (json["certificate"] != null) value.Security.Encryption.EncryptionCertificateInformation = json.ToObject<PublicKeyCertificate>();
-                    else value.Security.Encryption.EncryptionCertificateInformation = json.ToObject<CertificateFindCriteria>();
-                }
-
-                if (value?.Security?.Signing?.SigningCertificateInformation == null || !(value.Security.Signing.SigningCertificateInformation is JObject signing)) return;
-                value.Security.Signing.SigningCertificateInformation = signing.ToObject<CertificateFindCriteria>();
 
                 if (value?.MepBinding == MessageExchangePatternBinding.Pull)
                 {
                     value.PushConfiguration = null;
                 }
+                else if (value.PushConfiguration?.TlsConfiguration != null 
+                    && value.PushConfiguration.TlsConfiguration.ClientCertificateInformation is JObject clientCert)
+                {
+                    if (clientCert["certificate"] != null)
+                    {
+                        value.PushConfiguration.TlsConfiguration.ClientCertificateInformation =
+                            clientCert.ToObject<PrivateKeyCertificate>();
+                    }
+                    else
+                    {
+                        value.PushConfiguration.TlsConfiguration.ClientCertificateInformation =
+                            clientCert.ToObject<ClientCertificateReference>();
+                    }
+                    
+                }
+
+                if (value?.Security?.Encryption != null 
+                    && value.Security.Encryption.EncryptionCertificateInformation is JObject encryptCert)
+                {
+                    if (encryptCert["certificate"] != null)
+                    {
+                        value.Security.Encryption.EncryptionCertificateInformation =
+                            encryptCert.ToObject<PublicKeyCertificate>();
+                    }
+                    else
+                    {
+                        value.Security.Encryption.EncryptionCertificateInformation = encryptCert.ToObject<CertificateFindCriteria>();
+                    }
+                }
+
+                if (value?.Security?.Signing?.SigningCertificateInformation != null 
+                    && (value.Security.Signing.SigningCertificateInformation is JObject signing))
+                {
+                    value.Security.Signing.SigningCertificateInformation = signing.ToObject<CertificateFindCriteria>();
+                }                
             }
         }
 

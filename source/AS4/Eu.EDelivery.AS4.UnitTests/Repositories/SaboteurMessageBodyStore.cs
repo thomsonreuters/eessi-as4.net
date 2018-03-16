@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Repositories;
@@ -31,7 +30,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Repositories
         /// </summary>
         /// <param name="location">The location.</param>
         /// <param name="message">The message to save.</param>
-        /// <param name="cancellation">The cancellation.</param>
         /// <returns>
         /// Location where the <paramref name="message" /> is saved.
         /// </returns>
@@ -46,7 +44,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Repositories
         /// </summary>
         /// <param name="location">The location.</param>
         /// <param name="message">The message that should overwrite the existing messagebody.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
         public void UpdateAS4Message(string location, AS4Message message)
@@ -54,7 +51,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Repositories
             throw new NotImplementedException();
         }
 
-        public Task<string> SaveAS4MessageStreamAsync(string location, Stream as4MessageStream, CancellationToken cancellation)
+        public Task<string> SaveAS4MessageStreamAsync(string location, Stream as4MessageStream)
         {
             throw new NotImplementedException();
         }

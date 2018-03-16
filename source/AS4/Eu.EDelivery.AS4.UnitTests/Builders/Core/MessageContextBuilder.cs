@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
+using Eu.EDelivery.AS4.Model.PMode;
 
 namespace Eu.EDelivery.AS4.UnitTests.Builders.Core
 {
@@ -108,6 +109,28 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Core
         {
             _messagingContext.AS4Message.AddMessageUnit(userMessage);
 
+            return this;
+        }
+
+        /// <summary>
+        /// Add a <see cref="SendingProcessingMode"/> to the Builder.
+        /// </summary>
+        /// <param name="pmode">The given pmode.</param>
+        /// <returns></returns>
+        public MessageContextBuilder WithSendingPMode(SendingProcessingMode pmode)
+        {
+            _messagingContext.SendingPMode = pmode;
+            return this;
+        }
+
+        /// <summary>
+        /// Add a <see cref="ReceivingProcessingMode"/> to the Builder.
+        /// </summary>
+        /// <param name="pmode">The given pmode.</param>
+        /// <returns></returns>
+        public MessageContextBuilder WithReceivingPMode(ReceivingProcessingMode pmode)
+        {
+            _messagingContext.ReceivingPMode = pmode;
             return this;
         }
 
