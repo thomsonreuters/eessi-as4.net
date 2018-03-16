@@ -14,7 +14,7 @@ using Reference = System.Security.Cryptography.Xml.Reference;
 
 namespace Eu.EDelivery.AS4.Security.Strategies
 {
-    internal class SignatureVerificationStrategy : SignatureStrategy, ISignatureVerificationStrategy
+    internal class SignatureVerificationStrategy : SignatureStrategy
     {
 
         private readonly SecurityTokenReference _securityTokenReference;
@@ -98,10 +98,5 @@ namespace Eu.EDelivery.AS4.Security.Strategies
         {
             return x => x?.Uri != null && x.Uri.StartsWith(CidPrefix) && x.Uri.Length > CidPrefix.Length;
         }
-    }
-
-    public interface ISignatureVerificationStrategy
-    {
-        bool VerifySignature(VerifySignatureConfig options);
     }
 }

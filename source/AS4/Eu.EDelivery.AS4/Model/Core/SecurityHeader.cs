@@ -49,7 +49,7 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// Sign using the given <paramref name="signingStrategy"/>
         /// </summary>
         /// <param name="signingStrategy"></param>
-        public void Sign(ISignStrategy signingStrategy)
+        internal void Sign(SignStrategy signingStrategy)
         {
             if (signingStrategy == null)
             {
@@ -67,7 +67,7 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// Encrypts the message and its attachments.
         /// </summary>
         /// <param name="encryptionStrategy"></param>
-        internal void Encrypt(IEncryptionStrategy encryptionStrategy)
+        internal void Encrypt(EncryptionStrategy encryptionStrategy)
         {
             if (encryptionStrategy == null)
             {
@@ -88,7 +88,7 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// Decrypts the message and its attachments.
         /// </summary>
         /// <param name="decryptionStrategy"></param>
-        internal void Decrypt(IDecryptionStrategy decryptionStrategy)
+        internal void Decrypt(DecryptionStrategy decryptionStrategy)
         {
             if (decryptionStrategy == null)
             {

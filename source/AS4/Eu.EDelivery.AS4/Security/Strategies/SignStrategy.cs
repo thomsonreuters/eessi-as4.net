@@ -15,7 +15,7 @@ using Reference = System.Security.Cryptography.Xml.Reference;
 
 namespace Eu.EDelivery.AS4.Security.Strategies
 {
-    public class SignStrategy : SignatureStrategy, ISignStrategy
+    internal class SignStrategy : SignatureStrategy
     {
         public static SignStrategy ForAS4Message(AS4Message as4Message, CalculateSignatureConfig config)
         {
@@ -139,10 +139,5 @@ namespace Eu.EDelivery.AS4.Security.Strategies
                 attachment.ResetContentPosition();
             }
         }
-    }
-
-    public interface ISignStrategy
-    {
-        System.Security.Cryptography.Xml.Signature SignDocument();
     }
 }
