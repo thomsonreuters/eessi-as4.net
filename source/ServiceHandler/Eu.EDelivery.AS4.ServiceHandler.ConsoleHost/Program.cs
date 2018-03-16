@@ -25,8 +25,8 @@ namespace Eu.EDelivery.AS4.ServiceHandler.ConsoleHost
 
             try
             {
-                var setup = new Startup(kernel);
-                setup.Start();
+                var lifecycle = new AS4ComponentLifecycle(kernel);
+                lifecycle.Start();
 
                 ConsoleKeyInfo key;
 
@@ -46,14 +46,14 @@ namespace Eu.EDelivery.AS4.ServiceHandler.ConsoleHost
                             break;
                         case ConsoleKey.R:
                             Console.WriteLine("Restarting...");
-                            setup.Stop();
+                            lifecycle.Stop();
 
                             kernel.Dispose();
                             Config.Instance.Dispose();
 
                             kernel = CreateKernel();
-                            setup = new Startup(kernel);
-                            setup.Start();
+                            lifecycle = new AS4ComponentLifecycle(kernel);
+                            lifecycle.Start();
 
                             break;                            
                     }
@@ -61,7 +61,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler.ConsoleHost
                 while (key.Key != ConsoleKey.Q);
 
                 Console.WriteLine(@"Stopping...");
-                Task task = setup.Stop();
+                Task task = lifecycle.Stop();
 
                 Console.WriteLine($@"Stopped: {task.Status}");
 
@@ -117,7 +117,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler.ConsoleHost
             return new Kernel(agentProvider.GetAgents());
         }
 
-        public class Startup
+        private class AS4ComponentLifecycle
         {
             private readonly CancellationTokenSource _cancellation;
 
@@ -126,10 +126,10 @@ namespace Eu.EDelivery.AS4.ServiceHandler.ConsoleHost
 
 
             /// <summary>
-            /// Initializes a new instance of the <see cref="Startup" /> class.
+            /// Initializes a new instance of the <see cref="AS4ComponentLifecycle" /> class.
             /// </summary>
             /// <param name="kernel">The kernel.</param>
-            public Startup(Kernel kernel)
+            public AS4ComponentLifecycle(Kernel kernel)
             {
                 _kernel = kernel;
                 _cancellation = new CancellationTokenSource();
