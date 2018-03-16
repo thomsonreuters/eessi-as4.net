@@ -16,6 +16,7 @@ import { CanComponentDeactivate } from './../../common/candeactivate.guard';
 import { DialogService } from './../../common/dialog.service';
 import { FormBuilderExtended, FormWrapper } from './../../common/form.service';
 import { ModalService } from './../../common/modal/modal.service';
+import { Transformer } from '../../api';
 
 @Component({
     selector: 'as4-agent-settings',
@@ -106,7 +107,7 @@ export class AgentSettingsComponent implements OnDestroy, CanComponentDeactivate
 
                     let newAgent: SettingsAgent;
                     if (+this.actionType !== -1) {
-                        newAgent = <SettingsAgent> Object.assign({},
+                        newAgent = <SettingsAgent>Object.assign({},
                             this.settings.find((agt) => agt.name === this.actionType));
                     } else {
                         newAgent = new SettingsAgent();
