@@ -6,7 +6,6 @@ using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Security.Encryption;
 using Eu.EDelivery.AS4.Security.References;
 using Eu.EDelivery.AS4.Security.Signing;
-using Eu.EDelivery.AS4.Security.Strategies;
 using Eu.EDelivery.AS4.Serialization;
 
 namespace Eu.EDelivery.AS4.TestUtils
@@ -20,9 +19,7 @@ namespace Eu.EDelivery.AS4.TestUtils
                 Constants.SignAlgorithms.Sha256,
                 Constants.HashFunctions.Sha256);
 
-            var signer = SignStrategy.ForAS4Message(message, config);
-
-            message.SecurityHeader.Sign(signer);
+            message.Sign(config);
 
             return message;
         }

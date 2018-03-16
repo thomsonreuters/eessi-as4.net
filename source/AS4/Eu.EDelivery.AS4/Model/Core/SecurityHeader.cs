@@ -49,7 +49,7 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// Sign using the given <paramref name="signingStrategy"/>
         /// </summary>
         /// <param name="signingStrategy"></param>
-        public void Sign(ISignStrategy signingStrategy)
+        internal void Sign(SignStrategy signingStrategy)
         {
             if (signingStrategy == null)
             {

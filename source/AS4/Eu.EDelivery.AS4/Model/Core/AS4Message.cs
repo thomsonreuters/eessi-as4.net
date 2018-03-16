@@ -440,6 +440,16 @@ namespace Eu.EDelivery.AS4.Model.Core
         }
 
         /// <summary>
+        /// Digitally signs the AS4Message using the given <paramref name="signatureConfiguration"/>
+        /// </summary>
+        /// <param name="signatureConfiguration"></param>
+        public void Sign(CalculateSignatureConfig signatureConfiguration)
+        {
+            SignStrategy signingStrategy = SignStrategy.ForAS4Message(this, signatureConfiguration);
+            SecurityHeader.Sign(signingStrategy);
+        }
+
+        /// <summary>
         /// Verifies if the digital signature on the AS4 Message is valid.
         /// </summary>
         /// <param name="config"></param>
