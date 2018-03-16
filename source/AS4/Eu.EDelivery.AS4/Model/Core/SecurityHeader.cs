@@ -67,7 +67,7 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// Encrypts the message and its attachments.
         /// </summary>
         /// <param name="encryptionStrategy"></param>
-        internal void Encrypt(IEncryptionStrategy encryptionStrategy)
+        internal void Encrypt(EncryptionStrategy encryptionStrategy)
         {
             if (encryptionStrategy == null)
             {

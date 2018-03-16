@@ -9,9 +9,9 @@ using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.TestUtils.Stubs;
 using Xunit;
 
-namespace Eu.EDelivery.AS4.UnitTests.Security.Strategies
+namespace Eu.EDelivery.AS4.UnitTests.Security.Encryption
 {
-    public class GivenDecryptStrategyFacts
+    public class GivenDecryptMessageFacts
     {
         [Fact]
         public async Task ThenDecryptDecryptsTheAttachmentsCorrectly()

@@ -8,13 +8,11 @@ using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Schema;
 using Eu.EDelivery.AS4.Builders.Core;
-using Eu.EDelivery.AS4.Builders.Security;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Resources;
 using Eu.EDelivery.AS4.Security.Encryption;
-using Eu.EDelivery.AS4.Security.Strategies;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Singletons;
 using Eu.EDelivery.AS4.Steps;
@@ -710,13 +708,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
             X509Certificate2 encryptionCertificate = new X509Certificate2(certificate_as4, certificate_password);
 
             // Act: Encrypt the message
-            IEncryptionStrategy strategy =
-                EncryptionStrategyBuilder.Create(deserializedAS4Message,
-                                                 new KeyEncryptionConfiguration(encryptionCertificate))
-                                         .Build();
-
-            deserializedAS4Message.SecurityHeader.Encrypt(strategy);
-
+            deserializedAS4Message.Encrypt(new KeyEncryptionConfiguration(encryptionCertificate),
+                                           DataEncryptionConfiguration.Default);
+            
             // Assert: the soap envelope of the encrypted message should not be equal to the
             //         envelope of the original message since there should be modifications in
             //         the security header.

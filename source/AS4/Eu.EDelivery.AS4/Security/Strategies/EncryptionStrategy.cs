@@ -14,10 +14,10 @@ using NLog;
 namespace Eu.EDelivery.AS4.Security.Strategies
 {
     /// <summary>
-    /// An <see cref="IEncryptionStrategy"/> implementation
+    /// An <see cref="CryptoStrategy"/> implementation
     /// responsible for the Encryption of the <see cref="AS4Message"/>
     /// </summary>
-    internal class EncryptionStrategy : CryptoStrategy, IEncryptionStrategy
+    internal class EncryptionStrategy : CryptoStrategy
     {
         private readonly List<Attachment> _attachments;
 
