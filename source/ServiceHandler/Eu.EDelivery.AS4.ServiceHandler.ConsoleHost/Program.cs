@@ -117,7 +117,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler.ConsoleHost
             return new Kernel(agentProvider.GetAgents());
         }
 
-        private class AS4ComponentLifecycle
+        private sealed class AS4ComponentLifecycle
         {
             private readonly CancellationTokenSource _cancellation;
 
