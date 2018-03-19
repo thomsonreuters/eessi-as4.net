@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using Eu.EDelivery.AS4.Fe.Settings;
 using Eu.EDelivery.AS4.Services.DynamicDiscovery;
 using Eu.EDelivery.AS4.Strategies.Uploader;
@@ -32,6 +33,7 @@ namespace Eu.EDelivery.AS4.Fe.Runtime
         private static readonly string DefaultValueAttribute = typeof(DefaultValueAttribute).Name;
         private static readonly string DescriptionAttribute = typeof(DescriptionAttribute).Name;
         private static readonly List<string> Attributes = new List<string> { InfoAttribute, NoUiAttribute, DefaultValueAttribute, DescriptionAttribute };
+        private static readonly Assembly RootAssembly = Assembly.LoadFile(Path.GetFullPath(@".\Eu.EDelivery.AS4.dll"));
 
         private readonly string folder;
 
@@ -164,11 +166,31 @@ namespace Eu.EDelivery.AS4.Fe.Runtime
         public IEnumerable<ItemType> LoadImplementationsForType(List<TypeDefinition> types, string type, bool onlyWithAttribute = true)
         {
             var implementations = types
-                .Where(x => x.Interfaces.Any(iface => iface.InterfaceType.FullName == type))
+                .Where(x => x.Interfaces.Any(iface => iface.InterfaceType.FullName == type) || ImplementsRootInterface(x, type))
                 .Where(x => !x.IsInterface && !x.IsAbstract && x.IsPublic)
                 .Where(x => x.CustomAttributes.All(attr => attr.AttributeType.Name != NoUiAttribute));
             var itemTypes = implementations.Select(itemType => BuildItemType(itemType, BuildProperties(itemType.Properties, itemType.Name, onlyWithAttribute)));
             return itemTypes.Where(x => x != null);
+        }
+
+        private static bool ImplementsRootInterface(TypeDefinition x, string typeName)
+        {
+            if (!x.FullName.Contains("AS4") || x.FullName.Contains("Test"))
+            {
+                return false;
+            }
+
+            try
+            {
+                Type child = Assembly.LoadFile(Path.GetFullPath(x.Module.FileName)).GetType(x.FullName);
+                Type parent = RootAssembly.GetType(typeName);
+
+                return parent.IsAssignableFrom(child);
+            }
+            catch (Exception)
+            {
+                return false;
+            }
         }
 
         private ItemType BuildItemType(TypeDefinition itemType, IEnumerable<Property> properties)
