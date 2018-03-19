@@ -99,7 +99,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
         {
             var sut = new NotifyMessageTransformer();
 
-            return await sut.TransformAsync(receival, CancellationToken.None);
+            return await sut.TransformAsync(receival);
         }
 
         private static string Canonicalize(XmlNode input)

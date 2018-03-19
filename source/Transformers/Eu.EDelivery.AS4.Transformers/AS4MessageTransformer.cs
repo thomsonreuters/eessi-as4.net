@@ -54,14 +54,13 @@ namespace Eu.EDelivery.AS4.Transformers
         /// with a <see cref="AS4Message" /> included
         /// </summary>
         /// <param name="message"></param>
-        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<MessagingContext> TransformAsync(ReceivedMessage message, CancellationToken cancellationToken)
+        public async Task<MessagingContext> TransformAsync(ReceivedMessage message)
         {
             Logger.Debug("Transform AS4 Message to Messaging Context");
             PreConditions(message);
 
-            return await TransformMessage(message, cancellationToken);
+            return await TransformMessage(message, CancellationToken.None);
         }
 
         private void PreConditions(ReceivedMessage message)

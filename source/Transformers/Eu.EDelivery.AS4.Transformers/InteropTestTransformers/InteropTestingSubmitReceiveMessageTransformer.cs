@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Model.Core;
@@ -23,14 +22,13 @@ namespace Eu.EDelivery.AS4.Transformers.InteropTestTransformers
         /// Transform a given <see cref="ReceivedMessage"/> to a Canonical <see cref="MessagingContext"/> instance.
         /// </summary>
         /// <param name="message">Given message to transform.</param>
-        /// <param name="cancellationToken">Cancellation which stops the transforming.</param>
         /// <returns></returns>
-        public async Task<MessagingContext> TransformAsync(ReceivedMessage message, CancellationToken cancellationToken)
+        public async Task<MessagingContext> TransformAsync(ReceivedMessage message)
         {
             // We receive an AS4Message from Minder, we should convert it to a SubmitMessage if the action is submit.
             // In any other case, we should just return an MessagingContext which contains the as4Message.
             var transformer = new AS4MessageTransformer();
-            var messagingContext = await transformer.TransformAsync(message, cancellationToken);
+            var messagingContext = await transformer.TransformAsync(message);
 
             var as4Message = messagingContext.AS4Message;
             

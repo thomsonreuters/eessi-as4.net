@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Xml;
 using Eu.EDelivery.AS4.Builders.Core;
-using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
@@ -33,14 +30,13 @@ namespace Eu.EDelivery.AS4.Transformers
         /// Transform a given <see cref="ReceivedMessage" /> to a Canonical <see cref="MessagingContext" /> instance.
         /// </summary>
         /// <param name="message">Given message to transform.</param>
-        /// <param name="cancellationToken">Cancellation which stops the transforming.</param>
         /// <returns></returns>
-        public async Task<MessagingContext> TransformAsync(ReceivedMessage message, CancellationToken cancellationToken)
+        public async Task<MessagingContext> TransformAsync(ReceivedMessage message)
         {
             ReceivedEntityMessage messageEntity = RetrieveEntityMessage(message);
             ExceptionEntity exceptionEntity = RetrieveExceptionEntity(messageEntity);
 
-            AS4Message as4Message = await CreateErrorAS4Message(exceptionEntity, cancellationToken);
+            AS4Message as4Message = await CreateErrorAS4Message(exceptionEntity, CancellationToken.None);
 
             var messagingContext = new MessagingContext(await CreateNotifyMessageEnvelope(as4Message, exceptionEntity.GetType()))
             {

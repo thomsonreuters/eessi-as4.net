@@ -26,9 +26,8 @@ namespace Eu.EDelivery.AS4.Transformers
         /// Transform a given <see cref="ReceivedMessage"/> to a Canonical <see cref="MessagingContext"/> instance.
         /// </summary>
         /// <param name="message">Given message to transform.</param>
-        /// <param name="cancellationToken">Cancellation which stops the transforming.</param>
         /// <returns></returns>
-        public async Task<MessagingContext> TransformAsync(ReceivedMessage message, CancellationToken cancellationToken)
+        public async Task<MessagingContext> TransformAsync(ReceivedMessage message)
         {
             var entityMessage = message as ReceivedEntityMessage;
 
@@ -39,7 +38,7 @@ namespace Eu.EDelivery.AS4.Transformers
             }
 
             // Get the one signal-message that must be notified.
-            var as4Message = await GetAS4MessageForNotification(entityMessage, cancellationToken);
+            var as4Message = await GetAS4MessageForNotification(entityMessage, CancellationToken.None);
 
             var context = new MessagingContext(await CreateNotifyMessageEnvelope(as4Message, entityMessage.Entity.GetType()));
 
@@ -86,7 +85,7 @@ namespace Eu.EDelivery.AS4.Transformers
         private static async Task<AS4Message> RetrieveAS4MessageForNotificationFromReceivedMessage(ReceivedMessageEntityMessage entityMessage, CancellationToken cancellationToken)
         {
             var as4Transformer = new AS4MessageTransformer();
-            var messagingContext = await as4Transformer.TransformAsync(entityMessage, cancellationToken);
+            var messagingContext = await as4Transformer.TransformAsync(entityMessage);
 
             var as4Message = messagingContext.AS4Message;
 

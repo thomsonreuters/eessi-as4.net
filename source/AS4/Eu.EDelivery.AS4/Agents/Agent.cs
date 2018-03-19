@@ -97,7 +97,7 @@ namespace Eu.EDelivery.AS4.Agents
             try
             {
                 ITransformer transformer = TransformerBuilder.FromTransformerConfig(_transformerConfig);
-                context = await transformer.TransformAsync(message, cancellation);
+                context = await transformer.TransformAsync(message);
             }
             catch (Exception exception)
             {

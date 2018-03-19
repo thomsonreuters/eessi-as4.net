@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Transformers;
@@ -20,9 +19,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
         /// Transform a given <see cref="ReceivedMessage"/> to a Canonical <see cref="InternalMessage"/> instance.
         /// </summary>
         /// <param name="message">Given message to transform.</param>
-        /// <param name="cancellationToken">Cancellation which stops the transforming.</param>
         /// <returns></returns>
-        public Task<MessagingContext> TransformAsync(ReceivedMessage message, CancellationToken cancellationToken)
+        public Task<MessagingContext> TransformAsync(ReceivedMessage message)
         {
             throw new NotImplementedException();
         }
@@ -31,7 +29,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
         public async Task FailsToTransform()
         {
             await Assert.ThrowsAnyAsync<Exception>(
-                () => new DummyTransformer().TransformAsync(message: null, cancellationToken: CancellationToken.None));
+                () => new DummyTransformer().TransformAsync(message: null));
         }
     }
 }

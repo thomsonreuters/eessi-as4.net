@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.IO;
-using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
@@ -26,15 +25,13 @@ namespace Eu.EDelivery.AS4.Transformers
         /// <param name="properties">The properties.</param>
         public void Configure(IDictionary<string, string> properties) { }
 
+
         /// <summary>
         /// Transform a given <see cref="ReceivedMessage" /> to a Canonical <see cref="MessagingContext" /> instance.
         /// </summary>
         /// <param name="receivedMessage">Given message to transform.</param>
-        /// <param name="cancellationToken">Cancellation which stops the transforming.</param>
         /// <returns></returns>
-        public Task<MessagingContext> TransformAsync(
-            ReceivedMessage receivedMessage,
-            CancellationToken cancellationToken)
+        public Task<MessagingContext> TransformAsync(ReceivedMessage receivedMessage)
         {
             if (receivedMessage.UnderlyingStream == null)
             {
