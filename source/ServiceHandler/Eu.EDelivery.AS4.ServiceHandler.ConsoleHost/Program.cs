@@ -5,6 +5,7 @@ using Eu.EDelivery.AS4.Builders;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.ServiceHandler.Agents;
+using NLog;
 
 namespace Eu.EDelivery.AS4.ServiceHandler.ConsoleHost
 {
@@ -24,24 +25,17 @@ namespace Eu.EDelivery.AS4.ServiceHandler.ConsoleHost
 
             try
             {
-                var cancellationTokenSource = new CancellationTokenSource();
-                Task task = kernel.StartAsync(cancellationTokenSource.Token);
-                task.ContinueWith(
-                    x =>
-                    {
-                        Console.ForegroundColor = ConsoleColor.Red;
-                        NLog.LogManager.GetCurrentClassLogger().Fatal(x.Exception?.ToString());
-                    },
-                    TaskContinuationOptions.OnlyOnFaulted);
-
-                Task frontEndTask = StartFeInProcess(cancellationTokenSource.Token);
-                Task payloadServiceTask = StartPayloadServiceInProcess(cancellationTokenSource.Token);
+                var lifecycle = new AS4ComponentLifecycle(kernel);
+                lifecycle.Start();
 
                 ConsoleKeyInfo key;
 
                 do
                 {
-                    Console.WriteLine("Press c to clear the screen, q to stop.");
+                    Console.WriteLine(@"Press following charaters during the running of the component to:");
+                    Console.WriteLine("\tc\tClears the screen");
+                    Console.WriteLine("\tq\tQuites the application");
+                    Console.WriteLine("\tr\tRestarts the application");
 
                     key = Console.ReadKey();
 
@@ -50,17 +44,24 @@ namespace Eu.EDelivery.AS4.ServiceHandler.ConsoleHost
                         case ConsoleKey.C:
                             Console.Clear();
                             break;
+                        case ConsoleKey.R:
+                            Console.WriteLine("Restarting...");
+                            lifecycle.Stop();
+
+                            kernel.Dispose();
+                            Config.Instance.Dispose();
+
+                            kernel = CreateKernel();
+                            lifecycle = new AS4ComponentLifecycle(kernel);
+                            lifecycle.Start();
+
+                            break;                            
                     }
-
-
-                } while (key.Key != ConsoleKey.Q);
+                }
+                while (key.Key != ConsoleKey.Q);
 
                 Console.WriteLine(@"Stopping...");
-                cancellationTokenSource.Cancel();
-
-                StopTask(task);
-                StopTask(frontEndTask);
-                StopTask(payloadServiceTask);
+                Task task = lifecycle.Stop();
 
                 Console.WriteLine($@"Stopped: {task.Status}");
 
@@ -73,7 +74,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler.ConsoleHost
             }
             finally
             {
-                kernel.Dispose();
+                kernel?.Dispose();
                 Config.Instance.Dispose();
             }
 
@@ -116,58 +117,120 @@ namespace Eu.EDelivery.AS4.ServiceHandler.ConsoleHost
             return new Kernel(agentProvider.GetAgents());
         }
 
-        private static Task StartFeInProcess(CancellationToken cancellationToken)
+        private sealed class AS4ComponentLifecycle
         {
-            if (!Config.Instance.FeInProcess)
+            private readonly CancellationTokenSource _cancellation;
+
+            private readonly Kernel _kernel;
+            private Task _kernelTask, _frontendTask, _payloadServiceTask;
+
+
+            /// <summary>
+            /// Initializes a new instance of the <see cref="AS4ComponentLifecycle" /> class.
+            /// </summary>
+            /// <param name="kernel">The kernel.</param>
+            public AS4ComponentLifecycle(Kernel kernel)
             {
-                return Task.CompletedTask;
+                _kernel = kernel;
+                _cancellation = new CancellationTokenSource();
+
             }
 
-            var frontEndTask = Task.Factory.StartNew(() => Fe.Program.StartInProcess(cancellationToken), cancellationToken);
-
-            frontEndTask.ContinueWith(t => LogExceptions(t), TaskContinuationOptions.OnlyOnFaulted);
-
-            return frontEndTask;            
-        }
-
-        private static Task StartPayloadServiceInProcess(CancellationToken cancellationToken)
-        {
-            if (!Config.Instance.PayloadServiceInProcess)
+            /// <summary>
+            /// Starts this instance.
+            /// </summary>
+            public void Start()
             {
-                return Task.CompletedTask;
+                _kernelTask = StartKernel();
+                _frontendTask = StartFeInProcess(_cancellation.Token);
+                _payloadServiceTask = StartPayloadServiceInProcess(_cancellation.Token);
             }
 
-            var payloadServiceTask = Task.Factory.StartNew(() => PayloadService.Program.Start(cancellationToken), cancellationToken);
-
-            payloadServiceTask.ContinueWith(t => LogExceptions(t), TaskContinuationOptions.OnlyOnFaulted);
-
-            return payloadServiceTask;
-        }
-
-        private static void LogExceptions(Task task)
-        {
-            if (task.Exception?.InnerExceptions != null)
+            private Task StartKernel()
             {
+                Task task = _kernel.StartAsync(_cancellation.Token);
+
+                task.ContinueWith(
+                    x =>
+                    {
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        LogManager.GetCurrentClassLogger().Fatal(x.Exception?.ToString());
+                    },
+                    TaskContinuationOptions.OnlyOnFaulted);
+
+                return task;
+            }
+
+            private static Task StartFeInProcess(CancellationToken cancellationToken)
+            {
+                if (!Config.Instance.FeInProcess)
+                {
+                    return Task.CompletedTask;
+                }
+
+                Task task = Task.Factory
+                    .StartNew(() => Fe.Program.StartInProcess(cancellationToken), cancellationToken);
+                task.ContinueWith(LogExceptions, TaskContinuationOptions.OnlyOnFaulted);
+
+                return task;
+            }
+
+            private static Task StartPayloadServiceInProcess(CancellationToken cancellationToken)
+            {
+                if (!Config.Instance.PayloadServiceInProcess)
+                {
+                    return Task.CompletedTask;
+                }
+
+                Task task = Task.Factory
+                    .StartNew(() => PayloadService.Program.Start(cancellationToken), cancellationToken);
+                task.ContinueWith(LogExceptions, TaskContinuationOptions.OnlyOnFaulted);
+
+                return task;
+            }
+
+            private static void LogExceptions(Task task)
+            {
+                if (task.Exception?.InnerExceptions == null)
+                {
+                    return;
+                }
+
                 foreach (Exception ex in task.Exception?.InnerExceptions)
                 {
                     NLog.LogManager.GetCurrentClassLogger().Error(ex.Message);
                 }
             }
-        }
 
-        private static void StopTask(Task task)
-        {
-            try
+            /// <summary>
+            /// Stops this instance.
+            /// </summary>
+            /// <returns></returns>
+            public Task Stop()
             {
-                task.GetAwaiter().GetResult();
+                _cancellation.Cancel();
+
+                StopTask(_kernelTask);
+                StopTask(_frontendTask);
+                StopTask(_payloadServiceTask);
+
+                return _kernelTask;
             }
-            catch (AggregateException exception)
+
+            private static void StopTask(Task task)
             {
-                exception.Handle(e => e is TaskCanceledException);
-            }
-            finally
-            {
-                task.Dispose();
+                try
+                {
+                    task.GetAwaiter().GetResult();
+                }
+                catch (AggregateException exception)
+                {
+                    exception.Handle(e => e is TaskCanceledException);
+                }
+                finally
+                {
+                    task.Dispose();
+                }
             }
         }
     }
