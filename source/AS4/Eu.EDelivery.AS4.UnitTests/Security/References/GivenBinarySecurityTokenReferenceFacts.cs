@@ -159,7 +159,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.References
                 Assert.Equal($"#{_reference.ReferenceId}", uriAttribute.Value);
             }
 
-            // [Fact(Skip = "This test needs to be re-evaluated.  The ValueType attribute must possibly not be present on the Reference-node but on the SecurityToken node")]
             [Fact]
             public void ThenXmlReferenceContainsValueTypeAttribute()
             {
