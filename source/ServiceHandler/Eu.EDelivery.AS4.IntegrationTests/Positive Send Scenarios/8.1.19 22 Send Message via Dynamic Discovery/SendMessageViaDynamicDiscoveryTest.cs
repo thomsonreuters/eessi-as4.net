@@ -117,7 +117,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._19_22
             InsertSmpConfiguration(smpConfig);
         }
 
-        [Fact(Skip = "Still some problem with decryption?")]
+        [Fact]
         public void AS4ComponentDoesntAlterEncryptedDataFromOriginalHolodeckMessage()
         {
             // Arrange
@@ -133,7 +133,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._19_22
             str.Position = 0;
 
             const string contentType =
-                "multipart/related; boundary= \"MIMEBoundary_cf5321acea839acad6a3b2bb554953c7dd08b613522d287b\"; type=\"application/soap+xml\";";
+                "multipart/related; boundary= \"MIMEBoundary_4ac2a25e8a3af891754f9f7316ac08062c50de1368ddfada\"; type=\"application/soap+xml\";";
 
             // Act
             new StubSender().SendMessage(str, contentType);
