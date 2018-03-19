@@ -159,7 +159,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.References
                 Assert.Equal($"#{_reference.ReferenceId}", uriAttribute.Value);
             }
 
-            [Fact(Skip = "This test needs to be re-evaluated.  The ValueType attribute must possibly not be present on the Reference-node but on the SecurityToken node")]
+            // [Fact(Skip = "This test needs to be re-evaluated.  The ValueType attribute must possibly not be present on the Reference-node but on the SecurityToken node")]
+            [Fact]
             public void ThenXmlReferenceContainsValueTypeAttribute()
             {
                 // Act
@@ -168,8 +169,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.References
                 // Assert
                 Assert.NotNull(xmlElement);
                 Assert.NotNull(xmlElement.FirstChild.Attributes);
-                Assert.Equal("ValueType", xmlElement.FirstChild.Attributes[0].Name);
-                Assert.Equal(Constants.Namespaces.ValueType, xmlElement.FirstChild.Attributes[0].Value);
+
+                var valueTypeAttribute = 
+                    xmlElement.FirstChild.Attributes.OfType<XmlAttribute>()
+                                                    .FirstOrDefault(a => a.Name.Equals("ValueType"));
+
+                Assert.NotNull(valueTypeAttribute);
+                Assert.Equal(Constants.Namespaces.ValueType, valueTypeAttribute.Value);
             }
         }
 
