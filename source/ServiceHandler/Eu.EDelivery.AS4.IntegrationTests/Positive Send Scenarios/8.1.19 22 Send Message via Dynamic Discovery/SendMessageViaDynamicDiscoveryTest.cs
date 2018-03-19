@@ -117,7 +117,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._19_22
             InsertSmpConfiguration(smpConfig);
         }
 
-        [Fact]
+        [Fact(Skip = "Wait for serializer-fix")]
         public void AS4ComponentDoesntAlterEncryptedDataFromOriginalHolodeckMessage()
         {
             // Arrange
