@@ -9,17 +9,6 @@
       <IsEnabled>false</IsEnabled>
     </DuplicateElimination>
   </Reliability>
-  <ReplyHandling>
-    <ReplyPattern>Response</ReplyPattern>
-    <SendingPMode>unsigned-response-pmode</SendingPMode>
-    <ReceiptHandling>
-      <UseNRRFormat>false</UseNRRFormat>
-    </ReceiptHandling>
-    <ErrorHandling>
-      <UseSoapFault>false</UseSoapFault>
-      <ResponseHttpCode>500</ResponseHttpCode>
-    </ErrorHandling>
-  </ReplyHandling>
   <ExceptionHandling>
     <NotifyMessageConsumer>true</NotifyMessageConsumer>
     <NotifyMethod>
@@ -35,10 +24,6 @@
     </SigningVerification>
     <Decryption>
       <Encryption>Ignored</Encryption>
-      <CertificateFindCriteria>
-        <CertificateFindType>FindBySubjectName</CertificateFindType>
-        <CertificateFindValue>AccessPointB</CertificateFindValue>
-      </CertificateFindCriteria>
     </Decryption>
   </Security>
   <MessagePackaging>
