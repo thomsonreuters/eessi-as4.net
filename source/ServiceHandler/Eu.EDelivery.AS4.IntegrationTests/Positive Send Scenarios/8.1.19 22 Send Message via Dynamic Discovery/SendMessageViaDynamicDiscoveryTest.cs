@@ -11,7 +11,7 @@ using Eu.EDelivery.AS4.Streaming;
 using Xunit;
 using static Eu.EDelivery.AS4.IntegrationTests.Properties.Resources;
 
-namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._19_20_21_Send_Message_Via_Dynamic_Discovery
+namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._19_22_Send_Message_via_Dynamic_Discovery
 {
     public class SendMessageViaDynamicDiscoveryTest : IntegrationTestTemplate
     {
@@ -117,6 +117,32 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._19_20
             InsertSmpConfiguration(smpConfig);
         }
 
+        [Fact(Skip = "Still some problem with decryption?")]
+        public void AS4ComponentDoesntAlterEncryptedDataFromOriginalHolodeckMessage()
+        {
+            // Arrange
+            Holodeck.CopyPModeToHolodeckB("8.1.22-pmode.xml");
+
+            AS4Component.OverrideSettings(DynamicDiscoverySettings);
+            AS4Component.Start();
+
+            InsertSmpConfigurationForAS4Component(ReceiveAgentEndpoint, enableEncryption: false);
+
+            var str = VirtualStream.CreateVirtualStream();
+            str.Write(_8_1_22_message, 0, _8_1_22_message.Length);
+            str.Position = 0;
+
+            const string contentType =
+                "multipart/related; boundary= \"MIMEBoundary_cf5321acea839acad6a3b2bb554953c7dd08b613522d287b\"; type=\"application/soap+xml\";";
+
+            // Act
+            new StubSender().SendMessage(str, contentType);
+
+            // Assert
+            Assert.True(
+                PollingAt(AS4ReceiptsPath),
+                "No Receipt found at AS4.NET Component for Forward Encrypted/Signed Dynamic Discovery Test");
+        }
 
         private void InsertSmpConfigurationForAS4Component(string url, bool enableEncryption)
         {
