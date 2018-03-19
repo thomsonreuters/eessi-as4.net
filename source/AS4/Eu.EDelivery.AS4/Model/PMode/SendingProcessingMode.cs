@@ -324,6 +324,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
         }
 
         [Description("Key reference method")]
+        [DefaultValue(X509ReferenceType.BSTReference)]
         public X509ReferenceType KeyReferenceMethod { get; set; }
 
         [Description("Signing algorithm")]
