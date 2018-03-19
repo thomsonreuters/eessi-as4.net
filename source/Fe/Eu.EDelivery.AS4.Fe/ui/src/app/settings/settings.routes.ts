@@ -18,9 +18,13 @@ export const ROUTES: Routes = [
     },
     {
         path: 'receive',
-        component: WrapperComponent, children: [
-            { path: '', component: AgentSettingsComponent, data: { title: 'Receive Agents', type: 'receiveAgents', icon: 'fa-cloud-download', weight: -9, betype: 1 }, canActivate: [MustBeAuthorizedGuard], canDeactivate: [CanDeactivateGuard] },
-        ]
+        component: WrapperComponent, children: [    
+            { path: 'push', component: AgentSettingsComponent, data: { title: 'Push Receive Agents', type: 'receiveAgents', icon: 'fa-cloud-download', betype: 1 }, canActivate: [MustBeAuthorizedGuard], canDeactivate: [CanDeactivateGuard] },
+            { path: 'pull', component: AgentSettingsComponent, data: { title: 'Pull Receive Agents', type: 'pullReceiveAgents', icon: 'fa-cloud-download', betype: 6 }, canActivate: [MustBeAuthorizedGuard], canDeactivate: [CanDeactivateGuard] }
+        ],
+        data: { title: 'Receive', icon: 'fa-cloud-download', weight: -9 },
+        canActivate: [MustBeAuthorizedGuard],
+        canDeactivate: [CanDeactivateGuard]
     },
     {
         path: 'settings',
