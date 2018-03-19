@@ -24,7 +24,7 @@ export const PMODECRUD_SERVICE = new OpaqueToken('pmodecrudservice');
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="col-xs-2">Clone</label>
+                    <label class="col-xs-2">Based on</label>
                     <div class="col-xs-10">
                         <select class="form-control" (change)="actionType = $event.target.value" #select>
                             <option *ngFor="let setting of pmodes" [selected]="actionType === setting" [ngValue]="setting">{{setting}}</option>
