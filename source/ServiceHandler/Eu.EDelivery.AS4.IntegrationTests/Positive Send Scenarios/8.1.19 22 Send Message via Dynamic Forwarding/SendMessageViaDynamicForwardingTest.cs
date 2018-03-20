@@ -140,7 +140,34 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._19_22
             // Assert
             Assert.True(
                 PollingAt(AS4ReceiptsPath),
-                "No Receipt found at AS4.NET Component for Forward Encrypted Dynamic Discovery Test");
+                "No Receipt found at AS4.NET Component for Encrypted Dynamic Forwarding Test");
+        }
+
+        [Fact(Skip="Test is not finished yet")]
+        public void AS4ComponentDoesntAlterSignedAndEncryptedDataFromOriginalHolodeckMessage()
+        {
+            // Arrange
+            Holodeck.CopyPModeToHolodeckB("8.1.22-pmode.xml");
+
+            AS4Component.OverrideSettings(DynamicDiscoverySettings);
+            AS4Component.Start();
+
+            InsertSmpConfigurationForAS4Component(ReceiveAgentEndpoint, enableEncryption: false);
+
+            var str = VirtualStream.CreateVirtualStream();
+            str.Write(Properties.Resources._8_1_23_message, 0, Properties.Resources._8_1_23_message.Length);
+            str.Position = 0;
+
+            const string contentType =
+                "multipart/related; boundary= \"MIMEBoundary_941dcf57ed25018c43557aa9d032f4d52727c829935b8988\"; type=\"application/soap+xml\";";
+
+            // Act
+            new StubSender().SendMessage(str, contentType);
+
+            // Assert
+            Assert.True(
+                PollingAt(AS4ReceiptsPath),
+                "No Receipt found at AS4.NET Component for Signed and Encrypted Dynamic Forward Test");
         }
 
         private void InsertSmpConfigurationForAS4Component(string url, bool enableEncryption)
