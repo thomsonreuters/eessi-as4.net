@@ -32,10 +32,10 @@ namespace Eu.EDelivery.AS4.ServiceHandler.ConsoleHost
 
                 do
                 {
-                    Console.WriteLine(@"Press following charaters during the running of the component to:");
-                    Console.WriteLine("\tc\tClears the screen");
-                    Console.WriteLine("\tq\tQuits the application");
-                    Console.WriteLine("\tr\tRestarts the application");
+                    Console.WriteLine(@"The following commands are available while the AS4.NET MSH is running:");
+                    Console.WriteLine("\tc\t: Clears the screen");
+                    Console.WriteLine("\tq\t: Quits the application");
+                    Console.WriteLine("\tr\t: Restarts the application");
 
                     key = Console.ReadKey();
 
