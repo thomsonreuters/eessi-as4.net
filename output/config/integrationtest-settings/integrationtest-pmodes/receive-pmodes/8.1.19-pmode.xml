@@ -8,7 +8,7 @@
   </Reliability>
   <ReplyHandling>
     <ReplyPattern>Response</ReplyPattern>
-    <SendingPMode>unsigned-response-pmode</SendingPMode>
+    <SendingPMode/>
     <ReceiptHandling>
       <UseNRRFormat>false</UseNRRFormat>
     </ReceiptHandling>
