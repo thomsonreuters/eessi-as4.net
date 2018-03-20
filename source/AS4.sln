@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.27130.2010
+VisualStudioVersion = 15.0.27130.2027
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Eu.EDelivery.AS4", "AS4\Eu.EDelivery.AS4\Eu.EDelivery.AS4.csproj", "{8B0BA38F-C3F7-46C1-9E68-A7291C7B16B1}"
 EndProject
