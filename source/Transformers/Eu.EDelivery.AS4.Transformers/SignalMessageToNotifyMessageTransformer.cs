@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
@@ -36,7 +35,7 @@ namespace Eu.EDelivery.AS4.Transformers
 
             // Get the AS4Message that is referred to by this entityMessage and modify it so that it just contains
             // the one usermessage that should be delivered.
-            AS4Message as4Message = await RetrieveAS4SignalMessageForNotification(entityMessage, CancellationToken.None);
+            AS4Message as4Message = await RetrieveAS4SignalMessageForNotification(entityMessage);
 
             return new MessagingContext(await CreateNotifyMessageEnvelope(as4Message, entityMessage.MessageEntity.GetType()));
         }
@@ -62,7 +61,7 @@ namespace Eu.EDelivery.AS4.Transformers
                                              receivedEntityType);
         }
 
-        private static async Task<AS4Message> RetrieveAS4SignalMessageForNotification(ReceivedMessageEntityMessage entityMessage, CancellationToken cancellationToken)
+        private static async Task<AS4Message> RetrieveAS4SignalMessageForNotification(ReceivedMessageEntityMessage entityMessage)
         {
             var as4Transformer = new AS4MessageTransformer();
             var messagingContext = await as4Transformer.TransformAsync(entityMessage);

@@ -68,6 +68,7 @@ namespace Eu.EDelivery.AS4.Transformers.ConformanceTestTransformers
                 {
                     l.Error(ex.InnerException.Message);
                 }
+
                 throw;
             }
         }

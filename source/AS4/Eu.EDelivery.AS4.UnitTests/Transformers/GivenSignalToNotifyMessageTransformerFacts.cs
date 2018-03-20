@@ -122,7 +122,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             var receiptContent = new MemoryStream(Encoding.UTF8.GetBytes(Properties.Resources.receipt));
 
             ISerializer serializer = SerializerProvider.Default.Get(Constants.ContentTypes.Soap);
-            AS4Message receiptMessage = await serializer.DeserializeAsync(receiptContent, Constants.ContentTypes.Soap, CancellationToken.None);
+            await serializer.DeserializeAsync(receiptContent, Constants.ContentTypes.Soap, CancellationToken.None);
 
             receiptContent.Position = 0;
             InMessage receiptInMessage = new InMessage("non-existing-id");

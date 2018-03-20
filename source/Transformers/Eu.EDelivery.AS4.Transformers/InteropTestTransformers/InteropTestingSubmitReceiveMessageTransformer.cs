@@ -51,14 +51,14 @@ namespace Eu.EDelivery.AS4.Transformers.InteropTestTransformers
         private static void AssignPModeToContext(MessagingContext message)
         {
             AS4Message as4Message = message.AS4Message;
+
             // The PMode that should be used can be determind by concatenating several items to create the PMode ID
             // - CollaborationInfo.Action
             // - ToParty
-
-            string pModeKey = $"{as4Message.PrimaryUserMessage.CollaborationInfo.Action}_FROM_{as4Message.PrimaryUserMessage.Sender.PartyIds.First().Id}_TO_{as4Message.PrimaryUserMessage.Receiver.PartyIds.First().Id}";
+            string pmodeKey = $"{as4Message.PrimaryUserMessage.CollaborationInfo.Action}_FROM_{as4Message.PrimaryUserMessage.Sender.PartyIds.First().Id}_TO_{as4Message.PrimaryUserMessage.Receiver.PartyIds.First().Id}";
 
             // The PMode that must be used is defined in the CollaborationInfo.Service property.
-            var pmode = Config.Instance.GetSendingPMode(pModeKey);
+            var pmode = Config.Instance.GetSendingPMode(pmodeKey);
 
             message.SendingPMode = pmode;
         }

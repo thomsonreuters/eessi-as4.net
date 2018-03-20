@@ -16,7 +16,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
         public void Configure(IDictionary<string, string> properties) { }
 
         /// <summary>
-        /// Transform a given <see cref="ReceivedMessage"/> to a Canonical <see cref="InternalMessage"/> instance.
+        /// Transform a given <see cref="ReceivedMessage"/> to a Canonical <see cref="MessagingContext"/> instance.
         /// </summary>
         /// <param name="message">Given message to transform.</param>
         /// <returns></returns>

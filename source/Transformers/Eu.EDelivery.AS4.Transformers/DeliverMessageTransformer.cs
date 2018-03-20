@@ -56,7 +56,6 @@ namespace Eu.EDelivery.AS4.Transformers
             var as4Transformer = new AS4MessageTransformer();
             MessagingContext messagingContext = await as4Transformer.TransformAsync(entityMessage);
 
-
             AS4Message as4Message = RemoveUnnecessaryMessages(
                 messagingContext.AS4Message,
                 entityMessage.MessageEntity.EbmsMessageId);

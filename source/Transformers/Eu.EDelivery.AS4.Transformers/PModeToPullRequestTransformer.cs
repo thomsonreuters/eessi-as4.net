@@ -25,7 +25,6 @@ namespace Eu.EDelivery.AS4.Transformers
         /// <param name="properties">The properties.</param>
         public void Configure(IDictionary<string, string> properties) { }
 
-
         /// <summary>
         /// Transform a given <see cref="ReceivedMessage" /> to a Canonical <see cref="MessagingContext" /> instance.
         /// </summary>

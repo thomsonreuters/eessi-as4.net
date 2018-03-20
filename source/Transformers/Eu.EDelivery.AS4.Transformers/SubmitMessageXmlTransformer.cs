@@ -46,7 +46,7 @@ namespace Eu.EDelivery.AS4.Transformers
 
                 return serializer.Deserialize(stream) as SubmitMessage;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw new InvalidMessageException("Received stream is not a SubmitMessage", ex);
             }

@@ -20,8 +20,7 @@ namespace Eu.EDelivery.AS4.Transformers
     public abstract class MinderNotifyMessageTransformer : ITransformer
     {
         protected abstract string MinderUriPrefix { get; }
-
-        protected Logger Logger = LogManager.GetCurrentClassLogger();
+        protected Logger Logger => LogManager.GetCurrentClassLogger();
 
         /// <summary>
         /// Configures the <see cref="ITransformer"/> implementation with specific user-defined properties.
@@ -91,8 +90,6 @@ namespace Eu.EDelivery.AS4.Transformers
 
             // The NotifyMessage that Minder expects, is an AS4Message which contains the specific UserMessage.
             var msg = AS4Message.Create(userMessage, new SendingProcessingMode());
-
-
             var serializer = Registry.Instance.SerializerProvider.Get(msg.ContentType);
 
             byte[] content;

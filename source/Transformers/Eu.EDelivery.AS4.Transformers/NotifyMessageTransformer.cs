@@ -56,7 +56,7 @@ namespace Eu.EDelivery.AS4.Transformers
 
             if (receivedMessage is ReceivedMessageEntityMessage me)
             {
-                return await RetrieveAS4MessageForNotificationFromReceivedMessage(me, cancellationToken);
+                return await RetrieveAS4MessageForNotificationFromReceivedMessage(me);
             }
 
             throw new InvalidOperationException();
@@ -82,7 +82,7 @@ namespace Eu.EDelivery.AS4.Transformers
                 .Build();
         }
 
-        private static async Task<AS4Message> RetrieveAS4MessageForNotificationFromReceivedMessage(ReceivedMessageEntityMessage entityMessage, CancellationToken cancellationToken)
+        private static async Task<AS4Message> RetrieveAS4MessageForNotificationFromReceivedMessage(ReceivedMessageEntityMessage entityMessage)
         {
             var as4Transformer = new AS4MessageTransformer();
             var messagingContext = await as4Transformer.TransformAsync(entityMessage);
