@@ -34,7 +34,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._19_22
 
             InsertSmpConfigurationForAS4Component(url: ReceiveAgentEndpoint, enableEncryption: false);
 
-            AS4Message userMessage = UserMessageWithAttachment(argRefPModeId: "8.1.19-pmode");
+            AS4Message userMessage = UserMessageWithAttachment(argRefPModeId: "dynamic-forwarding-pmode");
 
             // Act: send the UserMessage to the AS4.NET Component, so it can be made complete by Dynamic Discover the info from the SMP Configuration
             SendMultiHopAS4Message(userMessage);
@@ -60,7 +60,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._19_22
 
             InsertSmpConfigurationForAS4Component(url: ReceiveAgentEndpoint, enableEncryption: true);
 
-            AS4Message userMessage = UserMessageWithAttachment(argRefPModeId: "8.1.20-pmode");
+            AS4Message userMessage = UserMessageWithAttachment(argRefPModeId: "dynamic-forwarding-pmode");
 
             // Act: send the UserMessage to the AS4.NET Component, so it can be made complete by Dynamic Discover the info from the SMP Configuration
             SendMultiHopAS4Message(userMessage);
