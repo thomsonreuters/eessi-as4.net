@@ -26,6 +26,14 @@
       </Parameters>
     </NotifyMethod>
   </ExceptionHandling>
+  <Security>
+    <SigningVerification>
+      <Signature>Ignored</Signature>
+    </SigningVerification>
+    <Decryption>
+      <Encryption>Ignored</Encryption>
+    </Decryption>
+  </Security>
   <MessagePackaging>
     <PartyInfo>
       <ToParty>
