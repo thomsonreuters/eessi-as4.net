@@ -5,6 +5,7 @@ using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Services.PullRequestAuthorization;
+using Eu.EDelivery.AS4.Watchers;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Common
@@ -109,6 +110,18 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
         {
             get { throw new NotImplementedException(); }
         }
+
+        /// <summary>
+        /// Gets or sets the receiving p mode watcher.
+        /// </summary>
+        /// <value>The receiving p mode watcher.</value>
+        public PModeWatcher<ReceivingProcessingMode> ReceivingPModeWatcher { get; set; }
+
+        /// <summary>
+        /// Gets or sets the sending p mode watcher.
+        /// </summary>
+        /// <value>The sending p mode watcher.</value>
+        public PModeWatcher<SendingProcessingMode> SendingPModeWatcher { get; set; }
     }
 
     public class PseudoConfigFacts : PseudoConfig

@@ -64,7 +64,24 @@ namespace Eu.EDelivery.AS4.Watchers
             return _pmodes.ContainsKey(id);
         }
 
+        /// <summary>
+        /// Gets the <see cref="IPMode"/> implementation for a given <paramref name="key"/>.
+        /// </summary>
+        /// <param name="key">The key.</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException">The specified PMode key is invalid. - key</exception>
         public IPMode GetPMode(string key)
+        {
+           return GetPModeEntry(key)?.PMode;
+        }
+
+        /// <summary>
+        /// Gets the <see cref="ConfiguredPMode"/> entry for a given <paramref name="key"/>.
+        /// </summary>
+        /// <param name="key">The key.</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException">The specified PMode key is invalid. - key</exception>
+        public ConfiguredPMode GetPModeEntry(string key)
         {
             if (String.IsNullOrWhiteSpace(key))
             {
@@ -72,8 +89,7 @@ namespace Eu.EDelivery.AS4.Watchers
             }
 
             _pmodes.TryGetValue(key, out ConfiguredPMode configuredPMode);
-
-            return configuredPMode?.PMode;
+            return configuredPMode;
         }
 
         public IEnumerable<IPMode> GetPModes()
@@ -127,6 +143,7 @@ namespace Eu.EDelivery.AS4.Watchers
 
             if (key != null)
             {
+                LogManager.GetCurrentClassLogger().Trace($"Remove {typeof(T).Name} with Id: " + key);
                 _pmodes.TryRemove(key, out _);
             }
         }
@@ -174,7 +191,12 @@ namespace Eu.EDelivery.AS4.Watchers
             if (_pmodes.ContainsKey(pmode.Id))
             {
                 LogManager.GetCurrentClassLogger().Warn($"There already exists a configured PMode with id {pmode.Id}.");
-                LogManager.GetCurrentClassLogger().Warn($"Existing PMode will be overwritten with PMode from {fullPath}");
+                LogManager.GetCurrentClassLogger()
+                          .Warn($"Existing PMode will be overwritten with PMode from {fullPath}");
+            }
+            else
+            {
+                LogManager.GetCurrentClassLogger().Trace($"Add new {typeof(T).Name} with Id: " + pmode.Id);
             }
 
             _pmodes.AddOrUpdate(pmode.Id, configuredPMode, (key, value) => configuredPMode);

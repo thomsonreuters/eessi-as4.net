@@ -30,8 +30,7 @@ namespace Eu.EDelivery.AS4.Common
         private readonly Collection<AgentConfig> _agentConfigs = new Collection<AgentConfig>();
 
         private IPullAuthorizationMapProvider _pullRequestPullAuthorizationMapProvider;
-        private PModeWatcher<ReceivingProcessingMode> _receivingPModeWatcher;
-        private PModeWatcher<SendingProcessingMode> _sendingPModeWatcher;
+        
         private Settings _settings;
 
         internal Config()
@@ -39,6 +38,18 @@ namespace Eu.EDelivery.AS4.Common
             _logger = LogManager.GetCurrentClassLogger();
             _configuration = new Dictionary<string, string>(StringComparer.CurrentCultureIgnoreCase);
         }
+
+        /// <summary>
+        /// Gets or sets the receiving p mode watcher.
+        /// </summary>
+        /// <value> The receiving p mode watcher.</value>
+        public PModeWatcher<ReceivingProcessingMode> ReceivingPModeWatcher { get; set; }
+
+        /// <summary>
+        /// Gets or sets the sending p mode watcher.
+        /// </summary>
+        /// <value>The sending p mode watcher.</value>
+        public PModeWatcher<SendingProcessingMode> SendingPModeWatcher { get; set; }
 
         public static Config Instance => (Config)Singleton;
 
@@ -92,20 +103,20 @@ namespace Eu.EDelivery.AS4.Common
                 IsInitialized = true;
                 RetrieveLocalConfiguration(settingsFileName);
 
-                _sendingPModeWatcher =
+                SendingPModeWatcher =
                     new PModeWatcher<SendingProcessingMode>(
                         GetSendPModeFolder(),
                         SendingProcessingModeValidator.Instance);
 
-                _receivingPModeWatcher =
+                ReceivingPModeWatcher =
                     new PModeWatcher<ReceivingProcessingMode>(
                         GetReceivePModeFolder(),
                         ReceivingProcessingModeValidator.Instance);
 
                 LoadExternalAssemblies();
 
-                _sendingPModeWatcher.Start();
-                _receivingPModeWatcher.Start();
+                SendingPModeWatcher.Start();
+                ReceivingPModeWatcher.Start();
             }
             catch (Exception exception)
             {
@@ -124,7 +135,7 @@ namespace Eu.EDelivery.AS4.Common
         /// <returns></returns>
         public bool ContainsSendingPMode(string id)
         {
-            return _sendingPModeWatcher.ContainsPMode(id);
+            return SendingPModeWatcher.ContainsPMode(id);
         }
 
         /// <summary>
@@ -139,7 +150,7 @@ namespace Eu.EDelivery.AS4.Common
                 throw new KeyNotFoundException("Given Sending PMode key is null");
             }
 
-            IPMode pmode = _sendingPModeWatcher.GetPMode(id);
+            IPMode pmode = SendingPModeWatcher.GetPMode(id);
 
             if (pmode == null)
             {
@@ -167,7 +178,7 @@ namespace Eu.EDelivery.AS4.Common
         /// Return all the configured <see cref="ReceivingProcessingMode" />
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<ReceivingProcessingMode> GetReceivingPModes() => _receivingPModeWatcher.GetPModes().OfType<ReceivingProcessingMode>();
+        public IEnumerable<ReceivingProcessingMode> GetReceivingPModes() => ReceivingPModeWatcher.GetPModes().OfType<ReceivingProcessingMode>();
 
         /// <summary>
         /// Retrieve the URL's on which specific MinderSubmitReceiveAgents should listen.
@@ -367,16 +378,16 @@ namespace Eu.EDelivery.AS4.Common
                 return;
             }
 
-            if (_sendingPModeWatcher != null)
+            if (SendingPModeWatcher != null)
             {
-                _sendingPModeWatcher.Stop();
-                _sendingPModeWatcher.Dispose();
+                SendingPModeWatcher.Stop();
+                SendingPModeWatcher.Dispose();
             }
 
-            if (_receivingPModeWatcher != null)
+            if (ReceivingPModeWatcher != null)
             {
-                _receivingPModeWatcher.Stop();
-                _receivingPModeWatcher.Dispose();
+                ReceivingPModeWatcher.Stop();
+                ReceivingPModeWatcher.Dispose();
             }
         }
 

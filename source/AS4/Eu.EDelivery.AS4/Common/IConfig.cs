@@ -3,6 +3,7 @@ using Eu.EDelivery.AS4.Agents;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Services.PullRequestAuthorization;
+using Eu.EDelivery.AS4.Watchers;
 
 namespace Eu.EDelivery.AS4.Common
 {
@@ -81,6 +82,18 @@ namespace Eu.EDelivery.AS4.Common
         /// </summary>
         /// <returns></returns>
         IPullAuthorizationMapProvider PullRequestAuthorizationMapProvider { get; }
+
+        /// <summary>
+        /// Gets the receiving p mode watcher.
+        /// </summary>
+        /// <value>The receiving p mode watcher.</value>
+        PModeWatcher<ReceivingProcessingMode> ReceivingPModeWatcher { get; }
+
+        /// <summary>
+        /// Gets the sending p mode watcher.
+        /// </summary>
+        /// <value>The sending p mode watcher.</value>
+        PModeWatcher<SendingProcessingMode> SendingPModeWatcher { get; }
     }
 
     public enum PropertyType
