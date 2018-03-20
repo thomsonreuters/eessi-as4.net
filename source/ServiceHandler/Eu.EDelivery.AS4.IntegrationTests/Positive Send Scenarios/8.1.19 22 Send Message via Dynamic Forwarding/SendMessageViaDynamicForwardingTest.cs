@@ -140,7 +140,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._19_22
             // Assert
             Assert.True(
                 PollingAt(AS4ReceiptsPath),
-                "No Receipt found at AS4.NET Component for Forward Encrypted/Signed Dynamic Discovery Test");
+                "No Receipt found at AS4.NET Component for Forward Encrypted Dynamic Discovery Test");
         }
 
         private void InsertSmpConfigurationForAS4Component(string url, bool enableEncryption)
