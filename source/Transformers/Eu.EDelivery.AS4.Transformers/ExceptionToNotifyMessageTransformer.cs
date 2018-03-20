@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Entities;
@@ -36,7 +35,7 @@ namespace Eu.EDelivery.AS4.Transformers
             ReceivedEntityMessage messageEntity = RetrieveEntityMessage(message);
             ExceptionEntity exceptionEntity = RetrieveExceptionEntity(messageEntity);
 
-            AS4Message as4Message = await CreateErrorAS4Message(exceptionEntity, CancellationToken.None);
+            AS4Message as4Message = CreateErrorAS4Message(exceptionEntity);
 
             var messagingContext = new MessagingContext(await CreateNotifyMessageEnvelope(as4Message, exceptionEntity.GetType()))
             {
@@ -51,35 +50,29 @@ namespace Eu.EDelivery.AS4.Transformers
 
         private static ReceivedEntityMessage RetrieveEntityMessage(ReceivedMessage message)
         {
-            var entityMessage = message as ReceivedEntityMessage;
-            if (entityMessage == null)
+            if (message is ReceivedEntityMessage entityMessage)
             {
-                throw new NotSupportedException($"Exception Transformer only supports '{nameof(ReceivedEntityMessage)}'");
+                return entityMessage;
             }
 
-            return entityMessage;
+            throw new NotSupportedException($"Exception Transformer only supports '{nameof(ReceivedEntityMessage)}'");
         }
 
         private static ExceptionEntity RetrieveExceptionEntity(ReceivedEntityMessage messageEntity)
         {
-            var exceptionEntity = messageEntity.Entity as ExceptionEntity;
-            if (exceptionEntity == null)
+            if (messageEntity.Entity is ExceptionEntity exceptionEntity)
             {
-                throw new NotSupportedException($"Exception Notify Transformer only supports '{nameof(ExceptionEntity)}'");
+                return exceptionEntity;
             }
 
-            return exceptionEntity;
+            throw new NotSupportedException($"Exception Notify Transformer only supports '{nameof(ExceptionEntity)}'");
         }
 
-        private static async Task<AS4Message> CreateErrorAS4Message(
-            ExceptionEntity exceptionEntity,
-            CancellationToken cancellationTokken)
+        private static AS4Message CreateErrorAS4Message(ExceptionEntity exceptionEntity)
         {
             Error error = CreateSignalErrorMessage(exceptionEntity);
 
-            AS4Message as4Message = AS4Message.Create(error, new SendingProcessingMode());
-
-            return as4Message;
+            return AS4Message.Create(error, new SendingProcessingMode());
         }
 
         private static Error CreateSignalErrorMessage(ExceptionEntity exceptionEntity)
