@@ -113,10 +113,7 @@ namespace Eu.EDelivery.AS4.Fe.Pmodes
         /// <returns></returns>
         public async Task CreateReceiving(ReceivingBasePmode basePmode)
         {
-            string fileName = Path
-                .GetInvalidFileNameChars()
-                .Aggregate(basePmode.Name, (acc, c) => acc.Replace(c.ToString(), string.Empty));
-
+            string fileName = FilterOutInvalidFileNameChars(basePmode.Name);
             string pmodeFile = Path.Combine(_settings.Value.ReceivingPmodeFolder, fileName + ".xml");
 
             if (File.Exists(pmodeFile))
@@ -163,10 +160,7 @@ namespace Eu.EDelivery.AS4.Fe.Pmodes
         /// <returns></returns>
         public async Task CreateSending(SendingBasePmode basePmode)
         {
-            string fileName = Path
-                .GetInvalidFileNameChars()
-                .Aggregate(basePmode.Name, (acc, c) => acc.Replace(c.ToString(), string.Empty));
-
+            string fileName = FilterOutInvalidFileNameChars(basePmode.Name);
             string pmodeFile = Path.Combine(_settings.Value.SendingPmodeFolder, fileName + ".xml");
 
             if (File.Exists(pmodeFile))
@@ -176,6 +170,13 @@ namespace Eu.EDelivery.AS4.Fe.Pmodes
 
             string pmodeString = await AS4XmlSerializer.ToStringAsync(basePmode.Pmode);
             File.WriteAllText(pmodeFile, pmodeString);
+        }
+
+        private static string FilterOutInvalidFileNameChars(string basePmodeName)
+        {
+            return Path
+                .GetInvalidFileNameChars()
+                .Aggregate(basePmodeName, (acc, c) => acc.Replace(c.ToString(), string.Empty));
         }
 
         /// <summary>
