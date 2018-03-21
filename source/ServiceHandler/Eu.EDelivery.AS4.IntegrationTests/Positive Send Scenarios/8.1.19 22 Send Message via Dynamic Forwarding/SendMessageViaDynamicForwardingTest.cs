@@ -9,11 +9,10 @@ using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Streaming;
 using Xunit;
-using static Eu.EDelivery.AS4.IntegrationTests.Properties.Resources;
 
-namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._19_20_21_Send_Message_Via_Dynamic_Discovery
+namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._19_22_Send_Message_via_Dynamic_Forwarding
 {
-    public class SendMessageViaDynamicDiscoveryTest : IntegrationTestTemplate
+    public class SendMessageViaDynamicForwardingTest : IntegrationTestTemplate
     {
         public static readonly string ReceiveAgentEndpoint = "http://localhost:9090/msh",
                                       HolodeckBId = "org:holodeckb2b:example:company:B",
@@ -25,7 +24,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._19_20
         /// Send "simple" message with dynamic discovered minimum information.
         /// </summary>
         [Fact]
-        public void HolodeckAcceptsSimpleDynamicDiscoveryMessage()
+        public void HolodeckAcceptsSimpleDynamicForwardedMessage()
         {
             // Arrange
             Holodeck.CopyPModeToHolodeckB("8.1.19-pmode.xml");
@@ -35,7 +34,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._19_20
 
             InsertSmpConfigurationForAS4Component(url: ReceiveAgentEndpoint, enableEncryption: false);
 
-            AS4Message userMessage = UserMessageWithAttachment(argRefPModeId: "8.1.19-pmode");
+            AS4Message userMessage = UserMessageWithAttachment(argRefPModeId: "dynamic-forwarding-pmode");
 
             // Act: send the UserMessage to the AS4.NET Component, so it can be made complete by Dynamic Discover the info from the SMP Configuration
             SendMultiHopAS4Message(userMessage);
@@ -51,7 +50,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._19_20
         /// Send message with dynamic discovered encryption information to Holodeck.
         /// </summary>
         [Fact]
-        public void HolodeckAcceptsEncryptedDynamicDiscoveryMessage()
+        public void HolodeckAcceptsEncryptedDynamicForwardedMessage()
         {
             // Arrange
             Holodeck.CopyPModeToHolodeckB("8.1.20-pmode.xml");
@@ -61,7 +60,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._19_20
 
             InsertSmpConfigurationForAS4Component(url: ReceiveAgentEndpoint, enableEncryption: true);
 
-            AS4Message userMessage = UserMessageWithAttachment(argRefPModeId: "8.1.20-pmode");
+            AS4Message userMessage = UserMessageWithAttachment(argRefPModeId: "dynamic-forwarding-pmode");
 
             // Act: send the UserMessage to the AS4.NET Component, so it can be made complete by Dynamic Discover the info from the SMP Configuration
             SendMultiHopAS4Message(userMessage);
@@ -69,11 +68,11 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._19_20
             // Assert
             Assert.True(
                 PollingAt(AS4ReceiptsPath),
-                "No Receipt found at AS4.NET Component for Encrypted Dynamic Discovery Test");
+                "No Receipt found at AS4.NET Component for Encrypted Dynamic Forwarding Test");
         }
 
         [Fact]
-        public void AS4ComponentDoesntAlterSignatureFromOrignalHolodeckMessage()
+        public void IntermediateAS4MshCanEncryptSignedMessageAndDoesntAlterSignatureFromOriginalHolodeckMessage()
         {
             // Arrange
             Holodeck.CopyPModeToHolodeckB("8.1.21-pmode.xml");
@@ -84,7 +83,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._19_20
             InsertEnabledEncryptionForHolodeck(url: ReceiveAgentEndpoint);
 
             // Act
-            new StubSender().SendMessage(_8_1_21_message, Constants.ContentTypes.Soap);
+            new StubSender().SendMessage(Properties.Resources._8_1_21_message, Constants.ContentTypes.Soap);
 
             // Assert
             Assert.True(
@@ -107,7 +106,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._19_20
                 ServiceValue = "Test",
                 FinalRecipient = "org:eu:europa:as4:example",
                 EncryptAlgorithm = Encryption.Default.Algorithm,
-                EncryptPublicKeyCertificate = AccessPointB_PublicCert,
+                EncryptPublicKeyCertificate = Properties.Resources.AccessPointB_PublicCert,
                 EncryptAlgorithmKeySize = Encryption.Default.AlgorithmKeySize,
                 EncryptKeyDigestAlgorithm = KeyEncryption.Default.DigestAlgorithm,
                 EncryptKeyMgfAlorithm = KeyEncryption.Default.MgfAlgorithm,
@@ -117,6 +116,32 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._19_20
             InsertSmpConfiguration(smpConfig);
         }
 
+        [Fact]
+        public void AS4ComponentDoesntAlterEncryptedDataFromOriginalHolodeckMessage()
+        {
+            // Arrange
+            Holodeck.CopyPModeToHolodeckB("8.1.22-pmode.xml");
+
+            AS4Component.OverrideSettings(DynamicDiscoverySettings);
+            AS4Component.Start();
+
+            InsertSmpConfigurationForAS4Component(ReceiveAgentEndpoint, enableEncryption: false);
+
+            var str = VirtualStream.CreateVirtualStream();
+            str.Write(Properties.Resources._8_1_22_message, 0, Properties.Resources._8_1_22_message.Length);
+            str.Position = 0;
+
+            const string contentType =
+                "multipart/related; boundary= \"MIMEBoundary_4ac2a25e8a3af891754f9f7316ac08062c50de1368ddfada\"; type=\"application/soap+xml\";";
+
+            // Act
+            new StubSender().SendMessage(str, contentType);
+
+            // Assert
+            Assert.True(
+                PollingAt(AS4ReceiptsPath),
+                "No Receipt found at AS4.NET Component for Encrypted Dynamic Forwarding Test");
+        }
 
         private void InsertSmpConfigurationForAS4Component(string url, bool enableEncryption)
         {
@@ -133,7 +158,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._19_20
                 ServiceValue = Constants.Namespaces.TestService,
                 FinalRecipient = HolodeckBId,
                 EncryptAlgorithm = Encryption.Default.Algorithm,
-                EncryptPublicKeyCertificate = AccessPointB_PublicCert,
+                EncryptPublicKeyCertificate = Properties.Resources.AccessPointB_PublicCert,
                 EncryptAlgorithmKeySize = Encryption.Default.AlgorithmKeySize,
                 EncryptKeyDigestAlgorithm = KeyEncryption.Default.DigestAlgorithm,
                 EncryptKeyMgfAlorithm = KeyEncryption.Default.MgfAlgorithm,
@@ -154,7 +179,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._19_20
             spy.InsertSmpConfiguration(smpConfig);
         }
 
-        public static AS4Message UserMessageWithAttachment(string argRefPModeId)
+        private static AS4Message UserMessageWithAttachment(string argRefPModeId)
         {
             const string payloadId = "earth";
 
@@ -170,7 +195,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._19_20
             return userMessage;
         }
 
-        public static CollaborationInfo HolodeckCollaboration(string argRefPModeId)
+        private static CollaborationInfo HolodeckCollaboration(string argRefPModeId)
         {
             return new CollaborationInfo
             {
@@ -189,7 +214,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._19_20
             };
         }
 
-        public static PartInfo ImagePayload(string id)
+        private static PartInfo ImagePayload(string id)
         {
             return new PartInfo("cid:" + id)
             {
@@ -200,20 +225,20 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._19_20
             };
         }
 
-        public static Attachment ImageAttachment(string id)
+        private static Attachment ImageAttachment(string id)
         {
             return new Attachment(id)
             {
                 ContentType = "image/jpg",
                 Content = new FileStream(
-                    Path.GetFullPath($@".\{submitmessage_single_payload_path}"),
+                    Path.GetFullPath($@".\{Properties.Resources.submitmessage_single_payload_path}"),
                     FileMode.Open,
                     FileAccess.Read,
                     FileShare.Read)
             };
         }
 
-        public static void SendMultiHopAS4Message(AS4Message userMessage)
+        private static void SendMultiHopAS4Message(AS4Message userMessage)
         {
             ISerializer serializer = SerializerProvider.Default.Get(userMessage.ContentType);
             VirtualStream virtualStr = VirtualStream.CreateVirtualStream();

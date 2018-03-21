@@ -82,7 +82,7 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
             {
                 // Setup
                 Setup();
-                var result = loader.LoadImplementationsForType(types, "Eu.EDelivery.AS4.Fe.UnitTests.TestData.ITestReceiver");
+                var result = loader.LoadImplementationsForType(types, typeof(ITestReceiver));
 
                 // Assert
                 var first = result.First();
@@ -103,7 +103,7 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
                 Setup();
 
                 // Act
-                var result = loader.LoadImplementationsForType(types, "Eu.EDelivery.AS4.Fe.UnitTests.TestData.ITestReceiver");
+                var result = loader.LoadImplementationsForType(types, typeof(ITestReceiver));
                 var onlywithDescription = result.First(test => test.Name.ToLower().Contains("testreceiverwithonlydescription"));
 
                 // Assert
@@ -116,7 +116,7 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
             {
                 Setup();
 
-                var result = loader.LoadImplementationsForType(types, typeof(ITestReceiver).FullName);
+                var result = loader.LoadImplementationsForType(types, typeof(ITestReceiver));
                 var type = result.First(test => test.Name.ToLower().Contains("testreceiverwithonlydescription")).Properties.First(prop => prop.TechnicalName == "Test");
 
                 Assert.True(type.Attributes.Contains("testattribute"));
@@ -127,7 +127,7 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
             {
                 Setup();
 
-                var result = loader.LoadImplementationsForType(types, typeof(IPMode).FullName).ToList();
+                var result = loader.LoadImplementationsForType(types, typeof(IPMode)).ToList();
             }
         }
 
@@ -139,7 +139,7 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
                 // Setup
                 Setup();
 
-                var result = loader.LoadImplementationsForType(types, "Eu.EDelivery.AS4.Model.PMode.IPMode");
+                var result = loader.LoadImplementationsForType(types, typeof(IPMode));
 
                 var jsonResult = JsonConvert.SerializeObject(result.First(x => x.Name == "SendingProcessingMode"), Formatting.Indented, new FlattenRuntimeToJsonConverter());
 

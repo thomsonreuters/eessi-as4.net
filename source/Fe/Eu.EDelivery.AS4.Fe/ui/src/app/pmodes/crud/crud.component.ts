@@ -24,11 +24,11 @@ export const PMODECRUD_SERVICE = new OpaqueToken('pmodecrudservice');
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="col-xs-2">Clone</label>
+                    <label class="col-xs-2">Based on</label>
                     <div class="col-xs-10">
                         <select class="form-control" (change)="actionType = $event.target.value" #select>
-                            <option *ngFor="let setting of pmodes" [selected]="actionType === setting" [ngValue]="setting">{{setting}}</option>
-                            <option value="" [selected]="!!!actionType">Empty</option>
+                            <option value="">Empty</option>
+                            <option *ngFor="let setting of pmodes" [ngValue]="setting">{{setting}}</option>
                         </select>
                     </div>
                 </div>
@@ -164,6 +164,7 @@ export class CrudComponent implements OnInit, OnDestroy {
             .filter((result) => result)
             .subscribe((result) => {
                 this._crudService.delete(this.currentPmode!.name, this.isNewMode);
+                this.isNewMode = false;
                 this._routerService.setCurrentValue(this._activatedRoute, null);
             });
     }

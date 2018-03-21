@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <PMode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="eu:edelivery:as4:pmode">
-  <Id>8.1.19-pmode</Id>
+  <Id>dynamic-forwarding-pmode</Id>
   <Reliability>
     <DuplicateElimination>
       <IsEnabled>false</IsEnabled>
@@ -8,7 +8,7 @@
   </Reliability>
   <ReplyHandling>
     <ReplyPattern>Response</ReplyPattern>
-    <SendingPMode>unsigned-response-pmode</SendingPMode>
+    <SendingPMode/>
     <ReceiptHandling>
       <UseNRRFormat>false</UseNRRFormat>
     </ReceiptHandling>
@@ -26,6 +26,14 @@
       </Parameters>
     </NotifyMethod>
   </ExceptionHandling>
+  <Security>
+    <SigningVerification>
+      <Signature>Ignored</Signature>
+    </SigningVerification>
+    <Decryption>
+      <Encryption>Ignored</Encryption>
+    </Decryption>
+  </Security>
   <MessagePackaging>
     <PartyInfo>
       <ToParty>
@@ -50,7 +58,7 @@
   </MessagePackaging>
   <MessageHandling>
     <Forward>
-      <SendingPMode>8.1.19-pmode</SendingPMode>
+      <SendingPMode>dynamic-forwarding-pmode</SendingPMode>
     </Forward>
   </MessageHandling>
 </PMode>

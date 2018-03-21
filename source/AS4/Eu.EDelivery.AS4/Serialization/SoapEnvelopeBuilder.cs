@@ -192,9 +192,14 @@ namespace Eu.EDelivery.AS4.Serialization
             /// <returns></returns>
             public XmlDocument Build()
             {
+                var nsMgr = new XmlNamespaceManager(_document.NameTable);
+
+                nsMgr.AddNamespace("soap", NamespaceInformation[SoapNamespace.Soap].Namespace);
+                nsMgr.AddNamespace("wsse", NamespaceInformation[SoapNamespace.SecurityExt].Namespace);
+
                 if (_securityHeaderElement != null)
                 {
-                    var existingSecurityHeader = _headerElement.SelectSingleNode("//*[local-name()='Security']");
+                    var existingSecurityHeader = _headerElement.SelectSingleNode("//soap:Header/wsse:Security", nsMgr);//_headerElement.SelectSingleNode("//*[local-name()='Security']"); // _headerElement.SelectSingleNode("//soap:Header/wsse:Security/*", nsMgr);
                     if (existingSecurityHeader != null)
                     {
                         _headerElement.ReplaceChild(_securityHeaderElement, existingSecurityHeader);
@@ -217,7 +222,16 @@ namespace Eu.EDelivery.AS4.Serialization
 
                 if (_headerElement.HasChildNodes)
                 {
-                    _envelopeElement.AppendChild(_headerElement);
+                    var existingHeader = _envelopeElement.SelectSingleNode("/soap:Envelope/soap:Header", nsMgr);
+
+                    if (existingHeader != null)
+                    {
+                        _envelopeElement.ReplaceChild(_headerElement, existingHeader);
+                    }
+                    else
+                    {
+                        _envelopeElement.AppendChild(_headerElement);
+                    }
                 }
 
                 if (_bodyElement.HasAttributes)
