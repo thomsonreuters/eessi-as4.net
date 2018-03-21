@@ -24,7 +24,7 @@
   </xs:complexType>
   <xs:complexType name="ReplyHandlingSetting">
     <xs:sequence>
-      <xs:element minOccurs="1" maxOccurs="1" name="ReplyPattern" type="tns:ReplyPattern" />
+      <xs:element minOccurs="0" maxOccurs="1" default="Response" name="ReplyPattern" type="tns:ReplyPattern" />
       <xs:element minOccurs="0" maxOccurs="1" name="SendingPMode" type="xs:string" />
       <xs:element minOccurs="0" maxOccurs="1" name="ReceiptHandling" type="tns:ReceiveReceiptHandling" />
       <xs:element minOccurs="0" maxOccurs="1" name="ErrorHandling" type="tns:ReceiveErrorHandling" />

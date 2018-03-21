@@ -206,7 +206,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
         /// </summary>
         public Decryption()
         {
-            Encryption = Limit.Allowed;
+            Encryption = Limit.Ignored;
             CertificateType = PrivateKeyCertificateChoiceType.None;
         }
 

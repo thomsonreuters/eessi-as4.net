@@ -927,10 +927,10 @@ This contract describes all the properties available in the Sending PMode.  The 
                 <ul>
                     <li style="list-style-type: none;background-image: none;">
                         <ul>
-                            <li>Allowed (<em>default)</em></li>
+                            <li>Ignored (<em>default)</em></li>
+                            <li>Allowed</li>
                             <li>Not allowed</li>
-                            <li>Required</li>
-                            <li>Ignored</li>
+                            <li>Required</li>                            
                         </ul>
                     </li>
                 </ul>
