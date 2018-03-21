@@ -164,7 +164,7 @@
         <xs:element minOccurs="0" maxOccurs="1" name="CertificateFindCriteria" type="tns:CertificateFindCriteria" />
         <xs:element minOccurs="0" maxOccurs="1" name="PrivateKeyCertificate" type="tns:PrivateKeyCertificate" />
       </xs:choice>
-      <xs:element minOccurs="0" maxOccurs="1" name="KeyReferenceMethod" type="tns:X509ReferenceType" />
+      <xs:element minOccurs="0" maxOccurs="1" default="BSTReference" name="KeyReferenceMethod" type="tns:X509ReferenceType" />
       <xs:element minOccurs="0" maxOccurs="1" default="http://www.w3.org/2001/04/xmldsig-more#rsa-sha256" name="Algorithm" type="xs:string" />
       <xs:element minOccurs="0" maxOccurs="1" default="http://www.w3.org/2001/04/xmlenc#sha256" name="HashFunction" type="xs:string" />
     </xs:sequence>
