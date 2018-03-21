@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -20,7 +21,7 @@ namespace Eu.EDelivery.AS4.Fe.Pmodes
     public class As4PmodeSource : IAs4PmodeSource
     {
         private readonly IOptionsSnapshot<PmodeSettings> _settings;
-        private readonly IConfig _config;
+        private readonly Config _config;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="As4PmodeSource"/> class.
@@ -40,7 +41,7 @@ namespace Eu.EDelivery.AS4.Fe.Pmodes
         {
             return Task
                 .Factory
-                .StartNew(() => _config.ReceivingPModeWatcher.GetPModes().Select(p => p.Id));
+                .StartNew(() => _config.GetReceivingPModes().Select(p => p.Id));
         }
 
         /// <summary>
@@ -54,7 +55,8 @@ namespace Eu.EDelivery.AS4.Fe.Pmodes
                 .Factory
                 .StartNew(() =>
                 {
-                    if (_config.ReceivingPModeWatcher.GetPMode(name) is ReceivingProcessingMode pmode)
+                    var pmode = SafeGetReceivingPMode(name);
+                    if (pmode != null)
                     {
                         return new ReceivingBasePmode
                         {
@@ -69,6 +71,18 @@ namespace Eu.EDelivery.AS4.Fe.Pmodes
                 });
         }
 
+        private ReceivingProcessingMode SafeGetReceivingPMode(string id)
+        {
+            try
+            {
+                return _config.GetReceivingPMode(id);
+            }
+            catch (Exception ex) when (ex is KeyNotFoundException || ex is ConfigurationErrorsException)
+            {
+                return null;
+            }
+        }
+
         /// <summary>
         /// Gets the sending names.
         /// </summary>
@@ -77,7 +91,7 @@ namespace Eu.EDelivery.AS4.Fe.Pmodes
         {
             return Task
                 .Factory
-                .StartNew(() => _config.SendingPModeWatcher.GetPModes().Select(p => p.Id));
+                .StartNew(() => _config.GetSendingPModes().Select(p => p.Id));
         }
 
         /// <summary>
@@ -91,7 +105,8 @@ namespace Eu.EDelivery.AS4.Fe.Pmodes
                 .Factory
                 .StartNew(() =>
                 {
-                    if (_config.SendingPModeWatcher.GetPMode(name) is SendingProcessingMode pmode)
+                    var pmode = SafeGetSendingPMode(name);
+                    if (pmode != null)
                     {
                         return new SendingBasePmode
                         {
@@ -104,6 +119,18 @@ namespace Eu.EDelivery.AS4.Fe.Pmodes
 
                     return null;
                 });
+        }
+
+        private SendingProcessingMode SafeGetSendingPMode(string name)
+        {
+            try
+            {
+                return _config.GetSendingPMode(name);
+            }
+            catch (Exception ex) when (ex is KeyNotFoundException || ex is ConfigurationErrorsException)
+            {
+                return null;
+            }
         }
 
         /// <summary>
@@ -134,7 +161,7 @@ namespace Eu.EDelivery.AS4.Fe.Pmodes
         {
             return Task.Factory.StartNew(() =>
             {
-                string path = _config.ReceivingPModeWatcher.GetPModeEntry(name).Filename;
+                string path = _config.GetFileLocationForReceivingPMode(name);
                 File.Delete(path);
             });
         }
@@ -148,7 +175,7 @@ namespace Eu.EDelivery.AS4.Fe.Pmodes
         {
             return Task.Factory.StartNew(() =>
             {
-                string path = _config.SendingPModeWatcher.GetPModeEntry(name).Filename;
+                string path = _config.GetFileLocationForSendingPMode(name);
                 File.Delete(path);
             });
         }
@@ -198,7 +225,7 @@ namespace Eu.EDelivery.AS4.Fe.Pmodes
         public async Task UpdateSending(SendingBasePmode basePmode, string originalName)
         {
             await CreateSending(basePmode);
-            File.Delete(_config.SendingPModeWatcher.GetPModeEntry(originalName).Filename);
+            File.Delete(_config.GetFileLocationForSendingPMode(originalName));
         }
 
         /// <summary>
@@ -210,7 +237,7 @@ namespace Eu.EDelivery.AS4.Fe.Pmodes
         public async Task UpdateReceiving(ReceivingBasePmode basePmode, string originalName)
         {
             await CreateReceiving(basePmode);
-            File.Delete(_config.ReceivingPModeWatcher.GetPModeEntry(originalName).Filename);
+            File.Delete(_config.GetFileLocationForReceivingPMode(originalName));
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using Eu.EDelivery.AS4.Agents;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Model.Internal;
@@ -110,18 +111,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
         {
             get { throw new NotImplementedException(); }
         }
-
-        /// <summary>
-        /// Gets or sets the receiving p mode watcher.
-        /// </summary>
-        /// <value>The receiving p mode watcher.</value>
-        public PModeWatcher<ReceivingProcessingMode> ReceivingPModeWatcher { get; set; }
-
-        /// <summary>
-        /// Gets or sets the sending p mode watcher.
-        /// </summary>
-        /// <value>The sending p mode watcher.</value>
-        public PModeWatcher<SendingProcessingMode> SendingPModeWatcher { get; set; }
     }
 
     public class PseudoConfigFacts : PseudoConfig
