@@ -45,12 +45,8 @@ namespace Eu.EDelivery.AS4.Transformers
             SendingProcessingMode pmode = await DeserializeValidPMode(receivedMessage);
 
             AS4Message pullRequestMessage = AS4Message.Create(new PullRequest(pmode.MessagePackaging.Mpc), pmode);
-          
-            var context = new MessagingContext(pullRequestMessage, MessagingContextMode.Receive);
 
-            context.SendingPMode = pmode;
-
-            return context;
+            return new MessagingContext(pullRequestMessage, MessagingContextMode.Receive) {SendingPMode = pmode};
         }
 
         private static async Task<SendingProcessingMode> DeserializeValidPMode(ReceivedMessage receivedMessage)

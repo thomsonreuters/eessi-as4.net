@@ -57,14 +57,6 @@ namespace Eu.EDelivery.AS4.Transformers
         /// <returns></returns>
         public async Task<MessagingContext> TransformAsync(ReceivedMessage message)
         {
-            Logger.Debug("Transform AS4 Message to Messaging Context");
-            PreConditions(message);
-
-            return await TransformMessage(message, CancellationToken.None);
-        }
-
-        private void PreConditions(ReceivedMessage message)
-        {
             if (message.UnderlyingStream == null)
             {
                 throw new InvalidDataException("The incoming stream is not an ebMS Message");
@@ -74,20 +66,15 @@ namespace Eu.EDelivery.AS4.Transformers
             {
                 throw new InvalidDataException($"ContentType is not supported {nameof(message.ContentType)}");
             }
-        }
 
-        private async Task<MessagingContext> TransformMessage(
-            ReceivedMessage receivedMessage,
-            CancellationToken cancellation)
-        {
-            VirtualStream messageStream = await CopyIncomingStreamToVirtualStream(receivedMessage);
+            Logger.Debug("Transform AS4 Message to Messaging Context");
 
-            AS4Message as4Message = await DeserializeMessage(receivedMessage.ContentType, messageStream, cancellation);
+            VirtualStream messageStream = await CopyIncomingStreamToVirtualStream(message);
+            AS4Message as4Message = await DeserializeMessage(message.ContentType, messageStream, CancellationToken.None);
 
-            var context = new MessagingContext(receivedMessage, MessagingContextMode.Unknown);
+            var context = new MessagingContext(message, MessagingContextMode.Unknown);
             context.ModifyContext(as4Message);
-
-            receivedMessage.AssignPropertiesTo(context);
+            message.AssignPropertiesTo(context);
 
             return context;
         }

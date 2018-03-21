@@ -50,8 +50,7 @@ namespace Eu.EDelivery.AS4.Transformers
         /// </summary>
         /// <param name="entityMessage"></param>
         /// <returns></returns>
-        private static async Task<MessagingContext> RetrieveAS4Message(
-            ReceivedMessageEntityMessage entityMessage)
+        private static async Task<MessagingContext> RetrieveAS4Message(ReceivedMessageEntityMessage entityMessage)
         {
             var as4Transformer = new AS4MessageTransformer();
             MessagingContext messagingContext = await as4Transformer.TransformAsync(entityMessage);

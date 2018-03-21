@@ -40,7 +40,6 @@ namespace Eu.EDelivery.AS4.Transformers
             MessagingContext context = await as4Transformer.TransformAsync(message);
 
             var receivedEntityMessage = message as ReceivedEntityMessage;
-
             if (receivedEntityMessage == null)
             {
                 throw new NotSupportedException($"Minder Notify Transformer only supports transforming instances of type {typeof(ReceivedEntityMessage)}");
@@ -66,12 +65,11 @@ namespace Eu.EDelivery.AS4.Transformers
                 Logger.Warn($"{as4Message.PrimaryUserMessage?.MessageId} AS4Message does not contain a primary SignalMessage");
             }
 
-            var notifyEnvelope = await CreateMinderNotifyMessageEnvelope(userMessage, signalMessage, receivedEntityType).ConfigureAwait(false);
-
-            return notifyEnvelope;
+            return await CreateMinderNotifyMessageEnvelope(userMessage, signalMessage, receivedEntityType).ConfigureAwait(false);
         }
 
-        private async Task<NotifyMessageEnvelope> CreateMinderNotifyMessageEnvelope(UserMessage userMessage, SignalMessage signalMessage, Type receivedEntityMessageType)
+        private async Task<NotifyMessageEnvelope> CreateMinderNotifyMessageEnvelope(
+            UserMessage userMessage, SignalMessage signalMessage, Type receivedEntityMessageType)
         {
             if (userMessage == null && signalMessage != null)
             {

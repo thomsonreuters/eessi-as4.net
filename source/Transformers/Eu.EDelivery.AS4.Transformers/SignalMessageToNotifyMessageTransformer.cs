@@ -26,7 +26,6 @@ namespace Eu.EDelivery.AS4.Transformers
         public async Task<MessagingContext> TransformAsync(ReceivedMessage message)
         {
             var entityMessage = message as ReceivedMessageEntityMessage;
-
             if (entityMessage == null)
             {
                 throw new NotSupportedException(
@@ -73,7 +72,7 @@ namespace Eu.EDelivery.AS4.Transformers
 
             // Remove all signal-messages except the one that we should be notifying
             // Create the DeliverMessage for this specific UserMessage that has been received.
-            var signalMessage =
+            var signalMessage = 
                 as4Message.SignalMessages.FirstOrDefault(m => m.MessageId.Equals(entityMessage.MessageEntity.EbmsMessageId, StringComparison.OrdinalIgnoreCase));
 
             if (signalMessage == null)

@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Entities;
@@ -30,7 +29,6 @@ namespace Eu.EDelivery.AS4.Transformers
         public async Task<MessagingContext> TransformAsync(ReceivedMessage message)
         {
             var entityMessage = message as ReceivedEntityMessage;
-
             if (entityMessage == null)
             {
                 throw new NotSupportedException(
@@ -38,7 +36,7 @@ namespace Eu.EDelivery.AS4.Transformers
             }
 
             // Get the one signal-message that must be notified.
-            var as4Message = await GetAS4MessageForNotification(entityMessage, CancellationToken.None);
+            var as4Message = await GetAS4MessageForNotification(entityMessage);
 
             var context = new MessagingContext(await CreateNotifyMessageEnvelope(as4Message, entityMessage.Entity.GetType()));
 
@@ -47,7 +45,7 @@ namespace Eu.EDelivery.AS4.Transformers
             return context;
         }
 
-        private static async Task<AS4Message> GetAS4MessageForNotification(ReceivedEntityMessage receivedMessage, CancellationToken cancellationToken)
+        private static async Task<AS4Message> GetAS4MessageForNotification(ReceivedEntityMessage receivedMessage)
         {
             if (receivedMessage.Entity is ExceptionEntity ex)
             {
@@ -62,8 +60,7 @@ namespace Eu.EDelivery.AS4.Transformers
             throw new InvalidOperationException();
         }
 
-        private static AS4Message CreateAS4ErrorFromException(
-            ExceptionEntity exceptionEntity)
+        private static AS4Message CreateAS4ErrorFromException(ExceptionEntity exceptionEntity)
         {
             Error error = CreateSignalErrorMessage(exceptionEntity);
 
@@ -94,7 +91,7 @@ namespace Eu.EDelivery.AS4.Transformers
 
             // Remove all signal-messages except the one that we should be notifying
             // Create the DeliverMessage for this specific UserMessage that has been received.
-            var signalMessage =
+            var signalMessage = 
                 as4Message.SignalMessages.FirstOrDefault(m => m.MessageId.Equals(entityMessage.MessageEntity.EbmsMessageId, StringComparison.OrdinalIgnoreCase));
 
             if (signalMessage == null)
