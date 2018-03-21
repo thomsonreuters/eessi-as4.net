@@ -462,9 +462,11 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             AS4Message multihopMessage = AS4Message.Create(userMessage, multihopPMode);
 
             // Act
-            await StubSender.SendAS4Message(_receiveAgentUrl, multihopMessage);
+            HttpResponseMessage response = await StubSender.SendAS4Message(_receiveAgentUrl, multihopMessage);
 
             // Assert
+            Assert.Equal(HttpStatusCode.Accepted, response.StatusCode);
+
             InMessage inUserMessage = _databaseSpy.GetInMessageFor(m => m.EbmsMessageId == userMessage.MessageId);
 
             Assert.NotNull(inUserMessage);
