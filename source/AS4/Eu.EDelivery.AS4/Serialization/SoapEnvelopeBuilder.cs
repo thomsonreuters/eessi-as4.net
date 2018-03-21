@@ -72,7 +72,7 @@ namespace Eu.EDelivery.AS4.Serialization
             /// Set Messaging Header
             /// </summary>
             /// <param name="messagingHeader"></param>
-            public SoapEnvelopeBuilder SetMessagingHeader(Xml.Messaging messagingHeader)
+            public SoapEnvelopeBuilder SetMessagingHeader(Messaging messagingHeader)
             {
                 if (messagingHeader == null)
                 {
@@ -84,13 +84,13 @@ namespace Eu.EDelivery.AS4.Serialization
                 return this;
             }
 
-            private XmlNode SerializeMessagingHeaderToXmlDocument(Xml.Messaging messagingHeader)
+            private XmlNode SerializeMessagingHeaderToXmlDocument(Messaging messagingHeader)
             {
                 var xmlDocument = new XmlDocument { PreserveWhitespace = true };
 
                 using (XmlWriter writer = xmlDocument.CreateNavigator().AppendChild())
                 {
-                    var serializer = new XmlSerializer(typeof(Xml.Messaging));
+                    var serializer = new XmlSerializer(typeof(Messaging));
                     serializer.Serialize(writer, messagingHeader, XmlSerializerNamespaceInfo);
                 }
 
@@ -124,7 +124,7 @@ namespace Eu.EDelivery.AS4.Serialization
 
                 using (XmlWriter writer = xmlDocument.CreateNavigator().AppendChild())
                 {
-                    var serializer = new XmlSerializer(typeof(Xml.RoutingInput));
+                    var serializer = new XmlSerializer(typeof(RoutingInput));
                     serializer.Serialize(writer, routingInput, XmlSerializerNamespaceInfo);
                 }
 
@@ -199,7 +199,7 @@ namespace Eu.EDelivery.AS4.Serialization
 
                 if (_securityHeaderElement != null)
                 {
-                    var existingSecurityHeader = _headerElement.SelectSingleNode("//soap:Header/wsse:Security", nsMgr);//_headerElement.SelectSingleNode("//*[local-name()='Security']"); // _headerElement.SelectSingleNode("//soap:Header/wsse:Security/*", nsMgr);
+                    var existingSecurityHeader = _headerElement.SelectSingleNode("//soap:Header/wsse:Security", nsMgr);
                     if (existingSecurityHeader != null)
                     {
                         _headerElement.ReplaceChild(_securityHeaderElement, existingSecurityHeader);
