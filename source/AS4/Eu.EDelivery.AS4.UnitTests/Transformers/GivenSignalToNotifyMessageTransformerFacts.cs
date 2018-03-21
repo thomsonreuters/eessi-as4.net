@@ -99,7 +99,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
         {
             var sut = new NotifyMessageTransformer();
 
-            return await sut.TransformAsync(receival, CancellationToken.None);
+            return await sut.TransformAsync(receival);
         }
 
         private static string Canonicalize(XmlNode input)
@@ -122,7 +122,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             var receiptContent = new MemoryStream(Encoding.UTF8.GetBytes(Properties.Resources.receipt));
 
             ISerializer serializer = SerializerProvider.Default.Get(Constants.ContentTypes.Soap);
-            AS4Message receiptMessage = await serializer.DeserializeAsync(receiptContent, Constants.ContentTypes.Soap, CancellationToken.None);
+            await serializer.DeserializeAsync(receiptContent, Constants.ContentTypes.Soap, CancellationToken.None);
 
             receiptContent.Position = 0;
             InMessage receiptInMessage = new InMessage("non-existing-id");

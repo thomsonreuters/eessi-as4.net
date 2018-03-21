@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Model.Core;
@@ -114,7 +113,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
         protected async Task<MessagingContext> Transform(ReceivedMessage message)
         {
             var transformer = new AS4MessageTransformer(Registry.Instance.SerializerProvider);
-            return await transformer.TransformAsync(message, CancellationToken.None);
+            return await transformer.TransformAsync(message);
         }
     }
 }

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Internal;
@@ -25,9 +24,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
                 var transformer = new ReceptionAwarenessTransformer();
 
                 // Act
-                MessagingContext messagingContext = await transformer.TransformAsync(
-                                                      receivedMessage,
-                                                      CancellationToken.None);
+                MessagingContext messagingContext = await transformer.TransformAsync(receivedMessage);
 
                 // Assert
                 Assert.Equal(awareness, messagingContext.ReceptionAwareness);
@@ -45,7 +42,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
 
                 // Act / Assert
                 await Assert.ThrowsAnyAsync<Exception>(
-                    () => transformer.TransformAsync(receivedMessage, CancellationToken.None));
+                    () => transformer.TransformAsync(receivedMessage));
             }
 
             [Fact]
@@ -58,7 +55,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
 
                 // Act / Assert
                 await Assert.ThrowsAnyAsync<Exception>(
-                    () => transformer.TransformAsync(receivedMessage, CancellationToken.None));
+                    () => transformer.TransformAsync(receivedMessage));
             }
         }
     }

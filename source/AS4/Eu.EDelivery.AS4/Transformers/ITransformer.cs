@@ -14,9 +14,9 @@ namespace Eu.EDelivery.AS4.Transformers
         /// Transform a given <see cref="ReceivedMessage"/> to a Canonical <see cref="MessagingContext"/> instance.
         /// </summary>
         /// <param name="message">Given message to transform.</param>
-        /// <param name="cancellationToken">Cancellation which stops the transforming.</param>
+        /// 
         /// <returns></returns>
-        Task<MessagingContext> TransformAsync(ReceivedMessage message, CancellationToken cancellationToken);
+        Task<MessagingContext> TransformAsync(ReceivedMessage message);
 
         /// <summary>
         /// Configures the <see cref="ITransformer"/> implementation with specific user-defined properties.
