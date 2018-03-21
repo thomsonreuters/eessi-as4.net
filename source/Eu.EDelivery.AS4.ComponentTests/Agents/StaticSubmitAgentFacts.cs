@@ -1,9 +1,14 @@
 ﻿using System;
+using System.IO;
 using System.Net;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.ComponentTests.Common;
+using Eu.EDelivery.AS4.Entities;
+using Eu.EDelivery.AS4.Model.Core;
+using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.TestUtils.Stubs;
 using Xunit;
 using static Eu.EDelivery.AS4.ComponentTests.Properties.Resources;
@@ -15,35 +20,63 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         // It would be nice if this could be extracted from the configuration.
         private const string HttpSubmitAgentUrl = "http://localhost:7070/msh/";
 
-        private readonly AS4Component _msh;
-        private readonly DatabaseSpy _databaseSpy;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="StaticSubmitAgentFacts"/> class.
-        /// </summary>
-        public StaticSubmitAgentFacts()
-        {
-            OverrideSettings("staticsubmitagent_settings.xml");
-            _msh = AS4Component.Start(Environment.CurrentDirectory);
-            _databaseSpy = new DatabaseSpy(_msh.GetConfiguration());
-        }
-
         [Fact]
         public async Task ThenAgentCreatesSubmitMessageFromPayload()
         {
+            await SendPayloadToStaticSubmit(
+                settingsFile: "staticsubmitagent_settings.xml",
+                assertion: databaseSpy =>
+                {
+                    Assert.NotNull(databaseSpy.GetOutMessageFor(m => m.PModeId == "componentsubmittest-pmode"));
+                    return Task.CompletedTask;
+                });
+        }
+
+        [Fact]
+        public async Task ThenAgentCreatesMultihopMessageAndDontSetsItToIntermediary()
+        {
+            await SendPayloadToStaticSubmit(
+                settingsFile: "staticsubmitagent_multihop_settings.xml",
+                assertion: async databaseSpy =>
+                {
+                    OutMessage multihopMessage = databaseSpy.GetOutMessageFor(m => m.PModeId == "staticsubmit-multihop-pmode");
+                    Assert.False(multihopMessage.Intermediary);
+
+                    Stream messageBody = await Registry.Instance
+                        .MessageBodyStore
+                        .LoadMessageBodyAsync(multihopMessage.MessageLocation);
+
+                    AS4Message savedMessage = await SerializerProvider.Default
+                        .Get(multihopMessage.ContentType)
+                        .DeserializeAsync(messageBody, multihopMessage.ContentType, CancellationToken.None);
+
+                    Assert.True(savedMessage.IsMultiHopMessage);
+                });
+        }
+
+        private async Task SendPayloadToStaticSubmit(string settingsFile, Func<DatabaseSpy, Task> assertion)
+        {
+            // Arrange
+            OverrideSettings(settingsFile);
+            var msh = AS4Component.Start(Environment.CurrentDirectory);
+            var databaseSpy = new DatabaseSpy(msh.GetConfiguration());
+
             // Act
+            await SubmitAnonymousPayload();
+
+            // Assert
+            await assertion(databaseSpy);
+
+            // TearDown
+            msh.Dispose();
+        }
+
+        private static async Task SubmitAnonymousPayload()
+        {
             using (HttpResponseMessage response = await StubSender.SendRequest(HttpSubmitAgentUrl, payload, "image/jpg"))
             {
                 Assert.Equal(HttpStatusCode.Accepted, response.StatusCode);
             }
-
-            // Assert
-            Assert.NotNull(_databaseSpy.GetOutMessageFor(m => m.PModeId == "componentsubmittest-pmode"));
-        }
-
-        protected override void Disposing(bool isDisposing)
-        {
-            _msh.Dispose();
         }
     }
 }
