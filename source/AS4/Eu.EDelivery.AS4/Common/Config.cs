@@ -39,19 +39,19 @@ namespace Eu.EDelivery.AS4.Common
             _configuration = new Dictionary<string, string>(StringComparer.CurrentCultureIgnoreCase);
         }
 
-        /// <summary>
-        /// Gets or sets the receiving p mode watcher.
-        /// </summary>
-        /// <value> The receiving p mode watcher.</value>
-        public PModeWatcher<ReceivingProcessingMode> ReceivingPModeWatcher { get; set; }
+        public static Config Instance => (Config) Singleton;
 
         /// <summary>
-        /// Gets or sets the sending p mode watcher.
+        /// Gets the receiving p mode watcher.
+        /// </summary>
+        /// <value>The receiving p mode watcher.</value>
+        public PModeWatcher<ReceivingProcessingMode> ReceivingPModeWatcher { get; private set; }
+
+        /// <summary>
+        /// Gets the sending p mode watcher.
         /// </summary>
         /// <value>The sending p mode watcher.</value>
-        public PModeWatcher<SendingProcessingMode> SendingPModeWatcher { get; set; }
-
-        public static Config Instance => (Config)Singleton;
+        public PModeWatcher<SendingProcessingMode> SendingPModeWatcher { get; private set; }        
 
         /// <summary>
         /// Gets a value indicating whether the FE needs to be started in process.
@@ -252,6 +252,7 @@ namespace Eu.EDelivery.AS4.Common
             {
                 path = Path.Combine(".", path);
             }
+
             _settings = TryDeserialize<Settings>(path);
             if (_settings == null)
             {
