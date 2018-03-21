@@ -82,16 +82,6 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
-        internal static byte[] _8_1_23_message {
-            get {
-                object obj = ResourceManager.GetObject("_8_1_23_message", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Byte[].
-        /// </summary>
         internal static byte[] AccessPointB_PublicCert {
             get {
                 object obj = ResourceManager.GetObject("AccessPointB_PublicCert", resourceCulture);

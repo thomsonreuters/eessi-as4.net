@@ -299,7 +299,6 @@
     <None Include="Resources\earth.jpg" />
     <None Include="Resources\pdf-document.pdf" />
     <None Include="Resources\_8_1_22_message.as4" />
-    <None Include="Resources\_8_1_23_message.as4" />
     <None Include="Scripts\change-ip-in-pmode.ps1" />
     <None Include="Scripts\start-as4-component-application.ps1" />
     <None Include="Scripts\stop-as4-component-application.ps1" />
