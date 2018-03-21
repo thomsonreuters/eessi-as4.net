@@ -396,13 +396,35 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
         public void MultihopUserMessageCreatedWhenSpecifiedInPMode()
         {
             // Arrange
-
             AS4Message as4Message = CreateAS4MessageWithPMode(CreateMultiHopPMode());
 
             // Act
             XmlDocument doc = AS4XmlSerializer.ToSoapEnvelopeDocument(as4Message, CancellationToken.None);
 
             // Assert
+            AssertUserMessageMultihopHeaders(doc);
+        }
+
+        [Fact]
+        public async Task MultihopUserMessageStillContainsMultihopHeadersWhenSerializeDeserializedMessage()
+        {
+            // Arrange
+            var input = new MemoryStream(as4_multihop_usermessage);
+            const string contentType =
+                "multipart/related; boundary=\"=-AAB+iUI3phXyeG3w4aGnFA==\";\ttype=\"application/soap+xml\"";
+
+            ISerializer sut = SerializerProvider.Default.Get(contentType);
+            AS4Message deserialized = await sut.DeserializeAsync(input, contentType, CancellationToken.None);
+
+            // Act
+            XmlDocument doc = AS4XmlSerializer.ToSoapEnvelopeDocument(deserialized, CancellationToken.None);
+
+            // Assert
+            AssertUserMessageMultihopHeaders(doc);
+        }
+
+        private static void AssertUserMessageMultihopHeaders(XmlDocument doc)
+        {
             var messagingNode = doc.SelectSingleNode("//*[local-name()='Messaging']") as XmlElement;
 
             Assert.NotNull(messagingNode);
@@ -739,8 +761,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
 
             return await serializer.DeserializeAsync(stream, contentType, CancellationToken.None);
         }
-
-
 
         private static void RemoveSecurityHeaderFromMessageEnvelope(AS4Message as4Message)
         {

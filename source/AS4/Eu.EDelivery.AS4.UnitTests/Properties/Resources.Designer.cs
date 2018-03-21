@@ -122,6 +122,16 @@ namespace Eu.EDelivery.AS4.UnitTests.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] as4_multihop_usermessage {
+            get {
+                object obj = ResourceManager.GetObject("as4_multihop_usermessage", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to &lt;s:Envelope  xmlns:s=&quot;http://www.w3.org/2003/05/soap-envelope&quot; xmlns:wsa=&quot;http://www.w3.org/2005/08/addressing&quot;&gt;
         ///  &lt;s:Header&gt;
         ///    &lt;wsse:Security xmlns:wsse=&quot;http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd&quot;&gt;
