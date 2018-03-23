@@ -822,7 +822,7 @@ This contract describes all the properties available in the Sending PMode.  The 
                 <p>Reference to the Sending PMode</p>
                 <p><br></p>
                 <p>Specifies if NonRepudationInfo must be included in receipt.&nbsp; <em>Default: false</em></p>
-                <p>Specifies if the references in the NonRepudiationInfo must be verified at arrival. <em>Default: false</em></p>
+                <p>Specifies if NonRepudation of Receipt must be verified upon arrival of a Receipt. <em>Default: true</em></p>
                 <p><em>Default: false</em></p>
                 <p>HTTP Status Code in case of reply = response.&nbsp; <em>Default: 200</em></p>
             </td>
