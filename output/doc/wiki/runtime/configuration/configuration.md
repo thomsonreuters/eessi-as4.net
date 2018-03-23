@@ -334,6 +334,7 @@ This contract describes all the properties available in the Sending PMode.  The 
         <tr style="margin-left: 30.0px;">
             <td style="margin-left: 30.0px;" class="confluenceTd">
                 <p><strong>ReceiptHandling</strong></p>
+                <p>&nbsp;&nbsp; VerifyNRR</p>
                 <p>&nbsp;&nbsp; NotifyMessageProducer</p>
                 <p>&nbsp;&nbsp; NotifyMethod</p>
                 <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <em>Type</em></p>
@@ -343,6 +344,7 @@ This contract describes all the properties available in the Sending PMode.  The 
                 <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Value</p>
             </td>
             <th style="margin-left: 30.0px;" class="confluenceTh">
+                <p style="margin-left: 30.0px;" align="center"></p>
                 <p style="margin-left: 30.0px;" align="center">O</p>
                 <p style="margin-left: 30.0px;" align="center">O</p>
                 <p style="margin-left: 30.0px;" align="center">M</p>
@@ -354,6 +356,7 @@ This contract describes all the properties available in the Sending PMode.  The 
             </th>
             <td style="margin-left: 30.0px;" class="confluenceTd">
                 <p align="left"><br></p>
+                <p align="left"><em>Indicates if Non-Repudiation of Receipt must be verified. Default:</em> true</p>
                 <p align="left"><em>Default:</em> false</p>
                 <p align="left"><br></p>
                 <p align="left">Type of the Notify Agent</p>

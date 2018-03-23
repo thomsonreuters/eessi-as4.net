@@ -380,7 +380,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
         }
 
         [DefaultValue(true)]
-        [Description("Indicates if the MSH needs to verify the NRR information that is included in the receipt")]
+        [Description("Indicates if the MSH needs to verify the Non-Repudiation Information that is included in the receipt")]
         public bool VerifyNRR { get; set; }
     }
 
