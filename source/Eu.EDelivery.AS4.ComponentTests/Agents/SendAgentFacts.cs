@@ -70,7 +70,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             Assert.NotEmpty(_databaseSpy.GetInExceptions(m => m.EbmsRefToMessageId == ebmsMessageId));
         }
 
-        public async Task TestReceiveNRReceiptWith(string ebmsMessageId, Func<int, int> selection)
+        private async Task TestReceiveNRReceiptWith(string ebmsMessageId, Func<int, int> selection)
         {
             SendingProcessingMode nrrPMode = VerifyNRReceiptsPMode();
             X509Certificate2 cert = new StubCertificateRepository().GetStubCertificate();
