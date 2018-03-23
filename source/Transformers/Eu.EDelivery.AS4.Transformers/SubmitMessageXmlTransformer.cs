@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.Submit;
-using Eu.EDelivery.AS4.Validators;
 using NLog;
 
 namespace Eu.EDelivery.AS4.Transformers
@@ -30,9 +28,8 @@ namespace Eu.EDelivery.AS4.Transformers
         /// to a <see cref="MessagingContext"/>
         /// </summary>
         /// <param name="message"></param>
-        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<MessagingContext> TransformAsync(ReceivedMessage message, CancellationToken cancellationToken)
+        public async Task<MessagingContext> TransformAsync(ReceivedMessage message)
         {
             Logger.Info("Transforming ReceivedMessage to MessagingContext");
 
@@ -49,7 +46,7 @@ namespace Eu.EDelivery.AS4.Transformers
 
                 return serializer.Deserialize(stream) as SubmitMessage;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw new InvalidMessageException("Received stream is not a SubmitMessage", ex);
             }

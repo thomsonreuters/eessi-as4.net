@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
-using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Extensions;
@@ -61,9 +60,8 @@ namespace Eu.EDelivery.AS4.Transformers
         /// Transform a given <see cref="ReceivedMessage"/> to a Canonical <see cref="MessagingContext"/> instance.
         /// </summary>
         /// <param name="message">Given message to transform.</param>
-        /// <param name="cancellationToken">Cancellation which stops the transforming.</param>
         /// <returns></returns>
-        public Task<MessagingContext> TransformAsync(ReceivedMessage message, CancellationToken cancellationToken)
+        public Task<MessagingContext> TransformAsync(ReceivedMessage message)
         {
             SendingProcessingMode sendingPMode = _config.GetSendingPMode(id: SendingPMode);
 

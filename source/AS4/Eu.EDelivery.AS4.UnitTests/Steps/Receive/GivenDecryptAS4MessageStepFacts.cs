@@ -50,7 +50,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 StepResult stepResult = await ExerciseDecryption(context);
 
                 // Assert
-                Assert.True(stepResult.MessagingContext.AS4Message.IsEncrypted);
+                Assert.False(stepResult.MessagingContext.AS4Message.IsEncrypted);
             }
 
             [Fact]

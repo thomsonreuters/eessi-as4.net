@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using Eu.EDelivery.AS4.Common;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 
@@ -14,6 +15,11 @@ namespace Eu.EDelivery.AS4.Fe
         public static void Main(string[] args)
         {
             var isInProcess = args != null && args.Contains("inprocess");
+
+            if (!Config.Instance.IsInitialized)
+            {
+                Config.Instance.Initialize("settings.xml");
+            }
 
             Start(isInProcess, CancellationToken.None);
         }

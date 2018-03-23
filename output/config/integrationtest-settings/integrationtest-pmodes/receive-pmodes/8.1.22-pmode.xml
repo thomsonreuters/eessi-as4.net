@@ -1,22 +1,14 @@
 <?xml version="1.0"?>
-<PMode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="eu:edelivery:as4:pmode">
-  <Id>8.1.20-pmode</Id>
+<PMode 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+  xmlns="eu:edelivery:as4:pmode">
+  <Id>8.1.22-pmode</Id>
   <Reliability>
     <DuplicateElimination>
       <IsEnabled>false</IsEnabled>
     </DuplicateElimination>
   </Reliability>
-  <ReplyHandling>
-    <ReplyPattern>Response</ReplyPattern>
-    <SendingPMode>unsigned-response-pmode</SendingPMode>
-    <ReceiptHandling>
-      <UseNRRFormat>false</UseNRRFormat>
-    </ReceiptHandling>
-    <ErrorHandling>
-      <UseSoapFault>false</UseSoapFault>
-      <ResponseHttpCode>500</ResponseHttpCode>
-    </ErrorHandling>
-  </ReplyHandling>
   <ExceptionHandling>
     <NotifyMessageConsumer>true</NotifyMessageConsumer>
     <NotifyMethod>
@@ -26,6 +18,14 @@
       </Parameters>
     </NotifyMethod>
   </ExceptionHandling>
+  <Security>
+    <SigningVerification>
+      <Signature>Ignored</Signature>
+    </SigningVerification>
+    <Decryption>
+      <Encryption>Ignored</Encryption>
+    </Decryption>
+  </Security>
   <MessagePackaging>
     <PartyInfo>
       <ToParty>
@@ -50,7 +50,7 @@
   </MessagePackaging>
   <MessageHandling>
     <Forward>
-      <SendingPMode>8.1.20-pmode</SendingPMode>
+      <SendingPMode>8.1.22-pmode</SendingPMode>
     </Forward>
   </MessageHandling>
 </PMode>

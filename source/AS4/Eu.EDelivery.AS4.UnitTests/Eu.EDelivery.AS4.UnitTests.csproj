@@ -273,8 +273,8 @@
     <Compile Include="Repositories\DatastoreExtensions.cs" />
     <Compile Include="Security\References\GivenSecurityReferenceTokenProviderFacts.cs" />
     <Compile Include="Security\Strategies\GivenSignStrategyFacts.cs" />
-    <Compile Include="Security\Strategies\GivenDecryptStrategyFacts.cs" />
-    <Compile Include="Security\Strategies\GivenEncryptStrategyFacts.cs" />
+    <Compile Include="Security\Encryption\GivenDecryptMessageFacts.cs" />
+    <Compile Include="Security\Encryption\GivenEncryptMessageFacts.cs" />
     <Compile Include="Security\Strategies\GivenVerifySignatureStrategyFacts.cs" />
     <Compile Include="Serialization\GivenInvalidMessageSerializationFacts.cs" />
     <Compile Include="Serialization\GivenSoapEnvelopeDeserializingFacts.cs" />
@@ -536,6 +536,7 @@
     <None Include="packages.config" />
     <None Include="Resources\AccessPointA.cer" />
     <None Include="Resources\as4-multihop-message.as4" />
+    <None Include="Resources\as4-multihop-usermessage.as4" />
     <None Include="Resources\as4message_duplicate_payloads.as4" />
     <None Include="Resources\as4_encrypted_message" />
     <None Include="Resources\as4_flame_envelope.as4" />

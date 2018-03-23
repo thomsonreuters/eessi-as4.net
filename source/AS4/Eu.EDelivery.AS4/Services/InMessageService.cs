@@ -132,8 +132,8 @@ namespace Eu.EDelivery.AS4.Services
         }
 
         private void InsertUserMessages(
-            AS4Message as4Message, 
-            MessageExchangePattern mep, 
+            AS4Message as4Message,
+            MessageExchangePattern mep,
             string location,
             SendingProcessingMode pmode)
         {
@@ -216,6 +216,21 @@ namespace Eu.EDelivery.AS4.Services
         /// <exception cref="InvalidDataException"></exception>
         public void UpdateAS4MessageForMessageHandling(MessagingContext messageContext, IAS4MessageBodyStore messageBodyStore)
         {
+            AS4Message as4Message = messageContext.AS4Message;
+
+            string messageLocation = _repository.GetInMessageData(as4Message.GetPrimaryMessageId(),
+                                                                  m => m.MessageLocation);
+
+            if (messageLocation == null)
+            {
+                throw new InvalidDataException($"Cannot update received AS4Message: Unable to find an InMessage for {as4Message.GetPrimaryMessageId()}");
+            }
+
+            if (as4Message.IsUserMessage)
+            {
+                messageBodyStore.UpdateAS4Message(messageLocation, as4Message);
+            }
+
             if (messageContext.ReceivedMessageMustBeForwarded)
             {
                 var pmodeString = messageContext.GetReceivingPModeString();
@@ -240,29 +255,18 @@ namespace Eu.EDelivery.AS4.Services
             }
             else
             {
-                AS4Message as4Message = messageContext.AS4Message;
-                string messageLocation = _repository.GetInMessageData(
-                    as4Message.GetPrimaryMessageId(),
-                    m => m.MessageLocation);
-
-                if (messageLocation == null)
-                {
-                    throw new InvalidDataException($"Cannot update received AS4Message: Unable to find an InMessage for {as4Message.GetPrimaryMessageId()}");
-                }
-
-                if (as4Message.IsUserMessage)
-                {
-                    messageBodyStore.UpdateAS4Message(messageLocation, as4Message);
-
-                    UpdateUserMessagesForDeliveryAndNotification(messageContext);
-                }
-
+                UpdateUserMessagesForDeliveryAndNotification(messageContext);
                 UpdateSignalMessages(messageContext);
             }
         }
 
         private void UpdateUserMessagesForDeliveryAndNotification(MessagingContext messagingContext)
         {
+            if (messagingContext.AS4Message.UserMessages.Any() == false)
+            {
+                return;
+            }
+
             string receivingPModeId = messagingContext.ReceivingPMode?.Id;
             string receivingPModeString = messagingContext.GetReceivingPModeString();
 

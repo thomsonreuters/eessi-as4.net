@@ -3,9 +3,16 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using Eu.EDelivery.AS4.Fe.Settings;
+using Eu.EDelivery.AS4.Model.PMode;
+using Eu.EDelivery.AS4.Receivers;
+using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Services.DynamicDiscovery;
+using Eu.EDelivery.AS4.Steps;
+using Eu.EDelivery.AS4.Strategies.Sender;
 using Eu.EDelivery.AS4.Strategies.Uploader;
+using Eu.EDelivery.AS4.Transformers;
 using Microsoft.Extensions.Options;
 using Mono.Cecil;
 using Mono.Collections.Generic;
@@ -15,23 +22,15 @@ namespace Eu.EDelivery.AS4.Fe.Runtime
     /// <summary>
     /// Runtime load
     /// </summary>
-    /// <seealso cref="Eu.EDelivery.AS4.Fe.Runtime.IRuntimeLoader" />
+    /// <seealso cref="IRuntimeLoader" />
     public class RuntimeLoader : IRuntimeLoader
     {
-        private static readonly string RuntimeReceiverInterface = "Eu.EDelivery.AS4.Receivers.IReceiver";
-        private static readonly string RuntimeStepsInterface = "Eu.EDelivery.AS4.Steps.IStep";
-        private static readonly string RuntimeTransformerInterface = "Eu.EDelivery.AS4.Transformers.ITransformer";
-        private static readonly string RuntimeCertificateRepositoryInterface = "Eu.EDelivery.AS4.Repositories.ICertificateRepository";
-        private static readonly string RuntimeDeliverSenderInterface = "Eu.EDelivery.AS4.Strategies.Sender.IDeliverSender";
-        private static readonly string RuntimeNotifySenderInterface = "Eu.EDelivery.AS4.Strategies.Sender.INotifySender";
-        private static readonly string RuntimeAttachmentUploaderInterface = typeof(IAttachmentUploader).FullName;
-        private static readonly string RuntimeDynamicDiscoveryProfileInterface = typeof(IDynamicDiscoveryProfile).FullName;
-        private static readonly string RuntimePmodeInterface = "Eu.EDelivery.AS4.Model.PMode.IPMode";
         private static readonly string InfoAttribute = typeof(InfoAttribute).Name;
         private static readonly string NoUiAttribute = typeof(NotConfigurableAttribute).Name;
         private static readonly string DefaultValueAttribute = typeof(DefaultValueAttribute).Name;
         private static readonly string DescriptionAttribute = typeof(DescriptionAttribute).Name;
         private static readonly List<string> Attributes = new List<string> { InfoAttribute, NoUiAttribute, DefaultValueAttribute, DescriptionAttribute };
+        private static readonly Assembly RootAssembly = Assembly.LoadFile(Path.GetFullPath(@".\Eu.EDelivery.AS4.dll"));
 
         private readonly string folder;
 
@@ -52,6 +51,7 @@ namespace Eu.EDelivery.AS4.Fe.Runtime
         /// The receivers.
         /// </value>
         public IEnumerable<ItemType> Receivers { get; private set; }
+        
         /// <summary>
         /// Gets the steps.
         /// </summary>
@@ -59,6 +59,7 @@ namespace Eu.EDelivery.AS4.Fe.Runtime
         /// The steps.
         /// </value>
         public IEnumerable<ItemType> Steps { get; private set; }
+        
         /// <summary>
         /// Gets the transformers.
         /// </summary>
@@ -66,6 +67,7 @@ namespace Eu.EDelivery.AS4.Fe.Runtime
         /// The transformers.
         /// </value>
         public IEnumerable<ItemType> Transformers { get; private set; }
+        
         /// <summary>
         /// Gets the certificate repositories.
         /// </summary>
@@ -73,6 +75,7 @@ namespace Eu.EDelivery.AS4.Fe.Runtime
         /// The certificate repositories.
         /// </value>
         public IEnumerable<ItemType> CertificateRepositories { get; private set; }
+
         /// <summary>
         /// Gets the deliver senders.
         /// </summary>
@@ -80,6 +83,7 @@ namespace Eu.EDelivery.AS4.Fe.Runtime
         /// The deliver senders.
         /// </value>
         public IEnumerable<ItemType> DeliverSenders { get; private set; }
+        
         /// <summary>
         /// Gets the notify senders.
         /// </summary>
@@ -87,6 +91,7 @@ namespace Eu.EDelivery.AS4.Fe.Runtime
         /// The notify senders.
         /// </value>
         public IEnumerable<ItemType> NotifySenders { get; private set; }
+        
         /// <summary>
         /// Gets the attachment uploaders.
         /// </summary>
@@ -94,6 +99,7 @@ namespace Eu.EDelivery.AS4.Fe.Runtime
         /// The attachment uploaders.
         /// </value>
         public IEnumerable<ItemType> AttachmentUploaders { get; private set; }
+        
         /// <summary>
         /// Gets the dynamic discovery profiles.
         /// </summary>
@@ -101,6 +107,7 @@ namespace Eu.EDelivery.AS4.Fe.Runtime
         /// The dynamic discovery profiles.
         /// </value>
         public IEnumerable<ItemType> DynamicDiscoveryProfiles { get; private set; }
+        
         /// <summary>
         /// Gets the receiving pmode.
         /// </summary>
@@ -118,16 +125,16 @@ namespace Eu.EDelivery.AS4.Fe.Runtime
         {
             if (!Directory.Exists(folder)) throw new Exception($"The module folder {folder} doesn't exist");
 
-            var types = LoadTypesFromAssemblies();
-            Receivers = LoadImplementationsForType(types, RuntimeReceiverInterface);
-            Steps = LoadImplementationsForType(types, RuntimeStepsInterface);
-            Transformers = LoadImplementationsForType(types, RuntimeTransformerInterface);
-            CertificateRepositories = LoadImplementationsForType(types, RuntimeCertificateRepositoryInterface);
-            DeliverSenders = LoadImplementationsForType(types, RuntimeDeliverSenderInterface);
-            NotifySenders = LoadImplementationsForType(types, RuntimeNotifySenderInterface);
-            AttachmentUploaders = LoadImplementationsForType(types, RuntimeAttachmentUploaderInterface);
-            DynamicDiscoveryProfiles = LoadImplementationsForType(types, RuntimeDynamicDiscoveryProfileInterface);
-            ReceivingPmode = LoadImplementationsForType(types, RuntimePmodeInterface, false);
+            List<TypeDefinition> types = LoadTypesFromAssemblies();
+            Receivers = LoadImplementationsForType(types, typeof(IReceiver));
+            Steps = LoadImplementationsForType(types, typeof(IStep));
+            Transformers = LoadImplementationsForType(types, typeof(ITransformer));
+            CertificateRepositories = LoadImplementationsForType(types, typeof(ICertificateRepository));
+            DeliverSenders = LoadImplementationsForType(types, typeof(IDeliverSender));
+            NotifySenders = LoadImplementationsForType(types, typeof(INotifySender));
+            AttachmentUploaders = LoadImplementationsForType(types, typeof(IAttachmentUploader));
+            DynamicDiscoveryProfiles = LoadImplementationsForType(types, typeof(IDynamicDiscoveryProfile));
+            ReceivingPmode = LoadImplementationsForType(types, typeof(IPMode), false);
 
             return this;
         }
@@ -153,7 +160,6 @@ namespace Eu.EDelivery.AS4.Fe.Runtime
                     .ToList();
         }
 
-
         /// <summary>
         /// Get implemenation
         /// </summary>
@@ -161,57 +167,171 @@ namespace Eu.EDelivery.AS4.Fe.Runtime
         /// <param name="type">The type.</param>
         /// <param name="onlyWithAttribute">Indicates that when building the properties only properties decorated with an attribute should be scanned.</param>
         /// <returns></returns>
-        public IEnumerable<ItemType> LoadImplementationsForType(List<TypeDefinition> types, string type, bool onlyWithAttribute = true)
+        public IEnumerable<ItemType> LoadImplementationsForType(
+            List<TypeDefinition> types,
+            Type type,
+            bool onlyWithAttribute = true)
         {
-            var implementations = types
-                .Where(x => x.Interfaces.Any(iface => iface.InterfaceType.FullName == type))
+            bool TypeImplementsInterface(TypeDefinition x) =>
+                x.Interfaces.Any(iface => iface.InterfaceType.FullName == type.FullName)
+                || ImplementsRootInterface(x, type);
+
+            ItemType ToItemType(TypeDefinition t) => 
+                BuildItemType(t, BuildProperties(t.Properties, t.Name, onlyWithAttribute));
+
+            return types
+                .Where(TypeImplementsInterface)
                 .Where(x => !x.IsInterface && !x.IsAbstract && x.IsPublic)
-                .Where(x => x.CustomAttributes.All(attr => attr.AttributeType.Name != NoUiAttribute));
-            var itemTypes = implementations.Select(itemType => BuildItemType(itemType, BuildProperties(itemType.Properties, itemType.Name, onlyWithAttribute)));
-            return itemTypes.Where(x => x != null);
+                .Where(x => x.CustomAttributes.All(attr => attr.AttributeType.Name != NoUiAttribute))
+                .Select(ToItemType)
+                .Where(x => x != null);
+        }
+
+        private static bool ImplementsRootInterface(TypeDefinition x, Type parent)
+        {
+            if (!x.FullName.Contains("AS4") || x.FullName.Contains("Test"))
+            {
+                return false;
+            }
+
+            try
+            {
+                Type child = Assembly
+                    .LoadFile(Path.GetFullPath(x.Module.FileName))
+                    .GetType(x.FullName);
+
+                return parent.IsAssignableFrom(child);
+            }
+            catch (Exception)
+            {
+                return false;
+            }
         }
 
         private ItemType BuildItemType(TypeDefinition itemType, IEnumerable<Property> properties)
         {
-            var infoAttribute = itemType.CustomAttributes.FirstOrDefault(attr => attr.AttributeType.Name == InfoAttribute)?.ConstructorArguments;
-            var descriptionAttribute = itemType.CustomAttributes.FirstOrDefault(attr => attr.AttributeType.Name == DescriptionAttribute)?.ConstructorArguments;
+            Collection<CustomAttributeArgument> infoAttribute = itemType.CustomAttributes
+                .FirstOrDefault(attr => attr.AttributeType.Name == InfoAttribute)
+                ?.ConstructorArguments;
+
+            Collection<CustomAttributeArgument> descriptionAttribute = itemType.CustomAttributes
+                .FirstOrDefault(attr => attr.AttributeType.Name == DescriptionAttribute)
+                ?.ConstructorArguments;
 
             return new ItemType
             {
                 Name = infoAttribute == null ? itemType.Name : infoAttribute[0].Value as string,
-                Description = descriptionAttribute == null ? string.Empty : descriptionAttribute.Count > 0 ? descriptionAttribute[0].Value as string : string.Empty,
+                Description =
+                    descriptionAttribute == null
+                        ? string.Empty
+                        : descriptionAttribute.Count > 0
+                            ? descriptionAttribute[0].Value as string
+                            : string.Empty,
                 TechnicalName = $"{itemType.FullName}, {itemType.Module.Assembly.FullName}",
                 Properties = properties
             };
         }
 
-        private void ApplyInfoAttribute(Property property, PropertyDefinition prop, Collection<CustomAttributeArgument> arguments)
+        private static IEnumerable<Property> BuildProperties(
+            IEnumerable<PropertyDefinition> properties, 
+            string propPath, 
+            bool onlyWithAttribute = true)
         {
-            if (arguments == null) return;
+            if (onlyWithAttribute)
+            {
+                properties = properties.Where(x => x.CustomAttributes.Any(y => Attributes.Contains(y.AttributeType.Name)));
+            }
+
+            foreach (PropertyDefinition prop in properties)
+            {
+                Collection<CustomAttributeArgument> descriptionAttr = prop.CustomAttributes
+                    .FirstOrDefault(attr => attr.AttributeType.Name == DescriptionAttribute)
+                    ?.ConstructorArguments;
+
+                var property = new Property
+                {
+                    Type = prop.PropertyType.Name,
+                    TechnicalName = prop.Name,
+                    Description =
+                        descriptionAttr != null
+                            ? descriptionAttr.Count > 0
+                                  ? descriptionAttr[0].Value as string
+                                  : string.Empty
+                            : string.Empty,
+                    Path = string.IsNullOrEmpty(propPath)
+                               ? prop.Name.ToLower()
+                               : propPath.ToLower() + "." + prop.Name.ToLower()
+                };
+
+                ApplyDefaultValueAttribute(property, prop.CustomAttributes.FirstOrDefault(attr => attr.AttributeType.Name == DefaultValueAttribute)?.ConstructorArguments);
+                ApplyInfoAttribute(property, prop, prop.CustomAttributes.FirstOrDefault(attr => attr.AttributeType.Name == InfoAttribute)?.ConstructorArguments);
+
+                if (prop.PropertyType.Namespace != "System")
+                {
+                    if (prop.PropertyType is TypeDefinition typeDef)
+                    {
+                        IEnumerable<Property> BuildProps(TypeDefinition type, string path)
+                        {
+                            IEnumerable<Property> xs = 
+                                BuildProperties(type.Properties, path + "." + prop.Name.ToLower(), onlyWithAttribute);
+
+                            if (type.BaseType is TypeDefinition typedef && typedef.HasProperties)
+                            {
+                               return xs.Concat(
+                                   BuildProperties(typedef.Properties, path + "." + prop.Name.ToLower(), onlyWithAttribute));
+                            }
+
+                            return xs;
+                        }
+
+                        property.Properties = BuildProps(typeDef, propPath.ToLower()).Distinct().ToList();
+                    }
+
+
+                }
+
+                yield return property;
+            }
+        }
+
+        private static void ApplyInfoAttribute(
+            Property property,
+            PropertyDefinition prop,
+            IList<CustomAttributeArgument> arguments)
+        {
+            if (arguments == null)
+            {
+                return;
+            }
 
             property.FriendlyName = arguments[0].Value as string ?? prop.Name;
             property.Regex = arguments.Count > 1 ? arguments[1].Value as string : string.Empty;
             property.Required = arguments.Count >= 5 && Convert.ToBoolean(arguments[4].Value);
 
-            var type = arguments.Count >= 2 ? arguments[2].Value as string : null;
+            string type = arguments.Count >= 2 ? arguments[2].Value as string : null;
             property.Type = !string.IsNullOrEmpty(type) ? type : prop.PropertyType.Name.ToLower();
 
-            var defaultValue = arguments.Count >= 4 ? arguments[3].Value : null;
+            object defaultValue = arguments.Count >= 4 ? arguments[3].Value : null;
             if (defaultValue is CustomAttributeArgument defaultValueAttribute)
             {
                 property.DefaultValue = defaultValueAttribute.Value;
             }
 
-            var attributeList = arguments.Count >= 6 ? arguments[5].Value : null;
+            object attributeList = arguments.Count >= 6 ? arguments[5].Value : null;
             if (attributeList is CustomAttributeArgument[] attributes)
             {
                 property.Attributes = attributes.Select(x => x.Value as string).ToList();
             }
         }
 
-        private void ApplyDefaultValueAttribute(Property property, Collection<CustomAttributeArgument> arguments)
+        private static void ApplyDefaultValueAttribute(
+            Property property,
+            IList<CustomAttributeArgument> arguments)
         {
-            if (arguments == null) return;
+            if (arguments == null)
+            {
+                return;
+            }
 
             if (arguments[0].Value is CustomAttributeArgument argument)
             {
@@ -220,52 +340,6 @@ namespace Eu.EDelivery.AS4.Fe.Runtime
             else
             {
                 property.DefaultValue = arguments[0].Value;
-            }
-        }
-
-        private IEnumerable<Property> BuildProperties(IEnumerable<PropertyDefinition> properties, string propPath, bool onlyWithAttribute = true)
-        {
-            if (onlyWithAttribute) properties = properties.Where(x => x.CustomAttributes.Any(y => Attributes.Contains(y.AttributeType.Name)));
-
-            foreach (var prop in properties)
-            {
-                var descriptionAttr = prop.CustomAttributes.FirstOrDefault(attr => attr.AttributeType.Name == DescriptionAttribute)?.ConstructorArguments;
-                var property = new Property
-                {
-                    Type = prop.PropertyType.Name,
-                    TechnicalName = prop.Name,
-                    Description = descriptionAttr != null ? descriptionAttr.Count > 0 ? descriptionAttr[0].Value as string : string.Empty : string.Empty,
-                    Path = string.IsNullOrEmpty(propPath) ? prop.Name.ToLower() : propPath.ToLower() + "." + prop.Name.ToLower()
-                };
-
-                ApplyDefaultValueAttribute(property, prop.CustomAttributes.FirstOrDefault(attr => attr.AttributeType.Name == DefaultValueAttribute)?.ConstructorArguments);
-                ApplyInfoAttribute(property, prop, prop.CustomAttributes.FirstOrDefault(attr => attr.AttributeType.Name == InfoAttribute)?.ConstructorArguments);
-
-                if (prop.PropertyType.Namespace != "System")
-                {
-                    var typeDef = prop.PropertyType as TypeDefinition;
-                    if (typeDef != null)
-                    {
-                        IEnumerable<Property> BuildProps(TypeDefinition type, string path)
-                        {
-                            foreach (var childProp in BuildProperties(type.Properties, path + "." + prop.Name.ToLower(), onlyWithAttribute))
-                            {
-                                yield return childProp;
-                            }
-
-                            if (type.BaseType is TypeDefinition typedef && typedef.HasProperties)
-                            {
-                                foreach (var childProp in BuildProperties(typedef.Properties, path + "." + prop.Name.ToLower(), onlyWithAttribute))
-                                {
-                                    yield return childProp;
-                                }
-                            }
-                        }
-                        property.Properties = BuildProps(typeDef, propPath.ToLower()).Distinct().ToList();
-                    }
-                }
-
-                yield return property;
             }
         }
     }

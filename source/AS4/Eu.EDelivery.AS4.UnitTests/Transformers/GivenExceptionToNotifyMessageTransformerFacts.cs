@@ -1,6 +1,5 @@
 using System;
 using System.IO;
-using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Internal;
@@ -21,7 +20,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             // Arrange
             ReceivedEntityMessage receivedMessage = CreateReceivedExceptionMessage(new InException("id", "refid"), Operation.ToBeNotified);
             var transformer = new NotifyMessageTransformer();
-            var result = await transformer.TransformAsync(receivedMessage, CancellationToken.None);
+            var result = await transformer.TransformAsync(receivedMessage);
 
             Assert.NotNull(result.NotifyMessage);
             Assert.Equal(
@@ -37,7 +36,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             var transformer = new NotifyMessageTransformer();
 
             // Act
-            MessagingContext result = await transformer.TransformAsync(receivedMessage, CancellationToken.None);
+            MessagingContext result = await transformer.TransformAsync(receivedMessage);
 
             // Assert
             Assert.NotNull(result.NotifyMessage);
@@ -55,7 +54,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
 
             // Act
             MessagingContext messagingContext =
-                await transformer.TransformAsync(receivedMessage, CancellationToken.None);
+                await transformer.TransformAsync(receivedMessage);
 
             // Assert
             Assert.Equal(Status.Exception, messagingContext.NotifyMessage.StatusCode);
@@ -77,10 +76,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
 
             // Act / Assert
             await Assert.ThrowsAnyAsync<Exception>(
-                () => sut.TransformAsync(new ReceivedMessage(Stream.Null), CancellationToken.None));
+                () => sut.TransformAsync(new ReceivedMessage(Stream.Null)));
 
             await Assert.ThrowsAnyAsync<Exception>(
-                () => sut.TransformAsync(new ReceivedEntityMessage(new InMessage(Guid.NewGuid().ToString())), CancellationToken.None));
+                () => sut.TransformAsync(new ReceivedEntityMessage(new InMessage(Guid.NewGuid().ToString()))));
         }
     }
 }

@@ -74,7 +74,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                     context);
             }
 
-            if (IsEncryptedIgnored(context) || !context.AS4Message.IsEncrypted)
+            if (IsEncryptionIgnored(context) || !context.AS4Message.IsEncrypted)
             {
                 return StepResult.Success(context);
             }
@@ -88,7 +88,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             return StepResult.Failed(context);
         }
 
-        private static bool IsEncryptedIgnored(MessagingContext messagingContext)
+        private static bool IsEncryptionIgnored(MessagingContext messagingContext)
         {
             ReceivingProcessingMode pmode = messagingContext.ReceivingPMode;
             bool isIgnored = pmode.Security.Decryption.Encryption == Limit.Ignored;

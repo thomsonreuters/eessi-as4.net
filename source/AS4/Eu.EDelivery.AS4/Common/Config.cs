@@ -29,9 +29,10 @@ namespace Eu.EDelivery.AS4.Common
         
         private readonly Collection<AgentConfig> _agentConfigs = new Collection<AgentConfig>();
 
-        private IPullAuthorizationMapProvider _pullRequestPullAuthorizationMapProvider;
         private PModeWatcher<ReceivingProcessingMode> _receivingPModeWatcher;
         private PModeWatcher<SendingProcessingMode> _sendingPModeWatcher;
+        private IPullAuthorizationMapProvider _pullRequestPullAuthorizationMapProvider;
+        
         private Settings _settings;
 
         internal Config()
@@ -40,7 +41,7 @@ namespace Eu.EDelivery.AS4.Common
             _configuration = new Dictionary<string, string>(StringComparer.CurrentCultureIgnoreCase);
         }
 
-        public static Config Instance => (Config)Singleton;
+        public static Config Instance => (Config) Singleton;
 
         /// <summary>
         /// Gets a value indicating whether the FE needs to be started in process.
@@ -128,25 +129,68 @@ namespace Eu.EDelivery.AS4.Common
         }
 
         /// <summary>
+        /// Gets the file location for sending p mode.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <returns></returns>
+        /// <exception cref="KeyNotFoundException">Given Sending PMode key is null</exception>
+        /// <exception cref="ConfigurationErrorsException">No entry found for the given id</exception>
+        public string GetFileLocationForSendingPMode(string id)
+        {
+            return GetPModeEntry(id, _sendingPModeWatcher).Filename;
+        }
+
+        /// <summary>
+        /// Gets the file location for receiving p mode.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <returns></returns>
+        /// <exception cref="KeyNotFoundException">Given Receiving PMode key is null</exception>
+        /// <exception cref="ConfigurationErrorsException">No entry found for the given id</exception>
+        public string GetFileLocationForReceivingPMode(string id)
+        {
+            return GetPModeEntry(id, _receivingPModeWatcher).Filename;
+        }
+
+        /// <summary>
         /// Retrieve the PMode from the Global Settings
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
+        /// <exception cref="KeyNotFoundException">Given Sending PMode key is null</exception>
+        /// <exception cref="ConfigurationErrorsException">No entry found for the given id</exception>
         public SendingProcessingMode GetSendingPMode(string id)
+        {
+            return GetPModeEntry(id, _sendingPModeWatcher).PMode as SendingProcessingMode;
+        }
+
+        /// <summary>
+        /// Retrieve the PMode from the Global Settings
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        /// <exception cref="KeyNotFoundException">Given Receiving PMode key is null</exception>
+        /// <exception cref="ConfigurationErrorsException">No entry found for the given id</exception>
+        public ReceivingProcessingMode GetReceivingPMode(string id)
+        {
+            return GetPModeEntry(id, _receivingPModeWatcher).PMode as ReceivingProcessingMode;
+        }
+
+        private static ConfiguredPMode GetPModeEntry<T>(string id, PModeWatcher<T> watcher) where T : class, IPMode
         {
             if (string.IsNullOrEmpty(id))
             {
-                throw new KeyNotFoundException("Given Sending PMode key is null");
+                throw new KeyNotFoundException($"Given {typeof(T).Name} key is null");
             }
 
-            IPMode pmode = _sendingPModeWatcher.GetPMode(id);
+            var entry = watcher.GetPModeEntry(id);
 
-            if (pmode == null)
+            if (entry == null)
             {
-                throw new ConfigurationErrorsException($"No Sending Processing Mode found for {id}");
+                throw new ConfigurationErrorsException($"No {typeof(T).Name} found for {id}");
             }
 
-            return pmode as SendingProcessingMode;
+            return entry;
         }
 
         /// <summary>
@@ -168,6 +212,12 @@ namespace Eu.EDelivery.AS4.Common
         /// </summary>
         /// <returns></returns>
         public IEnumerable<ReceivingProcessingMode> GetReceivingPModes() => _receivingPModeWatcher.GetPModes().OfType<ReceivingProcessingMode>();
+
+        /// <summary>
+        /// Return all the configured <see cref="SendingProcessingMode"/>
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerable<SendingProcessingMode> GetSendingPModes() => _sendingPModeWatcher.GetPModes().OfType<SendingProcessingMode>();
 
         /// <summary>
         /// Retrieve the URL's on which specific MinderSubmitReceiveAgents should listen.
@@ -241,6 +291,7 @@ namespace Eu.EDelivery.AS4.Common
             {
                 path = Path.Combine(".", path);
             }
+
             _settings = TryDeserialize<Settings>(path);
             if (_settings == null)
             {
@@ -367,6 +418,7 @@ namespace Eu.EDelivery.AS4.Common
                 return;
             }
 
+            _agentConfigs.Clear();
             if (_sendingPModeWatcher != null)
             {
                 _sendingPModeWatcher.Stop();

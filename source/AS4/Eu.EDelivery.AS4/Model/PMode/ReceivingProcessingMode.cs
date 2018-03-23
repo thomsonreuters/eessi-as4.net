@@ -68,6 +68,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
     public class ReplyHandlingSetting
     {
         [Description("Reply pattern")]
+        [DefaultValue(ReplyPattern.Response)]
         public ReplyPattern ReplyPattern { get; set; }
         [Description("ID of the (sending) PMode that must be used to send the Receipt or Error message.")]
         public string SendingPMode { get; set; }
@@ -205,7 +206,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
         /// </summary>
         public Decryption()
         {
-            Encryption = Limit.Allowed;
+            Encryption = Limit.Ignored;
             CertificateType = PrivateKeyCertificateChoiceType.None;
         }
 

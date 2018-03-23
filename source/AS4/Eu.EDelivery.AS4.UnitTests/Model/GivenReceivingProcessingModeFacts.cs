@@ -14,7 +14,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
         public class GivenDefaultProcessingMode : GivenReceivingProcessingModeFacts
         {
             [Fact]
-            public void ThenDecryptionIsDefault()
+            public void ThenDecryptionIsIgnoredByDefault()
             {
                 // Act
                 var pmode = new ReceivingProcessingMode();
@@ -22,7 +22,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
                 // Assert
                 Assert.NotNull(pmode.Security);
                 Assert.NotNull(pmode.Security.Decryption);
-                Assert.Equal(Limit.Allowed, pmode.Security.Decryption.Encryption);
+                Assert.Equal(Limit.Ignored, pmode.Security.Decryption.Encryption);
             }
 
             [Fact]

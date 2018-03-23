@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.IO;
-using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
@@ -30,11 +29,8 @@ namespace Eu.EDelivery.AS4.Transformers
         /// Transform a given <see cref="ReceivedMessage" /> to a Canonical <see cref="MessagingContext" /> instance.
         /// </summary>
         /// <param name="receivedMessage">Given message to transform.</param>
-        /// <param name="cancellationToken">Cancellation which stops the transforming.</param>
         /// <returns></returns>
-        public Task<MessagingContext> TransformAsync(
-            ReceivedMessage receivedMessage,
-            CancellationToken cancellationToken)
+        public Task<MessagingContext> TransformAsync(ReceivedMessage receivedMessage)
         {
             if (receivedMessage.UnderlyingStream == null)
             {
@@ -49,12 +45,8 @@ namespace Eu.EDelivery.AS4.Transformers
             SendingProcessingMode pmode = await DeserializeValidPMode(receivedMessage);
 
             AS4Message pullRequestMessage = AS4Message.Create(new PullRequest(pmode.MessagePackaging.Mpc), pmode);
-          
-            var context = new MessagingContext(pullRequestMessage, MessagingContextMode.Receive);
 
-            context.SendingPMode = pmode;
-
-            return context;
+            return new MessagingContext(pullRequestMessage, MessagingContextMode.Receive) {SendingPMode = pmode};
         }
 
         private static async Task<SendingProcessingMode> DeserializeValidPMode(ReceivedMessage receivedMessage)

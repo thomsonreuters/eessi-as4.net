@@ -2,7 +2,6 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Core;
@@ -28,7 +27,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
 
             // Act / Assert
             await Assert.ThrowsAnyAsync<Exception>(
-                () => sut.TransformAsync(receivedMessage, CancellationToken.None));
+                () => sut.TransformAsync(receivedMessage));
         }
 
         [Fact]
@@ -36,7 +35,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
         {
             // Act / Assert
             await Assert.ThrowsAnyAsync<Exception>(
-                () => new DeliverMessageTransformer().TransformAsync(message: null, cancellationToken: CancellationToken.None));
+                () => new DeliverMessageTransformer().TransformAsync(message: null));
         }
 
         [Fact]
@@ -80,7 +79,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             var sut = new DeliverMessageTransformer();
 
             // Act
-            MessagingContext actualMessage = await sut.TransformAsync(receivedMessage, CancellationToken.None);
+            MessagingContext actualMessage = await sut.TransformAsync(receivedMessage);
 
             // Assert
             Assert.Equal(1, actualMessage.AS4Message.UserMessages.Count());
@@ -93,7 +92,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             ReceivedMessageEntityMessage receivedMessage = CreateReceivedMessage(receivedInMessageId: expectedId, as4Message: as4Message);
             var sut = new DeliverMessageTransformer();
 
-            return await sut.TransformAsync(receivedMessage, CancellationToken.None);
+            return await sut.TransformAsync(receivedMessage);
         }
 
         private static ReceivedMessageEntityMessage CreateReceivedMessage(string receivedInMessageId, AS4Message as4Message)

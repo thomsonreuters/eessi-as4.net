@@ -4,13 +4,12 @@ using System.Configuration;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
-using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
-using Eu.EDelivery.AS4.Security.Strategies;
 using NLog;
 using System.Security.Cryptography;
+using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Security.Signing;
 
 namespace Eu.EDelivery.AS4.Steps.Send
@@ -67,12 +66,12 @@ namespace Eu.EDelivery.AS4.Steps.Send
             return await StepResult.SuccessAsync(messagingContext);
         }
 
-        private void TrySignAS4Message(MessagingContext message)
+        private void TrySignAS4Message(MessagingContext context)
         {
             try
             {
-                Logger.Info($"{message.EbmsMessageId} Sign AS4 Message with given Signing Information");
-                SignAS4Message(message);
+                Logger.Info($"{context.EbmsMessageId} Sign AS4 Message with given Signing Information");
+                SignAS4Message(context);
             }
             catch (Exception exception)
             {
@@ -86,17 +85,18 @@ namespace Eu.EDelivery.AS4.Steps.Send
             }
         }
 
-        private void SignAS4Message(MessagingContext message)
+        private void SignAS4Message(MessagingContext context)
         {
-            X509Certificate2 certificate = RetrieveCertificate(message);
+            X509Certificate2 certificate = RetrieveCertificate(context);
 
             if (!certificate.HasPrivateKey)
             {
-                throw new CryptographicException($"{message.EbmsMessageId} Certificate does not have a private key");
+                throw new CryptographicException($"{context.EbmsMessageId} Certificate does not have a private key");
             }
 
-            ISignStrategy signingStrategy = CreateSignStrategy(message, certificate);
-            message.AS4Message.SecurityHeader.Sign(signingStrategy);
+            var calculateSignatureConfig = CreateSignConfig(certificate, context.SendingPMode);
+
+            context.AS4Message.Sign(calculateSignatureConfig);
         }
 
         private X509Certificate2 RetrieveCertificate(MessagingContext messagingContext)
@@ -127,18 +127,14 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 "The signing certificate information specified in the PMode could not be used to retrieve the certificate");
         }
 
-        private static ISignStrategy CreateSignStrategy(MessagingContext messagingContext, X509Certificate2 certificate)
+        private static CalculateSignatureConfig CreateSignConfig(X509Certificate2 signCertificate, SendingProcessingMode pmode)
         {
-            AS4Message message = messagingContext.AS4Message;
-            Signing signing = messagingContext.SendingPMode.Security.Signing;
+            Signing signing = pmode.Security.Signing;
 
-            var config = new CalculateSignatureConfig(certificate,
-                                                      signing.KeyReferenceMethod,
-                                                      signing.Algorithm,
-                                                      signing.HashFunction);
-
-            return SignStrategy.ForAS4Message(message, config);
-
+            return new CalculateSignatureConfig(signCertificate,
+                                                signing.KeyReferenceMethod,
+                                                signing.Algorithm,
+                                                signing.HashFunction);
         }
     }
 }

@@ -6,9 +6,9 @@ import { ActivatedRoute } from '@angular/router';
 import { Observable } from 'rxjs/Observable';
 import { Subscription } from 'rxjs/Subscription';
 
+import { Transformer } from '../../api';
 import { SettingsAgent } from '../../api/SettingsAgent';
 import { SettingsAgentForm } from '../../api/SettingsAgentForm';
-import { RuntimeStore } from '../runtime.store';
 import { SettingsService } from '../settings.service';
 import { SettingsStore } from '../settings.store';
 import { ItemType } from './../../api/ItemType';
@@ -16,7 +16,6 @@ import { CanComponentDeactivate } from './../../common/candeactivate.guard';
 import { DialogService } from './../../common/dialog.service';
 import { FormBuilderExtended, FormWrapper } from './../../common/form.service';
 import { ModalService } from './../../common/modal/modal.service';
-import { Transformer } from '../../api/Transformer';
 
 @Component({
     selector: 'as4-agent-settings',
@@ -52,7 +51,6 @@ export class AgentSettingsComponent implements OnDestroy, CanComponentDeactivate
         private settingsService: SettingsService,
         // tslint:disable-next-line:align
         private activatedRoute: ActivatedRoute,
-        private runtimeStore: RuntimeStore,
         private dialogService: DialogService,
         private modalService: ModalService,
         private formBuilder: FormBuilderExtended

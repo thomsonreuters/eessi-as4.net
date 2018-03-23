@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
@@ -23,12 +22,10 @@ namespace Eu.EDelivery.AS4.Transformers
         /// Transform a given <see cref="ReceivedMessage"/> to a Canonical <see cref="MessagingContext"/> instance.
         /// </summary>
         /// <param name="message">Given message to transform.</param>
-        /// <param name="cancellationToken">Cancellation which stops the transforming.</param>
         /// <returns></returns>
-        public async Task<MessagingContext> TransformAsync(ReceivedMessage message, CancellationToken cancellationToken)
+        public async Task<MessagingContext> TransformAsync(ReceivedMessage message)
         {
             var entityMessage = message as ReceivedMessageEntityMessage;
-
             if (entityMessage == null)
             {
                 throw new NotSupportedException(
@@ -37,7 +34,7 @@ namespace Eu.EDelivery.AS4.Transformers
 
             // Get the AS4Message that is referred to by this entityMessage and modify it so that it just contains
             // the one usermessage that should be delivered.
-            AS4Message as4Message = await RetrieveAS4SignalMessageForNotification(entityMessage, cancellationToken);
+            AS4Message as4Message = await RetrieveAS4SignalMessageForNotification(entityMessage);
 
             return new MessagingContext(await CreateNotifyMessageEnvelope(as4Message, entityMessage.MessageEntity.GetType()));
         }
@@ -63,10 +60,10 @@ namespace Eu.EDelivery.AS4.Transformers
                                              receivedEntityType);
         }
 
-        private static async Task<AS4Message> RetrieveAS4SignalMessageForNotification(ReceivedMessageEntityMessage entityMessage, CancellationToken cancellationToken)
+        private static async Task<AS4Message> RetrieveAS4SignalMessageForNotification(ReceivedMessageEntityMessage entityMessage)
         {
             var as4Transformer = new AS4MessageTransformer();
-            var messagingContext = await as4Transformer.TransformAsync(entityMessage, cancellationToken);
+            var messagingContext = await as4Transformer.TransformAsync(entityMessage);
 
             var as4Message = messagingContext.AS4Message;
 
@@ -75,7 +72,7 @@ namespace Eu.EDelivery.AS4.Transformers
 
             // Remove all signal-messages except the one that we should be notifying
             // Create the DeliverMessage for this specific UserMessage that has been received.
-            var signalMessage =
+            var signalMessage = 
                 as4Message.SignalMessages.FirstOrDefault(m => m.MessageId.Equals(entityMessage.MessageEntity.EbmsMessageId, StringComparison.OrdinalIgnoreCase));
 
             if (signalMessage == null)

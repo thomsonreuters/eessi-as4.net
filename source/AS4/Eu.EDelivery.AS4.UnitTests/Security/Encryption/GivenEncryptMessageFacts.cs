@@ -3,15 +3,13 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
-using Eu.EDelivery.AS4.Builders.Security;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Security.Encryption;
-using Eu.EDelivery.AS4.Security.Strategies;
 using Xunit;
 
-namespace Eu.EDelivery.AS4.UnitTests.Security.Strategies
+namespace Eu.EDelivery.AS4.UnitTests.Security.Encryption
 {
-    public class GivenEncryptStrategyFacts
+    public class GivenEncryptMessageFacts
     {
         [Fact]
         public void ThenEncryptEncryptsTheAttachmentsCorrectly()
@@ -20,13 +18,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Strategies
             var as4Message = CreateAS4Message();
             long originalAttachmentLength = as4Message.Attachments.First().Content.Length;
 
-            IEncryptionStrategy encryptionStrategy = EncryptionStrategyFor(as4Message, CreateEncryptionCertificate(),
-                                                                           DataEncryptionConfiguration.Default);
-
             // Act
-            encryptionStrategy.EncryptMessage();
+            as4Message.Encrypt(new KeyEncryptionConfiguration(CreateEncryptionCertificate()),
+                               DataEncryptionConfiguration.Default);
+
 
             // Assert
+            Assert.True(as4Message.IsEncrypted);
+
             Attachment firstAttachment = as4Message.Attachments.ElementAt(0);
             Assert.NotEqual(originalAttachmentLength, firstAttachment?.Content.Length);
         }
@@ -37,11 +36,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Strategies
             // Arrange
             AS4Message as4Message = CreateAS4Message();
 
-            EncryptionStrategy sut = EncryptionStrategyFor(as4Message, CreateEncryptionCertificate(),
-                                                           new DataEncryptionConfiguration(AS4.Model.PMode.Encryption.Default.Algorithm, -1));
+            var keyEncryptionConfig = new KeyEncryptionConfiguration(CreateEncryptionCertificate());
+            var dataEncryptionConfig = new DataEncryptionConfiguration(AS4.Model.PMode.Encryption.Default.Algorithm, -1);
 
             // Act / Assert
-            Assert.ThrowsAny<Exception>(() => sut.EncryptMessage());
+            Assert.ThrowsAny<Exception>(() => as4Message.Encrypt(keyEncryptionConfig, dataEncryptionConfig));
         }
 
         private static AS4Message CreateAS4Message()
@@ -53,14 +52,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Strategies
             as4Message.AddAttachment(attachment);
 
             return as4Message;
-        }
-
-        private static EncryptionStrategy EncryptionStrategyFor(AS4Message as4Message, X509Certificate2 encryptionCertificate, DataEncryptionConfiguration configuration) // SendingProcessingMode pmode)
-        {
-            return EncryptionStrategyBuilder
-                .Create(as4Message, new KeyEncryptionConfiguration(encryptionCertificate))
-                .WithDataEncryptionConfiguration(configuration)
-                .Build();
         }
 
         private static X509Certificate2 CreateEncryptionCertificate()

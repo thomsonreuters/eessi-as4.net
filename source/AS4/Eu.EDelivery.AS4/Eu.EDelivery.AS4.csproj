@@ -355,7 +355,6 @@
     <Compile Include="Security\Strategies\SignStrategy.cs" />
     <Compile Include="Security\Strategies\CryptoStrategy.cs" />
     <Compile Include="Security\Strategies\DecryptionStrategy.cs" />
-    <Compile Include="Security\Strategies\IDecryptionStrategy.cs" />
     <Compile Include="Security\Strategies\SignatureStrategy.cs" />
     <Compile Include="Security\Strategies\SignatureVerificationStrategy.cs" />
     <Compile Include="Serialization\SoapEnvelopeBuilder.cs" />
@@ -457,7 +456,6 @@
     <Compile Include="Security\Signing\VerifySignatureConfig.cs" />
     <Compile Include="Security\Algorithms\AesGcmAlgorithm.cs" />
     <Compile Include="Security\Strategies\EncryptionStrategy.cs" />
-    <Compile Include="Security\Strategies\IEncryptionStrategy.cs" />
     <Compile Include="Entities\Entity.cs" />
     <Compile Include="Entities\Enums.cs" />
     <Compile Include="Entities\InException.cs" />

@@ -1,5 +1,5 @@
 import { Http } from '@angular/http';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import { FormBuilder, FormGroup, AbstractControl } from '@angular/forms';
 import { Observer } from 'rxjs/Observer';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Subject } from 'rxjs/Subject';
@@ -66,7 +66,7 @@ export class ReceivingPmodeService implements ICrudPmodeService {
                 this.pmodeStore.deleteReceiving(name);
             });
     }
-    public update(pmode: IPmode, originalName: string): Observable<boolean> {
+    public update(pmode: IPmode, originalName: string): Observable<boolean> {    
         let obs = new Subject<boolean>();
         this.http
             .put(`${this.getBaseUrl(originalName)}`, pmode)
@@ -103,7 +103,12 @@ export class ReceivingPmodeService implements ICrudPmodeService {
         return ReceivingPmodeForm.getForm(this._form, <ReceivingPmode>pmode, this._runtimeStore.state.runtimeMetaData);
     }
     public patchName(form: FormGroup, name: string) {
-        form.patchValue({ [ReceivingPmode.FIELD_name]: name });
+        form.patchValue({
+            [ReceivingPmode.FIELD_name]: name,
+            [ReceivingPmode.FIELD_pmode]: {
+                [ReceivingProcessingMode.FIELD_id]: name
+            }
+        });
     }
     public getByName(name: string): Observable<IPmode> {
         let obs = new Subject<ReceivingPmode>();

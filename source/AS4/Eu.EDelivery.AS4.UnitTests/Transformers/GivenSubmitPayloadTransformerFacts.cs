@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
@@ -67,7 +65,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             var sut = new SubmitPayloadTransformer(stubConfig);
             sut.Configure(new Dictionary<string, string> { ["SendingPMode"] = pmodeId });
 
-            return await sut.TransformAsync(msg, CancellationToken.None);
+            return await sut.TransformAsync(msg);
         }
     }
 }

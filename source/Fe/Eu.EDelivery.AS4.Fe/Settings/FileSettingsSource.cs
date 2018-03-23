@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml;
 using System.Xml.Serialization;
 using Microsoft.Extensions.Options;
 
@@ -9,6 +10,13 @@ namespace Eu.EDelivery.AS4.Fe.Settings
     public class FileSettingsSource : ISettingsSource
     {
         private readonly IOptions<ApplicationSettings> appSettings;
+
+        private static readonly XmlWriterSettings DefaultXmlWriterSettings = 
+            new XmlWriterSettings
+            {
+                Encoding = new UTF8Encoding(encoderShouldEmitUTF8Identifier: false),
+                Indent = true,
+            };
 
         public FileSettingsSource(IOptions<ApplicationSettings> appSettings)
         {
@@ -33,10 +41,12 @@ namespace Eu.EDelivery.AS4.Fe.Settings
             {
                 var xmlSerializer = new XmlSerializer(typeof(Model.Internal.Settings));
 
-                using (var textWriter = new StringWriter())
+                using (var output = new FileStream(appSettings.Value.SettingsXml, FileMode.Create))
                 {
-                    xmlSerializer.Serialize(textWriter, settings);
-                    File.WriteAllText(appSettings.Value.SettingsXml, textWriter.ToString(), Encoding.UTF8);
+                    using (var xmlWriter = XmlWriter.Create(output, DefaultXmlWriterSettings))
+                    {
+                        xmlSerializer.Serialize(xmlWriter, settings);
+                    }
                 }
             });
         }
