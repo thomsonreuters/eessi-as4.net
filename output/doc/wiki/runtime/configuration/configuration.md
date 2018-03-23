@@ -791,7 +791,6 @@ This contract describes all the properties available in the Sending PMode.  The 
                 <p>&nbsp;&nbsp; SendingPMode</p>
                 <p>&nbsp;&nbsp; <strong>ReceiptHandling</strong></p>
                 <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; UseNRRFormat</p>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; VerifyNRR</p>
                 <p><strong>&nbsp;&nbsp; ErrorHandling</strong></p>
                 <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; UseSOAPFault</p>
                 <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ResponseHttpCode</p>
@@ -802,8 +801,7 @@ This contract describes all the properties available in the Sending PMode.  The 
                 <p style="margin-left: 30.0px;" align="center"><br></p>
                 <p style="margin-left: 30.0px;" align="center"><br>M</p>
                 <p style="margin-left: 30.0px;" align="center">O</p>
-                <p style="margin-left: 30.0px;" align="center">M</p>
-                <p style="margin-left: 30.0px;" align="center">M</p>
+                <p style="margin-left: 30.0px;" align="center">O</p>
                 <p style="margin-left: 30.0px;" align="center">O</p>
                 <p style="margin-left: 30.0px;" align="center">O</p>
                 <p style="margin-left: 30.0px;" align="center">O</p>
@@ -822,7 +820,6 @@ This contract describes all the properties available in the Sending PMode.  The 
                 <p>Reference to the Sending PMode</p>
                 <p><br></p>
                 <p>Specifies if NonRepudationInfo must be included in receipt.&nbsp; <em>Default: false</em></p>
-                <p>Specifies if NonRepudation of Receipt must be verified upon arrival of a Receipt. <em>Default: true</em></p>
                 <p><em>Default: false</em></p>
                 <p>HTTP Status Code in case of reply = response.&nbsp; <em>Default: 200</em></p>
             </td>
