@@ -36,9 +36,9 @@ export const PMODECRUD_SERVICE = new OpaqueToken('pmodecrudservice');
         </as4-modal>
         <as4-input label="Name" runtimeTooltip="receivingprocessingmode.id">
             <as4-columns noMargin="true">
-                <select class="FormArray-control select-pmode" as4-no-auth (change)="pmodeChanged($event.target.value); pmodeSelect.value = currentPmode && currentPmode.name" #pmodeSelect>
+                <select class="FormArray-control select-pmode" as4-no-auth (change)="pmodeChanged($event.target.value); pmodeSelect.value = currentPmode && currentPmode.pmode.id" #pmodeSelect>
                     <option value="undefined">Select an option</option>
-                    <option *ngFor="let pmode of pmodes" [selected]="pmode === (currentPmode && currentPmode.name)">{{currentPmode && currentPmode.name === pmode && !!form && !!form.controls ? form.controls.name.value : pmode}}</option>
+                    <option *ngFor="let pmode of pmodes" [selected]="pmode === (currentPmode && currentPmode.pmode.id)">{{currentPmode && currentPmode.pmode.id === pmode && !!form && !!form.controls && !!form.controls.pmode && !!form.controls.pmode.controls.id ? form.controls.pmode.controls.id.value : pmode}}</option>
                 </select>
                 <div crud-buttons [form]="form" (add)="add()" (rename)="rename()" (reset)="reset()" (delete)="delete()" (save)="save()" [current]="currentPmode"
                     [isNewMode]="isNewMode"></div>
@@ -69,7 +69,7 @@ export class CrudComponent implements OnInit, OnDestroy {
             .push(this._crudService
                 .obsGetAll()
                 .subscribe((result) => {
-                    this.pmodes = !!!result ? new Array<string>() : result;
+                    this.pmodes = !!!result ? new Array<string>() : result.sort();
                     if (!!!result) {
                         return;
                     }
@@ -106,7 +106,7 @@ export class CrudComponent implements OnInit, OnDestroy {
                     this._dialogService.error(`PMode used in the message doesn't match anymore.`);
                 }
                 compareTo = null;
-                this._routerService.setCurrentValue(this._activatedRoute, result.name);
+                this._routerService.setCurrentValue(this._activatedRoute, result.pmode.id);
             }));
     }
     public ngOnDestroy() {
@@ -117,6 +117,7 @@ export class CrudComponent implements OnInit, OnDestroy {
         }
     }
     public pmodeChanged(name: string) {
+
         let select = () => {
             this.isNewMode = false;
             this._crudService.get(name);
@@ -127,7 +128,7 @@ export class CrudComponent implements OnInit, OnDestroy {
                 .filter((result) => result)
                 .subscribe(() => {
                     if (this.isNewMode) {
-                        this.pmodes = this.pmodes.filter((pmode) => pmode !== this.currentPmode!.name);
+                        this.pmodes = this.pmodes.filter((pmode) => pmode !== this.currentPmode!.pmode.id);
                         this.isNewMode = false;
                     }
                     select();
@@ -194,16 +195,28 @@ export class CrudComponent implements OnInit, OnDestroy {
             });
     }
     public rename() {
-        this._dialogService
-            .prompt('Please enter a new name', 'Rename')
-            .filter((result) => !!result)
-            .subscribe((newName) => {
-                if (this.checkIfExists(newName)) {
-                    return;
-                }
-                this._crudService.patchName(this.form, newName);
-                this.form.markAsDirty();
-            });
+        if (this.currentPmode)
+        {   
+            this.newName = this.form.get('name')!.value;
+     
+            this._dialogService
+                .prompt('Please enter a new name', 'Rename', this.newName)
+                .filter((result) => !!result)
+                .subscribe((newName) => {
+                    if (this.checkIfExists(newName)) {
+                        return;
+                    }
+
+                    this._crudService.patchName(this.form, newName);
+                    
+                    this.pmodes = this.pmodes.filter(p => p !== this.newName);
+                    this.pmodes.push(newName);
+                    this.currentPmode!!.pmode!!.id = newName;
+
+                    this.form.markAsDirty();
+                    this._routerService.setCurrentValue(this._activatedRoute, newName);
+                });
+        }
     }
     public save() {
         if (!!!this.currentPmode) {

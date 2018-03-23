@@ -19,7 +19,6 @@ namespace Eu.EDelivery.AS4.Watchers
     /// <typeparam name="T"></typeparam>
     public class PModeWatcher<T> : IDisposable where T : class, IPMode
     {
-
         private readonly ConcurrentDictionary<string, ConfiguredPMode> _pmodes = new ConcurrentDictionary<string, ConfiguredPMode>(StringComparer.OrdinalIgnoreCase);
         private readonly ConcurrentDictionary<string, string> _filePModeIdMap = new ConcurrentDictionary<string, string>();
 
@@ -44,11 +43,17 @@ namespace Eu.EDelivery.AS4.Watchers
             RetrievePModes(_watcher.Path);
         }
 
+        /// <summary>
+        /// Starts this instance.
+        /// </summary>
         public void Start()
         {
             _watcher.EnableRaisingEvents = true;
         }
 
+        /// <summary>
+        /// Stops this instance.
+        /// </summary>
         public void Stop()
         {
             _watcher.EnableRaisingEvents = false;
@@ -64,7 +69,13 @@ namespace Eu.EDelivery.AS4.Watchers
             return _pmodes.ContainsKey(id);
         }
 
-        public IPMode GetPMode(string key)
+        /// <summary>
+        /// Gets the <see cref="ConfiguredPMode"/> entry for a given <paramref name="key"/>.
+        /// </summary>
+        /// <param name="key">The key.</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException">The specified PMode key is invalid. - key</exception>
+        public ConfiguredPMode GetPModeEntry(string key)
         {
             if (String.IsNullOrWhiteSpace(key))
             {
@@ -72,10 +83,13 @@ namespace Eu.EDelivery.AS4.Watchers
             }
 
             _pmodes.TryGetValue(key, out ConfiguredPMode configuredPMode);
-
-            return configuredPMode?.PMode;
+            return configuredPMode;
         }
 
+        /// <summary>
+        /// Gets the p modes cached inside the watcher.
+        /// </summary>
+        /// <returns></returns>
         public IEnumerable<IPMode> GetPModes()
         {
             return _pmodes.Values.Select(p => p.PMode);
@@ -127,15 +141,16 @@ namespace Eu.EDelivery.AS4.Watchers
 
             if (key != null)
             {
+                LogManager.GetCurrentClassLogger().Trace($"Remove {typeof(T).Name} with Id: " + key);
                 _pmodes.TryRemove(key, out _);
             }
         }
 
-        private readonly object _cacheLock = new object();
+        private readonly object __cacheLock = new object();
 
         private void AddOrUpdateConfiguredPMode(string fullPath)
         {
-            lock (_cacheLock)
+            lock (__cacheLock)
             {
                 if (_fileEventCache.Contains(fullPath))
                 {
@@ -174,18 +189,21 @@ namespace Eu.EDelivery.AS4.Watchers
             if (_pmodes.ContainsKey(pmode.Id))
             {
                 LogManager.GetCurrentClassLogger().Warn($"There already exists a configured PMode with id {pmode.Id}.");
-                LogManager.GetCurrentClassLogger().Warn($"Existing PMode will be overwritten with PMode from {fullPath}");
+                LogManager.GetCurrentClassLogger()
+                          .Warn($"Existing PMode will be overwritten with PMode from {fullPath}");
+            }
+            else
+            {
+                LogManager.GetCurrentClassLogger().Trace($"Add new {typeof(T).Name} with Id: " + pmode.Id);
             }
 
             _pmodes.AddOrUpdate(pmode.Id, configuredPMode, (key, value) => configuredPMode);
             _filePModeIdMap.AddOrUpdate(fullPath, pmode.Id, (key, value) => pmode.Id);
         }
 
-        // cache which keeps track of the date and time a PMode file was last handled by the FileSystemWatcher.
-
-        // Due to an issue with FileSystemWatcher, events can be triggered multiple times for the same operation on the 
-
-        // same file.
+        //// cache which keeps track of the date and time a PMode file was last handled by the FileSystemWatcher.
+        //// Due to an issue with FileSystemWatcher, events can be triggered multiple times for the same operation on the 
+        //// same file.
 
         private readonly MemoryCache _fileEventCache = MemoryCache.Default;
 
