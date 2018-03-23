@@ -99,7 +99,7 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
             }
 
             [Fact]
-            public async Task ThrowsException_WhenKeyIsProvidedWithoutFileName()
+            public async Task ThrowsBusinessException_WhenKeyIsProvidedWithoutFileName()
             {
                 await Setup();
 
@@ -157,6 +157,18 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
 
                 Assert.Equal(JsonConvert.SerializeObject(existingConfiguration),
                     JsonConvert.SerializeObject(updatedFromDatabase));
+            }
+
+            [Fact]
+            public async Task ThrowsBusinessException_WhenKeyIsProvidedWithoutFileName()
+            {
+                await Setup();
+                var dbSmpConfiguration = await SmpConfigurationService.Create(_smpConfiguration);
+
+                _smpConfiguration.EncryptPublicKeyCertificate = "fdsqfdsq";
+
+                var exception = await Assert.ThrowsAsync(typeof(BusinessException), () => SmpConfigurationService.Update(dbSmpConfiguration.Id, _smpConfiguration));
+                Assert.Equal("EncryptPublicKeyCertificateName needs to be provided when EncryptPublicKeyCertificate is not empty!", exception.Message);
             }
         }
 
