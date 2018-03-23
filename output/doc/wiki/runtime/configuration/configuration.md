@@ -562,7 +562,7 @@ This contract describes all the properties available in the Sending PMode.  The 
                 <p align="left"><em>&nbsp;</em></p>
                 <p align="left"><em>Enumeration:</em></p>
                 <ul>
-                    <li>BSTReference</li>
+                    <li>BSTReference <em>(default)</em></li>
                     <li>IssuerSerial</li>
                     <li>KeyIdentifier</li>
                 </ul>
