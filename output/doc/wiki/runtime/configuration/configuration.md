@@ -334,6 +334,7 @@ This contract describes all the properties available in the Sending PMode.  The 
         <tr style="margin-left: 30.0px;">
             <td style="margin-left: 30.0px;" class="confluenceTd">
                 <p><strong>ReceiptHandling</strong></p>
+                <p>&nbsp;&nbsp; VerifyNRR</p>
                 <p>&nbsp;&nbsp; NotifyMessageProducer</p>
                 <p>&nbsp;&nbsp; NotifyMethod</p>
                 <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <em>Type</em></p>
@@ -343,6 +344,7 @@ This contract describes all the properties available in the Sending PMode.  The 
                 <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Value</p>
             </td>
             <th style="margin-left: 30.0px;" class="confluenceTh">
+                <p style="margin-left: 30.0px;" align="center"></p>
                 <p style="margin-left: 30.0px;" align="center">O</p>
                 <p style="margin-left: 30.0px;" align="center">O</p>
                 <p style="margin-left: 30.0px;" align="center">M</p>
@@ -354,6 +356,7 @@ This contract describes all the properties available in the Sending PMode.  The 
             </th>
             <td style="margin-left: 30.0px;" class="confluenceTd">
                 <p align="left"><br></p>
+                <p align="left"><em>Indicates if Non-Repudiation of Receipt must be verified. Default:</em> true</p>
                 <p align="left"><em>Default:</em> false</p>
                 <p align="left"><br></p>
                 <p align="left">Type of the Notify Agent</p>
@@ -788,7 +791,6 @@ This contract describes all the properties available in the Sending PMode.  The 
                 <p>&nbsp;&nbsp; SendingPMode</p>
                 <p>&nbsp;&nbsp; <strong>ReceiptHandling</strong></p>
                 <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; UseNRRFormat</p>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; VerifyNRR</p>
                 <p><strong>&nbsp;&nbsp; ErrorHandling</strong></p>
                 <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; UseSOAPFault</p>
                 <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ResponseHttpCode</p>
@@ -799,14 +801,13 @@ This contract describes all the properties available in the Sending PMode.  The 
                 <p style="margin-left: 30.0px;" align="center"><br></p>
                 <p style="margin-left: 30.0px;" align="center"><br>M</p>
                 <p style="margin-left: 30.0px;" align="center">O</p>
-                <p style="margin-left: 30.0px;" align="center">M</p>
-                <p style="margin-left: 30.0px;" align="center">M</p>
+                <p style="margin-left: 30.0px;" align="center">O</p>
                 <p style="margin-left: 30.0px;" align="center">O</p>
                 <p style="margin-left: 30.0px;" align="center">O</p>
                 <p style="margin-left: 30.0px;" align="center">O</p>
             </th>
             <td style="margin-left: 30.0px;" class="confluenceTd">
-                <p><br></p>
+                <p><br/></p>
                 <p><em>Enumeration:</em></p>
                 <ul>
                     <li style="list-style-type: none;background-image: none;">
@@ -819,7 +820,6 @@ This contract describes all the properties available in the Sending PMode.  The 
                 <p>Reference to the Sending PMode</p>
                 <p><br></p>
                 <p>Specifies if NonRepudationInfo must be included in receipt.&nbsp; <em>Default: false</em></p>
-                <p>Specifies if the references in the NonRepudiationInfo must be verified at arrival. <em>Default: false</em></p>
                 <p><em>Default: false</em></p>
                 <p>HTTP Status Code in case of reply = response.&nbsp; <em>Default: 200</em></p>
             </td>
@@ -859,11 +859,16 @@ This contract describes all the properties available in the Sending PMode.  The 
         <tr style="margin-left: 30.0px;">
             <td style="margin-left: 30.0px;" class="confluenceTd">
                 <p><strong>Security</strong></p>
-                <p><strong>&nbsp;&nbsp; </strong><em>SigningVerification</em></p>
+                <p>&nbsp;&nbsp;<em>SigningVerification</em></p>
                 <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Signature</p>
                 <p><br></p>
                 <p><br></p>
-                <p><br>&nbsp;&nbsp; <em>Decryption</em></p>
+                <p><br></p>
+                <p><br></p>
+                <p><br></p>
+                <p><br></p>
+                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AllowUnknownRootCertificate</p>
+                <p><em>Decryption</em></p>
                 <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Encryption</p>
                 <p><br></p>
                 <p><br></p>
@@ -878,24 +883,23 @@ This contract describes all the properties available in the Sending PMode.  The 
                 <p><br></p>
                 <p><br></p>
                 <p><br></p>
-                <p><br></p>
-                <p><br></p>
-                <p><br></p>
                 <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; CertificateFindValue</p>
             </td>
             <th style="margin-left: 30.0px;" class="confluenceTh">
                 <p style="margin-left: 30.0px;" align="center">O</p>
                 <p style="margin-left: 30.0px;" align="center">O</p>
-                <p style="margin-left: 30.0px;" align="center">M</p>
-                <p align="center"><br></p>
+                <p style="margin-left: 30.0px;" align="center">O</p>
                 <p style="margin-left: 30.0px;" align="center"><br></p>
-                <p style="margin-left: 30.0px;" align="center"><br>O</p>
-                <p style="margin-left: 30.0px;" align="center">O</p>
+                <p style="margin-left: 30.0px;" align="center"><br></p>
+                <p style="margin-left: 30.0px;" align="center"><br></p>
                 <p align="center"><br></p>
                 <p align="center"><br></p>
                 <p align="center"><br></p>
                 <p style="margin-left: 30.0px;" align="center">O</p>
-                <p style="margin-left: 30.0px;" align="center">M</p>
+                <p style="margin-left: 30.0px;" align="center">O</p>
+                <p align="center"><br></p>
+                <p align="center"><br></p>
+                <p align="center"><br></p>
                 <p align="center"><br></p>
                 <p align="center"><br></p>
                 <p align="center"><br></p>
@@ -912,7 +916,7 @@ This contract describes all the properties available in the Sending PMode.  The 
             <td style="margin-left: 30.0px;" class="confluenceTd">
                 <p><br></p>
                 <p><br></p>
-                <p><em>Enumeration</em></p>
+                <p><em>Enumeration</em>
                 <ul>
                     <li style="list-style-type: none;background-image: none;">
                         <ul>
@@ -923,6 +927,9 @@ This contract describes all the properties available in the Sending PMode.  The 
                         </ul>
                     </li>
                 </ul>
+                </p>
+                <p><br></p>
+                <p>Indicates whether certificates with an unknown root authority are trusted. (default <em>false</em>)</p>
                 <p><em>Enumeration</em></p>
                 <ul>
                     <li style="list-style-type: none;background-image: none;">
@@ -935,7 +942,7 @@ This contract describes all the properties available in the Sending PMode.  The 
                     </li>
                 </ul>
                 <p><em><br></em></p>
-                <p><em>Enumeration:</em></p>
+                <p><em>Enumeration:</em>
                 <ul>
                     <li style="list-style-type: none;background-image: none;">
                         <ul>
@@ -958,6 +965,7 @@ This contract describes all the properties available in the Sending PMode.  The 
                         </ul>
                     </li>
                 </ul>
+                </p>
             </td>
         </tr>
         <tr>
