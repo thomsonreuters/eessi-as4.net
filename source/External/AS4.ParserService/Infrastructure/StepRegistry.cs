@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using AS4.ParserService.CustomSteps;
+﻿using AS4.ParserService.CustomSteps;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Steps.Receive;
 using Eu.EDelivery.AS4.Steps.Send;
@@ -11,15 +7,15 @@ namespace AS4.ParserService.Infrastructure
 {
     internal static class StepRegistry
     {
-        private static readonly StepConfiguration _outBoundProcessingConfig;
+        private static readonly StepConfiguration OutBoundProcessingConfig;
 
-        private static readonly StepConfiguration _inBoundProcessingConfig;
+        private static readonly StepConfiguration InBoundProcessingConfig;
 
-        private static readonly StepConfiguration _receiptCreationConfig;
+        private static readonly StepConfiguration ReceiptCreationConfig;
 
         static StepRegistry()
         {
-            _outBoundProcessingConfig =
+            OutBoundProcessingConfig =
                 new StepConfiguration
                 {
                     NormalPipeline = new[]
@@ -31,7 +27,7 @@ namespace AS4.ParserService.Infrastructure
                     }
                 };
 
-            _inBoundProcessingConfig = new StepConfiguration()
+            InBoundProcessingConfig = new StepConfiguration()
             {
                 NormalPipeline = new[]
                 {
@@ -47,7 +43,7 @@ namespace AS4.ParserService.Infrastructure
                 }
             };
 
-            _receiptCreationConfig = new StepConfiguration()
+            ReceiptCreationConfig = new StepConfiguration()
             {
                 NormalPipeline = new[]
                 {
@@ -60,17 +56,17 @@ namespace AS4.ParserService.Infrastructure
 
         public static StepConfiguration GetOutboundProcessingStepConfiguration()
         {
-            return _outBoundProcessingConfig;
+            return OutBoundProcessingConfig;
         }
 
         public static StepConfiguration GetInboundProcessingConfiguration()
         {
-            return _inBoundProcessingConfig;
+            return InBoundProcessingConfig;
         }
 
         public static StepConfiguration GetReceiptCreationConfiguration()
         {
-            return _receiptCreationConfig;
+            return ReceiptCreationConfig;
         }
     }
 }
