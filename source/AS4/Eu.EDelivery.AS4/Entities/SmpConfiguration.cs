@@ -43,6 +43,8 @@ namespace Eu.EDelivery.AS4.Entities
         public int EncryptAlgorithmKeySize { get; set; }
 
         public byte[] EncryptPublicKeyCertificate { get; set; }
+        
+        public string EncryptPublicKeyCertificateName { get; set; }
 
         [MaxLength(256)]
         public string EncryptKeyDigestAlgorithm { get; set; }

@@ -1,0 +1,8 @@
+<div class="errors">
+    <ul>
+        <li *ngFor="let error of errors" [ngSwitch]="error">
+            <span *ngSwitchCase="'required'">This field is required.</span>
+            <span *ngSwitchCase="'alreadyExists'">A combination with this value already exists.</span>
+        </li>
+    </ul>
+</div>

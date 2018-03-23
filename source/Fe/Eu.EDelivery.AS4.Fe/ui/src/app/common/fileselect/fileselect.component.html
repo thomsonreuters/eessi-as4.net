@@ -1,0 +1,5 @@
+<button type="button" class="btn btn-secondary" (click)="fileInput.click()">
+    <i class="fa fa-upload"></i>
+</button>
+<input class="hidden" type="file" ng2FileSelect required #fileInput (change)="fileSelected($event)" />
+<p>{{fileNameControl?.value}}</p>

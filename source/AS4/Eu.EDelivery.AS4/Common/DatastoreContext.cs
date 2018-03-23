@@ -269,7 +269,7 @@ namespace Eu.EDelivery.AS4.Common
 
             modelBuilder.Entity<SmpConfiguration>().HasKey(sc => sc.Id);
             modelBuilder.Entity<SmpConfiguration>().Property(sc => sc.Id).UseSqlServerIdentityColumn();
-            modelBuilder.Entity<SmpConfiguration>().HasAlternateKey(sc => new { sc.ToPartyId, sc.PartyRole, sc.PartyType });
+            modelBuilder.Entity<SmpConfiguration>().HasIndex(sc => new { sc.ToPartyId, sc.PartyRole, sc.PartyType });
             modelBuilder.Entity<SmpConfiguration>().Property(sc => sc.Id).UsePropertyAccessMode(PropertyAccessMode.Field);
             modelBuilder.Entity<SmpConfiguration>().Property(sc => sc.PartyRole).UsePropertyAccessMode(PropertyAccessMode.Field);
             modelBuilder.Entity<SmpConfiguration>().Property(sc => sc.PartyType).UsePropertyAccessMode(PropertyAccessMode.Field);
@@ -284,6 +284,7 @@ namespace Eu.EDelivery.AS4.Common
             modelBuilder.Entity<SmpConfiguration>().Property(sc => sc.EncryptAlgorithm).UsePropertyAccessMode(PropertyAccessMode.Field);
             modelBuilder.Entity<SmpConfiguration>().Property(sc => sc.EncryptAlgorithmKeySize).UsePropertyAccessMode(PropertyAccessMode.Field);
             modelBuilder.Entity<SmpConfiguration>().Property(sc => sc.EncryptPublicKeyCertificate).UsePropertyAccessMode(PropertyAccessMode.Field);
+            modelBuilder.Entity<SmpConfiguration>().Property(sc => sc.EncryptPublicKeyCertificateName).UsePropertyAccessMode(PropertyAccessMode.Field);
             modelBuilder.Entity<SmpConfiguration>().Property(sc => sc.EncryptKeyDigestAlgorithm).UsePropertyAccessMode(PropertyAccessMode.Field);
             modelBuilder.Entity<SmpConfiguration>().Property(sc => sc.EncryptKeyMgfAlorithm).UsePropertyAccessMode(PropertyAccessMode.Field);
             modelBuilder.Entity<SmpConfiguration>().Property(sc => sc.EncryptKeyTransportAlgorithm).UsePropertyAccessMode(PropertyAccessMode.Field);

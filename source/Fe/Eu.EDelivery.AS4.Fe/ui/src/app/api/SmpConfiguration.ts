@@ -1,3 +1,5 @@
+/* tslint:disable */
+
 export class SmpConfiguration {
     id: number;
     toPartyId: string;
@@ -13,6 +15,7 @@ export class SmpConfiguration {
     encryptAlgorithm: string;
     encryptAlgorithmKeySize: number;
     encryptPublicKeyCertificate: string;
+    encryptPublicKeyCertificateName: string;
     encryptKeyDigestAlgorithm: string;
     encryptKeyMgfAlorithm: string;
     encryptKeyTransportAlgorithm: string;
@@ -31,6 +34,7 @@ export class SmpConfiguration {
     static FIELD_EncryptAlgorithm = 'encryptAlgorithm';
     static FIELD_EncryptAlgorithmKeySize = 'encryptAlgorithmKeySize';
     static FIELD_EncryptPublicKeyCertificate = 'encryptPublicKeyCertificate';
+    static FIELD_EncryptPublicKeyCertificateName = 'encryptPublicKeyCertificateName';
     static FIELD_EncryptKeyDigestAlgorithm = 'encryptKeyDigestAlgorithm';
     static FIELD_EncryptKeyMgfAlorithm = 'encryptKeyMgfAlorithm';
     static FIELD_EncryptKeyTransportAlgorithm = 'encryptKeyTransportAlgorithm';
