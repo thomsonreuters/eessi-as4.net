@@ -1,5 +1,7 @@
 ﻿using System;
 using System.IO;
+using System.Security.Cryptography.X509Certificates;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
@@ -9,7 +11,13 @@ using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Serialization;
+using Eu.EDelivery.AS4.Xml;
 using Xunit;
+using Encryption = Eu.EDelivery.AS4.Model.PMode.Encryption;
+using PartyId = Eu.EDelivery.AS4.Model.Core.PartyId;
+using Receipt = Eu.EDelivery.AS4.Model.Core.Receipt;
+using Signing = Eu.EDelivery.AS4.Model.PMode.Signing;
+using UserMessage = Eu.EDelivery.AS4.Model.Core.UserMessage;
 
 namespace Eu.EDelivery.AS4.ComponentTests.Agents
 {
@@ -27,11 +35,64 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         }
 
         [Fact]
-        public async Task ProcessedMessageIsSetToSentWithoutAlteringMultihopInformation()
+        public async Task Compressed_Signed_Encrypted_UserMessage_Gets_Processed_With_Multihop_Information()
+        {
+            await ProcessedMessageIsSetToSentWithoutAlteringMultihopInformation(
+                CreateUserMessage,
+                (useCompression: true, signing: Signed(), encryption: Encrypted()));
+        }
+
+        [Fact]
+        public async Task Uncompressed_Unsigned_Unencrypted_UserMessage_Gets_Processed_With_Multihop_Information()
+        {
+            await ProcessedMessageIsSetToSentWithoutAlteringMultihopInformation(
+                CreateUserMessage,
+                (useCompression: false, signing: Unsigned(), encryption: Unencrypted()));
+        }
+
+        [Fact]
+        public async Task Compressed_Signed_Unencrypted_UserMessage_Gets_Processed_With_Multihop_Information()
+        {
+            await ProcessedMessageIsSetToSentWithoutAlteringMultihopInformation(
+                CreateUserMessage,
+                (useCompression: true, signing: Signed(), encryption: Unencrypted()));
+        }
+
+        [Fact]
+        public async Task Uncompressed_Unsigned_Encrytped_UserMessage_Gets_Processed_With_Multihop_Information()
+        {
+            await ProcessedMessageIsSetToSentWithoutAlteringMultihopInformation(
+                CreateUserMessage,
+                (useCompression: false, signing: Unsigned(), encryption: Encrypted()));
+        }
+
+        [Fact]
+        public async Task Compressed_Signed_Unencrypted_SignalMessage_Gets_Processed_With_Multihop_Information()
+        {
+            await ProcessedMessageIsSetToSentWithoutAlteringMultihopInformation(
+                CreateSignalMessage,
+                (useCompression: true, signing: Signed(), encryption: Unencrypted()));
+        }
+
+        [Fact]
+        public async Task Uncompressed_Unsigned_Unencrypted_SignalMessage_Gets_Processed_With_Multihop_Information()
+        {
+            await ProcessedMessageIsSetToSentWithoutAlteringMultihopInformation(
+                CreateSignalMessage,
+                (useCompression: false, signing: Unsigned(), encryption: Unencrypted()));
+        }
+
+        private async Task ProcessedMessageIsSetToSentWithoutAlteringMultihopInformation(
+            Func<SendingProcessingMode, AS4Message> createMessage,
+            (bool useCompression, Signing signing, Encryption encryption) pmodeInfo)
         {
             // Arrange
-            var multihopPMode = new SendingProcessingMode { MessagePackaging = { IsMultiHop = true } };
-            var multihopMessage = CreateAS4Message(multihopPMode);
+            var multihopPMode = new SendingProcessingMode
+            {
+                MessagePackaging = {IsMultiHop = true, UseAS4Compression = pmodeInfo.useCompression},
+                Security = {Signing = pmodeInfo.signing, Encryption = pmodeInfo.encryption}
+            };
+            AS4Message multihopMessage = createMessage(multihopPMode);
 
             var datastoreSpy = new DatabaseSpy(_msh.GetConfiguration());
             OutMessage tobeProcessedEntry = CreateToBeProcessedOutMessage(multihopPMode, multihopMessage);
@@ -48,21 +109,101 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             Assert.Equal(Operation.ToBeSent, OperationUtils.Parse(processedEntry.Operation));
             Assert.False(processedEntry.Intermediary);
 
-            AS4Message processedMessage = 
+            AS4Message processedMessage =
                 await DeserializeOutMessageBody(Registry.Instance.MessageBodyStore, processedEntry);
 
             Assert.True(processedMessage.IsMultiHopMessage);
         }
 
-        private static AS4Message CreateAS4Message(SendingProcessingMode pmode)
+        private static AS4Message CreateUserMessage(SendingProcessingMode pmode)
         {
-            return AS4Message.Create(
-                pmode: pmode,
+            var msg = AS4Message.Create(
+                pmode: pmode, 
                 message: new UserMessage("test-" + Guid.NewGuid())
                 {
                     Sender = new Party("sender-role", new PartyId("sender-id")),
                     Receiver = new Party("receiver-role", new PartyId("receiver-id"))
                 });
+
+            msg.AddAttachment(
+                new Attachment("test-" + Guid.NewGuid())
+                {
+                    ContentType = "text/plain",
+                    Content = new MemoryStream(Encoding.UTF8.GetBytes("my content!"))
+                });
+
+            return msg;
+        }
+
+        private static AS4Message CreateSignalMessage(SendingProcessingMode pmode)
+        {
+            var receipt = new Receipt
+            {
+                MessageId = "test-" + Guid.NewGuid(),
+                RefToMessageId = "test-" + Guid.NewGuid(),
+                MultiHopRouting = new RoutingInputUserMessage
+                {
+                    mpc = "some-mpc",
+                    PartyInfo = new Xml.PartyInfo
+                    {
+                        To = new To
+                        {
+                            PartyId = new[] {new Xml.PartyId {Value = "org:eu:europa:as4:example:accesspoint:B"}},
+                            Role = "Receiver"
+                        },
+                        From = new From
+                        {
+                            PartyId = new[] {new Xml.PartyId {Value = "org:eu:europa:as4:example:accesspoint:A"}},
+                            Role = "Sender"
+                        }
+                    },
+                    CollaborationInfo = new Xml.CollaborationInfo
+                    {
+                        Action = "OutboundProcessing_Action",
+                        Service = new Xml.Service {Value = "OutboundProcessing_Service", type = "eu:europa:services"}
+                    }
+                }
+            };
+
+            return AS4Message.Create(receipt, pmode);
+        }
+
+        private static Signing Signed()
+        {
+            return new Signing
+            {
+                IsEnabled = true,
+                CertificateType = PrivateKeyCertificateChoiceType.CertificateFindCriteria,
+                SigningCertificateInformation = new CertificateFindCriteria
+                {
+                    CertificateFindType = X509FindType.FindBySubjectName,
+                    CertificateFindValue = "AccessPointA"
+                }
+            };
+        }
+
+        private static Signing Unsigned()
+        {
+            return new Signing { IsEnabled = false };
+        }
+
+        private static Encryption Encrypted()
+        {
+            return new Encryption
+            {
+                IsEnabled = true,
+                CertificateType = PublicKeyCertificateChoiceType.CertificateFindCriteria,
+                EncryptionCertificateInformation = new CertificateFindCriteria
+                {
+                    CertificateFindType = X509FindType.FindBySubjectName,
+                    CertificateFindValue = "AccessPointB"
+                }
+            };
+        }
+
+        private static Encryption Unencrypted()
+        {
+            return new Encryption { IsEnabled = false };
         }
 
         private OutMessage CreateToBeProcessedOutMessage(IPMode pmode, AS4Message msg)
