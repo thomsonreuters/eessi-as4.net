@@ -60,30 +60,10 @@ namespace Eu.EDelivery.AS4.Model.Core
         {
             get
             {
-                if (IsUserMessage && __hasMultiHopAttribute.HasValue == false)
-                {
-                    __hasMultiHopAttribute = IsMultiHopAttributePresent();
-                }
-
                 return (__hasMultiHopAttribute ?? false) || PrimarySignalMessage?.MultiHopRouting != null || _serializeAsMultiHop;
             }
         }
 
-        private bool? IsMultiHopAttributePresent()
-        {
-            var messagingNode =
-                EnvelopeDocument?.SelectSingleNode(
-                    "/*[local-name()='Envelope']/*[local-name()='Header']/*[local-name()='Messaging']") as XmlElement;
-
-            if (messagingNode == null)
-            {
-                return null;
-            }
-
-            string role = messagingNode.GetAttribute("role", Constants.Namespaces.Soap12);
-
-            return !string.IsNullOrWhiteSpace(role) && role.Equals(Constants.Namespaces.EbmsNextMsh);
-        }
 
         public IEnumerable<MessageUnit> MessageUnits => _messageUnits.AsReadOnly();
 
@@ -154,10 +134,11 @@ namespace Eu.EDelivery.AS4.Model.Core
             {
                 EnvelopeDocument = soapEnvelope,
                 ContentType = contentType,
-                SecurityHeader = securityHeader
+                SecurityHeader = securityHeader,
+                SigningId = {HeaderSecurityId = messagingHeader.SecurityId}
             };
 
-            result.SigningId.HeaderSecurityId = messagingHeader.SecurityId;
+            result.__hasMultiHopAttribute = result.IsMultiHopAttributePresent();
 
             if (bodyElement?.AnyAttr != null)
             {
@@ -169,6 +150,22 @@ namespace Eu.EDelivery.AS4.Model.Core
             result._messageUnits.AddRange(units);
 
             return result;
+        }
+
+        private bool? IsMultiHopAttributePresent()
+        {
+            var messagingNode =
+                EnvelopeDocument?.SelectSingleNode(
+                    "/*[local-name()='Envelope']/*[local-name()='Header']/*[local-name()='Messaging']") as XmlElement;
+
+            if (messagingNode == null)
+            {
+                return null;
+            }
+
+            string role = messagingNode.GetAttribute("role", Constants.Namespaces.Soap12);
+
+            return !string.IsNullOrWhiteSpace(role) && role.Equals(Constants.Namespaces.EbmsNextMsh);
         }
 
         /// <summary>
