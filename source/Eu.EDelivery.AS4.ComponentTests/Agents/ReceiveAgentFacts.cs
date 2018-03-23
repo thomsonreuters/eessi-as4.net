@@ -8,6 +8,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Xml;
 using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.ComponentTests.Common;
@@ -490,6 +491,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
             // Assert
             AS4Message responseReceipt = await response.DeserializeToAS4Message();
+            AssertMessageMultihopAttributes(responseReceipt.EnvelopeDocument);
             Assert.True(responseReceipt.IsMultiHopMessage);
 
             InMessage inUserMessage = _databaseSpy.GetInMessageFor(m => m.EbmsMessageId == userMessage.MessageId);
@@ -500,6 +502,15 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
             OutMessage outReceipt = _databaseSpy.GetOutMessageFor(m => m.EbmsRefToMessageId == userMessage.MessageId);
             Assert.Equal(OutStatus.Sent, OutStatusUtils.Parse(outReceipt.Status));
+        }
+
+        private static void AssertMessageMultihopAttributes(XmlDocument doc)
+        {
+            var messagingNode = doc.SelectSingleNode("//*[local-name()='Messaging']") as XmlElement;
+
+            Assert.NotNull(messagingNode);
+            Assert.Equal(Constants.Namespaces.EbmsNextMsh, messagingNode.GetAttribute("role", Constants.Namespaces.Soap12));
+            Assert.True(XmlConvert.ToBoolean(messagingNode.GetAttribute("mustUnderstand", Constants.Namespaces.Soap12)));
         }
 
         [Fact]
