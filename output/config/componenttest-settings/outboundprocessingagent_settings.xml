@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Settings 
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+    xmlns="eu:edelivery:as4">
+    <IdFormat>{GUID}@{IPADDRESS}</IdFormat>
+    <FeInProcess>false</FeInProcess>
+    <PayloadServiceInProcess>false</PayloadServiceInProcess>
+    <RetentionPeriod>90</RetentionPeriod>
+    <Database>
+        <Provider>Sqlite</Provider>
+        <ConnectionString>Filename=database\messages.db</ConnectionString>
+    </Database>
+    <CertificateStore>
+        <StoreName>My</StoreName>
+        <Repository type="Eu.EDelivery.AS4.Repositories.CertificateRepository, Eu.EDelivery.AS4, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+    </CertificateStore>
+    <Agents>
+        <OutboundProcessingAgent name="OutBound Processing Agent">
+            <Receiver type="Eu.EDelivery.AS4.Receivers.DatastoreReceiver, Eu.EDelivery.AS4.Receivers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+                <Setting key="Table">OutMessages</Setting>
+                <Setting key="Filter">Operation = 'ToBeProcessed'</Setting>
+                <Setting key="Update" field="Operation">Processing</Setting>
+            </Receiver>
+            <Transformer type="Eu.EDelivery.AS4.Transformers.AS4MessageTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+            <StepConfiguration>
+                <NormalPipeline>
+                    <Step type="Eu.EDelivery.AS4.Steps.Send.CompressAttachmentsStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+                    <Step type="Eu.EDelivery.AS4.Steps.Send.SignAS4MessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+                    <Step type="Eu.EDelivery.AS4.Steps.Send.EncryptAS4MessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+                    <Step type="Eu.EDelivery.AS4.Steps.Send.SetReceptionAwarenessStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+                    <Step type="Eu.EDelivery.AS4.Steps.Send.SetMessageToBeSentStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+                </NormalPipeline>
+            </StepConfiguration>
+        </OutboundProcessingAgent>
+    </Agents>
+</Settings>

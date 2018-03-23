@@ -1,0 +1,6 @@
+﻿
+--=-AAB+iUI3phXyeG3w4aGnFA==
+Content-Type: application/soap+xml; charset=utf-8
+
+<?xml version="1.0" encoding="utf-8"?><s12:Envelope xmlns:s12="http://www.w3.org/2003/05/soap-envelope"><s12:Header><eb:Messaging xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd" xmlns:s12="http://www.w3.org/2003/05/soap-envelope" wsu:Id="header-912d8afb-9303-4caa-ae1d-ce5e20cbb648" s12:mustUnderstand="true" s12:role="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/part2/200811/nextmsh" xmlns:eb="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/"><eb:UserMessage><eb:MessageInfo><eb:Timestamp>2018-03-21T09:26:42.2243118Z</eb:Timestamp><eb:MessageId>9f545d3c-0192-42c6-996d-7e3762c3f671@172.26.173.33</eb:MessageId></eb:MessageInfo><eb:PartyInfo><eb:From><eb:PartyId>senderId</eb:PartyId><eb:Role>sender</eb:Role></eb:From><eb:To><eb:PartyId>receiverId</eb:PartyId><eb:Role>rcv</eb:Role></eb:To></eb:PartyInfo><eb:CollaborationInfo><eb:Service /></eb:CollaborationInfo></eb:UserMessage></eb:Messaging></s12:Header><s12:Body p2:Id="body-221f4b38-c6fb-47da-ba93-9267f402de42" xmlns:p2="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" /></s12:Envelope>
+--=-AAB+iUI3phXyeG3w4aGnFA==--

@@ -60,30 +60,10 @@ namespace Eu.EDelivery.AS4.Model.Core
         {
             get
             {
-                if (IsUserMessage && __hasMultiHopAttribute.HasValue == false)
-                {
-                    __hasMultiHopAttribute = IsMultiHopAttributePresent();
-                }
-
                 return (__hasMultiHopAttribute ?? false) || PrimarySignalMessage?.MultiHopRouting != null || _serializeAsMultiHop;
             }
         }
 
-        private bool? IsMultiHopAttributePresent()
-        {
-            var messagingNode =
-                EnvelopeDocument?.SelectSingleNode(
-                    "/*[local-name()='Envelope']/*[local-name()='Header']/*[local-name()='Messaging']") as XmlElement;
-
-            if (messagingNode == null)
-            {
-                return null;
-            }
-
-            string role = messagingNode.GetAttribute("role", Constants.Namespaces.Soap12);
-
-            return !string.IsNullOrWhiteSpace(role) && role.Equals(Constants.Namespaces.EbmsNextMsh);
-        }
 
         public IEnumerable<MessageUnit> MessageUnits => _messageUnits.AsReadOnly();
 
@@ -154,19 +134,32 @@ namespace Eu.EDelivery.AS4.Model.Core
             {
                 EnvelopeDocument = soapEnvelope,
                 ContentType = contentType,
-                SecurityHeader = securityHeader
+                SecurityHeader = securityHeader,
+                SigningId = {HeaderSecurityId = messagingHeader.SecurityId}
             };
 
-            result.SigningId.HeaderSecurityId = messagingHeader.SecurityId;
+            bool? IsMultihopAttributePresent()
+            {
+                const string messagingXPath = "/*[local-name()='Envelope']/*[local-name()='Header']/*[local-name()='Messaging']";
+                if (result.EnvelopeDocument?.SelectSingleNode(messagingXPath) is XmlElement messagingNode)
+                {
+                    string role = messagingNode.GetAttribute("role", Constants.Namespaces.Soap12);
+
+                    return !string.IsNullOrWhiteSpace(role) && role.Equals(Constants.Namespaces.EbmsNextMsh);
+                }
+
+                return null;
+            }
+
+            result.__hasMultiHopAttribute = IsMultihopAttributePresent();
 
             if (bodyElement?.AnyAttr != null)
             {
                 result.SigningId.BodySecurityId = bodyElement.AnyAttr.FirstOrDefault(a => a.LocalName == "Id")?.Value;
             }
 
-            var units = SoapEnvelopeSerializer.GetMessageUnitsFromMessagingHeader(messagingHeader);
-
-            result._messageUnits.AddRange(units);
+            result._messageUnits.AddRange(
+                SoapEnvelopeSerializer.GetMessageUnitsFromMessagingHeader(messagingHeader));
 
             return result;
         }
@@ -181,6 +174,12 @@ namespace Eu.EDelivery.AS4.Model.Core
             return new AS4Message(pmode?.MessagePackaging?.IsMultiHop == true);
         }
 
+        /// <summary>
+        /// Creates message with a <see cref="MessageUnit"/> and a optional <see cref="SendingProcessingMode"/>.
+        /// </summary>
+        /// <param name="message">The message.</param>
+        /// <param name="pmode">The pmode.</param>
+        /// <returns></returns>
         public static AS4Message Create(MessageUnit message, SendingProcessingMode pmode = null)
         {
             AS4Message as4Message = Create(pmode);
