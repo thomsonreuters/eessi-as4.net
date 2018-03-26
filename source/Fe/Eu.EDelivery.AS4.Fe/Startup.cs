@@ -67,7 +67,7 @@ namespace Eu.EDelivery.AS4.Fe
             services.AddScoped<ISettingsSource, FileSettingsSource>();
             services.AddScoped<IPortalSettingsService, PortalSettingsService>();
             services.AddScoped<ITokenService, TokenService>();
-            services.AddScoped<IRuntimeLoader, RuntimeLoader>();
+            services.AddSingleton<IRuntimeLoader, RuntimeLoader>();
 
             services.Configure<ApplicationSettings>(Configuration.GetSection("Settings"));
             services.Configure<PortalSettings>(Configuration.Bind);
