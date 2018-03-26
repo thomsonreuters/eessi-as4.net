@@ -141,7 +141,7 @@ namespace Eu.EDelivery.AS4.Fe.Runtime
                 NotifySenders = GetNotifySenders(),
                 AttachmentUploaders = GetAttachmentUploaders(),
                 DynamicDiscoveryProfiles = GetDynamicDiscoveryProfiles(),
-                RuntimeMetaData = JObject.Parse(JsonConvert.SerializeObject(runtimeLoader.ReceivingPmode, Formatting.Indented, new FlattenRuntimeToJsonConverter()))
+                RuntimeMetaData = JObject.Parse(JsonConvert.SerializeObject(runtimeLoader.MetaData, Formatting.Indented, new FlattenRuntimeToJsonConverter()))
             });
         }
 
@@ -157,7 +157,7 @@ namespace Eu.EDelivery.AS4.Fe.Runtime
         {
             return new ContentResult
             {
-                Content = JsonConvert.SerializeObject(runtimeLoader.ReceivingPmode, Formatting.Indented, new FlattenRuntimeToJsonConverter()),
+                Content = JsonConvert.SerializeObject(runtimeLoader.MetaData, Formatting.Indented, new FlattenRuntimeToJsonConverter()),
                 ContentType = "application/json"
             };
         }

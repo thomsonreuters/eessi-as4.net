@@ -1,6 +1,6 @@
 import 'rxjs/add/operator/debounceTime';
 
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators, AbstractControl } from '@angular/forms';
 import { Observable } from 'rxjs/Observable';
 
@@ -9,6 +9,9 @@ import { DialogService } from '../../common/dialog.service';
 import { SmpConfigurationService } from './smpconfiguration.service';
 import { manageError } from '../../helpers';
 import { CanDeactivateGuard, CanComponentDeactivate } from '../../common/candeactivate.guard';
+import { IRuntimeService, RuntimeService } from '../runtime.service';
+import { RuntimeStore } from '../runtime.store';
+import { ItemType } from '../../api/ItemType';
 
 @Component({
     selector: 'as4-smpconfiguration',
@@ -16,18 +19,24 @@ import { CanDeactivateGuard, CanComponentDeactivate } from '../../common/candeac
     styleUrls: ['./smpconfiguration.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class SmpConfigurationComponent implements CanComponentDeactivate {
+export class SmpConfigurationComponent implements OnInit, CanComponentDeactivate {
     public form: FormGroup;
+    private defaultValues: ItemType[];
     constructor(
         private formBuilder: FormBuilder,
         private smpConfigurationService: SmpConfigurationService,
         private changeDetector: ChangeDetectorRef,
-        private dialogService: DialogService
+        private dialogService: DialogService,
+        private runtime: RuntimeStore
     ) {
+        this.defaultValues = this.runtime.getState().runtimeMetaData;
         this.form = this.formBuilder.group({
             items: this.formBuilder.array([])
         });
         this.reloadConfiguration();
+    }
+    public ngOnInit(): void {
+        
     }
     public canDeactivate(): boolean {
         return !this.form.dirty;
@@ -86,10 +95,13 @@ export class SmpConfigurationComponent implements CanComponentDeactivate {
                 Validators.required
             ],
             [SmpConfiguration.FIELD_FinalRecipient]: [!configuration ? null : configuration.finalRecipient],
-            [SmpConfiguration.FIELD_EncryptAlgorithm]: [!configuration ? null : configuration.encryptAlgorithm],
+            [SmpConfiguration.FIELD_EncryptAlgorithm]: [
+                !configuration ? null : configuration.encryptAlgorithm
+            ],
             [SmpConfiguration.FIELD_EncryptAlgorithmKeySize]: [
-                !configuration || configuration.encryptAlgorithmKeySize ? 0 : configuration.encryptAlgorithmKeySize,
-                Validators.required
+                !configuration || configuration.encryptAlgorithmKeySize 
+                    ? this.getDefaultFor(SmpConfiguration.FIELD_EncryptAlgorithmKeySize)
+                    : configuration.encryptAlgorithmKeySize
             ],
             [SmpConfiguration.FIELD_EncryptPublicKeyCertificate]: [
                 !configuration ? null : configuration.encryptPublicKeyCertificate
@@ -98,16 +110,29 @@ export class SmpConfigurationComponent implements CanComponentDeactivate {
                 !configuration ? null : configuration.encryptPublicKeyCertificateName
             ],
             [SmpConfiguration.FIELD_EncryptKeyDigestAlgorithm]: [
-                !configuration ? null : configuration.encryptKeyDigestAlgorithm
+                !configuration 
+                    ? this.getDefaultFor(SmpConfiguration.FIELD_EncryptKeyDigestAlgorithm)
+                    : configuration.encryptKeyDigestAlgorithm
             ],
             [SmpConfiguration.FIELD_EncryptKeyMgfAlorithm]: [
-                !configuration ? null : configuration.encryptKeyMgfAlorithm
+                !configuration 
+                    ? null 
+                    : configuration.encryptKeyMgfAlorithm
             ],
             [SmpConfiguration.FIELD_EncryptKeyTransportAlgorithm]: [
-                !configuration ? null : configuration.encryptKeyTransportAlgorithm
+                !configuration 
+                    ? this.getDefaultFor(SmpConfiguration.FIELD_EncryptKeyTransportAlgorithm) 
+                    : configuration.encryptKeyTransportAlgorithm
             ]
-        });
+        }
+        );
     }
+
+    private getDefaultFor(prop : string) {
+        let key = "smpconfiguration." + prop.toLowerCase();
+        let entry = this.defaultValues[key];
+        return entry.defaultvalue;
+    } 
     private reloadConfiguration() {
         this.smpConfigurationService
             .get()
