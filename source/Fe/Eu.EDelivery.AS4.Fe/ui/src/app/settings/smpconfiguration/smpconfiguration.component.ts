@@ -8,6 +8,7 @@ import { SmpConfiguration } from '../../api/SmpConfiguration';
 import { DialogService } from '../../common/dialog.service';
 import { SmpConfigurationService } from './smpconfiguration.service';
 import { manageError } from '../../helpers';
+import { CanDeactivateGuard, CanComponentDeactivate } from '../../common/candeactivate.guard';
 
 @Component({
     selector: 'as4-smpconfiguration',
@@ -15,7 +16,7 @@ import { manageError } from '../../helpers';
     styleUrls: ['./smpconfiguration.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class SmpConfigurationComponent {
+export class SmpConfigurationComponent implements CanComponentDeactivate {
     public form: FormGroup;
     constructor(
         private formBuilder: FormBuilder,
@@ -27,6 +28,9 @@ export class SmpConfigurationComponent {
             items: this.formBuilder.array([])
         });
         this.reloadConfiguration();
+    }
+    public canDeactivate(): boolean {
+        return !this.form.dirty;
     }
     public get itemsControl(): FormArray {
         return <FormArray>this.form.get('items');

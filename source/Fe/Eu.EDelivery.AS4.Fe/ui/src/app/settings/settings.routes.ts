@@ -56,7 +56,8 @@ export const ROUTES: Routes = [
             {
                 path: '',
                 component: SmpConfigurationComponent,
-                data: { title: 'Smp configuration' }
+                data: { title: 'Smp configuration' },
+                canDeactivate: [CanDeactivateGuard]
             }
         ]
     }
