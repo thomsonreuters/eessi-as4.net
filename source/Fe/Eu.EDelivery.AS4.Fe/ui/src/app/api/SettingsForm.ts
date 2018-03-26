@@ -10,6 +10,7 @@ export class SettingsForm {
     public static getForm(formBuilder: FormWrapper, current: Settings): FormWrapper {
         return formBuilder.group({
             idFormat: [current && current.idFormat],
+            retentionPeriod: [current && current.retentionPeriod],
             database: SettingsDatabaseForm.getForm(formBuilder.formBuilder, current && current.database),
             certificateStore: CertificateStoreForm.getForm(formBuilder.formBuilder, current && current.certificateStore),
             customSettings: CustomSettingsForm.getForm(formBuilder.formBuilder, current && current.customSettings),
