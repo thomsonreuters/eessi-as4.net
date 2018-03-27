@@ -34,8 +34,13 @@ namespace Eu.EDelivery.AS4.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_SmpConfigurations", x => x.Id);
-                    table.UniqueConstraint("AK_SmpConfigurations_ToPartyId_PartyRole_PartyType", x => new { x.ToPartyId, x.PartyRole, x.PartyType });
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SmpConfigurations_ToPartyId_PartyRole_PartyType",
+                table: "SmpConfigurations",
+                columns: new[] {"ToPartyId", "PartyRole", "PartyType"},
+                unique: true);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
