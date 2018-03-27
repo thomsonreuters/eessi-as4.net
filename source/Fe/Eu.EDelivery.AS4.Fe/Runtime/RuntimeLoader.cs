@@ -114,7 +114,7 @@ namespace Eu.EDelivery.AS4.Fe.Runtime
         /// <value>
         /// The receiving pmode.
         /// </value>
-        public IEnumerable<ItemType> ReceivingPmode { get; private set; }
+        public IEnumerable<ItemType> MetaData { get; private set; }
 
         /// <summary>
         /// Load the information from the AS4 runtime
@@ -134,7 +134,8 @@ namespace Eu.EDelivery.AS4.Fe.Runtime
             NotifySenders = LoadImplementationsForType(types, typeof(INotifySender));
             AttachmentUploaders = LoadImplementationsForType(types, typeof(IAttachmentUploader));
             DynamicDiscoveryProfiles = LoadImplementationsForType(types, typeof(IDynamicDiscoveryProfile));
-            ReceivingPmode = LoadImplementationsForType(types, typeof(IPMode), false);
+            MetaData = LoadImplementationsForType(types, typeof(IPMode), false)
+                .Concat(LoadImplementationsForType(types, typeof(Entities.SmpConfiguration), false));
 
             return this;
         }

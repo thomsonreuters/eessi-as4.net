@@ -64,6 +64,7 @@ namespace Eu.EDelivery.AS4
             public const string Xml = "http://www.w3.org/XML/1998/namespace";
             public const string XmlDsig = "http://www.w3.org/2000/09/xmldsig#";
             public const string XmlEnc11 = "http://www.w3.org/2009/xmlenc11#";
+            public const string XmlEnc11Aes128 = "http://www.w3.org/2009/xmlenc11#aes128-gcm";
             public const string XmlEnc = "http://www.w3.org/2001/04/xmlenc#";
             public const string Addressing = "http://www.w3.org/2005/08/addressing";
 
