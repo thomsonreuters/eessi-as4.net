@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Eu.EDelivery.AS4.Migrations
@@ -13,7 +12,7 @@ namespace Eu.EDelivery.AS4.Migrations
                 columns: table => new
                 {
                     Id = table.Column<long>(nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
+                              .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     Action = table.Column<string>(maxLength: 256, nullable: true),
                     EncryptAlgorithm = table.Column<string>(maxLength: 256, nullable: true),
                     EncryptAlgorithmKeySize = table.Column<int>(nullable: false),
