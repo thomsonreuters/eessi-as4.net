@@ -292,6 +292,11 @@ namespace Eu.EDelivery.AS4.Common
                 path = Path.Combine(".", path);
             }
 
+            if (File.Exists(path) == false)
+            {
+                throw new FileNotFoundException($"The settings file {path} could not be found.");
+            }
+
             _settings = TryDeserialize<Settings>(path);
             if (_settings == null)
             {
