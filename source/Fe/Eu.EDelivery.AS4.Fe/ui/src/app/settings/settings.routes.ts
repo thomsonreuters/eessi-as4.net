@@ -1,13 +1,13 @@
-import { PortalSettingsComponent } from './portalsettings/portalsettings.component';
-import { CanDeactivateGuard } from './../common/candeactivate.guard';
-import { Component } from '@angular/core';
 import { Routes } from '@angular/router';
-import { MustBeAuthorizedGuard } from '../common/mustbeauthorized.guard';
 
-import { AgentSettingsComponent } from './agent/agent.component';
-import { SettingsComponent } from './settings/settings.component';
-import { ReceptionAwarenessAgentComponent } from './receptionawarenessagent/receptionawarenessagent.component';
+import { MustBeAuthorizedGuard } from '../common/mustbeauthorized.guard';
+import { CanDeactivateGuard } from './../common/candeactivate.guard';
 import { WrapperComponent } from './../common/wrapper.component';
+import { AgentSettingsComponent } from './agent/agent.component';
+import { PortalSettingsComponent } from './portalsettings/portalsettings.component';
+import { ReceptionAwarenessAgentComponent } from './receptionawarenessagent/receptionawarenessagent.component';
+import { SettingsComponent } from './settings/settings.component';
+import { SmpConfigurationComponent } from './smpconfiguration/smpconfiguration.component';
 
 export const ROUTES: Routes = [
     {
@@ -47,5 +47,18 @@ export const ROUTES: Routes = [
         data: { title: 'Settings', icon: 'fa-toggle-on' },
         canActivate: [MustBeAuthorizedGuard],
         canDeactivate: [CanDeactivateGuard]
+    },
+    {
+        path: 'smpconfiguration',
+        component: WrapperComponent,
+        canActivate: [MustBeAuthorizedGuard],
+        children: [
+            {
+                path: '',
+                component: SmpConfigurationComponent,
+                data: { title: 'Smp configuration' },
+                canDeactivate: [CanDeactivateGuard]
+            }
+        ]
     }
 ];

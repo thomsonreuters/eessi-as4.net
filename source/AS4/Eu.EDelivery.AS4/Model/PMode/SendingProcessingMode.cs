@@ -125,7 +125,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
         public Encryption()
         {
             IsEnabled = false;
-            Algorithm = "http://www.w3.org/2009/xmlenc11#aes128-gcm";
+            Algorithm = Constants.Namespaces.XmlEnc11Aes128;
             KeyTransport = new KeyEncryption();
             AlgorithmKeySize = 128;
             CertificateType = PublicKeyCertificateChoiceType.None;
@@ -134,7 +134,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
         [Description("Is encryption enabled")]
         public bool IsEnabled { get; set; }
 
-        [DefaultValue("http://www.w3.org/2009/xmlenc11#aes128-gcm")]
+        [DefaultValue(Constants.Namespaces.XmlEnc11Aes128)]
         [Description("Encryption algorithm")]
         public string Algorithm { get; set; }
 

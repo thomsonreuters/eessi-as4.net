@@ -1,65 +1,79 @@
-import { ClipboardModule } from 'ngx-clipboard';
-import { Http, RequestOptions, RequestOptionsArgs, Response, XHRBackend, Request } from '@angular/http';
-import { NgModule, ModuleWithProviders, ErrorHandler, Injector } from '@angular/core';
-import { ReactiveFormsModule, FormsModule, FormBuilder } from '@angular/forms';
-import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { AuthHttp, AuthConfig, JwtHelper } from 'angular2-jwt';
+import { ErrorHandler, Injector, NgModule } from '@angular/core';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { Http, RequestOptions, XHRBackend } from '@angular/http';
+import { RouterModule } from '@angular/router';
+import { AuthConfig, AuthHttp } from 'angular2-jwt';
 import { TextMaskModule } from 'angular2-text-mask';
-import { Observable } from 'rxjs/Observable';
+import { Select2Module } from 'ng2-select2';
+import { ClipboardModule } from 'ngx-clipboard';
 
-import { CanDeactivateGuard } from './candeactivate.guard';
-import { SpinnerComponent } from './spinner/spinner.component';
-import { ColumnsComponent } from './columns/columns.component';
-import { ThumbprintInputComponent } from './thumbprintInput/thumbprintInput.component';
-import { ClipboardComponent } from './clipboard/clipboard.component';
-import { BoxComponent } from './box/box.component';
-import { WrapperComponent } from './wrapper.component';
-import { SidebarComponent } from './sidebar/sidebar.component';
-import { HeaderComponent } from './header/header.component';
-import { InputComponent } from './input/input.component';
-import { InfoComponent } from './info/info.component';
-import { CrudButtonsComponent } from './crudbuttons/crudbuttons.component';
-import { ModalComponent } from './modal/modal.component';
-import { TabItemDirective } from './tab/tabitem.directive';
-import { TabComponent } from './tab/tab.component';
-
-import { RouterService } from './router.service';
-import { ToDatePipe } from './../monitor/date.pipe';
-import { RolesService } from './../authentication/roles.service';
-import { SpinnerService, spinnerHttpServiceFactory } from './spinner/spinner.service';
-import { TooltipDirective } from './tooltip.directive';
-import { MustBeAuthorizedGuard } from './mustbeauthorized.guard';
 import { AuthenticationModule } from './../authentication/authentication.module';
+import { RolesService } from './../authentication/roles.service';
+import { ToDatePipe } from './../monitor/date.pipe';
+import { BoxComponent } from './box/box.component';
+import { CanDeactivateGuard } from './candeactivate.guard';
+import { ClipboardComponent } from './clipboard/clipboard.component';
+import { ColumnsComponent } from './columns/columns.component';
+import { ContainsPipe } from './contains.pipe';
+import { CrudButtonsComponent } from './crudbuttons/crudbuttons.component';
+import { DateTimePickerDirective } from './datetimepicker/datetimepicker.directive';
 import { DialogService } from './dialog.service';
 import { errorHandlerFactory } from './error.handler';
-import { ModalService } from './modal/modal.service';
-import { TextDirective } from './text.directive';
-import { FocusDirective, TabIndexDirective } from './focus.directive';
-import { SelectDirective } from './selectdirective';
-import { spinnerErrorhandlerDecoratorFactory } from './spinner/spinnerhideerror.handler.factory';
-import { DateTimePickerDirective } from './datetimepicker/datetimepicker.directive';
-import { ToNumberPipe } from './tonumber.pipe';
-import { MultiSelectDirective, OptionDirective } from './multiselect/multiselect.directive';
-import { ContainsPipe } from './contains.pipe';
-import { FormBuilderExtended } from './form.service';
+import { FileSelectComponent } from './fileselect/fileselect.component';
 import { FixFormGroupStateDirective } from './fixformgroupstate.directive';
-import { TimeInputComponent } from './timeinput/timeinput.component';
-import { CustomHttp, CustomAuthNoSpinnerHttp } from './spinner/customhttp';
+import { FocusDirective, TabIndexDirective } from './focus.directive';
+import { FormBuilderExtended } from './form.service';
+import { FormErrorComponent } from './formerror/formerror.component';
 import { GetItemTypePropertyPipe, GetTypePipe } from './getitemtypeproperty.pipe';
+import { HeaderComponent } from './header/header.component';
+import { InfoComponent } from './info/info.component';
+import { InputComponent } from './input/input.component';
+import { ModalComponent } from './modal/modal.component';
+import { ModalService } from './modal/modal.service';
+import { MultiSelectDirective, OptionDirective } from './multiselect/multiselect.directive';
+import { MustBeAuthorizedGuard } from './mustbeauthorized.guard';
+import { PasswordComponent } from './password/password.component';
+import { RouterService } from './router.service';
 import { RuntimetoolTipDirective } from './runtimetooltip.directive';
 import { Select2Component } from './select2/select2.component';
+import { SelectDirective } from './selectdirective';
+import { SidebarComponent } from './sidebar/sidebar.component';
+import { CustomAuthNoSpinnerHttp, CustomHttp } from './spinner/customhttp';
+import { SpinnerComponent } from './spinner/spinner.component';
+import { spinnerHttpServiceFactory, SpinnerService } from './spinner/spinner.service';
+import { TabComponent } from './tab/tab.component';
+import { TabItemDirective } from './tab/tabitem.directive';
+import { TextDirective } from './text.directive';
+import { ThumbprintInputComponent } from './thumbprintInput/thumbprintInput.component';
 import { ThumbprintValidatorDirective } from './thumbprintInput/validator';
-import { PasswordComponent } from './password/password.component';
+import { TimeInputComponent } from './timeinput/timeinput.component';
+import { ToNumberPipe } from './tonumber.pipe';
+import { TooltipDirective } from './tooltip.directive';
+import { WrapperComponent } from './wrapper.component';
 
-import { Select2Module } from 'ng2-select2';
-
-export function authHttpServiceFactory(http: Http, options: RequestOptions, backend: XHRBackend, spinnerService: SpinnerService, dialogService: DialogService, injector: Injector) {
-    let result = new AuthHttp(new AuthConfig(), new CustomHttp(backend, options, spinnerService, dialogService, injector), options);
+export function authHttpServiceFactory(
+    options: RequestOptions,
+    backend: XHRBackend,
+    spinnerService: SpinnerService,
+    dialogService: DialogService,
+    injector: Injector
+) {
+    let result = new AuthHttp(
+        new AuthConfig(),
+        new CustomHttp(backend, options, spinnerService, dialogService, injector),
+        options
+    );
     return result;
 }
 
-export function authHttpNoSpinnerServiceFactory(http: Http, options: RequestOptions, backend: XHRBackend, spinnerService: SpinnerService, dialogService: DialogService, injector: Injector) {
+export function authHttpNoSpinnerServiceFactory(
+    options: RequestOptions,
+    backend: XHRBackend,
+    spinnerService: SpinnerService,
+    dialogService: DialogService,
+    injector: Injector
+) {
     let customHttp = new CustomHttp(backend, options, spinnerService, dialogService, injector);
     customHttp.noSpinner = true;
     let result = new AuthHttp(new AuthConfig(), customHttp, options);
@@ -90,7 +104,9 @@ const components: any = [
     ClipboardComponent,
     TimeInputComponent,
     Select2Component,
-    PasswordComponent
+    PasswordComponent,
+    FileSelectComponent,
+    FormErrorComponent
 ];
 
 const directives: any = [
@@ -108,13 +124,7 @@ const directives: any = [
     ThumbprintValidatorDirective
 ];
 
-const pipes: any = [
-    ToDatePipe,
-    ToNumberPipe,
-    ContainsPipe,
-    GetItemTypePropertyPipe,
-    GetTypePipe
-];
+const pipes: any = [ToDatePipe, ToNumberPipe, ContainsPipe, GetItemTypePropertyPipe, GetTypePipe];
 
 const services: any = [
     MustBeAuthorizedGuard,
@@ -133,25 +143,19 @@ const services: any = [
     {
         provide: AuthHttp,
         useFactory: authHttpServiceFactory,
-        deps: [Http, RequestOptions, XHRBackend, SpinnerService, DialogService, Injector]
+        deps: [RequestOptions, XHRBackend, SpinnerService, DialogService, Injector]
     },
     {
         provide: CustomAuthNoSpinnerHttp,
         useFactory: authHttpNoSpinnerServiceFactory,
-        deps: [Http, RequestOptions, XHRBackend, SpinnerService, DialogService, Injector]
+        deps: [RequestOptions, XHRBackend, SpinnerService, DialogService, Injector]
     },
     ...errorHandlingServices
 ];
 
 @NgModule({
-    declarations: [
-        ...components,
-        ...directives,
-        ...pipes
-    ],
-    providers: [
-        ...services
-    ],
+    declarations: [...components, ...directives, ...pipes],
+    providers: [...services],
     exports: [
         BoxComponent,
         WrapperComponent,
@@ -186,7 +190,9 @@ const services: any = [
         RuntimetoolTipDirective,
         Select2Component,
         ThumbprintValidatorDirective,
-        PasswordComponent
+        PasswordComponent,
+        FileSelectComponent,
+        FormErrorComponent
     ],
     imports: [
         ClipboardModule,
@@ -199,4 +205,4 @@ const services: any = [
         AuthenticationModule
     ]
 })
-export class As4ComponentsModule { }
+export class As4ComponentsModule {}

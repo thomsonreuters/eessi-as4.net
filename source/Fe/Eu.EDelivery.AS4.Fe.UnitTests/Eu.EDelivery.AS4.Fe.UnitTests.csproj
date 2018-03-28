@@ -339,6 +339,7 @@
     <Compile Include="PortalSettingsServiceTests.cs" />
     <Compile Include="ScannerTests.cs" />
     <Compile Include="SendingBasePmodeTests.cs" />
+    <Compile Include="SmpConfigurationServiceTest.cs" />
     <Compile Include="SqlConnectionBuilderTests.cs" />
     <Compile Include="SubmitMessageCreatorTests.cs" />
     <Compile Include="TestData\ITestReceiver.cs" />

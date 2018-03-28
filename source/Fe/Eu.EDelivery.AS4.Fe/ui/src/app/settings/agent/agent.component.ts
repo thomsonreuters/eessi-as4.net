@@ -6,9 +6,9 @@ import { ActivatedRoute } from '@angular/router';
 import { Observable } from 'rxjs/Observable';
 import { Subscription } from 'rxjs/Subscription';
 
+import { Transformer } from '../../api';
 import { SettingsAgent } from '../../api/SettingsAgent';
 import { SettingsAgentForm } from '../../api/SettingsAgentForm';
-import { RuntimeStore } from '../runtime.store';
 import { SettingsService } from '../settings.service';
 import { SettingsStore } from '../settings.store';
 import { ItemType } from './../../api/ItemType';
@@ -16,7 +16,6 @@ import { CanComponentDeactivate } from './../../common/candeactivate.guard';
 import { DialogService } from './../../common/dialog.service';
 import { FormBuilderExtended, FormWrapper } from './../../common/form.service';
 import { ModalService } from './../../common/modal/modal.service';
-import { Transformer } from '../../api';
 
 @Component({
     selector: 'as4-agent-settings',
@@ -47,11 +46,15 @@ export class AgentSettingsComponent implements OnDestroy, CanComponentDeactivate
     private _subscription: Subscription;
     private _formWrapper: FormWrapper;
 
-    constructor(private settingsStore: SettingsStore, private settingsService: SettingsService,
+    constructor(
+        private settingsStore: SettingsStore,
+        private settingsService: SettingsService,
         // tslint:disable-next-line:align
-        private activatedRoute: ActivatedRoute, private runtimeStore: RuntimeStore,
-        private dialogService: DialogService, private modalService: ModalService,
-        private formBuilder: FormBuilderExtended) {
+        private activatedRoute: ActivatedRoute,
+        private dialogService: DialogService,
+        private modalService: ModalService,
+        private formBuilder: FormBuilderExtended
+    ) {
         this._formWrapper = this.formBuilder.get();
         this.form = SettingsAgentForm.getForm(this._formWrapper, undefined).build();
         this._formWrapper.disable();
@@ -64,15 +67,15 @@ export class AgentSettingsComponent implements OnDestroy, CanComponentDeactivate
         }
     }
     public ngOnInit() {
-        let settingsStoreSelector = this
-            .settingsStore
-            .changes
+        let settingsStoreSelector = this.settingsStore.changes
             .filter((result) => !!result && !!result.Settings && !!result.Settings.agents[this.agent])
             .map((result) => result.Settings.agents[this.agent] as SettingsAgent[]);
         const defaultTransformer = this.settingsService.getDefaultAgentTransformer(this.beType);
-        let sub = Observable
-            .combineLatest(settingsStoreSelector, defaultTransformer)
-            .filter(([agents, transformers]) => !!agents && agents.length > 0 && !!transformers && !!transformers.defaultTransformer)
+        let sub = Observable.combineLatest(settingsStoreSelector, defaultTransformer)
+            .filter(
+                ([agents, transformers]) =>
+                    !!agents && agents.length > 0 && !!transformers && !!transformers.defaultTransformer
+            )
             .subscribe(([agents, transformers]) => {
                 this.settings = agents;
                 if (!!this.currentAgent) {
@@ -107,22 +110,22 @@ export class AgentSettingsComponent implements OnDestroy, CanComponentDeactivate
 
                     let newAgent: SettingsAgent;
                     if (+this.actionType !== -1) {
-                        newAgent = <SettingsAgent>Object.assign({},
-                            this.settings.find((agt) => agt.name === this.actionType));
+                        newAgent = <SettingsAgent>Object.assign(
+                            {},
+                            this.settings.find((agt) => agt.name === this.actionType)
+                        );
                     } else {
                         newAgent = new SettingsAgent();
                         const defaultTransformer = this.settingsService.getDefaultAgentTransformer(this.beType);
                         const defaultSteps = this.settingsService.getDefaultAgentSteps(this.beType);
-                        Observable
-                            .combineLatest(defaultTransformer, defaultSteps)
-                            .subscribe(([transformer, steps]) => {
-                                newAgent.stepConfiguration = steps;
-                                newAgent.transformer = new Transformer();
-                                newAgent.transformer.type = transformer.defaultTransformer.technicalName;
-                                setupCurrent(newAgent);
+                        Observable.combineLatest(defaultTransformer, defaultSteps).subscribe(([transformer, steps]) => {
+                            newAgent.stepConfiguration = steps;
+                            newAgent.transformer = new Transformer();
+                            newAgent.transformer.type = transformer.defaultTransformer.technicalName;
+                            setupCurrent(newAgent);
 
-                                this.transformers = [transformer.defaultTransformer].concat(transformer.otherTransformers);
-                            });
+                            this.transformers = [transformer.defaultTransformer].concat(transformer.otherTransformers);
+                        });
                         return;
                     }
 
@@ -187,17 +190,15 @@ export class AgentSettingsComponent implements OnDestroy, CanComponentDeactivate
         this.form = SettingsAgentForm.getForm(this._formWrapper, this.currentAgent).build(!!!this.currentAgent);
     }
     public rename() {
-        this.dialogService
-            .prompt('Please enter a new name', 'Rename')
-            .subscribe((name) => {
-                if (this.messageIfExists(name)) {
-                    return;
-                }
-                if (!!this.currentAgent && !!name) {
-                    this.form.patchValue({ [SettingsAgent.FIELD_name]: name });
-                    this.form.markAsDirty();
-                }
-            });
+        this.dialogService.prompt('Please enter a new name', 'Rename').subscribe((name) => {
+            if (this.messageIfExists(name)) {
+                return;
+            }
+            if (!!this.currentAgent && !!name) {
+                this.form.patchValue({ [SettingsAgent.FIELD_name]: name });
+                this.form.markAsDirty();
+            }
+        });
     }
     public delete() {
         if (!!!this.currentAgent) {
