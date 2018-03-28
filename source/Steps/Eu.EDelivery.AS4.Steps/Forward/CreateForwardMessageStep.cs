@@ -83,6 +83,7 @@ namespace Eu.EDelivery.AS4.Steps.Forward
                         .Build();
 
                     outMessage.Intermediary = true;
+                    outMessage.IsDuplicate = receivedInMessage.IsDuplicate;
                     outMessage.MessageLocation = outLocation;
                     outMessage.Mpc = messagingContext.SendingPMode.MessagePackaging?.Mpc ?? Constants.Namespaces.EbmsDefaultMpc;
                     outMessage.SetOperation(Operation.ToBeProcessed);
