@@ -151,581 +151,464 @@ When creating custom implementations of types, settings can sometimes be useful.
 
 This contract describes all the properties available in the Sending PMode.  The required data fields are marked as mandatory; default values are provided.  Some values of the Sending PMode can be overridden by a SubmitMessage. This definition is available as XSD.
 
-<table class="relative-table wrapped confluenceTable" style="margin-left: 30.0px;width: 70.2424%;">
-    <colgroup>
-        <col style="width: 24.3577%;">
-        <col style="width: 5.50012%;">
-        <col style="width: 70.0086%;">
-    </colgroup>
-    <tbody style="margin-left: 30.0px;">
-        <tr style="margin-left: 30.0px;">
-            <th style="margin-left: 30.0px;" class="confluenceTh">
-                <p style="margin-left: 30.0px;text-align: center;"><u><strong>Sending PMode</strong></u></p>
-            </th>
-            <th style="margin-left: 30.0px;" class="confluenceTh">
-                <p style="margin-left: 30.0px;text-align: center;" align="center">*</p>
-            </th>
-            <th style="margin-left: 30.0px;" class="confluenceTh">
-                <p style="margin-left: 30.0px;text-align: center;" align="left"><u><strong>Description</strong></u></p>
-            </th>
+<table>
+    <tbody>
+        <tr>
+            <th align="left"><b>Sending PMode</b></th>
+            <th align="center">*</th>
+            <th align="left">Description</b></u></th>
         </tr>
-        <tr style="margin-left: 30.0px;">
-            <td style="margin-left: 30.0px;" class="confluenceTd">
-                <p><strong>Id</strong></p>
-            </td>
-            <th style="margin-left: 30.0px;" class="confluenceTh">
-                <p style="margin-left: 30.0px;" align="center">M</p>
-            </th>
-            <td style="margin-left: 30.0px;" class="confluenceTd">
-                <p align="left">PMode Unique Id</p>
+        <tr>
+            <td><b>Id</b></td>
+            <td align="center">M</td>
+            <td>PMode Unique Id</td>
+        </tr>
+        <tr>
+            <td><b>AllowOverride</b></td>
+            <td align="center">O</td>
+            <td>
+                <div style="width:550px;">Boolean indication whether a SubmitMessage may override already configured values within the sending PMode. <br/> <i>Default:</i> false</div>
             </td>
         </tr>
-        <tr style="margin-left: 30.0px;">
-            <td style="margin-left: 30.0px;" class="confluenceTd">
-                <p><strong>AllowOverride</strong></p>
-            </td>
-            <th style="margin-left: 30.0px;" class="confluenceTh">
-                <p style="margin-left: 30.0px;" align="center">O</p>
-            </th>
-            <td style="margin-left: 30.0px;" class="confluenceTd">
-                <p align="left">Boolean indication whether a SubmitMessage may override already configured values within the sending PMode.</p>
-                <p align="left"><em>Default:</em> false</p>
-            </td>
-        </tr>
-        <tr style="margin-left: 30.0px;">
-            <td style="margin-left: 30.0px;" class="confluenceTd">
-                <p><strong>MEP</strong></p>
-            </td>
-            <th style="margin-left: 30.0px;" class="confluenceTh">
-                <p style="margin-left: 30.0px;" align="center">M</p>
-            </th>
-            <td style="margin-left: 30.0px;" class="confluenceTd">
-                <p align="left">Message Exchange Pattern</p>
-                <p align="left"><em>Enumeration:</em></p>
-                <ul>
+        <tr>
+            <td><b>MEP</b></td>
+            <td align="center">M</td>
+            <td>
+                Message Exchange Pattern
+                <i>Enumeration:</i>
+                <ul style="margin:0;">
                     <li>OneWay</li>
                     <li>TwoWay</li>
                 </ul>
             </td>
         </tr>
-        <tr style="margin-left: 30.0px;">
-            <td style="margin-left: 30.0px;" class="confluenceTd">
-                <p><strong>MEPBinding</strong></p>
-            </td>
-            <th style="margin-left: 30.0px;" class="confluenceTh">
-                <p style="margin-left: 30.0px;" align="center">M</p>
-            </th>
-            <td style="margin-left: 30.0px;" class="confluenceTd">
-                <p align="left">Message Exchange Pattern Binding</p>
-                <p align="left"><em>Enumeration:</em></p>
-                <ul>
-                    <li style="list-style-type: none;background-image: none;">
-                        <ul>
-                            <li>push</li>
-                            <li>pull</li>
-                        </ul>
-                    </li>
+        <tr>
+            <td><b>MEPBinding</b></td>
+            <td align="center">M</td>
+            <td>
+                Message Exchange Pattern Binding
+                <i>Enumeration:</i>
+                <ul style="margin:0;">
+                    <li>push</li>
+                    <li>pull</li>
                 </ul>
-            </td>
-        </tr>
-        <tr style="margin-left: 30.0px;">
-            <td style="margin-left: 30.0px;" class="confluenceTd">
-                <p><strong>PushConfiguration</strong></p>
-                <p>&nbsp;&nbsp; <em><u>Protocol</u></em></p>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; URL</p>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; UseChunking</p>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; UseHTTPCompression</p>
-                <p>&nbsp;&nbsp; <em><u>TLSConfiguration</u></em></p>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IsEnabled</p>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; TLSVersion</p>
-                <p><br></p>
-                <p><br></p>
-                <p><br></p>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br><em><u>ClientCertificateReference</u></em></p>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ClientCertificateFindType</p>
-                <p>ClientCertificateFindValue</p>
-            </td>
-            <th style="margin-left: 30.0px;" class="confluenceTh">
-                <p style="margin-left: 30.0px;" align="center">O</p>
-                <p style="margin-left: 30.0px;" align="center">M</p>
-                <p style="margin-left: 30.0px;" align="center">M</p>
-                <p style="margin-left: 30.0px;" align="center">O</p>
-                <p style="margin-left: 30.0px;" align="center">O</p>
-                <p style="margin-left: 30.0px;" align="center">O</p>
-                <p style="margin-left: 30.0px;" align="center">M</p>
-                <p style="margin-left: 30.0px;" align="center">M</p>
-                <p align="center"><br></p>
-                <p align="center"><br></p>
-                <p style="margin-left: 30.0px;" align="center"><br></p>
-                <p style="margin-left: 30.0px;" align="center"><br>O</p>
-                <p style="margin-left: 30.0px;" align="center">M</p>
-                <p style="margin-left: 30.0px;" align="center">M</p>
-            </th>
-            <td style="margin-left: 30.0px;" class="confluenceTd">
-                <p align="left">Element must be present when MEPBinding is set to <em>push</em></p>
-                <p align="left"><em>&nbsp;</em></p>
-                <p align="left">URL of the receiving MSH</p>
-                <p align="left"><em>Default: </em>false (true &gt; not implemented)</p>
-                <p align="left"><em>Default: </em>false (true &gt; not implemented)</p>
-                <p align="left"><br></p>
-                <p align="left"><em>Default:</em> false</p>
-                <p align="left"><em>Enumeration:</em></p>
-                <ul>
-                    <li style="list-style-type: none;background-image: none;">
-                        <ul>
-                            <li>SSL 3.0</li>
-                            <li>TLS 1.0</li>
-                            <li>TLS 1.1</li>
-                            <li>TLS 1.2</li>
-                        </ul>
-                    </li>
-                </ul>
-                <p align="left"><br>Information on how to retrieve the SSL certificate</p>
-            </td>
-        </tr>
-        <tr style="margin-left: 30.0px;">
-            <td style="margin-left: 30.0px;" class="confluenceTd">
-                <p align="left"><strong>DynamicDiscovery</strong></p>
-                <p>&nbsp;&nbsp; SmpProfile</p>
-                <p>&nbsp;&nbsp; <em>Settings</em></p>
-                <p>&nbsp;&nbsp;&nbsp; <em>Setting</em></p>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp; Key</p>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp; Value</p>
-            </td>
-            <th style="margin-left: 30.0px;" class="confluenceTh">
-                <p style="margin-left: 30.0px;" align="center">O</p>
-                <p style="margin-left: 30.0px;" align="center">O</p>
-                <p style="margin-left: 30.0px;" align="center">O</p>
-                <p style="margin-left: 30.0px;" align="center">O</p>
-                <p style="margin-left: 30.0px;" align="center">M</p>
-                <p style="margin-left: 30.0px;" align="center">M</p>
-            </th>
-            <td style="margin-left: 30.0px;" class="confluenceTd">
-                <p align="left">This element is only present when SMP/SML is required</p>
-                <p align="left">The FQN of the class that implements the IDynamicDiscoveryProfile interface that must be used. If this is not defined, the internal implementation must be used by default.</p>
-                <p align="left">Custom settings to configure the IDynamicDiscoveryProfile.</p>
-                <p align="left"><br/></p>
-                <p align="left"><br/></p>
-            </td>
-        </tr>
-        <tr style="margin-left: 30.0px;">
-            <td style="margin-left: 30.0px;" class="confluenceTd">
-                <p><strong>Reliability</strong></p>
-                <p>&nbsp;&nbsp; <em><u>ReceptionAwareness</u></em></p>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IsEnabled</p>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; RetryCount</p>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; RetryInterval</p>
-            </td>
-            <th style="margin-left: 30.0px;" class="confluenceTh">
-                <p style="margin-left: 30.0px;" align="center">O</p>
-                <p style="margin-left: 30.0px;" align="center">O</p>
-                <p style="margin-left: 30.0px;" align="center">O</p>
-                <p style="margin-left: 30.0px;" align="center">O</p>
-                <p style="margin-left: 30.0px;" align="center">O</p>
-            </th>
-            <td style="margin-left: 30.0px;" class="confluenceTd">
-                <p align="left"><br></p>
-                <p align="left"><br></p>
-                <p align="left"><em>Default:</em> false</p>
-                <p align="left"><em>Default:</em> 5</p>
-                <p align="left"><em>Default:</em> 00:01:00 (HH:mm:ss)</p>
-            </td>
-        </tr>
-        <tr style="margin-left: 30.0px;">
-            <td style="margin-left: 30.0px;" class="confluenceTd">
-                <p><strong>ReceiptHandling</strong></p>
-                <p>&nbsp;&nbsp; VerifyNRR</p>
-                <p>&nbsp;&nbsp; NotifyMessageProducer</p>
-                <p>&nbsp;&nbsp; NotifyMethod</p>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <em>Type</em></p>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <em>Parameters</em></p>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <em>Parameter</em></p>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name</p>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Value</p>
-            </td>
-            <th style="margin-left: 30.0px;" class="confluenceTh">
-                <p style="margin-left: 30.0px;" align="center"></p>
-                <p style="margin-left: 30.0px;" align="center">O</p>
-                <p style="margin-left: 30.0px;" align="center">O</p>
-                <p style="margin-left: 30.0px;" align="center">M</p>
-                <p style="margin-left: 30.0px;" align="center">M</p>
-                <p style="margin-left: 30.0px;" align="center">M</p>
-                <p style="margin-left: 30.0px;" align="center">M</p>
-                <p style="margin-left: 30.0px;" align="center">M</p>
-                <p style="margin-left: 30.0px;" align="center">M</p>
-            </th>
-            <td style="margin-left: 30.0px;" class="confluenceTd">
-                <p align="left"><br></p>
-                <p align="left"><em>Indicates if Non-Repudiation of Receipt must be verified. Default:</em> true</p>
-                <p align="left"><em>Default:</em> false</p>
-                <p align="left"><br></p>
-                <p align="left">Type of the Notify Agent</p>
-                <p align="left">Required parameters for the specified agent</p>
-                <p align="left"><br></p>
-                <p align="left">Name of the parameter</p>
-                <p align="left">Value of the parameter</p>
-            </td>
-        </tr>
-        <tr style="margin-left: 30.0px;">
-            <td style="margin-left: 30.0px;" class="confluenceTd">
-                <p><strong>ErrorHandling</strong></p>
-                <p>&nbsp;&nbsp; NotifyMessageProducer</p>
-                <p>&nbsp;&nbsp; NotifyMethod</p>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <em>Type</em></p>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <em>Parameters</em></p>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <em>Parameter</em></p>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name</p>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Value</p>
-            </td>
-            <th style="margin-left: 30.0px;" class="confluenceTh">
-                <p style="margin-left: 30.0px;" align="center">O</p>
-                <p style="margin-left: 30.0px;" align="center">O</p>
-                <p style="margin-left: 30.0px;" align="center">M</p>
-                <p style="margin-left: 30.0px;" align="center">M</p>
-                <p style="margin-left: 30.0px;" align="center">M</p>
-                <p style="margin-left: 30.0px;" align="center">M</p>
-                <p style="margin-left: 30.0px;" align="center">M</p>
-                <p style="margin-left: 30.0px;" align="center">M</p>
-            </th>
-            <td style="margin-left: 30.0px;" class="confluenceTd">
-                <p align="left"><br></p>
-                <p align="left"><em>Default:</em> false</p>
-                <p align="left"><br></p>
-                <p align="left">Type of the Notify Agent</p>
-                <p align="left">Required parameters for the specified agent</p>
-                <p align="left"><br></p>
-                <p align="left">Name of the parameter</p>
-                <p align="left">Value of the parameter</p>
-            </td>
-        </tr>
-        <tr style="margin-left: 30.0px;">
-            <td style="margin-left: 30.0px;" class="confluenceTd">
-                <p><strong>ExceptionHandling</strong></p>
-                <p>&nbsp;&nbsp; NotifyMessageProducer</p>
-                <p>&nbsp;&nbsp; NotifyMethod</p>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <em>Type</em></p>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <em><u>Parameters</u></em></p>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <em>Parameter</em></p>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name</p>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Value</p>
-            </td>
-            <th style="margin-left: 30.0px;" class="confluenceTh">
-                <p style="margin-left: 30.0px;" align="center">O</p>
-                <p style="margin-left: 30.0px;" align="center">O</p>
-                <p style="margin-left: 30.0px;" align="center">M</p>
-                <p style="margin-left: 30.0px;" align="center">M</p>
-                <p style="margin-left: 30.0px;" align="center">M</p>
-                <p style="margin-left: 30.0px;" align="center">M</p>
-                <p style="margin-left: 30.0px;" align="center">M</p>
-                <p style="margin-left: 30.0px;" align="center">M</p>
-            </th>
-            <td style="margin-left: 30.0px;" class="confluenceTd">
-                <p align="left"><br></p>
-                <p align="left"><em>Default:</em> false</p>
-                <p align="left"><br></p>
-                <p align="left">Type of the Notify Agent</p>
-                <p align="left">Required parameters for the specified agent</p>
-                <p align="left"><br></p>
-                <p align="left">Name of the parameter</p>
-                <p align="left">Value of the parameter</p>
-            </td>
-        </tr>
-        <tr style="margin-left: 30.0px;">
-            <td style="margin-left: 30.0px;" class="confluenceTd">
-                <p><strong>Security</strong></p>
-                <p><strong>&nbsp;&nbsp; </strong><em><u>Signing</u></em></p>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IsEnabled</p>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; CertificateFindCriteria</p>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; CertificateFindType</p>
-                <p><br></p>
-                <p><br></p>
-                <p><br></p>
-                <p><br></p>
-                <p><br></p>
-                <p><br></p>
-                <p><br></p>
-                <p><br></p>
-                <p><br></p>
-                <p><br></p>
-                <p><br></p>
-                <p style="margin-left: 30.0px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; CertificateFindValue</p>
-                <p style="margin-left: 30.0px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; KeyReferenceMethod</p>
-                <p><br></p>
-                <p><br></p>
-                <p><br></p>
-                <p style="margin-left: 30.0px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Algorithm</p>
-                <p style="margin-left: 30.0px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; HashFunction</p>
-                <p style="margin-left: 30.0px;">&nbsp;&nbsp; <em><u>Encryption</u></em></p>
-                <p style="margin-left: 30.0px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IsEnabled</p>
-                <p style="margin-left: 30.0px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; PublicKeyCertificate</p>
-                <p style="margin-left: 30.0px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Certificate</p>
-                <p style="margin-left: 30.0px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; CertificateFindCriteria</p>
-                <p style="margin-left: 30.0px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; CertificateFindType</p>
-                <p><br></p>
-                <p><br></p>
-                <p><br></p>
-                <p><br></p>
-                <p><br></p>
-                <p><br></p>
-                <p><br></p>
-                <p><br></p>
-                <p><br></p>
-                <p><br></p>
-                <p style="margin-left: 60.0px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p>
-                <p style="margin-left: 60.0px;"><br>CertificateFindValueAlgorithm&nbsp;&nbsp;</p>
-                <p><br></p>
-                <p><br><br><br></p>
-                <p><br></p>
-                <p style="margin-left: 30.0px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; AlgorithmKeySize</p>
-                <p style="margin-left: 30.0px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; KeyTransport</p>
-                <p style="margin-left: 30.0px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; TransportAlgorithm</p>
-                <p><br><br></p>
-                <p style="margin-left: 30.0px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DigestAlgorithm</p>
-                <p><br><br></p>
-                <p style="margin-left: 30.0px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; MgfAlgorithm</p>
-            </td>
-            <th style="margin-left: 30.0px;" class="confluenceTh">
-                <p style="margin-left: 30.0px;" align="center">O</p>
-                <p style="margin-left: 30.0px;" align="center">O</p>
-                <p style="margin-left: 30.0px;" align="center">O</p>
-                <p style="margin-left: 30.0px;" align="center">O</p>
-                <p style="margin-left: 30.0px;" align="center">M</p>
-                <p align="center"><br></p>
-                <p align="center"><br></p>
-                <p align="center"><br></p>
-                <p align="center"><br></p>
-                <p align="center"><br></p>
-                <p align="center"><br></p>
-                <p align="center"><br></p>
-                <p align="center"><br></p>
-                <p align="center"><br></p>
-                <p align="center"><br></p>
-                <p align="center"><br></p>
-                <p style="margin-left: 30.0px;" align="center">M</p>
-                <p style="margin-left: 30.0px;" align="center">M</p>
-                <p align="center"><br></p>
-                <p align="center"><br></p>
-                <p align="center"><br></p>
-                <p style="margin-left: 30.0px;" align="center">M</p>
-                <p style="margin-left: 30.0px;" align="center">M</p>
-                <p style="margin-left: 30.0px;" align="center">O</p>
-                <p style="margin-left: 30.0px;" align="center">O</p>
-                <p style="margin-left: 30.0px;" align="center">O</p>
-                <p style="margin-left: 30.0px;" align="center">M</p>
-                <p style="margin-left: 30.0px;" align="center">O</p>
-                <p style="margin-left: 30.0px;" align="center">M</p>
-                <p align="center"><br></p>
-                <p align="center"><br></p>
-                <p align="center"><br></p>
-                <p align="center"><br></p>
-                <p align="center"><br></p>
-                <p align="center"><br></p>
-                <p align="center"><br></p>
-                <p align="center"><br></p>
-                <p align="center"><br></p>
-                <p style="margin-left: 30.0px;" align="center"><br><br></p>
-                <p style="margin-left: 30.0px;" align="center"><br></p>
-                <p style="margin-left: 30.0px;" align="center">M</p>
-                <p align="center"><br><br><br></p>
-                <p align="center"><br></p>
-                <p align="center"><br></p>
-                <p style="margin-left: 30.0px;" align="center">O</p>
-                <p style="margin-left: 30.0px;" align="center">O</p>
-                <p style="margin-left: 30.0px;" align="center">O</p>
-                <p align="center"><br><br></p>
-                <p style="margin-left: 30.0px;" align="center">O</p>
-                <p align="center"><br><br></p>
-                <p style="margin-left: 30.0px;" align="center">O</p>
-                <p align="center"><br></p>
-            </th>
-            <td style="margin-left: 30.0px;" class="confluenceTd">
-                <p align="left"><br></p>
-                <p align="left"><br></p>
-                <p align="left"><em>Default:</em> false</p>
-                <p align="left"><em>&nbsp;</em></p>
-                <p align="left"><em>Enumeration:</em></p>
-                <ul>
-                    <li>FindByThumbprint</li>
-                    <li>FindBySubjectName</li>
-                    <li>FindBySubjectDistinguishedName</li>
-                    <li>FindByIssuerName</li>
-                    <li>FindByIssuerDistinguishedName</li>
-                    <li>FindBySerialNumber</li>
-                    <li>FindByTimeValid</li>
-                    <li>FindByTimeNotValid</li>
-                    <li>FindByTimeNotYetValid</li>
-                    <li>FindByTimeExpired</li>
-                    <li>FindByTemplateName</li>
-                    <li>FindByApplicationPolicy</li>
-                    <li>FindByCertificatePolicy</li>
-                    <li>FindByExtension</li>
-                    <li>FindByKeyUsage</li>
-                    <li>FindBySubjectKeyIdentifier</li>
-                </ul>
-                <p align="left"><em>&nbsp;</em></p>
-                <p align="left"><em>Enumeration:</em></p>
-                <ul>
-                    <li>BSTReference <em>(default)</em></li>
-                    <li>IssuerSerial</li>
-                    <li>KeyIdentifier</li>
-                </ul>
-                <p align="left"><br><br><br><br></p>
-                <p align="left"><em><br></em></p>
-                <p align="left"><em>Default</em>: false</p>
-                <p align="left"><em>PublicKeyCertificate or CertificateFindCriteria must be specified</em></p>
-                <p align="left"><em>Base64 representation of the certificate that must be used</em></p>
-                <p align="left"><em>PublicKeyCertificate or CertificateFindCriteria must be specified</em></p>
-                <p align="left"><em>Enumeration:</em></p>
-                <ul>
-                    <li>FindByThumbprint</li>
-                    <li>FindBySubjectName</li>
-                    <li>FindBySubjectDistinguishedName</li>
-                    <li>FindByIssuerName</li>
-                    <li>FindByIssuerDistinguishedName</li>
-                    <li>FindBySerialNumber</li>
-                    <li>FindByTimeValid</li>
-                    <li>FindByTimeNotValid</li>
-                    <li>FindByTimeNotYetValid</li>
-                    <li>FindByTimeExpired</li>
-                    <li>FindByTemplateName</li>
-                    <li>FindByApplicationPolicy</li>
-                    <li>FindByCertificatePolicy</li>
-                    <li>FindByExtension</li>
-                    <li>FindByKeyUsage</li>
-                    <li>FindBySubjectKeyIdentifier</li>
-                </ul>
-                <p align="left"><em><br>Supported values:</em></p>
-                <ul>
-                    <li><a href="http://www.w3.org/2009/xmlenc11#aes128-gcm">http://www.w3.org/2009/xmlenc11#aes128-gcm</a></li>
-                    <li><a href="http://www.w3.org/2001/04/xmlenc#des-cbc">http://www.w3.org/2001/04/xmlenc#des-cbc</a></li>
-                    <li><a href="http://www.w3.org/2001/04/xmlenc#tripledes-cbc">http://www.w3.org/2001/04/xmlenc#tripledes-cbc</a></li>
-                    <li><a href="http://www.w3.org/2001/04/xmlenc#aes128-cbc">http://www.w3.org/2001/04/xmlenc#aes128-cbc</a></li>
-                    <li><a href="http://www.w3.org/2001/04/xmlenc#aes192-cbc">http://www.w3.org/2001/04/xmlenc#aes192-cbc</a></li>
-                    <li><a href="http://www.w3.org/2001/04/xmlenc#aes256-cbc">http://www.w3.org/2001/04/xmlenc#aes256-cbc</a></li>
-                </ul>
-                <p align="left"><em>Supported values: 128, 192, 256.&nbsp; Default is 128</em></p>
-                <p align="left"><br></p>
-                <p align="left"><em>Supported values:</em></p>
-                <ul>
-                    <li><a href="http://www.w3.org/2009/xmlenc11#rsa-oaep">http://www.w3.org/2009/xmlenc11#rsa-oaep</a><em> (default)</em></li>
-                    <li><a href="http://www.w3.org/2001/04/xmlenc#rsa-oaep-mgf1p">http://www.w3.org/2001/04/xmlenc#rsa-oaep-mgf1p</a></li>
-                </ul>
-                <p align="left"><em>Supported values: </em></p>
-                <ul>
-                    <li><a href="http://www.w3.org/2000/09/xmldsig#sha1">http://www.w3.org/2000/09/xmldsig#sha1</a><em> </em></li>
-                    <li><a href="http://www.w3.org/2001/04/xmlenc#sha256">http://www.w3.org/2001/04/xmlenc#sha256</a> <em>(default)</em></li>
-                </ul>
-                <p align="left"><em>Supported values:</em></p>
-                <ul>
-                    <li><a href="http://www.w3.org/2009/xmlenc11#mgf1sha1">http://www.w3.org/2009/xmlenc11#mgf1sha1</a> (default)</li>
-                    <li><a href="http://www.w3.org/2009/xmlenc11#mgf1sha224">http://www.w3.org/2009/xmlenc11#mgf1sha224</a></li>
-                    <li><a href="http://www.w3.org/2009/xmlenc11#mgf1sha256">http://www.w3.org/2009/xmlenc11#mgf1sha256</a></li>
-                    <li><a href="http://www.w3.org/2009/xmlenc11#mgf1sha384">http://www.w3.org/2009/xmlenc11#mgf1sha384</a></li>
-                    <li><a href="http://www.w3.org/2009/xmlenc11#mgf1sha512">http://www.w3.org/2009/xmlenc11#mgf1sha512</a></li>
-                </ul>
-                <p align="left">Note that the Mgf Algorithm cannot be specified when the TransportAlgorithm is not set to &nbsp;<a href="http://www.w3.org/2009/xmlenc11#rsa-oaep">http://www.w3.org/2009/xmlenc11#rsa-oaep</a></p>
-                <p align="left"><br></p>
             </td>
         </tr>
         <tr>
-            <td class="confluenceTd">
-                <p><strong>Message Packaging</strong></p>
-                <p style="margin-left: 30.0px;">&nbsp;&nbsp; Mpc</p>
-                <p style="margin-left: 30.0px;">&nbsp; UseAS4Compression</p>
-                <p style="margin-left: 30.0px;">&nbsp;&nbsp; IsMultiHop</p>
-                <p style="margin-left: 30.0px;">&nbsp;&nbsp; IncludePModeId</p>
-                <p style="margin-left: 30.0px;"><strong>&nbsp;&nbsp; </strong><u>PartyInfo</u></p>
-                <p style="margin-left: 30.0px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <em>FromParty</em></p>
-                <p style="margin-left: 30.0px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <em>PartyIds</em></p>
-                <p style="margin-left: 30.0px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <em>PartyId</em></p>
-                <p style="margin-left: 30.0px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Id</p>
-                <p style="margin-left: 30.0px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Type</p>
-                <p style="margin-left: 30.0px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Role</p>
-                <p style="margin-left: 30.0px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <em>ToParty</em></p>
-                <p style="margin-left: 30.0px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <em>PartyIds</em></p>
-                <p style="margin-left: 30.0px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <em>PartyId</em></p>
-                <p style="margin-left: 30.0px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Id</p>
-                <p style="margin-left: 30.0px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Type</p>
-                <p style="margin-left: 30.0px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Role</p>
-                <p style="margin-left: 30.0px;">&nbsp;&nbsp; <u>CollaborationInfo</u></p>
-                <p style="margin-left: 30.0px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <em>AgreementRef</em></p>
-                <p style="margin-left: 30.0px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Value</p>
-                <p style="margin-left: 30.0px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Type</p>
-                <p style="margin-left: 30.0px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <em>Service</em></p>
-                <p style="margin-left: 30.0px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Value</p>
-                <p style="margin-left: 30.0px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Type</p>
-                <p style="margin-left: 30.0px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Action</p>
-                <p style="margin-left: 30.0px;"><strong>&nbsp;&nbsp; </strong><u>MessageProperties</u></p>
-                <p style="margin-left: 30.0px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <em>MessageProperty</em></p>
-                <p style="margin-left: 30.0px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name</p>
-                <p style="margin-left: 30.0px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Type</p>
-                <p style="margin-left: 30.0px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Value</p>
+            <td>
+                <b>PushConfiguration</b><br/>
+                &nbsp;&nbsp;<i><u>Protocol</u></i><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;URL<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;UseChunking<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;UseHTTPCompression<br/>
+                &nbsp;&nbsp;<i><u>TLSConfiguration</u></i><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IsEnabled<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TLSVersion<br/>
+                <br/><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br/><i><u>ClientCertificateReference</u></i><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ClientCertificateFindType<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ClientCertificateFindValue
             </td>
-            <th style="margin-left: 30.0px;" class="confluenceTh">
-                <p style="margin-left: 30.0px;" align="center">O</p>
-                <p style="margin-left: 30.0px;" align="center">O</p>
-                <p style="margin-left: 30.0px;" align="center">O</p>
-                <p style="margin-left: 30.0px;" align="center">O</p>
-                <p style="margin-left: 30.0px;" align="center">O</p>
-                <p style="margin-left: 30.0px;" align="center">O</p>
-                <p style="margin-left: 30.0px;" align="center">O</p>
-                <p style="margin-left: 30.0px;" align="center">O</p>
-                <p style="margin-left: 30.0px;" align="center">O</p>
-                <p style="margin-left: 30.0px;" align="center">O</p>
-                <p style="margin-left: 30.0px;" align="center">O</p>
-                <p style="margin-left: 30.0px;" align="center">O</p>
-                <p style="margin-left: 30.0px;" align="center">O</p>
-                <p style="margin-left: 30.0px;" align="center">O</p>
-                <p style="margin-left: 30.0px;" align="center">O</p>
-                <p style="margin-left: 30.0px;" align="center">O</p>
-                <p style="margin-left: 30.0px;" align="center">O</p>
-                <p style="margin-left: 30.0px;" align="center">O</p>
-                <p style="margin-left: 30.0px;" align="center">O</p>
-                <p style="margin-left: 30.0px;" align="center">O</p>
-                <p style="margin-left: 30.0px;" align="center">O</p>
-                <p style="margin-left: 30.0px;" align="center">O</p>
-                <p style="margin-left: 30.0px;" align="center">O</p>
-                <p style="margin-left: 30.0px;" align="center">O</p>
-                <p style="margin-left: 30.0px;" align="center">O</p>
-                <p style="margin-left: 30.0px;" align="center">O</p>
-                <p style="margin-left: 30.0px;" align="center">O</p>
-                <p style="margin-left: 30.0px;" align="center">O</p>
-                <p style="margin-left: 30.0px;" align="center">O</p>
-                <p style="margin-left: 30.0px;" align="center">O</p>
-                <p style="margin-left: 30.0px;" align="center">O</p>
-            </th>
-            <td style="margin-left: 30.0px;" class="confluenceTd">
-                <p><br></p>
-                <p><em>Default: </em><a href="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMPC">http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMPC</a></p>
-                <p><em>Default: false</em></p>
-                <p><em>Default: false</em></p>
-                <p><em>Default: false</em></p>
-                <p><br></p>
-                <p><br></p>
-                <p><br></p>
-                <p>Id of the sending party</p>
-                <p>Type of Id of the sending party</p>
-                <p>Role of the sending party</p>
-                <p><br></p>
-                <p><br></p>
-                <p><br></p>
-                <p>Id of the receiving party</p>
-                <p>Type of Id of the receiving party</p>
-                <p>Role of the receiving party</p>
-                <p><br></p>
-                <p><br></p>
-                <p>Information about the partner agreement</p>
-                <p><br></p>
-                <p>Type of the agreement reference</p>
-                <p><br></p>
-                <p>The name of the service that is consumed</p>
-                <p>Type of the service</p>
-                <p>The service operation that is consumed</p>
-                <p><br></p>
-                <p><br></p>
-                <p>Name of the message property</p>
-                <p>Type of the message property</p>
-                <p align="left">Value of the message property</p>
+            <td align="center">
+                O<br/>
+                M<br/>
+                M<br/>
+                O<br/>
+                O<br/>
+                O<br/>
+                M<br/>
+                M<br/>
+                <br/><br/><br/><br/>
+                M<br/>
+                M<br/>
+            </td>
+            <td>
+                Element must be present when MEPBinding is set to <i>push</i><br/>
+                &nbsp;URL of the receiving MSH<br/>
+                <i>Default: </i>false (true &gt; not implemented)<br/>
+                <i>Default: </i>false (true &gt; not implemented)<br/><br/>
+                <i>Default:</i> false<br/>
+                <i>Enumeration:</i>
+                <ul style="margin:0;">
+                    <li>SSL 3.0</li>
+                    <li>TLS 1.0</li>
+                    <li>TLS 1.1</li>
+                    <li>TLS 1.2</li>
+                </ul>
+                Information on how to retrieve the SSL certificate<br/><br/><br/>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <b>DynamicDiscovery</b><br/>
+                &nbsp;&nbsp;SmpProfile<br/><br/>
+                &nbsp;&nbsp;<i>Settings</i><br/>
+                &nbsp;&nbsp;&nbsp;<i>Setting</i><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;Key<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;Value<br/>
+            </td>
+            <td>
+                O<br/>
+                O<br/><br/>
+                O<br/>
+                O<br/>
+                M<br/>
+                M<br/>
+            </td>
+            <td>
+                This element is only present when SMP/SML is required<br/>
+                The FQN of the class that implements the IDynamicDiscoveryProfile interface that must be used. If this is not defined, the internal implementation must be used by default.<br/>
+                Custom settings to configure the IDynamicDiscoveryProfile.
+                <br/><br/><br/><br/>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <b>Reliability</b><br/>
+                &nbsp;&nbsp; <i><u>ReceptionAwareness</u></i><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IsEnabled<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RetryCount<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RetryInterval<br/>
+            </td>
+            <td>
+                O<br/>
+                O<br/>
+                O<br/>
+                O<br/>
+                O<br/>
+            </td>
+            <td>
+                <br/><br/>
+                <i>Default:</i> false<br/>
+                <i>Default:</i> 5<br/>
+                <i>Default:</i> 00:01:00 (HH:mm:ss)<br/>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <b>ReceiptHandling</b><br/>
+                &nbsp;&nbsp;VerifyNRR<br/><br/>
+                &nbsp;&nbsp;NotifyMessageProducer<br/>
+                &nbsp;&nbsp;NotifyMethod<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>Type</i><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>Parameters</i><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>Parameter</i><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Name<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Value<br/>
+            </td>
+            <td>
+                O<br/>
+                O<br/><br/>
+                O<br/>
+                M<br/>
+                M<br/>
+                M<br/>
+                M<br/>
+                M<br/>
+                M<br/>
+            </td>
+            <td>
+                <br/>
+                Indicates if Non-Repudiation of Receipt must be verified.<br/><i>Default:</i> true<br/>
+                <i>Default:</i> false<br/><br/>
+                Type of the Notify Agent<br/>
+                Required parameters for the specified agent<br/><br/>
+                Name of the parameter<br/>
+                Value of the parameter<br/>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <b>ErrorHandling</b><br/>
+                &nbsp;&nbsp;NotifyMessageProducer<br/>
+                &nbsp;&nbsp;NotifyMethod<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>Type</i><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>Parameters</i><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>Parameter</i><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Name<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Value
+            </td>
+            <td>
+                O<br/>
+                O<br/>
+                M<br/>
+                M<br/>
+                M<br/>
+                M<br/>
+                M<br/>
+                M<br/>
+            </td>
+            <td>
+                <br/><i>Default:</i> false<br/><br/>
+                Type of the Notify Agent<br/>
+                Required parameters for the specified agent<br/><br/>
+                Name of the parameter<br/>
+                Value of the parameter<br/>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <b>ExceptionHandling</b><br/>
+                &nbsp;&nbsp;NotifyMessageProducer<br/>
+                &nbsp;&nbsp;NotifyMethod<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>Type</i><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i><u>Parameters</u></i><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>Parameter</i><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Name<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Value<br/>
+            </td>
+            <td>
+                O<br/>
+                O<br/>
+                M<br/>
+                M<br/>
+                M<br/>
+                M<br/>
+                M<br/>
+                M<br/>
+            </td>
+            <td>
+                <br/><i>Default:</i> false<br/><br/>
+                Type of the Notify Agent<br/>
+                Required parameters for the specified agent<br/><br/>
+                Name of the parameter<br/>
+                Value of the parameter<br/>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <b>Security</b><br/>
+                <b>&nbsp;&nbsp;</b><i><u>Signing</u></i><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IsEnabled<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CertificateFindCriteria<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CertificateFindType
+                <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CertificateFindValue<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;KeyReferenceMethod
+                <br/><br/><br/><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Algorithm<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;HashFunction<br/>
+                &nbsp;&nbsp;<i><u>Encryption</u></i><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IsEnabled<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PublicKeyCertificate<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Certificate<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CertificateFindCriteria<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CertificateFindType
+                <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CertificateFindValue
+                <br/>
+                Algorithm<br/><br/><br/><br/><br/><br/><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AlgorithmKeySize<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;KeyTransport<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TransportAlgorithm<br/><br/><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DigestAlgorithm<br/><br/><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MgfAlgorithm<br/>
+                <br/><br/><br/>
+                <br/><br/><br/><br/>
+            </td>
+            <td>
+                O<br/>
+                O<br/>
+                O<br/>
+                O<br/>
+                M<br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
+                M<br/>
+                M<br/><br/><br/><br/>
+                M<br/>
+                M<br/>
+                O<br/>
+                O<br/>
+                O<br/>
+                M<br/>
+                O<br/>
+                M<br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
+                M<br/>
+                M<br/><br/><br/><br/><br/><br/><br/>
+                O<br/>
+                O<br/>
+                O<br/><br/><br/>
+                O<br/><br/><br/>
+                O<br/><br/>
+                <br/><br/><br/>
+                <br/><br/><br/>
+            </td>
+            <td>
+                <br/><br/>
+                <i>Default:</i> false<br/>
+                <i>&nbsp;</i><br/>
+                <i>Enumeration:</i><br/>
+                <ul style="margin:0;">
+                    <li>FindByThumbprint</li>
+                    <li>FindBySubjectName</li>
+                    <li>FindBySubjectDistinguishedName</li>
+                    <li>FindByIssuerName</li>
+                    <li>FindByIssuerDistinguishedName</li>
+                    <li>FindBySerialNumber</li>
+                    <li>FindByTimeValid</li>
+                    <li>FindByTimeNotValid</li>
+                    <li>FindByTimeNotYetValid</li>
+                    <li>FindByTimeExpired</li>
+                    <li>FindByTemplateName</li>
+                    <li>FindByApplicationPolicy</li>
+                    <li>FindByCertificatePolicy</li>
+                    <li>FindByExtension</li>
+                    <li>FindByKeyUsage</li>
+                    <li>FindBySubjectKeyIdentifier</li>
+                </ul><br/><br/>
+                <i>Enumeration:</i>
+                <ul style="margin:0;">
+                    <li>BSTReference <i>(default)</i></li>
+                    <li>IssuerSerial</li>
+                    <li>KeyIdentifier</li>
+                </ul>
+                <br/><br/><br/>
+                <i>Default</i>: false<br/>
+                PublicKeyCertificate or CertificateFindCriteria must be specified<br/>
+                Base64 representation of the certificate that must be used<br/>
+                PublicKeyCertificate or CertificateFindCriteria must be specified<br/>
+                <i>Enumeration:</i>
+                <ul style="margin:0;">
+                    <li>FindByThumbprint</li>
+                    <li>FindBySubjectName</li>
+                    <li>FindBySubjectDistinguishedName</li>
+                    <li>FindByIssuerName</li>
+                    <li>FindByIssuerDistinguishedName</li>
+                    <li>FindBySerialNumber</li>
+                    <li>FindByTimeValid</li>
+                    <li>FindByTimeNotValid</li>
+                    <li>FindByTimeNotYetValid</li>
+                    <li>FindByTimeExpired</li>
+                    <li>FindByTemplateName</li>
+                    <li>FindByApplicationPolicy</li>
+                    <li>FindByCertificatePolicy</li>
+                    <li>FindByExtension</li>
+                    <li>FindByKeyUsage</li>
+                    <li>FindBySubjectKeyIdentifier</li>
+                </ul>
+                <i><br/>Supported values:</i>
+                <ul style="margin:0;">
+                    <li><a>http://www.w3.org/2009/xmlenc11#aes128-gcm</a></li>
+                    <li><a>http://www.w3.org/2001/04/xmlenc#des-cbc</a></li>
+                    <li><a>http://www.w3.org/2001/04/xmlenc#tripledes-cbc</a></li>
+                    <li><a>http://www.w3.org/2001/04/xmlenc#aes128-cbc</a></li>
+                    <li><a>http://www.w3.org/2001/04/xmlenc#aes192-cbc</a></li>
+                    <li><a>http://www.w3.org/2001/04/xmlenc#aes256-cbc</a></li>
+                </ul>
+                <i>Supported values:</i> 128, 192, 256.&nbsp; Default is 128<br/><br/>
+                <i>Supported values:</i>
+                <ul style="margin:0;">
+                    <li><a>http://www.w3.org/2009/xmlenc11#rsa-oaep</a> <i>(default)</i></li>
+                    <li><a>http://www.w3.org/2001/04/xmlenc#rsa-oaep-mgf1p</a></li>
+                </ul>
+                <i>Supported values:</i>
+                <ul style="margin:0;">
+                    <li><a>http://www.w3.org/2000/09/xmldsig#sha1</a><i> </i></li>
+                    <li><a>http://www.w3.org/2001/04/xmlenc#sha256</a> <i>(default)</i></li>
+                </ul>
+                <i>Supported values:</i>
+                <ul style="margin:0;">
+                    <li><a>http://www.w3.org/2009/xmlenc11#mgf1sha1</a> <i>(default)</i></li>
+                    <li><a>http://www.w3.org/2009/xmlenc11#mgf1sha224</a></li>
+                    <li><a>http://www.w3.org/2009/xmlenc11#mgf1sha256</a></li>
+                    <li><a>http://www.w3.org/2009/xmlenc11#mgf1sha384</a></li>
+                    <li><a>http://www.w3.org/2009/xmlenc11#mgf1sha512</a></li>
+                </ul>
+                Note that the Mgf Algorithm cannot be specified when the TransportAlgorithm is not set to <a>http://www.w3.org/2009/xmlenc11#rsa-oaep</a><br/>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <b>Message Packaging</b><br/>
+                &nbsp;&nbsp;Mpc<br/>
+                &nbsp;&nbsp;UseAS4Compression<br/>
+                &nbsp;&nbsp;IsMultiHop<br/>
+                &nbsp;&nbsp;IncludePModeId<br/>
+                &nbsp;&nbsp;<u>PartyInfo</u><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>FromParty</i><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>PartyIds</i>
+                <br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PartyId</i><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Id<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Type<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Role<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>ToParty</i><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <i>PartyIds</i><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PartyId</i><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Id<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Type<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Role<br/>
+                &nbsp;&nbsp;<u>CollaborationInfo</u><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <i>AgreementRef</i><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Value<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Type<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <i>Service</i><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Value<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Type<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Action<br/>
+                &nbsp;&nbsp;<u>MessageProperties</u><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <i>MessageProperty</i><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Name<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Type<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Value<br/>
+            </td>
+            <td>
+                O<br/>
+                O<br/>
+                O<br/>
+                O<br/>
+                O<br/>
+                O<br/>
+                O<br/>
+                O<br/>
+                O<br/>
+                O<br/>
+                O<br/>
+                O<br/>
+                O<br/>
+                O<br/>
+                O<br/>
+                O<br/>
+                O<br/>
+                O<br/>
+                O<br/>
+                O<br/>
+                O<br/>
+                O<br/>
+                O<br/>
+                O<br/>
+                O<br/>
+                O<br/>
+                O<br/>
+                O<br/>
+                O<br/>
+                O<br/>
+                O<br/>
+            </td>
+            <td>
+                <br/>
+                <i>Default: </i><a>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMPC</a><br/>
+                <i>Default:</i> false</i><br/>
+                <i>Default:</i> false</i><br/>
+                <i>Default:</i> false</i><br/>
+                <br/><br/><br/><br/>
+                Id of the sending party<br/>
+                Type of Id of the sending party<br/>
+                Role of the sending party<br/>
+                <br/><br/><br/>
+                Id of the receiving party<br/>
+                Type of Id of the receiving party<br/>
+                Role of the receiving party<br/><br/>
+                Information about the partner agreement<br/>
+                <br/>
+                Type of the agreement reference<br/>
+                <br/>
+                The name of the service that is consumed<br/>
+                Type of the service<br/>
+                The service operation that is consumed<br/>
+                <br/><br/>
+                Name of the message property<br/>
+                Type of the message property<br/>
+                align="left">Value of the message property<br/>
             </td>
         </tr>
     </tbody>
@@ -737,373 +620,287 @@ This contract describes all the properties available in the Sending PMode.  The 
 
  This contract describes all the properties available in the Receiving PMode.  The required data fields are marked as mandatory; default values are provided.  This definition is available as XSD.
 
-<table class="wrapped relative-table confluenceTable" style="margin-left: 30.0px;width: 70.5455%;">
-    <colgroup>
-        <col style="width: 19.2293%;">
-        <col style="width: 5.54991%;">
-        <col style="width: 75.041%;">
-    </colgroup>
-    <tbody style="margin-left: 30.0px;">
-        <tr style="margin-left: 30.0px;">
-            <th style="margin-left: 30.0px;" class="confluenceTh">
-                <p style="margin-left: 30.0px;text-align: center;"><u><strong>Receive PMode</strong></u></p>
-            </th>
-            <th style="margin-left: 30.0px;" class="confluenceTh">
-                <p style="margin-left: 30.0px;" align="center">*</p>
-            </th>
-            <th style="margin-left: 30.0px;" class="confluenceTh">
-                <p style="margin-left: 30.0px;text-align: center;" align="left"><u><strong>Description</strong></u></p>
-            </th>
+<table>
+    <tbody>
+        <tr>
+            <th align="left"><b>Receive PMode</b></th>
+            <th align="center">*</th>
+            <th align="left"><b>Description</b></th>
         </tr>
-        <tr style="margin-left: 30.0px;">
-            <td style="margin-left: 30.0px;" class="confluenceTd">
-                <p><strong>Id</strong></p>
-            </td>
-            <th style="margin-left: 30.0px;" class="confluenceTh">
-                <p style="margin-left: 30.0px;" align="center">M</p>
-            </th>
-            <td style="margin-left: 30.0px;" class="confluenceTd">
-                <p>PMode Unique Id</p>
-            </td>
+        <tr>
+            <td><b>Id</b></td>
+            <td align="center">M</td>
+            <td>PMode Unique Id</td>
         </tr>
-        <tr style="margin-left: 30.0px;">
-            <td style="margin-left: 30.0px;" class="confluenceTd">
-                <p><strong>Reliability</strong></p>
-                <p>&nbsp;&nbsp; <em>DuplicateElimination</em></p>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IsEnabled</p>
+        <tr>
+            <td>
+                <b>Reliability</b><br/>
+                &nbsp;&nbsp;<i>DuplicateElimination</i><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IsEnabled
             </td>
-            <th style="margin-left: 30.0px;" class="confluenceTh">
-                <p style="margin-left: 30.0px;" align="center">O</p>
-                <p style="margin-left: 30.0px;" align="center">O</p>
-                <p style="margin-left: 30.0px;" align="center">O</p>
-            </th>
-            <td style="margin-left: 30.0px;" class="confluenceTd">
-                <p><br></p>
-                <p><br></p>
-                <p><em>Default:</em> false</p>
+            <td align="center">
+                O<br/>
+                O<br/>
+                O<br/>
             </td>
+            <td><br/><br/><i>Default:</i> false</td>
         </tr>
-        <tr style="margin-left: 30.0px;">
-            <td style="margin-left: 30.0px;" class="confluenceTd">
-                <p><strong>ReplyHandling</strong></p>
-                <p>&nbsp;&nbsp; ReplyPattern</p>
-                <p><br><br></p>
-                <p>&nbsp;&nbsp; SendingPMode</p>
-                <p>&nbsp;&nbsp; <strong>ReceiptHandling</strong></p>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; UseNRRFormat</p>
-                <p><strong>&nbsp;&nbsp; ErrorHandling</strong></p>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; UseSOAPFault</p>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ResponseHttpCode</p>
+        <tr>
+            <td>
+                <b>ReplyHandling</b><br/>
+                    &nbsp;&nbsp;ReplyPattern<br/><br/><br/>
+                    &nbsp;&nbsp;SendingPMode<br/>
+                    &nbsp;&nbsp;<b>ReceiptHandling</b><br/>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;UseNRRFormat<br/><br/>
+                    <b>&nbsp;&nbsp;ErrorHandling</b><br/>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;UseSOAPFault<br/>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ResponseHttpCode<br/>
             </td>
-            <th style="margin-left: 30.0px;" class="confluenceTh">
-                <p style="margin-left: 30.0px;" align="center">M</p>
-                <p style="margin-left: 30.0px;" align="center">M</p>
-                <p style="margin-left: 30.0px;" align="center"><br></p>
-                <p style="margin-left: 30.0px;" align="center"><br>M</p>
-                <p style="margin-left: 30.0px;" align="center">O</p>
-                <p style="margin-left: 30.0px;" align="center">O</p>
-                <p style="margin-left: 30.0px;" align="center">O</p>
-                <p style="margin-left: 30.0px;" align="center">O</p>
-                <p style="margin-left: 30.0px;" align="center">O</p>
-            </th>
-            <td style="margin-left: 30.0px;" class="confluenceTd">
-                <p><br/></p>
-                <p><em>Enumeration:</em></p>
-                <ul>
-                    <li style="list-style-type: none;background-image: none;">
-                        <ul>
-                            <li>Response: sync response (<em>default</em>)</li>
-                            <li>Callback: async response</li>
-                        </ul>
-                    </li>
+            <td align="center">
+                M<br/>
+                M<br/><br/><br/>
+                M<br/>
+                O<br/>
+                O<br/><br/>
+                O<br/>
+                O<br/>
+                O<br/>
+            </td>
+            <td>
+            <br/>
+                <i>Enumeration:</i>
+                <ul style="margin:0;">
+                    <li>Response: sync response (<i>default</i>)</li>
+                    <li>Callback: async response</li>
                 </ul>
-                <p>Reference to the Sending PMode</p>
-                <p><br></p>
-                <p>Specifies if NonRepudationInfo must be included in receipt.&nbsp; <em>Default: false</em></p>
-                <p><em>Default: false</em></p>
-                <p>HTTP Status Code in case of reply = response.&nbsp; <em>Default: 200</em></p>
-            </td>
-        </tr>
-        <tr style="margin-left: 30.0px;">
-            <td style="margin-left: 30.0px;" class="confluenceTd">
-                <p><strong>ExceptionHandling</strong></p>
-                <p>&nbsp;&nbsp; NotifyMessageConsumer</p>
-                <p>&nbsp;&nbsp; NotifyMethod</p>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <em>Type</em></p>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <em>Parameters</em></p>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <em>Parameter</em></p>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name</p>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Value</p>
-            </td>
-            <th style="margin-left: 30.0px;" class="confluenceTh">
-                <p style="margin-left: 30.0px;" align="center">O</p>
-                <p style="margin-left: 30.0px;" align="center">O</p>
-                <p style="margin-left: 30.0px;" align="center">M</p>
-                <p style="margin-left: 30.0px;" align="center">M</p>
-                <p style="margin-left: 30.0px;" align="center">M</p>
-                <p style="margin-left: 30.0px;" align="center">M</p>
-                <p style="margin-left: 30.0px;" align="center">M</p>
-                <p style="margin-left: 30.0px;" align="center">M</p>
-            </th>
-            <td style="margin-left: 30.0px;" class="confluenceTd">
-                <p><br></p>
-                <p><em>Default:</em> false</p>
-                <p><br></p>
-                <p>Type of the Notify Agent</p>
-                <p>Required parameters for the specified agent</p>
-                <p><br></p>
-                <p>Name of the parameter</p>
-                <p>Value of the parameter</p>
-            </td>
-        </tr>
-        <tr style="margin-left: 30.0px;">
-            <td style="margin-left: 30.0px;" class="confluenceTd">
-                <p><strong>Security</strong></p>
-                <p>&nbsp;&nbsp;<em>SigningVerification</em></p>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Signature</p>
-                <p><br></p>
-                <p><br></p>
-                <p><br></p>
-                <p><br></p>
-                <p><br></p>
-                <p><br></p>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AllowUnknownRootCertificate</p>
-                <p><em>Decryption</em></p>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Encryption</p>
-                <p><br></p>
-                <p><br></p>
-                <p><br></p>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; CertificateFindCriteria</p>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; CertificateFindType</p>
-                <p><br></p>
-                <p><br></p>
-                <p><br></p>
-                <p><br></p>
-                <p><br></p>
-                <p><br></p>
-                <p><br></p>
-                <p><br></p>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; CertificateFindValue</p>
-            </td>
-            <th style="margin-left: 30.0px;" class="confluenceTh">
-                <p style="margin-left: 30.0px;" align="center">O</p>
-                <p style="margin-left: 30.0px;" align="center">O</p>
-                <p style="margin-left: 30.0px;" align="center">O</p>
-                <p style="margin-left: 30.0px;" align="center"><br></p>
-                <p style="margin-left: 30.0px;" align="center"><br></p>
-                <p style="margin-left: 30.0px;" align="center"><br></p>
-                <p align="center"><br></p>
-                <p align="center"><br></p>
-                <p align="center"><br></p>
-                <p style="margin-left: 30.0px;" align="center">O</p>
-                <p style="margin-left: 30.0px;" align="center">O</p>
-                <p align="center"><br></p>
-                <p align="center"><br></p>
-                <p align="center"><br></p>
-                <p align="center"><br></p>
-                <p align="center"><br></p>
-                <p align="center"><br></p>
-                <p align="center"><br></p>
-                <p align="center"><br></p>
-                <p align="center"><br></p>
-                <p align="center"><br></p>
-                <p align="center"><br></p>
-                <p align="center"><br></p>
-                <p align="center"><br></p>
-                <p align="center"><br></p>
-                <p style="margin-left: 30.0px;">M</p>
-            </th>
-            <td style="margin-left: 30.0px;" class="confluenceTd">
-                <p><br></p>
-                <p><br></p>
-                <p><em>Enumeration</em>
-                <ul>
-                    <li style="list-style-type: none;background-image: none;">
-                        <ul>
-                            <li>Allowed (<em>default)</em></li>
-                            <li>Not allowed</li>
-                            <li>Required</li>
-                            <li>Ignored<br><br></li>
-                        </ul>
-                    </li>
-                </ul>
-                </p>
-                <p><br></p>
-                <p>Indicates whether certificates with an unknown root authority are trusted. (default <em>false</em>)</p>
-                <p><em>Enumeration</em></p>
-                <ul>
-                    <li style="list-style-type: none;background-image: none;">
-                        <ul>
-                            <li>Ignored (<em>default)</em></li>
-                            <li>Allowed</li>
-                            <li>Not allowed</li>
-                            <li>Required</li>                            
-                        </ul>
-                    </li>
-                </ul>
-                <p><em><br></em></p>
-                <p><em>Enumeration:</em>
-                <ul>
-                    <li style="list-style-type: none;background-image: none;">
-                        <ul>
-                            <li>FindByThumbprint</li>
-                            <li>FindBySubjectName</li>
-                            <li>FindBySubjectDistinguishedName</li>
-                            <li>FindByIssuerName</li>
-                            <li>FindByIssuerDistinguishedName</li>
-                            <li>FindBySerialNumber</li>
-                            <li>FindByTimeValid</li>
-                            <li>FindByTimeNotValid</li>
-                            <li>FindByTimeNotYetValid</li>
-                            <li>FindByTimeExpired</li>
-                            <li>FindByTemplateName</li>
-                            <li>FindByApplicationPolicy</li>
-                            <li>FindByCertificatePolicy</li>
-                            <li>FindByExtension</li>
-                            <li>FindByKeyUsage</li>
-                            <li>FindBySubjectKeyIdentifier</li>
-                        </ul>
-                    </li>
-                </ul>
-                </p>
+                Reference to the Sending PMode <br/><br/>
+                <div>Specifies if NonRepudationInfo must be included in receipt <i>Default: false</i></div>
+                <i>Default: false</i><br/>
+                <br/>HTTP Status Code in case of reply = response. <br/><i>Default: 200</i><br/>
             </td>
         </tr>
         <tr>
-            <td class="confluenceTd">
-                <p><strong>Message Packaging</strong></p>
-                <p>&nbsp;&nbsp; <u>PartyInfo</u></p>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <em>FromParty</em></p>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <em>PartyIds</em></p>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <em>PartyId</em></p>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Id</p>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Type</p>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Role</p>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <em>ToParty</em></p>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <em>PartyIds</em></p>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <em>PartyId</em></p>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Id</p>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Type</p>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Role</p>
-                <p>&nbsp;&nbsp; <u>CollaborationInfo</u></p>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <em>AgreementRef</em></p>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Value</p>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Type</p>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <em>Service</em></p>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Value</p>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Type</p>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Action</p>
+            <td>
+                <b>ExceptionHandling</b><br/>
+                &nbsp;&nbsp; NotifyMessageConsumer<br/>
+                &nbsp;&nbsp; NotifyMethod <br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>Type</i><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>Parameters</i><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>Parameter</i><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Name<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Value
             </td>
-            <th style="margin-left: 30.0px;" class="confluenceTh">
-                <p style="margin-left: 30.0px;" align="center">O</p>
-                <p style="margin-left: 30.0px;" align="center">O</p>
-                <p style="margin-left: 30.0px;" align="center">O</p>
-                <p style="margin-left: 30.0px;" align="center">O</p>
-                <p style="margin-left: 30.0px;" align="center">O</p>
-                <p style="margin-left: 30.0px;" align="center">O</p>
-                <p style="margin-left: 30.0px;" align="center">O</p>
-                <p style="margin-left: 30.0px;" align="center">O</p>
-                <p style="margin-left: 30.0px;" align="center">O</p>
-                <p style="margin-left: 30.0px;" align="center">O</p>
-                <p style="margin-left: 30.0px;" align="center">O</p>
-                <p style="margin-left: 30.0px;" align="center">O</p>
-                <p style="margin-left: 30.0px;" align="center">O</p>
-                <p style="margin-left: 30.0px;" align="center">O</p>
-                <p style="margin-left: 30.0px;" align="center">O</p>
-                <p style="margin-left: 30.0px;" align="center">O</p>
-                <p style="margin-left: 30.0px;" align="center">O</p>
-                <p style="margin-left: 30.0px;" align="center">O</p>
-                <p style="margin-left: 30.0px;" align="center">O</p>
-                <p style="margin-left: 30.0px;" align="center">O</p>
-                <p style="margin-left: 30.0px;" align="center">O</p>
-                <p style="margin-left: 30.0px;" align="center">O</p>
-            </th>
-            <td style="margin-left: 30.0px;" class="confluenceTd">
-                <p><br></p>
-                <p><br></p>
-                <p><br></p>
-                <p><br></p>
-                <p><br></p>
-                <p>Id of the sending party</p>
-                <p>Type of Id of the sending party</p>
-                <p>Role of the sending party</p>
-                <p><br></p>
-                <p><br></p>
-                <p><br></p>
-                <p>Id of the receiving party</p>
-                <p>Type of Id of the receiving party</p>
-                <p>Role of the receiving party</p>
-                <p><br></p>
-                <p><br></p>
-                <p>Information about the partner agreement</p>
-                <p>Type of the agreement reference</p>
-                <p><br></p>
-                <p>The name of the service that is consumed</p>
-                <p>Type of the service</p>
-                <p>The service operation that is consumed</p>
+            <td align="center">
+                O<br/>
+                O<br/>
+                M<br/>
+                M<br/>
+                M<br/>
+                M<br/>
+                M<br/>
+                M<br/>
+            </td>
+            <td>
+                <br/>
+                <i>Default:</i> false
+                <br/><br/>
+                <div style="width:500px;">Type of the Notify Agent Required parameters for the specified agent</div>
+                <br/><br/>
+                Name of the parameter<br/>
+                Value of the parameter
             </td>
         </tr>
-        <tr style="margin-left: 30.0px;">
-            <td style="margin-left: 30.0px;" class="confluenceTd">
-                <p><strong>MessageHandling</strong></p>
-                <p><strong><strong>&nbsp; </strong></strong><u>Deliver</u></p>
-                <p><strong>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Deliver</strong></p>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IsEnabled</p>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PayloadReferenceMethod</p>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <em>Type</em></p>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <em>Parameters</em></p>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <em>Parameter</em></p>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name</p>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Value</p>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DeliverMethod</p>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <em>Type</em></p>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <em>Parameters</em></p>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <em>Parameter</em></p>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name</p>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Value</p>
-                <p><span>&nbsp; </span><u>Forward</u></p>
-                <p><span>&nbsp;&nbsp;&nbsp;&nbsp; SendingPMode</span></p>
-                <p style="margin-left: 30.0px;"><strong><br></strong></p>
+        <tr>
+            <td>
+                <b>Security</b><br/>
+                &nbsp;&nbsp;<i>SigningVerification</i><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Signature<br/><br/><br/><br/><br/><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AllowUnknownRootCertificate
+                &nbsp;&nbsp;<i>Decryption</i><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Encryption<br/><br/><br/><br/><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CertificateFindCriteria
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CertificateFindType
+                <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CertificateFindValue
             </td>
-            <th style="margin-left: 30.0px;" class="confluenceTh">
-                <p style="margin-left: 30.0px;" align="center">M</p>
-                <p style="margin-left: 30.0px;" align="center"><span>O</span></p>
-                <p style="margin-left: 30.0px;" align="center"><br></p>
-                <p style="margin-left: 30.0px;" align="center">M</p>
-                <p style="margin-left: 30.0px;" align="center">M</p>
-                <p style="margin-left: 30.0px;" align="center">M</p>
-                <p style="margin-left: 30.0px;" align="center">M</p>
-                <p style="margin-left: 30.0px;" align="center">M</p>
-                <p style="margin-left: 30.0px;" align="center">M</p>
-                <p style="margin-left: 30.0px;" align="center">M</p>
-                <p style="margin-left: 30.0px;" align="center">M</p>
-                <p style="margin-left: 30.0px;" align="center">M</p>
-                <p style="margin-left: 30.0px;" align="center">M</p>
-                <p style="margin-left: 30.0px;" align="center">M</p>
-                <p style="margin-left: 30.0px;" align="center">M</p>
-                <p style="margin-left: 30.0px;" align="center">M</p>
-                <p style="margin-left: 30.0px;" align="center"><span>O</span></p>
-                <p style="margin-left: 30.0px;" align="center"><span>M</span></p>
-            </th>
-            <td style="margin-left: 30.0px;" class="confluenceTd">
-                <p>Describes how a received ebMS Message must be handled</p>
-                <p><span>Deliver or Forward must be specified, not both</span></p>
-                <p><em><br></em></p>
-                <p><em>True</em> or <em>false</em></p>
-                <p>Payload Deliver method (HTTP, FILE(**)…)</p>
-                <p>Required parameters</p>
-                <p><br></p>
-                <p><br></p>
-                <p>Name of the parameter</p>
-                <p>Value of the parameter</p>
-                <p>Type of the Deliver method (HTTP, FILE,..)</p>
-                <p><br></p>
-                <p><br></p>
-                <p><br></p>
-                <p><br></p>
-                <p>Name of the parameter</p>
-                <p>Value of the parameter</p>
-                <p>Deliver or Forward must be specified, not both</p>
-                <p><span>The name of the PMode that must be used to forward the received Message.</span></p>
+            <td align="center">
+                O<br/>
+                O<br/>
+                M<br/>
+                <br/><br/><br/><br/><br/>
+                O<br/>
+                O<br/>
+                O<br/>
+                <br/><br/><br/><br/>
+                O<br/>
+                M<br/>
+                <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
+                M<br/>
+            </td>
+            <td>
+                <br/><br/>
+                <i>Enumeration</i>
+                <ul style="margin:0;">
+                    <li>Allowed (<i>default)</i></li>
+                    <li>Not allowed</li>
+                    <li>Required</li>
+                    <li>Ignored</li>
+                </ul>
+                <br/>
+                <div style="width:550px;">Indicates whether certificates with an unknown root authority are trusted. (Default <i>false</i>)</div><br/>               <i>Enumeration:</i>
+                <ul style="margin:0;">
+                    <li>Ignored (<i>default)</i></li>
+                    <li>Allowed</li>
+                    <li>Not allowed</li>
+                    <li>Required</li>
+                </ul>
+                <i><br/></i>
+                <i>Enumeration:</i>
+                <ul style="margin:0;">
+                   <li>FindByThumbprint</li>
+                   <li>FindBySubjectName</li>
+                   <li>FindBySubjectDistinguishedName</li>
+                   <li>FindByIssuerName</li>
+                   <li>FindByIssuerDistinguishedName</li>
+                   <li>FindBySerialNumber</li>
+                   <li>FindByTimeValid</li>
+                   <li>FindByTimeNotValid</li>
+                   <li>FindByTimeNotYetValid</li>
+                   <li>FindByTimeExpired</li>
+                   <li>FindByTemplateName</li>
+                   <li>FindByApplicationPolicy</li>
+                   <li>FindByCertificatePolicy</li>
+                   <li>FindByExtension</li>
+                   <li>FindByKeyUsage</li>
+                   <li>FindBySubjectKeyIdentifier</li>
+                </ul>
+                <br/>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <b>Message Packaging</b><br/>
+                &nbsp;&nbsp;<u>PartyInfo</u><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>FromParty</i><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>PartyIds</i><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <i>PartyId</i><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Id<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Type<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Role<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>ToParty</i><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>PartyIds</i><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <i>PartyId</i><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Id<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Type<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Role<br/>
+                &nbsp;&nbsp;<u>CollaborationInfo</u><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>AgreementRef</i><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Value<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Type<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>Service</i><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Value<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Type<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Action<br/>
+            </td>
+            <td align="center">
+                O<br/>
+                O<br/>
+                O<br/>
+                O<br/>
+                O<br/>
+                O<br/>
+                O<br/>
+                O<br/>
+                O<br/>
+                O<br/>
+                O<br/>
+                O<br/>
+                O<br/>
+                O<br/>
+                O<br/>
+                O<br/>
+                O<br/>
+                O<br/>
+                O<br/>
+                O<br/>
+                O<br/>
+                O<br/>
+            </td>
+            <td>
+                <br/><br/><br/><br/><br/>
+                Id of the sending party<br/>
+                Type of Id of the sending party<br/>
+                Role of the sending party<br/>
+                <br/><br/><br/>
+                Id of the receiving party<br/>
+                Type of Id of the receiving party<br/>
+                Role of the receiving party<br/>
+                <br/><br/>
+                Information about the partner agreement<br/>
+                Type of the agreement reference<br/>
+                <br/>
+                The name of the service that is consumed<br/>
+                Type of the service<br/>
+                The service operation that is consumed
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <b>MessageHandling</b><br/>
+                <b><b>&nbsp; </b></b><u>Deliver</u><br/>
+                <b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Deliver</b><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IsEnabled<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PayloadReferenceMethod<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <i>Type</i><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <i>Parameters</i><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <i>Parameter</i><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Value<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DeliverMethod<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <i>Type</i><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <i>Parameters</i><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <i>Parameter</i><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Value<br/>
+                <span>&nbsp; </span><u>Forward</u><br/>
+                <span>&nbsp;&nbsp;&nbsp;&nbsp; SendingPMode</span><br/>
+            </td>
+            <td align="center">
+                M<br/>
+                O<br/>
+                <br/>
+                M<br/>
+                M<br/>
+                M<br/>
+                M<br/>
+                M<br/>
+                M<br/>
+                M<br/>
+                M<br/>
+                M<br/>
+                M<br/>
+                M<br/>
+                M<br/>
+                M<br/>
+                O<br/>
+                M<br/>
+            </td>
+            <td>
+                Describes how a received ebMS Message must be handled<br/>
+                Deliver or Forward must be specified, not both<br/>
+                <i><br/></i>
+                <i>True</i> or <i>false</i>
+                Payload Deliver method (HTTP, FILE(**)…)
+                Required parameters
+                <br/><br/><br/><br/><br/>
+                Name of the parameter<br/>
+                Value of the parameter<br/><br/>
+                Type of the Deliver method (HTTP, FILE,..)<br/>
+                <br/><br/>
+                Name of the parameter<br/>
+                Value of the parameter<br/>
+                Deliver or Forward must be specified, not both<br/>
+                The name of the PMode that must be used to forward the received Message.
             </td>
         </tr>
     </tbody>
