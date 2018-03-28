@@ -82,6 +82,7 @@ namespace Eu.EDelivery.AS4.Steps.Forward
                             messagingContext.SendingPMode)
                         .Build();
 
+                    outMessage.Intermediary = true;
                     outMessage.MessageLocation = outLocation;
                     outMessage.Mpc = messagingContext.SendingPMode.MessagePackaging?.Mpc ?? Constants.Namespaces.EbmsDefaultMpc;
                     outMessage.SetOperation(Operation.ToBeProcessed);
