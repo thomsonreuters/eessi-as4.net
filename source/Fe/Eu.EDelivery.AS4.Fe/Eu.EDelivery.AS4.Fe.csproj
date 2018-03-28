@@ -12,7 +12,7 @@
       <PlatformTarget>AnyCPU</PlatformTarget>
       <Platforms>x86;AnyCPU</Platforms>
       <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-      <DefineConstants>DEBUG;TRACE;NET461</DefineConstants>
+      <DefineConstants>TRACE;NET461;RELEASE</DefineConstants>
     </PropertyGroup>
 
     <ItemGroup>
