@@ -30,9 +30,8 @@ namespace Eu.EDelivery.AS4.Fe.Runtime
         private static readonly string DefaultValueAttribute = typeof(DefaultValueAttribute).Name;
         private static readonly string DescriptionAttribute = typeof(DescriptionAttribute).Name;
         private static readonly List<string> Attributes = new List<string> { InfoAttribute, NoUiAttribute, DefaultValueAttribute, DescriptionAttribute };
-        private static readonly Assembly RootAssembly = Assembly.LoadFile(Path.GetFullPath(@".\Eu.EDelivery.AS4.dll"));
 
-        private readonly string folder;
+        private readonly string _folder;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RuntimeLoader"/> class.
@@ -40,7 +39,7 @@ namespace Eu.EDelivery.AS4.Fe.Runtime
         /// <param name="settings">The settings.</param>
         public RuntimeLoader(IOptions<ApplicationSettings> settings)
         {
-            folder = settings.Value.Runtime;
+            _folder = settings.Value.Runtime;
             Initialize();
         }
 
@@ -123,7 +122,7 @@ namespace Eu.EDelivery.AS4.Fe.Runtime
         /// <exception cref="Exception"></exception>
         public IRuntimeLoader Initialize()
         {
-            if (!Directory.Exists(folder)) throw new Exception($"The module folder {folder} doesn't exist");
+            if (!Directory.Exists(_folder)) throw new Exception($"The module folder {_folder} doesn't exist");
 
             List<TypeDefinition> types = LoadTypesFromAssemblies();
             Receivers = LoadImplementationsForType(types, typeof(IReceiver));
@@ -147,7 +146,7 @@ namespace Eu.EDelivery.AS4.Fe.Runtime
         public List<TypeDefinition> LoadTypesFromAssemblies()
         {
             return Directory
-                    .GetFiles(folder)
+                    .GetFiles(_folder)
                     .Where(file => Path.GetExtension(file) == ".dll")
                     .Where(path =>
                     {
