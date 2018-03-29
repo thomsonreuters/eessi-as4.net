@@ -46,7 +46,8 @@ namespace Eu.EDelivery.AS4.Model.PMode
         public MessageExchangePattern Mep { get; set; }
 
         [Info("Message exchange pattern binding", defaultValue: MessageExchangePatternBinding.Push)]
-        [Description("Message exchange pattern binding")]
+        [Description("Indicate if the message will be pushed by the sender to the receiver, or if the message " +
+                     "must be sent to the receiver as a response on a PullRequest that has been sent by the receiver.")]
         public MessageExchangePatternBinding MepBinding { get; set; }
 
         [Description("Push configuration")]
@@ -131,11 +132,11 @@ namespace Eu.EDelivery.AS4.Model.PMode
             CertificateType = PublicKeyCertificateChoiceType.None;
         }
 
-        [Description("Is encryption enabled")]
+        [Description("Indicate whether or not the message must be encrypted.")]
         public bool IsEnabled { get; set; }
 
         [DefaultValue(Constants.Namespaces.XmlEnc11Aes128)]
-        [Description("Encryption algorithm")]
+        [Description("Defines the algorithm that must be used to encrypt the message symmetrically.")]
         public string Algorithm { get; set; }
 
         [DefaultValue(128)]
@@ -244,14 +245,14 @@ namespace Eu.EDelivery.AS4.Model.PMode
         }
 
         [DefaultValue(EncryptionStrategy.XmlEncRSAOAEPUrlWithMgf)]
-        [Description("Transport algorithm")]
+        [Description("The asymetrical encryption algorithm that must be used to encrypt the secret encryption key.")]
         public string TransportAlgorithm { get; set; }
 
         [DefaultValue(EncryptionStrategy.XmlEncSHA256Url)]
         [Description("Digest algorithm")]
         public string DigestAlgorithm { get; set; }
 
-        [Description("Mgf algorithm")]
+        [Description("The Mask Generation Function that must be used.")]
         public string MgfAlgorithm { get; set; }
 
         #region Properties that control serialization
@@ -290,7 +291,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
             KeyReferenceMethod = X509ReferenceType.BSTReference;
         }
 
-        [Description("Is signing enabled")]
+        [Description("Indicate whether or not the message must be signed.")]
         public bool IsEnabled { get; set; }
 
         [XmlIgnore]
@@ -323,15 +324,15 @@ namespace Eu.EDelivery.AS4.Model.PMode
             }
         }
 
-        [Description("Key reference method")]
+        [Description("Define how the Signing Certificate must be referenced in the Message")]
         [DefaultValue(X509ReferenceType.BSTReference)]
         public X509ReferenceType KeyReferenceMethod { get; set; }
 
-        [Description("Signing algorithm")]
+        [Description("Defines the algorithm that must be used to sign the message.")]
         [DefaultValue(DefaultAlgorithm)]
         public string Algorithm { get; set; }
 
-        [Description("Hash function to use for the signing")]
+        [Description("Define the hash algorithm that must be used when signing the message.")]
         [DefaultValue(DefaultHashFunction)]
         public string HashFunction { get; set; }
 
@@ -365,10 +366,10 @@ namespace Eu.EDelivery.AS4.Model.PMode
             NotifyMethod = new Method();
         }
 
-        [Description("Notify message producer")]
+        [Description("Indicate if the Message Producer must be notified.")]
         public bool NotifyMessageProducer { get; set; }
 
-        [Description("Notify method")]
+        [Description("How should the notification messages be sent to the Message Producer.")]
         public Method NotifyMethod { get; set; }
     }
 
@@ -410,12 +411,14 @@ namespace Eu.EDelivery.AS4.Model.PMode
         [Description("Indicates if reception awareness is enabled")]
         public bool IsEnabled { get; set; }
 
-        [Description("Retry count")]
+        [Description("Defines how many retries the AS4.NET MSH must perform if a Receipt or Error-message is not received within " +
+                     "the specified time-frame.")]
         [DefaultValue(5)]
         public int RetryCount { get; set; }
 
         [DefaultValue("00:01:00")]
-        [Description("Interval after which to try again")]
+        [Description("The timeframe in which the MSH waits before re-sending the Message.  If a Receipt or Error message" +
+                     "is received before the end of this timeframe, the MSH will not re-send the message.")]
         public string RetryInterval
         {
             get { return _retryInterval.ToString(@"hh\:mm\:ss"); }
@@ -473,7 +476,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
             UseHttpCompression = false;
         }
 
-        [Description("URL")]
+        [Description("The address of the endpoint to where the message must be sent.")]
         public string Url { get; set; }
 
         [DefaultValue(false)]
@@ -499,7 +502,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
         public bool IsEnabled { get; set; }
 
         [DefaultValue(TlsVersion.Tls12)]
-        [Description("Version for TLS")]
+        [Description("TLS version that must be used.")]
         public TlsVersion TlsVersion { get; set; }
 
         [XmlIgnore]
@@ -559,7 +562,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
         public string Mpc { get; set; }
 
         [DefaultValue(true)]
-        [Description("Use AS4 compression")]
+        [Description("Indicate whether or not the message must be compressed")]
         public bool UseAS4Compression { get; set; }
 
         [DefaultValue(false)]
@@ -567,7 +570,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
         public bool IsMultiHop { get; set; }
 
         [DefaultValue(false)]
-        [Description("Include PMode")]
+        [Description("Indicate whether or not the PModeId must be included in the message meta-data")]
         public bool IncludePModeId { get; set; }
     }
 
