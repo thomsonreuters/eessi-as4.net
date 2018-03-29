@@ -12,22 +12,22 @@
   </Database>
   <CertificateStore>
     <StoreName>My</StoreName>
-    <Repository type="Eu.EDelivery.AS4.Repositories.CertificateRepository, Eu.EDelivery.AS4, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+    <Repository type="Eu.EDelivery.AS4.Repositories.CertificateRepository, Eu.EDelivery.AS4, Version=3.0.0.0, Culture=neutral, PublicKeyToken=null" />
   </CertificateStore>
   <Agents>
     <DeliverAgent name="InMessage Deliver Agent">
-      <Receiver type="Eu.EDelivery.AS4.Receivers.DatastoreReceiver, Eu.EDelivery.AS4.Receivers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <Receiver type="Eu.EDelivery.AS4.Receivers.DatastoreReceiver, Eu.EDelivery.AS4.Receivers, Version=3.0.0.0, Culture=neutral, PublicKeyToken=null">
         <Setting key="Table">InMessages</Setting>
         <Setting key="Filter">Operation = 'ToBeDelivered'</Setting>
         <Setting key="Update" field="Operation">Delivering</Setting>
       </Receiver>
-      <Transformer type="Eu.EDelivery.AS4.Transformers.DeliverMessageTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+      <Transformer type="Eu.EDelivery.AS4.Transformers.DeliverMessageTransformer, Eu.EDelivery.AS4.Transformers, Version=3.0.0.0, Culture=neutral, PublicKeyToken=null" />
       <StepConfiguration>
         <NormalPipeline>
-          <Step type="Eu.EDelivery.AS4.Steps.Deliver.UploadAttachmentsStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" undecorated="false" />
-          <Step type="Eu.EDelivery.AS4.Steps.Deliver.CreateDeliverEnvelopeStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" undecorated="false" />
-          <Step type="Eu.EDelivery.AS4.Steps.Deliver.SendDeliverMessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" undecorated="false" />
-          <Step type="Eu.EDelivery.AS4.Steps.Deliver.DeliverUpdateDatastoreStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" undecorated="false" />
+          <Step type="Eu.EDelivery.AS4.Steps.Deliver.UploadAttachmentsStep, Eu.EDelivery.AS4.Steps, Version=3.0.0.0, Culture=neutral, PublicKeyToken=null" undecorated="false" />
+          <Step type="Eu.EDelivery.AS4.Steps.Deliver.CreateDeliverEnvelopeStep, Eu.EDelivery.AS4.Steps, Version=3.0.0.0, Culture=neutral, PublicKeyToken=null" undecorated="false" />
+          <Step type="Eu.EDelivery.AS4.Steps.Deliver.SendDeliverMessageStep, Eu.EDelivery.AS4.Steps, Version=3.0.0.0, Culture=neutral, PublicKeyToken=null" undecorated="false" />
+          <Step type="Eu.EDelivery.AS4.Steps.Deliver.DeliverUpdateDatastoreStep, Eu.EDelivery.AS4.Steps, Version=3.0.0.0, Culture=neutral, PublicKeyToken=null" undecorated="false" />
         </NormalPipeline>
       </StepConfiguration>
     </DeliverAgent>
