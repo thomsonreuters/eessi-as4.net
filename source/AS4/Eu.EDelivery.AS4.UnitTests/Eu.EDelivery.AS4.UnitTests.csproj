@@ -602,6 +602,9 @@
     <PackageReference Include="Fody">
       <Version>2.3.22</Version>
     </PackageReference>
+    <PackageReference Include="ModuleInit.Fody">
+      <Version>1.7.1</Version>
+    </PackageReference>
     <PackageReference Include="System.Net.Http">
       <Version>4.3.3</Version>
     </PackageReference>
