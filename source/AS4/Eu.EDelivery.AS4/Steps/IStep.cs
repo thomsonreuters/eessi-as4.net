@@ -11,12 +11,11 @@ namespace Eu.EDelivery.AS4.Steps
     public interface IStep
     {
         /// <summary>
-        /// Execute the step for a given <paramref name="messagingContext"/>.
+        /// Execute the step on a given <paramref name="messagingContext"/>.
         /// </summary>
-        /// <param name="messagingContext">Message used during the step execution.</param>
-        /// <param name="cancellationToken"></param>
+        /// <param name="messagingContext"><see cref="MessagingContext"/> on which the step must be executed.</param>
         /// <returns></returns>
-        Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken);
+        Task<StepResult> ExecuteAsync(MessagingContext messagingContext);
     }
 
     /// <summary>

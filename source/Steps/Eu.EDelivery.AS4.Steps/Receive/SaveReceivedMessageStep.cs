@@ -44,10 +44,9 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// Start updating the Data store
         /// </summary>
         /// <param name="messagingContext"></param>
-        /// <param name="token"></param>
         /// <returns></returns>
         /// <exception cref="Exception">A delegate callback throws an exception.</exception>
-        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken token)
+        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
             Logger.Info($"{messagingContext.EbmsMessageId} Insert received message in datastore");
 
@@ -56,42 +55,48 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 throw new InvalidOperationException("SaveReceivedMessageStep requires a ReceivedStream");
             }
 
+            MessagingContext resultContext = await InsertReceivedAS4MessageAsync(messagingContext);
+
+            if (resultContext != null && resultContext.Exception == null)
+            {
+                if (resultContext.AS4Message.IsSignalMessage
+                    && String.IsNullOrWhiteSpace(resultContext.AS4Message.PrimarySignalMessage.RefToMessageId))
+                {
+                    Logger.Info(
+                        "The received message is a signal-message without RefToMessageId. " +
+                        "It cannot be processed any further.");
+
+                    return StepResult
+                        .Success(new MessagingContext(AS4Message.Empty, MessagingContextMode.Receive))
+                        .AndStopExecution();
+                }
+
+                return StepResult.Success(resultContext);
+            }
+
+            return StepResult.Failed(resultContext);
+        }
+
+        private async Task<MessagingContext> InsertReceivedAS4MessageAsync(MessagingContext messagingContext)
+        {
             using (DatastoreContext context = _createDatastoreContext())
             {
-                var repository = new DatastoreRepository(context);
-                var service = new InMessageService(repository);
+                var service = new InMessageService(new DatastoreRepository(context));
+                MessageExchangePattern mep = DetermineMessageExchangePattern(messagingContext);
 
-                var mep = DetermineMessageExchangePattern(messagingContext);
+                MessagingContext resultContext = await service
+                    .InsertAS4MessageAsync(messagingContext, mep, _messageBodyStore)
+                    .ConfigureAwait(false);
 
-                var resultContext = await service.InsertAS4MessageAsync(messagingContext, mep, _messageBodyStore, token).ConfigureAwait(false);
-                await context.SaveChangesAsync(token).ConfigureAwait(false);
+                await context.SaveChangesAsync().ConfigureAwait(false);
 
-                if (resultContext != null && resultContext.Exception == null)
-                {                    
-                    if (resultContext.AS4Message.IsSignalMessage &&
-                        String.IsNullOrWhiteSpace(resultContext.AS4Message.PrimarySignalMessage.RefToMessageId))
-                    {
-                        Logger.Info("The received message is a signal-message without RefToMessageId.  It cannot be processed any further.");
-                        return StepResult.Success(new MessagingContext(AS4Message.Empty, MessagingContextMode.Receive)).AndStopExecution();
-                    }
-
-                    return StepResult.Success(resultContext);
-                }
-                else
-                {
-                    return StepResult.Failed(resultContext);
-                }
+                return resultContext;
             }
         }
 
         private static MessageExchangePattern DetermineMessageExchangePattern(MessagingContext messagingContext)
         {
-            if (messagingContext.SendingPMode == null)
-            {
-                return MessageExchangePattern.Push;
-            }
-
-            if (messagingContext.SendingPMode.MepBinding == MessageExchangePatternBinding.Pull)
+            if (messagingContext.SendingPMode?.MepBinding == MessageExchangePatternBinding.Pull)
             {
                 return MessageExchangePattern.Pull;
             }

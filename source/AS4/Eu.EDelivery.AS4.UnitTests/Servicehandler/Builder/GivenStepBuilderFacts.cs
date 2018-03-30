@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Steps.Receive;
 using Eu.EDelivery.AS4.Steps.Send;
+using Eu.EDelivery.AS4.Steps.Submit;
 using Eu.EDelivery.AS4.UnitTests.Steps;
 using Xunit;
 
@@ -26,7 +28,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Servicehandler.Builder
                 Type expectedType = typeof(SinkStep);
 
                 // Act
-                IEnumerable<IStep> steps = 
+                IEnumerable<IStep> steps =
                     StepBuilder.FromSettings(CreatePipelineSteps(expectedCount, expectedType)).BuildSteps();
 
                 // Assert
@@ -36,7 +38,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Servicehandler.Builder
 
             private static Step[] CreatePipelineSteps(int amount, Type type)
             {
-                var stubStep = new Step {Type = type.AssemblyQualifiedName};
+                var stubStep = new Step { Type = type.AssemblyQualifiedName };
 
                 return Enumerable.Repeat(stubStep, amount).ToArray();
             }
@@ -56,7 +58,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Servicehandler.Builder
 
             private static Step[] CreateDefaultSettingSteps()
             {
-                return new[] {new Step {Type = typeof(EncryptAS4MessageStep).AssemblyQualifiedName}};
+                return new[] { new Step { Type = typeof(EncryptAS4MessageStep).AssemblyQualifiedName } };
             }
         }
 
@@ -66,7 +68,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Servicehandler.Builder
             public void BuildConditionalStep_AsList()
             {
                 // Arrange
-                ConditionalStepConfig config = CreateSimpleConditationStepConfig();
+                ConditionalStepConfig config = CreateSimpleConditationalStepConfig();
 
                 // Act
                 IEnumerable<IStep> step = StepBuilder.FromConditionalConfig(config).BuildSteps();
@@ -80,7 +82,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Servicehandler.Builder
             public void BuildConditionanStep_AsInstance()
             {
                 // Arrange
-                ConditionalStepConfig config = CreateSimpleConditationStepConfig();
+                ConditionalStepConfig config = CreateSimpleConditationalStepConfig();
 
                 // Act
                 IStep step = StepBuilder.FromConditionalConfig(config).Build();
@@ -95,12 +97,34 @@ namespace Eu.EDelivery.AS4.UnitTests.Servicehandler.Builder
                 Assert.IsType<ConditionalStep>(step);
             }
 
-            private static ConditionalStepConfig CreateSimpleConditationStepConfig()
+            private static ConditionalStepConfig CreateSimpleConditationalStepConfig()
             {
-                var thenStep = new[] {new Step {Type = typeof(DeterminePModesStep).AssemblyQualifiedName}};
-                var elseStep = new[] {new Step {Type = typeof(VerifySignatureAS4MessageStep).AssemblyQualifiedName}};
+                var thenStep = new[] { new Step { Type = typeof(DeterminePModesStep).AssemblyQualifiedName } };
+                var elseStep = new[] { new Step { Type = typeof(VerifySignatureAS4MessageStep).AssemblyQualifiedName } };
 
                 return new ConditionalStepConfig(null, thenStep, elseStep);
+            }
+        }
+
+        public class GivenInvalidConfigurableStepConfig : GivenStepBuilderFacts
+        {
+            [Fact]
+            public void NonConfigurableStepWithSettingsThrowsConfigurationException()
+            {
+                StepConfiguration config = CreateInvalidConfigurableStepConfig();
+
+                Assert.Throws<ConfigurationErrorsException>(() => StepBuilder.FromSettings(config.NormalPipeline).Build());
+            }
+
+            private static StepConfiguration CreateInvalidConfigurableStepConfig()
+            {
+                var step = new Step
+                {
+                    Type = typeof(DynamicDiscoveryStep).AssemblyQualifiedName,
+                    Setting = new[] { new Setting("SmpProfile", "someValue"), }
+                };
+
+                return new StepConfiguration() { NormalPipeline = new[] { step } };
             }
         }
     }

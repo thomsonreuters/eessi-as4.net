@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using Eu.EDelivery.AS4.Builders;
 using Eu.EDelivery.AS4.Model.Internal;
@@ -12,12 +13,12 @@ namespace Eu.EDelivery.AS4.Steps
     public class StepBuilder
     {
         private readonly Step[] _stepConfiguration;
-        private readonly ConditionalStepConfig _conditialStepConfig;
+        private readonly ConditionalStepConfig _conditionalStepConfig;
 
         private StepBuilder(Step[] stepConfiguration, ConditionalStepConfig conditionalStepConfig)
         {
             _stepConfiguration = stepConfiguration;
-            _conditialStepConfig = conditionalStepConfig;
+            _conditionalStepConfig = conditionalStepConfig;
         }
 
         /// <summary>
@@ -46,12 +47,12 @@ namespace Eu.EDelivery.AS4.Steps
         /// <returns></returns>
         public IStep Build()
         {
-            if (_conditialStepConfig != null)
+            if (_conditionalStepConfig != null)
             {
                 return new ConditionalStep(
-                    _conditialStepConfig.Condition,
-                    _conditialStepConfig.ThenSteps,
-                    _conditialStepConfig.ElseSteps);
+                    _conditionalStepConfig.Condition,
+                    _conditionalStepConfig.ThenSteps,
+                    _conditionalStepConfig.ElseSteps);
             }
 
             IStep[] steps = _stepConfiguration.Select(CreateInstance).ToArray();
@@ -64,12 +65,12 @@ namespace Eu.EDelivery.AS4.Steps
         /// <returns></returns>
         public IEnumerable<IStep> BuildSteps()
         {
-            if (_conditialStepConfig != null)
+            if (_conditionalStepConfig != null)
             {
                 var step = new ConditionalStep(
-                    _conditialStepConfig.Condition,
-                    _conditialStepConfig.ThenSteps,
-                    _conditialStepConfig.ElseSteps);
+                    _conditionalStepConfig.Condition,
+                    _conditionalStepConfig.ThenSteps,
+                    _conditionalStepConfig.ElseSteps);
 
                 return new[] {step};
             }
@@ -98,7 +99,14 @@ namespace Eu.EDelivery.AS4.Steps
 
         private static T CreateInstance<T>(string typeString, params object[] args) where T : class
         {
-            return GenericTypeBuilder.FromType(typeString).SetArgs(args).Build<T>();
+            var step =  GenericTypeBuilder.FromType(typeString).SetArgs(args).Build<T>();
+
+            if (step == null)
+            {
+                throw new ConfigurationErrorsException($"Unable to create {typeString} as an instance of {typeof(T).Name}");
+            }
+
+            return step;
         }
     }
 }

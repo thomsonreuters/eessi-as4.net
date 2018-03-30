@@ -1,5 +1,4 @@
-import { Component, Input, OnInit, SimpleChanges, ChangeDetectionStrategy, Optional } from '@angular/core';
-import { FormGroupName } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, Input, OnInit, Optional } from '@angular/core';
 
 import { RuntimeStore } from './../../settings/runtime.store';
 import { RuntimetoolTipDirective } from './../runtimetooltip.directive';
@@ -14,14 +13,16 @@ import { RuntimetoolTipDirective } from './../runtimetooltip.directive';
             </div>
         </div>
     `,
-    styles: [`
+    styles: [
+        `
         .isBoldLabel > label {
             font-weight: bold;
         }
         .tooltip-info {
             margin-left: 5px;
         }
-    `],
+    `
+    ],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class InputComponent implements OnInit {
@@ -32,13 +33,12 @@ export class InputComponent implements OnInit {
     @Input() public showLabel: boolean = true;
     @Input() public tooltip: string;
     @Input() public formGroupName: string;
-    constructor(private _runtimeStore: RuntimeStore, @Optional() private _tooltipDirective: RuntimetoolTipDirective) { }
+    constructor(private _runtimeStore: RuntimeStore, @Optional() private _tooltipDirective: RuntimetoolTipDirective) {}
     public ngOnInit() {
         if (!!!this._tooltipDirective) {
             return;
         }
-        this._runtimeStore
-            .changes
+        this._runtimeStore.changes
             .filter((state) => !!state && !!state.runtimeMetaData)
             .map((state) => state.runtimeMetaData)
             .take(1)

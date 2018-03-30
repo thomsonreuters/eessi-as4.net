@@ -8,7 +8,7 @@ using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Receivers
 {
-    public class StubReceiver : IReceiver
+    internal class StubReceiver : IReceiver
     {
         /// <summary>
         /// Configure the receiver with a given settings dictionary.

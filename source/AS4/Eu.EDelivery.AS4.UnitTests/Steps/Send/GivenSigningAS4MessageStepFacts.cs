@@ -160,7 +160,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             updateStore(stub);
 
             var sut = new SignAS4MessageStep(stub);
-            return await sut.ExecuteAsync(context, CancellationToken.None);
+            return await sut.ExecuteAsync(context);
         }
     }
 }

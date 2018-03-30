@@ -1,5 +1,4 @@
 ﻿using System.IO;
-using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Model.Core;
 
@@ -24,7 +23,7 @@ namespace Eu.EDelivery.AS4.Repositories
         /// </returns>
         string SaveAS4Message(string location, AS4Message message);
 
-        Task<string> SaveAS4MessageStreamAsync(string location, Stream as4MessageStream, CancellationToken cancellation);
+        Task<string> SaveAS4MessageStreamAsync(string location, Stream as4MessageStream);
 
         /// <summary>
         /// Updates an existing AS4 Message body.

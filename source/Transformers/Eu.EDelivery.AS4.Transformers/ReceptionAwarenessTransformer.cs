@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Internal;
@@ -26,15 +25,14 @@ namespace Eu.EDelivery.AS4.Transformers
         /// Transform the given Message
         /// </summary>
         /// <param name="message"></param>
-        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<MessagingContext> TransformAsync(ReceivedMessage message, CancellationToken cancellationToken)
+        public async Task<MessagingContext> TransformAsync(ReceivedMessage message)
         {
             ReceivedEntityMessage entityMessage = RetrieveEntityMessage(message);
             ReceptionAwareness awareness = RetrieveReceptionAwareness(entityMessage);
             var messagingContext = new MessagingContext(awareness);
 
-            Logger.Info($"[{awareness.InternalMessageId}] Reception Awareness is successfully transformed");
+            Logger.Info($"[{awareness.RefToEbmsMessageId}] Reception Awareness is successfully transformed");
             return await Task.FromResult(messagingContext);
         }
 

@@ -52,9 +52,8 @@ namespace Eu.EDelivery.AS4.Steps.Send.Response
         /// </summary>
         /// <param name="requestMessage"></param>
         /// <param name="webResponse"></param>
-        /// <param name="cancellation"></param>
         /// <returns></returns>
-        public static async Task<AS4Response> Create(MessagingContext requestMessage, HttpWebResponse webResponse, CancellationToken cancellation)
+        public static async Task<AS4Response> Create(MessagingContext requestMessage, HttpWebResponse webResponse)
         {
             var response = new AS4Response(requestMessage, webResponse);
 
@@ -66,7 +65,7 @@ namespace Eu.EDelivery.AS4.Steps.Send.Response
             contentStream.Position = 0;
 
             response.ReceivedStream = new ReceivedMessage(contentStream, webResponse.ContentType);
-            response.ReceivedAS4Message = await TryDeserializeReceivedStream(response.ReceivedStream, cancellation);
+            response.ReceivedAS4Message = await TryDeserializeReceivedStream(response.ReceivedStream, CancellationToken.None);
 
             if (Logger.IsInfoEnabled)
             {
@@ -81,19 +80,9 @@ namespace Eu.EDelivery.AS4.Steps.Send.Response
 
         private static void LogReceivedAS4Response(AS4Message as4Message)
         {
-            foreach (var mu in as4Message.MessageUnits)
+            foreach (MessageUnit mu in as4Message.MessageUnits)
             {
-                string messageType = "";
-
-                if (mu is Receipt)
-                {
-                    messageType = "Receipt";
-                }
-                else if (mu is Error)
-                {
-                    messageType = "Error";
-                }
-                Logger.Info($"{messageType} received for message with ebMS Id {mu.RefToMessageId}");
+                Logger.Info($"{mu.GetType().Name} Message Response received for message with ebMS Id {mu.RefToMessageId}");
             }
         }
 

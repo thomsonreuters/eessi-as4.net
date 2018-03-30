@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
-using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Extensions;
@@ -24,7 +24,11 @@ namespace Eu.EDelivery.AS4.Transformers
         private readonly IConfig _config;
         private static MimeTypeRepository _mimeTypeRepository;
 
-        private string _pmodeId;
+        private IDictionary<string, string> _properties;
+
+        [Info("Sending Processing Mode", required: true, type: "sendingpmode")]
+        [Description("Sending Processing Mode identifier to indicate which default Processing Mode should be used to create a default SubmitMessage during the transformation of a Payload to a SubmitMessage.")]
+        private string SendingPMode => _properties.ReadMandatoryProperty("SendingPMode");
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SubmitPayloadTransformer"/> class.
@@ -49,18 +53,17 @@ namespace Eu.EDelivery.AS4.Transformers
         /// <param name="properties">The properties.</param>
         public void Configure(IDictionary<string, string> properties)
         {
-            _pmodeId = properties.ReadMandatoryProperty("SendingPMode");
+            _properties = properties;
         }
 
         /// <summary>
         /// Transform a given <see cref="ReceivedMessage"/> to a Canonical <see cref="MessagingContext"/> instance.
         /// </summary>
         /// <param name="message">Given message to transform.</param>
-        /// <param name="cancellationToken">Cancellation which stops the transforming.</param>
         /// <returns></returns>
-        public Task<MessagingContext> TransformAsync(ReceivedMessage message, CancellationToken cancellationToken)
+        public Task<MessagingContext> TransformAsync(ReceivedMessage message)
         {
-            SendingProcessingMode sendingPMode = _config.GetSendingPMode(_pmodeId);
+            SendingProcessingMode sendingPMode = _config.GetSendingPMode(id: SendingPMode);
 
             (string payloadId, string payloadPath) = GetPayloadInfo(message);
 

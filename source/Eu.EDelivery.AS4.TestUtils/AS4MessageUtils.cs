@@ -2,12 +2,10 @@
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Builders.Security;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Security.Encryption;
 using Eu.EDelivery.AS4.Security.References;
 using Eu.EDelivery.AS4.Security.Signing;
-using Eu.EDelivery.AS4.Security.Strategies;
 using Eu.EDelivery.AS4.Serialization;
 
 namespace Eu.EDelivery.AS4.TestUtils
@@ -21,19 +19,14 @@ namespace Eu.EDelivery.AS4.TestUtils
                 Constants.SignAlgorithms.Sha256,
                 Constants.HashFunctions.Sha256);
 
-            var signer = SignStrategy.ForAS4Message(message, config);
-
-            message.SecurityHeader.Sign(signer);
+            message.Sign(config);
 
             return message;
         }
 
         public static AS4Message EncryptWithCertificate(AS4Message message, X509Certificate2 certificate)
         {
-            var encryption = EncryptionStrategyBuilder.Create(message, new KeyEncryptionConfiguration(certificate))
-                                                      .Build();
-
-            message.SecurityHeader.Encrypt(encryption);
+            message.Encrypt(new KeyEncryptionConfiguration(certificate), DataEncryptionConfiguration.Default);
 
             return message;
         }

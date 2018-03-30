@@ -1,6 +1,5 @@
 using System;
 using System.ComponentModel;
-using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
@@ -20,14 +19,12 @@ namespace Eu.EDelivery.AS4.Steps.Notify
         private readonly Func<DatastoreContext> _createDatastoreContext;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="NotifyUpdateDatastoreStep"/> class.
+        /// Initializes a new instance of the <see cref="NotifyUpdateDatastoreStep" /> class.
         /// </summary>
-        public NotifyUpdateDatastoreStep() : this(Registry.Instance.CreateDatastoreContext)
-        {
-        }
+        public NotifyUpdateDatastoreStep() : this(Registry.Instance.CreateDatastoreContext) { }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="NotifyUpdateDatastoreStep"/> class.
+        /// Initializes a new instance of the <see cref="NotifyUpdateDatastoreStep" /> class.
         /// </summary>
         public NotifyUpdateDatastoreStep(Func<DatastoreContext> createDatastoreContext)
         {
@@ -38,20 +35,19 @@ namespace Eu.EDelivery.AS4.Steps.Notify
         /// Start updating the Data store for the <see cref="NotifyMessage"/>
         /// </summary>
         /// <param name="messagingContext"></param>
-        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
             var notifyMessage = messagingContext.NotifyMessage;
             Logger.Info($"{messagingContext.EbmsMessageId} Update Notify Message {notifyMessage.MessageInfo.MessageId}");
 
-            await UpdateDatastoreAsync(notifyMessage).ConfigureAwait(false);
+            await UpdateDatastoreAsync(notifyMessage, messagingContext).ConfigureAwait(false);
             return await StepResult.SuccessAsync(messagingContext);
         }
 
-        private async Task UpdateDatastoreAsync(NotifyMessageEnvelope notifyMessage)
+        private async Task UpdateDatastoreAsync(NotifyMessageEnvelope notifyMessage, MessagingContext messagingContext)
         {
-            using (var context = _createDatastoreContext())
+            using (DatastoreContext context = _createDatastoreContext())
             {
                 var repository = new DatastoreRepository(context);
 
@@ -63,9 +59,9 @@ namespace Eu.EDelivery.AS4.Steps.Notify
                         m.SetOperation(Operation.Notified);
                     });
                 }
-                else if (notifyMessage.EntityType == typeof(OutMessage))
+                else if (notifyMessage.EntityType == typeof(OutMessage) && messagingContext.MessageEntityId != null)
                 {
-                    repository.UpdateOutMessage(notifyMessage.MessageInfo.MessageId, m =>
+                    repository.UpdateOutMessage(messagingContext.MessageEntityId.Value, m =>
                     {
                         m.SetStatus(OutStatus.Notified);
                         m.SetOperation(Operation.Notified);
@@ -73,11 +69,11 @@ namespace Eu.EDelivery.AS4.Steps.Notify
                 }
                 else if (notifyMessage.EntityType == typeof(InException))
                 {
-                    repository.UpdateInException(notifyMessage.MessageInfo.RefToMessageId, UpdateNotifiedException);
+                    repository.UpdateInException(notifyMessage.MessageInfo.RefToMessageId, ex => ex.SetOperation(Operation.Notified));
                 }
                 else if (notifyMessage.EntityType == typeof(OutException))
                 {
-                    repository.UpdateOutException(notifyMessage.MessageInfo.RefToMessageId, UpdateNotifiedException);
+                    repository.UpdateOutException(notifyMessage.MessageInfo.RefToMessageId, ex => ex.SetOperation(Operation.Notified));
                 }
                 else
                 {
@@ -86,11 +82,6 @@ namespace Eu.EDelivery.AS4.Steps.Notify
 
                 await context.SaveChangesAsync().ConfigureAwait(false);
             }
-        }
-
-        private static void UpdateNotifiedException(ExceptionEntity exceptionMessage)
-        {
-            exceptionMessage.SetOperation(Operation.Notified);
         }
     }
 }

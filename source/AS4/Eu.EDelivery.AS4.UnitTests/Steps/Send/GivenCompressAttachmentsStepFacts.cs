@@ -87,7 +87,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             var sut = new CompressAttachmentsStep();
 
             // Act
-            return await sut.ExecuteAsync(context, CancellationToken.None);
+            return await sut.ExecuteAsync(context);
         }
     }
 }

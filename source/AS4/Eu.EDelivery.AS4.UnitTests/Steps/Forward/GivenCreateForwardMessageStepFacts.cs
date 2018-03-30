@@ -135,7 +135,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Forward
             {
                 var sut = new CreateForwardMessageStep(StubConfig.Default, Store, GetDataStoreContext);
 
-                await sut.ExecuteAsync(messagingContext, CancellationToken.None);
+                await sut.ExecuteAsync(messagingContext);
             }
         }
 

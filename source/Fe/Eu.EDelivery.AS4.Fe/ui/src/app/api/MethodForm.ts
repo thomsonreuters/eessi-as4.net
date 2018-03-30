@@ -1,9 +1,9 @@
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Validators } from '@angular/forms';
 
+import { FormWrapper } from './../common/form.service';
 import { ItemType } from './ItemType';
 import { Method } from './Method';
 import { ParameterForm } from './ParameterForm';
-import { FormWrapper } from './../common/form.service';
 
 export class MethodForm {
     public static getForm(formBuilder: FormWrapper, current: Method | null, path: string, runtime: ItemType[], isDisabled?: boolean): FormWrapper {

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace Eu.EDelivery.AS4.ComponentTests.Common
 {
@@ -142,6 +143,17 @@ namespace Eu.EDelivery.AS4.ComponentTests.Common
             {
                 return selector(context);
             }
-        } 
+        }
+
+        internal void ClearDatabase()
+        {
+            using (var context = new DatastoreContext(_configuration))
+            {
+                context.Database.ExecuteSqlCommand("DELETE FROM InExceptions");
+                context.Database.ExecuteSqlCommand("DELETE FROM OutExceptions");
+                context.Database.ExecuteSqlCommand("DELETE FROM InMessages");
+                context.Database.ExecuteSqlCommand("DELETE FROM OutMessages");
+            }
+        }
     }
 }

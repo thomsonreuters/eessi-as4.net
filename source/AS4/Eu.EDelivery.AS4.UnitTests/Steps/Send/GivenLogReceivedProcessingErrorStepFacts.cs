@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
@@ -49,8 +48,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             var sut = new LogReceivedProcessingErrorStep(GetDataStoreContext);
 
             await sut.ExecuteAsync(
-                new MessagingContext(as4Message, MessagingContextMode.Send) { ErrorResult = error },
-                default(CancellationToken));
+                new MessagingContext(as4Message, MessagingContextMode.Send) { ErrorResult = error });
         }
     }
 }

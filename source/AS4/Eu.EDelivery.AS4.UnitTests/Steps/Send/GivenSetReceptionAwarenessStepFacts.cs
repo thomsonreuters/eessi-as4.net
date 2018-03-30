@@ -1,6 +1,6 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
@@ -34,20 +34,21 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             {
                 // Arrange
                 const string messageId = "message-id";
-                AS4.Model.PMode.ReceptionAwareness receptionAwareness = CreatePModeReceptionAwareness();
-                MessagingContext messagingContext = CreateDefaultInternalMessage(messageId, receptionAwareness);
+                var pmodeWithReceptionAwareness = CreatePModeWithReceptionAwareness();
+
+                MessagingContext messagingContext = SetupMessagingContext(messageId, pmodeWithReceptionAwareness);
                 var step = new SetReceptionAwarenessStep();
 
                 // Act                
-                await step.ExecuteAsync(messagingContext, CancellationToken.None);
+                await step.ExecuteAsync(messagingContext);
 
                 // Assert
                 AssertReceptionAwareness(
                     messageId,
                     awareness =>
                     {
-                        Assert.Equal(receptionAwareness.RetryCount, awareness.TotalRetryCount);
-                        Assert.Equal(receptionAwareness.RetryInterval, awareness.RetryInterval);
+                        Assert.Equal(pmodeWithReceptionAwareness.Reliability.ReceptionAwareness.RetryCount, awareness.TotalRetryCount);
+                        Assert.Equal(pmodeWithReceptionAwareness.Reliability.ReceptionAwareness.RetryInterval, awareness.RetryInterval);
                     });
             }
 
@@ -56,7 +57,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
                 using (DatastoreContext context = GetDataStoreContext())
                 {
                     EntityReceptionAwareness receptionAwareness =
-                        context.ReceptionAwareness.FirstOrDefault(a => a.InternalMessageId.Equals(messageId));
+                        context.ReceptionAwareness.FirstOrDefault(a => a.RefToEbmsMessageId.Equals(messageId));
 
                     Assert.NotNull(receptionAwareness);
                     Assert.Equal(-1, receptionAwareness.CurrentRetryCount);
@@ -67,21 +68,52 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
                 }
             }
 
-            private static MessagingContext CreateDefaultInternalMessage(
+            private MessagingContext SetupMessagingContext(
                 string messageId,
-                AS4.Model.PMode.ReceptionAwareness receptionAwareness)
+                SendingProcessingMode sendingPMode)
             {
-                var pmode = new SendingProcessingMode { Reliability = { ReceptionAwareness = receptionAwareness } };
                 var userMessage = new UserMessage(messageId);
-                AS4Message as4Message = AS4Message.Create(userMessage, pmode);
+                AS4Message as4Message = AS4Message.Create(userMessage, sendingPMode);
 
-                return new MessagingContext(as4Message, MessagingContextMode.Unknown) { SendingPMode = pmode };
+                OutMessage outMessage;
+
+                using (var dbContext = GetDataStoreContext())
+                {
+                    outMessage = new OutMessage(messageId);
+                    outMessage.SetPModeInformation(sendingPMode);
+
+                    dbContext.OutMessages.Add(outMessage);
+
+                    dbContext.SaveChanges();
+                }
+
+                var receivedMessage = new ReceivedMessageEntityMessage(outMessage, Stream.Null, as4Message.ContentType);
+
+                var context = new MessagingContext(receivedMessage, MessagingContextMode.Unknown)
+                {
+                    SendingPMode = sendingPMode
+                };
+
+                context.ModifyContext(as4Message);
+
+                return context;
             }
         }
 
-        protected AS4.Model.PMode.ReceptionAwareness CreatePModeReceptionAwareness()
+        protected SendingProcessingMode CreatePModeWithReceptionAwareness()
         {
-            return new AS4.Model.PMode.ReceptionAwareness { IsEnabled = true, RetryCount = 3, RetryInterval = "00:05:00" };
+            var receptionAwarenessSetting =
+                new AS4.Model.PMode.ReceptionAwareness
+                {
+                    IsEnabled = true,
+                    RetryCount = 3,
+                    RetryInterval = "00:05:00"
+                };
+
+            return new SendingProcessingMode
+            {
+                Reliability = { ReceptionAwareness = receptionAwarenessSetting }
+            };
         }
     }
 }

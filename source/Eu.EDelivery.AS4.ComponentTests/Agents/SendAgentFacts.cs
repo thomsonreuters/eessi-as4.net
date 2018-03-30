@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -40,6 +39,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         protected override void Disposing(bool isDisposing)
         {
             _as4Msh.Dispose();
+            _databaseSpy.ClearDatabase();
         }
 
         [Fact]
@@ -70,7 +70,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             Assert.NotEmpty(_databaseSpy.GetInExceptions(m => m.EbmsRefToMessageId == ebmsMessageId));
         }
 
-        public async Task TestReceiveNRReceiptWith(string ebmsMessageId, Func<int, int> selection)
+        private async Task TestReceiveNRReceiptWith(string ebmsMessageId, Func<int, int> selection)
         {
             SendingProcessingMode nrrPMode = VerifyNRReceiptsPMode();
             X509Certificate2 cert = new StubCertificateRepository().GetStubCertificate();
@@ -92,8 +92,8 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             return new SendingProcessingMode
             {
                 Id = "verify-nrr",
-                PushConfiguration = new PushConfiguration {Protocol = {Url = StubListenLocation}},
-                ReceiptHandling = {VerifyNRR = true}
+                PushConfiguration = new PushConfiguration { Protocol = { Url = StubListenLocation } },
+                ReceiptHandling = { VerifyNRR = true }
             };
         }
 
@@ -118,7 +118,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                 {
                     Reference = new Reference
                     {
-                        DigestValue = i.Reference.DigestValue.Select(v => (byte) selection(v)).ToArray(),
+                        DigestValue = i.Reference.DigestValue.Select(v => (byte)selection(v)).ToArray(),
                         DigestMethod = i.Reference.DigestMethod,
                         Transforms = i.Reference.Transforms,
                         URI = i.Reference.URI
@@ -212,7 +212,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             using (MessagingContext context = new MessagingContext(message, MessagingContextMode.Receive))
             {
                 var createReceipt = new CreateAS4ReceiptStep();
-                var result = createReceipt.ExecuteAsync(context, CancellationToken.None).Result;
+                var result = createReceipt.ExecuteAsync(context).Result;
 
                 Assert.True(result.Succeeded, "Unable to create Receipt");
                 Assert.True(result.MessagingContext.AS4Message.IsMultiHopMessage, "Receipt is not created as a multihop receipt");
@@ -223,7 +223,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
         private static SendingProcessingMode CreateMultihopPMode(string sendToUrl)
         {
-            var pmode = new SendingProcessingMode()
+            return new SendingProcessingMode()
             {
                 Id = "PMode-Id",
                 PushConfiguration = new PushConfiguration()
@@ -267,8 +267,6 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                 }
 
             };
-
-            return pmode;
         }
     }
 }

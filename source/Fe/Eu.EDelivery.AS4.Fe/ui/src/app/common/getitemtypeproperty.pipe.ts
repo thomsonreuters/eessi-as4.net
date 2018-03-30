@@ -26,10 +26,14 @@ export class GetItemTypePropertyPipe implements PipeTransform {
     name: 'gettype'
 })
 export class GetTypePipe implements PipeTransform {
-    public transform(itemTypes: ItemType[], itemType: string): ItemType | undefined {
+    public transform(itemTypes: ItemType[], itemType: string, useTechnicalName: boolean = false): ItemType | undefined {
         if (!!!itemTypes) {
             return undefined;
         }
-        return itemTypes.find((search) => search.name.toLowerCase() === itemType.toLowerCase());
+        if (useTechnicalName) {
+            return itemTypes.find((search) => search.technicalName.toLowerCase() === itemType.toLowerCase());
+        } else {
+            return itemTypes.find((search) => search.name.toLowerCase() === itemType.toLowerCase());
+        }
     }
 }

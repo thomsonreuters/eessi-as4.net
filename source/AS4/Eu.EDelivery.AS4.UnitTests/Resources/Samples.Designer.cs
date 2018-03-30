@@ -19,7 +19,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Resources {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "4.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class Samples {
@@ -62,13 +62,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Resources {
         
         /// <summary>
         ///   Looks up a localized string similar to &lt;!-- Source: http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/profiles/AS4-profile/v1.0/os/AS4-profile-v1.0-os.html --&gt;
+        ///&lt;!--
         ///&lt;S12:Envelope
-        ///    xmlns:S12=&quot;http://www.w3.org/2003/05/soap-envelope&quot;
-        ///    xmlns:wsse=&quot;http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd&quot;
-        ///    xmlns:wsu=&quot;http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd&quot;
-        ///    xmlns:eb=&quot;http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/&quot; &gt;
+        ///  xmlns:S12=&quot;http://www.w3.org/2003/05/soap-envelope&quot;
+        ///  xmlns:wsse=&quot;http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd&quot;
+        ///  xmlns:wsu=&quot;http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd&quot;
+        ///  xmlns:eb=&quot;http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/&quot;&gt;
         ///  &lt;S12:Header&gt;
-        ///    &lt;eb:Messaging S12:mu [rest of string was truncated]&quot;;.
+        ///    &lt;eb:Messaging S12:mustU [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string UserMessage {
             get {

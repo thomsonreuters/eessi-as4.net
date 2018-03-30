@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Eu.EDelivery.AS4.Migrations
@@ -13,7 +12,7 @@ namespace Eu.EDelivery.AS4.Migrations
                 columns: table => new
                 {
                     Id = table.Column<long>(nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
+                              .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     Action = table.Column<string>(maxLength: 256, nullable: true),
                     EncryptAlgorithm = table.Column<string>(maxLength: 256, nullable: true),
                     EncryptAlgorithmKeySize = table.Column<int>(nullable: false),
@@ -21,6 +20,7 @@ namespace Eu.EDelivery.AS4.Migrations
                     EncryptKeyMgfAlorithm = table.Column<string>(nullable: true),
                     EncryptKeyTransportAlgorithm = table.Column<string>(maxLength: 256, nullable: true),
                     EncryptPublicKeyCertificate = table.Column<byte[]>(maxLength: int.MaxValue, nullable: true),
+                    EncryptPublicKeyCertificateName = table.Column<string>(maxLength: 256, nullable: true),
                     EncryptionEnabled = table.Column<bool>(nullable: false),
                     FinalRecipient = table.Column<string>(maxLength: 256, nullable: true),
                     PartyRole = table.Column<string>(maxLength: 256, nullable: false),
@@ -29,13 +29,18 @@ namespace Eu.EDelivery.AS4.Migrations
                     ServiceValue = table.Column<string>(maxLength: 256, nullable: true),
                     TLSEnabled = table.Column<bool>(nullable: false),
                     ToPartyId = table.Column<string>(maxLength: 256, nullable: false),
-                    URL = table.Column<string>(maxLength: 256, nullable: false)
+                    URL = table.Column<string>(maxLength: 2083, nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_SmpConfigurations", x => x.Id);
-                    table.UniqueConstraint("AK_SmpConfigurations_ToPartyId_PartyRole_PartyType", x => new { x.ToPartyId, x.PartyRole, x.PartyType });
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SmpConfigurations_ToPartyId_PartyRole_PartyType",
+                table: "SmpConfigurations",
+                columns: new[] {"ToPartyId", "PartyRole", "PartyType"},
+                unique: true);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

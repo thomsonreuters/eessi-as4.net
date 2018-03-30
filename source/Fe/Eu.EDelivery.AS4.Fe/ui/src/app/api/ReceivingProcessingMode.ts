@@ -1,12 +1,10 @@
 /* tslint:disable */
-import { ReplyHandlingSetting } from './ReplyHandlingSetting';
-import { ReceiveReliability } from "./ReceiveReliability";
-import { ReceiveErrorHandling } from "./ReceiveErrorHandling";
-import { Receivehandling } from "./Receivehandling";
-import { ReceiveSecurity } from "./ReceiveSecurity";
-import { MessagePackaging } from "./MessagePackaging";
-import { Deliver } from "./Deliver";
 import { MessageHandling } from './MessageHandling';
+import { MessagePackaging } from './MessagePackaging';
+import { Receivehandling } from './Receivehandling';
+import { ReceiveReliability } from './ReceiveReliability';
+import { ReceiveSecurity } from './ReceiveSecurity';
+import { ReplyHandlingSetting } from './ReplyHandlingSetting';
 
 export class ReceivingProcessingMode {
     id: string;
@@ -15,7 +13,6 @@ export class ReceivingProcessingMode {
     exceptionHandling: Receivehandling = new Receivehandling();
     security: ReceiveSecurity = new ReceiveSecurity();
     messagePackaging: MessagePackaging = new MessagePackaging();
-    deliver: Deliver = new Deliver();
     messageHandling: MessageHandling = new MessageHandling();
 
     static FIELD_id: string = 'id';

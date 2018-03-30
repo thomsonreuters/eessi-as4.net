@@ -19,7 +19,7 @@ import '../theme/js/app.js';
     styleUrls: ['./app.component.scss'],
     template: `    
         <as4-modal name="default"></as4-modal>
-        <as4-modal name="prompt" #promptDialog (shown)="input.focus(); promptDialog.result = ''">
+        <as4-modal name="prompt" #promptDialog (shown)="input.focus();">
             <input type="text" class="form-control" #input [value]="promptDialog.result" (keyup)="promptDialog.result = $event.target.value"/>             
         </as4-modal>
         <as4-modal name="error" showDefaultButtons="false" #errorDialog>

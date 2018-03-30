@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
@@ -22,9 +21,8 @@ namespace Eu.EDelivery.AS4.Transformers
         /// Transform a given <see cref="ReceivedMessage" /> to a Canonical <see cref="MessagingContext" /> instance.
         /// </summary>
         /// <param name="message">Given message to transform.</param>
-        /// <param name="cancellationToken">Cancellation which stops the transforming.</param>
         /// <returns></returns>
-        public async Task<MessagingContext> TransformAsync(ReceivedMessage message, CancellationToken cancellationToken)
+        public async Task<MessagingContext> TransformAsync(ReceivedMessage message)
         {
             var entityMessage = message as ReceivedMessageEntityMessage;
 
@@ -36,7 +34,7 @@ namespace Eu.EDelivery.AS4.Transformers
 
             // Get the AS4Message that is referred to by this entityMessage and modify it so that it just contains
             // the one usermessage that should be delivered.
-            MessagingContext transformedMessage = await RetrieveAS4Message(entityMessage, cancellationToken);
+            MessagingContext transformedMessage = await RetrieveAS4Message(entityMessage);
 
             if (transformedMessage.AS4Message.UserMessages.Any() == false)
             {
@@ -51,15 +49,11 @@ namespace Eu.EDelivery.AS4.Transformers
         /// a single UserMessage.
         /// </summary>
         /// <param name="entityMessage"></param>
-        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        private static async Task<MessagingContext> RetrieveAS4Message(
-            ReceivedMessageEntityMessage entityMessage,
-            CancellationToken cancellationToken)
+        private static async Task<MessagingContext> RetrieveAS4Message(ReceivedMessageEntityMessage entityMessage)
         {
             var as4Transformer = new AS4MessageTransformer();
-            MessagingContext messagingContext = await as4Transformer.TransformAsync(entityMessage, cancellationToken);
-
+            MessagingContext messagingContext = await as4Transformer.TransformAsync(entityMessage);
 
             AS4Message as4Message = RemoveUnnecessaryMessages(
                 messagingContext.AS4Message,

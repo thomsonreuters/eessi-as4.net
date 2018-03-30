@@ -1,15 +1,13 @@
 ﻿using System;
-using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Common;
-using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Deliver;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Steps.Deliver;
 using Eu.EDelivery.AS4.Strategies.Sender;
+using Eu.EDelivery.AS4.UnitTests.Extensions;
 using Eu.EDelivery.AS4.UnitTests.Strategies.Sender;
 using Moq;
 using Xunit;
@@ -29,7 +27,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
             IStep sut = CreateSendDeliverStepWithSender(new SaboteurSender());
 
             // Act
-            await Assert.ThrowsAnyAsync<Exception>(() => sut.ExecuteAsync(messagingContext, CancellationToken.None));
+            await Assert.ThrowsAnyAsync<Exception>(() => sut.ExecuteAsync(messagingContext));
         }
 
         [Fact]
@@ -43,7 +41,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
             IStep sut = CreateSendDeliverStepWithSender(spySender);
 
             // Act
-            await sut.ExecuteAsync(messagingContext, CancellationToken.None);
+            await sut.ExecuteAsync(messagingContext);
 
             // Assert
             Mock.Get(spySender).Verify(s => s.SendAsync(It.IsAny<DeliverMessageEnvelope>()), Times.Once);
@@ -59,16 +57,19 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
 
         private static MessagingContext EmptyDeliverMessageEnvelope()
         {
-            var deliverMessage = new DeliverMessageEnvelope(new MessageInfo(), new byte[] { }, string.Empty);
-
-            return new MessagingContext(deliverMessage);
+            return new MessagingContext(
+                new DeliverMessageEnvelope(
+                    messageInfo: new MessageInfo(), 
+                    deliverMessage: new byte[] { }, 
+                    contentType: string.Empty));
         }
 
         private static ReceivingProcessingMode CreateDefaultReceivingPMode()
         {
-            var pmode = new ReceivingProcessingMode();
-            pmode.MessageHandling.DeliverInformation.DeliverMethod = new Method();
-            return pmode;            
+            return new ReceivingProcessingMode
+            {
+                MessageHandling = {DeliverInformation = {DeliverMethod = new Method()}}
+            };
         }
     }
 }

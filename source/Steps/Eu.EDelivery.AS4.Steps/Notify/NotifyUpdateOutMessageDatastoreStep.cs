@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
@@ -17,44 +16,33 @@ namespace Eu.EDelivery.AS4.Steps.Notify
     [NotConfigurable]
     public class NotifyUpdateOutMessageDatastoreStep : IStep
     {
-        private readonly ILogger _logger;
-
-        public NotifyUpdateOutMessageDatastoreStep()
-        {
-            _logger = LogManager.GetCurrentClassLogger();
-        }
+        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 
         /// <summary>
         /// Start updating the Data store for the <see cref="NotifyMessage"/>
         /// </summary>
         /// <param name="messagingContext"></param>
-        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
-            var notifyMessage = messagingContext.NotifyMessage;
-            _logger.Info($"{messagingContext.EbmsMessageId} Update Notify Message {notifyMessage.MessageInfo.MessageId}");
+            NotifyMessageEnvelope notifyMessage = messagingContext.NotifyMessage;
+            Logger.Info($"{messagingContext.EbmsMessageId} Update Notify Message {notifyMessage.MessageInfo.MessageId}");
 
-            await UpdateDatastoreAsync(notifyMessage).ConfigureAwait(false);
-            return await StepResult.SuccessAsync(messagingContext);
-
-        }
-
-        private static async Task UpdateDatastoreAsync(NotifyMessageEnvelope notifyMessage)
-        {
-            using (var context = Registry.Instance.CreateDatastoreContext())
+            using (DatastoreContext context = Registry.Instance.CreateDatastoreContext())
             {
                 var repository = new DatastoreRepository(context);
-                repository.UpdateOutMessage(notifyMessage.MessageInfo.MessageId, UpdateNotifiedOutMessage);
+                repository.UpdateOutMessage(
+                    messagingContext.MessageEntityId.Value,
+                    m =>
+                    {
+                        m.SetStatus(OutStatus.Notified);
+                        m.SetOperation(Operation.Notified);
+                    });
 
                 await context.SaveChangesAsync().ConfigureAwait(false);
             }
-        }
+            return await StepResult.SuccessAsync(messagingContext);
 
-        private static void UpdateNotifiedOutMessage(OutMessage outMessage)
-        {
-            outMessage.SetStatus(OutStatus.Notified);
-            outMessage.SetOperation(Operation.Notified);
         }
     }
 }

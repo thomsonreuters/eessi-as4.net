@@ -29,7 +29,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             var sut = new VerifyPullRequestAuthorizationStep(stubMap);
 
             // Act
-            StepResult result = await sut.ExecuteAsync(context, CancellationToken.None);
+            StepResult result = await sut.ExecuteAsync(context);
 
             // Assert
             Assert.True(result.CanProceed);
@@ -48,7 +48,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             var sut = new VerifyPullRequestAuthorizationStep(stubMap);
 
             // Act and assert.
-            await Assert.ThrowsAsync<SecurityException>(() => sut.ExecuteAsync(context, CancellationToken.None));
+            await Assert.ThrowsAsync<SecurityException>(() => sut.ExecuteAsync(context));
         }
 
         private static X509Certificate2 GetSigningCertificate()

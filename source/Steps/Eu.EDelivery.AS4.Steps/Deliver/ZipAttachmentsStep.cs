@@ -2,7 +2,6 @@
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
@@ -15,8 +14,8 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
     /// <summary>
     /// <see cref="IStep"/> implementation to .zip the attachments to one file
     /// </summary>
+    [Info("Zip payloads in one archive")]
     [Description("If the received AS4 Message contains multiple attachments, then this step zips them into one payload.")]
-    [Info("If the received AS4 Message contains multiple attachments, then this step zips them into one payload.")]
     public class ZipAttachmentsStep : IStep
     {
         private readonly IMimeTypeRepository _repository;
@@ -33,27 +32,19 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         /// Start zipping <see cref="Attachment"/> Models
         /// </summary>
         /// <param name="messagingContext"></param>
-        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
-            if (HasAS4MessageMultipleAttachments(messagingContext.AS4Message))
+            if (messagingContext.AS4Message.Attachments.Count() > 1)
             {
                 Stream zippedStream = await ZipAttachmentsInAS4Message(messagingContext.AS4Message).ConfigureAwait(false);
-
                 Attachment zipAttachment = CreateZippedAttachment(zippedStream);
 
                 OverwriteAttachmentEntries(messagingContext.AS4Message, zipAttachment);
             }
 
             LogManager.GetCurrentClassLogger().Info($"{messagingContext.EbmsMessageId} Zip the Attachments to a single file");
-
-            return await StepResult.SuccessAsync(messagingContext).ConfigureAwait(false);
-        }
-
-        private static bool HasAS4MessageMultipleAttachments(AS4Message as4Message)
-        {
-            return as4Message.Attachments.Count() > 1;
+            return StepResult.Success(messagingContext);
         }
 
         private async Task<Stream> ZipAttachmentsInAS4Message(AS4Message message)
@@ -70,20 +61,13 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
             }
 
             stream.Position = 0;
-
             return stream;
         }
 
         private ZipArchiveEntry CreateAttachmentEntry(ZipArchive archive, Attachment attachment)
         {
-            string entryName = GetAttachmentEntryName(attachment);
-            ZipArchiveEntry entry = archive.CreateEntry(entryName, CompressionLevel.Optimal);
-            return entry;
-        }
-
-        private string GetAttachmentEntryName(Attachment attachment)
-        {
-            return attachment.Id + _repository.GetExtensionFromMimeType(attachment.ContentType);
+            string entryName = attachment.Id + _repository.GetExtensionFromMimeType(attachment.ContentType);
+            return archive.CreateEntry(entryName, CompressionLevel.Optimal);
         }
 
         private static async Task AddAttachmentStreamToEntry(Stream attachmentStream, ZipArchiveEntry entry)

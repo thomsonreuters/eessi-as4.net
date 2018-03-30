@@ -1,6 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
-using System.Threading;
+using System.Linq;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Model.Internal;
@@ -29,7 +29,7 @@ namespace Eu.EDelivery.AS4.Steps.Notify
         /// Initializes a new instance of the <see cref="SendNotifyMessageStep"/> class
         /// </summary>
         public SendNotifyMessageStep()
-            : this(Registry.Instance.NotifySenderProvider, Registry.Instance.CreateDatastoreContext) {}
+            : this(Registry.Instance.NotifySenderProvider, Registry.Instance.CreateDatastoreContext) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SendNotifyMessageStep" /> class.
@@ -50,50 +50,58 @@ namespace Eu.EDelivery.AS4.Steps.Notify
         /// to the consuming business application
         /// </summary>
         /// <param name="messagingContext"></param>
-        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
-            Logger.Info($"{messagingContext.EbmsMessageId} Start sending Notify Message...");
-
             if (messagingContext.SendingPMode == null)
             {
-                SendingProcessingMode pmode = RetrieveSendingPMode(messagingContext);
+                SendingProcessingMode pmode =
+                    RetrieveSendingPModeForMessageWithEbmsMessageId(messagingContext.NotifyMessage
+                                                                                    .MessageInfo
+                                                                                    .RefToMessageId);
+
                 if (pmode != null)
                 {
                     messagingContext.SendingPMode = pmode;
                 }
             }
 
+            Logger.Info($"{messagingContext.EbmsMessageId} Start sending Notify Message...");
             await SendNotifyMessage(messagingContext).ConfigureAwait(false);
 
             Logger.Info($"{messagingContext.EbmsMessageId} Notify Message sent");
-
-            return await StepResult.SuccessAsync(messagingContext);
+            return StepResult.Success(messagingContext);
         }
 
-        private SendingProcessingMode RetrieveSendingPMode(MessagingContext messagingContext)
+        private SendingProcessingMode RetrieveSendingPModeForMessageWithEbmsMessageId(string ebmsMessageId)
         {
             using (DatastoreContext context = _createContext())
             {
                 var repository = new DatastoreRepository(context);
-                string messageId = messagingContext.NotifyMessage.MessageInfo.RefToMessageId;
 
-                return repository.GetOutMessageData(
-                    messageId,
-                    m => AS4XmlSerializer.FromString<SendingProcessingMode>(m.PMode));
+                var outMessageData = 
+                    repository.GetOutMessageData(where: m => m.EbmsMessageId == ebmsMessageId && m.Intermediary == false,
+                                                selection: m => new { m.PMode, m.ModificationTime })
+                              .OrderByDescending(m => m.ModificationTime)
+                              .FirstOrDefault();
+
+                if (outMessageData == null)
+                {
+                    return null;
+                }
+
+                return AS4XmlSerializer.FromString<SendingProcessingMode>(outMessageData.PMode);
             }
         }
 
         private async Task SendNotifyMessage(MessagingContext messagingContext)
         {
-            NotifyMessageEnvelope notifyMessage = messagingContext.NotifyMessage;
             Method notifyMethod = GetNotifyMethod(messagingContext);
 
             INotifySender sender = _provider.GetNotifySender(notifyMethod.Type);
             sender.Configure(notifyMethod);
 
-            await sender.SendAsync(notifyMessage).ConfigureAwait(false);
+            await sender.SendAsync(messagingContext.NotifyMessage).ConfigureAwait(false);
         }
 
         private static Method GetNotifyMethod(MessagingContext messagingContext)
@@ -113,12 +121,11 @@ namespace Eu.EDelivery.AS4.Steps.Notify
 
         private static Method DetermineMethod(IPMode sendPMode, SendHandling sendHandling, ReceiveHandling receiveHandling)
         {
-            return IsNotifyMessageFormedBySending(sendPMode) ? sendHandling?.NotifyMethod : receiveHandling?.NotifyMethod;
-        }
+            bool isNotifyMessageFormedBySending = sendPMode?.Id != null;
 
-        private static bool IsNotifyMessageFormedBySending(IPMode pmode)
-        {
-            return pmode?.Id != null;
+            return isNotifyMessageFormedBySending
+                ? sendHandling?.NotifyMethod
+                : receiveHandling?.NotifyMethod;
         }
     }
 }

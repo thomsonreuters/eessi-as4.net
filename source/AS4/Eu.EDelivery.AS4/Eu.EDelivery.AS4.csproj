@@ -11,7 +11,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Eu.EDelivery.AS4</RootNamespace>
     <AssemblyName>Eu.EDelivery.AS4</AssemblyName>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <SccProjectName>SAK</SccProjectName>
     <SccLocalPath>SAK</SccLocalPath>
@@ -20,6 +20,7 @@
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -388,12 +389,14 @@
     <Compile Include="Builders\Entities\OutMessageBuilder.cs" />
     <Compile Include="Builders\GenericTypeBuilder.cs" />
     <Compile Include="Builders\Security\DecryptionStrategyBuilder.cs" />
-    <Compile Include="Migrations\20180212143022_ReceptionAwarenessRelation.cs" />
+    <Compile Include="Migrations\20180302141116_RemoveOutMessagesConstraint.cs" />
+    <Compile Include="Migrations\20180302141116_RemoveOutMessagesConstraint.designer.cs">
+      <DependentUpon>20180302141116_RemoveOutMessagesConstraint.cs</DependentUpon>
+    </Compile>
     <Compile Include="Security\Signing\CalculateSignatureConfig.cs" />
     <Compile Include="Security\Strategies\SignStrategy.cs" />
     <Compile Include="Security\Strategies\CryptoStrategy.cs" />
     <Compile Include="Security\Strategies\DecryptionStrategy.cs" />
-    <Compile Include="Security\Strategies\IDecryptionStrategy.cs" />
     <Compile Include="Security\Strategies\SignatureStrategy.cs" />
     <Compile Include="Security\Strategies\SignatureVerificationStrategy.cs" />
     <Compile Include="Serialization\SoapEnvelopeBuilder.cs" />
@@ -495,7 +498,6 @@
     <Compile Include="Security\Signing\VerifySignatureConfig.cs" />
     <Compile Include="Security\Algorithms\AesGcmAlgorithm.cs" />
     <Compile Include="Security\Strategies\EncryptionStrategy.cs" />
-    <Compile Include="Security\Strategies\IEncryptionStrategy.cs" />
     <Compile Include="Entities\Entity.cs" />
     <Compile Include="Entities\Enums.cs" />
     <Compile Include="Entities\InException.cs" />

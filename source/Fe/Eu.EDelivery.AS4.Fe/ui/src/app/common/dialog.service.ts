@@ -9,13 +9,15 @@ import { Subject } from 'rxjs/Subject';
 @Injectable()
 export class DialogService {
     constructor(private modalService: ModalService) { }
-    public prompt(message: string, title?: string): Observable<string> {
+    public prompt(message: string, title?: string, defaultValue?: string): Observable<string> {
         let obs = new Subject<string>();
         let dialog: ModalComponent;
         this.modalService
             .show('prompt', (dlg) => {
                 dlg.message = message;
                 dlg.title = title;
+                dlg.result = defaultValue;
+                dlg.noReset = !!defaultValue;
                 dialog = dlg;
             })
             .filter((result) => result)

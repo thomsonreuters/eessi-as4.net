@@ -3,7 +3,6 @@ using System.Reflection;
 using Eu.EDelivery.AS4.PayloadService.Infrastructure.SwaggerUtils;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.DotNet.PlatformAbstractions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;

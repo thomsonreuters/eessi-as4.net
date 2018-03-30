@@ -1,16 +1,14 @@
-import { SendingPmode } from './SendingPmode';
-import { FormBuilder, FormGroup } from '@angular/forms';
-
+import { FormWrapper } from './../common/form.service';
+import { DynamicDiscoveryForm } from './DynamicDiscoveryForm';
+import { ItemType } from './ItemType';
 import { PushConfigurationForm } from './PushConfigurationForm';
-import { SendingProcessingMode } from './SendingProcessingMode';
-import { SendReliabilityForm } from './SendReliabilityForm';
-import { SendMessagePackagingForm } from './SendMessagePackagingForm';
 import { SecurityForm } from './SecurityForm';
 import { SendHandlingForm } from './SendHandlingForm';
-import { FormWrapper } from './../common/form.service';
-import { ItemType } from './ItemType';
-import { DynamicDiscoveryForm } from './DynamicDiscoveryForm';
-import { jsonAccessor } from '../common/jsonAccessor';
+import { SendingPmode } from './SendingPmode';
+import { SendingProcessingMode } from './SendingProcessingMode';
+import { SendMessagePackagingForm } from './SendMessagePackagingForm';
+import { SendReceiptHandlingForm } from './SendReceiptHandlingForm';
+import { SendReliabilityForm } from './SendReliabilityForm';
 
 export class SendingProcessingModeForm {
     public static getForm(formBuilder: FormWrapper, current: SendingProcessingMode, runtime: ItemType[], path: string = 'sendingprocessingmode'): FormWrapper {
@@ -24,7 +22,7 @@ export class SendingProcessingModeForm {
                 [SendingProcessingMode.FIELD_pushConfiguration]: PushConfigurationForm.getForm(formBuilder.subForm(SendingProcessingMode.FIELD_pushConfiguration), current && current.pushConfiguration, runtime, `${path}.${SendingProcessingMode.FIELD_pushConfiguration}`).form,
                 [SendingProcessingMode.FIELD_dynamicDiscovery]: DynamicDiscoveryForm.getForm(formBuilder.subForm(SendingProcessingMode.FIELD_dynamicDiscovery), current && current.dynamicDiscovery, runtime, `${path}.${SendingProcessingMode.FIELD_dynamicDiscovery}`).form,
                 [SendingProcessingMode.FIELD_reliability]: SendReliabilityForm.getForm(formBuilder.subForm(SendingProcessingMode.FIELD_reliability), current && current.reliability, `${path}.${SendingProcessingMode.FIELD_reliability}`, runtime).form,
-                [SendingProcessingMode.FIELD_receiptHandling]: SendHandlingForm.getForm(formBuilder.subForm(SendingProcessingMode.FIELD_receiptHandling), current && current.receiptHandling, `${path}.${SendingProcessingMode.FIELD_receiptHandling}`, runtime).form,
+                [SendingProcessingMode.FIELD_receiptHandling]: SendReceiptHandlingForm.getForm(formBuilder.subForm(SendingProcessingMode.FIELD_receiptHandling), current && current.receiptHandling, `${path}.${SendingProcessingMode.FIELD_receiptHandling}`, runtime).form,
                 [SendingProcessingMode.FIELD_errorHandling]: SendHandlingForm.getForm(formBuilder.subForm(SendingProcessingMode.FIELD_errorHandling), current && current.errorHandling, `${path}.${SendingProcessingMode.FIELD_errorHandling}`, runtime).form,
                 [SendingProcessingMode.FIELD_exceptionHandling]: SendHandlingForm.getForm(formBuilder.subForm(SendingProcessingMode.FIELD_exceptionHandling), current && current.exceptionHandling, `${path}.${SendingProcessingMode.FIELD_exceptionHandling}`, runtime).form,
                 [SendingProcessingMode.FIELD_security]: SecurityForm.getForm(formBuilder.subForm('security'), current && current.security, `${path}.${SendingProcessingMode.FIELD_security}`, runtime).form,

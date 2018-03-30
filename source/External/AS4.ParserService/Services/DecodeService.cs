@@ -5,7 +5,6 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Web;
 using AS4.ParserService.Infrastructure;
 using AS4.ParserService.Models;
 using Eu.EDelivery.AS4.Model.Core;
@@ -82,7 +81,7 @@ namespace AS4.ParserService.Services
         private static async Task<DecodeResult> PerformInboundProcessing(MessagingContext context)
         {
             var processingResult =
-                await StepProcessor.ExecuteStepsAsync(context, StepRegistry.GetInboundProcessingConfiguration(), CancellationToken.None);
+                await StepProcessor.ExecuteStepsAsync(context, StepRegistry.GetInboundProcessingConfiguration());
 
             if (processingResult.AS4Message.IsUserMessage)
             {
@@ -92,8 +91,7 @@ namespace AS4.ParserService.Services
                     var receivedMessageId = processingResult.EbmsMessageId;
 
                     var receiptResult =
-                        await StepProcessor.ExecuteStepsAsync(processingResult, StepRegistry.GetReceiptCreationConfiguration(),
-                                                              CancellationToken.None);
+                        await StepProcessor.ExecuteStepsAsync(processingResult, StepRegistry.GetReceiptCreationConfiguration());
 
                     return DecodeResult.CreateWithReceipt(deliverPayloads.ToArray(),
                                                           Serializer.ToByteArray(receiptResult.AS4Message),

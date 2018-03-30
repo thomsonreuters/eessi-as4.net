@@ -25,55 +25,45 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
             // Arrange
             IStep sut = CreateSendNotifyStepWithSender(new SaboteurSender());
 
-            var notifyMessage = EmptyNotifyMessageEnvelope(Status.Delivered);
-            var internalMessage = new MessagingContext(notifyMessage);
+            var fixture = new MessagingContext(
+                EmptyNotifyMessageEnvelope(Status.Delivered));
 
             // Act / Assert
             await Assert.ThrowsAnyAsync<Exception>(
-                    () => sut.ExecuteAsync(internalMessage, CancellationToken.None));
+                    () => sut.ExecuteAsync(fixture));
         }
 
         [Fact]
         public async Task ThenExecuteStepSucceedsWithSendingPModeAsync()
         {
             // Arrange
-            NotifyMessageEnvelope notifyMessage = EmptyNotifyMessageEnvelope(Status.Delivered);
-            var internalMessage = new MessagingContext(notifyMessage)
-            {
-                SendingPMode = CreateDefaultSendingPMode()
-            };
+            var fixture = new MessagingContext(
+                EmptyNotifyMessageEnvelope(Status.Delivered))
+                {SendingPMode = new SendingProcessingMode {ReceiptHandling = {NotifyMethod = new Method()}}};
 
             var spySender = new SpySender();
             IStep sut = CreateSendNotifyStepWithSender(spySender);
 
             // Act
-            await sut.ExecuteAsync(internalMessage, CancellationToken.None);
+            await sut.ExecuteAsync(fixture);
 
             // Assert
             Assert.True(spySender.IsNotified);
-        }
-
-        private static SendingProcessingMode CreateDefaultSendingPMode()
-        {
-            return new SendingProcessingMode { ReceiptHandling = { NotifyMethod = new Method() } };
         }
 
         [Fact]
         public async Task ThenExecuteStepWithReceivingPModeAsync()
         {
             // Arrange
-            NotifyMessageEnvelope notifyMessage = EmptyNotifyMessageEnvelope(Status.Error);
-
-            var internalMessage = new MessagingContext(notifyMessage)
-            {
-                SendingPMode = new SendingProcessingMode { ErrorHandling = { NotifyMethod = new Method() } }
-            };
+            var fixture = new MessagingContext(
+                EmptyNotifyMessageEnvelope(Status.Error))
+                {SendingPMode = new SendingProcessingMode {ErrorHandling = {NotifyMethod = new Method()}}};
 
             var spySender = new SpySender();
             IStep sut = CreateSendNotifyStepWithSender(spySender);
 
             // Act
-            await sut.ExecuteAsync(internalMessage, CancellationToken.None);
+            await sut.ExecuteAsync(fixture);
 
             // Assert
             Assert.True(spySender.IsNotified);
@@ -89,7 +79,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
 
         private static NotifyMessageEnvelope EmptyNotifyMessageEnvelope(Status status)
         {
-            return new NotifyMessageEnvelope(new MessageInfo(), status, null, string.Empty, default(Type));
+            return new NotifyMessageEnvelope(
+                messageInfo: new MessageInfo(), 
+                statusCode: status, 
+                notifyMessage: null, 
+                contentType: string.Empty, 
+                entityType: default(Type));
         }
     }
 }

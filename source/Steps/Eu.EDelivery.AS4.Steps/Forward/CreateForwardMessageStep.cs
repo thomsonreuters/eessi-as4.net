@@ -25,7 +25,7 @@ namespace Eu.EDelivery.AS4.Steps.Forward
         /// <summary>
         /// Initializes a new instance of the <see cref="CreateForwardMessageStep"/> class.
         /// </summary>
-        public CreateForwardMessageStep() 
+        public CreateForwardMessageStep()
             : this(Config.Instance, Registry.Instance.MessageBodyStore, Registry.Instance.CreateDatastoreContext) { }
 
         /// <summary>
@@ -45,9 +45,8 @@ namespace Eu.EDelivery.AS4.Steps.Forward
         /// Execute the step for a given <paramref name="messagingContext"/>.
         /// </summary>
         /// <param name="messagingContext">Message used during the step execution.</param>
-        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
             var receivedInMessage = (messagingContext.ReceivedMessage as ReceivedMessageEntityMessage)?.MessageEntity as InMessage;
 
@@ -62,15 +61,14 @@ namespace Eu.EDelivery.AS4.Steps.Forward
             {
                 string outLocation = await _messageStore.SaveAS4MessageStreamAsync(
                     _configuration.OutMessageStoreLocation,
-                    originalInMessage,
-                    cancellationToken);
+                    originalInMessage);
 
                 originalInMessage.Position = 0;
 
-                AS4Message msg = 
+                AS4Message msg =
                     await SerializerProvider.Default
                         .Get(receivedInMessage.ContentType)
-                        .DeserializeAsync(originalInMessage, receivedInMessage.ContentType, cancellationToken);
+                        .DeserializeAsync(originalInMessage, receivedInMessage.ContentType, CancellationToken.None);
 
                 using (DatastoreContext dbContext = _createDataStoreContext())
                 {
@@ -79,11 +77,13 @@ namespace Eu.EDelivery.AS4.Steps.Forward
                     // Only create an OutMessage for the primary message-unit.
                     OutMessage outMessage = OutMessageBuilder
                         .ForMessageUnit(
-                            GetPrimaryMessageUnit(msg), 
-                            receivedInMessage.ContentType, 
+                            GetPrimaryMessageUnit(msg),
+                            receivedInMessage.ContentType,
                             messagingContext.SendingPMode)
                         .Build();
 
+                    outMessage.Intermediary = true;
+                    outMessage.IsDuplicate = receivedInMessage.IsDuplicate;
                     outMessage.MessageLocation = outLocation;
                     outMessage.Mpc = messagingContext.SendingPMode.MessagePackaging?.Mpc ?? Constants.Namespaces.EbmsDefaultMpc;
                     outMessage.SetOperation(Operation.ToBeProcessed);
@@ -96,7 +96,7 @@ namespace Eu.EDelivery.AS4.Steps.Forward
                         m => msg.MessageIds.Contains(m.EbmsMessageId),
                         r => r.SetOperation(Operation.Forwarded));
 
-                    await dbContext.SaveChangesAsync(cancellationToken);
+                    await dbContext.SaveChangesAsync();
                 }
             }
 

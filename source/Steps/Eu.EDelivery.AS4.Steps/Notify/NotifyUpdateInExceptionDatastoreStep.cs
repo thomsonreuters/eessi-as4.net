@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
@@ -17,45 +16,29 @@ namespace Eu.EDelivery.AS4.Steps.Notify
     [NotConfigurable]
     public class NotifyUpdateInExceptionDatastoreStep : IStep
     {
-        private readonly ILogger _logger;
-
-        /// <summary>
-        /// Initializes a new instance of the type <see cref="NotifyUpdateInExceptionDatastoreStep"/> class
-        /// </summary>
-        public NotifyUpdateInExceptionDatastoreStep()
-        {
-            _logger = LogManager.GetCurrentClassLogger();
-        }
+        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 
         /// <summary>
         /// Start updating the InExceptions table for a given <see cref="NotifyMessage"/>
         /// </summary>
         /// <param name="messagingContext"></param>
-        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
-            var notifyMessageEnv = messagingContext.NotifyMessage;
-            _logger.Info($"{messagingContext.EbmsMessageId} Update Notify Message {notifyMessageEnv.MessageInfo.MessageId}");
+            NotifyMessageEnvelope notifyMessageEnv = messagingContext.NotifyMessage;
+            Logger.Info($"{messagingContext.EbmsMessageId} Update Notify Message {notifyMessageEnv.MessageInfo.MessageId}");
 
-            using (var context = Registry.Instance.CreateDatastoreContext())
+            using (DatastoreContext context = Registry.Instance.CreateDatastoreContext())
             {
-                UpdateDatastore(notifyMessageEnv, new DatastoreRepository(context));
+                var repository = new DatastoreRepository(context);
+                repository.UpdateInException(
+                    notifyMessageEnv.MessageInfo.RefToMessageId,
+                    ex => ex.SetOperation(Operation.Notified));
 
-                await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+                await context.SaveChangesAsync().ConfigureAwait(false);
             }
 
             return await StepResult.SuccessAsync(messagingContext);
-        }
-
-        private static void UpdateDatastore(NotifyMessageEnvelope notifyMessage, DatastoreRepository repository)
-        {
-            repository.UpdateInException(notifyMessage.MessageInfo.RefToMessageId, UpdateNotifiedInException);
-        }
-
-        private static void UpdateNotifiedInException(InException inException)
-        {
-            inException.SetOperation(Operation.Notified);
         }
     }
 }

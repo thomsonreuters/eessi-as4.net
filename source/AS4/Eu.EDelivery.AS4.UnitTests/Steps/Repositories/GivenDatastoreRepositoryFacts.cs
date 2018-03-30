@@ -16,23 +16,25 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Repositories
     /// </summary>
     public class GivenDatastoreRepositoryFacts : GivenDatastoreFacts
     {
-
         public class OutMessages : GivenDatastoreRepositoryFacts
         {
             [Fact]
             public void ThenGetOutMessageSucceeded()
             {
                 // Arrange
-                const string sharedId = "message-id";
+                const string ebmsMessageId = "message-id";
                 const Operation expected = Operation.Delivered;
-                InsertOutMessage(sharedId, expected);
+                InsertOutMessage(ebmsMessageId, expected);
 
                 using (DatastoreContext context = GetDataStoreContext())
                 {
                     var repository = new DatastoreRepository(context);
 
                     // Act
-                    Operation actual = repository.GetOutMessageData(sharedId, m => OperationUtils.Parse(m.Operation));
+                    Operation actual =
+                        repository.GetOutMessageData(where: m => m.EbmsMessageId == ebmsMessageId,
+                                                     selection: m => OperationUtils.Parse(m.Operation))
+                                  .SingleOrDefault();
 
                     // Assert
                     Assert.Equal(expected, actual);
@@ -62,13 +64,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Repositories
             {
                 // Arrange
                 const string sharedId = "message-id";
-                InsertOutMessage(sharedId, Operation.ToBeSent);
+                long outMessageId = InsertOutMessage(sharedId, Operation.ToBeSent).Id;
 
                 // Act
                 using (DatastoreContext context = GetDataStoreContext())
                 {
                     new DatastoreRepository(context).UpdateOutMessage(
-                       sharedId,
+                       outMessageId,
                        m => m.SetOperation(Operation.Sent));
 
                     context.SaveChanges();
@@ -78,12 +80,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Repositories
                 AssertOutMessage(sharedId, m => Assert.Equal(Operation.Sent.ToString(), m.Operation));
             }
 
-            private void InsertOutMessage(string ebmsMessageId, Operation operation = Operation.NotApplicable)
+            private OutMessage InsertOutMessage(string ebmsMessageId, Operation operation = Operation.NotApplicable)
             {
                 var outMessage = new OutMessage(ebmsMessageId: ebmsMessageId);
                 outMessage.SetOperation(operation);
 
-                GetDataStoreContext.InsertOutMessage(outMessage);
+                GetDataStoreContext.InsertOutMessage(outMessage, withReceptionAwareness: false);
+
+                return outMessage;
             }
 
             private void AssertOutMessage(string messageId, Action<OutMessage> assertAction)
@@ -264,6 +268,60 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Repositories
 
                     // Act
                     return act(sut);
+                }
+            }
+        }
+
+        public class ReceptionAwareness : GivenDatastoreRepositoryFacts
+        {
+            [Fact]
+            public void Inserted_Entity_Log_Times_Gets_Updated()
+            {
+                // Arrange
+                const int refToOutMessageId = 0;
+                var entity = new AS4.Entities.ReceptionAwareness(refToOutMessageId, refToEbmsMessageId: string.Empty);
+                long id = InsertReceptionAwareness(entity);
+
+                // Act
+                UpdateReceptionAwarenessFor(id);
+
+                // Assert
+                using (DatastoreContext context = GetDataStoreContext())
+                {
+                    var sut = new DatastoreRepository(context);
+                    AS4.Entities.ReceptionAwareness actual = sut.GetReceptionAwarenessForOutMessage(refToOutMessageId);
+
+                    Assert.NotEqual(default(DateTimeOffset), actual.InsertionTime);
+                    Assert.NotEqual(default(DateTimeOffset), actual.ModificationTime);
+                    Assert.True(actual.InsertionTime < actual.ModificationTime);
+                }
+            }
+
+            private long InsertReceptionAwareness(AS4.Entities.ReceptionAwareness ra)
+            {
+                using (DatastoreContext context = GetDataStoreContext())
+                {
+                    var sut = new DatastoreRepository(context);
+
+                    sut.InsertReceptionAwareness(ra);
+                    context.SaveChanges();
+
+                    AS4.Entities.ReceptionAwareness inserted = sut.GetReceptionAwarenessForOutMessage(ra.RefToOutMessageId);
+                    Assert.NotEqual(default(DateTimeOffset), inserted.InsertionTime);
+                    Assert.NotEqual(default(DateTimeOffset), inserted.ModificationTime);
+
+                    return inserted.Id;
+                }
+            }
+
+            private void UpdateReceptionAwarenessFor(long id)
+            {
+                using (DatastoreContext context = GetDataStoreContext())
+                {
+                    var sut = new DatastoreRepository(context);
+
+                    sut.UpdateReceptionAwareness(id, r => { });
+                    context.SaveChanges();
                 }
             }
         }

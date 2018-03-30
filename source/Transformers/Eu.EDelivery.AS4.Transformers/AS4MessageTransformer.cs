@@ -54,17 +54,8 @@ namespace Eu.EDelivery.AS4.Transformers
         /// with a <see cref="AS4Message" /> included
         /// </summary>
         /// <param name="message"></param>
-        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<MessagingContext> TransformAsync(ReceivedMessage message, CancellationToken cancellationToken)
-        {
-            Logger.Debug("Transform AS4 Message to Messaging Context");
-            PreConditions(message);
-
-            return await TransformMessage(message, cancellationToken);
-        }
-
-        private void PreConditions(ReceivedMessage message)
+        public async Task<MessagingContext> TransformAsync(ReceivedMessage message)
         {
             if (message.UnderlyingStream == null)
             {
@@ -75,18 +66,15 @@ namespace Eu.EDelivery.AS4.Transformers
             {
                 throw new InvalidDataException($"ContentType is not supported {nameof(message.ContentType)}");
             }
-        }
 
-        private async Task<MessagingContext> TransformMessage(
-            ReceivedMessage receivedMessage,
-            CancellationToken cancellation)
-        {
-            VirtualStream messageStream = await CopyIncomingStreamToVirtualStream(receivedMessage);
+            Logger.Debug("Transform AS4 Message to Messaging Context");
 
-            AS4Message as4Message = await DeserializeMessage(receivedMessage.ContentType, messageStream, cancellation);
+            VirtualStream messageStream = await CopyIncomingStreamToVirtualStream(message);
+            AS4Message as4Message = await DeserializeMessage(message.ContentType, messageStream, CancellationToken.None);
 
-            var context = new MessagingContext(as4Message, MessagingContextMode.Unknown);
-            receivedMessage.AssignPropertiesTo(context);
+            var context = new MessagingContext(message, MessagingContextMode.Unknown);
+            context.ModifyContext(as4Message);
+            message.AssignPropertiesTo(context);
 
             return context;
         }

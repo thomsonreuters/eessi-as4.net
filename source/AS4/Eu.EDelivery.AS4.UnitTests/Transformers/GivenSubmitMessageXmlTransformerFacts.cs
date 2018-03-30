@@ -1,11 +1,8 @@
 ﻿using System;
 using System.IO;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
-using System.Xml;
 using System.Xml.Serialization;
-using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
@@ -75,7 +72,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
 
         protected async Task<MessagingContext> Transform(ReceivedMessage message)
         {
-            return await new SubmitMessageXmlTransformer().TransformAsync(message, CancellationToken.None);
+            return await new SubmitMessageXmlTransformer().TransformAsync(message);
         }
 
         private static ReceivedMessage CreateMessageFrom(SubmitMessage submitMessage)

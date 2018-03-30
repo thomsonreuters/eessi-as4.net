@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Model.Core;
@@ -12,6 +11,7 @@ using MessageProperty = Eu.EDelivery.AS4.Model.Core.MessageProperty;
 
 namespace Eu.EDelivery.AS4.Transformers.ConformanceTestTransformers
 {
+    [NotConfigurable]
     [ExcludeFromCodeCoverage]
     public class ConformanceTestingSubmitReceiveMessageTransformer : ITransformer
     {
@@ -25,9 +25,8 @@ namespace Eu.EDelivery.AS4.Transformers.ConformanceTestTransformers
         /// Transform a given <see cref="ReceivedMessage"/> to a Canonical <see cref="MessagingContext"/> instance.
         /// </summary>
         /// <param name="message">Given message to transform.</param>
-        /// <param name="cancellationToken">Cancellation which stops the transforming.</param>
         /// <returns></returns>
-        public async Task<MessagingContext> TransformAsync(ReceivedMessage message, CancellationToken cancellationToken)
+        public async Task<MessagingContext> TransformAsync(ReceivedMessage message)
         {
             // We receive an AS4Message from Minder, we should convert it to a SubmitMessage if the action is submit.
             // In any other case, we should just return a MessagingContext which contains the as4Message.
@@ -41,7 +40,7 @@ namespace Eu.EDelivery.AS4.Transformers.ConformanceTestTransformers
             try
             {
                 var transformer = new AS4MessageTransformer();
-                var messagingContext = await transformer.TransformAsync(receivedMessage, cancellationToken);
+                var messagingContext = await transformer.TransformAsync(receivedMessage);
 
                 if (messagingContext.AS4Message?.PrimaryUserMessage?.CollaborationInfo?.Action?.Equals("Submit", StringComparison.OrdinalIgnoreCase) ?? false)
                 {
@@ -69,6 +68,7 @@ namespace Eu.EDelivery.AS4.Transformers.ConformanceTestTransformers
                 {
                     l.Error(ex.InnerException.Message);
                 }
+
                 throw;
             }
         }

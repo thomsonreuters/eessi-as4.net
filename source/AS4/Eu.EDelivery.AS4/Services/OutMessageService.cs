@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -48,24 +47,27 @@ namespace Eu.EDelivery.AS4.Services
             _repository = respository;
             _messageBodyStore = messageBodyStore;
         }
-        
+
         /// <summary>
         /// Gets AS4 UserMessages for identifiers.
         /// </summary>
         /// <param name="messageIds">The message identifiers.</param>
         /// <param name="store">The provider.</param>
         /// <returns></returns>
-        public async Task<IEnumerable<AS4Message>> GetAS4UserMessagesForIds(
+        public async Task<IEnumerable<AS4Message>> GetNonIntermediaryAS4UserMessagesForIds(
             IEnumerable<string> messageIds, 
             IAS4MessageBodyStore store)
         {
             IEnumerable<OutMessage> messages = _repository
-                .GetOutMessagesData(m => 
-                    messageIds.Contains(m.EbmsMessageId) && m.Intermediary == false, 
+                .GetOutMessageData(m =>
+                    messageIds.Contains(m.EbmsMessageId) && m.Intermediary == false,
                     m => m)
                 .Where(m => m != null);
 
-            if (!messages.Any()) { return Enumerable.Empty<AS4Message>(); }
+            if (!messages.Any())
+            {
+                return Enumerable.Empty<AS4Message>();
+            }
 
             var foundMessages = new List<AS4Message>();
 
@@ -80,34 +82,6 @@ namespace Eu.EDelivery.AS4.Services
             }
 
             return foundMessages;
-        }
-
-        /// <summary>
-        /// Gets an AS4 UserMessage for a given ebMS Message Id.
-        /// </summary>
-        /// <param name="messageId">The message identifier.</param>
-        /// <param name="store">The provider.</param>
-        /// <returns></returns>
-        public async Task<AS4Message> GetAS4UserMessageForId(string messageId, IAS4MessageBodyStore store)
-        {
-            OutMessage message = GetOutMessageById(messageId);
-
-            if (message == null || String.IsNullOrWhiteSpace(message.MessageLocation))
-            {
-                return null;
-            }
-
-            Stream messageBody = await store.LoadMessageBodyAsync(message.MessageLocation);
-
-            ISerializer serializer = Registry.Instance.SerializerProvider.Get(message.ContentType);
-            return await serializer.DeserializeAsync(messageBody, message.ContentType, CancellationToken.None);
-        }
-
-        private OutMessage GetOutMessageById(string messageId)
-        {
-            return _repository.GetOutMessageData(
-                m => m.EbmsMessageId.Equals(messageId) && m.Intermediary == false,
-                m => m);
         }
 
         /// <summary>
@@ -225,18 +199,18 @@ namespace Eu.EDelivery.AS4.Services
         /// <summary>
         /// Updates a <see cref="AS4Message"/>.
         /// </summary>
+        /// <param name="outMessageId">The Id that uniquely identifies the OutMessage record in the database.</param>
         /// <param name="message">The message.</param>
         /// <returns></returns>
-        public void UpdateAS4MessageToBeSent(AS4Message message)
+        public void UpdateAS4MessageToBeSent(long outMessageId, AS4Message message)
         {
-            string ebmsMessageId = message.GetPrimaryMessageId();
-
-            string messageBodyLocation = _repository.GetOutMessageData(ebmsMessageId, m => m.MessageLocation);
+            string messageBodyLocation =
+                _repository.GetOutMessageData(outMessageId, m => m.MessageLocation);
 
             _messageBodyStore.UpdateAS4Message(messageBodyLocation, message);
 
             _repository.UpdateOutMessage(
-                ebmsMessageId,
+                outMessageId,
                 m =>
                 {
                     m.SetOperation(Operation.ToBeSent);
@@ -248,14 +222,6 @@ namespace Eu.EDelivery.AS4.Services
     public interface IOutMessageService
     {
         /// <summary>
-        /// Gets a s4 user message for identifier.
-        /// </summary>
-        /// <param name="messageId">The message identifier.</param>
-        /// <param name="store">The provider.</param>
-        /// <returns></returns>
-        Task<AS4Message> GetAS4UserMessageForId(string messageId, IAS4MessageBodyStore store);
-
-        /// <summary>
         /// Inserts a s4 message.
         /// </summary>
         /// <param name="message">The message.</param>
@@ -266,8 +232,10 @@ namespace Eu.EDelivery.AS4.Services
         /// <summary>
         /// Updates a <see cref="AS4Message"/>.
         /// </summary>
+        /// <param name="outMessageId">The ID that uniquely identifies the OutMessage for
+        /// this <paramref name="message"/></param>
         /// <param name="message">The message.</param>
         /// <returns></returns>
-        void UpdateAS4MessageToBeSent(AS4Message message);
+        void UpdateAS4MessageToBeSent(long outMessageId, AS4Message message);
     }
 }

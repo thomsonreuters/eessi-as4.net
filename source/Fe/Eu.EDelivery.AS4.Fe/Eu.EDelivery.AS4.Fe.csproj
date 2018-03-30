@@ -1,50 +1,53 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
-    <PropertyGroup>
-        <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
-        <TargetFrameworks>netstandard2.0;net461</TargetFrameworks>
-        <AssetTargetFallback>$(AssetTargetFallback);portable-net45+win8+wp8+wpa81;</AssetTargetFallback>
-        <Configurations>Debug;Release</Configurations>
-        <Platforms>AnyCPU;x86</Platforms>
-        <TypeScriptCompileBlocked>True</TypeScriptCompileBlocked>
-        <DefaultItemExcludes>$(DefaultItemExcludes);ui/node_modules/**</DefaultItemExcludes>
-        <DefineConstants>DEBUG;TRACE;NET461</DefineConstants>
-        <DependsOnNETStandard>true</DependsOnNETStandard>
-        <NETStandardInbox>false</NETStandardInbox>
-    </PropertyGroup>
 
-    <PropertyGroup>
-        <OutputPath>..\..\..\output\</OutputPath>
-		    <GenerateDocumentationFile>true</GenerateDocumentationFile>
-		    <DocumentationFile>..\..\..\output\Eu.EDelivery.AS4.Fe.xml</DocumentationFile>        
-        <PlatformTarget>AnyCPU</PlatformTarget>
-        <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-    </PropertyGroup>
+  <PropertyGroup>
+    <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
+    <TargetFramework>net462</TargetFramework>
+    <TypeScriptCompileBlocked>True</TypeScriptCompileBlocked>
+    <DefaultItemExcludes>$(DefaultItemExcludes);ui/node_modules/**</DefaultItemExcludes>
+    <OutputPath>..\..\..\output\</OutputPath>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <DocumentationFile>..\..\..\output\Eu.EDelivery.AS4.Fe.xml</DocumentationFile>
+    <PlatformTarget>x86</PlatformTarget>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <DependsOnNETStandard>false</DependsOnNETStandard>
+    <NETStandardInbox>false</NETStandardInbox>
+  </PropertyGroup>
 
-    <ItemGroup>
-        <Content Remove="ui\tsconfig.json" />
-        <Content Remove="ui\tsconfig.webpack.json" />
-    </ItemGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
+    <DefineConstants>DEBUG;TRACE;NET462;NETCOREAPP2_0</DefineConstants>
+  </PropertyGroup>
 
-    <ItemGroup>
-        <None Include="ui\tsconfig.json" />
-        <None Include="ui\tsconfig.webpack.json" />
-    </ItemGroup>
+  <ItemGroup>
+    <Content Remove="ui\tsconfig.json" />
+    <Content Remove="ui\tsconfig.webpack.json" />
+  </ItemGroup>
 
-    <ItemGroup>
-        <ProjectReference Include="..\..\AS4\Eu.EDelivery.AS4\Eu.EDelivery.AS4.csproj" />
-        <ProjectReference Include="..\..\Receivers\Eu.EDelivery.AS4.Receivers\Eu.EDelivery.AS4.Receivers.csproj" />
-        <ProjectReference Include="..\..\ServiceHandler\Eu.EDelivery.AS4.ServiceHandler\Eu.EDelivery.AS4.ServiceHandler.csproj" />
-    </ItemGroup>
 
-    <ItemGroup Condition=" '$(TargetFramework)' == 'net461' ">
-        <PackageReference Include="FluentValidation" Version="6.2.1" />
+  <ItemGroup>
+    <None Include="ui\tsconfig.json" />
+    <None Include="ui\tsconfig.webpack.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\AS4\Eu.EDelivery.AS4\Eu.EDelivery.AS4.csproj" />
+    <ProjectReference Include="..\..\Receivers\Eu.EDelivery.AS4.Receivers\Eu.EDelivery.AS4.Receivers.csproj" />
+    <ProjectReference Include="..\..\ServiceHandler\Eu.EDelivery.AS4.ServiceHandler\Eu.EDelivery.AS4.ServiceHandler.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FluentValidation" Version="6.2.1" />  
+  <!--</ItemGroup>
+  
+    <ItemGroup Condition=" '$(TargetFramework)' == 'net461' ">-->
+        
         <PackageReference Include="NLog" Version="4.3.5" />
         <PackageReference Include="Microsoft.AspNet.SignalR" Version="2.2.2" />
         <PackageReference Include="Microsoft.AspNet.SignalR.Owin" Version="1.2.2" />
-    </ItemGroup>
+    <!--</ItemGroup>
   
-    <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
+    <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.0' ">-->
         <PackageReference Include="Microsoft.AspNetCore" Version="2.0.1" />
         <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="2.0.1" />
         <PackageReference Include="Microsoft.AspNetCore.Http.Extensions" Version="2.0.1" />
@@ -73,6 +76,7 @@
         <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="2.0.0" />
         <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="5.1.4" />
+      <Reference Include="System.Configuration" />
     </ItemGroup>
     <ItemGroup>
         <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="2.0.0" />
@@ -81,6 +85,7 @@
       <Reference Include="Microsoft.Extensions.PlatformAbstractions">
         <HintPath>..\..\packages\Microsoft.Extensions.PlatformAbstractions.1.1.0\lib\net451\Microsoft.Extensions.PlatformAbstractions.dll</HintPath>
       </Reference>
+      <Reference Include="netstandard, Version=2.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51" />
     </ItemGroup>
     <ItemGroup>
         <Content Update="appsettings.Development.json">

@@ -2,13 +2,11 @@
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Deliver;
 using Eu.EDelivery.AS4.Model.Internal;
-using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Singletons;
 using Eu.EDelivery.AS4.Validators;
@@ -30,48 +28,29 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         /// Execute the step for a given <paramref name="messagingContext" />.
         /// </summary>
         /// <param name="messagingContext">Message used during the step execution.</param>
-        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
-        {
-            DeliverMessageEnvelope deliverMessage = await CreateDeliverMessageEnvelope(messagingContext);
-            messagingContext.ModifyContext(deliverMessage);
-
-            return StepResult.Success(messagingContext);
-        }
-
-        private async Task<DeliverMessageEnvelope> CreateDeliverMessageEnvelope(MessagingContext messagingContext)
+        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
             AS4Message as4Message = messagingContext.AS4Message;
             DeliverMessage deliverMessage = CreateDeliverMessage(as4Message.PrimaryUserMessage, messagingContext);
-
             ValidateDeliverMessage(deliverMessage);
 
             string serialized = await AS4XmlSerializer.ToStringAsync(deliverMessage);
+            var envelope = new DeliverMessageEnvelope(
+                messageInfo: deliverMessage.MessageInfo,
+                deliverMessage: Encoding.UTF8.GetBytes(serialized),
+                contentType: "application/xml");
 
-            return new DeliverMessageEnvelope(
-                deliverMessage.MessageInfo,
-                Encoding.UTF8.GetBytes(serialized),
-                "application/xml");
+            messagingContext.ModifyContext(envelope);
+            return StepResult.Success(messagingContext);
         }
 
         private static DeliverMessage CreateDeliverMessage(UserMessage userMessage, MessagingContext context)
         {
             var deliverMessage = AS4Mapper.Map<DeliverMessage>(userMessage);
-            AssignPModeIdToDeliverMessage(context.SendingPMode, deliverMessage);
-            AssignAttachmentLocations(context.AS4Message, deliverMessage);
+            deliverMessage.CollaborationInfo.AgreementRef.PModeId = context.SendingPMode?.Id ?? string.Empty;
 
-            return deliverMessage;
-        }
-
-        private static void AssignPModeIdToDeliverMessage(IPMode pmode, DeliverMessage deliverMessage)
-        {
-            deliverMessage.CollaborationInfo.AgreementRef.PModeId = pmode?.Id ?? string.Empty;
-        }
-
-        private static void AssignAttachmentLocations(AS4Message as4Message, DeliverMessage deliverMessage)
-        {
-            foreach (Attachment attachment in as4Message.Attachments)
+            foreach (Attachment attachment in context.AS4Message.Attachments)
             {
                 Payload partInfo = deliverMessage.Payloads.FirstOrDefault(p => p.Id.Contains(attachment.Id));
 
@@ -80,6 +59,8 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
                     partInfo.Location = attachment.Location ?? string.Empty;
                 }
             }
+
+            return deliverMessage;
         }
 
         private void ValidateDeliverMessage(DeliverMessage deliverMessage)
@@ -95,11 +76,10 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
                 onValidationFailed: result =>
                 {
                     string description = $"Deliver Message {deliverMessage.MessageInfo.MessageId} was invalid:";
-
                     string errorMessage = result.AppendValidationErrorsToErrorMessage(description);
 
-                    throw new InvalidDataException(errorMessage);                    
+                    throw new InvalidDataException(errorMessage);
                 });
-        }       
+        }
     }
 }

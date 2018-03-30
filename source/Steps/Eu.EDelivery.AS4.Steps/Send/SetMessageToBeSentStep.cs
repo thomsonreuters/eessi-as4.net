@@ -1,6 +1,5 @@
 ﻿using System;
 using System.ComponentModel;
-using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Model.Internal;
@@ -23,7 +22,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// Initializes a new instance of the <see cref="SetMessageToBeSentStep"/> class.
         /// </summary>
         public SetMessageToBeSentStep()
-            : this(Registry.Instance.CreateDatastoreContext, Registry.Instance.MessageBodyStore) {}
+            : this(Registry.Instance.CreateDatastoreContext, Registry.Instance.MessageBodyStore) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SetMessageToBeSentStep"/> class.
@@ -40,19 +39,24 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// Execute the step for a given <paramref name="messagingContext"/>.
         /// </summary>
         /// <param name="messagingContext">Message used during the step execution.</param>
-        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
             Logger.Info($"[{messagingContext.AS4Message.GetPrimaryMessageId()}] Set the message's Operation = 'ToBeSent' ");
+
+            if (messagingContext.MessageEntityId == null)
+            {
+                throw new InvalidOperationException("MessagingContext does not contain the ID of the OutMessage that must be set to ToBeSent");
+            }
 
             using (DatastoreContext context = _createContext())
             {
                 var repository = new DatastoreRepository(context);
                 var service = new OutMessageService(repository, _messageStore);
 
-                service.UpdateAS4MessageToBeSent(messagingContext.AS4Message);
-                await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+                service.UpdateAS4MessageToBeSent(messagingContext.MessageEntityId.Value, 
+                                                 messagingContext.AS4Message);
+                await context.SaveChangesAsync().ConfigureAwait(false);
             }
 
             return StepResult.Success(messagingContext);

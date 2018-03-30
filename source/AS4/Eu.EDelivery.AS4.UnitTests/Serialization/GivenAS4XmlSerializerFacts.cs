@@ -44,11 +44,39 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                 var expectedPMode = new SendingProcessingMode { Id = "expected-id" };
 
                 // Act
-                Stream actualPModeStream = await AS4XmlSerializer.ToStreamAsync(expectedPMode);
+                SendingProcessingMode actualPMode = await ExerciseSerializeDeserialize(expectedPMode);
 
                 // Assert
-                SendingProcessingMode actualPMode = DeserializeExpectedPMode(actualPModeStream);
                 Assert.Equal(expectedPMode.Id, actualPMode.Id);
+            }
+
+            [Fact]
+            public async Task SendingPModeWithTlsConfiguration()
+            {
+                var expected = new ClientCertificateReference
+                {
+                    ClientCertificateFindType = X509FindType.FindBySubjectName,
+                    ClientCertificateFindValue = "subject"
+                };
+                var before = new SendingProcessingMode
+                {
+                    PushConfiguration = new PushConfiguration
+                    {
+                        TlsConfiguration =
+                        {
+                            IsEnabled = true,
+                            ClientCertificateInformation = expected
+                        }
+                    }
+                };
+
+                SendingProcessingMode after = await ExerciseSerializeDeserialize(before);
+
+                var actual = after.PushConfiguration.TlsConfiguration.ClientCertificateInformation as ClientCertificateReference;
+
+                Assert.NotNull(actual);
+                Assert.Equal(expected.ClientCertificateFindType, actual.ClientCertificateFindType);
+                Assert.Equal(expected.ClientCertificateFindValue, actual.ClientCertificateFindValue);
             }
 
             [Fact]
@@ -64,10 +92,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                 };
 
                 // Act
-                Stream actualPModeStream = await AS4XmlSerializer.ToStreamAsync(expectedPMode);
+                SendingProcessingMode actualPMode = await ExerciseSerializeDeserialize(expectedPMode);
 
                 // Assert
-                SendingProcessingMode actualPMode = DeserializeExpectedPMode(actualPModeStream);
                 Assert.Equal(expectedPMode.Id, actualPMode.Id);
                 Assert.Equal(expectedPMode.Security.Encryption.CertificateType, actualPMode.Security.Encryption.CertificateType);
 
@@ -90,20 +117,20 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                 };
 
                 // Act
-                Stream actualPModeStream = await AS4XmlSerializer.ToStreamAsync(expectedPMode);
+                SendingProcessingMode actualPMode = await ExerciseSerializeDeserialize(expectedPMode);
 
                 // Assert
-                SendingProcessingMode actualPMode = DeserializeExpectedPMode(actualPModeStream);
                 Assert.Equal(expectedPMode.Id, actualPMode.Id);
                 Assert.Equal(expectedPMode.Security.Encryption.CertificateType, PublicKeyCertificateChoiceType.PublicKeyCertificate);
                 Assert.Equal("ABCDEFGH", ((PublicKeyCertificate)actualPMode.Security.Encryption.EncryptionCertificateInformation).Certificate);
             }
 
-            private static SendingProcessingMode DeserializeExpectedPMode(Stream actualPModeStream)
+            private static async Task<SendingProcessingMode> ExerciseSerializeDeserialize(SendingProcessingMode pmode)
             {
+                using (Stream str = await AS4XmlSerializer.ToStreamAsync(pmode))
                 using (var memoryStream = new MemoryStream())
                 {
-                    actualPModeStream.CopyTo(memoryStream);
+                    str.CopyTo(memoryStream);
                     memoryStream.Position = 0;
 
                     using (var streamReader = new StringReader(Encoding.UTF8.GetString(memoryStream.ToArray())))

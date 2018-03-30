@@ -19,9 +19,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
     /// </summary>
     public class GivenDecompressAttachmentsStepFacts
     {
-        /// <summary>
-        /// Testing the Step with valid arguments
-        /// </summary>
         public class GivenValidArguments : GivenDecompressAttachmentsStepFacts
         {
             [Fact]
@@ -132,7 +129,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             var sut = new DecompressAttachmentsStep();
 
             // Act
-            return await sut.ExecuteAsync(context, CancellationToken.None);
+            return await sut.ExecuteAsync(context);
         }
     }
 }

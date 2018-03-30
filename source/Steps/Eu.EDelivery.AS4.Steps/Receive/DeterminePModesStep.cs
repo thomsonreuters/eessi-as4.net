@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Exceptions;
@@ -14,6 +13,7 @@ using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Singletons;
 using Eu.EDelivery.AS4.Steps.Receive.Participant;
 using Eu.EDelivery.AS4.Validators;
+using FluentValidation.Results;
 using NLog;
 using ReceivePMode = Eu.EDelivery.AS4.Model.PMode.ReceivingProcessingMode;
 using SendPMode = Eu.EDelivery.AS4.Model.PMode.SendingProcessingMode;
@@ -52,13 +52,11 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// Start determine the Receiving Processing Mode
         /// </summary>
         /// <param name="messagingContext"></param>
-        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
-            var as4Message = messagingContext.AS4Message;
+            AS4Message as4Message = messagingContext.AS4Message;
 
-            
             if (as4Message.IsSignalMessage)
             {
                 if (as4Message.IsMultiHopMessage == false && messagingContext.SendingPMode != null)
@@ -66,7 +64,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                     return StepResult.Success(messagingContext);
                 }
 
-                var pmode = await DetermineSendingPModeForSignalMessage(as4Message.PrimarySignalMessage);
+                SendPMode pmode = await DetermineSendingPModeForSignalMessageAsync(as4Message.PrimarySignalMessage);
 
                 if (pmode != null)
                 {
@@ -80,10 +78,10 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 }
             }
 
-            return await DetermineReceivingPMode(messagingContext);
+            return await DetermineReceivingPModeAsync(messagingContext);
         }
 
-        private async Task<SendingProcessingMode> DetermineSendingPModeForSignalMessage(SignalMessage signalMessage)
+        private async Task<SendPMode> DetermineSendingPModeForSignalMessageAsync(SignalMessage signalMessage)
         {
             if (String.IsNullOrWhiteSpace(signalMessage.RefToMessageId))
             {
@@ -97,16 +95,21 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 // We must take into account that it is possible that we have an OutMessage that has
                 // been forwarded; in that case, we must not retrieve the sending - pmode since we 
                 // will have to forward the signalmessage.
-                string pmodeString = repository.GetOutMessageData(m => m.EbmsMessageId == signalMessage.RefToMessageId && m.Intermediary == false,
-                                                                  m => m.PMode);
+                string pmodeString =
+                    repository.GetOutMessageData(
+                                  where: m => m.EbmsMessageId == signalMessage.RefToMessageId && m.Intermediary == false,
+                                  selection: m => new { m.PMode, m.ModificationTime })
+                              .OrderByDescending(m => m.ModificationTime)
+                              .FirstOrDefault()
+                              ?.PMode;
 
-                return await AS4XmlSerializer.FromStringAsync<SendingProcessingMode>(pmodeString);
+                return await AS4XmlSerializer.FromStringAsync<SendPMode>(pmodeString);
             }
         }
 
-        private async Task<StepResult> DetermineReceivingPMode(MessagingContext messagingContext)
+        private async Task<StepResult> DetermineReceivingPModeAsync(MessagingContext messagingContext)
         {
-            var userMessage = RetrieveUserMessage(messagingContext.AS4Message);
+            UserMessage userMessage = RetrieveUserMessage(messagingContext.AS4Message);
 
             IEnumerable<ReceivePMode> possibilities = GetPModeFromSettings(userMessage);
 
@@ -121,15 +124,13 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 {
                     return FailedStepResult(description, messagingContext);
                 }
-                else
-                {
-                    throw new InvalidOperationException(description);
-                }
+
+                throw new InvalidOperationException(description);
             }
 
             if (possibilities.Count() > 1)
             {
-                string description = "More than one matching Receiving PMode was found";
+                const string description = "More than one matching Receiving PMode was found";
 
                 Logger.Error(description);
                 Logger.Error("Candidates are: ");
@@ -139,16 +140,14 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 {
                     return FailedStepResult(description, messagingContext);
                 }
-                else
-                {
-                    throw new InvalidOperationException(description);
-                }
+
+                throw new InvalidOperationException(description);
             }
 
             ReceivePMode pmode = possibilities.First();
             Logger.Info($"Use '{pmode.Id}' as Receiving PMode to process message {messagingContext.EbmsMessageId}");
 
-            var validationResult = ReceivingProcessingModeValidator.Instance.Validate(pmode);
+            ValidationResult validationResult = ReceivingProcessingModeValidator.Instance.Validate(pmode);
 
             if (validationResult.IsValid == false)
             {
@@ -170,10 +169,8 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             {
                 return as4Message.PrimaryUserMessage;
             }
-            else
-            {
-                return AS4Mapper.Map<UserMessage>(as4Message.PrimarySignalMessage.MultiHopRouting);
-            }
+
+            return AS4Mapper.Map<UserMessage>(as4Message.PrimarySignalMessage.MultiHopRouting);
         }
 
         private static StepResult FailedStepResult(string description, MessagingContext context)
@@ -187,7 +184,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             List<PModeParticipant> participants = GetPModeParticipants(userMessage);
             participants.ForEach(p => p.Accept(new PModeRuleVisitor()));
 
-            var scoresToConsider = participants.Select(p => p.Points).Where(p => p >= 10);
+            IEnumerable<int> scoresToConsider = participants.Select(p => p.Points).Where(p => p >= 10);
 
             if (scoresToConsider.Any() == false)
             {
@@ -206,9 +203,12 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
         private SendPMode GetReferencedSendingPMode(ReceivePMode receivePMode)
         {
-            if (string.IsNullOrWhiteSpace(receivePMode.ReplyHandling.SendingPMode))
+            if (string.IsNullOrWhiteSpace(receivePMode.ReplyHandling?.SendingPMode))
             {
-                Logger.Warn("No SendingPMode defined in ReplyHandling of Received PMode.");
+                if (receivePMode.MessageHandling.MessageHandlingType != MessageHandlingChoiceType.Forward)
+                {
+                    Logger.Warn("No SendingPMode defined in ReplyHandling of Received PMode.");
+                }
                 return null;
             }
 

@@ -3,7 +3,6 @@ using System.ComponentModel;
 using System.Configuration;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
-using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Exceptions;
@@ -24,6 +23,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
     public class DecryptAS4MessageStep : IStep
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+
         private readonly ICertificateRepository _certificateRepository;
 
         /// <summary>
@@ -46,13 +46,12 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// Start Decrypting <see cref="AS4Message"/>
         /// </summary>
         /// <param name="context"></param>
-        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<StepResult> ExecuteAsync(MessagingContext context, CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(MessagingContext context)
         {
             if (context.AS4Message.IsSignalMessage)
             {
-                return await StepResult.SuccessAsync(context);
+                return StepResult.Success(context);
             }
 
             AS4Message as4Message = context.AS4Message;
@@ -61,20 +60,26 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
             if (decryption.Encryption == Limit.Required && !as4Message.IsEncrypted)
             {
-                return FailedDecryptResult($"AS4 Message is not encrypted but Receiving PMode {pmode.Id} requires it", ErrorAlias.PolicyNonCompliance, context);
+                return FailedDecryptResult(
+                    $"AS4 Message is not encrypted but Receiving PMode {pmode.Id} requires it",
+                    ErrorAlias.PolicyNonCompliance,
+                    context);
             }
 
             if (decryption.Encryption == Limit.NotAllowed && as4Message.IsEncrypted)
             {
-                return FailedDecryptResult($"AS4 Message is encrypted but Receiving PMode {pmode.Id} doesn't allow it", ErrorAlias.PolicyNonCompliance, context);
+                return FailedDecryptResult(
+                    $"AS4 Message is encrypted but Receiving PMode {pmode.Id} doesn't allow it",
+                    ErrorAlias.PolicyNonCompliance,
+                    context);
             }
 
-            if (IsEncryptedIgnored(context) || !context.AS4Message.IsEncrypted)
+            if (IsEncryptionIgnored(context) || !context.AS4Message.IsEncrypted)
             {
-                return await StepResult.SuccessAsync(context);
+                return StepResult.Success(context);
             }
 
-            return await TryDecryptAS4Message(context).ConfigureAwait(false);
+            return await TryDecryptAS4MessageAsync(context).ConfigureAwait(false);
         }
 
         private static StepResult FailedDecryptResult(string description, ErrorAlias errorAlias, MessagingContext context)
@@ -83,20 +88,20 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             return StepResult.Failed(context);
         }
 
-        private static bool IsEncryptedIgnored(MessagingContext messagingContext)
+        private static bool IsEncryptionIgnored(MessagingContext messagingContext)
         {
             ReceivingProcessingMode pmode = messagingContext.ReceivingPMode;
             bool isIgnored = pmode.Security.Decryption.Encryption == Limit.Ignored;
 
             if (isIgnored)
             {
-                Logger.Info($"{messagingContext.EbmsMessageId} Decryption Receiving PMode {pmode.Id} is ignored");
+                Logger.Info($"{messagingContext.EbmsMessageId} Decryption is ignored in Receiving PMode {pmode.Id}");
             }
 
             return isIgnored;
         }
 
-        private async Task<StepResult> TryDecryptAS4Message(MessagingContext messagingContext)
+        private async Task<StepResult> TryDecryptAS4MessageAsync(MessagingContext messagingContext)
         {
             try
             {
@@ -108,14 +113,13 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
                 return await StepResult.SuccessAsync(messagingContext);
             }
-            catch (Exception exception) when (exception is CryptoException || exception is CryptographicException)
+            catch (Exception ex) when (ex is CryptoException || ex is CryptographicException)
             {
                 messagingContext.ErrorResult = new ErrorResult(
-                    description: $"Decryption failed: {exception.Message}",
+                    description: $"Decryption failed: {ex.Message}",
                     alias: ErrorAlias.FailedDecryption);
 
                 Logger.Error(messagingContext.ErrorResult.Description);
-
                 return StepResult.Failed(messagingContext);
             }
         }
@@ -126,24 +130,29 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
             if (decryption.DecryptCertificateInformation == null)
             {
-                throw new ConfigurationErrorsException("No certificate information found in PMode to decrypt the message.");
+                throw new ConfigurationErrorsException(
+                    "No certificate information found in PMode to decrypt the message.");
             }
 
-            var certFindCriteria = decryption.DecryptCertificateInformation as CertificateFindCriteria;
-
-            if (certFindCriteria != null)
+            if (decryption.DecryptCertificateInformation is CertificateFindCriteria certFindCriteria)
             {
-                return _certificateRepository.GetCertificate(certFindCriteria.CertificateFindType, certFindCriteria.CertificateFindValue);
+                return _certificateRepository.GetCertificate(
+                    certFindCriteria.CertificateFindType,
+                    certFindCriteria.CertificateFindValue);
             }
 
-            var embeddedCertInfo = decryption.DecryptCertificateInformation as PrivateKeyCertificate;
-
-            if (embeddedCertInfo != null)
+            if (decryption.DecryptCertificateInformation is PrivateKeyCertificate embeddedCertInfo)
             {
-                return new X509Certificate2(Convert.FromBase64String(embeddedCertInfo.Certificate), embeddedCertInfo.Password, X509KeyStorageFlags.Exportable | X509KeyStorageFlags.MachineKeySet | X509KeyStorageFlags.PersistKeySet);
+                return new X509Certificate2(
+                    rawData: Convert.FromBase64String(embeddedCertInfo.Certificate),
+                    password: embeddedCertInfo.Password,
+                    keyStorageFlags: X509KeyStorageFlags.Exportable
+                                     | X509KeyStorageFlags.MachineKeySet
+                                     | X509KeyStorageFlags.PersistKeySet);
             }
 
-            throw new NotSupportedException("The signing certificate information specified in the PMode could not be used to retrieve the certificate");
+            throw new NotSupportedException(
+                "The signing certificate information specified in the PMode could not be used to retrieve the certificate");
         }
     }
 }

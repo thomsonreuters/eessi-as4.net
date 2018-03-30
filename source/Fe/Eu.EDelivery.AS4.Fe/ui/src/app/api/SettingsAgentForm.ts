@@ -11,7 +11,7 @@ export class SettingsAgentForm {
         return formBuilder.group({
             [SettingsAgent.FIELD_name]: [current && current.name],
             [SettingsAgent.FIELD_receiver]: ReceiverForm.getForm(formBuilder.subForm(SettingsAgent.FIELD_receiver), current && current.receiver, formBuilder.injector).form,
-            [SettingsAgent.FIELD_transformer]: TransformerForm.getForm(formBuilder.subForm(SettingsAgent.FIELD_transformer), current && current.transformer).form,
+            [SettingsAgent.FIELD_transformer]: TransformerForm.getForm(formBuilder.subForm(SettingsAgent.FIELD_transformer), current && current.transformer, formBuilder.injector).form,
             [SettingsAgent.FIELD_stepConfiguration]: StepsForm.getForm(formBuilder.subForm(SettingsAgent.FIELD_stepConfiguration), current && current.stepConfiguration).form
         });
     }

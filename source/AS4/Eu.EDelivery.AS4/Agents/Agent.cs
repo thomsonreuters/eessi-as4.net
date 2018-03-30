@@ -4,7 +4,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Builders;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Receivers;
@@ -98,7 +97,7 @@ namespace Eu.EDelivery.AS4.Agents
             try
             {
                 ITransformer transformer = TransformerBuilder.FromTransformerConfig(_transformerConfig);
-                context = await transformer.TransformAsync(message, cancellation);
+                context = await transformer.TransformAsync(message);
             }
             catch (Exception exception)
             {
@@ -107,12 +106,10 @@ namespace Eu.EDelivery.AS4.Agents
                 return await _exceptionHandler.HandleTransformationException(exception, message);
             }
 
-            return await TryExecuteSteps(context, cancellation);
+            return await TryExecuteSteps(context);
         }
 
-        private async Task<MessagingContext> TryExecuteSteps(
-            MessagingContext currentContext,
-            CancellationToken cancellation)
+        private async Task<MessagingContext> TryExecuteSteps(MessagingContext currentContext)
         {
             if (AgentHasNoStepsToExecute())
             {
@@ -124,7 +121,7 @@ namespace Eu.EDelivery.AS4.Agents
             try
             {
                 IEnumerable<IStep> steps = CreateSteps(_stepConfiguration?.NormalPipeline, _conditionalPipeline.happyPath);
-                result = await ExecuteSteps(steps, currentContext, cancellation);
+                result = await ExecuteSteps(steps, currentContext);
             }
             catch (Exception exception)
             {
@@ -137,7 +134,7 @@ namespace Eu.EDelivery.AS4.Agents
                 if (result.Succeeded == false && weHaveAnyUnhappyPath && result.MessagingContext.Exception == null)
                 {
                     IEnumerable<IStep> steps = CreateSteps(_stepConfiguration?.ErrorPipeline, _conditionalPipeline.unhappyPath);
-                    result = await ExecuteSteps(steps, result.MessagingContext, cancellation);
+                    result = await ExecuteSteps(steps, result.MessagingContext);
                 }
 
                 return result.MessagingContext;
@@ -171,8 +168,7 @@ namespace Eu.EDelivery.AS4.Agents
 
         private static async Task<StepResult> ExecuteSteps(
             IEnumerable<IStep> steps,
-            MessagingContext context,
-            CancellationToken cancellation)
+            MessagingContext context)
         {
             StepResult result = StepResult.Success(context);
 
@@ -180,7 +176,7 @@ namespace Eu.EDelivery.AS4.Agents
 
             foreach (IStep step in steps)
             {
-                result = await step.ExecuteAsync(currentContext, cancellation).ConfigureAwait(false);
+                result = await step.ExecuteAsync(currentContext).ConfigureAwait(false);
 
                 if (result.CanProceed == false || result.Succeeded == false || result.MessagingContext?.Exception != null)
                 {

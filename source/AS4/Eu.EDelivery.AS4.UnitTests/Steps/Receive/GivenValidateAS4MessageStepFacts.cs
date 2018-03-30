@@ -122,7 +122,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
         {
             var sut = new ValidateAS4MessageStep();
 
-            return await sut.ExecuteAsync(new MessagingContext(message, MessagingContextMode.Receive), CancellationToken.None);
+            return await sut.ExecuteAsync(new MessagingContext(message, MessagingContextMode.Receive));
         }
     }
 }

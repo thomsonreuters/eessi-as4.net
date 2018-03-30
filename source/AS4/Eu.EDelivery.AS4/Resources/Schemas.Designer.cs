@@ -19,7 +19,7 @@ namespace Eu.EDelivery.AS4.Resources {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "4.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class Schemas {
@@ -97,7 +97,7 @@ namespace Eu.EDelivery.AS4.Resources {
         ///
         ///    This program is distributed in the hope that it will be useful,
         ///    but WITHOUT ANY WARRANTY; without even the implied warranty of
-        ///    MERCHANTAB [rest of string was truncated]&quot;;.
+        ///   [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string ebms_delivery {
             get {
@@ -136,7 +136,7 @@ namespace Eu.EDelivery.AS4.Resources {
         ///&lt;xs:schema xmlns:xs=&quot;http://www.w3.org/2001/XMLSchema&quot;
         ///           xmlns=&quot;http://docs.oasis-open.org/ebxml-msg/ns/ebms/v3.0/multihop/200902/&quot;
         ///           xmlns:ebint=&quot;http://docs.oasis-open.org/ebxml-msg/ns/ebms/v3.0/multihop/200902/&quot;
-        ///           xmlns:eb3=&quot;http://doc [rest of string was truncated]&quot;;.
+        ///           xmlns:e [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string ebms_multihop_1_0_200902_refactored {
             get {
@@ -198,9 +198,7 @@ namespace Eu.EDelivery.AS4.Resources {
         ///     http://www.w3.org/Consortium/Legal/
         ///
         ///     This document is governed by the W3C Software License [1] as
-        ///     described in the FAQ [2].
-        ///
-        ///     [rest of string was truncated]&quot;;.
+        ///     described in the FAQ [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string Soap12 {
             get {
@@ -249,8 +247,7 @@ namespace Eu.EDelivery.AS4.Resources {
         ///   (Massachusetts Institute of Technology, European Research Consortium for
         ///   Informatics and Mathematics, Keio University). All Rights Reserved. This
         ///   work is distributed under the W3C® Software License [1] in the hope that
-        ///   it will be useful, but WITHOUT ANY WARRANTY; without even the implied
-        ///    [rest of string was truncated]&quot;;.
+        ///   it will be useful, but WITHOUT ANY WARRANTY; without even the  [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string ws_addr {
             get {

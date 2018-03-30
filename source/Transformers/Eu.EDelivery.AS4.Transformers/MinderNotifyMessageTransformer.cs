@@ -20,8 +20,7 @@ namespace Eu.EDelivery.AS4.Transformers
     public abstract class MinderNotifyMessageTransformer : ITransformer
     {
         protected abstract string MinderUriPrefix { get; }
-
-        protected Logger Logger = LogManager.GetCurrentClassLogger();
+        protected Logger Logger => LogManager.GetCurrentClassLogger();
 
         /// <summary>
         /// Configures the <see cref="ITransformer"/> implementation with specific user-defined properties.
@@ -33,16 +32,14 @@ namespace Eu.EDelivery.AS4.Transformers
         /// Transform a given <see cref="ReceivedMessage"/> to a Canonical <see cref="MessagingContext"/> instance.
         /// </summary>
         /// <param name="message">Given message to transform.</param>
-        /// <param name="cancellationToken">Cancellation which stops the transforming.</param>
         /// <returns></returns>
-        public async Task<MessagingContext> TransformAsync(ReceivedMessage message, CancellationToken cancellationToken)
+        public async Task<MessagingContext> TransformAsync(ReceivedMessage message)
         {
             var as4Transformer = new AS4MessageTransformer();
             
-            MessagingContext context = await as4Transformer.TransformAsync(message, cancellationToken);
+            MessagingContext context = await as4Transformer.TransformAsync(message);
 
             var receivedEntityMessage = message as ReceivedEntityMessage;
-
             if (receivedEntityMessage == null)
             {
                 throw new NotSupportedException($"Minder Notify Transformer only supports transforming instances of type {typeof(ReceivedEntityMessage)}");
@@ -68,12 +65,11 @@ namespace Eu.EDelivery.AS4.Transformers
                 Logger.Warn($"{as4Message.PrimaryUserMessage?.MessageId} AS4Message does not contain a primary SignalMessage");
             }
 
-            var notifyEnvelope = await CreateMinderNotifyMessageEnvelope(userMessage, signalMessage, receivedEntityType).ConfigureAwait(false);
-
-            return notifyEnvelope;
+            return await CreateMinderNotifyMessageEnvelope(userMessage, signalMessage, receivedEntityType).ConfigureAwait(false);
         }
 
-        private async Task<NotifyMessageEnvelope> CreateMinderNotifyMessageEnvelope(UserMessage userMessage, SignalMessage signalMessage, Type receivedEntityMessageType)
+        private async Task<NotifyMessageEnvelope> CreateMinderNotifyMessageEnvelope(
+            UserMessage userMessage, SignalMessage signalMessage, Type receivedEntityMessageType)
         {
             if (userMessage == null && signalMessage != null)
             {
@@ -92,8 +88,6 @@ namespace Eu.EDelivery.AS4.Transformers
 
             // The NotifyMessage that Minder expects, is an AS4Message which contains the specific UserMessage.
             var msg = AS4Message.Create(userMessage, new SendingProcessingMode());
-
-
             var serializer = Registry.Instance.SerializerProvider.Get(msg.ContentType);
 
             byte[] content;

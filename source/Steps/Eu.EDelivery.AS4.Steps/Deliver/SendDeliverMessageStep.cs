@@ -1,9 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
-using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
-using Eu.EDelivery.AS4.Model.Deliver;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Strategies.Sender;
@@ -24,7 +22,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         /// <summary>
         /// Initializes a new instance of the <see cref="SendDeliverMessageStep"/> class
         /// </summary>
-        public SendDeliverMessageStep() : this(Registry.Instance.DeliverSenderProvider) {}
+        public SendDeliverMessageStep() : this(Registry.Instance.DeliverSenderProvider) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SendDeliverMessageStep"/> class
@@ -42,34 +40,33 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         /// to the consuming business application
         /// </summary>
         /// <param name="messagingContext"></param>
-        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
-            Logger.Info($"[{messagingContext.DeliverMessage?.MessageInfo?.MessageId}] Start sending the Deliver Message to the consuming Business Application");
+            Logger.Info(
+                $"[{messagingContext.DeliverMessage?.MessageInfo?.MessageId}]" +
+                " Start sending the Deliver Message to the consuming Business Application");
 
-            await SendDeliverMessage(messagingContext).ConfigureAwait(false);
-            return await StepResult.SuccessAsync(messagingContext);
-        }
-
-        private async Task SendDeliverMessage(MessagingContext context)
-        {
-            if (context.ReceivingPMode == null)
+            if (messagingContext.ReceivingPMode == null)
             {
-                throw new InvalidOperationException("Unable to send DeliverMessage: the MessagingContext does not contain a Receiving PMode");
+                throw new InvalidOperationException(
+                    "Unable to send DeliverMessage: the MessagingContext does not contain a Receiving PMode");
             }
 
-            if (context.ReceivingPMode.MessageHandling?.DeliverInformation == null)
+            if (messagingContext.ReceivingPMode.MessageHandling?.DeliverInformation == null)
             {
-                throw new InvalidOperationException("Unable to send DeliverMessage: the ReceivingPMode does not contain any DeliverInformation");
+                throw new InvalidOperationException(
+                    "Unable to send DeliverMessage: the ReceivingPMode does not contain any DeliverInformation");
             }
 
-            DeliverMessageEnvelope deliverMessage = context.DeliverMessage;
-            Method deliverMethod = context.ReceivingPMode.MessageHandling.DeliverInformation.DeliverMethod;
+            Method deliverMethod = messagingContext.ReceivingPMode.MessageHandling.DeliverInformation.DeliverMethod;
 
             IDeliverSender sender = _provider.GetDeliverSender(deliverMethod?.Type);
             sender.Configure(deliverMethod);
-            await sender.SendAsync(deliverMessage).ConfigureAwait(false);
+
+            await sender.SendAsync(messagingContext.DeliverMessage).ConfigureAwait(false);
+
+            return StepResult.Success(messagingContext);
         }
     }
 }

@@ -2,7 +2,6 @@
 using System.ComponentModel;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
 using Eu.EDelivery.AS4.Common;
@@ -51,11 +50,8 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// Execute the step for a given <paramref name="messagingContext" />.
         /// </summary>
         /// <param name="messagingContext">Message used during the step execution.</param>
-        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<StepResult> ExecuteAsync(
-            MessagingContext messagingContext,
-            CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
             var pullRequest = messagingContext.AS4Message.PrimarySignalMessage as PullRequest;
 

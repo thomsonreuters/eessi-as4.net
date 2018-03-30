@@ -67,7 +67,8 @@ namespace Eu.EDelivery.AS4.Model.PMode
 
     public class ReplyHandlingSetting
     {
-        [Description("Reply pattern")]
+        [Description("Define whether the response must be sent directly by writing it to the Response stream of the HTTP call, or if it should be sent asynchronously by sending it later.")]
+        [DefaultValue(ReplyPattern.Response)]
         public ReplyPattern ReplyPattern { get; set; }
         [Description("ID of the (sending) PMode that must be used to send the Receipt or Error message.")]
         public string SendingPMode { get; set; }
@@ -94,7 +95,8 @@ namespace Eu.EDelivery.AS4.Model.PMode
         /// <summary>
         /// Flag that determines whether of not Non-Repudiation of Receipt must be used.
         /// </summary>
-        [Description("Use non-repudiation of receipt format")]
+        [Description("Indicate if the Non-Repudiation Information of the received UserMessage must be included in the " +
+                     "Receipt that will be sent.")]
         public bool UseNRRFormat
         {
             get { return _useNRRFormat ?? false; }
@@ -181,11 +183,11 @@ namespace Eu.EDelivery.AS4.Model.PMode
 
     public class SigningVerification
     {
-        [Description("Signature verification")]
+        [Description("Define if the received Message must be signed (Required), may not be signed (Not Allowed), can be signed (Allowed) or if the signature must not be verified if present (Ignored).")]
         public Limit Signature { get; set; }
 
         [DefaultValue(false)]
-        [Description("Allow unknown root certificate authority")]
+        [Description("When enabled, signature verification will not fail if the certificate chain ends in a root certificate that is not trusted. The default value is false.")]
         [Info("When set to true, signature verification will not fail if the certificate chain ends in a root certificate that is not trusted. The default value is false.")]
         public bool AllowUnknownRootCertificate { get; set; }
 
@@ -205,11 +207,11 @@ namespace Eu.EDelivery.AS4.Model.PMode
         /// </summary>
         public Decryption()
         {
-            Encryption = Limit.Allowed;
+            Encryption = Limit.Ignored;
             CertificateType = PrivateKeyCertificateChoiceType.None;
         }
 
-        [Description("Decryption")]
+        [Description("Define if the received Message must be encrypted (Required), may not be encrypted (Not Allowed), can be encrypted (Allowed) or should not be decrypted (Ignored)")]
         public Limit Encryption { get; set; }
 
         [XmlIgnore]
@@ -257,7 +259,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
     {
         [XmlIgnore]
         [ScriptIgnore]
-        [Description("Type")]
+        [Description("Define if the received message must be delivered or forwarded.")]
         public MessageHandlingChoiceType MessageHandlingType { get; set; }
 
         private object _item;
@@ -301,7 +303,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
 
     public class Deliver
     {
-        [Description("Enabled")]
+        [Description("Indicate whether or not the Message Payloads must be delivered.")]
         public bool IsEnabled { get; set; }
         [Description("Payload delivery method")]
         public Method PayloadReferenceMethod { get; set; }

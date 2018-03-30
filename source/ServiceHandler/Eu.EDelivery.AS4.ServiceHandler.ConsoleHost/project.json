@@ -17,7 +17,7 @@
     "NLog": "4.3.5"
   },
   "frameworks": {
-    ".NETFramework, Version=v4.6.1": {
+    ".NETFramework, Version=v4.6.2": {
       "dependencies": {
         "Microsoft.Bcl": "1.1.10",
         "Microsoft.Bcl.Async": "1.0.168",

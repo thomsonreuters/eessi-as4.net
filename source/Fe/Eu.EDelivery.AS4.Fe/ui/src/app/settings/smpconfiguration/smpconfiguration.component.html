@@ -1,0 +1,86 @@
+<as4-box>
+    <button type="button" class="btn btn-primary" (click)="addItem()">
+        <i class="fa fa-plus"></i>
+    </button>
+</as4-box>
+
+<form [formGroup]="form">
+    <ng-container formArrayName="items">
+        <div class="panel" *ngFor="let control of itemsControl.controls; let i = index" [formGroupName]="i">
+            <div class="form-horizontal">
+                <button type="button" class="btn btn-primary" (click)="deleteItem(control.value, i)">
+                    <i class="fa fa-trash"></i>
+                </button>
+                <button type="button" class="btn btn-primary" (click)="saveItem(control)" [attr.disabled]="control.dirty && control.valid ? null : ''">
+                    <i class="fa fa-save"></i>
+                </button>
+                <div class="row">
+                    <div class="col-md-6">
+                        <as4-input label="To party">
+                            <input type="text" class="form-control" formControlName="toPartyId">
+                            <as4-form-error [control]="control.get('toPartyId')"></as4-form-error>
+                        </as4-input>
+                        <as4-input label="Party role">
+                            <input type="text" class="form-control" formControlName="partyRole">
+                            <as4-form-error [control]="control.get('partyRole')"></as4-form-error>
+                        </as4-input>
+                        <as4-input label="Party type">
+                            <input type="text" class="form-control" formControlName="partyType">
+                            <as4-form-error [control]="control.get('partyType')"></as4-form-error>
+                        </as4-input>
+                        <as4-input label="URL">
+                            <input type="text" class="form-control" formControlName="url">
+                            <as4-form-error [control]="control.get('url')"></as4-form-error>
+                        </as4-input>
+                        <as4-input label="Service value">
+                            <input type="text" class="form-control" formControlName="serviceValue">
+                            <as4-form-error [control]="control.get('serviceValue')"></as4-form-error>
+                        </as4-input>
+                        <as4-input label="Service type">
+                            <input type="text" class="form-control" formControlName="serviceType">
+                            <as4-form-error [control]="control.get('serviceType')"></as4-form-error>
+                        </as4-input>
+                        <as4-input label="Action">
+                            <input type="text" class="form-control" formControlName="action">
+                            <as4-form-error [control]="control.get('action')"></as4-form-error>
+                        </as4-input>
+                        <as4-input label="Final recipient">
+                            <input type="text" formControlName="finalRecipient">
+                            <as4-form-error [control]="control.get('finalRecipient')"></as4-form-error>
+                        </as4-input>
+                    </div>
+                    <div class="col-md-6">
+                        <as4-input label="TLS enabled">
+                            <input type="checkbox" formControlName="tlsEnabled">
+                        </as4-input>
+                        <as4-input label="Encryption">
+                            <input type="checkbox" formControlName="encryptionEnabled">
+                        </as4-input>
+                        <as4-input label="Encryption algorithm">
+                            <input type="text" class="form-control" formControlName="encryptAlgorithm">
+                            <as4-form-error [control]="control.get('encryptAlgorithm')"></as4-form-error>
+                        </as4-input>
+                        <as4-input label="Encryption MGF algorithm">
+                            <input type="text" class="form-control" formControlName="encryptKeyMgfAlorithm">
+                            <as4-form-error [control]="control.get('encryptKeyMgfAlorithm')"></as4-form-error>
+                        </as4-input>
+                        <as4-input label="Encryption algorithm key size">
+                            <input type="number" class="form-control" formControlName="encryptAlgorithmKeySize">
+                        </as4-input>
+                        <as4-input label="Encryption digest algorithm">
+                            <input type="text" class="form-control" formControlName="encryptKeyDigestAlgorithm">
+                            <as4-form-error [control]="control.get('encryptKeyDigestAlgorithm')"></as4-form-error>
+                        </as4-input>
+                        <as4-input label="Encryption key transport algorithm">
+                            <input type="text" class="form-control" formControlName="encryptKeyTransportAlgorithm">
+                            <as4-form-error [control]="control.get('encryptKeyTransportAlgorithm')"></as4-form-error>
+                        </as4-input>
+                        <as4-input label="Encryption public key certificate">
+                            <as4-file-select formControlName="encryptPublicKeyCertificate" [fileNameControl]="control.get('encryptPublicKeyCertificateName')"></as4-file-select>
+                        </as4-input>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </ng-container>
+</form>

@@ -10,7 +10,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Strategies.Sender
     /// <summary>
     /// <see cref="IDeliverSender"/>, <see cref="INotifySender"/> implementation to sabotage the sending.
     /// </summary>
-    public class SaboteurSender : IDeliverSender, INotifySender
+    internal class SaboteurSender : IDeliverSender, INotifySender
     {
         /// <summary>
         /// Configure the <see cref="IDeliverSender" />

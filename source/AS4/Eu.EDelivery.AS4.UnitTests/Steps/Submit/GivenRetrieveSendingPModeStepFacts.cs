@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
-using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
@@ -33,7 +31,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
             var sut = new RetrieveSendingPModeStep(CreateStubConfigWithSendingPMode(invalidPMode));
 
             // Act / Assert
-            await Assert.ThrowsAnyAsync<Exception>(() => sut.ExecuteAsync(internalMessage, CancellationToken.None));
+            await Assert.ThrowsAnyAsync<Exception>(() => sut.ExecuteAsync(internalMessage));
         }
 
         private static SubmitMessage GetStubSubmitMessage(string pmodeId)

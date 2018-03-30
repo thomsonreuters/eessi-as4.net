@@ -16,13 +16,15 @@ namespace Eu.EDelivery.AS4.UnitTests.Agents
     public class GivenCleanUpAgentFacts : GivenDatastoreFacts
     {
         [Property]
-        public Property Only_Overdue_Entries_Are_Deleted(int insertion, int retention)
+        public Property Only_Overdue_Entries_Are_Deleted(NegativeInt negative, int retention)
         {
             // Arrange
+            int insertion = negative.Get;
             string id = Guid.NewGuid().ToString();
             GetDataStoreContext.InsertOutMessage(
-                CreateOutMessage(id, DateTimeOffset.UtcNow.Add(TimeSpan.FromDays(insertion))));
-            
+                CreateOutMessage(id, DateTimeOffset.UtcNow.Add(TimeSpan.FromDays(insertion))),
+                withReceptionAwareness: false);
+
             // Act
             ExerciseCleaningEntries(retention);
 
@@ -35,12 +37,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Agents
         }
 
         [Property]
-        public Property Referenced_Reception_Awareness_Entries_Are_Also_Deleted(int insertion, int retention)
+        public Property Referenced_Reception_Awareness_Entries_Are_Also_Deleted(NegativeInt negative, int retention)
         {
             // Arrange
+            int insertion = negative.Get;
             string id = Guid.NewGuid().ToString();
-            GetDataStoreContext.InsertOutMessage(CreateOutMessage(id, DateTimeOffset.UtcNow.Add(TimeSpan.FromDays(insertion))));
-            GetDataStoreContext.InsertReceptionAwareness(new ReceptionAwareness{InternalMessageId = id});
+            GetDataStoreContext.InsertOutMessage(
+                CreateOutMessage(id, DateTimeOffset.UtcNow.Add(TimeSpan.FromDays(insertion))),
+                withReceptionAwareness: true);
 
             // Act
             ExerciseCleaningEntries(retention);
@@ -79,7 +83,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Agents
         {
             using (DatastoreContext ctx = GetDataStoreContext())
             {
-                return ctx.ReceptionAwareness.Where(r => r.InternalMessageId.Equals(refId)).ToArray();
+                return ctx.ReceptionAwareness.Where(r => r.RefToEbmsMessageId.Equals(refId)).ToArray();
             }
         }
 
@@ -139,6 +143,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Agents
                 Operation.NotApplicable,
                 Operation.Undetermined
             };
-}
+    }
 }
 

@@ -10,7 +10,7 @@ import { ModalService } from './modal.service';
 @Component({
     selector: 'as4-modal, [as4-modal]',
     template: `
-        <div *ngIf="isVisible" class="modal fade" [class.in]="isVisible" [class.show-modal]="isVisible" id="myModal" [ngClass]="{ 'zIndexTop': type === 'modal-danger' || !!!type, 'zIndexNormal': type !== 'modal-danger'}" role="dialog" aria-labelledby="myModalLabel" #modal>
+        <div *ngIf="isVisible" class="modal fade" (keyup.enter)="enter($event)" [class.in]="isVisible" [class.show-modal]="isVisible" id="myModal" [ngClass]="{ 'zIndexTop': type === 'modal-danger' || !!!type, 'zIndexNormal': type !== 'modal-danger'}" role="dialog" aria-labelledby="myModalLabel" #modal>
             <div class="modal-dialog" role="document" [ngClass]="{ 'zIndexTop': type === 'modal-danger' || !!!type, 'zIndexNormal': type !== 'modal-danger', 'modal-danger': !!type }" focus>
                 <div class="modal-content">
                     <div class="modal-header">
@@ -39,6 +39,11 @@ import { ModalService } from './modal.service';
     exportAs: 'as4-modal'
 })
 export class ModalComponent implements OnDestroy {
+    public enter(event: KeyboardEvent & { target: { value: string } }) {
+        if (event.keyCode === 13) {
+            this.ok();
+        }
+    }
     public isVisible: boolean = false;
     public result: any | null;
     public type: string = '';

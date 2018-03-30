@@ -98,6 +98,18 @@ namespace Eu.EDelivery.AS4.Fe.Runtime
         }
 
         /// <summary>
+        /// Gets the dynamic discovery profiles.
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("getdynamicdiscoveryprofiles")]
+        [SwaggerResponse((int) HttpStatusCode.OK, typeof(OkResult))]
+        public IEnumerable<ItemType> GetDynamicDiscoveryProfiles()
+        {
+            return runtimeLoader.DynamicDiscoveryProfiles;
+        }
+
+        /// <summary>
         /// Gets the notify senders.
         /// </summary>
         /// <returns></returns>
@@ -128,7 +140,8 @@ namespace Eu.EDelivery.AS4.Fe.Runtime
                 DeliverSenders = GetDeliverSenders(),
                 NotifySenders = GetNotifySenders(),
                 AttachmentUploaders = GetAttachmentUploaders(),
-                RuntimeMetaData = JObject.Parse(JsonConvert.SerializeObject(runtimeLoader.ReceivingPmode, Formatting.Indented, new FlattenRuntimeToJsonConverter()))
+                DynamicDiscoveryProfiles = GetDynamicDiscoveryProfiles(),
+                RuntimeMetaData = JObject.Parse(JsonConvert.SerializeObject(runtimeLoader.MetaData, Formatting.Indented, new FlattenRuntimeToJsonConverter()))
             });
         }
 
@@ -144,7 +157,7 @@ namespace Eu.EDelivery.AS4.Fe.Runtime
         {
             return new ContentResult
             {
-                Content = JsonConvert.SerializeObject(runtimeLoader.ReceivingPmode, Formatting.Indented, new FlattenRuntimeToJsonConverter()),
+                Content = JsonConvert.SerializeObject(runtimeLoader.MetaData, Formatting.Indented, new FlattenRuntimeToJsonConverter()),
                 ContentType = "application/json"
             };
         }

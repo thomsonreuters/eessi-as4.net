@@ -561,17 +561,6 @@ Failed to decrypt data element
                     Setup();
                     await ExpectExceptionAsync(() => monitorService.DownloadMessageBody(Direction.Inbound, null), typeof(ArgumentNullException));
                 }
-
-                [Fact]
-                public async Task Gets_The_MessageBody()
-                {
-                    var testBody = Encoding.ASCII.GetBytes(MessageBody1);
-                    var testBody2 = Encoding.ASCII.GetBytes(MessageBody2);
-                    var result = await Setup().monitorService.DownloadMessageBody(Direction.Inbound, InEbmsMessageId1);
-                    var result2 = await Setup().monitorService.DownloadMessageBody(Direction.Outbound, OutEbmsMessageId1);
-                    Assert.True(Encoding.ASCII.GetString(testBody) == MessageBody1);
-                    Assert.True(Encoding.ASCII.GetString(testBody2) == MessageBody2);
-                }
             }
 
             public class DownloadExceptionBody : MonitorServiceTests

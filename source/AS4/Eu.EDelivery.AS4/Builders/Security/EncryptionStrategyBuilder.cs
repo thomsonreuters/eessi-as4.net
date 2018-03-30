@@ -7,9 +7,9 @@ using Eu.EDelivery.AS4.Security.Strategies;
 namespace Eu.EDelivery.AS4.Builders.Security
 {
     /// <summary>
-    /// Builder used to create <see cref="IEncryptionStrategy"/> implementation.
+    /// Builder used to create <see cref="EncryptionStrategy"/> instance.
     /// </summary>
-    public class EncryptionStrategyBuilder
+    internal class EncryptionStrategyBuilder
     {
         private readonly AS4Message _as4Message;
         private readonly KeyEncryptionConfiguration _keyConfiguration;

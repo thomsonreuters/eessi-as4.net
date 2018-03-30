@@ -17,6 +17,7 @@ using PartyId = Eu.EDelivery.AS4.Model.Core.PartyId;
 
 namespace Eu.EDelivery.AS4.Steps.Deliver
 {
+    [NotConfigurable]
     [ExcludeFromCodeCoverage]
     public class MinderTestCreateDeliverEnvelopeStep : IConfigStep
     {
@@ -35,9 +36,8 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         /// Execute the step for a given <paramref name="messagingContext"/>.
         /// </summary>
         /// <param name="messagingContext">Message used during the step execution.</param>
-        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
+        public Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
             bool includeAttachments = true;
 

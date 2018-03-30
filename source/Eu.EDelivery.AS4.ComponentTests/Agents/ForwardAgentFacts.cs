@@ -72,6 +72,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             Assert.NotNull(AS4XmlSerializer.FromString<ReceivingProcessingMode>(inMessage.PMode));
 
             Assert.NotNull(outMessage);
+            Assert.True(outMessage.Intermediary);
             Assert.Equal(Operation.ToBeProcessed, OperationUtils.Parse(outMessage.Operation));
             Assert.NotNull(AS4XmlSerializer.FromString<SendingProcessingMode>(outMessage.PMode));
         }

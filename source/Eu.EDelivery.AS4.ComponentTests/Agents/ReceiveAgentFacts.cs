@@ -8,6 +8,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Xml;
 using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.ComponentTests.Common;
@@ -23,8 +24,8 @@ using Eu.EDelivery.AS4.Xml;
 using Xunit;
 using static Eu.EDelivery.AS4.ComponentTests.Properties.Resources;
 using Error = Eu.EDelivery.AS4.Model.Core.Error;
-using NonRepudiationInformation = Eu.EDelivery.AS4.Model.Core.NonRepudiationInformation;
 using MessagePartNRInformation = Eu.EDelivery.AS4.Model.Core.MessagePartNRInformation;
+using NonRepudiationInformation = Eu.EDelivery.AS4.Model.Core.NonRepudiationInformation;
 using Parameter = Eu.EDelivery.AS4.Model.PMode.Parameter;
 using PartyId = Eu.EDelivery.AS4.Model.Core.PartyId;
 using Receipt = Eu.EDelivery.AS4.Model.Core.Receipt;
@@ -142,13 +143,20 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             HttpResponseMessage response = await StubSender.SendAS4Message(_receiveAgentUrl, message);
 
             // Assert
-            Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
-            var inMessageRecord = _databaseSpy.GetInMessageFor(m => m.EbmsMessageId == messageId);
-            var inExceptionRecord = _databaseSpy.GetInExceptions(e => e.EbmsRefToMessageId == messageId).FirstOrDefault();
+            AS4Message result = await SerializerProvider.Default
+                .Get(Constants.ContentTypes.Soap)
+                .DeserializeAsync(await response.Content.ReadAsStreamAsync(), Constants.ContentTypes.Soap, CancellationToken.None);
 
-            Assert.Equal(InStatus.Exception, InStatusUtils.Parse(inMessageRecord.Status));
-            Assert.NotNull(inExceptionRecord);
+            var errorMsg = result.PrimarySignalMessage as Error;
+            Assert.NotNull(errorMsg);
+            Assert.Collection(
+                errorMsg.Errors, 
+                e => Assert.Equal($"EBMS:{(int)ErrorCode.Ebms0010:0000}", e.ErrorCode));
+
+            InMessage inMessageRecord = _databaseSpy.GetInMessageFor(m => m.EbmsMessageId == messageId);
+            Assert.Equal(InStatus.Received, InStatusUtils.Parse(inMessageRecord.Status));
         }
 
         [Fact]
@@ -444,6 +452,68 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         }
 
         [Fact]
+        public async Task ThenReceivedMultihopUserMessageIsSetAsIntermediaryAndForwarded()
+        {
+            // Arrange
+            var userMessage = new UserMessage("test-" + Guid.NewGuid())
+            {
+                CollaborationInfo = {AgreementReference = {PModeId = "Forward_Push_Multihop"}}
+            };
+            var multihopPMode = new SendingProcessingMode {MessagePackaging = {IsMultiHop = true}};
+            AS4Message multihopMessage = AS4Message.Create(userMessage, multihopPMode);
+
+            // Act
+            HttpResponseMessage response = await StubSender.SendAS4Message(_receiveAgentUrl, multihopMessage);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.Accepted, response.StatusCode);
+
+            InMessage inUserMessage = _databaseSpy.GetInMessageFor(m => m.EbmsMessageId == userMessage.MessageId);
+
+            Assert.NotNull(inUserMessage);
+            Assert.True(inUserMessage.Intermediary);
+            Assert.Equal(Operation.ToBeForwarded, OperationUtils.Parse(inUserMessage.Operation));
+        }
+
+        [Fact]
+        public async Task ThenReceivedMultihopUserMessageIsntSetToIntermediaryButDeliveredWithCorrespondingSentReceipt()
+        {
+            // Arrange
+            var userMessage = new UserMessage("test-" + Guid.NewGuid())
+            {
+                CollaborationInfo = {AgreementReference = {PModeId = "ComponentTest_ReceiveAgent_Sample1"}}
+            };
+            var multihopPMode = new SendingProcessingMode {MessagePackaging = {IsMultiHop = true}};
+            AS4Message multihopMessage = AS4Message.Create(userMessage, multihopPMode);
+
+            // Act
+            HttpResponseMessage response = await StubSender.SendAS4Message(_receiveAgentUrl, multihopMessage);
+
+            // Assert
+            AS4Message responseReceipt = await response.DeserializeToAS4Message();
+            AssertMessageMultihopAttributes(responseReceipt.EnvelopeDocument);
+            Assert.True(responseReceipt.IsMultiHopMessage);
+
+            InMessage inUserMessage = _databaseSpy.GetInMessageFor(m => m.EbmsMessageId == userMessage.MessageId);
+
+            Assert.NotNull(inUserMessage);
+            Assert.False(inUserMessage.Intermediary);
+            Assert.Equal(Operation.ToBeDelivered, OperationUtils.Parse(inUserMessage.Operation));
+
+            OutMessage outReceipt = _databaseSpy.GetOutMessageFor(m => m.EbmsRefToMessageId == userMessage.MessageId);
+            Assert.Equal(OutStatus.Sent, OutStatusUtils.Parse(outReceipt.Status));
+        }
+
+        private static void AssertMessageMultihopAttributes(XmlDocument doc)
+        {
+            var messagingNode = doc.SelectSingleNode("//*[local-name()='Messaging']") as XmlElement;
+
+            Assert.NotNull(messagingNode);
+            Assert.Equal(Constants.Namespaces.EbmsNextMsh, messagingNode.GetAttribute("role", Constants.Namespaces.Soap12));
+            Assert.True(XmlConvert.ToBoolean(messagingNode.GetAttribute("mustUnderstand", Constants.Namespaces.Soap12)));
+        }
+
+        [Fact]
         public async Task ThenReceivedNonMultihopSignalMessageWithoutRelatedUserMessageIsSetToException()
         {
             const string messageId = "message-id";
@@ -467,17 +537,29 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         [Fact]
         public async Task ThenMultiHopSignalMessageIsToBeForwarded()
         {
+            // Arrange
             const string messageId = "multihop-signalmessage-id";
-            var as4Message = CreateMultihopSignalMessage(messageId, "someusermessageid");
+            AS4Message as4Message = CreateMultihopSignalMessage(messageId, "someusermessageid");
 
             // Act
             await StubSender.SendAS4Message(_receiveAgentUrl, as4Message);
 
             // Assert
+            InMessage inMessage = _databaseSpy.GetInMessageFor(m => m.EbmsMessageId == messageId);
 
-            var inMessage = _databaseSpy.GetInMessageFor(m => m.EbmsMessageId == messageId);
             Assert.NotNull(inMessage);
+            Assert.True(inMessage.Intermediary);
             Assert.Equal(Operation.ToBeForwarded, OperationUtils.Parse(inMessage.Operation));
+
+            Stream messageBody = await Registry.Instance
+                .MessageBodyStore
+                .LoadMessageBodyAsync(inMessage.MessageLocation);
+
+            AS4Message savedMessage = await SerializerProvider.Default
+                .Get(inMessage.ContentType)
+                .DeserializeAsync(messageBody, inMessage.ContentType, CancellationToken.None);
+
+            Assert.NotNull(savedMessage.EnvelopeDocument.SelectSingleNode("//*[local-name()='RoutingInput']"));
         }
 
         [Fact]

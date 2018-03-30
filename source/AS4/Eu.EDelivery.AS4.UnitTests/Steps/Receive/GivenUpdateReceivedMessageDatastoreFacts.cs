@@ -60,7 +60,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 context = await ExecuteSaveReceivedMessage(context);
 
                 // Act
-                await Step.ExecuteAsync(context, CancellationToken.None);
+                await Step.ExecuteAsync(context);
 
                 // Assert
                 InMessage inMessage = GetInMessageWithRefToMessageId(EbmsMessageId);
@@ -90,7 +90,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
                 // Act / Assert
                 await Assert.ThrowsAsync<InvalidDataException>(
-                    () => Step.ExecuteAsync(message, CancellationToken.None));
+                    () => Step.ExecuteAsync(message));
             }
 
             private void InsertOutMessage(string messageId = EbmsMessageId)
@@ -125,7 +125,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 context = await ExecuteSaveReceivedMessage(context);
 
                 // Act
-                await Step.ExecuteAsync(context, CancellationToken.None);
+                await Step.ExecuteAsync(context);
 
                 // Assert
                 OutMessage outMessage = GetOutMessage(EbmsMessageId);
@@ -147,7 +147,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
         {
             // The receipt needs to be saved first, since we're testing the update-step.
             var step = new SaveReceivedMessageStep(GetDataStoreContext, _messageBodyStore);
-            var result = await step.ExecuteAsync(context, CancellationToken.None);
+            var result = await step.ExecuteAsync(context);
 
             return result.MessagingContext;
         }

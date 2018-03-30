@@ -1,6 +1,6 @@
-import { Subscription } from 'rxjs/Subscription';
 import { Component, OnDestroy } from '@angular/core';
-import { Router, RoutesRecognized, ActivatedRouteSnapshot, ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, ActivatedRouteSnapshot, Router, RoutesRecognized } from '@angular/router';
+import { Subscription } from 'rxjs/Subscription';
 
 @Component({
     selector: 'as4-wrapper',

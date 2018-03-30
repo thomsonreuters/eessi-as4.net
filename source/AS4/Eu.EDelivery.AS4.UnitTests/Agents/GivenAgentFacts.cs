@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -193,9 +192,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Agents
             /// Execute the step for a given <paramref name="messagingContext"/>.
             /// </summary>
             /// <param name="messagingContext">Message used during the step execution.</param>
-            /// <param name="cancellationToken"></param>
             /// <returns></returns>
-            public Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
+            public Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
             {
                 var result = new ErrorResult(description: null, alias: default(ErrorAlias));
 
@@ -209,9 +207,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Agents
             /// Execute the step for a given <paramref name="messagingContext"/>.
             /// </summary>
             /// <param name="messagingContext">Message used during the step execution.</param>
-            /// <param name="cancellationToken"></param>
             /// <returns></returns>
-            public Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
+            public Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
             {
                 return Task.FromResult(StepResult.Success(new UnHappyContext()));
             }

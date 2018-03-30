@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
@@ -25,9 +24,8 @@ namespace Eu.EDelivery.AS4.Transformers
         /// Tranform the Payload(s)
         /// </summary>
         /// <param name="message"></param>
-        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<MessagingContext> TransformAsync(ReceivedMessage message, CancellationToken cancellationToken)
+        public async Task<MessagingContext> TransformAsync(ReceivedMessage message)
         {
             Attachment attachment = CreateAttachmentFromReceivedMessage(message);
             AS4Message as4Message = AS4Message.Empty;

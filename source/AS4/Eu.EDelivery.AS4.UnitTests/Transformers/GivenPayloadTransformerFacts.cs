@@ -1,7 +1,6 @@
 ﻿using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
@@ -26,9 +25,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
                 var receivedMessage = new ReceivedMessage(stream, contentType);
 
                 // Act
-                MessagingContext messagingContext = await new PayloadTransformer().TransformAsync(
-                                                      receivedMessage,
-                                                      CancellationToken.None);
+                MessagingContext messagingContext = await new PayloadTransformer().TransformAsync(receivedMessage);
 
                 // Assert
                 Assert.NotNull(messagingContext);

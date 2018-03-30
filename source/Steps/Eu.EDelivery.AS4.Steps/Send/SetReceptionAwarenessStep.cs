@@ -1,11 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
 using System.ComponentModel;
-using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
-using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
@@ -26,9 +23,8 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// Start configuring Reception Awareness
         /// </summary>
         /// <param name="messagingContext"></param>
-        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
             if (!IsReceptionAwarenessEnabled(messagingContext))
             {
@@ -54,45 +50,41 @@ namespace Eu.EDelivery.AS4.Steps.Send
         private static async Task InsertReceptionAwarenessAsync(MessagingContext messagingContext)
         {
             Logger.Info($"{messagingContext.EbmsMessageId} Set Reception Awareness");
-            AS4Message as4Message = messagingContext.AS4Message;
 
             using (DatastoreContext context = Registry.Instance.CreateDatastoreContext())
             {
                 var repository = new DatastoreRepository(context);
 
-                Entities.ReceptionAwareness[] existingReceptionAwarenessEntities =
-                    repository.GetReceptionAwareness(as4Message.MessageIds).ToArray();
-
-                // For every MessageId for which no ReceptionAwareness entity exists, create one.
-                InsertReceptionAwarenessForMessages(messagingContext, repository, existingReceptionAwarenessEntities);
+                // Create the ReceptionAwareness record for the OutMessage
+                InsertReceptionAwarenessForMessages(messagingContext, repository);
 
                 await context.SaveChangesAsync().ConfigureAwait(false);
             }
         }
 
         private static void InsertReceptionAwarenessForMessages(
-            MessagingContext message,
-            IDatastoreRepository repository,
-            IEnumerable<Entities.ReceptionAwareness> existingReceptionAwarenessEntities)
+            MessagingContext context,
+            IDatastoreRepository repository)
         {
-            AS4Message as4Message = message.AS4Message;
-            IEnumerable<string> existingIds = existingReceptionAwarenessEntities.Select(r => r.InternalMessageId);
-            IEnumerable<string> messageIdsWithoutReceptionAwareness = as4Message.MessageIds.Where(id => existingIds.Contains(id) == false);
-
-            foreach (string messageId in messageIdsWithoutReceptionAwareness)
+            if (context.MessageEntityId == null)
             {
-                Entities.ReceptionAwareness receptionAwareness = CreateReceptionAwareness(messageId, message.SendingPMode);
-                repository.InsertReceptionAwareness(receptionAwareness);
+                throw new InvalidOperationException("Unable to retrieve the OutMessage information from the MessagingContext.ReceivedMessage");
             }
+
+            var receptionAwareness = 
+                CreateReceptionAwareness(context.MessageEntityId.Value, 
+                                         context.AS4Message.GetPrimaryMessageId(), 
+                                         context.SendingPMode);
+
+            repository.InsertReceptionAwareness(receptionAwareness);
         }
 
-        private static Entities.ReceptionAwareness CreateReceptionAwareness(string messageId, SendingProcessingMode pmode)
+        private static Entities.ReceptionAwareness CreateReceptionAwareness(long outMessageId, string ebmsMessageId, SendingProcessingMode pmode)
         {
             // The Message hasn't been sent yet, so set the currentretrycount to -1 and the lastsendtime to null.
-            // The SendMessageStep will update those values once the message has in fact been sent.
-            var receptionAwareness = new Entities.ReceptionAwareness
+            // The SendMessageStep will update those values once the context has in fact been sent.
+            var receptionAwareness = new Entities.ReceptionAwareness(outMessageId, ebmsMessageId)
             {
-                InternalMessageId = messageId,
                 CurrentRetryCount = -1,
                 TotalRetryCount = pmode.Reliability.ReceptionAwareness.RetryCount,
                 RetryInterval = pmode.Reliability.ReceptionAwareness.RetryInterval,

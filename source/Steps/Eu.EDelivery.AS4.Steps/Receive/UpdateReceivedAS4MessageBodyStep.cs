@@ -1,6 +1,5 @@
 ﻿using System;
 using System.ComponentModel;
-using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Model.Core;
@@ -23,7 +22,8 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// <summary>
         /// Initializes a new instance of the <see cref="UpdateReceivedAS4MessageBodyStep"/> class.
         /// </summary>
-        public UpdateReceivedAS4MessageBodyStep() : this(Registry.Instance.CreateDatastoreContext, Registry.Instance.MessageBodyStore) { }
+        public UpdateReceivedAS4MessageBodyStep() 
+            : this(Registry.Instance.CreateDatastoreContext, Registry.Instance.MessageBodyStore) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="UpdateReceivedAS4MessageBodyStep" /> class.
@@ -42,16 +42,21 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// Execute the step for a given <paramref name="messagingContext"/>.
         /// </summary>
         /// <param name="messagingContext">Message used during the step execution.</param>
-        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
             Logger.Info($"{messagingContext.AS4Message.GetPrimaryMessageId()} Update the received message");
 
             using (DatastoreContext datastoreContext = _createDatastoreContext())
             {
-                UpdateReceivedMessage(messagingContext, datastoreContext, cancellationToken);
-                await datastoreContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+                var repository = new DatastoreRepository(datastoreContext);
+                var service = new InMessageService(repository);
+
+                service.UpdateAS4MessageForMessageHandling(
+                    messagingContext,
+                    _messageBodyStore);
+
+                await datastoreContext.SaveChangesAsync().ConfigureAwait(false);
             }
 
             if (messagingContext.ReceivedMessageMustBeForwarded)
@@ -64,19 +69,6 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             }
 
             return StepResult.Success(messagingContext);
-        }
-
-        private void UpdateReceivedMessage(
-            MessagingContext messagingContext,
-            DatastoreContext datastoreContext,
-            CancellationToken cancellationToken)
-        {
-            var repository = new DatastoreRepository(datastoreContext);
-            var service = new InMessageService(repository);
-
-            service.UpdateAS4MessageForMessageHandling(
-                messagingContext,
-                _messageBodyStore);
         }
     }
 }
