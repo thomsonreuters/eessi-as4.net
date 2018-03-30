@@ -122,9 +122,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\packages\MimeKit.1.2.25\lib\net451\MimeKit.dll</HintPath>
     </Reference>
-    <Reference Include="ModuleInit, Version=1.0.0.0, Culture=neutral, PublicKeyToken=409b3227471b0f0d, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\ModuleInit.Fody.1.7.1\lib\net452\ModuleInit.dll</HintPath>
-    </Reference>
     <Reference Include="Moq, Version=4.7.99.0, Culture=neutral, PublicKeyToken=69f491c39445e920, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Moq.4.7.99\lib\net45\Moq.dll</HintPath>
     </Reference>
