@@ -21,7 +21,7 @@ namespace Eu.EDelivery.AS4.Singletons
         /// <returns></returns>
         public static IEnumerable<Type> GetAS4MappingProfiles()
         {
-            return typeof(AS4Mapper).Assembly.GetTypes().Where(typeof(Profile).IsAssignableFrom);
+            return typeof(AS4Mapper).Assembly.ExportedTypes.Where(typeof(Profile).IsAssignableFrom);
         }
 
         /// <summary>
