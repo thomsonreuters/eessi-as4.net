@@ -303,11 +303,7 @@
       <HintPath>..\..\..\packages\System.IO.FileSystem.Primitives.4.3.0\lib\net46\System.IO.FileSystem.Primitives.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="System.Net" />
-    <Reference Include="System.Net.Http, Version=4.1.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\..\..\packages\System.Net.Http.4.3.0\lib\net46\System.Net.Http.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
+    <Reference Include="System.Net.Http" />
     <Reference Include="System.Net.Sockets, Version=4.1.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\..\..\packages\System.Net.Sockets.4.3.0\lib\net46\System.Net.Sockets.dll</HintPath>
       <Private>True</Private>
@@ -406,7 +402,9 @@
     <None Include="metadata_sendingprocessingmode_noprops.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="packages.config" />
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
