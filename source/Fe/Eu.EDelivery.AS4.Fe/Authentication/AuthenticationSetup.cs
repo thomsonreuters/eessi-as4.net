@@ -76,14 +76,6 @@ namespace Eu.EDelivery.AS4.Fe.Authentication
                 }
                 await next.Invoke();
             });
-
-            //app.UseJwtBearerAuthentication(new JwtBearerOptions
-            //{
-            //    AutomaticAuthenticate = true,
-            //    AutomaticChallenge = true,
-            //    AuthenticationScheme = "JWT",
-            //    TokenValidationParameters = tokenValidationParameters
-            //});
         }
 
         private static void RegisterOptions(IServiceCollection services, IConfigurationRoot configuration)
