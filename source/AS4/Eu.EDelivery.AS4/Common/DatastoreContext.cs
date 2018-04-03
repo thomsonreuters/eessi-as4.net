@@ -154,6 +154,7 @@ namespace Eu.EDelivery.AS4.Common
 
             // Make sure no InvalidOperation is thrown when an ambient transaction is detected.
             optionsBuilder.ConfigureWarnings(x => x.Ignore(CoreEventId.IncludeIgnoredWarning));
+            optionsBuilder.ConfigureWarnings(x => x.Ignore(RelationalEventId.AmbientTransactionWarning));
             optionsBuilder.ConfigureWarnings(x => x.Ignore(InMemoryEventId.TransactionIgnoredWarning));
 
             var logger = new LoggerFactory();
