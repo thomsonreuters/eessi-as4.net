@@ -1,6 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Threading;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Common;
@@ -114,6 +112,32 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
             Assert.True(result.Succeeded);
             Assert.Equal(Constants.Namespaces.EbmsDefaultTo, result.MessagingContext.AS4Message.PrimaryUserMessage.Receiver.PartyIds.First().Id);
             Assert.Equal(Constants.Namespaces.EbmsDefaultRole, result.MessagingContext.AS4Message.PrimaryUserMessage.Receiver.Role);
+        }
+
+        [Fact]
+        public async Task MessageIsCreatedWithMessageProperties()
+        {
+            // Arrange
+            var pmode = CreateSendingPMode(fromParty: null, toParty: null);
+
+            var submitMessage = CreateSubmitMessage(pmode, fromParty: null, toParty: null);
+            submitMessage.MessageProperties = new []
+            {
+                new AS4.Model.Common.MessageProperty("originalSender","unregistered:C1"),
+                new AS4.Model.Common.MessageProperty("finalRecipient","unregistered:C2")
+            };
+
+            var context = new MessagingContext(submitMessage) { SendingPMode = pmode };
+
+            // Act
+            var result = await ExerciseCreation(context);
+            var as4Message = result.MessagingContext.AS4Message;
+
+            // Assert
+            Assert.True(result.Succeeded);
+            Assert.Equal(2, as4Message.PrimaryUserMessage.MessageProperties.Count);
+            Assert.Equal("unregistered:C1", as4Message.PrimaryUserMessage.MessageProperties.FirstOrDefault(p => p.Name.Equals("originalSender"))?.Value);
+            Assert.Equal("unregistered:C2", as4Message.PrimaryUserMessage.MessageProperties.FirstOrDefault(p => p.Name.Equals("finalRecipient"))?.Value);
         }
 
         [Fact]
