@@ -46,7 +46,7 @@ namespace Eu.EDelivery.AS4.WindowsService
             
                 if (!configuration.IsInitialized)
                 {
-                    _eventLog.WriteEntry("AS4.NET Component cannot be initialized");
+                    _eventLog.WriteEntry("AS4.NET Component cannot be initialized", EventLogEntryType.Error);
 
                     Stop();
                     return;
