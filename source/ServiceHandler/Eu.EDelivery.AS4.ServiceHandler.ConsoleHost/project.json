@@ -14,7 +14,8 @@
     "Microsoft.EntityFrameworkCore": "2.0.1",
     "Microsoft.Extensions.Caching.Memory": "2.0.0",
     "Microsoft.Extensions.Logging": "2.0.0",
-    "NLog": "4.3.5"
+    "NLog": "4.3.5",
+    "System.ValueTuple": "4.4.0"
   },
   "frameworks": {
     ".NETFramework, Version=v4.6.2": {
