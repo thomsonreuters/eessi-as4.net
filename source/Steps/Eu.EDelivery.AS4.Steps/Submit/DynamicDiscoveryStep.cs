@@ -10,7 +10,6 @@ using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Services.DynamicDiscovery;
 using Eu.EDelivery.AS4.Validators;
-using FluentValidation;
 using NLog;
 
 namespace Eu.EDelivery.AS4.Steps.Submit
