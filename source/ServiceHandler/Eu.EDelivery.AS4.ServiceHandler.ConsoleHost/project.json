@@ -12,6 +12,7 @@
     "Microsoft.AspNetCore.Mvc": "2.0.2",
     "Microsoft.AspNetCore.StaticFiles": "2.0.1",
     "Microsoft.EntityFrameworkCore": "2.0.1",
+    "Microsoft.EntityFrameworkCore.Relational": "2.0.1",
     "Microsoft.Extensions.Caching.Memory": "2.0.0",
     "Microsoft.Extensions.Logging": "2.0.0",
     "NLog": "4.3.5",
