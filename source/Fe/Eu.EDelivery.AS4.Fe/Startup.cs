@@ -1,4 +1,6 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
+using System.Security.Claims;
 using Eu.EDelivery.AS4.Fe;
 using Eu.EDelivery.AS4.Fe.Authentication;
 using Eu.EDelivery.AS4.Fe.Controllers;
@@ -9,6 +11,7 @@ using Eu.EDelivery.AS4.Fe.Runtime;
 using Eu.EDelivery.AS4.Fe.Settings;
 using Eu.EDelivery.AS4.Model.PMode;
 using Microsoft.AspNet.SignalR;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics;
@@ -20,6 +23,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 
 namespace Eu.EDelivery.AS4.Fe
@@ -72,6 +76,23 @@ namespace Eu.EDelivery.AS4.Fe
             services.Configure<ApplicationSettings>(Configuration.GetSection("Settings"));
             services.Configure<PortalSettings>(Configuration.Bind);
             services.AddOptions();
+
+            var jwtOptions = services.BuildServiceProvider().GetService<IOptionsSnapshot<JwtOptions>>().Value;
+            var tokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = jwtOptions.SigningKey,
+                ValidateIssuer = true,
+                ValidIssuer = jwtOptions.Issuer,
+                ValidateAudience = false,
+                ValidAudience = jwtOptions.Audience,
+                ValidateLifetime = true,
+                ClockSkew = TimeSpan.Zero,
+                RoleClaimType = ClaimTypes.Role
+            };
+
+            services.AddAuthentication(defaultScheme: "JWT")
+                    .AddJwtBearer(options => options.TokenValidationParameters = tokenValidationParameters);
         }
 
         /// <summary>
@@ -160,6 +181,7 @@ namespace Eu.EDelivery.AS4.Fe
             });
 
             app.UseMvc();
+            app.UseAuthentication();
         }
     }
 }

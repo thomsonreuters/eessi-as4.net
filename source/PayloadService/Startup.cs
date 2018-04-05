@@ -93,7 +93,7 @@ namespace Eu.EDelivery.AS4.PayloadService
         private static string GetXmlCommentsPath()
         {
             const string xml = "Eu.EDelivery.AS4.PayloadService.xml";
-            ApplicationEnvironment app = PlatformServices.Default.Application;
+            var app = PlatformServices.Default.Application;
             var binPath = Path.Combine(app.ApplicationBasePath, "bin", xml);
             return File.Exists(binPath) ? binPath : Path.Combine(app.ApplicationBasePath, xml);
         }

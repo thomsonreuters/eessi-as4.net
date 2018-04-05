@@ -2,6 +2,7 @@
 using System.Reflection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
+using Microsoft.DotNet.PlatformAbstractions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.PlatformAbstractions;
@@ -49,7 +50,7 @@ namespace Eu.EDelivery.AS4.Fe.Swagger
         private string GetXmlCommentsPath()
         {
             const string xml = "Eu.EDelivery.AS4.Fe.xml";
-            ApplicationEnvironment app = PlatformServices.Default.Application;
+            var app = PlatformServices.Default.Application;
             var binPath = Path.Combine(app.ApplicationBasePath, "bin", xml);
             return File.Exists(binPath) ? binPath : Path.Combine(app.ApplicationBasePath, xml);
         }

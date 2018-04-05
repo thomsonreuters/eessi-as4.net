@@ -154,7 +154,7 @@ namespace Eu.EDelivery.AS4.Fe.Runtime
                         // Since these dlls are not needed by the FE they're filtered out to avoid this exception.
                         // TODO: Probably fixed when AS4 targets dotnet core.
                         var file = Path.GetFileName(path) ?? string.Empty;
-                        return file != "libuv.dll" && !file.StartsWith("Microsoft") && !file.StartsWith("System") && file != "sqlite3.dll";
+                        return file != "libuv.dll" && !file.StartsWith("Microsoft") && !file.StartsWith("System") && file != "sqlite3.dll" && file != "e_sqlite3.dll";
                     })
                     .SelectMany(file => AssemblyDefinition.ReadAssembly(file).MainModule.Types)
                     .ToList();
