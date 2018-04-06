@@ -1,6 +1,6 @@
 param([string]$binDirectory = "../output/Staging/bin", [string]$outputDirectory = "../output/Staging/Documentation/Schemas")
 
-$cmd = "C:\Program Files (x86)\Microsoft SDKs\Windows\v10.0A\bin\NETFX 4.6.1 Tools\xsd.exe"
+$cmd = "C:\Program Files (x86)\Microsoft SDKs\Windows\v10.0A\bin\NETFX 4.6.2 Tools\xsd.exe"
 
 # Export new XSD files from the build assembly
 & $cmd $binDirectory/Eu.EDelivery.AS4.dll  /type:Eu.EDelivery.AS4.Model.Submit.SubmitMessage /o:$outputDirectory
