@@ -6,9 +6,9 @@
     <TargetFramework>net462</TargetFramework>
     <TypeScriptCompileBlocked>True</TypeScriptCompileBlocked>
     <DefaultItemExcludes>$(DefaultItemExcludes);ui/node_modules/**</DefaultItemExcludes>
-    <OutputPath>..\..\..\output\</OutputPath>
+    <OutputPath>..\..\output\</OutputPath>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <DocumentationFile>..\..\..\output\Eu.EDelivery.AS4.PayloadService.xml</DocumentationFile>
+    <DocumentationFile>..\..\output\Eu.EDelivery.AS4.PayloadService.xml</DocumentationFile>
     <PlatformTarget>x86</PlatformTarget>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <NETStandardInbox>false</NETStandardInbox>

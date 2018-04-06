@@ -323,10 +323,6 @@
       <Project>{9208D4FA-018E-4DB4-A60D-EE475F5EC421}</Project>
       <Name>Eu.EDelivery.AS4.Steps</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Eu.EDelivery.AS4.ServiceHandler.ConsoleHost\Eu.EDelivery.AS4.ServiceHandler.ConsoleHost.csproj">
-      <Project>{40E359EE-B4B8-4A4A-B8FE-DB2240DF097E}</Project>
-      <Name>Eu.EDelivery.AS4.ServiceHandler.ConsoleHost</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Eu.EDelivery.AS4.ServiceHandler\Eu.EDelivery.AS4.ServiceHandler.csproj">
       <Project>{83D47064-14B4-4E42-8E10-ABE1EDA41920}</Project>
       <Name>Eu.EDelivery.AS4.ServiceHandler</Name>
