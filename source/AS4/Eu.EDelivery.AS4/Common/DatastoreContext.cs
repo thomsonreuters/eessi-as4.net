@@ -413,7 +413,7 @@ namespace Eu.EDelivery.AS4.Common
             CancellationToken cancellationToken = default(CancellationToken))
         {
             PolicyResult<int> policyResult = await _policy.ExecuteAndCaptureAsync(()
-                => base.SaveChangesAsync(cancellationToken), cancellationToken);
+                => base.SaveChangesAsync(cancellationToken));
 
             if (policyResult.FinalException != null)
             {
