@@ -587,7 +587,7 @@
       <Version>1.7.1</Version>
     </PackageReference>
     <PackageReference Include="System.Net.Http">
-      <Version>4.3.0</Version>
+      <Version>4.3.3</Version>
     </PackageReference>
     <PackageReference Include="Z.EntityFramework.Plus.EFCore">
       <Version>1.6.10</Version>
