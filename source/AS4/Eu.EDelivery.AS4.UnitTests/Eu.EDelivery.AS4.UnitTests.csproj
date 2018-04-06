@@ -577,6 +577,9 @@
     <Folder Include="Steps\Participant\" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Fody">
+      <Version>2.3.23</Version>
+    </PackageReference>
     <PackageReference Include="FsCheck.Xunit">
       <Version>2.10.6</Version>
     </PackageReference>
