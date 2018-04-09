@@ -80,6 +80,9 @@ namespace Eu.EDelivery.AS4.Receivers
                 return await messageCallback(receivedMessage, cancellationToken);
             };
 
+            // Wait some time till the Kernel is fully started
+            Thread.Sleep(TimeSpan.FromSeconds(5));
+
             StartInterval();
         }
 
