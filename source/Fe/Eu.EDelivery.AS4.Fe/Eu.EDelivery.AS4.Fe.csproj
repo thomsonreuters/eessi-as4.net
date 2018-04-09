@@ -19,6 +19,10 @@
     <DefineConstants>DEBUG;TRACE;NET462;NETCOREAPP2_0</DefineConstants>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <NoWarn>1701;1702;1705;1591</NoWarn>
+  </PropertyGroup>
+
   <ItemGroup>
     <Content Remove="ui\tsconfig.json" />
     <Content Remove="ui\tsconfig.webpack.json" />
