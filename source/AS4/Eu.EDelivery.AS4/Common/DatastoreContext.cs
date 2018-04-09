@@ -1,20 +1,18 @@
-﻿using System;
+﻿using Eu.EDelivery.AS4.Entities;
+using Eu.EDelivery.AS4.Strategies.Database;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.Extensions.Logging;
+using NLog;
+using Polly;
+using Polly.Retry;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Entities;
-using Eu.EDelivery.AS4.Strategies.Database;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using NLog;
-using Polly;
-using Polly.Retry;
 
 namespace Eu.EDelivery.AS4.Common
 {
