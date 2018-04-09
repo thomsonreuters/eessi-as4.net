@@ -524,9 +524,6 @@
     <None Include="app.config">
       <SubType>Designer</SubType>
     </None>
-    <None Include="packages.config">
-      <SubType>Designer</SubType>
-    </None>
     <None Include="Resources\Schemas\ebbp-signals-2.0.xsd">
       <SubType>Designer</SubType>
     </None>
