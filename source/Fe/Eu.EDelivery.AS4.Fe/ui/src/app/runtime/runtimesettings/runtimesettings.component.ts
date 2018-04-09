@@ -26,7 +26,8 @@ export class RuntimeSettingsComponent {
     @Input() public set itemType(newType: string) {
         if (this._type !== newType) {
             this._type = newType;
-            this.selectedType = this.types.find((type) => type.technicalName === newType);
+            if (this.types !== undefined) {
+                this.selectedType = this.types!!.find((type) => type.technicalName === newType); }
             this.onSettingChange();
         }
     }

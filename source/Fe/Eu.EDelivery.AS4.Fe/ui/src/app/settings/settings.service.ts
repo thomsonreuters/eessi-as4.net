@@ -11,6 +11,7 @@ import { SettingsDatabase } from './../api/SettingsDatabase';
 import { PortalSettings } from './../api/PortalSettings';
 import { SettingsAgent } from './../api/SettingsAgent';
 import { Steps } from './../api/Steps';
+import { ItemType } from '../api/ItemType';
 
 export interface ISettingsService {
     getSettings();
@@ -70,7 +71,7 @@ export class SettingsService implements ISettingsService {
             });
         return subj.asObservable();
     }
-    public getDefaultAgentSteps(agentType: number): Observable<Steps> {
+    public getDefaultAgentSteps(agentType: number): Observable<ItemType[]> {
         return this
             .http
             .get(this.getUrl('defaultagentsteps') + '/' + agentType)

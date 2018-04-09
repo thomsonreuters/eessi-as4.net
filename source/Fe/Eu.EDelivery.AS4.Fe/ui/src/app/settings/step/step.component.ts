@@ -66,15 +66,11 @@ export class StepSettingsComponent implements OnDestroy {
         return this._group;
     }
     @Input() public disabled: boolean = true;
-    public steps: ItemType[];
+    @Input() public steps: ItemType[];
     private _group: FormArray;
-    private _runtimeStoreSubscription: Subscription;
     private _valueStoreSubscription: Subscription;
     constructor(private formBuilder: FormBuilder, private runtimeStore: RuntimeStore, private dialogService: DialogService, private _changeDetectorRef: ChangeDetectorRef, private _ngZone: NgZone) {
-        this._runtimeStoreSubscription = this.runtimeStore
-            .changes
-            .filter((result) => result != null)
-            .subscribe((result) => this.steps = result.steps);
+        
     }
     public itemMoved = () => {
         this._ngZone.run(() => {
@@ -93,7 +89,6 @@ export class StepSettingsComponent implements OnDestroy {
         this.group.markAsDirty();
     }
     public ngOnDestroy() {
-        this._runtimeStoreSubscription.unsubscribe();
         if (!!this._valueStoreSubscription) {
             this._valueStoreSubscription.unsubscribe();
         }
