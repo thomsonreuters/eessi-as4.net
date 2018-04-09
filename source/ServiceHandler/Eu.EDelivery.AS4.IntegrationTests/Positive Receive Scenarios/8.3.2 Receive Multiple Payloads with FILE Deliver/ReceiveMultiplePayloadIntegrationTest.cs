@@ -32,7 +32,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Receive_Scenarios._8._3._2_
         private void ValidateDelivery(IEnumerable<FileInfo> files)
         {
             Assert.All(files.Where(f => f.Extension == ".jpg"), f => Assert.Equal(f.Length, Holodeck.HolodeckAJpegPayload.Length));
-            Assert.Equal(files.Count(f => f.Extension == ".xml"), 2);
+            Assert.Equal(2, files.Count(f => f.Extension == ".xml"));
         }
     }
 }
