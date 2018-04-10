@@ -62,7 +62,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Strategies.Sender
             IsNotified = true;
             return Task.CompletedTask;
         }
+    }
 
+    public class SpySenderFacts
+    {
         [Fact]
         public async Task TestIsDelivered()
         {

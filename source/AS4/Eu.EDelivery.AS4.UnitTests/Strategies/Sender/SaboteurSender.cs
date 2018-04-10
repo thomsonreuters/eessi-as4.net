@@ -39,7 +39,19 @@ namespace Eu.EDelivery.AS4.UnitTests.Strategies.Sender
         {
             throw new SaboteurException("Sabotage 'Notify' Send");
         }
+    }
 
+    public class SaboteurException : Exception
+    {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SaboteurException" /> class.
+        /// </summary>
+        /// <param name="message">Exception Message</param>
+        public SaboteurException(string message) : base(message) { }
+    }
+
+    public class SaboteurSenderFacts
+    {
         [Fact]
         public void Sabotage_Configure()
         {
@@ -56,14 +68,5 @@ namespace Eu.EDelivery.AS4.UnitTests.Strategies.Sender
             await Assert.ThrowsAnyAsync<Exception>(() => sut.SendAsync(deliverMessage: null));
             await Assert.ThrowsAnyAsync<Exception>(() => sut.SendAsync(notifyMessage: null));
         }
-    }
-
-    public class SaboteurException : Exception
-    {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="SaboteurException" /> class.
-        /// </summary>
-        /// <param name="message">Exception Message</param>
-        public SaboteurException(string message) : base(message) { }
     }
 }

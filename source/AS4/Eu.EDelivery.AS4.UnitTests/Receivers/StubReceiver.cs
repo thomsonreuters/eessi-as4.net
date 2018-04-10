@@ -14,7 +14,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
         /// Configure the receiver with a given settings dictionary.
         /// </summary>
         /// <param name="settings">Settings to configure the <see cref="IReceiver"/> instance.</param>
-        public void Configure(IEnumerable<Setting> settings) {}
+        public void Configure(IEnumerable<Setting> settings) { }
 
         /// <summary>
         /// Start receiving on a configured Target
@@ -34,7 +34,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
         {
             throw new NotImplementedException();
         }
+    }
 
+    public class StubReceiverFacts
+    {
         [Fact]
         public void FailsToUseInstance()
         {
