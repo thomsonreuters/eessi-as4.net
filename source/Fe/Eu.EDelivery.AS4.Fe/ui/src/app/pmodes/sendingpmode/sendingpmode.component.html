@@ -30,7 +30,7 @@
                 <ng-container formGroupName="pushConfiguration" *ngIf="!pmode.form.get('isDynamicDiscoveryEnabled').value" runtimeTooltip="pushconfiguration">
                     <div class="sub-header-1">Protocol</div>
                     <as4-input label="Url" formGroupName="protocol" runtimeTooltip="protocol.url">
-                        <input type="text" formControlName="url" />
+                        <input type="text" formControlName="url" pattern="{{regexUrl.source}}" />
                     </as4-input>
                     <div class="sub-header-1">TLS configuration</div>
                     <as4-input label="Enabled" formGroupName="tlsConfiguration" runtimeTooltip="tlsconfiguration.isenabled">

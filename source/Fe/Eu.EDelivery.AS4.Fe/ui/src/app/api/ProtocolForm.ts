@@ -8,7 +8,7 @@ export class ProtocolForm {
     public static getForm(formBuilder: FormWrapper, current: Protocol, path: string, runtime: ItemType[]): FormWrapper {
         return formBuilder
             .group({
-                [Protocol.FIELD_url]: [formBuilder.createFieldValue(current, Protocol.FIELD_url, path, null, runtime)]
+                [Protocol.FIELD_url]: [formBuilder.createFieldValue(current, Protocol.FIELD_url, path, null, runtime), Validators.required]
             });
     }
 }

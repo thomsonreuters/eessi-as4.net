@@ -68,8 +68,24 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
             Assert.True(result.IsValid);
         }
 
+        [Property]
+        public Property Url_Should_Be_Present_When_SMP_Is_Disabled(string url)
+        {
+            var pmode = new SendingProcessingMode
+            {
+                Id = "ignored",
+                DynamicDiscovery = new DynamicDiscoveryConfiguration {SmpProfile = null},
+                PushConfiguration = new PushConfiguration {Protocol = {Url = url}}
+            };
+
+            var result = ExerciseValidation(pmode);
+
+            bool urlPresent = url != null;
+            return (result.IsValid == urlPresent).ToProperty();
+        }
+
         private static ValidationResult ExerciseValidation(SendingProcessingMode pmode)
-        {            
+        {
             return SendingProcessingModeValidator.Instance.Validate(pmode);
         }
     }
