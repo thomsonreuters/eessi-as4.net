@@ -27,6 +27,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
                     NormalPipeline = new[]
                     {
                         new Step { Type = typeof(RetrieveSendingPModeStep).AssemblyQualifiedName },
+                        new Step { Type = typeof(DynamicDiscoveryStep).AssemblyQualifiedName },
                         new Step { Type = typeof(CreateAS4MessageStep).AssemblyQualifiedName },
                         new Step { Type = typeof(StoreAS4MessageStep).AssemblyQualifiedName }
                     }

@@ -200,10 +200,14 @@ namespace Eu.EDelivery.AS4.Fe.Controllers
         public IActionResult GetDefaultAgentSteps(AgentType agentType)
         {
             var steps = AgentProvider.GetDefaultStepConfigurationForAgentType(agentType);
-            var availableSteps = steps.NormalPipeline.Concat(steps.ErrorPipeline ?? Enumerable.Empty<Step>().ToArray());
-            var types = runtimeLoader.Steps.Where(s => availableSteps.Any(x => x.Type == s.TechnicalName));
+            IEnumerable<ItemType> FilterStepsFor (IEnumerable<Step> xs) => 
+                runtimeLoader.Steps.Where(s => xs.Any(x => x.Type == s.TechnicalName));
 
-            return new OkObjectResult(types);
+            return new OkObjectResult(new
+            {
+                NormalPipeline = FilterStepsFor(steps.NormalPipeline),
+                ErrorPipeline = FilterStepsFor(steps.ErrorPipeline ?? Enumerable.Empty<Step>())
+            });
         }
 
         /// <summary>

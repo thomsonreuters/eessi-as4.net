@@ -33,7 +33,8 @@ export class AgentSettingsComponent implements OnDestroy, CanComponentDeactivate
         this._currentAgent = agent;
     }
     public transformers: ItemType[];
-    public steps: ItemType[];
+    public normalSteps: ItemType[];
+    public errorSteps: ItemType[];
     public isNewMode: boolean = false;
     public newName: string;
     public actionType: string | number = 0;
@@ -86,7 +87,8 @@ export class AgentSettingsComponent implements OnDestroy, CanComponentDeactivate
                     this.currentAgent = agents[0];
                 }
                 this.transformers = [transformers.defaultTransformer].concat(transformers.otherTransformers);
-                this.steps = steps;
+                this.normalSteps = steps.normalPipeline;
+                this.errorSteps = steps.errorPipeline;
                 this.form = SettingsAgentForm.getForm(this._formWrapper, this.currentAgent).build(!!!this.currentAgent);
             });
         this._subscription = sub;
