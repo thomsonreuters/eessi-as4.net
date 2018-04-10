@@ -38,7 +38,10 @@ namespace Eu.EDelivery.AS4.Validators
             Func<SendingProcessingMode, bool> smpDisabled =
                 pmode => string.IsNullOrEmpty(pmode?.DynamicDiscovery?.SmpProfile);
 
-            When(smpDisabled, () =>
+            Func<SendingProcessingMode, bool> isPulling =
+                pmode => pmode.MepBinding == MessageExchangePatternBinding.Pull;
+
+            When(p => smpDisabled(p) && !isPulling(p), () =>
             {
                 const string errorMsg = "PushConfiguration.Protocol.Url element should be specified when SMP Profile is missing";
 

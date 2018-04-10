@@ -2,6 +2,8 @@
 using Eu.EDelivery.AS4.UnitTests.Model.PMode;
 using Eu.EDelivery.AS4.Validators;
 using FluentValidation.Results;
+using FsCheck;
+using FsCheck.Xunit;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Validators
@@ -49,7 +51,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
 
             result = ExerciseValidation(pmode);
 
-            Assert.True(result.IsValid);
+            Assert.True(result.IsValid, result.AppendValidationErrorsToErrorMessage("Failed validation:"));
         }
 
         [Fact]
@@ -65,7 +67,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
 
             var result = ExerciseValidation(pmode);
 
-            Assert.True(result.IsValid);
+            Assert.True(result.IsValid, result.AppendValidationErrorsToErrorMessage("Failed validation:"));
         }
 
         [Property]
