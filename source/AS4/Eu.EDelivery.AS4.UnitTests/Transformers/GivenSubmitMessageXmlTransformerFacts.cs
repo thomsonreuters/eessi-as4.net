@@ -8,7 +8,9 @@ using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Model.Submit;
 using Eu.EDelivery.AS4.Transformers;
+using Microsoft.FSharp.Core;
 using Xunit;
+using static Eu.EDelivery.AS4.UnitTests.Properties.Resources;
 
 namespace Eu.EDelivery.AS4.UnitTests.Transformers
 {
@@ -60,14 +62,22 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
         }
 
         [Fact]
-        public async Task TransformSubmitMessageFailsDeserializing()
+        public void TransformInvalidXmlInputFailsDeserializing()
         {
-            // Arrange
-            var messageStream = new MemoryStream(Encoding.UTF8.GetBytes("<Invalid-XML"));
-            var receivedMessage = new ReceivedMessage(messageStream);
+            Assert.All(new[]
+            {
+                "<Invalid-XML",
+                submitmessage_invalid_messageproperties,
+                submitmessage_invalid_payloads
+            }, x =>
+            {
+                // Arrange
+                var messageStream = new MemoryStream(Encoding.UTF8.GetBytes(x));
+                var receivedMessage = new ReceivedMessage(messageStream);
 
-            // Act / Assert
-            await Assert.ThrowsAnyAsync<Exception>(() => Transform(receivedMessage));
+                // Act / Assert
+                Assert.ThrowsAny<Exception>(() => Transform(receivedMessage).Result);
+            });
         }
 
         protected async Task<MessagingContext> Transform(ReceivedMessage message)

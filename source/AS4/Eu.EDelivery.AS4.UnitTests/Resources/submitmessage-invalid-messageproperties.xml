@@ -1,0 +1,32 @@
+﻿<?xml version="1.0"?>
+<SubmitMessage xmlns="urn:cef:edelivery:eu:as4:messages">
+	<Collaboration>
+		<AgreementRef>
+			<!--<PModeId>03-sample-pmode</PModeId> -->
+			<PModeId>05-AS4ConnectivityTest</PModeId>
+		</AgreementRef>
+	</Collaboration>
+	<MessageProperties>
+		<Property name="originalSender">urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1</Property>
+		<Property name="finalRecipient">urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4</Property>
+	</MessageProperties>
+	<Payloads>
+		<Payload>
+			<Id>earth</Id>
+			<MimeType>image/jpeg</MimeType>
+			<Location>file:///messages\attachments\earth.jpg</Location>
+			<PayloadProperties/>
+		</Payload>
+		<Payload>
+			<Id>xml-sample</Id>
+			<MimeType>application/xml</MimeType>
+			<Location>file:///messages\attachments\sample.xml</Location>
+			<PayloadProperties>
+				<PayloadProperty>
+					<Name>Important</Name>
+					<Value>Yes</Value>
+				</PayloadProperty>
+			</PayloadProperties>
+		</Payload>
+	</Payloads>
+</SubmitMessage>

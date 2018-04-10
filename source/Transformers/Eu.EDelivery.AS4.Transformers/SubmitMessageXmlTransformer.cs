@@ -2,10 +2,14 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using System.Xml;
+using System.Xml.Schema;
 using System.Xml.Serialization;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.Submit;
+using Eu.EDelivery.AS4.Resources;
+using Eu.EDelivery.AS4.Serialization;
 using NLog;
 
 namespace Eu.EDelivery.AS4.Transformers
@@ -42,9 +46,20 @@ namespace Eu.EDelivery.AS4.Transformers
         {
             try
             {
-                var serializer = new XmlSerializer(typeof(SubmitMessage));
+                var doc = new XmlDocument();
+                doc.Load(stream);
 
-                return serializer.Deserialize(stream) as SubmitMessage;
+                var schemas = new XmlSchemaSet();
+                schemas.Add(GetSubmitMessageSchema());
+                doc.Schemas = schemas;
+
+                doc.Validate((sender, args) =>
+                {
+                    Logger.Fatal("Incoming Submit Message doesn't match the XSD: " + args.Message);
+                    throw args.Exception;
+                });
+
+                return AS4XmlSerializer.FromString<SubmitMessage>(doc.OuterXml);
             }
             catch (Exception ex)
             {
@@ -53,5 +68,12 @@ namespace Eu.EDelivery.AS4.Transformers
         }
 
 
+        private static XmlSchema GetSubmitMessageSchema()
+        {
+            using (var stringReader = new StringReader(Properties.Resources.submitmessage_schema))
+            {
+                return XmlSchema.Read(stringReader, (sender, args) => { });
+            }
+        }
     }
 }

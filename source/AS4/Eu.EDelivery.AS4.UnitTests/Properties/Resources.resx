@@ -429,4 +429,10 @@
   <data name="as4_multihop_usermessage" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\resources\as4-multihop-usermessage.as4;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
+  <data name="submitmessage_invalid_messageproperties" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\submitmessage-invalid-messageproperties.xml;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+  </data>
+  <data name="submitmessage_invalid_payloads" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\submitmessage-invalid-payloads.xml;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+  </data>
 </root>
