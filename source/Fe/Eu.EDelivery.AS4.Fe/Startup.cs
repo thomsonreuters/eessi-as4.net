@@ -18,6 +18,7 @@ using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -77,22 +78,6 @@ namespace Eu.EDelivery.AS4.Fe
             services.Configure<PortalSettings>(Configuration.Bind);
             services.AddOptions();
 
-            var jwtOptions = services.BuildServiceProvider().GetService<IOptionsSnapshot<JwtOptions>>().Value;
-            var tokenValidationParameters = new TokenValidationParameters
-            {
-                ValidateIssuerSigningKey = true,
-                IssuerSigningKey = jwtOptions.SigningKey,
-                ValidateIssuer = true,
-                ValidIssuer = jwtOptions.Issuer,
-                ValidateAudience = false,
-                ValidAudience = jwtOptions.Audience,
-                ValidateLifetime = true,
-                ClockSkew = TimeSpan.Zero,
-                RoleClaimType = ClaimTypes.Role
-            };
-
-            services.AddAuthentication(defaultScheme: "JWT")
-                    .AddJwtBearer(options => options.TokenValidationParameters = tokenValidationParameters);
         }
 
         /// <summary>
@@ -121,6 +106,8 @@ namespace Eu.EDelivery.AS4.Fe
             app.UseDeveloperExceptionPage();
 #endif
             app.UseStaticFiles();
+            app.UseAuthentication();
+
             app.UseSignalR2();
 
             var logger = app.ApplicationServices.GetService<ILogging>();
@@ -181,7 +168,6 @@ namespace Eu.EDelivery.AS4.Fe
             });
 
             app.UseMvc();
-            app.UseAuthentication();
         }
     }
 }
