@@ -121,7 +121,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
 
                 // Assert
                 Assert.Equal(expectedPMode.Id, actualPMode.Id);
-                Assert.Equal(expectedPMode.Security.Encryption.CertificateType, PublicKeyCertificateChoiceType.PublicKeyCertificate);
+                Assert.Equal(PublicKeyCertificateChoiceType.PublicKeyCertificate, expectedPMode.Security.Encryption.CertificateType);
                 Assert.Equal("ABCDEFGH", ((PublicKeyCertificate)actualPMode.Security.Encryption.EncryptionCertificateInformation).Certificate);
             }
 
