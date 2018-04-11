@@ -112,16 +112,16 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
                 var service = Setup().settingsService;
 
                 // Act & Assert
-                await Assert.ThrowsAsync(typeof(AlreadyExistsException), () => service.CreateAgent(newAgent, agents => agents.SubmitAgents, (settings, agents) => settings.SubmitAgents = agents));
+                await Assert.ThrowsAsync<AlreadyExistsException>(() => service.CreateAgent(newAgent, agents => agents.SubmitAgents, (settings, agents) => settings.SubmitAgents = agents));
             }
 
             [Fact]
             public async Task Throws_Exception_When_Arguments_Are_Null()
             {
                 // Act & Assert
-                await Assert.ThrowsAsync(typeof(ArgumentNullException), () => Setup().settingsService.CreateAgent(null, null, null));
-                await Assert.ThrowsAsync(typeof(ArgumentNullException), () => Setup().settingsService.CreateAgent(new AgentSettings(), null, null));
-                await Assert.ThrowsAsync(typeof(ArgumentNullException), () => Setup().settingsService.CreateAgent(new AgentSettings(), agents => agents.SubmitAgents, null));
+                await Assert.ThrowsAsync<ArgumentNullException>(() => Setup().settingsService.CreateAgent(null, null, null));
+                await Assert.ThrowsAsync<ArgumentNullException>(() => Setup().settingsService.CreateAgent(new AgentSettings(), null, null));
+                await Assert.ThrowsAsync<ArgumentNullException>(() => Setup().settingsService.CreateAgent(new AgentSettings(), agents => agents.SubmitAgents, null));
             }
         }
 
@@ -134,14 +134,14 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
                 var newAgent = Mapper.Map<AgentSettings, AgentSettings>(submitAgent);
                 newAgent.Name = "NEW RANDOM NAME";
                 // Act & Assert
-                await Assert.ThrowsAsync(typeof(NotFoundException), () => Setup().settingsService.UpdateAgent(newAgent, "fdsqfd", settings => settings.SubmitAgents, (settings, agents) => settings.SubmitAgents = agents));
+                await Assert.ThrowsAsync<NotFoundException>(() => Setup().settingsService.UpdateAgent(newAgent, "fdsqfd", settings => settings.SubmitAgents, (settings, agents) => settings.SubmitAgents = agents));
             }
 
             [Fact]
             public async Task Throws_Exception_When_Agent_With_Name_Already_Exists()
             {
                 // Act
-                await Assert.ThrowsAsync(typeof(AlreadyExistsException), () => Setup().settingsService.UpdateAgent(new AgentSettings
+                await Assert.ThrowsAsync<AlreadyExistsException>(() => Setup().settingsService.UpdateAgent(new AgentSettings
                 {
                     Name = SubmitAgentName
                 }, SubmitAgentName2, settings => settings.SubmitAgents, (settings, agents) => settings.SubmitAgents = agents));
@@ -151,10 +151,10 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
             public async Task Throws_Exception_When_parameters_Are_Null()
             {
                 // Act & Assert
-                await Assert.ThrowsAsync(typeof(ArgumentNullException), () => Setup().settingsService.UpdateAgent(null, null, null, null));
-                await Assert.ThrowsAsync(typeof(ArgumentNullException), () => Setup().settingsService.UpdateAgent(new AgentSettings(), null, null, null));
-                await Assert.ThrowsAsync(typeof(ArgumentNullException), () => Setup().settingsService.UpdateAgent(new AgentSettings(), "test", null, null));
-                await Assert.ThrowsAsync(typeof(ArgumentNullException), () => Setup().settingsService.UpdateAgent(new AgentSettings(), "test", agents => agents.ReceiveAgents, null));
+                await Assert.ThrowsAsync<ArgumentNullException>(() => Setup().settingsService.UpdateAgent(null, null, null, null));
+                await Assert.ThrowsAsync<ArgumentNullException>(() => Setup().settingsService.UpdateAgent(new AgentSettings(), null, null, null));
+                await Assert.ThrowsAsync<ArgumentNullException>(() => Setup().settingsService.UpdateAgent(new AgentSettings(), "test", null, null));
+                await Assert.ThrowsAsync<ArgumentNullException>(() => Setup().settingsService.UpdateAgent(new AgentSettings(), "test", agents => agents.ReceiveAgents, null));
             }
 
             [Fact]
@@ -193,8 +193,8 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
                 Setup();
 
                 // Act & Assert
-                await Assert.ThrowsAsync(typeof(NotFoundException), () => settingsService.DeleteAgent("IDONTEXISTAGENT", agents => agents.SubmitAgents, (settings, agents) => settings.SubmitAgents = agents));
-                await Assert.ThrowsAsync(typeof(NotFoundException), () => settingsService.DeleteAgent("IDONTEXISTAGENT", agents => agents.ReceiveAgents, (settings, agents) => settings.ReceiveAgents = agents));
+                await Assert.ThrowsAsync<NotFoundException>(() => settingsService.DeleteAgent("IDONTEXISTAGENT", agents => agents.SubmitAgents, (settings, agents) => settings.SubmitAgents = agents));
+                await Assert.ThrowsAsync<NotFoundException>(() => settingsService.DeleteAgent("IDONTEXISTAGENT", agents => agents.ReceiveAgents, (settings, agents) => settings.ReceiveAgents = agents));
                 await settingsSource.DidNotReceive().Save(Arg.Any<Model.Internal.Settings>());
             }
 
@@ -202,9 +202,9 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
             public async Task Throws_Exception_When_Parameters_Are_Null()
             {
                 // Act & Assert
-                await Assert.ThrowsAsync(typeof(ArgumentNullException), () => Setup().settingsService.DeleteAgent(null, null, null));
-                await Assert.ThrowsAsync(typeof(ArgumentNullException), () => Setup().settingsService.DeleteAgent("TEST", null, null));
-                await Assert.ThrowsAsync(typeof(ArgumentNullException), () => Setup().settingsService.DeleteAgent("TEST", agents => agents.SubmitAgents, null));
+                await Assert.ThrowsAsync<ArgumentNullException>(() => Setup().settingsService.DeleteAgent(null, null, null));
+                await Assert.ThrowsAsync<ArgumentNullException>(() => Setup().settingsService.DeleteAgent("TEST", null, null));
+                await Assert.ThrowsAsync<ArgumentNullException>(() => Setup().settingsService.DeleteAgent("TEST", agents => agents.SubmitAgents, null));
             }
         }
     }
