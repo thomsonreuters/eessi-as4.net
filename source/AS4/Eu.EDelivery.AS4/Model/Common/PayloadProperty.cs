@@ -1,10 +1,13 @@
 ﻿using System;
+using System.Xml.Serialization;
 
 namespace Eu.EDelivery.AS4.Model.Common
 {
     public class PayloadProperty : IEquatable<PayloadProperty>
     {
+        [XmlElement(IsNullable = true)]
         public string Name { get; set; }
+
         public string Value { get; set; }
 
         /// <summary>

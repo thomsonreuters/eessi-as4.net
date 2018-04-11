@@ -436,6 +436,7 @@
     <Compile Include="Migrations\20180302141116_RemoveOutMessagesConstraint.designer.cs">
       <DependentUpon>20180302141116_RemoveOutMessagesConstraint.cs</DependentUpon>
     </Compile>
+    <Compile Include="Resources\XsdSchemaDefinitions.cs" />
     <Compile Include="Security\Signing\CalculateSignatureConfig.cs" />
     <Compile Include="Security\Strategies\SignStrategy.cs" />
     <Compile Include="Security\Strategies\CryptoStrategy.cs" />
@@ -737,6 +738,9 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="Resources\Schemas\Soap12.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Resources\Schemas\submitmessage-schema.xsd">
       <SubType>Designer</SubType>
     </None>
     <None Include="Resources\Schemas\update-schemas.ps1" />

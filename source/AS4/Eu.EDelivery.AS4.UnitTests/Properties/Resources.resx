@@ -429,4 +429,25 @@
   <data name="as4_multihop_usermessage" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\resources\as4-multihop-usermessage.as4;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
+  <data name="submitmessage_invalid_messageproperties" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\submitmessage-invalid-messageproperties.xml;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+  </data>
+  <data name="submitmessage_missing_payload_location" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\submitmessage-missing-payload-location.xml;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+  </data>
+  <data name="submitmessage_missing_schema_location" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\submitmessage-missing-schema-location.xml;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+  </data>
+  <data name="submitmessage_missing_payload_property_name" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\submitmessage-missing-payload-property-name.xml;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+  </data>
+  <data name="submitmessage_missing_collaboration_agreement_pmodeid" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\submitmessage-missing-collaboration-agreement-pmodeid.xml;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+  </data>
+  <data name="submitmessage_missing_collaboration_agreement" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\submitmessage-missing-collaboration-agreement.xml;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+  </data>
+  <data name="submitmessage_missing_collaboration" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\submitmessage-missing-collaboration.xml;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+  </data>
 </root>

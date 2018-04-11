@@ -1,0 +1,46 @@
+﻿<?xml version="1.0"?>
+<SubmitMessage xmlns="urn:cef:edelivery:eu:as4:messages">
+  <MessageInfo>
+    <MessageId>F4840B69-8057-40C9-8530-EC91F946C3BF</MessageId>
+  </MessageInfo>
+  
+  <Collaboration>
+    <AgreementRef>
+      <PModeId>sample-pmode</PModeId>
+    </AgreementRef>
+  </Collaboration>
+
+  <MessageProperties>
+    <MessageProperty>
+      <Name>Payloads</Name>
+      <Type>Metadata</Type>
+    </MessageProperty>
+  </MessageProperties>
+  
+  <Payloads>
+    <Payload>
+      <Id>earth</Id>
+      <MimeType>image/jpeg</MimeType>
+      <Location>file:///messages\attachments\earth.jpg</Location>
+			<Schemas>
+				<Schema>
+					<!--<Location>http://somewhere/where/the/xsd/can/be/found</Location>-->
+					<Version>v1.0</Version>
+					<Namespace>missing:schema:location:namespace</Namespace>
+				</Schema>
+			</Schemas>
+			<PayloadProperties/>
+    </Payload>
+    <Payload>
+      <Id>xml-sample</Id>
+      <MimeType>application/xml</MimeType>
+      <Location>file:///messages\attachments\sample.xml</Location>
+      <PayloadProperties>
+        <PayloadProperty>
+          <Name>Important</Name>
+          <Value>Yes</Value>
+        </PayloadProperty>
+      </PayloadProperties>
+    </Payload>
+  </Payloads>
+</SubmitMessage>

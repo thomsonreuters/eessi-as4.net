@@ -1,11 +1,15 @@
 ﻿using System;
+using System.Xml.Serialization;
 
 namespace Eu.EDelivery.AS4.Model.Common
 {
     public class Schema : IEquatable<Schema>
     {
+        [XmlElement(IsNullable = true)]
         public string Location { get; set; }
+
         public string Version { get; set; }
+
         public string Namespace { get; set; }
 
         /// <summary>

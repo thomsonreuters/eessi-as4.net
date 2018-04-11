@@ -1,11 +1,15 @@
 ﻿using System;
+using System.Xml.Serialization;
 
 namespace Eu.EDelivery.AS4.Model.Common
 {
     public class Agreement : IEquatable<Agreement>
     {
         public string Value { get; set; }
+
         public string RefType { get; set; }
+
+        [XmlElement(IsNullable = true)]
         public string PModeId { get; set; }
 
         /// <summary>

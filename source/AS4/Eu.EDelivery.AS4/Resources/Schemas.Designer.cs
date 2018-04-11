@@ -207,6 +207,21 @@ namespace Eu.EDelivery.AS4.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to &lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
+        ///&lt;xs:schema xmlns:tns=&quot;urn:cef:edelivery:eu:as4:messages&quot; elementFormDefault=&quot;qualified&quot; targetNamespace=&quot;urn:cef:edelivery:eu:as4:messages&quot; xmlns:xs=&quot;http://www.w3.org/2001/XMLSchema&quot;&gt;
+        ///  &lt;xs:element name=&quot;SubmitMessage&quot; nillable=&quot;true&quot; type=&quot;tns:SubmitMessage&quot; /&gt;
+        ///  &lt;xs:complexType name=&quot;SubmitMessage&quot;&gt;
+        ///    &lt;xs:sequence&gt;
+        ///      &lt;xs:element minOccurs=&quot;0&quot; maxOccurs=&quot;1&quot; name=&quot;MessageInfo&quot; type=&quot;tns:MessageInfo&quot; /&gt;
+        ///      &lt;xs:element minOccurs=&quot;0&quot; maxOccurs=&quot;1&quot; name=&quot;Pa [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string submitmessage_schema {
+            get {
+                return ResourceManager.GetString("submitmessage_schema", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
         internal static byte[] update_schemas {

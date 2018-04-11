@@ -9,9 +9,14 @@ namespace Eu.EDelivery.AS4.Model.Submit
     public class SubmitMessage
     {
         public MessageInfo MessageInfo { get; set; }
+
         public PartyInfo PartyInfo { get; set; }
+
+        [XmlElement(IsNullable = true)]
         public CollaborationInfo Collaboration { get; set; }
+
         public MessageProperty[] MessageProperties { get; set; }
+
         public Payload[] Payloads { get; set; }
         
         [XmlIgnore]

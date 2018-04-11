@@ -9,6 +9,7 @@ using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Model.Submit;
 using Eu.EDelivery.AS4.Transformers;
 using Xunit;
+using static Eu.EDelivery.AS4.UnitTests.Properties.Resources;
 
 namespace Eu.EDelivery.AS4.UnitTests.Transformers
 {
@@ -60,14 +61,27 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
         }
 
         [Fact]
-        public async Task TransformSubmitMessageFailsDeserializing()
+        public void TransformInvalidXmlInputFailsDeserializing()
         {
-            // Arrange
-            var messageStream = new MemoryStream(Encoding.UTF8.GetBytes("<Invalid-XML"));
-            var receivedMessage = new ReceivedMessage(messageStream);
+            Assert.All(new[]
+            {
+                "<Invalid-XML>",
+                submitmessage_invalid_messageproperties,
+                submitmessage_missing_payload_location,
+                submitmessage_missing_schema_location,
+                submitmessage_missing_payload_property_name,
+                submitmessage_missing_collaboration,
+                submitmessage_missing_collaboration_agreement,
+                submitmessage_missing_collaboration_agreement_pmodeid
+            }, x =>
+            {
+                // Arrange
+                var messageStream = new MemoryStream(Encoding.UTF8.GetBytes(x));
+                var receivedMessage = new ReceivedMessage(messageStream);
 
-            // Act / Assert
-            await Assert.ThrowsAnyAsync<Exception>(() => Transform(receivedMessage));
+                // Act / Assert
+                Assert.ThrowsAny<Exception>(() => Transform(receivedMessage).Result);
+            });
         }
 
         protected async Task<MessagingContext> Transform(ReceivedMessage message)
