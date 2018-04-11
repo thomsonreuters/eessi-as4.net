@@ -123,7 +123,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 IEnumerable<Reference> receiptRefs =
                     receiptMessage.NonRepudiationInformation.MessagePartNRInformation.Select(i => i.Reference);
 
-                Assert.All(cryptoRefs, cryptoRef => Assert.True(receiptRefs.Any(r => r.URI.Equals(cryptoRef.Uri))));
+                Assert.All(cryptoRefs, cryptoRef => Assert.Contains(receiptRefs, r => r.URI.Equals(cryptoRef.Uri)));
             }
         }
 
