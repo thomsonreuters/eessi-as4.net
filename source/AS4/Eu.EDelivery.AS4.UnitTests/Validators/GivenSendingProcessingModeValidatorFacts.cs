@@ -2,6 +2,8 @@
 using Eu.EDelivery.AS4.UnitTests.Model.PMode;
 using Eu.EDelivery.AS4.Validators;
 using FluentValidation.Results;
+using FsCheck;
+using FsCheck.Xunit;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Validators
@@ -49,7 +51,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
 
             result = ExerciseValidation(pmode);
 
-            Assert.True(result.IsValid);
+            Assert.True(result.IsValid, result.AppendValidationErrorsToErrorMessage("Failed validation:"));
         }
 
         [Fact]
@@ -65,11 +67,27 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
 
             var result = ExerciseValidation(pmode);
 
-            Assert.True(result.IsValid);
+            Assert.True(result.IsValid, result.AppendValidationErrorsToErrorMessage("Failed validation:"));
+        }
+
+        [Property]
+        public Property Url_Should_Be_Present_When_SMP_Is_Disabled(string url)
+        {
+            var pmode = new SendingProcessingMode
+            {
+                Id = "ignored",
+                DynamicDiscovery = new DynamicDiscoveryConfiguration {SmpProfile = null},
+                PushConfiguration = new PushConfiguration {Protocol = {Url = url}}
+            };
+
+            var result = ExerciseValidation(pmode);
+
+            bool urlPresent = url != null;
+            return (result.IsValid == urlPresent).ToProperty();
         }
 
         private static ValidationResult ExerciseValidation(SendingProcessingMode pmode)
-        {            
+        {
             return SendingProcessingModeValidator.Instance.Validate(pmode);
         }
     }

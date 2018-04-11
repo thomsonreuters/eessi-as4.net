@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Linq.Expressions;
 using Eu.EDelivery.AS4.Model.PMode;
 using FluentValidation;
 using FluentValidation.Results;
@@ -21,6 +22,7 @@ namespace Eu.EDelivery.AS4.Validators
         {
             RuleFor(pmode => pmode.Id).NotEmpty();
 
+            RulesForPushConfiguration();
             RulesForPullConfiguration();
             RulesForReceiptHandling();
             RulesForErrorHandling();
@@ -30,6 +32,34 @@ namespace Eu.EDelivery.AS4.Validators
         }
 
         public static readonly SendingProcessingModeValidator Instance = new SendingProcessingModeValidator();
+
+        private void RulesForPushConfiguration()
+        {
+            Func<SendingProcessingMode, bool> smpDisabled =
+                pmode => string.IsNullOrEmpty(pmode?.DynamicDiscovery?.SmpProfile);
+
+            Func<SendingProcessingMode, bool> isPushing =
+                pmode => pmode.MepBinding == MessageExchangePatternBinding.Push;
+
+            When(p => smpDisabled(p) && isPushing(p), () =>
+            {
+                const string errorMsg = "PushConfiguration.Protocol.Url element should be specified when SMP Profile is missing";
+
+                RuleFor(pmode => pmode.PushConfigurationSpecified)
+                    .Equal(true)
+                    .WithMessage(errorMsg);
+
+                RuleFor(pmode => pmode.PushConfiguration.Protocol)
+                    .NotNull()
+                    .When(pmode => pmode.PushConfigurationSpecified)
+                    .WithMessage(errorMsg);
+
+                RuleFor(pmode => pmode.PushConfiguration.Protocol.Url)
+                    .NotNull()
+                    .When(pmode => pmode?.PushConfiguration?.Protocol != null)
+                    .WithMessage(errorMsg);
+            });
+        }
 
         private void RulesForPullConfiguration()
         {
@@ -86,9 +116,9 @@ namespace Eu.EDelivery.AS4.Validators
 
             When(isSigningEnabled, delegate
             {
-                RuleFor(pmode => pmode.Security.Signing.SigningCertificateInformation).NotNull()
-                                                                               .WithMessage(
-                                                                                   "Signing certificate information must be specified when signing is enabled.");
+                RuleFor(pmode => pmode.Security.Signing.SigningCertificateInformation)
+                    .NotNull()
+                    .WithMessage("Signing certificate information must be specified when signing is enabled.");
             });
 
             RuleFor(pmode => pmode.Security.Signing.Algorithm).NotEmpty().When(isSigningEnabled);
@@ -107,8 +137,9 @@ namespace Eu.EDelivery.AS4.Validators
 
             When(isEncryptionEnabled, delegate
             {
-                RuleFor(pmode => pmode.Security.Encryption.EncryptionCertificateInformation).NotNull()
-                                         .WithMessage("Encryption certificate information must be specified when encryption is enabled");
+                RuleFor(pmode => pmode.Security.Encryption.EncryptionCertificateInformation)
+                    .NotNull()
+                    .WithMessage("Encryption certificate information must be specified when encryption is enabled");
             });
 
         }

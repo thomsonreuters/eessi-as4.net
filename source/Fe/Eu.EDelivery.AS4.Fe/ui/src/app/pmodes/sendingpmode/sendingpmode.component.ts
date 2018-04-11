@@ -23,6 +23,7 @@ import { CanComponentDeactivate } from './../../common/candeactivate.guard';
 })
 export class SendingPmodeComponent implements OnDestroy, CanComponentDeactivate {
     public mask: any[] = [/[0-9]/, /[0-9]/, ':', /[0-5]/, /[0-9]/, ':', /[0-5]/, /[0-9]/];
+    public regexUrl: RegExp = /^(https?:\/\/)[\w:\/]+/; 
     public notifySenders$: Observable<ItemType[]>;
     public dynamicdiscoveryprofiles$: Observable<ItemType[]>;
     @ViewChild(FormGroupDirective) private formGroup: FormGroupDirective;
