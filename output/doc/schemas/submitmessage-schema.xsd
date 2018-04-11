@@ -5,7 +5,7 @@
     <xs:sequence>
       <xs:element minOccurs="0" maxOccurs="1" name="MessageInfo" type="tns:MessageInfo" />
       <xs:element minOccurs="0" maxOccurs="1" name="PartyInfo" type="tns:PartyInfo" />
-      <xs:element minOccurs="0" maxOccurs="1" name="Collaboration" type="tns:CollaborationInfo" />
+      <xs:element minOccurs="1" maxOccurs="1" name="Collaboration" nillable="true" type="tns:CollaborationInfo" />
       <xs:element minOccurs="0" maxOccurs="1" name="MessageProperties" type="tns:ArrayOfMessageProperty" />
       <xs:element minOccurs="0" maxOccurs="1" name="Payloads" type="tns:ArrayOfPayload" />
     </xs:sequence>

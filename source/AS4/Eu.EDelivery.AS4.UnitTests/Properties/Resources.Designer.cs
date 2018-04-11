@@ -567,6 +567,33 @@ namespace Eu.EDelivery.AS4.UnitTests.Properties {
         ///    &lt;MessageId&gt;F4840B69-8057-40C9-8530-EC91F946C3BF&lt;/MessageId&gt;
         ///  &lt;/MessageInfo&gt;
         ///  
+        ///  &lt;!--&lt;Collaboration&gt;
+        ///    &lt;AgreementRef&gt;
+        ///      &lt;PModeId&gt;sample-pmode&lt;/PModeId&gt;
+        ///    &lt;/AgreementRef&gt;
+        ///  &lt;/Collaboration&gt;--&gt;
+        ///
+        ///  &lt;Payloads&gt;
+        ///    &lt;Payload&gt;
+        ///      &lt;Id&gt;earth&lt;/Id&gt;
+        ///      &lt;MimeType&gt;image/jpeg&lt;/MimeType&gt;
+        ///      &lt;Location&gt;file:///messages\attachments\earth.jpg&lt;/Location&gt;
+        ///      &lt;PayloadProperties/&gt;
+        ///    &lt;/Payload [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string submitmessage_missing_collaboration {
+            get {
+                return ResourceManager.GetString("submitmessage_missing_collaboration", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &lt;?xml version=&quot;1.0&quot;?&gt;
+        ///&lt;SubmitMessage xmlns=&quot;urn:cef:edelivery:eu:as4:messages&quot;&gt;
+        ///  &lt;MessageInfo&gt;
+        ///    &lt;MessageId&gt;F4840B69-8057-40C9-8530-EC91F946C3BF&lt;/MessageId&gt;
+        ///  &lt;/MessageInfo&gt;
+        ///  
         ///  &lt;Collaboration&gt;
         ///    &lt;!--&lt;AgreementRef&gt;
         ///      &lt;PModeId&gt;sample-pmode&lt;/PModeId&gt;

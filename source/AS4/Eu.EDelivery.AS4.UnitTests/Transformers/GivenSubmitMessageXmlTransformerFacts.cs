@@ -71,6 +71,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
                 submitmessage_missing_payload_location,
                 submitmessage_missing_schema_location,
                 submitmessage_missing_payload_property_name,
+                submitmessage_missing_collaboration,
                 submitmessage_missing_collaboration_agreement,
                 submitmessage_missing_collaboration_agreement_pmodeid
             }, x =>
