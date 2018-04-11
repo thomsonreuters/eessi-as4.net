@@ -541,7 +541,7 @@ Failed to decrypt data element
                 [Fact]
                 public async Task Throws_Exception_When_Parames_Are_Null()
                 {
-                    await Assert.ThrowsAsync(typeof(ArgumentNullException), () => Setup().monitorService.GetRelatedMessages(Direction.Outbound, null));
+                    await Assert.ThrowsAsync<ArgumentNullException>(() => Setup().monitorService.GetRelatedMessages(Direction.Outbound, null));
                 }
 
                 [Fact]

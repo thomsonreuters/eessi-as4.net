@@ -27,7 +27,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Services
                 var retrievedEntries = provider.RetrievePullRequestAuthorizationEntriesForMpc("mpc1");
 
                 Assert.NotNull(retrievedEntries);
-                Assert.Equal(1, retrievedEntries.Count());
+                Assert.Single(retrievedEntries);
                 Assert.Equal(entries.First(e => e.Mpc == "mpc1"), retrievedEntries.First());
             }
             finally

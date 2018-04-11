@@ -44,7 +44,7 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
 
                 // Assert
                 Assert.True(loader.Receivers.Any());
-                Assert.True(loader.Receivers.Any(type => type.Name == "FILE receiver"));
+                Assert.Contains(loader.Receivers, type => type.Name == "FILE receiver");
             }
 
             [Fact]
@@ -87,7 +87,7 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
                 // Assert
                 var first = result.First();
                 Assert.True(first.Name == "Test receiver");
-                Assert.True(first.TechnicalName.Contains("TestReceiver"));
+                Assert.Contains("TestReceiver", first.TechnicalName);
 
                 var info = first.Properties.FirstOrDefault(prop => prop.FriendlyName == "FRIENDLYNAME");
                 Assert.NotNull(info);
@@ -119,7 +119,7 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
                 var result = loader.LoadImplementationsForType(types, typeof(ITestReceiver));
                 var type = result.First(test => test.Name.ToLower().Contains("testreceiverwithonlydescription")).Properties.First(prop => prop.TechnicalName == "Test");
 
-                Assert.True(type.Attributes.Contains("testattribute"));
+                Assert.Contains("testattribute", type.Attributes);
             }
 
             [Fact]
@@ -145,7 +145,7 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
 
                 // Assert
                 var json = JObject.Parse(jsonResult);
-                Assert.NotNull(json.Properties().Any(prop => prop.Name == "sendingprocessingmodel.mepbinding"));
+                Assert.Contains(json.Properties(), prop=>  prop.Name == "sendingprocessingmode.mepbinding");
             }
         }
     }

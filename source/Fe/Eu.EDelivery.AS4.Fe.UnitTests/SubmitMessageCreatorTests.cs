@@ -71,7 +71,7 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
                 };
 
                 var error = await Assert.ThrowsAsync<BusinessException>(() => Setup().SubmitMessageCreator.CreateSubmitMessages(payload));
-                Assert.True(error.Message.Contains("Could not find PMode"));
+                Assert.Contains("Could not find PMode", error.Message);
             }
 
             [Fact]
