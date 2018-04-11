@@ -167,7 +167,7 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
                 }, submitAgent.Name, settings => settings.SubmitAgents, (settings, agents) => settings.SubmitAgents = agents);
 
                 // Assert
-                Assert.True(settingsList.Agents.SubmitAgents.Any(agent => agent.Name == "NEW"));
+                Assert.Contains(settingsList.Agents.SubmitAgents, agent => agent.Name == "NEW");
                 await settingsSource.Received().Save(Arg.Is<Model.Internal.Settings>(x => x.Agents.SubmitAgents.Any(agt => agt.Name == "NEW")));
             }
         }
