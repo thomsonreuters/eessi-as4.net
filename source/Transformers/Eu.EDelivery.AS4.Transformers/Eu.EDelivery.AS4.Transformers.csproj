@@ -66,13 +66,7 @@
     <Compile Include="MinderNotifyMessageTransformer.cs" />
     <Compile Include="NotifyMessageTransformer.cs" />
     <Compile Include="OutMessageTransformer.cs" />
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
     <Compile Include="ReceiveMessageTransformer.cs" />
-    <Compile Include="Resources\Schema.cs" />
     <Compile Include="SignalMessageToNotifyMessageTransformer.cs" />
     <Compile Include="PayloadTransformer.cs" />
     <Compile Include="PModeToPullRequestTransformer.cs" />
@@ -85,21 +79,12 @@
     <None Include="app.config">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Resources\submitmessage-schema.xsd">
-      <SubType>Designer</SubType>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\AS4\Eu.EDelivery.AS4\Eu.EDelivery.AS4.csproj">
       <Project>{8b0ba38f-c3f7-46c1-9e68-a7291c7b16b1}</Project>
       <Name>Eu.EDelivery.AS4</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- <Import Project="..\..\packages\NETStandard.Library.2.0.1\build\netstandard2.0\NETStandard.Library.targets" Condition="Exists('..\..\packages\NETStandard.Library.2.0.1\build\netstandard2.0\NETStandard.Library.targets')" /> -->

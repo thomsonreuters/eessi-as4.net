@@ -7,8 +7,8 @@ using System.Xml.Schema;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.Submit;
+using Eu.EDelivery.AS4.Resources;
 using Eu.EDelivery.AS4.Serialization;
-using Eu.EDelivery.AS4.Transformers.Resources;
 using NLog;
 
 namespace Eu.EDelivery.AS4.Transformers
@@ -49,7 +49,7 @@ namespace Eu.EDelivery.AS4.Transformers
                 doc.Load(stream);
 
                 var schemas = new XmlSchemaSet();
-                schemas.Add(Schema.SubmitMessage);
+                schemas.Add(XsdSchemaDefinitions.SubmitMessage);
                 doc.Schemas = schemas;
 
                 doc.Validate((sender, args) =>
