@@ -273,6 +273,7 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="ReceiveMessageTransformer.cs" />
+    <Compile Include="Resources\Schema.cs" />
     <Compile Include="SignalMessageToNotifyMessageTransformer.cs" />
     <Compile Include="PayloadTransformer.cs" />
     <Compile Include="PModeToPullRequestTransformer.cs" />

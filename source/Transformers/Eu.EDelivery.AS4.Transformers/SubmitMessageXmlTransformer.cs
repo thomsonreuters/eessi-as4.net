@@ -4,12 +4,11 @@ using System.IO;
 using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Schema;
-using System.Xml.Serialization;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.Submit;
-using Eu.EDelivery.AS4.Resources;
 using Eu.EDelivery.AS4.Serialization;
+using Eu.EDelivery.AS4.Transformers.Resources;
 using NLog;
 
 namespace Eu.EDelivery.AS4.Transformers
@@ -50,7 +49,7 @@ namespace Eu.EDelivery.AS4.Transformers
                 doc.Load(stream);
 
                 var schemas = new XmlSchemaSet();
-                schemas.Add(GetSubmitMessageSchema());
+                schemas.Add(Schema.SubmitMessage);
                 doc.Schemas = schemas;
 
                 doc.Validate((sender, args) =>
@@ -64,15 +63,6 @@ namespace Eu.EDelivery.AS4.Transformers
             catch (Exception ex)
             {
                 throw new InvalidMessageException("Received stream is not a SubmitMessage", ex);
-            }
-        }
-
-
-        private static XmlSchema GetSubmitMessageSchema()
-        {
-            using (var stringReader = new StringReader(Properties.Resources.submitmessage_schema))
-            {
-                return XmlSchema.Read(stringReader, (sender, args) => { });
             }
         }
     }
