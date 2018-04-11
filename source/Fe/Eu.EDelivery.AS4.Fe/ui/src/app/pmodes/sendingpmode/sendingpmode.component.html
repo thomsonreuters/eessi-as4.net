@@ -136,7 +136,11 @@
                             <input type="text" formControlName="algorithm" />
                         </as4-input>
                         <as4-input label="AlgorithmKeySize" controlSize="6" runtimeTooltip="algorithmkeysize">
-                            <input type="number" formControlName="algorithmKeySize" />
+                            <select formControlName="algorithmKeySize">
+                                <option value="128">128</option>
+                                <option value="192">192</option>
+                                <option value="256">256</option>
+                            </select>
                         </as4-input>
                         <div class="sub-header">Public key information</div>
                         <ng-container formGroupName="encryptionCertificateInformation" runtimeTooltip="encryptioncertificateinformation">
