@@ -54,7 +54,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
             var receivedFiles = StartReceiving(receiver, TimeSpan.FromSeconds(10));
             receiver.StopReceiving();
 
-            Assert.Equal(1, receivedFiles.Count());
+            Assert.Single(receivedFiles);
             Assert.Equal("testfile", Path.GetFileNameWithoutExtension(receivedFiles.First()));
         }
 

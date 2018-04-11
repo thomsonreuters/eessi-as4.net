@@ -48,7 +48,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
                 MessageProperty[] properties = SubmitMessagePropertiesResolver.Default.Resolve(submitMessage);
 
                 // Assert
-                Assert.Equal(1, properties.Length);
+                Assert.Single(properties);
             }
 
             private static SubmitMessage CreatePopulatedSubmitMessage()

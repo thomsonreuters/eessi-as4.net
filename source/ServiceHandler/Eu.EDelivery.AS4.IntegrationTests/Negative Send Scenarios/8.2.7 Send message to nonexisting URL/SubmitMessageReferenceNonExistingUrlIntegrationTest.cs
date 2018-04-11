@@ -32,7 +32,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Negative_Send_Scenarios._8._2._7_Sen
         protected override void ValidatePolledFiles(IEnumerable<FileInfo> files)
         {
             // Assert
-            Assert.Equal(1, files.Count());
+            Assert.Single(files);
             AssertNotifyException();
         }
 
