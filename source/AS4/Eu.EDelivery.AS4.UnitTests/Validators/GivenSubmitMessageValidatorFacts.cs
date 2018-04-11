@@ -22,38 +22,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
         }
 
         [Fact]
-        public void ThenSubmitMessageIsInvalidWithMissingPModeId()
-        {
-            ExerciseValidation(
-                message => message.Collaboration.AgreementRef.PModeId = null, 
-                expectedValid: false);
-        }
-
-        [Fact]
-        public void ThenSubmitMessageIsInvalidWithMissingPayloadLocation()
-        {
-            ExerciseValidation(
-                message => message.Payloads.First().Location = null, 
-                expectedValid: false);
-        }
-
-        [Fact]
-        public void ThenSubmitMessageIsInvalidWithMissingPayloadPropertyName()
-        {
-            ExerciseValidation(
-                message => message.Payloads.First().PayloadProperties.First().Name = null, 
-                expectedValid: false);
-        }
-
-        [Fact]
-        public void ThenSubmitMessageIsInvalidWithMissingSchemaLocation()
-        {
-            ExerciseValidation(
-                message => message.Payloads.First().Schemas.First().Location = null, 
-                expectedValid: false);
-        }
-
-        [Fact]
         public void ThenSubmitMessageIsInvalidWithDuplicatePayloadId()
         {
             ExerciseValidation(

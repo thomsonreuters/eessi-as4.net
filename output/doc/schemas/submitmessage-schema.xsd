@@ -44,7 +44,7 @@
     <xs:sequence>
       <xs:element minOccurs="0" maxOccurs="1" name="Action" type="xs:string" />
       <xs:element minOccurs="0" maxOccurs="1" name="ConversationId" type="xs:string" />
-      <xs:element minOccurs="0" maxOccurs="1" name="AgreementRef" type="tns:Agreement" />
+      <xs:element minOccurs="1" maxOccurs="1" name="AgreementRef" nillable="true" type="tns:Agreement" />
       <xs:element minOccurs="0" maxOccurs="1" name="Service" type="tns:Service" />
     </xs:sequence>
   </xs:complexType>
@@ -52,7 +52,7 @@
     <xs:sequence>
       <xs:element minOccurs="0" maxOccurs="1" name="Value" type="xs:string" />
       <xs:element minOccurs="0" maxOccurs="1" name="RefType" type="xs:string" />
-      <xs:element minOccurs="0" maxOccurs="1" name="PModeId" type="xs:string" />
+      <xs:element minOccurs="1" maxOccurs="1" name="PModeId" nillable="true" type="xs:string" />
     </xs:sequence>
   </xs:complexType>
   <xs:complexType name="Service">
@@ -83,7 +83,7 @@
       <xs:element minOccurs="0" maxOccurs="1" name="Id" type="xs:string" />
       <xs:element minOccurs="0" maxOccurs="1" name="MimeType" type="xs:string" />
       <xs:element minOccurs="0" maxOccurs="1" name="CharacterSet" type="xs:string" />
-      <xs:element minOccurs="0" maxOccurs="1" name="Location" type="xs:string" />
+      <xs:element minOccurs="1" maxOccurs="1" name="Location" nillable="true" type="xs:string" />
       <xs:element minOccurs="0" maxOccurs="1" name="Schemas" type="tns:ArrayOfSchema" />
       <xs:element minOccurs="0" maxOccurs="1" name="PayloadProperties" type="tns:ArrayOfPayloadProperty" />
     </xs:sequence>
@@ -95,7 +95,7 @@
   </xs:complexType>
   <xs:complexType name="Schema">
     <xs:sequence>
-      <xs:element minOccurs="0" maxOccurs="1" name="Location" type="xs:string" />
+      <xs:element minOccurs="1" maxOccurs="1" name="Location" nillable="true" type="xs:string" />
       <xs:element minOccurs="0" maxOccurs="1" name="Version" type="xs:string" />
       <xs:element minOccurs="0" maxOccurs="1" name="Namespace" type="xs:string" />
     </xs:sequence>
@@ -107,7 +107,7 @@
   </xs:complexType>
   <xs:complexType name="PayloadProperty">
     <xs:sequence>
-      <xs:element minOccurs="0" maxOccurs="1" name="Name" type="xs:string" />
+      <xs:element minOccurs="1" maxOccurs="1" name="Name" nillable="true" type="xs:string" />
       <xs:element minOccurs="0" maxOccurs="1" name="Value" type="xs:string" />
     </xs:sequence>
   </xs:complexType>

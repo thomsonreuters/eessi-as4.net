@@ -1,13 +1,17 @@
 ﻿using System;
-using System.ComponentModel;
+using System.Xml.Serialization;
 
 namespace Eu.EDelivery.AS4.Model.Common
 {
     public class CollaborationInfo : IEquatable<CollaborationInfo>
     {
         public string Action { get; set; }
+
         public string ConversationId { get; set; }
+
+        [XmlElement(IsNullable = true)]
         public Agreement AgreementRef { get; set; }
+
         public Service Service { get; set; }
 
         /// <summary>

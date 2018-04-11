@@ -5,24 +5,16 @@
   </MessageInfo>
   
   <Collaboration>
-    <AgreementRef>
+    <!--<AgreementRef>
       <PModeId>sample-pmode</PModeId>
-    </AgreementRef>
+    </AgreementRef>-->
   </Collaboration>
 
-  <MessageProperties>
-    <MessageProperty>
-      <Name>Payloads</Name>
-      <Type>Metadata</Type>
-    </MessageProperty>
-  </MessageProperties>
-  
   <Payloads>
     <Payload>
       <Id>earth</Id>
       <MimeType>image/jpeg</MimeType>
       <Location>file:///messages\attachments\earth.jpg</Location>
-	    <Location>file:///messages\attachments\earth.jpg</Location>
       <PayloadProperties/>
     </Payload>
     <Payload>

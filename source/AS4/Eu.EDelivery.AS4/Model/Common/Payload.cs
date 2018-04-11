@@ -1,14 +1,21 @@
 ﻿using System;
+using System.Xml.Serialization;
 
 namespace Eu.EDelivery.AS4.Model.Common
 {
     public class Payload : IEquatable<Payload>
     {
         public string Id { get; set; }
+
         public string MimeType { get; set; }
+
         public string CharacterSet { get; set; }
+
+        [XmlElement(IsNullable = true)]
         public string Location { get; set; }
+
         public Schema[] Schemas { get; set; }
+
         public PayloadProperty[] PayloadProperties { get; set; }
 
         /// <summary>

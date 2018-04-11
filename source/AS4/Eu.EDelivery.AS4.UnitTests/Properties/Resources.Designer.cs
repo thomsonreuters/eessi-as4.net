@@ -568,6 +568,60 @@ namespace Eu.EDelivery.AS4.UnitTests.Properties {
         ///  &lt;/MessageInfo&gt;
         ///  
         ///  &lt;Collaboration&gt;
+        ///    &lt;!--&lt;AgreementRef&gt;
+        ///      &lt;PModeId&gt;sample-pmode&lt;/PModeId&gt;
+        ///    &lt;/AgreementRef&gt;--&gt;
+        ///  &lt;/Collaboration&gt;
+        ///
+        ///  &lt;Payloads&gt;
+        ///    &lt;Payload&gt;
+        ///      &lt;Id&gt;earth&lt;/Id&gt;
+        ///      &lt;MimeType&gt;image/jpeg&lt;/MimeType&gt;
+        ///      &lt;Location&gt;file:///messages\attachments\earth.jpg&lt;/Location&gt;
+        ///      &lt;PayloadProperties/&gt;
+        ///    &lt;/Payload [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string submitmessage_missing_collaboration_agreement {
+            get {
+                return ResourceManager.GetString("submitmessage_missing_collaboration_agreement", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &lt;?xml version=&quot;1.0&quot;?&gt;
+        ///&lt;SubmitMessage xmlns=&quot;urn:cef:edelivery:eu:as4:messages&quot;&gt;
+        ///  &lt;MessageInfo&gt;
+        ///    &lt;MessageId&gt;F4840B69-8057-40C9-8530-EC91F946C3BF&lt;/MessageId&gt;
+        ///  &lt;/MessageInfo&gt;
+        ///  
+        ///  &lt;Collaboration&gt;
+        ///    &lt;AgreementRef&gt;
+        ///      &lt;!--&lt;PModeId&gt;sample-pmode&lt;/PModeId&gt;--&gt;
+        ///    &lt;/AgreementRef&gt;
+        ///  &lt;/Collaboration&gt;
+        ///
+        ///  &lt;Payloads&gt;
+        ///    &lt;Payload&gt;
+        ///      &lt;Id&gt;earth&lt;/Id&gt;
+        ///      &lt;MimeType&gt;image/jpeg&lt;/MimeType&gt;
+        ///      &lt;Location&gt;file:///messages\attachments\earth.jpg&lt;/Location&gt;
+        ///      &lt;PayloadProperties/&gt;
+        ///    &lt;/Payload [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string submitmessage_missing_collaboration_agreement_pmodeid {
+            get {
+                return ResourceManager.GetString("submitmessage_missing_collaboration_agreement_pmodeid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &lt;?xml version=&quot;1.0&quot;?&gt;
+        ///&lt;SubmitMessage xmlns=&quot;urn:cef:edelivery:eu:as4:messages&quot;&gt;
+        ///  &lt;MessageInfo&gt;
+        ///    &lt;MessageId&gt;F4840B69-8057-40C9-8530-EC91F946C3BF&lt;/MessageId&gt;
+        ///  &lt;/MessageInfo&gt;
+        ///  
+        ///  &lt;Collaboration&gt;
         ///    &lt;AgreementRef&gt;
         ///      &lt;PModeId&gt;sample-pmode&lt;/PModeId&gt;
         ///    &lt;/AgreementRef&gt;
@@ -577,16 +631,75 @@ namespace Eu.EDelivery.AS4.UnitTests.Properties {
         ///    &lt;MessageProperty&gt;
         ///      &lt;Name&gt;Payloads&lt;/Name&gt;
         ///      &lt;Type&gt;Metadata&lt;/Type&gt;
-        ///      &lt;Value&gt;2&lt;/Value&gt;
         ///    &lt;/MessageProperty&gt;
         ///  &lt;/MessageProperties&gt;
         ///  
         ///  &lt;Payloads&gt;
-        ///    &lt;Payloa [rest of string was truncated]&quot;;.
+        ///    &lt;Payload&gt;
+        ///      &lt;Id&gt;earth&lt;/Id&gt; [rest of string was truncated]&quot;;.
         /// </summary>
-        internal static string submitmessage_invalid_payloads {
+        internal static string submitmessage_missing_payload_location {
             get {
-                return ResourceManager.GetString("submitmessage_invalid_payloads", resourceCulture);
+                return ResourceManager.GetString("submitmessage_missing_payload_location", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &lt;?xml version=&quot;1.0&quot;?&gt;
+        ///&lt;SubmitMessage xmlns=&quot;urn:cef:edelivery:eu:as4:messages&quot;&gt;
+        ///	&lt;MessageInfo&gt;
+        ///		&lt;MessageId&gt;F4840B69-8057-40C9-8530-EC91F946C3BF&lt;/MessageId&gt;
+        ///	&lt;/MessageInfo&gt;
+        ///
+        ///	&lt;Collaboration&gt;
+        ///		&lt;AgreementRef&gt;
+        ///			&lt;PModeId&gt;sample-pmode&lt;/PModeId&gt;
+        ///		&lt;/AgreementRef&gt;
+        ///	&lt;/Collaboration&gt;
+        ///
+        ///	&lt;Payloads&gt;
+        ///		&lt;Payload&gt;
+        ///			&lt;Id&gt;earth&lt;/Id&gt;
+        ///			&lt;MimeType&gt;image/jpeg&lt;/MimeType&gt;
+        ///			&lt;Location&gt;file:///messages\attachments\earth.jpg&lt;/Location&gt;
+        ///			&lt;PayloadProperties/&gt;
+        ///		&lt;/Payload&gt;
+        ///		&lt;Payload&gt;
+        ///			&lt;Id&gt;xml-sample&lt;/Id&gt;        /// [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string submitmessage_missing_payload_property_name {
+            get {
+                return ResourceManager.GetString("submitmessage_missing_payload_property_name", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &lt;?xml version=&quot;1.0&quot;?&gt;
+        ///&lt;SubmitMessage xmlns=&quot;urn:cef:edelivery:eu:as4:messages&quot;&gt;
+        ///  &lt;MessageInfo&gt;
+        ///    &lt;MessageId&gt;F4840B69-8057-40C9-8530-EC91F946C3BF&lt;/MessageId&gt;
+        ///  &lt;/MessageInfo&gt;
+        ///  
+        ///  &lt;Collaboration&gt;
+        ///    &lt;AgreementRef&gt;
+        ///      &lt;PModeId&gt;sample-pmode&lt;/PModeId&gt;
+        ///    &lt;/AgreementRef&gt;
+        ///  &lt;/Collaboration&gt;
+        ///
+        ///  &lt;MessageProperties&gt;
+        ///    &lt;MessageProperty&gt;
+        ///      &lt;Name&gt;Payloads&lt;/Name&gt;
+        ///      &lt;Type&gt;Metadata&lt;/Type&gt;
+        ///    &lt;/MessageProperty&gt;
+        ///  &lt;/MessageProperties&gt;
+        ///  
+        ///  &lt;Payloads&gt;
+        ///    &lt;Payload&gt;
+        ///      &lt;Id&gt;earth&lt;/Id&gt; [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string submitmessage_missing_schema_location {
+            get {
+                return ResourceManager.GetString("submitmessage_missing_schema_location", resourceCulture);
             }
         }
     }

@@ -66,9 +66,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
         {
             Assert.All(new[]
             {
-                "<Invalid-XML",
+                "<Invalid-XML>",
                 submitmessage_invalid_messageproperties,
-                submitmessage_invalid_payloads
+                submitmessage_missing_payload_location,
+                submitmessage_missing_schema_location,
+                submitmessage_missing_payload_property_name,
+                submitmessage_missing_collaboration_agreement,
+                submitmessage_missing_collaboration_agreement_pmodeid
             }, x =>
             {
                 // Arrange
