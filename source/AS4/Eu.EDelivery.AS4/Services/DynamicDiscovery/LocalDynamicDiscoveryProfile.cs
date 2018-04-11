@@ -4,7 +4,6 @@ using System.Configuration;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Xml;
-using Castle.Core.Internal;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Core;
@@ -44,8 +43,8 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
         /// <returns></returns>
         public Task<XmlDocument> RetrieveSmpMetaData(Party party, IDictionary<string, string> properties)
         {
-            if (party.PrimaryPartyId == null 
-                || party.PrimaryPartyType == null 
+            if (party.PrimaryPartyId == null
+                || party.PrimaryPartyType == null
                 || party.Role == null)
             {
                 throw new InvalidOperationException(
@@ -66,7 +65,7 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
             using (DatastoreContext context = _createDatastore())
             {
                 SmpConfiguration foundConfiguration = context.SmpConfigurations
-                    .FirstOrDefault(sc => 
+                    .FirstOrDefault(sc =>
                         sc.PartyRole == party.Role
                         && sc.ToPartyId == party.PrimaryPartyId
                         && sc.PartyType == party.PrimaryPartyType);
@@ -135,7 +134,10 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
 
         private static string TryConvertToBase64String(byte[] arr)
         {
-            if (arr == null || arr.IsNullOrEmpty()) { return null; }
+            if (arr == null || arr.Any() == false)
+            {
+                return null;
+            }
 
             try
             {

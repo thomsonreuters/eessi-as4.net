@@ -33,6 +33,7 @@ namespace Eu.EDelivery.AS4.Receivers
         public void ResetInterval()
         {
             _runs = 0;
+            CurrentInterval = _minInterval;
         }
 
         /// <summary>

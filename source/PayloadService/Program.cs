@@ -46,10 +46,10 @@ namespace Eu.EDelivery.AS4.PayloadService
                     .UseStartup<Startup>()
                     .UseApplicationInsights();
 
-            host
-                .UseUrls(url)
+
+            host.UseUrls(url)
                 .Build()
-                .Run();
+                .RunAsync(cancellationToken).Wait();
 
             Console.WriteLine("Payload Service shutdown");
         }

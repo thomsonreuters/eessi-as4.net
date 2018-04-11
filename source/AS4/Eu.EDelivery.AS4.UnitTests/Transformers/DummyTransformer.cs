@@ -24,7 +24,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
         {
             throw new NotImplementedException();
         }
+    }
 
+    public class DummyTransformerFacts
+    {
         [Fact]
         public async Task FailsToTransform()
         {

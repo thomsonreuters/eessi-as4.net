@@ -17,7 +17,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps
         {
             throw new NotImplementedException();
         }
+    }
 
+    public class DummyStepFacts
+    {
         [Fact]
         public async Task FailsToExecuteStep()
         {

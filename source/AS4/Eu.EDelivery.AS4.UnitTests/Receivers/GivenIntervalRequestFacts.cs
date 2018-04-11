@@ -9,7 +9,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
         [Theory]
         [InlineData(1)]
         [InlineData(2)]
-        public void CalculateNewInterval(int calculationCount)
+        public void CanCalculateNewInterval(int calculationCount)
         {
             // Arrange
             TimeSpan minInterval = TimeSpan.FromSeconds(1);
@@ -29,14 +29,16 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
         public void ResetInterval()
         {
             // Arrange
-            var sut = new StubInterval(TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(5));
-            CalculateNewInterval(calculationCount: 2);
+            var minInterval = TimeSpan.FromSeconds(1);
+            var sut = new StubInterval(minInterval, TimeSpan.FromSeconds(5));
+
+            CalculateNewInterval(amount: 2, request: sut);
 
             // Act
             sut.ResetInterval();
 
             // Assert
-            Assert.Equal(TimeSpan.Zero, sut.CurrentInterval);
+            Assert.Equal(minInterval, sut.CurrentInterval);
         }
 
         private static void CalculateNewInterval(int amount, IntervalRequest request)
@@ -55,6 +57,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
         /// </summary>
         /// <param name="minInterval">The min Interval.</param>
         /// <param name="maxInterval">The max Interval.</param>
-        public StubInterval(TimeSpan minInterval, TimeSpan maxInterval) : base(minInterval, maxInterval) {}
+        public StubInterval(TimeSpan minInterval, TimeSpan maxInterval) : base(minInterval, maxInterval) { }
     }
 }
