@@ -11,12 +11,16 @@
     <DocumentationFile>..\..\..\output\Eu.EDelivery.AS4.Fe.xml</DocumentationFile>
     <PlatformTarget>x86</PlatformTarget>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-    <DependsOnNETStandard>false</DependsOnNETStandard>
-    <NETStandardInbox>false</NETStandardInbox>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
     <DefineConstants>DEBUG;TRACE;NET462;NETCOREAPP2_0</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <NoWarn>1701;1702;1705;1591</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
@@ -38,16 +42,10 @@
 
   <ItemGroup>
     <PackageReference Include="FluentValidation" Version="6.2.1" />  
-  <!--</ItemGroup>
-  
-    <ItemGroup Condition=" '$(TargetFramework)' == 'net461' ">-->
         
         <PackageReference Include="NLog" Version="4.3.5" />
         <PackageReference Include="Microsoft.AspNet.SignalR" Version="2.2.2" />
         <PackageReference Include="Microsoft.AspNet.SignalR.Owin" Version="1.2.2" />
-    <!--</ItemGroup>
-  
-    <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.0' ">-->
         <PackageReference Include="Microsoft.AspNetCore" Version="2.0.1" />
         <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="2.0.1" />
         <PackageReference Include="Microsoft.AspNetCore.Http.Extensions" Version="2.0.1" />
@@ -72,7 +70,6 @@
         <PackageReference Include="Microsoft.Extensions.PlatformAbstractions" Version="1.1.0" />
         <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="5.1.4" />
         <PackageReference Include="Mono.Cecil" Version="0.10.0-beta2" />
-        <PackageReference Include="NETStandard.Library" Version="2.0.1" />
         <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="2.0.0" />
         <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="5.1.4" />
@@ -82,9 +79,6 @@
         <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="2.0.0" />
     </ItemGroup>
     <ItemGroup>
-      <Reference Include="Microsoft.Extensions.PlatformAbstractions">
-        <HintPath>..\..\packages\Microsoft.Extensions.PlatformAbstractions.1.1.0\lib\net451\Microsoft.Extensions.PlatformAbstractions.dll</HintPath>
-      </Reference>
       <Reference Include="netstandard, Version=2.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51" />
     </ItemGroup>
     <ItemGroup>

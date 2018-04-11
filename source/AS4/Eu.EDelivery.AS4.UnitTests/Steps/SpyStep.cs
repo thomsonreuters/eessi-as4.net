@@ -26,6 +26,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps
             return StepResult.SuccessAsync(messagingContext);
         }
 
+    }
+
+    public class SpyStepFacts
+    {
         [Fact]
         public async Task TestSpyStep()
         {

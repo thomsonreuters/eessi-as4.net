@@ -6,9 +6,9 @@
     <TargetFramework>net462</TargetFramework>
     <TypeScriptCompileBlocked>True</TypeScriptCompileBlocked>
     <DefaultItemExcludes>$(DefaultItemExcludes);ui/node_modules/**</DefaultItemExcludes>
-    <OutputPath>..\..\..\output\</OutputPath>
+    <OutputPath>..\..\output\</OutputPath>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <DocumentationFile>..\..\..\output\Eu.EDelivery.AS4.PayloadService.xml</DocumentationFile>
+    <DocumentationFile>..\..\output\Eu.EDelivery.AS4.PayloadService.xml</DocumentationFile>
     <PlatformTarget>x86</PlatformTarget>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <NETStandardInbox>false</NETStandardInbox>
@@ -69,9 +69,6 @@
   <ItemGroup>
     <Reference Include="Microsoft.Extensions.PlatformAbstractions">
       <HintPath>..\..\packages\Microsoft.Extensions.PlatformAbstractions.1.1.0\lib\net451\Microsoft.Extensions.PlatformAbstractions.dll</HintPath>
-    </Reference>
-    <Reference Include="netstandard, Version=2.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51">
-      <HintPath>..\..\output\netstandard.dll</HintPath>
     </Reference>
   </ItemGroup>
     <ItemGroup>

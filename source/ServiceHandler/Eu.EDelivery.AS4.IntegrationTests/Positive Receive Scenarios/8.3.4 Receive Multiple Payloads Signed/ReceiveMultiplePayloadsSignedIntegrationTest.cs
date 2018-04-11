@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Eu.EDelivery.AS4.IntegrationTests.Common;
@@ -31,8 +30,8 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Receive_Scenarios._8._3._4_
 
         private void ValidateDelivery(IEnumerable<FileInfo> files)
         {
-            Assert.All(files.Where(f => f.Extension == ".jpg"), f => Assert.Equal(f.Length, Holodeck.HolodeckAJpegPayload.Length));
-            Assert.Equal(files.Count(f => f.Extension == ".xml"), 2);
+            Assert.All(files.Where(f => f.Extension == ".jpg"), f => Assert.Equal(Holodeck.HolodeckAJpegPayload.Length, f.Length));
+            Assert.Equal(2, files.Count(f => f.Extension == ".xml"));
         }
     }
 }

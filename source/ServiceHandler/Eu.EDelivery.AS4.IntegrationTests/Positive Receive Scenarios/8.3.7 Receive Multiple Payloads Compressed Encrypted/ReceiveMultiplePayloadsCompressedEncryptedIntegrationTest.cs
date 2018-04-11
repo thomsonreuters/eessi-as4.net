@@ -24,14 +24,14 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Receive_Scenarios._8._3._7_
             Holodeck.CopyMessageToHolodeckA("8.3.7-sample.mmd");
 
             // Assert
-           Assert.True(PollingAt(AS4FullInputPath, fileCount: 3, validation: ValidateDelivery), "No DeliverMessage and payloads found on AS4.NET Component");
-           Assert.True(PollingAt(Holodeck.HolodeckALocations.InputPath), "No Receipt found at Holodeck A");
+            Assert.True(PollingAt(AS4FullInputPath, fileCount: 3, validation: ValidateDelivery), "No DeliverMessage and payloads found on AS4.NET Component");
+            Assert.True(PollingAt(Holodeck.HolodeckALocations.InputPath), "No Receipt found at Holodeck A");
         }
 
         private void ValidateDelivery(IEnumerable<FileInfo> files)
         {
-            Assert.All(files.Where(f => f.Extension == ".jpg"), f => Assert.Equal(f.Length, Holodeck.HolodeckAJpegPayload.Length));
-            Assert.Equal(files.Count(f => f.Extension == ".xml"), 2);
+            Assert.All(files.Where(f => f.Extension == ".jpg"), f => Assert.Equal(Holodeck.HolodeckAJpegPayload.Length, f.Length));
+            Assert.Equal(2, files.Count(f => f.Extension == ".xml"));
         }
     }
 }
