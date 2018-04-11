@@ -93,7 +93,7 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
             public async Task ThrowsException_WhenParameterIsNull()
             {
                 // Act / Assert
-                await Assert.ThrowsAsync(typeof(ArgumentNullException), () => SmpConfigurationService.Create(null));
+                await Assert.ThrowsAsync<ArgumentNullException>(() => SmpConfigurationService.Create(null));
             }
 
             [Fact]
@@ -103,7 +103,7 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
                 _smpConfiguration.EncryptPublicKeyCertificate = "fdsqfdsq";
 
                 // Act
-                var exception = await Assert.ThrowsAsync(typeof(BusinessException), () => SmpConfigurationService.Create(_smpConfiguration));
+                var exception = await Assert.ThrowsAsync<BusinessException>(() => SmpConfigurationService.Create(_smpConfiguration));
 
                 // Assert
                 Assert.Equal("EncryptPublicKeyCertificateName needs to be provided when EncryptPublicKeyCertificate is not empty!", exception.Message);
@@ -116,23 +116,21 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
             public async Task ThrowsArgumentException_WhenIdIsInvalid()
             {
                 // Act / Assert
-                await Assert.ThrowsAsync(typeof(ArgumentException),
-                    () => SmpConfigurationService.Update(0, new SmpConfiguration.SmpConfiguration()));
+                await Assert.ThrowsAsync<ArgumentException>(() => SmpConfigurationService.Update(0, new SmpConfiguration.SmpConfiguration()));
             }
 
             [Fact]
             public async Task ThrowsArgumentNullException_WhenSmpConfigurationIsNull()
             {
                 // Act / Assert
-                await Assert.ThrowsAsync(typeof(ArgumentNullException), () => SmpConfigurationService.Update(1, null));
+                await Assert.ThrowsAsync<ArgumentNullException>(() => SmpConfigurationService.Update(1, null));
             }
 
             [Fact]
             public async Task ThrowsNotFoundException_WhenSmpConfigurationDoesntExist()
             {
                 // Act / Assert
-                await Assert.ThrowsAsync(typeof(NotFoundException),
-                    () => SmpConfigurationService.Update(int.MaxValue, _smpConfiguration));
+                await Assert.ThrowsAsync<NotFoundException>(() => SmpConfigurationService.Update(int.MaxValue, _smpConfiguration));
             }
 
             [Fact]
@@ -166,7 +164,7 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
                 _smpConfiguration.EncryptPublicKeyCertificate = "fdsqfdsq";
 
                 // Act
-                var exception = await Assert.ThrowsAsync(typeof(BusinessException), () => SmpConfigurationService.Update(dbSmpConfiguration.Id, _smpConfiguration));
+                var exception = await Assert.ThrowsAsync<BusinessException>(() => SmpConfigurationService.Update(dbSmpConfiguration.Id, _smpConfiguration));
 
                 // Assert
                 Assert.Equal("EncryptPublicKeyCertificateName needs to be provided when EncryptPublicKeyCertificate is not empty!", exception.Message);
@@ -199,14 +197,14 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
             public async Task ThrowsArgumentException_WhenIdIsInvalid()
             {
                 // Act / Arrange
-                await Assert.ThrowsAsync(typeof(ArgumentException), () => SmpConfigurationService.Delete(0));
+                await Assert.ThrowsAsync<ArgumentException>(() => SmpConfigurationService.Delete(0));
             }
 
             [Fact]
             public async Task ThrowsNotFoundException_WhenSmpConfigurationDoesntExist()
             {
                 // Act / Arrange
-                await Assert.ThrowsAsync(typeof(NotFoundException), () => SmpConfigurationService.Delete(int.MaxValue));
+                await Assert.ThrowsAsync<NotFoundException>(() => SmpConfigurationService.Delete(int.MaxValue));
             }
         }
     }

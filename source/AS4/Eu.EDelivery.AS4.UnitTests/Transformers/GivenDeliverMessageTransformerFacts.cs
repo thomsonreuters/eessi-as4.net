@@ -54,7 +54,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             MessagingContext actualMessage = await ExerciseTransform(expectedId, message);
 
             // Assert
-            Assert.Equal(1, actualMessage.AS4Message.Attachments.Count());
+            Assert.Single(actualMessage.AS4Message.Attachments);
         }
 
         private static Attachment FilledAttachment(string attachmentId = "attachment-id")
@@ -82,7 +82,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             MessagingContext actualMessage = await sut.TransformAsync(receivedMessage);
 
             // Assert
-            Assert.Equal(1, actualMessage.AS4Message.UserMessages.Count());
+            Assert.Single(actualMessage.AS4Message.UserMessages);
             UserMessage actualUserMessage = actualMessage.AS4Message.PrimaryUserMessage;
             Assert.Equal(expectedId, actualUserMessage.MessageId);
         }

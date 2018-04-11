@@ -134,7 +134,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
 
                 StepResult result = await ExerciseCreateAS4Message(context);
 
-                Assert.Equal(result.MessagingContext.AS4Message.PrimaryUserMessage.Mpc, "some-mpc");
+                Assert.Equal("some-mpc", result.MessagingContext.AS4Message.PrimaryUserMessage.Mpc );
             }
 
             [Fact]
