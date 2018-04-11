@@ -33,32 +33,40 @@ namespace Eu.EDelivery.AS4.Fe.Authentication
                 })
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
-        }
 
-        public void Run(IApplicationBuilder app)
-        {           
-            var options = app.ApplicationServices.GetService<IOptionsSnapshot<JwtOptions>>().Value;            
-            
+            var jwtOptions = services.BuildServiceProvider().GetService<IOptionsSnapshot<JwtOptions>>().Value;
             var tokenValidationParameters = new TokenValidationParameters
             {
                 ValidateIssuerSigningKey = true,
-                IssuerSigningKey = options.SigningKey,
+                IssuerSigningKey = jwtOptions.SigningKey,
                 ValidateIssuer = true,
-                ValidIssuer = options.Issuer,
+                ValidIssuer = jwtOptions.Issuer,
                 ValidateAudience = false,
-                ValidAudience = options.Audience,
+                ValidAudience = jwtOptions.Audience,
                 ValidateLifetime = true,
                 ClockSkew = TimeSpan.Zero,
                 RoleClaimType = ClaimTypes.Role
             };
 
-            var monitor = app.ApplicationServices.GetService<IOptionsMonitor<JwtOptions>>();
-            monitor.OnChange(x =>
-            {
-                // Update token settings when JwtOptions change
-                tokenValidationParameters.IssuerSigningKey = x.SigningKey;
-            });
+            services.AddAuthentication(options =>
+                    {
+                        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                        options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+                    })
+                    .AddJwtBearer(options =>
+                    {
+                        options.TokenValidationParameters = tokenValidationParameters;
+                    });
 
+            // Update token settings when JwtOptions change
+            services.BuildServiceProvider()
+                    .GetService<IOptionsMonitor<JwtOptions>>()
+                    .OnChange(x => tokenValidationParameters.IssuerSigningKey = x.SigningKey);
+        }
+
+        public void Run(IApplicationBuilder app)
+        {           
             app.Use(async (context, next) =>
             {
                 if (string.IsNullOrWhiteSpace(context.Request.Headers["Authorization"]))
