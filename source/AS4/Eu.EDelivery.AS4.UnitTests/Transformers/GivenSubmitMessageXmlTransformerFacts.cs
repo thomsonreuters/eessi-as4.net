@@ -8,7 +8,6 @@ using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Model.Submit;
 using Eu.EDelivery.AS4.Transformers;
-using Microsoft.FSharp.Core;
 using Xunit;
 using static Eu.EDelivery.AS4.UnitTests.Properties.Resources;
 
