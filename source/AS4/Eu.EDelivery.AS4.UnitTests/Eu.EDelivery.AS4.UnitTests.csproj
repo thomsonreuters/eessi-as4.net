@@ -12,10 +12,6 @@
     <AssemblyName>Eu.EDelivery.AS4.UnitTests</AssemblyName>
     <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <SccProjectName>SAK</SccProjectName>
-    <SccLocalPath>SAK</SccLocalPath>
-    <SccAuxPath>SAK</SccAuxPath>
-    <SccProvider>SAK</SccProvider>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
     <Properties>SkipValidatePackageReferences=true</Properties>
@@ -44,14 +40,12 @@
     <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.CSharp" />
     <Reference Include="netstandard, Version=2.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51" />
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
-    <Reference Include="System.IdentityModel" />
     <Reference Include="System.IO.Compression" />
     <Reference Include="System.Security" />
     <Reference Include="System.Transactions" />
@@ -397,9 +391,6 @@
     <Folder Include="Steps\Participant\" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="FluentValidation">
-      <Version>6.2.1</Version>
-    </PackageReference>
     <PackageReference Include="Fody">
       <Version>3.0.3</Version>
     </PackageReference>
@@ -408,9 +399,6 @@
     </PackageReference>
     <PackageReference Include="FsCheck.Xunit">
       <Version>2.10.8</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory">
-      <Version>2.0.1</Version>
     </PackageReference>
     <PackageReference Include="ModuleInit.Fody">
       <Version>1.8.0</Version>
