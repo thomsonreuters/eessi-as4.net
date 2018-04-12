@@ -46,8 +46,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="FluentValidation" Version="6.2.1" />  
-        
+        <PackageReference Include="FluentValidation" Version="6.2.1" />  
+        <PackageReference Include="NETStandard.Library" Version="2.0.1" />
         <PackageReference Include="NLog" Version="4.3.5" />
         <PackageReference Include="Microsoft.AspNet.SignalR" Version="2.2.2" />
         <PackageReference Include="Microsoft.AspNet.SignalR.Owin" Version="1.2.2" />
