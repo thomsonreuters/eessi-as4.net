@@ -22,16 +22,11 @@
     </ItemGroup>
   
   <ItemGroup>
-    <!--</ItemGroup>
-  
-    <ItemGroup Condition=" '$(TargetFramework)' == 'net461' ">-->
-
+    
     <PackageReference Include="NLog" Version="4.3.5" />
     <PackageReference Include="Microsoft.AspNet.SignalR" Version="2.2.2" />
     <PackageReference Include="Microsoft.AspNet.SignalR.Owin" Version="1.2.2" />
-    <!--</ItemGroup>
-  
-    <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.0' ">-->
+    
     <PackageReference Include="Microsoft.AspNetCore" Version="2.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="2.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.Http.Extensions" Version="2.0.1" />
@@ -61,11 +56,6 @@
   </ItemGroup>
   <ItemGroup>
     <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="2.0.0" />
-  </ItemGroup>
-  <ItemGroup>
-    <Reference Include="Microsoft.Extensions.PlatformAbstractions">
-      <HintPath>..\..\packages\Microsoft.Extensions.PlatformAbstractions.1.1.0\lib\net451\Microsoft.Extensions.PlatformAbstractions.dll</HintPath>
-    </Reference>
   </ItemGroup>
     <ItemGroup>
       <Content Update="appsettings.payloadservice.json">
