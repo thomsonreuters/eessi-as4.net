@@ -72,9 +72,6 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Castle.Core">
-      <Version>4.1.1</Version>
-    </PackageReference>
     <PackageReference Include="FluentValidation">
       <Version>6.2.1</Version>
     </PackageReference>
