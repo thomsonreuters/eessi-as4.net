@@ -108,9 +108,6 @@
     <PackageReference Include="Microsoft.AspNetCore.DataProtection">
       <Version>2.0.1</Version>
     </PackageReference>
-    <PackageReference Include="Microsoft.AspNetCore.DataProtection.Abstractions">
-      <Version>2.0.1</Version>
-    </PackageReference>
     <PackageReference Include="Microsoft.AspNetCore.Hosting.Abstractions">
       <Version>2.0.1</Version>
     </PackageReference>

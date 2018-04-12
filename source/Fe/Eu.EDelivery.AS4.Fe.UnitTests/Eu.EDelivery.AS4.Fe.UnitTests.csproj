@@ -157,9 +157,6 @@
     <PackageReference Include="Microsoft.AspNetCore.DataProtection">
       <Version>2.0.1</Version>
     </PackageReference>
-    <PackageReference Include="Microsoft.AspNetCore.DataProtection.Abstractions">
-      <Version>2.0.1</Version>
-    </PackageReference>
     <PackageReference Include="Microsoft.AspNetCore.Hosting">
       <Version>2.0.1</Version>
     </PackageReference>
@@ -523,13 +520,12 @@
   <Target Name="AfterBuild">
   </Target>
   -->
-    <ItemGroup>
+  <ItemGroup>
     <FluentValidationExcludedCultures Include="cs;da;de;es;fa;fi;fr;it;ko;mk;nl;pl;pt;ru;sv;tr;zh-CN">
-        <InProject>false</InProject>
+      <InProject>false</InProject>
     </FluentValidationExcludedCultures>
-</ItemGroup>
-
-<Target Name="RemoveTranslationsAfterBuild" AfterTargets="AfterBuild">
+  </ItemGroup>
+  <Target Name="RemoveTranslationsAfterBuild" AfterTargets="AfterBuild">
     <RemoveDir Directories="@(FluentValidationExcludedCultures->'$(OutputPath)%(Filename)')" />
-</Target>
+  </Target>
 </Project>
