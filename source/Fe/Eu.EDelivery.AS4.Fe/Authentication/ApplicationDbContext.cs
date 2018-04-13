@@ -6,7 +6,7 @@ namespace Eu.EDelivery.AS4.Fe.Authentication
     /// <summary>
     /// DbContext to manage the database used for the portal
     /// </summary>
-    /// <seealso cref="Microsoft.AspNetCore.Identity.EntityFrameworkCore.IdentityDbContext`1{Eu.EDelivery.AS4.Fe.Authentication.ApplicationUser}" />
+    /// <seealso cref="Microsoft.AspNetCore.Identity.EntityFrameworkCore.IdentityDbContext" />
     public sealed class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
         /// <summary>

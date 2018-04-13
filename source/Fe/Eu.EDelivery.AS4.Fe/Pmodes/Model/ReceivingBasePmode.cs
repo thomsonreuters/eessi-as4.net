@@ -3,10 +3,7 @@ using Newtonsoft.Json.Linq;
 
 namespace Eu.EDelivery.AS4.Fe.Pmodes.Model
 {
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <seealso cref="Eu.EDelivery.AS4.Fe.Pmodes.Model.BasePmode{Eu.EDelivery.AS4.Model.PMode.ReceivingProcessingMode}" />
+
     public class ReceivingBasePmode : BasePmode<ReceivingProcessingMode>
     {
         private ReceivingProcessingMode pmode;

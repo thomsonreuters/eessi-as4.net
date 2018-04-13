@@ -6,7 +6,7 @@ using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Agents
 {
-    public class SpyAgent : IAgent, IDisposable
+    internal class SpyAgent : IAgent, IDisposable
     {
         private readonly EventWaitHandle _waitHandle = new ManualResetEvent(initialState: false);
 
@@ -68,7 +68,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Agents
         {
             IsDisposed = true;
         }
+    }
 
+    public class SpyAgentFacts
+    {
         [Fact]
         public void SpyOnDisposing()
         {

@@ -1,5 +1,4 @@
-﻿using Eu.EDelivery.AS4.Fe.Monitor.Model;
-using Eu.EDelivery.AS4.Model.PMode;
+﻿using Eu.EDelivery.AS4.Model.PMode;
 using Newtonsoft.Json.Linq;
 
 namespace Eu.EDelivery.AS4.Fe.Pmodes.Model
@@ -7,7 +6,6 @@ namespace Eu.EDelivery.AS4.Fe.Pmodes.Model
     /// <summary>
     /// Class to hold a sending pmode
     /// </summary>
-    /// <seealso cref="Eu.EDelivery.AS4.Fe.Pmodes.Model.BasePmode{Eu.EDelivery.AS4.Model.PMode.SendingProcessingMode}" />
     public class SendingBasePmode : BasePmode<SendingProcessingMode>
     {
         private SendingProcessingMode pmode;
