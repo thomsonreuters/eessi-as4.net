@@ -9,18 +9,24 @@
     <OutputPath>..\..\..\output\</OutputPath>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <DocumentationFile>..\..\..\output\Eu.EDelivery.AS4.Fe.xml</DocumentationFile>
-    <PlatformTarget>x86</PlatformTarget>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <NETStandardInbox>false</NETStandardInbox>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
-    <DefineConstants>DEBUG;TRACE;NET462;NETCOREAPP2_0</DefineConstants>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <NoWarn>1701;1702;1705;1591</NoWarn>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DefineConstants>TRACE</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
@@ -41,8 +47,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="FluentValidation" Version="6.2.1" />  
-        
+        <PackageReference Include="FluentValidation" Version="6.2.1" />  
+        <PackageReference Include="NETStandard.Library" Version="2.0.1" />
         <PackageReference Include="NLog" Version="4.3.5" />
         <PackageReference Include="Microsoft.AspNet.SignalR" Version="2.2.2" />
         <PackageReference Include="Microsoft.AspNet.SignalR.Owin" Version="1.2.2" />
@@ -73,13 +79,12 @@
         <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="2.0.0" />
         <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="5.1.4" />
+        <PackageReference Include="System.Net.Http" Version="4.3.3" />
+        <PackageReference Include="System.Runtime.InteropServices.RuntimeInformation" Version="4.3.0" />
       <Reference Include="System.Configuration" />
     </ItemGroup>
     <ItemGroup>
         <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="2.0.0" />
-    </ItemGroup>
-    <ItemGroup>
-      <Reference Include="netstandard, Version=2.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51" />
     </ItemGroup>
     <ItemGroup>
         <Content Update="appsettings.Development.json">

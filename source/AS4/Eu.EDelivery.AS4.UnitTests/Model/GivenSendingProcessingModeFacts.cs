@@ -61,6 +61,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
                 Assert.False(DefaultEmptyPMode.AllowOverride);
             }
             
+            [Fact]
             public void ThenPushConfigurationIsDefault()
             {
                 // Assert

@@ -34,11 +34,6 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Security" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
@@ -71,16 +66,7 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Castle.Core">
-      <Version>4.1.1</Version>
-    </PackageReference>
-    <PackageReference Include="FluentValidation">
-      <Version>6.2.1</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory">
-      <Version>2.0.1</Version>
-    </PackageReference>
+  <ItemGroup>    
     <PackageReference Include="Moq">
       <Version>4.7.99</Version>
     </PackageReference>

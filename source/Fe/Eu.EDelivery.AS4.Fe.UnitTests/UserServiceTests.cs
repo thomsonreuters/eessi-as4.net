@@ -159,7 +159,7 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
                 var claims = await UserManager.GetClaimsAsync(user);
                 var result = await UserManager.CheckPasswordAsync(user, "9*SC!7i*wH3r");
                 Assert.True(result, "CheckPasswordAsync should have returned true");
-                Assert.False(claims.Any(claim => claim.Value == Roles.Admin));
+                Assert.DoesNotContain(claims, claim => claim.Value == Roles.Admin);
             }
 
             [Fact]

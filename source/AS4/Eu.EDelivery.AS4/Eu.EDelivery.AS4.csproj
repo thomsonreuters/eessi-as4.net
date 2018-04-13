@@ -46,17 +46,6 @@
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
-    <!-- <Reference Include="System.Data.SqlClient, Version=4.2.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\System.Data.SqlClient.4.4.0\lib\net461\System.Data.SqlClient.dll</HintPath>
-    </Reference>
-    <Reference Include="System.IO.Compression, Version=4.1.2.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\System.IO.Compression.4.3.0\lib\net46\System.IO.Compression.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="System.Net.Sockets, Version=4.1.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\System.Net.Sockets.4.3.0\lib\net46\System.Net.Sockets.dll</HintPath>
-      <Private>True</Private>
-    </Reference> -->
     <Reference Include="System.Numerics" />
     <Reference Include="System.Runtime.Caching" />
     <Reference Include="System.Security" />
@@ -91,6 +80,9 @@
     <PackageReference Include="Newtonsoft.Json">
       <Version>10.0.3</Version>
     </PackageReference>
+    <PackageReference Include="System.Reactive">
+      <Version>3.1.1</Version>
+    </PackageReference>
     <PackageReference Include="NLog">
       <Version>4.3.5</Version>
     </PackageReference>
@@ -99,9 +91,6 @@
     </PackageReference>
     <PackageReference Include="System.Linq.Dynamic.Core">
       <Version>1.0.7.11</Version>
-    </PackageReference>
-    <PackageReference Include="System.Reactive">
-      <Version>3.1.1</Version>
     </PackageReference>
     <PackageReference Include="System.Security.Cryptography.Algorithms">
       <Version>4.3.0</Version>
@@ -118,65 +107,8 @@
     <PackageReference Include="System.ValueTuple">
       <Version>4.4.0</Version>
     </PackageReference>
-    <PackageReference Include="Microsoft.AspNetCore.Authentication">
-      <Version>2.0.1</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.Abstractions">
-      <Version>2.0.1</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.Cookies">
-      <Version>2.0.1</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.Core">
-      <Version>2.0.1</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.AspNetCore.Cryptography.Internal">
-      <Version>2.0.1</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.AspNetCore.Cryptography.KeyDerivation">
-      <Version>2.0.1</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.AspNetCore.DataProtection">
-      <Version>2.0.1</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.AspNetCore.DataProtection.Abstractions">
-      <Version>2.0.1</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.AspNetCore.Hosting.Abstractions">
-      <Version>2.0.1</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.AspNetCore.Hosting.Server.Abstractions">
-      <Version>2.0.1</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.AspNetCore.Http">
-      <Version>2.0.1</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions">
-      <Version>2.0.1</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.AspNetCore.Http.Extensions">
-      <Version>2.0.1</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.AspNetCore.Http.Features">
-      <Version>2.0.1</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.AspNetCore.Identity">
-      <Version>2.0.1</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore">
-      <Version>2.0.1</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.AspNetCore.WebUtilities">
-      <Version>2.0.1</Version>
-    </PackageReference>
     <PackageReference Include="Microsoft.CSharp">
       <Version>4.4.0</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Data.Sqlite">
-      <Version>1.1.0</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Data.Sqlite.Core">
-      <Version>2.0.0</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.EntityFrameworkCore">
       <Version>2.0.1</Version>
@@ -187,136 +119,25 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite">
       <Version>2.0.1</Version>
     </PackageReference>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite.Core">
-      <Version>2.0.1</Version>
-    </PackageReference>
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer">
       <Version>2.0.1</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Extensions.Caching.Abstractions">
-      <Version>2.0.0</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Extensions.Caching.Memory">
-      <Version>2.0.0</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions">
-      <Version>2.0.0</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection">
-      <Version>2.0.0</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions">
-      <Version>2.0.0</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Extensions.FileProviders.Abstractions">
-      <Version>2.0.0</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions">
-      <Version>2.0.1</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Extensions.Identity.Core">
-      <Version>2.0.1</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Extensions.Identity.Stores">
-      <Version>2.0.1</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Extensions.Logging">
-      <Version>2.0.0</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions">
-      <Version>2.0.0</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Extensions.ObjectPool">
-      <Version>2.0.0</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Extensions.Options">
-      <Version>2.0.0</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Extensions.Primitives">
-      <Version>2.0.0</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Extensions.WebEncoders">
-      <Version>2.0.0</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Net.Http.Headers">
       <Version>2.0.1</Version>
     </PackageReference>
-    <PackageReference Include="Microsoft.NETCore.Platforms">
-      <Version>1.1.0</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Win32.Primitives">
-      <Version>4.3.0</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Win32.Registry">
-      <Version>4.4.0</Version>
-    </PackageReference>
     <PackageReference Include="NETStandard.Library">
       <Version>2.0.1</Version>
-    </PackageReference>
-    <PackageReference Include="Remotion.Linq">
-      <Version>2.1.1</Version>
-    </PackageReference>
-    <PackageReference Include="SQLite">
-      <Version>3.13.0</Version>
-    </PackageReference>
-    <PackageReference Include="System.AppContext">
-      <Version>4.3.0</Version>
     </PackageReference>
     <PackageReference Include="System.Buffers">
       <Version>4.4.0</Version>
     </PackageReference>
-    <PackageReference Include="System.Collections.Concurrent">
-      <Version>4.3.0</Version>
-    </PackageReference>
-    <PackageReference Include="System.Collections.Immutable">
-      <Version>1.4.0</Version>
-    </PackageReference>
     <PackageReference Include="System.ComponentModel">
-      <Version>4.3.0</Version>
-    </PackageReference>
-    <PackageReference Include="System.ComponentModel.Annotations">
-      <Version>4.4.1</Version>
-    </PackageReference>
-    <PackageReference Include="System.Console">
-      <Version>4.3.0</Version>
-    </PackageReference>
-    <PackageReference Include="System.Data.SqlClient">
-      <Version>4.4.0</Version>
-    </PackageReference>
-    <PackageReference Include="System.Diagnostics.Contracts">
-      <Version>4.3.0</Version>
-    </PackageReference>
-    <PackageReference Include="System.Diagnostics.Debug">
-      <Version>4.3.0</Version>
-    </PackageReference>
-    <PackageReference Include="System.Diagnostics.DiagnosticSource">
-      <Version>4.4.1</Version>
-    </PackageReference>
-    <PackageReference Include="System.Diagnostics.Tools">
-      <Version>4.3.0</Version>
-    </PackageReference>
-    <PackageReference Include="System.Diagnostics.Tracing">
-      <Version>4.3.0</Version>
-    </PackageReference>
-    <PackageReference Include="System.Globalization">
-      <Version>4.3.0</Version>
-    </PackageReference>
-    <PackageReference Include="System.Globalization.Calendars">
-      <Version>4.3.0</Version>
-    </PackageReference>
-    <PackageReference Include="System.Interactive.Async">
-      <Version>3.1.1</Version>
-    </PackageReference>
-    <PackageReference Include="System.IO.Compression">
       <Version>4.3.0</Version>
     </PackageReference>
     <PackageReference Include="System.IO.Compression.ZipFile">
       <Version>4.3.0</Version>
     </PackageReference>
     <PackageReference Include="System.IO.FileSystem">
-      <Version>4.3.0</Version>
-    </PackageReference>
-    <PackageReference Include="System.IO.FileSystem.Primitives">
       <Version>4.3.0</Version>
     </PackageReference>
     <PackageReference Include="System.Linq">
@@ -334,44 +155,11 @@
     <PackageReference Include="System.Net.Primitives">
       <Version>4.3.0</Version>
     </PackageReference>
-    <PackageReference Include="System.Net.Sockets">
-      <Version>4.3.0</Version>
-    </PackageReference>
     <PackageReference Include="System.ObjectModel">
-      <Version>4.3.0</Version>
-    </PackageReference>
-    <PackageReference Include="System.Reflection">
-      <Version>4.3.0</Version>
-    </PackageReference>
-    <PackageReference Include="System.Reflection.Extensions">
-      <Version>4.3.0</Version>
-    </PackageReference>
-    <PackageReference Include="System.Reflection.Primitives">
       <Version>4.3.0</Version>
     </PackageReference>
     <PackageReference Include="System.Resources.ResourceManager">
       <Version>4.3.0</Version>
-    </PackageReference>
-    <PackageReference Include="System.Runtime">
-      <Version>4.3.0</Version>
-    </PackageReference>
-    <PackageReference Include="System.Runtime.Extensions">
-      <Version>4.3.0</Version>
-    </PackageReference>
-    <PackageReference Include="System.Runtime.Handles">
-      <Version>4.3.0</Version>
-    </PackageReference>
-    <PackageReference Include="System.Runtime.InteropServices">
-      <Version>4.3.0</Version>
-    </PackageReference>
-    <PackageReference Include="System.Runtime.InteropServices.RuntimeInformation">
-      <Version>4.3.0</Version>
-    </PackageReference>
-    <PackageReference Include="System.Runtime.Numerics">
-      <Version>4.3.0</Version>
-    </PackageReference>
-    <PackageReference Include="System.Security.AccessControl">
-      <Version>4.4.0</Version>
     </PackageReference>
     <PackageReference Include="System.Security.Cryptography.Algorithms">
       <Version>4.3.0</Version>
@@ -388,9 +176,6 @@
     <PackageReference Include="System.Security.Cryptography.Xml">
       <Version>4.4.0</Version>
     </PackageReference>
-    <PackageReference Include="System.Security.Principal.Windows">
-      <Version>4.4.0</Version>
-    </PackageReference>
     <PackageReference Include="System.Text.Encoding">
       <Version>4.3.0</Version>
     </PackageReference>
@@ -399,27 +184,6 @@
     </PackageReference>
     <PackageReference Include="System.Text.Encodings.Web">
       <Version>4.4.0</Version>
-    </PackageReference>
-    <PackageReference Include="System.Text.RegularExpressions">
-      <Version>4.3.0</Version>
-    </PackageReference>
-    <PackageReference Include="System.Threading">
-      <Version>4.3.0</Version>
-    </PackageReference>
-    <PackageReference Include="System.Threading.Tasks">
-      <Version>4.3.0</Version>
-    </PackageReference>
-    <PackageReference Include="System.Threading.Timer">
-      <Version>4.3.0</Version>
-    </PackageReference>
-    <PackageReference Include="System.ValueTuple">
-      <Version>4.4.0</Version>
-    </PackageReference>
-    <PackageReference Include="System.Xml.ReaderWriter">
-      <Version>4.3.0</Version>
-    </PackageReference>
-    <PackageReference Include="System.Xml.XDocument">
-      <Version>4.3.0</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
@@ -772,24 +536,4 @@
     <Folder Include="Builders\Internal\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('..\..\packages\NETStandard.Library.2.0.1\build\netstandard2.0\NETStandard.Library.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\NETStandard.Library.2.0.1\build\netstandard2.0\NETStandard.Library.targets'))" />
-    <Error Condition="!Exists('..\..\packages\SQLitePCLRaw.lib.e_sqlite3.linux.1.1.7\build\net35\SQLitePCLRaw.lib.e_sqlite3.linux.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\SQLitePCLRaw.lib.e_sqlite3.linux.1.1.7\build\net35\SQLitePCLRaw.lib.e_sqlite3.linux.targets'))" />
-    <Error Condition="!Exists('..\..\packages\SQLitePCLRaw.lib.e_sqlite3.osx.1.1.7\build\net35\SQLitePCLRaw.lib.e_sqlite3.osx.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\SQLitePCLRaw.lib.e_sqlite3.osx.1.1.7\build\net35\SQLitePCLRaw.lib.e_sqlite3.osx.targets'))" />
-    <Error Condition="!Exists('..\..\packages\SQLitePCLRaw.lib.e_sqlite3.v110_xp.1.1.7\build\net35\SQLitePCLRaw.lib.e_sqlite3.v110_xp.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\SQLitePCLRaw.lib.e_sqlite3.v110_xp.1.1.7\build\net35\SQLitePCLRaw.lib.e_sqlite3.v110_xp.targets'))" />
-  </Target>
-  <Import Project="..\..\packages\NETStandard.Library.2.0.1\build\netstandard2.0\NETStandard.Library.targets" Condition="Exists('..\..\packages\NETStandard.Library.2.0.1\build\netstandard2.0\NETStandard.Library.targets')" />
-  <Import Project="..\..\packages\SQLitePCLRaw.lib.e_sqlite3.linux.1.1.7\build\net35\SQLitePCLRaw.lib.e_sqlite3.linux.targets" Condition="Exists('..\..\packages\SQLitePCLRaw.lib.e_sqlite3.linux.1.1.7\build\net35\SQLitePCLRaw.lib.e_sqlite3.linux.targets')" />
-  <Import Project="..\..\packages\SQLitePCLRaw.lib.e_sqlite3.osx.1.1.7\build\net35\SQLitePCLRaw.lib.e_sqlite3.osx.targets" Condition="Exists('..\..\packages\SQLitePCLRaw.lib.e_sqlite3.osx.1.1.7\build\net35\SQLitePCLRaw.lib.e_sqlite3.osx.targets')" />
-  <Import Project="..\..\packages\SQLitePCLRaw.lib.e_sqlite3.v110_xp.1.1.7\build\net35\SQLitePCLRaw.lib.e_sqlite3.v110_xp.targets" Condition="Exists('..\..\packages\SQLitePCLRaw.lib.e_sqlite3.v110_xp.1.1.7\build\net35\SQLitePCLRaw.lib.e_sqlite3.v110_xp.targets')" /> -->
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
 </Project>
