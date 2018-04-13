@@ -25,7 +25,7 @@ Get-ChildItem $outputDirectory -Filter '*.xsd' | % {
         Select-Xml $content -XPath "//*[local-name()='any']" | % {
             $element = [System.Xml.XmlElement]$_.Node
             $element.SetAttribute("processContents", "lax")
-        }        
-        
-        $content.Save($_.FullName)
+        }
+
+        $content.OuterXml -replace "xs:sequence", "xs:all" | Out-File -FilePath $_.FullName -Force
     }
