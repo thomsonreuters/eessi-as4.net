@@ -33,8 +33,7 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
         private readonly string OutEbmsRefToMessageId2 = "OutEbmsRefToMessageId2";
         private readonly string InException = "THIS IS EXCEPTION 1";
         private readonly ReceivingProcessingMode pmode;
-        private readonly string MessageBody1 = "TEST";
-        private readonly string MessageBody2 = "TEST2";
+        private readonly string MessageBody1 = "TEST";        
         private DatastoreContext datastoreContext;
         private MonitorService monitorService;
         private DbContextOptions<DatastoreContext> options;

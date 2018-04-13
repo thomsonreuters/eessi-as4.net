@@ -12,7 +12,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Repositories
     /// <see cref="IAS4MessageBodyStore" /> implementation to sabotage the loading of a <see cref="Stream" /> at a given
     /// location.
     /// </summary>
-    public class SaboteurMessageBodyStore : IAS4MessageBodyStore
+    internal class SaboteurMessageBodyStore : IAS4MessageBodyStore
     {
         /// <summary>
         /// Loads a <see cref="T:System.IO.Stream" /> at a given stored <paramref name="location" />.
@@ -54,8 +54,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Repositories
         public Task<string> SaveAS4MessageStreamAsync(string location, Stream as4MessageStream)
         {
             throw new NotImplementedException();
-        }
+        }        
+    }
 
+    public class SaboteurMessageBodyStoreFacts
+    {
         [Fact]
         public async Task FailsToLoad()
         {
