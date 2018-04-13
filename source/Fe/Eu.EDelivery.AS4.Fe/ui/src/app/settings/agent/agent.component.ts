@@ -6,7 +6,7 @@ import { ActivatedRoute } from '@angular/router';
 import { Observable } from 'rxjs/Observable';
 import { Subscription } from 'rxjs/Subscription';
 
-import { Transformer } from '../../api';
+import { Transformer, Steps } from '../../api';
 import { SettingsAgent } from '../../api/SettingsAgent';
 import { SettingsAgentForm } from '../../api/SettingsAgentForm';
 import { SettingsService } from '../settings.service';
@@ -33,6 +33,8 @@ export class AgentSettingsComponent implements OnDestroy, CanComponentDeactivate
         this._currentAgent = agent;
     }
     public transformers: ItemType[];
+    public normalSteps: ItemType[];
+    public errorSteps: ItemType[];
     public isNewMode: boolean = false;
     public newName: string;
     public actionType: string | number = 0;
@@ -71,12 +73,13 @@ export class AgentSettingsComponent implements OnDestroy, CanComponentDeactivate
             .filter((result) => !!result && !!result.Settings && !!result.Settings.agents[this.agent])
             .map((result) => result.Settings.agents[this.agent] as SettingsAgent[]);
         const defaultTransformer = this.settingsService.getDefaultAgentTransformer(this.beType);
-        let sub = Observable.combineLatest(settingsStoreSelector, defaultTransformer)
+        const defaultSteps = this.settingsService.getDefaultAgentSteps(this.beType);
+        let sub = Observable.combineLatest(settingsStoreSelector, defaultTransformer, defaultSteps)
             .filter(
-                ([agents, transformers]) =>
+                ([agents, transformers, _]) =>
                     !!agents && agents.length > 0 && !!transformers && !!transformers.defaultTransformer
             )
-            .subscribe(([agents, transformers]) => {
+            .subscribe(([agents, transformers, steps]) => {
                 this.settings = agents;
                 if (!!this.currentAgent) {
                     this.currentAgent = agents.find((agt) => agt.name === this.currentAgent!.name);
@@ -84,6 +87,8 @@ export class AgentSettingsComponent implements OnDestroy, CanComponentDeactivate
                     this.currentAgent = agents[0];
                 }
                 this.transformers = [transformers.defaultTransformer].concat(transformers.otherTransformers);
+                this.normalSteps = steps.normalPipeline;
+                this.errorSteps = steps.errorPipeline;
                 this.form = SettingsAgentForm.getForm(this._formWrapper, this.currentAgent).build(!!!this.currentAgent);
             });
         this._subscription = sub;
@@ -119,7 +124,7 @@ export class AgentSettingsComponent implements OnDestroy, CanComponentDeactivate
                         const defaultTransformer = this.settingsService.getDefaultAgentTransformer(this.beType);
                         const defaultSteps = this.settingsService.getDefaultAgentSteps(this.beType);
                         Observable.combineLatest(defaultTransformer, defaultSteps).subscribe(([transformer, steps]) => {
-                            newAgent.stepConfiguration = steps;
+                            newAgent.stepConfiguration = new Steps();
                             newAgent.transformer = new Transformer();
                             newAgent.transformer.type = transformer.defaultTransformer.technicalName;
                             setupCurrent(newAgent);
