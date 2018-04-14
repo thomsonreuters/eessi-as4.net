@@ -14,10 +14,10 @@
     </xs:all>
   </xs:complexType>
   <xs:complexType name="StatusInfo">
-    <xs:all>
+    <xs:sequence>
       <xs:element minOccurs="1" maxOccurs="1" name="Status" type="Status" />
       <xs:any minOccurs="0" maxOccurs="unbounded" processContents="lax" />
-    </xs:all>
+    </xs:sequence>
   </xs:complexType>
   <xs:simpleType name="Status">
     <xs:restriction base="xs:string">

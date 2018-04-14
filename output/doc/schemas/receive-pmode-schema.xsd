@@ -89,13 +89,13 @@
     </xs:restriction>
   </xs:simpleType>
   <xs:complexType name="Decryption">
-    <xs:all>
+    <xs:sequence>
       <xs:element minOccurs="1" maxOccurs="1" name="Encryption" type="tns:Limit" />
       <xs:choice minOccurs="1" maxOccurs="1">
         <xs:element minOccurs="0" maxOccurs="1" name="CertificateFindCriteria" type="tns:CertificateFindCriteria" />
         <xs:element minOccurs="0" maxOccurs="1" name="PrivateKeyCertificate" type="tns:PrivateKeyCertificate" />
       </xs:choice>
-    </xs:all>
+    </xs:sequence>
   </xs:complexType>
   <xs:complexType name="CertificateFindCriteria">
     <xs:all>
@@ -192,12 +192,12 @@
     </xs:all>
   </xs:complexType>
   <xs:complexType name="MessageHandling">
-    <xs:all>
+    <xs:sequence>
       <xs:choice minOccurs="1" maxOccurs="1">
         <xs:element minOccurs="0" maxOccurs="1" name="Deliver" type="tns:Deliver" />
         <xs:element minOccurs="0" maxOccurs="1" name="Forward" type="tns:Forward" />
       </xs:choice>
-    </xs:all>
+    </xs:sequence>
   </xs:complexType>
   <xs:complexType name="Deliver">
     <xs:all>

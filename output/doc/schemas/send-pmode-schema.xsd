@@ -43,14 +43,14 @@
     </xs:all>
   </xs:complexType>
   <xs:complexType name="TlsConfiguration">
-    <xs:all>
+    <xs:sequence>
       <xs:element minOccurs="1" maxOccurs="1" name="IsEnabled" type="xs:boolean" />
       <xs:element minOccurs="0" maxOccurs="1" default="Tls12" name="TlsVersion" type="tns:TlsVersion" />
       <xs:choice minOccurs="1" maxOccurs="1">
         <xs:element minOccurs="0" maxOccurs="1" name="ClientCertificateReference" type="tns:ClientCertificateReference" />
         <xs:element minOccurs="0" maxOccurs="1" name="PrivateKeyCertificate" type="tns:PrivateKeyCertificate" />
       </xs:choice>
-    </xs:all>
+    </xs:sequence>
   </xs:complexType>
   <xs:simpleType name="TlsVersion">
     <xs:restriction base="xs:string">
@@ -158,7 +158,7 @@
     </xs:all>
   </xs:complexType>
   <xs:complexType name="Signing">
-    <xs:all>
+    <xs:sequence>
       <xs:element minOccurs="1" maxOccurs="1" name="IsEnabled" type="xs:boolean" />
       <xs:choice minOccurs="1" maxOccurs="1">
         <xs:element minOccurs="0" maxOccurs="1" name="CertificateFindCriteria" type="tns:CertificateFindCriteria" />
@@ -167,7 +167,7 @@
       <xs:element minOccurs="0" maxOccurs="1" default="BSTReference" name="KeyReferenceMethod" type="tns:X509ReferenceType" />
       <xs:element minOccurs="0" maxOccurs="1" default="http://www.w3.org/2001/04/xmldsig-more#rsa-sha256" name="Algorithm" type="xs:string" />
       <xs:element minOccurs="0" maxOccurs="1" default="http://www.w3.org/2001/04/xmlenc#sha256" name="HashFunction" type="xs:string" />
-    </xs:all>
+    </xs:sequence>
   </xs:complexType>
   <xs:complexType name="CertificateFindCriteria">
     <xs:all>
@@ -183,7 +183,7 @@
     </xs:restriction>
   </xs:simpleType>
   <xs:complexType name="Encryption">
-    <xs:all>
+    <xs:sequence>
       <xs:element minOccurs="1" maxOccurs="1" name="IsEnabled" type="xs:boolean" />
       <xs:element minOccurs="0" maxOccurs="1" default="http://www.w3.org/2009/xmlenc11#aes128-gcm" name="Algorithm" type="xs:string" />
       <xs:element minOccurs="0" maxOccurs="1" default="128" name="AlgorithmKeySize" type="xs:int" />
@@ -192,7 +192,7 @@
         <xs:element minOccurs="0" maxOccurs="1" name="PublicKeyCertificate" type="tns:PublicKeyCertificate" />
       </xs:choice>
       <xs:element minOccurs="0" maxOccurs="1" name="KeyTransport" type="tns:KeyEncryption" />
-    </xs:all>
+    </xs:sequence>
   </xs:complexType>
   <xs:complexType name="PublicKeyCertificate">
     <xs:all>

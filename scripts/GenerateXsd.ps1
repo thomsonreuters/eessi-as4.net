@@ -27,7 +27,7 @@ Get-ChildItem $outputDirectory -Filter '*.xsd' | % {
             $element.SetAttribute("processContents", "lax")
         }
 
-        Select-Xml $content -Namespace @{xs='http://www.w3.org/2001/XMLSchema'} -XPath "/xs:schema/xs:complexType[not(starts-with(@name, 'ArrayOf'))]/xs:sequence" |
+        Select-Xml $content -Namespace @{xs='http://www.w3.org/2001/XMLSchema'} -XPath "/xs:schema/xs:complexType[not(starts-with(@name, 'ArrayOf'))]/xs:sequence[not(descendant::*[local-name()='choice']) and not(descendant::*[local-name()='any'])]" |
             ForEach-Object {
                 $_.Node.ParentNode.InnerXml = $_.Node.ParentNode.InnerXml -replace "xs:sequence", "xs:all"
             }
