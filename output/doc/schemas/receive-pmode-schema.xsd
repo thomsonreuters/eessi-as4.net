@@ -2,7 +2,7 @@
 <xs:schema xmlns:tns="eu:edelivery:as4:pmode" elementFormDefault="qualified" targetNamespace="eu:edelivery:as4:pmode" xmlns:xs="http://www.w3.org/2001/XMLSchema">
   <xs:element name="PMode" type="tns:ReceivingProcessingMode" />
   <xs:complexType name="ReceivingProcessingMode">
-    <xs:all>
+    <xs:sequence>
       <xs:element minOccurs="0" maxOccurs="1" name="Id" type="xs:string" />
       <xs:element minOccurs="0" maxOccurs="1" name="Reliability" type="tns:ReceiveReliability" />
       <xs:element minOccurs="0" maxOccurs="1" name="ReplyHandling" type="tns:ReplyHandlingSetting" />
@@ -10,25 +10,25 @@
       <xs:element minOccurs="0" maxOccurs="1" name="Security" type="tns:ReceiveSecurity" />
       <xs:element minOccurs="0" maxOccurs="1" name="MessagePackaging" type="tns:MessagePackaging" />
       <xs:element minOccurs="0" maxOccurs="1" name="MessageHandling" type="tns:MessageHandling" />
-    </xs:all>
+    </xs:sequence>
   </xs:complexType>
   <xs:complexType name="ReceiveReliability">
-    <xs:all>
+    <xs:sequence>
       <xs:element minOccurs="0" maxOccurs="1" name="DuplicateElimination" type="tns:DuplicateElimination" />
-    </xs:all>
+    </xs:sequence>
   </xs:complexType>
   <xs:complexType name="DuplicateElimination">
-    <xs:all>
+    <xs:sequence>
       <xs:element minOccurs="1" maxOccurs="1" name="IsEnabled" type="xs:boolean" />
-    </xs:all>
+    </xs:sequence>
   </xs:complexType>
   <xs:complexType name="ReplyHandlingSetting">
-    <xs:all>
+    <xs:sequence>
       <xs:element minOccurs="0" maxOccurs="1" default="Response" name="ReplyPattern" type="tns:ReplyPattern" />
       <xs:element minOccurs="0" maxOccurs="1" name="SendingPMode" type="xs:string" />
       <xs:element minOccurs="0" maxOccurs="1" name="ReceiptHandling" type="tns:ReceiveReceiptHandling" />
       <xs:element minOccurs="0" maxOccurs="1" name="ErrorHandling" type="tns:ReceiveErrorHandling" />
-    </xs:all>
+    </xs:sequence>
   </xs:complexType>
   <xs:simpleType name="ReplyPattern">
     <xs:restriction base="xs:string">
@@ -37,27 +37,27 @@
     </xs:restriction>
   </xs:simpleType>
   <xs:complexType name="ReceiveReceiptHandling">
-    <xs:all>
+    <xs:sequence>
       <xs:element minOccurs="0" maxOccurs="1" name="UseNRRFormat" type="xs:boolean" />
-    </xs:all>
+    </xs:sequence>
   </xs:complexType>
   <xs:complexType name="ReceiveErrorHandling">
-    <xs:all>
+    <xs:sequence>
       <xs:element minOccurs="0" maxOccurs="1" name="UseSoapFault" type="xs:boolean" />
       <xs:element minOccurs="0" maxOccurs="1" default="200" name="ResponseHttpCode" type="xs:int" />
-    </xs:all>
+    </xs:sequence>
   </xs:complexType>
   <xs:complexType name="ReceiveHandling">
-    <xs:all>
+    <xs:sequence>
       <xs:element minOccurs="1" maxOccurs="1" name="NotifyMessageConsumer" type="xs:boolean" />
       <xs:element minOccurs="0" maxOccurs="1" name="NotifyMethod" type="tns:Method" />
-    </xs:all>
+    </xs:sequence>
   </xs:complexType>
   <xs:complexType name="Method">
-    <xs:all>
+    <xs:sequence>
       <xs:element minOccurs="0" maxOccurs="1" name="Type" type="xs:string" />
       <xs:element minOccurs="0" maxOccurs="1" name="Parameters" type="tns:ArrayOfParameter" />
-    </xs:all>
+    </xs:sequence>
   </xs:complexType>
   <xs:complexType name="ArrayOfParameter">
     <xs:sequence>
@@ -69,16 +69,16 @@
     <xs:attribute name="value" type="xs:string" />
   </xs:complexType>
   <xs:complexType name="ReceiveSecurity">
-    <xs:all>
+    <xs:sequence>
       <xs:element minOccurs="0" maxOccurs="1" name="SigningVerification" type="tns:SigningVerification" />
       <xs:element minOccurs="0" maxOccurs="1" name="Decryption" type="tns:Decryption" />
-    </xs:all>
+    </xs:sequence>
   </xs:complexType>
   <xs:complexType name="SigningVerification">
-    <xs:all>
+    <xs:sequence>
       <xs:element minOccurs="1" maxOccurs="1" name="Signature" type="tns:Limit" />
       <xs:element minOccurs="0" maxOccurs="1" default="false" name="AllowUnknownRootCertificate" type="xs:boolean" />
-    </xs:all>
+    </xs:sequence>
   </xs:complexType>
   <xs:simpleType name="Limit">
     <xs:restriction base="xs:string">
@@ -98,10 +98,10 @@
     </xs:sequence>
   </xs:complexType>
   <xs:complexType name="CertificateFindCriteria">
-    <xs:all>
+    <xs:sequence>
       <xs:element minOccurs="1" maxOccurs="1" name="CertificateFindType" type="tns:X509FindType" />
       <xs:element minOccurs="0" maxOccurs="1" name="CertificateFindValue" type="xs:string" />
-    </xs:all>
+    </xs:sequence>
   </xs:complexType>
   <xs:simpleType name="X509FindType">
     <xs:restriction base="xs:string">
@@ -123,29 +123,29 @@
     </xs:restriction>
   </xs:simpleType>
   <xs:complexType name="PrivateKeyCertificate">
-    <xs:all>
+    <xs:sequence>
       <xs:element minOccurs="0" maxOccurs="1" name="Certificate" type="xs:string" />
       <xs:element minOccurs="0" maxOccurs="1" name="Password" type="xs:string" />
-    </xs:all>
+    </xs:sequence>
   </xs:complexType>
   <xs:complexType name="MessagePackaging">
-    <xs:all>
+    <xs:sequence>
       <xs:element minOccurs="0" maxOccurs="1" name="PartyInfo" type="tns:PartyInfo" />
       <xs:element minOccurs="0" maxOccurs="1" name="CollaborationInfo" type="tns:CollaborationInfo" />
       <xs:element minOccurs="0" maxOccurs="1" name="MessageProperties" type="tns:ArrayOfMessageProperty" />
-    </xs:all>
+    </xs:sequence>
   </xs:complexType>
   <xs:complexType name="PartyInfo">
-    <xs:all>
+    <xs:sequence>
       <xs:element minOccurs="0" maxOccurs="1" name="FromParty" type="tns:Party" />
       <xs:element minOccurs="0" maxOccurs="1" name="ToParty" type="tns:Party" />
-    </xs:all>
+    </xs:sequence>
   </xs:complexType>
   <xs:complexType name="Party">
-    <xs:all>
+    <xs:sequence>
       <xs:element minOccurs="0" maxOccurs="1" name="PartyIds" type="tns:ArrayOfPartyId" />
       <xs:element minOccurs="0" maxOccurs="1" name="Role" type="xs:string" />
-    </xs:all>
+    </xs:sequence>
   </xs:complexType>
   <xs:complexType name="ArrayOfPartyId">
     <xs:sequence>
@@ -153,31 +153,31 @@
     </xs:sequence>
   </xs:complexType>
   <xs:complexType name="PartyId">
-    <xs:all>
+    <xs:sequence>
       <xs:element minOccurs="0" maxOccurs="1" name="Id" type="xs:string" />
       <xs:element minOccurs="0" maxOccurs="1" name="Type" type="xs:string" />
-    </xs:all>
+    </xs:sequence>
   </xs:complexType>
   <xs:complexType name="CollaborationInfo">
-    <xs:all>
+    <xs:sequence>
       <xs:element minOccurs="0" maxOccurs="1" name="AgreementReference" type="tns:AgreementReference" />
       <xs:element minOccurs="0" maxOccurs="1" name="Service" type="tns:Service" />
       <xs:element minOccurs="0" maxOccurs="1" name="Action" type="xs:string" />
       <xs:element minOccurs="0" maxOccurs="1" name="ConversationId" type="xs:string" />
-    </xs:all>
+    </xs:sequence>
   </xs:complexType>
   <xs:complexType name="AgreementReference">
-    <xs:all>
+    <xs:sequence>
       <xs:element minOccurs="0" maxOccurs="1" name="Value" type="xs:string" />
       <xs:element minOccurs="0" maxOccurs="1" name="Type" type="xs:string" />
       <xs:element minOccurs="0" maxOccurs="1" name="PModeId" type="xs:string" />
-    </xs:all>
+    </xs:sequence>
   </xs:complexType>
   <xs:complexType name="Service">
-    <xs:all>
+    <xs:sequence>
       <xs:element minOccurs="0" maxOccurs="1" name="Value" type="xs:string" />
       <xs:element minOccurs="0" maxOccurs="1" name="Type" type="xs:string" />
-    </xs:all>
+    </xs:sequence>
   </xs:complexType>
   <xs:complexType name="ArrayOfMessageProperty">
     <xs:sequence>
@@ -185,11 +185,11 @@
     </xs:sequence>
   </xs:complexType>
   <xs:complexType name="MessageProperty">
-    <xs:all>
+    <xs:sequence>
       <xs:element minOccurs="0" maxOccurs="1" name="Name" type="xs:string" />
       <xs:element minOccurs="0" maxOccurs="1" name="Value" type="xs:string" />
       <xs:element minOccurs="0" maxOccurs="1" name="Type" type="xs:string" />
-    </xs:all>
+    </xs:sequence>
   </xs:complexType>
   <xs:complexType name="MessageHandling">
     <xs:sequence>
@@ -200,15 +200,15 @@
     </xs:sequence>
   </xs:complexType>
   <xs:complexType name="Deliver">
-    <xs:all>
+    <xs:sequence>
       <xs:element minOccurs="1" maxOccurs="1" name="IsEnabled" type="xs:boolean" />
       <xs:element minOccurs="0" maxOccurs="1" name="PayloadReferenceMethod" type="tns:Method" />
       <xs:element minOccurs="0" maxOccurs="1" name="DeliverMethod" type="tns:Method" />
-    </xs:all>
+    </xs:sequence>
   </xs:complexType>
   <xs:complexType name="Forward">
-    <xs:all>
+    <xs:sequence>
       <xs:element minOccurs="0" maxOccurs="1" name="SendingPMode" type="xs:string" />
-    </xs:all>
+    </xs:sequence>
   </xs:complexType>
 </xs:schema>
