@@ -246,12 +246,6 @@ namespace AS4.ParserService
         }
     }
 
-    /// <summary>
-    /// If you would prefer to control the Swagger Operation ID
-    /// values globally, uncomment this class, as well as the 
-    /// call above that wires this Operation Filter into 
-    /// the pipeline.
-    /// </summary>
     /*
     internal class IncludeParameterNamesInOperationIdFilter : IOperationFilter
     {

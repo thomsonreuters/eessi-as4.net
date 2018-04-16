@@ -34,7 +34,7 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
             var services = new ServiceCollection();
             services
                 .AddEntityFrameworkInMemoryDatabase()
-                .AddDbContext<ApplicationDbContext>(dbOptions => dbOptions.UseInMemoryDatabase())
+                .AddDbContext<ApplicationDbContext>(dbOptions => dbOptions.UseInMemoryDatabase(Guid.NewGuid().ToString()))
                 .AddIdentity<ApplicationUser, IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
             var provider = services.BuildServiceProvider();
