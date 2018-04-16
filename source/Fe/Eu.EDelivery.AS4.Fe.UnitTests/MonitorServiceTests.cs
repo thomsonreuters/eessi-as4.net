@@ -558,7 +558,7 @@ Failed to decrypt data element
                 public async Task Throws_Exception_When_Parameters_Are_Invalid()
                 {
                     Setup();
-                    await ExpectExceptionAsync(() => monitorService.DownloadMessageBody(Direction.Inbound, 0), typeof(ArgumentNullException));
+                    await ExpectExceptionAsync(() => monitorService.DownloadMessageBody(Direction.Inbound, 0), typeof(ArgumentOutOfRangeException));
                 }
             }
 
