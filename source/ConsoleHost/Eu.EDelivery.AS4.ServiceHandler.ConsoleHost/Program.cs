@@ -185,8 +185,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler.ConsoleHost
                     return Task.CompletedTask;
                 }
 
-                Task task = Task.Factory
-                    .StartNew(() => PayloadService.Program.Start(cancellationToken, Config.Instance.RetentionPeriod), cancellationToken);
+                Task task = Task.Factory.StartNew(() => PayloadService.Program.Start(cancellationToken), cancellationToken);
                 task.ContinueWith(LogExceptions, TaskContinuationOptions.OnlyOnFaulted);
 
                 return task;

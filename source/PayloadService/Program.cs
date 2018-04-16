@@ -21,7 +21,7 @@ namespace Eu.EDelivery.AS4.PayloadService
         /// <param name="args"></param>
         public static void Main(string[] args)
         {
-            Start(CancellationToken.None, default(TimeSpan));
+            Start(CancellationToken.None);
         }
 
         /// <summary>
@@ -29,8 +29,7 @@ namespace Eu.EDelivery.AS4.PayloadService
         /// This method is used when the service is started in process.
         /// </summary>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <param name="retentionPeriod">The retention period.</param>
-        public static void Start(CancellationToken cancellationToken, TimeSpan retentionPeriod)
+        public static void Start(CancellationToken cancellationToken)
         {
             var hostBuilder = new WebHostBuilder();
 
@@ -50,9 +49,12 @@ namespace Eu.EDelivery.AS4.PayloadService
                     .UseStartup<Startup>()
                     .UseApplicationInsights();
 
+            int retentionDays = config.GetValue("RetentionPeriod", defaultValue: 90);            
             host.ConfigureServices(services => 
                 services.AddSingleton(provider => 
-                    new CleanUpService(provider.GetService<IPayloadPersister>(), retentionPeriod)));
+                    new CleanUpService(
+                        provider.GetService<IPayloadPersister>(), 
+                        TimeSpan.FromDays(retentionDays))));
 
             
 

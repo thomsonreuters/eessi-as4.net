@@ -26,7 +26,7 @@ namespace Eu.EDelivery.AS4.PayloadService.Services
         {
             _payloadPersister = payloadPersister;
             _retentionPeriod = retentionPeriod;
-
+            
             __cancellation = new CancellationTokenSource();
         }
 
@@ -36,6 +36,8 @@ namespace Eu.EDelivery.AS4.PayloadService.Services
         /// <returns></returns>
         public void Start()
         {
+            Logger.Debug("Will clean up payloads older than: " + DateTimeOffset.UtcNow.Subtract(_retentionPeriod));
+
             Observable
                 .Interval(TimeSpan.FromDays(1))
                 .StartWith(0)
