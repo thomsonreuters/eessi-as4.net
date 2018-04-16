@@ -76,7 +76,8 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
             {
                 FileName = "Eu.EDelivery.AS4.ServiceHandler.ConsoleHost.exe",
                 Arguments = "",
-                Verb = "runas"
+                Verb = "runas",
+                WindowStyle = ProcessWindowStyle.Minimized
             };
 
             _as4ComponentProcess = Process.Start(psi);
