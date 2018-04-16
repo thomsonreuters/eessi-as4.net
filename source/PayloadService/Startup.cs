@@ -66,14 +66,14 @@ namespace Eu.EDelivery.AS4.PayloadService
         }
 
         /// <summary>
-            /// This method gets called by the runtime. Use this method to add services to the container.
-            /// </summary>
-            /// <param name="services">The services.</param>
-            public void ConfigureServices(IServiceCollection services)
+        /// This method gets called by the runtime. Use this method to add services to the container.
+        /// </summary>
+        /// <param name="services">The services.</param>
+        public void ConfigureServices(IServiceCollection services)
         {
             services.AddSingleton<IPayloadPersister>(
                 provider => new FilePayloadPersister(provider.GetService<IHostingEnvironment>()));
-        
+
             // Add framework services.
             services.AddMvc();
 
