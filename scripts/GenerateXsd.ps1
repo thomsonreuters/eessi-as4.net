@@ -25,7 +25,14 @@ Get-ChildItem $outputDirectory -Filter '*.xsd' | % {
         Select-Xml $content -XPath "//*[local-name()='any']" | % {
             $element = [System.Xml.XmlElement]$_.Node
             $element.SetAttribute("processContents", "lax")
-        }        
-        
+        }
+
+        if ($_.Name -eq "submitmessage-schema.xsd") {
+            Select-Xml $content -Namespace @{xs='http://www.w3.org/2001/XMLSchema'} -XPath "/xs:schema/xs:complexType[not(starts-with(@name, 'ArrayOf'))]/xs:sequence[not(descendant::*[local-name()='choice']) and not(descendant::*[local-name()='any'])]" |
+                ForEach-Object {
+                    $_.Node.ParentNode.InnerXml = $_.Node.ParentNode.InnerXml -replace "xs:sequence", "xs:all"
+                }
+        }
+
         $content.Save($_.FullName)
     }
