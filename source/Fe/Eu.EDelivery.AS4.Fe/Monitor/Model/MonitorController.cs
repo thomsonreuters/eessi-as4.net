@@ -95,7 +95,7 @@ namespace Eu.EDelivery.AS4.Fe.Monitor.Model
         }
 
         [HttpGet]
-        [Route("detail/{direction}/{messageId}")]
+        [Route("detail/{direction}/{id}")]
         public async Task<IActionResult> GetExceptionDetail(Direction direction, long id)
         {
             return new OkObjectResult(await monitorService.GetExceptionDetail(direction, id));
