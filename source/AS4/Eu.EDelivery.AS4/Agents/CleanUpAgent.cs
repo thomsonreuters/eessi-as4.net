@@ -27,7 +27,7 @@ namespace Eu.EDelivery.AS4.Agents
         /// <summary>
         /// Initializes a new instance of the <see cref="CleanUpAgent"/> class.
         /// </summary>
-        public CleanUpAgent() : this(() => new DatastoreContext(Config.Instance), TimeSpan.FromDays(Config.Instance.RetentionPeriod)) { }
+        public CleanUpAgent() : this(() => new DatastoreContext(Config.Instance), Config.Instance.RetentionPeriod) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CleanUpAgent" /> class.

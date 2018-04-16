@@ -96,7 +96,7 @@ namespace Eu.EDelivery.AS4.WindowsService
                 return Task.CompletedTask;
             }
 
-            return Task.Factory.StartNew(() => PayloadService.Program.Start(cancellation), cancellation);
+            return Task.Factory.StartNew(() => PayloadService.Program.Start(cancellation, Config.Instance.RetentionPeriod), cancellation);
         }
 
         /// <summary>

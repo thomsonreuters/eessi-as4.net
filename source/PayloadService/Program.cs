@@ -1,8 +1,11 @@
 ﻿using System;
 using System.IO;
 using System.Threading;
+using Eu.EDelivery.AS4.PayloadService.Persistance;
+using Eu.EDelivery.AS4.PayloadService.Services;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Eu.EDelivery.AS4.PayloadService
 {
@@ -18,15 +21,16 @@ namespace Eu.EDelivery.AS4.PayloadService
         /// <param name="args"></param>
         public static void Main(string[] args)
         {
-            Start(CancellationToken.None);
+            Start(CancellationToken.None, default(TimeSpan));
         }
 
         /// <summary>
         /// Starts the PayloadService with a cancellation-token
         /// This method is used when the service is started in process.
         /// </summary>
-        /// <param name="cancellationToken"></param>
-        public static void Start(CancellationToken cancellationToken)
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <param name="retentionPeriod">The retention period.</param>
+        public static void Start(CancellationToken cancellationToken, TimeSpan retentionPeriod)
         {
             var hostBuilder = new WebHostBuilder();
 
@@ -46,10 +50,16 @@ namespace Eu.EDelivery.AS4.PayloadService
                     .UseStartup<Startup>()
                     .UseApplicationInsights();
 
+            host.ConfigureServices(services => 
+                services.AddSingleton(provider => 
+                    new CleanUpService(provider.GetService<IPayloadPersister>(), retentionPeriod)));
+
+            
 
             host.UseUrls(url)
                 .Build()
-                .RunAsync(cancellationToken).Wait();
+                .RunAsync(cancellationToken)
+                .Wait();
 
             Console.WriteLine("Payload Service shutdown");
         }

@@ -1,6 +1,8 @@
 ﻿using System.IO;
 using System.Reflection;
 using Eu.EDelivery.AS4.PayloadService.Infrastructure.SwaggerUtils;
+using Eu.EDelivery.AS4.PayloadService.Persistance;
+using Eu.EDelivery.AS4.PayloadService.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -44,8 +46,15 @@ namespace Eu.EDelivery.AS4.PayloadService
         /// <param name="app">The app.</param>
         /// <param name="env">The env.</param>
         /// <param name="loggerFactory">The logger Factory.</param>
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+        /// <param name="appLifetime">The application lifetime.</param>
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory, IApplicationLifetime appLifetime)
         {
+            appLifetime.ApplicationStarted.Register(
+                () => app.ApplicationServices.GetService<CleanUpService>().Start());
+
+            appLifetime.ApplicationStopped.Register(
+                () => app.ApplicationServices.GetService<CleanUpService>().Stop());
+
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
 
@@ -57,11 +66,14 @@ namespace Eu.EDelivery.AS4.PayloadService
         }
 
         /// <summary>
-        /// This method gets called by the runtime. Use this method to add services to the container.
-        /// </summary>
-        /// <param name="services">The services.</param>
-        public void ConfigureServices(IServiceCollection services)
+            /// This method gets called by the runtime. Use this method to add services to the container.
+            /// </summary>
+            /// <param name="services">The services.</param>
+            public void ConfigureServices(IServiceCollection services)
         {
+            services.AddSingleton<IPayloadPersister>(
+                provider => new FilePayloadPersister(provider.GetService<IHostingEnvironment>()));
+        
             // Add framework services.
             services.AddMvc();
 
