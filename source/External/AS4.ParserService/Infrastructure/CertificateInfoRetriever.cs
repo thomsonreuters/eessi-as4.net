@@ -25,7 +25,7 @@ namespace AS4.ParserService.Infrastructure
 
                 return Newtonsoft.Json.JsonConvert.DeserializeObject<CertificatePwdInformation>(basicParameter.Substring(index + 1));
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 // TODO: log what went wrong.
                 return null;
