@@ -56,7 +56,7 @@ If (Test-Path .\Eu.EDelivery.AS4.dll.config) {
 	Move-Item -Path .\Eu.EDelivery.AS4.dll.config .\Staging\bin\
 }
 
-$excludedLibraries = @("ModuleInit.dll", "NSubstitute.dll", "SimpleHttpMock.dll", "Ensure.That.dll", "FsCheck.dll", "FsCheck.Xunit.dll", "FSharp.Core.dll", "Microsoft.CodeAnalysis.Razor.dll", "SQLitePCLRaw.batteries_green.dll", "SQLitePCLRaw.batteries_v2.dll", "SQLitePCLRaw.provider.e_sqlite3.dll")
+$excludedLibraries = @("ModuleInit.dll", "NSubstitute.dll", "SimpleHttpMock.dll", "Ensure.That.dll", "FsCheck.dll", "FsCheck.Xunit.dll", "FSharp.Core.dll")
 
 Copy-Item -Exclude $excludedLibraries -Path .\*.dll -Destination .\Staging\bin
 Copy-Item -Path .\x86\*.* -Destination .\Staging\x86\
