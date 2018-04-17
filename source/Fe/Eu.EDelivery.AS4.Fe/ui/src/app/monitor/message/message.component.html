@@ -179,7 +179,7 @@
                                 <i class="fa" [class.fa-chevron-right]="message !== activeMessage" [class.fa-chevron-down]="message === activeMessage"></i>
                             </td>
                             <td>
-                                <as4-downloadmessagebody [type]="'message'" [direction]="message.direction" [id]="message.id"></as4-downloadmessagebody>
+                                <as4-downloadmessagebody [type]="'message'" [direction]="message.direction" [id]="message.id" [name]="message.ebmsMessageId"></as4-downloadmessagebody>
                             </td>
                             <td>{{message.direction | todirection}}</td>
                             <td>{{message.insertionTime | todate}}</td>
