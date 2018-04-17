@@ -13,7 +13,7 @@ import { StepForm } from './../../api/StepForm';
     selector: 'as4-step-settings',
     template: `
         <div [formGroup]="group">
-            <p><button as4-auth="{{disabled}}" type="button" class="btn btn-flat" (click)="addStep()"><i class="fa fa-plus"></i></button></p>
+            <p><button [attr.disabled]="disabled ? '' : null" as4-auth="{{disabled}}" type="button" class="btn btn-flat" (click)="addStep()"><i class="fa fa-plus"></i></button></p>
             <div [sortablejs]="group" [sortablejsOptions]="{ handle: '.grippy', onEnd: itemMoved }">
                 <div *ngFor="let step of group.controls; let i = index" [formGroupName]="i">
                     <div class="step-row row">
