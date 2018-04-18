@@ -75,11 +75,12 @@ namespace Eu.EDelivery.AS4.Strategies.Database
 
             string receptionAwarenessJoin =
                 tableName.Equals("OutMessages")
-                    ? "AND Id IN( " +
-                      "    SELECT RefToOutMessageId " +
-                      "    FROM ReceptionAwareness r " +
-                      "    WHERE r.RefToOutMessageId = OutMessages.Id " +                      
-                      "      AND CurrentRetryCount = TotalRetryCount)"
+                    ? "AND Id IN (" +
+                      "  SELECT m.Id" +
+                      "  FROM OutMessages m" +
+                      "  LEFT OUTER JOIN ReceptionAwareness r" +
+                      "  ON r.RefToOutMessageId = m.Id" +
+                      "      AND r.Status = 'Completed')"
                     : string.Empty;
 
             string operations = string.Join(", ", allowedOperations.Select(x => "'" + x.ToString() + "'"));
@@ -90,9 +91,9 @@ namespace Eu.EDelivery.AS4.Strategies.Database
                 $"AND Operation IN({operations}) " +
                 receptionAwarenessJoin;
 
-            _context.Database.ExecuteSqlCommand(command);
+            int rows = _context.Database.ExecuteSqlCommand(command);
 
-            LogManager.GetCurrentClassLogger().Debug($"Done cleaning '{tableName}'");
+            LogManager.GetCurrentClassLogger().Debug($"Cleaned {rows} rows for table '{tableName}'");
         }
     }
 }

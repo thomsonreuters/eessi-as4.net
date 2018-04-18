@@ -15,12 +15,46 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
     {
         private AS4Component _msh;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="CleanUpAgentFacts"/> class.
-        /// </summary>
-        public CleanUpAgentFacts()
+        [Theory]
+        [InlineData("no_agents_settings-sqlite.xml")]
+        [InlineData("no_agents_settings-sqlserver.xml")]
+        public void MessageOlderThanRetentionDateWillBeDeleted(string specificSettings)
         {
-            OverrideSettings("no_agents_settings.xml");
+            // Arrange: Insert a "retired" OutMessage with a referenced Reception Awareness.
+            OverrideWithSpecificSettings(specificSettings, retentionDays: 1);
+            AS4Component.CleanupWorkingDirectory(Environment.CurrentDirectory);
+
+            Config config = Config.Instance;
+            config.Initialize("settings.xml");
+            EnsureDatastoreCreated(config);
+
+            DateTimeOffset overdueTime = DateTimeOffset.UtcNow.AddDays(-2);
+            string outReferenceId = GenId(), outStandaloneId = GenId(),
+                   inMessageId = GenId(), outExceptionId = GenId(),
+                   inExceptionId = GenId();
+            
+            var spy = new DatabaseSpy(config);
+            spy.InsertOutMessage(CreateOutMessage(outReferenceId, insertionTime: overdueTime));
+            InsertReferencedReceptionAwareness(config, outReferenceId);
+            spy.InsertOutMessage(CreateOutMessage(outStandaloneId, insertionTime: overdueTime));
+            spy.InsertInMessage(CreateInMessage(inMessageId, overdueTime));
+            spy.InsertOutException(CreateOutException(outExceptionId, overdueTime));
+            spy.InsertInException(CreateInException(inExceptionId, overdueTime));
+
+            // Act: AS4.NET Component will start the Clean Up Agent.
+            ExerciseStartCleaning();
+
+            // Assert: No OutMessage or Reception Awareness entries must be found for a given EbmsMessageId.
+            Assert.Empty(spy.GetOutMessages(outReferenceId, outStandaloneId));
+            Assert.Empty(spy.GetInMessages(inMessageId));
+            Assert.Empty(spy.GetOutExceptions(outExceptionId));
+            Assert.Empty(spy.GetInExceptions(inExceptionId));
+            Assert.Null(GetReferencedReceptionAwareness(config, outReferenceId));
+        }
+
+        private void OverrideWithSpecificSettings(string settingsFile, int retentionDays)
+        {
+            OverrideSettings(settingsFile);
 
             const string settingsXml = @".\config\settings.xml";
             var doc = new XmlDocument();
@@ -29,44 +63,22 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             XmlElement retentionNode = doc.CreateElement(nameof(Settings.RetentionPeriod), "eu:edelivery:as4");
 
             // Retention Period in Days
-            retentionNode.InnerText = 1.ToString();
+            retentionNode.InnerText = retentionDays.ToString();
             doc.DocumentElement?.AppendChild(retentionNode);
             doc.Save(settingsXml);
         }
 
-        [Fact]
-        public void MessageOlderThanRetentionDateWillBeDeleted()
+        private static void EnsureDatastoreCreated(Config config)
         {
-            // Arrange: Insert a "retired" OutMessage with a referenced Reception Awareness.
-            Config config = Config.Instance;
-            config.Initialize("settings.xml");
-            
-            DateTimeOffset overdueTime = DateTimeOffset.UtcNow.AddDays(-2);
-            string outReferenceId = Guid.NewGuid().ToString(), 
-                   outStandaloneId = Guid.NewGuid().ToString(),
-                   inMessageId = Guid.NewGuid().ToString(),
-                   outExceptionId = Guid.NewGuid().ToString(),
-                   inExceptionId = Guid.NewGuid().ToString();
+            using (var ctx = new DatastoreContext(config))
+            {
+                ctx.NativeCommands.CreateDatabase().Wait();
+            }
+        }
 
-            var databaseSpy = new DatabaseSpy(config);
-
-            databaseSpy.InsertOutMessage(CreateOutMessage(outReferenceId, insertionTime: overdueTime));
-            databaseSpy.InsertOutMessage(CreateOutMessage(outStandaloneId, insertionTime: overdueTime));
-            databaseSpy.InsertInMessage(CreateInMessage(inMessageId, overdueTime));
-            databaseSpy.InsertOutException(CreateOutException(outExceptionId, overdueTime));
-            databaseSpy.InsertInException(CreateInException(inExceptionId, overdueTime));
-
-            InsertReferencedReceptionAwareness(config, outReferenceId);
-
-            // Act: AS4.NET Component will start the Clean Up Agent.
-            ExerciseStartCleaning();
-
-            // Assert: No OutMessage or Reception Awareness entries must be found for a given EbmsMessageId.
-            Assert.Empty(databaseSpy.GetOutMessages(outReferenceId, outStandaloneId));
-            Assert.Empty(databaseSpy.GetInMessages(inMessageId));
-            Assert.Empty(databaseSpy.GetOutExceptions(outExceptionId));
-            Assert.Empty(databaseSpy.GetInExceptions(inExceptionId));
-            Assert.Null(GetReferencedReceptionAwareness(config, outReferenceId));
+        private static string GenId()
+        {
+            return Guid.NewGuid().ToString();
         }
 
         private static OutMessage CreateOutMessage(string ebmsMessageId, DateTimeOffset insertionTime)
@@ -114,14 +126,17 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             {
                 long outMessageId = ctx.OutMessages.First(m => m.EbmsMessageId.Equals(ebmsMessageId)).Id;
 
-                ctx.ReceptionAwareness.Add(new ReceptionAwareness(outMessageId, ebmsMessageId));
+                var ra = new ReceptionAwareness(outMessageId, ebmsMessageId);
+                ra.SetStatus(ReceptionStatus.Completed);
+
+                ctx.ReceptionAwareness.Add(ra);
                 ctx.SaveChanges();
             }
         }
-
+         
         private void ExerciseStartCleaning()
         {
-            _msh = AS4Component.Start(Environment.CurrentDirectory);
+            _msh = AS4Component.Start(Environment.CurrentDirectory, cleanSlate: false);
 
             // Wait till AS4.NET Component has cleaned up the Messages Tables.
             Thread.Sleep(TimeSpan.FromSeconds(2));
@@ -141,6 +156,3 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         }
     }
 }
-
-
-
