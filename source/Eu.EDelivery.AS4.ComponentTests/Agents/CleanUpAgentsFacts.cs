@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Xml;
@@ -7,13 +8,127 @@ using Eu.EDelivery.AS4.ComponentTests.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
+using FsCheck;
+using Microsoft.EntityFrameworkCore;
 using Xunit;
+using Config = Eu.EDelivery.AS4.Common.Config;
 
 namespace Eu.EDelivery.AS4.ComponentTests.Agents
 {
     public class CleanUpAgentFacts : ComponentTestTemplate
     {
-        private AS4Component _msh;
+        private readonly Configuration _testConfig;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CleanUpAgentFacts"/> class.
+        /// </summary>
+        public CleanUpAgentFacts()
+        {
+            _testConfig = Configuration.VerboseThrowOnFailure;
+            _testConfig.MaxNbOfTest = 5;
+        }
+
+        [Fact]
+        public void Only_Entries_With_Allowed_Operations_Are_Deleted()
+        {
+            var operations = Gen.Elements(
+                Enum.GetNames(typeof(Operation))
+                    .Select(n => (Operation) Enum.Parse(typeof(Operation), n)))
+                                .ToArbitrary();
+            Prop.ForAll(
+                SupportedProviderSettings(),
+                operations,
+                (specificSettings, operation) =>
+                {
+                    // Arrange
+                    OverrideWithSpecificSettings(specificSettings, retentionDays: 1);
+
+                    string id = GenId();
+                    InMessage m = CreateInMessage(id, insertionTime: DateTimeOffset.UtcNow.AddDays(-2));
+                    m.SetOperation(operation);
+
+                    IConfig config = ParseLocalConfig();
+                    EnsureDatastoreCreated(config);
+                    EnsureCleanDatastore(config);
+
+                    var spy = new DatabaseSpy(config);
+                    spy.InsertInMessage(m);
+
+                    // Act
+                    ExerciseStartCleaning();
+
+                    // Assert
+                    bool hasEntries = spy.GetInMessages(id).Any();
+                    string description = $"InMessage {(hasEntries ? "isn't" : "is")} deleted, with Operation: {operation}";
+                    return (hasEntries == !AllowedOperations.Contains(operation)).Collect(description);
+                }).Check(_testConfig);
+        }
+
+        private static IEnumerable<Operation> AllowedOperations =>
+            new[]
+            {
+                Operation.Delivered,
+                Operation.Forwarded,
+                Operation.Notified,
+                Operation.Sent,
+                Operation.NotApplicable,
+                Operation.Undetermined
+            };
+
+        [Fact]
+        public void Only_Overdue_Entries_Are_Deleted()
+        {
+            Prop.ForAll(
+                SupportedProviderSettings(),
+                Arb.Default.PositiveInt(),
+                Arb.Default.PositiveInt(),
+                (specificSettings, insertion, retention) =>
+                {
+                    // Arrange
+                    int retentionDays = retention.Get;
+                    OverrideWithSpecificSettings(specificSettings, retentionDays: retentionDays);
+                    AS4Component.CleanupWorkingDirectory(Environment.CurrentDirectory);
+
+                    int insertionDays = insertion.Get;
+                    string id = GenId();
+
+                    IConfig config = ParseLocalConfig();
+                    EnsureDatastoreCreated(config);
+                    EnsureCleanDatastore(config);
+
+                    var spy = new DatabaseSpy(config);
+                    var insertionTime = DateTimeOffset.UtcNow.Add(TimeSpan.FromDays(-insertionDays));
+                    spy.InsertOutMessage(CreateOutMessage(id, insertionTime));
+
+                    // Act
+                    ExerciseStartCleaning();
+
+                    // Assert
+                    bool hasEntries = spy.GetOutMessages(id).Any();
+                    return (hasEntries == insertionDays < retentionDays)
+                           .When(insertionDays != retentionDays)
+                           .Classify(hasEntries, "OutMessage isn't deleted")
+                           .Classify(!hasEntries, "OutMessage is deleted");
+                }).Check(_testConfig);
+        }
+
+        private static Arbitrary<string> SupportedProviderSettings()
+        {
+            return Gen.Elements(
+                          "no_agents_settings-sqlite.xml", 
+                          "no_agents_settings-sqlserver.xml")
+                      .ToArbitrary();
+        }
+
+        private static void EnsureCleanDatastore(IConfig config)
+        {
+            using (var ctx = new DatastoreContext(config))
+            {
+                ctx.Database.ExecuteSqlCommand("DELETE FROM OutMessages");
+                ctx.Database.ExecuteSqlCommand("DELETE FROM InMessages");
+            }
+        }
+
 
         [Theory]
         [InlineData("no_agents_settings-sqlite.xml")]
@@ -24,8 +139,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             OverrideWithSpecificSettings(specificSettings, retentionDays: 1);
             AS4Component.CleanupWorkingDirectory(Environment.CurrentDirectory);
 
-            Config config = Config.Instance;
-            config.Initialize("settings.xml");
+            IConfig config = ParseLocalConfig();
             EnsureDatastoreCreated(config);
 
             DateTimeOffset overdueTime = DateTimeOffset.UtcNow.AddDays(-2);
@@ -68,7 +182,14 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             doc.Save(settingsXml);
         }
 
-        private static void EnsureDatastoreCreated(Config config)
+        private static IConfig ParseLocalConfig()
+        {
+            Config config = Config.Instance;
+            config.Initialize("settings.xml");
+            return config;
+        }
+
+        private static void EnsureDatastoreCreated(IConfig config)
         {
             using (var ctx = new DatastoreContext(config))
             {
@@ -136,10 +257,12 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
          
         private void ExerciseStartCleaning()
         {
-            _msh = AS4Component.Start(Environment.CurrentDirectory, cleanSlate: false);
+            var msh = AS4Component.Start(Environment.CurrentDirectory, cleanSlate: false);
 
             // Wait till AS4.NET Component has cleaned up the Messages Tables.
             Thread.Sleep(TimeSpan.FromSeconds(2));
+
+            msh.Dispose();
         }
 
         private static ReceptionAwareness GetReferencedReceptionAwareness(IConfig config, string ebmsMessageId)
@@ -148,11 +271,6 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             {
                 return ctx.ReceptionAwareness.FirstOrDefault(r => r.RefToEbmsMessageId.Equals(ebmsMessageId));
             }
-        }
-
-        protected override void Disposing(bool isDisposing)
-        {
-            _msh.Dispose();
         }
     }
 }
