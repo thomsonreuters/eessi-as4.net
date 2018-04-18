@@ -9,23 +9,29 @@ using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using FsCheck;
+using FsCheck.Xunit;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
+using Xunit.Abstractions;
 using Config = Eu.EDelivery.AS4.Common.Config;
+using XunitRunner = Eu.EDelivery.AS4.ComponentTests.Common.XunitRunner;
 
 namespace Eu.EDelivery.AS4.ComponentTests.Agents
 {
+
     public class CleanUpAgentFacts : ComponentTestTemplate
     {
         private readonly Configuration _testConfig;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="CleanUpAgentFacts"/> class.
+        /// Initializes a new instance of the <see cref="CleanUpAgentFacts" /> class.
         /// </summary>
-        public CleanUpAgentFacts()
+        /// <param name="outputHelper">The output helper.</param>
+        public CleanUpAgentFacts(ITestOutputHelper outputHelper)
         {
             _testConfig = Configuration.VerboseThrowOnFailure;
             _testConfig.MaxNbOfTest = 5;
+            _testConfig.Runner = new XunitRunner(outputHelper);
         }
 
         [Fact]
