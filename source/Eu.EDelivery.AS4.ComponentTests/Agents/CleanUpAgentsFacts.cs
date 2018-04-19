@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Xml;
@@ -12,51 +14,68 @@ using FsCheck;
 using FsCheck.Xunit;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
-using Xunit.Abstractions;
 using Config = Eu.EDelivery.AS4.Common.Config;
-using XunitRunner = Eu.EDelivery.AS4.ComponentTests.Common.XunitRunner;
 
 namespace Eu.EDelivery.AS4.ComponentTests.Agents
 {
 
     public class CleanUpAgentFacts : ComponentTestTemplate
     {
-        private readonly Configuration _testConfig;
+        private readonly DateTimeOffset _overdueTime;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CleanUpAgentFacts" /> class.
         /// </summary>
-        /// <param name="outputHelper">The output helper.</param>
-        public CleanUpAgentFacts(ITestOutputHelper outputHelper)
+        public CleanUpAgentFacts()
         {
-            _testConfig = Configuration.VerboseThrowOnFailure;
-            _testConfig.MaxNbOfTest = 5;
-            _testConfig.Runner = new XunitRunner(outputHelper);
+            _overdueTime = DateTimeOffset.UtcNow.AddDays(-2);
         }
 
-        [Fact]
-        public void Only_Entries_With_Allowed_Operations_Are_Deleted()
+        [Property(MaxTest = 5)]
+        public Property Only_Completed_Related_OutMessages_Are_Deleted()
         {
-            var operations = Gen.Elements(
-                Enum.GetNames(typeof(Operation))
-                    .Select(n => (Operation) Enum.Parse(typeof(Operation), n)))
-                                .ToArbitrary();
-            Prop.ForAll(
+            return Prop.ForAll(
                 SupportedProviderSettings(),
-                operations,
+                Arb.From<ReceptionStatus>(),
+                (specificSettings, status) =>
+                {
+                    // Arrange
+                    OverrideWithSpecificSettings(specificSettings);
+
+                    IConfig config = EnsureLocalConfigPointsToCreatedDatastore();
+                    var spy = new DatabaseSpy(config);
+
+                    string id = GenId();
+                    OutMessage m = CreateOutMessage(id, insertionTime: _overdueTime);
+                    spy.InsertOutMessage(m);
+                    InsertReferencedReceptionAwareness(config, id, status);
+
+                    // Act
+                    ExerciseStartCleaning();
+
+                    // Assert
+                    bool hasEntries = spy.GetOutMessages(id).Any();
+                    bool notYetCompleted = status != ReceptionStatus.Completed;
+                    return hasEntries == notYetCompleted;
+                });
+        }
+
+        [Property(MaxTest = 5)]
+        public Property Only_Entries_With_Allowed_Operations_Are_Deleted()
+        {
+            return Prop.ForAll(
+                SupportedProviderSettings(),
+                Arb.From<Operation>(),
                 (specificSettings, operation) =>
                 {
                     // Arrange
-                    OverrideWithSpecificSettings(specificSettings, retentionDays: 1);
+                    OverrideWithSpecificSettings(specificSettings);
 
                     string id = GenId();
-                    InMessage m = CreateInMessage(id, insertionTime: DateTimeOffset.UtcNow.AddDays(-2));
+                    InMessage m = CreateInMessage(id, insertionTime: _overdueTime);
                     m.SetOperation(operation);
 
-                    IConfig config = ParseLocalConfig();
-                    EnsureDatastoreCreated(config);
-                    EnsureCleanDatastore(config);
-
+                    IConfig config = EnsureLocalConfigPointsToCreatedDatastore();
                     var spy = new DatabaseSpy(config);
                     spy.InsertInMessage(m);
 
@@ -67,7 +86,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                     bool hasEntries = spy.GetInMessages(id).Any();
                     string description = $"InMessage {(hasEntries ? "isn't" : "is")} deleted, with Operation: {operation}";
                     return (hasEntries == !AllowedOperations.Contains(operation)).Collect(description);
-                }).Check(_testConfig);
+                });
         }
 
         private static IEnumerable<Operation> AllowedOperations =>
@@ -81,10 +100,10 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                 Operation.Undetermined
             };
 
-        [Fact]
-        public void Only_Overdue_Entries_Are_Deleted()
+        [Property(MaxTest = 5)]
+        public Property Only_Overdue_Entries_Are_Deleted()
         {
-            Prop.ForAll(
+            return Prop.ForAll(
                 SupportedProviderSettings(),
                 Arb.Default.PositiveInt(),
                 Arb.Default.PositiveInt(),
@@ -98,24 +117,21 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                     int insertionDays = insertion.Get;
                     string id = GenId();
 
-                    IConfig config = ParseLocalConfig();
-                    EnsureDatastoreCreated(config);
-                    EnsureCleanDatastore(config);
-
+                    IConfig config = EnsureLocalConfigPointsToCreatedDatastore();
                     var spy = new DatabaseSpy(config);
                     var insertionTime = DateTimeOffset.UtcNow.Add(TimeSpan.FromDays(-insertionDays));
-                    spy.InsertOutMessage(CreateOutMessage(id, insertionTime));
+                    spy.InsertOutException(CreateOutException(id, insertionTime));
 
                     // Act
                     ExerciseStartCleaning();
 
                     // Assert
-                    bool hasEntries = spy.GetOutMessages(id).Any();
+                    bool hasEntries = spy.GetOutExceptions(id).Any();
                     return (hasEntries == insertionDays < retentionDays)
                            .When(insertionDays != retentionDays)
-                           .Classify(hasEntries, "OutMessage isn't deleted")
-                           .Classify(!hasEntries, "OutMessage is deleted");
-                }).Check(_testConfig);
+                           .Classify(hasEntries, "OutException isn't deleted")
+                           .Classify(!hasEntries, "OutException is deleted");
+                });
         }
 
         private static Arbitrary<string> SupportedProviderSettings()
@@ -126,15 +142,6 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                       .ToArbitrary();
         }
 
-        private static void EnsureCleanDatastore(IConfig config)
-        {
-            using (var ctx = new DatastoreContext(config))
-            {
-                ctx.Database.ExecuteSqlCommand("DELETE FROM OutMessages");
-                ctx.Database.ExecuteSqlCommand("DELETE FROM InMessages");
-            }
-        }
-
 
         [Theory]
         [InlineData("no_agents_settings-sqlite.xml")]
@@ -142,24 +149,22 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         public void MessageOlderThanRetentionDateWillBeDeleted(string specificSettings)
         {
             // Arrange: Insert a "retired" OutMessage with a referenced Reception Awareness.
-            OverrideWithSpecificSettings(specificSettings, retentionDays: 1);
+            OverrideWithSpecificSettings(specificSettings);
             AS4Component.CleanupWorkingDirectory(Environment.CurrentDirectory);
 
-            IConfig config = ParseLocalConfig();
-            EnsureDatastoreCreated(config);
+            IConfig config = EnsureLocalConfigPointsToCreatedDatastore();
 
-            DateTimeOffset overdueTime = DateTimeOffset.UtcNow.AddDays(-2);
             string outReferenceId = GenId(), outStandaloneId = GenId(),
                    inMessageId = GenId(), outExceptionId = GenId(),
                    inExceptionId = GenId();
             
             var spy = new DatabaseSpy(config);
-            spy.InsertOutMessage(CreateOutMessage(outReferenceId, insertionTime: overdueTime));
+            spy.InsertOutMessage(CreateOutMessage(outReferenceId, insertionTime: _overdueTime));
             InsertReferencedReceptionAwareness(config, outReferenceId);
-            spy.InsertOutMessage(CreateOutMessage(outStandaloneId, insertionTime: overdueTime));
-            spy.InsertInMessage(CreateInMessage(inMessageId, overdueTime));
-            spy.InsertOutException(CreateOutException(outExceptionId, overdueTime));
-            spy.InsertInException(CreateInException(inExceptionId, overdueTime));
+            spy.InsertOutMessage(CreateOutMessage(outStandaloneId, insertionTime: _overdueTime));
+            spy.InsertInMessage(CreateInMessage(inMessageId, _overdueTime));
+            spy.InsertOutException(CreateOutException(outExceptionId, _overdueTime));
+            spy.InsertInException(CreateInException(inExceptionId, _overdueTime));
 
             // Act: AS4.NET Component will start the Clean Up Agent.
             ExerciseStartCleaning();
@@ -172,7 +177,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             Assert.Null(GetReferencedReceptionAwareness(config, outReferenceId));
         }
 
-        private void OverrideWithSpecificSettings(string settingsFile, int retentionDays)
+        private void OverrideWithSpecificSettings(string settingsFile, int retentionDays = 1)
         {
             OverrideSettings(settingsFile);
 
@@ -188,10 +193,14 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             doc.Save(settingsXml);
         }
 
-        private static IConfig ParseLocalConfig()
+        private static IConfig EnsureLocalConfigPointsToCreatedDatastore()
         {
             Config config = Config.Instance;
             config.Initialize("settings.xml");
+
+            EnsureDatastoreCreated(config);
+            EnsureCleanDatastore(config);
+
             return config;
         }
 
@@ -200,6 +209,18 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             using (var ctx = new DatastoreContext(config))
             {
                 ctx.NativeCommands.CreateDatabase().Wait();
+            }
+        }
+
+        private static void EnsureCleanDatastore(IConfig config)
+        {
+            using (var ctx = new DatastoreContext(config))
+            {
+                ctx.Database.ExecuteSqlCommand("DELETE FROM ReceptionAwareness");
+                ctx.Database.ExecuteSqlCommand("DELETE FROM OutMessages");
+                ctx.Database.ExecuteSqlCommand("DELETE FROM InMessages");
+                ctx.Database.ExecuteSqlCommand("DELETE FROM OutExceptions");
+                ctx.Database.ExecuteSqlCommand("DELETE FROM InExceptions");
             }
         }
 
@@ -247,14 +268,17 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             };
         }
 
-        private static void InsertReferencedReceptionAwareness(IConfig config, string ebmsMessageId)
+        private static void InsertReferencedReceptionAwareness(
+            IConfig config, 
+            string ebmsMessageId,
+            ReceptionStatus status = ReceptionStatus.Completed)
         {
             using (var ctx = new DatastoreContext(config))
             {
                 long outMessageId = ctx.OutMessages.First(m => m.EbmsMessageId.Equals(ebmsMessageId)).Id;
 
                 var ra = new ReceptionAwareness(outMessageId, ebmsMessageId);
-                ra.SetStatus(ReceptionStatus.Completed);
+                ra.SetStatus(status);
 
                 ctx.ReceptionAwareness.Add(ra);
                 ctx.SaveChanges();
@@ -276,6 +300,24 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             using (var ctx = new DatastoreContext(config))
             {
                 return ctx.ReceptionAwareness.FirstOrDefault(r => r.RefToEbmsMessageId.Equals(ebmsMessageId));
+            }
+        }
+
+        protected override void Disposing(bool isDisposing)
+        {
+            foreach (var process in Process.GetProcessesByName("Eu.EDelivery.AS4.ServiceHandler.ConsoleHost"))
+            {
+                if (process.HasExited)
+                {
+                    try
+                    {
+                        process.Kill();
+                    }
+                    catch (Exception)
+                    {
+                        // Ignore
+                    }
+                }
             }
         }
     }

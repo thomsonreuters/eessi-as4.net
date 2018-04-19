@@ -80,11 +80,10 @@ namespace Eu.EDelivery.AS4.Strategies.Database
                       "  FROM OutMessages m" +
                       "  LEFT OUTER JOIN ReceptionAwareness r" +
                       "  ON r.RefToOutMessageId = m.Id" +
-                      "      AND r.Status = 'Completed')"
+                      "  WHERE r.Status = 'Completed' OR r.Status IS NULL)"
                     : string.Empty;
 
             string operations = string.Join(", ", allowedOperations.Select(x => "'" + x.ToString() + "'"));
-
             string command =
                 $"DELETE FROM {tableName} " +
                 $"WHERE InsertionTime<datetime('now', '-{retentionPeriod.TotalDays} day') " +
@@ -93,7 +92,7 @@ namespace Eu.EDelivery.AS4.Strategies.Database
 
             int rows = _context.Database.ExecuteSqlCommand(command);
 
-            LogManager.GetCurrentClassLogger().Debug($"Cleaned {rows} rows for table '{tableName}'");
+            LogManager.GetCurrentClassLogger().Debug($"Cleaned {rows} row(s) for table '{tableName}'");
         }
     }
 }

@@ -92,9 +92,13 @@ namespace Eu.EDelivery.AS4.Strategies.Database
 
             string receptionAwarenessJoin =
                 tableName.Equals("OutMessages")
-                    ? "LEFT JOIN ReceptionAwareness " +
-                      "ON ReceptionAwareness.RefToOutMessageId = m.Id " +
-                      "AND ReceptionAwareness.Status = 'Completed' "
+                    ? "LEFT JOIN ReceptionAwareness r " +
+                      "ON r.RefToOutMessageId = m.Id "
+                    : string.Empty;
+
+            string receptionAwarenessWhere =
+                tableName.Equals("OutMessages")
+                    ? " AND r.Status = 'Completed' OR r.Status IS NULL"
                     : string.Empty;
 
             string operations = string.Join(", ", allowedOperations.Select(x => "'" + x.ToString() + "'"));
@@ -103,11 +107,12 @@ namespace Eu.EDelivery.AS4.Strategies.Database
                 $"DELETE m FROM {tableName} m " +
                 receptionAwarenessJoin +
                 $"WHERE m.InsertionTime < GETDATE() - {retentionPeriod.TotalDays:##.##} " +
-                $"AND Operation IN ({operations})";
+                $"AND Operation IN ({operations})" +
+                receptionAwarenessWhere;
 
             int rows = _context.Database.ExecuteSqlCommand(sql);
 
-            LogManager.GetCurrentClassLogger().Debug($"Cleaned {rows} for table '{tableName}'");
+            LogManager.GetCurrentClassLogger().Debug($"Cleaned {rows} row(s) for table '{tableName}'");
         }
     }
 }
