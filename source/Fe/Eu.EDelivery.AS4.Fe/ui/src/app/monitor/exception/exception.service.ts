@@ -46,7 +46,7 @@ export class ExceptionService {
         let requestOptions = new RequestOptions();
         requestOptions.search = new URLSearchParams();
         requestOptions.search.append('direction', '' + direction);
-        requestOptions.search.append('messageId', messageId);
+        requestOptions.search.append('id', messageId);
         return this._http.get('/api/monitor/exceptionbody', requestOptions).map((data) => data.text());
     }
     public getDetail(direction: number, messageId: string): Observable<string> {

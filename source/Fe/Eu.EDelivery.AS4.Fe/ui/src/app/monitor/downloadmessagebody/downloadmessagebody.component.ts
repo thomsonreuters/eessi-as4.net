@@ -14,19 +14,26 @@ import * as fileSaver from 'file-saver';
 export class DownloadMessageBodyComponent {
     @Input() public direction: number;
     @Input() public id: string;
+    @Input() public name: string = 'entry';
     @Input() public type: string = 'message';
     @Input() public tooltip: string = 'Download message body';
     constructor(private _messageService: MessageService, private _exceptionService: ExceptionService) { }
     public download() {
         let service;
-        if (this.type === 'exception') {                service = this._exceptionService.getExceptionBody(this.direction, this.id);
+        if (this.type === 'exception') {                
+            service = this._exceptionService.getExceptionBody(this.direction, this.id);
         } else {
             service = this._messageService.getMessageBody(this.direction, this.id);
         }
 
         service.subscribe((result) => {
             let blob: Blob = new Blob([result], { type: 'application/xml' });
-            fileSaver.saveAs(blob, `${this.id}.txt`);
+            
+            if (this.type ==='exception') {
+                fileSaver.saveAs(blob, `${this.name}.exception.txt`);
+            } else {
+                fileSaver.saveAs(blob, `${this.name}.txt`);
+            }            
         });
     }
 }

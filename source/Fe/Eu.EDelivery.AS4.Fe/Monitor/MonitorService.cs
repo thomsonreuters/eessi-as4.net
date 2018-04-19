@@ -189,24 +189,25 @@ namespace Eu.EDelivery.AS4.Fe.Monitor
         /// Downloads the message body.
         /// </summary>
         /// <param name="direction">The direction.</param>
-        /// <param name="messageId">The message identifier.</param>
+        /// <param name="id">The identifier.</param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException">messageId - messageId parameter cannot be null</exception>
         /// <exception cref="InvalidEnumArgumentException">direction</exception>
-        public async Task<Stream> DownloadMessageBody(Direction direction, string messageId)
+        public async Task<Stream> DownloadMessageBody(Direction direction, long id)
         {
-            if (string.IsNullOrEmpty(messageId))
+            if (id <= 0)
             {
-                throw new ArgumentNullException(nameof(messageId), @"messageId parameter cannot be null");
+                throw new ArgumentOutOfRangeException(nameof(id), @"Invalid value for id");
             }
+
             if (!Enum.IsDefined(typeof(Direction), direction))
             {
                 throw new InvalidEnumArgumentException(nameof(direction), (int)direction, typeof(Direction));
             }
 
-            return await(direction == Direction.Inbound
-                ? datastoreRepository.GetInMessageData(m => m.Id.ToString() == messageId, x => (MessageEntity) x)
-                : datastoreRepository.GetOutMessageData(m => m.Id.ToString() == messageId, x => x))
+            return await (direction == Direction.Inbound
+                ? datastoreRepository.GetInMessageData(m => m.Id  == id, x => (MessageEntity) x)
+                : datastoreRepository.GetOutMessageData(m => m.Id == id, x => x))
                 .Single()
                 .RetrieveMessageBody(Registry.Instance.MessageBodyStore);
         }
