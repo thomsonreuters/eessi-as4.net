@@ -73,6 +73,7 @@ namespace Eu.EDelivery.AS4.Strategies.Database
         {
             DatastoreTable.EnsureTableNameIsKnown(tableName);
 
+            string operations = string.Join(", ", allowedOperations.Select(x => "'" + x.ToString() + "'"));
             string receptionAwarenessJoin =
                 tableName.Equals("OutMessages")
                     ? "AND Id IN (" +
@@ -80,14 +81,14 @@ namespace Eu.EDelivery.AS4.Strategies.Database
                       "  FROM OutMessages m" +
                       "  LEFT OUTER JOIN ReceptionAwareness r" +
                       "  ON r.RefToOutMessageId = m.Id" +
-                      "  WHERE r.Status = 'Completed' OR r.Status IS NULL)"
+                      "  WHERE r.Status = 'Completed'" + 
+                          "  OR r.Status IS NULL" + 
+                          $" AND m.Operation IN ({operations}))"
                     : string.Empty;
 
-            string operations = string.Join(", ", allowedOperations.Select(x => "'" + x.ToString() + "'"));
             string command =
                 $"DELETE FROM {tableName} " +
                 $"WHERE InsertionTime<datetime('now', '-{retentionPeriod.TotalDays} day') " +
-                $"AND Operation IN({operations}) " +
                 receptionAwarenessJoin;
 
             int rows = _context.Database.ExecuteSqlCommand(command);
