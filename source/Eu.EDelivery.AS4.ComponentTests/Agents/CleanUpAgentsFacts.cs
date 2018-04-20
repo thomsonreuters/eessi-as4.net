@@ -42,7 +42,8 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                     OverrideWithSpecificSettings(specificSettings);
 
                     string id = GenId();
-                    OutMessage m = CreateOutMessage(id, insertionTime: _overdueTime, type: MessageType.UserMessage);
+                    OutMessage m = CreateOutMessage(
+                        id, insertionTime: _overdueTime, type: MessageType.UserMessage);
                     m.SetStatus(status);
 
                     IConfig config = EnsureLocalConfigPointsToCreatedDatastore();
@@ -111,7 +112,6 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                     // Arrange
                     int retentionDays = retention.Get;
                     OverrideWithSpecificSettings(specificSettings, retentionDays: retentionDays);
-                    AS4Component.CleanupWorkingDirectory(Environment.CurrentDirectory);
 
                     int insertionDays = insertion.Get;
                     string id = GenId();
@@ -149,10 +149,8 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         {
             // Arrange: Insert a "retired" OutMessage with a referenced Reception Awareness.
             OverrideWithSpecificSettings(specificSettings);
-            AS4Component.CleanupWorkingDirectory(Environment.CurrentDirectory);
 
             IConfig config = EnsureLocalConfigPointsToCreatedDatastore();
-
             string outReferenceId = GenId(), outStandaloneId = GenId(),
                    inMessageId = GenId(), outExceptionId = GenId(),
                    inExceptionId = GenId();

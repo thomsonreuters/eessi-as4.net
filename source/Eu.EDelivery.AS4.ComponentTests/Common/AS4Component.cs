@@ -80,7 +80,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Common
             return as4Msh;
         }
 
-        public static void CleanupWorkingDirectory(string location)
+        private static void CleanupWorkingDirectory(string location)
         {
             string databaseFolder = Path.Combine(location, "database");
 
