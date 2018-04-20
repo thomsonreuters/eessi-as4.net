@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
@@ -32,31 +31,31 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         }
 
         [Property(MaxTest = 5)]
-        public Property Only_Completed_Related_OutMessages_Are_Deleted()
+        public Property Only_Awnsered_UserMessages_Are_Deleted()
         {
             return Prop.ForAll(
                 SupportedProviderSettings(),
-                Arb.From<ReceptionStatus>(),
+                Arb.From<OutStatus>(),
                 (specificSettings, status) =>
                 {
                     // Arrange
                     OverrideWithSpecificSettings(specificSettings);
 
+                    string id = GenId();
+                    OutMessage m = CreateOutMessage(id, insertionTime: _overdueTime, type: MessageType.UserMessage);
+                    m.SetStatus(status);
+
                     IConfig config = EnsureLocalConfigPointsToCreatedDatastore();
                     var spy = new DatabaseSpy(config);
-
-                    string id = GenId();
-                    OutMessage m = CreateOutMessage(id, insertionTime: _overdueTime);
                     spy.InsertOutMessage(m);
-                    InsertReferencedReceptionAwareness(config, id, status);
-
+                    
                     // Act
                     ExerciseStartCleaning();
 
                     // Assert
-                    bool hasEntries = spy.GetOutMessages(id).Any();
-                    bool notYetCompleted = status != ReceptionStatus.Completed;
-                    return hasEntries == notYetCompleted;
+                    bool isCleaned = !spy.GetOutMessages(id).Any();
+                    bool isAckOrNack = status == OutStatus.Ack || status == OutStatus.Nack;
+                    return isCleaned == isAckOrNack;
                 });
         }
 
@@ -159,9 +158,9 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                    inExceptionId = GenId();
             
             var spy = new DatabaseSpy(config);
-            spy.InsertOutMessage(CreateOutMessage(outReferenceId, insertionTime: _overdueTime));
+            spy.InsertOutMessage(CreateOutMessage(outReferenceId, insertionTime: _overdueTime, type: MessageType.Error));
             InsertReferencedReceptionAwareness(config, outReferenceId);
-            spy.InsertOutMessage(CreateOutMessage(outStandaloneId, insertionTime: _overdueTime));
+            spy.InsertOutMessage(CreateOutMessage(outStandaloneId, insertionTime: _overdueTime, type: MessageType.Receipt));
             spy.InsertInMessage(CreateInMessage(inMessageId, _overdueTime));
             spy.InsertOutException(CreateOutException(outExceptionId, _overdueTime));
             spy.InsertInException(CreateInException(inExceptionId, _overdueTime));
@@ -229,9 +228,12 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             return Guid.NewGuid().ToString();
         }
 
-        private static OutMessage CreateOutMessage(string ebmsMessageId, DateTimeOffset insertionTime)
+        private static OutMessage CreateOutMessage(
+            string ebmsMessageId, 
+            DateTimeOffset insertionTime,
+            MessageType type)
         {
-            return new OutMessage(ebmsMessageId: ebmsMessageId)
+            var m = new OutMessage(ebmsMessageId: ebmsMessageId)
             {
                 MessageLocation = 
                     Registry.Instance.MessageBodyStore.SaveAS4Message(
@@ -239,6 +241,9 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                         AS4Message.Empty),
                 InsertionTime = insertionTime
             };
+
+            m.SetEbmsMessageType(type);
+            return m;
         }
 
         private static InMessage CreateInMessage(string ebmsMessageId, DateTimeOffset insertionTime)

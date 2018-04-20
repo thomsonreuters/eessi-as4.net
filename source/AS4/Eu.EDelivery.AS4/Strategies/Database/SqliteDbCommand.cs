@@ -74,25 +74,21 @@ namespace Eu.EDelivery.AS4.Strategies.Database
             DatastoreTable.EnsureTableNameIsKnown(tableName);
 
             string operations = string.Join(", ", allowedOperations.Select(x => "'" + x.ToString() + "'"));
-            string receptionAwarenessJoin =
+            string outMessagesWhere =
                 tableName.Equals("OutMessages")
-                    ? "AND Id IN (" +
-                      "  SELECT m.Id" +
-                      "  FROM OutMessages m" +
-                      "  LEFT OUTER JOIN ReceptionAwareness r" +
-                      "  ON r.RefToOutMessageId = m.Id" +
-                      "  WHERE r.Status = 'Completed'" + 
-                          "  OR r.Status IS NULL" + 
-                          $" AND m.Operation IN ({operations}))"
+                    ? @" AND (
+                                (EbmsMessageType = 'UserMessage' AND Status IN('Ack', 'Nack')) 
+                                OR EbmsMessageType IN('Receipt', 'Error')
+                             )"
                     : string.Empty;
 
-            string command =
+            string sql = 
                 $"DELETE FROM {tableName} " +
                 $"WHERE InsertionTime<datetime('now', '-{retentionPeriod.TotalDays} day') " +
-                receptionAwarenessJoin;
+                $"AND Operation IN ({operations}) " +
+                outMessagesWhere;
 
-            int rows = _context.Database.ExecuteSqlCommand(command);
-
+            int rows = _context.Database.ExecuteSqlCommand(sql);
             LogManager.GetCurrentClassLogger().Debug($"Cleaned {rows} row(s) for table '{tableName}'");
         }
     }

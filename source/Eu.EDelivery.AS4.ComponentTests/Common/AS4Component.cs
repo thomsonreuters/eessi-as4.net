@@ -68,7 +68,8 @@ namespace Eu.EDelivery.AS4.ComponentTests.Common
 
             var mshInfo = new ProcessStartInfo(Path.Combine(workingDirectory.FullName, appFileName))
             {
-                WorkingDirectory = workingDirectory.FullName
+                WorkingDirectory = workingDirectory.FullName,
+                WindowStyle = ProcessWindowStyle.Minimized
             };
 
             var as4Msh = new AS4Component(Process.Start(mshInfo));
