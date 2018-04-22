@@ -58,37 +58,13 @@ namespace Eu.EDelivery.AS4.ComponentTests.Common
         /// </summary>
         public ComponentTestFixture()
         {
-            string send_pmodes = @".\config\send-pmodes";
-            if (Directory.Exists(send_pmodes))
-            {
-                FileSystemUtils.ClearDirectory(send_pmodes);
-            }
-            else
-            {
-                Directory.CreateDirectory(send_pmodes);
-            }
-
-            string receive_pmodes = @".\config\receive-pmodes";
-            if (Directory.Exists(receive_pmodes))
-            {
-                FileSystemUtils.ClearDirectory(receive_pmodes);
-            }
-            else
-            {
-                Directory.CreateDirectory(receive_pmodes);
-            }
-
-            string messages_in = @".\messages\in";
-            if (!Directory.Exists(messages_in))
-            {
-                Directory.CreateDirectory(messages_in);
-            }
-
-            string messages_out = @".\messages\out";
-            if (!Directory.Exists(messages_out))
-            {
-                Directory.CreateDirectory(messages_out);
-            }
+            FileSystemUtils.CreateOrClearDirectory(@".\config\send-pmodes");
+            FileSystemUtils.CreateOrClearDirectory(@".\config\receive-pmodes");
+            FileSystemUtils.CreateOrClearDirectory(@".\messages\in");
+            FileSystemUtils.CreateOrClearDirectory(@".\messages\out");
+            FileSystemUtils.CreateOrClearDirectory(@".\messages\receipts");
+            FileSystemUtils.CreateOrClearDirectory(@".\messages\errors");
+            FileSystemUtils.CreateOrClearDirectory(@".\messages\exceptions");
 
             FileSystemUtils.CopyDirectory(@".\config\componenttest-settings\send-pmodes", @".\config\send-pmodes");
             FileSystemUtils.CopyDirectory(@".\config\componenttest-settings\receive-pmodes", @".\config\receive-pmodes");
