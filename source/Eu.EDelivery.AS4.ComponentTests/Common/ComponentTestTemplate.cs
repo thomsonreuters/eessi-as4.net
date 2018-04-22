@@ -69,7 +69,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Common
             }
 
             string receive_pmodes = @".\config\receive-pmodes";
-            if (Directory.Exists(send_pmodes))
+            if (Directory.Exists(receive_pmodes))
             {
                 FileSystemUtils.ClearDirectory(receive_pmodes);
             }
