@@ -1,5 +1,7 @@
 ﻿using System;
 using System.IO;
+using Eu.EDelivery.AS4.Model.Internal;
+using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Singletons;
 using Eu.EDelivery.AS4.TestUtils;
 using Xunit;
@@ -19,11 +21,16 @@ namespace Eu.EDelivery.AS4.ComponentTests.Common
             AS4Mapper.Initialize();
         }
 
-        protected void OverrideSettings(string settingsFile)
+        protected Settings OverrideSettings(string settingsFile)
         {
             File.Copy(@".\config\settings.xml", @".\config\settings_original.xml", true);
-            File.Copy($@".\config\componenttest-settings\{settingsFile}", @".\config\settings.xml", true);
+
+            string specificSettings = $@".\config\componenttest-settings\{settingsFile}";
+            File.Copy(specificSettings, @".\config\settings.xml", true);
+
             _restoreSettings = true;
+
+            return AS4XmlSerializer.FromString<Settings>(File.ReadAllText(specificSettings));
         }
 
         public void Dispose()
