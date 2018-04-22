@@ -58,8 +58,25 @@ namespace Eu.EDelivery.AS4.ComponentTests.Common
         /// </summary>
         public ComponentTestFixture()
         {
-            FileSystemUtils.ClearDirectory(@".\config\send-pmodes");
-            FileSystemUtils.ClearDirectory(@".\config\receive-pmodes");
+            string send_pmodes = @".\config\send-pmodes";
+            if (Directory.Exists(send_pmodes))
+            {
+                FileSystemUtils.ClearDirectory(send_pmodes);
+            }
+            else
+            {
+                Directory.CreateDirectory(send_pmodes);
+            }
+
+            string receive_pmodes = @".\config\receive-pmodes";
+            if (Directory.Exists(send_pmodes))
+            {
+                FileSystemUtils.ClearDirectory(receive_pmodes);
+            }
+            else
+            {
+                Directory.CreateDirectory(receive_pmodes);
+            }
 
             FileSystemUtils.CopyDirectory(@".\config\componenttest-settings\send-pmodes", @".\config\send-pmodes");
             FileSystemUtils.CopyDirectory(@".\config\componenttest-settings\receive-pmodes", @".\config\receive-pmodes");
