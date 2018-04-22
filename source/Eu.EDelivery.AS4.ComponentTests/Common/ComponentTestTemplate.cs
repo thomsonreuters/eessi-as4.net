@@ -78,6 +78,12 @@ namespace Eu.EDelivery.AS4.ComponentTests.Common
                 Directory.CreateDirectory(receive_pmodes);
             }
 
+            string messages_in = @".\messages\in";
+            if (!Directory.Exists(messages_in))
+            {
+                Directory.CreateDirectory(messages_in);
+            }
+
             FileSystemUtils.CopyDirectory(@".\config\componenttest-settings\send-pmodes", @".\config\send-pmodes");
             FileSystemUtils.CopyDirectory(@".\config\componenttest-settings\receive-pmodes", @".\config\receive-pmodes");
         }
