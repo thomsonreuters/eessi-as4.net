@@ -6,7 +6,7 @@ namespace Eu.EDelivery.AS4.PayloadService.Models
     /// <summary>
     /// Model to define the structure of how a uploaded payload looks like.
     /// </summary>
-    internal class Payload : IEquatable<Payload>, IDisposable
+    public class Payload : IEquatable<Payload>, IDisposable
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="Payload"/> class.

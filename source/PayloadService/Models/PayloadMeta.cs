@@ -3,7 +3,7 @@ namespace Eu.EDelivery.AS4.PayloadService.Models
     /// <summary>
     /// Model to define the Metadata of the saved <see cref="Payload" />.
     /// </summary>
-    internal class PayloadMeta
+    public class PayloadMeta
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="PayloadMeta" /> class.
