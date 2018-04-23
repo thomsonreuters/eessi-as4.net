@@ -6,7 +6,7 @@ import { ActivatedRoute } from '@angular/router';
 import { Observable } from 'rxjs/Observable';
 import { Subscription } from 'rxjs/Subscription';
 
-import { Transformer, Steps } from '../../api';
+import { Transformer, Steps, Step, Setting } from '../../api';
 import { SettingsAgent } from '../../api/SettingsAgent';
 import { SettingsAgentForm } from '../../api/SettingsAgentForm';
 import { SettingsService } from '../settings.service';
@@ -127,9 +127,25 @@ export class AgentSettingsComponent implements OnDestroy, CanComponentDeactivate
                             newAgent.stepConfiguration = new Steps();
                             newAgent.transformer = new Transformer();
                             newAgent.transformer.type = transformer.defaultTransformer.technicalName;
-                            setupCurrent(newAgent);
+
+                            newAgent.stepConfiguration.normalPipeline = steps
+                                .normalPipeline
+                                .map((s) => {
+                                    let step = new Step();
+                                    step.type = s.technicalName;
+                                    step.setting = s.properties.map((p) => {
+                                        let prop = new Setting();
+                                        prop.key = p.technicalName;
+                                        prop.value = p.defaultValue;
+                                        return prop;
+                                    })
+                                    return step;
+                                });
+
 
                             this.transformers = [transformer.defaultTransformer].concat(transformer.otherTransformers);
+                            this.normalSteps = steps.normalPipeline;
+                            setupCurrent(newAgent);
                         });
                         return;
                     }
