@@ -54,11 +54,17 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Fixture
         {
             Console.WriteLine($@"Try starting Holodeck at {executablePath}");
 
-            Process p = new Process();
+            Process p = new Process
+            {
+                StartInfo =
+                {
+                    FileName = executablePath,
+                    WorkingDirectory = System.IO.Path.GetDirectoryName(executablePath),
+                    CreateNoWindow = false,
+                    WindowStyle = ProcessWindowStyle.Minimized
+                }
+            };
 
-            p.StartInfo.FileName = executablePath;
-            p.StartInfo.WorkingDirectory = System.IO.Path.GetDirectoryName(executablePath);
-            p.StartInfo.CreateNoWindow = false;
 
             try
             {

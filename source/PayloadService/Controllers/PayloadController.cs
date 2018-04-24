@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using Eu.EDelivery.AS4.PayloadService.Infrastructure;
 using Eu.EDelivery.AS4.PayloadService.Models;
 using Eu.EDelivery.AS4.PayloadService.Persistance;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Eu.EDelivery.AS4.PayloadService.Controllers
@@ -15,14 +14,15 @@ namespace Eu.EDelivery.AS4.PayloadService.Controllers
     [Route("api/[controller]")]
     public class PayloadController : Controller
     {
-        private readonly FilePayloadPersister _payloadPersistor;
+        private readonly IPayloadPersister _payloadPersistor;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="PayloadController"/> class.
+        /// Initializes a new instance of the <see cref="PayloadController" /> class.
         /// </summary>
-        public PayloadController(IHostingEnvironment environment)
+        /// <param name="payloadPersister">The payload persister.</param>
+        public PayloadController(IPayloadPersister payloadPersister)
         {
-            _payloadPersistor = new FilePayloadPersister(environment);
+            _payloadPersistor = payloadPersister;
         }
 
         /// <summary>

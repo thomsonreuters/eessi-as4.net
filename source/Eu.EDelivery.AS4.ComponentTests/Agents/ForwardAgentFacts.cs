@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Configuration;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Agents;
-using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.ComponentTests.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Core;
+using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.TestUtils.Stubs;
@@ -22,26 +23,22 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         private readonly AS4Component _as4Msh;
         private readonly DatabaseSpy _databaseSpy;
         private readonly string _receiveAgentUrl;
+        private readonly Settings _forwardSettings;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ForwardAgentFacts"/> class.
         /// </summary>
         public ForwardAgentFacts()
         {
-            string RetrieveReceiveAgentUrl(AS4Component as4Component)
-            {
-                var receivingAgent =
-                    as4Component.GetConfiguration().GetAgentsConfiguration().FirstOrDefault(a => a.Type == AgentType.Receive);
-
-                Assert.True(receivingAgent != null, "The Agent with name Receive Agent could not be found");
-
-                return receivingAgent.Settings.Receiver?.Setting?.FirstOrDefault(s => s.Key == "Url")?.Value;
-            }
-
-            OverrideSettings("forwardagent_settings.xml");
+            _forwardSettings = OverrideSettings("forwardagent_settings.xml");
             _as4Msh = AS4Component.Start(Environment.CurrentDirectory);
             _databaseSpy = new DatabaseSpy(_as4Msh.GetConfiguration());
-            _receiveAgentUrl = RetrieveReceiveAgentUrl(_as4Msh);
+
+
+            _receiveAgentUrl = _forwardSettings
+                .Agents.ReceiveAgents.First().Receiver.Setting
+                .FirstOrDefault(s => s.Key == "Url")
+                ?.Value;
         }
 
         protected override void Disposing(bool isDisposing)
@@ -151,7 +148,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         [Fact]
         public async Task ForwardingWithPushOnPull()
         {
-            string pullingUrl = RetrievePullingUrlFromConfig(_as4Msh.GetConfiguration());
+            string pullingUrl = RetrievePullingUrlFromConfig();
 
             var waiter = new ManualResetEvent(false);
 
@@ -190,16 +187,16 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
         }
 
-        private string RetrievePullingUrlFromConfig(IConfig as4Configuration)
+        private string RetrievePullingUrlFromConfig()
         {
-            var pullReceiveAgent = as4Configuration.GetAgentsConfiguration().FirstOrDefault(a => a.Type == AgentType.PullReceive);
+            var pullReceiveAgent = _forwardSettings.Agents.PullReceiveAgents.FirstOrDefault();
 
             if (pullReceiveAgent == null)
             {
                 throw new ConfigurationErrorsException("There is no PullReceive Agent configured.");
             }
 
-            string pmodeId = pullReceiveAgent.Settings.Receiver.Setting.First().Key;
+            string pmodeId = pullReceiveAgent.Receiver.Setting.First().Key;
 
             var pmode = _as4Msh.GetConfiguration().GetSendingPMode(pmodeId);
 

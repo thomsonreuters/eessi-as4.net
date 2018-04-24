@@ -57,7 +57,7 @@ namespace Eu.EDelivery.AS4.Common
         /// Gets the retention period (in days) for which the stored entities are cleaned-up.
         /// </summary>
         /// <value>The retention period in days.</value>
-        public int RetentionPeriod { get; private set; }
+        public TimeSpan RetentionPeriod { get; private set; }
 
         /// <summary>
         /// Gets the in message store location.
@@ -358,12 +358,13 @@ namespace Eu.EDelivery.AS4.Common
 
             if (int.TryParse(_settings.RetentionPeriod, out int r) && r > 0)
             {
-                RetentionPeriod = r;
+                RetentionPeriod = TimeSpan.FromDays(r);
             }
             else
             {
                 const int defaultRetentionPeriod = 90;
-                RetentionPeriod = defaultRetentionPeriod;
+
+                RetentionPeriod = TimeSpan.FromDays(defaultRetentionPeriod);
                 LogManager.GetCurrentClassLogger().Warn($"No valid (> 0) Retention Period found: '{_settings.RetentionPeriod ?? "(null)"}', {defaultRetentionPeriod} days as default will be used.");
             }
 

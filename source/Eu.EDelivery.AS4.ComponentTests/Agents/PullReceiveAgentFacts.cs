@@ -4,8 +4,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Agents;
-using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.ComponentTests.Common;
+using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.TestUtils.Stubs;
 using Xunit;
 
@@ -13,6 +13,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 {
     public class PullReceiveAgentFacts : ComponentTestTemplate
     {
+        private readonly Settings _pullReceiveSettings;
         private readonly AS4Component _as4Msh;
         private readonly DatabaseSpy _databaseSpy;
 
@@ -21,7 +22,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         /// </summary>
         public PullReceiveAgentFacts()
         {
-            OverrideSettings("pullreceiveagent_settings.xml");
+            _pullReceiveSettings = OverrideSettings("pullreceiveagent_settings.xml");
             _as4Msh = AS4Component.Start(Environment.CurrentDirectory);
             _databaseSpy = new DatabaseSpy(_as4Msh.GetConfiguration());
         }
@@ -34,7 +35,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         [Fact]
         public async Task NoExceptionsAreLoggedWhenPullSenderIsNotAvailable()
         {
-            string pullSenderUrl = RetrievePullingUrlFromConfig(_as4Msh.GetConfiguration());
+            string pullSenderUrl = RetrievePullingUrlFromConfig();
 
             // Wait a little bit to be sure that everything is started and a PullRequest has already been sent.
             await Task.Delay(TimeSpan.FromSeconds(2));
@@ -48,16 +49,16 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             Assert.False(_databaseSpy.GetInExceptions((r) => true).Any(), "No logged InExceptions are expected.");
         }
 
-        private string RetrievePullingUrlFromConfig(IConfig as4Configuration)
+        private string RetrievePullingUrlFromConfig()
         {
-            var pullReceiveAgent = as4Configuration.GetAgentsConfiguration().FirstOrDefault(a => a.Type == AgentType.PullReceive);
+            var pullReceiveAgent = _pullReceiveSettings.Agents.PullReceiveAgents.FirstOrDefault();
 
             if (pullReceiveAgent == null)
             {
                 throw new ConfigurationErrorsException("There is no PullReceive Agent configured.");
             }
 
-            string pmodeId = pullReceiveAgent.Settings.Receiver.Setting.First().Key;
+            string pmodeId = pullReceiveAgent.Receiver.Setting.First().Key;
 
             var pmode = _as4Msh.GetConfiguration().GetSendingPMode(pmodeId);
 

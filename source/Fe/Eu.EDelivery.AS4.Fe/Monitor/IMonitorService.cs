@@ -54,11 +54,11 @@ namespace Eu.EDelivery.AS4.Fe.Monitor
         /// Downloads the message body.
         /// </summary>
         /// <param name="direction">The direction.</param>
-        /// <param name="messageId">The message identifier.</param>
+        /// <param name="id">The identifier.</param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException">messageId - messageId parameter cannot be null</exception>
         /// <exception cref="InvalidEnumArgumentException">direction</exception>
-        Task<Stream> DownloadMessageBody(Direction direction, string messageId);
+        Task<Stream> DownloadMessageBody(Direction direction, long id);
 
         /// <summary>
         /// Downloads the exception body.

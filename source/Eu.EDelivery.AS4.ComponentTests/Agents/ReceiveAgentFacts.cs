@@ -16,6 +16,7 @@ using Eu.EDelivery.AS4.ComponentTests.Extensions;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
+using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.TestUtils;
@@ -44,23 +45,15 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         /// </summary>
         public ReceiveAgentFacts()
         {
-            string RetrieveReceiveAgentUrl(AS4Component as4Component)
-            {
-                var receivingAgent =
-                    as4Component.GetConfiguration().GetAgentsConfiguration().FirstOrDefault(a => a.Name.Equals("Receive Agent"));
-
-                Assert.True(receivingAgent != null, "The Agent with name Receive Agent could not be found");
-
-                return receivingAgent.Settings.Receiver?.Setting?.FirstOrDefault(s => s.Key == "Url")?.Value;
-            }
-
-            OverrideSettings("receiveagent_http_settings.xml");
+            Settings receiveSettings = OverrideSettings("receiveagent_http_settings.xml");
 
             _as4Msh = AS4Component.Start(Environment.CurrentDirectory);
 
             _databaseSpy = new DatabaseSpy(_as4Msh.GetConfiguration());
 
-            _receiveAgentUrl = RetrieveReceiveAgentUrl(_as4Msh);
+            _receiveAgentUrl = receiveSettings.Agents.ReceiveAgents.First().Receiver.Setting
+                                              .FirstOrDefault(s => s.Key == "Url")
+                                              ?.Value;
 
             Assert.False(
                 string.IsNullOrWhiteSpace(_receiveAgentUrl),

@@ -1,19 +1,25 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Security;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.PayloadService.Models;
 using Microsoft.AspNetCore.Hosting;
+using NLog;
 
 namespace Eu.EDelivery.AS4.PayloadService.Persistance
 {
     /// <summary>
     /// <see cref="IPayloadPersister"/> implementation to persist the <see cref="Payload"/> instances on the File System.
     /// </summary>
-    internal sealed class FilePayloadPersister : IPayloadPersister
+    public sealed class FilePayloadPersister : IPayloadPersister
     {
         private const string OriginalFileNameKey = "originalfilename:";
 
         private readonly string _persistenceLocation;
+
+        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="FilePayloadPersister"/> class.
@@ -75,16 +81,10 @@ namespace Eu.EDelivery.AS4.PayloadService.Persistance
         public Task<Payload> LoadPayload(string payloadId)
         {
             string filePath = GetPersistanceFileLocationOf($"{payloadId}");
-            Payload payload;
 
-            if (File.Exists(filePath))
-            {
-                payload = new Payload(File.OpenRead(filePath), LoadPayloadMeta(payloadId));
-            }
-            else
-            {
-                payload = Payload.Null;
-            }
+            Payload payload = File.Exists(filePath) 
+                ? new Payload(File.OpenRead(filePath), LoadPayloadMeta(payloadId)) 
+                : Payload.Null;
 
             return Task.FromResult(payload);
         }
@@ -94,12 +94,9 @@ namespace Eu.EDelivery.AS4.PayloadService.Persistance
             string filedownloadName = $"{payloadId}.download";
             string metaFilePath = GetPersistanceFileLocationOf($"{payloadId}.meta");
 
-            if (File.Exists(metaFilePath))
-            {
-                return ParseMetadataFile(metaFilePath);
-            }
-
-            return new PayloadMeta(filedownloadName);
+            return File.Exists(metaFilePath) 
+                ? ParseMetadataFile(metaFilePath) 
+                : new PayloadMeta(filedownloadName);
         }
 
         private string GetPersistanceFileLocationOf(string payloadId)
@@ -107,23 +104,44 @@ namespace Eu.EDelivery.AS4.PayloadService.Persistance
             return Path.Combine(_persistenceLocation, payloadId);
         }
 
-        private PayloadMeta ParseMetadataFile(string metaFile)
+        private static PayloadMeta ParseMetadataFile(string metaFile)
         {
-            string[] lines = File.ReadAllLines(metaFile);
-            string originalFilename = string.Empty;
+            bool LineContainsKey(string key, string line) => 
+                line.IndexOf(key, StringComparison.CurrentCultureIgnoreCase) > -1;
 
-            foreach (string line in lines)
-            {
-                Func<string, bool> lineContainsKey = 
-                    key => line.IndexOf(key, StringComparison.CurrentCultureIgnoreCase) > -1;
-
-                if (lineContainsKey(OriginalFileNameKey))
-                {
-                    originalFilename = line.Substring(OriginalFileNameKey.Length);
-                }
-            }
+            string originalFilename = File.ReadAllLines(metaFile)
+                .Where(x => LineContainsKey(OriginalFileNameKey, x))
+                .DefaultIfEmpty(string.Empty)
+                .First();
 
             return new PayloadMeta(originalFilename);
+        }
+
+        /// <summary>
+        /// Cleans up the persisted payloads older than a specified <paramref name="retentionPeriod"/>.
+        /// </summary>
+        /// <param name="retentionPeriod">The retention period.</param>
+        public void CleanupPayloadsOlderThan(TimeSpan retentionPeriod)
+        {
+            IEnumerable<FileInfo> retendedFiles = 
+                Directory.EnumerateFiles(_persistenceLocation)
+                         .Select(f => new FileInfo(f))
+                         .Where(f => f.CreationTimeUtc > DateTimeOffset.UtcNow.Subtract(retentionPeriod));
+            
+            foreach (FileInfo f in retendedFiles)
+            {
+                try
+                {
+                    f.Delete();
+                }
+                catch (Exception ex) when (
+                    ex is IOException 
+                    || ex is SecurityException 
+                    || ex is UnauthorizedAccessException)
+                {
+                    Logger.Error(ex);
+                }
+            }
         }
     }
 }

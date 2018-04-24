@@ -21,17 +21,19 @@ namespace Eu.EDelivery.AS4.ComponentTests.Samples
             CleanSlateReceivingPModesFrom(samples_pmodes);
             CleanSlateSendingPModesFrom(samples_pmodes);
 
-            FileSystemUtils.ClearDirectory(@".\messages\out");
-            FileSystemUtils.ClearDirectory(@".\messages\in");
-            FileSystemUtils.ClearDirectory(@".\messages\receipts");
-            FileSystemUtils.ClearDirectory(@".\messages\errors");
+            FileSystemUtils.CreateOrClearDirectory(@".\messages\out");
+            FileSystemUtils.CreateOrClearDirectory(@".\messages\in");
+            FileSystemUtils.CreateOrClearDirectory(@".\messages\receipts");
+            FileSystemUtils.CreateOrClearDirectory(@".\messages\errors");
+            FileSystemUtils.CreateOrClearDirectory(@".\messages\exceptions");
+
 
             Msh = AS4Component.Start(Environment.CurrentDirectory);
         }
 
         private static void CleanSlateReceivingPModesFrom(string pmodesPath)
         {
-            FileSystemUtils.ClearDirectory(@".\config\receive-pmodes");
+            FileSystemUtils.CreateOrClearDirectory(@".\config\receive-pmodes");
 
             foreach (string file in Directory.EnumerateFiles(pmodesPath, "*receive-pmode.xml"))
             {
@@ -41,7 +43,8 @@ namespace Eu.EDelivery.AS4.ComponentTests.Samples
 
         private static void CleanSlateSendingPModesFrom(string pmodesPath)
         {
-            FileSystemUtils.ClearDirectory(@".\config\send-pmodes");
+            FileSystemUtils.CreateOrClearDirectory(@".\config\send-pmodes");
+
             File.Copy(Path.Combine(pmodesPath, "signed-response-pmode.xml"), @".\config\send-pmodes\signed-response-pmode.xml", overwrite: true);
             File.Copy(Path.Combine(pmodesPath, "unsigned-response-pmode.xml"), @".\config\send-pmodes\unsigned-response-pmode.xml", overwrite: true);
 

@@ -70,35 +70,35 @@ namespace Eu.EDelivery.AS4.Fe.Monitor.Model
         /// Gets the message body.
         /// </summary>
         /// <param name="direction">The direction.</param>
-        /// <param name="messageId">The message identifier.</param>
+        /// <param name="id">The message identifier.</param>
         /// <returns></returns>
         [HttpGet]
         [Route("messagebody")]
         [SwaggerResponse((int)HttpStatusCode.OK, typeof(MessageResult<Message>))]
-        public async Task<FileStreamResult> GetMessageBody(Direction direction, string messageId)
+        public async Task<FileStreamResult> GetMessageBody(Direction direction, long id)
         {
-            return File(await monitorService.DownloadMessageBody(direction, messageId), "application/xml");
+            return File(await monitorService.DownloadMessageBody(direction, id), "application/xml");
         }
 
         /// <summary>
         /// Gets the exception body.
         /// </summary>
         /// <param name="direction">The direction.</param>
-        /// <param name="messageId">The message identifier.</param>
+        /// <param name="id">The message identifier.</param>
         /// <returns></returns>
         [HttpGet]
         [Route("exceptionbody")]
         [SwaggerResponse((int)HttpStatusCode.OK, typeof(MessageResult<Message>))]
-        public async Task<FileResult> GetExceptionBody(Direction direction, long messageId)
+        public async Task<FileResult> GetExceptionBody(Direction direction, long id)
         {
-            return File(Encoding.UTF8.GetBytes(await monitorService.DownloadExceptionMessageBody(direction, messageId)), "application/txt");
+            return File(Encoding.UTF8.GetBytes(await monitorService.DownloadExceptionMessageBody(direction, id)), "application/txt");
         }
 
         [HttpGet]
-        [Route("detail/{direction}/{messageId}")]
-        public async Task<IActionResult> GetExceptionDetail(Direction direction, long messageId)
+        [Route("detail/{direction}/{id}")]
+        public async Task<IActionResult> GetExceptionDetail(Direction direction, long id)
         {
-            return new OkObjectResult(await monitorService.GetExceptionDetail(direction, messageId));
+            return new OkObjectResult(await monitorService.GetExceptionDetail(direction, id));
         }
     }
 }
