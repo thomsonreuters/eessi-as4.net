@@ -47,7 +47,10 @@ namespace Eu.EDelivery.AS4.ComponentTests.Common
         /// Start AS4 Component
         /// </summary>
         /// <param name="location">The location.</param>
-        public static AS4Component Start(string location)
+        /// <param name="cleanSlate">if set to <c>true</c> [clean slate].</param>
+        /// <returns></returns>
+        /// <exception cref="InvalidOperationException">No AS4 MSH found in the specified location.</exception>
+        public static AS4Component Start(string location, bool cleanSlate = true)
         {
             const string appFileName = "Eu.EDelivery.AS4.ServiceHandler.ConsoleHost.exe";
 
@@ -58,11 +61,15 @@ namespace Eu.EDelivery.AS4.ComponentTests.Common
 
             var workingDirectory = new DirectoryInfo(location);
 
-            CleanupWorkingDirectory(workingDirectory);
+            if (cleanSlate)
+            {
+                CleanupWorkingDirectory(location);
+            }
 
             var mshInfo = new ProcessStartInfo(Path.Combine(workingDirectory.FullName, appFileName))
             {
-                WorkingDirectory = workingDirectory.FullName
+                WorkingDirectory = workingDirectory.FullName,
+                WindowStyle = ProcessWindowStyle.Minimized
             };
 
             var as4Msh = new AS4Component(Process.Start(mshInfo));
@@ -73,9 +80,9 @@ namespace Eu.EDelivery.AS4.ComponentTests.Common
             return as4Msh;
         }
 
-        private static void CleanupWorkingDirectory(DirectoryInfo workingFolder)
+        private static void CleanupWorkingDirectory(string location)
         {
-            string databaseFolder = Path.Combine(workingFolder.FullName, "database");
+            string databaseFolder = Path.Combine(location, "database");
 
             if (Directory.Exists(databaseFolder))
             {

@@ -356,15 +356,16 @@ namespace Eu.EDelivery.AS4.Common
             FeInProcess = _settings.FeInProcess;
             PayloadServiceInProcess = _settings.PayloadServiceInProcess;
 
-            if (int.TryParse(_settings.RetentionPeriod, out int r))
+            if (int.TryParse(_settings.RetentionPeriod, out int r) && r > 0)
             {
                 RetentionPeriod = TimeSpan.FromDays(r);
             }
             else
             {
                 const int defaultRetentionPeriod = 90;
+
                 RetentionPeriod = TimeSpan.FromDays(defaultRetentionPeriod);
-                LogManager.GetCurrentClassLogger().Warn($"No Retention Period found: '{_settings.RetentionPeriod ?? "(null)"}', {defaultRetentionPeriod} days as default will be used.");
+                LogManager.GetCurrentClassLogger().Warn($"No valid (> 0) Retention Period found: '{_settings.RetentionPeriod ?? "(null)"}', {defaultRetentionPeriod} days as default will be used.");
             }
 
             // TODO: this is hardcoded right now, should be configurable in the settings.xml

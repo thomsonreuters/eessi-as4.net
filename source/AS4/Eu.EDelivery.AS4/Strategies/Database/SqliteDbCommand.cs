@@ -73,26 +73,23 @@ namespace Eu.EDelivery.AS4.Strategies.Database
         {
             DatastoreTable.EnsureTableNameIsKnown(tableName);
 
-            string receptionAwarenessJoin =
+            string operations = string.Join(", ", allowedOperations.Select(x => "'" + x.ToString() + "'"));
+            string outMessagesWhere =
                 tableName.Equals("OutMessages")
-                    ? "AND Id IN( " +
-                      "    SELECT RefToOutMessageId " +
-                      "    FROM ReceptionAwareness r " +
-                      "    WHERE r.RefToOutMessageId = OutMessages.Id " +                      
-                      "      AND CurrentRetryCount = TotalRetryCount)"
+                    ? @" AND (
+                                (EbmsMessageType = 'UserMessage' AND Status IN('Ack', 'Nack')) 
+                                OR EbmsMessageType IN('Receipt', 'Error')
+                             )"
                     : string.Empty;
 
-            string operations = string.Join(", ", allowedOperations.Select(x => "'" + x.ToString() + "'"));
-
-            string command =
+            string sql = 
                 $"DELETE FROM {tableName} " +
                 $"WHERE InsertionTime<datetime('now', '-{retentionPeriod.TotalDays} day') " +
-                $"AND Operation IN({operations}) " +
-                receptionAwarenessJoin;
+                $"AND Operation IN ({operations}) " +
+                outMessagesWhere;
 
-            _context.Database.ExecuteSqlCommand(command);
-
-            LogManager.GetCurrentClassLogger().Debug($"Done cleaning '{tableName}'");
+            int rows = _context.Database.ExecuteSqlCommand(sql);
+            LogManager.GetCurrentClassLogger().Debug($"Cleaned {rows} row(s) for table '{tableName}'");
         }
     }
 }
