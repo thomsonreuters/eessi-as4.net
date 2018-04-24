@@ -191,6 +191,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         }
 
         private static IConfig EnsureLocalConfigPointsToCreatedDatastore()
+        {
             Config config = Config.Instance;
             config.Initialize("settings.xml");
 
