@@ -203,9 +203,16 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
         private static void EnsureDatastoreCreated(IConfig config)
         {
-            using (var ctx = new DatastoreContext(config))
+            try
             {
-                ctx.NativeCommands.CreateDatabase().Wait();
+                using (var ctx = new DatastoreContext(config))
+                {
+                    ctx.NativeCommands.CreateDatabase().Wait();
+                }
+            }
+            catch (Exception)
+            {
+                // Ignore: database already be created
             }
         }
 
