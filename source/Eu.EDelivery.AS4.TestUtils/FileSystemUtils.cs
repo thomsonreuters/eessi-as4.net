@@ -24,6 +24,18 @@ namespace Eu.EDelivery.AS4.TestUtils
             }
         }
 
+        public static void CreateOrClearDirectory(string directoryName)
+        {
+            if (Directory.Exists(directoryName))
+            {
+                ClearDirectory(directoryName);
+            }
+            else
+            {
+                Directory.CreateDirectory(directoryName);
+            }
+        }
+
         public static void ClearDirectory(string directoryName)
         {
             if (Directory.Exists(directoryName) == false)

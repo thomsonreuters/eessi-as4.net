@@ -34,7 +34,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             doc.Save(settingsXml);
         }
 
-        [Fact]
+        [Fact(Skip = "Not valid anymore")]
         public void MessageOlderThanRetentionDateWillBeDeleted()
         {
             // Arrange: Insert a "retired" OutMessage with a referenced Reception Awareness.

@@ -24,7 +24,11 @@ namespace Eu.EDelivery.AS4.ComponentTests.Samples
             PutSample(file);
 
             // Wait some time till component has processed the sample
-            Thread.Sleep(TimeSpan.FromSeconds(15));
+            WaitUntil(
+                () => Directory.EnumerateFiles(DeliverPath).Any() 
+                      && Directory.EnumerateFiles(NotifyReceiptPath).Any(),
+                retryCount: 100,
+                retryInterval: TimeSpan.FromSeconds(1));
 
             Assert.All(payloads, m =>
             {
@@ -38,6 +42,22 @@ namespace Eu.EDelivery.AS4.ComponentTests.Samples
             AssertFiles(DeliverPath, GeneratedIdPattern);
             AssertSignalMessages(NotifyReceiptPath, 1);
             AssertSignalMessages(NotifyErrorPath, 0);
+        }
+
+        private static void WaitUntil(Func<bool> predicate, int retryCount, TimeSpan retryInterval)
+        {
+            var count = 0;
+            while (!predicate())
+            {
+                if (++count < retryCount)
+                {
+                    Thread.Sleep(retryInterval);
+                }
+                else
+                {
+                    throw new TimeoutException("Test has been timed-out!");
+                }
+            }
         }
 
         private static void AssertFiles(string path, string searchPattern)
