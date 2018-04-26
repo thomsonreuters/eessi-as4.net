@@ -52,7 +52,7 @@
         "start": "npm run server:dev",
         "test": "karma start --browsers Chrome",
         "test:ci": "karma start --browsers PhantomJS",
-        "test:cy": "start-server-and-test start http://localhost:4040 cy:run",
+        "test:cy": "start-server-and-test server:dev http-get://localhost:4000 cy:run",
         "tslint": "tslint",
         "typedoc": "typedoc",
         "version": "npm run build",
