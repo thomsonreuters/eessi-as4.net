@@ -25,7 +25,7 @@ namespace Eu.EDelivery.AS4.Common
     {
         private static readonly IConfig Singleton = new Config();
         private readonly IDictionary<string, string> _configuration;
-        private readonly ILogger _logger;
+        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
         
         private readonly Collection<AgentConfig> _agentConfigs = new Collection<AgentConfig>();
 
@@ -37,7 +37,6 @@ namespace Eu.EDelivery.AS4.Common
 
         internal Config()
         {
-            _logger = LogManager.GetCurrentClassLogger();
             _configuration = new Dictionary<string, string>(StringComparer.CurrentCultureIgnoreCase);
         }
 
@@ -111,7 +110,7 @@ namespace Eu.EDelivery.AS4.Common
             catch (Exception exception)
             {
                 IsInitialized = false;
-                _logger.Error(exception.Message);
+                Logger.Error(exception.Message);
 
                 throw;
             }
@@ -284,7 +283,7 @@ namespace Eu.EDelivery.AS4.Common
 
             string fullPath = Path.GetFullPath(path);
 
-            _logger.Trace($"Using local configuration settings at path: '{fullPath}'");
+            Logger.Trace($"Using local configuration settings at path: '{fullPath}'");
 
             if (Path.IsPathRooted(path) == false ||
                 (File.Exists(fullPath) == false && StringComparer.OrdinalIgnoreCase.Equals(path, fullPath) == false))
@@ -319,10 +318,10 @@ namespace Eu.EDelivery.AS4.Common
             }
             catch (Exception ex)
             {
-                _logger.Error($"Cannot Deserialize file on location {path}: {ex.Message}");
+                Logger.Error($"Cannot Deserialize file on location {path}: {ex.Message}");
                 if (ex.InnerException != null)
                 {
-                    _logger.Error(ex.InnerException.Message);
+                    Logger.Error(ex.InnerException.Message);
                 }
 
                 return null;
