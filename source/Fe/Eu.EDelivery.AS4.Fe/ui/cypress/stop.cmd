@@ -1,0 +1,1 @@
+taskkill /im Eu.EDelivery.AS4.ServiceHandler.ConsoleHost.exe /F
