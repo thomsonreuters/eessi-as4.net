@@ -17,7 +17,7 @@
                         </as4-input>
                         <as4-input label="ebMS message type" labelSize="3" controlSize="9">
                             <div class="input-group">
-                                <select formControlName="ebmsMessageType" multiselect>
+                                <select formControlName="ebmsMessageType" data-cy="ebmsMessageType" multiselect>
                                 <option value="0">User message</option>
                                 <option value="1">Exception</option>
                                 <option value="2">Receipt</option>
@@ -30,7 +30,7 @@
 
                         <as4-input label="Status" labelSize="3" controlSize="9">
                             <div class="input-group">
-                                <select name="status" formControlName="status" multiselect>
+                                <select name="status" formControlName="status" data-cy="status" multiselect>
                                 <option value="0">Received</option>
                                 <option value="1">Delivered</option>
                                 <option value="2">Created</option>
@@ -47,12 +47,12 @@
                             </div>
                         </as4-input>
                         <as4-input label="ebMS message id" labelSize="3" controlSize="9">
-                            <input type="text" name="ebmsMessageId" formControlName="ebmsMessageId" name="ebmsMessageId" />
+                            <input type="text" name="ebmsMessageId" data-cy="ebmsMessageId" formControlName="ebmsMessageId" name="ebmsMessageId" />
                         </as4-input>
                     </div>
                     <div class="col-md-6 col-xs-12">
                         <as4-input label="From party" labelSize="3" controlSize="9">
-                            <input type="text" formControlName="fromParty" />
+                            <input type="text" formControlName="fromParty" data-cy="fromParty" />
                         </as4-input>
                         <as4-input label="PMode" labelSize="3" controlSize="9">
                             <div class="input-group">
@@ -69,17 +69,17 @@
                             <as4-timeinput [input]="filterForm" type="insertionTimeType" from="insertionTimeFrom" to="insertionTimeTo"></as4-timeinput>
                         </as4-input>
                         <as4-input controlSize="12" [showLabel]="false" *ngIf="!!!advanced">
-                            <button type="submit" [disabled]="!filterForm.valid" class="btn btn-default pull-right" (click)="toggleSearch()"><i class="fa fa-search"></i></button>
+                            <button type="submit" data-cy="search" [disabled]="!filterForm.valid" class="btn btn-default pull-right" (click)="toggleSearch()"><i class="fa fa-search"></i></button>
                         </as4-input>
                     </div>
                 </div>
                 <div class="row">
-                    <p class="clickable row__advanced" (click)="advanced = !advanced"><i class="fa" [class.fa-chevron-right]="!advanced" [class.fa-chevron-down]="advanced"></i>Advanced</p>
+                    <p class="clickable row__advanced" data-cy="advanced" (click)="advanced = !advanced"><i class="fa" [class.fa-chevron-right]="!advanced" [class.fa-chevron-down]="advanced"></i>Advanced</p>
                     <div *ngIf="advanced">
                         <div class="col-xs-12 col-md-6">
                             <as4-input label="Message exchange pattern" labelSize="3" controlSize="9">
                                 <div class="input-group">
-                                    <select name="MEP" formControlName="mep" multiselect>
+                                    <select name="MEP" formControlName="mep" data-cy="mep" multiselect>
                                     <option value="0">Push</option>
                                     <option value="1">Pull</option>
                                 </select>
@@ -90,7 +90,7 @@
                             </as4-input>
                             <as4-input label="Operation" labelSize="3" controlSize="9">
                                 <div class="input-group">
-                                    <select name="operation" formControlName="operation" multiselect>
+                                    <select name="operation" formControlName="operation" data-cy="operation" multiselect>
                                         <option value="0">Not applicable</option>
                                         <option value="1">Undetermined</option>
                                         <option value="2">To be sent</option>
@@ -110,18 +110,18 @@
                                 </div>
                             </as4-input>
                             <as4-input label="Service" labelSize="3" controlSize="9">
-                                <input type="text" formControlName="service" />
+                                <input type="text" formControlName="service" data-cy="service" />
                             </as4-input>
                         </div>
                         <div class="col-xs-12 col-md-6">
                             <as4-input label="Action" labelSize="3" controlSize="9">
-                                <input type="text" formControlName="service" />
+                                <input type="text" formControlName="action" data-cy="action" />
                             </as4-input>
                             <as4-input label="MPC" labelSize="3" controlSize="9">
-                                <input type="text" formControlName="mpc" />
+                                <input type="text" formControlName="mpc" data-cy="mpc" />
                             </as4-input>
                             <as4-input controlSize="12" [showLabel]="false" *ngIf="advanced">
-                                <button type="submit" [disabled]="!filterForm.valid" class="btn btn-default pull-right" (click)="toggleSearch()"><i class="fa fa-search"></i></button>
+                                <button type="submit" data-cy="search" [disabled]="!filterForm.valid" class="btn btn-default pull-right" (click)="toggleSearch()"><i class="fa fa-search"></i></button>
                             </as4-input>
                         </div>
                     </div>

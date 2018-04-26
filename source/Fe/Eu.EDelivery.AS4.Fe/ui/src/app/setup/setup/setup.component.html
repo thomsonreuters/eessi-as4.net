@@ -9,11 +9,11 @@
             <h3>Authentication setup</h3>
             <p>Following passwords are required to setup the default users.</p>
             <as4-input label="Admin user password">
-                <input type="password" formControlName="adminPassword">
+                <input data-cy="adminPassword" type="password" formControlName="adminPassword">
                 <as4-password [invalid]="!form.controls['adminPassword'].valid"></as4-password>
             </as4-input>
             <as4-input label="Readonly user password">
-                <input type="password" formControlName="readonlyPassword">
+                <input data-cy="readonlyPassword" type="password" formControlName="readonlyPassword">
                 <as4-password [invalid]="!form.controls['readonlyPassword'].valid"></as4-password>
             </as4-input>
             <h3>JWT</h3>
@@ -22,16 +22,16 @@
                 <div class="input-group">
                     <input type="text" formControlName="jwtKey">
                     <span class="input-group-btn">
-                    <button class="btn btn-secondary" type="button" (click)="generate()"><i class="fa fa-refresh"></i></button>
+                    <button data-cy="generateKey" class="btn btn-secondary" type="button" (click)="generate()"><i class="fa fa-refresh"></i></button>
                 </span>
                 </div>
             </as4-input>
-            <button type="button" class="btn btn-primary pull-right" [attr.disabled]="!!form.valid ? null : true" (click)="send()">SEND</button>
+            <button type="button" data-cy="submit" class="btn btn-primary pull-right" [attr.disabled]="!!form.valid ? null : true" (click)="send()">SEND</button>
         </form>
     </div>
     <div *ngIf="finished" class="finished">
-        <h2>Setup is finished!</h2>
+        <h2 data-cy="header">Setup is finished!</h2>
         <p>The portal is now ready to be used.</p>
-        <p>Click <a [routerLink]="['/']">here</a> to start.</p>
+        <p>Click <a data-cy="continueToMain" [routerLink]="['/']">here</a> to start.</p>
     </div>
 </div>

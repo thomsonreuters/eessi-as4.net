@@ -36,9 +36,9 @@ export const PMODECRUD_SERVICE = new OpaqueToken('pmodecrudservice');
         </as4-modal>
         <as4-input label="Name" runtimeTooltip="receivingprocessingmode.id">
             <as4-columns noMargin="true">
-                <select class="FormArray-control select-pmode" as4-no-auth (change)="pmodeChanged($event.target.value); pmodeSelect.value = currentPmode && currentPmode.pmode.id" #pmodeSelect>
+                <select class="FormArray-control select-pmode" data-cy="pmodes" as4-no-auth (change)="pmodeChanged($event.target.value); pmodeSelect.value = currentPmode && currentPmode.pmode.id" #pmodeSelect>
                     <option value="undefined">Select an option</option>
-                    <option *ngFor="let pmode of pmodes" [selected]="pmode === (currentPmode && currentPmode.pmode.id)">{{currentPmode && currentPmode.pmode.id === pmode && !!form && !!form.controls && !!form.controls.pmode && !!form.controls.pmode.controls.id ? form.controls.pmode.controls.id.value : pmode}}</option>
+                    <option *ngFor="let pmode of pmodes" [attr.data-cy]="pmode.id" [selected]="pmode === (currentPmode && currentPmode.pmode.id)">{{currentPmode && currentPmode.pmode.id === pmode && !!form && !!form.controls && !!form.controls.pmode && !!form.controls.pmode.controls.id ? form.controls.pmode.controls.id.value : pmode}}</option>
                 </select>
                 <div crud-buttons [form]="form" (add)="add()" (rename)="rename()" (reset)="reset()" (delete)="delete()" (save)="save()" [current]="currentPmode"
                     [isNewMode]="isNewMode"></div>

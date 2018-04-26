@@ -1,0 +1,7 @@
+{
+    "ebmsMessageId": "my-message-id",
+    "fromParty": "my-from-party",
+    "service": "my-service",
+    "action": "my-action",
+    "mpc": "my-mpc"
+}

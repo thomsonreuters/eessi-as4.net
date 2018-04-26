@@ -25,8 +25,8 @@ import { ModalService } from './modal.service';
                     </div>
                     <div class="modal-footer" *ngIf="!unexpected">
                         <div *ngIf="showDefaultButtons === true">
-                            <button type="button" class="btn btn-flat" *ngIf="showOk" (click)="ok()" focus>{{buttonOk}}</button>
-                            <button type="button" class="btn btn-flat" *ngIf="showCancel" data-dismiss="modal" (click)="cancel()" focus onlyWhenNoText="true">{{buttonCancel}}</button>
+                            <button type="button" class="btn btn-flat" data-cy="ok" *ngIf="showOk" (click)="ok()" focus>{{buttonOk}}</button>
+                            <button type="button" class="btn btn-flat" data-cy="cancel" *ngIf="showCancel" data-dismiss="modal" (click)="cancel()" focus onlyWhenNoText="true">{{buttonCancel}}</button>
                         </div>
                         <ng-content select="[buttons]"></ng-content>
                     </div>

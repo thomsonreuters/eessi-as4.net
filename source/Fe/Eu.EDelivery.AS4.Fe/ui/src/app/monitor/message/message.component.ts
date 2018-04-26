@@ -48,7 +48,7 @@ export class MessageComponent implements OnDestroy {
             mep: [],
             operation: [],
             service: [],
-            actionName: [],
+            action: [],
             mpc: [],
             insertionTimeType: [],
             insertionTimeFrom: [],
