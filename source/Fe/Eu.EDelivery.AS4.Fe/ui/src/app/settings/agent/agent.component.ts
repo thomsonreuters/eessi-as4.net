@@ -195,7 +195,7 @@ export class AgentSettingsComponent implements OnDestroy, CanComponentDeactivate
         this.form = SettingsAgentForm.getForm(this._formWrapper, this.currentAgent).build(!!!this.currentAgent);
     }
     public rename() {
-        this.dialogService.prompt('Please enter a new name', 'Rename').subscribe((name) => {
+        this.dialogService.prompt('Please enter a new name', 'Rename', this.currentAgent!.name).subscribe((name) => {
             if (this.messageIfExists(name)) {
                 return;
             }
