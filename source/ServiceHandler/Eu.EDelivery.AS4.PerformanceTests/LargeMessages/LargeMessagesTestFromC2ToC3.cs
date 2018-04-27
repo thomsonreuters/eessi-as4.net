@@ -21,9 +21,9 @@ namespace Eu.EDelivery.AS4.PerformanceTests.LargeMessages
         [InlineData(128, Size.MB)]
         [InlineData(256, Size.MB)]
         [InlineData(512, Size.MB)]
-        [InlineData(1, Size.GB)]
-        [InlineData(2, Size.GB, 40)]
-        [InlineData(3, Size.GB, 60)]
+        [InlineData(1, Size.GB, 50)]
+        [InlineData(2, Size.GB, 100)]
+        [InlineData(3, Size.GB, 150)]
         public void TestIncreasingPayloadSize(int unit, Size metric, int retryCount = 20)
         {
             // Act
