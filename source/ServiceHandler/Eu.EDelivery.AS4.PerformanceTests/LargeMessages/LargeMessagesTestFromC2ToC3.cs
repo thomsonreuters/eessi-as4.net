@@ -22,21 +22,21 @@ namespace Eu.EDelivery.AS4.PerformanceTests.LargeMessages
         [InlineData(256, Size.MB)]
         [InlineData(512, Size.MB)]
         [InlineData(1, Size.GB)]
-        [InlineData(2, Size.GB)]
-        [InlineData(3, Size.GB)]
-        public void TestIncreasingPayloadSize(int value, Size metric)
+        [InlineData(2, Size.GB, 40)]
+        [InlineData(3, Size.GB, 60)]
+        public void TestIncreasingPayloadSize(int unit, Size metric, int retryCount = 20)
         {
             // Act
-            Corner2.PlaceLargeMessage(value, metric, SIMPLE_ONEWAY_TO_C3_SIZE);
+            Corner2.PlaceLargeMessage(unit, metric, SIMPLE_ONEWAY_TO_C3_SIZE);
 
             // Assert
-            PollingTillFirstPayload(Corner3, () => AssertMessages(value * (int) metric));
+            PollingTillFirstPayload(Corner3, retryCount, assertion: () => AssertMessages(unit * (int) metric));
         }
 
         private void AssertMessages(int expectedSize)
         {
             int actualSize = Corner3.FirstDeliveredMessageLength("*.jpg");
-            int Floor(int i) => (int) Math.Floor(i * 0.1) * 10;
+            int Floor(int i) => (int) (i * 0.1);
 
             Assert.Equal(Floor(expectedSize), Floor(actualSize));
         }

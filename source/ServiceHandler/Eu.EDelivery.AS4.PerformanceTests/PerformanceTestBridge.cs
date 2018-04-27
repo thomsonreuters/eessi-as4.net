@@ -46,13 +46,14 @@ namespace Eu.EDelivery.AS4.PerformanceTests
         /// Start polling for a single message on the delivered directory to assert using the <paramref name="assertion"/>
         /// </summary>
         /// <param name="corner">Corner to use as delivered target.</param>
+        /// <param name="retryCount">Amount to retry when polling for payloads</param>
         /// <param name="assertion">Assertion of the delivered message.</param>
-        protected void PollingTillFirstPayload(Corner corner, Action assertion)
+        protected void PollingTillFirstPayload(Corner corner, int retryCount, Action assertion)
         {
            PollingForMessages(
                predicate: () => corner.CountDeliveredMessages() == 2, 
                assertion: assertion, 
-               range: new PollingRange(retryCount: 20, retrySeconds: 15));
+               range: new PollingRange(retryCount, retrySeconds: 15));
         }
 
         /// <summary>
