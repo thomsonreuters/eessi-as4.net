@@ -415,7 +415,7 @@ namespace Eu.EDelivery.AS4.Common
                     _agentConfigs.Add(new AgentConfig(setting.Name) { Type = type, Settings = setting });
                 }
             }
-        }
+        } 
 
         private void Dispose(bool disposing)
         {

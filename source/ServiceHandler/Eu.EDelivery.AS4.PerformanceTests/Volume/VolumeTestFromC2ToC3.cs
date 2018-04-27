@@ -13,16 +13,16 @@ namespace Eu.EDelivery.AS4.PerformanceTests.Volume
     /// </summary>
     public class VolumeTestFromC2ToC3 : PerformanceTestBridge
     {
-        private readonly ITestOutputHelper _output;
+        private readonly ITestOutputHelper _outputHelper;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="VolumeTestFromC2ToC3" /> class.
         /// </summary>
-        /// <param name="output">The console output for the test run.</param>
         /// <param name="fixture">The fixture.</param>
-        public VolumeTestFromC2ToC3(ITestOutputHelper output, CornersFixture fixture) : base(fixture)
+        /// <param name="outputHelper">The console output for the test run.</param>
+        public VolumeTestFromC2ToC3(CornersFixture fixture, ITestOutputHelper outputHelper) : base(fixture, outputHelper)
         {
-            _output = output;
+            _outputHelper = outputHelper;
         }
 
         [Fact]
@@ -79,13 +79,13 @@ namespace Eu.EDelivery.AS4.PerformanceTests.Volume
 
             if (allMessagesDelivered == false)
             {
-                _output.WriteLine($"Number of messages delivered at C3: {Corner3.CountDeliveredMessages("*.xml")}");
-                _output.WriteLine($"Number of receipts received at C2: {Corner2.CountReceivedReceipts()}");
+                _outputHelper.WriteLine($"Number of messages delivered at C3: {Corner3.CountDeliveredMessages("*.xml")}");
+                _outputHelper.WriteLine($"Number of receipts received at C2: {Corner2.CountReceivedReceipts()}");
             }
 
             Assert.True(allMessagesDelivered, $"Not all messages were delivered in the specified timeframe ({maxExecutionTime:g})");
 
-            _output.WriteLine($"It took {sw.Elapsed:g} to submit and deliver {messageCount} messages.");
+            _outputHelper.WriteLine($"It took {sw.Elapsed:g} to submit and deliver {messageCount} messages.");
         }
     }
 }

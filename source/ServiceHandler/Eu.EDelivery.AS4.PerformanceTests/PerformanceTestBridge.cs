@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Threading;
 using Eu.EDelivery.AS4.PerformanceTests.Fixture;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Eu.EDelivery.AS4.PerformanceTests
 {
@@ -12,13 +13,15 @@ namespace Eu.EDelivery.AS4.PerformanceTests
     [Collection(CornersCollection.CollectionId)]
     public class PerformanceTestBridge : IDisposable
     {
+        private readonly ITestOutputHelper _outputHelper;
         private readonly Stopwatch _stopWatch;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PerformanceTestBridge"/> class.
         /// </summary>
         /// <param name="fixture">The fixture.</param>
-        public PerformanceTestBridge(CornersFixture fixture)
+        /// <param name="outputHelper"></param>
+        public PerformanceTestBridge(CornersFixture fixture, ITestOutputHelper outputHelper)
         {
             Corner2 = fixture.Corner2;
             Corner3 = fixture.Corner3;
@@ -29,6 +32,7 @@ namespace Eu.EDelivery.AS4.PerformanceTests
             Corner2.Start();
             Corner3.Start();
 
+            _outputHelper = outputHelper;
             _stopWatch = Stopwatch.StartNew();
         }
 
@@ -54,7 +58,7 @@ namespace Eu.EDelivery.AS4.PerformanceTests
                predicate: () =>
                {
                    int deliveredCount = corner.CountDeliveredMessages();
-                   Console.WriteLine($@"Poll until: {deliveredCount}(Actual Delivered) == 2");
+                   _outputHelper.WriteLine($"Poll while: (Actual Delivered: {deliveredCount}) == 2");
                    return deliveredCount == 2;
                }, 
                assertion: assertion, 
@@ -75,7 +79,7 @@ namespace Eu.EDelivery.AS4.PerformanceTests
                 predicate: () =>
                 {
                     int deliveredCount = corner.CountDeliveredMessages();
-                    Console.WriteLine($@"Poll until: {messageCount}(Expected Delivered) <= {deliveredCount}(Actual Delivered)");
+                    _outputHelper.WriteLine($"Poll while: (Expected Delivered: {messageCount}) <= (Actual Delivered: {deliveredCount})");
                     return messageCount <= deliveredCount;
                 }, 
                 assertion: assertion, 
@@ -106,7 +110,7 @@ namespace Eu.EDelivery.AS4.PerformanceTests
         public void Dispose()
         {
             _stopWatch.Stop();
-            Console.WriteLine($@"Performance Test took: {_stopWatch.Elapsed:g} to run");
+            _outputHelper.WriteLine($"Performance Test took: {_stopWatch.Elapsed:g} to run");
 
             Corner2.Stop();
             Corner3.Stop();

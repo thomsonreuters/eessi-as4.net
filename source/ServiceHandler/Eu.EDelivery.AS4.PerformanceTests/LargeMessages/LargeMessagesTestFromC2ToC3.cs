@@ -1,6 +1,7 @@
 ﻿using System;
 using Eu.EDelivery.AS4.PerformanceTests.Fixture;
 using Xunit;
+using Xunit.Abstractions;
 using static Eu.EDelivery.AS4.PerformanceTests.Properties.Resources;
 
 namespace Eu.EDelivery.AS4.PerformanceTests.LargeMessages
@@ -10,11 +11,17 @@ namespace Eu.EDelivery.AS4.PerformanceTests.LargeMessages
     /// </summary>
     public class LargeMessagesTestFromC2ToC3 : PerformanceTestBridge
     {
+        private readonly ITestOutputHelper _outputHelper;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="LargeMessagesTestFromC2ToC3"/> class.
         /// </summary>
         /// <param name="fixture">The fixture.</param>
-        public LargeMessagesTestFromC2ToC3(CornersFixture fixture) : base(fixture) {}
+        /// <param name="outputHelper"></param>
+        public LargeMessagesTestFromC2ToC3(CornersFixture fixture, ITestOutputHelper outputHelper) : base(fixture, outputHelper)
+        {
+            _outputHelper = outputHelper;
+        }
 
         [Theory]
         [InlineData(64, Size.MB)]
@@ -26,7 +33,7 @@ namespace Eu.EDelivery.AS4.PerformanceTests.LargeMessages
         [InlineData(3, Size.GB, 150)]
         public void TestIncreasingPayloadSize(int unit, Size metric, int retryCount = 20)
         {
-            Console.WriteLine(@"Start Large Message Performance Test: " + unit + metric);
+            _outputHelper.WriteLine("Start Large Message Performance Test: " + unit + metric);
 
             // Act
             Corner2.PlaceLargeMessage(unit, metric, SIMPLE_ONEWAY_TO_C3_SIZE);
