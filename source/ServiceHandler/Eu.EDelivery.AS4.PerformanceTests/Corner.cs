@@ -408,15 +408,6 @@ namespace Eu.EDelivery.AS4.PerformanceTests
             {
                 _cornerProcess.Kill();
             }
-
-            try
-            {
-                _cornerDirectory.Delete(recursive: true);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex);
-            }
         }
     }
 }
