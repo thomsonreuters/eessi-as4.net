@@ -50,6 +50,8 @@ namespace Eu.EDelivery.AS4.PerformanceTests
         /// <param name="messageContents">Content of the message to send.</param>
         public void PlaceMessages(int messageCount, string messageContents)
         {
+            Console.WriteLine($@"Placing {messageCount} submit messages...");
+
             for (var i = 0; i < messageCount; i++)
             {
                 string id = Guid.NewGuid().ToString();

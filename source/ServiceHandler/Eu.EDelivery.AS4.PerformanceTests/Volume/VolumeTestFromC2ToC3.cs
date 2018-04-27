@@ -35,7 +35,11 @@ namespace Eu.EDelivery.AS4.PerformanceTests.Volume
             Corner2.PlaceMessages(messageCount, SIMPLE_ONEWAY_TO_C3);
 
             // Assert
-            PollingTillAllMessages(messageCount, Corner3, () => AssertMessages(messageCount));
+            PollingTillAllMessages(
+                messageCount, 
+                retryCount: 30, 
+                corner: Corner3, 
+                assertion: () => AssertMessages(messageCount));
         }
 
         private void AssertMessages(int messageCount)

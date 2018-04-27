@@ -51,7 +51,12 @@ namespace Eu.EDelivery.AS4.PerformanceTests
         protected void PollingTillFirstPayload(Corner corner, int retryCount, Action assertion)
         {
            PollingForMessages(
-               predicate: () => corner.CountDeliveredMessages() == 2, 
+               predicate: () =>
+               {
+                   int deliveredCount = corner.CountDeliveredMessages();
+                   Console.WriteLine($@"Poll until: {deliveredCount}(Actual Delivered) == 2");
+                   return deliveredCount == 2;
+               }, 
                assertion: assertion, 
                range: new PollingRange(retryCount, retrySeconds: 15));
         }
@@ -61,14 +66,20 @@ namespace Eu.EDelivery.AS4.PerformanceTests
         /// <paramref name="messageCount" /> is reached.
         /// </summary>
         /// <param name="messageCount">Amount of messages to wait for.</param>
+        /// <param name="retryCount"></param>
         /// <param name="corner">Corner to use as delivered target.</param>
         /// <param name="assertion">Assertion of delivered messages.</param>
-        protected void PollingTillAllMessages(int messageCount, Corner corner, Action assertion)
+        protected void PollingTillAllMessages(int messageCount, int retryCount, Corner corner, Action assertion)
         {
             PollingForMessages(
-                predicate: () => messageCount <= corner.CountDeliveredMessages(), 
+                predicate: () =>
+                {
+                    int deliveredCount = corner.CountDeliveredMessages();
+                    Console.WriteLine($@"Poll until: {messageCount}(Expected Delivered) <= {deliveredCount}(Actual Delivered)");
+                    return messageCount <= deliveredCount;
+                }, 
                 assertion: assertion, 
-                range: new PollingRange(retryCount: 10, retrySeconds: 10));
+                range: new PollingRange(retryCount, retrySeconds: 10));
         }
 
         private static void PollingForMessages(Func<bool> predicate, Action assertion, PollingRange range)

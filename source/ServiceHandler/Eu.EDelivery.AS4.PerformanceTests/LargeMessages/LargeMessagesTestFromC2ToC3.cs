@@ -26,6 +26,8 @@ namespace Eu.EDelivery.AS4.PerformanceTests.LargeMessages
         [InlineData(3, Size.GB, 150)]
         public void TestIncreasingPayloadSize(int unit, Size metric, int retryCount = 20)
         {
+            Console.WriteLine(@"Start Large Message Performance Test: " + unit + metric);
+
             // Act
             Corner2.PlaceLargeMessage(unit, metric, SIMPLE_ONEWAY_TO_C3_SIZE);
 
