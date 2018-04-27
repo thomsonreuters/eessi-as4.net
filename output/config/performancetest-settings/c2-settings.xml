@@ -8,7 +8,7 @@
   <PayloadServiceInProcess>false</PayloadServiceInProcess>
   <Database>
     <Provider>SqlServer</Provider>
-    <ConnectionString>Server=.;Database=c2messages;Trusted_Connection=True;</ConnectionString>
+    <ConnectionString>Server=.;Database=c2-messages;Trusted_Connection=True;</ConnectionString>
   </Database>
   <CertificateStore>
     <StoreName>My</StoreName>
