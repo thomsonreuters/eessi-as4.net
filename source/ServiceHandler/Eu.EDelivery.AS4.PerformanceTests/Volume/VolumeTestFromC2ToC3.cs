@@ -20,7 +20,10 @@ namespace Eu.EDelivery.AS4.PerformanceTests.Volume
         /// </summary>
         /// <param name="fixture">The fixture.</param>
         /// <param name="outputHelper">The console output for the test run.</param>
-        public VolumeTestFromC2ToC3(CornersFixture fixture, ITestOutputHelper outputHelper) : base(fixture, outputHelper)
+        public VolumeTestFromC2ToC3(
+            CornersFixture fixture, 
+            ITestOutputHelper outputHelper) 
+                : base(fixture, outputHelper)
         {
             _outputHelper = outputHelper;
         }
@@ -74,8 +77,8 @@ namespace Eu.EDelivery.AS4.PerformanceTests.Volume
             bool allMessagesDelivered =
                 Corner2.ExecuteWhenNumberOfReceiptsAreReceived(
                     messageCount,
-                    () => { sw.Stop(); },
-                    timeout: maxExecutionTime);
+                    timeout: maxExecutionTime,
+                    action: sw.Stop);
 
             if (allMessagesDelivered == false)
             {

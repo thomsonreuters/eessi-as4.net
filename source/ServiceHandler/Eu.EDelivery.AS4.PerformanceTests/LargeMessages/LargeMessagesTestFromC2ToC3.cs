@@ -1,5 +1,4 @@
-﻿using System;
-using Eu.EDelivery.AS4.PerformanceTests.Fixture;
+﻿using Eu.EDelivery.AS4.PerformanceTests.Fixture;
 using Xunit;
 using Xunit.Abstractions;
 using static Eu.EDelivery.AS4.PerformanceTests.Properties.Resources;
@@ -18,7 +17,10 @@ namespace Eu.EDelivery.AS4.PerformanceTests.LargeMessages
         /// </summary>
         /// <param name="fixture">The fixture.</param>
         /// <param name="outputHelper"></param>
-        public LargeMessagesTestFromC2ToC3(CornersFixture fixture, ITestOutputHelper outputHelper) : base(fixture, outputHelper)
+        public LargeMessagesTestFromC2ToC3(
+            CornersFixture fixture, 
+            ITestOutputHelper outputHelper) 
+                : base(fixture, outputHelper)
         {
             _outputHelper = outputHelper;
         }
