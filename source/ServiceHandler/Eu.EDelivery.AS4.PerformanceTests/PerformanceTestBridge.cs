@@ -26,8 +26,8 @@ namespace Eu.EDelivery.AS4.PerformanceTests
             Corner2 = fixture.Corner2;
             Corner3 = fixture.Corner3;
 
-            Corner2.CleanupMessages();
-            Corner3.CleanupMessages();
+            Corner2.TryCleanupMessages();
+            Corner3.TryCleanupMessages();
 
             Corner2.Start();
             Corner3.Start();

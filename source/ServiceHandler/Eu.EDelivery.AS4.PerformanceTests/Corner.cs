@@ -50,8 +50,6 @@ namespace Eu.EDelivery.AS4.PerformanceTests
         /// <param name="messageContents">Content of the message to send.</param>
         public void PlaceMessages(int messageCount, string messageContents)
         {
-            Console.WriteLine($@"Placing {messageCount} submit messages...");
-
             for (var i = 0; i < messageCount; i++)
             {
                 string id = Guid.NewGuid().ToString();
@@ -165,7 +163,7 @@ namespace Eu.EDelivery.AS4.PerformanceTests
         /// <summary>
         /// Cleanup the delivered messages from the Corner's deliver directory.
         /// </summary>
-        public void CleanupMessages()
+        public void TryCleanupMessages()
         {
             CleanupDirectory(GetDirectory("messages", "in"));
             CleanupDirectory(GetDirectory("messages", "out"));
@@ -183,7 +181,28 @@ namespace Eu.EDelivery.AS4.PerformanceTests
 
             foreach (FileInfo deliveredMessage in messageDirectory.GetFiles())
             {
-                deliveredMessage.Delete();
+                TryNTimes(retryCount: 10, retryAction: deliveredMessage.Delete);
+            }
+        }
+
+        private static void TryNTimes(int retryCount, Action retryAction)
+        {
+            var count = 0;
+
+            while (count < retryCount)
+            {
+                try
+                {
+                    retryAction();
+                    return;
+                }
+                catch (Exception exception)
+                {
+                    Console.WriteLine(exception);
+                    count++;
+
+                    Thread.Sleep(TimeSpan.FromSeconds(3));
+                }
             }
         }
 
