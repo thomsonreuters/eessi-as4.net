@@ -205,7 +205,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         {
             using (var ctx = new DatastoreContext(config))
             {
-                ctx.NativeCommands.CreateDatabase().Wait();
+                ctx.NativeCommands.CreateDatabase().GetAwaiter().GetResult();
             }
         }
 
