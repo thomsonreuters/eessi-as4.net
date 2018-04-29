@@ -28,7 +28,7 @@ namespace Eu.EDelivery.AS4.PerformanceTests.Volume
             _outputHelper = outputHelper;
         }
 
-        [Fact(Skip = "Not yet deterministic")]
+        [Fact]
         public void TestSendingHundredMessages()
         {
             // Arrange

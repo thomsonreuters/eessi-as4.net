@@ -78,7 +78,7 @@ namespace Eu.EDelivery.AS4.PerformanceTests
             PollingForMessages(
                 predicate: () =>
                 {
-                    int deliveredCount = corner.CountDeliveredMessages();
+                    int deliveredCount = corner.CountDeliveredMessages(searchPattern: "*.xml");
                     _outputHelper.WriteLine($"Poll while: (Expected Delivered: {messageCount}) <= (Actual Delivered: {deliveredCount})");
                     return messageCount <= deliveredCount;
                 }, 
