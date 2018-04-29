@@ -61,7 +61,7 @@ namespace Eu.EDelivery.AS4.PerformanceTests.Volume
             }
         }
 
-        [Theory(Skip = "Not yet deterministic")]
+        [Theory]
         [InlineData(100, 60)]
         public void MeasureSubmitAndDeliverMessages(int messageCount, int maxExecutionTimeInSeconds)
         {
@@ -86,7 +86,7 @@ namespace Eu.EDelivery.AS4.PerformanceTests.Volume
                 _outputHelper.WriteLine($"Number of receipts received at C2: {Corner2.CountReceivedReceipts()}");
             }
 
-            Assert.True(allMessagesDelivered, $"Not all messages were delivered in the specified timeframe ({maxExecutionTime:g})");
+            Assert.True(allMessagesDelivered, $"Not all messages were delivered in the specified timeframe ({sw.Elapsed:g} > {maxExecutionTime:g})");
 
             _outputHelper.WriteLine($"It took {sw.Elapsed:g} to submit and deliver {messageCount} messages.");
         }
