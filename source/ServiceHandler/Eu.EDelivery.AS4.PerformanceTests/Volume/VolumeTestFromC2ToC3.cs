@@ -28,7 +28,7 @@ namespace Eu.EDelivery.AS4.PerformanceTests.Volume
             _outputHelper = outputHelper;
         }
 
-        [Fact]
+        [Fact(Skip = "Not yet deterministic")]
         public void TestSendingHundredMessages()
         {
             // Arrange
@@ -61,7 +61,7 @@ namespace Eu.EDelivery.AS4.PerformanceTests.Volume
             }
         }
 
-        [Theory]
+        [Theory(Skip = "Not yet deterministic")]
         [InlineData(100, 60)]
         public void MeasureSubmitAndDeliverMessages(int messageCount, int maxExecutionTimeInSeconds)
         {
