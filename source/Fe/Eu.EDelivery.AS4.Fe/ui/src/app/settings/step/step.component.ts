@@ -8,7 +8,7 @@ import { DialogService } from './../../common/dialog.service';
 @Component({
   selector: 'as4-step-settings',
   templateUrl: './step.component.html',
-  // styleUrls: ['./step.component.scss'],
+  styleUrls: ['./step.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class StepSettingsComponent {
