@@ -10,6 +10,7 @@
     "author": "AS4",
     "license": "MIT",
     "scripts": {
+        "backend": "powershell start-process ..\\..\\..\\..\\output\\Eu.EDelivery.AS4.ServiceHandler.ConsoleHost.exe",
         "build:aot:prod": "npm run clean:dist && npm run clean:aot && webpack --config config/webpack.prod.js  --progress --profile --bail",
         "build:aot": "npm run build:aot:prod",
         "build:dev": "npm run clean:dist && webpack --config config/webpack.dev.js --progress --profile",
@@ -52,7 +53,7 @@
         "start": "npm run server:dev",
         "test": "karma start --browsers Chrome",
         "test:ci": "karma start --browsers PhantomJS",
-        "test:cy": "start-server-and-test server:dev http-get://localhost:4000 cy:run",
+        "test:cy": "npm run backend && start-server-and-test server:dev http-get://localhost:4000 cy:run",
         "tslint": "tslint",
         "typedoc": "typedoc",
         "version": "npm run build",
