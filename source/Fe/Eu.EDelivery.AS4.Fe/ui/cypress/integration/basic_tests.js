@@ -37,7 +37,7 @@ describe('page smoke tests', () => {
         cy.fixture('login').then((json) => cy.login(json.username, json.password))
     })
 
-    it('go to all pages', () => {
+    it('go through all pages', () => {
         cy.fixture('pages').then((json) => {
             json.pages.forEach((page) => {
                 cy.log(`go to ${page.title}`)
