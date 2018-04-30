@@ -10,7 +10,7 @@
     "author": "AS4",
     "license": "MIT",
     "scripts": {
-        "backend": "cd ..\\..\\..\\..\\output && mkdir .\\config\\receive-pmodes && powershell start-process .\\Eu.EDelivery.AS4.ServiceHandler.ConsoleHost.exe && cd ..\\source\\Fe\\Eu.EDelivery.AS4.Fe\\ui",
+        "backend": "cd ..\\..\\..\\..\\output && mkdir -p .\\config\\receive-pmodes && powershell start-process .\\Eu.EDelivery.AS4.ServiceHandler.ConsoleHost.exe && cd ..\\source\\Fe\\Eu.EDelivery.AS4.Fe\\ui",
         "build:aot:prod": "npm run clean:dist && npm run clean:aot && webpack --config config/webpack.prod.js  --progress --profile --bail",
         "build:aot": "npm run build:aot:prod",
         "build:dev": "npm run clean:dist && webpack --config config/webpack.dev.js --progress --profile",
