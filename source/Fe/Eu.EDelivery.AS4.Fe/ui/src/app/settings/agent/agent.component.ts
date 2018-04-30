@@ -145,15 +145,15 @@ export class AgentSettingsComponent implements OnDestroy, CanComponentDeactivate
           } else {
             newAgent = new SettingsAgent();
 
-            Observable.combineLatest(this.defaultTransFormers$, this.normalSteps$)
+            Observable.combineLatest(this.defaultTransFormers$, this.normalSteps$, this.errorSteps$.defaultIfEmpty([]))
               .take(1)
-              .subscribe(([transformer, steps]) => {
+              .subscribe(([transformer, normalSteps, errorSteps]) => {
                 newAgent.stepConfiguration = new Steps();
                 newAgent.transformer = new Transformer();
                 newAgent.transformer.type = transformer.defaultTransformer.technicalName;
 
-                newAgent.stepConfiguration.normalPipeline = steps.map((itemType) => itemTypeToStep(itemType));
-                newAgent.stepConfiguration.errorPipeline = steps.map((itemType) => itemTypeToStep(itemType));
+                newAgent.stepConfiguration.normalPipeline = normalSteps.map((itemType) => itemTypeToStep(itemType));
+                newAgent.stepConfiguration.errorPipeline = errorSteps.map((itemType) => itemTypeToStep(itemType));
 
                 setupCurrent(newAgent);
               });

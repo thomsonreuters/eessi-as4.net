@@ -12,7 +12,6 @@ import { SettingForm } from './../../api/SettingForm';
                 <as4-runtime-setting [control]="setting" [controlSize]="controlSize" [labelSize]="labelSize" [runtimeType]="selectedType | getvalue:setting.value.key"></as4-runtime-setting>
             </div>
           </div>
-          <p>{{form.value | json}}</p>
     `,
   changeDetection: ChangeDetectionStrategy.OnPush
 })
