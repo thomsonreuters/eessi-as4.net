@@ -9,11 +9,11 @@ import { PMODECRUD_SERVICE } from './../crud/crud.component';
 @Component({
     selector: 'as4-pmode-select, [as4-pmode-select]',
     template: `
-        <select class="form-control" (change)="selectPmode($event.target.value)" [attr.disabled]="!isDisabled ? null : true" *ngIf="!multi">
+        <select class="form-control" data-cy="pmodes" (change)="selectPmode($event.target.value)" [attr.disabled]="!isDisabled ? null : true" *ngIf="!multi">
             <option value="null">None</option>
             <option *ngFor="let pmode of pmodes" [selected]="pmode === selectedPmode">{{pmode}}</option>
         </select>
-        <select class="form-control" [ngModel]="selectedPmode" (ngModelChange)="selectPmode($event)" [attr.disabled]="!isDisabled ? null : true" multiselect="false" *ngIf="multi">
+        <select class="form-control" data-cy="pmodes" [ngModel]="selectedPmode" (ngModelChange)="selectPmode($event)" [attr.disabled]="!isDisabled ? null : true" multiselect="false" *ngIf="multi">
             <option *ngFor="let pmode of pmodes">{{pmode}}</option>
         </select>
     `,

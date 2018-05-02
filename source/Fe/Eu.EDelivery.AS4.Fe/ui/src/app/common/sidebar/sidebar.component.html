@@ -7,13 +7,13 @@
         <ul class="sidebar-menu">
             <ng-container *ngFor="let route of routes">
                 <li *ngIf="!!!route.children" routerLinkActive="active">
-                    <a routerLink="/{{route.path}}">
+                    <a [attr.data-cy]="route.data.title" routerLink="/{{route.path}}">
                         <i class="fa fa-fw {{!!route.data.icon ? route.data.icon : 'fa-book'}}"></i>
                         <span>{{route.data.title}}</span>
                     </a>
                 </li>
                 <li class="treeview" *ngIf="!!(route && route.children && (route.children.length > 0))" routerLinkActive="active">
-                    <a href="#">
+                    <a [attr.data-cy]="route.data.title" href="#">
                         <i class="fa {{!!route.data.icon ? route.data.icon : 'fa-table'}}"></i>
                         <span>{{route.data.title}}</span>
                         <span class="pull-right-container">
@@ -23,18 +23,26 @@
                     <ng-container *ngIf="!!route.children">
                         <ul class="treeview-menu">
                             <ng-container *ngFor="let childRoute of route.children">
-                                <li *ngIf="childRoute.children?.length === null && childRoute.data && childRoute.data.title !== undefined && !!!childRoute.data.nomenu"
-                                    routerLinkActive="active"><a routerLink="/{{route.path}}/{{childRoute.path}}"><i class="fa fa-fw {{childRoute.data.icon ? childRoute.data.icon : 'fa-adjust'}}"></i>{{childRoute.data.title}}</a></li>
+                                <li *ngIf="childRoute.children?.length === null && childRoute.data && childRoute.data.title !== undefined && !!!childRoute.data.nomenu" routerLinkActive="active">
+                                    <a [attr.data-cy]="childRoute.data.title" routerLink="/{{route.path}}/{{childRoute.path}}">
+                                        <i class="fa fa-fw {{childRoute.data.icon ? childRoute.data.icon : 'fa-adjust'}}"></i> {{childRoute.data.title}}
+                                    </a>
+                                </li>
                                 <li *ngIf="childRoute.children?.length !== null" routerLinkActive="active">
-                                    <a href="#">
-                                        <i class="fa fa-fw {{!!childRoute.data.icon ? childRoute.data.icon : 'fa-book'}}"></i><span>{{childRoute.data.title}}</span>
+                                    <a [attr.data-cy]="childRoute.data.title" href="#">
+                                        <i class="fa fa-fw {{!!childRoute.data.icon ? childRoute.data.icon : 'fa-book'}}"></i>
+                                        <span>{{childRoute.data.title}}</span>
                                         <span class="pull-right-container">
                                             <i class="fa fa-fw fa-angle-left pull-right"></i>
                                         </span>
                                     </a>
                                     <ul class="treeview-menu">
                                         <ng-container *ngFor="let subRoute of childRoute.children">
-                                            <li *ngIf="subRoute.data && subRoute.data.title !== undefined && !!!subRoute.data.nomenu" routerLinkActive="active"><a routerLink="/{{route.path}}/{{childRoute.path}}/{{subRoute.path}}"><i class="fa fa-fw {{subRoute.data.icon ? subRoute.data.icon : 'fa-adjust'}}"></i>{{subRoute.data.title}}</a></li>
+                                            <li *ngIf="subRoute.data && subRoute.data.title !== undefined && !!!subRoute.data.nomenu" routerLinkActive="active">
+                                                <a [attr.data-cy]="subRoute.data.title" routerLink="/{{route.path}}/{{childRoute.path}}/{{subRoute.path}}">
+                                                    <i class="fa fa-fw {{subRoute.data.icon ? subRoute.data.icon : 'fa-adjust'}}"></i> {{subRoute.data.title}}
+                                                </a>
+                                            </li>
                                         </ng-container>
                                     </ul>
                                 </li>

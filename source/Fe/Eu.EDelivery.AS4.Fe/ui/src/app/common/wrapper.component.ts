@@ -9,7 +9,7 @@ import { Subscription } from 'rxjs/Subscription';
         <as4-sidebar></as4-sidebar>
         <section class="content-wrapper">
             <section class="content-header">
-                <h2>{{breadCrumb}}</h2>
+                <h2 data-cy="header">{{breadCrumb}}</h2>
             </section>
             <section class="content">
                 <router-outlet></router-outlet>

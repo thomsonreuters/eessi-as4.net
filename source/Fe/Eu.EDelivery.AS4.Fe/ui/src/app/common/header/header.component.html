@@ -1,7 +1,7 @@
 <header class="main-header" *ngIf="isLoggedIn">
     <div href="index2.html" class="logo">
-        <img src="assets/img/logo.png" alt="AS4.net" class="img-responsive"/>
-        <img src="assets/img/logo_small.png" alt="AS4.net" class="on-collapse"/>
+        <img src="assets/img/logo.png" alt="AS4.net" class="img-responsive" />
+        <img src="assets/img/logo_small.png" alt="AS4.net" class="on-collapse" />
     </div>
     <nav class="navbar navbar-static-top">
         <a href="#" class="sidebar-toggle" data-toggle="offcanvas" role="button">
@@ -11,7 +11,7 @@
         <div class="navbar-custom-menu">
             <ul class="nav navbar-nav">
                 <li class="user user-menu">
-                    <a (click)="logout()"><i class="fa fa-sign-out clickable" alt="Logout"></i></a>
+                    <a data-cy="logout" (click)="logout()"><i class="fa fa-sign-out clickable" alt="Logout"></i></a>
                 </li>
             </ul>
         </div>

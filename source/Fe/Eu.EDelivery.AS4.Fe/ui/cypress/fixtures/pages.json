@@ -1,0 +1,22 @@
+{
+    "pages": [
+        { "url": "/submit", "title": "Submit Agents" },
+        { "url": "/smpconfiguration", "title": "Smp configuration" },
+        { "url": "/test", "title": "Test" },
+        { "url": "/users", "title": "Users" },
+        { "url": "/receive/push", "show": "Receive Agents", "title": "Push Receive Agents" },
+        { "url": "/receive/pull", "title": "Pull Receive Agents" },
+        { "url": "/pmodes/receiving", "show": "PModes", "title": "Receiving PMode" },
+        { "url": "/pmodes/sending", "title": "Sending PMode" },
+        { "url": "/settings/portal", "show": "Settings", "title": "Portal settings" },
+        { "url": "/settings/runtime", "title": "Runtime settings" },
+        { "url": "/settings/agents/outboundprocessing", "show": "Internal Agents", "title": "Outbound processing" },
+        { "url": "/settings/agents/send", "title": "Send" },
+        { "url": "/settings/agents/deliver", "title": "Deliver" },
+        { "url": "/settings/agents/notify", "title": "Notify" },
+        { "url": "/settings/agents/receptionawareness", "title": "Reception awareness" },
+        { "url": "/settings/agents/pullsend", "title": "Pull send" },
+        { "url": "/monitor/messages", "show": "Monitor", "title": "Messages" },
+        { "url": "/monitor/exceptions", "title": "Exceptions" }
+    ]
+}

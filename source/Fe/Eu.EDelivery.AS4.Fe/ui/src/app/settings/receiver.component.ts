@@ -8,7 +8,7 @@ import { SettingForm } from './../api/SettingForm';
   template: `
         <div [formGroup]="group">
             <as4-input [label]="'Type'">
-                <select class="form-control" formControlName="type" (change)="receiverChanged($event.target.value)" #type required>
+                <select class="form-control" formControlName="type" data-cy="receivers" (change)="receiverChanged($event.target.value)" #type required>
                     <option *ngFor="let receiver of receivers" [value]="receiver.technicalName">{{receiver.name}}</option>
                 </select>
             </as4-input>
@@ -23,7 +23,7 @@ export class ReceiverComponent {
 
   public currentReceiver: ItemType | undefined;
 
-  constructor(private formBuilder: FormBuilder) {}
+  constructor(private formBuilder: FormBuilder) { }
 
   public receiverChanged(value: string) {
     this.currentReceiver = this.receivers.find((receiver) => receiver.technicalName === value);

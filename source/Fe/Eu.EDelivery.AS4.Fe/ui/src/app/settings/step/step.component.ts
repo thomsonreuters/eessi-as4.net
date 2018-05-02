@@ -27,7 +27,7 @@ export class StepSettingsComponent {
     this._ngZone.run(() => {
       this.group.markAsDirty();
     });
-  };
+  }
 
   public addStep() {
     this.group.push(StepForm.getForm(this.formBuilder, null));

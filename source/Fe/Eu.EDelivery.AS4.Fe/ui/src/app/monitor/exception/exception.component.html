@@ -38,13 +38,13 @@
                     </div>
                     <div class="col-md-6 col-xs-12">
                         <as4-input label="ebMS message id" labelSize="3" controlSize="9">
-                            <input type="text" formControlName="ebmsRefToMessageId" />
+                            <input type="text" formControlName="ebmsRefToMessageId" data-cy="ebmsRefToMessageId" />
                         </as4-input>
                         <as4-input label="Insertion time" labelSize="3" controlSize="9">
                             <as4-timeinput [input]="exceptionFilterForm" type="insertionTimeType" from="insertionTimeFrom" to="insertionTimeTo"></as4-timeinput>
                         </as4-input>
                         <as4-input [showLabel]="false" controlSize="12">
-                            <button type="submit" [disabled]="!exceptionFilterForm.valid" (click)="search()" class="btn btn-default pull-right"><i class="fa fa-search"></i></button>
+                            <button type="submit" data-cy="search" [disabled]="!exceptionFilterForm.valid" (click)="search()" class="btn btn-default pull-right"><i class="fa fa-search"></i></button>
                         </as4-input>
                     </div>
                 </div>
@@ -54,8 +54,7 @@
 </as4-box>
 <as4-box title="Messages">
     <div content *ngIf="messages | async as messageData">
-        <div class="col-xs-12" as4-pager [pages]="messageData.pages" [pageTotal]="messageData.messages.length" [total]="messageData.total"
-            [page]="messageData.page" (onChangePage)="filter.filter.page = $event; filter.search()"></div>
+        <div class="col-xs-12" as4-pager [pages]="messageData.pages" [pageTotal]="messageData.messages.length" [total]="messageData.total" [page]="messageData.page" (onChangePage)="filter.filter.page = $event; filter.search()"></div>
         <table class="table table-striped">
             <colgroup>
                 <col width="1%">
@@ -83,8 +82,7 @@
                 <ng-container *ngFor="let message of messageData.messages; let i = index">
                     <tr *ngIf="messageData.messages.length > 0">
                         <td>
-                            <i class="fa clickable" [class.fa-chevron-right]="message !== activeMessage" [class.fa-chevron-down]="message === activeMessage"
-                                (click)="toggle(message)"></i>
+                            <i class="fa clickable" [class.fa-chevron-right]="message !== activeMessage" [class.fa-chevron-down]="message === activeMessage" (click)="toggle(message)"></i>
                         </td>
                         <td>
                             <as4-downloadmessagebody *ngIf="message.hasMessageBody" [type]="'exception'" tooltip="Download original message body" [direction]="message.direction" [id]="message.id" [name]="message.ebmsRefToMessageId"></as4-downloadmessagebody>
@@ -124,7 +122,6 @@
                 </tr>
             </tbody>
         </table>
-        <div class="col-xs-12" as4-pager [pages]="messageData.pages" [pageTotal]="messageData.messages.length" [total]="messageData.total"
-            [page]="messageData.page" (onChangePage)="filter.filter.page = $event; filter.search()"></div>
+        <div class="col-xs-12" as4-pager [pages]="messageData.pages" [pageTotal]="messageData.messages.length" [total]="messageData.total" [page]="messageData.page" (onChangePage)="filter.filter.page = $event; filter.search()"></div>
     </div>
 </as4-box>

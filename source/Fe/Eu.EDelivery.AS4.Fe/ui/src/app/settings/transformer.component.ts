@@ -8,7 +8,7 @@ import { SettingForm } from './../api/SettingForm';
   template: `
         <div [formGroup]="group">
             <as4-input [label]="'Type'">
-                <select class="form-control" formControlName="type" (change)="transformerChanged($event.target.value)" #type required>
+                <select class="form-control" formControlName="type" data-cy="transformers" (change)="transformerChanged($event.target.value)" #type required>
                     <option *ngFor="let type of types" [value]="type.technicalName">{{type.name}}</option>
                 </select>
             </as4-input>
@@ -21,7 +21,7 @@ export class TransformerComponent {
   @Input() public group: FormGroup;
   @Input() public types: ItemType[];
 
-  constructor(private formBuilder: FormBuilder) {}
+  constructor(private formBuilder: FormBuilder) { }
 
   public transformerChanged(value: string) {
     const currentTransformer = this.types.find((transformer) => transformer.technicalName === value);

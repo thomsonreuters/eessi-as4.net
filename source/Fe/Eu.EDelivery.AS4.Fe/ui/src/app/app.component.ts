@@ -24,7 +24,7 @@ import '../theme/js/app.js';
         </as4-modal>
         <as4-modal name="error" showDefaultButtons="false" #errorDialog>
             <div *ngIf="isShowDetails && !!errorDialog.payload" [class.stack-trace]="isShowDetails">
-                <h4>Stack trace</h4>
+                <h4>Stack trace</h4>npm 
                 <i class="fa fa-clipboard clickable" [ngxClipboard]="payload" (cbOnSuccess)="tooltip.show()" as4-tooltip="Copied to clipboard" as4-tooltip-manual="true" #tooltip="as4-tooltip"></i>
                 <p #payload>{{errorDialog.payload}}</p>
             </div>

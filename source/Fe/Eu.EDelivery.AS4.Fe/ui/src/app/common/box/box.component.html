@@ -2,7 +2,7 @@
     <div class="box-header with-border" *ngIf="!!title || showTitle">
         <h3 class="box-title">{{title}}</h3>
         <div class="box-tools pull-right">
-            <button *ngIf="collapsible" type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa" [class.fa-plus]="collapsed" [class.fa-minus]="!collapsed"></i></button>
+            <button *ngIf="collapsible" type="button" data-cy="collapse" class="btn btn-box-tool" data-widget="collapse"><i class="fa" [class.fa-plus]="collapsed" [class.fa-minus]="!collapsed"></i></button>
             <ng-content select="[action]"></ng-content>
         </div>
     </div>
