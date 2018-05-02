@@ -1,54 +1,53 @@
-import { Component, Input, Output, forwardRef, OnDestroy } from '@angular/core';
-import { FormGroup, FormArray, FormBuilder } from '@angular/forms';
-import { Subscription } from 'rxjs/Subscription';
-
-import { RuntimeStore } from './runtime.store';
-import { Receiver } from './../api/Receiver';
-import { SettingForm } from './../api/SettingForm';
+import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
+import { FormBuilder, FormGroup } from '@angular/forms';
 import { ItemType } from './../api/ItemType';
+import { SettingForm } from './../api/SettingForm';
 
 @Component({
-    selector: 'as4-receiver',
-    template: `
+  selector: 'as4-receiver',
+  template: `
         <div [formGroup]="group">
             <as4-input [label]="'Type'">
-                <select class="form-control" formControlName="type" data-cy="receiver" (change)="receiverChanged($event.target.value)" #type required>
-                    <option *ngFor="let type of types" [value]="type.technicalName">{{type.name}}</option>
+                <select class="form-control" formControlName="type" data-cy="receivers" (change)="receiverChanged($event.target.value)" #type required>
+                    <option *ngFor="let receiver of receivers" [value]="receiver.technicalName">{{receiver.name}}</option>
                 </select>
             </as4-input>
-            <as4-runtime-settings [form]="group.get('setting')" labelSize="3" controlSize="6" [types]="types" [itemType]="group.controls['type'].value"></as4-runtime-settings>      
+            <as4-runtime-settings [form]="group.get('setting')" labelSize="3" controlSize="6" [types]="receivers" [itemType]="group.controls['type'].value"></as4-runtime-settings>
         </div>
-    `
+    `,
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ReceiverComponent implements OnDestroy {
-    @Input() public group: FormGroup;
-    public types: ItemType[];
-    public currentReceiver: ItemType | undefined;
-    private _runtimeStoreSubscription: Subscription;
-    constructor(private runtimeStore: RuntimeStore, private formBuilder: FormBuilder) {
-        this._runtimeStoreSubscription = this.runtimeStore
-            .changes
-            .filter((result) => result != null)
-            .subscribe((result) => this.types = result.receivers);
-    }
-    public receiverChanged(value: string) {
-        this.currentReceiver = this.types.find((receiver) => receiver.technicalName === value);
-        this.group.removeControl('setting');
+export class ReceiverComponent {
+  @Input() public group: FormGroup;
+  @Input() public receivers: ItemType[];
 
-        if (!!!this.currentReceiver || !!!this.currentReceiver.properties) {
-            return;
-        }
+  public currentReceiver: ItemType | undefined;
 
-        this.group
-            .addControl('setting', this.formBuilder.array(this.currentReceiver
-                .properties
-                .map((prop) => SettingForm.getForm(this.formBuilder, {
-                    key: prop.technicalName,
-                    value: prop.defaultValue,
-                    attributes: prop.attributes
-                }, prop.required))));
+  constructor(private formBuilder: FormBuilder) { }
+
+  public receiverChanged(value: string) {
+    this.currentReceiver = this.receivers.find((receiver) => receiver.technicalName === value);
+    this.group.removeControl('setting');
+
+    if (!this.currentReceiver || !this.currentReceiver.properties) {
+      return;
     }
-    public ngOnDestroy() {
-        this._runtimeStoreSubscription.unsubscribe();
-    }
+
+    this.group.addControl(
+      'setting',
+      this.formBuilder.array(
+        this.currentReceiver.properties.map((prop) =>
+          SettingForm.getForm(
+            this.formBuilder,
+            {
+              key: prop.technicalName,
+              value: prop.defaultValue,
+              attributes: prop.attributes
+            },
+            prop.required
+          )
+        )
+      )
+    );
+  }
 }

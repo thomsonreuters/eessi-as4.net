@@ -1,4 +1,4 @@
-import jq from "jquery"
+import jq from 'jquery';
 
 describe('page smoke tests', () => {
     beforeEach(() => {
@@ -32,7 +32,7 @@ describe('submit agent', () => {
             cy.getdatacy('name').type(json.originalName)
             cy.getdatacy('ok').click()
             cy.getdatacy('save').click()
-            cy.getdatacy('ok').click() // Only take effect on restart
+            cy.getdatacy('ok').click() // Dialog: only takes effect on restart
             cy.getdatacy('agents').select(json.originalName)
         })
     })
@@ -44,10 +44,10 @@ describe('submit agent', () => {
             cy.get('div.modal-body input[type=text]').type(json.newName)
             cy.getdatacy('ok').click()
             cy.getdatacy('save').click()
-            cy.getdatacy('ok').click() // Only take effect on restart
+            cy.getdatacy('ok').click() // Dialog: only takes effect on restart
             cy.getdatacy('agents').select(json.newName)
             cy.getdatacy('delete').click()
-            cy.getdatacy('ok').click() // Are you sure?
+            cy.getdatacy('ok').click() // Dialog: are you sure?
             cy.getdatacy(json.newName).should('not.exist')
         })
     })
@@ -74,7 +74,7 @@ describe('send pmodes', () => {
             cy.getdatacy('save').click()
             cy.getdatacy('pmodes').select(json.newName)
             cy.getdatacy('delete').click()
-            cy.getdatacy('ok').click() // Are you sure?
+            cy.getdatacy('ok').click() // Dialog: are you sure?
             cy.getdatacy(json.originalName).should('not.exist')
         })
     })

@@ -198,7 +198,8 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
             string pmodeId = pullReceiveAgent.Receiver.Setting.First().Key;
 
-            var pmode = _as4Msh.GetConfiguration().GetSendingPMode(pmodeId);
+            var pmode = AS4XmlSerializer.FromString<SendingProcessingMode>(
+                File.ReadAllText($@".\config\send-pmodes\{pmodeId.ToLower()}.xml"));
 
             if (pmode == null)
             {
