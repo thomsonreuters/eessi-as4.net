@@ -39,7 +39,7 @@ namespace Eu.EDelivery.AS4.Steps.Notify
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
             var notifyMessage = messagingContext.NotifyMessage;
-            Logger.Info($"{messagingContext.EbmsMessageId} Update Notify Message {notifyMessage.MessageInfo.MessageId}");
+            Logger.Info($"{messagingContext} Update Notify Message {notifyMessage.MessageInfo.MessageId}");
 
             await UpdateDatastoreAsync(notifyMessage, messagingContext).ConfigureAwait(false);
             return await StepResult.SuccessAsync(messagingContext);

@@ -64,7 +64,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
             if (selection.hasMatch)
             {
-                Logger.Info($"User Message found for Pull Request: '{messagingContext.AS4Message.GetPrimaryMessageId()}'");
+                Logger.Info($"{messagingContext} User Message found for Pull Request: '{messagingContext.AS4Message.GetPrimaryMessageId()}'");
 
                 // Retrieve the existing MessageBody and put that stream in the MessagingContext.
                 // The HttpReceiver processor will make sure that it gets serialized to the http response stream.

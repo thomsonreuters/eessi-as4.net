@@ -44,7 +44,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
             if (Logger.IsInfoEnabled && receiptMessage.MessageUnits.Any())
             {
-                Logger.Info("Receipt message has been created for received AS4 UserMessages.");
+                Logger.Info($"{messagingContext} Receipt message has been created for received AS4 UserMessages.");
             }
 
             messagingContext.ModifyContext(receiptMessage);
@@ -62,17 +62,14 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 if (receivedAS4Message.IsSigned)
                 {
                     Logger.Debug(
-                        $"[{receivedAS4Message.GetPrimaryMessageId()}] "
-                        + $"Use Non-Repudiation for Receipt {receipt.MessageId} Creation");
+                        $"{messagingContext} Use Non-Repudiation for Receipt {receipt.MessageId} Creation");
 
                     receipt.NonRepudiationInformation = GetNonRepudiationInformationFrom(receivedAS4Message);
                 }
                 else
                 {
-                    Logger.Warn(
-                        $"[{receivedAS4Message.GetPrimaryMessageId()}] "
-                        + $"Receiving PMode ({messagingContext.ReceivingPMode?.Id}) is configured to reply with Non-Repudation Receipts,"
-                        + "but incoming UserMessage isn't signed.");
+                    Logger.Warn($"{messagingContext} Receiving PMode ({messagingContext.ReceivingPMode?.Id}) "
+                                + "is configured to reply with Non-Repudation Receipts, but incoming UserMessage isn't signed.");
 
                     receipt.UserMessage = receivedAS4Message.PrimaryUserMessage;
                 }
@@ -86,8 +83,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             if (receivedAS4Message.IsMultiHopMessage)
             {
                 Logger.Debug(
-                    $"[{receivedAS4Message.GetPrimaryMessageId()}] " +
-                    "The received UserMessage has been sent via MultiHop. Send Receipt as MultiHop as well.");
+                    $"{messagingContext} The received UserMessage has been sent via MultiHop. Send Receipt as MultiHop as well.");
 
                 receipt.MultiHopRouting = 
                     AS4Mapper.Map<RoutingInputUserMessage>(receivedAS4Message.PrimaryUserMessage);

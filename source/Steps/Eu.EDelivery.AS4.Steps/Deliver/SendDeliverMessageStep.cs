@@ -44,8 +44,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
             Logger.Info(
-                $"[{messagingContext.DeliverMessage?.MessageInfo?.MessageId}]" +
-                " Start sending the Deliver Message to the consuming Business Application");
+                $"{messagingContext}] Start sending the Deliver Message to the consuming Business Application");
 
             if (messagingContext.ReceivingPMode == null)
             {

@@ -1,4 +1,5 @@
-﻿using Eu.EDelivery.AS4.Model.Internal;
+﻿using System;
+using Eu.EDelivery.AS4.Model.Internal;
 
 namespace Eu.EDelivery.AS4.Agents
 {
@@ -21,6 +22,8 @@ namespace Eu.EDelivery.AS4.Agents
         /// </summary>
         /// <value>The name.</value>
         public string Name { get; }
+
+        public MessagingContextMode Mode { get; internal set; }
 
         /// <summary>
         /// Gets the type.

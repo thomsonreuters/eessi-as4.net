@@ -61,7 +61,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
             ValidateSubmitMessage(messagingContext.SubmitMessage);
 
             UserMessage userMessage = CreateUserMessage(messagingContext);
-            Logger.Info($"UserMessage with Id {userMessage.MessageId} created from Submit Message");
+            Logger.Info($"{messagingContext} UserMessage with Id {userMessage.MessageId} created from Submit Message");
 
             return AS4Message.Create(userMessage, messagingContext.SendingPMode);
         }
@@ -71,7 +71,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
             SubmitValidator
                 .Validate(submitMessage)
                 .Result(
-                    result => Logger.Debug($"Submit Message {submitMessage.MessageInfo.MessageId} is valid"),
+                    result => Logger.Trace($"Submit Message {submitMessage.MessageInfo.MessageId} is valid"),
                     result =>
                     {
                         result.LogErrors(Logger);
@@ -90,7 +90,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
 
         private static UserMessage CreateUserMessage(MessagingContext messagingContext)
         {
-            Logger.Debug("Create UserMessage for Submit Message");
+            Logger.Trace("Create UserMessage for Submit Message");
             return AS4Mapper.Map<UserMessage>(messagingContext.SubmitMessage);
         }
 
@@ -100,24 +100,24 @@ namespace Eu.EDelivery.AS4.Steps.Submit
             {
                 if (context.SubmitMessage.HasPayloads)
                 {
-                    Logger.Info($"{context.EbmsMessageId} Retrieve Submit Message Payloads");
+                    Logger.Trace($"{context} Retrieve Submit Message Payloads");
 
                     await as4Message.AddAttachments(
                         context.SubmitMessage.Payloads,
                         async payload => await RetrieveAttachmentContent(payload).ConfigureAwait(false)).ConfigureAwait(false);
 
-                    Logger.Info($"{context.EbmsMessageId} Number of Payloads retrieved: {as4Message.Attachments.Count()}");
+                    Logger.Info($"{context} Number of Payloads retrieved: {as4Message.Attachments.Count()}");
                 }
                 else
                 {
-                    Logger.Info($"{context.EbmsMessageId} Submit Message has no Payloads to retrieve");
+                    Logger.Info($"{context} Submit Message has no Payloads to retrieve");
                 }
             }
             catch (Exception exception)
             {
                 const string description = "Failed to retrieve Submit Message Payloads";
                 Logger.Error(description);
-                Logger.Error($"{context.EbmsMessageId} {exception.Message}");
+                Logger.Error($"{context} {exception.Message}");
 
                 throw new ApplicationException(description, exception);
             }

@@ -129,20 +129,26 @@ namespace Eu.EDelivery.AS4.Model.Internal
                     return AS4Message.GetPrimaryMessageId();
                 }
 
+                if (SubmitMessage != null)
+                {
+                    return SubmitMessage.MessageInfo?.MessageId;
+                }
+
                 if (DeliverMessage != null)
                 {
-                    return DeliverMessage.MessageInfo.MessageId;
+                    return DeliverMessage.MessageInfo?.MessageId;
                 }
 
                 if (NotifyMessage != null)
                 {
-                    return NotifyMessage.MessageInfo.RefToMessageId;
+                    return NotifyMessage.MessageInfo?.RefToMessageId;
                 }
 
                 if (ReceivedMessage is ReceivedMessageEntityMessage entityMessage)
                 {
-                    return entityMessage.MessageEntity.EbmsMessageId;
+                    return entityMessage.MessageEntity?.EbmsMessageId;
                 }
+
                 if (ReceivedMessage is ReceivedEntityMessage e)
                 {
                     if (e.Entity is MessageEntity me)
@@ -171,7 +177,7 @@ namespace Eu.EDelivery.AS4.Model.Internal
 
         public ReceptionAwareness ReceptionAwareness { get; }
 
-        public MessagingContextMode Mode { get; private set; }
+        public MessagingContextMode Mode { get; set; }
 
         public Exception Exception { get; set; }
 
@@ -284,6 +290,13 @@ namespace Eu.EDelivery.AS4.Model.Internal
         {
             AS4Message?.CloseAttachments();
             ReceivedMessage?.UnderlyingStream?.Dispose();
+        }
+
+        /// <summary>Returns a string that represents the current object.</summary>
+        /// <returns>A string that represents the current object.</returns>
+        public override string ToString()
+        {
+            return $"({Mode})" + (string.IsNullOrEmpty(EbmsMessageId) ? "" : $"[{EbmsMessageId}]");
         }
     }
 

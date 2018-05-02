@@ -47,7 +47,7 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
 
             await WriteContentsToFile(location, deliverMessage.DeliverMessage).ConfigureAwait(false);
 
-            Logger.Info($"DeliverMessage {deliverMessage.MessageInfo.MessageId} is successfully Send to: {location}");
+            Logger.Info($"DeliverMessage [{deliverMessage.MessageInfo.MessageId}] is successfully Send to: {location}");
         }
 
         /// <summary>
@@ -64,7 +64,7 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
 
             await WriteContentsToFile(location, notifyMessage.NotifyMessage).ConfigureAwait(false);
 
-            Logger.Info($"NotifyMessage {notifyMessage.MessageInfo.MessageId} is successfully Send to: {location}");
+            Logger.Info($"NotifyMessage [{notifyMessage.MessageInfo.MessageId}] is successfully Send to: {location}");
         }
 
         private static void EnsureDirectory(string locationFolder)

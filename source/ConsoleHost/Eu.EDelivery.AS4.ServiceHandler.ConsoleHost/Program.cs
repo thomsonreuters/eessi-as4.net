@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -14,9 +16,24 @@ namespace Eu.EDelivery.AS4.ServiceHandler.ConsoleHost
 {
     public class Program
     {
+        private static void WriteLine(string msg)
+        {
+            var temp = Console.ForegroundColor;
+            Console.ForegroundColor = ConsoleColor.Gray;
+            Console.WriteLine(msg);
+            Console.ForegroundColor = temp;
+        }
+
         public static void Main()
         {
             Console.SetWindowSize(Console.LargestWindowWidth, Console.WindowHeight);
+
+            WriteLine("\nAS4.NET CLI v" + Assembly.GetExecutingAssembly().GetName().Version + "\n"
+                      + "\nThe following commands are available while the AS4.NET MSH is running:"
+                      + "\n c\tClears the screen"
+                      + "\n q\tQuits the application"
+                      + "\n r\tRestarts the application"
+                      + "\n");
 
             Kernel kernel = CreateKernel();
 
@@ -35,11 +52,6 @@ namespace Eu.EDelivery.AS4.ServiceHandler.ConsoleHost
 
                 do
                 {
-                    Console.WriteLine(@"The following commands are available while the AS4.NET MSH is running:");
-                    Console.WriteLine("\tc\t: Clears the screen");
-                    Console.WriteLine("\tq\t: Quits the application");
-                    Console.WriteLine("\tr\t: Restarts the application");
-
                     key = Console.ReadKey();
 
                     switch (key.Key)

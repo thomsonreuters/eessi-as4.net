@@ -145,7 +145,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             }
 
             ReceivePMode pmode = possibilities.First();
-            Logger.Info($"Use '{pmode.Id}' as Receiving PMode to process message {messagingContext.EbmsMessageId}");
+            Logger.Info($"{messagingContext} Use '{pmode.Id}' as Receiving PMode to process message");
 
             ValidationResult validationResult = ReceivingProcessingModeValidator.Instance.Validate(pmode);
 
@@ -213,7 +213,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             }
 
             string pmodeId = receivePMode.ReplyHandling.SendingPMode;
-            Logger.Info($"Referenced Sending PMode Id: {pmodeId}");
+            Logger.Debug($"Referenced Sending PMode Id: {pmodeId}");
 
             return _config.GetSendingPMode(pmodeId);
         }

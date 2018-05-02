@@ -92,7 +92,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         {
             try
             {
-                Logger.Info($"{referringUserMessage.MessageId} Start Uploading Attachment...");
+                Logger.Trace($"[{referringUserMessage.MessageId}] Start Uploading Attachment...");
 
                 UploadResult attachmentResult = 
                     await uploader.UploadAsync(attachment, referringUserMessage).ConfigureAwait(false);

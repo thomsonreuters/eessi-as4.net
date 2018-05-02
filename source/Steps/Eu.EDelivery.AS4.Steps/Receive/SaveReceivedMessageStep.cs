@@ -48,7 +48,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// <exception cref="Exception">A delegate callback throws an exception.</exception>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
-            Logger.Info($"{messagingContext.EbmsMessageId} Insert received message in datastore");
+            Logger.Info($"{messagingContext} Insert received message in datastore");
 
             if (messagingContext.ReceivedMessage == null)
             {
@@ -62,7 +62,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 if (resultContext.AS4Message.IsSignalMessage
                     && String.IsNullOrWhiteSpace(resultContext.AS4Message.PrimarySignalMessage.RefToMessageId))
                 {
-                    Logger.Info(
+                    Logger.Warn(
                         "The received message is a signal-message without RefToMessageId. " +
                         "It cannot be processed any further.");
 

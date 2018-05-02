@@ -57,7 +57,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
             if (messagingContext.SendingPMode?.Security.Signing.IsEnabled != true)
             {
-                Logger.Info($"{messagingContext.EbmsMessageId} Sending PMode {messagingContext.SendingPMode?.Id} Signing is disabled");
+                Logger.Debug($"{messagingContext} Sending PMode {messagingContext.SendingPMode?.Id} Signing is disabled");
                 return await StepResult.SuccessAsync(messagingContext);
             }
 
@@ -70,7 +70,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
         {
             try
             {
-                Logger.Info($"{context.EbmsMessageId} Sign AS4 Message with given Signing Information");
+                Logger.Info($"{context} Sign AS4 Message with given Signing Information");
                 SignAS4Message(context);
             }
             catch (Exception exception)

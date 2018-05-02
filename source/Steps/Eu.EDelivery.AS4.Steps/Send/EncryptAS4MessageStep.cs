@@ -56,7 +56,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
         private void TryEncryptAS4Message(MessagingContext messagingContext)
         {
-            Logger.Info($"{messagingContext.EbmsMessageId} Encrypt AS4 Message with given Encryption Information");
+            Logger.Info($"{messagingContext} Encrypt AS4 Message with given Encryption Information");
             try
             {
                 var encryptionSettings = messagingContext.SendingPMode.Security.Encryption;
@@ -69,7 +69,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             }
             catch (Exception exception)
             {
-                string description = $"{messagingContext.EbmsMessageId} Problems with Encrypting AS4 Message: {exception.Message}";
+                string description = $"{messagingContext} Problems with Encrypting AS4 Message: {exception.Message}";
                 Logger.Error(description);
 
                 throw new CryptographicException(description, exception);

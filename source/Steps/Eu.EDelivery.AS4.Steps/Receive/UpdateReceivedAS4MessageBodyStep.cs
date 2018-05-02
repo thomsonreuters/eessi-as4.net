@@ -45,7 +45,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
-            Logger.Info($"{messagingContext.AS4Message.GetPrimaryMessageId()} Update the received message");
+            Logger.Info($"{messagingContext} Update the received message body");
 
             using (DatastoreContext datastoreContext = _createDatastoreContext())
             {

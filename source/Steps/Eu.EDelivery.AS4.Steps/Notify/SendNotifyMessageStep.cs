@@ -66,10 +66,10 @@ namespace Eu.EDelivery.AS4.Steps.Notify
                 }
             }
 
-            Logger.Info($"{messagingContext.EbmsMessageId} Start sending Notify Message...");
+            Logger.Trace($"{messagingContext} Start sending Notify Message...");
             await SendNotifyMessage(messagingContext).ConfigureAwait(false);
 
-            Logger.Info($"{messagingContext.EbmsMessageId} Notify Message sent");
+            Logger.Info($"{messagingContext} Notify Message sent");
             return StepResult.Success(messagingContext);
         }
 

@@ -24,14 +24,14 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
-            Logger.Info($"{messagingContext.EbmsMessageId} Update AS4 UserMessages in Datastore");
+            Logger.Info($"{messagingContext} Update AS4 UserMessages in Datastore");
 
             using (DatastoreContext context = Registry.Instance.CreateDatastoreContext())
             {
                 var repository = new DatastoreRepository(context);
 
                 string messageId = messagingContext.DeliverMessage.MessageInfo.MessageId;
-                Logger.Info($"[{messageId}] Update InMessage with Delivered Status and Operation");
+                Logger.Debug($"[{messageId}] Update InMessage with Delivered Status and Operation");
 
                 repository.UpdateInMessage(messageId, inMessage =>
                 {

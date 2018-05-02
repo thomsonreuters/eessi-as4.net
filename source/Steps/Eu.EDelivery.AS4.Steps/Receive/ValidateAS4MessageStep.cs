@@ -30,7 +30,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(MessagingContext context)
         {
-            Logger.Info("Validating the received AS4 Message ...");
+            Logger.Trace("Validating the received AS4 Message ...");
 
             if (SoapBodyIsNotEmpty(context.AS4Message))
             {                
@@ -69,7 +69,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 }
             }
 
-            Logger.Info("Received AS4 Message is valid");
+            Logger.Info($"{context} Received AS4 Message is valid");
             return await StepResult.SuccessAsync(context);
         }
 
@@ -110,7 +110,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
         private static StepResult ValidationFailure(MessagingContext context)
         {
-            Logger.Error($"AS4 Message {context.AS4Message.GetPrimaryMessageId()} is not valid: {context.ErrorResult.Description}");
+            Logger.Error($"{context} AS4 Message is not valid: {context.ErrorResult.Description}");
             return StepResult.Failed(context);
         }
     }

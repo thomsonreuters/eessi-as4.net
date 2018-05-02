@@ -90,12 +90,16 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             {
                 if (!await VerifyNonRepudiationHashes(as4Message))
                 {
+                    Logger.Error($"{messagingContext} Incoming Receipt hasn't got valid NRI References");
+
                     return InvalidSignatureResult(
                         "The digest value in the Signature References of the referenced UserMessage " +
                         "doesn't match the References of the NRI of the incoming NRR Receipt",
                         ErrorAlias.FailedAuthentication,
                         messagingContext);
                 }
+
+                Logger.Debug($"{messagingContext} Incoming Receipt has valid NRI References");
             }
 
             return await TryVerifyingSignature(messagingContext).ConfigureAwait(false);
@@ -110,21 +114,14 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             IEnumerable<AS4Message> userMessages =
                 (await ReferencedUserMessagesOf(receipts)).Where(m => m != null && m.IsSigned);
 
-            if (receipts.All(nrrReceipt =>
+            return receipts.All(nrrReceipt =>
             {
-                AS4Message refUserMessage = userMessages.FirstOrDefault(u =>
-                    u.GetPrimaryMessageId() == nrrReceipt.RefToMessageId);
+                AS4Message refUserMessage = userMessages.FirstOrDefault(
+                    u => u.GetPrimaryMessageId() == nrrReceipt.RefToMessageId);
 
                 return refUserMessage == null
-                    || nrrReceipt.VerifyNonRepudiationInfo(refUserMessage);
-            }))
-            {
-                Logger.Info($"[{as4Message.GetPrimaryMessageId()}] Incoming Receipt has valid NRI References");
-                return true;
-            }
-
-            Logger.Error($"[{as4Message.GetPrimaryMessageId()}] Incoming Receipt hasn't got valid NRI References");
-            return false;
+                       || nrrReceipt.VerifyNonRepudiationInfo(refUserMessage);
+            });
         }
 
         /// <summary>
@@ -161,7 +158,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             }
             catch (CryptographicException exception)
             {
-                Logger.Error($"An exception occured while validating the signature: {exception.Message}");
+                Logger.Error($"{messagingContext} An exception occured while validating the signature: {exception.Message}");
                 return InvalidSignatureResult(exception.Message, ErrorAlias.FailedAuthentication, messagingContext);
             }
         }
@@ -178,7 +175,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 return InvalidSignatureResult(description, ErrorAlias.FailedAuthentication, messagingContext);
             }
 
-            Logger.Info($"{messagingContext.EbmsMessageId} AS4 Message has a valid Signature present");
+            Logger.Info($"{messagingContext} AS4 Message has a valid Signature present");
             return await StepResult.SuccessAsync(messagingContext);
         }
 

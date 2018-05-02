@@ -42,7 +42,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
-            Logger.Info($"[{messagingContext.AS4Message.GetPrimaryMessageId()}] Set the message's Operation = 'ToBeSent' ");
+            Logger.Info($"{messagingContext} Set the message's Operation = 'ToBeSent' ");
 
             if (messagingContext.MessageEntityId == null)
             {

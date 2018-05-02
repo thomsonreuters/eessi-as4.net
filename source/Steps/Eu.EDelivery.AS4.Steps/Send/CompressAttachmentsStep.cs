@@ -47,7 +47,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             try
             {
                 Logger.Info(
-                    $"{_messagingContext.EbmsMessageId} Compress AS4 Message Attachments with GZip Compression");
+                    $"{_messagingContext} Compress AS4 Message Attachments with GZip Compression");
 
                 message.CompressAttachments();
             }

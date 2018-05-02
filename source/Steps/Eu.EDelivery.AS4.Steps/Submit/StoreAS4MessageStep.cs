@@ -53,7 +53,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
-            Logger.Info($"[{messagingContext.AS4Message.GetPrimaryMessageId()}] Storing the AS4 Message with Operation = 'ToBeProcessed'");
+            Logger.Info($"{messagingContext} Storing the AS4 Message with Operation = 'ToBeProcessed'");
 
             using (DatastoreContext context = _createContext())
             {
@@ -72,7 +72,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
                 }
             }
 
-            Logger.Info($"[{messagingContext.AS4Message.GetPrimaryMessageId()}] Stored the AS4 Message");
+            Logger.Info($"{messagingContext} Stored the AS4 Message");
 
             return await StepResult.SuccessAsync(messagingContext);
         }

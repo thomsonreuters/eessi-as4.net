@@ -73,9 +73,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                         ? "Receipt"
                         : "Error";
 
-                Logger.Info(
-                    $"{messagingContext.EbmsMessageId} " +
-                    $"{signalMessageType} will be written to Response-Stream.");
+                Logger.Info($"{messagingContext} {signalMessageType} will be written to Response-Stream");
             }
 
             return StepResult.Success(messagingContext);
@@ -88,7 +86,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
         private static StepResult CreateEmptySoapResult(MessagingContext messagingContext)
         {
-            Logger.Info($"{messagingContext.EbmsMessageId} Empty Accepted response will be send to requested party since signal will be sent async.");
+            Logger.Info($"{messagingContext} Empty Accepted response will be send to requested party since signal will be sent async");
 
             return StepResult.Success(
                 new MessagingContext(

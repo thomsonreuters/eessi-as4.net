@@ -58,7 +58,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
             AddDefaultAS4Message(messagingContext);
-            Logger.Info($"{messagingContext.EbmsMessageId} Default AS4 Message is created");
+            Logger.Info($"{messagingContext} Default AS4 Message is created");
 
             return await StepResult.SuccessAsync(messagingContext);
         }

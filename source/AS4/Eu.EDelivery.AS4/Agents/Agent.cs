@@ -23,35 +23,27 @@ namespace Eu.EDelivery.AS4.Agents
         private readonly (ConditionalStepConfig happyPath, ConditionalStepConfig unhappyPath) _conditionalPipeline;
         private readonly StepConfiguration _stepConfiguration;
 
-        private Agent(
-            string name,
-            IReceiver receiver,
-            Transformer transformerConfig,
-            IAgentExceptionHandler exceptionHandler)
-        {
-            _receiver = receiver;
-            _transformerConfig = transformerConfig;
-            _exceptionHandler = exceptionHandler;
-
-            AgentConfig = new AgentConfig(name);
-        }
-
         /// <summary>
         /// Initializes a new instance of the <see cref="Agent"/> class.
         /// </summary>
-        /// <param name="name">The name.</param>
+        /// <param name="config"></param>
         /// <param name="receiver">The receiver.</param>
         /// <param name="transformerConfig">The transformer configuration.</param>
         /// <param name="exceptionHandler">The exception handler.</param>
         /// <param name="stepConfiguration">The step configuration.</param>
         internal Agent(
-            string name,
+            AgentConfig config,
             IReceiver receiver,
             Transformer transformerConfig,
             IAgentExceptionHandler exceptionHandler,
-            StepConfiguration stepConfiguration) : this(name, receiver, transformerConfig, exceptionHandler)
+            StepConfiguration stepConfiguration)
         {
+            _receiver = receiver;
+            _transformerConfig = transformerConfig;
+            _exceptionHandler = exceptionHandler;
+
             _stepConfiguration = stepConfiguration;
+            AgentConfig = config;
         }
 
         [ExcludeFromCodeCoverage]
@@ -79,7 +71,7 @@ namespace Eu.EDelivery.AS4.Agents
         /// <returns></returns>
         public Task Start(CancellationToken cancellation)
         {
-            Logger.Debug($"Start {AgentConfig.Name}...");
+            Logger.Trace($"Start {AgentConfig.Name}...");
             cancellation.Register(Stop);
 
             Task task = Task.Factory.StartNew(
@@ -98,6 +90,7 @@ namespace Eu.EDelivery.AS4.Agents
             {
                 ITransformer transformer = TransformerBuilder.FromTransformerConfig(_transformerConfig);
                 context = await transformer.TransformAsync(message);
+                context.Mode = AgentConfig.Mode;
             }
             catch (Exception exception)
             {

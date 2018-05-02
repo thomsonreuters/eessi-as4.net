@@ -104,7 +104,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             catch (Exception exception)
             {
                 Logger.Error(
-                    $"{messagingContext.EbmsMessageId} An error occured while trying to send the message: {exception.Message}");
+                    $"{messagingContext} An error occured while trying to send the message: {exception.Message}");
                 Logger.Trace(exception.StackTrace);
 
                 if (exception.InnerException != null)
@@ -122,7 +122,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
         private HttpWebRequest CreateWebRequest(ISendConfiguration sendConfiguration, string contentType)
         {
-            Logger.Info($"Creating WebRequest to {sendConfiguration.Protocol.Url}");
+            Logger.Debug($"Creating WebRequest to {sendConfiguration.Protocol.Url}");
 
             HttpWebRequest request = _httpClient.Request(sendConfiguration.Protocol.Url, contentType);
 
@@ -138,7 +138,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 return;
             }
 
-            Logger.Info("Adding Client TLS Certificate to Http Request.");
+            Logger.Trace("Adding Client TLS Certificate to Http Request.");
 
             X509Certificate2 certificate = RetrieveTlsCertificate(configuration);
 

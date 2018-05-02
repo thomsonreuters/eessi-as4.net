@@ -38,7 +38,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
             }
 
             string smpProfile = messagingContext.SendingPMode.DynamicDiscovery.SmpProfile;
-            Logger.Info($"DynamicDiscovery is enabled in Sending PMode - using {smpProfile}");
+            Logger.Info($"{messagingContext} DynamicDiscovery is enabled in Sending PMode - using {smpProfile}");
 
             var clonedPMode = (SendingProcessingMode)messagingContext.SendingPMode.Clone();
             clonedPMode.Id = $"{clonedPMode.Id}_SMP";
@@ -95,7 +95,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         private static void ValidatePMode(SendingProcessingMode pmode)
         {
             SendingProcessingModeValidator.Instance.Validate(pmode).Result(
-                onValidationSuccess: result => Logger.Info($"Dynamically completed PMode {pmode.Id} is valid"),
+                onValidationSuccess: result => Logger.Debug($"Dynamically completed PMode {pmode.Id} is valid"),
                 onValidationFailed: result =>
                 {
                     string errorMessage = result.AppendValidationErrorsToErrorMessage($"Dynamically completed PMode {pmode.Id} was invalid:");
