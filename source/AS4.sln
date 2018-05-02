@@ -26,6 +26,9 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Eu.EDelivery.AS4.PayloadService", "PayloadService\Eu.EDelivery.AS4.PayloadService.csproj", "{A3BADCB2-1638-4C18-A1F8-0764C1FB0E30}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Eu.EDelivery.AS4.PerformanceTests", "ServiceHandler\Eu.EDelivery.AS4.PerformanceTests\Eu.EDelivery.AS4.PerformanceTests.csproj", "{73016C9C-15FD-4051-A16F-7245A2267DEC}"
+	ProjectSection(ProjectDependencies) = postProject
+		{8B0BA38F-C3F7-46C1-9E68-A7291C7B16B1} = {8B0BA38F-C3F7-46C1-9E68-A7291C7B16B1}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Eu.EDelivery.AS4.ComponentTests", "Eu.EDelivery.AS4.ComponentTests\Eu.EDelivery.AS4.ComponentTests.csproj", "{E1B9AACB-46F1-4999-8384-E6413D7189BE}"
 EndProject

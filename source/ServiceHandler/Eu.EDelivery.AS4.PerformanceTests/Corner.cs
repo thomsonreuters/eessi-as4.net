@@ -17,8 +17,7 @@ namespace Eu.EDelivery.AS4.PerformanceTests
     public class Corner : IDisposable
     {
         private readonly DirectoryInfo _cornerDirectory;
-
-        private Process _cornerProcess;
+        private readonly Process _cornerProcess;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Corner"/> class.
@@ -27,6 +26,26 @@ namespace Eu.EDelivery.AS4.PerformanceTests
         private Corner(DirectoryInfo cornerDirectory)
         {
             _cornerDirectory = cornerDirectory;
+            _cornerProcess = CreateCornerProcessAt(cornerDirectory);
+        }
+
+        private static Process CreateCornerProcessAt(FileSystemInfo cornerDirectory)
+        {
+            string consoleHostPath = Path.Combine(cornerDirectory.FullName, "Eu.EDelivery.AS4.ServiceHandler.ConsoleHost.exe");
+            var cornerInfo = new ProcessStartInfo(consoleHostPath)
+            {
+                WorkingDirectory = cornerDirectory.FullName
+            };
+
+            return new Process { StartInfo = cornerInfo };
+        }
+
+        /// <summary>
+        /// Starts this instance.
+        /// </summary>
+        public void Start()
+        {
+            _cornerProcess.Start();
         }
 
         /// <summary>
@@ -87,7 +106,7 @@ namespace Eu.EDelivery.AS4.PerformanceTests
 
         private FileInfo[] GetDeliveredFiles(string searchPattern = "*")
         {
-            return GetDirectory(rootDirectory: "messages", subDirectory: "in").GetFiles(searchPattern);
+            return GetOrCreateDirectory(rootDirectory: "messages", subDirectory: "in").GetFiles(searchPattern);
         }
 
         /// <summary>
@@ -96,96 +115,94 @@ namespace Eu.EDelivery.AS4.PerformanceTests
         /// <returns></returns>
         public int CountReceivedReceipts()
         {
-            return GetDirectory(rootDirectory: "messages", subDirectory: "receipts").GetFiles().Length;
+            return GetOrCreateDirectory(rootDirectory: "messages", subDirectory: "receipts").GetFiles().Length;
         }
 
         /// <summary>
         /// Executes an Action when the specified <paramref name="numberOfReceipts"/> are received.
         /// </summary>
         /// <param name="numberOfReceipts"></param>
-        /// <param name="action"></param>
         /// <param name="timeout">The maximum allowed timeframe before the method returns</param>
+        /// <param name="action"></param>
         /// <returns>True if the specified number of receipts is received; otherwise false.</returns>
-        public bool ExecuteWhenNumberOfReceiptsAreReceived(int numberOfReceipts, Action action, TimeSpan timeout)
+        public bool ExecuteWhenNumberOfReceiptsAreReceived(int numberOfReceipts, TimeSpan timeout, Action action)
         {
-            string receiptDirectory = GetDirectory(rootDirectory: "messages", subDirectory: "receipts").FullName;
+            string receiptDirectoryPath = GetOrCreateDirectory(rootDirectory: "messages", subDirectory: "receipts").FullName;
 
-            return ExecuteWhenNumberOfFilesAreFoundInDirectory(receiptDirectory, "*.xml", numberOfReceipts, action, timeout);
-        }
-
-        /// <summary>
-        /// Executes an Action when the specified <paramref name="numberOfMessages"/> are delivered.
-        /// </summary>
-        /// <param name="numberOfMessages"></param>
-        /// <param name="action"></param>
-        /// <param name="timeout">The maximum allowed timeframe before the method returns</param>
-        /// <param name="searchPattern"></param>
-        /// <returns>True if the specified number of messages are delivered; otherwise false.</returns>
-        public bool ExecuteWhenNumberOfMessagesAreDelivered(int numberOfMessages, Action action, TimeSpan timeout, string searchPattern = "*.*")
-        {
-            string deliverDirectoryName = GetDirectory(rootDirectory: "messages", subDirectory: "in").FullName;
-
-            return ExecuteWhenNumberOfFilesAreFoundInDirectory(deliverDirectoryName, searchPattern, numberOfMessages, action, timeout);
-        }
-
-        private static bool ExecuteWhenNumberOfFilesAreFoundInDirectory(string location, string searchPattern, int numberOfFiles, Action action, TimeSpan timeout)
-        {
-            FileSystemWatcher fs = new FileSystemWatcher(location);
-            fs.IncludeSubdirectories = false;
-
-            ManualResetEvent waiter = new ManualResetEvent(false);
-            bool allFilesFound = false;
+            var fs = new FileSystemWatcher(receiptDirectoryPath) { IncludeSubdirectories = false };
+            var waiter = new ManualResetEvent(false);
+            var allFilesFound = false;
 
             fs.EnableRaisingEvents = true;
 
-            object syncRoot = new object();
+            var syncRoot = new object();
 
             fs.Created += (o, args) =>
             {
                 lock (syncRoot)
                 {
-                    if (Directory.GetFiles(location, searchPattern).Count() >= numberOfFiles)
+                    int actualFileCount = Directory.GetFiles(receiptDirectoryPath, "*.xml").Length;
+                    if (actualFileCount < numberOfReceipts)
                     {
-                        fs.EnableRaisingEvents = false;
-                        allFilesFound = true;
-                        action();
-
-                        waiter.Set();
+                        return;
                     }
+
+                    fs.EnableRaisingEvents = false;
+                    allFilesFound = true;
+                    action();
+
+                    waiter.Set();
                 }
             };
 
             waiter.WaitOne(timeout);
-
             return allFilesFound;
         }
 
         /// <summary>
         /// Cleanup the delivered messages from the Corner's deliver directory.
         /// </summary>
-        public void CleanupMessages()
+        public void TryCleanupMessages()
         {
-            CleanupDirectory(GetDirectory("messages", "in"));
-            CleanupDirectory(GetDirectory("messages", "out"));
-            CleanupDirectory(GetDirectory("messages", "receipts"));
-            CleanupDirectory(GetDirectory("messages", "errors"));
-            CleanupDirectory(GetDirectory("messages", "exceptions"));
+            CleanupDirectoryFiles(GetOrCreateDirectory("messages", "in"));
+            CleanupDirectoryFiles(GetOrCreateDirectory("messages", "out"));
+            CleanupDirectoryFiles(GetOrCreateDirectory("messages", "receipts"));
+            CleanupDirectoryFiles(GetOrCreateDirectory("messages", "errors"));
+            CleanupDirectoryFiles(GetOrCreateDirectory("messages", "exceptions"));
 
-            CleanupDirectory(GetDirectory("database", "as4messages\\out"));
-            CleanupDirectory(GetDirectory("database", "as4messages\\in"));
+            CleanupDirectoryFiles(GetOrCreateDirectory("database", "as4messages\\out"));
+            CleanupDirectoryFiles(GetOrCreateDirectory("database", "as4messages\\in"));
         }
 
-        private static void CleanupDirectory(DirectoryInfo directory)
+        private static void CleanupDirectoryFiles(DirectoryInfo directory)
         {
-            DirectoryInfo messageDirectory = directory;
-
-            foreach (FileInfo deliveredMessage in messageDirectory.GetFiles())
+            foreach (FileInfo deliveredMessage in directory.GetFiles())
             {
-                deliveredMessage.Delete();
+                TryNTimes(retryCount: 10, retryAction: deliveredMessage.Delete);
             }
         }
 
-        private DirectoryInfo GetDirectory(string rootDirectory, string subDirectory)
+        private static void TryNTimes(int retryCount, Action retryAction)
+        {
+            var count = 0;
+            while (count < retryCount)
+            {
+                try
+                {
+                    retryAction();
+                    return;
+                }
+                catch (Exception exception)
+                {
+                    Console.WriteLine(exception);
+                    count++;
+
+                    Thread.Sleep(TimeSpan.FromSeconds(3));
+                }
+            }
+        }
+
+        private DirectoryInfo GetOrCreateDirectory(string rootDirectory, string subDirectory)
         {
             string deliverPath = Path.Combine(_cornerDirectory.FullName, rootDirectory, subDirectory);
 
@@ -202,7 +219,7 @@ namespace Eu.EDelivery.AS4.PerformanceTests
         /// </summary>
         /// <param name="prefix">Corner Prefix</param>
         /// <returns></returns>
-        public static Task<Corner> StartNew(string prefix)
+        public static Task<Corner> CreatePrefixed(string prefix)
         {
             return Task.Run(
                 () =>
@@ -213,26 +230,6 @@ namespace Eu.EDelivery.AS4.PerformanceTests
                     Thread.Sleep(1000);
                     return corner;
                 });
-        }
-
-        /// <summary>
-        /// Starts this instance.
-        /// </summary>
-        public void Start()
-        {
-            _cornerProcess = CreateCornerProcessAt(_cornerDirectory);
-        }
-
-        private static Process CreateCornerProcessAt(FileSystemInfo cornerDirectory)
-        {
-            var cornerInfo =
-                new ProcessStartInfo(
-                    Path.Combine(cornerDirectory.FullName, "Eu.EDelivery.AS4.ServiceHandler.ConsoleHost.exe"))
-                {
-                    WorkingDirectory = cornerDirectory.FullName
-                };
-
-            return Process.Start(cornerInfo);
         }
 
         private static DirectoryInfo SetupCornerFixture(string cornerPrefix)
@@ -299,14 +296,17 @@ namespace Eu.EDelivery.AS4.PerformanceTests
 
         private static void IncludeCornerSettingsIn(DirectoryInfo cornerDirectory, string cornerSettingsFileName)
         {
-            Func<FileInfo, bool> matchesSettingsFile =
-                f =>
-                    f.Name.Equals(cornerSettingsFileName, StringComparison.OrdinalIgnoreCase)
-                    && f.DirectoryName?.IndexOf("performancetest-settings", StringComparison.OrdinalIgnoreCase) > -1;
+            bool MatchesSettingsFile(FileInfo f)
+            {
+                bool isSettingsFileName = f.Name.Equals(cornerSettingsFileName, StringComparison.OrdinalIgnoreCase);
+                bool isParentPerfTestDir = f.DirectoryName?.IndexOf("performancetest-settings", StringComparison.OrdinalIgnoreCase) > -1;
+
+                return isSettingsFileName && isParentPerfTestDir;
+            }
 
             FileInfo cornerSettings = cornerDirectory
                 .GetFiles("*.xml", SearchOption.AllDirectories)
-                .FirstOrDefault(matchesSettingsFile);
+                .FirstOrDefault(MatchesSettingsFile);
 
             if (cornerSettings == null)
             {
@@ -341,7 +341,6 @@ namespace Eu.EDelivery.AS4.PerformanceTests
             builder.InitialCatalog = "master";
 
             string masterConnectionString = builder.ConnectionString;
-
             using (var sqlConnection = new SqlConnection(masterConnectionString))
             {
                 sqlConnection.Open();
@@ -365,24 +364,23 @@ namespace Eu.EDelivery.AS4.PerformanceTests
 
         private static void IncludeCornerPModesIn(FileSystemInfo cornerDirectory)
         {
-            Func<string, DirectoryInfo> getPModeDirectory =
-                subFolder =>
+            DirectoryInfo GetPModeDirectory(string subFolder)
+            {
+                string directoryPath = Path.Combine(cornerDirectory.FullName, "config", subFolder);
+
+                if (!Directory.Exists(directoryPath))
                 {
-                    string directoryPath = Path.Combine(cornerDirectory.FullName, "config", subFolder);
+                    Directory.CreateDirectory(directoryPath);
+                }
 
-                    if (!Directory.Exists(directoryPath))
-                    {
-                        Directory.CreateDirectory(directoryPath);
-                    }
+                return new DirectoryInfo(directoryPath);
+            }
 
-                    return new DirectoryInfo(directoryPath);
-                };
+            DirectoryInfo volumeSendPModes = GetPModeDirectory(@"performancetest-settings\send-pmodes"),
+                          volumeReceivePModes = GetPModeDirectory(@"performancetest-settings\receive-pmodes");
 
-            DirectoryInfo volumeSendPModes = getPModeDirectory(@"performancetest-settings\send-pmodes"),
-                          volumeReceivePModes = getPModeDirectory(@"performancetest-settings\receive-pmodes");
-
-            DirectoryInfo outputSendPModes = getPModeDirectory(@"send-pmodes"),
-                          outputReceivePModes = getPModeDirectory(@"receive-pmodes");
+            DirectoryInfo outputSendPModes = GetPModeDirectory(@"send-pmodes"),
+                          outputReceivePModes = GetPModeDirectory(@"receive-pmodes");
 
             Console.WriteLine($@"Copy '{volumeSendPModes.FullName}' to '{outputSendPModes.FullName}'");
             CopyFiles(volumeSendPModes, outputSendPModes.FullName);

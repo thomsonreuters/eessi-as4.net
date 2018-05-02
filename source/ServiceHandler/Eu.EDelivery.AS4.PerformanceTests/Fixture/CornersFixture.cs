@@ -15,15 +15,16 @@ namespace Eu.EDelivery.AS4.PerformanceTests.Fixture
         /// </summary>
         public CornersFixture()
         {
-            Task<Corner> startCorner2 = Corner.StartNew("c2");
-            Task<Corner> startCorner3 = Corner.StartNew("c3");
+            Task<Corner> creationC2 = Corner.CreatePrefixed("c2");
+            Task<Corner> creationC3 = Corner.CreatePrefixed("c3");
 
-            Task.WhenAll(startCorner2, startCorner3).ContinueWith(
-                task =>
+            Task.WhenAll(creationC2, creationC3)
+                .ContinueWith(task =>
                 {
-                    Corner2 = startCorner2.Result;
-                    Corner3 = startCorner3.Result;
-                }).Wait();
+                    Corner2 = creationC2.Result;
+                    Corner3 = creationC3.Result;
+                })
+                .Wait();
         }
 
         /// <summary>
@@ -47,7 +48,6 @@ namespace Eu.EDelivery.AS4.PerformanceTests.Fixture
             Corner3.Dispose();
         }
     }
-
 
     /// <summary>
     /// Placeholder for the <see cref="CornersFixture"/>.
