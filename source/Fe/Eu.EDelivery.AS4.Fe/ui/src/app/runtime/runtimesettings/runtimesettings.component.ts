@@ -1,14 +1,11 @@
-import { Component, Input, SimpleChanges, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
-import { FormGroup, FormArray, FormBuilder, FormControl } from '@angular/forms';
-
-import { Setting } from './../../api/Setting';
+import { ChangeDetectionStrategy, Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { FormArray, FormBuilder, FormGroup } from '@angular/forms';
 import { ItemType } from './../../api/ItemType';
-import { Property } from './../../api/Property';
 import { SettingForm } from './../../api/SettingForm';
 
 @Component({
-    selector: 'as4-runtime-settings',
-    template: `
+  selector: 'as4-runtime-settings',
+  template: `
           <div *ngIf="!!form && !!form.value && !!form.controls && form.controls.length > 0">
             <h4 *ngIf="showTitle === true">Settings</h4>
             <div *ngFor="let setting of form.controls; let i = index">
@@ -16,39 +13,45 @@ import { SettingForm } from './../../api/SettingForm';
             </div>
           </div>
     `,
-    changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class RuntimeSettingsComponent {
-    @Input() public form: FormArray;
-    @Input() public types: ItemType[];
-    @Input() public controlSize = 8;
-    @Input() public labelSize = 4;
-    @Input() public set itemType(newType: string) {
-        if (this._type !== newType) {
-            this._type = newType;
-            if (this.types !== undefined) {
-                this.selectedType = this.types!!.find((type) => type.technicalName === newType); }
-            this.onSettingChange();
+export class RuntimeSettingsComponent implements OnChanges {
+  @Input() public form: FormArray;
+  @Input() public types: ItemType[];
+  @Input() public controlSize = 8;
+  @Input() public labelSize = 4;
+  @Input() public itemType: string;
+  @Input() public pshowTitle: boolean = true;
+
+  public selectedType: ItemType | undefined;
+
+  constructor(private _formBuilder: FormBuilder) {}
+
+  public onSettingChange() {
+    if (!!this.selectedType) {
+      const list = this.form.controls.map((form: FormGroup) => form.controls['key'].value);
+      for (const prop of this.selectedType.properties) {
+        if (!!!list.find((search) => search === prop.technicalName)) {
+          // Add it
+          this.form.push(
+            SettingForm.getForm(this._formBuilder, {
+              key: prop.technicalName,
+              value: prop.defaultValue,
+              attributes: prop.attributes
+            })
+          );
         }
+      }
     }
-    @Input() public pshowTitle: boolean = true;
-    public selectedType: ItemType | undefined;
-    private _type: string = '';
-    private _checked: boolean = false;
-    constructor(private _formBuilder: FormBuilder, private _changeDetectorRef: ChangeDetectorRef) { }
-    public onSettingChange() {
-        if (!!this.selectedType) {
-            const list = this.form.controls.map((form: FormGroup) => form.controls['key'].value);
-            for (const prop of this.selectedType.properties) {
-                if (!!!list.find((search) => search === prop.technicalName)) {
-                    // Add it
-                    this.form.push(SettingForm.getForm(this._formBuilder, {
-                        key: prop.technicalName,
-                        value: prop.defaultValue,
-                        attributes: prop.attributes
-                    }));
-                }
-            }
-        }
+  }
+
+  public ngOnChanges(changes: SimpleChanges) {
+    const { itemType } = changes;
+    if (itemType) {
+      if (this.types) {
+        this.selectedType = this.types!!.find((type) => type.technicalName === itemType.currentValue);
+      }
+      this.onSettingChange();
     }
+  }
 }
