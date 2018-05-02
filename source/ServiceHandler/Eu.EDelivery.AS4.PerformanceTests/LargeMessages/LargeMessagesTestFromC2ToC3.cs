@@ -33,7 +33,7 @@ namespace Eu.EDelivery.AS4.PerformanceTests.LargeMessages
         [InlineData(1, Size.GB, 50)]
         [InlineData(2, Size.GB, 100)]
         [InlineData(3, Size.GB, 150)]
-        public void TestIncreasingPayloadSize(int unit, Size metric, int retryCount = 20)
+        public void TestIncreasingPayloadSize(int unit, Size metric, int pollingRetries = 20)
         {
             _outputHelper.WriteLine("Start Large Message Performance Test: " + unit + metric);
 
@@ -41,7 +41,7 @@ namespace Eu.EDelivery.AS4.PerformanceTests.LargeMessages
             Corner2.PlaceLargeMessage(unit, metric, SIMPLE_ONEWAY_TO_C3_SIZE);
 
             // Assert
-            PollingTillFirstPayload(Corner3, retryCount, assertion: () => AssertMessages(unit * (int) metric));
+            PollingTillFirstPayload(Corner3, pollingRetries, assertion: () => AssertMessages(unit * (int) metric));
         }
 
         private void AssertMessages(int expectedSize)

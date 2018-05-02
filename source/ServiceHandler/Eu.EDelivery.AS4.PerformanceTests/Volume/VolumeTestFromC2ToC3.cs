@@ -40,7 +40,7 @@ namespace Eu.EDelivery.AS4.PerformanceTests.Volume
             // Assert
             PollingTillAllMessages(
                 messageCount, 
-                retryCount: 30, 
+                pollingRetries: 30, 
                 corner: Corner3, 
                 assertion: () => AssertMessages(messageCount));
         }

@@ -50,9 +50,9 @@ namespace Eu.EDelivery.AS4.PerformanceTests
         /// Start polling for a single message on the delivered directory to assert using the <paramref name="assertion"/>
         /// </summary>
         /// <param name="corner">Corner to use as delivered target.</param>
-        /// <param name="retryCount">Amount to retry when polling for payloads</param>
+        /// <param name="pollingRetries">Amount to retry when polling for payloads</param>
         /// <param name="assertion">Assertion of the delivered message.</param>
-        protected void PollingTillFirstPayload(Corner corner, int retryCount, Action assertion)
+        protected void PollingTillFirstPayload(Corner corner, int pollingRetries, Action assertion)
         {
            PollingForMessages(
                predicate: () =>
@@ -62,7 +62,7 @@ namespace Eu.EDelivery.AS4.PerformanceTests
                    return deliveredCount == 2;
                }, 
                assertion: assertion, 
-               range: new PollingRange(retryCount, retrySeconds: 15));
+               range: new PollingRange(pollingRetries, retrySeconds: 15));
         }
 
         /// <summary>
@@ -70,10 +70,10 @@ namespace Eu.EDelivery.AS4.PerformanceTests
         /// <paramref name="messageCount" /> is reached.
         /// </summary>
         /// <param name="messageCount">Amount of messages to wait for.</param>
-        /// <param name="retryCount"></param>
+        /// <param name="pollingRetries"></param>
         /// <param name="corner">Corner to use as delivered target.</param>
         /// <param name="assertion">Assertion of delivered messages.</param>
-        protected void PollingTillAllMessages(int messageCount, int retryCount, Corner corner, Action assertion)
+        protected void PollingTillAllMessages(int messageCount, int pollingRetries, Corner corner, Action assertion)
         {
             PollingForMessages(
                 predicate: () =>
@@ -83,7 +83,7 @@ namespace Eu.EDelivery.AS4.PerformanceTests
                     return messageCount <= deliveredCount;
                 }, 
                 assertion: assertion, 
-                range: new PollingRange(retryCount, retrySeconds: 10));
+                range: new PollingRange(pollingRetries, retrySeconds: 10));
         }
 
         private static void PollingForMessages(Func<bool> predicate, Action assertion, PollingRange range)
@@ -119,17 +119,17 @@ namespace Eu.EDelivery.AS4.PerformanceTests
 
     public class PollingRange
     {
-        private readonly int _retryCount;
+        private readonly int _polligRetries;
         private int _currentRetry;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PollingRange"/> class.
         /// </summary>
-        /// <param name="retryCount">The retry Count.</param>
+        /// <param name="polligRetries">The retry Count.</param>
         /// <param name="retrySeconds">The retry Seconds.</param>
-        public PollingRange(int retryCount, int retrySeconds)
+        public PollingRange(int polligRetries, int retrySeconds)
         {
-            _retryCount = retryCount;
+            _polligRetries = polligRetries;
             RetryInterval = TimeSpan.FromSeconds(retrySeconds);
         }
 
@@ -147,7 +147,7 @@ namespace Eu.EDelivery.AS4.PerformanceTests
         /// <value>
         ///   <c>true</c> if [in range]; otherwise, <c>false</c>.
         /// </value>
-        public bool InRange => _currentRetry <= _retryCount;
+        public bool InRange => _currentRetry <= _polligRetries;
 
         /// <summary>
         /// Increases this instance.
