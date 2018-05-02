@@ -8,7 +8,7 @@ import { DialogService } from './../../common/dialog.service';
 @Component({
   selector: 'as4-step-settings',
   templateUrl: './step.component.html',
-  styleUrls: ['./step.component.scss'],
+  // styleUrls: ['./step.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class StepSettingsComponent {
@@ -21,7 +21,7 @@ export class StepSettingsComponent {
     private dialogService: DialogService,
     private _changeDetectorRef: ChangeDetectorRef,
     private _ngZone: NgZone
-  ) {}
+  ) { }
 
   public itemMoved = () => {
     this._ngZone.run(() => {

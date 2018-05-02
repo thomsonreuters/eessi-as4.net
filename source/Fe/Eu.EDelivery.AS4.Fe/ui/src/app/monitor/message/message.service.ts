@@ -75,7 +75,7 @@ export class MessageService {
         let requestOptions = new RequestOptions();
         requestOptions.search = new URLSearchParams();
         requestOptions.search.append('direction', '' + direction);
-        requestOptions.search.append('messageId', messageId);
+        requestOptions.search.append('id', messageId);
         return this._http.get('/api/monitor/messagebody', requestOptions).map((data) => data.text());
     }
     private getUrl(action: string = 'messages'): string {

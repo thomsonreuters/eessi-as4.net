@@ -141,7 +141,7 @@ export class AgentSettingsComponent implements OnDestroy, CanComponentDeactivate
 
           let newAgent: SettingsAgent;
           if (+this.actionType !== -1) {
-            newAgent = <SettingsAgent>Object.assign({}, this.settings.find((agt) => agt.name === this.actionType));
+            newAgent = <SettingsAgent> Object.assign({}, this.settings.find((agt) => agt.name === this.actionType));
           } else {
             newAgent = new SettingsAgent();
 

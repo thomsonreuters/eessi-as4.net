@@ -87,8 +87,7 @@
                                 (click)="toggle(message)"></i>
                         </td>
                         <td>
-                            <as4-downloadmessagebody *ngIf="message.hasMessageBody" [type]="'exception'" tooltip="Download original message body" [direction]="message.direction"
-                                [id]="message.id"></as4-downloadmessagebody>
+                            <as4-downloadmessagebody *ngIf="message.hasMessageBody" [type]="'exception'" tooltip="Download original message body" [direction]="message.direction" [id]="message.id" [name]="message.ebmsRefToMessageId"></as4-downloadmessagebody>
                         </td>
                         <td>{{message.direction | todirection}}</td>
                         <td>{{message.insertionTime | todate}}</td>

@@ -45,10 +45,6 @@ namespace Eu.EDelivery.AS4.Validators
             {
                 const string errorMsg = "PushConfiguration.Protocol.Url element should be specified when SMP Profile is missing";
 
-                RuleFor(pmode => pmode.PushConfigurationSpecified)
-                    .Equal(true)
-                    .WithMessage(errorMsg);
-
                 RuleFor(pmode => pmode.PushConfiguration.Protocol)
                     .NotNull()
                     .When(pmode => pmode.PushConfigurationSpecified)

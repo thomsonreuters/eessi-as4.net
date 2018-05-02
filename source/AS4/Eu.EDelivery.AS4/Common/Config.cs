@@ -25,7 +25,7 @@ namespace Eu.EDelivery.AS4.Common
     {
         private static readonly IConfig Singleton = new Config();
         private readonly IDictionary<string, string> _configuration;
-        private readonly ILogger _logger;
+        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
         
         private readonly Collection<AgentConfig> _agentConfigs = new Collection<AgentConfig>();
 
@@ -37,7 +37,6 @@ namespace Eu.EDelivery.AS4.Common
 
         internal Config()
         {
-            _logger = LogManager.GetCurrentClassLogger();
             _configuration = new Dictionary<string, string>(StringComparer.CurrentCultureIgnoreCase);
         }
 
@@ -57,7 +56,7 @@ namespace Eu.EDelivery.AS4.Common
         /// Gets the retention period (in days) for which the stored entities are cleaned-up.
         /// </summary>
         /// <value>The retention period in days.</value>
-        public int RetentionPeriod { get; private set; }
+        public TimeSpan RetentionPeriod { get; private set; }
 
         /// <summary>
         /// Gets the in message store location.
@@ -111,7 +110,7 @@ namespace Eu.EDelivery.AS4.Common
             catch (Exception exception)
             {
                 IsInitialized = false;
-                _logger.Error(exception.Message);
+                Logger.Error(exception.Message);
 
                 throw;
             }
@@ -284,7 +283,7 @@ namespace Eu.EDelivery.AS4.Common
 
             string fullPath = Path.GetFullPath(path);
 
-            _logger.Trace($"Using local configuration settings at path: '{fullPath}'");
+            Logger.Trace($"Using local configuration settings at path: '{fullPath}'");
 
             if (Path.IsPathRooted(path) == false ||
                 (File.Exists(fullPath) == false && StringComparer.OrdinalIgnoreCase.Equals(path, fullPath) == false))
@@ -319,10 +318,10 @@ namespace Eu.EDelivery.AS4.Common
             }
             catch (Exception ex)
             {
-                _logger.Error($"Cannot Deserialize file on location {path}: {ex.Message}");
+                Logger.Error($"Cannot Deserialize file on location {path}: {ex.Message}");
                 if (ex.InnerException != null)
                 {
-                    _logger.Error(ex.InnerException.Message);
+                    Logger.Error(ex.InnerException.Message);
                 }
 
                 return null;
@@ -356,15 +355,16 @@ namespace Eu.EDelivery.AS4.Common
             FeInProcess = _settings.FeInProcess;
             PayloadServiceInProcess = _settings.PayloadServiceInProcess;
 
-            if (int.TryParse(_settings.RetentionPeriod, out int r))
+            if (int.TryParse(_settings.RetentionPeriod, out int r) && r > 0)
             {
-                RetentionPeriod = r;
+                RetentionPeriod = TimeSpan.FromDays(r);
             }
             else
             {
                 const int defaultRetentionPeriod = 90;
-                RetentionPeriod = defaultRetentionPeriod;
-                LogManager.GetCurrentClassLogger().Warn($"No Retention Period found: '{_settings.RetentionPeriod ?? "(null)"}', {defaultRetentionPeriod} days as default will be used.");
+
+                RetentionPeriod = TimeSpan.FromDays(defaultRetentionPeriod);
+                LogManager.GetCurrentClassLogger().Warn($"No valid (> 0) Retention Period found: '{_settings.RetentionPeriod ?? "(null)"}', {defaultRetentionPeriod} days as default will be used.");
             }
 
             // TODO: this is hardcoded right now, should be configurable in the settings.xml

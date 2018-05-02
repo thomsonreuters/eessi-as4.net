@@ -90,24 +90,23 @@ namespace Eu.EDelivery.AS4.Strategies.Database
         {
             DatastoreTable.EnsureTableNameIsKnown(tableName);
 
-            string receptionAwarenessJoin =
+            string operations = string.Join(", ", allowedOperations.Select(x => "'" + x.ToString() + "'"));
+            string outMessagesWhere =
                 tableName.Equals("OutMessages")
-                    ? "LEFT JOIN ReceptionAwareness " +
-                      "ON ReceptionAwareness.RefToOutMessageId = m.Id " +
-                      "AND CurrentRetryCount = TotalRetryCount "
+                    ? @" AND (
+                                (m.EbmsMessageType = 'UserMessage' AND m.Status IN('Ack', 'Nack')) 
+                                OR m.EbmsMessageType IN('Receipt', 'Error')
+                             )"
                     : string.Empty;
 
-            string operations = string.Join(", ", allowedOperations.Select(x => "'" + x.ToString() + "'"));
-
-            string sql = 
+            string sql =
                 $"DELETE m FROM {tableName} m " +
-                receptionAwarenessJoin +
                 $"WHERE m.InsertionTime < GETDATE() - {retentionPeriod.TotalDays:##.##} " +
-                $"AND Operation IN ({operations})";
+                $"AND Operation IN ({operations})" +
+                outMessagesWhere;
 
-            _context.Database.ExecuteSqlCommand(sql);
-
-            LogManager.GetCurrentClassLogger().Debug($"Done cleaning '{tableName}'");
+            int rows = _context.Database.ExecuteSqlCommand(sql);
+            LogManager.GetCurrentClassLogger().Debug($"Cleaned {rows} row(s) for table '{tableName}'");
         }
     }
 }
