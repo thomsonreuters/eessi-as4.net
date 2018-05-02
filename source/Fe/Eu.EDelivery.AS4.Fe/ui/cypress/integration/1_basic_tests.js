@@ -1,40 +1,9 @@
 import jq from "jquery"
 
-describe('initial setup tests', () => {
-    before('setup environment fixtures', () => cy.resetenv())
-
-    it('setup page', () => {
-        cy.visit('/')
-        cy.fixture('login').then((json) => {
-            cy.getdatacy('adminPassword').type(json.password)
-            cy.getdatacy('readonlyPassword').type(json.password)
-            cy.getdatacy('generateKey').click()
-            cy.getdatacy('submit').click()
-            cy.getdatacy('header').should('contain', 'Setup is finished!')
-        })
-    })
-
-    it('continue to settings', () => {
-        cy.getdatacy('continueToMain').click()
-        cy.url().should('contain', '/login')
-        cy.fixture('login').then((json) => {
-            cy.getdatacy('username').type(json.username)
-            cy.getdatacy('password').type(json.password)
-            cy.getdatacy('login').click()
-            cy.url().should('contain', '/settings/portal')
-        })
-    })
-
-    it('returns to login after logout', () => {
-        cy.getdatacy('logout').click()
-        cy.url().should('contain', '/login')
-    })
-})
-
 describe('page smoke tests', () => {
     beforeEach(() => {
-        cy.visit('/login')
-        cy.fixture('login').then((json) => cy.login(json.username, json.password))
+        cy.login()
+        cy.visit('/settings/portal')
     })
 
     it('go through all pages', () => {
@@ -53,8 +22,7 @@ describe('page smoke tests', () => {
 
 describe('submit agent', () => {
     beforeEach(() => {
-        cy.visit('/login')
-        cy.fixture('login').then((json) => cy.login(json.username, json.password))
+        cy.login()
         cy.visit('/submit')
     })
 
@@ -63,8 +31,8 @@ describe('submit agent', () => {
             cy.getdatacy('new').click()
             cy.getdatacy('name').type(json.originalName)
             cy.getdatacy('ok').click()
-            cy.getdatacy('save').click({ force: true })
-            cy.getdatacy('ok').click()
+            cy.getdatacy('save').click()
+            cy.getdatacy('ok').click() // Only take effect on restart
             cy.getdatacy('agents').select(json.originalName)
         })
     })
@@ -76,10 +44,10 @@ describe('submit agent', () => {
             cy.get('div.modal-body input[type=text]').type(json.newName)
             cy.getdatacy('ok').click()
             cy.getdatacy('save').click()
-            cy.getdatacy('ok').click()
+            cy.getdatacy('ok').click() // Only take effect on restart
             cy.getdatacy('agents').select(json.newName)
             cy.getdatacy('delete').click()
-            cy.getdatacy('ok').click()
+            cy.getdatacy('ok').click() // Are you sure?
             cy.getdatacy(json.newName).should('not.exist')
         })
     })
@@ -87,8 +55,7 @@ describe('submit agent', () => {
 
 describe('send pmodes', () => {
     beforeEach(() => {
-        cy.visit('/login')
-        cy.fixture('login').then((json) => cy.login(json.username, json.password))
+        cy.login()
         cy.visit('/pmodes/sending')
     })
 
@@ -107,17 +74,14 @@ describe('send pmodes', () => {
             cy.getdatacy('save').click()
             cy.getdatacy('pmodes').select(json.newName)
             cy.getdatacy('delete').click()
-            cy.getdatacy('ok').click()
+            cy.getdatacy('ok').click() // Are you sure?
             cy.getdatacy(json.originalName).should('not.exist')
         })
     })
 })
 
 describe('monitoring', () => {
-    beforeEach(() => {
-        cy.visit('/login')
-        cy.fixture('login').then((json) => cy.login(json.username, json.password))
-    })
+    beforeEach(() => cy.login())
 
     /** @todo how do we select the right:
      * direction, ebmsMessageType, operation, MEP, and pmodes with generated 'multiselect'?

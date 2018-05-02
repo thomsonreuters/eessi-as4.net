@@ -46,10 +46,10 @@
 
     <as4-box title="Step configuration" collapsible="true" [collapsed]="!!!currentAgent || (currentAgent && !!currentAgent.stepConfiguration)">
         <div content>
-            <as4-input label="Normal pipeline">
+            <as4-input label="Normal pipeline" data-cy="normalpipeline">
                 <as4-step-settings [disabled]="form.get('stepConfiguration')?.disabled" [group]="form.get('stepConfiguration.normalPipeline')" [steps]="normalSteps"></as4-step-settings>
             </as4-input>
-            <as4-input label="Error pipeline">
+            <as4-input label="Error pipeline" data-cy="errorpipeline">
                 <as4-step-settings [disabled]="form.get('stepConfiguration')?.disabled" [group]="form.get('stepConfiguration.errorPipeline')" [steps]="errorSteps"></as4-step-settings>
             </as4-input>
         </div>

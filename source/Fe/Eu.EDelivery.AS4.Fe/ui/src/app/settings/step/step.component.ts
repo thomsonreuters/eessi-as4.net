@@ -16,7 +16,7 @@ import { StepForm } from './../../api/StepForm';
             <p><button [attr.disabled]="disabled ? '' : null" as4-auth="{{disabled}}" type="button" class="btn btn-flat" (click)="addStep()"><i class="fa fa-plus"></i></button></p>
             <div [sortablejs]="group" [sortablejsOptions]="{ handle: '.grippy', onEnd: itemMoved }">
                 <div *ngFor="let step of group.controls; let i = index" [formGroupName]="i">
-                    <div class="step-row row">
+                    <div class="step-row row" data-cy="row">
                         <div class="item stepinfo"><as4-info [runtimeTooltip]="step.get('type').value"></as4-info></div>
                         <div class="item"><span class="grippy"></span></div>    
                         <div class="item"><button as4-auth="{{disabled}}" type="button" class="btn btn-flat" (click)="removeStep(i)"><i class="fa fa-trash-o"></i></button></div>

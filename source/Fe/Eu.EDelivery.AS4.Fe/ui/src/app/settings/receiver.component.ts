@@ -12,7 +12,7 @@ import { ItemType } from './../api/ItemType';
     template: `
         <div [formGroup]="group">
             <as4-input [label]="'Type'">
-                <select class="form-control" formControlName="type" (change)="receiverChanged($event.target.value)" #type required>
+                <select class="form-control" formControlName="type" data-cy="receiver" (change)="receiverChanged($event.target.value)" #type required>
                     <option *ngFor="let type of types" [value]="type.technicalName">{{type.name}}</option>
                 </select>
             </as4-input>

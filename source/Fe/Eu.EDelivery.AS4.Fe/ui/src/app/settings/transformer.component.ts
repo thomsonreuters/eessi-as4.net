@@ -14,7 +14,7 @@ import { Observable } from 'rxjs/Observable';
     template: `
         <div [formGroup]="group">
             <as4-input [label]="'Type'">
-                <select class="form-control" formControlName="type" (change)="transformerChanged($event.target.value)" #type required>
+                <select class="form-control" formControlName="type" data-cy="transformer" (change)="transformerChanged($event.target.value)" #type required>
                     <option *ngFor="let type of types" [value]="type.technicalName">{{type.name}}</option>
                 </select>
             </as4-input>
