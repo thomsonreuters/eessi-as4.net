@@ -26,11 +26,11 @@ namespace Eu.EDelivery.AS4.Agents
         /// <summary>
         /// Initializes a new instance of the <see cref="Agent"/> class.
         /// </summary>
-        /// <param name="config"></param>
-        /// <param name="receiver">The receiver.</param>
-        /// <param name="transformerConfig">The transformer configuration.</param>
-        /// <param name="exceptionHandler">The exception handler.</param>
-        /// <param name="stepConfiguration">The step configuration.</param>
+        /// <param name="config">The config to add metadata to the agent.</param>
+        /// <param name="receiver">The receiver on which the agent should listen for messages.</param>
+        /// <param name="transformerConfig">The config to create <see cref="ITransformer"/> instances.</param>
+        /// <param name="exceptionHandler">The handler to handle failures during the agent execution.</param>
+        /// <param name="stepConfiguration">The config to create <see cref="IStep"/> normal & error pipelines.</param>
         internal Agent(
             AgentConfig config,
             IReceiver receiver,
@@ -38,28 +38,37 @@ namespace Eu.EDelivery.AS4.Agents
             IAgentExceptionHandler exceptionHandler,
             StepConfiguration stepConfiguration)
         {
-            _receiver = receiver;
-            _transformerConfig = transformerConfig;
+            _receiver = receiver ?? throw new ArgumentNullException(nameof(receiver));
+            _transformerConfig = transformerConfig ?? throw new ArgumentNullException(nameof(transformerConfig));
             _exceptionHandler = exceptionHandler;
 
             _stepConfiguration = stepConfiguration;
-            AgentConfig = config;
+            AgentConfig = config ?? throw new ArgumentNullException(nameof(config));
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Agent"/> class.
+        /// </summary>
+        /// <param name="config">The config to add meta data information to the agent.</param>
+        /// <param name="receiver">The receiver on which the agent should listen for messages.</param>
+        /// <param name="transformerConfig">The config to create <see cref="ITransformer"/> instances.</param>
+        /// <param name="exceptionHandler">The handler to handle failures during the agent execution.</param>
+        /// <param name="pipelineConfig">The config to create <see cref="IStep"/> normal & error pipelines.</param>
+        /// <remarks>This should only be used inside a 'Minder' scenario!</remarks>
         [ExcludeFromCodeCoverage]
         internal Agent(
-            string name,
+            AgentConfig config,
             IReceiver receiver,
             Transformer transformerConfig,
             IAgentExceptionHandler exceptionHandler,
             (ConditionalStepConfig happyPath, ConditionalStepConfig unhappyPath) pipelineConfig)
         {
             _receiver = receiver;
-            _transformerConfig = transformerConfig;
+            _transformerConfig = transformerConfig ?? throw new ArgumentNullException(nameof(transformerConfig));
             _exceptionHandler = exceptionHandler;
             _conditionalPipeline = pipelineConfig;
 
-            AgentConfig = new AgentConfig(name);
+            AgentConfig = config ?? throw new ArgumentNullException(nameof(config));
         }
 
         public AgentConfig AgentConfig { get; }
