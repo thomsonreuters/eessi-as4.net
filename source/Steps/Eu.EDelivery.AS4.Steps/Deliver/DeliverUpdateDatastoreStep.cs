@@ -11,8 +11,8 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
     /// <summary>
     /// Describes how the data store gets updated when an incoming message is delivered
     /// </summary>
-    [Description("This step makes sure that the status of the message is correctly set after the message has been delivered.")]
     [Info("Update message status after delivery")]
+    [Description("This step makes sure that the status of the message is correctly set after the message has been delivered.")]
     public class DeliverUpdateDatastoreStep : IStep
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
@@ -24,20 +24,19 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
-            Logger.Info($"{messagingContext} Update AS4 UserMessages in Datastore");
-
             using (DatastoreContext context = Registry.Instance.CreateDatastoreContext())
             {
                 var repository = new DatastoreRepository(context);
 
-                string messageId = messagingContext.DeliverMessage.MessageInfo.MessageId;
-                Logger.Debug($"[{messageId}] Update InMessage with Delivered Status and Operation");
+                Logger.Info($"{messagingContext} Update InMessage with Status and Operation set to 'Delivered'");
 
-                repository.UpdateInMessage(messageId, inMessage =>
-                {
-                    inMessage.SetStatus(InStatus.Delivered);
-                    inMessage.SetOperation(Operation.Delivered);
-                });
+                repository.UpdateInMessage(
+                    messagingContext.DeliverMessage.MessageInfo.MessageId, 
+                    inMessage =>
+                    {
+                        inMessage.SetStatus(InStatus.Delivered);
+                        inMessage.SetOperation(Operation.Delivered);
+                    });
 
                 await context.SaveChangesAsync().ConfigureAwait(false);
             }
