@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders;
@@ -16,14 +12,6 @@ namespace Eu.EDelivery.AS4.ServiceHandler.ConsoleHost
 {
     public class Program
     {
-        private static void WriteLine(string msg)
-        {
-            var temp = Console.ForegroundColor;
-            Console.ForegroundColor = ConsoleColor.Gray;
-            Console.WriteLine(msg);
-            Console.ForegroundColor = temp;
-        }
-
         public static void Main()
         {
             Console.SetWindowSize(Console.LargestWindowWidth, Console.WindowHeight);
@@ -94,6 +82,14 @@ namespace Eu.EDelivery.AS4.ServiceHandler.ConsoleHost
             }
 
             Console.ReadLine();
+        }
+
+        private static void WriteLine(string msg)
+        {
+            var temp = Console.ForegroundColor;
+            Console.ForegroundColor = ConsoleColor.Gray;
+            Console.WriteLine(msg);
+            Console.ForegroundColor = temp;
         }
 
         private static Kernel CreateKernel()
