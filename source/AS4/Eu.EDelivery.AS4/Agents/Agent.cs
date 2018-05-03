@@ -38,12 +38,27 @@ namespace Eu.EDelivery.AS4.Agents
             IAgentExceptionHandler exceptionHandler,
             StepConfiguration stepConfiguration)
         {
-            _receiver = receiver ?? throw new ArgumentNullException(nameof(receiver));
-            _transformerConfig = transformerConfig ?? throw new ArgumentNullException(nameof(transformerConfig));
+            if (config == null)
+            {
+                throw new ArgumentNullException(nameof(config));
+            }
+
+            if (receiver == null)
+            {
+                throw new ArgumentNullException(nameof(receiver));
+            }
+
+            if (transformerConfig == null)
+            {
+                throw new ArgumentNullException(nameof(transformerConfig));
+            }
+
+            _receiver = receiver;
+            _transformerConfig = transformerConfig;
             _exceptionHandler = exceptionHandler;
 
             _stepConfiguration = stepConfiguration;
-            AgentConfig = config ?? throw new ArgumentNullException(nameof(config));
+            AgentConfig = config;
         }
 
         /// <summary>
@@ -63,12 +78,27 @@ namespace Eu.EDelivery.AS4.Agents
             IAgentExceptionHandler exceptionHandler,
             (ConditionalStepConfig happyPath, ConditionalStepConfig unhappyPath) pipelineConfig)
         {
+            if (config == null)
+            {
+                throw new ArgumentNullException(nameof(config));
+            }
+
+            if (receiver == null)
+            {
+                throw new ArgumentNullException(nameof(receiver));
+            }
+
+            if (transformerConfig == null)
+            {
+                throw new ArgumentNullException(nameof(transformerConfig));
+            }
+
             _receiver = receiver;
-            _transformerConfig = transformerConfig ?? throw new ArgumentNullException(nameof(transformerConfig));
+            _transformerConfig = transformerConfig;
             _exceptionHandler = exceptionHandler;
             _conditionalPipeline = pipelineConfig;
 
-            AgentConfig = config ?? throw new ArgumentNullException(nameof(config));
+            AgentConfig = config;
         }
 
         public AgentConfig AgentConfig { get; }
