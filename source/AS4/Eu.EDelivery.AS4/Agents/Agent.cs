@@ -129,7 +129,7 @@ namespace Eu.EDelivery.AS4.Agents
             {
                 ITransformer transformer = TransformerBuilder.FromTransformerConfig(_transformerConfig);
                 context = await transformer.TransformAsync(message);
-                context.Mode = AgentConfig.Mode;
+                context.ModifyContext(AgentConfig.Type.ToContextMode());
             }
             catch (Exception exception)
             {

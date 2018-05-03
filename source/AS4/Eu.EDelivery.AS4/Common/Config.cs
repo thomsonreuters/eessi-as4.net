@@ -414,36 +414,10 @@ namespace Eu.EDelivery.AS4.Common
                     _agentConfigs.Add(new AgentConfig(setting.Name)
                     {
                         Type = type,
-                        Mode = ToContextMode(type),
                         Settings = setting
                     });
                 }
             }
-        }
-
-        private MessagingContextMode ToContextMode(AgentType value)
-        {
-            switch (value)
-            {
-                case AgentType.Submit:
-                    return MessagingContextMode.Submit;
-                case AgentType.Receive:
-                case AgentType.PullReceive:
-                    return MessagingContextMode.Receive;
-                case AgentType.PushSend:
-                case AgentType.PullSend:
-                case AgentType.OutboundProcessing:
-                    return MessagingContextMode.Send;
-                case AgentType.Deliver:
-                    return MessagingContextMode.Deliver;
-                case AgentType.Notify:
-                    return MessagingContextMode.Notify;
-                case AgentType.Forward:
-                    return MessagingContextMode.Forward;
-                default:
-                    return MessagingContextMode.Unknown;
-            }
-
         }
 
         private void Dispose(bool disposing)

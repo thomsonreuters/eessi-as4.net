@@ -1,4 +1,5 @@
 ﻿using System;
+using Eu.EDelivery.AS4.Agents;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
@@ -177,7 +178,7 @@ namespace Eu.EDelivery.AS4.Model.Internal
 
         public ReceptionAwareness ReceptionAwareness { get; }
 
-        public MessagingContextMode Mode { get; set; }
+        public MessagingContextMode Mode { get; private set; }
 
         public Exception Exception { get; set; }
 
@@ -221,6 +222,15 @@ namespace Eu.EDelivery.AS4.Model.Internal
         }
 
         public bool ReceivedMessageMustBeForwarded => ReceivingPMode?.MessageHandling?.MessageHandlingType == MessageHandlingChoiceType.Forward;
+
+        /// <summary>
+        /// Modifies the <see cref="MessagingContextMode"/> to target another mode.
+        /// </summary>
+        /// <param name="mode"></param>
+        internal void ModifyContext(MessagingContextMode mode)
+        {
+            Mode = mode;
+        }
 
         /// <summary>
         /// Modifies the MessagingContext
@@ -309,5 +319,32 @@ namespace Eu.EDelivery.AS4.Model.Internal
         Deliver,
         Forward,
         Notify
+    }
+
+    public static class MessagingContextModeExtensions
+    {
+        public static MessagingContextMode ToContextMode(this AgentType t)
+        {
+            switch (t)
+            {
+                case AgentType.Submit:
+                    return MessagingContextMode.Submit;
+                case AgentType.Receive:
+                case AgentType.PullReceive:
+                    return MessagingContextMode.Receive;
+                case AgentType.PushSend:
+                case AgentType.PullSend:
+                case AgentType.OutboundProcessing:
+                    return MessagingContextMode.Send;
+                case AgentType.Deliver:
+                    return MessagingContextMode.Deliver;
+                case AgentType.Notify:
+                    return MessagingContextMode.Notify;
+                case AgentType.Forward:
+                    return MessagingContextMode.Forward;
+                default:
+                    return MessagingContextMode.Unknown;
+            }
+        }
     }
 }
