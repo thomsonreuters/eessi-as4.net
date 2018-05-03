@@ -39,7 +39,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
             if (messagingContext.AS4Message.HasAttachments == false)
             {
-                Logger.Debug($"[{messagingContext.AS4Message.GetPrimaryMessageId()}] AS4Message hasn't got any Attachments to decompress");
+                Logger.Debug($"{messagingContext} AS4Message hasn't got any dttachments to decompress");
                 return StepResult.Success(messagingContext);
             }
 
@@ -66,13 +66,13 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         {
             AS4Message as4Message = context.AS4Message;
 
-            Logger.Info($"{context} Compressed Attachmented will be Decompressed");
+            Logger.Info($"{context} Compressed attachmented will be decompressed");
 
             foreach (Attachment attachment in as4Message.Attachments)
             {
                 if (IsAttachmentNotCompressed(attachment))
                 {
-                    Logger.Debug($"[{as4Message.GetPrimaryMessageId()}] Attachment {attachment.Id} is not Compressed");
+                    Logger.Debug($"{context} Attachment {attachment.Id} is not compressed");
                     continue;
                 }
 
@@ -82,12 +82,12 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                     return DecompressFailureResult(description, context);
                 }
 
-                Logger.Debug($"[{as4Message.GetPrimaryMessageId()}] Attachment {attachment.Id} will be Decompressed");
+                Logger.Debug($"{context} Attachment {attachment.Id} will be decompressed");
                 DecompressAttachment(attachment);
                 AssignAttachmentProperties(as4Message.PrimaryUserMessage.PayloadInfo.ToList(), attachment);
             }
 
-            Logger.Trace($"{context} Compressed Attachments are Decompressed");
+            Logger.Trace($"{context} Compressed attachments are decompressed");
             return await StepResult.SuccessAsync(context);
         }
 
