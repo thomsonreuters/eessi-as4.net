@@ -69,7 +69,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler
 
             Logger.Trace("Starting...");
             Task task = Task.WhenAll(_agents.Select(c => c.Start(cancellationToken)).ToArray());
-            Logger?.Trace("Started!");
+            Logger.Trace("Started!");
 
             await task;
 
