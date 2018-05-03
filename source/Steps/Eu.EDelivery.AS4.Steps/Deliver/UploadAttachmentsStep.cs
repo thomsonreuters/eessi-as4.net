@@ -15,8 +15,8 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
     /// <summary>
     /// Describes how the message payloads are uploaded to their respective media
     /// </summary>
-    [Description("This step uploads the message payloads to the destination that was configured in the receiving pmode.")]
     [Info("Upload attachments to deliver location")]
+    [Description("This step uploads the message payloads to the destination that was configured in the receiving pmode.")]
     public class UploadAttachmentsStep : IStep
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
@@ -65,6 +65,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
                 foreach (Attachment att in as4Message.Attachments.Where(a => a.MatchesAny(um.PayloadInfo)))
                 {
                     await TryUploadAttachmentAsync(att, um, uploader).ConfigureAwait(false);
+                    Logger.Info($"{messagingContext} Attachment '{att.Id}' is delivered at: {att.Location}");
                 }
             }
 
@@ -88,7 +89,10 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
             return uploader;
         }
 
-        private static async Task TryUploadAttachmentAsync(Attachment attachment, UserMessage referringUserMessage, IAttachmentUploader uploader)
+        private static async Task TryUploadAttachmentAsync(
+            Attachment attachment, 
+            UserMessage referringUserMessage, 
+            IAttachmentUploader uploader)
         {
             try
             {
@@ -102,7 +106,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
             }
             catch (Exception exception)
             {
-                Logger.Error("Attachments cannot be uploaded");
+                Logger.Error($"Attachment {attachment.Id} cannot be uploaded");
                 Logger.Error(exception.Message);
 
                 throw;
