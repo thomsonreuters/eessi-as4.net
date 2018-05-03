@@ -1,0 +1,16 @@
+.settings {
+  margin-top: 10px;
+  margin-bottom: 15px;
+}
+table tr td {
+  border: 0;
+}
+.step-row {
+  display: flex;
+}
+.step-row > .item:last-child {
+  flex: 1 1 auto;
+}
+.stepinfo {
+  width: 16px;
+}
