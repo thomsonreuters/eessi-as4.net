@@ -30,7 +30,7 @@
         "clean": "npm cache clean && npm run rimraf -- node_modules doc coverage dist compiled dll",
         "cy:open": "cypress open",
         "cy:test": "cypress run",
-        "cy:test:ci": "npm run backend && run-p --race start cy:run",
+        "cy:test:ci": "npm run backend && run-p --race start cy:test",
         "docker": "docker",
         "docs": "npm run typedoc -- --options typedoc.json --exclude '**/*.spec.ts' ./src/",
         "e2e:live": "npm-run-all -p -r server:prod:ci protractor:live",
