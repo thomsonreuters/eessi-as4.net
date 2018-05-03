@@ -23,8 +23,6 @@ namespace Eu.EDelivery.AS4.Agents
         /// <value>The name.</value>
         public string Name { get; }
 
-        public MessagingContextMode Mode { get; internal set; }
-
         /// <summary>
         /// Gets the type.
         /// </summary>
