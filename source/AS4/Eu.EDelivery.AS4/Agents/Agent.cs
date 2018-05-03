@@ -110,7 +110,7 @@ namespace Eu.EDelivery.AS4.Agents
         /// <returns></returns>
         public Task Start(CancellationToken cancellation)
         {
-            Logger.Trace($"Start {AgentConfig.Name}...");
+            Logger.Trace($"Starting {AgentConfig.Name}...");
             cancellation.Register(Stop);
 
             Task task = Task.Factory.StartNew(
