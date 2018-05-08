@@ -4,7 +4,6 @@ This section expands on the enterprise usage of the AS4.NET component.
 
 * [Install and Configure Reverse Proxy](install-configure-reverse-proxy.md)
 * [Enable HTTPS without IIS](enable-https-without-iis.md)
-* [Install Certificates](install-certificates.md)
 * [Install as Windows Service](windows-servivce.md)
 * [Configure Logging](configure-logging.md)
 

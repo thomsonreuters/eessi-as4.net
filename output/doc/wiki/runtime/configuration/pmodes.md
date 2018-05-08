@@ -1,155 +1,8 @@
-# Configuration
-
-The paragraphs in this section describe the contents of the package and provide a brief overview of the configuration.
-
-## Package
-
-The package itself is divided in several folders:
-
-* **config**
-* **database**
-* **documentation**
-* **logs**
-* **messages**
-* **samples**
-* **component.exe**
-
-In the root of the package you find the .exe file that runs the component. Next up all the folders are being explained.
-
-### Config Folder
-
-Inside the configuration folder, following structure is created:
-
-* **receive-pmodes**
-* **send-pmodes**
-* **settings.xml**
-
-The folders send/receive-pmodes are the folders which configured the PModes (respectively send/receive). Samples of these PModes can be found in the Samples folder.
-The **settings.xml** file contains the global configuration of the component and is explained below (2.2).
-
-### Database Folder
-
-Default **SQLite** is used as database. The .db file which contains the SQLite database is stored in this folder.
-Regardless of the database that is being used, this folder will by default also contain the following folder structure:
-
-* **as4messages**
-    * **in**
-    * **out**
-
-Inside these folders, the messagebodies of the AS4 messages that have been sent and received are saved.
-Received messages are saved in the **in** folder, messages that have been sent are saved in the **out** folder.
-
-### Documentation Folder
-
-Inside the documentation folder, following structure is created:
-
-* schemas
-
-Inside the **schemas** folder the .xsd files are located of the **PModes** and **messages**. In the root of this folder, documentation is added.
-
-### Logs
-
-Inside the logs folder, you can find detailed debug and error logs.  In order to modify the log configuration, follow the instructions in the section: *"Configure Logging"*.
-
-### Messages Folder
-
-Inside the messages folder, following structure is created:
-
-* **attachments**
-* **errors**
-* **exceptions**
-* **receipts**
-* **in**
-* **out**
-
-The **attachments** folder contains several files (pictures and .xml documents) that are being used as reference for the send AS4 messages. The **receipts/errors/exceptions** folders are used to store **Notify Messages**. The in folder is used to store incoming messages and attachments; the **out** folder is being used to send messages to another MSH (the .xml file will be renamed to `.accepted` if it’s being retrieved by the component).
-
-These folders are used just to get started with the component.  The component can be configured to use other file folders.
-
-### Samples Folder
-
-Inside the samples folder, following structure is created:
-
-* **certificates**
-* **messages**
-* **receive-pmodes**
-* **send-pmodes**
-
-Each folder contains the respectively the samples of send/receive-PModes and messages. Inside the certificates folder, you find sample **certificates** that can be used for sending (signing/encrypting) and receiving (verifying) messages.
-
-## Settings
-
-The `settings.xml` located inside the config folder contains several global configuration settings used inside the component. Each kind of setting is explained in the following paragraphs.
-
-### GUID Format
-
-When creating AS4 Messages, Message Ids are being generated. To configure the format in which this must be done the `<IdFormat/>` tag is being used inside the `settings.xml`.
-
-Default: `{GUID}@{IPADDRESS}`
-
-### Payload Service In Process
-
-This setting defines whether or not the (optional) PayloadService should be started in-process with the AS4.NET MessageHandler.
-
-The PayloadService is a REST service that can contain payloads that are referenced by submit-messages.
-More information regarding the PayloadService can be found in the Technical Analysis document.
-
-### FE In Process
-
-This setting defines whether or not the AS4.NET FrontEnd should be started in-process with the AS4.NET MessageHandler.
-The AS4.NET FrontEnd web-application lets you configure the AS4.NET messagehandler and offers monitoring functionality.
-
-### Database Provider
-
-The component can be configured to store messages and exceptions in another datastore. Inside the `settings.xml` the `<Database/>` tag is responsible for this. Underneath this tag you define the `<Provider/>`, which can be **SQLite**, **SQLServer**,… any type which is supported in **Entity Framework Core**; and the <ConnectionString/> which defines the actual connection to the database.
-
-So, let’s say you want to change the provider to store the messages in a SQL Server database; you must change the <Provider/> to “SqlServer” and the <ConnectionString/> to a valid SQL Server Connection String: `Server=myServerAddress;Database=myDataBase;Trusted_Connection=True;`.
-
-- Default Provider: **Sqlite**
-- Default Connection String: `Filename=database\messages.db`
-
-### Certificate Store
-
-To support signing and encrypting messages, certificates are needed. The certificate store that’s needed to retrieve this certificates and be set in the <StoreName/> tag.
-
-Default: **My**
-
-The default implementation is used to retrieve certificates from a certificate store on a Windows environment; but you can write your own implementation. If you’re on a Windows environment (so the default implementation is OK for you) you can define here in which Store you want to search. 
-
-Following values can be used:
-
-| Member name           | Description                                  
-| --------------------- | ---------------------------------------------
-| AddressBook           | The X.509 certificate store for other users.
-| AuthRoot              | The X.509 certificate store for third-party certificate authorities (CAs).
-| CertificateAuthority  | The X.509 certificate store for intermediate certificate authorities (CAs).
-| Disallowed            | The X.509 certificate store for revoked certificates.
-| My                    | The X.509 certificate store for personal certificates.
-| Root                  | The X.509 certificate store for trusted root certificate authorities (CAs).
-| TrustedPeople         | The X.509 certificate store for directly trusted people and resources.
-| TrustedPublisher      | The X.509 certificate store for directly trusted publishers.
-
-### Agents
-
-The AS4 protocol has several operations: Submit, Send, Receive, Deliver and Notify. All of these operations are configured in the settings.xml as Agents. Each agent has three items which defines the agent: **Receiver**, **Transformer** and **Step(s)**.
-
-A **Receiver** can be configured in the `<Receiver/>` tag in each agent. There are multiple kinds of receivers: FileReceiver, DatastoreReceiver, HttpReceiver… Each needed to be configured in order to work correctly. This can be done in the children of this tag as a `<Setting/>` (with attribute **key**; the inner text of the tag is the **value**).
-
-A **Transformer** can be configured in the `<Transformer/>` tag in each agent. This transformer is needed in order to transform the received message (could be `.xml`, `.json`…) and transform it to a AS4 Message that can be used in the Step(s).
-
-A **Step** or **Steps** can be configured in the `<StepConfiguration/>` tag in each agent.  The StepConfiguration element must at least contain a NormalPipeline element.  The **NormalPipeline** element contains the steps that must be executed by the Agent. These steps will be executed after the message is being transformed. Example of steps are: `CreateReceiptStep`, `CompressAttachmentsStep`, `DecryptAS4MessageStep`…
-
-The **StepConfiguration** can contain an **ErrorPipeline** element as well.  This element contains the Steps that will be executed when a step in the **NormalPipeline** failed to execute successfully.
-
-Each tag (**Receiver**, **Transformer** and **Step**) has a **type** attribute which defines the type of which the instance must be created inside the component.
-
-### Custom Settings
-
-When creating custom implementations of types, settings can sometimes be useful. For example, an **Email Sender** by which you configure the **SMTP Server** in the `settings.xml`. This can be useful instead of hardcoded each configured value in the implementation itself.
+# PModes
 
 ## Sending Processing Mode
 
-This contract describes all the properties available in the Sending PMode.  The required data fields are marked as mandatory; default values are provided.  Some values of the Sending PMode can be overridden by a SubmitMessage. This definition is available as XSD.
+This contract describes all the properties available in the Sending PMode. The required data fields are marked as mandatory; default values are provided. Some values of the Sending PMode can be overridden by a SubmitMessage. This definition is available as XSD.
 
 <table>
     <tbody>
@@ -614,11 +467,11 @@ This contract describes all the properties available in the Sending PMode.  The 
     </tbody>
 </table>
 
- (*): M = Mandatory | O = Optional | R = Recommended
+(\*): M = Mandatory | O = Optional | R = Recommended
 
- ## Receiving PMode
+## Receiving PMode
 
- This contract describes all the properties available in the Receiving PMode.  The required data fields are marked as mandatory; default values are provided.  This definition is available as XSD.
+This contract describes all the properties available in the Receiving PMode. The required data fields are marked as mandatory; default values are provided. This definition is available as XSD.
 
 <table>
     <tbody>
@@ -906,17 +759,18 @@ This contract describes all the properties available in the Sending PMode.  The 
     </tbody>
 </table>
 
-(*): M = Mandatory | O = Optional | R = Recommended
+(\*): M = Mandatory | O = Optional | R = Recommended
 
-(**) When the received payloads must be delivered to the FileSystem, the following parameters available:
+(\*\*) When the received payloads must be delivered to the FileSystem, the following parameters available:
 
-- **Location**: 
+* **Location**:
   The location on the filesystem (directory) where the payloads must be delivered.
 
-- **FileNameFormat**: 
+* **FileNameFormat**:
   Defines how the filename of the delivered payloads must look like. There are two macro's available that can be used to define this pattern:
-  - `{MessageId}` : inserts the ebMS MessageId in the filename
-  - `{AttachmentId}` : inserts the AttachmentId in the filename
+
+  * `{MessageId}` : inserts the ebMS MessageId in the filename
+  * `{AttachmentId}` : inserts the AttachmentId in the filename
     It is possible to combine the macro's which means that it is possible to use `{MessageId}_{AttachmentId}`.
 
     When the `FileNameFormat` parameter is not defined, the AttachmentId of the payload will be used as the filename
@@ -924,10 +778,8 @@ This contract describes all the properties available in the Sending PMode.  The 
 
     > (The FileNameFormat parameter is available as from AS4.NET v2.0.1)
 
-- **AllowOverwrite**: 
+* **AllowOverwrite**:
   Defines whether files with the same name can be overwritten when delivering a payload.  
   Possible values are True and False, the default-value is false.
 
   > (The AllowOverwrite parameter is available as from AS4.NET v2.0.1)
-
-
