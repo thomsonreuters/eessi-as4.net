@@ -47,7 +47,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             Assert.False(_databaseSpy.GetInExceptions(r => true).Any(), "No logged InExceptions are expected.");
         }
 
-        [Fact(Skip = "Not yet fully implemented: the received UserMessage isn't set to 'ToBeDelivered'")]
+        [Fact(Skip = "Not yet fully implemented")]
         public async Task Received_Bundled_Response_Should_Process_All_Messages()
         {
             // Arrange
@@ -143,7 +143,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             waiter.WaitOne(timeout: TimeSpan.FromSeconds(5));
 
             // Wait till the response is processed correctly.
-            await Task.Delay(TimeSpan.FromSeconds(5));
+            await Task.Delay(TimeSpan.FromSeconds(2));
         }
     }
 }
