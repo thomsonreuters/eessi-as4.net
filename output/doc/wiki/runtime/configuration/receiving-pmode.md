@@ -1,0 +1,314 @@
+## Receiving PMode
+
+This contract describes all the properties available in the Receiving PMode. The required data fields are marked as mandatory; default values are provided. This definition is available as XSD.
+
+<table>
+    <tbody>
+        <tr>
+            <th align="left"><b>Receive PMode</b></th>
+            <th align="center">*</th>
+            <th align="left"><b>Description</b></th>
+        </tr>
+        <tr>
+            <td><b>Id</b></td>
+            <td align="center">M</td>
+            <td>PMode Unique Id</td>
+        </tr>
+        <tr>
+            <td>
+                <b>Reliability</b><br/>
+                &nbsp;&nbsp;<i>DuplicateElimination</i><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IsEnabled
+            </td>
+            <td align="center">
+                O<br/>
+                O<br/>
+                O<br/>
+            </td>
+            <td><br/><br/><i>Default:</i> false</td>
+        </tr>
+        <tr>
+            <td>
+                <b>ReplyHandling</b><br/>
+                    &nbsp;&nbsp;ReplyPattern<br/><br/><br/>
+                    &nbsp;&nbsp;SendingPMode<br/>
+                    &nbsp;&nbsp;<b>ReceiptHandling</b><br/>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;UseNRRFormat<br/><br/>
+                    <b>&nbsp;&nbsp;ErrorHandling</b><br/>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;UseSOAPFault<br/>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ResponseHttpCode<br/>
+            </td>
+            <td align="center">
+                M<br/>
+                M<br/><br/><br/>
+                M<br/>
+                O<br/>
+                O<br/><br/>
+                O<br/>
+                O<br/>
+                O<br/>
+            </td>
+            <td>
+            <br/>
+                <i>Enumeration:</i>
+                <ul style="margin:0;">
+                    <li>Response: sync response (<i>default</i>)</li>
+                    <li>Callback: async response</li>
+                </ul>
+                Reference to the Sending PMode <br/><br/>
+                <div>Specifies if NonRepudationInfo must be included in receipt <i>Default: false</i></div>
+                <i>Default: false</i><br/>
+                <br/>HTTP Status Code in case of reply = response. <br/><i>Default: 200</i><br/>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <b>ExceptionHandling</b><br/>
+                &nbsp;&nbsp; NotifyMessageConsumer<br/>
+                &nbsp;&nbsp; NotifyMethod <br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>Type</i><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>Parameters</i><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>Parameter</i><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Name<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Value
+            </td>
+            <td align="center">
+                O<br/>
+                O<br/>
+                M<br/>
+                M<br/>
+                M<br/>
+                M<br/>
+                M<br/>
+                M<br/>
+            </td>
+            <td>
+                <br/>
+                <i>Default:</i> false
+                <br/><br/>
+                <div style="width:500px;">Type of the Notify Agent Required parameters for the specified agent</div>
+                <br/><br/>
+                Name of the parameter<br/>
+                Value of the parameter
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <b>Security</b><br/>
+                &nbsp;&nbsp;<i>SigningVerification</i><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Signature<br/><br/><br/><br/><br/><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AllowUnknownRootCertificate
+                &nbsp;&nbsp;<i>Decryption</i><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Encryption<br/><br/><br/><br/><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CertificateFindCriteria
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CertificateFindType
+                <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CertificateFindValue
+            </td>
+            <td align="center">
+                O<br/>
+                O<br/>
+                M<br/>
+                <br/><br/><br/><br/><br/>
+                O<br/>
+                O<br/>
+                O<br/>
+                <br/><br/><br/><br/>
+                O<br/>
+                M<br/>
+                <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
+                M<br/>
+            </td>
+            <td>
+                <br/><br/>
+                <i>Enumeration</i>
+                <ul style="margin:0;">
+                    <li>Allowed (<i>default)</i></li>
+                    <li>Not allowed</li>
+                    <li>Required</li>
+                    <li>Ignored</li>
+                </ul>
+                <br/>
+                <div style="width:550px;">Indicates whether certificates with an unknown root authority are trusted. (Default <i>false</i>)</div><br/>               <i>Enumeration:</i>
+                <ul style="margin:0;">
+                    <li>Ignored (<i>default)</i></li>
+                    <li>Allowed</li>
+                    <li>Not allowed</li>
+                    <li>Required</li>
+                </ul>
+                <i><br/></i>
+                <i>Enumeration:</i>
+                <ul style="margin:0;">
+                   <li>FindByThumbprint</li>
+                   <li>FindBySubjectName</li>
+                   <li>FindBySubjectDistinguishedName</li>
+                   <li>FindByIssuerName</li>
+                   <li>FindByIssuerDistinguishedName</li>
+                   <li>FindBySerialNumber</li>
+                   <li>FindByTimeValid</li>
+                   <li>FindByTimeNotValid</li>
+                   <li>FindByTimeNotYetValid</li>
+                   <li>FindByTimeExpired</li>
+                   <li>FindByTemplateName</li>
+                   <li>FindByApplicationPolicy</li>
+                   <li>FindByCertificatePolicy</li>
+                   <li>FindByExtension</li>
+                   <li>FindByKeyUsage</li>
+                   <li>FindBySubjectKeyIdentifier</li>
+                </ul>
+                <br/>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <b>Message Packaging</b><br/>
+                &nbsp;&nbsp;<u>PartyInfo</u><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>FromParty</i><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>PartyIds</i><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <i>PartyId</i><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Id<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Type<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Role<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>ToParty</i><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>PartyIds</i><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <i>PartyId</i><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Id<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Type<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Role<br/>
+                &nbsp;&nbsp;<u>CollaborationInfo</u><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>AgreementRef</i><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Value<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Type<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>Service</i><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Value<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Type<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Action<br/>
+            </td>
+            <td align="center">
+                O<br/>
+                O<br/>
+                O<br/>
+                O<br/>
+                O<br/>
+                O<br/>
+                O<br/>
+                O<br/>
+                O<br/>
+                O<br/>
+                O<br/>
+                O<br/>
+                O<br/>
+                O<br/>
+                O<br/>
+                O<br/>
+                O<br/>
+                O<br/>
+                O<br/>
+                O<br/>
+                O<br/>
+                O<br/>
+            </td>
+            <td>
+                <br/><br/><br/><br/><br/>
+                Id of the sending party<br/>
+                Type of Id of the sending party<br/>
+                Role of the sending party<br/>
+                <br/><br/><br/>
+                Id of the receiving party<br/>
+                Type of Id of the receiving party<br/>
+                Role of the receiving party<br/>
+                <br/><br/>
+                Information about the partner agreement<br/>
+                Type of the agreement reference<br/>
+                <br/>
+                The name of the service that is consumed<br/>
+                Type of the service<br/>
+                The service operation that is consumed
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <b>MessageHandling</b><br/>
+                <b><b>&nbsp; </b></b><u>Deliver</u><br/>
+                <b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Deliver</b><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IsEnabled<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PayloadReferenceMethod<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <i>Type</i><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <i>Parameters</i><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <i>Parameter</i><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Value<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DeliverMethod<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <i>Type</i><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <i>Parameters</i><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <i>Parameter</i><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Value<br/>
+                <span>&nbsp; </span><u>Forward</u><br/>
+                <span>&nbsp;&nbsp;&nbsp;&nbsp; SendingPMode</span><br/>
+            </td>
+            <td align="center">
+                M<br/>
+                O<br/>
+                <br/>
+                M<br/>
+                M<br/>
+                M<br/>
+                M<br/>
+                M<br/>
+                M<br/>
+                M<br/>
+                M<br/>
+                M<br/>
+                M<br/>
+                M<br/>
+                M<br/>
+                M<br/>
+                O<br/>
+                M<br/>
+            </td>
+            <td>
+                Describes how a received ebMS Message must be handled<br/>
+                Deliver or Forward must be specified, not both<br/>
+                <i><br/></i>
+                <i>True</i> or <i>false</i>
+                Payload Deliver method (HTTP, FILE(**)…)
+                Required parameters
+                <br/><br/><br/><br/><br/>
+                Name of the parameter<br/>
+                Value of the parameter<br/><br/>
+                Type of the Deliver method (HTTP, FILE,..)<br/>
+                <br/><br/>
+                Name of the parameter<br/>
+                Value of the parameter<br/>
+                Deliver or Forward must be specified, not both<br/>
+                The name of the PMode that must be used to forward the received Message.
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+(\*): M = Mandatory | O = Optional | R = Recommended
+
+(\*\*) When the received payloads must be delivered to the FileSystem, the following parameters available:
+
+* **Location**:
+  The location on the filesystem (directory) where the payloads must be delivered.
+
+* **FileNameFormat**:
+  Defines how the filename of the delivered payloads must look like. There are two macro's available that can be used to define this pattern:
+
+  * `{MessageId}` : inserts the ebMS MessageId in the filename
+  * `{AttachmentId}` : inserts the AttachmentId in the filename
+    It is possible to combine the macro's which means that it is possible to use `{MessageId}_{AttachmentId}`.
+
+    When the `FileNameFormat` parameter is not defined, the AttachmentId of the payload will be used as the filename
+    When the `FileNameFormat` parameter is defined, but it contains none of the above defined parameters, then `_{AttachmentId}` will be appended.
+
+    > (The FileNameFormat parameter is available as from AS4.NET v2.0.1)
+
+* **AllowOverwrite**:
+  Defines whether files with the same name can be overwritten when delivering a payload.  
+  Possible values are True and False, the default-value is false.
+
+  > (The AllowOverwrite parameter is available as from AS4.NET v2.0.1)
