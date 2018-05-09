@@ -13,7 +13,6 @@ Default: `{GUID}@{IPADDRESS}`
 This setting defines whether or not the (optional) PayloadService should be started in-process with the AS4.NET MessageHandler.
 
 The PayloadService is a REST service that can contain payloads that are referenced by submit-messages.
-More information regarding the PayloadService can be found in the Technical Analysis document.
 
 ### FE In Process
 
