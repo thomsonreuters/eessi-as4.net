@@ -305,16 +305,43 @@ namespace Eu.EDelivery.AS4.Model.PMode
     {
         [Description("Indicate whether or not the Message Payloads must be delivered.")]
         public bool IsEnabled { get; set; }
+
         [Description("Payload delivery method")]
         public Method PayloadReferenceMethod { get; set; }
+
         [Description("Deliver method")]
         public Method DeliverMethod { get; set; }
+
+        [Description("Deliver reliability")]
+        public DeliverReliability Reliability { get; set; }
 
         public Deliver()
         {
             IsEnabled = false;
             PayloadReferenceMethod = new Method();
             DeliverMethod = new Method();
+            Reliability = new DeliverReliability();
+        }
+    }
+
+    public class DeliverReliability
+    {
+        [Description("Indicate wheter or not the deliver operation should be retried on failure.")]
+        public bool IsEnabled { get; set; }
+
+        [Description("Amount of retry cycles the deliver operation should be retried on failure.")]
+        public int RetryCount { get; set; }
+
+        [Description("Time interval between each retry cycle the deliver operation should be retried on failure.")]
+        public string RetryInterval { get; set; }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DeliverReliability"/> class.
+        /// </summary>
+        public DeliverReliability()
+        {
+            IsEnabled = false;
+
         }
     }
 

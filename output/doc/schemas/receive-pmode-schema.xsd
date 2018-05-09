@@ -204,6 +204,14 @@
       <xs:element minOccurs="1" maxOccurs="1" name="IsEnabled" type="xs:boolean" />
       <xs:element minOccurs="0" maxOccurs="1" name="PayloadReferenceMethod" type="tns:Method" />
       <xs:element minOccurs="0" maxOccurs="1" name="DeliverMethod" type="tns:Method" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Reliability" type="tns:DeliverReliability" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="DeliverReliability">
+    <xs:sequence>
+      <xs:element minOccurs="1" maxOccurs="1" name="IsEnabled" type="xs:boolean" />
+      <xs:element minOccurs="1" maxOccurs="1" name="RetryCount" type="xs:int" />
+      <xs:element minOccurs="0" maxOccurs="1" name="RetryInterval" type="xs:string" />
     </xs:sequence>
   </xs:complexType>
   <xs:complexType name="Forward">
