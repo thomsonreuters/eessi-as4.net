@@ -74,9 +74,9 @@ namespace Eu.EDelivery.AS4.Streaming
             }
         }
 
-        public static VirtualStream CreateVirtualStream(bool forAsync = false)
+        public static VirtualStream Create(bool forAsync = false)
         {
-            return CreateVirtualStream(ThresholdMax, forAsync);
+            return Create(ThresholdMax, forAsync);
         }
 
         /// <summary>
@@ -85,14 +85,14 @@ namespace Eu.EDelivery.AS4.Streaming
         /// <param name="expectedSize"></param>
         /// <param name="forAsync"></param>
         /// <returns></returns>
-        public static VirtualStream CreateVirtualStream(long expectedSize, bool forAsync = false)
+        public static VirtualStream Create(long expectedSize, bool forAsync = false)
         {
             if (expectedSize < 0)
             {
                 expectedSize = ThresholdMax;
             }
 
-            return CreateVirtualStream(expectedSize, ThresholdMax, forAsync);
+            return Create(expectedSize, ThresholdMax, forAsync);
         }
 
         /// <summary>
@@ -101,7 +101,7 @@ namespace Eu.EDelivery.AS4.Streaming
         /// <param name="expectedSize">The expected total size of the stream.</param>
         /// <param name="thresholdSize">The threshold size on which the VirtualStream will be persisted to disk.</param>
         /// <returns></returns>
-        public static VirtualStream CreateVirtualStream(long expectedSize, int thresholdSize, bool forAsync = false)
+        public static VirtualStream Create(long expectedSize, int thresholdSize, bool forAsync = false)
         {
             if (expectedSize > thresholdSize)
             {

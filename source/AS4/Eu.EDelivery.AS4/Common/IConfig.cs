@@ -1,15 +1,12 @@
-﻿using System.Collections.Generic;
-using System.Configuration;
+﻿using System;
+using System.Collections.Generic;
 using Eu.EDelivery.AS4.Agents;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Services.PullRequestAuthorization;
-using Eu.EDelivery.AS4.Watchers;
 
 namespace Eu.EDelivery.AS4.Common
 {
-    using System;
-
     public interface IConfig
     {
         // TODO: add typed properties for mandatory configuration items ? (IdFormat, Database connectionstring, etc...) ?

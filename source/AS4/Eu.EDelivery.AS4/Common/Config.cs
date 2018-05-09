@@ -210,13 +210,13 @@ namespace Eu.EDelivery.AS4.Common
         /// Return all the configured <see cref="ReceivingProcessingMode" />
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<ReceivingProcessingMode> GetReceivingPModes() => _receivingPModeWatcher.GetPModes().OfType<ReceivingProcessingMode>();
+        public IEnumerable<ReceivingProcessingMode> GetReceivingPModes() => _receivingPModeWatcher?.GetPModes().OfType<ReceivingProcessingMode>();
 
         /// <summary>
         /// Return all the configured <see cref="SendingProcessingMode"/>
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<SendingProcessingMode> GetSendingPModes() => _sendingPModeWatcher.GetPModes().OfType<SendingProcessingMode>();
+        public IEnumerable<SendingProcessingMode> GetSendingPModes() => _sendingPModeWatcher?.GetPModes().OfType<SendingProcessingMode>();
 
         /// <summary>
         /// Retrieve the URL's on which specific MinderSubmitReceiveAgents should listen.

@@ -87,7 +87,7 @@ namespace Eu.EDelivery.AS4.Transformers
             }
 
             VirtualStream messageStream =
-                VirtualStream.CreateVirtualStream(
+                VirtualStream.Create(
                     receivedMessage.UnderlyingStream.CanSeek
                         ? receivedMessage.UnderlyingStream.Length
                         : VirtualStream.ThresholdMax,
