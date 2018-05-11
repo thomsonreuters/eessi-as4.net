@@ -28,7 +28,8 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
             {
                 var repository = new DatastoreRepository(context);
 
-                Logger.Info($"{messagingContext} Update InMessage with Status and Operation set to 'Delivered'");
+                Logger.Info($"{messagingContext.Logging} Mark deliver message as 'Delivered'");
+                Logger.Debug($"{messagingContext.Logging} Update InMessage with Status and Operation set to 'Delivered'");
 
                 repository.UpdateInMessage(
                     messagingContext.DeliverMessage.MessageInfo.MessageId, 

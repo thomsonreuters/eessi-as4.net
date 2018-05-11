@@ -17,8 +17,8 @@ namespace Eu.EDelivery.AS4.Steps.Send
     /// <summary>
     /// Describes how the MSH signs the AS4 UserMessage
     /// </summary>
-    [Info("Sign the AS4 Message")]
-    [Description("This step signs the AS4 Message if signing is enabled in the Sending PMode.")]
+    [Info("Sign the AS4 Message if necessary")]
+    [Description("This step signs the AS4 Message if signing is enabled in the Sending PMode")]
     public class SignAS4MessageStep : IStep
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
@@ -52,12 +52,16 @@ namespace Eu.EDelivery.AS4.Steps.Send
         {
             if (messagingContext.AS4Message == null || messagingContext.AS4Message.IsEmpty)
             {
+                Logger.Debug($"{messagingContext.Logging} Incoming ");
                 return await StepResult.SuccessAsync(messagingContext);
             }
 
             if (messagingContext.SendingPMode?.Security.Signing.IsEnabled != true)
             {
-                Logger.Debug($"{messagingContext} Sending PMode {messagingContext.SendingPMode?.Id} Signing is disabled");
+                Logger.Debug(
+                    $"{messagingContext.Logging} No signing will be performend on the message " + 
+                    $"because the SendingPMode {messagingContext.SendingPMode?.Id} siging information is disabled");
+
                 return await StepResult.SuccessAsync(messagingContext);
             }
 
@@ -70,7 +74,9 @@ namespace Eu.EDelivery.AS4.Steps.Send
         {
             try
             {
-                Logger.Info($"{context} Sign AS4 Message with given Signing Information");
+                Logger.Info(
+                    $"{context.Logging} Sign AS4Message with given signing information of the SendingPMode {context.SendingPMode.Id}");
+
                 SignAS4Message(context);
             }
             catch (Exception exception)
@@ -91,10 +97,12 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
             if (!certificate.HasPrivateKey)
             {
-                throw new CryptographicException($"{context.EbmsMessageId} Certificate does not have a private key");
+                throw new CryptographicException(
+                    $"{context.Logging} Cannot use certificate for signing: certificate does not have a private key. " +
+                    "Please make sure that the private key is included in the certificate and is marked as Exportable");
             }
 
-            var calculateSignatureConfig = CreateSignConfig(certificate, context.SendingPMode);
+            CalculateSignatureConfig calculateSignatureConfig = CreateSignConfig(certificate, context.SendingPMode);
 
             context.AS4Message.Sign(calculateSignatureConfig);
         }
@@ -105,36 +113,44 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
             if (signInfo.SigningCertificateInformation == null)
             {
-                throw new ConfigurationErrorsException("No signing certificate information found in PMode to perform signing.");
+                throw new ConfigurationErrorsException(
+                    $"{messagingContext.Logging} No signing certificate information found " + 
+                    $"in Sending PMode {messagingContext.SendingPMode.Id} to perform signing. " +
+                    "Please provide either a <CertificateFindCriteria/> or <PrivateKeyCertificate/> tag to the Security.Signing element");
             }
 
-            var certFindCriteria = signInfo.SigningCertificateInformation as CertificateFindCriteria;
-
-            if (certFindCriteria != null)
+            if (signInfo.SigningCertificateInformation is CertificateFindCriteria certFindCriteria)
             {
-                return _repository.GetCertificate(certFindCriteria.CertificateFindType, certFindCriteria.CertificateFindValue);
+                return _repository.GetCertificate(
+                    findType: certFindCriteria.CertificateFindType, 
+                    privateKeyReference: certFindCriteria.CertificateFindValue);
             }
 
-            var embeddedCertInfo = signInfo.SigningCertificateInformation as PrivateKeyCertificate;
-
-            if (embeddedCertInfo != null)
+            if (signInfo.SigningCertificateInformation is PrivateKeyCertificate embeddedCertInfo)
             {
-                return new X509Certificate2(Convert.FromBase64String(embeddedCertInfo.Certificate), embeddedCertInfo.Password,
-                                            X509KeyStorageFlags.Exportable | X509KeyStorageFlags.MachineKeySet | X509KeyStorageFlags.PersistKeySet);
+                return new X509Certificate2(
+                    rawData: Convert.FromBase64String(embeddedCertInfo.Certificate),
+                    password: embeddedCertInfo.Password,
+                    keyStorageFlags: 
+                        X509KeyStorageFlags.Exportable
+                        | X509KeyStorageFlags.MachineKeySet
+                        | X509KeyStorageFlags.PersistKeySet);
             }
 
             throw new NotSupportedException(
-                "The signing certificate information specified in the PMode could not be used to retrieve the certificate");
+                "The signing certificate information specified in the PMode could not be used to retrieve the certificate. " +
+                "Please provide either a <CertificateFindCriteria/> or <PrivateKeyCertificate/> tag to the Security.Signing element");
         }
 
         private static CalculateSignatureConfig CreateSignConfig(X509Certificate2 signCertificate, SendingProcessingMode pmode)
         {
             Signing signing = pmode.Security.Signing;
 
-            return new CalculateSignatureConfig(signCertificate,
-                                                signing.KeyReferenceMethod,
-                                                signing.Algorithm,
-                                                signing.HashFunction);
+            return new CalculateSignatureConfig(
+                signingCertificate: signCertificate,
+                referenceTokenType: signing.KeyReferenceMethod,
+                signingAlgorithm: signing.Algorithm,
+                hashFunction: signing.HashFunction);
         }
     }
 }

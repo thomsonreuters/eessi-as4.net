@@ -10,8 +10,8 @@ using NLog;
 
 namespace Eu.EDelivery.AS4.Steps.Notify
 {
-    [Description("This step makes sure that the status of the message is set to ‘Notified’ after notification")]
     [Info("Update datastore after notification")]
+    [Description("This step makes sure that the status of the message is set to ‘Notified’ after notification")]
     public class NotifyUpdateDatastoreStep : IStep
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
@@ -39,7 +39,7 @@ namespace Eu.EDelivery.AS4.Steps.Notify
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
             var notifyMessage = messagingContext.NotifyMessage;
-            Logger.Info($"{messagingContext} Update Notify Message {notifyMessage.MessageInfo.MessageId}");
+            Logger.Info($"{messagingContext.Logging} Mark the stored notify message as Notified");
 
             await UpdateDatastoreAsync(notifyMessage, messagingContext).ConfigureAwait(false);
             return await StepResult.SuccessAsync(messagingContext);
@@ -53,6 +53,7 @@ namespace Eu.EDelivery.AS4.Steps.Notify
 
                 if (notifyMessage.EntityType == typeof(InMessage))
                 {
+                    Logger.Debug(messagingContext.Logging + "Update InMessage with Status and Operation set to Notified");
                     repository.UpdateInMessage(notifyMessage.MessageInfo.MessageId, m =>
                     {
                         m.SetStatus(InStatus.Notified);
@@ -61,6 +62,7 @@ namespace Eu.EDelivery.AS4.Steps.Notify
                 }
                 else if (notifyMessage.EntityType == typeof(OutMessage) && messagingContext.MessageEntityId != null)
                 {
+                    Logger.Debug(messagingContext.Logging + "Update OutMessage with Status and Operation set to Notified");
                     repository.UpdateOutMessage(messagingContext.MessageEntityId.Value, m =>
                     {
                         m.SetStatus(OutStatus.Notified);
@@ -69,15 +71,20 @@ namespace Eu.EDelivery.AS4.Steps.Notify
                 }
                 else if (notifyMessage.EntityType == typeof(InException))
                 {
+                    Logger.Debug(messagingContext.Logging + "Update InException with Status and Operation set to Notified");
                     repository.UpdateInException(notifyMessage.MessageInfo.RefToMessageId, ex => ex.SetOperation(Operation.Notified));
                 }
                 else if (notifyMessage.EntityType == typeof(OutException))
                 {
+                    Logger.Debug(messagingContext.Logging + "Update OutException with Status and Operation set to Notified");
                     repository.UpdateOutException(notifyMessage.MessageInfo.RefToMessageId, ex => ex.SetOperation(Operation.Notified));
                 }
                 else
                 {
-                    throw new InvalidOperationException($"Unable to update notified entities of type {notifyMessage.EntityType.FullName}");
+                    throw new InvalidOperationException(
+                        $"Unable to update notified entities of type {notifyMessage.EntityType.FullName}." +
+                        "Please provide one of the following types in the notify message: " +
+                        "InMessage, OutMessage, InException, and OutException are supported.");
                 }
 
                 await context.SaveChangesAsync().ConfigureAwait(false);

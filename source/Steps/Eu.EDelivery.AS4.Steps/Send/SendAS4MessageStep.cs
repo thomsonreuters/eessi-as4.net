@@ -24,8 +24,8 @@ namespace Eu.EDelivery.AS4.Steps.Send
     /// <summary>
     /// Send <see cref="AS4Message" /> to the corresponding Receiving MSH
     /// </summary>
-    [Description("This step makes sure that an AS4 Message that has been processed, is sent to its destination.")]
-    [Info("Send AS4 Message.")]
+    [Info("Send AS4 Message to the configured receiver")]
+    [Description("This step makes sure that an AS4 Message that has been processed, is sent to its destination")]
     public class SendAS4MessageStep : IStep
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
@@ -67,22 +67,28 @@ namespace Eu.EDelivery.AS4.Steps.Send
         {
             if (messagingContext.ReceivedMessage == null && messagingContext.AS4Message == null)
             {
-                throw new InvalidOperationException("SendAS4MessageStep requires a MessagingContext with a ReceivedStream or an AS4 Message");
+                throw new InvalidOperationException(
+                    $"{messagingContext.Logging} {nameof(SendAS4MessageStep)} " + 
+                    "requires a MessagingContext with a ReceivedStream or an AS4 Message to correctly send the message");
             }
 
             if (messagingContext.ReceivedMessage == null && messagingContext.AS4Message.IsPullRequest == false)
             {
-                throw new InvalidOperationException("The SendStep expects a PullRequest AS4 Message when the MessagingContext does not contain a ReceivedStream");
+                throw new InvalidOperationException(
+                    $"{messagingContext.Logging} {nameof(SendAS4MessageStep)} " + 
+                    "expects a PullRequest AS4 Message when the MessagingContext does not contain a ReceivedStream");
             }
 
-            var sendConfiguration = messagingContext.SendingPMode.PushConfiguration;
+            PushConfiguration sendConfiguration = messagingContext.SendingPMode.PushConfiguration;
 
             if (sendConfiguration == null)
             {
-                throw new ConfigurationErrorsException($"The Sending PMode {messagingContext.SendingPMode.Id} does not contain a PushConfiguration element.");
+                throw new ConfigurationErrorsException(
+                    $"{messagingContext.Logging} Message cannot be send: "+ 
+                    $"SendingPMode {messagingContext.SendingPMode.Id} does not contain a <PushConfiguration/> element");
             }
 
-            var as4Message = await GetAS4MessageFromContextAsync(messagingContext);
+            AS4Message as4Message = await GetAS4MessageFromContextAsync(messagingContext);
 
             try
             {
@@ -90,7 +96,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
                 contentType = contentType.Replace("charset=\"utf-8\"", "");
 
-                HttpWebRequest request = CreateWebRequest(sendConfiguration, contentType);
+                HttpWebRequest request = CreateWebRequest(messagingContext.SendingPMode, contentType);
 
                 if (await TryWriteToHttpRequestStreamAsync(request, messagingContext).ConfigureAwait(false))
                 {
@@ -104,8 +110,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             catch (Exception exception)
             {
                 Logger.Error(
-                    $"{messagingContext} An error occured while trying to send the message: {exception.Message}");
-                Logger.Trace(exception.StackTrace);
+                    $"{messagingContext.Logging} An error occured while trying to send the message: {exception}");
 
                 if (exception.InnerException != null)
                 {
@@ -120,50 +125,63 @@ namespace Eu.EDelivery.AS4.Steps.Send
             }
         }
 
-        private HttpWebRequest CreateWebRequest(ISendConfiguration sendConfiguration, string contentType)
+        private HttpWebRequest CreateWebRequest(
+            SendingProcessingMode pmode, 
+            string contentType)
         {
-            Logger.Debug($"Creating WebRequest to {sendConfiguration.Protocol.Url}");
+            var url = pmode.PushConfiguration.Protocol.Url;
+            Logger.Debug($"Creating WebRequest to {url}");
 
-            HttpWebRequest request = _httpClient.Request(sendConfiguration.Protocol.Url, contentType);
+            HttpWebRequest request = _httpClient.Request(url, contentType);
 
-            AssignClientCertificate(sendConfiguration.TlsConfiguration, request);
+            X509Certificate2 clientCert = RetrieveClientCertificate(pmode);
+            if (clientCert != null)
+            {
+                request.ClientCertificates.Add(clientCert); 
+            }
 
             return request;
         }
 
-        private static void AssignClientCertificate(TlsConfiguration configuration, HttpWebRequest request)
+        private static X509Certificate2 RetrieveClientCertificate(SendingProcessingMode pmode)
         {
+            var configuration = pmode.PushConfiguration.TlsConfiguration;
             if (!configuration.IsEnabled || configuration.ClientCertificateInformation == null)
             {
-                return;
+                return null;
             }
 
-            Logger.Trace("Adding Client TLS Certificate to Http Request.");
+            Logger.Trace("Adding Client TLS Certificate to Http Request");
 
             X509Certificate2 certificate = RetrieveTlsCertificate(configuration);
 
-            request.ClientCertificates.Add(certificate);
+            if (certificate == null)
+            {
+                throw new NotSupportedException(
+                    $"The TLS certificate information specified in the Sending PMode {pmode.Id} could not be used to retrieve the certificate");
+            }
+
+            return certificate;
         }
 
         private static X509Certificate2 RetrieveTlsCertificate(TlsConfiguration configuration)
         {
-            var certFindCriteria = configuration.ClientCertificateInformation as ClientCertificateReference;
-
-            if (certFindCriteria != null)
+            if (configuration.ClientCertificateInformation is ClientCertificateReference clientCertRef)
             {
                 return Registry.Instance.CertificateRepository.GetCertificate(
-                    certFindCriteria.ClientCertificateFindType,
-                    certFindCriteria.ClientCertificateFindValue);
+                    clientCertRef.ClientCertificateFindType,
+                    clientCertRef.ClientCertificateFindValue);
             }
 
-            var embeddedCertInfo = configuration.ClientCertificateInformation as PrivateKeyCertificate;
-
-            if (embeddedCertInfo != null)
+            if (configuration.ClientCertificateInformation is PrivateKeyCertificate embeddedCertInfo)
             {
-                return new X509Certificate2(Convert.FromBase64String(embeddedCertInfo.Certificate), embeddedCertInfo.Password, X509KeyStorageFlags.Exportable);
+                return new X509Certificate2(
+                    rawData: Convert.FromBase64String(embeddedCertInfo.Certificate), 
+                    password: embeddedCertInfo.Password, 
+                    keyStorageFlags: X509KeyStorageFlags.Exportable);
             }
 
-            throw new NotSupportedException("The TLS certificate information specified in the PMode could not be used to retrieve the certificate");
+            return null;
         }
 
         private static async Task<bool> TryWriteToHttpRequestStreamAsync(HttpWebRequest request, MessagingContext messagingContext)
@@ -192,7 +210,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             {
                 if (exception.Status == WebExceptionStatus.ConnectFailure && (messagingContext.AS4Message?.IsPullRequest ?? false))
                 {
-                    Logger.Trace($"The PullRequest could not be send to {request.RequestUri}");
+                    Logger.Trace($"{messagingContext.Logging}The PullRequest could not be send to {request.RequestUri} due to a WebException");
                     Logger.Trace(exception.Message);
                     return false;
                 }
@@ -260,7 +278,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             HttpWebRequest request,
             MessagingContext messagingContext)
         {
-            Logger.Debug($"AS4 Message received from: {request.Address}");
+            Logger.Debug($"{messagingContext.Logging} AS4 Message received from: {request.Address}");
 
             (HttpWebResponse webResponse, WebException exception) response = await _httpClient.Respond(request).ConfigureAwait(false);
 

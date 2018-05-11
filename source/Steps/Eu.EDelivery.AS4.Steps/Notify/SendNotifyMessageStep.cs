@@ -16,8 +16,8 @@ namespace Eu.EDelivery.AS4.Steps.Notify
     /// <summary>
     /// Describes how a <see cref="NotifyMessage"/> is sent to the business application 
     /// </summary>
-    [Description("Send a notification message using the method that is configured in the PMode")]
     [Info("Send notification message")]
+    [Description("Send a notification message using the method that is configured in the PMode")]
     public class SendNotifyMessageStep : IStep
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
@@ -66,10 +66,10 @@ namespace Eu.EDelivery.AS4.Steps.Notify
                 }
             }
 
-            Logger.Trace($"{messagingContext} Start sending Notify Message...");
+            Logger.Trace($"{messagingContext.Logging} Start sending notify message...");
             await SendNotifyMessage(messagingContext).ConfigureAwait(false);
 
-            Logger.Info($"{messagingContext} Notify Message sent");
+            Logger.Info($"{messagingContext.Logging} Notify message sent");
             return StepResult.Success(messagingContext);
         }
 

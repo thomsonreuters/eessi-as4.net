@@ -46,7 +46,8 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
             if (entry?.Sender == null)
             {
                 throw new KeyNotFoundException(
-                    $"No Notify Sender found for Operation Method \'{operationMethod}\'. Check if the configuration in the PMode is correct.");
+                    $"No {nameof(INotifySender)} impelemtation found for Operation Method \'{operationMethod}\'. " + 
+                    "Please check if the configuration in the Sending or Receiving PMode is correct");
             }
 
             return entry.Sender();

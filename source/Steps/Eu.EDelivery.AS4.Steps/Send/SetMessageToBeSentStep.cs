@@ -9,8 +9,8 @@ using NLog;
 
 namespace Eu.EDelivery.AS4.Steps.Send
 {
-    [Description("Confirms that the message is ready to be sent.")]
     [Info("Confirm that the message can be sent.")]
+    [Description("Confirms that the message is ready to be sent.")]
     public class SetMessageToBeSentStep : IStep
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
@@ -42,11 +42,12 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
-            Logger.Info($"{messagingContext} Set the message's Operation = 'ToBeSent' ");
+            Logger.Info($"{messagingContext.Logging} Set the message's Operation = ToBeSent");
 
             if (messagingContext.MessageEntityId == null)
             {
-                throw new InvalidOperationException("MessagingContext does not contain the ID of the OutMessage that must be set to ToBeSent");
+                throw new InvalidOperationException(
+                    $"{messagingContext.Logging} MessagingContext does not contain the ID of the OutMessage that must be set to ToBeSent");
             }
 
             using (DatastoreContext context = _createContext())

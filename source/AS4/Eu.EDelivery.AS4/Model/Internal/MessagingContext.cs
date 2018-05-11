@@ -223,6 +223,8 @@ namespace Eu.EDelivery.AS4.Model.Internal
 
         public bool ReceivedMessageMustBeForwarded => ReceivingPMode?.MessageHandling?.MessageHandlingType == MessageHandlingChoiceType.Forward;
 
+        public string Logging => $"({Mode})" + (string.IsNullOrEmpty(EbmsMessageId) ? "" : $"[{EbmsMessageId}]");
+
         /// <summary>
         /// Modifies the <see cref="MessagingContextMode"/> to target another mode.
         /// </summary>
@@ -300,13 +302,6 @@ namespace Eu.EDelivery.AS4.Model.Internal
         {
             AS4Message?.CloseAttachments();
             ReceivedMessage?.UnderlyingStream?.Dispose();
-        }
-
-        /// <summary>Returns a string that represents the current object.</summary>
-        /// <returns>A string that represents the current object.</returns>
-        public override string ToString()
-        {
-            return $"({Mode})" + (string.IsNullOrEmpty(EbmsMessageId) ? "" : $"[{EbmsMessageId}]");
         }
     }
 

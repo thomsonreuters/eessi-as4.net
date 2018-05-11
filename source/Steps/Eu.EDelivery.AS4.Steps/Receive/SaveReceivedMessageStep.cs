@@ -16,8 +16,8 @@ namespace Eu.EDelivery.AS4.Steps.Receive
     /// <summary>
     /// Describes how the data store gets updated when an incoming message is received.
     /// </summary>
-    [Description("Saves a received message as-is in the datastore.")]
     [Info("Save received message")]
+    [Description("Saves a received message as-is in the datastore.")]
     public class SaveReceivedMessageStep : IStep
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
@@ -48,11 +48,13 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// <exception cref="Exception">A delegate callback throws an exception.</exception>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
-            Logger.Info($"{messagingContext} Insert received message in datastore");
+            Logger.Info($"{messagingContext.Logging} Store the incoming AS4 Message to the datastore");
 
             if (messagingContext.ReceivedMessage == null)
             {
-                throw new InvalidOperationException("SaveReceivedMessageStep requires a ReceivedStream");
+                throw new InvalidOperationException(
+                    $"{messagingContext.Logging} {nameof(SaveReceivedMessageStep)} " + 
+                    "requires a ReceivedStream to store the incoming message into the datastore");
             }
 
             MessagingContext resultContext = await InsertReceivedAS4MessageAsync(messagingContext);
@@ -63,16 +65,21 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                     && String.IsNullOrWhiteSpace(resultContext.AS4Message.PrimarySignalMessage.RefToMessageId))
                 {
                     Logger.Warn(
-                        "The received message is a signal-message without RefToMessageId. " +
-                        "It cannot be processed any further.");
+                        $"{messagingContext.Logging} The received message is a SignalMessage without RefToMessageId. " +
+                        "No such SignalMessage are supported so the message cannot be processed any further");
 
                     return StepResult
                         .Success(new MessagingContext(AS4Message.Empty, MessagingContextMode.Receive))
                         .AndStopExecution();
                 }
 
+                Logger.Debug($"{messagingContext.Logging} The AS4 Message is successfully stored into the datastore");
                 return StepResult.Success(resultContext);
             }
+
+            Logger.Error(
+                $"{messagingContext.Logging} The AS4 Message is not stored " + 
+                $"correctly into the datastore {resultContext?.Exception}");
 
             return StepResult.Failed(resultContext);
         }

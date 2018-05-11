@@ -16,8 +16,8 @@ namespace Eu.EDelivery.AS4.Steps.Receive
     /// <summary>
     /// Decompress the incoming Payloads
     /// </summary>
-    [Description("If necessary, decompresses the attachments that are present in the received message.")]
     [Info("Decompress attachments")]
+    [Description("If necessary, decompresses the attachments that are present in the received message.")]
     public class DecompressAttachmentsStep : IStep
     {
         private const string GzipContentType = "application/gzip";
@@ -34,12 +34,17 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             if (messagingContext.ReceivedMessageMustBeForwarded)
             {
                 // When the message must be forwarded, no decompression must take place.
+                Logger.Debug(
+                    $"{messagingContext.Logging} Because the incoming AS4Message must be forwarded, " + 
+                    "we can't alter the message. So, no decompression will take place");
+
                 return StepResult.Success(messagingContext);
             }
 
             if (messagingContext.AS4Message.HasAttachments == false)
             {
-                Logger.Debug($"{messagingContext} AS4Message hasn't got any dttachments to decompress");
+                Logger.Debug($"{messagingContext.Logging} Received AS4Message hasn't got any attachments to decompress");
+
                 return StepResult.Success(messagingContext);
             }
 
@@ -66,13 +71,11 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         {
             AS4Message as4Message = context.AS4Message;
 
-            Logger.Info($"{context} Compressed attachmented will be decompressed");
-
             foreach (Attachment attachment in as4Message.Attachments)
             {
                 if (IsAttachmentNotCompressed(attachment))
                 {
-                    Logger.Debug($"{context} Attachment {attachment.Id} is not compressed");
+                    Logger.Debug($"{context.Logging} Attachment {attachment.Id} is not compressed, so can't be decompressed");
                     continue;
                 }
 
@@ -82,12 +85,12 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                     return DecompressFailureResult(description, context);
                 }
 
-                Logger.Debug($"{context} Attachment {attachment.Id} will be decompressed");
+                Logger.Trace($"{context.Logging} Attachment {attachment.Id} will be decompressed");
                 DecompressAttachment(attachment);
                 AssignAttachmentProperties(as4Message.PrimaryUserMessage.PayloadInfo.ToList(), attachment);
+                Logger.Debug($"{context.Logging} Attachment {attachment.Id} is decompressed to a type of {attachment.ContentType}");
             }
 
-            Logger.Trace($"{context} Compressed attachments are decompressed");
             return await StepResult.SuccessAsync(context);
         }
 
@@ -138,12 +141,16 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
             if (string.IsNullOrWhiteSpace(mimeType))
             {
-                throw new InvalidDataException($"MimeType is not specified for attachment {attachment.Id}");
+                throw new InvalidDataException(
+                    $"Cannot decompress attachment {attachment.Id}: " + 
+                    "MimeType is not specified for attachment, please provide one");
             }
 
             if (mimeType.IndexOf("/", StringComparison.OrdinalIgnoreCase) < 0)
             {
-                throw new InvalidDataException($"Invalid MimeType specified for attachment {attachment.Id}");
+                throw new InvalidDataException(
+                    $"Cannot decompress attachment {attachment.Id}: " + 
+                    $"Invalid MimeType {mimeType} specified for attachment");
             }
 
             attachment.Properties["MimeType"] = mimeType;

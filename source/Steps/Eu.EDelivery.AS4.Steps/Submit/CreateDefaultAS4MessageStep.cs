@@ -57,20 +57,15 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
-            AddDefaultAS4Message(messagingContext);
-            Logger.Info($"{messagingContext} Default AS4 Message is created");
-
-            return await StepResult.SuccessAsync(messagingContext);
-        }
-
-        private void AddDefaultAS4Message(MessagingContext messagingContext)
-        {
             SendingProcessingMode pmode = GetDefaultPMode();
 
             UserMessage userMessage = UserMessageFactory.Instance.Create(pmode);
             messagingContext.AS4Message.AddMessageUnit(userMessage);
             messagingContext.SendingPMode = pmode;
             AddPartInfos(messagingContext.AS4Message);
+
+            Logger.Info($"{messagingContext.Logging} Default AS4 Message is created using SendingPMode {pmode.Id}");
+            return await StepResult.SuccessAsync(messagingContext);
         }
 
         private SendingProcessingMode GetDefaultPMode()

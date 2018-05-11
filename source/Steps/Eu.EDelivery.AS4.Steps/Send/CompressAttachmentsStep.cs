@@ -11,12 +11,11 @@ namespace Eu.EDelivery.AS4.Steps.Send
     /// <summary>
     /// Describes how the attachments of an AS4 message must be compressed.
     /// </summary>
+    [Info("Compress AS4 Message attachments if necessary")]
     [Description("This step compresses the attachments of an AS4 Message if compression is enabled in the sending PMode.")]
-    [Info("Compress attachments")]
     public class CompressAttachmentsStep : IStep
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
-        private MessagingContext _messagingContext;
 
         /// <summary>
         /// Compress the <see cref="AS4Message" /> if required
@@ -30,26 +29,28 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 return ReturnSameMessagingContext(messagingContext);
             }
 
-            _messagingContext = messagingContext;
-            TryCompressAS4Message(messagingContext.AS4Message);
+            TryCompressAS4Message(messagingContext);
 
             return await StepResult.SuccessAsync(messagingContext);
         }
 
         private static StepResult ReturnSameMessagingContext(MessagingContext messagingContext)
         {
-            Logger.Debug($"Sending PMode {messagingContext.SendingPMode.Id} Compression is disabled");
+            Logger.Debug(
+                $"{messagingContext.Logging} No compression will happen because the" + 
+                $" Sending PMode {messagingContext.SendingPMode.Id} compression is disabled");
+
             return StepResult.Success(messagingContext);
         }
 
-        private void TryCompressAS4Message(AS4Message message)
+        private void TryCompressAS4Message(MessagingContext context)
         {
             try
             {
                 Logger.Info(
-                    $"{_messagingContext} Compress AS4 Message Attachments with GZip Compression");
+                    $"{context.Logging} Compress AS4 Message attachments with GZip compression");
 
-                message.CompressAttachments();
+                context.AS4Message.CompressAttachments();
             }
             catch (SystemException exception)
             {
@@ -59,7 +60,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
         private static Exception ThrowAS4CompressingException(Exception innerException)
         {
-            const string description = "Attachments cannot be compressed";
+            const string description = "(Receive) Attachments cannot be compressed because of an exception";
             Logger.Error(description);
 
             return new InvalidDataException(description, innerException);

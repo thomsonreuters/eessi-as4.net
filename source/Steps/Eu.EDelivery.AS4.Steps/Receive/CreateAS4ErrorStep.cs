@@ -19,8 +19,8 @@ using UserMessage = Eu.EDelivery.AS4.Model.Core.UserMessage;
 
 namespace Eu.EDelivery.AS4.Steps.Receive
 {
-    [Description("Create an AS4 Error message to inform the sender that something went wrong processing the received AS4 message.")]
     [Info("Create an AS4 Error message")]
+    [Description("Create an AS4 Error message to inform the sender that something went wrong processing the received AS4 message.")]
     public class CreateAS4ErrorStep : IStep
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
@@ -64,7 +64,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
             if (Logger.IsInfoEnabled && errorMessage.MessageUnits.Any())
             {
-                Logger.Info($"{messagingContext} Error message has been created for received AS4 UserMessages.");
+                Logger.Info($"{messagingContext.Logging} Error message has been created for received AS4 UserMessages.");
             }
 
             return await StepResult.SuccessAsync(messagingContext);

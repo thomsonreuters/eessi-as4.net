@@ -15,8 +15,8 @@ namespace Eu.EDelivery.AS4.Steps.Submit
     /// Add the retrieved PMode to the <see cref="Model.Submit.SubmitMessage" />
     /// after the PMode is verified
     /// </summary>
-    [Description("Retrieve the sending PMode that must be used to send the AS4 Message")]
-    [Info("Retrieve sending PMode")]
+    [Info("Retrieve SendingPMode")]
+    [Description("Retrieve the SendingPMode that must be used to send the AS4Message")]
     public class RetrieveSendingPModeStep : IStep
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
@@ -59,13 +59,13 @@ namespace Eu.EDelivery.AS4.Steps.Submit
             return pmode;
         }
 
-        private SendingProcessingMode RetrievePMode(MessagingContext message)
+        private SendingProcessingMode RetrievePMode(MessagingContext context)
         {
-            string processingModeId = RetrieveProcessingModeId(message.SubmitMessage.Collaboration);
+            string processingModeId = RetrieveProcessingModeId(context.SubmitMessage.Collaboration);
 
             SendingProcessingMode pmode = _config.GetSendingPMode(processingModeId);
 
-            Logger.Info($"{message} Sending PMode {pmode.Id} was retrieved");
+            Logger.Info($"{context.Logging} SendingPMode {pmode.Id} was successfully retrieved");
 
             return pmode;
         }
@@ -74,6 +74,12 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         {
             if (collaborationInfo == null)
             {
+                Logger.Error(
+                    "(Submit) Unable to retrieve SendingPMode: " +
+                    "no <PModeId/> element was found in the SubmitMessage. " +
+                    "This element is needed to locate the right SendingPMode, " + 
+                    "please provide one inside the SubmitMessage.CollaborationInfo.AgreementRef element");
+
                 throw new ArgumentNullException(nameof(collaborationInfo));
             }
 
@@ -83,10 +89,12 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         private static void ValidatePMode(SendingProcessingMode pmode)
         {
             SendingProcessingModeValidator.Instance.Validate(pmode).Result(
-                onValidationSuccess: result => Logger.Trace($"Sending PMode {pmode.Id} is valid for Submit Message"),
+                onValidationSuccess: result => Logger.Debug($"(Submit) SendingPMode {pmode.Id} is valid for Submit Message"),
                 onValidationFailed: result =>
                 {
-                    string description = result.AppendValidationErrorsToErrorMessage($"Sending PMode {pmode.Id} was invalid:");
+                    string description = 
+                        result.AppendValidationErrorsToErrorMessage(
+                            $"(Submit) SendingPMode {pmode.Id} was invalid and cannot be used to assign to the SubmitMessage:");
 
                     Logger.Error(description);
 
