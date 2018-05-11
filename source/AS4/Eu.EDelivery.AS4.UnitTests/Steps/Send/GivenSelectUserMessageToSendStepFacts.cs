@@ -119,7 +119,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
         {
             using (DatastoreContext context = GetDataStoreContext())
             {
-                var service = new OutMessageService(new DatastoreRepository(context), InMemoryMessageBodyStore.Default);
+                var service = new OutMessageService(StubConfig.Default, new DatastoreRepository(context), InMemoryMessageBodyStore.Default);
 
                 service.InsertAS4Message(
                     new MessagingContext(as4Message, MessagingContextMode.Send)

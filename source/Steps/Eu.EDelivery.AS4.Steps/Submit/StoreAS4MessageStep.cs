@@ -26,6 +26,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         // Right now, the MessageBody is the complete AS4Message; every OutMessage refers to that same messagebody which 
         // is not correct.
         // At this stage, there should be no AS4-message in my opinion, only UserMessages and SignalMessages.
+        private readonly IConfig _config;
         private readonly Func<DatastoreContext> _createContext;
         private readonly IAS4MessageBodyStore _messageBodyStore;
 
@@ -33,15 +34,20 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         /// Initializes a new instance of the <see cref="StoreAS4MessageStep" /> class.
         /// </summary>
         public StoreAS4MessageStep()
-            : this(Registry.Instance.CreateDatastoreContext, Registry.Instance.MessageBodyStore) { }
+            : this(Config.Instance, Registry.Instance.CreateDatastoreContext, Registry.Instance.MessageBodyStore) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="StoreAS4MessageStep" /> class.
         /// </summary>
+        /// <param name="configuration">The configuration.</param>
         /// <param name="createContext">The create context.</param>
         /// <param name="messageBodyStore">The as 4 Message Body Persister.</param>
-        public StoreAS4MessageStep(Func<DatastoreContext> createContext, IAS4MessageBodyStore messageBodyStore)
+        public StoreAS4MessageStep(
+            IConfig configuration,
+            Func<DatastoreContext> createContext, 
+            IAS4MessageBodyStore messageBodyStore)
         {
+            _config = configuration;
             _createContext = createContext;
             _messageBodyStore = messageBodyStore;
         }
@@ -57,7 +63,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
 
             using (DatastoreContext context = _createContext())
             {
-                var service = new OutMessageService(new DatastoreRepository(context), _messageBodyStore);
+                var service = new OutMessageService(_config, new DatastoreRepository(context), _messageBodyStore);
 
                 service.InsertAS4Message(messagingContext, Operation.ToBeProcessed);
 

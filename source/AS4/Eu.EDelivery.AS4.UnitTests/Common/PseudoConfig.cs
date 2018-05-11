@@ -27,6 +27,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
         public virtual bool IsInitialized { get; } = false;
 
         /// <summary>
+        /// Gets the retention period (in days) for which the stored entities are cleaned-up.
+        /// </summary>
+        /// <value>The retention period in days.</value>
+        public TimeSpan RetentionPeriod => throw new NotImplementedException();
+
+        /// <summary>
         /// Retrieve Setting from the Global Configurations
         /// </summary>
         /// <param name="key">Registered Key for the Setting</param>

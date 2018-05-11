@@ -23,6 +23,12 @@ namespace Eu.EDelivery.AS4.Common
         bool IsInitialized { get; }
 
         /// <summary>
+        /// Gets the retention period (in days) for which the stored entities are cleaned-up.
+        /// </summary>
+        /// <value>The retention period in days.</value>
+        TimeSpan RetentionPeriod { get; }
+
+        /// <summary>
         /// Gets the in message store location.
         /// </summary>
         /// <value>The in message store location.</value>

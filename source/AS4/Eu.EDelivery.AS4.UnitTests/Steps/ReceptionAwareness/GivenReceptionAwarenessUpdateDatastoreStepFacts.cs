@@ -6,6 +6,7 @@ using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
+using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Steps.ReceptionAwareness;
 using Eu.EDelivery.AS4.UnitTests.Common;
 using Eu.EDelivery.AS4.UnitTests.Repositories;
@@ -36,7 +37,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.ReceptionAwareness
                 EntityReceptionAwareness awareness = InsertAlreadyAnsweredMessage();
 
                 var internalMessage = new MessagingContext(awareness);
-                var step = new ReceptionAwarenessUpdateDatastoreStep(_messageBodyStore, GetDataStoreContext);
+                IStep step = CreateUpdateReceptionAwarenessStep();
 
                 // Act
                 await step.ExecuteAsync(internalMessage);
@@ -77,7 +78,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.ReceptionAwareness
                 awareness.CurrentRetryCount = awareness.TotalRetryCount;
 
                 var messagingContext = new MessagingContext(awareness);
-                var step = new ReceptionAwarenessUpdateDatastoreStep(_messageBodyStore, GetDataStoreContext);
+                IStep step = CreateUpdateReceptionAwarenessStep();
 
                 // Act
                 await step.ExecuteAsync(messagingContext);
@@ -107,7 +108,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.ReceptionAwareness
                     CreateOutMessageWithReceptionAwareness(currentRetryCount: 0, status: ReceptionStatus.Busy);
 
                 var messagingContext = new MessagingContext(awareness);
-                var step = new ReceptionAwarenessUpdateDatastoreStep(_messageBodyStore, GetDataStoreContext);
+                IStep step = CreateUpdateReceptionAwarenessStep();
 
                 // Act
                 await step.ExecuteAsync(messagingContext);
@@ -142,6 +143,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.ReceptionAwareness
 
                     return awareness;
                 }
+            }
+
+            private IStep CreateUpdateReceptionAwarenessStep()
+            {
+                return new ReceptionAwarenessUpdateDatastoreStep(StubConfig.Default, _messageBodyStore, GetDataStoreContext);
             }
 
             private void AssertOutMessage(string messagId, Action<OutMessage> condition)
