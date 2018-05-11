@@ -244,6 +244,10 @@ This contract describes all the properties available in the Receiving PMode. The
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <i>Parameter</i><br/>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name<br/>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Value<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Reliability<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <i>IsEnabled</i><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <i>RetryCount</i><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <i>RetryInterval</i><br/>
                 <span>&nbsp; </span><u>Forward</u><br/>
                 <span>&nbsp;&nbsp;&nbsp;&nbsp; SendingPMode</span><br/>
             </td>
@@ -264,6 +268,10 @@ This contract describes all the properties available in the Receiving PMode. The
                 M<br/>
                 M<br/>
                 M<br/>
+                M<br/>
+                M<br/>
+                O<br/>
+                O<br/>
                 O<br/>
                 M<br/>
             </td>
@@ -280,7 +288,10 @@ This contract describes all the properties available in the Receiving PMode. The
                 Type of the Deliver method (HTTP, FILE,..)<br/>
                 <br/><br/>
                 Name of the parameter<br/>
-                Value of the parameter<br/>
+                Value of the parameter<br/><br/>
+                Indicates whether or not the Delivery must be retried<br/>
+                Amount of retry cycles the Delivery must be retried<br/>
+                Interval between each retry cycle during the Delivery<br/>
                 Deliver or Forward must be specified, not both<br/>
                 The name of the PMode that must be used to forward the received Message.
             </td>
