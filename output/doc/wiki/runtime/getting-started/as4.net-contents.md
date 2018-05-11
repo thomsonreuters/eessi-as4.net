@@ -1,4 +1,4 @@
-# AS4.NET Contents
+# <b>AS4.NET</b> Contents
 
 The paragraphs in this section describe the contents of the package and provide a brief overview of the configuration.
 

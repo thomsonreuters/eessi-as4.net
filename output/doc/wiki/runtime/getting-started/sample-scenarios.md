@@ -1,6 +1,6 @@
 # Sample Scenarios
 
-Now the basics are explained, we can now start with the preparation of the samples. The following prerequisites need to be performed before the samples can be executed. Remark that the AS4.NET
+Now the basics are explained, we can now start with the preparation of the samples. The following prerequisites need to be performed before the samples can be executed. Remark that the <b>AS4.NET</b>
 component can solely run on a Windows machine.
 
 ## Create Two Instances of the MSH
@@ -12,10 +12,10 @@ To send/receive messages from two different MSH’s you can use your own MSH con
 
 ## Change the HTTP Port of the Receiver Instance
 
-The two instances both have a `ReceiveAgent` configured that uses a `HttpReceiver`. When both the **Sending** and the **Receiving** instance runs on the same machine, it is logical they cannot share the same HTTP endpoint. Therefore, the HTTP endpoint of one of the two AS4.NET instances must be modified.
+The two instances both have a `ReceiveAgent` configured that uses a `HttpReceiver`. When both the **Sending** and the **Receiving** instance runs on the same machine, it is logical they cannot share the same HTTP endpoint. Therefore, the HTTP endpoint of one of the two <b>AS4.NET</b> instances must be modified.
 The samples that are present in the package assume that the Receiver instance listens on port 9090 and the Sender listens on port 8081.
 
-Therefore, modify the HTTP receiver in the `.\config\settings.xml` of the **AS4.NET Receiver** so that port 9090 is used.
+Therefore, modify the HTTP receiver in the `.\config\settings.xml` of the **<b>AS4.NET</b> Receiver** so that port 9090 is used.
 
 Note that there are two agents defined in the settings.xml file that use a HttpReceiver:
 
@@ -50,7 +50,7 @@ Import the following private certificates in **Certificates (Local Computer) / P
 * `samples\certificates\AccessPointA.pfx`
 * `samples\certificates\AccessPointB.pfx`
 
-Don't forget to mark these certificates as **exportable**. This is required since AS4.NET needs access to the private key for signing and decryption.
+Don't forget to mark these certificates as **exportable**. This is required since <b>AS4.NET</b> needs access to the private key for signing and decryption.
 
 Import the following public certificates in **Certificates (Local Computer) / Trusted Root Certification Authorities / Certificates**:
 
@@ -70,11 +70,11 @@ When starting the 2nd instance you will get an error message saying that port 30
 ![receive-msh](images/receive-msh.jpg)
 
 These ports are used to run the _AS4.NET Portal_ and the _PayloadService_.
-For this sample scenario you can ignore this error as it will have no impact. To avoid this error you can disable the AS4.NET Portal and PayloadService in the `settings.xml` file by changing the `FeInProcess` and `PayloadServiceInProcess` tags to `false`.
+For this sample scenario you can ignore this error as it will have no impact. To avoid this error you can disable the <b>AS4.NET</b> Portal and PayloadService in the `settings.xml` file by changing the `FeInProcess` and `PayloadServiceInProcess` tags to `false`.
 
 ![disable](images/disable-fe-payloadservice.jpg)
 
-You can also change the AS4.NET Portal and PayloadService ports of either the receive or send instance, this configuration is done in the **AS4 .NET Receiver** (or **Sender**)`\bin\appsettings.inprocess.json` file.
+You can also change the <b>AS4.NET</b> Portal and PayloadService ports of either the receive or send instance, this configuration is done in the **AS4 .NET Receiver** (or **Sender**)`\bin\appsettings.inprocess.json` file.
 
 ## Sending Simple AS4 Message
 
@@ -108,9 +108,9 @@ The sending/receiving PModes in this example are configured to notify/deliver th
 
 ## Pulling as a Receiver as an ebMS endpoint in EESSI
 
-The AS4.NET Component can act as an ebMS endpoint in the EESSI profile and can receive AS4 Messages via Pulling.
+The <b>AS4.NET</b> Component can act as an ebMS endpoint in the EESSI profile and can receive AS4 Messages via Pulling.
 
-To configure an AS4.NET MessageHandler to act as an ebMS endpoint that receives AS4 Messages from EESSI the following PModes are required:
+To configure an <b>AS4.NET</b> MessageHandler to act as an ebMS endpoint that receives AS4 Messages from EESSI the following PModes are required:
 
 ![pulling-eessi](images/pulling-receiver-eessi.png)
 
@@ -164,7 +164,7 @@ The `settings.xml` file has a PullReceive Agent configured that is currently com
 
 In the configuration of that **PullReceive Agent** you’ll see that the eessi-pull-send-pmode is used to send PullRequest signal-messages. The PullReceive Agent will send PullRequest messages in intervals that vary from 1 second to 25 seconds, depending on the response that is received for the PullRequest. When no messages are received as a result of a PullRequest, the interval will gradually increase until a maximum interval of 25 seconds is reached. When messages are received, the interval will be reset to the configured minimum-interval.
 
-Remove the comments and start the AS4.NET component. You’ll see that the AS4.NET MSH will start sending PullRequest signal-messages to the URL that has been configured in the `eessi-pull-send-pmode`.
+Remove the comments and start the <b>AS4.NET</b> component. You’ll see that the <b>AS4.NET</b> MSH will start sending PullRequest signal-messages to the URL that has been configured in the `eessi-pull-send-pmode`.
 
 ## Modify `settings.xml` to Enable a Static Submit Agent
 

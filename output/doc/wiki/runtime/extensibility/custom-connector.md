@@ -2,11 +2,11 @@
 
 ## Introduction
 
-The implementation of AS4.NET can be expanded by writing custom connectors. This document explains how these custom connectors can be created to extend the AS4.NET component with some custom functionality (delivery of messages to other locations, retrieve payloads that must be sent from other locations, receive messages from custom sources, …).
+The implementation of <b>AS4.NET</b> can be expanded by writing custom connectors. This document explains how these custom connectors can be created to extend the <b>AS4.NET</b> component with some custom functionality (delivery of messages to other locations, retrieve payloads that must be sent from other locations, receive messages from custom sources, …).
 
-### AS4.NET Components
+### <b>AS4.NET</b> Components
 
-The AS4.NET component consists of different Agents, each with a different responsibility: sending, receiving, forwarding, notifying, delivering, … Each Agent inside the AS4.NET component has three major items: **Receiver**, **Transformer**, and **Steps**. 
+The <b>AS4.NET</b> component consists of different Agents, each with a different responsibility: sending, receiving, forwarding, notifying, delivering, … Each Agent inside the <b>AS4.NET</b> component has three major items: **Receiver**, **Transformer**, and **Steps**. 
 
 ![send-receive-agent](./images/send-receive-agent.png)
 
@@ -14,7 +14,7 @@ The **Receiver** is the first component inside an **Agent** that takes the initi
 
 ### Custom Receiver
 
-The AS4.NET component supports multiple sources on which it can receive or poll for messages: filesystem, HTTP, Datastore, … although for other types of sources you have to create a **Custom Receiver**.
+The <b>AS4.NET</b> component supports multiple sources on which it can receive or poll for messages: filesystem, HTTP, Datastore, … although for other types of sources you have to create a **Custom Receiver**.
 
 We can define our own **Custom Receiver** for any agent we want. The **Receiver's** job is to listen or poll for messages at any source. These messages will be processed by the agent on which the receiver is configured. Each received message will be processed by the "*agent-pipeline*"; this includes the **Transformer** and the configured Steps of the agent. So if we create a batch-receiver to receive each time a couple of messages, each message will be handled separatly inside the agent.
 
@@ -51,7 +51,7 @@ public interface IReceiver
 
 Each **Receiver** will have the possibility to configure itself with **Settings**. This can include a path to poll for files, or a table in a database, or any other setting that is necessary for that specific Receiver.
 
-When the AS4.NET component starts, the `StartReceiving` method will be called. One of the arguments that it sends with it, it is a `MessageCallback`. This callback is used to send received messages into the agent to which the receiver is configured.
+When the <b>AS4.NET</b> component starts, the `StartReceiving` method will be called. One of the arguments that it sends with it, it is a `MessageCallback`. This callback is used to send received messages into the agent to which the receiver is configured.
 
 When the agent stops, the `StopReceiving` method is called so the resources specific for the **Receiver** can be cleaned up.
 Following example is a fictive example of a custom receiver that sends a message to the Agent on a specific interval.
@@ -91,7 +91,7 @@ This `"Delay"` setting can be configured in the `settings.xml` file:
 
 #### Polling
 
-Some receivers in the AS4.NET component are polling-based, these receivers can inherit from the `PollingTemplate`  (*Template Pattern*) to use the already defined functionality for polling. The `FileReceiver` and `DatastoreReceiver` in the AS4.NET component are **Polling Receivers**.
+Some receivers in the <b>AS4.NET</b> component are polling-based, these receivers can inherit from the `PollingTemplate`  (*Template Pattern*) to use the already defined functionality for polling. The `FileReceiver` and `DatastoreReceiver` in the <b>AS4.NET</b> component are **Polling Receivers**.
 
 ```csharp
 public class CountReceiver : PollingTemplate<int, ReceivedMessage>, IReceiver
@@ -242,11 +242,11 @@ Registry.Instance.DeliverSenderProvider.Accept(
     sender: () => new ServiceBusSender());
 ```
 
-This way, the `ServiceBusSender` type can be used by the AS4.NET component.
+This way, the `ServiceBusSender` type can be used by the <b>AS4.NET</b> component.
 
 ### Uploading Payloads to a Custom Location
 
-When a message must be delivered, it can contain payloads. The AS4.NET component can deliver payloads to some predefined locations (filesystem, payloadservice) and can be extended to upload payloads to custom locations.
+When a message must be delivered, it can contain payloads. The <b>AS4.NET</b> component can deliver payloads to some predefined locations (filesystem, payloadservice) and can be extended to upload payloads to custom locations.
  Each uploader must implement following interface:
 
  ```csharp
@@ -333,7 +333,7 @@ public class BlobAttachmentUploader : IAttachmentUploader
 
 #### Registration
 
-To make sure that the AS4.NET component understands how to upload attachments to **Blob Storage**, we must register the custom `IAttachmentUploader` type in the `Registry`.
+To make sure that the <b>AS4.NET</b> component understands how to upload attachments to **Blob Storage**, we must register the custom `IAttachmentUploader` type in the `Registry`.
 
 ```csharp
 Registry.Instance.AttachmentUploader.Accept(
@@ -364,7 +364,7 @@ This `"BLOB"` string will correspond with the Type configured in the **Receiving
 
 ### Custom Payload Retrieval
 
-Inside a **Submit Message**, a reference to a Payload can be included. This payload can be located on the file system, can be on a remote server, … In order that the AS4.NET component knows where to look for, it has registered some **Payload Retrievers**.
+Inside a **Submit Message**, a reference to a Payload can be included. This payload can be located on the file system, can be on a remote server, … In order that the <b>AS4.NET</b> component knows where to look for, it has registered some **Payload Retrievers**.
 
 ```xml
 <SubmitMessage>
@@ -425,7 +425,7 @@ public class BlobPayloadRetriever : IPayloadRetriever
 
 #### Registration
 
-Some retrievers are already registered: AS4.NET has `IPayloadRetriever` instances registered that can retrieve files from the filesystem and from a web location. Custom retrievers must be registered inside the `Registry` instance.
+Some retrievers are already registered: <b>AS4.NET</b> has `IPayloadRetriever` instances registered that can retrieve files from the filesystem and from a web location. Custom retrievers must be registered inside the `Registry` instance.
 
 ```csharp
 Registry.Instance.PayloadRetrieverProvider.Accept(

@@ -305,10 +305,10 @@ This contract describes all the properties available in the Receiving PMode. The
     When the `FileNameFormat` parameter is not defined, the AttachmentId of the payload will be used as the filename
     When the `FileNameFormat` parameter is defined, but it contains none of the above defined parameters, then `_{AttachmentId}` will be appended.
 
-    > (The FileNameFormat parameter is available as from AS4.NET v2.0.1)
+    > (The FileNameFormat parameter is available as from <b>AS4.NET</b> v2.0.1)
 
 * **AllowOverwrite**:
   Defines whether files with the same name can be overwritten when delivering a payload.  
   Possible values are True and False, the default-value is false.
 
-  > (The AllowOverwrite parameter is available as from AS4.NET v2.0.1)
+  > (The AllowOverwrite parameter is available as from <b>AS4.NET</b> v2.0.1)

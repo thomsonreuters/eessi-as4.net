@@ -10,14 +10,14 @@ Default: `{GUID}@{IPADDRESS}`
 
 ### Payload Service In Process
 
-This setting defines whether or not the (optional) PayloadService should be started in-process with the <b>AS4.NET</b> MessageHandler.
+This setting defines whether or not the (optional) PayloadService should be started in-process with the <b><b>AS4.NET</b></b> MessageHandler.
 
 The PayloadService is a REST service that can contain payloads that are referenced by submit-messages.
 
 ### FE In Process
 
-This setting defines whether or not the <b>AS4.NET</b> FrontEnd should be started in-process with the <b><b>AS4.NET</b></b> MessageHandler.
-The <b>AS4.NET</b> FrontEnd web-application lets you configure the <b>AS4.NET</b> messagehandler and offers monitoring functionality.
+This setting defines whether or not the <b><b>AS4.NET</b></b> FrontEnd should be started in-process with the <b><b><b>AS4.NET</b></b></b> MessageHandler.
+The <b><b>AS4.NET</b></b> FrontEnd web-application lets you configure the <b><b>AS4.NET</b></b> messagehandler and offers monitoring functionality.
 
 ### Database Provider
 
