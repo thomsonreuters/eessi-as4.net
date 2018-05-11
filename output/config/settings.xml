@@ -8,8 +8,8 @@
     <PayloadServiceInProcess>true</PayloadServiceInProcess>
     <RetentionPeriod>90</RetentionPeriod>
     <Database>
-        <Provider>SqlServer</Provider>
-        <ConnectionString>Server=.;Database=test;Trusted_Connection=True</ConnectionString>
+        <Provider>Sqlite</Provider>
+        <ConnectionString>Filename=database\messages.db</ConnectionString>
     </Database>
     <CertificateStore>
         <StoreName>My</StoreName>
