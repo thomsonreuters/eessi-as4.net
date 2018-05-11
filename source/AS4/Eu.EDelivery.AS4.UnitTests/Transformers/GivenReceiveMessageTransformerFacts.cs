@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
@@ -33,17 +34,16 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
                 "Incoming stream isn't wrapped in 'VirtualStream'");
         }
 
+
         [Theory]
-        [InlineData("existing-id", true)]
-        [InlineData("none-existing-id", false)]
-        [InlineData(null, false)]
-        [InlineData("", false)]
-        public async Task Adds_ReceivePMode_When_PMode_Setting_Is_Defined(string id, bool contains)
+        [InlineData("none-existing-id")]
+        [InlineData("")]
+        public async Task Fails_When_ReceivePMode_Is_Not_Defined(string id)
         {
             // Arrange
             var stub = new Mock<IConfig>();
             stub.Setup(c => c.GetReceivingPModes())
-                  .Returns(new[] { new ReceivingProcessingMode {Id = "existing-id"} });
+                .Returns(new[] { new ReceivingProcessingMode { Id = "existing-id" } });
 
             var sut = new ReceiveMessageTransformer(stub.Object);
             sut.Configure(
@@ -52,12 +52,35 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
 
             var msg = new ReceivedMessage(Stream.Null, Constants.ContentTypes.Mime);
 
+            // Act / Assert
+            await Assert.ThrowsAsync<InvalidOperationException>(
+                () => sut.TransformAsync(msg));
+        }
+
+        [Theory]
+        [InlineData("existing-id")]
+        [InlineData(null)]
+        public async Task Adds_ReceivePMode_When_PMode_Setting_Is_Defined(string id)
+        {
+            // Arrange
+            var stub = new Mock<IConfig>();
+            stub.Setup(c => c.GetReceivingPModes())
+                  .Returns(new[] { new ReceivingProcessingMode {Id = "existing-id" } });
+
+            var sut = new ReceiveMessageTransformer(stub.Object);
+            sut.Configure(
+                new Dictionary<string, string>
+                    { [ReceiveMessageTransformer.ReceivingPModeKey] = null });
+
+            var msg = new ReceivedMessage(Stream.Null, Constants.ContentTypes.Mime);
+
             // Act
             MessagingContext result = await sut.TransformAsync(msg);
 
             // Assert
-            bool hasId = result?.ReceivingPMode?.Id != null;
-            Assert.True(contains == (hasId && result.ReceivingPMode.Id == id));
+            bool expectedNotConfiguredPMode = result.ReceivingPMode == null;
+            bool expectedConfiguredPMode = result.ReceivingPMode?.Id == id;
+            Assert.True(expectedNotConfiguredPMode || expectedConfiguredPMode);
         }
     }
 }
