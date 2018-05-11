@@ -268,9 +268,6 @@ namespace Eu.EDelivery.AS4.Migrations
                         .HasMaxLength(256)
                         .HasAnnotation("PropertyAccessMode", PropertyAccessMode.Field);
 
-                    b.Property<string>("RetryInterval")
-                     .HasMaxLength(50);
-
                     b.Property<string>("Service")
                         .HasMaxLength(255);
 
@@ -279,6 +276,9 @@ namespace Eu.EDelivery.AS4.Migrations
                     b.Property<string>("Status")
                         .HasColumnName("Status")
                         .HasMaxLength(50);
+
+                    b.Property<string>("RetryInterval")
+                     .HasMaxLength(50);
 
                     b.Property<string>("ToParty")
                         .HasMaxLength(255);
