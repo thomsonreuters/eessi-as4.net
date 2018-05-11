@@ -87,10 +87,13 @@ namespace Eu.EDelivery.AS4.Transformers
                 }
                 else
                 {
-                    Logger.Warn(
-                        $"Receiving PMode with Id: {ReceivingPMode} was configured as default PMode, {Environment.NewLine}" +
-                        $"but this PMode cannot be found in the configured receiving PModes. {Environment.NewLine}" +
-                        @"Configured Receiving PModes are placed on the folder: '.\config\receive-pmodes\'.");
+                    string description =
+                        $"Receiving PMode with Id: {ReceivingPMode} was configured as default PMode, {Environment.NewLine}" + 
+                        "but this PMode cannot be found in the configured receiving PModes.";
+                    Logger.Error(
+                        $@"{description} Configured Receiving PModes are placed on the folder: '.\config\receive-pmodes\'.");
+
+                    throw new InvalidOperationException(description);
                 }
             }
 
