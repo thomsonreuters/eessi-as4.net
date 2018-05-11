@@ -53,9 +53,9 @@ namespace Eu.EDelivery.AS4.Common
             InitializeFields();
         }
 
-        // The code below is required when creating a new Db-Migration.
-        // The Add-Migration command requires a default constructor on DatastoreContext
-        // Also use a hard-coded 'NativeCommand' in the 'InitializeFields()' call.
+        //// The code below is required when creating a new Db-Migration.
+        //// The Add-Migration command requires a default constructor on DatastoreContext
+        //// Also use a hard-coded 'NativeCommand' in the 'InitializeFields()' call.
 
         //public DatastoreContext() : this(GetDbContextOptions(), null)
         //{
@@ -65,8 +65,8 @@ namespace Eu.EDelivery.AS4.Common
         //{
         //    var optionsBuilder = new DbContextOptionsBuilder<DatastoreContext>();
 
-        //    optionsBuilder.UseSqlServer("Server=.;database=as4msh;integrated security=sspi");
-        //    //optionsBuilder.UseSqlite(@"Filename=database\messages.db");
+        //    //optionsBuilder.UseSqlServer("Server=.;database=as4msh;integrated security=sspi");
+        //    optionsBuilder.UseSqlite(@"Filename=database\messages.db");
 
         //    return optionsBuilder.Options;
         //}
@@ -228,6 +228,7 @@ namespace Eu.EDelivery.AS4.Common
             modelBuilder.Entity<InMessage>().Property(im => im.EbmsMessageType).UsePropertyAccessMode(PropertyAccessMode.Field);
             modelBuilder.Entity<InMessage>().Property(im => im.PMode).UsePropertyAccessMode(PropertyAccessMode.Field);
             modelBuilder.Entity<InMessage>().Property(im => im.PModeId).UsePropertyAccessMode(PropertyAccessMode.Field);
+            modelBuilder.Entity<InMessage>().Property(im => im.RetryInterval).UsePropertyAccessMode(PropertyAccessMode.Field);
 
             modelBuilder.Entity<OutMessage>().HasKey(im => im.Id).HasName("PK_OutMessages");
             modelBuilder.Entity<OutMessage>().Property(im => im.Id).UseSqlServerIdentityColumn();
@@ -239,6 +240,7 @@ namespace Eu.EDelivery.AS4.Common
             modelBuilder.Entity<OutMessage>().Property(im => im.EbmsMessageType).UsePropertyAccessMode(PropertyAccessMode.Field);
             modelBuilder.Entity<OutMessage>().Property(im => im.PMode).UsePropertyAccessMode(PropertyAccessMode.Field);
             modelBuilder.Entity<OutMessage>().Property(im => im.PModeId).UsePropertyAccessMode(PropertyAccessMode.Field);
+            modelBuilder.Entity<OutMessage>().Property(im => im.RetryInterval).UsePropertyAccessMode(PropertyAccessMode.Field);
 
             modelBuilder.Entity<InException>().HasKey(ie => ie.Id).HasName("PK_InExceptions");
             modelBuilder.Entity<InException>().Property(ie => ie.Id).UseSqlServerIdentityColumn();

@@ -11,14 +11,14 @@ using System;
 namespace Eu.EDelivery.AS4.Migrations
 {
     [DbContext(typeof(DatastoreContext))]
-    partial class DatastoreContextModelSnapshot : ModelSnapshot
+    [Migration("20180511112132_AddRetryInformation")]
+    partial class AddRetryInformation
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "1.1.2")
-                .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                .HasAnnotation("ProductVersion", "2.0.1-rtm-125");
 
             modelBuilder.Entity("Eu.EDelivery.AS4.Entities.InException", b =>
                 {
@@ -137,9 +137,6 @@ namespace Eu.EDelivery.AS4.Migrations
                     b.Property<string>("Status")
                         .HasColumnName("Status")
                         .HasMaxLength(50);
-
-                    b.Property<string>("RetryInterval")
-                     .HasMaxLength(50);
 
                     b.Property<string>("ToParty")
                         .HasMaxLength(255);
@@ -267,9 +264,6 @@ namespace Eu.EDelivery.AS4.Migrations
                     b.Property<string>("PModeId")
                         .HasMaxLength(256)
                         .HasAnnotation("PropertyAccessMode", PropertyAccessMode.Field);
-
-                    b.Property<string>("RetryInterval")
-                     .HasMaxLength(50);
 
                     b.Property<string>("Service")
                         .HasMaxLength(255);
@@ -426,4 +420,3 @@ namespace Eu.EDelivery.AS4.Migrations
         }
     }
 }
-
