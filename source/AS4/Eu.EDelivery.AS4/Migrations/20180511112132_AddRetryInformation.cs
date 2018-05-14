@@ -8,15 +8,11 @@ namespace Eu.EDelivery.AS4.Migrations
         {
             migrationBuilder.AddColumn<int>(
                 name: "CurrentRetryCount",
-                table: "OutMessages",
-                nullable: false,
-                defaultValue: 0);
+                table: "OutMessages");
 
             migrationBuilder.AddColumn<int>(
                 name: "MaxRetryCount",
-                table: "OutMessages",
-                nullable: false,
-                defaultValue: 0);
+                table: "OutMessages");
 
             migrationBuilder.AddColumn<string>(
                 name: "RetryInterval",
@@ -26,15 +22,11 @@ namespace Eu.EDelivery.AS4.Migrations
 
             migrationBuilder.AddColumn<int>(
                 name: "CurrentRetryCount",
-                table: "InMessages",
-                nullable: false,
-                defaultValue: 0);
+                table: "InMessages");
 
             migrationBuilder.AddColumn<int>(
                 name: "MaxRetryCount",
-                table: "InMessages",
-                nullable: false,
-                defaultValue: 0);
+                table: "InMessages");
 
             migrationBuilder.AddColumn<string>(
                 name: "RetryInterval",
