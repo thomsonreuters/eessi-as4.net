@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Model.Deliver;
 using Eu.EDelivery.AS4.Model.Notify;
 using Eu.EDelivery.AS4.Model.PMode;
@@ -51,9 +50,28 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
         /// Start sending the <see cref="DeliverMessage"/>
         /// </summary>
         /// <param name="deliverMessage"></param>
-        public async Task SendAsync(DeliverMessageEnvelope deliverMessage)
+        public async Task<DeliverResult> SendAsync(DeliverMessageEnvelope deliverMessage)
         {
-            await SendMessage(deliverMessage, _deliverSender.SendAsync).ConfigureAwait(false);
+            return await SendMessageResult(
+                message: deliverMessage, 
+                sending: _deliverSender.SendAsync, 
+                exMessage: "Unable to send DeliverMessage to the configured endpoint due to an exception").ConfigureAwait(false);
+        }
+
+        private static async Task<TResult> SendMessageResult<T, TResult>(
+            T message,  
+            Func<T, Task<TResult>> sending, 
+            string exMessage)
+        {
+            try
+            {
+                return await sending(message);
+            }
+            catch (Exception ex)
+            {
+                LogExceptionIncludingInner(ex, exMessage);
+                throw;
+            }
         }
 
         /// <summary>
@@ -62,27 +80,33 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
         /// <param name="notifyMessage"></param>
         public async Task SendAsync(NotifyMessageEnvelope notifyMessage)
         {
-            await SendMessage(notifyMessage, _notifySender.SendAsync).ConfigureAwait(false);
+            await SendMessage(
+                message: notifyMessage, 
+                sending: _notifySender.SendAsync, 
+                exMessage: "Unable to send NotifyMessage to the configured endpoint due to and exceptoin").ConfigureAwait(false);
         }
 
-        private static async Task SendMessage<T>(T message, Func<T, Task> sendAction)
+        private static async Task SendMessage<T>(T message, Func<T, Task> sending, string exMessage)
         {
             try
             {
-                await sendAction(message).ConfigureAwait(false);
+                await sending(message).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
-                string description = $"Unable to send {message.GetType().Name} to the configured endpoint: {ex.Message}";
-
-                Logger.Error(description);
-
-                if (ex.InnerException != null)
-                {
-                    Logger.Error(ex.InnerException.Message);
-                }
-
+                LogExceptionIncludingInner(ex, exMessage);
                 throw;
+            }
+        }
+
+        private static void LogExceptionIncludingInner(Exception ex, string exMessage)
+        {
+
+            Logger.Error($"{exMessage}: {ex}");
+
+            if (ex.InnerException != null)
+            {
+                Logger.Error(ex.InnerException.Message);
             }
         }
     }
