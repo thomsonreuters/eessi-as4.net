@@ -5,12 +5,15 @@ using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Deliver;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
+using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Steps.Deliver;
 using Eu.EDelivery.AS4.Strategies.Sender;
 using Eu.EDelivery.AS4.UnitTests.Common;
 using Eu.EDelivery.AS4.UnitTests.Repositories;
 using Eu.EDelivery.AS4.UnitTests.Strategies.Sender;
+using FsCheck;
+using FsCheck.Xunit;
 using Moq;
 using Xunit;
 
@@ -90,20 +93,20 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
             });
         }
 
-        private static DeliverMessageEnvelope AnonymousDeliverEnvelope(string id)
-        {
-            return new DeliverMessageEnvelope(
-                messageInfo: new MessageInfo { MessageId = id },
-                deliverMessage: new byte[] { },
-                contentType: string.Empty);
-        }
-
-        [Fact]
-        public async Task Reset_InMessage_Operation_ToBeDelivered_When_CurrentRetry_LessThen_MaxRetry()
+        [Theory]
+        [InlineData(1, 3, 2)]
+        [InlineData(3, 3, 3)]
+        public async Task Reset_InMessage_Operation_ToBeDelivered_When_CurrentRetry_LessThen_MaxRetry(
+            int current,
+            int max,
+            int expected)
         {
             // Arrange
             string id = Guid.NewGuid().ToString();
+
             InMessage msg = CreateInMessage(id, InStatus.Received, Operation.Delivering);
+            msg.CurrentRetryCount = current;
+            msg.MaxRetryCount = max;
             GetDataStoreContext.InsertInMessage(msg);
 
             DeliverMessageEnvelope envelope = AnonymousDeliverEnvelope(id);
@@ -122,6 +125,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
             {
                 Assert.NotNull(inMessage);
                 Assert.Equal(msg.Status, inMessage.Status);
+                Assert.Equal(expected, inMessage.CurrentRetryCount);
                 Assert.Equal(Operation.ToBeDelivered, OperationUtils.Parse(inMessage.Operation));
             });
         }
@@ -133,6 +137,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
             m.SetOperation(operation);
 
             return m;
+        }
+
+        private static DeliverMessageEnvelope AnonymousDeliverEnvelope(string id)
+        {
+            return new DeliverMessageEnvelope(
+                messageInfo: new MessageInfo { MessageId = id },
+                deliverMessage: new byte[] { },
+                contentType: string.Empty);
         }
 
         private static ReceivingProcessingMode CreateDefaultReceivingPMode()

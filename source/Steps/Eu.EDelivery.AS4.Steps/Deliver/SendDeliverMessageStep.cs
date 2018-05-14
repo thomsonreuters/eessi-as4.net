@@ -91,7 +91,6 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
                 string messageId = messagingContext.DeliverMessage.MessageInfo.MessageId;
                 Logger.Info($"{messagingContext} Update InMessage with Delivered Status and Operation");
 
-                // TODO: update 
                 repository.UpdateInMessage(
                     messageId, 
                     inMessage =>
@@ -99,6 +98,11 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
                         if (!needsAnotherRetry)
                         {
                             inMessage.SetStatus(InStatus.Delivered);
+                        }
+
+                        if (inMessage.CurrentRetryCount < inMessage.MaxRetryCount)
+                        {
+                            inMessage.CurrentRetryCount++;
                         }
 
                         inMessage.SetOperation(

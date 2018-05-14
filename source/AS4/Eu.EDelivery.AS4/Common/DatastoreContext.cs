@@ -228,6 +228,9 @@ namespace Eu.EDelivery.AS4.Common
             modelBuilder.Entity<InMessage>().Property(im => im.EbmsMessageType).UsePropertyAccessMode(PropertyAccessMode.Field);
             modelBuilder.Entity<InMessage>().Property(im => im.PMode).UsePropertyAccessMode(PropertyAccessMode.Field);
             modelBuilder.Entity<InMessage>().Property(im => im.PModeId).UsePropertyAccessMode(PropertyAccessMode.Field);
+            modelBuilder.Entity<InMessage>().Property(im => im.CurrentRetryCount).UsePropertyAccessMode(PropertyAccessMode.Property);
+            modelBuilder.Entity<InMessage>().Property(im => im.MaxRetryCount).UsePropertyAccessMode(PropertyAccessMode.Property);
+            modelBuilder.Entity<InMessage>().Property(im => im.RetryInterval).UsePropertyAccessMode(PropertyAccessMode.Field);
 
             modelBuilder.Entity<OutMessage>().HasKey(im => im.Id).HasName("PK_OutMessages");
             modelBuilder.Entity<OutMessage>().Property(im => im.Id).UseSqlServerIdentityColumn();
@@ -239,6 +242,9 @@ namespace Eu.EDelivery.AS4.Common
             modelBuilder.Entity<OutMessage>().Property(im => im.EbmsMessageType).UsePropertyAccessMode(PropertyAccessMode.Field);
             modelBuilder.Entity<OutMessage>().Property(im => im.PMode).UsePropertyAccessMode(PropertyAccessMode.Field);
             modelBuilder.Entity<OutMessage>().Property(im => im.PModeId).UsePropertyAccessMode(PropertyAccessMode.Field);
+            modelBuilder.Entity<OutMessage>().Property(im => im.CurrentRetryCount).UsePropertyAccessMode(PropertyAccessMode.Property);
+            modelBuilder.Entity<OutMessage>().Property(im => im.MaxRetryCount).UsePropertyAccessMode(PropertyAccessMode.Property);
+            modelBuilder.Entity<OutMessage>().Property(im => im.RetryInterval).UsePropertyAccessMode(PropertyAccessMode.Field);
 
             modelBuilder.Entity<InException>().HasKey(ie => ie.Id).HasName("PK_InExceptions");
             modelBuilder.Entity<InException>().Property(ie => ie.Id).UseSqlServerIdentityColumn();
