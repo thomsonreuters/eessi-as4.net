@@ -18,25 +18,33 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         [Fact]
         public async Task Agent_Returns_500_StatusCode_When_ReceivingPMode_Cannot_Be_Found()
         {
-            // Arrange
-            const string settingsFileName = "staticreceiveagent_http_settings.xml";
-            OverrideTransformerReceivingPModeSetting(settingsFileName, pmodeId: "non-existing-pmode-id");
+            AS4Component msh = null;
+            try
+            {
+                // Arrange
+                const string settingsFileName = "staticreceiveagent_http_settings.xml";
+                OverrideTransformerReceivingPModeSetting(settingsFileName, pmodeId: "non-existing-pmode-id");
 
-            Settings receiveSettings = OverrideSettings(settingsFileName);
-            string url = receiveSettings.Agents
-                .ReceiveAgents.First().Receiver
-                .Setting.First(s => s.Key == "Url").Value;
+                Settings receiveSettings = OverrideSettings(settingsFileName);
+                string url = receiveSettings.Agents
+                    .ReceiveAgents.First().Receiver
+                    .Setting.First(s => s.Key == "Url").Value;
 
-            var msh = AS4Component.Start(Environment.CurrentDirectory);
+                msh = AS4Component.Start(Environment.CurrentDirectory);
 
-            // Act
-            HttpResponseMessage response = await StubSender.SendAS4Message(url, AS4Message.Empty);
+                // Act
+                HttpResponseMessage response = await StubSender.SendAS4Message(url, AS4Message.Empty);
 
-            // Assert
-            Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
-            
-            // TearDown
-            msh.Dispose();
+                // Assert
+                Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
+            }
+            finally
+            {
+
+                // TearDown
+                msh?.Dispose();
+            }
+
         }
 
         private void OverrideTransformerReceivingPModeSetting(string settingsFileName, string pmodeId)
