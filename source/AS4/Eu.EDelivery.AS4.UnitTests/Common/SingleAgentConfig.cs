@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Eu.EDelivery.AS4.Agents;
@@ -17,7 +18,16 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
 
         private static Step[] ExpectedStep { get; } = { new Step { Type = typeof(DummyStep).AssemblyQualifiedName } };
 
+        /// <summary>
+        /// Gets a value indicating whether if the Configuration is IsInitialized
+        /// </summary>
+        public override bool IsInitialized => true;
 
+        /// <summary>
+        /// Gets the retention period (in days) for which the stored entities are cleaned-up.
+        /// </summary>
+        /// <value>The retention period in days.</value>
+        public override TimeSpan RetentionPeriod => default(TimeSpan);
 
         /// <summary>
         /// Gets the agent settings.

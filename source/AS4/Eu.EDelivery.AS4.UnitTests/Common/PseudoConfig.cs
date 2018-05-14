@@ -30,7 +30,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
         /// Gets the retention period (in days) for which the stored entities are cleaned-up.
         /// </summary>
         /// <value>The retention period in days.</value>
-        public TimeSpan RetentionPeriod => throw new NotImplementedException();
+        public virtual TimeSpan RetentionPeriod => throw new NotImplementedException();
 
         /// <summary>
         /// Retrieve Setting from the Global Configurations

@@ -22,22 +22,17 @@ namespace Eu.EDelivery.AS4.Agents
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 
         private readonly Func<DatastoreContext> _storeExpression;
-        private readonly IConfig _config;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="CleanUpAgent"/> class.
-        /// </summary>
-        public CleanUpAgent() : this(() => new DatastoreContext(Config.Instance), Config.Instance) { }
+        private readonly TimeSpan _retention;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CleanUpAgent" /> class.
         /// </summary>
         /// <param name="storeExpression">The store expression.</param>
-        /// <param name="configuration">The configuration.</param>
-        public CleanUpAgent(Func<DatastoreContext> storeExpression, IConfig configuration)
+        /// <param name="retention">The configuration.</param>
+        public CleanUpAgent(Func<DatastoreContext> storeExpression, TimeSpan retention)
         {
             _storeExpression = storeExpression;
-            _config = configuration;
+            _retention = retention;
         }
 
         /// <summary>
@@ -54,7 +49,7 @@ namespace Eu.EDelivery.AS4.Agents
         public async Task Start(CancellationToken cancellation)
         {
             Logger.Info($"{AgentConfig.Name} Started!");
-            Logger.Debug("Will clean up entries older than: " + DateTimeOffset.UtcNow.Subtract(_config.RetentionPeriod));
+            Logger.Debug("Will clean up entries older than: " + DateTimeOffset.UtcNow.Subtract(_retention));
 
             try
             {
@@ -86,7 +81,7 @@ namespace Eu.EDelivery.AS4.Agents
                 foreach (string table in DatastoreTable.TablesByName.Keys.Where(k => !k.Equals("ReceptionAwareness")))
                 {
                     context.NativeCommands
-                           .BatchDeleteOverRetentionPeriod(table, _config.RetentionPeriod, allowedOperations);
+                           .BatchDeleteOverRetentionPeriod(table, _retention, allowedOperations);
                 }
             }
         }
