@@ -28,11 +28,11 @@ namespace Eu.EDelivery.AS4.Agents
         /// Initializes a new instance of the <see cref="CleanUpAgent" /> class.
         /// </summary>
         /// <param name="storeExpression">The store expression.</param>
-        /// <param name="retention">The retention period.</param>
-        public CleanUpAgent(Func<DatastoreContext> storeExpression, TimeSpan retention)
+        /// <param name="retentionPeriod">The retention period.</param>
+        public CleanUpAgent(Func<DatastoreContext> storeExpression, TimeSpan retentionPeriod)
         {
             _storeExpression = storeExpression;
-            _retentionPeriod = retention;
+            _retentionPeriod = retentionPeriod;
         }
 
         /// <summary>
