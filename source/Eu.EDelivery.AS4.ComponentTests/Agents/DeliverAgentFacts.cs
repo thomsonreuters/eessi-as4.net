@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
@@ -22,7 +23,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         private const string ContentType =
             "multipart/related; boundary=\"MIMEBoundary_18bd76d83b2fa5adb6f4e198ff24bcc40fcdb2988035bd08\"; type=\"application/soap+xml\"; charset=\"utf-8\"";
 
-        private static readonly string AttachmentDeliverLocation = Path.Combine(Environment.CurrentDirectory, @"messages\in");
+        private static readonly string DeliveryRoot = Path.Combine(Environment.CurrentDirectory, @"messages\in");
 
         private readonly AS4Component _as4Msh;
 
@@ -42,13 +43,13 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             AS4Message as4Message = await CreateAS4MessageFrom(deliveragent_message);
             as4Message.AddAttachment(DummyAttachment());
 
-            FileSystemUtils.ClearDirectory(AttachmentDeliverLocation);
+            FileSystemUtils.ClearDirectory(DeliveryRoot);
 
             // Act
             await InsertToBeDeliveredMessage(as4Message);
 
             // Assert
-            AssertOnDeliveredAttachments(AttachmentDeliverLocation, files => Assert.True(files.Length == 1, "files.Length == 1"));
+            AssertOnDeliveredAttachments(DeliveryRoot, files => Assert.True(files.Length == 1, "files.Length == 1"));
         }
 
         private static Attachment DummyAttachment()
@@ -74,12 +75,33 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         }
 
         [Fact]
+        public async Task Deliver_Message_Only_When_Referenced_Payloads_Are_Delivered()
+        {
+            AS4Message as4Message = await CreateAS4MessageFrom(deliveragent_message);
+
+            string deliverLocation = DeliverPayloadLocationOf(as4Message.Attachments.First());
+            CleanDirectoryAt(Path.GetDirectoryName(deliverLocation));
+
+            // Act
+            await InsertToBeDeliveredMessage(
+                as4Message,
+                CreateReceivedPMode(
+                    deliverMessageLocation: DeliveryRoot,
+                    deliverPayloadLocation: @"%# \ (+_O) / -> Not a valid path"));
+
+            // Assert
+            Assert.Empty(Directory.EnumerateFiles(DeliveryRoot));
+
+            // TODO: the 'InMessage' is stil set on 'ToBeDeliverd' -> not valid?
+        }
+
+        [Fact]
         public async Task StatusIsSetToException_IfDeliveryFails()
         {
             // Arrange
             AS4Message as4Message = await CreateAS4MessageFrom(deliveragent_message);
 
-            string deliverLocation = DeliverLocationOf(as4Message);
+            string deliverLocation = DeliverMessageLocationOf(as4Message);
             CleanDirectoryAt(Path.GetDirectoryName(deliverLocation));
 
             using (WriteBlockingFileTo(deliverLocation))
@@ -120,16 +142,32 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             return streamWriter;
         }
 
-        private static string DeliverLocationOf(AS4Message as4Message)
+        private static string DeliverMessageLocationOf(AS4Message as4Message)
         {
             return Path.Combine(Environment.CurrentDirectory, @"messages\in", as4Message.GetPrimaryMessageId() + ".xml");
         }
 
-        private async Task InsertToBeDeliveredMessage(AS4Message as4Message)
+        private static string DeliverPayloadLocationOf(Attachment a)
+        {
+            return Path.Combine(Environment.CurrentDirectory, @"messages\in", a.Id + ".jpg");
+        }
+
+        private Task InsertToBeDeliveredMessage(AS4Message as4Message)
+        {
+            return InsertToBeDeliveredMessage(
+                as4Message,
+                CreateReceivedPMode(
+                    deliverMessageLocation: DeliveryRoot,
+                    deliverPayloadLocation: DeliveryRoot));
+        }
+
+        private async Task InsertToBeDeliveredMessage(AS4Message as4Message, IPMode pmode)
         {
             var context = new DatastoreContext(_as4Msh.GetConfiguration());
             var repository = new DatastoreRepository(context);
-            repository.InsertInMessage(CreateInMessageFrom(as4Message));
+
+            repository.InsertInMessage(CreateInMessageFrom(as4Message, pmode));
+
             await context.SaveChangesAsync();
         }
 
@@ -142,27 +180,8 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             return spy.GetInMessageFor(m => m.EbmsMessageId.Equals(as4Message.GetPrimaryMessageId()));
         }
 
-        private static InMessage CreateInMessageFrom(AS4Message as4Message)
+        private static InMessage CreateInMessageFrom(AS4Message as4Message, IPMode pmode)
         {
-            ReceivingProcessingMode CreateReceivedPMode()
-            {
-                var pmode = new ReceivingProcessingMode();
-                pmode.Id = "DeliverAgent_ReceivingPMode";
-                pmode.MessageHandling.DeliverInformation.IsEnabled = true;
-                pmode.MessageHandling.DeliverInformation.DeliverMethod = new Method()
-                {
-                    Type = "FILE",
-                    Parameters = new List<Parameter> { new Parameter() { Name = "Location", Value = AttachmentDeliverLocation } }
-                };
-                pmode.MessageHandling.DeliverInformation.PayloadReferenceMethod = new Method()
-                {
-                    Type = "FILE",
-                    Parameters = new List<Parameter> { new Parameter() { Name = "Location", Value = AttachmentDeliverLocation } }
-                };
-
-                return pmode;
-            }
-
             var inMessage = new InMessage(as4Message.GetPrimaryMessageId())
             {
                 ContentType = as4Message.ContentType,                
@@ -174,9 +193,42 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             inMessage.SetMessageExchangePattern(MessageExchangePattern.Push);
             inMessage.SetOperation(Operation.ToBeDelivered);
 
-            inMessage.SetPModeInformation(CreateReceivedPMode());
+            inMessage.SetPModeInformation(pmode);
 
             return inMessage;
+        }
+
+        private static ReceivingProcessingMode CreateReceivedPMode(
+            string deliverMessageLocation,
+            string deliverPayloadLocation)
+        {
+            return new ReceivingProcessingMode
+            {
+                Id = "DeliverAgent_ReceivingPMode",
+                MessageHandling =
+                {
+                    DeliverInformation =
+                    {
+                        IsEnabled = true,
+                        DeliverMethod = new Method
+                        {
+                            Type = "FILE",
+                            Parameters = new List<Parameter>
+                            {
+                                new Parameter { Name = "Location", Value = deliverMessageLocation }
+                            }
+                        },
+                        PayloadReferenceMethod = new Method
+                        {
+                            Type = "FILE",
+                            Parameters = new List<Parameter>
+                            {
+                                new Parameter { Name = "Location", Value = deliverPayloadLocation }
+                            }
+                        }
+                    }
+                }
+            };
         }
 
         protected override void Disposing(bool isDisposing)
