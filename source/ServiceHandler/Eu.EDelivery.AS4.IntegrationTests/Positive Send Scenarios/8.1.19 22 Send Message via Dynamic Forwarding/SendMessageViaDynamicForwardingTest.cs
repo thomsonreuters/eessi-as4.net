@@ -127,7 +127,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._19_22
 
             InsertSmpConfigurationForAS4Component(ReceiveAgentEndpoint, enableEncryption: false);
 
-            var str = VirtualStream.CreateVirtualStream();
+            var str = VirtualStream.Create();
             str.Write(Properties.Resources._8_1_22_message, 0, Properties.Resources._8_1_22_message.Length);
             str.Position = 0;
 
@@ -241,7 +241,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._19_22
         private static void SendMultiHopAS4Message(AS4Message userMessage)
         {
             ISerializer serializer = SerializerProvider.Default.Get(userMessage.ContentType);
-            VirtualStream virtualStr = VirtualStream.CreateVirtualStream();
+            VirtualStream virtualStr = VirtualStream.Create();
             serializer.Serialize(userMessage, virtualStr, CancellationToken.None);
             virtualStr.Position = 0;
 

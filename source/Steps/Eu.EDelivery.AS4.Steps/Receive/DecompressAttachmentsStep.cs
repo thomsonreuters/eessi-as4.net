@@ -115,7 +115,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             long unzipLength = StreamUtilities.DetermineOriginalSizeOfCompressedStream(attachment.Content);
 
             VirtualStream outputStream =
-                VirtualStream.CreateVirtualStream(
+                VirtualStream.Create(
                     unzipLength > -1 ? unzipLength : VirtualStream.ThresholdMax);
 
             if (unzipLength > 0)

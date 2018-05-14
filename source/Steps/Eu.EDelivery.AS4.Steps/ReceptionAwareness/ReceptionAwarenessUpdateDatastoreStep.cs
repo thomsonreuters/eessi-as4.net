@@ -19,6 +19,7 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 
+        private readonly IConfig _config;
         private readonly IAS4MessageBodyStore _inMessageBodyStore;
         private readonly Func<DatastoreContext> _createContext;
 
@@ -26,17 +27,20 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
         /// Initializes a new instance of the <see cref="ReceptionAwarenessUpdateDatastoreStep"/> class.
         /// </summary>
         public ReceptionAwarenessUpdateDatastoreStep()
-            : this(Registry.Instance.MessageBodyStore, Registry.Instance.CreateDatastoreContext) {}
+            : this(Config.Instance, Registry.Instance.MessageBodyStore, Registry.Instance.CreateDatastoreContext) {}
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ReceptionAwarenessUpdateDatastoreStep" /> class.
         /// </summary>
+        /// <param name="config">The configuration.</param>
         /// <param name="inMessageBodyStore">The in message body store.</param>
         /// <param name="createContext">The create context.</param>
         public ReceptionAwarenessUpdateDatastoreStep(
+            IConfig config,
             IAS4MessageBodyStore inMessageBodyStore,
             Func<DatastoreContext> createContext)
         {
+            _config = config;
             _inMessageBodyStore = inMessageBodyStore;
             _createContext = createContext;
         }
@@ -55,7 +59,7 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
                 Logger.Debug("Executing ReceptionAwarenessDataStoreStep");
 
                 var repository = new DatastoreRepository(context);
-                var service = new ReceptionAwarenessService(repository);
+                var service = new ReceptionAwarenessService(_config, repository);
 
                 context.Attach(receptionAwareness);
 

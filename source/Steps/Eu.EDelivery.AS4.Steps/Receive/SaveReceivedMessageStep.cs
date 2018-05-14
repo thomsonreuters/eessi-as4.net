@@ -21,21 +21,29 @@ namespace Eu.EDelivery.AS4.Steps.Receive
     public class SaveReceivedMessageStep : IStep
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+
+        private readonly IConfig _config;
         private readonly Func<DatastoreContext> _createDatastoreContext;
         private readonly IAS4MessageBodyStore _messageBodyStore;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SaveReceivedMessageStep" /> class
         /// </summary>
-        public SaveReceivedMessageStep() : this(Registry.Instance.CreateDatastoreContext, Registry.Instance.MessageBodyStore) { }
+        public SaveReceivedMessageStep() 
+            : this(Config.Instance, Registry.Instance.CreateDatastoreContext, Registry.Instance.MessageBodyStore) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SaveReceivedMessageStep"/> class.
         /// </summary>
+        /// <param name="configuration">The configuration</param>
         /// <param name="createDatastoreContext">The create Datastore Context.</param>
         /// <param name="messageBodyStore">The <see cref="IAS4MessageBodyStore"/> that must be used to persist the messagebody content.</param>
-        public SaveReceivedMessageStep(Func<DatastoreContext> createDatastoreContext, IAS4MessageBodyStore messageBodyStore)
+        public SaveReceivedMessageStep(
+            IConfig configuration,
+            Func<DatastoreContext> createDatastoreContext, 
+            IAS4MessageBodyStore messageBodyStore)
         {
+            _config = configuration;
             _createDatastoreContext = createDatastoreContext;
             _messageBodyStore = messageBodyStore;
         }
@@ -81,7 +89,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         {
             using (DatastoreContext context = _createDatastoreContext())
             {
-                var service = new InMessageService(new DatastoreRepository(context));
+                var service = new InMessageService(_config, new DatastoreRepository(context));
                 MessageExchangePattern mep = DetermineMessageExchangePattern(messagingContext);
 
                 MessagingContext resultContext = await service

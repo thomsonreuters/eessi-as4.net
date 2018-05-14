@@ -26,7 +26,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
         public GivenSaveReceivedMessageDatastoreFacts()
         {
-            Step = new SaveReceivedMessageStep(GetDataStoreContext, _messageBodyStore);
+            Step = new SaveReceivedMessageStep(StubConfig.Default, GetDataStoreContext, _messageBodyStore);
         }
 
         protected override void Disposing()

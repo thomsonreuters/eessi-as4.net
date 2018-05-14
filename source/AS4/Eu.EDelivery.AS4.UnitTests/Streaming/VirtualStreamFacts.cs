@@ -9,7 +9,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Streaming
         [Fact]
         public void IsFileStreamWhenInitialCapacityIsLargerThenDefaultThreshold()
         {
-            using (VirtualStream stream = VirtualStream.CreateVirtualStream(VirtualStream.ThresholdMax + 1))
+            using (VirtualStream stream = VirtualStream.Create(VirtualStream.ThresholdMax + 1))
             {
                 Assert.True(stream.UnderlyingStream is FileStream);
             }
@@ -18,7 +18,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Streaming
         [Fact]
         public void IsFileStreamWhenInitialCapacityIsLargerThenSpecifiedThreshold()
         {
-            using (VirtualStream stream = VirtualStream.CreateVirtualStream(10, 7))
+            using (VirtualStream stream = VirtualStream.Create(10, 7))
             {
                 Assert.True(stream.UnderlyingStream is FileStream);
             }
@@ -29,7 +29,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Streaming
         {
             byte[] bytesToWrite = new byte[] { 0x01, 0x02, 0x03, 0x04 };
 
-            using (VirtualStream stream = VirtualStream.CreateVirtualStream(1, 10))
+            using (VirtualStream stream = VirtualStream.Create(1, 10))
             {
                 Assert.True(stream.UnderlyingStream is MemoryStream);
 

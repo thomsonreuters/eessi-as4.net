@@ -19,7 +19,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
         /// </summary>
         public GivenSendSignalMessageStepFacts()
         {
-            Step = new SendAS4SignalMessageStep(GetDataStoreContext, _messageBodyStore);
+            Step = new SendAS4SignalMessageStep(StubConfig.Default, GetDataStoreContext, _messageBodyStore);
         }
 
         /// <summary>
@@ -81,3 +81,4 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
         }
     }
 }
+

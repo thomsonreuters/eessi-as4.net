@@ -21,6 +21,8 @@ namespace Eu.EDelivery.AS4.ComponentTests.Common
             AS4Mapper.Initialize();
         }
 
+        public string ComponentTestSettingsPath => @".\config\componenttest-settings";
+
         protected Settings OverrideSettings(string settingsFile)
         {
             File.Copy(@".\config\settings.xml", @".\config\settings_original.xml", true);

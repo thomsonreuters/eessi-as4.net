@@ -26,7 +26,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
             // Arrange
             string id = Guid.NewGuid().ToString();
 
-            var sut = new StoreAS4MessageStep(GetDataStoreContext, _messageBodyStore);
+            var sut = new StoreAS4MessageStep(StubConfig.Default, GetDataStoreContext, _messageBodyStore);
 
             // Act
             await sut.ExecuteAsync(

@@ -26,6 +26,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
     public class SelectUserMessageToSendStep : IStep
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+
         private readonly Func<DatastoreContext> _createContext;
         private readonly IAS4MessageBodyStore _messageBodyStore;
 
@@ -40,7 +41,9 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// </summary>
         /// <param name="createContext">The create context.</param>
         /// <param name="messageBodyStore">The message body store.</param>
-        public SelectUserMessageToSendStep(Func<DatastoreContext> createContext, IAS4MessageBodyStore messageBodyStore)
+        public SelectUserMessageToSendStep(
+            Func<DatastoreContext> createContext, 
+            IAS4MessageBodyStore messageBodyStore)
         {
             _createContext = createContext;
             _messageBodyStore = messageBodyStore;

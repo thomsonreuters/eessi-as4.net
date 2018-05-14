@@ -32,9 +32,15 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
 
             try
             {
-                _agents = CreateCustomAgents()
-                    .Concat(CreateMinderAgents())
-                    .Concat(new IAgent[] {new CleanUpAgent()});
+                _agents =
+                    CreateCustomAgents()
+                        .Concat(CreateMinderAgents())
+                        .Concat(new IAgent[]
+                        {
+                            new CleanUpAgent(
+                                Registry.Instance.CreateDatastoreContext, 
+                                config.RetentionPeriod)
+                        });
             }
             catch (Exception exception)
             {

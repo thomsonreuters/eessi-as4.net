@@ -1,15 +1,12 @@
-﻿using System.Collections.Generic;
-using System.Configuration;
+﻿using System;
+using System.Collections.Generic;
 using Eu.EDelivery.AS4.Agents;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Services.PullRequestAuthorization;
-using Eu.EDelivery.AS4.Watchers;
 
 namespace Eu.EDelivery.AS4.Common
 {
-    using System;
-
     public interface IConfig
     {
         // TODO: add typed properties for mandatory configuration items ? (IdFormat, Database connectionstring, etc...) ?
@@ -24,6 +21,12 @@ namespace Eu.EDelivery.AS4.Common
         /// Gets a value indicating whether if the Configuration is IsInitialized
         /// </summary>
         bool IsInitialized { get; }
+
+        /// <summary>
+        /// Gets the retention period (in days) for which the stored entities are cleaned-up.
+        /// </summary>
+        /// <value>The retention period in days.</value>
+        TimeSpan RetentionPeriod { get; }
 
         /// <summary>
         /// Gets the in message store location.

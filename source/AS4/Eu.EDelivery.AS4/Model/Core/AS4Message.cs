@@ -330,7 +330,7 @@ namespace Eu.EDelivery.AS4.Model.Core
         private static void CompressAttachment(Attachment attachment)
         {
             VirtualStream outputStream =
-                VirtualStream.CreateVirtualStream(
+                VirtualStream.Create(
                     attachment.EstimatedContentSize > -1 ? attachment.EstimatedContentSize : VirtualStream.ThresholdMax);
 
             var compressionLevel = DetermineCompressionLevelFor(attachment);

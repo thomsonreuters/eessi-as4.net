@@ -33,7 +33,7 @@ namespace Eu.EDelivery.AS4.Strategies.Retriever
 
         private static async Task<Stream> RetrieveTempFileContents(string absolutePath)
         {
-            var virtualStr = VirtualStream.CreateVirtualStream();
+            var virtualStr = VirtualStream.Create();
 
             using (var fileStr = new FileStream(
                 absolutePath, 

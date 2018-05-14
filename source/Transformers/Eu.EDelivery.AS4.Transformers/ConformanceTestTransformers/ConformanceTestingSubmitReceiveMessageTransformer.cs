@@ -30,7 +30,7 @@ namespace Eu.EDelivery.AS4.Transformers.ConformanceTestTransformers
         {
             // We receive an AS4Message from Minder, we should convert it to a SubmitMessage if the action is submit.
             // In any other case, we should just return a MessagingContext which contains the as4Message.
-            var receivedStream = VirtualStream.CreateVirtualStream();
+            var receivedStream = VirtualStream.Create();
 
             await message.UnderlyingStream.CopyToAsync(receivedStream);
             receivedStream.Position = 0;

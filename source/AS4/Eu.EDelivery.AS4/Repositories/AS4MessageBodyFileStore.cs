@@ -173,7 +173,7 @@ namespace Eu.EDelivery.AS4.Repositories
                 using (FileStream fileStream = FileUtils.OpenReadAsync(fileLocation, options: FileOptions.SequentialScan))
                 {
                     VirtualStream virtualStream =
-                        VirtualStream.CreateVirtualStream(
+                        VirtualStream.Create(
                             fileStream.CanSeek ? fileStream.Length : VirtualStream.ThresholdMax,
                             forAsync: true);
 
