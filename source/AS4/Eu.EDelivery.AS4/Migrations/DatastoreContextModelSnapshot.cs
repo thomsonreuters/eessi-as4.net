@@ -3,9 +3,6 @@ using Eu.EDelivery.AS4.Common;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Migrations;
-using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Storage.Internal;
 using System;
 
 namespace Eu.EDelivery.AS4.Migrations
@@ -319,7 +316,8 @@ namespace Eu.EDelivery.AS4.Migrations
                         .IsRequired()
                         .HasMaxLength(256);
 
-                    b.Property<long>("RefToOutMessageId");
+                    b.Property<long>("RefToOutMessageId")
+                        .IsRequired();
 
                     b.Property<string>("RetryInterval")
                         .HasMaxLength(12);
@@ -385,10 +383,12 @@ namespace Eu.EDelivery.AS4.Migrations
                         .HasAnnotation("PropertyAccessMode", PropertyAccessMode.Field);
 
                     b.Property<string>("PartyRole")
+                        .IsRequired()
                         .HasMaxLength(256)
                         .HasAnnotation("PropertyAccessMode", PropertyAccessMode.Field);
 
                     b.Property<string>("PartyType")
+                        .IsRequired()
                         .HasMaxLength(256)
                         .HasAnnotation("PropertyAccessMode", PropertyAccessMode.Field);
 
@@ -405,6 +405,7 @@ namespace Eu.EDelivery.AS4.Migrations
                         .HasAnnotation("PropertyAccessMode", PropertyAccessMode.Field);
 
                     b.Property<string>("ToPartyId")
+                        .IsRequired()
                         .HasMaxLength(256)
                         .HasAnnotation("PropertyAccessMode", PropertyAccessMode.Field);
 
