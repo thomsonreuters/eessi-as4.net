@@ -3,14 +3,18 @@ using Eu.EDelivery.AS4.Common;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
 using System;
 
 namespace Eu.EDelivery.AS4.Migrations
 {
     [DbContext(typeof(DatastoreContext))]
-    partial class DatastoreContextModelSnapshot : ModelSnapshot
+    [Migration("20180511112132_AddRetryInformation")]
+    partial class AddRetryInformation
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -316,8 +320,7 @@ namespace Eu.EDelivery.AS4.Migrations
                         .IsRequired()
                         .HasMaxLength(256);
 
-                    b.Property<long>("RefToOutMessageId")
-                        .IsRequired();
+                    b.Property<long>("RefToOutMessageId");
 
                     b.Property<string>("RetryInterval")
                         .HasMaxLength(12);
@@ -383,12 +386,10 @@ namespace Eu.EDelivery.AS4.Migrations
                         .HasAnnotation("PropertyAccessMode", PropertyAccessMode.Field);
 
                     b.Property<string>("PartyRole")
-                        .IsRequired()
                         .HasMaxLength(256)
                         .HasAnnotation("PropertyAccessMode", PropertyAccessMode.Field);
 
                     b.Property<string>("PartyType")
-                        .IsRequired()
                         .HasMaxLength(256)
                         .HasAnnotation("PropertyAccessMode", PropertyAccessMode.Field);
 
@@ -405,7 +406,6 @@ namespace Eu.EDelivery.AS4.Migrations
                         .HasAnnotation("PropertyAccessMode", PropertyAccessMode.Field);
 
                     b.Property<string>("ToPartyId")
-                        .IsRequired()
                         .HasMaxLength(256)
                         .HasAnnotation("PropertyAccessMode", PropertyAccessMode.Field);
 
@@ -427,4 +427,3 @@ namespace Eu.EDelivery.AS4.Migrations
         }
     }
 }
-

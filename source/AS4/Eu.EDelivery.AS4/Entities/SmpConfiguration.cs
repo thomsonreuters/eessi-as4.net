@@ -9,12 +9,15 @@ namespace Eu.EDelivery.AS4.Entities
     {
         public long Id { get; set; }
 
+        [Required]
         [MaxLength(256)]
         public string ToPartyId { get; set; }
 
+        [Required]
         [MaxLength(256)]
         public string PartyRole { get; set; }
 
+        [Required]
         [MaxLength(256)]
         public string PartyType { get; set; }
 

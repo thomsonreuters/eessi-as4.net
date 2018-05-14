@@ -74,6 +74,9 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer">
       <Version>2.0.1</Version>
     </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools">
+      <Version>2.0.1</Version>
+    </PackageReference>
     <PackageReference Include="MimeKit">
       <Version>1.22.0</Version>
     </PackageReference>
@@ -199,6 +202,10 @@
     <Compile Include="Migrations\20180302141116_RemoveOutMessagesConstraint.cs" />
     <Compile Include="Migrations\20180302141116_RemoveOutMessagesConstraint.designer.cs">
       <DependentUpon>20180302141116_RemoveOutMessagesConstraint.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\20180511112132_AddRetryInformation.cs" />
+    <Compile Include="Migrations\20180511112132_AddRetryInformation.designer.cs">
+      <DependentUpon>20180511112132_AddRetryInformation.cs</DependentUpon>
     </Compile>
     <Compile Include="Resources\XsdSchemaDefinitions.cs" />
     <Compile Include="Security\Signing\CalculateSignatureConfig.cs" />

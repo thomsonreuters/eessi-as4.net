@@ -269,7 +269,7 @@ namespace Eu.EDelivery.AS4.Common
 
             modelBuilder.Entity<SmpConfiguration>().HasKey(sc => sc.Id).HasName("PK_SmpConfigurations");
             modelBuilder.Entity<SmpConfiguration>().Property(sc => sc.Id).UseSqlServerIdentityColumn();
-            modelBuilder.Entity<SmpConfiguration>().HasIndex(sc => new {sc.ToPartyId, sc.PartyRole, sc.PartyType}).IsUnique().HasName("IX_SmpConfigurations_ToPartyId_PartyRole_PartyType");
+            modelBuilder.Entity<SmpConfiguration>().HasIndex(sc => new { sc.ToPartyId, sc.PartyRole, sc.PartyType }).IsUnique().HasName("IX_SmpConfigurations_ToPartyId_PartyRole_PartyType");
             modelBuilder.Entity<SmpConfiguration>().Property(sc => sc.Id).UsePropertyAccessMode(PropertyAccessMode.Field);
             modelBuilder.Entity<SmpConfiguration>().Property(sc => sc.PartyRole).UsePropertyAccessMode(PropertyAccessMode.Field);
             modelBuilder.Entity<SmpConfiguration>().Property(sc => sc.PartyType).UsePropertyAccessMode(PropertyAccessMode.Field);
