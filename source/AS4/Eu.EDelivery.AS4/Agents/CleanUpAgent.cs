@@ -22,17 +22,17 @@ namespace Eu.EDelivery.AS4.Agents
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 
         private readonly Func<DatastoreContext> _storeExpression;
-        private readonly TimeSpan _retention;
+        private readonly TimeSpan _retentionPeriod;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CleanUpAgent" /> class.
         /// </summary>
         /// <param name="storeExpression">The store expression.</param>
-        /// <param name="retention">The configuration.</param>
+        /// <param name="retention">The retention period.</param>
         public CleanUpAgent(Func<DatastoreContext> storeExpression, TimeSpan retention)
         {
             _storeExpression = storeExpression;
-            _retention = retention;
+            _retentionPeriod = retention;
         }
 
         /// <summary>
@@ -49,7 +49,7 @@ namespace Eu.EDelivery.AS4.Agents
         public async Task Start(CancellationToken cancellation)
         {
             Logger.Info($"{AgentConfig.Name} Started!");
-            Logger.Debug("Will clean up entries older than: " + DateTimeOffset.UtcNow.Subtract(_retention));
+            Logger.Debug("Will clean up entries older than: " + DateTimeOffset.UtcNow.Subtract(_retentionPeriod));
 
             try
             {
@@ -81,7 +81,7 @@ namespace Eu.EDelivery.AS4.Agents
                 foreach (string table in DatastoreTable.TablesByName.Keys.Where(k => !k.Equals("ReceptionAwareness")))
                 {
                     context.NativeCommands
-                           .BatchDeleteOverRetentionPeriod(table, _retention, allowedOperations);
+                           .BatchDeleteOverRetentionPeriod(table, _retentionPeriod, allowedOperations);
                 }
             }
         }

@@ -40,7 +40,6 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             }
             finally
             {
-
                 // TearDown
                 msh?.Dispose();
             }
