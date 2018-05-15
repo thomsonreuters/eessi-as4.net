@@ -54,7 +54,7 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
         {
             SendAttachmentAsMail(attachment);
 
-            return Task.FromResult(new UploadResult { PayloadId = attachment.Id });
+            return Task.FromResult(UploadResult.SuccessWithId(payloadId: attachment.Id));
         }
 
         /// <summary>

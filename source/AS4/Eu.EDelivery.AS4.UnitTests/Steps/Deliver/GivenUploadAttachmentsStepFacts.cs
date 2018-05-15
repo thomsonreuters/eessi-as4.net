@@ -7,7 +7,6 @@ using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Steps.Deliver;
 using Eu.EDelivery.AS4.Strategies.Uploader;
-using Eu.EDelivery.AS4.UnitTests.Extensions;
 using Eu.EDelivery.AS4.UnitTests.Strategies.Uploader;
 using Moq;
 using Xunit;
@@ -19,64 +18,67 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
     /// </summary>
     public class GivenUploadAttachmentsStepFacts
     {
-        public class GivenValidArguments : GivenUploadAttachmentsStepFacts
+        [Fact]
+        public async Task Throws_When_Uploading_Attachments_Failed()
         {
-            [Fact]
-            public async Task ThenExecuteStepSucceedsWithValidAttachmentUploaderAsync()
-            {
-                // Arrange
-                const string expectedLocation = "http://path/to/download/attachment";
+            // Arrange
+            var sabtoeurProvider = new Mock<IAttachmentUploaderProvider>();
+            sabtoeurProvider
+                .Setup(p => p.Get(It.IsAny<string>()))
+                .Throws(new Exception("Failed to get Uploader"));
 
-                var stubUploader = new StubAttachmentUploader(expectedLocation);
-                var stubProvider = new StubAttachmentUploaderProvider(stubUploader);
-                var step = new UploadAttachmentsStep(stubProvider);
+            var sut = new UploadAttachmentsStep(sabtoeurProvider.Object);
 
-                // Act
-                StepResult result = await step.ExecuteAsync(CreateAS4MessageWithAttachment());
-
-                // Assert
-                Assert.Collection(
-                    result.MessagingContext.AS4Message.Attachments, 
-                    a => Assert.Equal(expectedLocation, a.Location));
-            }
+            // Act / Assert
+            await Assert.ThrowsAnyAsync<Exception>(
+                () => sut.ExecuteAsync(CreateAS4MessageWithAttachment()));
         }
 
-        public class GivenInvalidArguments : GivenUploadAttachmentsStepFacts
+        [Fact]
+        public async Task Update_With_Attachment_Location_When_Uploading_Attachments_Succeeds()
         {
-            [Fact]
-            public async Task ThenExecuteStepFailsWithFailedAttachmentUploaderAsync()
-            {
-                // Arrange
-                var saboteurProvider = new Mock<IAttachmentUploaderProvider>();
-                saboteurProvider.Setup(p => p.Get(It.IsAny<string>()))
-                                .Throws(new Exception("Failed to get Uploader"));
+            // Arrange
+            const string expectedLocation = "http://path/to/download/attachment";
 
-                var step = new UploadAttachmentsStep(saboteurProvider.Object);
+            var stubUploader = new StubAttachmentUploader(expectedLocation);
+            var stubProvider = new StubAttachmentUploaderProvider(stubUploader);
+            var sut = new UploadAttachmentsStep(stubProvider);
 
-                // Act / Assert
-                await Assert.ThrowsAnyAsync<Exception>(
-                    () => step.ExecuteAsync(CreateAS4MessageWithAttachment()));
-            }
+            // Act
+            StepResult result = await sut.ExecuteAsync(CreateAS4MessageWithAttachment());
+
+            // Assert
+            Assert.Collection(
+                result.MessagingContext.AS4Message.Attachments,
+                a => Assert.Equal(expectedLocation, a.Location));
         }
 
-        protected MessagingContext CreateAS4MessageWithAttachment()
+        private MessagingContext CreateAS4MessageWithAttachment()
         {
             const string attachmentId = "attachment-id";
 
-            AS4Message as4Message = AS4Message.Create(
-                new UserMessage(Guid.NewGuid().ToString())
-                {
-                    PayloadInfo = {new PartInfo($"cid:{attachmentId}")}
-                });
-
+            var userMessage = new UserMessage(messageId: Guid.NewGuid().ToString())
+            {
+                PayloadInfo = { new PartInfo($"cid:{attachmentId}") }
+            };
+            AS4Message as4Message = AS4Message.Create(userMessage);
             as4Message.AddAttachment(
-                new Attachment(attachmentId) { Content = Stream.Null });
+                new Attachment(attachmentId)
+                {
+                    Content = Stream.Null
+                });
 
             return new MessagingContext(as4Message, MessagingContextMode.Unknown)
             {
                 ReceivingPMode = new ReceivingProcessingMode
                 {
-                    MessageHandling = {DeliverInformation = {PayloadReferenceMethod = new Method {Type = "FILE"}}}
+                    MessageHandling =
+                    {
+                        DeliverInformation =
+                        {
+                            PayloadReferenceMethod = new Method { Type = "FILE" }
+                        }
+                    }
                 }
             };
         }

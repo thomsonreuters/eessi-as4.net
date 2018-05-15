@@ -69,7 +69,7 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
             bool allowOverwrite = DetermineAllowOverwrite();
 
             string uploadLocation = await TryUploadAttachment(attachment, attachmentFilePath, allowOverwrite).ConfigureAwait(false);
-            return new UploadResult { DownloadUrl = uploadLocation };
+            return UploadResult.SuccessWithUrl(downloadUrl: uploadLocation);
         }
 
         private string AssembleFileDownloadUrlFor(Attachment attachment, UserMessage referringUserMessage)

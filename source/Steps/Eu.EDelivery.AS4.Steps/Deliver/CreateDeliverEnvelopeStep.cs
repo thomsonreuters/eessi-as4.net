@@ -39,7 +39,8 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
             var envelope = new DeliverMessageEnvelope(
                 messageInfo: deliverMessage.MessageInfo,
                 deliverMessage: Encoding.UTF8.GetBytes(serialized),
-                contentType: "application/xml");
+                contentType: "application/xml",
+                payloads: as4Message.Attachments);
 
             messagingContext.ModifyContext(envelope);
             return StepResult.Success(messagingContext);

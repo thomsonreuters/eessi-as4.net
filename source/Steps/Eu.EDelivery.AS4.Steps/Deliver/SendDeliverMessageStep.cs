@@ -7,6 +7,7 @@ using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Strategies.Sender;
+using Eu.EDelivery.AS4.Strategies.Uploader;
 using NLog;
 
 namespace Eu.EDelivery.AS4.Steps.Deliver
@@ -20,27 +21,34 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 
-        private readonly IDeliverSenderProvider _provider;
+        private readonly IDeliverSenderProvider _messageProvider;
+        private readonly IAttachmentUploaderProvider _attachmentProvider;
         private readonly Func<DatastoreContext> _createDbContext;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SendDeliverMessageStep"/> class
         /// </summary>
-        public SendDeliverMessageStep() 
-            : this(Registry.Instance.DeliverSenderProvider, Registry.Instance.CreateDatastoreContext) { }
+        public SendDeliverMessageStep()
+            : this(
+                Registry.Instance.DeliverSenderProvider,
+                Registry.Instance.AttachmentUploader,
+                Registry.Instance.CreateDatastoreContext) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SendDeliverMessageStep"/> class
         /// Create a <see cref="IStep"/> implementation
         /// for sending the Deliver Message to the consuming business application
         /// </summary>
-        /// <param name="provider"> The provider.</param>
+        /// <param name="messageProvider"> The message sender provider.</param>
+        /// <param name="attachmentProvider">The attachment uploader provider</param>
         /// <param name="createDbContext">Creates a new Db Context.</param>
         public SendDeliverMessageStep(
-            IDeliverSenderProvider provider,
+            IDeliverSenderProvider messageProvider,
+            IAttachmentUploaderProvider attachmentProvider,
             Func<DatastoreContext> createDbContext)
         {
-            _provider = provider;
+            _messageProvider = messageProvider;
+            _attachmentProvider = attachmentProvider;
             _createDbContext = createDbContext;
         }
 
@@ -68,7 +76,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
 
             Method deliverMethod = messagingContext.ReceivingPMode.MessageHandling.DeliverInformation.DeliverMethod;
 
-            IDeliverSender sender = _provider.GetDeliverSender(deliverMethod?.Type);
+            IDeliverSender sender = _messageProvider.GetDeliverSender(deliverMethod?.Type);
             sender.Configure(deliverMethod);
             DeliverResult result = await sender.SendAsync(messagingContext.DeliverMessage).ConfigureAwait(false);
 
