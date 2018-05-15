@@ -228,6 +228,7 @@ namespace Eu.EDelivery.AS4.Common
             modelBuilder.Entity<InMessage>().Property(im => im.EbmsMessageType).UsePropertyAccessMode(PropertyAccessMode.Field);
             modelBuilder.Entity<InMessage>().Property(im => im.PMode).UsePropertyAccessMode(PropertyAccessMode.Field);
             modelBuilder.Entity<InMessage>().Property(im => im.PModeId).UsePropertyAccessMode(PropertyAccessMode.Field);
+            modelBuilder.Entity<InMessage>().Property(im => im.RetryInterval).UsePropertyAccessMode(PropertyAccessMode.Field);
 
             modelBuilder.Entity<OutMessage>().HasKey(im => im.Id).HasName("PK_OutMessages");
             modelBuilder.Entity<OutMessage>().Property(im => im.Id).UseSqlServerIdentityColumn();
@@ -239,6 +240,7 @@ namespace Eu.EDelivery.AS4.Common
             modelBuilder.Entity<OutMessage>().Property(im => im.EbmsMessageType).UsePropertyAccessMode(PropertyAccessMode.Field);
             modelBuilder.Entity<OutMessage>().Property(im => im.PMode).UsePropertyAccessMode(PropertyAccessMode.Field);
             modelBuilder.Entity<OutMessage>().Property(im => im.PModeId).UsePropertyAccessMode(PropertyAccessMode.Field);
+            modelBuilder.Entity<OutMessage>().Property(im => im.RetryInterval).UsePropertyAccessMode(PropertyAccessMode.Field);
 
             modelBuilder.Entity<InException>().HasKey(ie => ie.Id).HasName("PK_InExceptions");
             modelBuilder.Entity<InException>().Property(ie => ie.Id).UseSqlServerIdentityColumn();
@@ -269,7 +271,7 @@ namespace Eu.EDelivery.AS4.Common
 
             modelBuilder.Entity<SmpConfiguration>().HasKey(sc => sc.Id).HasName("PK_SmpConfigurations");
             modelBuilder.Entity<SmpConfiguration>().Property(sc => sc.Id).UseSqlServerIdentityColumn();
-            modelBuilder.Entity<SmpConfiguration>().HasIndex(sc => new {sc.ToPartyId, sc.PartyRole, sc.PartyType}).IsUnique().HasName("IX_SmpConfigurations_ToPartyId_PartyRole_PartyType");
+            modelBuilder.Entity<SmpConfiguration>().HasIndex(sc => new { sc.ToPartyId, sc.PartyRole, sc.PartyType }).IsUnique().HasName("IX_SmpConfigurations_ToPartyId_PartyRole_PartyType");
             modelBuilder.Entity<SmpConfiguration>().Property(sc => sc.Id).UsePropertyAccessMode(PropertyAccessMode.Field);
             modelBuilder.Entity<SmpConfiguration>().Property(sc => sc.PartyRole).UsePropertyAccessMode(PropertyAccessMode.Field);
             modelBuilder.Entity<SmpConfiguration>().Property(sc => sc.PartyType).UsePropertyAccessMode(PropertyAccessMode.Field);
