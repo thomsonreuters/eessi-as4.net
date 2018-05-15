@@ -12,8 +12,8 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
     /// <summary>
     /// Describes how the data store gets updated when an incoming message is delivered
     /// </summary>
-    [Description("This step makes sure that the status of the message is correctly set after the message has been delivered.")]
     [Info("Update message status after delivery")]
+    [Description("This step makes sure that the status of the message is correctly set after the message has been delivered.")]
     [Obsolete("The functionality of this step is now embeded in the " + nameof(SendDeliverMessageStep) + " making this step obsolete")]
     public class DeliverUpdateDatastoreStep : IStep
     {
@@ -26,20 +26,20 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
-            Logger.Info($"{messagingContext.EbmsMessageId} Update AS4 UserMessages in Datastore");
-
             using (DatastoreContext context = Registry.Instance.CreateDatastoreContext())
             {
                 var repository = new DatastoreRepository(context);
 
-                string messageId = messagingContext.DeliverMessage.MessageInfo.MessageId;
-                Logger.Info($"[{messageId}] Update InMessage with Delivered Status and Operation");
+                Logger.Info($"{messagingContext.LogTag} Mark deliver message as 'Delivered'");
+                Logger.Debug($"{messagingContext.LogTag} Update InMessage with Status and Operation set to 'Delivered'");
 
-                repository.UpdateInMessage(messageId, inMessage =>
-                {
-                    inMessage.SetStatus(InStatus.Delivered);
-                    inMessage.SetOperation(Operation.Delivered);
-                });
+                repository.UpdateInMessage(
+                    messagingContext.DeliverMessage.MessageInfo.MessageId, 
+                    inMessage =>
+                    {
+                        inMessage.SetStatus(InStatus.Delivered);
+                        inMessage.SetOperation(Operation.Delivered);
+                    });
 
                 await context.SaveChangesAsync().ConfigureAwait(false);
             }

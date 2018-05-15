@@ -19,7 +19,8 @@ namespace Eu.EDelivery.AS4.Steps.Submit
     /// to dynamically complete the <see cref="SendingProcessingMode"/>
     /// </summary>    
     [Info("Perform Dynamic Discovery if required")]
-    [Description("Contacts an SMP server and executes the configured SMP Profile if dynamic discovery is enabled. \n\r" +
+    [Description(
+        "Contacts an SMP server and executes the configured SMP Profile if dynamic discovery is enabled. \n\r" +
         "The information returned from the SMP server is used to complete the sending PMode.")]
     public class DynamicDiscoveryStep : IStep
     {
@@ -38,7 +39,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
             }
 
             string smpProfile = messagingContext.SendingPMode.DynamicDiscovery.SmpProfile;
-            Logger.Info($"DynamicDiscovery is enabled in Sending PMode - using {smpProfile}");
+            Logger.Info($"{messagingContext.LogTag} DynamicDiscovery is enabled in SendingPMode - using {smpProfile}");
 
             var clonedPMode = (SendingProcessingMode)messagingContext.SendingPMode.Clone();
             clonedPMode.Id = $"{clonedPMode.Id}_SMP";
@@ -46,7 +47,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
             XmlDocument smpMetaData = await RetrieveSmpMetaData(profile, clonedPMode);
 
             SendingProcessingMode sendingPMode = profile.DecoratePModeWithSmpMetaData(clonedPMode, smpMetaData);
-            Logger.Info("Sending PMode completed with SMP metadata");
+            Logger.Info($"{messagingContext.LogTag} SendingPMode {sendingPMode.Id} completed with SMP metadata");
             ValidatePMode(sendingPMode);
 
             messagingContext.SendingPMode = sendingPMode;
@@ -70,21 +71,24 @@ namespace Eu.EDelivery.AS4.Steps.Submit
 
         private static async Task<XmlDocument> RetrieveSmpMetaData(
             IDynamicDiscoveryProfile profile, 
-            SendingProcessingMode clonedPMode)
+            SendingProcessingMode pmode)
         {
-            if (clonedPMode.DynamicDiscovery == null)
+            if (pmode.DynamicDiscovery == null)
             {
-                throw new ConfigurationErrorsException(@"The Sending PMode requires a DynamicDiscovery element");
+                throw new ConfigurationErrorsException(
+                    $@"Cannot retrieve SMP metadata: SendingPMode {pmode.Id} requires a <DynamicDiscovery/> element");
             }
 
-            if (clonedPMode.MessagePackaging?.PartyInfo?.ToParty?.PartyIds.Any() != true)
+            if (pmode.MessagePackaging?.PartyInfo?.ToParty?.PartyIds.Any() != true)
             {
-                throw new ConfigurationErrorsException("The Sending PMode must contain a ToParty Id");
+                throw new ConfigurationErrorsException(
+                    $"Cannot retrieve SMP metadata: SendingPMode {pmode.Id} " + 
+                    "must contain at lease one <ToPartyId/> element in the MessagePackaging.PartyInfo.ToParty element");
             }
 
-            Party toParty = clonedPMode.MessagePackaging.PartyInfo.ToParty;
+            Party toParty = pmode.MessagePackaging.PartyInfo.ToParty;
             Dictionary<string, string> customProperties = 
-                clonedPMode.DynamicDiscovery.Settings?.ToDictionary(s => s.Key, s => s.Value) 
+                pmode.DynamicDiscovery.Settings?.ToDictionary(s => s.Key, s => s.Value) 
                     ?? new Dictionary<string, string>();
 
             return await profile.RetrieveSmpMetaData(
@@ -95,10 +99,12 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         private static void ValidatePMode(SendingProcessingMode pmode)
         {
             SendingProcessingModeValidator.Instance.Validate(pmode).Result(
-                onValidationSuccess: result => Logger.Info($"Dynamically completed PMode {pmode.Id} is valid"),
+                onValidationSuccess: result => Logger.Debug($"(Submit) Dynamically completed PMode {pmode.Id} is valid"),
                 onValidationFailed: result =>
                 {
-                    string errorMessage = result.AppendValidationErrorsToErrorMessage($"Dynamically completed PMode {pmode.Id} was invalid:");
+                    string errorMessage = 
+                        result.AppendValidationErrorsToErrorMessage(
+                            $"(Submit) Dynamically completed PMode {pmode.Id} was invalid:");
 
                     Logger.Error(errorMessage);
 

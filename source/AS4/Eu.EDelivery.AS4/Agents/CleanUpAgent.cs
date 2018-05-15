@@ -25,11 +25,6 @@ namespace Eu.EDelivery.AS4.Agents
         private readonly TimeSpan _retentionPeriod;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="CleanUpAgent"/> class.
-        /// </summary>
-        public CleanUpAgent() : this(() => new DatastoreContext(Config.Instance), Config.Instance.RetentionPeriod) { }
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="CleanUpAgent" /> class.
         /// </summary>
         /// <param name="storeExpression">The store expression.</param>

@@ -32,9 +32,15 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
 
             try
             {
-                _agents = CreateCustomAgents()
-                    .Concat(CreateMinderAgents())
-                    .Concat(new IAgent[] {new CleanUpAgent()});
+                _agents =
+                    CreateCustomAgents()
+                        .Concat(CreateMinderAgents())
+                        .Concat(new IAgent[]
+                        {
+                            new CleanUpAgent(
+                                Registry.Instance.CreateDatastoreContext, 
+                                config.RetentionPeriod)
+                        });
             }
             catch (Exception exception)
             {
@@ -62,7 +68,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
             IReceiver receiver = new ReceiverBuilder().SetSettings(config.Settings.Receiver).Build();
 
             return new Agent(
-                name: config.Name,
+                config: config,
                 receiver: receiver,
                 transformerConfig: config.Settings.Transformer,
                 exceptionHandler: ExceptionHandlerRegistry.GetHandler(config.Type),

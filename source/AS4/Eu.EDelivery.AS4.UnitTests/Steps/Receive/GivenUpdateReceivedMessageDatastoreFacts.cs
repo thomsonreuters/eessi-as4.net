@@ -146,7 +146,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
         private async Task<MessagingContext> ExecuteSaveReceivedMessage(MessagingContext context)
         {
             // The receipt needs to be saved first, since we're testing the update-step.
-            var step = new SaveReceivedMessageStep(GetDataStoreContext, _messageBodyStore);
+            var step = new SaveReceivedMessageStep(StubConfig.Default, GetDataStoreContext, _messageBodyStore);
             var result = await step.ExecuteAsync(context);
 
             return result.MessagingContext;

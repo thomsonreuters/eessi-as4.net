@@ -65,17 +65,17 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
 
         private void ValidateDeliverMessage(DeliverMessage deliverMessage)
         {
+            string messageId = deliverMessage.MessageInfo.MessageId;
             _validator.Validate(deliverMessage).Result(
                 onValidationSuccess: result =>
                 {
-                    string messageId = deliverMessage.MessageInfo.MessageId;
-                    string message = $"Deliver Message {messageId} was valid";
+                    string message = $"(Deliver) [{messageId}] Created deliver message is valid";
 
-                    Logger.Debug(message);
+                    Logger.Info(message);
                 },
                 onValidationFailed: result =>
                 {
-                    string description = $"Deliver Message {deliverMessage.MessageInfo.MessageId} was invalid:";
+                    string description = $"(Deliver) [{messageId}] Created deliver message is invalid and can not be delivered";
                     string errorMessage = result.AppendValidationErrorsToErrorMessage(description);
 
                     throw new InvalidDataException(errorMessage);

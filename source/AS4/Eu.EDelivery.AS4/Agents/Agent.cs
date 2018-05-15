@@ -23,51 +23,82 @@ namespace Eu.EDelivery.AS4.Agents
         private readonly (ConditionalStepConfig happyPath, ConditionalStepConfig unhappyPath) _conditionalPipeline;
         private readonly StepConfiguration _stepConfiguration;
 
-        private Agent(
-            string name,
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Agent"/> class.
+        /// </summary>
+        /// <param name="config">The config to add metadata to the agent.</param>
+        /// <param name="receiver">The receiver on which the agent should listen for messages.</param>
+        /// <param name="transformerConfig">The config to create <see cref="ITransformer"/> instances.</param>
+        /// <param name="exceptionHandler">The handler to handle failures during the agent execution.</param>
+        /// <param name="stepConfiguration">The config to create <see cref="IStep"/> normal & error pipelines.</param>
+        internal Agent(
+            AgentConfig config,
             IReceiver receiver,
             Transformer transformerConfig,
-            IAgentExceptionHandler exceptionHandler)
+            IAgentExceptionHandler exceptionHandler,
+            StepConfiguration stepConfiguration)
         {
+            if (config == null)
+            {
+                throw new ArgumentNullException(nameof(config));
+            }
+
+            if (receiver == null)
+            {
+                throw new ArgumentNullException(nameof(receiver));
+            }
+
+            if (transformerConfig == null)
+            {
+                throw new ArgumentNullException(nameof(transformerConfig));
+            }
+
             _receiver = receiver;
             _transformerConfig = transformerConfig;
             _exceptionHandler = exceptionHandler;
 
-            AgentConfig = new AgentConfig(name);
+            _stepConfiguration = stepConfiguration;
+            AgentConfig = config;
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Agent"/> class.
         /// </summary>
-        /// <param name="name">The name.</param>
-        /// <param name="receiver">The receiver.</param>
-        /// <param name="transformerConfig">The transformer configuration.</param>
-        /// <param name="exceptionHandler">The exception handler.</param>
-        /// <param name="stepConfiguration">The step configuration.</param>
-        internal Agent(
-            string name,
-            IReceiver receiver,
-            Transformer transformerConfig,
-            IAgentExceptionHandler exceptionHandler,
-            StepConfiguration stepConfiguration) : this(name, receiver, transformerConfig, exceptionHandler)
-        {
-            _stepConfiguration = stepConfiguration;
-        }
-
+        /// <param name="config">The config to add meta data information to the agent.</param>
+        /// <param name="receiver">The receiver on which the agent should listen for messages.</param>
+        /// <param name="transformerConfig">The config to create <see cref="ITransformer"/> instances.</param>
+        /// <param name="exceptionHandler">The handler to handle failures during the agent execution.</param>
+        /// <param name="pipelineConfig">The config to create <see cref="IStep"/> normal & error pipelines.</param>
+        /// <remarks>This should only be used inside a 'Minder' scenario!</remarks>
         [ExcludeFromCodeCoverage]
         internal Agent(
-            string name,
+            AgentConfig config,
             IReceiver receiver,
             Transformer transformerConfig,
             IAgentExceptionHandler exceptionHandler,
             (ConditionalStepConfig happyPath, ConditionalStepConfig unhappyPath) pipelineConfig)
         {
+            if (config == null)
+            {
+                throw new ArgumentNullException(nameof(config));
+            }
+
+            if (receiver == null)
+            {
+                throw new ArgumentNullException(nameof(receiver));
+            }
+
+            if (transformerConfig == null)
+            {
+                throw new ArgumentNullException(nameof(transformerConfig));
+            }
+
             _receiver = receiver;
             _transformerConfig = transformerConfig;
             _exceptionHandler = exceptionHandler;
             _conditionalPipeline = pipelineConfig;
 
-            AgentConfig = new AgentConfig(name);
+            AgentConfig = config;
         }
 
         public AgentConfig AgentConfig { get; }
@@ -79,14 +110,14 @@ namespace Eu.EDelivery.AS4.Agents
         /// <returns></returns>
         public Task Start(CancellationToken cancellation)
         {
-            Logger.Debug($"Start {AgentConfig.Name}...");
+            Logger.Trace($"Starting {AgentConfig.Name}...");
             cancellation.Register(Stop);
 
             Task task = Task.Factory.StartNew(
                 () => _receiver.StartReceiving(OnReceived, cancellation),
                 TaskCreationOptions.LongRunning);
 
-            Logger.Info($"{AgentConfig.Name} Started!");
+            Logger.Info($"{AgentConfig.Name} Started!");    
             return task;
         }
 

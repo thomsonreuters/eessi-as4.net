@@ -16,8 +16,8 @@ namespace Eu.EDelivery.AS4.Steps.Send
     /// <summary>
     /// Describes how the MSH encrypts the ebMS UserMessage
     /// </summary>
-    [Description("This step encrypts the AS4 Message and its attachments if encryption is enabled in the sending PMode")]
-    [Info("Encrypt AS4 Message")]
+    [Info("Encrypt AS4 Message if necessary")]
+    [Description("This step encrypts the AS4 Message and its attachments if encryption is enabled in the Sending PMode")]
     public class EncryptAS4MessageStep : IStep
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
@@ -56,60 +56,69 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
         private void TryEncryptAS4Message(MessagingContext messagingContext)
         {
-            Logger.Info($"{messagingContext.EbmsMessageId} Encrypt AS4 Message with given Encryption Information");
+            Logger.Info(
+                $"{messagingContext.LogTag} Encrypt AS4 Message with given encryption information " + 
+                $"configured in the Sending PMode: {messagingContext.SendingPMode.Id}");
+
             try
             {
+                var keyEncryptionConfig = RetrieveKeyEncryptionConfig(messagingContext.SendingPMode);
                 var encryptionSettings = messagingContext.SendingPMode.Security.Encryption;
-
-                var keyEncryptionConfig = RetrieveKeyEncryptionConfig(encryptionSettings);
-                var dataEncryptionConfig = new DataEncryptionConfiguration(encryptionSettings.Algorithm, 
-                                                                           algorithmKeySize: encryptionSettings.AlgorithmKeySize);
+                var dataEncryptionConfig = new DataEncryptionConfiguration(
+                    encryptionMethod: encryptionSettings.Algorithm, 
+                    algorithmKeySize: encryptionSettings.AlgorithmKeySize);
 
                 messagingContext.AS4Message.Encrypt(keyEncryptionConfig, dataEncryptionConfig);
             }
             catch (Exception exception)
             {
-                string description = $"{messagingContext.EbmsMessageId} Problems with Encrypting AS4 Message: {exception.Message}";
+                string description = $"{messagingContext.LogTag} Problems with encryption AS4 Message: {exception}";
                 Logger.Error(description);
 
                 throw new CryptographicException(description, exception);
             }
         }
 
-        private KeyEncryptionConfiguration RetrieveKeyEncryptionConfig(Encryption encryptionSettings)
+        private KeyEncryptionConfiguration RetrieveKeyEncryptionConfig(SendingProcessingMode pmode)
         {
-            X509Certificate2 certificate = RetrieveCertificate(encryptionSettings);
+            X509Certificate2 certificate = RetrieveCertificate(pmode);
 
-            return new KeyEncryptionConfiguration(certificate, keyEncryption: encryptionSettings.KeyTransport);
+            return new KeyEncryptionConfiguration(
+                encryptionCertificate: certificate, 
+                keyEncryption: pmode.Security.Encryption.KeyTransport);
         }
 
-        private X509Certificate2 RetrieveCertificate(Encryption encryptionSettings)
+        private X509Certificate2 RetrieveCertificate(SendingProcessingMode pmode)
         {
+            Encryption encryptionSettings = pmode.Security.Encryption;
             if (encryptionSettings.EncryptionCertificateInformation == null)
             {
-                throw new ConfigurationErrorsException("No encryption certificate information found in PMode to perform encryption");
+                throw new ConfigurationErrorsException(
+                    $"(Receive) No encryption certificate information found in Sending PMode {pmode.Id} to perform encryption");
             }
 
-            var publicKeyFindCriteria = encryptionSettings.EncryptionCertificateInformation as CertificateFindCriteria;
-
-            if (publicKeyFindCriteria != null)
+            if (encryptionSettings.EncryptionCertificateInformation is CertificateFindCriteria certFindCriteria)
             {
-                return _certificateRepository.GetCertificate(publicKeyFindCriteria.CertificateFindType, publicKeyFindCriteria.CertificateFindValue);
+                return _certificateRepository.GetCertificate(
+                    certFindCriteria.CertificateFindType, 
+                    certFindCriteria.CertificateFindValue);
             }
 
-            var publicKeyCertificate = encryptionSettings.EncryptionCertificateInformation as PublicKeyCertificate;
-
-            if (publicKeyCertificate != null)
+            if (encryptionSettings.EncryptionCertificateInformation is PublicKeyCertificate pubKeyCert)
             {
-                return new X509Certificate2(Convert.FromBase64String(publicKeyCertificate.Certificate), string.Empty);
+                return new X509Certificate2(Convert.FromBase64String(pubKeyCert.Certificate), string.Empty);
             }
 
-            throw new NotSupportedException("The encryption certificate information specified in the PMode could not be used to retrieve the certificate");            
+            throw new NotSupportedException(
+                $"(Receive) The encryption certificate information specified in the Sending PMode {pmode.Id} could not be used to retrieve the certificate");            
         }
 
         private static Task<StepResult> ReturnSameMessagingContext(MessagingContext messagingContext)
         {
-            Logger.Debug($"Sending PMode {messagingContext.SendingPMode.Id} Encryption is disabled");
+            Logger.Debug(
+                $"{messagingContext.LogTag} No encryption will happen because the " + 
+                $"Sending PMode {messagingContext.SendingPMode.Id} encryption is disabled");
+
             return StepResult.SuccessAsync(messagingContext);
         }
     }

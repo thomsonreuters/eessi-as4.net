@@ -20,7 +20,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
     /// Describes how the message payloads are uploaded to their respective media
     /// </summary>
     [Info("Upload attachments to deliver location")]
-    [Description("This step uploads the message payloads to the destination that was configured in the receiving pmode.")]
+    [Description("This step uploads the deliver message payloads to the destination that was configured in the receiving pmode.")]
     public class UploadAttachmentsStep : IStep
     {
         private readonly Func<DatastoreContext> _createDbContext;
@@ -71,7 +71,8 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
             if (messagingContext.ReceivingPMode?.MessageHandling?.DeliverInformation == null)
             {
                 throw new InvalidOperationException(
-                    "Unable to send DeliverMessage: the ReceivingPMode does not contain any DeliverInformation");
+                    "Unable to send the deliver message: the ReceivingPMode does not contain any <DeliverInformation />." + 
+                    "Please provide a correct <DeliverInformation /> tag to indicate where the deliver message (and its attachments) should be send to.");
             }
 
             IAttachmentUploader uploader = GetAttachmentUploader(messagingContext.ReceivingPMode);
@@ -82,6 +83,11 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
                 foreach (Attachment att in as4Message.Attachments.Where(a => a.MatchesAny(um.PayloadInfo)))
                 {
                     UploadResult result = await TryUploadAttachmentAsync(att, um, uploader).ConfigureAwait(false);
+                    if (result.Status == DeliveryStatus.Successful)
+                    {
+                        Logger.Info($"{messagingContext.LogTag} Attachment '{att.Id}' is delivered at: {att.Location}");
+                    }
+
                     results.Add(result);
                 }
             }
@@ -101,7 +107,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
             Method payloadReferenceMethod = pmode.MessageHandling.DeliverInformation.PayloadReferenceMethod;
             if (payloadReferenceMethod.Type == null)
             {
-                string description = $"Invalid configured Payload Reference Method in receive PMode {((IPMode) pmode).Id}";
+                string description = $"(Deliver) Invalid configured Payload Reference Method in receive PMode {((IPMode) pmode).Id}";
                 Logger.Error(description);
 
                 throw new InvalidDataException(description);
@@ -120,7 +126,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         {
             try
             {
-                Logger.Info($"{referringUserMessage.MessageId} Start Uploading Attachment...");
+                Logger.Trace($"(Deliver) [{referringUserMessage.MessageId}] Start Uploading Attachment...");
 
                 UploadResult attachmentResult = 
                     await uploader.UploadAsync(attachment, referringUserMessage).ConfigureAwait(false);
@@ -128,12 +134,14 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
                 attachment.Location = attachmentResult.DownloadUrl;
                 attachment.ResetContentPosition();
 
+                Logger.Trace($"(Deliver) [{referringUserMessage.MessageId}] Attachment uploaded succesfully");
                 return attachmentResult;
             }
             catch (Exception exception)
             {
-                Logger.Error("Attachments cannot be uploaded");
-                Logger.Error(exception.Message);
+                Logger.Error(
+                    $"(Deliver) Attachment {attachment.Id} cannot be uploaded "
+                    + $"because of an exception: {Environment.NewLine}" + exception);
 
                 throw;
             }

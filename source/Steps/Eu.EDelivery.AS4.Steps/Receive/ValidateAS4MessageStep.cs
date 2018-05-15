@@ -30,7 +30,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(MessagingContext context)
         {
-            Logger.Info("Validating the received AS4 Message ...");
+            Logger.Trace("Validating the received AS4 Message ...");
 
             if (SoapBodyIsNotEmpty(context.AS4Message))
             {                
@@ -69,7 +69,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 }
             }
 
-            Logger.Info("Received AS4 Message is valid");
+            Logger.Info($"{context} Received AS4 Message is valid");
             return await StepResult.SuccessAsync(context);
         }
 
@@ -83,14 +83,15 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         private static ErrorResult SoapBodyAttachmentsNotSupported()
         {
             return new ErrorResult(
-                "Attachments in the soap body are not supported.", 
+                "Attachments in the SOAP body are not supported", 
                 ErrorAlias.FeatureNotSupported);
         }
 
         private static ErrorResult ExternalPayloadError()
         {
             return new ErrorResult(
-                "Attachments must be embedded in the MIME message and must be referred to in the PayloadInfo section using a PartyInfo with a cid href reference.",
+                "Attachments must be embedded in the MIME message and must be referred " + 
+                "to in the PayloadInfo section using a PartyInfo with a cid href reference",
                 ErrorAlias.ExternalPayloadError);
         }
 
@@ -110,7 +111,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
         private static StepResult ValidationFailure(MessagingContext context)
         {
-            Logger.Error($"AS4 Message {context.AS4Message.GetPrimaryMessageId()} is not valid: {context.ErrorResult.Description}");
+            Logger.Error($"{context.LogTag} AS4 Message is not valid: {context.ErrorResult.Description}");
             return StepResult.Failed(context);
         }
     }

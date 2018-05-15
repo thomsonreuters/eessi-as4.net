@@ -34,6 +34,7 @@ namespace Eu.EDelivery.AS4.Common
         private IPullAuthorizationMapProvider _pullRequestPullAuthorizationMapProvider;
         
         private Settings _settings;
+        private TimeSpan _retention;
 
         internal Config()
         {
@@ -45,30 +46,32 @@ namespace Eu.EDelivery.AS4.Common
         /// <summary>
         /// Gets a value indicating whether the FE needs to be started in process.
         /// </summary>
-        public bool FeInProcess { get; private set; }
+        public bool FeInProcess => OnlyAfterInitialized(() => _settings?.FeInProcess ?? false);
 
         /// <summary>
         /// Gets a value indicating whether the Payload Service needs to be started in process.
         /// </summary>
-        public bool PayloadServiceInProcess { get; private set; }
+        public bool PayloadServiceInProcess => OnlyAfterInitialized(() => _settings?.PayloadServiceInProcess ?? false);
 
         /// <summary>
         /// Gets the retention period (in days) for which the stored entities are cleaned-up.
         /// </summary>
         /// <value>The retention period in days.</value>
-        public TimeSpan RetentionPeriod { get; private set; }
+        public TimeSpan RetentionPeriod => OnlyAfterInitialized(() => _retention);
 
         /// <summary>
         /// Gets the in message store location.
         /// </summary>
         /// <value>The in message store location.</value>
-        public string InMessageStoreLocation => _settings?.Database?.InMessageStoreLocation ?? @"file:///.\database\as4messages\in";
+        public string InMessageStoreLocation =>
+            OnlyAfterInitialized(() => _settings?.Database?.InMessageStoreLocation ?? @"file:///.\database\as4messages\in");
 
         /// <summary>
         /// Gets the out message store location.
         /// </summary>
         /// <value>The out message store location.</value>
-        public string OutMessageStoreLocation => _settings?.Database?.OutMessageStoreLocation ?? @"file:///.\database\as4messages\out";
+        public string OutMessageStoreLocation => 
+            OnlyAfterInitialized(() => _settings?.Database?.OutMessageStoreLocation ?? @"file:///.\database\as4messages\out");
 
         /// <summary>
         /// Gets the application path of the AS4.NET Component.
@@ -124,7 +127,7 @@ namespace Eu.EDelivery.AS4.Common
         /// <returns></returns>
         public bool ContainsSendingPMode(string id)
         {
-            return _sendingPModeWatcher.ContainsPMode(id);
+            return OnlyAfterInitialized(() => _sendingPModeWatcher.ContainsPMode(id));
         }
 
         /// <summary>
@@ -136,7 +139,7 @@ namespace Eu.EDelivery.AS4.Common
         /// <exception cref="ConfigurationErrorsException">No entry found for the given id</exception>
         public string GetFileLocationForSendingPMode(string id)
         {
-            return GetPModeEntry(id, _sendingPModeWatcher).Filename;
+            return OnlyAfterInitialized(() => GetPModeEntry(id, _sendingPModeWatcher).Filename);
         }
 
         /// <summary>
@@ -148,7 +151,7 @@ namespace Eu.EDelivery.AS4.Common
         /// <exception cref="ConfigurationErrorsException">No entry found for the given id</exception>
         public string GetFileLocationForReceivingPMode(string id)
         {
-            return GetPModeEntry(id, _receivingPModeWatcher).Filename;
+            return OnlyAfterInitialized(() => GetPModeEntry(id, _receivingPModeWatcher).Filename);
         }
 
         /// <summary>
@@ -160,7 +163,7 @@ namespace Eu.EDelivery.AS4.Common
         /// <exception cref="ConfigurationErrorsException">No entry found for the given id</exception>
         public SendingProcessingMode GetSendingPMode(string id)
         {
-            return GetPModeEntry(id, _sendingPModeWatcher).PMode as SendingProcessingMode;
+            return OnlyAfterInitialized(() => GetPModeEntry(id, _sendingPModeWatcher).PMode as SendingProcessingMode);
         }
 
         /// <summary>
@@ -172,7 +175,7 @@ namespace Eu.EDelivery.AS4.Common
         /// <exception cref="ConfigurationErrorsException">No entry found for the given id</exception>
         public ReceivingProcessingMode GetReceivingPMode(string id)
         {
-            return GetPModeEntry(id, _receivingPModeWatcher).PMode as ReceivingProcessingMode;
+            return OnlyAfterInitialized(() => GetPModeEntry(id, _receivingPModeWatcher).PMode as ReceivingProcessingMode);
         }
 
         private static ConfiguredPMode GetPModeEntry<T>(string id, PModeWatcher<T> watcher) where T : class, IPMode
@@ -198,25 +201,27 @@ namespace Eu.EDelivery.AS4.Common
         /// <param name="key"> Registered Key for the Setting </param>
         /// <returns>
         /// </returns>
-        public string GetSetting(string key) => _configuration.ReadOptionalProperty(key);
+        public string GetSetting(string key) => OnlyAfterInitialized(() => _configuration.ReadOptionalProperty(key));
 
         /// <summary>
         /// Gets the agent settings.
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<AgentConfig> GetAgentsConfiguration() => _agentConfigs;
+        public IEnumerable<AgentConfig> GetAgentsConfiguration() => OnlyAfterInitialized(() => _agentConfigs);
 
         /// <summary>
         /// Return all the configured <see cref="ReceivingProcessingMode" />
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<ReceivingProcessingMode> GetReceivingPModes() => _receivingPModeWatcher.GetPModes().OfType<ReceivingProcessingMode>();
+        public IEnumerable<ReceivingProcessingMode> GetReceivingPModes() => 
+            OnlyAfterInitialized(() => _receivingPModeWatcher.GetPModes().OfType<ReceivingProcessingMode>());
 
         /// <summary>
         /// Return all the configured <see cref="SendingProcessingMode"/>
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<SendingProcessingMode> GetSendingPModes() => _sendingPModeWatcher.GetPModes().OfType<SendingProcessingMode>();
+        public IEnumerable<SendingProcessingMode> GetSendingPModes() => 
+            OnlyAfterInitialized(() => _sendingPModeWatcher.GetPModes().OfType<SendingProcessingMode>());
 
         /// <summary>
         /// Retrieve the URL's on which specific MinderSubmitReceiveAgents should listen.
@@ -224,12 +229,9 @@ namespace Eu.EDelivery.AS4.Common
         /// <returns></returns>
         public IEnumerable<SettingsMinderAgent> GetEnabledMinderTestAgents()
         {
-            if (_settings.Agents.MinderTestAgents == null)
-            {
-                return new SettingsMinderAgent[] { };
-            }
-
-            return _settings.Agents.MinderTestAgents.Where(a => a.Enabled);
+            return OnlyAfterInitialized(
+                () => _settings.Agents.MinderTestAgents?.Where(a => a.Enabled)
+                      ?? Enumerable.Empty<SettingsMinderAgent>());
         }
 
         public void Dispose()
@@ -351,26 +353,28 @@ namespace Eu.EDelivery.AS4.Common
             _configuration["ConnectionString"] = _settings.Database.ConnectionString;
             _configuration["CertificateStore"] = _settings.CertificateStore.StoreName;
             _configuration["CertificateRepository"] = _settings.CertificateStore?.Repository?.Type;
-
-            FeInProcess = _settings.FeInProcess;
-            PayloadServiceInProcess = _settings.PayloadServiceInProcess;
-
-            if (int.TryParse(_settings.RetentionPeriod, out int r) && r > 0)
-            {
-                RetentionPeriod = TimeSpan.FromDays(r);
-            }
-            else
-            {
-                const int defaultRetentionPeriod = 90;
-
-                RetentionPeriod = TimeSpan.FromDays(defaultRetentionPeriod);
-                LogManager.GetCurrentClassLogger().Warn($"No valid (> 0) Retention Period found: '{_settings.RetentionPeriod ?? "(null)"}', {defaultRetentionPeriod} days as default will be used.");
-            }
+            _retention = ParseRetentionPeriod();
 
             // TODO: this is hardcoded right now, should be configurable in the settings.xml
             string authorizationMap = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, Properties.Resources.configurationfolder, "Security\\pull_authorizationmap.xml");
 
             _pullRequestPullAuthorizationMapProvider = new FilePullAuthorizationMapProvider(authorizationMap);
+        }
+
+        private TimeSpan ParseRetentionPeriod()
+        {
+            if (int.TryParse(_settings.RetentionPeriod, out int r) && r > 0)
+            {
+                return TimeSpan.FromDays(r);
+            }
+
+            const int defaultRetentionPeriod = 90;
+
+            LogManager.GetCurrentClassLogger().Warn(
+                $"No valid (> 0) Retention Period found: '{_settings.RetentionPeriod ?? "(null)"}', " +
+                $"{defaultRetentionPeriod} days as default will be used");
+
+            return TimeSpan.FromDays(defaultRetentionPeriod);
         }
 
         private void AddCustomSettings()
@@ -411,7 +415,11 @@ namespace Eu.EDelivery.AS4.Common
             {
                 if (setting != null)
                 {
-                    _agentConfigs.Add(new AgentConfig(setting.Name) { Type = type, Settings = setting });
+                    _agentConfigs.Add(new AgentConfig(setting.Name)
+                    {
+                        Type = type,
+                        Settings = setting
+                    });
                 }
             }
         } 
@@ -441,6 +449,19 @@ namespace Eu.EDelivery.AS4.Common
         /// Gets the IAuthorizationMapProvider that must be used when verifying PullRequests.
         /// </summary>
         /// <returns></returns>
-        public IPullAuthorizationMapProvider PullRequestAuthorizationMapProvider => _pullRequestPullAuthorizationMapProvider;
+        public IPullAuthorizationMapProvider PullRequestAuthorizationMapProvider => 
+            OnlyAfterInitialized(() => _pullRequestPullAuthorizationMapProvider);
+
+        private T OnlyAfterInitialized<T>(Func<T> f)
+        {
+            if (IsInitialized)
+            {
+                return f();
+            }
+
+            throw new InvalidOperationException(
+                "Cannot use this member before the configuration is initialized. " + 
+                $"Call the {nameof(Initialize)} method to initialize the configuration.");
+        }
     }
 }

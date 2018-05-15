@@ -55,7 +55,7 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
             return await SendMessageResult(
                 message: deliverMessage, 
                 sending: _deliverSender.SendAsync, 
-                exMessage: "Unable to send DeliverMessage to the configured endpoint due to an exception").ConfigureAwait(false);
+                exMessage: $"(Deliver)[{deliverMessage?.MessageInfo?.MessageId}] Unable to send DeliverMessage to the configured endpoint due to an exception").ConfigureAwait(false);
         }
 
         private static async Task<TResult> SendMessageResult<T, TResult>(
@@ -83,7 +83,7 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
             await SendMessage(
                 message: notifyMessage, 
                 sending: _notifySender.SendAsync, 
-                exMessage: "Unable to send NotifyMessage to the configured endpoint due to and exceptoin").ConfigureAwait(false);
+                exMessage: $"(Notify)[{notifyMessage?.MessageInfo?.MessageId}] Unable to send NotifyMessage to the configured endpoint due to and exceptoin").ConfigureAwait(false);
         }
 
         private static async Task SendMessage<T>(T message, Func<T, Task> sending, string exMessage)
@@ -102,7 +102,7 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
         private static void LogExceptionIncludingInner(Exception ex, string exMessage)
         {
 
-            Logger.Error($"{exMessage}: {ex}");
+            Logger.Error(exMessage);
 
             if (ex.InnerException != null)
             {

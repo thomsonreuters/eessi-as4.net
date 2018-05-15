@@ -2,13 +2,14 @@
 using System.Security;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
+using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Services.PullRequestAuthorization;
 
 namespace Eu.EDelivery.AS4.Steps.Send
 {
-    [Description("Verifies if the received PullRequest is authorized.")]
     [Info("Verify pull request authorization")]
+    [Description("Verifies if the received PullRequest is authorized")]
     public class VerifyPullRequestAuthorizationStep : IStep
     {
         private readonly IPullAuthorizationMapProvider _pullAuthorizationMapProvider;
@@ -34,16 +35,18 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// <returns></returns>
         public Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
-            var as4Message = messagingContext.AS4Message;
+            AS4Message as4Message = messagingContext.AS4Message;
 
             var authorizationMap = new PullAuthorizationMapService(_pullAuthorizationMapProvider);
-
             if (authorizationMap.IsPullRequestAuthorized(as4Message))
             {
                 return StepResult.SuccessAsync(messagingContext);
             }
 
-            throw new SecurityException($"The PullRequest for this MPC is not authorized.");
+            string mpc = (as4Message.PrimarySignalMessage as PullRequest)?.Mpc ?? string.Empty;
+            throw new SecurityException(
+                $"{messagingContext.LogTag} PullRequest for MPC {mpc} is not authorized. " + 
+                "Either change the PullRequest MPC or add the MPC value to the authorization map");
         }
     }
 }

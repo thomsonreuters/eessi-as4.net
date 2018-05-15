@@ -1,0 +1,11 @@
+{
+  "parser": "babel-eslint",
+  "extends": "eslint:recommended",
+  "rules": {
+    "semi": "off",
+    "quotes": "off",
+    "no-undef": "off",
+    "newline-per-chained-call": [0, { "ignoreChainWithDepth": 3 }],
+    "sort-imports": "warn"
+  }
+}

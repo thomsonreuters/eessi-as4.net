@@ -16,7 +16,7 @@ namespace Eu.EDelivery.AS4.Streaming
             StreamUtilities.MovePositionToStreamStart(contents);
 
             VirtualStream virtualStream =
-                VirtualStream.CreateVirtualStream(contents.CanSeek ? contents.Length : VirtualStream.ThresholdMax);
+                VirtualStream.Create(contents.CanSeek ? contents.Length : VirtualStream.ThresholdMax);
 
             if (contents.CanRead)
             {

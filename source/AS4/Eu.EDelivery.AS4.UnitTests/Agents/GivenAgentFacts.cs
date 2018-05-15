@@ -24,7 +24,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Agents
         {
             // Arrange
             var spyReceiver = Mock.Of<IReceiver>();
-            var sut = new Agent(null, spyReceiver, null, null, null);
+            var sut = new Agent(
+                new AgentConfig(name: "Agent with Spy Receiver"), 
+                spyReceiver, 
+                Transformer<StubSubmitTransformer>(), 
+                exceptionHandler: null, 
+                stepConfiguration: null);
 
             // Act
             sut.Stop();
@@ -38,8 +43,16 @@ namespace Eu.EDelivery.AS4.UnitTests.Agents
         {
             // Arrange
             var spyReceiver = new SpyReceiver();
-            var invalidPipeline = new StepConfiguration {NormalPipeline = new Step[] {null}, ErrorPipeline = null};
-            var sut = new Agent(null, spyReceiver, Transformer<StubSubmitTransformer>(), null, invalidPipeline);
+            var sut = new Agent(
+                new AgentConfig("Agent with non-defined Normal Steps"), 
+                spyReceiver, 
+                Transformer<StubSubmitTransformer>(), 
+                exceptionHandler: null, 
+                stepConfiguration: new StepConfiguration
+                {
+                    NormalPipeline = new Step[] {null},
+                    ErrorPipeline = null
+                });
 
             // Act
             await sut.Start(CancellationToken.None);
@@ -54,7 +67,16 @@ namespace Eu.EDelivery.AS4.UnitTests.Agents
         {
             // Arrange
             var spyReceiver = new SpyReceiver();
-            Agent sut = CreateHappyAgent(spyReceiver);
+            var sut = new Agent(
+                new AgentConfig(name: "Agent with Normal Pipeline"), 
+                spyReceiver, 
+                Transformer<StubSubmitTransformer>(), 
+                exceptionHandler: null, 
+                stepConfiguration: new StepConfiguration
+                {
+                    NormalPipeline = AS4MessageSteps(),
+                    ErrorPipeline = null
+                });
 
             // Act
             await sut.Start(CancellationToken.None);
@@ -62,12 +84,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Agents
             // Assert
             Assert.True(spyReceiver.IsCalled);
             Assert.Equal(AS4Message.Empty, spyReceiver.Context.AS4Message);
-        }
-
-        private static Agent CreateHappyAgent(IReceiver spyReceiver)
-        {
-            var steps = new StepConfiguration {NormalPipeline = AS4MessageSteps(), ErrorPipeline = null};
-            return new Agent(null, spyReceiver, Transformer<StubSubmitTransformer>(), null, steps);
         }
 
         private static Step[] AS4MessageSteps()
@@ -93,7 +109,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Agents
         private static Agent AgentWithSaboteurTransformer(IAgentExceptionHandler spyHandler)
         {
             return new Agent(
-                null,
+                new AgentConfig(name: "Agent with Saboteur Transformer"), 
                 new SpyReceiver(),
                 Transformer<DummyTransformer>(),
                 spyHandler,
@@ -119,14 +135,16 @@ namespace Eu.EDelivery.AS4.UnitTests.Agents
 
         private static Agent AgentWithHappySaboteurSteps(IAgentExceptionHandler spyHandler)
         {
-            Transformer transformer = Transformer<StubSubmitTransformer>();
-            var pipelines = new StepConfiguration
-            {
-                NormalPipeline = Step<SaboteurStep>(),
-                ErrorPipeline = null
-            };
-
-            return new Agent(null, new SpyReceiver(), transformer, spyHandler, pipelines);
+            return new Agent(
+                new AgentConfig(name: "Agent with Saboteur Steps in Normal Pipeline"), 
+                new SpyReceiver(), 
+                Transformer<StubSubmitTransformer>(), 
+                spyHandler, 
+                new StepConfiguration
+                {
+                    NormalPipeline = Step<SaboteurStep>(),
+                    ErrorPipeline = null
+                });
         }
 
         [Fact]
@@ -146,8 +164,16 @@ namespace Eu.EDelivery.AS4.UnitTests.Agents
 
         private static Agent AgentWithUnhappySaboteurSteps(IAgentExceptionHandler spyHandler)
         {
-            var pipelines = new StepConfiguration {NormalPipeline = Step<UnsuccessfulStep>(), ErrorPipeline = Step<SaboteurStep>()};
-            return new Agent(null, new SpyReceiver(), Transformer<StubSubmitTransformer>(), spyHandler, pipelines);
+            return new Agent(
+                new AgentConfig(name: "Agent with Saboteur Steps in Error Pipeline"), 
+                new SpyReceiver(), 
+                Transformer<StubSubmitTransformer>(), 
+                spyHandler, 
+                new StepConfiguration
+                {
+                    NormalPipeline = Step<UnsuccessfulStep>(),
+                    ErrorPipeline = Step<SaboteurStep>()
+                });
         }
 
         [Fact]
@@ -167,13 +193,16 @@ namespace Eu.EDelivery.AS4.UnitTests.Agents
 
         private static Agent AgentWithUnsuccesfulStep(IReceiver spyReceiver)
         {
-            var pipelines = new StepConfiguration
-            {
-                NormalPipeline = Step<UnsuccessfulStep>(),
-                ErrorPipeline = Step<UnhappyStep>()
-            };
-
-            return new Agent(null, spyReceiver, Transformer<StubSubmitTransformer>(), null, pipelines);
+            return new Agent(
+                new AgentConfig(name: "Agent with Steps that don't succeed succesfully"), 
+                spyReceiver, 
+                Transformer<StubSubmitTransformer>(), 
+                exceptionHandler: null, 
+                stepConfiguration: new StepConfiguration
+                {
+                    NormalPipeline = Step<UnsuccessfulStep>(),
+                    ErrorPipeline = Step<UnhappyStep>()
+                });
         }
 
         private static Transformer Transformer<T>()
