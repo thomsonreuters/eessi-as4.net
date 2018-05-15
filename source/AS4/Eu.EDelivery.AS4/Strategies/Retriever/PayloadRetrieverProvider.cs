@@ -33,7 +33,8 @@ namespace Eu.EDelivery.AS4.Strategies.Retriever
 
             if (entry?.Retriever == null)
             {
-                throw new KeyNotFoundException($"No Payload Retriever found for Payload {payload.Id}");
+                throw new KeyNotFoundException(
+                    $"No {nameof(IPayloadRetriever)} implementation found for payload {payload.Id}");
             }
 
             return entry.Retriever;

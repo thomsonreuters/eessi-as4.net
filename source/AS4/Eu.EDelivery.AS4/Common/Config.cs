@@ -415,7 +415,11 @@ namespace Eu.EDelivery.AS4.Common
             {
                 if (setting != null)
                 {
-                    _agentConfigs.Add(new AgentConfig(setting.Name) { Type = type, Settings = setting });
+                    _agentConfigs.Add(new AgentConfig(setting.Name)
+                    {
+                        Type = type,
+                        Settings = setting
+                    });
                 }
             }
         } 

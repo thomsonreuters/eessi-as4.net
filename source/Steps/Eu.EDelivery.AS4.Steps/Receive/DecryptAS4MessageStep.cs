@@ -18,8 +18,8 @@ namespace Eu.EDelivery.AS4.Steps.Receive
     /// <summary>
     /// The use case describes how a message gets decrypted.
     /// </summary>
-    [Description("Decrypts the received AS4 Message if necessary")]
     [Info("Decrypt received message")]
+    [Description("Decrypts the received AS4 Message if necessary by using the specified Receiving PMode")]
     public class DecryptAS4MessageStep : IStep
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
@@ -61,7 +61,8 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             if (decryption.Encryption == Limit.Required && !as4Message.IsEncrypted)
             {
                 return FailedDecryptResult(
-                    $"AS4 Message is not encrypted but Receiving PMode {pmode.Id} requires it",
+                    $"AS4 Message is not encrypted but Receiving PMode {pmode.Id} requires it. " + 
+                    "Please alter the PMode Decryption.Encryption element to Allowed or Ignored",
                     ErrorAlias.PolicyNonCompliance,
                     context);
             }
@@ -69,7 +70,8 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             if (decryption.Encryption == Limit.NotAllowed && as4Message.IsEncrypted)
             {
                 return FailedDecryptResult(
-                    $"AS4 Message is encrypted but Receiving PMode {pmode.Id} doesn't allow it",
+                    $"AS4 Message is encrypted but Receiving PMode {pmode.Id} doesn't allow it. " + 
+                    "Please alter the PMode Decryption.Encryption element to Required, Allowed or Ignored",
                     ErrorAlias.PolicyNonCompliance,
                     context);
             }
@@ -84,7 +86,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
         private static StepResult FailedDecryptResult(string description, ErrorAlias errorAlias, MessagingContext context)
         {
-            context.ErrorResult = new ErrorResult(description, errorAlias);
+            context.ErrorResult = new ErrorResult("Cannot decrypt incoming message: " + description, errorAlias);
             return StepResult.Failed(context);
         }
 
@@ -95,7 +97,9 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
             if (isIgnored)
             {
-                Logger.Info($"{messagingContext.EbmsMessageId} Decryption is ignored in Receiving PMode {pmode.Id}");
+                Logger.Info(
+                    $"{messagingContext.LogTag} Decryption is ignored " + 
+                    $"in Receiving PMode {pmode.Id}, so decryption will take place");
             }
 
             return isIgnored;
@@ -105,11 +109,11 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         {
             try
             {
-                Logger.Info($"{messagingContext.EbmsMessageId} Start decrypting AS4 Message ...");
+                Logger.Trace($"{messagingContext} Start decrypting AS4 Message ...");
 
                 messagingContext.AS4Message.Decrypt(GetCertificate(messagingContext));
 
-                Logger.Info($"{messagingContext.EbmsMessageId} AS4 Message is decrypted correctly");
+                Logger.Info($"{messagingContext} AS4 Message is decrypted correctly");
 
                 return await StepResult.SuccessAsync(messagingContext);
             }
@@ -131,7 +135,9 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             if (decryption.DecryptCertificateInformation == null)
             {
                 throw new ConfigurationErrorsException(
-                    "No certificate information found in PMode to decrypt the message.");
+                    "Cannot start decrypting: no certificate information found " + 
+                    $"in Receiving PMode {messagingContext.ReceivingPMode.Id} to decrypt the message. " +
+                    "Please use either a <CertificateFindCriteria/> or <PrivateKeyCertificate/> to specify the certificate information");
             }
 
             if (decryption.DecryptCertificateInformation is CertificateFindCriteria certFindCriteria)
@@ -152,7 +158,9 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             }
 
             throw new NotSupportedException(
-                "The signing certificate information specified in the PMode could not be used to retrieve the certificate");
+                "The signing certificate information specified in the Receiving PMode " + 
+                $"{messagingContext.ReceivingPMode.Id} could not be used to retrieve the certificate. " + 
+                "Please use either a <CertificateFindCriteria/> or <PrivateKeyCertificate/> to specify the certificate information");
         }
     }
 }

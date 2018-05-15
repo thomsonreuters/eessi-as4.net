@@ -13,8 +13,10 @@ namespace Eu.EDelivery.AS4.Steps.Send
     /// <summary>
     /// Describes how the state and configuration on the retry mechanism of reception awareness is stored
     /// </summary>
-    [Description("This step makes sure that reception awareness is enabled for the message that is to be sent, if reception awareness is enabled in the sending PMode.")]
-    [Info("Set reception awareness")]
+    [Info("Set reception awareness for the message")]
+    [Description(
+        "This step makes sure that reception awareness is enabled for the message that is to be sent, " + 
+        "if reception awareness is enabled in the sending PMode.")]
     public class SetReceptionAwarenessStep : IStep
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
@@ -43,13 +45,13 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
         private static async Task<StepResult> ReturnSameResult(MessagingContext messagingContext, string description)
         {
-            Logger.Info($"{messagingContext.EbmsMessageId} {description}");
+            Logger.Info($"{messagingContext.LogTag} {description}");
             return await StepResult.SuccessAsync(messagingContext);
         }
 
         private static async Task InsertReceptionAwarenessAsync(MessagingContext messagingContext)
         {
-            Logger.Info($"{messagingContext.EbmsMessageId} Set Reception Awareness");
+            Logger.Info($"{messagingContext.LogTag} Set Reception Awareness");
 
             using (DatastoreContext context = Registry.Instance.CreateDatastoreContext())
             {
@@ -68,18 +70,23 @@ namespace Eu.EDelivery.AS4.Steps.Send
         {
             if (context.MessageEntityId == null)
             {
-                throw new InvalidOperationException("Unable to retrieve the OutMessage information from the MessagingContext.ReceivedMessage");
+                throw new InvalidOperationException(
+                    $"{context.LogTag} Unable to retrieve the OutMessage information from the MessagingContext.ReceivedMessage");
             }
 
-            var receptionAwareness = 
-                CreateReceptionAwareness(context.MessageEntityId.Value, 
-                                         context.AS4Message.GetPrimaryMessageId(), 
-                                         context.SendingPMode);
+            Entities.ReceptionAwareness receptionAwareness = 
+                CreateReceptionAwareness(
+                    context.MessageEntityId.Value, 
+                    context.AS4Message.GetPrimaryMessageId(), 
+                    context.SendingPMode);
 
             repository.InsertReceptionAwareness(receptionAwareness);
         }
 
-        private static Entities.ReceptionAwareness CreateReceptionAwareness(long outMessageId, string ebmsMessageId, SendingProcessingMode pmode)
+        private static Entities.ReceptionAwareness CreateReceptionAwareness(
+            long outMessageId, 
+            string ebmsMessageId, 
+            SendingProcessingMode pmode)
         {
             // The Message hasn't been sent yet, so set the currentretrycount to -1 and the lastsendtime to null.
             // The SendMessageStep will update those values once the context has in fact been sent.

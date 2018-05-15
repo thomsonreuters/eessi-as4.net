@@ -23,8 +23,8 @@ namespace Eu.EDelivery.AS4.Steps.Receive
     /// <summary>
     /// Step which describes how the PModes (Sending and Receiving) is determined
     /// </summary>
-    [Description("Determines the PMode that must be used to process the received AS4 Message")]
     [Info("Determine PMode for received AS4 Message")]
+    [Description("Determines the PMode that must be used to process the received AS4 Message")]
     public class DeterminePModesStep : IStep
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
@@ -74,7 +74,10 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
                 if (as4Message.IsMultiHopMessage == false)
                 {
-                    throw new InvalidOperationException($"Unable to retrieve Sending PMode from Datastore for OutMessage with Id: {as4Message.PrimarySignalMessage.RefToMessageId}");
+                    throw new InvalidOperationException(
+                        $"{messagingContext.LogTag} Cannot determine Sending PMode for incoming SignalMessage: " + 
+                        $"no referenced OutMessage with Id: {as4Message.PrimarySignalMessage.RefToMessageId} " + 
+                        "is stored in the Datastore to retrieve the Sending PMode from");
                 }
             }
 
@@ -116,7 +119,9 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             if (possibilities.Any() == false)
             {
                 string description =
-                    $"No Receiving PMode was found for Message with Id: {messagingContext.AS4Message.GetPrimaryMessageId()}";
+                    $"{messagingContext.LogTag} Cannot determine Receiving PMode: " + 
+                    $"no configured Receiving PMode was found for Message with Id: {messagingContext.AS4Message.GetPrimaryMessageId()}. " +
+                    @"Please configure a Receiving PMode at .\config\receive-pmodes that matches the message packaging information";
 
                 Logger.Error(description);
 
@@ -130,11 +135,14 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
             if (possibilities.Count() > 1)
             {
-                const string description = "More than one matching Receiving PMode was found";
+                const string description = 
+                    "Cannot determine Receiving PMode: more than one matching Receiving PMode was found. " +
+                    "Please stricten the matching information in the message packaging information so that only a single PMode is matched";
 
                 Logger.Error(description);
-                Logger.Error("Candidates are: ");
-                Logger.Error(String.Join(Environment.NewLine, possibilities.Select(p => p.Id).ToArray()));
+                Logger.Error(
+                    $"Candidates are:{Environment.NewLine}" + 
+                    String.Join(Environment.NewLine, possibilities.Select(p => p.Id).ToArray()));
 
                 if (messagingContext.AS4Message.IsUserMessage)
                 {
@@ -145,14 +153,20 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             }
 
             ReceivePMode pmode = possibilities.First();
-            Logger.Info($"Use '{pmode.Id}' as Receiving PMode to process message {messagingContext.EbmsMessageId}");
 
+            Logger.Info($"{messagingContext.LogTag} Found Receiving PMode {pmode.Id} to further process the incoming message");
             ValidationResult validationResult = ReceivingProcessingModeValidator.Instance.Validate(pmode);
 
             if (validationResult.IsValid == false)
             {
-                messagingContext.ErrorResult = new ErrorResult("The receiving PMode is not valid.", ErrorAlias.Other);
-                throw new InvalidPModeException($"The Receiving PMode {pmode.Id} is not valid.", validationResult);
+                string description = 
+                    $"Cannot use the determined Receiving PMode {pmode.Id}: the Receiving PMode is not valid";
+
+                messagingContext.ErrorResult = new ErrorResult(
+                    validationResult.AppendValidationErrorsToErrorMessage(description), 
+                    ErrorAlias.Other);
+
+                throw new InvalidPModeException(description, validationResult);
             }
 
             messagingContext.ReceivingPMode = pmode;
@@ -167,8 +181,16 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             // should we explictly check for multihop signals ?
             if (as4Message.IsUserMessage)
             {
+                Logger.Debug(
+                    $"(Receive) [{as4Message.GetPrimaryMessageId()}] Incoming message is a UserMessage, " + 
+                    "so the incoming message itself will be used to match the right Receiving PMode");
+
                 return as4Message.PrimaryUserMessage;
             }
+
+            Logger.Debug(
+                $"(Receive) [{as4Message.GetPrimaryMessageId()}] Incoming message is a Multi-Hop SignalMessage, " +
+                "so the embeded Multi-Hop UserMessage will be used to match the right Receiving PMode");
 
             return AS4Mapper.Map<UserMessage>(as4Message.PrimarySignalMessage.MultiHopRouting);
         }
@@ -207,13 +229,17 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             {
                 if (receivePMode.MessageHandling.MessageHandlingType != MessageHandlingChoiceType.Forward)
                 {
-                    Logger.Warn("No SendingPMode defined in ReplyHandling of Received PMode.");
+                    Logger.Warn(
+                        $"(Receive) No referenced SendingPMode defined in ReplyHandling of Received PMode {receivePMode.Id}. " +
+                        "This means that this PMode cannot be used to send/forward a message");
                 }
                 return null;
             }
 
             string pmodeId = receivePMode.ReplyHandling.SendingPMode;
-            Logger.Info($"Referenced Sending PMode Id: {pmodeId}");
+            Logger.Debug(
+                $"(Receive) Referenced Sending PMode found with Id: {pmodeId}. " +
+                "This PMode will be used to further send/forward the message");
 
             return _config.GetSendingPMode(pmodeId);
         }

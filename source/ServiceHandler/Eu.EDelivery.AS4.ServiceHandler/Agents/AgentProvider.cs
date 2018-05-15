@@ -68,7 +68,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
             IReceiver receiver = new ReceiverBuilder().SetSettings(config.Settings.Receiver).Build();
 
             return new Agent(
-                name: config.Name,
+                config: config,
                 receiver: receiver,
                 transformerConfig: config.Settings.Transformer,
                 exceptionHandler: ExceptionHandlerRegistry.GetHandler(config.Type),

@@ -5,9 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Agents;
 using Eu.EDelivery.AS4.Common;
-using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Singletons;
-using Microsoft.EntityFrameworkCore;
 using NLog;
 
 namespace Eu.EDelivery.AS4.ServiceHandler
@@ -38,7 +36,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler
         {
             if (agents == null)
             {
-                Logger.Error("Kernel hasn't got IAgent implementations, so cannot be started");
+                Logger.Fatal("Kernel hasn't got IAgent implementations, so cannot be started");
             }
 
             _agents = agents;
@@ -69,9 +67,9 @@ namespace Eu.EDelivery.AS4.ServiceHandler
                 return;
             }
 
-            Logger.Debug("Starting...");
+            Logger.Trace("Starting...");
             Task task = Task.WhenAll(_agents.Select(c => c.Start(cancellationToken)).ToArray());
-            Logger?.Debug("Started!");
+            Logger.Trace("Started!");
 
             await task;
 

@@ -122,14 +122,14 @@ namespace Eu.EDelivery.AS4.Receivers
         public void StartReceiving(Function messageCallback, CancellationToken cancellationToken)
         {
             _isReceiving = true;
-            Logger.Debug($"Start receiving on '{Path.GetFullPath(FilePath)}'...");
+            Logger.Debug($"Start receiving on '{Path.GetFullPath(FilePath)}' ...");
             StartPolling(messageCallback, cancellationToken);
         }
 
         public void StopReceiving()
         {
             _isReceiving = false;
-            Logger.Debug($"Stop receiving on '{Path.GetFullPath(FilePath)}'...");
+            Logger.Debug($"Stop receiving on '{Path.GetFullPath(FilePath)}' ...");
         }
 
         /// <summary>

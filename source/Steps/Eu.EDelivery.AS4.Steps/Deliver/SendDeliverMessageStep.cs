@@ -12,8 +12,8 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
     /// <summary>
     /// Describes how a DeliverMessage is sent to the consuming business application. 
     /// </summary>
-    [Description("Send deliver message")]
-    [Info("Send deliver message")]
+    [Info("Send deliver message to the configured business application endpoint")]
+    [Description("Send deliver message to the configured business application endpoint")]
     public class SendDeliverMessageStep : IStep
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
@@ -43,10 +43,6 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
-            Logger.Info(
-                $"[{messagingContext.DeliverMessage?.MessageInfo?.MessageId}]" +
-                " Start sending the Deliver Message to the consuming Business Application");
-
             if (messagingContext.ReceivingPMode == null)
             {
                 throw new InvalidOperationException(
@@ -59,11 +55,12 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
                     "Unable to send DeliverMessage: the ReceivingPMode does not contain any DeliverInformation");
             }
 
+            Logger.Trace($"{messagingContext.LogTag} Start sending the deliver message to the consuming business application...");
+
             Method deliverMethod = messagingContext.ReceivingPMode.MessageHandling.DeliverInformation.DeliverMethod;
 
             IDeliverSender sender = _provider.GetDeliverSender(deliverMethod?.Type);
             sender.Configure(deliverMethod);
-
             await sender.SendAsync(messagingContext.DeliverMessage).ConfigureAwait(false);
 
             return StepResult.Success(messagingContext);

@@ -53,7 +53,7 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
         /// <param name="deliverMessage"></param>
         public async Task SendAsync(DeliverMessageEnvelope deliverMessage)
         {
-            await SendMessage(deliverMessage, _deliverSender.SendAsync).ConfigureAwait(false);
+            await SendMessage(deliverMessage, _deliverSender.SendAsync, "Deliver").ConfigureAwait(false);
         }
 
         /// <summary>
@@ -62,10 +62,10 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
         /// <param name="notifyMessage"></param>
         public async Task SendAsync(NotifyMessageEnvelope notifyMessage)
         {
-            await SendMessage(notifyMessage, _notifySender.SendAsync).ConfigureAwait(false);
+            await SendMessage(notifyMessage, _notifySender.SendAsync, "Notify").ConfigureAwait(false);
         }
 
-        private static async Task SendMessage<T>(T message, Func<T, Task> sendAction)
+        private static async Task SendMessage<T>(T message, Func<T, Task> sendAction, string logging)
         {
             try
             {
@@ -73,7 +73,9 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
             }
             catch (Exception ex)
             {
-                string description = $"Unable to send {message.GetType().Name} to the configured endpoint: {ex.Message}";
+                string description = 
+                    $"{logging} Unable to send {message.GetType().Name} " + 
+                    $"to the configured endpoint due to an exception: {ex}";
 
                 Logger.Error(description);
 

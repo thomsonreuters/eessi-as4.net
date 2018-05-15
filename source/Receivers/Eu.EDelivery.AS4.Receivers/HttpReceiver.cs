@@ -149,7 +149,7 @@ namespace Eu.EDelivery.AS4.Receivers
             {
                 listener.Start();
 
-                Logger.Debug($"Start receiving on '{_requestMeta.Hostname}'...");
+                Logger.Debug($"Start receiving on '{_requestMeta.Hostname}' ...");
                 Logger.Debug($"      with max concurrent connections = {_maxConcurrentConnections}");
                 Logger.Debug($"      with logging = {_requestMeta.UseLogging}");
             }

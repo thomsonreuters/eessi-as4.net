@@ -15,8 +15,10 @@ namespace Eu.EDelivery.AS4.Steps.Submit
     /// Describes how the AS4 UserMessage is stored in the message store,
     /// in order to hand over to the Send Agents.
     /// </summary>
-    [Description("Stores the AS4 Message that has been created for the received submit-message so that it can be processed (signed, encrypted, …) afterwards.")]
     [Info("Store AS4 message")]
+    [Description(
+        "Stores the AS4 Message that has been created for the received SubmitMessage " + 
+        "so that it can be processed (signed, encrypted, …) afterwards.")]
     public class StoreAS4MessageStep : IStep
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
@@ -59,7 +61,8 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
-            Logger.Info($"[{messagingContext.AS4Message.GetPrimaryMessageId()}] Storing the AS4 Message with Operation = 'ToBeProcessed'");
+            Logger.Trace(
+                $"{messagingContext.LogTag} Storing the AS4Message with Operation = ToBeProcessed");
 
             using (DatastoreContext context = _createContext())
             {
@@ -73,12 +76,16 @@ namespace Eu.EDelivery.AS4.Steps.Submit
                 }
                 catch
                 {
-                    messagingContext.ErrorResult = new ErrorResult("Unable to store the received message.", ErrorAlias.Other);
+                    messagingContext.ErrorResult = new ErrorResult(
+                        $"{messagingContext.LogTag} Unable to store the received message due to an exception", 
+                        ErrorAlias.Other);
+
                     throw;
                 }
             }
 
-            Logger.Info($"[{messagingContext.AS4Message.GetPrimaryMessageId()}] Stored the AS4 Message");
+            Logger.Info(
+                $"{messagingContext.LogTag} Stored the AS4Message with Operation = ToBeProcesed so the next agent can handle the message");
 
             return await StepResult.SuccessAsync(messagingContext);
         }

@@ -106,7 +106,7 @@ namespace Eu.EDelivery.AS4.Strategies.Database
                 outMessagesWhere;
 
             int rows = _context.Database.ExecuteSqlCommand(sql);
-            LogManager.GetCurrentClassLogger().Debug($"Cleaned {rows} row(s) for table '{tableName}'");
+            LogManager.GetCurrentClassLogger().Trace($"Cleaned {rows} row(s) for table '{tableName}'");
         }
     }
 }

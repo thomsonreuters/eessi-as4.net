@@ -21,8 +21,10 @@ namespace Eu.EDelivery.AS4.Steps.Send
     /// Describes how a MessageUnit should be selected to be sent via Pulling.
     /// </summary>
     /// <seealso cref="IStep" />
-    [Description("Selects a message that is eligible for sending via pulling. This step selects a message that matches the MPC of the received pull-request signalmessage.")]
     [Info("Select message to send")]
+    [Description(
+        "Selects a message that is eligible for sending via pulling. " + 
+        "This step selects a message that matches the MPC of the received pull-request signalmessage.")]
     public class SelectUserMessageToSendStep : IStep
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
@@ -60,14 +62,17 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
             if (pullRequest == null)
             {
-                throw new InvalidMessageException("The received message is not a PullRequest-message.");
+                throw new InvalidMessageException(
+                    "(PullReceive) The received message is not a PullRequest message, " +
+                    "so no UserMessage can be selected to return to the sender");
             }
 
             (bool hasMatch, OutMessage match) selection = RetrieveUserMessageForPullRequest(pullRequest);
 
             if (selection.hasMatch)
             {
-                Logger.Info($"User Message found for Pull Request: '{messagingContext.AS4Message.GetPrimaryMessageId()}'");
+                Logger.Info(
+                    $"{messagingContext.LogTag} UserMessage found for PullRequest: {messagingContext.AS4Message.GetPrimaryMessageId()}");
 
                 // Retrieve the existing MessageBody and put that stream in the MessagingContext.
                 // The HttpReceiver processor will make sure that it gets serialized to the http response stream.
@@ -81,7 +86,8 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 return StepResult.Success(messagingContext);
             }
 
-            Logger.Warn($"No User Message found for Pull Request: '{messagingContext.AS4Message.GetPrimaryMessageId()}'");
+            Logger.Warn(
+                $"{messagingContext.LogTag} No UserMessage found for PullRequest: {messagingContext.AS4Message.GetPrimaryMessageId()}");
 
             AS4Message pullRequestWarning = AS4Message.Create(new PullRequestError());
             messagingContext.ModifyContext(pullRequestWarning);
@@ -117,6 +123,9 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
         private static Expression<Func<OutMessage, bool>> PullRequestQuery(PullRequest pullRequest)
         {
+            Logger.Debug(
+                $"(PullReceive) Query UserMessages with MPC={pullRequest.Mpc} && Operation=ToBeSent && MEP=Pull");
+
             return m => m.Mpc == pullRequest.Mpc &&
                         m.Operation == Operation.ToBeSent.ToString() &&
                         m.MEP == MessageExchangePattern.Pull.ToString();

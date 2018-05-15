@@ -33,7 +33,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
             receiver.Configure(new[] { new Setting("Url", url), new Setting("UseLogging", useLogging.ToString()) });
 
             return new Agent(
-                "Minder Submit/Receive Agent",
+                new AgentConfig(name: "Minder Submit/Receive Agent"),
                 receiver,
                 transformerConfig,
                 new MinderExceptionHandler(),
