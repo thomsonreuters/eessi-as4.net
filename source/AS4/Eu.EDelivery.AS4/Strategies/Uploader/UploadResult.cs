@@ -1,4 +1,5 @@
 ﻿using System;
+using Eu.EDelivery.AS4.Strategies.Sender;
 using Newtonsoft.Json;
 
 namespace Eu.EDelivery.AS4.Strategies.Uploader
@@ -6,31 +7,24 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
     /// <summary>
     /// Model to encapsulate the result after the <see cref="IAttachmentUploader"/> implementation has done the uploading.
     /// </summary>
-    public class UploadResult : IEquatable<UploadResult>
+    public class UploadResult : DeliverResult, IEquatable<UploadResult>
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="UploadResult"/> class.
+        /// Initializes a new instance of the <see cref="UploadResult" /> class.
         /// </summary>
         /// <param name="payloadId">The payload identifier.</param>
         /// <param name="downloadUrl">The download URL.</param>
-        [JsonConstructor]
-        public UploadResult(string payloadId, string downloadUrl)
-        {
-            PayloadId = payloadId;
-            DownloadUrl = downloadUrl;
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="UploadResult"/> class.
-        /// </summary>
-        /// <param name="payloadId">The payload identifier.</param>
-        /// <param name="downloadUrl">The download URL.</param>
+        /// <param name="status">The status.</param>
         /// <param name="needsAnotherRetry">if set to <c>true</c> [needs another retry].</param>
-        public UploadResult(string payloadId, string downloadUrl, bool needsAnotherRetry)
+        [JsonConstructor]
+        private UploadResult(
+            string payloadId,
+            string downloadUrl,
+            DeliveryStatus status,
+            bool needsAnotherRetry) : base(status, needsAnotherRetry)
         {
             PayloadId = payloadId;
             DownloadUrl = downloadUrl;
-            NeedsAnotherRetry = needsAnotherRetry;
         }
 
         /// <summary>
@@ -44,21 +38,17 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
         public string DownloadUrl { get; }
 
         /// <summary>
-        /// Gets a value indicating whether [needs another retry].
-        /// </summary>
-        /// <value>
-        ///   <c>true</c> if [needs another retry]; otherwise, <c>false</c>.
-        /// </value>
-        public bool NeedsAnotherRetry { get; }
-
-        /// <summary>
         /// Creates a successful <see cref="UploadResult"/> with the uploaded response information.
         /// </summary>
         /// <param name="payloadId">The payload identifier.</param>
         /// <returns></returns>
         public static UploadResult SuccessWithId(string payloadId)
         {
-            return new UploadResult(payloadId, downloadUrl: null, needsAnotherRetry: false);
+            return new UploadResult(
+                payloadId,
+                downloadUrl: null,
+                status: DeliveryStatus.Successful,
+                needsAnotherRetry: false);
         }
 
         /// <summary>
@@ -69,7 +59,11 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
         /// <returns></returns>
         public static UploadResult Success(string payloadId, string downloadUrl)
         {
-            return new UploadResult(payloadId, downloadUrl, needsAnotherRetry: false);
+            return new UploadResult(
+                payloadId,
+                downloadUrl,
+                status: DeliveryStatus.Successful,
+                needsAnotherRetry: false);
         }
 
         /// <summary>
@@ -79,7 +73,11 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
         /// <returns></returns>
         public static UploadResult SuccessWithUrl(string downloadUrl)
         {
-            return new UploadResult(payloadId: null, downloadUrl: downloadUrl, needsAnotherRetry: false);
+            return new UploadResult(
+                payloadId: null,
+                downloadUrl: downloadUrl,
+                status: DeliveryStatus.Successful,
+                needsAnotherRetry: false);
         }
 
         /// <summary>
@@ -92,6 +90,7 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
             return new UploadResult(
                 payloadId: null,
                 downloadUrl: null,
+                status: DeliveryStatus.Failure,
                 needsAnotherRetry: needsAnotherRetry);
         }
 

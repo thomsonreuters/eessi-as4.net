@@ -46,10 +46,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Strategies.Sender
         /// Start sending the <see cref="DeliverMessage"/>
         /// </summary>
         /// <param name="deliverMessage"></param>
-        public Task<DeliverResult> SendAsync(DeliverMessageEnvelope deliverMessage)
+        public Task<DeliverMessageResult> SendAsync(DeliverMessageEnvelope deliverMessage)
         {
             IsDelivered = true;
-            return Task.FromResult(DeliverResult.Success);
+            return Task.FromResult(DeliverMessageResult.Success);
         }
 
         /// <summary>

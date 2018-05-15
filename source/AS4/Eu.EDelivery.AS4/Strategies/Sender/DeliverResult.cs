@@ -1,25 +1,21 @@
-﻿using Eu.EDelivery.AS4.Model.Deliver;
-
-namespace Eu.EDelivery.AS4.Strategies.Sender
+﻿namespace Eu.EDelivery.AS4.Strategies.Sender
 {
-    /// <summary>
-    /// Representation of the result after ther <see cref="DeliverMessage"/> has been send.
-    /// </summary>
     public class DeliverResult
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="DeliverResult"/> class.
         /// </summary>
         /// <param name="status">The status.</param>
-        /// <param name="anotherRetryIsNeeded">if set to <c>true</c> [another retry is needed].</param>
-        public DeliverResult(DeliveryStatus status, bool anotherRetryIsNeeded)
+        /// <param name="needsAnotherRetry">if set to <c>true</c> [needs another retry].</param>
+        public DeliverResult(DeliveryStatus status, bool needsAnotherRetry)
         {
             Status = status;
-            AnotherRetryIsNeeded = anotherRetryIsNeeded;
+            NeedsAnotherRetry = needsAnotherRetry;
         }
 
+
         /// <summary>
-        /// Gets the status indicating whether the <see cref="DeliverResult"/> is successful or not.
+        /// Gets the status indicating whether the <see cref="DeliverMessageResult"/> is successful or not.
         /// </summary>
         /// <value>The status.</value>
         public DeliveryStatus Status { get; }
@@ -30,28 +26,22 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
         /// <value>
         ///   <c>true</c> if [another retry is needed]; otherwise, <c>false</c>.
         /// </value>
-        public bool AnotherRetryIsNeeded { get; }
+        public bool NeedsAnotherRetry { get; }
 
         /// <summary>
-        /// Creates a successful representation of the <see cref="DeliverResult"/>.
+        /// Reduces the two specified <see cref="DeliverResult"/>'s.
         /// </summary>
+        /// <param name="x">The x.</param>
+        /// <param name="y">The y.</param>
         /// <returns></returns>
-        public static DeliverResult Success => new DeliverResult(DeliveryStatus.Successful, anotherRetryIsNeeded: false);
-
-        /// <summary>
-        /// Creates as failure representation of the <see cref="DeliverResult"/>.
-        /// </summary>
-        /// <param name="anotherRetryIsNeeded">if set to <c>true</c> [another retry is needed].</param>
-        /// <returns></returns>
-        public static DeliverResult Failure(bool anotherRetryIsNeeded)
+        public static DeliverResult Reduce(DeliverResult x, DeliverResult y)
         {
-            return new DeliverResult(DeliveryStatus.Failure, anotherRetryIsNeeded);
+            return new DeliverResult(
+                x.Status == DeliveryStatus.Successful 
+                && y.Status == DeliveryStatus.Successful 
+                    ? DeliveryStatus.Successful
+                    : DeliveryStatus.Failure,
+                x.NeedsAnotherRetry || y.NeedsAnotherRetry);
         }
-    }
-
-    public enum DeliveryStatus
-    {
-        Successful,
-        Failure
     }
 }

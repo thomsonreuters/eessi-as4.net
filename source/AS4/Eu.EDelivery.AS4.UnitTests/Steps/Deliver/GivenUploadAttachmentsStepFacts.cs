@@ -1,12 +1,16 @@
 ﻿using System;
 using System.IO;
 using System.Threading.Tasks;
+using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Steps.Deliver;
 using Eu.EDelivery.AS4.Strategies.Uploader;
+using Eu.EDelivery.AS4.UnitTests.Common;
+using Eu.EDelivery.AS4.UnitTests.Model;
+using Eu.EDelivery.AS4.UnitTests.Repositories;
 using Eu.EDelivery.AS4.UnitTests.Strategies.Uploader;
 using Moq;
 using Xunit;
@@ -16,7 +20,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
     /// <summary>
     /// Testing <see cref="UploadAttachmentsStep" />
     /// </summary>
-    public class GivenUploadAttachmentsStepFacts
+    public class GivenUploadAttachmentsStepFacts : GivenDatastoreFacts
     {
         [Fact]
         public async Task Throws_When_Uploading_Attachments_Failed()
@@ -27,11 +31,119 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
                 .Setup(p => p.Get(It.IsAny<string>()))
                 .Throws(new Exception("Failed to get Uploader"));
 
-            var sut = new UploadAttachmentsStep(sabtoeurProvider.Object);
+            IStep sut = new UploadAttachmentsStep(sabtoeurProvider.Object, GetDataStoreContext);
 
             // Act / Assert
             await Assert.ThrowsAnyAsync<Exception>(
                 () => sut.ExecuteAsync(CreateAS4MessageWithAttachment()));
+        }
+
+        [Theory]
+        [ClassData(typeof(DeliveryRetryData))]
+        public async Task Retries_Uploading_When_Uploader_Returns_NeedsToBeRetried_Result(RetryData input)
+        {
+            // Arrange
+            string id = "deliver-" + Guid.NewGuid();
+            InsertInMessage(id, input.CurrentRetryCount, input.MaxRetryCount);
+
+            var a = new FilledAttachment();
+            var userMessage = new FilledUserMessage(id, a.Id);
+            AS4Message as4Msg = AS4Message.Create(userMessage);
+            as4Msg.AddAttachment(a);
+
+            IAttachmentUploader stub = CreateStubAttachmentUploader(userMessage, input.UploadResult);
+
+            // Act
+            await CreateUploadStep(stub)
+                .ExecuteAsync(new MessagingContext(as4Msg, MessagingContextMode.Deliver)
+                {
+                    ReceivingPMode = CreateReceivingPModeWithPayloadMethod()
+                });
+
+            // Assert
+            GetDataStoreContext.AssertInMessage(id, actual =>
+            {
+                Assert.NotNull(actual);
+
+                Assert.Equal(input.ExpectedCurrentRetryCount, actual.CurrentRetryCount);
+                Assert.Equal(input.ExpectedStatus, InStatusUtils.Parse(actual.Status));
+                Assert.Equal(input.ExpectedOperation, OperationUtils.Parse(actual.Operation));
+            });
+        }
+
+        [Theory]
+        [ClassData(typeof(DeliveryRetryData))]
+        public async Task All_Attachments_Should_Succeed_Or_Fail(RetryData input)
+        {
+            // Arrange
+            string id = "deliver-" + Guid.NewGuid();
+            InsertInMessage(id, input.CurrentRetryCount, input.MaxRetryCount);
+
+            var a1 = new FilledAttachment("attachment-1");
+            var a2 = new FilledAttachment("attachment-2");
+            var userMessage = new FilledUserMessage(id, a1.Id, a2.Id);
+            var as4Msg = AS4Message.Create(userMessage);
+            as4Msg.AddAttachment(a1);
+            as4Msg.AddAttachment(a2);
+
+            var stub = new Mock<IAttachmentUploader>();
+            stub.Setup(s => s.UploadAsync(a1, userMessage))
+                .ReturnsAsync(input.UploadResult);
+            stub.Setup(s => s.UploadAsync(a2, userMessage))
+                .ReturnsAsync(UploadResult.Failure(input.UploadResult.NeedsAnotherRetry));
+
+            // Act
+            await CreateUploadStep(stub.Object)
+                .ExecuteAsync(new MessagingContext(as4Msg , MessagingContextMode.Deliver)
+                {
+                    ReceivingPMode = CreateReceivingPModeWithPayloadMethod()
+                });
+
+            // Assert
+            GetDataStoreContext.AssertInMessage(id, actual =>
+            {
+                Assert.NotNull(actual);
+                Operation op = OperationUtils.Parse(actual.Operation);
+                Assert.NotEqual(Operation.Delivered, op);
+                InStatus st = InStatusUtils.Parse(actual.Status);
+                Assert.NotEqual(InStatus.Delivered, st);
+
+                bool operationToBeDelivered = Operation.ToBeDelivered == op;
+                bool uploadResultCanBeRetried =
+                    input.UploadResult.NeedsAnotherRetry && input.CurrentRetryCount < input.MaxRetryCount;
+
+                Assert.True(
+                    operationToBeDelivered == uploadResultCanBeRetried,
+                    "InMessage should update Operation=ToBeDelivered");
+
+                bool messageSetToException = Operation.DeadLettered == op && InStatus.Exception == st;
+                bool exhaustRetries = 
+                    input.CurrentRetryCount == input.MaxRetryCount || !input.UploadResult.NeedsAnotherRetry;
+                Assert.True(
+                    messageSetToException == exhaustRetries,
+                    "InMessage should update Operation=DeadLettered, Status=Exception");
+            });
+        }
+
+        private void InsertInMessage(string id, int current, int max)
+        {
+            var inMsg = new InMessage(id)
+            {
+                CurrentRetryCount = current,
+                MaxRetryCount = max
+            };
+            inMsg.SetStatus(InStatus.Received);
+            inMsg.SetOperation(Operation.Delivering);
+            GetDataStoreContext.InsertInMessage(inMsg);
+        }
+
+        private static IAttachmentUploader CreateStubAttachmentUploader(UserMessage m, UploadResult r)
+        {
+            var stub = new Mock<IAttachmentUploader>();
+            stub.Setup(s => s.UploadAsync(It.IsAny<Attachment>(), m))
+                .ReturnsAsync(r);
+
+            return stub.Object;
         }
 
         [Fact]
@@ -39,13 +151,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
         {
             // Arrange
             const string expectedLocation = "http://path/to/download/attachment";
-
             var stubUploader = new StubAttachmentUploader(expectedLocation);
-            var stubProvider = new StubAttachmentUploaderProvider(stubUploader);
-            var sut = new UploadAttachmentsStep(stubProvider);
 
             // Act
-            StepResult result = await sut.ExecuteAsync(CreateAS4MessageWithAttachment());
+            StepResult result = 
+                await CreateUploadStep(stubUploader)
+                    .ExecuteAsync(CreateAS4MessageWithAttachment());
 
             // Assert
             Assert.Collection(
@@ -67,20 +178,35 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
                 {
                     Content = Stream.Null
                 });
-
+            ReceivingProcessingMode pMode = CreateReceivingPModeWithPayloadMethod();
             return new MessagingContext(as4Message, MessagingContextMode.Unknown)
             {
-                ReceivingPMode = new ReceivingProcessingMode
+                ReceivingPMode = pMode
+            };
+        }
+
+        private static ReceivingProcessingMode CreateReceivingPModeWithPayloadMethod()
+        {
+            return new ReceivingProcessingMode
+            {
+                MessageHandling =
                 {
-                    MessageHandling =
+                    DeliverInformation =
                     {
-                        DeliverInformation =
-                        {
-                            PayloadReferenceMethod = new Method { Type = "FILE" }
-                        }
+                        PayloadReferenceMethod = new Method { Type = "FILE" }
                     }
                 }
             };
+        }
+
+        /// <summary>
+        /// Creates the upload step.
+        /// </summary>
+        /// <param name="uploader">The uploader.</param>
+        /// <returns></returns>
+        private IStep CreateUploadStep(IAttachmentUploader uploader)
+        {
+            return new UploadAttachmentsStep(new StubAttachmentUploaderProvider(uploader), GetDataStoreContext);
         }
     }
 }

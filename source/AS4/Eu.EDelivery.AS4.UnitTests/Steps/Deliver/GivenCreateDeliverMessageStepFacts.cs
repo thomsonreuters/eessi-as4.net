@@ -36,9 +36,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
             string actualId = deliverEvelope.MessageInfo.MessageId;
 
             Assert.Equal(expectedId, actualId);
-            Assert.Collection(
-                deliverEvelope.Payloads,
-                p => Assert.Equal(as4Message.Attachments.First().Id, p.Id));
         }
 
         [Fact]

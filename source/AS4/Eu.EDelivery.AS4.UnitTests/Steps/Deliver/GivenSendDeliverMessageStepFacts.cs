@@ -1,19 +1,17 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Deliver;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
-using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Steps.Deliver;
 using Eu.EDelivery.AS4.Strategies.Sender;
 using Eu.EDelivery.AS4.UnitTests.Common;
 using Eu.EDelivery.AS4.UnitTests.Repositories;
 using Eu.EDelivery.AS4.UnitTests.Strategies.Sender;
-using FsCheck;
-using FsCheck.Xunit;
 using Moq;
 using Xunit;
 
@@ -43,7 +41,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
 
             var spySender = new Mock<IDeliverSender>();
             spySender.Setup(s => s.SendAsync(envelope))
-                     .ReturnsAsync(DeliverResult.Success);
+                     .ReturnsAsync(DeliverMessageResult.Success);
 
             IStep sut = CreateSendDeliverStepWithSender(spySender.Object);
 
@@ -94,26 +92,22 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
         }
 
         [Theory]
-        [InlineData(1, 3, 2)]
-        [InlineData(3, 3, 3)]
-        public async Task Reset_InMessage_Operation_ToBeDelivered_When_CurrentRetry_LessThen_MaxRetry(
-            int current,
-            int max,
-            int expected)
+        [ClassData(typeof(DeliveryRetryData))]
+        public async Task Reset_InMessage_Operation_ToBeDelivered_When_CurrentRetry_LessThen_MaxRetry(RetryData input)
         {
             // Arrange
             string id = Guid.NewGuid().ToString();
 
             InMessage msg = CreateInMessage(id, InStatus.Received, Operation.Delivering);
-            msg.CurrentRetryCount = current;
-            msg.MaxRetryCount = max;
+            msg.CurrentRetryCount = input.CurrentRetryCount;
+            msg.MaxRetryCount = input.MaxRetryCount;
             GetDataStoreContext.InsertInMessage(msg);
 
             DeliverMessageEnvelope envelope = AnonymousDeliverEnvelope(id);
 
             var stub = new Mock<IDeliverSender>();
             stub.Setup(s => s.SendAsync(envelope))
-                .ReturnsAsync(DeliverResult.Failure(anotherRetryIsNeeded: true));
+                .ReturnsAsync(input.DeliverResult);
 
             IStep sut = CreateSendDeliverStepWithSender(stub.Object);
 
@@ -124,9 +118,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
             GetDataStoreContext.AssertInMessage(id, inMessage =>
             {
                 Assert.NotNull(inMessage);
-                Assert.Equal(msg.Status, inMessage.Status);
-                Assert.Equal(expected, inMessage.CurrentRetryCount);
-                Assert.Equal(Operation.ToBeDelivered, OperationUtils.Parse(inMessage.Operation));
+
+                Assert.Equal(input.ExpectedCurrentRetryCount, inMessage.CurrentRetryCount);
+                Assert.Equal(input.ExpectedOperation, OperationUtils.Parse(inMessage.Operation));
+                Assert.Equal(input.ExpectedStatus, InStatusUtils.Parse(inMessage.Status));
             });
         }
 

@@ -2,12 +2,11 @@
 using System.ComponentModel;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
-using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
+using Eu.EDelivery.AS4.Services;
 using Eu.EDelivery.AS4.Strategies.Sender;
-using Eu.EDelivery.AS4.Strategies.Uploader;
 using NLog;
 
 namespace Eu.EDelivery.AS4.Steps.Deliver
@@ -22,7 +21,6 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 
         private readonly IDeliverSenderProvider _messageProvider;
-        private readonly IAttachmentUploaderProvider _attachmentProvider;
         private readonly Func<DatastoreContext> _createDbContext;
 
         /// <summary>
@@ -31,7 +29,6 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         public SendDeliverMessageStep()
             : this(
                 Registry.Instance.DeliverSenderProvider,
-                Registry.Instance.AttachmentUploader,
                 Registry.Instance.CreateDatastoreContext) { }
 
         /// <summary>
@@ -40,15 +37,12 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         /// for sending the Deliver Message to the consuming business application
         /// </summary>
         /// <param name="messageProvider"> The message sender provider.</param>
-        /// <param name="attachmentProvider">The attachment uploader provider</param>
         /// <param name="createDbContext">Creates a new Db Context.</param>
         public SendDeliverMessageStep(
             IDeliverSenderProvider messageProvider,
-            IAttachmentUploaderProvider attachmentProvider,
             Func<DatastoreContext> createDbContext)
         {
             _messageProvider = messageProvider;
-            _attachmentProvider = attachmentProvider;
             _createDbContext = createDbContext;
         }
 
@@ -78,46 +72,21 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
 
             IDeliverSender sender = _messageProvider.GetDeliverSender(deliverMethod?.Type);
             sender.Configure(deliverMethod);
-            DeliverResult result = await sender.SendAsync(messagingContext.DeliverMessage).ConfigureAwait(false);
+            DeliverMessageResult result = await sender.SendAsync(messagingContext.DeliverMessage).ConfigureAwait(false);
 
-            await UpdateDeliverMessage(
-                messagingContext,
-                result.AnotherRetryIsNeeded);
-
+            await UpdateDeliverMessage(messagingContext, result);
             return StepResult.Success(messagingContext);
         }
 
-        private async Task UpdateDeliverMessage(MessagingContext messagingContext, bool needsAnotherRetry)
+        private async Task UpdateDeliverMessage(MessagingContext messagingContext, DeliverMessageResult result)
         {
-            Logger.Info($"{messagingContext} Mark deliver message as 'Delivered'");
-            Logger.Debug($"{messagingContext} Update InMessage with Status and Operation set to 'Delivered'");
-
             using (DatastoreContext context = _createDbContext())
             {
                 var repository = new DatastoreRepository(context);
-
-                string messageId = messagingContext.DeliverMessage.MessageInfo.MessageId;
-                Logger.Info($"{messagingContext} Update InMessage with Delivered Status and Operation");
-
-                repository.UpdateInMessage(
-                    messageId, 
-                    inMessage =>
-                    {
-                        if (!needsAnotherRetry)
-                        {
-                            inMessage.SetStatus(InStatus.Delivered);
-                        }
-
-                        if (inMessage.CurrentRetryCount < inMessage.MaxRetryCount)
-                        {
-                            inMessage.CurrentRetryCount++;
-                        }
-
-                        inMessage.SetOperation(
-                            needsAnotherRetry 
-                                ? Operation.ToBeDelivered 
-                                : Operation.Delivered);
-                    });
+                var retryService = new RetryService(repository);
+                retryService.UpdateDeliverMessageAccordinglyToDeliverResult(
+                    messagingContext.DeliverMessage.MessageInfo.MessageId,
+                    result);
 
                 await context.SaveChangesAsync().ConfigureAwait(false);
             }
