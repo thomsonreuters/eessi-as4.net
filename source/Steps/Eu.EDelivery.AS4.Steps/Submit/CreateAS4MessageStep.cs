@@ -90,7 +90,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
 
         private static UserMessage CreateUserMessage(MessagingContext messagingContext)
         {
-            Logger.Trace($"{messagingContext.Logging} Create UserMessage for SubmitMessage");
+            Logger.Trace($"{messagingContext.LogTag} Create UserMessage for SubmitMessage");
             return AS4Mapper.Map<UserMessage>(messagingContext.SubmitMessage);
         }
 
@@ -100,22 +100,22 @@ namespace Eu.EDelivery.AS4.Steps.Submit
             {
                 if (context.SubmitMessage.HasPayloads)
                 {
-                    Logger.Trace($"{context.Logging} Retrieve SubmitMessage payloads");
+                    Logger.Trace($"{context.LogTag} Retrieve SubmitMessage payloads");
 
                     await as4Message.AddAttachments(
                         context.SubmitMessage.Payloads,
                         async payload => await RetrieveAttachmentContent(payload).ConfigureAwait(false)).ConfigureAwait(false);
 
-                    Logger.Info($"{context.Logging} Assigned {as4Message.Attachments.Count()} payloads to the AS4Message");
+                    Logger.Info($"{context.LogTag} Assigned {as4Message.Attachments.Count()} payloads to the AS4Message");
                 }
                 else
                 {
-                    Logger.Info($"{context.Logging} SubmitMessage has no payloads to retrieve, so no will be added to the AS4Message");
+                    Logger.Info($"{context.LogTag} SubmitMessage has no payloads to retrieve, so no will be added to the AS4Message");
                 }
             }
             catch (Exception exception)
             {
-                string description = $"{context.Logging} Failed to retrieve SubmitMessage payloads";
+                string description = $"{context.LogTag} Failed to retrieve SubmitMessage payloads";
                 Logger.Error(description);
                 Logger.Error($"{context} {exception.Message}");
 

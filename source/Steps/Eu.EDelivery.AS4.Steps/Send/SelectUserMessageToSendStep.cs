@@ -69,7 +69,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             if (selection.hasMatch)
             {
                 Logger.Info(
-                    $"{messagingContext.Logging} UserMessage found for PullRequest: {messagingContext.AS4Message.GetPrimaryMessageId()}");
+                    $"{messagingContext.LogTag} UserMessage found for PullRequest: {messagingContext.AS4Message.GetPrimaryMessageId()}");
 
                 // Retrieve the existing MessageBody and put that stream in the MessagingContext.
                 // The HttpReceiver processor will make sure that it gets serialized to the http response stream.
@@ -84,7 +84,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             }
 
             Logger.Warn(
-                $"{messagingContext.Logging} No UserMessage found for PullRequest: {messagingContext.AS4Message.GetPrimaryMessageId()}");
+                $"{messagingContext.LogTag} No UserMessage found for PullRequest: {messagingContext.AS4Message.GetPrimaryMessageId()}");
 
             AS4Message pullRequestWarning = AS4Message.Create(new PullRequestError());
             messagingContext.ModifyContext(pullRequestWarning);

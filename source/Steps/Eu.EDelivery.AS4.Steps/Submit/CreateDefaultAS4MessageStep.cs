@@ -64,7 +64,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
             messagingContext.SendingPMode = pmode;
             AddPartInfos(messagingContext.AS4Message);
 
-            Logger.Info($"{messagingContext.Logging} Default AS4 Message is created using SendingPMode {pmode.Id}");
+            Logger.Info($"{messagingContext.LogTag} Default AS4 Message is created using SendingPMode {pmode.Id}");
             return await StepResult.SuccessAsync(messagingContext);
         }
 

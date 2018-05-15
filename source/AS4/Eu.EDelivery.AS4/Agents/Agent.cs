@@ -117,7 +117,7 @@ namespace Eu.EDelivery.AS4.Agents
                 () => _receiver.StartReceiving(OnReceived, cancellation),
                 TaskCreationOptions.LongRunning);
 
-            Logger.Info($"{AgentConfig.Name} Started!");
+            Logger.Info($"{AgentConfig.Name} Started!");    
             return task;
         }
 
@@ -129,7 +129,6 @@ namespace Eu.EDelivery.AS4.Agents
             {
                 ITransformer transformer = TransformerBuilder.FromTransformerConfig(_transformerConfig);
                 context = await transformer.TransformAsync(message);
-                context.ModifyContext(AgentConfig.Type.ToContextMode());
             }
             catch (Exception exception)
             {

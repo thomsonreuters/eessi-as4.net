@@ -75,7 +75,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 if (as4Message.IsMultiHopMessage == false)
                 {
                     throw new InvalidOperationException(
-                        $"{messagingContext.Logging} Cannot determine Sending PMode for incoming SignalMessage: " + 
+                        $"{messagingContext.LogTag} Cannot determine Sending PMode for incoming SignalMessage: " + 
                         $"no referenced OutMessage with Id: {as4Message.PrimarySignalMessage.RefToMessageId} " + 
                         "is stored in the Datastore to retrieve the Sending PMode from");
                 }
@@ -119,7 +119,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             if (possibilities.Any() == false)
             {
                 string description =
-                    $"{messagingContext.Logging} Cannot determine Receiving PMode: " + 
+                    $"{messagingContext.LogTag} Cannot determine Receiving PMode: " + 
                     $"no configured Receiving PMode was found for Message with Id: {messagingContext.AS4Message.GetPrimaryMessageId()}. " +
                     @"Please configure a Receiving PMode at .\config\receive-pmodes that matches the message packaging information";
 
@@ -154,7 +154,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
             ReceivePMode pmode = possibilities.First();
 
-            Logger.Info($"{messagingContext.Logging} Found Receiving PMode {pmode.Id} to further process the incoming message");
+            Logger.Info($"{messagingContext.LogTag} Found Receiving PMode {pmode.Id} to further process the incoming message");
             ValidationResult validationResult = ReceivingProcessingModeValidator.Instance.Validate(pmode);
 
             if (validationResult.IsValid == false)

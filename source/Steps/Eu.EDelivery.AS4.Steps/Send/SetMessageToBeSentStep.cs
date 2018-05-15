@@ -42,12 +42,12 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
-            Logger.Info($"{messagingContext.Logging} Set the message's Operation = ToBeSent");
+            Logger.Info($"{messagingContext.LogTag} Set the message's Operation = ToBeSent");
 
             if (messagingContext.MessageEntityId == null)
             {
                 throw new InvalidOperationException(
-                    $"{messagingContext.Logging} MessagingContext does not contain the ID of the OutMessage that must be set to ToBeSent");
+                    $"{messagingContext.LogTag} MessagingContext does not contain the ID of the OutMessage that must be set to ToBeSent");
             }
 
             using (DatastoreContext context = _createContext())

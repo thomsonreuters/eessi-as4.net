@@ -111,7 +111,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
         private static StepResult ValidationFailure(MessagingContext context)
         {
-            Logger.Error($"{context.Logging} AS4 Message is not valid: {context.ErrorResult.Description}");
+            Logger.Error($"{context.LogTag} AS4 Message is not valid: {context.ErrorResult.Description}");
             return StepResult.Failed(context);
         }
     }

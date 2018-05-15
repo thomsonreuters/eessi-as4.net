@@ -64,7 +64,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
             if (Logger.IsInfoEnabled && errorMessage.MessageUnits.Any())
             {
-                Logger.Info($"{messagingContext.Logging} Error message has been created for received AS4 UserMessages.");
+                Logger.Info($"{messagingContext.LogTag} Error message has been created for received AS4 UserMessages.");
             }
 
             return await StepResult.SuccessAsync(messagingContext);

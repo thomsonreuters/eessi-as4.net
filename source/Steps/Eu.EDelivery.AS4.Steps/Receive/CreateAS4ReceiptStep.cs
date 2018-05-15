@@ -44,7 +44,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
             if (Logger.IsInfoEnabled && receiptMessage.MessageUnits.Any())
             {
-                Logger.Info($"{messagingContext.Logging} Receipt message has been created for received AS4 UserMessages.");
+                Logger.Info($"{messagingContext.LogTag} Receipt message has been created for received AS4 UserMessages.");
             }
 
             messagingContext.ModifyContext(receiptMessage);
@@ -62,7 +62,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 if (receivedAS4Message.IsSigned)
                 {
                     Logger.Debug(
-                        $"{messagingContext.Logging} Receiving PMode {messagingContext.ReceivingPMode?.Id} " + 
+                        $"{messagingContext.LogTag} Receiving PMode {messagingContext.ReceivingPMode?.Id} " + 
                         $"is configured to use Non-Repudiation for Receipt {receipt.MessageId} Creation");
 
                     receipt.NonRepudiationInformation = GetNonRepudiationInformationFrom(receivedAS4Message);
@@ -70,7 +70,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 else
                 {
                     Logger.Warn(
-                        $"{messagingContext.Logging} Receiving PMode ({messagingContext.ReceivingPMode?.Id}) " + 
+                        $"{messagingContext.LogTag} Receiving PMode ({messagingContext.ReceivingPMode?.Id}) " + 
                         "is configured to reply with Non-Repudation Receipts, but incoming UserMessage isn't signed");
 
                     receipt.UserMessage = receivedAS4Message.PrimaryUserMessage;
@@ -79,7 +79,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             else
             {
                 Logger.Debug(
-                    $"{messagingContext.Logging} Receiving PMode is configured to not use the Non-Repudiation format." + 
+                    $"{messagingContext.LogTag} Receiving PMode is configured to not use the Non-Repudiation format." + 
                     "This means the original UserMessage will be included in the Receipt");
                 receipt.UserMessage = receivedAS4Message.PrimaryUserMessage;
             }
@@ -88,7 +88,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             if (receivedAS4Message.IsMultiHopMessage)
             {
                 Logger.Debug(
-                    $"{messagingContext.Logging} Because the received UserMessage has been sent via MultiHop, " + 
+                    $"{messagingContext.LogTag} Because the received UserMessage has been sent via MultiHop, " + 
                     "we will send the Receipt as MultiHop also");
 
                 receipt.MultiHopRouting = 

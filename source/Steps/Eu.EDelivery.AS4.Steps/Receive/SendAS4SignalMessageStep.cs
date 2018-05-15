@@ -74,7 +74,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                         : "Error";
 
                 Logger.Info(
-                    $"{messagingContext.Logging} {signalMessageType} will be written to the response");
+                    $"{messagingContext.LogTag} {signalMessageType} will be written to the response");
             }
 
             return StepResult.Success(messagingContext);

@@ -39,7 +39,7 @@ namespace Eu.EDelivery.AS4.Steps.Notify
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
             var notifyMessage = messagingContext.NotifyMessage;
-            Logger.Info($"{messagingContext.Logging} Mark the stored notify message as Notified");
+            Logger.Info($"{messagingContext.LogTag} Mark the stored notify message as Notified");
 
             await UpdateDatastoreAsync(notifyMessage, messagingContext).ConfigureAwait(false);
             return await StepResult.SuccessAsync(messagingContext);
@@ -53,7 +53,7 @@ namespace Eu.EDelivery.AS4.Steps.Notify
 
                 if (notifyMessage.EntityType == typeof(InMessage))
                 {
-                    Logger.Debug(messagingContext.Logging + "Update InMessage with Status and Operation set to Notified");
+                    Logger.Debug(messagingContext.LogTag + "Update InMessage with Status and Operation set to Notified");
                     repository.UpdateInMessage(notifyMessage.MessageInfo.MessageId, m =>
                     {
                         m.SetStatus(InStatus.Notified);
@@ -62,7 +62,7 @@ namespace Eu.EDelivery.AS4.Steps.Notify
                 }
                 else if (notifyMessage.EntityType == typeof(OutMessage) && messagingContext.MessageEntityId != null)
                 {
-                    Logger.Debug(messagingContext.Logging + "Update OutMessage with Status and Operation set to Notified");
+                    Logger.Debug(messagingContext.LogTag + "Update OutMessage with Status and Operation set to Notified");
                     repository.UpdateOutMessage(messagingContext.MessageEntityId.Value, m =>
                     {
                         m.SetStatus(OutStatus.Notified);
@@ -71,12 +71,12 @@ namespace Eu.EDelivery.AS4.Steps.Notify
                 }
                 else if (notifyMessage.EntityType == typeof(InException))
                 {
-                    Logger.Debug(messagingContext.Logging + "Update InException with Status and Operation set to Notified");
+                    Logger.Debug(messagingContext.LogTag + "Update InException with Status and Operation set to Notified");
                     repository.UpdateInException(notifyMessage.MessageInfo.RefToMessageId, ex => ex.SetOperation(Operation.Notified));
                 }
                 else if (notifyMessage.EntityType == typeof(OutException))
                 {
-                    Logger.Debug(messagingContext.Logging + "Update OutException with Status and Operation set to Notified");
+                    Logger.Debug(messagingContext.LogTag + "Update OutException with Status and Operation set to Notified");
                     repository.UpdateOutException(notifyMessage.MessageInfo.RefToMessageId, ex => ex.SetOperation(Operation.Notified));
                 }
                 else

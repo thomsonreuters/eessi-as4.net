@@ -45,7 +45,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
-            Logger.Info($"{messagingContext.Logging} Update the received message body");
+            Logger.Info($"{messagingContext.LogTag} Update the received message body");
 
             using (DatastoreContext datastoreContext = _createDatastoreContext())
             {
@@ -66,7 +66,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 messagingContext.ModifyContext(AS4Message.Empty);
 
                 Logger.Debug(
-                    $"{messagingContext.Logging} Stops execution to return empty SOAP envelope to the orignal sender. " +
+                    $"{messagingContext.LogTag} Stops execution to return empty SOAP envelope to the orignal sender. " +
                     "This happens when the message musn't be forwarded");
 
                 return StepResult.Success(messagingContext).AndStopExecution();

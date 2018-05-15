@@ -65,7 +65,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
 
             SendingProcessingMode pmode = _config.GetSendingPMode(processingModeId);
 
-            Logger.Info($"{context.Logging} SendingPMode {pmode.Id} was successfully retrieved");
+            Logger.Info($"{context.LogTag} SendingPMode {pmode.Id} was successfully retrieved");
 
             return pmode;
         }

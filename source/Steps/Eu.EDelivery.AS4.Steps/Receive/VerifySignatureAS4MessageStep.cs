@@ -92,7 +92,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             {
                 if (!await VerifyNonRepudiationHashes(as4Message))
                 {
-                    Logger.Error($"{messagingContext.Logging} Incoming Receipt hasn't got valid NRI References");
+                    Logger.Error($"{messagingContext.LogTag} Incoming Receipt hasn't got valid NRI References");
 
                     return InvalidSignatureResult(
                         "The digest value in the Signature References of the referenced UserMessage " +
@@ -101,7 +101,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                         messagingContext);
                 }
 
-                Logger.Debug($"{messagingContext.Logging} Incoming Receipt has valid NRI References");
+                Logger.Debug($"{messagingContext.LogTag} Incoming Receipt has valid NRI References");
             }
 
             return await TryVerifyingSignature(messagingContext).ConfigureAwait(false);
@@ -160,7 +160,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             }
             catch (CryptographicException exception)
             {
-                Logger.Error($"{messagingContext.Logging} An exception occured while validating the signature: {exception.Message}");
+                Logger.Error($"{messagingContext.LogTag} An exception occured while validating the signature: {exception.Message}");
                 return InvalidSignatureResult(exception.Message, ErrorAlias.FailedAuthentication, messagingContext);
             }
         }
@@ -177,7 +177,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 return InvalidSignatureResult(description, ErrorAlias.FailedAuthentication, messagingContext);
             }
 
-            Logger.Info($"{messagingContext.Logging} AS4 Message has a valid Signature present");
+            Logger.Info($"{messagingContext.LogTag} AS4 Message has a valid Signature present");
             return await StepResult.SuccessAsync(messagingContext);
         }
 
@@ -194,7 +194,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
         private static StepResult InvalidSignatureResult(string description, ErrorAlias errorAlias, MessagingContext context)
         {
-            context.ErrorResult = new ErrorResult($"{context.Logging} Invalid Signature: {description}", errorAlias);
+            context.ErrorResult = new ErrorResult($"{context.LogTag} Invalid Signature: {description}", errorAlias);
             return StepResult.Failed(context);
         }
     }

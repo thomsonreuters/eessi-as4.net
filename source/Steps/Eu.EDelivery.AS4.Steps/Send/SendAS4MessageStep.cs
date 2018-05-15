@@ -68,14 +68,14 @@ namespace Eu.EDelivery.AS4.Steps.Send
             if (messagingContext.ReceivedMessage == null && messagingContext.AS4Message == null)
             {
                 throw new InvalidOperationException(
-                    $"{messagingContext.Logging} {nameof(SendAS4MessageStep)} " + 
+                    $"{messagingContext.LogTag} {nameof(SendAS4MessageStep)} " + 
                     "requires a MessagingContext with a ReceivedStream or an AS4 Message to correctly send the message");
             }
 
             if (messagingContext.ReceivedMessage == null && messagingContext.AS4Message.IsPullRequest == false)
             {
                 throw new InvalidOperationException(
-                    $"{messagingContext.Logging} {nameof(SendAS4MessageStep)} " + 
+                    $"{messagingContext.LogTag} {nameof(SendAS4MessageStep)} " + 
                     "expects a PullRequest AS4 Message when the MessagingContext does not contain a ReceivedStream");
             }
 
@@ -84,7 +84,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             if (sendConfiguration == null)
             {
                 throw new ConfigurationErrorsException(
-                    $"{messagingContext.Logging} Message cannot be send: "+ 
+                    $"{messagingContext.LogTag} Message cannot be send: "+ 
                     $"SendingPMode {messagingContext.SendingPMode.Id} does not contain a <PushConfiguration/> element");
             }
 
@@ -110,7 +110,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             catch (Exception exception)
             {
                 Logger.Error(
-                    $"{messagingContext.Logging} An error occured while trying to send the message: {exception}");
+                    $"{messagingContext.LogTag} An error occured while trying to send the message: {exception}");
 
                 if (exception.InnerException != null)
                 {
@@ -210,7 +210,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             {
                 if (exception.Status == WebExceptionStatus.ConnectFailure && (messagingContext.AS4Message?.IsPullRequest ?? false))
                 {
-                    Logger.Trace($"{messagingContext.Logging}The PullRequest could not be send to {request.RequestUri} due to a WebException");
+                    Logger.Trace($"{messagingContext.LogTag}The PullRequest could not be send to {request.RequestUri} due to a WebException");
                     Logger.Trace(exception.Message);
                     return false;
                 }
@@ -278,7 +278,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             HttpWebRequest request,
             MessagingContext messagingContext)
         {
-            Logger.Debug($"{messagingContext.Logging} AS4 Message received from: {request.Address}");
+            Logger.Debug($"{messagingContext.LogTag} AS4 Message received from: {request.Address}");
 
             (HttpWebResponse webResponse, WebException exception) response = await _httpClient.Respond(request).ConfigureAwait(false);
 

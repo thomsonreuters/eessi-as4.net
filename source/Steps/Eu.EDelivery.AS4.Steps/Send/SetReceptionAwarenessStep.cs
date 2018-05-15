@@ -45,13 +45,13 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
         private static async Task<StepResult> ReturnSameResult(MessagingContext messagingContext, string description)
         {
-            Logger.Info($"{messagingContext.Logging} {description}");
+            Logger.Info($"{messagingContext.LogTag} {description}");
             return await StepResult.SuccessAsync(messagingContext);
         }
 
         private static async Task InsertReceptionAwarenessAsync(MessagingContext messagingContext)
         {
-            Logger.Info($"{messagingContext.Logging} Set Reception Awareness");
+            Logger.Info($"{messagingContext.LogTag} Set Reception Awareness");
 
             using (DatastoreContext context = Registry.Instance.CreateDatastoreContext())
             {
@@ -71,7 +71,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             if (context.MessageEntityId == null)
             {
                 throw new InvalidOperationException(
-                    $"{context.Logging} Unable to retrieve the OutMessage information from the MessagingContext.ReceivedMessage");
+                    $"{context.LogTag} Unable to retrieve the OutMessage information from the MessagingContext.ReceivedMessage");
             }
 
             Entities.ReceptionAwareness receptionAwareness = 

@@ -57,7 +57,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
         private void TryEncryptAS4Message(MessagingContext messagingContext)
         {
             Logger.Info(
-                $"{messagingContext.Logging} Encrypt AS4 Message with given encryption information " + 
+                $"{messagingContext.LogTag} Encrypt AS4 Message with given encryption information " + 
                 $"configured in the Sending PMode: {messagingContext.SendingPMode.Id}");
 
             try
@@ -72,7 +72,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             }
             catch (Exception exception)
             {
-                string description = $"{messagingContext.Logging} Problems with encryption AS4 Message: {exception}";
+                string description = $"{messagingContext.LogTag} Problems with encryption AS4 Message: {exception}";
                 Logger.Error(description);
 
                 throw new CryptographicException(description, exception);
@@ -116,7 +116,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
         private static Task<StepResult> ReturnSameMessagingContext(MessagingContext messagingContext)
         {
             Logger.Debug(
-                $"{messagingContext.Logging} No encryption will happen because the " + 
+                $"{messagingContext.LogTag} No encryption will happen because the " + 
                 $"Sending PMode {messagingContext.SendingPMode.Id} encryption is disabled");
 
             return StepResult.SuccessAsync(messagingContext);

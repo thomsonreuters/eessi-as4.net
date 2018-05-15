@@ -55,7 +55,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
                     "Unable to send DeliverMessage: the ReceivingPMode does not contain any DeliverInformation");
             }
 
-            Logger.Trace($"{messagingContext.Logging} Start sending the deliver message to the consuming business application...");
+            Logger.Trace($"{messagingContext.LogTag} Start sending the deliver message to the consuming business application...");
 
             Method deliverMethod = messagingContext.ReceivingPMode.MessageHandling.DeliverInformation.DeliverMethod;
 

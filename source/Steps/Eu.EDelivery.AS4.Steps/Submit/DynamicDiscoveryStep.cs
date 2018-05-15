@@ -39,7 +39,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
             }
 
             string smpProfile = messagingContext.SendingPMode.DynamicDiscovery.SmpProfile;
-            Logger.Info($"{messagingContext.Logging} DynamicDiscovery is enabled in SendingPMode - using {smpProfile}");
+            Logger.Info($"{messagingContext.LogTag} DynamicDiscovery is enabled in SendingPMode - using {smpProfile}");
 
             var clonedPMode = (SendingProcessingMode)messagingContext.SendingPMode.Clone();
             clonedPMode.Id = $"{clonedPMode.Id}_SMP";
@@ -47,7 +47,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
             XmlDocument smpMetaData = await RetrieveSmpMetaData(profile, clonedPMode);
 
             SendingProcessingMode sendingPMode = profile.DecoratePModeWithSmpMetaData(clonedPMode, smpMetaData);
-            Logger.Info($"{messagingContext.Logging} SendingPMode {sendingPMode.Id} completed with SMP metadata");
+            Logger.Info($"{messagingContext.LogTag} SendingPMode {sendingPMode.Id} completed with SMP metadata");
             ValidatePMode(sendingPMode);
 
             messagingContext.SendingPMode = sendingPMode;

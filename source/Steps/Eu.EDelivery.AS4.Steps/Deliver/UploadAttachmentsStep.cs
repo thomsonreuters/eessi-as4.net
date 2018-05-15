@@ -66,7 +66,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
                 foreach (Attachment att in as4Message.Attachments.Where(a => a.MatchesAny(um.PayloadInfo)))
                 {
                     await TryUploadAttachmentAsync(att, um, uploader).ConfigureAwait(false);
-                    Logger.Info($"{messagingContext.Logging} Attachment '{att.Id}' is delivered at: {att.Location}");
+                    Logger.Info($"{messagingContext.LogTag} Attachment '{att.Id}' is delivered at: {att.Location}");
                 }
             }
 

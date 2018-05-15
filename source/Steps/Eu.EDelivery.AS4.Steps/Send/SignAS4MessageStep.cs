@@ -52,14 +52,14 @@ namespace Eu.EDelivery.AS4.Steps.Send
         {
             if (messagingContext.AS4Message == null || messagingContext.AS4Message.IsEmpty)
             {
-                Logger.Debug($"{messagingContext.Logging} Incoming ");
+                Logger.Debug($"{messagingContext.LogTag} Incoming ");
                 return await StepResult.SuccessAsync(messagingContext);
             }
 
             if (messagingContext.SendingPMode?.Security.Signing.IsEnabled != true)
             {
                 Logger.Debug(
-                    $"{messagingContext.Logging} No signing will be performend on the message " + 
+                    $"{messagingContext.LogTag} No signing will be performend on the message " + 
                     $"because the SendingPMode {messagingContext.SendingPMode?.Id} siging information is disabled");
 
                 return await StepResult.SuccessAsync(messagingContext);
@@ -75,7 +75,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             try
             {
                 Logger.Info(
-                    $"{context.Logging} Sign AS4Message with given signing information of the SendingPMode {context.SendingPMode.Id}");
+                    $"{context.LogTag} Sign AS4Message with given signing information of the SendingPMode {context.SendingPMode.Id}");
 
                 SignAS4Message(context);
             }
@@ -98,7 +98,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             if (!certificate.HasPrivateKey)
             {
                 throw new CryptographicException(
-                    $"{context.Logging} Cannot use certificate for signing: certificate does not have a private key. " +
+                    $"{context.LogTag} Cannot use certificate for signing: certificate does not have a private key. " +
                     "Please make sure that the private key is included in the certificate and is marked as Exportable");
             }
 
@@ -114,7 +114,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             if (signInfo.SigningCertificateInformation == null)
             {
                 throw new ConfigurationErrorsException(
-                    $"{messagingContext.Logging} No signing certificate information found " + 
+                    $"{messagingContext.LogTag} No signing certificate information found " + 
                     $"in Sending PMode {messagingContext.SendingPMode.Id} to perform signing. " +
                     "Please provide either a <CertificateFindCriteria/> or <PrivateKeyCertificate/> tag to the Security.Signing element");
             }

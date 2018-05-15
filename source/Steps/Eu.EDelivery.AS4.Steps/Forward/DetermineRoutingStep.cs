@@ -42,7 +42,7 @@ namespace Eu.EDelivery.AS4.Steps.Forward
 
             string sendingPModeId = messagingContext.ReceivingPMode.MessageHandling.ForwardInformation.SendingPMode;
             Logger.Trace(
-                $"{messagingContext.Logging} Sending PMode {sendingPModeId} " +
+                $"{messagingContext.LogTag} Sending PMode {sendingPModeId} " +
                 $"must be used to forward Message with Id {messagingContext.EbmsMessageId}");
 
             if (String.IsNullOrWhiteSpace(sendingPModeId))

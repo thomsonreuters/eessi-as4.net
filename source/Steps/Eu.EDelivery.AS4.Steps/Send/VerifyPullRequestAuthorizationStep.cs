@@ -45,7 +45,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
             string mpc = (as4Message.PrimarySignalMessage as PullRequest)?.Mpc ?? string.Empty;
             throw new SecurityException(
-                $"{messagingContext.Logging} PullRequest for MPC {mpc} is not authorized. " + 
+                $"{messagingContext.LogTag} PullRequest for MPC {mpc} is not authorized. " + 
                 "Either change the PullRequest MPC or add the MPC value to the authorization map");
         }
     }
