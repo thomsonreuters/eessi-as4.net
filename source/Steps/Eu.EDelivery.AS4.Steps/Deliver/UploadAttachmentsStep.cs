@@ -126,7 +126,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         {
             try
             {
-                Logger.Trace($"(Deliver) [{referringUserMessage.MessageId}] Start Uploading Attachment...");
+                Logger.Trace($"(Deliver)[{referringUserMessage.MessageId}] Start Uploading Attachment...");
 
                 UploadResult attachmentResult = 
                     await uploader.UploadAsync(attachment, referringUserMessage).ConfigureAwait(false);
@@ -134,7 +134,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
                 attachment.Location = attachmentResult.DownloadUrl;
                 attachment.ResetContentPosition();
 
-                Logger.Trace($"(Deliver) [{referringUserMessage.MessageId}] Attachment uploaded succesfully");
+                Logger.Trace($"(Deliver)[{referringUserMessage.MessageId}] Attachment uploaded succesfully");
                 return attachmentResult;
             }
             catch (Exception exception)

@@ -54,7 +54,7 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
         /// <param name="deliverMessage"></param>
         public async Task<DeliverMessageResult> SendAsync(DeliverMessageEnvelope deliverMessage)
         {
-            Logger.Info($"Send Deliver {deliverMessage.MessageInfo.MessageId} to {Location}");
+            Logger.Info($"(Deliver)[{deliverMessage.MessageInfo.MessageId}] Send DeliverMessage to {Location}");
 
             HttpWebRequest request = await CreateHttpPostRequest(deliverMessage.ContentType, deliverMessage.DeliverMessage).ConfigureAwait(false);
             HttpWebResponse response = await SendHttpPostRequest(request).ConfigureAwait(false);
@@ -70,7 +70,7 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
         /// <param name="notifyMessage"></param>
         public async Task SendAsync(NotifyMessageEnvelope notifyMessage)
         {
-            Logger.Info($"Send Notification {notifyMessage.MessageInfo.MessageId} to {Location}");
+            Logger.Info($"(Notify)[{notifyMessage.MessageInfo.MessageId}] Send Notification to {Location}");
 
             HttpWebRequest request = await CreateHttpPostRequest(notifyMessage.ContentType, notifyMessage.NotifyMessage);
             HttpWebResponse httpPostResponse = await SendHttpPostRequest(request).ConfigureAwait(false);

@@ -6,7 +6,7 @@ using System.Linq;
 namespace Eu.EDelivery.AS4.Strategies.Sender
 {
     /// <summary>
-    /// Class to provide <see cref="Eu.EDelivery.AS4.Strategies.Sender.IDeliverSender" /> implementations
+    /// Class to provide <see cref="IDeliverSender" /> implementations
     /// based on a given condition
     /// </summary>
     public class NotifySenderProvider : INotifySenderProvider

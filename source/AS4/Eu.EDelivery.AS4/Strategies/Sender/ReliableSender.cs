@@ -53,9 +53,10 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
         public async Task<DeliverMessageResult> SendAsync(DeliverMessageEnvelope deliverMessage)
         {
             return await SendMessageResult(
-                message: deliverMessage, 
-                sending: _deliverSender.SendAsync, 
-                exMessage: $"(Deliver)[{deliverMessage?.MessageInfo?.MessageId}] Unable to send DeliverMessage to the configured endpoint due to an exception").ConfigureAwait(false);
+                    message: deliverMessage,
+                    sending: _deliverSender.SendAsync,
+                    exMessage: $"(Deliver)[{deliverMessage?.MessageInfo?.MessageId}] Unable to send DeliverMessage to the configured endpoint due to an exception")
+                .ConfigureAwait(false);
         }
 
         private static async Task<TResult> SendMessageResult<T, TResult>(
@@ -81,9 +82,10 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
         public async Task SendAsync(NotifyMessageEnvelope notifyMessage)
         {
             await SendMessage(
-                message: notifyMessage, 
-                sending: _notifySender.SendAsync, 
-                exMessage: $"(Notify)[{notifyMessage?.MessageInfo?.MessageId}] Unable to send NotifyMessage to the configured endpoint due to and exceptoin").ConfigureAwait(false);
+                    message: notifyMessage,
+                    sending: _notifySender.SendAsync,
+                    exMessage: $"(Notify)[{notifyMessage?.MessageInfo?.MessageId}] Unable to send NotifyMessage to the configured endpoint due to and exceptoin")
+                .ConfigureAwait(false);
         }
 
         private static async Task SendMessage<T>(T message, Func<T, Task> sending, string exMessage)
