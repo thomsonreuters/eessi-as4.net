@@ -7,7 +7,7 @@ using NLog;
 namespace Eu.EDelivery.AS4.Services
 {
     /// <summary>
-    /// Service abstraction to set the referenced deliver message to the right Status/Operation accordingly to the <see cref="DeliverMessageResult"/>.
+    /// Service abstraction to set the referenced deliver message to the right Status/Operation accordingly to the <see cref="DeliverResult"/>.
     /// </summary>
     public class RetryService
     {

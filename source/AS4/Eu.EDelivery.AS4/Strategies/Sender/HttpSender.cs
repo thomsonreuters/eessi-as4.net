@@ -52,7 +52,7 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
         /// Start sending the <see cref="DeliverMessage"/>
         /// </summary>
         /// <param name="deliverMessage"></param>
-        public async Task<DeliverMessageResult> SendAsync(DeliverMessageEnvelope deliverMessage)
+        public async Task<DeliverResult> SendAsync(DeliverMessageEnvelope deliverMessage)
         {
             Logger.Info($"(Deliver)[{deliverMessage.MessageInfo.MessageId}] Send DeliverMessage to {Location}");
 
@@ -61,7 +61,7 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
 
             response?.Close();
 
-            return DeliverMessageResult.Success;
+            return DeliverResult.Success;
         }
 
         /// <summary>

@@ -72,13 +72,13 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
 
             IDeliverSender sender = _messageProvider.GetDeliverSender(deliverMethod?.Type);
             sender.Configure(deliverMethod);
-            DeliverMessageResult result = await sender.SendAsync(messagingContext.DeliverMessage).ConfigureAwait(false);
+            DeliverResult result = await sender.SendAsync(messagingContext.DeliverMessage).ConfigureAwait(false);
 
             await UpdateDeliverMessage(messagingContext, result);
             return StepResult.Success(messagingContext);
         }
 
-        private async Task UpdateDeliverMessage(MessagingContext messagingContext, DeliverMessageResult result)
+        private async Task UpdateDeliverMessage(MessagingContext messagingContext, DeliverResult result)
         {
             using (DatastoreContext context = _createDbContext())
             {

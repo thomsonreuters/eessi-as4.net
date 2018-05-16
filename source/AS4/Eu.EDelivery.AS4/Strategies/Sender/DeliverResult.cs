@@ -13,9 +13,8 @@
             NeedsAnotherRetry = needsAnotherRetry;
         }
 
-
         /// <summary>
-        /// Gets the status indicating whether the <see cref="DeliverMessageResult"/> is successful or not.
+        /// Gets the status indicating whether the <see cref="DeliverResult"/> is successful or not.
         /// </summary>
         /// <value>The status.</value>
         public DeliveryStatus Status { get; }
@@ -27,6 +26,12 @@
         ///   <c>true</c> if [another retry is needed]; otherwise, <c>false</c>.
         /// </value>
         public bool NeedsAnotherRetry { get; }
+
+        /// <summary>
+        /// Creates a successful representation of the <see cref="DeliverResult"/>.
+        /// </summary>
+        /// <returns></returns>
+        public static DeliverResult Success => new DeliverResult(DeliveryStatus.Successful, needsAnotherRetry: false);
 
         /// <summary>
         /// Reduces the two specified <see cref="DeliverResult"/>'s.
@@ -43,5 +48,21 @@
                     : DeliveryStatus.Failure,
                 x.NeedsAnotherRetry || y.NeedsAnotherRetry);
         }
+
+        /// <summary>
+        /// Creates as failure representation of the <see cref="DeliverResult"/>.
+        /// </summary>
+        /// <param name="anotherRetryIsNeeded">if set to <c>true</c> [another retry is needed].</param>
+        /// <returns></returns>
+        public static DeliverResult Failure(bool anotherRetryIsNeeded)
+        {
+            return new DeliverResult(DeliveryStatus.Failure, anotherRetryIsNeeded);
+        }
+    }
+
+    public enum DeliveryStatus
+    {
+        Successful,
+        Failure
     }
 }

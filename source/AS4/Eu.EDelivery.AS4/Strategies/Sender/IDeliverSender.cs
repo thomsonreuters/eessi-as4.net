@@ -20,6 +20,6 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
         /// Start sending the <see cref="DeliverMessage"/>
         /// </summary>
         /// <param name="deliverMessage"></param>
-        Task<DeliverMessageResult> SendAsync(DeliverMessageEnvelope deliverMessage);
+        Task<DeliverResult> SendAsync(DeliverMessageEnvelope deliverMessage);
     }
 }

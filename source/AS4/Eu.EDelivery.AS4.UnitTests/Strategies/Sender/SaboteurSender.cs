@@ -26,7 +26,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Strategies.Sender
         /// Start sending the <see cref="DeliverMessage"/>
         /// </summary>
         /// <param name="deliverMessage"></param>
-        public Task<DeliverMessageResult> SendAsync(DeliverMessageEnvelope deliverMessage)
+        public Task<DeliverResult> SendAsync(DeliverMessageEnvelope deliverMessage)
         {
             throw new SaboteurException("Sabotage 'Deliver' Send");
         }

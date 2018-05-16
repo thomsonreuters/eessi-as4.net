@@ -41,7 +41,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
 
             var spySender = new Mock<IDeliverSender>();
             spySender.Setup(s => s.SendAsync(envelope))
-                     .ReturnsAsync(DeliverMessageResult.Success);
+                     .ReturnsAsync(DeliverResult.Success);
 
             IStep sut = CreateSendDeliverStepWithSender(spySender.Object);
 

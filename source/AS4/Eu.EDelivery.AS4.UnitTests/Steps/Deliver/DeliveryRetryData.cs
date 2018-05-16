@@ -15,7 +15,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
                 new RetryData(
                     currentRetryCount: 1,
                     maxRetryCount: 3,
-                    deliverResult: DeliverMessageResult.Success,
+                    deliverResult: DeliverResult.Success,
                     uploadResult: UploadResult.Success("", ""),
                     expectedCurrentRetryCount: 1,
                     expectedOperation: Operation.Delivered,
@@ -26,7 +26,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
                 new RetryData(
                     currentRetryCount: 1,
                     maxRetryCount: 3,
-                    deliverResult: DeliverMessageResult.Failure(anotherRetryIsNeeded: true),
+                    deliverResult: DeliverResult.Failure(anotherRetryIsNeeded: true),
                     uploadResult: UploadResult.Failure(needsAnotherRetry: true),
                     expectedCurrentRetryCount: 2,
                     expectedOperation: Operation.ToBeDelivered,
@@ -37,7 +37,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
                 new RetryData(
                     currentRetryCount: 1,
                     maxRetryCount: 3,
-                    deliverResult: DeliverMessageResult.Failure(anotherRetryIsNeeded: false),
+                    deliverResult: DeliverResult.Failure(anotherRetryIsNeeded: false),
                     uploadResult: UploadResult.Failure(needsAnotherRetry: false),
                     expectedCurrentRetryCount: 1,
                     expectedOperation: Operation.DeadLettered,
@@ -48,7 +48,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
                 new RetryData(
                     currentRetryCount: 3,
                     maxRetryCount: 3,
-                    deliverResult: DeliverMessageResult.Failure(anotherRetryIsNeeded: true),
+                    deliverResult: DeliverResult.Failure(anotherRetryIsNeeded: true),
                     uploadResult: UploadResult.Failure(needsAnotherRetry: true),
                     expectedCurrentRetryCount: 3,
                     expectedOperation: Operation.DeadLettered,
@@ -59,7 +59,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
                 new RetryData(
                     currentRetryCount: 3,
                     maxRetryCount: 3,
-                    deliverResult: DeliverMessageResult.Failure(anotherRetryIsNeeded: false),
+                    deliverResult: DeliverResult.Failure(anotherRetryIsNeeded: false),
                     uploadResult: UploadResult.Failure(needsAnotherRetry: false),
                     expectedCurrentRetryCount: 3,
                     expectedOperation: Operation.DeadLettered,
@@ -91,7 +91,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
         public RetryData(
             int currentRetryCount,
             int maxRetryCount,
-            DeliverMessageResult deliverResult,
+            DeliverResult deliverResult,
             UploadResult uploadResult,
             int expectedCurrentRetryCount,
             Operation expectedOperation,
@@ -110,7 +110,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
 
         public int MaxRetryCount { get; }
 
-        public DeliverMessageResult DeliverResult { get; }
+        public DeliverResult DeliverResult { get; }
 
         public UploadResult UploadResult { get; }
 
