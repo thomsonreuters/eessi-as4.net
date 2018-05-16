@@ -31,7 +31,7 @@
         /// Creates a successful representation of the <see cref="DeliverResult"/>.
         /// </summary>
         /// <returns></returns>
-        public static DeliverResult Success => new DeliverResult(DeliveryStatus.Successful, needsAnotherRetry: false);
+        public static DeliverResult Success { get; } = new DeliverResult(DeliveryStatus.Successful, needsAnotherRetry: false);
 
         /// <summary>
         /// Reduces the two specified <see cref="DeliverResult"/>'s.
