@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Eu.EDelivery.AS4.Model.Core;
 
 namespace Eu.EDelivery.AS4.UnitTests.Model
@@ -10,7 +11,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
         /// </summary>
         /// <param name="messageId">The message identifier.</param>
         /// <param name="attachmentId">The attachment identifier.</param>
-        public FilledUserMessage(string messageId = "message-id", string attachmentId = "attachment-uri")
+        public FilledUserMessage(string messageId = "message-id", string attachmentId = "attachment-uri") : this(
+            messageId,
+            attachmentIds: attachmentId) { }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FilledUserMessage"/> class.
+        /// </summary>
+        public FilledUserMessage(string messageId, params string[] attachmentIds)
         {
             Mpc = "mpc";
             MessageId = messageId;
@@ -18,7 +26,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
             Receiver = CreateParty("Receiver", "org:eu:europa:as4:example");
             Sender = CreateParty("Sender", "org:holodeckb2b:example:company:A");
             MessageProperties = CreateMessageProperties();
-            PayloadInfo = new List<PartInfo> { new PartInfo(href: $"cid:{attachmentId}") };
+
+            PayloadInfo = attachmentIds
+                .DefaultIfEmpty("attachment-uri")
+                .Select(id => new PartInfo(href: $"cid:{id}"))
+                .ToList();
         }
 
         private static CollaborationInfo CreateCollaborationInfo()

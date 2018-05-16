@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
@@ -7,6 +8,9 @@ using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
+using Eu.EDelivery.AS4.Repositories;
+using Eu.EDelivery.AS4.Services;
+using Eu.EDelivery.AS4.Strategies.Sender;
 using Eu.EDelivery.AS4.Strategies.Uploader;
 using NLog;
 
@@ -19,6 +23,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
     [Description("This step uploads the deliver message payloads to the destination that was configured in the receiving pmode.")]
     public class UploadAttachmentsStep : IStep
     {
+        private readonly Func<DatastoreContext> _createDbContext;
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 
         private readonly IAttachmentUploaderProvider _provider;
@@ -37,6 +42,17 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         public UploadAttachmentsStep(IAttachmentUploaderProvider provider)
         {
             _provider = provider;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="UploadAttachmentsStep" /> class.
+        /// </summary>
+        /// <param name="provider">The provider.</param>
+        /// <param name="createDbContext">Creates a database context.</param>
+        public UploadAttachmentsStep(IAttachmentUploaderProvider provider, Func<DatastoreContext> createDbContext)
+        {
+            _provider = provider;
+            _createDbContext = createDbContext;
         }
 
         /// <summary>
@@ -60,14 +76,27 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
             }
 
             IAttachmentUploader uploader = GetAttachmentUploader(messagingContext.ReceivingPMode);
+            var results = new Collection<UploadResult>();
 
             foreach (UserMessage um in as4Message.UserMessages)
             {
                 foreach (Attachment att in as4Message.Attachments.Where(a => a.MatchesAny(um.PayloadInfo)))
                 {
-                    await TryUploadAttachmentAsync(att, um, uploader).ConfigureAwait(false);
-                    Logger.Info($"{messagingContext.LogTag} Attachment '{att.Id}' is delivered at: {att.Location}");
+                    UploadResult result = await TryUploadAttachmentAsync(att, um, uploader).ConfigureAwait(false);
+                    if (result.Status == DeliveryStatus.Successful)
+                    {
+                        Logger.Info($"{messagingContext.LogTag} Attachment '{att.Id}' is delivered at: {att.Location}");
+                    }
+
+                    results.Add(result);
                 }
+            }
+
+            if (results.Any())
+            {
+                await UpdateDeliverMessageAccordinglyToUploadResult(
+                    messageId: as4Message.GetPrimaryMessageId(),
+                    result: results.Aggregate<DeliverResult>(DeliverResult.Reduce)); 
             }
 
             return await StepResult.SuccessAsync(messagingContext);
@@ -90,14 +119,14 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
             return uploader;
         }
 
-        private static async Task TryUploadAttachmentAsync(
+        private static async Task<UploadResult> TryUploadAttachmentAsync(
             Attachment attachment, 
             UserMessage referringUserMessage, 
             IAttachmentUploader uploader)
         {
             try
             {
-                Logger.Trace($"(Deliver) [{referringUserMessage.MessageId}] Start Uploading Attachment...");
+                Logger.Trace($"(Deliver)[{referringUserMessage.MessageId}] Start Uploading Attachment...");
 
                 UploadResult attachmentResult = 
                     await uploader.UploadAsync(attachment, referringUserMessage).ConfigureAwait(false);
@@ -105,7 +134,8 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
                 attachment.Location = attachmentResult.DownloadUrl;
                 attachment.ResetContentPosition();
 
-                Logger.Trace($"(Deliver) [{referringUserMessage.MessageId}] Attachment uploaded succesfully");
+                Logger.Trace($"(Deliver)[{referringUserMessage.MessageId}] Attachment uploaded succesfully");
+                return attachmentResult;
             }
             catch (Exception exception)
             {
@@ -114,6 +144,18 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
                     + $"because of an exception: {Environment.NewLine}" + exception);
 
                 throw;
+            }
+        }
+
+        private async Task UpdateDeliverMessageAccordinglyToUploadResult(string messageId, DeliverResult result)
+        {
+            using (DatastoreContext context = _createDbContext())
+            {
+                var repository = new DatastoreRepository(context);
+                var service = new RetryService(repository);
+
+                service.UpdateDeliverMessageAccordinglyToDeliverResult(messageId, result);
+                await context.SaveChangesAsync().ConfigureAwait(false);
             }
         }
     }

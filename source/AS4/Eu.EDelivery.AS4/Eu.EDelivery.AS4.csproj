@@ -379,6 +379,7 @@
     <Compile Include="Services\OutMessageService.cs" />
     <Compile Include="Services\PullRequestAuthorization\PullRequestAuthorizationEntry.cs" />
     <Compile Include="Services\ReceptionAwarenessService.cs" />
+    <Compile Include="Services\RetryService.cs" />
     <Compile Include="Strategies\Database\IAS4DbCommand.cs" />
     <Compile Include="Strategies\Database\InMemoryDbCommand.cs" />
     <Compile Include="Strategies\Database\SqliteDbCommand.cs" />
@@ -387,6 +388,7 @@
     <Compile Include="Strategies\Retriever\TempFilePayloadRetriever.cs" />
     <Compile Include="Strategies\Sender\FileSender.cs" />
     <Compile Include="Strategies\Sender\HttpSender.cs" />
+    <Compile Include="Strategies\Sender\DeliverResult.cs" />
     <Compile Include="Strategies\Sender\ReliableSender.cs" />
     <Compile Include="Streaming\NonCloseableStream.cs" />
     <Compile Include="Security\References\SecurityTokenReferenceProvider.cs" />

@@ -153,7 +153,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
 
         private static AS4Message AS4MessageWithUserMessage(string attachmentId = "attachment-uri")
         {
-            return AS4Message.Create(new FilledUserMessage(attachmentId: attachmentId));
+            var msg = AS4Message.Create(new FilledUserMessage(attachmentId: attachmentId));
+            msg.AddAttachment(new FilledAttachment());
+
+            return msg;
         }
 
         private static void AssertsNotEmpty(params IEnumerable[] values)

@@ -4,6 +4,8 @@ using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
+using Eu.EDelivery.AS4.Repositories;
+using Eu.EDelivery.AS4.Services;
 using Eu.EDelivery.AS4.Strategies.Sender;
 using NLog;
 
@@ -17,22 +19,31 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
     public class SendDeliverMessageStep : IStep
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
-        private readonly IDeliverSenderProvider _provider;
+
+        private readonly IDeliverSenderProvider _messageProvider;
+        private readonly Func<DatastoreContext> _createDbContext;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SendDeliverMessageStep"/> class
         /// </summary>
-        public SendDeliverMessageStep() : this(Registry.Instance.DeliverSenderProvider) { }
+        public SendDeliverMessageStep()
+            : this(
+                Registry.Instance.DeliverSenderProvider,
+                Registry.Instance.CreateDatastoreContext) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SendDeliverMessageStep"/> class
         /// Create a <see cref="IStep"/> implementation
         /// for sending the Deliver Message to the consuming business application
         /// </summary>
-        /// <param name="provider"> The provider. </param>
-        public SendDeliverMessageStep(IDeliverSenderProvider provider)
+        /// <param name="messageProvider"> The message sender provider.</param>
+        /// <param name="createDbContext">Creates a new Db Context.</param>
+        public SendDeliverMessageStep(
+            IDeliverSenderProvider messageProvider,
+            Func<DatastoreContext> createDbContext)
         {
-            _provider = provider;
+            _messageProvider = messageProvider;
+            _createDbContext = createDbContext;
         }
 
         /// <summary>
@@ -59,11 +70,26 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
 
             Method deliverMethod = messagingContext.ReceivingPMode.MessageHandling.DeliverInformation.DeliverMethod;
 
-            IDeliverSender sender = _provider.GetDeliverSender(deliverMethod?.Type);
+            IDeliverSender sender = _messageProvider.GetDeliverSender(deliverMethod?.Type);
             sender.Configure(deliverMethod);
-            await sender.SendAsync(messagingContext.DeliverMessage).ConfigureAwait(false);
+            DeliverResult result = await sender.SendAsync(messagingContext.DeliverMessage).ConfigureAwait(false);
 
+            await UpdateDeliverMessage(messagingContext, result);
             return StepResult.Success(messagingContext);
+        }
+
+        private async Task UpdateDeliverMessage(MessagingContext messagingContext, DeliverResult result)
+        {
+            using (DatastoreContext context = _createDbContext())
+            {
+                var repository = new DatastoreRepository(context);
+                var retryService = new RetryService(repository);
+                retryService.UpdateDeliverMessageAccordinglyToDeliverResult(
+                    messagingContext.DeliverMessage.MessageInfo.MessageId,
+                    result);
+
+                await context.SaveChangesAsync().ConfigureAwait(false);
+            }
         }
     }
 }

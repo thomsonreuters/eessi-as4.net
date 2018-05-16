@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Model.Deliver;
 using Eu.EDelivery.AS4.Model.Notify;
 using Eu.EDelivery.AS4.Strategies.Sender;
@@ -34,7 +33,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Strategies.Sender
         public bool IsNotified { get; set; }
 
         /// <summary>
-        /// Configure the <see cref="IDeliverSender"/>
+        /// Configure the <see cref="Eu.EDelivery.AS4.Strategies.Sender.IDeliverSender"/>
         /// with a given <paramref name="method"/>
         /// </summary>
         /// <param name="method"></param>
@@ -47,10 +46,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Strategies.Sender
         /// Start sending the <see cref="DeliverMessage"/>
         /// </summary>
         /// <param name="deliverMessage"></param>
-        public Task SendAsync(DeliverMessageEnvelope deliverMessage)
+        public Task<DeliverResult> SendAsync(DeliverMessageEnvelope deliverMessage)
         {
             IsDelivered = true;
-            return Task.CompletedTask;
+            return Task.FromResult(DeliverResult.Success);
         }
 
         /// <summary>

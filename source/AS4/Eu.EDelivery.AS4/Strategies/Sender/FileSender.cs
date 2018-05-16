@@ -37,7 +37,7 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
         /// Start sending the <see cref="DeliverMessage"/>
         /// </summary>
         /// <param name="deliverMessage"></param>
-        public async Task SendAsync(DeliverMessageEnvelope deliverMessage)
+        public async Task<DeliverResult> SendAsync(DeliverMessageEnvelope deliverMessage)
         {
             EnsureDirectory(_destinationPath);
 
@@ -50,6 +50,8 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
             Logger.Info(
                 $"(Deliver) DeliverMessage {deliverMessage.MessageInfo.MessageId} "+ 
                 $"is successfully send to {location}");
+
+            return DeliverResult.Success; 
         }
 
         /// <summary>
