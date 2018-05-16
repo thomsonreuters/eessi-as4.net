@@ -6,11 +6,11 @@
         /// Initializes a new instance of the <see cref="DeliverResult"/> class.
         /// </summary>
         /// <param name="status">The status.</param>
-        /// <param name="needsAnotherRetry">if set to <c>true</c> [needs another retry].</param>
-        public DeliverResult(DeliveryStatus status, bool needsAnotherRetry)
+        /// <param name="eligeableForRetry">if set to <c>true</c> [needs another retry].</param>
+        public DeliverResult(DeliveryStatus status, bool eligeableForRetry)
         {
             Status = status;
-            NeedsAnotherRetry = needsAnotherRetry;
+            EligeableForRetry = eligeableForRetry;
         }
 
         /// <summary>
@@ -25,13 +25,13 @@
         /// <value>
         ///   <c>true</c> if [another retry is needed]; otherwise, <c>false</c>.
         /// </value>
-        public bool NeedsAnotherRetry { get; }
+        public bool EligeableForRetry { get; }
 
         /// <summary>
         /// Creates a successful representation of the <see cref="DeliverResult"/>.
         /// </summary>
         /// <returns></returns>
-        public static DeliverResult Success { get; } = new DeliverResult(DeliveryStatus.Successful, needsAnotherRetry: false);
+        public static DeliverResult Success { get; } = new DeliverResult(DeliveryStatus.Successful, eligeableForRetry: false);
 
         /// <summary>
         /// Reduces the two specified <see cref="DeliverResult"/>'s.
@@ -46,7 +46,7 @@
                 && y.Status == DeliveryStatus.Successful 
                     ? DeliveryStatus.Successful
                     : DeliveryStatus.Failure,
-                x.NeedsAnotherRetry || y.NeedsAnotherRetry);
+                x.EligeableForRetry || y.EligeableForRetry);
         }
 
         /// <summary>

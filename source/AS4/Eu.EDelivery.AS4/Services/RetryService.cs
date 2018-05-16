@@ -52,7 +52,7 @@ namespace Eu.EDelivery.AS4.Services
                         (int current, int max) = _repository
                             .GetInMessageData(messageId, m => Tuple.Create(m.CurrentRetryCount, m.MaxRetryCount));
 
-                        if (current < max && result.NeedsAnotherRetry)
+                        if (current < max && result.EligeableForRetry)
                         {
                             inMessage.CurrentRetryCount = current + 1;
                             inMessage.SetOperation(Operation.ToBeDelivered);

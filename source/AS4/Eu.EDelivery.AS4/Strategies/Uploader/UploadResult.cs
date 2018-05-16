@@ -15,13 +15,13 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
         /// <param name="payloadId">The payload identifier.</param>
         /// <param name="downloadUrl">The download URL.</param>
         /// <param name="status">The status.</param>
-        /// <param name="needsAnotherRetry">if set to <c>true</c> [needs another retry].</param>
+        /// <param name="eligeableForRetry">if set to <c>true</c> [needs another retry].</param>
         [JsonConstructor]
         private UploadResult(
             string payloadId,
             string downloadUrl,
             DeliveryStatus status,
-            bool needsAnotherRetry) : base(status, needsAnotherRetry)
+            bool eligeableForRetry) : base(status, eligeableForRetry)
         {
             PayloadId = payloadId;
             DownloadUrl = downloadUrl;
@@ -48,7 +48,7 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
                 payloadId,
                 downloadUrl: null,
                 status: DeliveryStatus.Successful,
-                needsAnotherRetry: false);
+                eligeableForRetry: false);
         }
 
         /// <summary>
@@ -63,7 +63,7 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
                 payloadId,
                 downloadUrl,
                 status: DeliveryStatus.Successful,
-                needsAnotherRetry: false);
+                eligeableForRetry: false);
         }
 
         /// <summary>
@@ -77,7 +77,7 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
                 payloadId: null,
                 downloadUrl: downloadUrl,
                 status: DeliveryStatus.Successful,
-                needsAnotherRetry: false);
+                eligeableForRetry: false);
         }
 
         /// <summary>
@@ -91,7 +91,7 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
                 payloadId: null,
                 downloadUrl: null,
                 status: DeliveryStatus.Failure,
-                needsAnotherRetry: needsAnotherRetry);
+                eligeableForRetry: needsAnotherRetry);
         }
 
         /// <summary>
