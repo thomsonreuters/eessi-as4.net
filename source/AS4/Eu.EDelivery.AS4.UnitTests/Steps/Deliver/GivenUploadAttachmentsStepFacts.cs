@@ -7,6 +7,7 @@ using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Steps.Deliver;
+using Eu.EDelivery.AS4.Strategies.Sender;
 using Eu.EDelivery.AS4.Strategies.Uploader;
 using Eu.EDelivery.AS4.UnitTests.Common;
 using Eu.EDelivery.AS4.UnitTests.Model;
@@ -66,8 +67,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
                 Assert.NotNull(actual);
 
                 Assert.Equal(input.ExpectedCurrentRetryCount, actual.CurrentRetryCount);
-                Assert.Equal(input.ExpectedStatus, InStatusUtils.Parse(actual.Status));
-                Assert.Equal(input.ExpectedOperation, OperationUtils.Parse(actual.Operation));
+                Assert.True(
+                    (input.ExpectedStatus == InStatusUtils.Parse(actual.Status))
+                    == (input.UploadResult.Status == DeliveryStatus.Failure));
+
+                Assert.True(
+                    (input.ExpectedOperation == OperationUtils.Parse(actual.Operation))
+                    == (input.UploadResult.Status == DeliveryStatus.Failure));
             });
         }
 
