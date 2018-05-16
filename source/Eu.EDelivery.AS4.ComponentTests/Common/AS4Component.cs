@@ -75,7 +75,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Common
             var as4Msh = new AS4Component(Process.Start(mshInfo));
 
             // Wait a little bit to make sure the DB is created.
-            System.Threading.Thread.Sleep(TimeSpan.FromSeconds(5));
+            System.Threading.Thread.Sleep(TimeSpan.FromSeconds(20));
 
             return as4Msh;
         }

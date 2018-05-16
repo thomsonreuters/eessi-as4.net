@@ -117,7 +117,6 @@
                     <Step type="Eu.EDelivery.AS4.Steps.Deliver.UploadAttachmentsStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
                     <Step type="Eu.EDelivery.AS4.Steps.Deliver.CreateDeliverEnvelopeStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
                     <Step type="Eu.EDelivery.AS4.Steps.Deliver.SendDeliverMessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-                    <Step type="Eu.EDelivery.AS4.Steps.Deliver.DeliverUpdateDatastoreStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
                 </NormalPipeline>
             </StepConfiguration>
         </DeliverAgent>

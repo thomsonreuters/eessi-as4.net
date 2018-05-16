@@ -76,7 +76,8 @@ namespace Eu.EDelivery.AS4.Migrations
                     b.Property<string>("ConversationId")
                         .HasMaxLength(50);
 
-                    b.Property<int>("CurrentRetryCount");
+                    b.Property<int>("CurrentRetryCount")
+                     .IsRequired(required: false);
 
                     b.Property<string>("EbmsMessageId")
                         .HasMaxLength(256);
@@ -104,7 +105,8 @@ namespace Eu.EDelivery.AS4.Migrations
                         .HasMaxLength(25)
                         .HasAnnotation("PropertyAccessMode", PropertyAccessMode.Field);
 
-                    b.Property<int>("MaxRetryCount");
+                    b.Property<int>("MaxRetryCount")
+                     .IsRequired(required: false);
 
                     b.Property<string>("MessageLocation")
                         .HasMaxLength(512);
@@ -136,7 +138,9 @@ namespace Eu.EDelivery.AS4.Migrations
                         .HasMaxLength(50);
 
                     b.Property<string>("RetryInterval")
-                     .HasMaxLength(50);
+                     .HasMaxLength(50)
+                     .IsRequired(required: false)
+                     .HasAnnotation("PropertyAccessMode", PropertyAccessMode.Field);
 
                     b.Property<string>("ToParty")
                         .HasMaxLength(255);
@@ -215,7 +219,8 @@ namespace Eu.EDelivery.AS4.Migrations
                     b.Property<string>("ConversationId")
                         .HasMaxLength(50);
 
-                    b.Property<int>("CurrentRetryCount");
+                    b.Property<int>("CurrentRetryCount")
+                     .IsRequired(required: false);
 
                     b.Property<string>("EbmsMessageId")
                         .HasMaxLength(256);
@@ -243,7 +248,8 @@ namespace Eu.EDelivery.AS4.Migrations
                         .HasMaxLength(25)
                         .HasAnnotation("PropertyAccessMode", PropertyAccessMode.Field);
 
-                    b.Property<int>("MaxRetryCount");
+                    b.Property<int>("MaxRetryCount")
+                     .IsRequired(required: false);
 
                     b.Property<string>("MessageLocation")
                         .HasMaxLength(512);
@@ -275,7 +281,9 @@ namespace Eu.EDelivery.AS4.Migrations
                         .HasMaxLength(50);
 
                     b.Property<string>("RetryInterval")
-                     .HasMaxLength(50);
+                     .HasMaxLength(50)
+                     .IsRequired(required: false)
+                     .HasAnnotation("PropertyAccessMode", PropertyAccessMode.Field);
 
                     b.Property<string>("ToParty")
                         .HasMaxLength(255);

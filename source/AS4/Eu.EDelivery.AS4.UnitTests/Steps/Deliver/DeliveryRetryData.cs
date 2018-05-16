@@ -26,7 +26,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
                 new RetryData(
                     currentRetryCount: 1,
                     maxRetryCount: 3,
-                    deliverResult: DeliverResult.Failure(anotherRetryIsNeeded: true),
+                    deliverResult: DeliverResult.Failure(eligeableForRetry: true),
                     uploadResult: UploadResult.Failure(needsAnotherRetry: true),
                     expectedCurrentRetryCount: 2,
                     expectedOperation: Operation.ToBeDelivered,
@@ -37,7 +37,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
                 new RetryData(
                     currentRetryCount: 1,
                     maxRetryCount: 3,
-                    deliverResult: DeliverResult.Failure(anotherRetryIsNeeded: false),
+                    deliverResult: DeliverResult.Failure(eligeableForRetry: false),
                     uploadResult: UploadResult.Failure(needsAnotherRetry: false),
                     expectedCurrentRetryCount: 1,
                     expectedOperation: Operation.DeadLettered,
@@ -48,7 +48,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
                 new RetryData(
                     currentRetryCount: 3,
                     maxRetryCount: 3,
-                    deliverResult: DeliverResult.Failure(anotherRetryIsNeeded: true),
+                    deliverResult: DeliverResult.Failure(eligeableForRetry: true),
                     uploadResult: UploadResult.Failure(needsAnotherRetry: true),
                     expectedCurrentRetryCount: 3,
                     expectedOperation: Operation.DeadLettered,
@@ -59,7 +59,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
                 new RetryData(
                     currentRetryCount: 3,
                     maxRetryCount: 3,
-                    deliverResult: DeliverResult.Failure(anotherRetryIsNeeded: false),
+                    deliverResult: DeliverResult.Failure(eligeableForRetry: false),
                     uploadResult: UploadResult.Failure(needsAnotherRetry: false),
                     expectedCurrentRetryCount: 3,
                     expectedOperation: Operation.DeadLettered,

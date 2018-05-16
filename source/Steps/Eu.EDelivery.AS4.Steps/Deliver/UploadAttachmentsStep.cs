@@ -31,18 +31,8 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         /// <summary>
         /// Initializes a new instance of the <see cref="UploadAttachmentsStep" /> class.
         /// </summary>
-        public UploadAttachmentsStep() : this(Registry.Instance.AttachmentUploader) { }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="UploadAttachmentsStep"/> class.
-        /// Create a <see cref="IStep"/> implementation
-        /// for uploading the AS4 Attachments to a configured location
-        /// </summary>
-        /// <param name="provider"></param>
-        public UploadAttachmentsStep(IAttachmentUploaderProvider provider)
-        {
-            _provider = provider;
-        }
+        public UploadAttachmentsStep() 
+            : this(Registry.Instance.AttachmentUploader, Registry.Instance.CreateDatastoreContext) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="UploadAttachmentsStep" /> class.
@@ -92,7 +82,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
                 }
             }
 
-            if (results.Any())
+            if (results.Any(r => r.Status == DeliveryStatus.Failure))
             {
                 await UpdateDeliverMessageAccordinglyToUploadResult(
                     messageId: as4Message.GetPrimaryMessageId(),

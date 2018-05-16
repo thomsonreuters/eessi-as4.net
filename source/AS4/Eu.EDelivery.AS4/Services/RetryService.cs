@@ -32,18 +32,15 @@ namespace Eu.EDelivery.AS4.Services
         /// <returns></returns>
         public void UpdateDeliverMessageAccordinglyToDeliverResult(string messageId, DeliverResult result)
         {
-            Logger.Info($"(Deliver)[{messageId}] Mark deliver message as 'Delivered'");
-            Logger.Debug($"(Deliver)[{messageId}] Update InMessage with Status and Operation set to 'Delivered'");
-
-
-            Logger.Info($"(Deliver)[{messageId}] Update InMessage with Delivered Status and Operation");
-
             _repository.UpdateInMessage(
                 messageId,
                 inMessage =>
                 {
                     if (result.Status == DeliveryStatus.Successful)
                     {
+                        Logger.Info($"(Deliver)[{messageId}] Mark deliver message as Delivered");
+                        Logger.Debug($"(Deliver)[{messageId}] Update InMessage with Status and Operation set to Delivered");
+
                         inMessage.SetStatus(InStatus.Delivered);
                         inMessage.SetOperation(Operation.Delivered);
                     }
@@ -54,11 +51,17 @@ namespace Eu.EDelivery.AS4.Services
 
                         if (current < max && result.EligeableForRetry)
                         {
+                            Logger.Info($"(Deliver)[{messageId}] DeliverMessage failed this time, will be retried");
+                            Logger.Debug($"(Deliver[{messageId}]) Update InMessage with CurrentRetryCount={current + 1}, Operation=ToBeDelivered");
+
                             inMessage.CurrentRetryCount = current + 1;
                             inMessage.SetOperation(Operation.ToBeDelivered);
                         }
                         else
                         {
+                            Logger.Info($"(Deliver)[{messageId}] DeliverMessage failed during the delivery, exhausted retries");
+                            Logger.Debug($"(Deliver)[{messageId}] Update InMessage with Status=Exception, Operation=DeadLettered");
+
                             inMessage.SetStatus(InStatus.Exception);
                             inMessage.SetOperation(Operation.DeadLettered);
                         }
