@@ -68,45 +68,4 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
         Successful,
         Failure
     }
-
-    public static class ActionExtensions
-    {
-        public static Action<TResult> Select<T, TResult>(this Action<T> f, Func<TResult, T> g)
-        {
-            return x => f(g(x));
-        }
-
-        public static Func<TResult> Select<T, TResult>(this Func<T> f, Func<T, TResult> g)
-        {
-            return () => g(f());
-        }
-
-        public static Func<TResult> SelectMany<T, TResult>(this Func<T> f, Func<T, Func<TResult>> g)
-        {
-            return g(f());
-        }
-
-        public static Action<TResult> SelectM
-
-        public static TResult Aggegrate<T, TResult>(this Func<T> f, TResult x, Func<TResult, Func<T>, TResult> g)
-        {
-            return g(x, f);
-        }
-    }
-
-    public class ActionWorkSpace
-    {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ActionWorkSpace"/> class.
-        /// </summary>
-        public ActionWorkSpace()
-        {
-            new Func<int>(() => 1)
-             .Select(i => i + 1)
-             .SelectMany<int, int>(i => () => i)
-             .Aggegrate(0, (i, f) => f());
-             
-
-        }
-    }
 }
