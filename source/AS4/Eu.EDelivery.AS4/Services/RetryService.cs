@@ -29,7 +29,7 @@ namespace Eu.EDelivery.AS4.Services
         /// </summary>
         /// <param name="messageId">The message identifier.</param>
         /// <param name="status">The upload status during the delivery of the payloads.</param>
-        public void UpdateDeliverMessageAccordinglyToUploadResult(string messageId, DeliveryStatus status)
+        public void UpdateDeliverMessageForUploadResult(string messageId, DeliveryStatus status)
         {
             UpdateDeliverMessage(
                 messageId,
@@ -46,7 +46,7 @@ namespace Eu.EDelivery.AS4.Services
         /// <param name="messageId">The message identifier.</param>
         /// <param name="status">The deliver status during the delivery of the deliver message.</param>
         /// <returns></returns>
-        public void UpdateDeliverMessageAccordinglyToDeliverResult(string messageId, DeliveryStatus status)
+        public void UpdateDeliverMessageForDeliverResult(string messageId, DeliveryStatus status)
         {
             UpdateDeliverMessage(
                 messageId,

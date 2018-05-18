@@ -142,7 +142,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
                 var repository = new DatastoreRepository(context);
                 var service = new RetryService(repository);
 
-                service.UpdateDeliverMessageAccordinglyToUploadResult(messageId, status);
+                service.UpdateDeliverMessageForUploadResult(messageId, status);
                 await context.SaveChangesAsync().ConfigureAwait(false);
             }
         }
