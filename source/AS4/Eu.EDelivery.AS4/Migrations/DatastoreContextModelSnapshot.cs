@@ -77,8 +77,7 @@ namespace Eu.EDelivery.AS4.Migrations
                         .HasMaxLength(50);
 
                     b.Property<int>("CurrentRetryCount")
-                     .HasDefaultValue(0)
-                     .HasDefaultValueSql("0");
+                     .HasDefaultValue(0);
 
                     b.Property<string>("EbmsMessageId")
                         .HasMaxLength(256);
@@ -107,8 +106,7 @@ namespace Eu.EDelivery.AS4.Migrations
                         .HasAnnotation("PropertyAccessMode", PropertyAccessMode.Field);
 
                     b.Property<int>("MaxRetryCount")
-                     .HasDefaultValue(0)
-                     .HasDefaultValueSql("0");
+                     .HasDefaultValue(0);
 
                     b.Property<string>("MessageLocation")
                         .HasMaxLength(512);
@@ -223,8 +221,7 @@ namespace Eu.EDelivery.AS4.Migrations
                         .HasMaxLength(50);
 
                     b.Property<int>("CurrentRetryCount")
-                     .HasDefaultValue(0)
-                     .HasDefaultValueSql("0");
+                     .HasDefaultValue(0);
 
                     b.Property<string>("EbmsMessageId")
                         .HasMaxLength(256);
@@ -253,8 +250,7 @@ namespace Eu.EDelivery.AS4.Migrations
                         .HasAnnotation("PropertyAccessMode", PropertyAccessMode.Field);
 
                     b.Property<int>("MaxRetryCount")
-                     .HasDefaultValue(0)
-                     .HasDefaultValueSql("0");
+                     .HasDefaultValue(0);
 
                     b.Property<string>("MessageLocation")
                         .HasMaxLength(512);
