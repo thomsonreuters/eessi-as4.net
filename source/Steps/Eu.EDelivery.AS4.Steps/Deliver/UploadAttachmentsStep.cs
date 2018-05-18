@@ -82,14 +82,10 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
                 }
             }
 
-            if (results.Any(r => r.Status != DeliveryStatus.Success))
-            {
-                await UpdateDeliverMessageAccordinglyToUploadResult(
-                    messageId: as4Message.GetPrimaryMessageId(),
-                    result: results
-                            .Select(UploadResult.ToDeliverResult)
-                            .Aggregate(DeliverResult.Reduce));
-            }
+            await UpdateDeliverMessageAccordinglyToUploadResult(
+                messageId: as4Message.GetPrimaryMessageId(),
+                status: results.Select(r => r.Status)
+                               .Aggregate(DeliveryStatusEx.Reduce));
 
             return await StepResult.SuccessAsync(messagingContext);
         }
@@ -139,14 +135,14 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
             }
         }
 
-        private async Task UpdateDeliverMessageAccordinglyToUploadResult(string messageId, DeliverResult result)
+        private async Task UpdateDeliverMessageAccordinglyToUploadResult(string messageId, DeliveryStatus status)
         {
             using (DatastoreContext context = _createDbContext())
             {
                 var repository = new DatastoreRepository(context);
                 var service = new RetryService(repository);
 
-                service.UpdateDeliverMessageAccordinglyToDeliverResult(messageId, result);
+                service.UpdateDeliverMessageAccordinglyToUploadResult(messageId, status);
                 await context.SaveChangesAsync().ConfigureAwait(false);
             }
         }

@@ -45,30 +45,6 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
         {
             return other?.Status.Equals(Status) ?? false;
         }
-
-        /// <summary>
-        /// Reduces the two specified <see cref="DeliverResult"/>'s.
-        /// </summary>
-        /// <param name="x">The x.</param>
-        /// <param name="y">The y.</param>
-        /// <returns></returns>
-        public static DeliverResult Reduce(DeliverResult x, DeliverResult y)
-        {
-            bool bothScuccess =
-                x.Status == DeliveryStatus.Success
-                && y.Status == DeliveryStatus.Success;
-
-            bool bothRetryable =
-                x.Status == DeliveryStatus.RetryableFail
-                && x.Status == DeliveryStatus.RetryableFail;
-
-            return new DeliverResult(
-                bothScuccess
-                    ? DeliveryStatus.Success
-                    : bothRetryable
-                        ? DeliveryStatus.RetryableFail
-                        : DeliveryStatus.Fail);
-        }
     }
 
     public enum DeliveryStatus
@@ -76,5 +52,24 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
         Success,
         RetryableFail,
         Fail
+    }
+
+    public static class DeliveryStatusEx
+    {
+        public static DeliveryStatus Reduce(DeliveryStatus x, DeliveryStatus y)
+        {
+            bool bothScuccess =
+                x == DeliveryStatus.Success
+                && y == DeliveryStatus.Success;
+
+            if (bothScuccess)
+            {
+                return DeliveryStatus.Success;
+            }
+
+            return x == DeliveryStatus.Fail || y == DeliveryStatus.Fail
+                ? DeliveryStatus.Fail
+                : DeliveryStatus.RetryableFail;
+        }
     }
 }
