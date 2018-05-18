@@ -1,19 +1,16 @@
 ﻿using System;
-using System.Linq;
 
 namespace Eu.EDelivery.AS4.Strategies.Sender
 {
-    public class DeliverResult
+    public class DeliverResult : IEquatable<DeliverResult>
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="DeliverResult"/> class.
         /// </summary>
         /// <param name="status">The status.</param>
-        /// <param name="eligeableForRetry">if set to <c>true</c> [needs another retry].</param>
-        public DeliverResult(DeliveryStatus status, bool eligeableForRetry)
+        private DeliverResult(DeliveryStatus status)
         {
             Status = status;
-            EligeableForRetry = eligeableForRetry;
         }
 
         /// <summary>
@@ -23,18 +20,31 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
         public DeliveryStatus Status { get; }
 
         /// <summary>
-        /// Gets a value indicating whether [another retry is needed].
-        /// </summary>
-        /// <value>
-        ///   <c>true</c> if [another retry is needed]; otherwise, <c>false</c>.
-        /// </value>
-        public bool EligeableForRetry { get; }
-
-        /// <summary>
         /// Creates a successful representation of the <see cref="DeliverResult"/>.
         /// </summary>
         /// <returns></returns>
-        public static DeliverResult Success { get; } = new DeliverResult(DeliveryStatus.Successful, eligeableForRetry: false);
+        public static DeliverResult Success { get; } = new DeliverResult(DeliveryStatus.Success);
+
+        /// <summary>
+        /// Creates a failure representation of the <see cref="DeliverResult"/> with a flag indicating that the delivery can be retried.
+        /// </summary>
+        public static DeliverResult RetryableFail { get; } = new DeliverResult(DeliveryStatus.RetryableFail);
+
+
+        /// <summary>
+        /// Creates a failure representation of the <see cref="DeliverResult"/> with a flag indicating that the delivery cannot be retried.
+        /// </summary>
+        public static DeliverResult FatalFail { get; } = new DeliverResult(DeliveryStatus.Fail);
+
+        /// <summary>
+        /// Indicates whether the current object is equal to another object of the same type.
+        /// </summary>
+        /// <param name="other">An object to compare with this object.</param>
+        /// <returns>true if the current object is equal to the <paramref name="other" /> parameter; otherwise, false.</returns>
+        public bool Equals(DeliverResult other)
+        {
+            return other?.Status.Equals(Status) ?? false;
+        }
 
         /// <summary>
         /// Reduces the two specified <see cref="DeliverResult"/>'s.
@@ -44,28 +54,27 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
         /// <returns></returns>
         public static DeliverResult Reduce(DeliverResult x, DeliverResult y)
         {
-            return new DeliverResult(
-                x.Status == DeliveryStatus.Successful 
-                && y.Status == DeliveryStatus.Successful 
-                    ? DeliveryStatus.Successful
-                    : DeliveryStatus.Failure,
-                x.EligeableForRetry || y.EligeableForRetry);
-        }
+            bool bothScuccess =
+                x.Status == DeliveryStatus.Success
+                && y.Status == DeliveryStatus.Success;
 
-        /// <summary>
-        /// Creates as failure representation of the <see cref="DeliverResult"/>.
-        /// </summary>
-        /// <param name="eligeableForRetry">if set to <c>true</c> [another retry is needed].</param>
-        /// <returns></returns>
-        public static DeliverResult Failure(bool eligeableForRetry)
-        {
-            return new DeliverResult(DeliveryStatus.Failure, eligeableForRetry);
+            bool bothRetryable =
+                x.Status == DeliveryStatus.RetryableFail
+                && x.Status == DeliveryStatus.RetryableFail;
+
+            return new DeliverResult(
+                bothScuccess
+                    ? DeliveryStatus.Success
+                    : bothRetryable
+                        ? DeliveryStatus.RetryableFail
+                        : DeliveryStatus.Fail);
         }
     }
 
     public enum DeliveryStatus
     {
-        Successful,
-        Failure
+        Success,
+        RetryableFail,
+        Fail
     }
 }

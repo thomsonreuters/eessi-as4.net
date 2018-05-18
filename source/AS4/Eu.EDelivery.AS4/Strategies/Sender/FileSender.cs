@@ -40,7 +40,7 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
         public async Task<DeliverResult> SendAsync(DeliverMessageEnvelope deliverMessage)
         {
             DeliverResult directoryResult = EnsureDirectory(Location);
-            if (directoryResult.Status == DeliveryStatus.Failure)
+            if (directoryResult.Status == DeliveryStatus.Fail)
             {
                 return directoryResult;
             }
@@ -51,7 +51,7 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
             return await WriteContentsToFile(location, deliverMessage.DeliverMessage)
                 .ContinueWith(t =>
                 {
-                    if (t.Result.Status == DeliveryStatus.Successful)
+                    if (t.Result.Status == DeliveryStatus.Success)
                     {
                         Logger.Info(
                             $"(Deliver) DeliverMessage {deliverMessage.MessageInfo.MessageId} " +
@@ -101,7 +101,7 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
             catch (Exception ex)
             {
                 Logger.Error(ex);
-                return DeliverResult.Failure(eligeableForRetry: false);
+                return DeliverResult.FatalFail;
             }
         }
 
@@ -124,15 +124,17 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
                 bool containsAnyUnauthorizedExceptions =
                     ex.Flatten().InnerExceptions.Any(e => e is UnauthorizedAccessException);
 
-                return Task.FromResult(DeliverResult.Failure(
-                    eligeableForRetry: !containsAnyUnauthorizedExceptions));
+                return Task.FromResult(
+                    containsAnyUnauthorizedExceptions
+                        ? DeliverResult.FatalFail
+                        : DeliverResult.RetryableFail);
             }
             catch (Exception ex)
             {
                 Logger.Error(ex);
 
                 return Task.FromResult(
-                    DeliverResult.Failure(eligeableForRetry: true));
+                    DeliverResult.RetryableFail);
             }
         }
     }

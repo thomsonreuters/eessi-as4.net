@@ -9,6 +9,7 @@ using Eu.EDelivery.AS4.ComponentTests.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
+using Eu.EDelivery.AS4.TestUtils;
 using FsCheck;
 using FsCheck.Xunit;
 using Microsoft.EntityFrameworkCore;
@@ -20,15 +21,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
     public class CleanUpAgentFacts : ComponentTestTemplate
     {
-        private readonly DateTimeOffset _overdueTime;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="CleanUpAgentFacts" /> class.
-        /// </summary>
-        public CleanUpAgentFacts()
-        {
-            _overdueTime = DateTimeOffset.UtcNow.AddDays(-2);
-        }
+        private static readonly DateTimeOffset DayBeforeYesterday = DateTimeOffset.UtcNow.AddDays(-2);
 
         [Property(MaxTest = 5)]
         public Property Only_Awnsered_UserMessages_Are_Deleted()
@@ -43,7 +36,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
                     string id = GenId();
                     OutMessage m = CreateOutMessage(
-                        id, insertionTime: _overdueTime, type: MessageType.UserMessage);
+                        id, insertionTime: DayBeforeYesterday, type: MessageType.UserMessage);
                     m.SetStatus(status);
 
                     IConfig config = EnsureLocalConfigPointsToCreatedDatastore();
@@ -72,7 +65,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                     OverrideWithSpecificSettings(specificSettings);
 
                     string id = GenId();
-                    InMessage m = CreateInMessage(id, insertionTime: _overdueTime);
+                    InMessage m = CreateInMessage(id, insertionTime: DayBeforeYesterday);
                     m.SetOperation(operation);
 
                     IConfig config = EnsureLocalConfigPointsToCreatedDatastore();
@@ -156,12 +149,12 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                    inExceptionId = GenId();
             
             var spy = new DatabaseSpy(config);
-            spy.InsertOutMessage(CreateOutMessage(outReferenceId, insertionTime: _overdueTime, type: MessageType.Error));
+            spy.InsertOutMessage(CreateOutMessage(outReferenceId, insertionTime: DayBeforeYesterday, type: MessageType.Error));
             InsertReferencedReceptionAwareness(config, outReferenceId);
-            spy.InsertOutMessage(CreateOutMessage(outStandaloneId, insertionTime: _overdueTime, type: MessageType.Receipt));
-            spy.InsertInMessage(CreateInMessage(inMessageId, _overdueTime));
-            spy.InsertOutException(CreateOutException(outExceptionId, _overdueTime));
-            spy.InsertInException(CreateInException(inExceptionId, _overdueTime));
+            spy.InsertOutMessage(CreateOutMessage(outStandaloneId, insertionTime: DayBeforeYesterday, type: MessageType.Receipt));
+            spy.InsertInMessage(CreateInMessage(inMessageId, DayBeforeYesterday));
+            spy.InsertOutException(CreateOutException(outExceptionId, DayBeforeYesterday));
+            spy.InsertInException(CreateInException(inExceptionId, DayBeforeYesterday));
 
             // Act: AS4.NET Component will start the Clean Up Agent.
             ExerciseStartCleaning();
@@ -235,7 +228,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             {
                 MessageLocation = 
                     Registry.Instance.MessageBodyStore.SaveAS4Message(
-                        Config.Instance.InMessageStoreLocation, 
+                        @"file:///.\database\as4messages\in", 
                         AS4Message.Empty),
                 InsertionTime = insertionTime
             };
@@ -249,7 +242,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             return new InMessage(ebmsMessageId)
             {
                 MessageLocation = Registry.Instance.MessageBodyStore.SaveAS4Message(
-                    Config.Instance.InMessageStoreLocation,
+                    @"file:///.\database\as4messages\in",
                     AS4Message.Empty),
                 InsertionTime = insertionTime
             };

@@ -77,7 +77,8 @@ namespace Eu.EDelivery.AS4.Migrations
                         .HasMaxLength(50);
 
                     b.Property<int>("CurrentRetryCount")
-                     .IsRequired(required: false);
+                     .HasDefaultValue(0)
+                     .HasDefaultValueSql("0");
 
                     b.Property<string>("EbmsMessageId")
                         .HasMaxLength(256);
@@ -106,7 +107,8 @@ namespace Eu.EDelivery.AS4.Migrations
                         .HasAnnotation("PropertyAccessMode", PropertyAccessMode.Field);
 
                     b.Property<int>("MaxRetryCount")
-                     .IsRequired(required: false);
+                     .HasDefaultValue(0)
+                     .HasDefaultValueSql("0");
 
                     b.Property<string>("MessageLocation")
                         .HasMaxLength(512);
@@ -139,7 +141,8 @@ namespace Eu.EDelivery.AS4.Migrations
 
                     b.Property<string>("RetryInterval")
                      .HasMaxLength(50)
-                     .IsRequired(required: false)
+                     .HasDefaultValue("00:00:00")
+                     .HasDefaultValueSql("00:00:00")
                      .HasAnnotation("PropertyAccessMode", PropertyAccessMode.Field);
 
                     b.Property<string>("ToParty")
@@ -220,7 +223,8 @@ namespace Eu.EDelivery.AS4.Migrations
                         .HasMaxLength(50);
 
                     b.Property<int>("CurrentRetryCount")
-                     .IsRequired(required: false);
+                     .HasDefaultValue(0)
+                     .HasDefaultValueSql("0");
 
                     b.Property<string>("EbmsMessageId")
                         .HasMaxLength(256);
@@ -249,7 +253,8 @@ namespace Eu.EDelivery.AS4.Migrations
                         .HasAnnotation("PropertyAccessMode", PropertyAccessMode.Field);
 
                     b.Property<int>("MaxRetryCount")
-                     .IsRequired(required: false);
+                     .HasDefaultValue(0)
+                     .HasDefaultValueSql("0");
 
                     b.Property<string>("MessageLocation")
                         .HasMaxLength(512);
@@ -282,7 +287,8 @@ namespace Eu.EDelivery.AS4.Migrations
 
                     b.Property<string>("RetryInterval")
                      .HasMaxLength(50)
-                     .IsRequired(required: false)
+                     .HasDefaultValue("00:00:00")
+                     .HasDefaultValueSql("00:00:00")
                      .HasAnnotation("PropertyAccessMode", PropertyAccessMode.Field);
 
                     b.Property<string>("ToParty")

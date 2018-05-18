@@ -40,8 +40,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
         }
 
         [Theory]
-        [ClassData(typeof(DeliveryRetryData))]
-        public async Task Retries_Uploading_When_Uploader_Returns_NeedsToBeRetried_Result(RetryData input)
+        [ClassData(typeof(UploadRetryData))]
+        public async Task Retries_Uploading_When_Uploader_Returns_RetryableFail_Result(UploadRetry input)
         {
             // Arrange
             string id = "deliver-" + Guid.NewGuid();
@@ -67,19 +67,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
                 Assert.NotNull(actual);
 
                 Assert.Equal(input.ExpectedCurrentRetryCount, actual.CurrentRetryCount);
-                Assert.True(
-                    (input.ExpectedStatus == InStatusUtils.Parse(actual.Status))
-                    == (input.UploadResult.Status == DeliveryStatus.Failure));
-
-                Assert.True(
-                    (input.ExpectedOperation == OperationUtils.Parse(actual.Operation))
-                    == (input.UploadResult.Status == DeliveryStatus.Failure));
+                Assert.Equal(input.ExpectedStatus, InStatusUtils.Parse(actual.Status));
+                Assert.Equal(input.ExpectedOperation, OperationUtils.Parse(actual.Operation));
             });
         }
 
         [Theory]
-        [ClassData(typeof(DeliveryRetryData))]
-        public async Task All_Attachments_Should_Succeed_Or_Fail(RetryData input)
+        [ClassData(typeof(UploadRetryData))]
+        public async Task All_Attachments_Should_Succeed_Or_Fail(UploadRetry input)
         {
             // Arrange
             string id = "deliver-" + Guid.NewGuid();
@@ -96,7 +91,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
             stub.Setup(s => s.UploadAsync(a1, userMessage))
                 .ReturnsAsync(input.UploadResult);
             stub.Setup(s => s.UploadAsync(a2, userMessage))
-                .ReturnsAsync(UploadResult.Failure(input.UploadResult.EligeableForRetry));
+                .ReturnsAsync(
+                    input.UploadResult.Status == DeliveryStatus.Success
+                        ? UploadResult.FatalFail
+                        : UploadResult.RetryableFail);
 
             // Act
             await CreateUploadStep(stub.Object)
@@ -116,18 +114,20 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
 
                 bool operationToBeDelivered = Operation.ToBeDelivered == op;
                 bool uploadResultCanBeRetried =
-                    input.UploadResult.EligeableForRetry && input.CurrentRetryCount < input.MaxRetryCount;
+                    input.UploadResult.Status == DeliveryStatus.RetryableFail 
+                    && input.CurrentRetryCount < input.MaxRetryCount;
 
                 Assert.True(
                     operationToBeDelivered == uploadResultCanBeRetried,
                     "InMessage should update Operation=ToBeDelivered");
 
                 bool messageSetToException = Operation.DeadLettered == op && InStatus.Exception == st;
-                bool exhaustRetries = 
-                    input.CurrentRetryCount == input.MaxRetryCount || !input.UploadResult.EligeableForRetry;
+                bool exhaustRetries =
+                    input.CurrentRetryCount == input.MaxRetryCount
+                    || input.UploadResult.Status != DeliveryStatus.RetryableFail;
                 Assert.True(
                     messageSetToException == exhaustRetries,
-                    "InMessage should update Operation=DeadLettered, Status=Exception");
+                    $"{messageSetToException} != {exhaustRetries} InMessage should update Operation=DeadLettered, Status=Exception");
             });
         }
 

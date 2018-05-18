@@ -36,7 +36,7 @@ namespace Eu.EDelivery.AS4.Services
                 messageId,
                 inMessage =>
                 {
-                    if (result.Status == DeliveryStatus.Successful)
+                    if (result.Status == DeliveryStatus.Success)
                     {
                         Logger.Info($"(Deliver)[{messageId}] Mark deliver message as Delivered");
                         Logger.Debug($"(Deliver)[{messageId}] Update InMessage with Status and Operation set to Delivered");
@@ -49,7 +49,7 @@ namespace Eu.EDelivery.AS4.Services
                         (int current, int max) = _repository
                             .GetInMessageData(messageId, m => Tuple.Create(m.CurrentRetryCount, m.MaxRetryCount));
 
-                        if (current < max && result.EligeableForRetry)
+                        if (current < max && result.Status == DeliveryStatus.RetryableFail)
                         {
                             Logger.Info($"(Deliver)[{messageId}] DeliverMessage failed this time, will be retried");
                             Logger.Debug($"(Deliver[{messageId}]) Update InMessage with CurrentRetryCount={current + 1}, Operation=ToBeDelivered");

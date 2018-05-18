@@ -9,34 +9,34 @@ namespace Eu.EDelivery.AS4.Migrations
             migrationBuilder.AddColumn<int>(
                 name: "CurrentRetryCount",
                 table: "OutMessages",
-                nullable: true);
+                defaultValue: 0);
 
             migrationBuilder.AddColumn<int>(
                 name: "MaxRetryCount",
                 table: "OutMessages",
-                nullable: true);
+                defaultValue: 0);
 
             migrationBuilder.AddColumn<string>(
                 name: "RetryInterval",
                 table: "OutMessages",
                 maxLength: 50,
-                nullable: true);
+                defaultValue: 0);
 
             migrationBuilder.AddColumn<int>(
                 name: "CurrentRetryCount",
                 table: "InMessages",
-                nullable: true);
+                defaultValue: 0);
 
             migrationBuilder.AddColumn<int>(
                 name: "MaxRetryCount",
                 table: "InMessages",
-                nullable: true);
+                defaultValue: 0);
 
             migrationBuilder.AddColumn<string>(
                 name: "RetryInterval",
                 table: "InMessages",
                 maxLength: 50,
-                nullable: true);
+                defaultValue: 0);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

@@ -49,7 +49,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Strategies.Uploader
 
         private static UploadResult CreateAnonymousUploadResult()
         {
-            return UploadResult.Success(payloadId:"ignored payload id", downloadUrl: "ignored download url");
+            return UploadResult.SuccessWithIdAndUrl(payloadId:"ignored payload id", downloadUrl: "ignored download url");
         }
 
         private static Attachment CreateAnonymousAttachment()
