@@ -101,6 +101,23 @@ namespace Eu.EDelivery.AS4.UnitTests.Repositories
         }
 
         /// <summary>
+        /// Asserts the in message with reference to message identifier.
+        /// </summary>
+        /// <param name="createContext">The create context.</param>
+        /// <param name="refToMessageId">The reference to message identifier.</param>
+        /// <param name="assertion">The assertion.</param>
+        public static void AssertInMessageWithRefToMessageId(
+            this Func<DatastoreContext> createContext, 
+            string refToMessageId, 
+            Action<InMessage> assertion)
+        {
+            Func<DatastoreContext, InMessage> selection =
+                c => c.InMessages.FirstOrDefault(m => m.EbmsRefToMessageId.Equals(refToMessageId));
+
+            assertion(RetrieveEntity(createContext, selection));
+        }
+
+        /// <summary>
         /// Asserts the out message.
         /// </summary>
         /// <param name="createContext">The create context.</param>

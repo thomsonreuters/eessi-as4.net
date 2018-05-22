@@ -122,7 +122,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
                     RetryReliability r = getReliability(pmode);
                     r.IsEnabled = isEnabled;
                     r.RetryCount = retryCount;
-                    r.RetryInterval = retryIntervalText;
+                    r.RetryIntervalString = retryIntervalText;
 
                     // Act
                     ValidationResult result = ExerciseValidation(pmode);
@@ -131,7 +131,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
                     bool correctConfigured =
                         retryCount != default(int)
                         && TimeSpan.TryParse(retryIntervalText, out TimeSpan _)
-                        && r.RetryInterval != default(TimeSpan).ToString();
+                        && r.RetryIntervalString != default(TimeSpan).ToString();
 
                     bool expected =
                         !isEnabled && !correctConfigured
