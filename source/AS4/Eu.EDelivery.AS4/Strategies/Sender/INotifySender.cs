@@ -13,7 +13,7 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
         /// Start sending the <see cref="NotifyMessage"/>
         /// </summary>
         /// <param name="notifyMessage"></param>
-        Task SendAsync(NotifyMessageEnvelope notifyMessage);
+        Task<SendResult> SendAsync(NotifyMessageEnvelope notifyMessage);
 
         /// <summary>
         /// Configure the <see cref="INotifySender"/>

@@ -73,7 +73,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
                 foreach (Attachment att in as4Message.Attachments.Where(a => a.MatchesAny(um.PayloadInfo)))
                 {
                     UploadResult result = await TryUploadAttachmentAsync(att, um, uploader).ConfigureAwait(false);
-                    if (result.Status == DeliveryStatus.Success)
+                    if (result.Status == SendStatus.Success)
                     {
                         Logger.Info($"{messagingContext.LogTag} Attachment '{att.Id}' is delivered at: {att.Location}");
                     }
@@ -85,7 +85,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
             await UpdateDeliverMessageAccordinglyToUploadResult(
                 messageId: as4Message.GetPrimaryMessageId(),
                 status: results.Select(r => r.Status)
-                               .Aggregate(DeliveryStatusEx.Reduce));
+                               .Aggregate(SendStatusEx.Reduce));
 
             return await StepResult.SuccessAsync(messagingContext);
         }
@@ -135,7 +135,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
             }
         }
 
-        private async Task UpdateDeliverMessageAccordinglyToUploadResult(string messageId, DeliveryStatus status)
+        private async Task UpdateDeliverMessageAccordinglyToUploadResult(string messageId, SendStatus status)
         {
             using (DatastoreContext context = _createDbContext())
             {

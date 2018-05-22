@@ -7,7 +7,7 @@ using NLog;
 namespace Eu.EDelivery.AS4.Services
 {
     /// <summary>
-    /// Service abstraction to set the referenced deliver message to the right Status/Operation accordingly to the <see cref="DeliverResult"/>.
+    /// Service abstraction to set the referenced deliver message to the right Status/Operation accordingly to the <see cref="SendResult"/>.
     /// </summary>
     public class RetryService
     {
@@ -29,7 +29,7 @@ namespace Eu.EDelivery.AS4.Services
         /// </summary>
         /// <param name="messageId">The message identifier.</param>
         /// <param name="status">The upload status during the delivery of the payloads.</param>
-        public void UpdateDeliverMessageForUploadResult(string messageId, DeliveryStatus status)
+        public void UpdateDeliverMessageForUploadResult(string messageId, SendStatus status)
         {
             UpdateDeliverMessage(
                 messageId,
@@ -41,12 +41,12 @@ namespace Eu.EDelivery.AS4.Services
         }
 
         /// <summary>
-        /// Updates the message Status/Operation accordingly to <see cref="DeliverResult"/>.
+        /// Updates the message Status/Operation accordingly to <see cref="SendResult"/>.
         /// </summary>
         /// <param name="messageId">The message identifier.</param>
         /// <param name="status">The deliver status during the delivery of the deliver message.</param>
         /// <returns></returns>
-        public void UpdateDeliverMessageForDeliverResult(string messageId, DeliveryStatus status)
+        public void UpdateDeliverMessageForDeliverResult(string messageId, SendStatus status)
         {
             UpdateDeliverMessage(
                 messageId,
@@ -61,13 +61,13 @@ namespace Eu.EDelivery.AS4.Services
                 });
         }
 
-        private void UpdateDeliverMessage(string messageId, DeliveryStatus status, Action<InMessage> onSuccess)
+        private void UpdateDeliverMessage(string messageId, SendStatus status, Action<InMessage> onSuccess)
         {
             _repository.UpdateInMessage(
                 messageId,
                 inMessage =>
                 {
-                    if (status == DeliveryStatus.Success)
+                    if (status == SendStatus.Success)
                     {
                         onSuccess(inMessage);
                     }
@@ -76,7 +76,7 @@ namespace Eu.EDelivery.AS4.Services
                         (int current, int max) = _repository
                             .GetInMessageData(messageId, m => Tuple.Create(m.CurrentRetryCount, m.MaxRetryCount));
 
-                        if (current < max && status == DeliveryStatus.RetryableFail)
+                        if (current < max && status == SendStatus.RetryableFail)
                         {
                             Logger.Info($"(Deliver)[{messageId}] DeliverMessage failed this time, will be retried");
                             Logger.Debug($"(Deliver[{messageId}]) Update InMessage with CurrentRetryCount={current + 1}, Operation=ToBeDelivered");

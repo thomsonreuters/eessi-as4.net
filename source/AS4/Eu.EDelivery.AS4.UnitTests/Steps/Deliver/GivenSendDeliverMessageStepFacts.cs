@@ -41,7 +41,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
 
             var spySender = new Mock<IDeliverSender>();
             spySender.Setup(s => s.SendAsync(envelope))
-                     .ReturnsAsync(DeliverResult.Success);
+                     .ReturnsAsync(SendResult.Success);
 
             IStep sut = CreateSendDeliverStepWithSender(spySender.Object);
 
@@ -107,7 +107,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
 
             var stub = new Mock<IDeliverSender>();
             stub.Setup(s => s.SendAsync(envelope))
-                .ReturnsAsync(input.DeliverResult);
+                .ReturnsAsync(input.SendResult);
 
             IStep sut = CreateSendDeliverStepWithSender(stub.Object);
 

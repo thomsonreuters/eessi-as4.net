@@ -19,7 +19,7 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
         private UploadResult(
             string payloadId,
             string downloadUrl,
-            DeliveryStatus status)
+            SendStatus status)
         {
             PayloadId = payloadId;
             DownloadUrl = downloadUrl;
@@ -37,10 +37,10 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
         public string DownloadUrl { get; }
 
         /// <summary>
-        /// Gets the status indicating whether the <see cref="DeliverResult"/> is successful or not.
+        /// Gets the status indicating whether the <see cref="SendResult"/> is successful or not.
         /// </summary>
         /// <value>The status.</value>
-        public DeliveryStatus Status { get; }
+        public SendStatus Status { get; }
 
         /// <summary>
         /// Creates a successful <see cref="UploadResult"/> with the uploaded response information.
@@ -52,7 +52,7 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
             return new UploadResult(
                 payloadId,
                 downloadUrl: null,
-                status: DeliveryStatus.Success);
+                status: SendStatus.Success);
         }
 
         /// <summary>
@@ -66,7 +66,7 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
             return new UploadResult(
                 payloadId,
                 downloadUrl,
-                status: DeliveryStatus.Success);
+                status: SendStatus.Success);
         }
 
         /// <summary>
@@ -79,7 +79,7 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
             return new UploadResult(
                 payloadId: null,
                 downloadUrl: downloadUrl,
-                status: DeliveryStatus.Success);
+                status: SendStatus.Success);
         }
 
         /// <summary>
@@ -90,7 +90,7 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
             new UploadResult(
                 payloadId: null,
                 downloadUrl: null,
-                status: DeliveryStatus.RetryableFail);
+                status: SendStatus.RetryableFail);
 
         /// <summary>
         /// Creates a failure <see cref="UploadResult"/> with a flag indicating that the upload operation cannot be retried.
@@ -100,7 +100,7 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
             new UploadResult(
                 payloadId: null,
                 downloadUrl: null,
-                status: DeliveryStatus.Fail);
+                status: SendStatus.Fail);
 
         /// <summary>
         /// Indicates whether the current object is equal to another object of the same type.
@@ -119,13 +119,13 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
         /// </summary>
         /// <param name="r">The result during uploading.</param>
         /// <returns></returns>
-        public static DeliverResult ToDeliverResult(UploadResult r)
+        public static SendResult ToDeliverResult(UploadResult r)
         {
-            return r.Status == DeliveryStatus.Success
-                ? DeliverResult.Success
-                : r.Status == DeliveryStatus.RetryableFail
-                    ? DeliverResult.RetryableFail
-                    : DeliverResult.FatalFail;
+            return r.Status == SendStatus.Success
+                ? SendResult.Success
+                : r.Status == SendStatus.RetryableFail
+                    ? SendResult.RetryableFail
+                    : SendResult.FatalFail;
         }
     }
 }
