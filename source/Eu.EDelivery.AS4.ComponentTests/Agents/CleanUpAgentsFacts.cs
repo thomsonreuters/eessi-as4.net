@@ -9,7 +9,6 @@ using Eu.EDelivery.AS4.ComponentTests.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
-using Eu.EDelivery.AS4.TestUtils;
 using FsCheck;
 using FsCheck.Xunit;
 using Microsoft.EntityFrameworkCore;
@@ -21,7 +20,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
     public class CleanUpAgentFacts : ComponentTestTemplate
     {
-        private static readonly DateTimeOffset DayBeforeYesterday = DateTimeOffset.UtcNow.AddDays(-2);
+        private static readonly DateTimeOffset DayBeforeYesterday = DateTimeOffset.Now.AddDays(-2);
 
         [Property(MaxTest = 5)]
         public Property Only_Awnsered_UserMessages_Are_Deleted()
@@ -111,7 +110,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
                     IConfig config = EnsureLocalConfigPointsToCreatedDatastore();
                     var spy = new DatabaseSpy(config);
-                    var insertionTime = DateTimeOffset.UtcNow.Add(TimeSpan.FromDays(-insertionDays));
+                    var insertionTime = DateTimeOffset.Now.Add(TimeSpan.FromDays(-insertionDays));
                     spy.InsertOutException(CreateOutException(id, insertionTime));
 
                     // Act
@@ -228,7 +227,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             {
                 MessageLocation = 
                     Registry.Instance.MessageBodyStore.SaveAS4Message(
-                        @"file:///.\database\as4messages\in", 
+                        @"file:///.\database\as4messages\out",
                         AS4Message.Empty),
                 InsertionTime = insertionTime
             };

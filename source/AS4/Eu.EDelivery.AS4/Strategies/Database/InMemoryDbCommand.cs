@@ -86,7 +86,7 @@ namespace Eu.EDelivery.AS4.Strategies.Database
         {
             IQueryable<Entity> entities =
                 DatastoreTable.FromTableName(tableName)(_context)
-                              .Where(x => x.InsertionTime < DateTimeOffset.UtcNow.Subtract(retentionPeriod)
+                              .Where(x => x.InsertionTime < DateTimeOffset.Now.Subtract(retentionPeriod)
                                           && allowedOperations.Contains(
                                               OperationUtils.Parse(
                                                   GetOperationString[tableName](x) ??
