@@ -17,6 +17,7 @@ namespace Eu.EDelivery.AS4.Validators
             RuleFor(pmode => pmode.Id).NotNull();
 
             RulesForReplyHandling();
+            RulesForExceptionHandling();
             RulesForMessageHandling();
             RulesForDeliver();
             RulesForForwarding();
@@ -50,6 +51,21 @@ namespace Eu.EDelivery.AS4.Validators
                         .NotNull()
                         .WithMessage("An ErrorHandling element must be defined in the ReplyHandling section.");
                 });
+        }
+
+        private void RulesForExceptionHandling()
+        {
+            Func<ReceivingProcessingMode, bool> isReliabilityEnabled =
+                pmode => pmode.ExceptionHandling?.Reliability?.IsEnabled == true;
+
+            RuleFor(pmode => pmode.ExceptionHandling.Reliability.RetryCount)
+                .NotEqual(default(int))
+                .When(isReliabilityEnabled);
+
+            RuleFor(pmode => pmode.ExceptionHandling.Reliability.RetryInterval)
+                .Must(interval => TimeSpan.TryParse(interval, out TimeSpan _))
+                .NotEqual(default(TimeSpan).ToString())
+                .When(isReliabilityEnabled);
         }
 
         private void RulesForMessageHandling()

@@ -83,34 +83,62 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
             int retryCount,
             TimeSpan retryInterval)
         {
+            return TestRelialityForEnabledFlag(
+                isEnabled,
+                retryCount,
+                retryInterval,
+                pmode => pmode.MessageHandling.DeliverInformation.Reliability);
+        }
+
+        [Property]
+        public Property ExceptionReliability_Is_Required_On_IsEnabled_Flag(
+            bool isEnabled,
+            int retryCount,
+            TimeSpan retryInterval)
+        {
+            return TestRelialityForEnabledFlag(
+                isEnabled,
+                retryCount,
+                retryInterval,
+                p => p.ExceptionHandling.Reliability);
+        }
+
+        private static Property TestRelialityForEnabledFlag(
+            bool isEnabled, 
+            int retryCount, 
+            TimeSpan retryInterval,
+            Func<ReceivingProcessingMode, RetryReliability> getReliability)
+        {
             return Prop.ForAll(
                 Gen.Frequency(
-                    Tuple.Create(2, Gen.Constant(retryInterval.ToString())),
-                    Tuple.Create(1, Arb.From<string>().Generator))
+                       Tuple.Create(2, Gen.Constant(retryInterval.ToString())),
+                       Tuple.Create(1, Arb.From<string>().Generator))
                    .ToArbitrary(),
                 retryIntervalText =>
                 {
+                    // Arrange
+                    ReceivingProcessingMode pmode = CreateValidPMode();
+                    RetryReliability r = getReliability(pmode);
+                    r.IsEnabled = isEnabled;
+                    r.RetryCount = retryCount;
+                    r.RetryInterval = retryIntervalText;
+
+                    // Act
+                    ValidationResult result = ReceivingProcessingModeValidator.Instance.Validate(pmode);
+
+                    // Assert
                     bool correctConfigured =
                         retryCount != default(int)
                         && TimeSpan.TryParse(retryIntervalText, out TimeSpan _)
-                        && retryIntervalText != default(TimeSpan).ToString();
+                        && r.RetryInterval != default(TimeSpan).ToString();
 
-                    TestReceivePModeValidation(
-                        pmode =>
-                        {
-                            DeliverReliability r =
-                                pmode.MessageHandling.DeliverInformation.Reliability;
+                    bool expected = 
+                        !isEnabled && !correctConfigured
+                        || !isEnabled
+                        || correctConfigured;
 
-                            r.IsEnabled = isEnabled;
-                            r.RetryCount = retryCount;
-                            r.RetryInterval = retryIntervalText;
-                        },
-                        expected: !isEnabled && !correctConfigured
-                                  || !isEnabled
-                                  || correctConfigured);
-
-                    // Can return 'true' because an exception is also considered a test failure.
-                    return true
+                    return expected.Equals(result.IsValid)
+                        .Label(result.AppendValidationErrorsToErrorMessage(String.Empty))
                         .Classify(correctConfigured, "Reliability correctly configured")
                         .Classify(isEnabled, "Reliability is enabled");
                 });

@@ -364,6 +364,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
         {
             NotifyMessageProducer = false;
             NotifyMethod = new Method();
+            Reliability = new RetryReliability();
         }
 
         [Description("Indicate if the Message Producer must be notified.")]
@@ -371,6 +372,9 @@ namespace Eu.EDelivery.AS4.Model.PMode
 
         [Description("How should the notification messages be sent to the Message Producer.")]
         public Method NotifyMethod { get; set; }
+
+        [Description("Notify reliability")]
+        public RetryReliability Reliability { get; set; }
     }
 
     public class SendReceiptHandling : SendHandling

@@ -1,4 +1,6 @@
-﻿using Eu.EDelivery.AS4.Model.PMode;
+﻿using System;
+using System.Linq;
+using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.UnitTests.Model.PMode;
 using Eu.EDelivery.AS4.Validators;
 using FluentValidation.Results;
@@ -84,6 +86,63 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
 
             bool urlPresent = url != null;
             return (result.IsValid == urlPresent).ToProperty();
+        }
+
+        [Property]
+        public Property RetryReliability_Should_Be_Present_When_IsEnabled(
+            bool isEnabled,
+            int retryCount,
+            TimeSpan retryInterval)
+        {
+            return new Func<SendingProcessingMode, RetryReliability>[]
+            {
+                p => p.ReceiptHandling.Reliability,
+                p => p.ErrorHandling.Reliability,
+                p => p.ExceptionHandling.Reliability
+            }
+            .Select(f => TestRelialityForEnabledFlag(isEnabled, retryCount, retryInterval, f))
+            .Aggregate((p1, p2) => p1.And(p2));
+        }
+
+        private static Property TestRelialityForEnabledFlag(
+            bool isEnabled,
+            int retryCount,
+            TimeSpan retryInterval,
+            Func<SendingProcessingMode, RetryReliability> getReliability)
+        {
+            return Prop.ForAll(
+                Gen.Frequency(
+                       Tuple.Create(2, Gen.Constant(retryInterval.ToString())),
+                       Tuple.Create(1, Arb.From<string>().Generator))
+                   .ToArbitrary(),
+                retryIntervalText =>
+                {
+                    // Arrange
+                    SendingProcessingMode pmode = ValidSendingPModeFactory.Create();
+                    RetryReliability r = getReliability(pmode);
+                    r.IsEnabled = isEnabled;
+                    r.RetryCount = retryCount;
+                    r.RetryInterval = retryIntervalText;
+
+                    // Act
+                    ValidationResult result = ExerciseValidation(pmode);
+
+                    // Assert
+                    bool correctConfigured =
+                        retryCount != default(int)
+                        && TimeSpan.TryParse(retryIntervalText, out TimeSpan _)
+                        && r.RetryInterval != default(TimeSpan).ToString();
+
+                    bool expected =
+                        !isEnabled && !correctConfigured
+                        || !isEnabled
+                        || correctConfigured;
+
+                    return expected.Equals(result.IsValid)
+                        .Label(result.AppendValidationErrorsToErrorMessage(string.Empty))
+                        .Classify(correctConfigured, "Reliability correctly configured")
+                        .Classify(isEnabled, "Reliability is enabled");
+                });
         }
 
         private static ValidationResult ExerciseValidation(SendingProcessingMode pmode)
