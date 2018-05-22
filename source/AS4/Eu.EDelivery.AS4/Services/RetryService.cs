@@ -25,40 +25,70 @@ namespace Eu.EDelivery.AS4.Services
         }
 
         /// <summary>
+        /// Updates the message Status/Operation accordingly to the status of a 
+        /// </summary>
+        /// <param name="messageId">The message identifier.</param>
+        /// <param name="status">The upload status during the delivery of the payloads.</param>
+        public void UpdateDeliverMessageForUploadResult(string messageId, DeliveryStatus status)
+        {
+            UpdateDeliverMessage(
+                messageId,
+                status,
+                onSuccess: _ =>
+                {
+                    Logger.Debug($"(Deliver)[{messageId}] Attachments are uploaded successfully, no retry is needed");
+                });
+        }
+
+        /// <summary>
         /// Updates the message Status/Operation accordingly to <see cref="DeliverResult"/>.
         /// </summary>
         /// <param name="messageId">The message identifier.</param>
-        /// <param name="result">The result.</param>
+        /// <param name="status">The deliver status during the delivery of the deliver message.</param>
         /// <returns></returns>
-        public void UpdateDeliverMessageAccordinglyToDeliverResult(string messageId, DeliverResult result)
+        public void UpdateDeliverMessageForDeliverResult(string messageId, DeliveryStatus status)
         {
-            Logger.Info($"(Deliver)[{messageId}] Mark deliver message as 'Delivered'");
-            Logger.Debug($"(Deliver)[{messageId}] Update InMessage with Status and Operation set to 'Delivered'");
+            UpdateDeliverMessage(
+                messageId,
+                status,
+                onSuccess: inMessage =>
+                {
+                    Logger.Info($"(Deliver)[{messageId}] Mark deliver message as Delivered");
+                    Logger.Debug($"(Deliver)[{messageId}] Update InMessage with Status and Operation set to Delivered");
 
+                    inMessage.SetStatus(InStatus.Delivered);
+                    inMessage.SetOperation(Operation.Delivered);
+                });
+        }
 
-            Logger.Info($"(Deliver)[{messageId}] Update InMessage with Delivered Status and Operation");
-
+        private void UpdateDeliverMessage(string messageId, DeliveryStatus status, Action<InMessage> onSuccess)
+        {
             _repository.UpdateInMessage(
                 messageId,
                 inMessage =>
                 {
-                    if (result.Status == DeliveryStatus.Successful)
+                    if (status == DeliveryStatus.Success)
                     {
-                        inMessage.SetStatus(InStatus.Delivered);
-                        inMessage.SetOperation(Operation.Delivered);
+                        onSuccess(inMessage);
                     }
                     else
                     {
                         (int current, int max) = _repository
                             .GetInMessageData(messageId, m => Tuple.Create(m.CurrentRetryCount, m.MaxRetryCount));
 
-                        if (current < max && result.EligeableForRetry)
+                        if (current < max && status == DeliveryStatus.RetryableFail)
                         {
+                            Logger.Info($"(Deliver)[{messageId}] DeliverMessage failed this time, will be retried");
+                            Logger.Debug($"(Deliver[{messageId}]) Update InMessage with CurrentRetryCount={current + 1}, Operation=ToBeDelivered");
+
                             inMessage.CurrentRetryCount = current + 1;
                             inMessage.SetOperation(Operation.ToBeDelivered);
                         }
                         else
                         {
+                            Logger.Info($"(Deliver)[{messageId}] DeliverMessage failed during the delivery, exhausted retries");
+                            Logger.Debug($"(Deliver)[{messageId}] Update InMessage with Status=Exception, Operation=DeadLettered");
+
                             inMessage.SetStatus(InStatus.Exception);
                             inMessage.SetOperation(Operation.DeadLettered);
                         }

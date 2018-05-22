@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.IO;
@@ -146,11 +147,14 @@ namespace Eu.EDelivery.AS4.Entities
 
         public string SoapEnvelope { get; set; }
 
+        [DefaultValue(0)]
         public int CurrentRetryCount { get; set; }
 
+        [DefaultValue(0)]
         public int MaxRetryCount { get; set; }
 
         [MaxLength(50)]
+        [DefaultValue("00:00:00")]
         public string RetryInterval { get; private set; }
 
         public void SetRetryInterval(TimeSpan interval)
@@ -166,6 +170,10 @@ namespace Eu.EDelivery.AS4.Entities
             SetOperation(default(Operation));
             SetEbmsMessageType(default(MessageType));
             SetMessageExchangePattern(default(MessageExchangePattern));
+
+            CurrentRetryCount = 0;
+            MaxRetryCount = 0;
+            RetryInterval = default(TimeSpan).ToString("g");
         }
 
         /// <summary>

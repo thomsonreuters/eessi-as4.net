@@ -143,8 +143,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
                     {
                         new Step { Type = typeof(UploadAttachmentsStep).AssemblyQualifiedName },
                         new Step { Type = typeof(CreateDeliverEnvelopeStep).AssemblyQualifiedName },
-                        new Step { Type = typeof(SendDeliverMessageStep).AssemblyQualifiedName },
-                        new Step { Type = typeof(DeliverUpdateDatastoreStep).AssemblyQualifiedName }
+                        new Step { Type = typeof(SendDeliverMessageStep).AssemblyQualifiedName }
                     }
                 });
 

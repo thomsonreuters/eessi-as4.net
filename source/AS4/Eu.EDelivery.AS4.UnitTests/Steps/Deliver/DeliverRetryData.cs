@@ -6,61 +6,56 @@ using Eu.EDelivery.AS4.Strategies.Uploader;
 
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
 {
-    public class DeliveryRetryData : IEnumerable<object[]>
+    public class DeliverRetryData : IEnumerable<object[]>
     {
         private static IEnumerable<object[]> Inputs => new[]
         {
             new object[]
             {
-                new RetryData(
+                new DeliverRetry(
                     currentRetryCount: 1,
                     maxRetryCount: 3,
                     deliverResult: DeliverResult.Success,
-                    uploadResult: UploadResult.Success("", ""),
                     expectedCurrentRetryCount: 1,
                     expectedOperation: Operation.Delivered,
                     expectedStatus: InStatus.Delivered)
             },
             new object[]
             {
-                new RetryData(
+                new DeliverRetry(
                     currentRetryCount: 1,
                     maxRetryCount: 3,
-                    deliverResult: DeliverResult.Failure(anotherRetryIsNeeded: true),
-                    uploadResult: UploadResult.Failure(needsAnotherRetry: true),
+                    deliverResult: DeliverResult.RetryableFail,
                     expectedCurrentRetryCount: 2,
                     expectedOperation: Operation.ToBeDelivered,
                     expectedStatus: InStatus.Received)
             },
             new object[]
             {
-                new RetryData(
+                new DeliverRetry(
                     currentRetryCount: 1,
                     maxRetryCount: 3,
-                    deliverResult: DeliverResult.Failure(anotherRetryIsNeeded: false),
-                    uploadResult: UploadResult.Failure(needsAnotherRetry: false),
+                    deliverResult: DeliverResult.FatalFail,
                     expectedCurrentRetryCount: 1,
                     expectedOperation: Operation.DeadLettered,
                     expectedStatus: InStatus.Exception)
             },
             new object[]
             {
-                new RetryData(
+                new DeliverRetry(
                     currentRetryCount: 3,
                     maxRetryCount: 3,
-                    deliverResult: DeliverResult.Failure(anotherRetryIsNeeded: true),
-                    uploadResult: UploadResult.Failure(needsAnotherRetry: true),
+                    deliverResult: DeliverResult.RetryableFail,
                     expectedCurrentRetryCount: 3,
                     expectedOperation: Operation.DeadLettered,
                     expectedStatus: InStatus.Exception)
             },
             new object[]
             {
-                new RetryData(
+                new DeliverRetry(
                     currentRetryCount: 3,
                     maxRetryCount: 3,
-                    deliverResult: DeliverResult.Failure(anotherRetryIsNeeded: false),
-                    uploadResult: UploadResult.Failure(needsAnotherRetry: false),
+                    deliverResult: DeliverResult.FatalFail,
                     expectedCurrentRetryCount: 3,
                     expectedOperation: Operation.DeadLettered,
                     expectedStatus: InStatus.Exception)
@@ -86,13 +81,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
         }
     }
 
-    public class RetryData
+    public class DeliverRetry
     {
-        public RetryData(
+        public DeliverRetry(
             int currentRetryCount,
             int maxRetryCount,
             DeliverResult deliverResult,
-            UploadResult uploadResult,
             int expectedCurrentRetryCount,
             Operation expectedOperation,
             InStatus expectedStatus)
@@ -103,7 +97,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
             ExpectedCurrentRetryCount = expectedCurrentRetryCount;
             ExpectedOperation = expectedOperation;
             ExpectedStatus = expectedStatus;
-            UploadResult = uploadResult;
         }
 
         public int CurrentRetryCount { get; }
@@ -111,8 +104,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
         public int MaxRetryCount { get; }
 
         public DeliverResult DeliverResult { get; }
-
-        public UploadResult UploadResult { get; }
 
         public int ExpectedCurrentRetryCount { get; }
 

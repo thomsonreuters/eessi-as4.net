@@ -92,8 +92,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
         }
 
         [Theory]
-        [ClassData(typeof(DeliveryRetryData))]
-        public async Task Reset_InMessage_Operation_ToBeDelivered_When_CurrentRetry_LessThen_MaxRetry(RetryData input)
+        [ClassData(typeof(DeliverRetryData))]
+        public async Task Reset_InMessage_Operation_ToBeDelivered_When_CurrentRetry_LessThen_MaxRetry(DeliverRetry input)
         {
             // Arrange
             string id = Guid.NewGuid().ToString();

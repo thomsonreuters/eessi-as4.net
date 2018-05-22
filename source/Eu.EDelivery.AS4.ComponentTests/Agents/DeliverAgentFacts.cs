@@ -37,11 +37,11 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         }
 
         [Fact]
-        public async Task DeliverAttachmentsOnly_IfBelongToUserMessage()
+        public async Task Deliver_Attachment_Only_If_Belong_To_UserMessage()
         {
             // Arrange
             AS4Message as4Message = await CreateAS4MessageFrom(deliveragent_message);
-            as4Message.AddAttachment(DummyAttachment());
+            as4Message.AddAttachment(StubAttachment());
 
             FileSystemUtils.ClearDirectory(DeliveryRoot);
 
@@ -52,7 +52,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             AssertOnDeliveredAttachments(DeliveryRoot, files => Assert.True(files.Length == 1, "files.Length == 1"));
         }
 
-        private static Attachment DummyAttachment()
+        private static Attachment StubAttachment()
         {
             string uri = Path.Combine(Environment.CurrentDirectory, "messages", "attachments", "earth.jpg");
             var stream = new FileStream(uri, FileMode.Open, FileAccess.Read, FileShare.Read);
@@ -83,11 +83,12 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             CleanDirectoryAt(Path.GetDirectoryName(deliverLocation));
 
             // Act
-            await InsertToBeDeliveredMessage(
-                as4Message,
-                CreateReceivedPMode(
-                    deliverMessageLocation: DeliveryRoot,
-                    deliverPayloadLocation: @"%# \ (+_O) / -> Not a valid path"));
+            IPMode pmode = CreateReceivedPMode(
+                deliverMessageLocation: DeliveryRoot,
+                deliverPayloadLocation: @"%# \ (+_O) / -> Not a valid path");
+
+            InMessage inMessage = CreateInMessageRepresentingUserMessage(as4Message, pmode);
+            await InsertInMessage(inMessage);
 
             // Assert
             Assert.Empty(Directory.EnumerateFiles(DeliveryRoot));
@@ -96,7 +97,27 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         }
 
         [Fact]
-        public async Task StatusIsSetToException_IfDeliveryFails()
+        public async Task Message_Is_Set_To_Delivered_After_Its_Being_Retried()
+        {
+            InMessage actualMessage = await TestDeliverRetryByBlockingDeliveryLocationFor(TimeSpan.FromSeconds(5));
+
+            // Assert
+            Assert.Equal(InStatus.Delivered, InStatusUtils.Parse(actualMessage.Status));
+            Assert.Equal(Operation.Delivered, OperationUtils.Parse(actualMessage.Operation));
+            Assert.True(0 < actualMessage.CurrentRetryCount, "0 < actualMessage.CurrentRetryCount");
+        }
+
+        [Fact]
+        public async Task Message_Is_Set_To_Exception_If_Delivery_Fails_After_Exhausted_Retries()
+        {
+            InMessage actualMessage = await TestDeliverRetryByBlockingDeliveryLocationFor(TimeSpan.FromSeconds(15));
+
+            Assert.Equal(InStatus.Exception, InStatusUtils.Parse(actualMessage.Status));
+            Assert.Equal(Operation.DeadLettered, OperationUtils.Parse(actualMessage.Operation));
+            Assert.Equal(3, actualMessage.CurrentRetryCount);
+        }
+
+        private async Task<InMessage> TestDeliverRetryByBlockingDeliveryLocationFor(TimeSpan period)
         {
             // Arrange
             AS4Message as4Message = await CreateAS4MessageFrom(deliveragent_message);
@@ -104,15 +125,25 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             string deliverLocation = DeliverMessageLocationOf(as4Message);
             CleanDirectoryAt(Path.GetDirectoryName(deliverLocation));
 
+            IPMode pmode = CreateReceivedPMode(
+                deliverMessageLocation: DeliveryRoot,
+                deliverPayloadLocation: DeliveryRoot);
+
             using (WriteBlockingFileTo(deliverLocation))
             {
+                InMessage inMessage = CreateInMessageRepresentingUserMessage(as4Message, pmode);
+                inMessage.CurrentRetryCount = 0;
+                inMessage.MaxRetryCount = 3;
+
                 // Act
-                await InsertToBeDeliveredMessage(as4Message);
+                await InsertInMessage(inMessage);
 
                 // Assert
-                InMessage actualMessage = GetToBeDeliveredMessage(as4Message);
-                Assert.Equal(InStatus.Exception, InStatusUtils.Parse(actualMessage.Status));
+                // Blocks the delivery location for a period of time
+                Thread.Sleep(period);
             }
+
+            return GetToBeDeliveredMessage(as4Message);
         }
 
         private static async Task<AS4Message> CreateAS4MessageFrom(byte[] deliveragentMessage)
@@ -154,19 +185,20 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
         private Task InsertToBeDeliveredMessage(AS4Message as4Message)
         {
-            return InsertToBeDeliveredMessage(
-                as4Message,
-                CreateReceivedPMode(
-                    deliverMessageLocation: DeliveryRoot,
-                    deliverPayloadLocation: DeliveryRoot));
+            IPMode pmode = CreateReceivedPMode(
+                deliverMessageLocation: DeliveryRoot,
+                deliverPayloadLocation: DeliveryRoot);
+
+            return InsertInMessage(
+                CreateInMessageRepresentingUserMessage(as4Message, pmode));
         }
 
-        private async Task InsertToBeDeliveredMessage(AS4Message as4Message, IPMode pmode)
+        private async Task InsertInMessage(InMessage createInMessageFrom)
         {
             var context = new DatastoreContext(_as4Msh.GetConfiguration());
             var repository = new DatastoreRepository(context);
 
-            repository.InsertInMessage(CreateInMessageFrom(as4Message, pmode));
+            repository.InsertInMessage(createInMessageFrom);
 
             await context.SaveChangesAsync();
         }
@@ -180,13 +212,15 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             return spy.GetInMessageFor(m => m.EbmsMessageId.Equals(as4Message.GetPrimaryMessageId()));
         }
 
-        private static InMessage CreateInMessageFrom(AS4Message as4Message, IPMode pmode)
+        private static InMessage CreateInMessageRepresentingUserMessage(AS4Message as4Message, IPMode pmode)
         {
             var inMessage = new InMessage(as4Message.GetPrimaryMessageId())
             {
                 ContentType = as4Message.ContentType,                
                 MessageLocation =
-                    Registry.Instance.MessageBodyStore.SaveAS4Message(Config.Instance.InMessageStoreLocation, as4Message)
+                    Registry.Instance
+                            .MessageBodyStore
+                            .SaveAS4Message(@"file:///.\database\as4messages\in", as4Message)
             };
 
             inMessage.SetEbmsMessageType(MessageType.UserMessage);

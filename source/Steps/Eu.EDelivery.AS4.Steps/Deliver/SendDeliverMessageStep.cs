@@ -84,9 +84,9 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
             {
                 var repository = new DatastoreRepository(context);
                 var retryService = new RetryService(repository);
-                retryService.UpdateDeliverMessageAccordinglyToDeliverResult(
+                retryService.UpdateDeliverMessageForDeliverResult(
                     messagingContext.DeliverMessage.MessageInfo.MessageId,
-                    result);
+                    result.Status);
 
                 await context.SaveChangesAsync().ConfigureAwait(false);
             }

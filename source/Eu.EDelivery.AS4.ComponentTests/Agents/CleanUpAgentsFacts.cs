@@ -227,7 +227,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             {
                 MessageLocation = 
                     Registry.Instance.MessageBodyStore.SaveAS4Message(
-                        @"file:///.\database\as4messages\out", 
+                        @"file:///.\database\as4messages\out",
                         AS4Message.Empty),
                 InsertionTime = insertionTime
             };

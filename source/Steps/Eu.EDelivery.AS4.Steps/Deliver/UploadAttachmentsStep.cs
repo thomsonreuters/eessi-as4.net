@@ -31,18 +31,8 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         /// <summary>
         /// Initializes a new instance of the <see cref="UploadAttachmentsStep" /> class.
         /// </summary>
-        public UploadAttachmentsStep() : this(Registry.Instance.AttachmentUploader) { }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="UploadAttachmentsStep"/> class.
-        /// Create a <see cref="IStep"/> implementation
-        /// for uploading the AS4 Attachments to a configured location
-        /// </summary>
-        /// <param name="provider"></param>
-        public UploadAttachmentsStep(IAttachmentUploaderProvider provider)
-        {
-            _provider = provider;
-        }
+        public UploadAttachmentsStep() 
+            : this(Registry.Instance.AttachmentUploader, Registry.Instance.CreateDatastoreContext) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="UploadAttachmentsStep" /> class.
@@ -83,7 +73,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
                 foreach (Attachment att in as4Message.Attachments.Where(a => a.MatchesAny(um.PayloadInfo)))
                 {
                     UploadResult result = await TryUploadAttachmentAsync(att, um, uploader).ConfigureAwait(false);
-                    if (result.Status == DeliveryStatus.Successful)
+                    if (result.Status == DeliveryStatus.Success)
                     {
                         Logger.Info($"{messagingContext.LogTag} Attachment '{att.Id}' is delivered at: {att.Location}");
                     }
@@ -92,12 +82,10 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
                 }
             }
 
-            if (results.Any())
-            {
-                await UpdateDeliverMessageAccordinglyToUploadResult(
-                    messageId: as4Message.GetPrimaryMessageId(),
-                    result: results.Aggregate<DeliverResult>(DeliverResult.Reduce)); 
-            }
+            await UpdateDeliverMessageAccordinglyToUploadResult(
+                messageId: as4Message.GetPrimaryMessageId(),
+                status: results.Select(r => r.Status)
+                               .Aggregate(DeliveryStatusEx.Reduce));
 
             return await StepResult.SuccessAsync(messagingContext);
         }
@@ -147,14 +135,14 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
             }
         }
 
-        private async Task UpdateDeliverMessageAccordinglyToUploadResult(string messageId, DeliverResult result)
+        private async Task UpdateDeliverMessageAccordinglyToUploadResult(string messageId, DeliveryStatus status)
         {
             using (DatastoreContext context = _createDbContext())
             {
                 var repository = new DatastoreRepository(context);
                 var service = new RetryService(repository);
 
-                service.UpdateDeliverMessageAccordinglyToDeliverResult(messageId, result);
+                service.UpdateDeliverMessageForUploadResult(messageId, status);
                 await context.SaveChangesAsync().ConfigureAwait(false);
             }
         }
