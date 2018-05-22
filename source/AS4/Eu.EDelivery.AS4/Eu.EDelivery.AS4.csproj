@@ -387,6 +387,7 @@
     <Compile Include="Strategies\Database\SqlServerDbCommand.cs" />
     <Compile Include="Strategies\Database\DatastoreTable.cs" />
     <Compile Include="Strategies\Retriever\TempFilePayloadRetriever.cs" />
+    <Compile Include="Strategies\Sender\DeliveryStatus.cs" />
     <Compile Include="Strategies\Sender\FileSender.cs" />
     <Compile Include="Strategies\Sender\HttpSender.cs" />
     <Compile Include="Strategies\Sender\DeliverResult.cs" />
@@ -529,9 +530,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="lib\sqlite3.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <Content Include="Resources\Schemas\update-schemas.options.xml" />
   </ItemGroup>
   <ItemGroup>
