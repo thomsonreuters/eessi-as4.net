@@ -146,6 +146,10 @@ This contract describes all the properties available in the Sending PMode. The r
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>Parameter</i><br/>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Name<br/>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Value<br/>
+                &nbsp;&nbsp;Reliability<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>IsEnabled</i><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>RetryCount</i><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>RetryInterval</i><br/>
             </td>
             <td>
                 O<br/>
@@ -157,6 +161,10 @@ This contract describes all the properties available in the Sending PMode. The r
                 M<br/>
                 M<br/>
                 M<br/>
+                O<br/>
+                M<br/>
+                M<br/>
+                M<br/>
             </td>
             <td>
                 <br/>
@@ -165,7 +173,10 @@ This contract describes all the properties available in the Sending PMode. The r
                 Type of the Notify Agent<br/>
                 Required parameters for the specified agent<br/><br/>
                 Name of the parameter<br/>
-                Value of the parameter<br/>
+                Value of the parameter<br/><br/>
+                Indicate wheter or not the deliver operation should be retried on failure<br/>
+                Amount of retry cycles the deliver operation should be retried on failure<br/>
+                Time interval between each retry cycle the deliver operation should be retried on failure<br/>
             </td>
         </tr>
         <tr>
@@ -177,7 +188,11 @@ This contract describes all the properties available in the Sending PMode. The r
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>Parameters</i><br/>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>Parameter</i><br/>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Name<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Value
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Value<br/>
+                &nbsp;&nbsp;Reliability<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>IsEnabled</i><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>RetryCount</i><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>RetryInterval</i><br/>
             </td>
             <td>
                 O<br/>
@@ -185,6 +200,10 @@ This contract describes all the properties available in the Sending PMode. The r
                 M<br/>
                 M<br/>
                 M<br/>
+                M<br/>
+                M<br/>
+                M<br/>
+                O<br/>
                 M<br/>
                 M<br/>
                 M<br/>
@@ -194,7 +213,10 @@ This contract describes all the properties available in the Sending PMode. The r
                 Type of the Notify Agent<br/>
                 Required parameters for the specified agent<br/><br/>
                 Name of the parameter<br/>
-                Value of the parameter<br/>
+                Value of the parameter<br/><br/>
+                Indicate wheter or not the deliver operation should be retried on failure<br/>
+                Amount of retry cycles the deliver operation should be retried on failure<br/>
+                Time interval between each retry cycle the deliver operation should be retried on failure<br/>
             </td>
         </tr>
         <tr>
@@ -207,6 +229,10 @@ This contract describes all the properties available in the Sending PMode. The r
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>Parameter</i><br/>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Name<br/>
                 &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Value<br/>
+                &nbsp;&nbsp;Reliability<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>IsEnabled</i><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>RetryCount</i><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>RetryInterval</i><br/>
             </td>
             <td>
                 O<br/>
@@ -214,6 +240,10 @@ This contract describes all the properties available in the Sending PMode. The r
                 M<br/>
                 M<br/>
                 M<br/>
+                M<br/>
+                M<br/>
+                M<br/>
+                O<br/>
                 M<br/>
                 M<br/>
                 M<br/>
@@ -223,7 +253,10 @@ This contract describes all the properties available in the Sending PMode. The r
                 Type of the Notify Agent<br/>
                 Required parameters for the specified agent<br/><br/>
                 Name of the parameter<br/>
-                Value of the parameter<br/>
+                Value of the parameter<br/><br/>
+                Indicate wheter or not the deliver operation should be retried on failure<br/>
+                Amount of retry cycles the deliver operation should be retried on failure<br/>
+                Time interval between each retry cycle the deliver operation should be retried on failure<br/>
             </td>
         </tr>
         <tr>

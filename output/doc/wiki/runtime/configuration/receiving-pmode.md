@@ -70,7 +70,11 @@ This contract describes all the properties available in the Receiving PMode. The
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>Parameters</i><br/>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>Parameter</i><br/>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Name<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Value
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Value <br/>
+                &nbsp;&nbsp; Reliability <br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>IsEnabled</i><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>RetryCount</i><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>RetryInterval</i><br/>
             </td>
             <td align="center">
                 O<br/>
@@ -78,6 +82,10 @@ This contract describes all the properties available in the Receiving PMode. The
                 M<br/>
                 M<br/>
                 M<br/>
+                M<br/>
+                M<br/>
+                M<br/>
+                O<br/>
                 M<br/>
                 M<br/>
                 M<br/>
@@ -89,7 +97,10 @@ This contract describes all the properties available in the Receiving PMode. The
                 <div style="width:500px;">Type of the Notify Agent Required parameters for the specified agent</div>
                 <br/><br/>
                 Name of the parameter<br/>
-                Value of the parameter
+                Value of the parameter<br/><br/>
+                Indicates whether or not the Delivery must be retried<br/>
+                Amount of retry cycles the Delivery must be retried<br/>
+                Interval between each retry cycle during the Delivery<br/>
             </td>
         </tr>
         <tr>
@@ -293,7 +304,7 @@ This contract describes all the properties available in the Receiving PMode. The
                 Amount of retry cycles the Delivery must be retried<br/>
                 Interval between each retry cycle during the Delivery<br/>
                 Deliver or Forward must be specified, not both<br/>
-                The name of the PMode that must be used to forward the received Message.
+                The name of the PMode that must be used to forward the received Message
             </td>
         </tr>
     </tbody>

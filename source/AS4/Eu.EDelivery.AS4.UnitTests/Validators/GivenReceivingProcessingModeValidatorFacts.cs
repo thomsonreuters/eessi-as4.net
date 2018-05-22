@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Validators;
 using FluentValidation.Results;
+using FsCheck;
+using FsCheck.Xunit;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Validators
@@ -15,39 +17,40 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
         [Fact]
         public void PModeIsValid()
         {
-            TestReceivingPModeValidation(pmode => { }, expected: true);
+            TestReceivePModeValidationSuccess(pmode => { });
         }
 
         [Fact]
         public void ForwardPModeIsValid()
         {
-            TestReceivingPModeValidation(pmode => { pmode.MessageHandling.Item = new Forward() { SendingPMode = "SomePModeId" }; }, expected: true);
+            TestReceivePModeValidationSuccess(
+                pmode => { pmode.MessageHandling.Item = new Forward() { SendingPMode = "SomePModeId" }; });
         }
 
         [Fact]
         public void ForwardPModeIsValid_EvenIfNoReplyHandlingIsPresent()
         {
-            TestReceivingPModeValidation(pmode =>
+            TestReceivePModeValidationSuccess(pmode =>
             {
                 pmode.ReplyHandling = null;
                 pmode.MessageHandling.Item = new Forward { SendingPMode = "somepmodeid" };
-            }, expected: true);
+            });
         }
 
         [Fact]
         public void ForwardPModeIsValid_EvenIfReplySendingPModeIsMissing()
         {
-            TestReceivingPModeValidation(pmode =>
+            TestReceivePModeValidationSuccess(pmode =>
             {
                 pmode.ReplyHandling.SendingPMode = null;
                 pmode.MessageHandling.Item = new Forward { SendingPMode = "somepmodeid" };
-            }, expected: true);
+            });
         }
 
         [Fact]
         public void DeliverPModeIsNotValid_IfReplyHandlingIsMissing()
         {
-            TestReceivingPModeValidation(pmode =>
+            TestReceivePModeValidationFailure(pmode =>
             {
                 pmode.ReplyHandling = null;
                 pmode.MessageHandling.Item = new Deliver
@@ -56,13 +59,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
                     DeliverMethod = new Method(),
                     PayloadReferenceMethod = new Method()
                 };
-            }, expected: false);
+            });
         }
 
         [Fact]
         public void DeliverPModeIsNotValid_IfReplySendingPModeIsMissing()
         {
-            TestReceivingPModeValidation(pmode =>
+            TestReceivePModeValidationFailure(pmode =>
             {
                 pmode.ReplyHandling.SendingPMode = null;
                 pmode.MessageHandling.Item = new Deliver
@@ -71,49 +74,116 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
                     DeliverMethod = new Method(),
                     PayloadReferenceMethod = new Method()
                 };
-            }, expected: false);
+            });
+        }
+
+        [Property]
+        public Property DeliverReliability_Is_Required_On_IsEnabled_Flag(
+            bool isEnabled,
+            int retryCount,
+            TimeSpan retryInterval)
+        {
+            return TestRelialityForEnabledFlag(
+                isEnabled,
+                retryCount,
+                retryInterval,
+                pmode => pmode.MessageHandling.DeliverInformation.Reliability);
+        }
+
+        [Property]
+        public Property ExceptionReliability_Is_Required_On_IsEnabled_Flag(
+            bool isEnabled,
+            int retryCount,
+            TimeSpan retryInterval)
+        {
+            return TestRelialityForEnabledFlag(
+                isEnabled,
+                retryCount,
+                retryInterval,
+                p => p.ExceptionHandling.Reliability);
+        }
+
+        private static Property TestRelialityForEnabledFlag(
+            bool isEnabled, 
+            int retryCount, 
+            TimeSpan retryInterval,
+            Func<ReceivingProcessingMode, RetryReliability> getReliability)
+        {
+            return Prop.ForAll(
+                Gen.Frequency(
+                       Tuple.Create(2, Gen.Constant(retryInterval.ToString())),
+                       Tuple.Create(1, Arb.From<string>().Generator))
+                   .ToArbitrary(),
+                retryIntervalText =>
+                {
+                    // Arrange
+                    ReceivingProcessingMode pmode = CreateValidPMode();
+                    RetryReliability r = getReliability(pmode);
+                    r.IsEnabled = isEnabled;
+                    r.RetryCount = retryCount;
+                    r.RetryInterval = retryIntervalText;
+
+                    // Act
+                    ValidationResult result = ReceivingProcessingModeValidator.Instance.Validate(pmode);
+
+                    // Assert
+                    bool correctConfigured =
+                        retryCount != default(int)
+                        && TimeSpan.TryParse(retryIntervalText, out TimeSpan _)
+                        && r.RetryInterval != default(TimeSpan).ToString();
+
+                    bool expected = 
+                        !isEnabled && !correctConfigured
+                        || !isEnabled
+                        || correctConfigured;
+
+                    return expected.Equals(result.IsValid)
+                        .Label(result.AppendValidationErrorsToErrorMessage(String.Empty))
+                        .Classify(correctConfigured, "Reliability correctly configured")
+                        .Classify(isEnabled, "Reliability is enabled");
+                });
         }
 
         [Fact]
         public void PModeIsNotValid_IfNoReceiptHandlingIsPresent()
         {
-            TestReceivingPModeValidation(pmode => pmode.ReplyHandling.ReceiptHandling = null);
+            TestReceivePModeValidationFailure(pmode => pmode.ReplyHandling.ReceiptHandling = null);
         }
 
         [Fact]
         public void PModeIsNotValid_IfPModeIdIsMissing()
         {
-            TestReceivingPModeValidation(pmode => pmode.Id = null);
+            TestReceivePModeValidationFailure(pmode => pmode.Id = null);
         }
 
         [Fact]
         public void PModeIsNotValid_IfNoErrorHandlingIsPresent()
         {
-            TestReceivingPModeValidation(pmode => pmode.ReplyHandling.ErrorHandling = null);
+            TestReceivePModeValidationFailure(pmode => pmode.ReplyHandling.ErrorHandling = null);
         }
 
         [Fact]
         public void PModeIsNotValid_IfNoReceiptHandlingSendingPModeIsPresent()
         {
-            TestReceivingPModeValidation(pmode => pmode.ReplyHandling.SendingPMode = null);
+            TestReceivePModeValidationFailure(pmode => pmode.ReplyHandling.SendingPMode = null);
         }
 
         [Fact]
         public void PModeIsNotValid_WhenReceiptHandlingSendingPModeIdIsEmpty()
         {
-            TestReceivingPModeValidation(pmode => pmode.ReplyHandling.SendingPMode = string.Empty);
+            TestReceivePModeValidationFailure(pmode => pmode.ReplyHandling.SendingPMode = string.Empty);
         }
 
         [Fact]
         public void PModeIsNotValid_IfNoReplyHandlingIsPresent()
         {
-            TestReceivingPModeValidation(pmode => pmode.ReplyHandling = null);
+            TestReceivePModeValidationFailure(pmode => pmode.ReplyHandling = null);
         }
 
         [Fact]
         public void PModeIsNotValid_IfNoDeliverMethodIsPresentWhenDeliverIsEnabled()
         {
-            TestReceivingPModeValidation(
+            TestReceivePModeValidationFailure(
                 pmode =>
                 {
                     pmode.MessageHandling.DeliverInformation.IsEnabled = true;
@@ -124,7 +194,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
         [Fact]
         public void PModeIsNotValid_IfNoPayloadReferenceMethodIsPresentWhenDeliverIsEnabled()
         {
-            TestReceivingPModeValidation(
+            TestReceivePModeValidationFailure(
                 pmode =>
                 {
                     pmode.MessageHandling.DeliverInformation.IsEnabled = true;
@@ -135,7 +205,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
         [Fact]
         public void PModeIsNotValid_IfNoDeliverParametersArePresentWhenDeliverIsEnabled()
         {
-            TestReceivingPModeValidation(
+            TestReceivePModeValidationFailure(
                 pmode =>
                 {
                     pmode.MessageHandling.DeliverInformation.IsEnabled = true;
@@ -146,7 +216,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
         [Fact]
         public void PModeIsNotValid_IfNoPayloadReferenceParametersArePresentWhenDeliverIsEnabled()
         {
-            TestReceivingPModeValidation(
+            TestReceivePModeValidationFailure(
                 pmode =>
                 {
                     pmode.MessageHandling.DeliverInformation.IsEnabled = true;
@@ -157,45 +227,58 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
         [Fact]
         public void PModeIsNotValid_IfInvalidParametersArePresentInDeliverMethodWhenDeliverIsEnabled()
         {
-            TestReceivingPModeValidation(
+            TestReceivePModeValidationFailure(
                 pmode =>
                 {
                     pmode.MessageHandling.DeliverInformation.IsEnabled = true;
-                    pmode.MessageHandling.DeliverInformation.DeliverMethod.Parameters.Add(new Parameter { Name = null, Value = null });
+                    pmode.MessageHandling.DeliverInformation
+                         .DeliverMethod.Parameters.Add(new Parameter { Name = null, Value = null });
                 });
         }
 
         [Fact]
         public void PModeIsNotValid_IfInvalidParametersArePresentInPayloadReferenceMetodWhenDeliverIsEnabled()
         {
-            TestReceivingPModeValidation(
+            TestReceivePModeValidationFailure(
                 pmode =>
                 {
                     pmode.MessageHandling.DeliverInformation.IsEnabled = true;
-                    pmode.MessageHandling.DeliverInformation.PayloadReferenceMethod.Parameters.Add(new Parameter { Name = null, Value = null });
+                    pmode.MessageHandling.DeliverInformation
+                         .PayloadReferenceMethod.Parameters.Add(new Parameter { Name = null, Value = null });
                 });
         }
 
         [Fact]
         public void PModeIsNotValid_WhenNoMessageHandlingIsPresent()
         {
-            TestReceivingPModeValidation(
+            TestReceivePModeValidationFailure(
                 pmode => { pmode.MessageHandling = null; });
         }
 
         [Fact]
         public void PModeIsNotValid_WhenMessageHandlingIsEmpty()
         {
-            TestReceivingPModeValidation(pmode => { pmode.MessageHandling.Item = null; });
+            TestReceivePModeValidationFailure(pmode => { pmode.MessageHandling.Item = null; });
         }
 
         [Fact]
         public void PModeIsNotValid_WhenMessageHandlingContainsUnknownItem()
         {
-            TestReceivingPModeValidation(pmode => { pmode.MessageHandling.Item = new object(); });
+            TestReceivePModeValidationFailure(pmode => { pmode.MessageHandling.Item = new object(); });
         }
 
-        private static void TestReceivingPModeValidation(Action<ReceivingProcessingMode> arrangePMode, bool expected = false)
+        private static void TestReceivePModeValidationSuccess(Action<ReceivingProcessingMode> f)
+        {
+            TestReceivePModeValidation(f, expected: true);
+        }
+
+        private static void TestReceivePModeValidationFailure(Action<ReceivingProcessingMode> f)
+        {
+            TestReceivePModeValidation(f, expected: false);
+        }
+
+        // ReSharper disable once ParameterOnlyUsedForPreconditionCheck.Local
+        private static void TestReceivePModeValidation(Action<ReceivingProcessingMode> arrangePMode, bool expected)
         {
             // Arrange
             ReceivingProcessingMode pmode = CreateValidPMode();
@@ -218,17 +301,20 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
                 Parameters = new List<Parameter> { new Parameter { Name = "parameter-name", Value = "parameter-value" } }
             };
 
-            var pmode = new ReceivingProcessingMode
+            return new ReceivingProcessingMode
             {
                 Id = "pmode-id",
-                ReplyHandling = new ReplyHandlingSetting() { SendingPMode = "send-pmode" }
+                ReplyHandling = new ReplyHandlingSetting { SendingPMode = "send-pmode" },
+                MessageHandling =
+                {
+                    DeliverInformation =
+                    {
+                        IsEnabled = true,
+                        DeliverMethod = method,
+                        PayloadReferenceMethod = method
+                    }
+                }
             };
-
-            pmode.MessageHandling.DeliverInformation.IsEnabled = true;
-            pmode.MessageHandling.DeliverInformation.DeliverMethod = method;
-            pmode.MessageHandling.DeliverInformation.PayloadReferenceMethod = method;
-
-            return pmode;
         }
     }
 }

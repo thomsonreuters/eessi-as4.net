@@ -134,6 +134,7 @@
     <xs:sequence>
       <xs:element minOccurs="1" maxOccurs="1" name="NotifyMessageProducer" type="xs:boolean" />
       <xs:element minOccurs="0" maxOccurs="1" name="NotifyMethod" type="tns:Method" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Reliability" type="tns:RetryReliability" />
     </xs:sequence>
   </xs:complexType>
   <xs:complexType name="Method">
@@ -150,6 +151,13 @@
   <xs:complexType name="Parameter">
     <xs:attribute name="name" type="xs:string" />
     <xs:attribute name="value" type="xs:string" />
+  </xs:complexType>
+  <xs:complexType name="RetryReliability">
+    <xs:sequence>
+      <xs:element minOccurs="1" maxOccurs="1" name="IsEnabled" type="xs:boolean" />
+      <xs:element minOccurs="1" maxOccurs="1" name="RetryCount" type="xs:int" />
+      <xs:element minOccurs="0" maxOccurs="1" name="RetryInterval" type="xs:string" />
+    </xs:sequence>
   </xs:complexType>
   <xs:complexType name="Security">
     <xs:sequence>

@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Web.Script.Serialization;
 using System.Xml.Serialization;
@@ -122,13 +123,18 @@ namespace Eu.EDelivery.AS4.Model.PMode
     {
         [Description("Notify message consumer")]
         public bool NotifyMessageConsumer { get; set; }
+
         [Description("Method for notification")]
         public Method NotifyMethod { get; set; }
+
+        [Description("Notify exception reliability")]
+        public RetryReliability Reliability { get; set; }
 
         public ReceiveHandling()
         {
             NotifyMessageConsumer = false;
             NotifyMethod = new Method();
+            Reliability = new RetryReliability();
         }
     }
 
@@ -305,16 +311,49 @@ namespace Eu.EDelivery.AS4.Model.PMode
     {
         [Description("Indicate whether or not the Message Payloads must be delivered.")]
         public bool IsEnabled { get; set; }
+
         [Description("Payload delivery method")]
         public Method PayloadReferenceMethod { get; set; }
+
         [Description("Deliver method")]
         public Method DeliverMethod { get; set; }
+
+        [Description("Deliver reliability")]
+        public RetryReliability Reliability { get; set; }
 
         public Deliver()
         {
             IsEnabled = false;
             PayloadReferenceMethod = new Method();
             DeliverMethod = new Method();
+            Reliability = new RetryReliability();
+        }
+    }
+
+    public class RetryReliability
+    {
+        private TimeSpan _retryInterval;
+
+        [Description("Indicate wheter or not the deliver operation should be retried on failure.")]
+        public bool IsEnabled { get; set; }
+
+        [Description("Amount of retry cycles the deliver operation should be retried on failure.")]
+        public int RetryCount { get; set; }
+
+        [Description("Time interval between each retry cycle the deliver operation should be retried on failure.")]
+        public string RetryInterval
+        {
+            get => _retryInterval.ToString(@"hh\:mm\:ss");
+            set => TimeSpan.TryParse(value, out _retryInterval);
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RetryReliability"/> class.
+        /// </summary>
+        public RetryReliability()
+        {
+            IsEnabled = false;
+            _retryInterval = default(TimeSpan);
         }
     }
 

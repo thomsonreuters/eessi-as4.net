@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Linq.Expressions;
 using Eu.EDelivery.AS4.Model.PMode;
 using FluentValidation;
 using FluentValidation.Results;
@@ -72,12 +71,30 @@ namespace Eu.EDelivery.AS4.Validators
             Func<SendingProcessingMode, bool> isReceiptHandlingEnabled =
                 pmode => pmode.ReceiptHandling.NotifyMessageProducer;
 
-            RuleFor(pmode => pmode.ReceiptHandling.NotifyMethod).NotNull().When(isReceiptHandlingEnabled);
+            RuleFor(pmode => pmode.ReceiptHandling.NotifyMethod)
+                .NotNull()
+                .When(isReceiptHandlingEnabled);
+
             RuleFor(pmode => pmode.ReceiptHandling.NotifyMethod.Parameters)
                 .NotNull()
                 .SetCollectionValidator(new ParameterValidator())
                 .When(isReceiptHandlingEnabled);
-            RuleFor(pmode => pmode.ReceiptHandling.NotifyMethod.Type).NotNull().When(isReceiptHandlingEnabled);
+
+            RuleFor(pmode => pmode.ReceiptHandling.NotifyMethod.Type)
+                .NotNull()
+                .When(isReceiptHandlingEnabled);
+
+            Func<SendingProcessingMode, bool> isReliabilityEnabled =
+                pmode => pmode.ReceiptHandling?.Reliability?.IsEnabled == true;
+
+            RuleFor(pmode => pmode.ReceiptHandling.Reliability.RetryCount)
+                .NotEqual(default(int))
+                .When(isReliabilityEnabled);
+
+            RuleFor(pmode => pmode.ReceiptHandling.Reliability.RetryInterval)
+                .Must(interval => TimeSpan.TryParse(interval, out TimeSpan _))
+                .NotEqual(default(TimeSpan).ToString())
+                .When(isReliabilityEnabled);
         }
 
         private void RulesForErrorHandling()
@@ -85,12 +102,30 @@ namespace Eu.EDelivery.AS4.Validators
             Func<SendingProcessingMode, bool> isErrorHandlingEnabled =
                 pmode => pmode.ErrorHandling.NotifyMessageProducer;
 
-            RuleFor(pmode => pmode.ErrorHandling.NotifyMethod).NotNull().When(isErrorHandlingEnabled);
+            RuleFor(pmode => pmode.ErrorHandling.NotifyMethod)
+                .NotNull()
+                .When(isErrorHandlingEnabled);
+
             RuleFor(pmode => pmode.ErrorHandling.NotifyMethod.Parameters)
                 .NotNull()
                 .SetCollectionValidator(new ParameterValidator())
                 .When(isErrorHandlingEnabled);
-            RuleFor(pmode => pmode.ErrorHandling.NotifyMethod.Type).NotNull().When(isErrorHandlingEnabled);
+
+            RuleFor(pmode => pmode.ErrorHandling.NotifyMethod.Type)
+                .NotNull()
+                .When(isErrorHandlingEnabled);
+
+            Func<SendingProcessingMode, bool> isReliabilityEnabled =
+                pmode => pmode.ErrorHandling?.Reliability?.IsEnabled == true;
+
+            RuleFor(pmode => pmode.ErrorHandling.Reliability.RetryCount)
+                .NotEqual(default(int))
+                .When(isReliabilityEnabled);
+
+            RuleFor(pmode => pmode.ErrorHandling.Reliability.RetryInterval)
+                .Must(interval => TimeSpan.TryParse(interval, out TimeSpan _))
+                .NotEqual(default(TimeSpan).ToString())
+                .When(isReliabilityEnabled);
         }
 
         private void RulesForExceptionHandling()
@@ -98,12 +133,30 @@ namespace Eu.EDelivery.AS4.Validators
             Func<SendingProcessingMode, bool> isExceptionHandlingEnabled =
                 pmode => pmode.ExceptionHandling.NotifyMessageProducer;
 
-            RuleFor(pmode => pmode.ExceptionHandling.NotifyMethod).NotNull().When(isExceptionHandlingEnabled);
+            RuleFor(pmode => pmode.ExceptionHandling.NotifyMethod)
+                .NotNull()
+                .When(isExceptionHandlingEnabled);
+
             RuleFor(pmode => pmode.ExceptionHandling.NotifyMethod.Parameters)
                 .NotNull()
                 .SetCollectionValidator(new ParameterValidator())
                 .When(isExceptionHandlingEnabled);
-            RuleFor(pmode => pmode.ExceptionHandling.NotifyMethod.Type).NotNull().When(isExceptionHandlingEnabled);
+
+            RuleFor(pmode => pmode.ExceptionHandling.NotifyMethod.Type)
+                .NotNull()
+                .When(isExceptionHandlingEnabled);
+
+            Func<SendingProcessingMode, bool> isReliabilityEnabled =
+                pmode => pmode.ExceptionHandling?.Reliability?.IsEnabled == true;
+
+            RuleFor(pmode => pmode.ExceptionHandling.Reliability.RetryCount)
+                .NotEqual(default(int))
+                .When(isReliabilityEnabled);
+
+            RuleFor(pmode => pmode.ExceptionHandling.Reliability.RetryInterval)
+                .Must(interval => TimeSpan.TryParse(interval, out TimeSpan _))
+                .NotEqual(default(TimeSpan).ToString())
+                .When(isReliabilityEnabled);
         }
 
         private void RulesForSigning()
