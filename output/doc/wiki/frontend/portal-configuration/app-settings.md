@@ -127,7 +127,7 @@
                 </ul>
             </td>
             <td class="confluenceTd">
-                <p>A string indicating who issued the JWT token. This can be any string.<br>Default is “AS4.NET”.</p>
+                <p>A string indicating who issued the JWT token. This can be any string.<br>Default is “<b>AS4.NET</b>”.</p>
             </td>
         </tr>
         <tr>

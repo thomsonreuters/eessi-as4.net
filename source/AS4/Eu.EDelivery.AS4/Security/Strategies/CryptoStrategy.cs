@@ -30,7 +30,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
 
         protected static VirtualStream CreateVirtualStreamOf(Stream innerStream)
         {
-            return VirtualStream.CreateVirtualStream(
+            return VirtualStream.Create(
                 expectedSize: innerStream.CanSeek ? innerStream.Length : VirtualStream.ThresholdMax);
         }
     }

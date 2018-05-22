@@ -10,8 +10,8 @@ using NLog;
 
 namespace Eu.EDelivery.AS4.Steps.Receive
 {
-    [Description("Updates the AS4 Message that has been received after processing so that it can be delivered or forwarded.")]
     [Info("Update the received AS4 Message")]
+    [Description("Updates the AS4 Message that has been received after processing so that it can be delivered or forwarded")]
     public class UpdateReceivedAS4MessageBodyStep : IStep
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
@@ -45,7 +45,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
-            Logger.Info($"{messagingContext.AS4Message.GetPrimaryMessageId()} Update the received message");
+            Logger.Info($"{messagingContext.LogTag} Update the received message body");
 
             using (DatastoreContext datastoreContext = _createDatastoreContext())
             {
@@ -64,6 +64,10 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 // When the Message has to be forwarded, the remaining Steps must not be executed.
                 // The MSH must answer with a HTTP Accepted status-code, so an empty context must be returned.
                 messagingContext.ModifyContext(AS4Message.Empty);
+
+                Logger.Debug(
+                    $"{messagingContext.LogTag} Stops execution to return empty SOAP envelope to the orignal sender. " +
+                    "This happens when the message musn't be forwarded");
 
                 return StepResult.Success(messagingContext).AndStopExecution();
             }

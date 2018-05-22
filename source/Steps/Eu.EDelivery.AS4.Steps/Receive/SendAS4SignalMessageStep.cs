@@ -12,12 +12,13 @@ using NLog;
 
 namespace Eu.EDelivery.AS4.Steps.Receive
 {
-    [Description("Send AS4 signal message")]
     [Info("Send AS4 signal message")]
+    [Description("Send AS4 signal message back to the original sender")]
     public class SendAS4SignalMessageStep : IStep
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
+        private readonly IConfig _config;
         private readonly Func<DatastoreContext> _createDatastoreContext;
         private readonly IAS4MessageBodyStore _messageBodyStore;
 
@@ -25,15 +26,20 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// Initializes a new instance of the <see cref="SendAS4SignalMessageStep" /> class.
         /// </summary>
         public SendAS4SignalMessageStep()
-            : this(Registry.Instance.CreateDatastoreContext, Registry.Instance.MessageBodyStore) { }
+            : this(Config.Instance, Registry.Instance.CreateDatastoreContext, Registry.Instance.MessageBodyStore) { }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SendAS4SignalMessageStep" /> class.
+        /// Initializes a new instance of the <see cref="SendAS4SignalMessageStep"/> class.
         /// </summary>
+        /// <param name="configuration">The configuration.</param>
+        /// <param name="createDatastoreContext">The create datastore context.</param>
+        /// <param name="messageBodyStore">The message body store.</param>
         public SendAS4SignalMessageStep(
+            IConfig configuration,
             Func<DatastoreContext> createDatastoreContext,
             IAS4MessageBodyStore messageBodyStore)
         {
+            _config = configuration;
             _createDatastoreContext = createDatastoreContext;
             _messageBodyStore = messageBodyStore;
         }
@@ -53,6 +59,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             using (DatastoreContext dataContext = _createDatastoreContext())
             {
                 var outService = new OutMessageService(
+                    _config,
                     new DatastoreRepository(dataContext),
                     _messageBodyStore);
 
@@ -74,8 +81,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                         : "Error";
 
                 Logger.Info(
-                    $"{messagingContext.EbmsMessageId} " +
-                    $"{signalMessageType} will be written to Response-Stream.");
+                    $"{messagingContext.LogTag} {signalMessageType} will be written to the response");
             }
 
             return StepResult.Success(messagingContext);
@@ -88,7 +94,9 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
         private static StepResult CreateEmptySoapResult(MessagingContext messagingContext)
         {
-            Logger.Info($"{messagingContext.EbmsMessageId} Empty Accepted response will be send to requested party since signal will be sent async.");
+            Logger.Info(
+                $"{messagingContext} Empty Accepted response will be send " + 
+                "to requested party since signal will be sent async");
 
             return StepResult.Success(
                 new MessagingContext(

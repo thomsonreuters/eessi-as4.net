@@ -11,16 +11,19 @@ using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Serialization;
+using NLog;
 
 namespace Eu.EDelivery.AS4.Steps.Forward
 {
-    [Description("Creates a copy of the received message so that it can be forwarded.")]
     [Info("Creates a copy of the received message so that it can be forwarded.")]
+    [Description("Creates a copy of the received message so that it can be forwarded.")]
     public class CreateForwardMessageStep : IStep
     {
         private readonly IConfig _configuration;
         private readonly IAS4MessageBodyStore _messageStore;
         private readonly Func<DatastoreContext> _createDataStoreContext;
+
+        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CreateForwardMessageStep"/> class.
@@ -34,7 +37,10 @@ namespace Eu.EDelivery.AS4.Steps.Forward
         /// <param name="configuration">The local configuration.</param>
         /// <param name="messageStore">The store where the datastore persist its messages.</param>
         /// <param name="createDatastoreContext">Create a new datastore context.</param>
-        public CreateForwardMessageStep(IConfig configuration, IAS4MessageBodyStore messageStore, Func<DatastoreContext> createDatastoreContext)
+        public CreateForwardMessageStep(
+            IConfig configuration, 
+            IAS4MessageBodyStore messageStore, 
+            Func<DatastoreContext> createDatastoreContext)
         {
             _configuration = configuration;
             _messageStore = messageStore;
@@ -48,14 +54,16 @@ namespace Eu.EDelivery.AS4.Steps.Forward
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
-            var receivedInMessage = (messagingContext.ReceivedMessage as ReceivedMessageEntityMessage)?.MessageEntity as InMessage;
-
-            if (receivedInMessage == null)
+            var entityMessage = messagingContext.ReceivedMessage as ReceivedMessageEntityMessage;
+            if (!(entityMessage?.MessageEntity is InMessage receivedInMessage))
             {
-                throw new InvalidOperationException("The MessagingContext must contain a ReceivedMessage that represents an InMessage.");
+                throw new InvalidOperationException(
+                    "The MessagingContext must contain a ReceivedMessage that represents an InMessage." + Environment.NewLine +
+                    "Other types of ReceivedMessage models are not supported in this Step.");
             }
 
             // Forward message by creating an OutMessage and set operation to 'ToBeProcessed'.
+            Logger.Info(messagingContext.LogTag + "Create a message that will be forwarded to the next MSH");
             using (Stream originalInMessage =
                 await _messageStore.LoadMessageBodyAsync(receivedInMessage.MessageLocation))
             {
@@ -88,6 +96,7 @@ namespace Eu.EDelivery.AS4.Steps.Forward
                     outMessage.Mpc = messagingContext.SendingPMode.MessagePackaging?.Mpc ?? Constants.Namespaces.EbmsDefaultMpc;
                     outMessage.SetOperation(Operation.ToBeProcessed);
 
+                    Logger.Debug(messagingContext.LogTag + "Insert OutMessage { Intermediary=true, Operation=ToBeProcesed }");
                     repository.InsertOutMessage(outMessage);
 
                     // Set the InMessage to Forwarded.

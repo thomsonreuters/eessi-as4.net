@@ -37,17 +37,21 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
         /// Start sending the <see cref="DeliverMessage"/>
         /// </summary>
         /// <param name="deliverMessage"></param>
-        public async Task SendAsync(DeliverMessageEnvelope deliverMessage)
+        public async Task<DeliverResult> SendAsync(DeliverMessageEnvelope deliverMessage)
         {
             EnsureDirectory(_destinationPath);
 
             string location = CombineDestinationFullName(deliverMessage.MessageInfo.MessageId, _destinationPath);
 
-            Logger.Trace($"Sending DeliverMessage to {location}");
+            Logger.Trace($"(Deliver) Sending DeliverMessage to {location}");
 
             await WriteContentsToFile(location, deliverMessage.DeliverMessage).ConfigureAwait(false);
 
-            Logger.Info($"DeliverMessage {deliverMessage.MessageInfo.MessageId} is successfully Send to: {location}");
+            Logger.Info(
+                $"(Deliver) DeliverMessage {deliverMessage.MessageInfo.MessageId} "+ 
+                $"is successfully send to {location}");
+
+            return DeliverResult.Success; 
         }
 
         /// <summary>
@@ -60,11 +64,13 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
 
             string location = CombineDestinationFullName(notifyMessage.MessageInfo.MessageId, _destinationPath);
 
-            Logger.Trace($"Sending NotifyMessage to {location}");
+            Logger.Trace($"(Notify) Sending NotifyMessage to {location}");
 
             await WriteContentsToFile(location, notifyMessage.NotifyMessage).ConfigureAwait(false);
 
-            Logger.Info($"NotifyMessage {notifyMessage.MessageInfo.MessageId} is successfully Send to: {location}");
+            Logger.Info(
+                $"(Notify) NotifyMessage {notifyMessage.MessageInfo.MessageId} " + 
+                $"is successfully send to {location}");
         }
 
         private static void EnsureDirectory(string locationFolder)

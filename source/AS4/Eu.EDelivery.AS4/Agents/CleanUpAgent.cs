@@ -25,11 +25,6 @@ namespace Eu.EDelivery.AS4.Agents
         private readonly TimeSpan _retentionPeriod;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="CleanUpAgent"/> class.
-        /// </summary>
-        public CleanUpAgent() : this(() => new DatastoreContext(Config.Instance), Config.Instance.RetentionPeriod) { }
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="CleanUpAgent" /> class.
         /// </summary>
         /// <param name="storeExpression">The store expression.</param>
@@ -54,7 +49,7 @@ namespace Eu.EDelivery.AS4.Agents
         public async Task Start(CancellationToken cancellation)
         {
             Logger.Info($"{AgentConfig.Name} Started!");
-            Logger.Debug("Will clean up entries older than: " + DateTimeOffset.UtcNow.Subtract(_retentionPeriod));
+            Logger.Debug("Will clean up entries older than: " + DateTimeOffset.Now.Subtract(_retentionPeriod));
 
             try
             {

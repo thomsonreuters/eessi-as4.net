@@ -10,16 +10,16 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
     public interface IDeliverSender
     {
         /// <summary>
-        /// Start sending the <see cref="DeliverMessage"/>
-        /// </summary>
-        /// <param name="deliverMessage"></param>
-        Task SendAsync(DeliverMessageEnvelope deliverMessage);
-
-        /// <summary>
         /// Configure the <see cref="IDeliverSender"/>
         /// with a given <paramref name="method"/>
         /// </summary>
         /// <param name="method"></param>
         void Configure(Method method);
+
+        /// <summary>
+        /// Start sending the <see cref="DeliverMessage"/>
+        /// </summary>
+        /// <param name="deliverMessage"></param>
+        Task<DeliverResult> SendAsync(DeliverMessageEnvelope deliverMessage);
     }
 }

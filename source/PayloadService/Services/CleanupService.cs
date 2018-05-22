@@ -44,7 +44,7 @@ namespace Eu.EDelivery.AS4.PayloadService.Services
                 .Do(_ =>
                 {
                     _payloadPersister.CleanupPayloadsOlderThan(_retentionPeriod);
-                    Logger.Debug("Clean up payloads older than: "
+                    Logger.Trace("Clean up payloads older than: "
                                  + DateTimeOffset.UtcNow.Subtract(_retentionPeriod));
                 })
                 .Repeat()

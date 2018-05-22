@@ -35,8 +35,9 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
         private string NamePattern => _method["filenameformat"]?.Value;
 
         [Info("Allow overwrite")]
-        [Description("When Allow overwrite is set to true, the file will be overwritten if it already exists.\n\r" +
-                     "When set to false, an attempt will be made to create a new unique filename. The default is false.")]
+        [Description(
+            "When Allow overwrite is set to true, the file will be overwritten if it already exists.\n\r" +
+            "When set to false, an attempt will be made to create a new unique filename. The default is false.")]
         private string AllowOverwrite => _method["allowoverwrite"]?.Value;
 
         /// <summary>
@@ -69,7 +70,7 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
             bool allowOverwrite = DetermineAllowOverwrite();
 
             string uploadLocation = await TryUploadAttachment(attachment, attachmentFilePath, allowOverwrite).ConfigureAwait(false);
-            return new UploadResult { DownloadUrl = uploadLocation };
+            return UploadResult.SuccessWithUrl(downloadUrl: uploadLocation);
         }
 
         private string AssembleFileDownloadUrlFor(Attachment attachment, UserMessage referringUserMessage)
@@ -123,7 +124,7 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
             }
             catch (Exception ex)
             {
-                Logger.Error($"An error occured while uploading the attachment: {ex.Message}");
+                Logger.Error($"(Deliver) An error occured while uploading the attachment: {ex.Message}");
                 string description = $"Unable to upload attachment {attachment.Id}";
 
                 throw new IOException(description, ex);
@@ -143,14 +144,14 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
                 mode = FileMode.CreateNew;
             }
 
-            Logger.Trace($"Trying to upload attachment {attachment.Id} to {attachmentFilePath}");
+            Logger.Trace($"(Deliver) Trying to upload attachment {attachment.Id} to {attachmentFilePath}");
 
             using (FileStream fileStream = new FileStream(attachmentFilePath, mode, FileAccess.Write, FileShare.None, 4096, FileOptions.Asynchronous | FileOptions.SequentialScan))
             {
                 await attachment.Content.CopyToFastAsync(fileStream).ConfigureAwait(false);
             }
 
-            Logger.Info($"Attachment {attachment.Id} is uploaded successfully to {attachmentFilePath}");
+            Logger.Info($"(Deliver) Attachment {attachment.Id} is uploaded successfully to {attachmentFilePath}");
 
             return attachmentFilePath;
         }

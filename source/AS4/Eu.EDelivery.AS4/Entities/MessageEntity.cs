@@ -146,6 +146,18 @@ namespace Eu.EDelivery.AS4.Entities
 
         public string SoapEnvelope { get; set; }
 
+        public int CurrentRetryCount { get; set; }
+
+        public int MaxRetryCount { get; set; }
+
+        [MaxLength(50)]
+        public string RetryInterval { get; private set; }
+
+        public void SetRetryInterval(TimeSpan interval)
+        {
+            RetryInterval = interval.ToString("g");
+        }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="MessageEntity"/> class.
         /// </summary>

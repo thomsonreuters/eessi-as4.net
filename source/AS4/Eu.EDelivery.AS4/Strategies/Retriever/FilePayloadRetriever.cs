@@ -29,7 +29,7 @@ namespace Eu.EDelivery.AS4.Strategies.Retriever
         {
             Stream payloadStream = TryRetrievePayload(location);
 
-            Logger.Info($"Payload is successfully retrieved at location: {location}");
+            Logger.Debug($"(Submit) Payload is successfully retrieved at location {location}");
 
             return payloadStream;
         }

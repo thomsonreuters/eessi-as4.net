@@ -1,0 +1,6 @@
+{
+  "semi": false,
+  "singleQuote": true,
+  "parser": "typescript",
+  "arrowParens": "always"
+}

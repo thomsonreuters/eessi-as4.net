@@ -19,9 +19,8 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
 
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
         private readonly IHttpClient _httpClient;
-        private string _destinationUri;
 
-        [Info("Destination URL")]
+        [Info("Destination URL", required: true)]
         private string Location { get; set; }
 
         /// <summary>
@@ -46,21 +45,23 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
         /// <param name="method"></param>
         public void Configure(Method method)
         {
-            _destinationUri = method["location"].Value;
+            Location = method["location"].Value;
         }
 
         /// <summary>
-        /// Start sending the <see cref="DeliverMessage" />
+        /// Start sending the <see cref="DeliverMessage"/>
         /// </summary>
         /// <param name="deliverMessage"></param>
-        public async Task SendAsync(DeliverMessageEnvelope deliverMessage)
+        public async Task<DeliverResult> SendAsync(DeliverMessageEnvelope deliverMessage)
         {
-            Logger.Info($"Send Deliver {deliverMessage.MessageInfo.MessageId} to {_destinationUri}");
+            Logger.Info($"(Deliver)[{deliverMessage.MessageInfo.MessageId}] Send DeliverMessage to {Location}");
 
             HttpWebRequest request = await CreateHttpPostRequest(deliverMessage.ContentType, deliverMessage.DeliverMessage).ConfigureAwait(false);
             HttpWebResponse response = await SendHttpPostRequest(request).ConfigureAwait(false);
 
             response?.Close();
+
+            return DeliverResult.Success;
         }
 
         /// <summary>
@@ -69,7 +70,7 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
         /// <param name="notifyMessage"></param>
         public async Task SendAsync(NotifyMessageEnvelope notifyMessage)
         {
-            Logger.Info($"Send Notification {notifyMessage.MessageInfo.MessageId} to {_destinationUri}");
+            Logger.Info($"(Notify)[{notifyMessage.MessageInfo.MessageId}] Send Notification to {Location}");
 
             HttpWebRequest request = await CreateHttpPostRequest(notifyMessage.ContentType, notifyMessage.NotifyMessage);
             HttpWebResponse httpPostResponse = await SendHttpPostRequest(request).ConfigureAwait(false);
@@ -80,7 +81,7 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
         private async Task<HttpWebRequest> CreateHttpPostRequest(string contentType, byte[] contents)
         {
             // TODO: verify if destinationUri is a valid http endpoint.
-            HttpWebRequest request = _httpClient.Request(_destinationUri, contentType);
+            HttpWebRequest request = _httpClient.Request(Location, contentType);
 
             using (Stream requestStream = await request.GetRequestStreamAsync())
             {

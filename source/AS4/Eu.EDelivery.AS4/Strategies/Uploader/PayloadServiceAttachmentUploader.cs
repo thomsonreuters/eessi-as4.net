@@ -58,7 +58,7 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
             var form = new MultipartFormDataContent { { new StreamContent(attachment.Content), attachment.Id, attachment.Id } };
 
             HttpResponseMessage response = await _postRequest(Location, form).ConfigureAwait(false);
-            Logger.Info($"Upload Attachment returns HTTP Status Code: {response.StatusCode}");
+            Logger.Info($"(Deliver) Upload attachment returns HTTP StatusCode: {response.StatusCode}");
 
             return response;
         }

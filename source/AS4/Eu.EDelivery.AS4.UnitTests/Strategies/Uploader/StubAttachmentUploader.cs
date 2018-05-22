@@ -17,7 +17,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Strategies.Uploader
         /// <param name="downloadUrl"></param>
         public StubAttachmentUploader(string downloadUrl)
         {
-            _configuredResult = new UploadResult {DownloadUrl = downloadUrl};
+            _configuredResult = UploadResult.SuccessWithUrl(downloadUrl: downloadUrl);
         }
 
         /// <summary>

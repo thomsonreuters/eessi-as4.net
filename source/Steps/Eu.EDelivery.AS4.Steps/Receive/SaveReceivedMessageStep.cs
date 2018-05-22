@@ -16,26 +16,34 @@ namespace Eu.EDelivery.AS4.Steps.Receive
     /// <summary>
     /// Describes how the data store gets updated when an incoming message is received.
     /// </summary>
-    [Description("Saves a received message as-is in the datastore.")]
     [Info("Save received message")]
+    [Description("Saves a received message as-is in the datastore.")]
     public class SaveReceivedMessageStep : IStep
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+
+        private readonly IConfig _config;
         private readonly Func<DatastoreContext> _createDatastoreContext;
         private readonly IAS4MessageBodyStore _messageBodyStore;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SaveReceivedMessageStep" /> class
         /// </summary>
-        public SaveReceivedMessageStep() : this(Registry.Instance.CreateDatastoreContext, Registry.Instance.MessageBodyStore) { }
+        public SaveReceivedMessageStep() 
+            : this(Config.Instance, Registry.Instance.CreateDatastoreContext, Registry.Instance.MessageBodyStore) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SaveReceivedMessageStep"/> class.
         /// </summary>
+        /// <param name="configuration">The configuration</param>
         /// <param name="createDatastoreContext">The create Datastore Context.</param>
         /// <param name="messageBodyStore">The <see cref="IAS4MessageBodyStore"/> that must be used to persist the messagebody content.</param>
-        public SaveReceivedMessageStep(Func<DatastoreContext> createDatastoreContext, IAS4MessageBodyStore messageBodyStore)
+        public SaveReceivedMessageStep(
+            IConfig configuration,
+            Func<DatastoreContext> createDatastoreContext, 
+            IAS4MessageBodyStore messageBodyStore)
         {
+            _config = configuration;
             _createDatastoreContext = createDatastoreContext;
             _messageBodyStore = messageBodyStore;
         }
@@ -48,11 +56,13 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// <exception cref="Exception">A delegate callback throws an exception.</exception>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
-            Logger.Info($"{messagingContext.EbmsMessageId} Insert received message in datastore");
+            Logger.Info($"{messagingContext.LogTag} Store the incoming AS4 Message to the datastore");
 
             if (messagingContext.ReceivedMessage == null)
             {
-                throw new InvalidOperationException("SaveReceivedMessageStep requires a ReceivedStream");
+                throw new InvalidOperationException(
+                    $"{messagingContext.LogTag} {nameof(SaveReceivedMessageStep)} " + 
+                    "requires a ReceivedStream to store the incoming message into the datastore");
             }
 
             MessagingContext resultContext = await InsertReceivedAS4MessageAsync(messagingContext);
@@ -62,17 +72,22 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 if (resultContext.AS4Message.IsSignalMessage
                     && String.IsNullOrWhiteSpace(resultContext.AS4Message.PrimarySignalMessage.RefToMessageId))
                 {
-                    Logger.Info(
-                        "The received message is a signal-message without RefToMessageId. " +
-                        "It cannot be processed any further.");
+                    Logger.Warn(
+                        $"{messagingContext.LogTag} The received message is a SignalMessage without RefToMessageId. " +
+                        "No such SignalMessage are supported so the message cannot be processed any further");
 
                     return StepResult
                         .Success(new MessagingContext(AS4Message.Empty, MessagingContextMode.Receive))
                         .AndStopExecution();
                 }
 
+                Logger.Debug($"{messagingContext.LogTag} The AS4 Message is successfully stored into the datastore");
                 return StepResult.Success(resultContext);
             }
+
+            Logger.Error(
+                $"{messagingContext.LogTag} The AS4 Message is not stored " + 
+                $"correctly into the datastore {resultContext?.Exception}");
 
             return StepResult.Failed(resultContext);
         }
@@ -81,7 +96,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         {
             using (DatastoreContext context = _createDatastoreContext())
             {
-                var service = new InMessageService(new DatastoreRepository(context));
+                var service = new InMessageService(_config, new DatastoreRepository(context));
                 MessageExchangePattern mep = DetermineMessageExchangePattern(messagingContext);
 
                 MessagingContext resultContext = await service

@@ -165,8 +165,6 @@ namespace Eu.EDelivery.AS4.Services
         /// <param name="awarenes">The awarenes.</param>
         public void ResetReferencedMessage(ReceptionAwareness awarenes)
         {
-            Logger.Info($"[{awarenes.RefToEbmsMessageId}] Modify Reception Awareness Status");
-
             UpdateReceptionAwareness(awarenes, ReceptionStatus.Pending);
         }
 

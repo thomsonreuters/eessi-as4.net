@@ -1,4 +1,5 @@
-﻿using Eu.EDelivery.AS4.Model.Internal;
+﻿using System;
+using Eu.EDelivery.AS4.Model.Internal;
 
 namespace Eu.EDelivery.AS4.Agents
 {

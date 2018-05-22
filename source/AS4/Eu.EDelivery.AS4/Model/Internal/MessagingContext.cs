@@ -1,4 +1,5 @@
 ﻿using System;
+using Eu.EDelivery.AS4.Agents;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
@@ -129,20 +130,26 @@ namespace Eu.EDelivery.AS4.Model.Internal
                     return AS4Message.GetPrimaryMessageId();
                 }
 
+                if (SubmitMessage != null)
+                {
+                    return SubmitMessage.MessageInfo?.MessageId;
+                }
+
                 if (DeliverMessage != null)
                 {
-                    return DeliverMessage.MessageInfo.MessageId;
+                    return DeliverMessage.MessageInfo?.MessageId;
                 }
 
                 if (NotifyMessage != null)
                 {
-                    return NotifyMessage.MessageInfo.RefToMessageId;
+                    return NotifyMessage.MessageInfo?.RefToMessageId;
                 }
 
                 if (ReceivedMessage is ReceivedMessageEntityMessage entityMessage)
                 {
-                    return entityMessage.MessageEntity.EbmsMessageId;
+                    return entityMessage.MessageEntity?.EbmsMessageId;
                 }
+
                 if (ReceivedMessage is ReceivedEntityMessage e)
                 {
                     if (e.Entity is MessageEntity me)
@@ -215,6 +222,8 @@ namespace Eu.EDelivery.AS4.Model.Internal
         }
 
         public bool ReceivedMessageMustBeForwarded => ReceivingPMode?.MessageHandling?.MessageHandlingType == MessageHandlingChoiceType.Forward;
+
+        public string LogTag => $"({Mode})" + (string.IsNullOrEmpty(EbmsMessageId) ? "" : $"[{EbmsMessageId}]");
 
         /// <summary>
         /// Modifies the MessagingContext

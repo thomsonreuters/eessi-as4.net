@@ -33,7 +33,7 @@ namespace Eu.EDelivery.AS4.Strategies.Retriever
 
         private static async Task<Stream> RetrieveTempFileContents(string absolutePath)
         {
-            var virtualStr = VirtualStream.CreateVirtualStream();
+            var virtualStr = VirtualStream.Create();
 
             using (var fileStr = new FileStream(
                 absolutePath, 
@@ -52,9 +52,9 @@ namespace Eu.EDelivery.AS4.Strategies.Retriever
         {
             try
             {
-                Logger.Debug($"Removing temporary file at location: {absolutePath}");
+                Logger.Trace($"Removing temporary file at location: {absolutePath}");
                 File.Delete(absolutePath);
-                Logger.Debug($"Temporary file {absolutePath} removed.");
+                Logger.Trace($"Temporary file {absolutePath} removed.");
             }
             catch (Exception ex)
             {

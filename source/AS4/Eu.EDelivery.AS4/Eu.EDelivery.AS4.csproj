@@ -74,6 +74,9 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer">
       <Version>2.0.1</Version>
     </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools">
+      <Version>2.0.1</Version>
+    </PackageReference>
     <PackageReference Include="MimeKit">
       <Version>1.22.0</Version>
     </PackageReference>
@@ -199,6 +202,10 @@
     <Compile Include="Migrations\20180302141116_RemoveOutMessagesConstraint.cs" />
     <Compile Include="Migrations\20180302141116_RemoveOutMessagesConstraint.designer.cs">
       <DependentUpon>20180302141116_RemoveOutMessagesConstraint.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\20180511112132_AddRetryInformation.cs" />
+    <Compile Include="Migrations\20180511112132_AddRetryInformation.designer.cs">
+      <DependentUpon>20180511112132_AddRetryInformation.cs</DependentUpon>
     </Compile>
     <Compile Include="Resources\XsdSchemaDefinitions.cs" />
     <Compile Include="Security\Signing\CalculateSignatureConfig.cs" />
@@ -372,6 +379,7 @@
     <Compile Include="Services\OutMessageService.cs" />
     <Compile Include="Services\PullRequestAuthorization\PullRequestAuthorizationEntry.cs" />
     <Compile Include="Services\ReceptionAwarenessService.cs" />
+    <Compile Include="Services\RetryService.cs" />
     <Compile Include="Strategies\Database\IAS4DbCommand.cs" />
     <Compile Include="Strategies\Database\InMemoryDbCommand.cs" />
     <Compile Include="Strategies\Database\SqliteDbCommand.cs" />
@@ -380,6 +388,7 @@
     <Compile Include="Strategies\Retriever\TempFilePayloadRetriever.cs" />
     <Compile Include="Strategies\Sender\FileSender.cs" />
     <Compile Include="Strategies\Sender\HttpSender.cs" />
+    <Compile Include="Strategies\Sender\DeliverResult.cs" />
     <Compile Include="Strategies\Sender\ReliableSender.cs" />
     <Compile Include="Streaming\NonCloseableStream.cs" />
     <Compile Include="Security\References\SecurityTokenReferenceProvider.cs" />
