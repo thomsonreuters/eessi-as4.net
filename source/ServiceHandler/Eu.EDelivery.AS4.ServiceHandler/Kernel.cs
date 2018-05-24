@@ -64,7 +64,16 @@ namespace Eu.EDelivery.AS4.ServiceHandler
             catch (Exception exception)
             {
                 Logger.Fatal($"An error occured while migrating the database: {exception.Message}");
+                Logger.Trace(exception.StackTrace);
+
+                if (exception.InnerException != null)
+                {
+                    Logger.Fatal(exception.InnerException.Message);
+                    Logger.Trace(exception.InnerException.StackTrace);
+                }
+
                 return;
+
             }
 
             Logger.Trace("Starting...");
