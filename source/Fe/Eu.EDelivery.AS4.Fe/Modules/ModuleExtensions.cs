@@ -31,20 +31,33 @@ namespace Eu.EDelivery.AS4.Fe.Modules
         {
             services.AddSingleton<Scanner>();
 
-            List<TypeInfo> moduleAssemblies;
-            var scanner = SetupAssemblyScanner(services, folderToScan, out moduleAssemblies);
+            try
+            {
 
-            var baseTypes = typeof(Startup).Assembly.DefinedTypes.ToList();
-            RegisterInterfaces(services, mappings, scanner, baseTypes, moduleAssemblies);
+                List<TypeInfo> moduleAssemblies;
+                var scanner = SetupAssemblyScanner(services, folderToScan, out moduleAssemblies);
 
-            var configurationBuilder = new ConfigurationBuilder();
-            configBuilder(configurationBuilder, services.BuildServiceProvider().GetService<IHostingEnvironment>());
-            var localConfig = configurationBuilder.Build();
+                var baseTypes = typeof(Startup).Assembly.DefinedTypes.ToList();
+                RegisterInterfaces(services, mappings, scanner, baseTypes, moduleAssemblies);
 
-            configuration = localConfig;
-            CallStartup<IRunAtConfiguration>(services, service => service.Run(configurationBuilder, services, localConfig));
+                var configurationBuilder = new ConfigurationBuilder();
+                configBuilder(configurationBuilder, services.BuildServiceProvider().GetService<IHostingEnvironment>());
+                var localConfig = configurationBuilder.Build();
 
-            CallStartup<IRunAtServicesStartup>(services, service => service.Run(services, localConfig));
+                configuration = localConfig;
+                CallStartup<IRunAtConfiguration>(services, service => service.Run(configurationBuilder, services, localConfig));
+
+                CallStartup<IRunAtServicesStartup>(services, service => service.Run(services, localConfig));
+            }
+            catch(ReflectionTypeLoadException ex)
+            {
+                NLog.LogManager.GetCurrentClassLogger().Error(ex.Message);
+                foreach (Exception loaderException in ex.LoaderExceptions)
+                {
+                    NLog.LogManager.GetCurrentClassLogger().Error(loaderException.Message);
+                }
+                throw;
+            }
         }
 
         public static void ExecuteStartupServices(this IApplicationBuilder builder)
