@@ -25,8 +25,8 @@ MkDir .\Staging\samples\certificates
 MkDir .\Staging\samples\messages
 MkDir .\Staging\samples\pmodes
 MkDir .\Staging\samples\pmodes\eessi
-MkDir .\Staging\x64
-MkDir .\Staging\x86
+MkDir .\Staging\bin\x64
+MkDir .\Staging\bin\x86
 
 Remove-Item .\*.pdb
 Remove-Item .\*.xml -exclude Eu.EDelivery.AS4.Fe.xml,Eu.EDelivery.AS4.PayloadService.xml
@@ -59,8 +59,8 @@ If (Test-Path .\Eu.EDelivery.AS4.dll.config) {
 $excludedLibraries = @("ModuleInit.dll", "NSubstitute.dll", "SimpleHttpMock.dll", "Ensure.That.dll", "FsCheck.dll", "FsCheck.Xunit.dll", "FSharp.Core.dll")
 
 Copy-Item -Exclude $excludedLibraries -Path .\*.dll -Destination .\Staging\bin
-Copy-Item -Path .\x86\*.* -Destination .\Staging\x86\
-Copy-Item -Path .\x64\*.* -Destination .\Staging\x64\
+Copy-Item -Path .\x86\*.* -Destination .\Staging\bin\x86\
+Copy-Item -Path .\x64\*.* -Destination .\Staging\bin\x64\
 Copy-Item -Path .\appsettings.inprocess.json .\Staging\bin\
 Copy-Item -Path .\appsettings.json .\Staging\bin\
 Copy-Item -Path .\config\settings.xml .\Staging\config\
