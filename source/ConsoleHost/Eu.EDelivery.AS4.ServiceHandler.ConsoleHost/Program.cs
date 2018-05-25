@@ -16,7 +16,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler.ConsoleHost
         {
             Console.SetWindowSize(Console.LargestWindowWidth, Console.WindowHeight);
 
-            WriteLine("\nAS4.NET CLI v" + Assembly.GetExecutingAssembly().GetName().Version + "\n"
+            WriteLine("\nAS4.NET v" + Assembly.GetExecutingAssembly().GetName().Version + "\n"
                       + "\nThe following commands are available while the AS4.NET MSH is running:"
                       + "\n c\tClears the screen"
                       + "\n q\tQuits the application"
