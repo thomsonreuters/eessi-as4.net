@@ -59,6 +59,19 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
                 .ConfigureAwait(false);
         }
 
+        /// <summary>
+        /// Start sending the <see cref="NotifyMessage"/>
+        /// </summary>
+        /// <param name="notifyMessage"></param>
+        public async Task<SendResult> SendAsync(NotifyMessageEnvelope notifyMessage)
+        {
+            return await SendMessageResult(
+                message: notifyMessage,
+                sending: _notifySender.SendAsync,
+                exMessage: $"(Notify)[{notifyMessage?.MessageInfo?.MessageId}] Unable to send NotifyMessage to the configured endpoint due to and exceptoin")
+                .ConfigureAwait(false);
+        }
+
         private static async Task<SendResult> SendMessageResult<T>(
             T message,  
             Func<T, Task<SendResult>> sending, 
@@ -73,19 +86,6 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
                 LogExceptionIncludingInner(ex, exMessage);
                 return SendResult.FatalFail;
             }
-        }
-
-        /// <summary>
-        /// Start sending the <see cref="NotifyMessage"/>
-        /// </summary>
-        /// <param name="notifyMessage"></param>
-        public async Task<SendResult> SendAsync(NotifyMessageEnvelope notifyMessage)
-        {
-            return await SendMessageResult(
-                message: notifyMessage,
-                sending: notifyMessage1 => _notifySender.SendAsync(notifyMessage1),
-                exMessage: $"(Notify)[{notifyMessage?.MessageInfo?.MessageId}] Unable to send NotifyMessage to the configured endpoint due to and exceptoin")
-                .ConfigureAwait(false);
         }
 
         private static void LogExceptionIncludingInner(Exception ex, string exMessage)

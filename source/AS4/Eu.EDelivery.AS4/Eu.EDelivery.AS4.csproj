@@ -390,7 +390,6 @@
     <Compile Include="Strategies\Sender\SendStatus.cs" />
     <Compile Include="Strategies\Sender\FileSender.cs" />
     <Compile Include="Strategies\Sender\HttpSender.cs" />
-    <Compile Include="Strategies\Sender\SendResult.cs" />
     <Compile Include="Strategies\Sender\ReliableSender.cs" />
     <Compile Include="Streaming\NonCloseableStream.cs" />
     <Compile Include="Security\References\SecurityTokenReferenceProvider.cs" />

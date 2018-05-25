@@ -37,55 +37,52 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
         /// Start sending the <see cref="DeliverMessage"/>
         /// </summary>
         /// <param name="deliverMessage"></param>
-        public async Task<SendResult> SendAsync(DeliverMessageEnvelope deliverMessage)
+        public Task<SendResult> SendAsync(DeliverMessageEnvelope deliverMessage)
         {
             SendResult directoryResult = EnsureDirectory(Location);
-            if (directoryResult.Status == SendStatus.Fail)
+            if (directoryResult == SendResult.FatalFail)
             {
-                return directoryResult;
+                return Task.FromResult(directoryResult);
             }
 
             string location = CombineDestinationFullName(deliverMessage.MessageInfo.MessageId, Location);
             Logger.Trace($"(Deliver) Sending DeliverMessage to {location}");
 
-            return await WriteContentsToFile(location, deliverMessage.DeliverMessage)
-                .ContinueWith(t =>
-                {
-                    if (t.Result.Status == SendStatus.Success)
-                    {
-                        Logger.Info(
-                            $"(Deliver) DeliverMessage {deliverMessage.MessageInfo.MessageId} " +
-                            $"is successfully send to {location}");
-                    }
+            SendResult result = WriteContentsToFile(location, deliverMessage.DeliverMessage);
+            if (result == SendResult.Success)
+            {
+                Logger.Info(
+                    $"(Deliver) DeliverMessage {deliverMessage.MessageInfo.MessageId} " +
+                    $"is successfully send to {location}");
+            }
 
-                    return t.Result;
-                }, TaskContinuationOptions.OnlyOnRanToCompletion);
+            return Task.FromResult(result);
         }
 
         /// <summary>
         /// Start sending the <see cref="NotifyMessage"/>
         /// </summary>
         /// <param name="notifyMessage"></param>
-        public async Task<SendResult> SendAsync(NotifyMessageEnvelope notifyMessage)
+        public Task<SendResult> SendAsync(NotifyMessageEnvelope notifyMessage)
         {
-            EnsureDirectory(Location);
+            SendResult directoryResult = EnsureDirectory(Location);
+            if (directoryResult == SendResult.FatalFail)
+            {
+                return Task.FromResult(directoryResult);
+            }
 
             string location = CombineDestinationFullName(notifyMessage.MessageInfo.MessageId, Location);
-
             Logger.Trace($"(Notify) Sending NotifyMessage to {location}");
 
-            return await WriteContentsToFile(location, notifyMessage.NotifyMessage)
-                .ContinueWith(t =>
-                {
-                    if (t.Result.Status == SendStatus.Success)
-                    {
-                        Logger.Info(
-                            $"(Notify) NotifyMessage {notifyMessage.MessageInfo.MessageId} " +
-                            $"is successfully send to {location}");
-                    }
+            SendResult result = WriteContentsToFile(location, notifyMessage.NotifyMessage);
+            if (result == SendResult.Success)
+            {
+                Logger.Info(
+                    $"(Notify) NotifyMessage {notifyMessage.MessageInfo.MessageId} " +
+                    $"is successfully send to {location}"); 
+            }
 
-                    return t.Result;
-                }, TaskContinuationOptions.NotOnRanToCompletion);
+            return Task.FromResult(result);
         }
 
         private static string CombineDestinationFullName(string fileName, string destinationFolder)
@@ -112,16 +109,16 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
             }
         }
 
-        private static Task<SendResult> WriteContentsToFile(string locationPath, byte[] contents)
+        private static SendResult WriteContentsToFile(string locationPath, byte[] contents)
         {
             try
             {
                 using (FileStream fileStream = FileUtils.CreateAsync(locationPath, FileOptions.SequentialScan))
                 {
-                    return fileStream
-                        .WriteAsync(contents, 0, contents.Length)
-                        .ContinueWith(t => SendResult.Success, 
-                                      TaskContinuationOptions.OnlyOnRanToCompletion);
+                    Task t = fileStream.WriteAsync(contents, 0, contents.Length);
+                    t.Wait();
+
+                    return SendResult.Success;
                 }
             }
             catch (AggregateException ex)
@@ -131,17 +128,14 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
                 bool containsAnyUnauthorizedExceptions =
                     ex.Flatten().InnerExceptions.Any(e => e is UnauthorizedAccessException);
 
-                return Task.FromResult(
-                    containsAnyUnauthorizedExceptions
-                        ? SendResult.FatalFail
-                        : SendResult.RetryableFail);
+                return containsAnyUnauthorizedExceptions
+                    ? SendResult.FatalFail
+                    : SendResult.RetryableFail;
             }
-            catch (Exception ex)
+            catch (IOException ex)
             {
                 Logger.Error(ex);
-
-                return Task.FromResult(
-                    SendResult.RetryableFail);
+                return SendResult.RetryableFail;
             }
         }
     }

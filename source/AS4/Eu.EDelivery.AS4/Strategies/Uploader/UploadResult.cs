@@ -19,7 +19,7 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
         private UploadResult(
             string payloadId,
             string downloadUrl,
-            SendStatus status)
+            SendResult status)
         {
             PayloadId = payloadId;
             DownloadUrl = downloadUrl;
@@ -40,7 +40,7 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
         /// Gets the status indicating whether the <see cref="SendResult"/> is successful or not.
         /// </summary>
         /// <value>The status.</value>
-        public SendStatus Status { get; }
+        public SendResult Status { get; }
 
         /// <summary>
         /// Creates a successful <see cref="UploadResult"/> with the uploaded response information.
@@ -52,7 +52,7 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
             return new UploadResult(
                 payloadId,
                 downloadUrl: null,
-                status: SendStatus.Success);
+                status: SendResult.Success);
         }
 
         /// <summary>
@@ -66,7 +66,7 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
             return new UploadResult(
                 payloadId,
                 downloadUrl,
-                status: SendStatus.Success);
+                status: SendResult.Success);
         }
 
         /// <summary>
@@ -79,7 +79,7 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
             return new UploadResult(
                 payloadId: null,
                 downloadUrl: downloadUrl,
-                status: SendStatus.Success);
+                status: SendResult.Success);
         }
 
         /// <summary>
@@ -90,7 +90,7 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
             new UploadResult(
                 payloadId: null,
                 downloadUrl: null,
-                status: SendStatus.RetryableFail);
+                status: SendResult.RetryableFail);
 
         /// <summary>
         /// Creates a failure <see cref="UploadResult"/> with a flag indicating that the upload operation cannot be retried.
@@ -100,32 +100,85 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
             new UploadResult(
                 payloadId: null,
                 downloadUrl: null,
-                status: SendStatus.Fail);
+                status: SendResult.FatalFail);
 
-        /// <summary>
-        /// Indicates whether the current object is equal to another object of the same type.
-        /// </summary>
-        /// <returns>true if the current object is equal to the <paramref name="other" /> parameter; otherwise, false.</returns>
+
+        /// <summary>Indicates whether the current object is equal to another object of the same type.</summary>
         /// <param name="other">An object to compare with this object.</param>
+        /// <returns>true if the current object is equal to the <paramref name="other" /> parameter; otherwise, false.</returns>
         public bool Equals(UploadResult other)
         {
-            return other != null 
-                   && PayloadId.Equals(other.PayloadId) 
-                   && DownloadUrl.Equals(other.DownloadUrl);
+            if (other is null)
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(this, other))
+            {
+                return true;
+            }
+
+            return string.Equals(PayloadId, other.PayloadId)
+                && string.Equals(DownloadUrl, other.DownloadUrl)
+                && Status == other.Status;
         }
 
         /// <summary>
-        /// To the deliver result.
+        /// Determines whether the specified object is equal to the current object.
         /// </summary>
-        /// <param name="r">The result during uploading.</param>
-        /// <returns></returns>
-        public static SendResult ToDeliverResult(UploadResult r)
+        /// <param name="obj">The object to compare with the current object. </param>
+        /// <returns>true if the specified object  is equal to the current object; otherwise, false.</returns>
+        public override bool Equals(object obj)
         {
-            return r.Status == SendStatus.Success
-                ? SendResult.Success
-                : r.Status == SendStatus.RetryableFail
-                    ? SendResult.RetryableFail
-                    : SendResult.FatalFail;
+            if (obj is null)
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(this, obj))
+            {
+                return true;
+            }
+
+            return obj is UploadResult r && Equals(r);
+        }
+
+        /// <summary>
+        /// Serves as the default hash function.
+        /// </summary>
+        /// <returns>A hash code for the current object.</returns>
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                int hashCode = PayloadId != null ? PayloadId.GetHashCode() : 0;
+                hashCode = (hashCode * 397) ^ (DownloadUrl != null ? DownloadUrl.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (int) Status;
+
+                return hashCode;
+            }
+        }
+
+        /// <summary>
+        /// Returns a value that indicates whether the values of two <see cref="T:Eu.EDelivery.AS4.Strategies.Uploader.UploadResult" /> objects are equal.
+        /// </summary>
+        /// <param name="left">The first value to compare.</param>
+        /// <param name="right">The second value to compare.</param>
+        /// <returns>true if the <paramref name="left" /> and <paramref name="right" /> parameters have the same value; otherwise, false.</returns>
+        public static bool operator ==(UploadResult left, UploadResult right)
+        {
+            return Equals(left, right);
+        }
+
+        /// <summary>
+        /// Returns a value that indicates whether two <see cref="T:Eu.EDelivery.AS4.Strategies.Uploader.UploadResult" /> objects have different values.
+        /// </summary>
+        /// <param name="left">The first value to compare.</param>
+        /// <param name="right">The second value to compare.</param>
+        /// <returns>true if <paramref name="left" /> and <paramref name="right" /> are not equal; otherwise, false.</returns>
+        public static bool operator !=(UploadResult left, UploadResult right)
+        {
+            return !Equals(left, right);
         }
     }
 }

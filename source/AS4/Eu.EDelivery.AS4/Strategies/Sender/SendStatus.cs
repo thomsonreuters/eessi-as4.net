@@ -1,28 +1,28 @@
 ﻿namespace Eu.EDelivery.AS4.Strategies.Sender
 {
-    public enum SendStatus
+    public enum SendResult
     {
         Success,
         RetryableFail,
-        Fail
+        FatalFail
     }
 
-    public static class SendStatusEx
+    public static class SendResultUtils
     {
-        public static SendStatus Reduce(SendStatus x, SendStatus y)
+        public static SendResult Reduce(SendResult x, SendResult y)
         {
             bool bothScuccess =
-                x == SendStatus.Success
-                && y == SendStatus.Success;
+                x == SendResult.Success
+                && y == SendResult.Success;
 
             if (bothScuccess)
             {
-                return SendStatus.Success;
+                return SendResult.Success;
             }
 
-            return x == SendStatus.Fail || y == SendStatus.Fail
-                ? SendStatus.Fail
-                : SendStatus.RetryableFail;
+            return x == SendResult.FatalFail || y == SendResult.FatalFail
+                ? SendResult.FatalFail
+                : SendResult.RetryableFail;
         }
     }
 }

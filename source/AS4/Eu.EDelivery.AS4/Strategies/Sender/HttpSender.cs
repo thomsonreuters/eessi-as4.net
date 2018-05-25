@@ -137,11 +137,23 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
             switch (response?.StatusCode)
             {
                 case HttpStatusCode.OK:
+                case HttpStatusCode.Created:
                 case HttpStatusCode.Accepted:
+                case HttpStatusCode.NonAuthoritativeInformation:
+                case HttpStatusCode.NoContent:
+                case HttpStatusCode.ResetContent:
+                case HttpStatusCode.PartialContent:
                     return SendResult.Success;
+
                 case HttpStatusCode.RequestTimeout:
+                case HttpStatusCode.InternalServerError:
+                case HttpStatusCode.NotImplemented:
+                case HttpStatusCode.BadGateway:
+                case HttpStatusCode.ServiceUnavailable:
                 case HttpStatusCode.GatewayTimeout:
+                case HttpStatusCode.HttpVersionNotSupported:
                     return SendResult.RetryableFail;
+
                 default:
                     return SendResult.FatalFail;
             }
