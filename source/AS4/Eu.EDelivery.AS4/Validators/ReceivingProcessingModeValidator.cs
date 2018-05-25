@@ -62,9 +62,8 @@ namespace Eu.EDelivery.AS4.Validators
                 .NotEqual(default(int))
                 .When(isReliabilityEnabled);
 
-            RuleFor(pmode => pmode.ExceptionHandling.Reliability.RetryIntervalString)
-                .Must(interval => TimeSpan.TryParse(interval, out TimeSpan _))
-                .NotEqual(default(TimeSpan).ToString())
+            RuleFor(pmode => pmode.ExceptionHandling.Reliability.RetryInterval)
+                .NotEqual(default(TimeSpan))
                 .When(isReliabilityEnabled);
         }
 
@@ -127,9 +126,8 @@ namespace Eu.EDelivery.AS4.Validators
             RuleFor(pmode => pmode.MessageHandling.DeliverInformation.Reliability.RetryCount)
                 .NotEqual(default(int))
                 .When(isReliabilityEnabled);
-            RuleFor(pmode => pmode.MessageHandling.DeliverInformation.Reliability.RetryIntervalString)
-                .Must(interval => TimeSpan.TryParse(interval, out TimeSpan _))
-                .NotEqual(default(TimeSpan).ToString())
+            RuleFor(pmode => pmode.MessageHandling.DeliverInformation.Reliability.RetryInterval)
+                .NotEqual(default(TimeSpan))
                 .When(isReliabilityEnabled);
         }
     }

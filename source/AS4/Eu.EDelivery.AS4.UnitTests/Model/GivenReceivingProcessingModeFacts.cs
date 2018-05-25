@@ -1,4 +1,5 @@
-﻿using Eu.EDelivery.AS4.Model.PMode;
+﻿using System;
+using Eu.EDelivery.AS4.Model.PMode;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Model
@@ -34,6 +35,17 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
                 // Assert
                 Assert.NotNull(pmode.MessageHandling.DeliverInformation);
                 Assert.False(pmode.MessageHandling.DeliverInformation.IsEnabled);
+            }
+
+            [Fact]
+            public void ThenRetryReliabilityHasDefaultTimeSpan()
+            {
+                // Act
+                var pmode = new ReceivingProcessingMode();
+                pmode.MessageHandling.DeliverInformation.Reliability.RetryIntervalString = Guid.NewGuid().ToString();
+
+                // Assert
+                Assert.Equal(default(TimeSpan), pmode.MessageHandling.DeliverInformation.Reliability.RetryInterval);
             }
 
             [Fact]

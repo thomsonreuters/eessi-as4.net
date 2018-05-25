@@ -129,8 +129,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
                     // Assert
                     bool correctConfigured =
                         retryCount != default(int)
-                        && TimeSpan.TryParse(retryIntervalText, out TimeSpan _)
-                        && r.RetryIntervalString != default(TimeSpan).ToString();
+                        && r.RetryInterval != default(TimeSpan);
 
                     bool expected = 
                         !isEnabled && !correctConfigured
@@ -138,9 +137,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
                         || correctConfigured;
 
                     return expected.Equals(result.IsValid)
-                        .Label(result.AppendValidationErrorsToErrorMessage(String.Empty))
-                        .Classify(correctConfigured, "Reliability correctly configured")
-                        .Classify(isEnabled, "Reliability is enabled");
+                        .Label(result.AppendValidationErrorsToErrorMessage(string.Empty))
+                        .Classify(result.IsValid, "Valid PMode")
+                        .Classify(!result.IsValid, "Invalid PMode")
+                        .Classify(correctConfigured, "Correct Reliability")
+                        .Classify(!correctConfigured, "Incorrect Reliability")
+                        .Classify(isEnabled, "Reliability is enabled")
+                        .Classify(!isEnabled, "Reliability is disabled");
                 });
         }
 
