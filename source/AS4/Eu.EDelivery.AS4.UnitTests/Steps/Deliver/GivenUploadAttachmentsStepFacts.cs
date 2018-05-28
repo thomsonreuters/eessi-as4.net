@@ -92,7 +92,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
                 .ReturnsAsync(input.UploadResult);
             stub.Setup(s => s.UploadAsync(a2, userMessage))
                 .ReturnsAsync(
-                    input.UploadResult.Status == DeliveryStatus.Success
+                    input.UploadResult.Status == SendResult.Success
                         ? UploadResult.FatalFail
                         : UploadResult.RetryableFail);
 
@@ -114,7 +114,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
 
                 bool operationToBeDelivered = Operation.ToBeDelivered == op;
                 bool uploadResultCanBeRetried =
-                    input.UploadResult.Status == DeliveryStatus.RetryableFail 
+                    input.UploadResult.Status == SendResult.RetryableFail 
                     && input.CurrentRetryCount < input.MaxRetryCount;
 
                 Assert.True(
@@ -124,7 +124,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
                 bool messageSetToException = Operation.DeadLettered == op && InStatus.Exception == st;
                 bool exhaustRetries =
                     input.CurrentRetryCount == input.MaxRetryCount
-                    || input.UploadResult.Status != DeliveryStatus.RetryableFail;
+                    || input.UploadResult.Status != SendResult.RetryableFail;
                 Assert.True(
                     messageSetToException == exhaustRetries,
                     $"{messageSetToException} != {exhaustRetries} InMessage should update Operation=DeadLettered, Status=Exception");

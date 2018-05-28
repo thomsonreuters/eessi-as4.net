@@ -52,8 +52,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Strategies.Sender
                 // Arrange
                 var sut = new ReliableSender(deliverSender: new SaboteurSender());
 
-                // Act / Assert
-                await Assert.ThrowsAnyAsync<Exception>(() => sut.SendAsync(DummyDeliverMessage()));
+                // Act
+                SendResult r = await sut.SendAsync(DummyDeliverMessage());
+
+                // Assert
+                Assert.Equal(SendResult.FatalFail, r);
             }
 
             private static DeliverMessageEnvelope DummyDeliverMessage()
@@ -67,8 +70,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Strategies.Sender
                 // Arrange
                 var sut = new ReliableSender(notifySender: new SaboteurSender());
 
-                // Act / Assert
-                await Assert.ThrowsAnyAsync<Exception>(() => sut.SendAsync(DummyNotifyMessage()));
+                // Act
+                SendResult r = await sut.SendAsync(DummyNotifyMessage());
+
+                // Assert
+                Assert.Equal(SendResult.FatalFail, r);
             }
 
             private static NotifyMessageEnvelope DummyNotifyMessage()
