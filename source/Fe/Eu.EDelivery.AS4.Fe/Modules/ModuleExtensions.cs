@@ -55,6 +55,7 @@ namespace Eu.EDelivery.AS4.Fe.Modules
                 foreach (Exception loaderException in ex.LoaderExceptions)
                 {
                     NLog.LogManager.GetCurrentClassLogger().Error(loaderException.Message);
+                    NLog.LogManager.GetCurrentClassLogger().Trace(loaderException.StackTrace);
                 }
                 throw;
             }
