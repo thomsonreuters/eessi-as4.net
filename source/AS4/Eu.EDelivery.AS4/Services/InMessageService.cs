@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Entities;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
+using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
@@ -290,7 +291,7 @@ namespace Eu.EDelivery.AS4.Services
                             {
                                 message.CurrentRetryCount = 0;
                                 message.MaxRetryCount = reliability.RetryCount;
-                                message.SetRetryInterval(reliability.RetryInterval);
+                                message.SetRetryInterval(reliability.RetryInterval.AsTimeSpan());
                             }
 
                         }
@@ -338,7 +339,7 @@ namespace Eu.EDelivery.AS4.Services
                             {
                                 m.CurrentRetryCount = 0;
                                 m.MaxRetryCount = reliability.RetryCount;
-                                m.SetRetryInterval(reliability.RetryInterval);
+                                m.SetRetryInterval(reliability.RetryInterval.AsTimeSpan());
                             }
 
                         });

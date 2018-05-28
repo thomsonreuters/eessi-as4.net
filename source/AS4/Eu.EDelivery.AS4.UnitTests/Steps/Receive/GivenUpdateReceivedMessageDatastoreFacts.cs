@@ -161,7 +161,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 {
                     IsEnabled = enabled,
                     RetryCount = 5,
-                    RetryIntervalString = "0:01:00"
+                    RetryInterval = "0:01:00"
                 };
 
             // Act
@@ -199,7 +199,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 {
                     IsEnabled = enabled,
                     RetryCount = 3,
-                    RetryIntervalString = "0:00:10"
+                    RetryInterval = "0:00:10"
                 };
 
             // Act
@@ -233,7 +233,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 {
                     IsEnabled = enabled,
                     RetryCount = 3,
-                    RetryIntervalString = "0:00:05"
+                    RetryInterval = "0:00:05"
                 };
 
             // Act

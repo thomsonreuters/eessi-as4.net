@@ -1,4 +1,5 @@
 ﻿using System;
+using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.PMode;
 using FluentValidation;
 
@@ -62,7 +63,7 @@ namespace Eu.EDelivery.AS4.Validators
                 .NotEqual(default(int))
                 .When(isReliabilityEnabled);
 
-            RuleFor(pmode => pmode.ExceptionHandling.Reliability.RetryInterval)
+            RuleFor(pmode => pmode.ExceptionHandling.Reliability.RetryInterval.AsTimeSpan())
                 .NotEqual(default(TimeSpan))
                 .When(isReliabilityEnabled);
         }
@@ -126,7 +127,7 @@ namespace Eu.EDelivery.AS4.Validators
             RuleFor(pmode => pmode.MessageHandling.DeliverInformation.Reliability.RetryCount)
                 .NotEqual(default(int))
                 .When(isReliabilityEnabled);
-            RuleFor(pmode => pmode.MessageHandling.DeliverInformation.Reliability.RetryInterval)
+            RuleFor(pmode => pmode.MessageHandling.DeliverInformation.Reliability.RetryInterval.AsTimeSpan())
                 .NotEqual(default(TimeSpan))
                 .When(isReliabilityEnabled);
         }

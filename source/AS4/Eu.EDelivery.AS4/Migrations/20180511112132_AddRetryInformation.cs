@@ -37,6 +37,38 @@ namespace Eu.EDelivery.AS4.Migrations
                 table: "InMessages",
                 maxLength: 50,
                 defaultValue: 0);
+
+            migrationBuilder.AddColumn<int>(
+                name: "CurrentRetryCount",
+                table: "OutExceptions",
+                defaultValue: 0);
+
+            migrationBuilder.AddColumn<int>(
+                name: "MaxRetryCount",
+                table: "OutExceptions",
+                defaultValue: 0);
+
+            migrationBuilder.AddColumn<string>(
+                name: "RetryInterval",
+                table: "OutExceptions",
+                maxLength: 50,
+                defaultValue: 0);
+
+            migrationBuilder.AddColumn<int>(
+                name: "CurrentRetryCount",
+                table: "InExceptions",
+                defaultValue: 0);
+
+            migrationBuilder.AddColumn<int>(
+                name: "MaxRetryCount",
+                table: "InExceptions",
+                defaultValue: 0);
+
+            migrationBuilder.AddColumn<string>(
+                name: "RetryInterval",
+                table: "InExceptions",
+                maxLength: 50,
+                defaultValue: 0);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -64,6 +96,30 @@ namespace Eu.EDelivery.AS4.Migrations
             migrationBuilder.DropColumn(
                 name: "RetryInterval",
                 table: "InMessages");
+
+            migrationBuilder.DropColumn(
+                name: "CurrentRetryCount",
+                table: "OutExceptions");
+
+            migrationBuilder.DropColumn(
+                name: "MaxRetryCount",
+                table: "OutExceptions");
+
+            migrationBuilder.DropColumn(
+                name: "RetryInterval",
+                table: "OutExceptions");
+
+            migrationBuilder.DropColumn(
+                name: "CurrentRetryCount",
+                table: "InExceptions");
+
+            migrationBuilder.DropColumn(
+                name: "MaxRetryCount",
+                table: "InExceptions");
+
+            migrationBuilder.DropColumn(
+                name: "RetryInterval",
+                table: "InExceptions");
         }
     }
 }

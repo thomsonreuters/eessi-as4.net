@@ -3,8 +3,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
+using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
+using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Streaming;
@@ -41,14 +43,11 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
         {
             Logger.Error($"Exception occured during transformation: {exception.Message}");
 
-            await SideEffectUsageRepository(
+            await UseRepositorySaveAfterwards(
                 repository =>
                 {
-                    OutException outException = new OutException(messageToTransform.UnderlyingStream.ToBytes(), exception);
-
+                    var outException = new OutException(messageToTransform.UnderlyingStream.ToBytes(), exception);
                     repository.InsertOutException(outException);
-
-                    return Task.CompletedTask;
                 });
 
             return new MessagingContext(exception);
@@ -83,58 +82,62 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
                 Logger.Trace(exception.InnerException.StackTrace);
             }
 
-            string ebmsMessageId = await GetEbmsMessageId(context);
-
-            if (string.IsNullOrEmpty(ebmsMessageId) == false)
+            OutException outException = await CreateOutExceptionBasedOnContext(exception, context);
+            await UseRepositorySaveAfterwards(repo =>
             {
-                await SideEffectUsageRepository(
-                    async repository =>
-                    {
-                        if (context.MessageEntityId != null)
-                        {
-                            repository.UpdateOutMessage(context.MessageEntityId.Value, m => m.SetStatus(OutStatus.Exception));
-                        }
+                if (context.MessageEntityId != null)
+                {
+                    repo.UpdateOutMessage(
+                        context.MessageEntityId.Value,
+                        m => m.SetStatus(OutStatus.Exception));
+                }
 
-                        OutException outException = new OutException(ebmsMessageId, exception);
-                        await DecorateExceptionEntityWithContextInfoAsync(outException, context);
-
-                        repository.InsertOutException(outException);
-                    });
-            }
-            else
-            {
-                await SideEffectUsageRepository(
-                    async repository =>
-                    {
-                        OutException ex = new OutException(await AS4XmlSerializer.TryToXmlBytesAsync(context.SubmitMessage),
-                                                           exception);
-
-                        await DecorateExceptionEntityWithContextInfoAsync(ex, context);
-
-
-                        repository.InsertOutException(ex);
-                    });
-            }
+                repo.InsertOutException(outException);
+            });
 
             return new MessagingContext(exception);
         }
 
-        private static async Task DecorateExceptionEntityWithContextInfoAsync(ExceptionEntity outException, MessagingContext context)
+        private static async Task<OutException> CreateOutExceptionBasedOnContext(Exception exception, MessagingContext context)
         {
-            await outException.SetPModeInformationAsync(context.SendingPMode);
+            async Task<OutException> CreateOutException()
+            {
+                string ebmsMessageId = await GetEbmsMessageId(context);
+                if (string.IsNullOrEmpty(ebmsMessageId))
+                {
+                    return new OutException(
+                        await AS4XmlSerializer.TryToXmlBytesAsync(context.SubmitMessage),
+                        exception);
+                }
 
-            var notifyOperation =
-                (context.SendingPMode?.ExceptionHandling?.NotifyMessageProducer == true) ? Operation.ToBeNotified : default(Operation);
+                return new OutException(ebmsMessageId, exception);
+            }
 
-            outException.SetOperation(notifyOperation);
+            OutException outEx = await CreateOutException();
+            await outEx.SetPModeInformationAsync(context.SendingPMode);
+
+            SendHandling handling = context.SendingPMode?.ExceptionHandling;
+
+            bool needsToBeNotified = handling?.NotifyMessageProducer == true;
+            outEx.SetOperation(needsToBeNotified ? Operation.ToBeNotified : default(Operation));
+
+            RetryReliability reliability = handling?.Reliability;
+            if (reliability != null && reliability.IsEnabled)
+            {
+                outEx.CurrentRetryCount = 0;
+                outEx.MaxRetryCount = reliability.RetryCount;
+                outEx.SetRetryInterval(reliability.RetryInterval.AsTimeSpan());
+            }
+
+            return outEx;
         }
 
-        private async Task SideEffectUsageRepository(Func<DatastoreRepository, Task> usage)
+        private async Task UseRepositorySaveAfterwards(Action<DatastoreRepository> usage)
         {
             using (DatastoreContext context = _createContext())
             {
                 var repository = new DatastoreRepository(context);
-                await usage(repository);
+                usage(repository);
 
                 await context.SaveChangesAsync();
             }
@@ -146,7 +149,7 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
 
             if (String.IsNullOrWhiteSpace(ebmsMessageId) && context.ReceivedMessage != null)
             {
-                var as4Message = await TryDeserialize(context.ReceivedMessage);
+                AS4Message as4Message = await TryDeserialize(context.ReceivedMessage);
                 ebmsMessageId = as4Message?.GetPrimaryMessageId();
             }
 
@@ -155,13 +158,15 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
 
         private static async Task<AS4Message> TryDeserialize(ReceivedMessage message)
         {
-            var serializer = SerializerProvider.Default.Get(message.ContentType);
+            ISerializer serializer = SerializerProvider.Default.Get(message.ContentType);
             try
             {
                 message.UnderlyingStream.Position = 0;
-                var as4Message = await serializer.DeserializeAsync(message.UnderlyingStream, message.ContentType, CancellationToken.None);
 
-                return as4Message;
+                return await serializer.DeserializeAsync(
+                    message.UnderlyingStream, 
+                    message.ContentType, 
+                    CancellationToken.None);
             }
             catch
             {
@@ -170,3 +175,4 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
         }
     }
 }
+
