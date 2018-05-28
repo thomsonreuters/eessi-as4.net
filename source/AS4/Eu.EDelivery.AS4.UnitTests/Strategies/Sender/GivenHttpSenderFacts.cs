@@ -50,7 +50,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Strategies.Sender
 
             Assert.True(client.IsCalled, "Stub HTTP client isn't called");
             return isRetryable
-                .Equals(code >= 500 || code == 408)
+                .Equals(code >= 500 || code == 408 || code == 429)
                 .Or(isSuccess.Equals(code >= 200 && code <= 206))
                 .Or(isFatal.Equals(code >= 400 && code < 500))
                 .Classify(isSuccess, "Success with code: " + code)

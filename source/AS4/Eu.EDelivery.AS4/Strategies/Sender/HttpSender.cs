@@ -134,29 +134,25 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
 
         private static SendResult DetermineSendResultFromResponse(HttpWebResponse response)
         {
-            switch (response?.StatusCode)
+            if (response?.StatusCode == null)
             {
-                case HttpStatusCode.OK:
-                case HttpStatusCode.Created:
-                case HttpStatusCode.Accepted:
-                case HttpStatusCode.NonAuthoritativeInformation:
-                case HttpStatusCode.NoContent:
-                case HttpStatusCode.ResetContent:
-                case HttpStatusCode.PartialContent:
-                    return SendResult.Success;
-
-                case HttpStatusCode.RequestTimeout:
-                case HttpStatusCode.InternalServerError:
-                case HttpStatusCode.NotImplemented:
-                case HttpStatusCode.BadGateway:
-                case HttpStatusCode.ServiceUnavailable:
-                case HttpStatusCode.GatewayTimeout:
-                case HttpStatusCode.HttpVersionNotSupported:
-                    return SendResult.RetryableFail;
-
-                default:
-                    return SendResult.FatalFail;
+                return SendResult.FatalFail;
             }
+
+            var code = (int) response?.StatusCode;
+            if (200 <= code && code < 300)
+            {
+                return SendResult.Success;
+            }
+
+            if (500 <= code && code < 600
+                || code == 408 
+                || code == 429)
+            {
+                return SendResult.RetryableFail;
+            }
+
+            return SendResult.FatalFail;
         }
     }
 }
