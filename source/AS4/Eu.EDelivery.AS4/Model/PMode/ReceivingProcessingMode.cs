@@ -332,20 +332,26 @@ namespace Eu.EDelivery.AS4.Model.PMode
 
     public class RetryReliability
     {
-        private TimeSpan _retryInterval;
-
         [Description("Indicate wheter or not the deliver operation should be retried on failure.")]
         public bool IsEnabled { get; set; }
 
         [Description("Amount of retry cycles the deliver operation should be retried on failure.")]
         public int RetryCount { get; set; }
 
+        [XmlElement("RetryInterval")]
         [Description("Time interval between each retry cycle the deliver operation should be retried on failure.")]
-        public string RetryInterval
+        public string RetryIntervalString
         {
-            get => _retryInterval.ToString(@"hh\:mm\:ss");
-            set => TimeSpan.TryParse(value, out _retryInterval);
+            get => RetryInterval.ToString(@"hh\:mm\:ss");
+            set
+            {
+                TimeSpan.TryParse(value, out TimeSpan result);
+                RetryInterval = result;
+            }
         }
+
+        [XmlIgnore]
+        public TimeSpan RetryInterval { get; private set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RetryReliability"/> class.
@@ -353,7 +359,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
         public RetryReliability()
         {
             IsEnabled = false;
-            _retryInterval = default(TimeSpan);
+            RetryInterval = default(TimeSpan);
         }
     }
 

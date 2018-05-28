@@ -278,9 +278,21 @@ namespace Eu.EDelivery.AS4.Services
                     {
                         message.SetPModeInformation(receivingPModeId, receivingPModeString);
 
-                        if (UserMessageNeedsToBeDelivered(messagingContext.ReceivingPMode, userMessage) && message.Intermediary == false)
+                        if (UserMessageNeedsToBeDelivered(messagingContext.ReceivingPMode, userMessage) 
+                            && message.Intermediary == false)
                         {
                             message.SetOperation(Operation.ToBeDelivered);
+
+                            RetryReliability reliability = 
+                                messagingContext.ReceivingPMode.MessageHandling?.DeliverInformation?.Reliability;
+
+                            if (reliability?.IsEnabled ?? false)
+                            {
+                                message.CurrentRetryCount = 0;
+                                message.MaxRetryCount = reliability.RetryCount;
+                                message.SetRetryInterval(reliability.RetryInterval);
+                            }
+
                         }
                     });
             }
@@ -292,16 +304,22 @@ namespace Eu.EDelivery.AS4.Services
 
             // Improvement: I think it will be safer if we retrieve the sending-pmodes of the related usermessages ourselves here
             // instead of relying on the SendingPMode that is available in the AS4Message object (which is set by another Step in the queue).
-            var receipts = as4Message.SignalMessages.OfType<Receipt>();
+            IEnumerable<Receipt> receipts = as4Message.SignalMessages.OfType<Receipt>();
+            bool notifyReceipts = messagingContext.SendingPMode?.ReceiptHandling?.NotifyMessageProducer ?? false;
+            RetryReliability retryReceipts = messagingContext.SendingPMode?.ReceiptHandling?.Reliability;
+            UpdateSignalMessages(receipts, () => notifyReceipts, OutStatus.Ack, retryReceipts);
 
-            UpdateSignalMessages(receipts, () => messagingContext.SendingPMode?.ReceiptHandling?.NotifyMessageProducer ?? false, OutStatus.Ack);
-
-            var errors = as4Message.SignalMessages.OfType<Error>();
-
-            UpdateSignalMessages(errors, () => messagingContext.SendingPMode?.ErrorHandling?.NotifyMessageProducer ?? false, OutStatus.Nack);
+            IEnumerable<Error> errors = as4Message.SignalMessages.OfType<Error>();
+            bool notifyErrors = messagingContext.SendingPMode?.ErrorHandling?.NotifyMessageProducer ?? false;
+            RetryReliability retryErrors = messagingContext.SendingPMode?.ErrorHandling?.Reliability;
+            UpdateSignalMessages(errors, () => notifyErrors, OutStatus.Nack, retryErrors);
         }
 
-        private void UpdateSignalMessages(IEnumerable<SignalMessage> signalMessages, Func<bool> signalsMustBeNotified, OutStatus outStatus)
+        private void UpdateSignalMessages(
+            IEnumerable<SignalMessage> signalMessages, 
+            Func<bool> signalsMustBeNotified, 
+            OutStatus outStatus,
+            RetryReliability reliability)
         {
             if (signalsMustBeNotified())
             {
@@ -311,7 +329,19 @@ namespace Eu.EDelivery.AS4.Services
                 {
                     _repository.UpdateInMessages(
                         m => signalsToNotify.Contains(m.EbmsMessageId) && m.Intermediary == false,
-                        m => m.SetOperation(Operation.ToBeNotified));
+                        m =>
+                        {
+                            m.SetOperation(Operation.ToBeNotified);
+
+                            bool isRetryEnabled = reliability?.IsEnabled ?? false;
+                            if (isRetryEnabled)
+                            {
+                                m.CurrentRetryCount = 0;
+                                m.MaxRetryCount = reliability.RetryCount;
+                                m.SetRetryInterval(reliability.RetryInterval);
+                            }
+
+                        });
                 }
             }
 
