@@ -6,7 +6,7 @@ The following section describes what the **Submit Agent** is and what its respon
 
 ## Agent Responsibility
 
-The **Submit Agent** acts as the "entry-point" of the component for when a message is to be sent. Its only task is to make sure that the `SubmitMessage` is transformed to an `AS4Message` using a _Sending Processing Mode_ so that the message can be send correctly to the next MSH.
+The **Submit Agent** acts as the "entry-point" of the component for when a message is to be sent. Its only task is to make sure that the `SubmitMessage` is transformed to an `AS4Message` using a _Sending Processing Mode_ so that the message can be send correctly by the **Send Agent** to the next MSH
 
 ## Message Flow
 
