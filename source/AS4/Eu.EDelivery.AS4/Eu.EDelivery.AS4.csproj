@@ -41,9 +41,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="netstandard, Version=2.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51">
-      <Private>True</Private>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Configuration" />
@@ -113,9 +110,6 @@
       <Version>2.0.1</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Net.Http.Headers">
-      <Version>2.0.1</Version>
-    </PackageReference>
-    <PackageReference Include="NETStandard.Library">
       <Version>2.0.1</Version>
     </PackageReference>
     <PackageReference Include="System.Buffers">
