@@ -104,14 +104,8 @@ namespace Eu.EDelivery.AS4.Services
                     as4MessageStream: context.ReceivedMessage.UnderlyingStream).ConfigureAwait(false);
             try
             {
-                context.ReceivedMessage.UnderlyingStream.Position = 0;
-
-                ISerializer deserializer = SerializerProvider.Default.Get(context.ReceivedMessage.ContentType);
-
-                AS4Message as4Message = await deserializer.DeserializeAsync(
-                    context.ReceivedMessage.UnderlyingStream,
-                    context.ReceivedMessage.ContentType,
-                    CancellationToken.None).ConfigureAwait(false);
+                AS4Message as4Message = context.AS4Message
+                    ?? await DeserializeToAS4Message(context.ReceivedMessage);
 
                 InsertUserMessages(as4Message, mep, location, context.SendingPMode);
                 InsertSignalMessages(as4Message, mep, location, context.SendingPMode);
@@ -129,6 +123,19 @@ namespace Eu.EDelivery.AS4.Services
 
                 return new MessagingContext(ex);
             }
+        }
+
+        private static async Task<AS4Message> DeserializeToAS4Message(ReceivedMessage m)
+        {
+            m.UnderlyingStream.Position = 0;
+
+            return await SerializerProvider.Default
+                .Get(m.ContentType)
+                .DeserializeAsync(
+                    m.UnderlyingStream,
+                    m.ContentType,
+                    CancellationToken.None)
+                .ConfigureAwait(false);
         }
 
         private void InsertUserMessages(

@@ -280,11 +280,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             stream.Position = 0;
 
             var receivedMessage = new ReceivedMessage(stream, as4Message.ContentType);
-            return new MessagingContext(receivedMessage, MessagingContextMode.Receive)
+            var ctx = new MessagingContext(receivedMessage, MessagingContextMode.Receive)
             {
                 SendingPMode = sendingPMode,
                 ReceivingPMode = receivingPMode
             };
+            ctx.ModifyContext(as4Message);
+
+            return ctx;
         }
 
         private async Task<MessagingContext> ExecuteSaveReceivedMessage(MessagingContext context)

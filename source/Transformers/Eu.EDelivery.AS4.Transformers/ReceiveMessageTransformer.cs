@@ -2,12 +2,15 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Extensions;
+using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
+using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Streaming;
 using Eu.EDelivery.AS4.Utilities;
 using NLog;
@@ -61,7 +64,7 @@ namespace Eu.EDelivery.AS4.Transformers
             if (message.UnderlyingStream == null)
             {
                 throw new InvalidMessageException(
-                    "The incoming stream is not an ebMS Message. " + 
+                    "The incoming stream is not an ebMS Message. " +
                     "Only ebMS messages conform with the AS4 Profile are supported.");
             }
 
@@ -72,12 +75,22 @@ namespace Eu.EDelivery.AS4.Transformers
                     $"Supported ContentTypes are {Constants.ContentTypes.Soap} and {Constants.ContentTypes.Mime}");
             }
 
+            AS4Message as4Message = await DeserializeToAS4Message(message);
+            if (as4Message.IsSignalMessage && ReceivingPMode != null)
+            {
+                throw new InvalidMessageException(
+                    "Static Receive configuration doesn't allow receiving signal messages. " +
+                    $"Please remove the static configured Receiving PMode: {ReceivingPMode} to also receive signal messages");
+            }
+
+
             ReceivedMessage m = await EnsureIncomingStreamIsSeekable(message);
             var context = new MessagingContext(m, MessagingContextMode.Receive);
+            context.ModifyContext(as4Message);
 
             if (ReceivingPMode != null)
             {
-                ReceivingProcessingMode pmode = 
+                ReceivingProcessingMode pmode =
                     _config.GetReceivingPModes()
                            ?.FirstOrDefault(p => p.Id == ReceivingPMode);
 
@@ -88,16 +101,36 @@ namespace Eu.EDelivery.AS4.Transformers
                 else
                 {
                     string description =
-                        $"Receiving PMode with Id: {ReceivingPMode} was configured as default PMode, {Environment.NewLine}" + 
+                        $"Receiving PMode with Id: {ReceivingPMode} was configured as default PMode, {Environment.NewLine}" +
                         "but this PMode cannot be found in the configured receiving PModes.";
-                    Logger.Error(
-                        $@"{description} Configured Receiving PModes are placed on the folder: '.\config\receive-pmodes\'.");
+
+                    Logger.Error($@"{description} Configured Receiving PModes are placed on the folder: '.\config\receive-pmodes\'.");
 
                     throw new InvalidOperationException(description);
                 }
             }
 
             return context;
+        }
+
+        private static async Task<AS4Message> DeserializeToAS4Message(ReceivedMessage message)
+        {
+            try
+            {
+                return await SerializerProvider.Default
+                    .Get(message.ContentType)
+                    .DeserializeAsync(message.UnderlyingStream, message.ContentType, CancellationToken.None);
+
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex);
+
+                throw new InvalidMessageException(
+                    "The incoming stream is not an ebMS Message, " +
+                    $"although the Content-Type is: {message.ContentType}. " +
+                    "Only ebMS messages conform with the AS4 Profile are supported.");
+            }
         }
 
         private static async Task<ReceivedMessage> EnsureIncomingStreamIsSeekable(ReceivedMessage m)
