@@ -43,34 +43,37 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         }
 
         [Fact]
-        public async Task ThenUpdateReceiptWithReceived_IfNRReceiptHasValidHashes()
+        public void ThenUpdateReceiptWithReceived_IfNRReceiptHasValidHashes()
         {
             // Arrange
             string ebmsMessageId = Guid.NewGuid().ToString();
 
             // Act
-            await TestReceiveNRReceiptWith(ebmsMessageId, hash => hash);
+            TestReceiveNRReceiptWith(ebmsMessageId, hash => hash);
 
             // Assert
-            InMessage receipt = _databaseSpy.GetInMessageFor(m => m.EbmsRefToMessageId == ebmsMessageId);
+            InMessage receipt = PollUntilPresent(
+                () => _databaseSpy.GetInMessageFor(m => m.EbmsRefToMessageId == ebmsMessageId), 
+                timeout: TimeSpan.FromSeconds(5));
+
             Assert.Equal(InStatus.Received, InStatusUtils.Parse(receipt.Status));
         }
 
         [Fact]
-        public async Task ThenUpdateReceiptWithException_IfNRReceiptHasInvalidHashes()
+        public void ThenUpdateReceiptWithException_IfNRReceiptHasInvalidHashes()
         {
             // Arrange
             string ebmsMessageId = Guid.NewGuid().ToString();
             int CorruptHash(int hash) => hash + 10;
 
             // Act
-            await TestReceiveNRReceiptWith(ebmsMessageId, CorruptHash);
+            TestReceiveNRReceiptWith(ebmsMessageId, CorruptHash);
 
             // Assert
             Assert.NotEmpty(_databaseSpy.GetInExceptions(m => m.EbmsRefToMessageId == ebmsMessageId));
         }
 
-        private async Task TestReceiveNRReceiptWith(string ebmsMessageId, Func<int, int> selection)
+        private void TestReceiveNRReceiptWith(string ebmsMessageId, Func<int, int> selection)
         {
             SendingProcessingMode nrrPMode = VerifyNRReceiptsPMode();
             X509Certificate2 cert = new StubCertificateRepository().GetStubCertificate();
@@ -83,8 +86,6 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
             PutMessageToSend(userMessage, nrrPMode, actAsIntermediaryMsh: false);
             waitHandle.WaitOne();
-
-            await Task.Delay(TimeSpan.FromSeconds(1));
         }
 
         private static SendingProcessingMode VerifyNRReceiptsPMode()
@@ -137,7 +138,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         [Theory]
         [InlineData(true, OutStatus.Sent, Operation.ToBeForwarded)]
         [InlineData(false, OutStatus.Ack, Operation.ToBeNotified)]
-        public async Task CorrectHandlingOnSynchronouslyReceivedMultiHopReceipt(bool actAsIntermediaryMsh, OutStatus expectedOutStatus, Operation expectedSignalOperation)
+        public void CorrectHandlingOnSynchronouslyReceivedMultiHopReceipt(bool actAsIntermediaryMsh, OutStatus expectedOutStatus, Operation expectedSignalOperation)
         {
             const string messageId = "multihop-message-id";
 
@@ -154,12 +155,15 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             PutMessageToSend(as4Message, pmode, actAsIntermediaryMsh);
 
             signal.WaitOne();
+            
+            
+            var sentMessage = PollUntilPresent(
+                () => _databaseSpy.GetOutMessageFor(m => m.EbmsMessageId == messageId), 
+                timeout: TimeSpan.FromSeconds(5));
 
-            // Wait a bit to ensure that the AS4.NET MSH has finished handling the received response.
-            await Task.Delay(TimeSpan.FromSeconds(1));
-
-            var sentMessage = _databaseSpy.GetOutMessageFor(m => m.EbmsMessageId == messageId);
-            var receivedMessage = _databaseSpy.GetInMessageFor(m => m.EbmsRefToMessageId == messageId);
+            var receivedMessage = PollUntilPresent(
+                () => _databaseSpy.GetInMessageFor(m => m.EbmsRefToMessageId == messageId), 
+                timeout: TimeSpan.FromSeconds(5));
 
             Assert.NotNull(sentMessage);
             Assert.NotNull(receivedMessage);

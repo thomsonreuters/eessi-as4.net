@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Reactive.Linq;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Singletons;
@@ -35,7 +36,28 @@ namespace Eu.EDelivery.AS4.ComponentTests.Common
             return AS4XmlSerializer.FromString<Settings>(File.ReadAllText(specificSettings));
         }
 
-        public void Dispose()
+        protected TResult PollUntilPresent<TResult>(Func<TResult> poll, TimeSpan timeout)
+        {
+            IObservable<TResult> polling =
+                Observable.Create<TResult>(o =>
+                {
+                    TResult r = poll();
+                    IObservable<TResult> observable =
+                        r == null
+                            ? Observable.Throw<TResult>(new Exception())
+                            : Observable.Return(r);
+                    return observable.Subscribe(o);
+                });
+
+            return Observable
+                .Timer(TimeSpan.FromSeconds(1))
+                .SelectMany(_ => polling)
+                .Retry()
+                .Repeat(5)
+                .Wait();
+        }
+
+    public void Dispose()
         {
             Disposing(true);
             if (_restoreSettings && File.Exists(@".\config\settings_original.xml"))
