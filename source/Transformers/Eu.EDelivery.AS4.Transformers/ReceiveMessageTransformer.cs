@@ -83,8 +83,9 @@ namespace Eu.EDelivery.AS4.Transformers
                     $"Please remove the static configured Receiving PMode: {ReceivingPMode} to also receive signal messages");
             }
 
-
             ReceivedMessage m = await EnsureIncomingStreamIsSeekable(message);
+            m.UnderlyingStream.Position = 0;
+
             var context = new MessagingContext(m, MessagingContextMode.Receive);
             context.ModifyContext(as4Message);
 
