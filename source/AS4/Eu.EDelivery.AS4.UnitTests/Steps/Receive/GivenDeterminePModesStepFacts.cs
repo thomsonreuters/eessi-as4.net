@@ -34,6 +34,27 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
         public class GivenValidArguments : GivenDeterminePModesStepFacts
         {
             [Fact]
+            public async Task Dont_Use_Scoring_System_ReceivingPMode_When_Already_Configure()
+            {
+                // Arrange
+                var expected = new ReceivePMode { Id = "static-receive-configured" };
+
+                // Act
+                StepResult result = await _step.ExecuteAsync(
+                    new MessagingContext(
+                        AS4Message.Empty, 
+                        MessagingContextMode.Receive)
+                    {
+                        ReceivingPMode = expected
+                    });
+
+                // Assert
+                Assert.Same(
+                    expected,
+                    result.MessagingContext.ReceivingPMode);
+            }
+
+            [Fact]
             public async Task SendingPModeIsFound_IfSignalMessage()
             {
                 // Arrange
