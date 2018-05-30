@@ -36,6 +36,8 @@ namespace Eu.EDelivery.AS4.ComponentTests.Samples
 
                 string expected = GetOriginalPayload(m);
                 string actual = Directory.EnumerateFiles(DeliverPath, m).First();
+
+                Console.WriteLine(@"Expect send and delivered payload to have the same hash");
                 Assert.Equal(MD5Hash(expected), MD5Hash(actual));
             });
 
@@ -51,6 +53,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Samples
             {
                 if (++count < retryCount)
                 {
+                    Console.WriteLine($@"No deliver/notify message found, wait {retryInterval:g}...");
                     Thread.Sleep(retryInterval);
                 }
                 else
@@ -62,11 +65,13 @@ namespace Eu.EDelivery.AS4.ComponentTests.Samples
 
         private static void AssertFiles(string path, string searchPattern)
         {
+            Console.WriteLine($@"Expect deliver dir: {path} to have files with extension: {searchPattern}");
             Assert.NotEmpty(Directory.EnumerateFiles(path, searchPattern));
         }
 
         private static void AssertSignalMessages(string path, int numberOfExpectedMessages)
         {
+            Console.WriteLine($@"Expect notify dir: {path} to have {numberOfExpectedMessages} files");
             Assert.Equal(numberOfExpectedMessages, Directory.EnumerateFiles(path, GeneratedIdPattern).Count());
         }
 

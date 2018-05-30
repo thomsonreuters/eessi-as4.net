@@ -1,6 +1,9 @@
 ﻿using System;
 using System.IO;
 using System.Reactive.Linq;
+using System.Reactive.Threading.Tasks;
+using System.Threading;
+using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Singletons;
@@ -26,6 +29,8 @@ namespace Eu.EDelivery.AS4.ComponentTests.Common
 
         protected Settings OverrideSettings(string settingsFile)
         {
+            Console.WriteLine($@"Overwrite 'settings.xml' with '{settingsFile}'");
+
             File.Copy(@".\config\settings.xml", @".\config\settings_original.xml", true);
 
             string specificSettings = $@".\config\componenttest-settings\{settingsFile}";
@@ -36,12 +41,14 @@ namespace Eu.EDelivery.AS4.ComponentTests.Common
             return AS4XmlSerializer.FromString<Settings>(File.ReadAllText(specificSettings));
         }
 
-        protected TResult PollUntilPresent<TResult>(Func<TResult> poll, TimeSpan timeout)
+        protected Task<TResult> PollUntilPresent<TResult>(Func<TResult> poll, TimeSpan timeout)
         {
             IObservable<TResult> polling =
                 Observable.Create<TResult>(o =>
                 {
                     TResult r = poll();
+                    Console.WriteLine($@"Poll until present: {(r == null ? "(null)" : r.ToString())}");
+
                     IObservable<TResult> observable =
                         r == null
                             ? Observable.Throw<TResult>(new Exception())
@@ -49,20 +56,43 @@ namespace Eu.EDelivery.AS4.ComponentTests.Common
                     return observable.Subscribe(o);
                 });
 
+            var cts = new CancellationTokenSource();
+            cts.CancelAfter(timeout);
+
             return Observable
                 .Timer(TimeSpan.FromSeconds(1))
                 .SelectMany(_ => polling)
                 .Retry()
-                .Repeat(5)
-                .Wait();
+                .ToTask(cts.Token);
         }
 
-    public void Dispose()
+        public void Dispose()
         {
             Disposing(true);
             if (_restoreSettings && File.Exists(@".\config\settings_original.xml"))
             {
                 File.Copy(@".\config\settings_original.xml", @".\config\settings.xml", true);
+            }
+
+            WriteLogFilesToConsole();
+        }
+
+        private static void WriteLogFilesToConsole()
+        {
+            Console.WriteLine(Environment.NewLine);
+            Console.WriteLine(@"AS4.NET Component Logs:");
+            Console.WriteLine(Environment.NewLine);
+
+            foreach (string file in Directory.GetFiles(Path.GetFullPath(@".\logs")))
+            {
+                Console.WriteLine($@"From file: '{file}':");
+
+                foreach (string line in File.ReadAllLines(file))
+                {
+                    Console.WriteLine(line);
+                }
+
+                Console.WriteLine(Environment.NewLine);
             }
         }
 
