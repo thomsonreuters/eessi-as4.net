@@ -86,8 +86,14 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
             if (messagingContext.ReceivingPMode == null)
             {
+                Logger.Trace($"{messagingContext.LogTag} Incoming message hasn't yet a ReceivingPMode, will determine one");
                 return await DetermineReceivingPModeAsync(messagingContext);
             }
+
+            Logger.Info(
+                $"{messagingContext.LogTag} Will not determine ReceivingPMode: incoming message has already a " + 
+                $"ReceivingPMode: {messagingContext.ReceivingPMode.Id} confingured, " + 
+                "this happens when the Receive Agent is configured as a \"Static Receive Agent\"");
 
             return StepResult.Success(messagingContext);
         }
