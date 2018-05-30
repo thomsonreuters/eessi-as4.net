@@ -1,6 +1,9 @@
 ﻿using System;
 using System.IO;
 using System.Reactive.Linq;
+using System.Reactive.Threading.Tasks;
+using System.Threading;
+using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Singletons;
@@ -36,7 +39,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Common
             return AS4XmlSerializer.FromString<Settings>(File.ReadAllText(specificSettings));
         }
 
-        protected TResult PollUntilPresent<TResult>(Func<TResult> poll, TimeSpan timeout)
+        protected Task<TResult> PollUntilPresent<TResult>(Func<TResult> poll, TimeSpan timeout)
         {
             IObservable<TResult> polling =
                 Observable.Create<TResult>(o =>
@@ -49,12 +52,14 @@ namespace Eu.EDelivery.AS4.ComponentTests.Common
                     return observable.Subscribe(o);
                 });
 
+            var cts = new CancellationTokenSource();
+            cts.CancelAfter(timeout);
+
             return Observable
                 .Timer(TimeSpan.FromSeconds(1))
                 .SelectMany(_ => polling)
                 .Retry()
-                .Repeat(5)
-                .Wait();
+                .ToTask(cts.Token);
         }
 
     public void Dispose()

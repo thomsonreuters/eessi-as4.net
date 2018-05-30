@@ -43,7 +43,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         }
 
         [Fact]
-        public void ThenUpdateReceiptWithReceived_IfNRReceiptHasValidHashes()
+        public async Task ThenUpdateReceiptWithReceived_IfNRReceiptHasValidHashes()
         {
             // Arrange
             string ebmsMessageId = Guid.NewGuid().ToString();
@@ -52,7 +52,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             TestReceiveNRReceiptWith(ebmsMessageId, hash => hash);
 
             // Assert
-            InMessage receipt = PollUntilPresent(
+            InMessage receipt = await PollUntilPresent(
                 () => _databaseSpy.GetInMessageFor(m => m.EbmsRefToMessageId == ebmsMessageId), 
                 timeout: TimeSpan.FromSeconds(5));
 
@@ -138,7 +138,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         [Theory]
         [InlineData(true, OutStatus.Sent, Operation.ToBeForwarded)]
         [InlineData(false, OutStatus.Ack, Operation.ToBeNotified)]
-        public void CorrectHandlingOnSynchronouslyReceivedMultiHopReceipt(bool actAsIntermediaryMsh, OutStatus expectedOutStatus, Operation expectedSignalOperation)
+        public async Task CorrectHandlingOnSynchronouslyReceivedMultiHopReceipt(bool actAsIntermediaryMsh, OutStatus expectedOutStatus, Operation expectedSignalOperation)
         {
             const string messageId = "multihop-message-id";
 
@@ -157,11 +157,11 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             signal.WaitOne();
             
             
-            var sentMessage = PollUntilPresent(
+            var sentMessage = await PollUntilPresent(
                 () => _databaseSpy.GetOutMessageFor(m => m.EbmsMessageId == messageId), 
                 timeout: TimeSpan.FromSeconds(5));
 
-            var receivedMessage = PollUntilPresent(
+            var receivedMessage = await PollUntilPresent(
                 () => _databaseSpy.GetInMessageFor(m => m.EbmsRefToMessageId == messageId), 
                 timeout: TimeSpan.FromSeconds(5));
 
