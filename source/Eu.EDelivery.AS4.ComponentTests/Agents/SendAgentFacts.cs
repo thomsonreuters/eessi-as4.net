@@ -60,7 +60,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         }
 
         [Fact]
-        public void ThenUpdateReceiptWithException_IfNRReceiptHasInvalidHashes()
+        public async Task ThenUpdateReceiptWithException_IfNRReceiptHasInvalidHashes()
         {
             // Arrange
             string ebmsMessageId = Guid.NewGuid().ToString();
@@ -70,7 +70,11 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             TestReceiveNRReceiptWith(ebmsMessageId, CorruptHash);
 
             // Assert
-            Assert.NotEmpty(_databaseSpy.GetInExceptions(m => m.EbmsRefToMessageId == ebmsMessageId));
+            IEnumerable<InException> inExceptions = await PollUntilPresent(
+                () => _databaseSpy.GetInExceptions(m => m.EbmsRefToMessageId == ebmsMessageId),
+                timeout: TimeSpan.FromSeconds(5));
+
+            Assert.NotEmpty(inExceptions);
         }
 
         private void TestReceiveNRReceiptWith(string ebmsMessageId, Func<int, int> selection)
