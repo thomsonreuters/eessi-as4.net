@@ -140,20 +140,20 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         }
 
         [Fact]
-        public void CorrectHandlingOnSynchronouslyReceivedMultiHopReceipt_OutStatusSent_OperationToBeForwarded()
+        public async Task CorrectHandlingOnSynchronouslyReceivedMultiHopReceipt_OutStatusSent_OperationToBeForwarded()
         {
-            CorrectHandlingOnSynchronouslyReceivedMultiHopReceipt(
-                actAsIntermediaryMsh: true, 
-                expectedOutStatus: OutStatus.Sent, 
+            await CorrectHandlingOnSynchronouslyReceivedMultiHopReceipt(
+                actAsIntermediaryMsh: true,
+                expectedOutStatus: OutStatus.Sent,
                 expectedSignalOperation: Operation.ToBeForwarded);
         }
 
         [Fact]
-        public void CorrectHandlingOnSynchronouslyReceivedMultiHopReceipt_OutStatusAck_OperationToBeNotified()
+        public async Task CorrectHandlingOnSynchronouslyReceivedMultiHopReceipt_OutStatusAck_OperationToBeNotified()
         {
-            CorrectHandlingOnSynchronouslyReceivedMultiHopReceipt(
-                actAsIntermediaryMsh: false, 
-                expectedOutStatus: OutStatus.Ack, 
+            await CorrectHandlingOnSynchronouslyReceivedMultiHopReceipt(
+                actAsIntermediaryMsh: false,
+                expectedOutStatus: OutStatus.Ack,
                 expectedSignalOperation: Operation.ToBeNotified);
         }
 
