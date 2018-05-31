@@ -122,6 +122,7 @@ namespace AS4.ParserService.Services
 
             // What we have now, must an error.
             return DecodeResult.CreateWithError(Serializer.ToByteArray(processingResult.AS4Message),
+                                                ((Error) processingResult.AS4Message.PrimarySignalMessage).Errors,
                                                 processingResult.AS4Message.PrimarySignalMessage.RefToMessageId,
                                                 processingResult.AS4Message.PrimarySignalMessage.MessageId);
         }

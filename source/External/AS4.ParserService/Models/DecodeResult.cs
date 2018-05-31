@@ -19,7 +19,7 @@ namespace AS4.ParserService.Models
         /// When the decoded message is an Error signalmessage, this property
         /// contains the Error-details that are present in the ErrorMessage
         /// </summary>
-        public string ReceivedErrorInformation { get; set; }
+        public string ErrorInformation { get; set; }
 
         /// <summary>
         /// The ebMS Id of the received AS4 Message
@@ -69,27 +69,13 @@ namespace AS4.ParserService.Models
             string receivedErrorInformation = null;
             if (receivedErrorDetails != null && receivedErrorDetails.Any())
             {
-                var errors = new List<Eu.EDelivery.AS4.Xml.Error>();
-
-                foreach (var errorDetail in receivedErrorDetails)
-                {
-                    errors.Add(AS4Mapper.Map<Eu.EDelivery.AS4.Xml.Error>(errorDetail));
-                }
-
-                var serialized = AS4XmlSerializer.ToString(errors);
-
-                if (!String.IsNullOrWhiteSpace(serialized))
-                {
-                    var errorDocument = new XmlDocument();
-                    errorDocument.LoadXml(serialized);
-                    receivedErrorInformation = errorDocument.SelectSingleNode("ArrayOfError")?.InnerXml;
-                }
+                receivedErrorInformation = CreateErrorInformationString(receivedErrorDetails);
             }
 
             return new DecodeResult
             {
                 ResponseMessageType = EbmsMessageType.Unknown,
-                ReceivedErrorInformation = receivedErrorInformation,
+                ErrorInformation = receivedErrorInformation,
                 ReceivedMessageType = messageType,
                 ResponseMessage = new byte[] { },
                 Payloads = new PayloadInfo[] { },
@@ -111,11 +97,12 @@ namespace AS4.ParserService.Models
             };
         }
 
-        public static DecodeResult CreateWithError(byte[] responseMessage, string receivedEbmsMessageId, string errorEbmsMessageId)
+        public static DecodeResult CreateWithError(byte[] responseMessage, IEnumerable<ErrorDetail> errorDetails, string receivedEbmsMessageId, string errorEbmsMessageId)
         {
             return new DecodeResult()
             {
                 ResponseMessage = responseMessage,
+                ErrorInformation = CreateErrorInformationString(errorDetails),
                 ResponseEbmsMessageId = errorEbmsMessageId,
                 ReceivedMessageType = EbmsMessageType.UserMessage,
                 ResponseMessageType = EbmsMessageType.Error,
@@ -123,6 +110,32 @@ namespace AS4.ParserService.Models
                 ResponseMessageFileName = $"{errorEbmsMessageId}.error",
                 Payloads = new PayloadInfo[] { }
             };
+        }
+
+        private static string CreateErrorInformationString(IEnumerable<ErrorDetail> receivedErrorDetails)
+        {
+            if (receivedErrorDetails == null || receivedErrorDetails.Any() == false)
+            {
+                return null;
+            }
+
+            var errors = new List<Eu.EDelivery.AS4.Xml.Error>();
+
+            foreach (var errorDetail in receivedErrorDetails)
+            {
+                errors.Add(AS4Mapper.Map<Eu.EDelivery.AS4.Xml.Error>(errorDetail));
+            }
+
+            var serialized = AS4XmlSerializer.ToString(errors);
+
+            if (!String.IsNullOrWhiteSpace(serialized))
+            {
+                var errorDocument = new XmlDocument();
+                errorDocument.LoadXml(serialized);
+                return errorDocument.SelectSingleNode("ArrayOfError")?.InnerXml;
+            }
+
+            return null;
         }
     }
 }
