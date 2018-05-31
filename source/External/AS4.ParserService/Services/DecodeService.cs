@@ -7,12 +7,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using AS4.ParserService.Infrastructure;
 using AS4.ParserService.Models;
-using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Serialization;
-using Eu.EDelivery.AS4.Steps.Receive;
 using Eu.EDelivery.AS4.Streaming;
 
 namespace AS4.ParserService.Services
@@ -86,7 +84,7 @@ namespace AS4.ParserService.Services
             var processingResult =
                 await StepProcessor.ExecuteStepsAsync(context, StepRegistry.GetInboundProcessingConfiguration());
 
-            if (processingResult.AS4Message == null && processingResult.Exception != null)
+            if (processingResult.AS4Message == null)
             {
                 throw new InvalidOperationException("An error occured while decoding the AS4 Message", processingResult.Exception);
             }
@@ -103,14 +101,7 @@ namespace AS4.ParserService.Services
 
                     if (receiptResult.AS4Message == null)
                     {
-                        if (receiptResult.Exception != null)
-                        {
-                            var errorResult = await CreateAS4ErrorForException(processingResult, receiptResult);
-
-                            return DecodeResult.CreateWithError(Serializer.ToByteArray(errorResult.AS4Message),
-                                                                receivedMessageId,
-                                                                errorResult.AS4Message.GetPrimaryMessageId());
-                        }
+                        throw new InvalidOperationException("An unexpected error occured while creating the AS4 Receipt message", receiptResult.Exception);
                     }
 
                     return DecodeResult.CreateWithReceipt(deliverPayloads.ToArray(),
@@ -133,17 +124,6 @@ namespace AS4.ParserService.Services
             return DecodeResult.CreateWithError(Serializer.ToByteArray(processingResult.AS4Message),
                                                 processingResult.AS4Message.PrimarySignalMessage.RefToMessageId,
                                                 processingResult.AS4Message.PrimarySignalMessage.MessageId);
-        }
-
-        private static async Task<MessagingContext> CreateAS4ErrorForException(MessagingContext processingResult, MessagingContext receiptResult)
-        {
-            var ctx = new MessagingContext(processingResult.AS4Message, MessagingContextMode.Receive);
-            ctx.ErrorResult = new ErrorResult(receiptResult.Exception.Message, ErrorAlias.Other);
-
-            var createError = new CreateAS4ErrorStep();
-            var errorResult = await createError.ExecuteAsync(ctx);
-
-            return errorResult.MessagingContext;
         }
 
         private static IEnumerable<PayloadInfo> RetrievePayloadsFromMessage(AS4Message message)
