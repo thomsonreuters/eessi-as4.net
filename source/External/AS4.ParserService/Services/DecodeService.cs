@@ -12,7 +12,6 @@ using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Serialization;
-using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Steps.Receive;
 using Eu.EDelivery.AS4.Streaming;
 
@@ -38,7 +37,8 @@ namespace AS4.ParserService.Services
                 if (as4Message.IsSignalMessage)
                 {
                     return DecodeResult.CreateAccepted(as4Message.PrimarySignalMessage is Receipt ? EbmsMessageType.Receipt : EbmsMessageType.Error,
-                                                       as4Message.GetPrimaryMessageId());
+                                                       as4Message.GetPrimaryMessageId(),
+                                                       (as4Message.PrimarySignalMessage as Error)?.Errors);
                 }
 
                 // Start Processing
@@ -85,6 +85,11 @@ namespace AS4.ParserService.Services
         {
             var processingResult =
                 await StepProcessor.ExecuteStepsAsync(context, StepRegistry.GetInboundProcessingConfiguration());
+
+            if (processingResult.AS4Message == null && processingResult.Exception != null)
+            {
+                throw new InvalidOperationException("An error occured while decoding the AS4 Message", processingResult.Exception);
+            }
 
             if (processingResult.AS4Message.IsUserMessage)
             {

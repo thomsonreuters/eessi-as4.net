@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web;
+using System.Xml;
+using Eu.EDelivery.AS4.Model.Core;
+using Eu.EDelivery.AS4.Serialization;
+using Eu.EDelivery.AS4.Singletons;
 
 namespace AS4.ParserService.Models
 {
@@ -11,6 +14,12 @@ namespace AS4.ParserService.Models
         /// The <see cref="EbmsMessageType"/> of the Received Message.
         /// </summary>
         public EbmsMessageType ReceivedMessageType { get; set; }
+
+        /// <summary>
+        /// When the decoded message is an Error signalmessage, this property
+        /// contains the Error-details that are present in the ErrorMessage
+        /// </summary>
+        public string ReceivedErrorInformation { get; set; }
 
         /// <summary>
         /// The ebMS Id of the received AS4 Message
@@ -55,11 +64,32 @@ namespace AS4.ParserService.Models
             };
         }
 
-        public static DecodeResult CreateAccepted(EbmsMessageType messageType, string receivedEbmsMessageId)
+        public static DecodeResult CreateAccepted(EbmsMessageType messageType, string receivedEbmsMessageId, IEnumerable<ErrorDetail> receivedErrorDetails)
         {
+            string receivedErrorInformation = null;
+            if (receivedErrorDetails != null && receivedErrorDetails.Any())
+            {
+                var errors = new List<Eu.EDelivery.AS4.Xml.Error>();
+
+                foreach (var errorDetail in receivedErrorDetails)
+                {
+                    errors.Add(AS4Mapper.Map<Eu.EDelivery.AS4.Xml.Error>(errorDetail));
+                }
+
+                var serialized = AS4XmlSerializer.ToString(errors);
+
+                if (!String.IsNullOrWhiteSpace(serialized))
+                {
+                    var errorDocument = new XmlDocument();
+                    errorDocument.LoadXml(serialized);
+                    receivedErrorInformation = errorDocument.SelectSingleNode("ArrayOfError")?.InnerXml;
+                }
+            }
+
             return new DecodeResult
             {
                 ResponseMessageType = EbmsMessageType.Unknown,
+                ReceivedErrorInformation = receivedErrorInformation,
                 ReceivedMessageType = messageType,
                 ResponseMessage = new byte[] { },
                 Payloads = new PayloadInfo[] { },
