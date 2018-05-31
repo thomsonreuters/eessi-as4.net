@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Validators;
 using FluentValidation.Results;
@@ -121,7 +122,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
                     RetryReliability r = getReliability(pmode);
                     r.IsEnabled = isEnabled;
                     r.RetryCount = retryCount;
-                    r.RetryIntervalString = retryIntervalText;
+                    r.RetryInterval = retryIntervalText;
 
                     // Act
                     ValidationResult result = ReceivingProcessingModeValidator.Instance.Validate(pmode);
@@ -129,7 +130,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
                     // Assert
                     bool correctConfigured =
                         retryCount != default(int)
-                        && r.RetryInterval != default(TimeSpan);
+                        && r.RetryInterval.AsTimeSpan() != default(TimeSpan);
 
                     bool expected = 
                         !isEnabled && !correctConfigured
