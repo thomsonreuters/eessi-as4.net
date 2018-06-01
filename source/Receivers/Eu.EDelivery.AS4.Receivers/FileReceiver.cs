@@ -122,7 +122,7 @@ namespace Eu.EDelivery.AS4.Receivers
         public void StartReceiving(Function messageCallback, CancellationToken cancellationToken)
         {
             _isReceiving = true;
-            Logger.Debug($"Start receiving on '{Path.GetFullPath(FilePath)}' ...");
+            Logger.Debug($"Start receiving on \"{Path.GetFullPath(FilePath)}\" ...");
             StartPolling(messageCallback, cancellationToken);
         }
 
@@ -247,7 +247,7 @@ namespace Eu.EDelivery.AS4.Receivers
                 return;
             }
 
-            Logger.Info($"Getting Message from file '{fileInfo.Name}'");
+            Logger.Info($"Getting Message from file \"{fileInfo.Name}\"");
 
             var item = _pendingFiles.FirstOrDefault(f => f.file == fileInfo);
             await OpenStreamFromMessage(item, messageCallback, token);
