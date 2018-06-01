@@ -78,9 +78,12 @@ namespace Eu.EDelivery.AS4.Transformers
             AS4Message as4Message = await DeserializeToAS4Message(message);
             if (as4Message.IsSignalMessage && ReceivingPMode != null)
             {
-                throw new InvalidMessageException(
+                Logger.Error(
                     "Static Receive configuration doesn't allow receiving signal messages. " +
                     $"Please remove the static configured Receiving PMode: {ReceivingPMode} to also receive signal messages");
+
+                throw new InvalidMessageException(
+                    "Static Receive configuration doesn't allow receiving signal messages. ");
             }
 
             ReceivedMessage m = await EnsureIncomingStreamIsSeekable(message);
