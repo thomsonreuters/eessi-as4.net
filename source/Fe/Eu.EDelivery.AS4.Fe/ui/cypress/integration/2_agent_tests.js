@@ -4,7 +4,7 @@ describe('new empty agent', () => {
   let createEmptyAgent = ({ normalPipelineShould, errorPipelineShould }) => {
     const stubName = 'My new agent';
     cy.getdatacy('new').click({ force: true });
-    cy.getdatacy('name').type(stubName);
+    cy.getdatacy('agent-name').type(stubName);
     cy.getdatacy('clone').select('Empty');
     cy.getdatacy('ok').click();
 
