@@ -20,40 +20,6 @@ describe('page smoke tests', () => {
   });
 });
 
-describe('submit agent', () => {
-  beforeEach(() => {
-    cy.login();
-    cy.visit('/submit');
-    cy.wait(5000);
-  });
-
-  it('adds submit agent', () => {
-    cy.fixture('submit_agent').then((json) => {
-      cy.getdatacy('new').click({ force: true });
-      cy.getdatacy('agent-name').type(json.originalName);
-      cy.getdatacy('ok').click();
-      cy.getdatacy('save').click({ force: true });
-      cy.getdatacy('ok').click(); // Dialog: only takes effect on restart
-      cy.getdatacy('agents').select(json.originalName, { force: true });
-    });
-  });
-
-  it('renames submit agent', () => {
-    cy.fixture('submit_agent').then((json) => {
-      cy.getdatacy('agents').select(json.originalName);
-      cy.getdatacy('rename').click();
-      cy.get('div.modal-body input[type=text]').type(json.newName);
-      cy.getdatacy('ok').click();
-      cy.getdatacy('save').click({ force: true });
-      cy.getdatacy('ok').click(); // Dialog: only takes effect on restart
-      cy.getdatacy('agents').select(json.newName);
-      cy.getdatacy('delete').click();
-      cy.getdatacy('ok').click(); // Dialog: are you sure?
-      cy.getdatacy(json.newName).should('not.exist');
-    });
-  });
-});
-
 describe('send pmodes', () => {
   beforeEach(() => {
     cy.login();
