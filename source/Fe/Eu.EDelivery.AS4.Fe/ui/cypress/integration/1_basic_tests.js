@@ -11,7 +11,7 @@ describe('page smoke tests', () => {
       json.pages.forEach((page) => {
         cy.log(`go to ${page.title}`);
         if (page.show !== undefined) {
-          cy.getdatacy(page.show).click();
+          cy.getdatacy(page.show).click({ force: true });
         }
         cy.getdatacy(page.title).click({ force: true });
         cy.getdatacy('header').should('contain', page.title);
