@@ -29,7 +29,7 @@ describe('submit agent', () => {
   it('adds submit agent', () => {
     cy.fixture('submit_agent').then((json) => {
       cy.getdatacy('new').click({ force: true });
-      cy.getdatacy('name').type(json.originalName);
+      cy.get('[data-cy=name]', { timeout: 10000 }).type(json.originalName);
       cy.getdatacy('ok').click();
       cy.getdatacy('save').click();
       cy.getdatacy('ok').click(); // Dialog: only takes effect on restart
