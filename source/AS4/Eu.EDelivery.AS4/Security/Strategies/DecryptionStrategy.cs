@@ -59,6 +59,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
                                                    .Create(encryptedKey.GetDigestAlgorithm(), encryptedKey.GetMaskGenerationFunction());
 
             // We do not look at the KeyInfo element in here, but rather decrypt it with the certificate provided as argument.
+            // Call GetRSAPrivateKey to avoid KeySet does not exist exceptions that might be thrown.
             RSA privateKey = certificate.GetRSAPrivateKey();
 
             if (privateKey == null)

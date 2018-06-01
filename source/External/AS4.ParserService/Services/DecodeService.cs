@@ -35,7 +35,8 @@ namespace AS4.ParserService.Services
                 if (as4Message.IsSignalMessage)
                 {
                     return DecodeResult.CreateAccepted(as4Message.PrimarySignalMessage is Receipt ? EbmsMessageType.Receipt : EbmsMessageType.Error,
-                                                       as4Message.GetPrimaryMessageId());
+                                                       as4Message.GetPrimaryMessageId(),
+                                                       (as4Message.PrimarySignalMessage as Error)?.Errors);
                 }
 
                 // Start Processing
@@ -83,6 +84,11 @@ namespace AS4.ParserService.Services
             var processingResult =
                 await StepProcessor.ExecuteStepsAsync(context, StepRegistry.GetInboundProcessingConfiguration());
 
+            if (processingResult.AS4Message == null)
+            {
+                throw new InvalidOperationException("An error occured while decoding the AS4 Message", processingResult.Exception);
+            }
+
             if (processingResult.AS4Message.IsUserMessage)
             {
                 try
@@ -92,6 +98,11 @@ namespace AS4.ParserService.Services
 
                     var receiptResult =
                         await StepProcessor.ExecuteStepsAsync(processingResult, StepRegistry.GetReceiptCreationConfiguration());
+
+                    if (receiptResult.AS4Message == null)
+                    {
+                        throw new InvalidOperationException("An unexpected error occured while creating the AS4 Receipt message", receiptResult.Exception);
+                    }
 
                     return DecodeResult.CreateWithReceipt(deliverPayloads.ToArray(),
                                                           Serializer.ToByteArray(receiptResult.AS4Message),
@@ -111,6 +122,7 @@ namespace AS4.ParserService.Services
 
             // What we have now, must an error.
             return DecodeResult.CreateWithError(Serializer.ToByteArray(processingResult.AS4Message),
+                                                ((Error) processingResult.AS4Message.PrimarySignalMessage).Errors,
                                                 processingResult.AS4Message.PrimarySignalMessage.RefToMessageId,
                                                 processingResult.AS4Message.PrimarySignalMessage.MessageId);
         }
