@@ -13,10 +13,13 @@ using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Singletons;
 using Eu.EDelivery.AS4.Steps.Receive.Participant;
 using Eu.EDelivery.AS4.Validators;
+using Eu.EDelivery.AS4.Xml;
 using FluentValidation.Results;
 using NLog;
 using ReceivePMode = Eu.EDelivery.AS4.Model.PMode.ReceivingProcessingMode;
 using SendPMode = Eu.EDelivery.AS4.Model.PMode.SendingProcessingMode;
+using SignalMessage = Eu.EDelivery.AS4.Model.Core.SignalMessage;
+using UserMessage = Eu.EDelivery.AS4.Model.Core.UserMessage;
 
 namespace Eu.EDelivery.AS4.Steps.Receive
 {
@@ -81,6 +84,18 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 }
             }
 
+            if (messagingContext.ReceivingPMode != null)
+            {
+                Logger.Info(
+                    $"{messagingContext.LogTag} Will not determine ReceivingPMode: incoming message has already a "
+                    + $"ReceivingPMode: {messagingContext.ReceivingPMode.Id} confingured, "
+                    + "this happens when the Receive Agent is configured as a \"Static Receive Agent\"");
+
+                return StepResult.Success(messagingContext);
+            }
+
+            Logger.Trace(
+                $"{messagingContext.LogTag} Incoming message hasn't yet a ReceivingPMode, will determine one");
             return await DetermineReceivingPModeAsync(messagingContext);
         }
 
@@ -182,17 +197,28 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             if (as4Message.IsUserMessage)
             {
                 Logger.Debug(
-                    $"(Receive) [{as4Message.GetPrimaryMessageId()}] Incoming message is a UserMessage, " + 
+                    $"(Receive)[{as4Message.GetPrimaryMessageId()}] Incoming message is a UserMessage, " + 
                     "so the incoming message itself will be used to match the right Receiving PMode");
 
                 return as4Message.PrimaryUserMessage;
             }
 
             Logger.Debug(
-                $"(Receive) [{as4Message.GetPrimaryMessageId()}] Incoming message is a Multi-Hop SignalMessage, " +
+                $"(Receive)[{as4Message.GetPrimaryMessageId()}] Incoming message is a Multi-Hop SignalMessage, " +
                 "so the embeded Multi-Hop UserMessage will be used to match the right Receiving PMode");
 
-            return AS4Mapper.Map<UserMessage>(as4Message.PrimarySignalMessage.MultiHopRouting);
+            RoutingInputUserMessage routedUserMessage = 
+                as4Message.PrimarySignalMessage?.MultiHopRouting;
+
+            if (routedUserMessage != null)
+            {
+                return AS4Mapper.Map<UserMessage>(routedUserMessage);
+            }
+
+            throw new InvalidOperationException(
+                $"(Receive)[{as4Message.GetPrimaryMessageId()}] Incoming message doesn't have a UserMessage " + 
+                "either as Message Unit or as Routed Input in a Signal Message. " +
+                "This message can therefore not be used to determine the Receiving PMode");
         }
 
         private static StepResult FailedStepResult(string description, MessagingContext context)
