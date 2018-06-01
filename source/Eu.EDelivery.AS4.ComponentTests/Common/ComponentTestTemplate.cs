@@ -29,6 +29,8 @@ namespace Eu.EDelivery.AS4.ComponentTests.Common
 
         protected Settings OverrideSettings(string settingsFile)
         {
+            Console.WriteLine($@"Overwrite 'settings.xml' with '{settingsFile}'");
+
             File.Copy(@".\config\settings.xml", @".\config\settings_original.xml", true);
 
             string specificSettings = $@".\config\componenttest-settings\{settingsFile}";
@@ -45,6 +47,8 @@ namespace Eu.EDelivery.AS4.ComponentTests.Common
                 Observable.Create<TResult>(o =>
                 {
                     TResult r = poll();
+                    Console.WriteLine($@"Poll until present: {(r == null ? "(null)" : r.ToString())}");
+
                     IObservable<TResult> observable =
                         r == null
                             ? Observable.Throw<TResult>(new Exception())
@@ -62,12 +66,33 @@ namespace Eu.EDelivery.AS4.ComponentTests.Common
                 .ToTask(cts.Token);
         }
 
-    public void Dispose()
+        public void Dispose()
         {
             Disposing(true);
             if (_restoreSettings && File.Exists(@".\config\settings_original.xml"))
             {
                 File.Copy(@".\config\settings_original.xml", @".\config\settings.xml", true);
+            }
+
+            WriteLogFilesToConsole();
+        }
+
+        private static void WriteLogFilesToConsole()
+        {
+            Console.WriteLine(Environment.NewLine);
+            Console.WriteLine(@"AS4.NET Component Logs:");
+            Console.WriteLine(Environment.NewLine);
+
+            foreach (string file in Directory.GetFiles(Path.GetFullPath(@".\logs")))
+            {
+                Console.WriteLine($@"From file: '{file}':");
+
+                foreach (string line in File.ReadAllLines(file))
+                {
+                    Console.WriteLine(line);
+                }
+
+                Console.WriteLine(Environment.NewLine);
             }
         }
 

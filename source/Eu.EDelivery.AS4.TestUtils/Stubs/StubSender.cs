@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -20,6 +21,8 @@ namespace Eu.EDelivery.AS4.TestUtils.Stubs
         public static async Task<HttpResponseMessage> SendAS4Message(string url, AS4Message as4Message)
         {
             var request = await CreatePostRequestMessage(url, as4Message);
+
+            Console.WriteLine($@"Send AS4Message as HTTP POST request to: {url}, Content-Type: {as4Message.ContentType}");
             return await Client.SendAsync(request);
         }
 
@@ -39,6 +42,7 @@ namespace Eu.EDelivery.AS4.TestUtils.Stubs
 
             message.Content.Headers.Add("Content-Type", contentType);
 
+            Console.WriteLine($@"Send HTTP POST request to: {url}, Content-Type: {contentType}");
             return await Client.SendAsync(message);
         }
 

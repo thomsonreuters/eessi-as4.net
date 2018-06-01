@@ -16,7 +16,7 @@ namespace Eu.EDelivery.AS4.TestUtils.Stubs
         /// <param name="handledSignal">A manual resetevent that is signaled when the request has been handled.</param>
         public static void StartServer(string listenAt, Action<HttpListenerResponse> responseHandler, ManualResetEvent handledSignal)
         {
-            HttpListener server = new HttpListener();
+            var server = new HttpListener();
             server.Prefixes.Add(listenAt);
             server.Start();
 
@@ -26,6 +26,7 @@ namespace Eu.EDelivery.AS4.TestUtils.Stubs
             }
 
             var request = server.GetContextAsync();
+            Console.WriteLine($@"Stub HTTP Server: received request at: {listenAt}");
 
 #pragma warning disable 1998
             request.ContinueWith(async t =>
@@ -34,6 +35,7 @@ namespace Eu.EDelivery.AS4.TestUtils.Stubs
                 try
                 {
                     responseHandler(t.Result.Response);
+                    Console.WriteLine($@"Stub HTTP Server: respond to request, StatusCode {t.Result.Response.StatusCode}");
                 }
                 finally
                 {

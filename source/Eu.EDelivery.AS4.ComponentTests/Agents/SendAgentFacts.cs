@@ -60,7 +60,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         }
 
         [Fact]
-        public void ThenUpdateReceiptWithException_IfNRReceiptHasInvalidHashes()
+        public async Task ThenUpdateReceiptWithException_IfNRReceiptHasInvalidHashes()
         {
             // Arrange
             string ebmsMessageId = Guid.NewGuid().ToString();
@@ -70,7 +70,11 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             TestReceiveNRReceiptWith(ebmsMessageId, CorruptHash);
 
             // Assert
-            Assert.NotEmpty(_databaseSpy.GetInExceptions(m => m.EbmsRefToMessageId == ebmsMessageId));
+            IEnumerable<InException> inExceptions = await PollUntilPresent(
+                () => _databaseSpy.GetInExceptions(m => m.EbmsRefToMessageId == ebmsMessageId),
+                timeout: TimeSpan.FromSeconds(5));
+
+            Assert.NotEmpty(inExceptions);
         }
 
         private void TestReceiveNRReceiptWith(string ebmsMessageId, Func<int, int> selection)
@@ -135,10 +139,28 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             return AS4MessageUtils.SignWithCertificate(receipt, cert);
         }
 
-        [Theory]
-        [InlineData(true, OutStatus.Sent, Operation.ToBeForwarded)]
-        [InlineData(false, OutStatus.Ack, Operation.ToBeNotified)]
-        public async Task CorrectHandlingOnSynchronouslyReceivedMultiHopReceipt(bool actAsIntermediaryMsh, OutStatus expectedOutStatus, Operation expectedSignalOperation)
+        [Fact]
+        public async Task CorrectHandlingOnSynchronouslyReceivedMultiHopReceipt_OutStatusSent_OperationToBeForwarded()
+        {
+            await CorrectHandlingOnSynchronouslyReceivedMultiHopReceipt(
+                actAsIntermediaryMsh: true,
+                expectedOutStatus: OutStatus.Sent,
+                expectedSignalOperation: Operation.ToBeForwarded);
+        }
+
+        [Fact]
+        public async Task CorrectHandlingOnSynchronouslyReceivedMultiHopReceipt_OutStatusAck_OperationToBeNotified()
+        {
+            await CorrectHandlingOnSynchronouslyReceivedMultiHopReceipt(
+                actAsIntermediaryMsh: false,
+                expectedOutStatus: OutStatus.Ack,
+                expectedSignalOperation: Operation.ToBeNotified);
+        }
+
+        private async Task CorrectHandlingOnSynchronouslyReceivedMultiHopReceipt(
+            bool actAsIntermediaryMsh, 
+            OutStatus expectedOutStatus, 
+            Operation expectedSignalOperation)
         {
             const string messageId = "multihop-message-id";
 
@@ -183,6 +205,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                 Directory.CreateDirectory(directory);
             }
 
+            Console.WriteLine($@"Put AS4Message to {directory}");
             using (var fs = new FileStream(fileName, FileMode.Create))
             {
                 SerializerProvider.Default.Get(as4Message.ContentType).Serialize(as4Message, fs, CancellationToken.None);
