@@ -14,7 +14,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler.ConsoleHost
     {
         public static void Main()
         {
-            //Console.SetWindowSize(Console.LargestWindowWidth, Console.WindowHeight);
+            Console.SetWindowSize(Console.LargestWindowWidth, Console.WindowHeight);
 
             WriteLine("\nAS4.NET v" + Assembly.GetExecutingAssembly().GetName().Version + "\n"
                       + "\nThe following commands are available while the AS4.NET MSH is running:"
