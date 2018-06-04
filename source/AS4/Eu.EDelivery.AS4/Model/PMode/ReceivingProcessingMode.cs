@@ -345,7 +345,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
         public int RetryCount { get; set; }
 
         [XmlElement("RetryInterval")]
-        [DefaultValue("1:00:00:00")]
+        [DefaultValue("0:00:01:00")]
         [Description("Time interval between each retry cycle the deliver operation should be retried on failure.")]
         public string RetryInterval
         {
@@ -362,7 +362,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
 
             IsEnabled = false;
             RetryCount = 4;
-            RetryInterval = TimeSpan.FromDays(1).ToString("G");
+            RetryInterval = TimeSpan.FromMinutes(1).ToString("G");
         }
     }
 

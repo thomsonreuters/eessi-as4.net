@@ -33,7 +33,7 @@ export class RetryReliabilityForm {
             current,
             RetryReliability.FIELD_retryInterval,
             path,
-            '1:00:00:00',
+            '0:00:01:00',
             runtime
           ),
           Validators.required

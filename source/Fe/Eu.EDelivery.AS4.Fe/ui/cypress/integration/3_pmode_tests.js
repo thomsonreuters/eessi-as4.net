@@ -45,7 +45,7 @@ describe('pmode tests', () => {
     withinTab('Message handling', () => {
       cy.getdatacy('retry.isEnabled').check({ force: true });
       cy.getdatacy('retry.count').type('{selectall}5');
-      cy.getdatacy('retry.interval').type('{selectall}0:00:00:05');
+      cy.getdatacy('retry.interval').type('{selectall}0:00:01:00');
       cy.getdatacy('retry.isEnabled').uncheck({ force: true });
     });
 
@@ -55,7 +55,7 @@ describe('pmode tests', () => {
     withinTab('Message handling', () => {
       cy.getdatacy('retry.isEnabled').check({ force: true });
       cy.getdatacy('retry.count').should('to.have.value', '5');
-      cy.getdatacy('retry.interval').should('to.have.value', '0:00:00:05');
+      cy.getdatacy('retry.interval').should('to.have.value', '0:00:01:00');
     });
   });
 });
