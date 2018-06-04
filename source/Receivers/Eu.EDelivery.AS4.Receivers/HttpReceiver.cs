@@ -109,7 +109,7 @@ namespace Eu.EDelivery.AS4.Receivers
             string concurrentRequestValue = _properties.ReadOptionalProperty(SettingKeys.ConcurrentRequests, defaultConcurrentRequests.ToString());
             if (!int.TryParse(concurrentRequestValue, out _maxConcurrentConnections))
             {
-                Logger.Warn($"Invalid '{SettingKeys.ConcurrentRequests}' was given: {concurrentRequestValue}, will fall back to '{defaultConcurrentRequests}'");
+                Logger.Warn($"Invalid \"{SettingKeys.ConcurrentRequests}\" was given: {concurrentRequestValue}, will fall back to \"{defaultConcurrentRequests}\"");
                 _maxConcurrentConnections = defaultConcurrentRequests;
             }
 
@@ -149,7 +149,7 @@ namespace Eu.EDelivery.AS4.Receivers
             {
                 listener.Start();
 
-                Logger.Debug($"Start receiving on '{_requestMeta.Hostname}' ...");
+                Logger.Debug($"Start receiving on \"{_requestMeta.Hostname}\" ...");
                 Logger.Debug($"      with max concurrent connections = {_maxConcurrentConnections}");
                 Logger.Debug($"      with logging = {_requestMeta.UseLogging}");
             }
@@ -209,7 +209,7 @@ namespace Eu.EDelivery.AS4.Receivers
 
         private async Task ProcessRequestAsync(HttpListenerContext context, Function messageCallback)
         {
-            Logger.Info($"Received {context.Request.HttpMethod} request at {context.Request.RawUrl}");
+            Logger.Info($"Received {context.Request.HttpMethod} request at \"{context.Request.RawUrl}\"");
 
             RequestHandler handler = RequestHandler.GetHandler(context.Request);
 
