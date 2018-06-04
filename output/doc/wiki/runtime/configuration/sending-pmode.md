@@ -148,8 +148,8 @@ This contract describes all the properties available in the Sending PMode. The r
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Value<br/>
                 &nbsp;&nbsp;Reliability<br/>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>IsEnabled</i><br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>RetryCount</i><br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>RetryInterval</i><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>RetryCount</i><br/><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>RetryInterval</i><br/><br/>
             </td>
             <td>
                 O<br/>
@@ -163,8 +163,8 @@ This contract describes all the properties available in the Sending PMode. The r
                 M<br/>
                 O<br/>
                 M<br/>
-                M<br/>
-                M<br/>
+                M<br/><br/>
+                M<br/><br/>
             </td>
             <td>
                 <br/>
@@ -176,7 +176,9 @@ This contract describes all the properties available in the Sending PMode. The r
                 Value of the parameter<br/><br/>
                 Indicate wheter or not the deliver operation should be retried on failure<br/>
                 Amount of retry cycles the deliver operation should be retried on failure<br/>
-                Time interval between each retry cycle the deliver operation should be retried on failure<br/>
+                <i>Default: 4</i><br/>
+                Interval between each retry cycle during the Delivery<br/>
+                <i>Default: 1:00:00:00 (1 day)</i>
             </td>
         </tr>
         <tr>
@@ -191,8 +193,8 @@ This contract describes all the properties available in the Sending PMode. The r
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Value<br/>
                 &nbsp;&nbsp;Reliability<br/>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>IsEnabled</i><br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>RetryCount</i><br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>RetryInterval</i><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>RetryCount</i><br/><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>RetryInterval</i><br/><br/>
             </td>
             <td>
                 O<br/>
@@ -205,8 +207,8 @@ This contract describes all the properties available in the Sending PMode. The r
                 M<br/>
                 O<br/>
                 M<br/>
-                M<br/>
-                M<br/>
+                M<br/><br/>
+                M<br/><br/>
             </td>
             <td>
                 <br/><i>Default:</i> false<br/><br/>
@@ -216,7 +218,9 @@ This contract describes all the properties available in the Sending PMode. The r
                 Value of the parameter<br/><br/>
                 Indicate wheter or not the deliver operation should be retried on failure<br/>
                 Amount of retry cycles the deliver operation should be retried on failure<br/>
-                Time interval between each retry cycle the deliver operation should be retried on failure<br/>
+                <i>Default: 4</i><br/>
+                Interval between each retry cycle during the Delivery<br/>
+                <i>Default: 1:00:00:00 (1 day)</i>
             </td>
         </tr>
         <tr>
@@ -231,8 +235,8 @@ This contract describes all the properties available in the Sending PMode. The r
                 &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Value<br/>
                 &nbsp;&nbsp;Reliability<br/>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>IsEnabled</i><br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>RetryCount</i><br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>RetryInterval</i><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>RetryCount</i><br/><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>RetryInterval</i><br/><br/>
             </td>
             <td>
                 O<br/>
@@ -245,8 +249,8 @@ This contract describes all the properties available in the Sending PMode. The r
                 M<br/>
                 O<br/>
                 M<br/>
-                M<br/>
-                M<br/>
+                M<br/><br/>
+                M<br/><br/>
             </td>
             <td>
                 <br/><i>Default:</i> false<br/><br/>
@@ -256,7 +260,9 @@ This contract describes all the properties available in the Sending PMode. The r
                 Value of the parameter<br/><br/>
                 Indicate wheter or not the deliver operation should be retried on failure<br/>
                 Amount of retry cycles the deliver operation should be retried on failure<br/>
-                Time interval between each retry cycle the deliver operation should be retried on failure<br/>
+                <i>Default: 4</i><br/>
+                Interval between each retry cycle during the Delivery<br/>
+                <i>Default: 1:00:00:00 (1 day)</i>
             </td>
         </tr>
         <tr>
