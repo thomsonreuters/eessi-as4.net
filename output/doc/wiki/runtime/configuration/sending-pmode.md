@@ -178,7 +178,7 @@ This contract describes all the properties available in the Sending PMode. The r
                 Amount of retry cycles the deliver operation should be retried on failure<br/>
                 <i>Default: 4</i><br/>
                 Interval between each retry cycle during the Delivery<br/>
-                <i>Default: 1:00:00:00 (1 day)</i>
+                <i>Default: 0:00:01:00 (1 min)</i>
             </td>
         </tr>
         <tr>
@@ -220,7 +220,7 @@ This contract describes all the properties available in the Sending PMode. The r
                 Amount of retry cycles the deliver operation should be retried on failure<br/>
                 <i>Default: 4</i><br/>
                 Interval between each retry cycle during the Delivery<br/>
-                <i>Default: 1:00:00:00 (1 day)</i>
+                <i>Default: 0:00:01:00 (1 min)</i>
             </td>
         </tr>
         <tr>
@@ -262,7 +262,7 @@ This contract describes all the properties available in the Sending PMode. The r
                 Amount of retry cycles the deliver operation should be retried on failure<br/>
                 <i>Default: 4</i><br/>
                 Interval between each retry cycle during the Delivery<br/>
-                <i>Default: 1:00:00:00 (1 day)</i>
+                <i>Default: 0:00:01:00 (1 min)</i>
             </td>
         </tr>
         <tr>
