@@ -60,7 +60,7 @@ namespace Eu.EDelivery.AS4.Validators
                 pmode => pmode.ExceptionHandling?.Reliability?.IsEnabled == true;
 
             RuleFor(pmode => pmode.ExceptionHandling.Reliability.RetryCount)
-                .Must(i => i > default(int))
+                .Must(i => i > 0)
                 .When(isReliabilityEnabled);
 
             RuleFor(pmode => pmode.ExceptionHandling.Reliability.RetryInterval.AsTimeSpan())
@@ -125,7 +125,7 @@ namespace Eu.EDelivery.AS4.Validators
             Func<ReceivingProcessingMode, bool> isReliabilityEnabled = 
                 pmode => pmode.MessageHandling?.DeliverInformation?.Reliability?.IsEnabled == true;
             RuleFor(pmode => pmode.MessageHandling.DeliverInformation.Reliability.RetryCount)
-                .Must(i => i > default(int))
+                .Must(i => i > 0)
                 .When(isReliabilityEnabled);
             RuleFor(pmode => pmode.MessageHandling.DeliverInformation.Reliability.RetryInterval.AsTimeSpan())
                 .Must(t => t > default(TimeSpan))

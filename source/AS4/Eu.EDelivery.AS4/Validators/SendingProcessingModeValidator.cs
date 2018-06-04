@@ -89,7 +89,7 @@ namespace Eu.EDelivery.AS4.Validators
                 pmode => pmode.ReceiptHandling?.Reliability?.IsEnabled == true;
 
             RuleFor(pmode => pmode.ReceiptHandling.Reliability.RetryCount)
-                .Must(i => i > default(int))
+                .Must(i => i > 0)
                 .When(isReliabilityEnabled);
 
             RuleFor(pmode => pmode.ReceiptHandling.Reliability.RetryInterval.AsTimeSpan())
@@ -119,7 +119,7 @@ namespace Eu.EDelivery.AS4.Validators
                 pmode => pmode.ErrorHandling?.Reliability?.IsEnabled == true;
 
             RuleFor(pmode => pmode.ErrorHandling.Reliability.RetryCount)
-                .Must(i => i > default(int))
+                .Must(i => i > 0)
                 .When(isReliabilityEnabled);
 
             RuleFor(pmode => pmode.ErrorHandling.Reliability.RetryInterval.AsTimeSpan())
@@ -149,7 +149,7 @@ namespace Eu.EDelivery.AS4.Validators
                 pmode => pmode.ExceptionHandling?.Reliability?.IsEnabled == true;
 
             RuleFor(pmode => pmode.ExceptionHandling.Reliability.RetryCount)
-                .Must(i => i > default(int))
+                .Must(i => i > 0)
                 .When(isReliabilityEnabled);
 
             RuleFor(pmode => pmode.ExceptionHandling.Reliability.RetryInterval.AsTimeSpan())
