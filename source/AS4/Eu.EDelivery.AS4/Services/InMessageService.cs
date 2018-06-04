@@ -101,6 +101,9 @@ namespace Eu.EDelivery.AS4.Services
                 await messageBodyStore.SaveAS4MessageStreamAsync(
                     location: _configuration.InMessageStoreLocation,
                     as4MessageStream: context.ReceivedMessage.UnderlyingStream).ConfigureAwait(false);
+
+            context.ReceivedMessage.UnderlyingStream.Position = 0;
+
             try
             {
                 AS4Message as4Message = context.AS4Message;
