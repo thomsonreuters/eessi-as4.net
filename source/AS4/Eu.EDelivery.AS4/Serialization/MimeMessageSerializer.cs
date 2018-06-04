@@ -287,9 +287,13 @@ namespace Eu.EDelivery.AS4.Serialization
 
         private static Attachment CreateAttachment(MimePart bodyPart)
         {
+            var content = VirtualStream.Create();
+            bodyPart.ContentObject.WriteTo(content);
+            content.Position = 0;
+
             return new Attachment(id: bodyPart.ContentId)
             {
-                Content = bodyPart.ContentObject.Open(),
+                Content = content,
                 ContentType = bodyPart.ContentType.MimeType,
             };
         }
