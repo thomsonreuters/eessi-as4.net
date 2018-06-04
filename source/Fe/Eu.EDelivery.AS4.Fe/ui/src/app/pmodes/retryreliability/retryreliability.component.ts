@@ -23,6 +23,8 @@ export class RetryReliabilityComponent {
   @Input() public group: FormGroup;
   public mask: any[] = [
     /[0-9]/,
+    ':',
+    /[0-9]/,
     /[0-9]/,
     ':',
     /[0-5]/,

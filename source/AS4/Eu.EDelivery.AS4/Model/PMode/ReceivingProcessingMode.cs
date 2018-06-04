@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Linq;
 using System.Web.Script.Serialization;
 using System.Xml.Serialization;
 using Eu.EDelivery.AS4.Extensions;
@@ -338,14 +339,17 @@ namespace Eu.EDelivery.AS4.Model.PMode
         [Description("Indicate wheter or not the deliver operation should be retried on failure.")]
         public bool IsEnabled { get; set; }
 
+        [DefaultValue(4)]
+        [JsonConverter(typeof(SafeIntJsonConverter))]
         [Description("Amount of retry cycles the deliver operation should be retried on failure.")]
         public int RetryCount { get; set; }
 
         [XmlElement("RetryInterval")]
+        [DefaultValue("0:00:01:00")]
         [Description("Time interval between each retry cycle the deliver operation should be retried on failure.")]
         public string RetryInterval
         {
-            get => _retryInterval.ToString(@"hh\:mm\:ss");
+            get => _retryInterval.ToString("G");
             set => TimeSpan.TryParse(value, out _retryInterval);
         }
 
@@ -355,7 +359,10 @@ namespace Eu.EDelivery.AS4.Model.PMode
         public RetryReliability()
         {
             _retryInterval = default(TimeSpan);
+
             IsEnabled = false;
+            RetryCount = 4;
+            RetryInterval = TimeSpan.FromMinutes(1).ToString("G");
         }
     }
 

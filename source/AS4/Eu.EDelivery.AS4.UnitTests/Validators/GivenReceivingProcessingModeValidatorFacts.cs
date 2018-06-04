@@ -129,8 +129,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
 
                     // Assert
                     bool correctConfigured =
-                        retryCount != default(int)
-                        && r.RetryInterval.AsTimeSpan() != default(TimeSpan);
+                        retryCount > default(int)
+                        && r.RetryInterval.AsTimeSpan() > default(TimeSpan);
 
                     bool expected = 
                         !isEnabled && !correctConfigured
