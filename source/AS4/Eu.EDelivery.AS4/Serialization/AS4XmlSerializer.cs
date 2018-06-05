@@ -71,19 +71,7 @@ namespace Eu.EDelivery.AS4.Serialization
                 return writer.ToString();
             }
         }
-        public static string ToStringOld<T>(T data)
-        {
-            using (var stream = new MemoryStream())
-            {
-                using (XmlWriter xmlWriter = XmlWriter.Create(stream, DefaultXmlWriterSettings))
-                {
-                    var serializer = new XmlSerializer(typeof(T));
-                    serializer.Serialize(xmlWriter, data);
-
-                    return Encoding.UTF8.GetString(stream.ToArray());
-                }
-            }
-        }
+       
         /// <summary>
         /// To the document.
         /// </summary>
