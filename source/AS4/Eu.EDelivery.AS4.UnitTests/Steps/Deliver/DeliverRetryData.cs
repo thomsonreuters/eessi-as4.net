@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Strategies.Sender;
-using Eu.EDelivery.AS4.Strategies.Uploader;
 
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
 {
@@ -27,7 +26,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
                     maxRetryCount: 3,
                     sendResult: SendResult.RetryableFail,
                     expectedCurrentRetryCount: 2,
-                    expectedOperation: Operation.ToBeDelivered,
+                    expectedOperation: Operation.ToBeRetried,
                     expectedStatus: InStatus.Received)
             },
             new object[]

@@ -112,13 +112,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
                 InStatus st = InStatusUtils.Parse(actual.Status);
                 Assert.NotEqual(InStatus.Delivered, st);
 
-                bool operationToBeDelivered = Operation.ToBeDelivered == op;
+                bool operationToBeRetried = Operation.ToBeRetried == op;
                 bool uploadResultCanBeRetried =
                     input.UploadResult.Status == SendResult.RetryableFail 
                     && input.CurrentRetryCount < input.MaxRetryCount;
 
                 Assert.True(
-                    operationToBeDelivered == uploadResultCanBeRetried,
+                    operationToBeRetried == uploadResultCanBeRetried,
                     "InMessage should update Operation=ToBeDelivered");
 
                 bool messageSetToException = Operation.DeadLettered == op && InStatus.Exception == st;

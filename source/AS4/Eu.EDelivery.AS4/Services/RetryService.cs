@@ -78,11 +78,11 @@ namespace Eu.EDelivery.AS4.Services
 
                         if (current < max && status == SendResult.RetryableFail)
                         {
-                            Logger.Info($"(Deliver)[{messageId}] DeliverMessage failed this time, will be retried");
-                            Logger.Debug($"(Deliver[{messageId}]) Update InMessage with CurrentRetryCount={current + 1}, Operation=ToBeDelivered");
+                            Logger.Info($"(Deliver)[{messageId}] Delivering DeliverMessage failed this time, will be retried");
+                            Logger.Debug($"(Deliver[{messageId}]) Update InMessage with CurrentRetryCount={current + 1}, Operation=ToBeRetried");
 
                             inMessage.CurrentRetryCount = current + 1;
-                            inMessage.SetOperation(Operation.ToBeDelivered);
+                            inMessage.SetOperation(Operation.ToBeRetried);
                         }
                         else
                         {
