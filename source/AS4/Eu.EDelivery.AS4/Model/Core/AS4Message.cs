@@ -134,8 +134,7 @@ namespace Eu.EDelivery.AS4.Model.Core
             {
                 EnvelopeDocument = soapEnvelope,
                 ContentType = contentType,
-                SecurityHeader = securityHeader,
-                SigningId = {HeaderSecurityId = messagingHeader.SecurityId}
+                SecurityHeader = securityHeader
             };
 
             bool? IsMultihopAttributePresent()
@@ -153,10 +152,14 @@ namespace Eu.EDelivery.AS4.Model.Core
 
             result.__hasMultiHopAttribute = IsMultihopAttributePresent();
 
+            string bodySecurityId = null;
+
             if (bodyElement?.AnyAttr != null)
             {
-                result.SigningId.BodySecurityId = bodyElement.AnyAttr.FirstOrDefault(a => a.LocalName == "Id")?.Value;
+                bodySecurityId = bodyElement.AnyAttr.FirstOrDefault(a => a.LocalName == "Id")?.Value;
             }
+
+            result.SigningId = new SigningId(messagingHeader.SecurityId, bodySecurityId);
 
             result._messageUnits.AddRange(
                 SoapEnvelopeSerializer.GetMessageUnitsFromMessagingHeader(messagingHeader));
