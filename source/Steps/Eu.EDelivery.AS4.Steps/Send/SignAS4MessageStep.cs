@@ -27,9 +27,9 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// <summary>
         /// Initializes a new instance of the <see cref="SignAS4MessageStep"/> class
         /// </summary>
-        public SignAS4MessageStep()
+        public SignAS4MessageStep() 
+            : this(Registry.Instance.CertificateRepository)
         {
-            _repository = Registry.Instance.CertificateRepository;
         }
 
         /// <summary>
@@ -59,7 +59,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             if (messagingContext.SendingPMode?.Security.Signing.IsEnabled != true)
             {
                 Logger.Debug(
-                    $"{messagingContext.LogTag} No signing will be performend on the message " + 
+                    $"{messagingContext.LogTag} No signing will be performend on the message " +
                     $"because the SendingPMode {messagingContext.SendingPMode?.Id} siging information is disabled");
 
                 return await StepResult.SuccessAsync(messagingContext);
@@ -114,7 +114,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             if (signInfo.SigningCertificateInformation == null)
             {
                 throw new ConfigurationErrorsException(
-                    $"{messagingContext.LogTag} No signing certificate information found " + 
+                    $"{messagingContext.LogTag} No signing certificate information found " +
                     $"in Sending PMode {messagingContext.SendingPMode.Id} to perform signing. " +
                     "Please provide either a <CertificateFindCriteria/> or <PrivateKeyCertificate/> tag to the Security.Signing element");
             }
@@ -122,7 +122,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             if (signInfo.SigningCertificateInformation is CertificateFindCriteria certFindCriteria)
             {
                 return _repository.GetCertificate(
-                    findType: certFindCriteria.CertificateFindType, 
+                    findType: certFindCriteria.CertificateFindType,
                     privateKeyReference: certFindCriteria.CertificateFindValue);
             }
 
@@ -131,7 +131,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 return new X509Certificate2(
                     rawData: Convert.FromBase64String(embeddedCertInfo.Certificate),
                     password: embeddedCertInfo.Password,
-                    keyStorageFlags: 
+                    keyStorageFlags:
                         X509KeyStorageFlags.Exportable
                         | X509KeyStorageFlags.MachineKeySet
                         | X509KeyStorageFlags.PersistKeySet);
