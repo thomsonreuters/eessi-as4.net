@@ -35,12 +35,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Repositories
         /// </summary>
         /// <param name="createContext">The create context.</param>
         /// <param name="message">The message.</param>
-        public static void InsertInMessage(this Func<DatastoreContext> createContext, InMessage message)
+        public static InMessage InsertInMessage(this Func<DatastoreContext> createContext, InMessage message)
         {
             using (DatastoreContext context = createContext())
             {
                 context.InMessages.Add(message);
                 context.SaveChanges();
+
+                return message;
             }
         }
 
@@ -49,12 +51,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Repositories
         /// </summary>
         /// <param name="createContext">The create context.</param>
         /// <param name="inException">The in exception.</param>
-        public static void InsertInException(this Func<DatastoreContext> createContext, InException inException)
+        public static InException InsertInException(this Func<DatastoreContext> createContext, InException inException)
         {
             using (DatastoreContext context = createContext())
             {
                 context.InExceptions.Add(inException);
                 context.SaveChanges();
+
+                return inException;
             }
         }
 
@@ -63,12 +67,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Repositories
         /// </summary>
         /// <param name="createContext">The create context.</param>
         /// <param name="outException">The out exception.</param>
-        public static void InsertOutException(this Func<DatastoreContext> createContext, OutException outException)
+        public static OutException InsertOutException(this Func<DatastoreContext> createContext, OutException outException)
         {
             using (DatastoreContext context = createContext())
             {
                 context.OutExceptions.Add(outException);
                 context.SaveChanges();
+
+                return outException;
             }
         }
 

@@ -10,6 +10,7 @@ using NLog;
 
 namespace Eu.EDelivery.AS4.Steps.Notify
 {
+    [Obsolete("The update functionality is now moved to the " + nameof(SendNotifyMessageStep))]
     [Info("Update datastore after notification")]
     [Description("This step makes sure that the status of the message is set to ‘Notified’ after notification")]
     public class NotifyUpdateDatastoreStep : IStep

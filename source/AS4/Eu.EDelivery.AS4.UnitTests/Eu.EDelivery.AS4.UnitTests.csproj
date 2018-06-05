@@ -90,7 +90,7 @@
     <Compile Include="Steps\Deliver\UploadRetryData.cs" />
     <Compile Include="Steps\Forward\GivenCreateForwardMessageStepFacts.cs" />
     <Compile Include="Steps\Forward\GivenDetermineForwardStepFacts.cs" />
-    <Compile Include="Steps\Notify\GivenNotifyUpdateDatastoreStepFacts.cs" />
+    <Compile Include="Steps\Notify\NotifyRetryData.cs" />
     <Compile Include="Steps\Receive\GivenSendSignalMessageStepFacts.cs" />
     <Compile Include="Steps\Receive\GivenValidateAS4MessageStepFacts.cs" />
     <Compile Include="Steps\Send\GivenLogReceivedProcessingErrorStepFacts.cs" />

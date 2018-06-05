@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Eu.EDelivery.AS4.Common;
+using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.Notify;
 using Eu.EDelivery.AS4.Model.PMode;
@@ -19,6 +21,66 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
     /// </summary>
     public class GivenSendNotifyMessageStepFacts : GivenDatastoreFacts
     {
+        [Theory]    
+        [ClassData(typeof(NotifyRetryData))]
+        public async Task Updates_ToBeRetried_When_Sending_Results_In_RetryableFail<T>(
+            NotifyRetry retry,
+            NotifyType<T> type) where T : Entity
+        {
+            // Arrange
+            IStep sut = CreateSendNotifyStepWithSender(StubSenderWithResult(retry.SendResult));
+
+            string ebmsMessageId = Guid.NewGuid().ToString();
+            T entity = type.Insertion(GetDataStoreContext)(ebmsMessageId, retry.CurrentRetryCount, retry.MaxRetryCount);
+
+            // Act
+            await sut.ExecuteAsync(CreateNotifyMessage<T>(ebmsMessageId, entity));
+
+            // Assert
+            type.Assertion(GetDataStoreContext)(
+                ebmsMessageId,
+                e =>
+                {
+                    (int actualCurrentRetry, string actualOperation) = type.Getter(e);
+
+                    Assert.Equal(retry.ExpectedCurrentRetryCount, actualCurrentRetry);
+                    Assert.Equal(retry.ExpectedOperation, OperationUtils.Parse(actualOperation));
+                });
+        }
+
+        private static INotifySender StubSenderWithResult(SendResult r)
+        {
+            var stub = new Mock<INotifySender>();
+            stub.Setup(s => s.SendAsync(It.IsAny<NotifyMessageEnvelope>()))
+                .ReturnsAsync(r);
+
+            return stub.Object;
+        }
+
+        private static MessagingContext CreateNotifyMessage<T>(string ebmsMessageId, Entity entity)
+        {
+            var envelope = new NotifyMessageEnvelope(
+                new MessageInfo
+                {
+                    MessageId = ebmsMessageId,
+                    RefToMessageId = ebmsMessageId
+                },
+                Status.Delivered,
+                new byte[0], 
+                "content-type",
+                typeof(T));
+
+            var ctx = new MessagingContext(
+                new ReceivedEntityMessage(entity), 
+                MessagingContextMode.Notify)
+            {
+                SendingPMode = new SendingProcessingMode()
+            };
+
+            ctx.ModifyContext(envelope);
+            return ctx;
+        }
+
         [Fact]
         public async Task ThenExecuteStepFailsWithConnectionFailureAsync()
         {
