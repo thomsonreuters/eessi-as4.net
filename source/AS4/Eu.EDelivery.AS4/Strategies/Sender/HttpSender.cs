@@ -52,7 +52,7 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
         /// Start sending the <see cref="DeliverMessage"/>
         /// </summary>
         /// <param name="deliverMessage"></param>
-        public async Task<DeliverResult> SendAsync(DeliverMessageEnvelope deliverMessage)
+        public async Task<SendResult> SendAsync(DeliverMessageEnvelope deliverMessage)
         {
             Logger.Info($"(Deliver)[{deliverMessage.MessageInfo.MessageId}] Send DeliverMessage to {Location}");
 
@@ -60,15 +60,14 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
             HttpWebResponse response = await SendHttpPostRequest(request).ConfigureAwait(false);
 
             response?.Close();
-
-            return DeliverResult.Success;
+            return DetermineSendResultFromResponse(response);
         }
 
         /// <summary>
         /// Start sending the <see cref="NotifyMessage" />
         /// </summary>
         /// <param name="notifyMessage"></param>
-        public async Task SendAsync(NotifyMessageEnvelope notifyMessage)
+        public async Task<SendResult> SendAsync(NotifyMessageEnvelope notifyMessage)
         {
             Logger.Info($"(Notify)[{notifyMessage.MessageInfo.MessageId}] Send Notification to {Location}");
 
@@ -76,6 +75,7 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
             HttpWebResponse httpPostResponse = await SendHttpPostRequest(request).ConfigureAwait(false);
 
             httpPostResponse?.Close();
+            return DetermineSendResultFromResponse(httpPostResponse);
         }
 
         private async Task<HttpWebRequest> CreateHttpPostRequest(string contentType, byte[] contents)
@@ -130,6 +130,29 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
             return
                 response.StatusCode == HttpStatusCode.Accepted ||
                 response.StatusCode == HttpStatusCode.OK;
+        }
+
+        private static SendResult DetermineSendResultFromResponse(HttpWebResponse response)
+        {
+            if (response?.StatusCode == null)
+            {
+                return SendResult.FatalFail;
+            }
+
+            var code = (int) response?.StatusCode;
+            if (200 <= code && code < 300)
+            {
+                return SendResult.Success;
+            }
+
+            if (500 <= code && code < 600
+                || code == 408 
+                || code == 429)
+            {
+                return SendResult.RetryableFail;
+            }
+
+            return SendResult.FatalFail;
         }
     }
 }

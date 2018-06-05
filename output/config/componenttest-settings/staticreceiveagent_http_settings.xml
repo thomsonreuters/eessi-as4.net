@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Settings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="eu:edelivery:as4">
+<Settings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+  xmlns="eu:edelivery:as4">
   <IdFormat>{GUID}@{IPADDRESS}</IdFormat>
   <FeInProcess>false</FeInProcess>
   <PayloadServiceInProcess>false</PayloadServiceInProcess>
@@ -12,12 +14,12 @@
     <Repository type="Eu.EDelivery.AS4.Repositories.CertificateRepository, Eu.EDelivery.AS4, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
   </CertificateStore>
   <Agents>
-    <ReceiveAgent name="Receive Agent">
+    <ReceiveAgent name="Static Receive Agent">
       <Receiver type="Eu.EDelivery.AS4.Receivers.HttpReceiver, Eu.EDelivery.AS4.Receivers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
         <Setting key="Url">http://localhost:7071/msh/</Setting>
       </Receiver>
       <Transformer type="Eu.EDelivery.AS4.Transformers.ReceiveMessageTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-        <Setting key="ReceivingPMode">non-existing-pmode-id</Setting>
+        <Setting key="ReceivingPMode">ComponentTest_ReceiveAgent_Sample1</Setting>
       </Transformer>
       <StepConfiguration>
         <NormalPipeline>

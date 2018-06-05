@@ -100,6 +100,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Common
         /// <returns></returns>
         public IEnumerable<OutMessage> GetOutMessages(params string[] ebmsMessageIds)
         {
+            Console.WriteLine(@"Get OutMessage(s) where EbmsMessageId = " + String.Join(", ", ebmsMessageIds));
             return UseContext(
                 ctx => ctx.OutMessages.Where(m => ebmsMessageIds.Contains(m.EbmsMessageId)).ToArray());
         }
@@ -111,6 +112,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Common
         /// <returns></returns>
         public IEnumerable<InMessage> GetInMessages(params string[] ebmsMessageIds)
         {
+            Console.WriteLine(@"Get InMessage(s) where EbmsMessageId = " + String.Join(", ", ebmsMessageIds));
             return UseContext(
                 ctx => ctx.InMessages.Where(m => ebmsMessageIds.Contains(m.EbmsMessageId)).ToArray());
         }
@@ -122,6 +124,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Common
         /// <returns></returns>
         public IEnumerable<OutException> GetOutExceptions(params string[] ebmsMessageIds)
         {
+            Console.WriteLine(@"Get OutException(s) where EbmsMessageId = " + String.Join(", ", ebmsMessageIds));
             return UseContext(
                 ctx => ctx.OutExceptions.Where(ex => ebmsMessageIds.Contains(ex.EbmsRefToMessageId)).ToArray());
         }
@@ -133,6 +136,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Common
         /// <returns></returns>
         public IEnumerable<InException> GetInExceptions(params string[] ebmsMessageIds)
         {
+            Console.WriteLine(@"Get InException(s) where EbmsMessageId = " + String.Join(", ", ebmsMessageIds));
             return UseContext(
                 ctx => ctx.InExceptions.Where(ex => ebmsMessageIds.Contains(ex.EbmsRefToMessageId)).ToArray());
         }
@@ -147,6 +151,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Common
 
         internal void ClearDatabase()
         {
+            Console.WriteLine(@"Clear database tables");
             using (var context = new DatastoreContext(_configuration))
             {
                 context.Database.ExecuteSqlCommand("DELETE FROM InExceptions");

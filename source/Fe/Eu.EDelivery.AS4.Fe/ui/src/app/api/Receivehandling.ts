@@ -1,12 +1,13 @@
-import { ISettingsState } from './../settings/settings.store';
+import { Method } from './Method';
+import { RetryReliability } from './RetryReliability';
+
 /* tslint:disable */
-import { FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
-import { Method } from "./Method";
-
 export class Receivehandling {
-    notifyMessageConsumer: boolean;
-    notifyMethod: Method;
+  notifyMessageConsumer: boolean;
+  notifyMethod: Method;
+  reliability: RetryReliability;
 
-    static FIELD_notifyMessageConsumer: string = 'notifyMessageConsumer';
-    static FIELD_notifyMethod: string = 'notifyMethod';  
+  static FIELD_notifyMessageConsumer: string = 'notifyMessageConsumer';
+  static FIELD_notifyMethod: string = 'notifyMethod';
+  static FIELD_reliability: string = 'reliability';
 }

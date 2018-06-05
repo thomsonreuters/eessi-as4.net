@@ -15,7 +15,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
                 new DeliverRetry(
                     currentRetryCount: 1,
                     maxRetryCount: 3,
-                    deliverResult: DeliverResult.Success,
+                    sendResult: SendResult.Success,
                     expectedCurrentRetryCount: 1,
                     expectedOperation: Operation.Delivered,
                     expectedStatus: InStatus.Delivered)
@@ -25,7 +25,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
                 new DeliverRetry(
                     currentRetryCount: 1,
                     maxRetryCount: 3,
-                    deliverResult: DeliverResult.RetryableFail,
+                    sendResult: SendResult.RetryableFail,
                     expectedCurrentRetryCount: 2,
                     expectedOperation: Operation.ToBeDelivered,
                     expectedStatus: InStatus.Received)
@@ -35,7 +35,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
                 new DeliverRetry(
                     currentRetryCount: 1,
                     maxRetryCount: 3,
-                    deliverResult: DeliverResult.FatalFail,
+                    sendResult: SendResult.FatalFail,
                     expectedCurrentRetryCount: 1,
                     expectedOperation: Operation.DeadLettered,
                     expectedStatus: InStatus.Exception)
@@ -45,7 +45,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
                 new DeliverRetry(
                     currentRetryCount: 3,
                     maxRetryCount: 3,
-                    deliverResult: DeliverResult.RetryableFail,
+                    sendResult: SendResult.RetryableFail,
                     expectedCurrentRetryCount: 3,
                     expectedOperation: Operation.DeadLettered,
                     expectedStatus: InStatus.Exception)
@@ -55,7 +55,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
                 new DeliverRetry(
                     currentRetryCount: 3,
                     maxRetryCount: 3,
-                    deliverResult: DeliverResult.FatalFail,
+                    sendResult: SendResult.FatalFail,
                     expectedCurrentRetryCount: 3,
                     expectedOperation: Operation.DeadLettered,
                     expectedStatus: InStatus.Exception)
@@ -86,14 +86,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
         public DeliverRetry(
             int currentRetryCount,
             int maxRetryCount,
-            DeliverResult deliverResult,
+            SendResult sendResult,
             int expectedCurrentRetryCount,
             Operation expectedOperation,
             InStatus expectedStatus)
         {
             CurrentRetryCount = currentRetryCount;
             MaxRetryCount = maxRetryCount;
-            DeliverResult = deliverResult;
+            SendResult = sendResult;
             ExpectedCurrentRetryCount = expectedCurrentRetryCount;
             ExpectedOperation = expectedOperation;
             ExpectedStatus = expectedStatus;
@@ -103,7 +103,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
 
         public int MaxRetryCount { get; }
 
-        public DeliverResult DeliverResult { get; }
+        public SendResult SendResult { get; }
 
         public int ExpectedCurrentRetryCount { get; }
 

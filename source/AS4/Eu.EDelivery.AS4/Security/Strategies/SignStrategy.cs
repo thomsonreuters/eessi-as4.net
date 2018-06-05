@@ -94,7 +94,10 @@ namespace Eu.EDelivery.AS4.Security.Strategies
             // loading the private key to prevent this.
             lock (CertificateReaderLocker)
             {
-                if (certificate.PrivateKey == null)
+                // Call GetRSAPrivateKey to avoid KeySet does not exist exceptions that might be thrown.
+                RSA privateKey = certificate.GetRSAPrivateKey();
+
+                if (privateKey == null)
                 {
                     throw new InvalidOperationException("The Private Key of the signing certificate is not present.");
                 }

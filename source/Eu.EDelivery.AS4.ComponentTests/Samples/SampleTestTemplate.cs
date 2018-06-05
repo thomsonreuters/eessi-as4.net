@@ -73,6 +73,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Samples
         /// <param name="sampleName">Name of the sample.</param>
         protected void PutSample(string sampleName)
         {
+            Console.WriteLine($@"Put the sample file: {sampleName} to be picked up");
             File.Copy(@".\samples\messages\" + sampleName, @".\messages\out\" + sampleName, overwrite: true);
         }
 

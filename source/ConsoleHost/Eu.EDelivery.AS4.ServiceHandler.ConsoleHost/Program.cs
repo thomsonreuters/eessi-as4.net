@@ -16,15 +16,9 @@ namespace Eu.EDelivery.AS4.ServiceHandler.ConsoleHost
         {
             Console.SetWindowSize(Console.LargestWindowWidth, Console.WindowHeight);
 
-            WriteLine("\nAS4.NET v" + Assembly.GetExecutingAssembly().GetName().Version + "\n"
-                      + "\nThe following commands are available while the AS4.NET MSH is running:"
-                      + "\n c\tClears the screen"
-                      + "\n q\tQuits the application"
-                      + "\n r\tRestarts the application"
-                      + "\n");
+            ShowHelp();
 
             Kernel kernel = CreateKernel();
-
             if (kernel == null)
             {
                 Console.ReadLine();
@@ -46,6 +40,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler.ConsoleHost
                     {
                         case ConsoleKey.C:
                             Console.Clear();
+                            ShowHelp();
                             break;
                         case ConsoleKey.R:
                             Console.WriteLine("Restarting...");
@@ -60,8 +55,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler.ConsoleHost
 
                             break;
                     }
-                }
-                while (key.Key != ConsoleKey.Q);
+                } while (key.Key != ConsoleKey.Q);
 
                 Console.WriteLine(@"Stopping...");
                 Task task = lifecycle.Stop();
@@ -75,6 +69,10 @@ namespace Eu.EDelivery.AS4.ServiceHandler.ConsoleHost
                     Console.ReadLine();
                 }
             }
+            catch (Exception ex)
+            {
+                LogManager.GetCurrentClassLogger().Fatal(ex);
+            }
             finally
             {
                 kernel?.Dispose();
@@ -82,6 +80,16 @@ namespace Eu.EDelivery.AS4.ServiceHandler.ConsoleHost
             }
 
             Console.ReadLine();
+        }
+
+        private static void ShowHelp()
+        {
+            WriteLine("\nAS4.NET v" + Assembly.GetExecutingAssembly().GetName().Version + "\n"
+                      + "\nThe following commands are available while the AS4.NET MSH is running:"
+                      + "\n c\tClears the screen"
+                      + "\n q\tQuits the application"
+                      + "\n r\tRestarts the application"
+                      + "\n");
         }
 
         private static void WriteLine(string msg)
@@ -208,7 +216,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler.ConsoleHost
 
                 foreach (Exception ex in task.Exception?.InnerExceptions)
                 {
-                    NLog.LogManager.GetCurrentClassLogger().Error(ex.Message);
+                    NLog.LogManager.GetCurrentClassLogger().Error(ex);
                 }
             }
 

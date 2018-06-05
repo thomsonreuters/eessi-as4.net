@@ -9,6 +9,11 @@ namespace AS4.ParserService.Infrastructure
     {
         public static byte[] ToByteArray(AS4Message message)
         {
+            if (message == null)
+            {
+                return new byte[]{};
+            }
+
             using (var stream = new MemoryStream())
             {
                 var serializer = SerializerProvider.Default.Get(message.ContentType);

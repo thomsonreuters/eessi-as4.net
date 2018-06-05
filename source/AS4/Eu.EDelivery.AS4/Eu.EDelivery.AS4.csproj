@@ -208,6 +208,7 @@
     <Compile Include="Migrations\20180511112132_AddRetryInformation.designer.cs">
       <DependentUpon>20180511112132_AddRetryInformation.cs</DependentUpon>
     </Compile>
+    <Compile Include="Model\PMode\SafeIntJsonConverter.cs" />
     <Compile Include="Resources\XsdSchemaDefinitions.cs" />
     <Compile Include="Security\Signing\CalculateSignatureConfig.cs" />
     <Compile Include="Security\Strategies\SignStrategy.cs" />
@@ -387,10 +388,9 @@
     <Compile Include="Strategies\Database\SqlServerDbCommand.cs" />
     <Compile Include="Strategies\Database\DatastoreTable.cs" />
     <Compile Include="Strategies\Retriever\TempFilePayloadRetriever.cs" />
-    <Compile Include="Strategies\Sender\DeliveryStatus.cs" />
+    <Compile Include="Strategies\Sender\SendStatus.cs" />
     <Compile Include="Strategies\Sender\FileSender.cs" />
     <Compile Include="Strategies\Sender\HttpSender.cs" />
-    <Compile Include="Strategies\Sender\DeliverResult.cs" />
     <Compile Include="Strategies\Sender\ReliableSender.cs" />
     <Compile Include="Streaming\NonCloseableStream.cs" />
     <Compile Include="Security\References\SecurityTokenReferenceProvider.cs" />
