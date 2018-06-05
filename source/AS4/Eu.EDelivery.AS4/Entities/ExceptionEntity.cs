@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Threading.Tasks;
@@ -33,6 +34,25 @@ namespace Eu.EDelivery.AS4.Entities
         {
             PModeId = pmodeId;
             PMode = pmodeContent;
+        }
+
+        [DefaultValue(0)]
+        public int CurrentRetryCount { get; set; }
+
+        [DefaultValue(0)]
+        public int MaxRetryCount { get; set; }
+
+        [MaxLength(50)]
+        [DefaultValue("00:00:00")]
+        public string RetryInterval { get; private set; }
+
+        /// <summary>
+        /// Sets the retry interval on this exception entity.
+        /// </summary>
+        /// <param name="interval">The interval.</param>
+        public void SetRetryInterval(TimeSpan interval)
+        {
+            RetryInterval = interval.ToString(@"hh\:mm\:ss");
         }
 
         /// <summary>

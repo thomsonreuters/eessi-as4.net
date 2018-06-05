@@ -28,6 +28,8 @@ namespace Eu.EDelivery.AS4.Migrations
                         .HasAnnotation("PropertyAccessMode", PropertyAccessMode.Field)
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<int>("CurrentRetryCount");
+
                     b.Property<string>("EbmsRefToMessageId")
                         .HasMaxLength(256)
                         .HasAnnotation("PropertyAccessMode", PropertyAccessMode.Field);
@@ -36,6 +38,8 @@ namespace Eu.EDelivery.AS4.Migrations
                         .HasAnnotation("PropertyAccessMode", PropertyAccessMode.Field);
 
                     b.Property<DateTimeOffset>("InsertionTime");
+
+                    b.Property<int>("MaxRetryCount");
 
                     b.Property<byte[]>("MessageBody")
                         .HasAnnotation("PropertyAccessMode", PropertyAccessMode.Field);
@@ -52,6 +56,12 @@ namespace Eu.EDelivery.AS4.Migrations
                     b.Property<string>("PModeId")
                         .HasMaxLength(256)
                         .HasAnnotation("PropertyAccessMode", PropertyAccessMode.Field);
+
+                    b.Property<string>("RetryInterval")
+                     .HasMaxLength(50)
+                     .HasDefaultValue("00:00:00")
+                     .HasDefaultValueSql("00:00:00")
+                     .HasAnnotation("PropertyAccessMode", PropertyAccessMode.Field);
 
                     b.HasKey("Id")
                         .HasName("PK_InExceptions");
@@ -140,7 +150,10 @@ namespace Eu.EDelivery.AS4.Migrations
                         .HasMaxLength(50);
 
                     b.Property<string>("RetryInterval")
-                     .HasMaxLength(50);
+                     .HasMaxLength(50)
+                     .HasDefaultValue("00:00:00")
+                     .HasDefaultValueSql("00:00:00")
+                     .HasAnnotation("PropertyAccessMode", PropertyAccessMode.Field);
 
                     b.Property<string>("ToParty")
                         .HasMaxLength(255);
@@ -167,6 +180,8 @@ namespace Eu.EDelivery.AS4.Migrations
                         .HasAnnotation("PropertyAccessMode", PropertyAccessMode.Field)
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<int>("CurrentRetryCount");
+
                     b.Property<string>("EbmsRefToMessageId")
                         .HasMaxLength(256)
                         .HasAnnotation("PropertyAccessMode", PropertyAccessMode.Field);
@@ -175,6 +190,8 @@ namespace Eu.EDelivery.AS4.Migrations
                         .HasAnnotation("PropertyAccessMode", PropertyAccessMode.Field);
 
                     b.Property<DateTimeOffset>("InsertionTime");
+
+                    b.Property<int>("MaxRetryCount");
 
                     b.Property<byte[]>("MessageBody")
                         .HasAnnotation("PropertyAccessMode", PropertyAccessMode.Field);
@@ -191,6 +208,12 @@ namespace Eu.EDelivery.AS4.Migrations
                     b.Property<string>("PModeId")
                         .HasMaxLength(256)
                         .HasAnnotation("PropertyAccessMode", PropertyAccessMode.Field);
+
+                    b.Property<string>("RetryInterval")
+                     .HasMaxLength(50)
+                     .HasDefaultValue("00:00:00")
+                     .HasDefaultValueSql("00:00:00")
+                     .HasAnnotation("PropertyAccessMode", PropertyAccessMode.Field);
 
                     b.HasKey("Id")
                         .HasName("PK_OutExceptions");
@@ -279,7 +302,10 @@ namespace Eu.EDelivery.AS4.Migrations
                         .HasMaxLength(50);
 
                     b.Property<string>("RetryInterval")
-                     .HasMaxLength(50);
+                     .HasMaxLength(50)
+                     .HasDefaultValue("00:00:00")
+                     .HasDefaultValueSql("00:00:00")
+                     .HasAnnotation("PropertyAccessMode", PropertyAccessMode.Field);
 
                     b.Property<string>("ToParty")
                         .HasMaxLength(255);
