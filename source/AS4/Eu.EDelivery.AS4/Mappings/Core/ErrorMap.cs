@@ -41,10 +41,12 @@ namespace Eu.EDelivery.AS4.Mappings.Core
 
         private static Severity MapToSeverityEnum(Xml.Error xmlError)
         {
-            var severity = Severity.FAILURE;
-            Enum.TryParse(xmlError.severity, ignoreCase: true, result: out severity);
+            if (Enum.TryParse(xmlError.severity, ignoreCase: true, result: out Severity severity))
+            {
+                return severity;
+            }
 
-            return severity;
+            return Severity.FAILURE;
         }
 
         private void MapXmlToError()
