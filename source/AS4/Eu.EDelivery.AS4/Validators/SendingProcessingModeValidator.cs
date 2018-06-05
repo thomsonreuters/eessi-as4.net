@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.PMode;
 using FluentValidation;
 using FluentValidation.Results;
@@ -88,11 +89,11 @@ namespace Eu.EDelivery.AS4.Validators
                 pmode => pmode.ReceiptHandling?.Reliability?.IsEnabled == true;
 
             RuleFor(pmode => pmode.ReceiptHandling.Reliability.RetryCount)
-                .NotEqual(default(int))
+                .Must(i => i > 0)
                 .When(isReliabilityEnabled);
 
-            RuleFor(pmode => pmode.ReceiptHandling.Reliability.RetryInterval)
-                .NotEqual(default(TimeSpan))
+            RuleFor(pmode => pmode.ReceiptHandling.Reliability.RetryInterval.AsTimeSpan())
+                .Must(t => t > default(TimeSpan))
                 .When(isReliabilityEnabled);
         }
 
@@ -118,11 +119,11 @@ namespace Eu.EDelivery.AS4.Validators
                 pmode => pmode.ErrorHandling?.Reliability?.IsEnabled == true;
 
             RuleFor(pmode => pmode.ErrorHandling.Reliability.RetryCount)
-                .NotEqual(default(int))
+                .Must(i => i > 0)
                 .When(isReliabilityEnabled);
 
-            RuleFor(pmode => pmode.ErrorHandling.Reliability.RetryInterval)
-                .NotEqual(default(TimeSpan))
+            RuleFor(pmode => pmode.ErrorHandling.Reliability.RetryInterval.AsTimeSpan())
+                .Must(t => t > default(TimeSpan))
                 .When(isReliabilityEnabled);
         }
 
@@ -148,11 +149,11 @@ namespace Eu.EDelivery.AS4.Validators
                 pmode => pmode.ExceptionHandling?.Reliability?.IsEnabled == true;
 
             RuleFor(pmode => pmode.ExceptionHandling.Reliability.RetryCount)
-                .NotEqual(default(int))
+                .Must(i => i > 0)
                 .When(isReliabilityEnabled);
 
-            RuleFor(pmode => pmode.ExceptionHandling.Reliability.RetryInterval)
-                .NotEqual(default(TimeSpan))
+            RuleFor(pmode => pmode.ExceptionHandling.Reliability.RetryInterval.AsTimeSpan())
+                .Must(t => t > default(TimeSpan))
                 .When(isReliabilityEnabled);
         }
 

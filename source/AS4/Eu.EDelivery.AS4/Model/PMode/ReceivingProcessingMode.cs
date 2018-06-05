@@ -1,8 +1,10 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Linq;
 using System.Web.Script.Serialization;
 using System.Xml.Serialization;
+using Eu.EDelivery.AS4.Extensions;
 using Newtonsoft.Json;
 
 namespace Eu.EDelivery.AS4.Model.PMode
@@ -332,34 +334,35 @@ namespace Eu.EDelivery.AS4.Model.PMode
 
     public class RetryReliability
     {
+        private TimeSpan _retryInterval;
+
         [Description("Indicate wheter or not the deliver operation should be retried on failure.")]
         public bool IsEnabled { get; set; }
 
+        [DefaultValue(4)]
+        [JsonConverter(typeof(SafeIntJsonConverter))]
         [Description("Amount of retry cycles the deliver operation should be retried on failure.")]
         public int RetryCount { get; set; }
 
         [XmlElement("RetryInterval")]
+        [DefaultValue("0:00:01:00")]
         [Description("Time interval between each retry cycle the deliver operation should be retried on failure.")]
-        public string RetryIntervalString
+        public string RetryInterval
         {
-            get => RetryInterval.ToString(@"hh\:mm\:ss");
-            set
-            {
-                TimeSpan.TryParse(value, out TimeSpan result);
-                RetryInterval = result;
-            }
+            get => _retryInterval.ToString("G");
+            set => TimeSpan.TryParse(value, out _retryInterval);
         }
-
-        [XmlIgnore]
-        public TimeSpan RetryInterval { get; private set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RetryReliability"/> class.
         /// </summary>
         public RetryReliability()
         {
+            _retryInterval = default(TimeSpan);
+
             IsEnabled = false;
-            RetryInterval = default(TimeSpan);
+            RetryCount = 4;
+            RetryInterval = TimeSpan.FromMinutes(1).ToString("G");
         }
     }
 

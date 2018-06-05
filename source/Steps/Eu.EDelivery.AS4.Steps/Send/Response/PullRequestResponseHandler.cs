@@ -32,6 +32,7 @@ namespace Eu.EDelivery.AS4.Steps.Send.Response
             if (isEmptyChannelWarning)
             {
                 response.OriginalRequest.ModifyContext(response.ReceivedAS4Message, MessagingContextMode.Send);
+
                 return StepResult.Success(response.OriginalRequest).AndStopExecution();
             }
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.UnitTests.Model.PMode;
 using Eu.EDelivery.AS4.Validators;
@@ -122,15 +123,15 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
                     RetryReliability r = getReliability(pmode);
                     r.IsEnabled = isEnabled;
                     r.RetryCount = retryCount;
-                    r.RetryIntervalString = retryIntervalText;
+                    r.RetryInterval = retryIntervalText;
 
                     // Act
                     ValidationResult result = ExerciseValidation(pmode);
 
                     // Assert
                     bool correctConfigured =
-                        retryCount != default(int)
-                        && r.RetryInterval != default(TimeSpan);
+                        retryCount > 0
+                        && r.RetryInterval.AsTimeSpan() > default(TimeSpan);
 
                     bool expected =
                         !isEnabled && !correctConfigured

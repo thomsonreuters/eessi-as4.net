@@ -1,14 +1,15 @@
-import { SendHandling } from "./SendHandling";
-import { Method } from "./Method";
+import { Method } from './Method';
+import { RetryReliability } from './RetryReliability';
 
 /* tslint:disable */
 export class SendReceiptHandling {
-    verifyNRR: boolean;
-    notifyMessageProducer: boolean;
-	notifyMethod: Method;
+  verifyNRR: boolean;
+  notifyMessageProducer: boolean;
+  notifyMethod: Method;
+  reliability: RetryReliability;
 
-	static FIELD_notifyMessageProducer: string = 'notifyMessageProducer';
-    static FIELD_notifyMethod: string = 'notifyMethod';
-    public static FIELD_verifyNRR = 'verifyNRR';
-
+  static FIELD_notifyMessageProducer: string = 'notifyMessageProducer';
+  static FIELD_notifyMethod: string = 'notifyMethod';
+  static FIELD_verifyNRR: string = 'verifyNRR';
+  static FIELD_reliability: string = 'reliability';
 }

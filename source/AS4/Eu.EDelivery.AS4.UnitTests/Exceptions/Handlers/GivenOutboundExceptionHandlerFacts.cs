@@ -2,6 +2,7 @@
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
+using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Exceptions.Handlers;
@@ -14,6 +15,8 @@ using Eu.EDelivery.AS4.UnitTests.Model;
 using Eu.EDelivery.AS4.UnitTests.Model.Deliver;
 using Eu.EDelivery.AS4.UnitTests.Model.Notify;
 using Eu.EDelivery.AS4.UnitTests.Repositories;
+using FsCheck;
+using FsCheck.Xunit;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Exceptions.Handlers
@@ -21,13 +24,64 @@ namespace Eu.EDelivery.AS4.UnitTests.Exceptions.Handlers
     public class GivenOutboundExceptionHandlerFacts : GivenDatastoreFacts
     {
         private readonly string _expectedId = Guid.NewGuid().ToString();
+
         private readonly string _expectedBody = Guid.NewGuid().ToString();
+
         private readonly Exception _expectedException = new Exception(Guid.NewGuid().ToString());
 
-        /// <summary>
-        /// Inserts the out exception if transform exception.
-        /// </summary>
-        /// <returns></returns>
+        [Property]
+        public void Set_Retry_Info_When_SendingPMode_Is_Configured_For_Retry(
+            bool enabled, 
+            PositiveInt count, 
+            TimeSpan interval)
+        {
+            // Arrange
+            ClearOutExceptions();
+            var sut = new OutboundExceptionHandler(GetDataStoreContext);
+            var pmode = new SendingProcessingMode();
+            string intervalStr = interval.ToString(@"hh\:mm\:ss");
+            pmode.ExceptionHandling.Reliability =
+                new RetryReliability
+                {
+                    IsEnabled = enabled,
+                    RetryCount = count.Get,
+                    RetryInterval = intervalStr
+                };
+
+            // Act
+            sut.HandleExecutionException(
+                new Exception(),
+                new MessagingContext(new SubmitMessage()) { SendingPMode = pmode })
+               .GetAwaiter()
+               .GetResult();
+
+            // Assert
+            GetDataStoreContext.AssertOutException(ex =>
+            {
+                Assert.NotNull(ex.MessageBody);
+                Assert.Equal(0, ex.CurrentRetryCount);
+                Assert.True(
+                    enabled == (count.Get == ex.MaxRetryCount),
+                    enabled
+                        ? $"Max retry count failed on enabled: {count.Get} != {ex.MaxRetryCount}"
+                        : $"Max retry count should be 0 on disabled but is {ex.MaxRetryCount}");
+                Assert.True(
+                    enabled == (intervalStr == ex.RetryInterval),
+                    enabled
+                        ? $"Retry interval failed on enabled: {interval:hh\\:mm\\:ss} != {ex.RetryInterval}"
+                        : $"Retry interval should be 0:00:00 on disabled but is {ex.RetryInterval}");
+            });
+        }
+
+        private void ClearOutExceptions()
+        {
+            using (DatastoreContext ctx = GetDataStoreContext())
+            {
+                ctx.OutExceptions.RemoveRange(ctx.OutExceptions);
+                ctx.SaveChanges();
+            }
+        }
+
         [Fact]
         public async Task InsertOutException_IfTransformException()
         {
@@ -108,19 +162,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Exceptions.Handlers
                 default(Operation),
                 context,
                 sut => sut.HandleExecutionException);
-        }
-
-        [Fact]
-        public async Task InsertOutMessage_IfSubmitMessage()
-        {
-            // Arrange
-            var sut = new OutboundExceptionHandler(GetDataStoreContext);
-
-            // Act
-            await sut.HandleExecutionException(new Exception(), new MessagingContext(new SubmitMessage()));
-
-            // Assert
-            GetDataStoreContext.AssertOutException(ex => Assert.NotNull(ex.MessageBody));
         }
 
         private MessagingContext SetupMessagingContextForOutMessage(string ebmsMessageId)

@@ -2,7 +2,9 @@
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
+using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Internal;
+using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Streaming;
@@ -40,14 +42,11 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
             Logger.Error(exception.Message);
             Logger.Trace(exception.StackTrace);
 
-            await SideEffectRepositoryUsage(
-                repository =>
-                {
-                    InException ex = new InException(messageToTransform.UnderlyingStream.ToBytes(), exception);
-                    repository.InsertInException(ex);
-
-                    return Task.CompletedTask;
-                });
+            await UseRepositorySaveAfterwards(
+                repo => repo.InsertInException(
+                    new InException(
+                        messageToTransform.UnderlyingStream.ToBytes(), 
+                        exception)));
 
             return new MessagingContext(exception);
         }
@@ -77,69 +76,68 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
             Logger.Error(exception.Message);
             bool isSubmitMessage = context.SubmitMessage != null;
 
-            if (isSubmitMessage)
+            InException ex = await CreateInExceptionBasedOnContext(exception, context);
+
+            await UseRepositorySaveAfterwards(repo =>
             {
-                await SideEffectRepositoryUsage(
-                    async repository =>
-                    {                        
-                        InException ex = new InException(await AS4XmlSerializer.TryToXmlBytesAsync(context.SubmitMessage), exception);
-                        await DecorateExceptionEntityWithContextInfoAsync(ex, context);
+                if (!isSubmitMessage)
+                {
+                    repo.UpdateInMessage(
+                        context.EbmsMessageId, 
+                        m => m.SetStatus(InStatus.Exception));
+                }
 
-                        repository.InsertInException(ex);
-                    });
-            }
-            else
-            {
-                await SideEffectRepositoryUsage(
-                    async repository =>
-                    {
-                        repository.UpdateInMessage(context.EbmsMessageId, m => m.SetStatus(InStatus.Exception));
+                repo.InsertInException(ex);
+            });
 
-                        InException ex = new InException(context.EbmsMessageId, exception);
-                        await DecorateExceptionEntityWithContextInfoAsync(ex, context);
-                        
-                        repository.InsertInException(ex);
-                    });
-            }
-
-            return CreateExceptionContext(exception, context);
-        }
-
-        private static MessagingContext CreateExceptionContext(Exception exception, MessagingContext context)
-        {
-            var exceptionContext = new MessagingContext(exception)
+            return new MessagingContext(exception)
             {
                 ErrorResult = context.ErrorResult
             };
-
-            return exceptionContext;
         }
 
-        private static async Task DecorateExceptionEntityWithContextInfoAsync(InException exceptionEntity, MessagingContext context)
+        private static async Task<InException> CreateInExceptionBasedOnContext(Exception exception, MessagingContext context)
         {
-            if (context != null)
+            async Task<InException> CreateInException()
             {
-                Operation notifyOperation =
-                    context.ReceivingPMode?.ExceptionHandling?.NotifyMessageConsumer == true
-                        ? Operation.ToBeNotified
-                        : default(Operation);
+                if (context.SubmitMessage != null)
+                {
+                    return new InException(
+                        await AS4XmlSerializer.TryToXmlBytesAsync(context.SubmitMessage),
+                        exception);
+                }
 
-                exceptionEntity.SetOperation(notifyOperation);
-                await exceptionEntity.SetPModeInformationAsync(context.ReceivingPMode);
+                return new InException(context.EbmsMessageId, exception);
             }
+
+            InException inEx = await CreateInException();
+            await inEx.SetPModeInformationAsync(context.ReceivingPMode);
+
+            ReceiveHandling handling = context.ReceivingPMode?.ExceptionHandling;
+            bool needsToBeNotified = handling?.NotifyMessageConsumer == true;
+            inEx.SetOperation(needsToBeNotified ? Operation.ToBeNotified : default(Operation));
+                
+            RetryReliability reliability = handling?.Reliability;
+            if (reliability != null && reliability.IsEnabled)
+            {
+                inEx.CurrentRetryCount = 0;
+                inEx.MaxRetryCount = reliability.RetryCount;
+                inEx.SetRetryInterval(reliability.RetryInterval.AsTimeSpan());
+            }
+
+            return inEx;
         }
         
-        private async Task SideEffectRepositoryUsage(Func<DatastoreRepository, Task> usage)
+        private async Task UseRepositorySaveAfterwards(Action<DatastoreRepository> usage)
         {
             using (DatastoreContext context = _createContext())
             {
                 var repository = new DatastoreRepository(context);
 
-                await usage(repository);
+                usage(repository);
 
                 await context.SaveChangesAsync();
             }
         }
     }
 }
-

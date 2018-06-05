@@ -13,7 +13,8 @@
                     </as4-input>
                 </div>
             </div>
-            <div tabitem title="Reply handling" formGroupName="replyHandling" [isValid]="!!!pmode.currentPmode || pmode.form.get('pmode.replyHandling')" runtimeTooltip="replyhandling">
+            <div tabitem title="Reply handling" formGroupName="replyHandling" [isValid]="!!!pmode.currentPmode || pmode.form.get('pmode.replyHandling')"
+                runtimeTooltip="replyhandling">
                 <as4-input label="Reply pattern" runtimeTooltip="replyPattern">
                     <select formControlName="replyPattern">
                         <option [ngValue]="0">Response</option>
@@ -36,19 +37,23 @@
                     </as4-input>
                 </ng-container>
             </div>
-            <div tabitem title="Message handling" formGroupName="messageHandling" [isValid]="!pmode.currentPmode || pmode.form.get('pmode.messageHandling').valid" runtimeTooltip="messagehandling">
+            <div tabitem title="Message handling" formGroupName="messageHandling" [isValid]="!pmode.currentPmode || pmode.form.get('pmode.messageHandling').valid"
+                runtimeTooltip="messagehandling">
                 <as4-input label="Type" runtimeTooltip="messagehandlingtype">
                     <select formControlName="messageHandlingType" #messageHandlingType>
                         <option [ngValue]="1">Deliver</option>
                         <option [ngValue]="2">Forward</option>
                     </select>
                 </as4-input>
-                <ng-container *ngIf="+pmode.form.get('pmode.messageHandling.messageHandlingType').value === 1" formGroupName="item">
-                    <as4-input label="Enabled" runtimeTooltip="deliverinformation.isenabled">
+                <ng-container *ngIf="+pmode.form.get('pmode.messageHandling.messageHandlingType').value === 1" formGroupName="item" runtimeTooltip="deliverinformation">
+                    <as4-input label="Enabled" runtimeTooltip="isenabled">
                         <input type="checkbox" formControlName="isEnabled" runtimeTooltip="deliver.isEnabled" />
                     </as4-input>
-                    <as4-method runtime="payloadreferencemethod" label="Payload reference method" [group]="pmode.form.get('pmode.messageHandling.item.payloadReferenceMethod')" [types]="attachmentUploaders$ | async"></as4-method>
-                    <as4-method runtime="delivermethod" label="Deliver method" [group]="pmode.form.get('pmode.messageHandling.item.deliverMethod')" [types]="deliverSenders$ | async"></as4-method>
+                    <as4-method runtime="payloadreferencemethod" label="Payload reference method" [group]="pmode.form.get('pmode.messageHandling.item.payloadReferenceMethod')"
+                        [types]="attachmentUploaders$ | async"></as4-method>
+                    <as4-method runtime="delivermethod" label="Deliver method" [group]="pmode.form.get('pmode.messageHandling.item.deliverMethod')"
+                        [types]="deliverSenders$ | async"></as4-method>
+                    <as4-retryreliability [group]="pmode.form.get('pmode.messageHandling.item.reliability')"></as4-retryreliability>
                 </ng-container>
                 <ng-container *ngIf="+pmode.form.get('pmode.messageHandling.messageHandlingType').value === 2" formGroupName="item">
                     <as4-input label="Sending PMode">
@@ -56,10 +61,12 @@
                     </as4-input>
                 </ng-container>
             </div>
-            <div tabitem title="Message packaging" [isValid]="!!!pmode.currentPmode || pmode.form.get('pmode.messagePackaging').valid" runtimeTooltip="messagepackaging">
+            <div tabitem title="Message packaging" [isValid]="!!!pmode.currentPmode || pmode.form.get('pmode.messagePackaging').valid"
+                runtimeTooltip="messagepackaging">
                 <as4-message-packaging [form]="pmode.form.get('pmode.messagePackaging')" [isSendingType]="false"></as4-message-packaging>
             </div>
-            <div title="Security" tabitem formGroupName="security" [isValid]="!!!pmode.currentPmode || pmode.form.get('pmode.security').valid" runtimeTooltip="security">
+            <div title="Security" tabitem formGroupName="security" [isValid]="!!!pmode.currentPmode || pmode.form.get('pmode.security').valid"
+                runtimeTooltip="security">
                 <as4-input label="Allow Unknown Root Certificate Authority" formGroupName="signingVerification" runtimeTooltip="signingverification.allowUnknownRootCertificate">
                     <input type="checkbox" formControlName="allowUnknownRootCertificate" />
                 </as4-input>
@@ -82,37 +89,42 @@
                 <ng-container formGroupName="decryption">
                     <ng-container formGroupName="decryptCertificateInformation">
                         <div runtimeTooltip="decryptceftificateinformation.certificatefindtype">
-                            <as4-input label="Private key find type (decryption)" *ngIf="selectedEncryption.selectedIndex === 0 || selectedEncryption.selectedIndex === 2" runtimeTooltip="certificatefindtype">
+                            <as4-input label="Private key find type (decryption)" *ngIf="selectedEncryption.selectedIndex === 0 || selectedEncryption.selectedIndex === 2"
+                                runtimeTooltip="certificatefindtype">
                                 <select formControlName="certificateFindType">
-                                <option [ngValue]="0">Find by thumbprint</option>
-                                <option [ngValue]="1">Find by subject name</option>
-                                <option [ngValue]="2">Find by subject distinguished name</option>
-                                <option [ngValue]="3">Find by issuer name</option>
-                                <option [ngValue]="4">Find by issuer distinguished name</option>
-                                <option [ngValue]="5">Find by serial number</option>
-                                <option [ngValue]="6">Find by time valid</option>
-                                <option [ngValue]="7">Find by time not yet valid</option>
-                                <option [ngValue]="8">Find by time expired</option>
-                                <option [ngValue]="9">Find by template name</option>
-                                <option [ngValue]="10">Find by application policy</option>
-                                <option [ngValue]="11">Find by certificate policy</option>
-                                <option [ngValue]="12">Find by extension</option>
-                                <option [ngValue]="13">Find by key usage</option>
-                                <option [ngValue]="14">Find by subject key identifier</option>
-                            </select>
+                                    <option [ngValue]="0">Find by thumbprint</option>
+                                    <option [ngValue]="1">Find by subject name</option>
+                                    <option [ngValue]="2">Find by subject distinguished name</option>
+                                    <option [ngValue]="3">Find by issuer name</option>
+                                    <option [ngValue]="4">Find by issuer distinguished name</option>
+                                    <option [ngValue]="5">Find by serial number</option>
+                                    <option [ngValue]="6">Find by time valid</option>
+                                    <option [ngValue]="7">Find by time not yet valid</option>
+                                    <option [ngValue]="8">Find by time expired</option>
+                                    <option [ngValue]="9">Find by template name</option>
+                                    <option [ngValue]="10">Find by application policy</option>
+                                    <option [ngValue]="11">Find by certificate policy</option>
+                                    <option [ngValue]="12">Find by extension</option>
+                                    <option [ngValue]="13">Find by key usage</option>
+                                    <option [ngValue]="14">Find by subject key identifier</option>
+                                </select>
                             </as4-input>
-                            <as4-input label="Private key find value (decryption)" *ngIf="selectedEncryption.selectedIndex === 0 || selectedEncryption.selectedIndex === 2" runtimeTooltip="decryptcertificateinformation.certificatefindvalue">
+                            <as4-input label="Private key find value (decryption)" *ngIf="selectedEncryption.selectedIndex === 0 || selectedEncryption.selectedIndex === 2"
+                                runtimeTooltip="decryptcertificateinformation.certificatefindvalue">
                                 <as4-thumbprint-input formControlName="certificateFindValue"></as4-thumbprint-input>
                             </as4-input>
                         </div>
                     </ng-container>
                 </ng-container>
             </div>
-            <div tabitem title="Exception handling" formGroupName="exceptionHandling" [isValid]="!!!pmode.currentPmode || pmode.form.get('pmode.exceptionHandling').valid" runtimeTooltip="exceptionhandling">
+            <div tabitem title="Exception handling" formGroupName="exceptionHandling" [isValid]="!!!pmode.currentPmode || pmode.form.get('pmode.exceptionHandling').valid"
+                runtimeTooltip="exceptionhandling">
                 <as4-input label="Notify message consumer" runtimeTooltip="notifymessageconsumer">
                     <input type="checkbox" formControlName="notifyMessageConsumer" #notifyMessageConsumer/>
                 </as4-input>
-                <as4-method runtime="notifymethod" label="Notify method" [group]="pmode.form.get('pmode.exceptionHandling.notifyMethod')" [types]="deliverSenders$ | async"></as4-method>
+                <as4-method runtime="notifymethod" label="Notify method" [group]="pmode.form.get('pmode.exceptionHandling.notifyMethod')"
+                    [types]="deliverSenders$ | async"></as4-method>
+                <as4-retryreliability [group]="pmode.form.get('pmode.exceptionHandling.reliability')"></as4-retryreliability>
             </div>
         </as4-tab>
     </div>

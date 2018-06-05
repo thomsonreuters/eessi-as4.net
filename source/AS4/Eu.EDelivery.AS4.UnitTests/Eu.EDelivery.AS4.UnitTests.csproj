@@ -100,6 +100,7 @@
     <Compile Include="Transformers\GivenReceiveMessageTransformerFacts.cs" />
     <Compile Include="Transformers\GivenSubmitPayloadTransformerFacts.cs" />
     <Compile Include="Steps\Submit\GivenDynamicDiscoveryStepFacts.cs" />
+    <Compile Include="Streaming\StubStream.cs" />
     <Compile Include="Transformers\StubSubmitTransformer.cs" />
     <Compile Include="Steps\StubAS4MessageStep.cs" />
     <Compile Include="Receivers\SpyReceiver.cs" />

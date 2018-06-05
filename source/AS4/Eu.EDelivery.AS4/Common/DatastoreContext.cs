@@ -252,6 +252,7 @@ namespace Eu.EDelivery.AS4.Common
             modelBuilder.Entity<InException>().Property(ie => ie.Exception).UsePropertyAccessMode(PropertyAccessMode.Field);
             modelBuilder.Entity<InException>().Property(ie => ie.PMode).UsePropertyAccessMode(PropertyAccessMode.Field);
             modelBuilder.Entity<InException>().Property(ie => ie.PModeId).UsePropertyAccessMode(PropertyAccessMode.Field);
+            modelBuilder.Entity<InException>().Property(im => im.RetryInterval).UsePropertyAccessMode(PropertyAccessMode.Field);
 
             modelBuilder.Entity<OutException>().HasKey(oe => oe.Id).HasName("PK_OutExceptions");
             modelBuilder.Entity<OutException>().Property(oe => oe.Id).UseSqlServerIdentityColumn();
@@ -263,6 +264,7 @@ namespace Eu.EDelivery.AS4.Common
             modelBuilder.Entity<OutException>().Property(oe => oe.Exception).UsePropertyAccessMode(PropertyAccessMode.Field);
             modelBuilder.Entity<OutException>().Property(oe => oe.PMode).UsePropertyAccessMode(PropertyAccessMode.Field);
             modelBuilder.Entity<OutException>().Property(oe => oe.PModeId).UsePropertyAccessMode(PropertyAccessMode.Field);
+            modelBuilder.Entity<OutException>().Property(im => im.RetryInterval).UsePropertyAccessMode(PropertyAccessMode.Field);
 
             modelBuilder.Entity<ReceptionAwareness>().HasKey(r => r.Id).HasName("PK_ReceptionAwareness");
             modelBuilder.Entity<ReceptionAwareness>().Property(r => r.Id).UseSqlServerIdentityColumn();

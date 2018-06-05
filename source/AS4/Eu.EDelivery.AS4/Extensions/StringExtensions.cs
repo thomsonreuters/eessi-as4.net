@@ -4,6 +4,11 @@ namespace Eu.EDelivery.AS4.Extensions
 {
     public static class StringExtensions
     {
+        public static TimeSpan AsTimeSpan(this string source)
+        {
+            return AsTimeSpan(source, default(TimeSpan));
+        }
+
         public static TimeSpan AsTimeSpan(this string source, TimeSpan defaulTimeSpan)
         {            
             if (!String.IsNullOrWhiteSpace(source))

@@ -161,7 +161,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 {
                     IsEnabled = enabled,
                     RetryCount = 5,
-                    RetryIntervalString = "0:01:00"
+                    RetryInterval = "0:01:00"
                 };
 
             // Act
@@ -199,7 +199,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 {
                     IsEnabled = enabled,
                     RetryCount = 3,
-                    RetryIntervalString = "0:00:10"
+                    RetryInterval = "0:00:10"
                 };
 
             // Act
@@ -233,7 +233,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 {
                     IsEnabled = enabled,
                     RetryCount = 3,
-                    RetryIntervalString = "0:00:05"
+                    RetryInterval = "0:00:05"
                 };
 
             // Act
@@ -280,11 +280,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             stream.Position = 0;
 
             var receivedMessage = new ReceivedMessage(stream, as4Message.ContentType);
-            return new MessagingContext(receivedMessage, MessagingContextMode.Receive)
+            var ctx = new MessagingContext(receivedMessage, MessagingContextMode.Receive)
             {
                 SendingPMode = sendingPMode,
                 ReceivingPMode = receivingPMode
             };
+            ctx.ModifyContext(as4Message);
+
+            return ctx;
         }
 
         private async Task<MessagingContext> ExecuteSaveReceivedMessage(MessagingContext context)
