@@ -146,7 +146,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
                 statusCode: status, 
                 notifyMessage: null, 
                 contentType: string.Empty, 
-                entityType: default(Type));
+                entityType: typeof(InMessage));
         }
     }
 }
