@@ -17,24 +17,31 @@ namespace Eu.EDelivery.AS4.Security.Repositories
         /// <param name="keyInfo"></param>
         public KeyInfoRepository(KeyInfo keyInfo)
         {
-            this._keyInfo = keyInfo;
+            _keyInfo = keyInfo;
         }
 
         public X509Certificate2 GetCertificate()
         {
-            if (this._keyInfo == null) return null;
-            foreach (object keyInfo in this._keyInfo)
+            if (_keyInfo == null)
+            {
+                return null;
+            }
+
+            foreach (object keyInfo in _keyInfo)
             {
                 // Embedded (is this actually allowed?)
-                var embeddedCertificate = keyInfo as KeyInfoX509Data;
-                if (embeddedCertificate != null && embeddedCertificate.Certificates.Count > 0)
+                if (keyInfo is KeyInfoX509Data embeddedCertificate && embeddedCertificate.Certificates.Count > 0)
+                {
                     return embeddedCertificate.Certificates[0] as X509Certificate2;
+                }
 
                 // Reference
-                var securityTokenReference = keyInfo as SecurityTokenReference;
-                if (securityTokenReference != null)
+                if (keyInfo is SecurityTokenReference securityTokenReference)
+                {
                     return securityTokenReference.Certificate;
+                }
             }
+
             return null;
         }
     }
