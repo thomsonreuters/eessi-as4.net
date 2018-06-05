@@ -91,9 +91,14 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             await InsertInMessage(inMessage);
 
             // Assert
-            Assert.Empty(Directory.EnumerateFiles(DeliveryRoot));
+            var spy = new DatabaseSpy(_as4Msh.GetConfiguration());
+            InMessage actual = await PollUntilPresent(
+                () => spy.GetInMessageFor(im => im.Id == inMessage.Id && im.Status == InStatus.Exception.ToString()),
+                TimeSpan.FromSeconds(10));
 
-            // TODO: the 'InMessage' is stil set on 'ToBeDeliverd' -> not valid?
+            Assert.Empty(Directory.EnumerateFiles(DeliveryRoot));
+            Assert.Equal(InStatus.Exception, InStatusUtils.Parse(actual.Status));
+            Assert.Equal(Operation.DeadLettered, OperationUtils.Parse(actual.Operation));
         }
 
         [Fact(Skip="Implementing retry agent still ongoing...")]

@@ -62,26 +62,39 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
         }
 
         /// <inheritdoc/>
-        public async Task<UploadResult> UploadAsync(Attachment attachment, UserMessage referringUserMessage)
+        public Task<UploadResult> UploadAsync(Attachment attachment, UserMessage referringUserMessage)
         {
             string downloadUrl = AssembleFileDownloadUrlFor(attachment, referringUserMessage);
+            if (downloadUrl == null)
+            {
+                return Task.FromResult(UploadResult.FatalFail);
+            }
+
             string attachmentFilePath = Path.GetFullPath(downloadUrl);
 
             bool allowOverwrite = DetermineAllowOverwrite();
-
-            string uploadLocation = await TryUploadAttachment(attachment, attachmentFilePath, allowOverwrite).ConfigureAwait(false);
-            return UploadResult.SuccessWithUrl(downloadUrl: uploadLocation);
+            return Task.FromResult(TryUploadAttachment(attachment, attachmentFilePath, allowOverwrite));
         }
 
         private string AssembleFileDownloadUrlFor(Attachment attachment, UserMessage referringUserMessage)
         {
-            string extension = _repository.GetExtensionFromMimeType(attachment.ContentType);
+            try
+            {
+                string extension = _repository.GetExtensionFromMimeType(attachment.ContentType);
 
-            string fileName = PayloadFileNameFactory.CreateFileName(NamePattern, attachment, referringUserMessage);
+                string fileName = PayloadFileNameFactory.CreateFileName(NamePattern, attachment, referringUserMessage);
 
-            fileName = FilenameUtils.EnsureValidFilename($"{fileName}{extension}");
+                fileName = FilenameUtils.EnsureValidFilename($"{fileName}{extension}");
 
-            return Path.Combine(Location, fileName);
+                return Path.Combine(Location, fileName);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(
+                    $"(Deliver)[{referringUserMessage.MessageId}] An fatal error occured while determining the file path: {ex}");
+
+                return null;
+            }
         }
 
         private bool DetermineAllowOverwrite()
@@ -99,13 +112,16 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
             return false;
         }
 
-        private static async Task<string> TryUploadAttachment(Attachment attachment, string attachmentFilePath, bool allowOverwrite)
+        private static UploadResult TryUploadAttachment(Attachment attachment, string attachmentFilePath, bool allowOverwrite)
         {
             try
             {
                 try
                 {
-                    return await UploadAttachment(attachment, attachmentFilePath, allowOverwrite).ConfigureAwait(false);
+                    Task<UploadResult> t = UploadAttachment(attachment, attachmentFilePath, allowOverwrite);
+                    t.Wait();
+
+                    return t.Result;
                 }
                 // Filter IOExceptions on a specific HResult.
                 // -2147024816 is the HResult if the IOException is thrown because the file already exists.
@@ -119,19 +135,26 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
                     // still possible that, under heavy load, another file has been created
                     // with the same name as the unique name that we've generated.
                     // Therefore, retry again.
-                    return await TryUploadAttachment(attachment, attachmentFilePath, allowOverwrite);
+                    return TryUploadAttachment(attachment, attachmentFilePath, allowOverwrite);
                 }
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Logger.Error(
+                    $"(Deliver) A fatal error occured while uploading the attachment {attachment.Id}: {ex.Message}");
+
+                return UploadResult.FatalFail;
             }
             catch (Exception ex)
             {
-                Logger.Error($"(Deliver) An error occured while uploading the attachment: {ex.Message}");
-                string description = $"Unable to upload attachment {attachment.Id}";
+                Logger.Error(
+                    $"(Deliver) An error occured while uploading the attachment {attachment.Id}: {ex.Message}, will be retried");
 
-                throw new IOException(description, ex);
+                return UploadResult.RetryableFail;
             }
         }
 
-        private static async Task<string> UploadAttachment(Attachment attachment, string attachmentFilePath, bool overwriteExisting)
+        private static async Task<UploadResult> UploadAttachment(Attachment attachment, string attachmentFilePath, bool overwriteExisting)
         {
             // Create the directory, if it does not exist.
             Directory.CreateDirectory(Path.GetDirectoryName(attachmentFilePath));
@@ -153,7 +176,7 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
 
             Logger.Info($"(Deliver) Attachment {attachment.Id} is uploaded successfully to {attachmentFilePath}");
 
-            return attachmentFilePath;
+            return UploadResult.SuccessWithUrl(attachmentFilePath);
         }
     }
 }
