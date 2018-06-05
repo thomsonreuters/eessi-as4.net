@@ -29,7 +29,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 return ReturnSameMessagingContext(messagingContext);
             }
 
-            TryCompressAS4Message(messagingContext);
+            CompressAS4Message(messagingContext);
 
             return await StepResult.SuccessAsync(messagingContext);
         }
@@ -43,7 +43,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             return StepResult.Success(messagingContext);
         }
 
-        private void TryCompressAS4Message(MessagingContext context)
+        private static void CompressAS4Message(MessagingContext context)
         {
             try
             {
