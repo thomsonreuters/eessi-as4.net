@@ -64,6 +64,29 @@ namespace Eu.EDelivery.AS4.Migrations
                     principalColumn: "Id");
             }
 
+            migrationBuilder.CreateIndex(
+                name: "IX_RetryReliability_RefToInMessageId",
+                table: "RetryReliability",
+                column: "RefToInMessageId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RetryReliability_RefToOutMessageId",
+                table: "RetryReliability",
+                column: "RefToOutMessageId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RetryReliability_RefToInExceptionId",
+                table: "RetryReliability",
+                column: "RefToInExceptionId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RetryReliability_RefToOutExceptionId",
+                table: "RetryReliability",
+                column: "RefToOutExceptionId",
+                unique: true);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
