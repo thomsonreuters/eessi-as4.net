@@ -1,10 +1,12 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Exceptions;
+using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
@@ -141,8 +143,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
         }
 
         [Theory]
-        [InlineData(true, 5, "0:00:01:00,0000000")]
-        [InlineData(false, 0, "0:00:00")]
+        [InlineData(true, 5, "0:00:01:00")]
+        [InlineData(false, 0, "0:00:00:00")]
         public async Task Updates_Error_InMessage_With_Retry_Info_When_Specified(bool enabled, int count, string interval)
         {
             // Arrange
@@ -162,7 +164,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 {
                     IsEnabled = enabled,
                     RetryCount = 5,
-                    RetryInterval = "0:00:01:00,0000000"
+                    RetryInterval = "0:00:01:00"
                 };
 
             // Act
@@ -178,12 +180,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                     Assert.True(enabled == (rr != null), "RetryReliability inserted while not enabled");
                     Assert.True(enabled == (0 == rr?.CurrentRetryCount), "CurrentRetryCount != 0 when enabled");
                     Assert.True(enabled == (count == rr?.MaxRetryCount), $"MaxRetryCount {count} != {rr?.MaxRetryCount} when enabled");
-                    Assert.True(enabled == (interval == rr?.RetryInterval), $"RetryInterval {interval} != {rr?.RetryInterval} when enabled");
+                    Assert.True(
+                        enabled == (interval == rr?.RetryInterval?.Substring(0, interval.Length)), 
+                        $"RetryInterval {interval} != {rr?.RetryInterval} when enabled");
                 });
         }
 
         [Theory]
-        [InlineData(true, 3, "0:00:00:10,0000000")]
+        [InlineData(true, 3, "0:00:00:10")]
         [InlineData(false, 0, "0:00:00")]
         public async Task Updates_Receipt_InMessage_With_Info_When_Specified(bool enabled, int count, string interval)
         {
@@ -200,7 +204,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 {
                     IsEnabled = enabled,
                     RetryCount = 3,
-                    RetryInterval = "0:00:00:10,0000000"
+                    RetryInterval = "0:00:00:10"
                 };
 
             // Act
@@ -214,16 +218,18 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 {
                     Assert.True(enabled == (rr != null), "RetryReliability inserted while not enabled");
                     Assert.True(enabled == (0 == rr?.CurrentRetryCount), "CurrentRetryCount != 0 when enabled");
-                    Assert.True(enabled == (count == rr?.MaxRetryCount), $"MaxRetryCount != {count} when enabled");
-                    Assert.True(enabled == (interval == rr?.RetryInterval), $"RetryInterval != {interval} when enabled");
+                    Assert.True(enabled == (count == rr?.MaxRetryCount), $"MaxRetryCount {count} != {rr?.MaxRetryCount} when enabled");
+                    Assert.True(
+                        enabled == (interval == rr?.RetryInterval?.Substring(0, interval.Length)),
+                        $"RetryInterval {interval} != {rr?.RetryInterval} when enabled");
                 });
 
         }
 
         [Theory]
-        [InlineData(true, 3, "0:00:00:05,0000000")]
+        [InlineData(true, 3, "0:00:00:05")]
         [InlineData(false, 0, "0:00:00")]
-        public async Task Updates_UserMessage_InMessage_With_Retry_Info_When_Specified(bool enabled, int max, string interval)
+        public async Task Updates_UserMessage_InMessage_With_Retry_Info_When_Specified(bool enabled, int count, string interval)
         {
             // Arrange
             string ebmsMessageId = "user-" + Guid.NewGuid();
@@ -235,7 +241,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 {
                     IsEnabled = enabled,
                     RetryCount = 3,
-                    RetryInterval = "0:00:00:05,0000000"
+                    RetryInterval = "0:00:00:05"
                 };
 
             // Act
@@ -251,8 +257,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 {
                     Assert.True(enabled == (rr != null), "RetryReliability inserted while not enabled");
                     Assert.True(enabled == (0 == rr?.CurrentRetryCount), "CurrentRetryCount != 0 when enabled");
-                    Assert.True(enabled == (max == rr?.MaxRetryCount), $"MaxRetryCount != {max} when enabled");
-                    Assert.True(enabled == (interval == rr?.RetryInterval), $"RetryInterval != {interval} when enabled");
+                    Assert.True(enabled == (count == rr?.MaxRetryCount), $"MaxRetryCount {count} != {rr?.MaxRetryCount} when enabled");
+                    Assert.True(
+                        enabled == (interval == rr?.RetryInterval?.Substring(0, interval.Length)),
+                        $"RetryInterval {interval} != {rr?.RetryInterval} when enabled");
 
                 });
         }
