@@ -1,5 +1,4 @@
 ﻿using System;
-using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
 namespace Eu.EDelivery.AS4.Entities
@@ -34,14 +33,11 @@ namespace Eu.EDelivery.AS4.Entities
             RetryType = t.ToString();
         }
 
-        [DefaultValue(0)]
         public int CurrentRetryCount { get; set; }
 
-        [DefaultValue(0)]
         public int MaxRetryCount { get; set; }
 
         [MaxLength(50)]
-        [DefaultValue("0:00:00:00,0000000")]
         public string RetryInterval { get; private set; }
 
         public void SetRetryInterval(TimeSpan t)

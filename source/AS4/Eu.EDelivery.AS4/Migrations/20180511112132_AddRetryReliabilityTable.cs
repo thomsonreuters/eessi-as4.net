@@ -19,9 +19,9 @@ namespace Eu.EDelivery.AS4.Migrations
                     RefToInExceptionId = table.Column<long?>(nullable: true),
                     RefToOutExceptionId = table.Column<long?>(nullable: true),
                     RetryType = table.Column<string>(maxLength: 12),
-                    CurrentRetryCount = table.Column<int>(defaultValue: 0),
-                    MaxRetryCount = table.Column<int>(defaultValue: 0),
-                    RetryInterval = table.Column<string>(maxLength: 50, defaultValue: "0:00:00:00,0000000"),
+                    CurrentRetryCount = table.Column<int>(nullable: false),
+                    MaxRetryCount = table.Column<int>(nullable: false),
+                    RetryInterval = table.Column<string>(maxLength: 50, nullable: false),
                     Status = table.Column<string>(maxLength: 25),
                     LastRetryTime = table.Column<DateTimeOffset>()
                 },
