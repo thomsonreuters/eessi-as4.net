@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Factories;
 using Eu.EDelivery.AS4.Model.Core;
@@ -73,7 +76,7 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
             string attachmentFilePath = Path.GetFullPath(downloadUrl);
 
             bool allowOverwrite = DetermineAllowOverwrite();
-            return Task.FromResult(TryUploadAttachment(attachment, attachmentFilePath, allowOverwrite));
+            return TryUploadAttachment(attachment, attachmentFilePath, allowOverwrite);
         }
 
         private string AssembleFileDownloadUrlFor(Attachment attachment, UserMessage referringUserMessage)
@@ -112,46 +115,70 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
             return false;
         }
 
-        private static UploadResult TryUploadAttachment(Attachment attachment, string attachmentFilePath, bool allowOverwrite)
+        private static Task<UploadResult> TryUploadAttachment(Attachment attachment, string attachmentFilePath, bool allowOverwrite)
         {
-            try
-            {
-                try
-                {
-                    Task<UploadResult> t = UploadAttachment(attachment, attachmentFilePath, allowOverwrite);
-                    t.Wait();
 
-                    return t.Result;
-                }
-                // Filter IOExceptions on a specific HResult.
-                // -2147024816 is the HResult if the IOException is thrown because the file already exists.
-                catch (IOException ex) when (ex.HResult == -2147024816)
-                {
-                    Logger.Info(ex.Message);
+            return UploadAttachment(attachment, attachmentFilePath, allowOverwrite)
+                   .ContinueWith(async t =>
+                   {
+                       if (t.IsFaulted)
+                       {
+                           IEnumerable<Exception> exs = t.Exception?.Flatten().InnerExceptions;
+                           if (exs == null || exs.Any() == false)
+                           {
+                               return UploadResult.RetryableFail;
+                           }
 
-                    // If we happen to be in a concurrent scenario where there already
-                    // exists a file with the same name, try to upload the file as well.
-                    // The TryUploadAttachment method will generate a new name, but it is 
-                    // still possible that, under heavy load, another file has been created
-                    // with the same name as the unique name that we've generated.
-                    // Therefore, retry again.
-                    return TryUploadAttachment(attachment, attachmentFilePath, allowOverwrite);
-                }
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                Logger.Error(
-                    $"(Deliver) A fatal error occured while uploading the attachment {attachment.Id}: {ex.Message}");
+                           Exception unauthorizedEx = exs.FirstOrDefault(ex => ex is UnauthorizedAccessException);
+                           if (unauthorizedEx != null)
+                           {
+                               Logger.Error(
+                                   "(Deliver) A fatal error occured while "
+                                   + $"uploading the attachment {attachment.Id}: {unauthorizedEx.Message}");
 
-                return UploadResult.FatalFail;
-            }
-            catch (Exception ex)
-            {
-                Logger.Error(
-                    $"(Deliver) An error occured while uploading the attachment {attachment.Id}: {ex.Message}, will be retried");
+                               return UploadResult.FatalFail;
+                           }
 
-                return UploadResult.RetryableFail;
-            }
+                           // Filter IOExceptions on a specific HResult.
+                           // -2147024816 is the HResult if the IOException is thrown because the file already exists.
+                           Exception fileAlreadyExsitsEx =
+                               exs.FirstOrDefault(ex => ex is IOException x && x.HResult == -2147024816);
+                           if (fileAlreadyExsitsEx != null)
+                           {
+                               Logger.Error(
+                                   "(Deliver) Uploading file will be retried "
+                                   + $"because a file already exists with the same name: {fileAlreadyExsitsEx}");
+
+                               // If we happen to be in a concurrent scenario where there already
+                               // exists a file with the same name, try to upload the file as well.
+                               // The TryUploadAttachment method will generate a new name, but it is 
+                               // still possible that, under heavy load, another file has been created
+                               // with the same name as the unique name that we've generated.
+                               // Therefore, retry again.
+                               return await TryUploadAttachment(attachment, attachmentFilePath, allowOverwrite);
+                           }
+
+                           string desc = String.Join(", ", exs);
+                           Logger.Error(
+                               "(Deliver) An error occured while "
+                               + $"uploading the attachment {attachment.Id}: {desc}, will be retried");
+
+                           return UploadResult.RetryableFail;
+                       }
+
+                       if (t.IsCanceled)
+                       {
+                           return UploadResult.RetryableFail;
+                       }
+
+                       if (t.IsCompleted)
+                       {
+                           return t.Result;
+                       }
+
+                       return UploadResult.RetryableFail;
+                   }).Unwrap();
+
         }
 
         private static async Task<UploadResult> UploadAttachment(Attachment attachment, string attachmentFilePath, bool overwriteExisting)
