@@ -77,7 +77,7 @@ namespace Eu.EDelivery.AS4.Transformers
 
             ReceivedMessage m = await EnsureIncomingStreamIsSeekable(message);
             AS4Message as4Message = await DeserializeToAS4Message(m);
-            m.UnderlyingStream.Position = 0;
+            StreamUtilities.MovePositionToStreamStart(m.UnderlyingStream);
 
             if (as4Message.IsSignalMessage && ReceivingPMode != null)
             {

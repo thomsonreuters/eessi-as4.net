@@ -14,6 +14,7 @@ using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Serialization;
+using Eu.EDelivery.AS4.Streaming;
 using NLog;
 using MessageExchangePattern = Eu.EDelivery.AS4.Entities.MessageExchangePattern;
 
@@ -104,7 +105,7 @@ namespace Eu.EDelivery.AS4.Services
                     location: _configuration.InMessageStoreLocation,
                     as4MessageStream: context.ReceivedMessage.UnderlyingStream).ConfigureAwait(false);
 
-            context.ReceivedMessage.UnderlyingStream.Position = 0;
+            StreamUtilities.MovePositionToStreamStart(context.ReceivedMessage.UnderlyingStream);
 
             try
             {
