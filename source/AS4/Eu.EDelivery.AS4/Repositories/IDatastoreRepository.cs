@@ -200,5 +200,28 @@ namespace Eu.EDelivery.AS4.Repositories
         ReceptionAwareness GetReceptionAwarenessForOutMessage(long outMessageId);
 
         #endregion
+
+        #region RetryReliability related functionality
+
+        /// <summary>
+        /// Gets a sequence of <see cref="RetryReliability"/> records based on a given <paramref name="predicate"/>,
+        /// using a <paramref name="selector"/> to manipulate to a <typeparamref name="TResult"/> type.
+        /// </summary>
+        /// <typeparam name="TResult"></typeparam>
+        /// <param name="predicate"></param>
+        /// <param name="selector"></param>
+        /// <returns></returns>
+        IEnumerable<TResult> GetRetryReliability<TResult>(
+            Expression<Func<RetryReliability, bool>> predicate,
+            Expression<Func<RetryReliability, TResult>> selector);
+
+        /// <summary>
+        /// Inserts the retry reliability information referencing a <see cref="InMessage"/>.
+        /// </summary>
+        /// <param name="reliability">The <see cref="RetryReliability"/> entity to insert</param>
+        /// 
+        void InsertRetryReliability(RetryReliability reliability);
+
+        #endregion
     }
 }

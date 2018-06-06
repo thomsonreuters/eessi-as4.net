@@ -11,6 +11,7 @@ using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Streaming;
 using NLog;
+using RetryReliability = Eu.EDelivery.AS4.Model.PMode.RetryReliability;
 
 namespace Eu.EDelivery.AS4.Exceptions.Handlers
 {
@@ -95,6 +96,14 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
                 repo.InsertOutException(outException);
             });
 
+            Entities.RetryReliability r = CreateRelatedRetryForOutException(
+                outException.Id, 
+                context.SendingPMode?.ExceptionHandling?.Reliability);
+            if (r != null)
+            {
+                await UseRepositorySaveAfterwards(repo => repo.InsertRetryReliability(r));
+            }
+
             return new MessagingContext(exception);
         }
 
@@ -117,19 +126,30 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
             await outEx.SetPModeInformationAsync(context.SendingPMode);
 
             SendHandling handling = context.SendingPMode?.ExceptionHandling;
-
             bool needsToBeNotified = handling?.NotifyMessageProducer == true;
             outEx.SetOperation(needsToBeNotified ? Operation.ToBeNotified : default(Operation));
 
-            RetryReliability reliability = handling?.Reliability;
+            return outEx;
+        }
+
+        private static Entities.RetryReliability CreateRelatedRetryForOutException(long id, RetryReliability reliability)
+        {
             if (reliability != null && reliability.IsEnabled)
             {
-                outEx.CurrentRetryCount = 0;
-                outEx.MaxRetryCount = reliability.RetryCount;
-                outEx.SetRetryInterval(reliability.RetryInterval.AsTimeSpan());
+                var r = new Entities.RetryReliability
+                {
+                    CurrentRetryCount = 0,
+                    MaxRetryCount = reliability.RetryCount,
+                    RefToOutExceptionId = id
+                };
+                r.SetRetryInterval(reliability.RetryInterval.AsTimeSpan());
+                r.SetStatus(ReceptionStatus.Pending);
+                r.SetRetryType(RetryType.Notification);
+
+                return r;
             }
 
-            return outEx;
+            return null;
         }
 
         private async Task UseRepositorySaveAfterwards(Action<DatastoreRepository> usage)

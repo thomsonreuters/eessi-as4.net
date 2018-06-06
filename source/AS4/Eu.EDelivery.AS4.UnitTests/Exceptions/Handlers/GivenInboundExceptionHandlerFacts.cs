@@ -17,6 +17,7 @@ using Eu.EDelivery.AS4.UnitTests.Repositories;
 using FsCheck;
 using FsCheck.Xunit;
 using Xunit;
+using RetryReliability = Eu.EDelivery.AS4.Model.PMode.RetryReliability;
 
 namespace Eu.EDelivery.AS4.UnitTests.Exceptions.Handlers
 {
@@ -34,7 +35,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Exceptions.Handlers
             ClearInExceptions();
             var sut = new InboundExceptionHandler(GetDataStoreContext);
             var pmode = new ReceivingProcessingMode();
-            string intervalStr = interval.ToString(@"hh\:mm\:ss");
+            string intervalStr = interval.ToString("G");
             pmode.ExceptionHandling.Reliability =
                 new RetryReliability
                 {
@@ -54,17 +55,24 @@ namespace Eu.EDelivery.AS4.UnitTests.Exceptions.Handlers
             GetDataStoreContext.AssertInException(ex =>
             {
                 Assert.NotEmpty(ex.MessageBody);
-                Assert.Equal(0, ex.CurrentRetryCount);
-                Assert.True(
-                    enabled == (count.Get == ex.MaxRetryCount),
-                    enabled
-                        ? $"Max retry count failed on enabled: {count.Get} != {ex.MaxRetryCount}"
-                        : $"Max retry count should be 0 on disabled but is {ex.MaxRetryCount}");
-                Assert.True(
-                    enabled == (intervalStr == ex.RetryInterval),
-                    enabled
-                        ? $"Retry interval failed on enabled: {interval:hh\\:mm\\:ss} != {ex.RetryInterval}"
-                        : $"Retry interval should be 0:00:00 on disabled but is {ex.RetryInterval}");
+                GetDataStoreContext.AssertRetryRelatedInException(
+                    ex.Id,
+                    rr =>
+                    {
+                        Assert.True(
+                            enabled == (0 == rr?.CurrentRetryCount), 
+                            "CurrentRetryCount != 0 when RetryReliability is enabled");
+                        Assert.True(
+                            enabled == (count.Get == rr?.MaxRetryCount),
+                            enabled
+                                ? $"Max retry count failed on enabled: {count.Get} != {rr?.MaxRetryCount}"
+                                : $"Max retry count should be 0 on disabled but is {rr?.MaxRetryCount}");
+                        Assert.True(
+                            enabled == (intervalStr == rr?.RetryInterval),
+                            enabled
+                                ? $"Retry interval failed on enabled: {interval:G} != {rr?.RetryInterval}"
+                                : $"Retry interval should be 0:00:00 on disabled but is {rr?.RetryInterval}");
+                    });
             });
         }
 

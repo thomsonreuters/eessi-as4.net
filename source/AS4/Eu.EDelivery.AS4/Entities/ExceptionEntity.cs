@@ -36,25 +36,6 @@ namespace Eu.EDelivery.AS4.Entities
             PMode = pmodeContent;
         }
 
-        [DefaultValue(0)]
-        public int CurrentRetryCount { get; set; }
-
-        [DefaultValue(0)]
-        public int MaxRetryCount { get; set; }
-
-        [MaxLength(50)]
-        [DefaultValue("00:00:00")]
-        public string RetryInterval { get; private set; }
-
-        /// <summary>
-        /// Sets the retry interval on this exception entity.
-        /// </summary>
-        /// <param name="interval">The interval.</param>
-        public void SetRetryInterval(TimeSpan interval)
-        {
-            RetryInterval = interval.ToString(@"hh\:mm\:ss");
-        }
-
         /// <summary>
         /// Set the PMode that is used to process the message.
         /// </summary>

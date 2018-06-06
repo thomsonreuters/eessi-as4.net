@@ -15,6 +15,7 @@ using Eu.EDelivery.AS4.UnitTests.Repositories;
 using Eu.EDelivery.AS4.UnitTests.Strategies.Uploader;
 using Moq;
 using Xunit;
+using RetryReliability = Eu.EDelivery.AS4.Entities.RetryReliability;
 
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
 {
@@ -45,7 +46,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
         {
             // Arrange
             string id = "deliver-" + Guid.NewGuid();
-            InsertInMessage(id, input.CurrentRetryCount, input.MaxRetryCount);
+            InMessage im = InsertInMessage(id);
+            GetDataStoreContext.InsertRetryReliability(
+                new RetryReliability
+                {
+                    RefToInMessageId = im.Id,
+                    CurrentRetryCount = input.CurrentRetryCount,
+                    MaxRetryCount = input.MaxRetryCount
+                });
 
             var a = new FilledAttachment();
             var userMessage = new FilledUserMessage(id, a.Id);
@@ -65,10 +73,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
             GetDataStoreContext.AssertInMessage(id, actual =>
             {
                 Assert.NotNull(actual);
-
-                Assert.Equal(input.ExpectedCurrentRetryCount, actual.CurrentRetryCount);
                 Assert.Equal(input.ExpectedStatus, InStatusUtils.Parse(actual.Status));
                 Assert.Equal(input.ExpectedOperation, OperationUtils.Parse(actual.Operation));
+            });
+            GetDataStoreContext.AssertRetryRelatedInMessage(im.Id, rr =>
+            {
+                Assert.Equal(input.ExpectedCurrentRetryCount, rr.CurrentRetryCount);
             });
         }
 
@@ -78,7 +88,15 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
         {
             // Arrange
             string id = "deliver-" + Guid.NewGuid();
-            InsertInMessage(id, input.CurrentRetryCount, input.MaxRetryCount);
+            InMessage im = InsertInMessage(id);
+            GetDataStoreContext.InsertRetryReliability(
+                new RetryReliability
+                {
+                    RefToInMessageId = im.Id,
+                    CurrentRetryCount = input.CurrentRetryCount,
+                    MaxRetryCount = input.MaxRetryCount
+                });
+
 
             var a1 = new FilledAttachment("attachment-1");
             var a2 = new FilledAttachment("attachment-2");
@@ -125,22 +143,20 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
                 bool exhaustRetries =
                     input.CurrentRetryCount == input.MaxRetryCount
                     || input.UploadResult.Status != SendResult.RetryableFail;
+
                 Assert.True(
                     messageSetToException == exhaustRetries,
                     $"{messageSetToException} != {exhaustRetries} InMessage should update Operation=DeadLettered, Status=Exception");
             });
         }
 
-        private void InsertInMessage(string id, int current, int max)
+        private InMessage InsertInMessage(string id)
         {
-            var inMsg = new InMessage(id)
-            {
-                CurrentRetryCount = current,
-                MaxRetryCount = max
-            };
+            var inMsg = new InMessage(id);
             inMsg.SetStatus(InStatus.Received);
             inMsg.SetOperation(Operation.Delivering);
-            GetDataStoreContext.InsertInMessage(inMsg);
+
+            return GetDataStoreContext.InsertInMessage(inMsg);
         }
 
         private static IAttachmentUploader CreateStubAttachmentUploader(UserMessage m, UploadResult r)

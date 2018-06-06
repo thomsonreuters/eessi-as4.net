@@ -14,6 +14,7 @@ using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
 using NLog;
 using MessageExchangePattern = Eu.EDelivery.AS4.Entities.MessageExchangePattern;
+using RetryReliability = Eu.EDelivery.AS4.Model.PMode.RetryReliability;
 
 namespace Eu.EDelivery.AS4.Services
 {
@@ -274,19 +275,26 @@ namespace Eu.EDelivery.AS4.Services
                             && message.Intermediary == false)
                         {
                             message.SetOperation(Operation.ToBeDelivered);
-
-                            RetryReliability reliability = 
-                                messagingContext.ReceivingPMode.MessageHandling?.DeliverInformation?.Reliability;
-
-                            if (reliability?.IsEnabled ?? false)
-                            {
-                                message.CurrentRetryCount = 0;
-                                message.MaxRetryCount = reliability.RetryCount;
-                                message.SetRetryInterval(reliability.RetryInterval.AsTimeSpan());
-                            }
-
                         }
                     });
+
+                RetryReliability reliability =
+                    messagingContext.ReceivingPMode.MessageHandling?.DeliverInformation?.Reliability;
+
+                if (reliability?.IsEnabled ?? false)
+                {
+                    long id = _repository.GetInMessageData(userMessage.MessageId, m => m.Id);
+                    var entity = new Entities.RetryReliability
+                    {
+                        CurrentRetryCount = 0,
+                        MaxRetryCount = reliability.RetryCount,
+                        RefToInMessageId = id,
+                    };
+                    entity.SetRetryInterval(reliability.RetryInterval.AsTimeSpan());
+                    entity.SetStatus(ReceptionStatus.Pending);
+                    entity.SetRetryType(RetryType.Delivery);
+                    _repository.InsertRetryReliability(entity);
+                }
             }
         }
 
@@ -321,19 +329,27 @@ namespace Eu.EDelivery.AS4.Services
                 {
                     _repository.UpdateInMessages(
                         m => signalsToNotify.Contains(m.EbmsMessageId) && m.Intermediary == false,
-                        m =>
+                        m => m.SetOperation(Operation.ToBeNotified));
+
+                    bool isRetryEnabled = reliability?.IsEnabled ?? false;
+                    if (isRetryEnabled)
+                    {
+                        var ids = _repository.GetInMessagesData(signalsToNotify, m => m.Id);
+                        foreach (var id in ids)
                         {
-                            m.SetOperation(Operation.ToBeNotified);
-
-                            bool isRetryEnabled = reliability?.IsEnabled ?? false;
-                            if (isRetryEnabled)
+                            var entity = new Entities.RetryReliability
                             {
-                                m.CurrentRetryCount = 0;
-                                m.MaxRetryCount = reliability.RetryCount;
-                                m.SetRetryInterval(reliability.RetryInterval.AsTimeSpan());
-                            }
+                                CurrentRetryCount = 0,
+                                MaxRetryCount = reliability.RetryCount,
+                                RefToInMessageId = id
+                            };
+                            entity.SetRetryInterval(reliability.RetryInterval.AsTimeSpan());
+                            entity.SetRetryType(RetryType.Notification);
+                            entity.SetStatus(ReceptionStatus.Pending);
 
-                        });
+                            _repository.InsertRetryReliability(entity);
+                        }
+                    }
                 }
             }
 

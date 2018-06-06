@@ -14,6 +14,7 @@ using Eu.EDelivery.AS4.UnitTests.Common;
 using Eu.EDelivery.AS4.UnitTests.Model;
 using Eu.EDelivery.AS4.UnitTests.Repositories;
 using Xunit;
+using RetryReliability = Eu.EDelivery.AS4.Model.PMode.RetryReliability;
 
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 {
@@ -140,13 +141,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
         }
 
         [Theory]
-        [InlineData(true, 5, "0:01:00")]
+        [InlineData(true, 5, "0:00:01:00,0000000")]
         [InlineData(false, 0, "0:00:00")]
         public async Task Updates_Error_InMessage_With_Retry_Info_When_Specified(bool enabled, int count, string interval)
         {
             // Arrange
             string ebmsMessageId = "error-" + Guid.NewGuid();
-            GetDataStoreContext.InsertOutMessage(
+            OutMessage om = GetDataStoreContext.InsertOutMessage(
                 CreateOutMessage(ebmsMessageId),
                 withReceptionAwareness: false);
 
@@ -170,19 +171,19 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 pmode,
                 receivePMode: null);
             // Assert
-            GetDataStoreContext.AssertInMessageWithRefToMessageId(
-                ebmsMessageId,
-                m =>
+            GetDataStoreContext.AssertRetryRelatedInMessage(
+                om.Id,
+                rr =>
                 {
-                    Assert.NotNull(m);
-                    Assert.Equal(0, m.CurrentRetryCount);
-                    Assert.Equal(count, m.MaxRetryCount);
-                    Assert.Equal(interval, m.RetryInterval);
+                    Assert.True(enabled == (rr != null), "RetryReliability inserted while not enabled");
+                    Assert.True(enabled == (0 == rr?.CurrentRetryCount), "CurrentRetryCount != 0 when enabled");
+                    Assert.True(enabled == (count == rr?.MaxRetryCount), $"MaxRetryCount != {count} when enabled");
+                    Assert.True(enabled == (interval == rr?.RetryInterval), $"RetryInterval != {interval} when enabled");
                 });
         }
 
         [Theory]
-        [InlineData(true, 3, "0:00:10")]
+        [InlineData(true, 3, "0:00:00:10,0000000")]
         [InlineData(false, 0, "0:00:00")]
         public async Task Updates_Receipt_InMessage_With_Info_When_Specified(bool enabled, int count, string interval)
         {
@@ -206,20 +207,21 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             await ExerciseUpdateReceivedMessage(receipt, pmode, receivePMode: null);
 
             // Assert
-            GetDataStoreContext.AssertInMessageWithRefToMessageId(
-                ebmsMessageId,
-                m =>
+            long id = GetDataStoreContext.GetInMessage(m => m.EbmsRefToMessageId == ebmsMessageId).Id;
+            GetDataStoreContext.AssertRetryRelatedInMessage(
+                id,
+                rr =>
                 {
-                    Assert.NotNull(m);
-                    Assert.Equal(0, m.CurrentRetryCount);
-                    Assert.Equal(count, m.MaxRetryCount);
-                    Assert.Equal(interval, m.RetryInterval);
+                    Assert.True(enabled == (rr != null), "RetryReliability inserted while not enabled");
+                    Assert.True(enabled == (0 == rr?.CurrentRetryCount), "CurrentRetryCount != 0 when enabled");
+                    Assert.True(enabled == (count == rr?.MaxRetryCount), $"MaxRetryCount != {count} when enabled");
+                    Assert.True(enabled == (interval == rr?.RetryInterval), $"RetryInterval != {interval} when enabled");
                 });
 
         }
 
         [Theory]
-        [InlineData(true, 3, "0:00:05")]
+        [InlineData(true, 3, "0:00:00:05,0000000")]
         [InlineData(false, 0, "0:00:00")]
         public async Task Updates_UserMessage_InMessage_With_Retry_Info_When_Specified(bool enabled, int max, string interval)
         {
@@ -240,15 +242,18 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             await ExerciseUpdateReceivedMessage(as4Message, sendPMode: null, receivePMode: pmode);
 
             // Assert
-            GetDataStoreContext.AssertInMessage(
-                ebmsMessageId,
-                m =>
+            InMessage actual = GetDataStoreContext.GetInMessage(m => m.EbmsMessageId == ebmsMessageId);
+            Assert.Equal(Operation.ToBeDelivered, OperationUtils.Parse(actual.Operation));
+
+            GetDataStoreContext.AssertRetryRelatedInMessage(
+                actual.Id,
+                rr =>
                 {
-                    Assert.NotNull(m);
-                    Assert.Equal(0, m.CurrentRetryCount);
-                    Assert.Equal(max, m.MaxRetryCount);
-                    Assert.Equal(interval, m.RetryInterval);
-                    Assert.Equal(Operation.ToBeDelivered, OperationUtils.Parse(m.Operation));
+                    Assert.True(enabled == (rr != null), "RetryReliability inserted while not enabled");
+                    Assert.True(enabled == (0 == rr?.CurrentRetryCount), "CurrentRetryCount != 0 when enabled");
+                    Assert.True(enabled == (max == rr?.MaxRetryCount), $"MaxRetryCount != {max} when enabled");
+                    Assert.True(enabled == (interval == rr?.RetryInterval), $"RetryInterval != {interval} when enabled");
+
                 });
         }
 

@@ -15,6 +15,7 @@ using Eu.EDelivery.AS4.TestUtils;
 using Xunit;
 using static Eu.EDelivery.AS4.ComponentTests.Properties.Resources;
 using MessageExchangePattern = Eu.EDelivery.AS4.Entities.MessageExchangePattern;
+using RetryReliability = Eu.EDelivery.AS4.Entities.RetryReliability;
 
 namespace Eu.EDelivery.AS4.ComponentTests.Agents
 {
@@ -109,7 +110,10 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             // Assert
             Assert.Equal(InStatus.Delivered, InStatusUtils.Parse(actualMessage.Status));
             Assert.Equal(Operation.Delivered, OperationUtils.Parse(actualMessage.Operation));
-            Assert.True(0 < actualMessage.CurrentRetryCount, "0 < actualMessage.CurrentRetryCount");
+
+            var spy = new DatabaseSpy(_as4Msh.GetConfiguration());
+            RetryReliability rr = spy.GetRetryReliabilityFor(r => r.RefToInMessageId == actualMessage.Id);
+            Assert.True(0 < rr.CurrentRetryCount, "0 < actualMessage.CurrentRetryCount");
         }
 
         [Fact(Skip ="Implementing retry agent still ongoing...")]
@@ -119,7 +123,10 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
             Assert.Equal(InStatus.Exception, InStatusUtils.Parse(actualMessage.Status));
             Assert.Equal(Operation.DeadLettered, OperationUtils.Parse(actualMessage.Operation));
-            Assert.Equal(3, actualMessage.CurrentRetryCount);
+
+            var spy = new DatabaseSpy(_as4Msh.GetConfiguration());
+            RetryReliability rr = spy.GetRetryReliabilityFor(r => r.RefToInMessageId == actualMessage.Id);
+            Assert.Equal(3, rr.CurrentRetryCount);
         }
 
         private async Task<InMessage> TestDeliverRetryByBlockingDeliveryLocationFor(TimeSpan period)
@@ -137,11 +144,16 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             using (WriteBlockingFileTo(deliverLocation))
             {
                 InMessage inMessage = CreateInMessageRepresentingUserMessage(as4Message, pmode);
-                inMessage.CurrentRetryCount = 0;
-                inMessage.MaxRetryCount = 3;
+                await InsertInMessage(inMessage);
 
                 // Act
-                await InsertInMessage(inMessage);
+                await InsertRetryReliability(
+                    new RetryReliability
+                    {
+                        RefToInMessageId = inMessage.Id,
+                        CurrentRetryCount = 0,
+                        MaxRetryCount = 3
+                    });
 
                 // Assert
                 // Blocks the delivery location for a period of time
@@ -204,6 +216,16 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             var repository = new DatastoreRepository(context);
 
             repository.InsertInMessage(createInMessageFrom);
+
+            await context.SaveChangesAsync();
+        }
+
+        private async Task InsertRetryReliability(RetryReliability r)
+        {
+            var context = new DatastoreContext(_as4Msh.GetConfiguration());
+            var repository = new DatastoreRepository(context);
+
+            repository.InsertRetryReliability(r);
 
             await context.SaveChangesAsync();
         }

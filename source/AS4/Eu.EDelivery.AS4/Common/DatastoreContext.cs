@@ -65,8 +65,8 @@ namespace Eu.EDelivery.AS4.Common
         //{
         //    var optionsBuilder = new DbContextOptionsBuilder<DatastoreContext>();
 
-        //    optionsBuilder.UseSqlServer("Server=.;database=as4msh;integrated security=sspi");
-        //    //optionsBuilder.UseSqlite(@"Filename=database\messages.db");
+        //    //optionsBuilder.UseSqlServer("Server=.;database=as4msh;integrated security=sspi");
+        //    optionsBuilder.UseSqlite(@"Filename=database\messages.db");
 
         //    return optionsBuilder.Options;
         //}
@@ -112,6 +112,8 @@ namespace Eu.EDelivery.AS4.Common
         public DbSet<ReceptionAwareness> ReceptionAwareness { get; set; }
 
         public DbSet<SmpConfiguration> SmpConfigurations { get; set; }
+
+        public DbSet<RetryReliability> RetryReliability { get; set; }
 
         public IAS4DbCommand NativeCommands { get; private set; }
 
@@ -228,7 +230,6 @@ namespace Eu.EDelivery.AS4.Common
             modelBuilder.Entity<InMessage>().Property(im => im.EbmsMessageType).UsePropertyAccessMode(PropertyAccessMode.Field);
             modelBuilder.Entity<InMessage>().Property(im => im.PMode).UsePropertyAccessMode(PropertyAccessMode.Field);
             modelBuilder.Entity<InMessage>().Property(im => im.PModeId).UsePropertyAccessMode(PropertyAccessMode.Field);
-            modelBuilder.Entity<InMessage>().Property(im => im.RetryInterval).UsePropertyAccessMode(PropertyAccessMode.Field);
 
             modelBuilder.Entity<OutMessage>().HasKey(im => im.Id).HasName("PK_OutMessages");
             modelBuilder.Entity<OutMessage>().Property(im => im.Id).UseSqlServerIdentityColumn();
@@ -240,7 +241,6 @@ namespace Eu.EDelivery.AS4.Common
             modelBuilder.Entity<OutMessage>().Property(im => im.EbmsMessageType).UsePropertyAccessMode(PropertyAccessMode.Field);
             modelBuilder.Entity<OutMessage>().Property(im => im.PMode).UsePropertyAccessMode(PropertyAccessMode.Field);
             modelBuilder.Entity<OutMessage>().Property(im => im.PModeId).UsePropertyAccessMode(PropertyAccessMode.Field);
-            modelBuilder.Entity<OutMessage>().Property(im => im.RetryInterval).UsePropertyAccessMode(PropertyAccessMode.Field);
 
             modelBuilder.Entity<InException>().HasKey(ie => ie.Id).HasName("PK_InExceptions");
             modelBuilder.Entity<InException>().Property(ie => ie.Id).UseSqlServerIdentityColumn();
@@ -252,7 +252,6 @@ namespace Eu.EDelivery.AS4.Common
             modelBuilder.Entity<InException>().Property(ie => ie.Exception).UsePropertyAccessMode(PropertyAccessMode.Field);
             modelBuilder.Entity<InException>().Property(ie => ie.PMode).UsePropertyAccessMode(PropertyAccessMode.Field);
             modelBuilder.Entity<InException>().Property(ie => ie.PModeId).UsePropertyAccessMode(PropertyAccessMode.Field);
-            modelBuilder.Entity<InException>().Property(im => im.RetryInterval).UsePropertyAccessMode(PropertyAccessMode.Field);
 
             modelBuilder.Entity<OutException>().HasKey(oe => oe.Id).HasName("PK_OutExceptions");
             modelBuilder.Entity<OutException>().Property(oe => oe.Id).UseSqlServerIdentityColumn();
@@ -264,7 +263,6 @@ namespace Eu.EDelivery.AS4.Common
             modelBuilder.Entity<OutException>().Property(oe => oe.Exception).UsePropertyAccessMode(PropertyAccessMode.Field);
             modelBuilder.Entity<OutException>().Property(oe => oe.PMode).UsePropertyAccessMode(PropertyAccessMode.Field);
             modelBuilder.Entity<OutException>().Property(oe => oe.PModeId).UsePropertyAccessMode(PropertyAccessMode.Field);
-            modelBuilder.Entity<OutException>().Property(im => im.RetryInterval).UsePropertyAccessMode(PropertyAccessMode.Field);
 
             modelBuilder.Entity<ReceptionAwareness>().HasKey(r => r.Id).HasName("PK_ReceptionAwareness");
             modelBuilder.Entity<ReceptionAwareness>().Property(r => r.Id).UseSqlServerIdentityColumn();
@@ -292,6 +290,16 @@ namespace Eu.EDelivery.AS4.Common
             modelBuilder.Entity<SmpConfiguration>().Property(sc => sc.EncryptKeyDigestAlgorithm).UsePropertyAccessMode(PropertyAccessMode.Field);
             modelBuilder.Entity<SmpConfiguration>().Property(sc => sc.EncryptKeyMgfAlorithm).UsePropertyAccessMode(PropertyAccessMode.Field);
             modelBuilder.Entity<SmpConfiguration>().Property(sc => sc.EncryptKeyTransportAlgorithm).UsePropertyAccessMode(PropertyAccessMode.Field);
+
+            modelBuilder.Entity<RetryReliability>().HasKey(rr => rr.Id).HasName("PK_RetryReliability");
+            modelBuilder.Entity<RetryReliability>().Property(rr => rr.Id).UseSqlServerIdentityColumn();
+            //modelBuilder.Entity<RetryReliability>().HasAlternateKey(rr => rr.RefToInMessageId).HasName("AK_RetryReliability_RefToInMessageId");
+            //modelBuilder.Entity<RetryReliability>().HasAlternateKey(rr => rr.RefToOutMessageId).HasName("AK_RetryReliability_RefToOutMessageId");
+            //modelBuilder.Entity<RetryReliability>().HasAlternateKey(rr => rr.RefToInExceptionId).HasName("AK_RetryReliability_RefToInExceptionId");
+            //modelBuilder.Entity<RetryReliability>().HasAlternateKey(rr => rr.RefToOutExceptionId).HasName("AK_RetryReliability_RefToOutExceptionId");
+            modelBuilder.Entity<RetryReliability>().Property(rr => rr.RetryInterval).UsePropertyAccessMode(PropertyAccessMode.Field);
+            modelBuilder.Entity<RetryReliability>().Property(rr => rr.RetryType).UsePropertyAccessMode(PropertyAccessMode.Field);
+            modelBuilder.Entity<RetryReliability>().Property(rr => rr.Status).UsePropertyAccessMode(PropertyAccessMode.Field);
         }
 
         /// <summary>

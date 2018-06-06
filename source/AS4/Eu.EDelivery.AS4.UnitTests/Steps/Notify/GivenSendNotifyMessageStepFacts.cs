@@ -41,7 +41,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
                 ebmsMessageId,
                 e =>
                 {
-                    (int actualCurrentRetry, string actualOperation) = type.Getter(e);
+                    (int actualCurrentRetry, string actualOperation) = type.Getter(GetDataStoreContext, e);
 
                     Assert.Equal(retry.ExpectedCurrentRetryCount, actualCurrentRetry);
                     Assert.Equal(retry.ExpectedOperation, OperationUtils.Parse(actualOperation));
