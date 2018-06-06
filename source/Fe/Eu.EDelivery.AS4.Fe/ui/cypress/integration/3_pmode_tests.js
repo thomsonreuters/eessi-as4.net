@@ -19,7 +19,7 @@ describe('pmode tests', () => {
       cy.getdatacy('retry.count').should('be.enabled');
       cy.getdatacy('retry.interval').should('be.enabled');
       cy.getdatacy('retry.count').should('to.have.value', '4');
-      cy.getdatacy('retry.interval').should('to.have.value', '1:00:00:00');
+      cy.getdatacy('retry.interval').should('to.have.value', '0:00:01:00');
     });
   };
 
