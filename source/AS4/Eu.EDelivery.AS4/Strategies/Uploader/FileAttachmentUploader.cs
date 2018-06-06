@@ -115,10 +115,10 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
             return false;
         }
 
-        private static Task<UploadResult> TryUploadAttachment(Attachment attachment, string attachmentFilePath, bool allowOverwrite)
+        private static async Task<UploadResult> TryUploadAttachment(Attachment attachment, string attachmentFilePath, bool allowOverwrite)
         {
 
-            return UploadAttachment(attachment, attachmentFilePath, allowOverwrite)
+            return await UploadAttachment(attachment, attachmentFilePath, allowOverwrite)
                    .ContinueWith(async t =>
                    {
                        if (t.IsFaulted)
