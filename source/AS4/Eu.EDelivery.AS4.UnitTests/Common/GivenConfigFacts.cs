@@ -45,6 +45,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
                 testSettingsFileName,
                 overwrite: true);
 
+            Directory.CreateDirectory(Path.Combine(Config.ApplicationPath, "config", "send-pmodes"));
+            Directory.CreateDirectory(Path.Combine(Config.ApplicationPath, "config", "receive-pmodes"));
+
             // Act
             Config.Instance.Initialize(testSettingsFileName);
 
