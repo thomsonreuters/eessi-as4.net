@@ -341,17 +341,17 @@ namespace Eu.EDelivery.AS4.Repositories
         #region OutException related functionality
 
         /// <summary>
-        /// Retrieves information for specified OutException.
+        /// Retrieves information for a specified OutException using a <paramref name="refToMessageId"/>.
         /// </summary>
         /// <typeparam name="TResult">The type of the result.</typeparam>
         /// <param name="refToMessageId"></param>
         /// <param name="selection">The selection.</param>
         /// <returns></returns>
-        public TResult GetOutExceptionData<TResult>(
+        public IEnumerable<TResult> GetOutExceptionsData<TResult>(
             string refToMessageId,
             Expression<Func<OutException, TResult>> selection)
         {
-            return _datastoreContext.OutExceptions.Where(ex => ex.EbmsRefToMessageId == refToMessageId).Select(selection).FirstOrDefault();
+            return _datastoreContext.OutExceptions.Where(ex => ex.EbmsRefToMessageId == refToMessageId).Select(selection);
         }
 
         /// <summary>
@@ -396,11 +396,11 @@ namespace Eu.EDelivery.AS4.Repositories
         /// <param name="refToMessageId"></param>
         /// <param name="selection">The selection.</param>
         /// <returns></returns>
-        public TResult GetInExceptionData<TResult>(
+        public IEnumerable<TResult> GetInExceptionsData<TResult>(
             string refToMessageId,
             Expression<Func<InException, TResult>> selection)
         {
-            return _datastoreContext.InExceptions.Where(ex => ex.EbmsRefToMessageId == refToMessageId).Select(selection).FirstOrDefault();
+            return _datastoreContext.InExceptions.Where(ex => ex.EbmsRefToMessageId == refToMessageId).Select(selection);
         }
 
         /// <summary>

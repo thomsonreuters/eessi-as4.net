@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Linq.Expressions;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Repositories;
@@ -166,7 +167,7 @@ namespace Eu.EDelivery.AS4.Services
                 exEntity => UpdateExceptionEntity(
                     result,
                     exEntity,
-                    selector => _repository.GetInExceptionData(messageId, selector)));
+                    selector => _repository.GetInExceptionsData(messageId, selector).First()));
         }
 
         /// <summary>
@@ -181,7 +182,7 @@ namespace Eu.EDelivery.AS4.Services
                 exEntity => UpdateExceptionEntity(
                     result,
                     exEntity,
-                    selector => _repository.GetOutExceptionData(messageId, selector)));
+                    selector => _repository.GetOutExceptionsData(messageId, selector).First()));
         }
 
         private void UpdateExceptionEntity<T>(
