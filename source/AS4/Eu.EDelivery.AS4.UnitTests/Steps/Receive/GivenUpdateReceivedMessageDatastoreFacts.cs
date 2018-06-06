@@ -162,7 +162,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 {
                     IsEnabled = enabled,
                     RetryCount = 5,
-                    RetryInterval = "0:01:00"
+                    RetryInterval = "0:00:01:00,0000000"
                 };
 
             // Act
@@ -177,8 +177,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 {
                     Assert.True(enabled == (rr != null), "RetryReliability inserted while not enabled");
                     Assert.True(enabled == (0 == rr?.CurrentRetryCount), "CurrentRetryCount != 0 when enabled");
-                    Assert.True(enabled == (count == rr?.MaxRetryCount), $"MaxRetryCount != {count} when enabled");
-                    Assert.True(enabled == (interval == rr?.RetryInterval), $"RetryInterval != {interval} when enabled");
+                    Assert.True(enabled == (count == rr?.MaxRetryCount), $"MaxRetryCount {count} != {rr?.MaxRetryCount} when enabled");
+                    Assert.True(enabled == (interval == rr?.RetryInterval), $"RetryInterval {interval} != {rr?.RetryInterval} when enabled");
                 });
         }
 
@@ -200,7 +200,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 {
                     IsEnabled = enabled,
                     RetryCount = 3,
-                    RetryInterval = "0:00:10"
+                    RetryInterval = "0:00:00:10,0000000"
                 };
 
             // Act
@@ -235,7 +235,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 {
                     IsEnabled = enabled,
                     RetryCount = 3,
-                    RetryInterval = "0:00:05"
+                    RetryInterval = "0:00:00:05,0000000"
                 };
 
             // Act
