@@ -10,14 +10,34 @@ Default: `{GUID}@{IPADDRESS}`
 
 ### Payload Service In Process
 
-This setting defines whether or not the (optional) PayloadService should be started in-process with the <b><b>AS4.NET</b></b> MessageHandler.
+This setting defines whether or not the (optional) PayloadService should be started in-process with the <b>AS4.NET</b> MessageHandler.
 
 The PayloadService is a REST service that can contain payloads that are referenced by submit-messages.
 
 ### FE In Process
 
-This setting defines whether or not the <b><b>AS4.NET</b></b> FrontEnd should be started in-process with the <b><b><b>AS4.NET</b></b></b> MessageHandler.
-The <b><b>AS4.NET</b></b> FrontEnd web-application lets you configure the <b><b>AS4.NET</b></b> messagehandler and offers monitoring functionality.
+This setting defines whether or not the <b>AS4.NET</b> FrontEnd should be started in-process with the <b>AS4.NET</b> MessageHandler.
+The <b>AS4.NET</b> FrontEnd web-application lets you configure the <b>AS4.NET</b> messagehandler and offers monitoring functionality.
+
+### Retention Period (in days)
+
+The settings contains a retention period number (in days) that can be used to manipulate when stored records must be deleted (hard delete) from the datastore.
+
+So specifying `<RetentionPeriod>10</RetentionPeriod>` will make sure that records older than **10 days** will be deleted from the datastore.
+
+The default value for this period is: **90 days**.
+
+> The `<RetentionPeriod/>` tag is available from version v3.0.0 and up.
+
+### Retry Reliability
+
+The retry reliability specifies also some settings that manipulates the retry mechanism of the <b>AS4.NET</b> component. Retries happen when messages/exceptions gets *Notified* or *Delivered*.
+
+Within the `<RetryReliability/>` tag you can specify the following settings:
+
+* **Polling Interval**: defines the interval in which the retry mechanism of the <b>AS4.NET</b> component should be triggered.
+
+> The `<RetryReliability/>` tag is available form version vXXX and up.
 
 ### Database Provider
 
@@ -38,16 +58,16 @@ The default implementation is used to retrieve certificates from a certificate s
 
 Following values can be used:
 
-| Member name           | Description                                                                 |
-| --------------------- | --------------------------------------------------------------------------- |
-| AddressBook           | The X.509 certificate store for other users.                                |
-| AuthRoot              | The X.509 certificate store for third-party certificate authorities (CAs).  |
-| CertificateAuthority  | The X.509 certificate store for intermediate certificate authorities (CAs). |
-| Disallowed            | The X.509 certificate store for revoked certificates.                       |
-| My                    | The X.509 certificate store for personal certificates.                      |
-| Root                  | The X.509 certificate store for trusted root certificate authorities (CAs). |
-| TrustedPeople         | The X.509 certificate store for directly trusted people and resources.      |
-| TrustedPublisher      | The X.509 certificate store for directly trusted publishers.                |
+| Member name          | Description                                                                 |
+| -------------------- | --------------------------------------------------------------------------- |
+| AddressBook          | The X.509 certificate store for other users.                                |
+| AuthRoot             | The X.509 certificate store for third-party certificate authorities (CAs).  |
+| CertificateAuthority | The X.509 certificate store for intermediate certificate authorities (CAs). |
+| Disallowed           | The X.509 certificate store for revoked certificates.                       |
+| My                   | The X.509 certificate store for personal certificates.                      |
+| Root                 | The X.509 certificate store for trusted root certificate authorities (CAs). |
+| TrustedPeople        | The X.509 certificate store for directly trusted people and resources.      |
+| TrustedPublisher     | The X.509 certificate store for directly trusted publishers.                |
 
 ### Agents
 
