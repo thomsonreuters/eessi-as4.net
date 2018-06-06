@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Security.Cryptography.Xml;
 using System.Xml;
-using Eu.EDelivery.AS4.Exceptions;
 
 namespace Eu.EDelivery.AS4.Security.Serializers
 {

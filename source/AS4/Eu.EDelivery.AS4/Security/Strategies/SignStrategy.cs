@@ -87,7 +87,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
 
         private static readonly object CertificateReaderLocker = new object();
 
-        private static RSACryptoServiceProvider GetSigningKeyFromCertificate(X509Certificate2 certificate)
+        private static RSA GetSigningKeyFromCertificate(X509Certificate2 certificate)
         {
             // When handling a large load of messages in parallel, we sometimes get a 'file is in use' exception
             // when loading the private key from the certificate.  Therefore, we synchronize access when
@@ -102,12 +102,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
                     throw new InvalidOperationException("The Private Key of the signing certificate is not present.");
                 }
 
-                var key = new RSACryptoServiceProvider();
-
-                string keyXml = certificate.PrivateKey.ToXmlString(includePrivateParameters: true);
-                key.FromXmlString(keyXml);
-
-                return key;
+                return privateKey;
             }
         }
 

@@ -1,6 +1,5 @@
 ﻿using System;
 using Eu.EDelivery.AS4.Security.Strategies;
-using Org.BouncyCastle.Asn1.Pkcs;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Digests;
 using Org.BouncyCastle.Crypto.Encodings;

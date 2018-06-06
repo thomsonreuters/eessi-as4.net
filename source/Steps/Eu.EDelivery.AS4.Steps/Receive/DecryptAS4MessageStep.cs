@@ -158,8 +158,8 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             }
 
             throw new NotSupportedException(
-                "The signing certificate information specified in the Receiving PMode " + 
-                $"{messagingContext.ReceivingPMode.Id} could not be used to retrieve the certificate. " + 
+                "The decrypt-certificate information specified in the Receiving PMode " + 
+                $"{messagingContext.ReceivingPMode.Id} could not be used to retrieve the certificate used for decryption. " + 
                 "Please use either a <CertificateFindCriteria/> or <PrivateKeyCertificate/> to specify the certificate information");
         }
     }

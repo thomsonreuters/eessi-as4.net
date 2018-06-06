@@ -140,7 +140,7 @@ namespace Eu.EDelivery.AS4.Security.Encryption
         /// <param name="uri"></param>
         public void AddDataReference(string uri)
         {
-            this._encryptedKey.ReferenceList.Add(new DataReference("#" + uri));
+            _encryptedKey.ReferenceList.Add(new DataReference("#" + uri));
         }
 
         /// <summary>
@@ -158,7 +158,7 @@ namespace Eu.EDelivery.AS4.Security.Encryption
         /// <returns></returns>
         public CipherData GetCipherData()
         {
-            return this._encryptedKey.CipherData;
+            return _encryptedKey.CipherData;
         }
 
         private static string GetDigestAlgorithm(EncryptedKey encryptedKey)
@@ -171,7 +171,7 @@ namespace Eu.EDelivery.AS4.Security.Encryption
 
         private static string GetMgfAlgorithm(EncryptedKey encryptedKey)
         {
-            string xpath = $".//*[local-name()='EncryptionMethod']/*[local-name()='MGF']";
+            string xpath = ".//*[local-name()='EncryptionMethod']/*[local-name()='MGF']";
 
             var node = encryptedKey.GetXml().SelectSingleNode(xpath) as XmlElement;
 
@@ -180,7 +180,7 @@ namespace Eu.EDelivery.AS4.Security.Encryption
 
         public string GetEncryptionAlgorithm()
         {
-            string xpath = $".//*[local-name()='EncryptionMethod']";
+            string xpath = ".//*[local-name()='EncryptionMethod']";
 
             var node = _encryptedKey.GetXml().SelectSingleNode(xpath) as XmlElement;
 
@@ -219,7 +219,7 @@ namespace Eu.EDelivery.AS4.Security.Encryption
 
         private XmlElement GetEncryptedKeyElement()
         {
-            XmlElement encryptedKeyElement = this._encryptedKey.GetXml();
+            XmlElement encryptedKeyElement = _encryptedKey.GetXml();
 
             var encryptionMethodNode = encryptedKeyElement.SelectSingleNode("//*[local-name()='EncryptionMethod']");
 
