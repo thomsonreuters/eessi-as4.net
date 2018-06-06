@@ -76,7 +76,7 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
             string attachmentFilePath = Path.GetFullPath(downloadUrl);
 
             bool allowOverwrite = DetermineAllowOverwrite();
-            return TryUploadAttachment(attachment, attachmentFilePath, allowOverwrite);
+            return TryUploadAttachmentAsync(attachment, attachmentFilePath, allowOverwrite);
         }
 
         private string AssembleFileDownloadUrlFor(Attachment attachment, UserMessage referringUserMessage)
@@ -115,10 +115,10 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
             return false;
         }
 
-        private static async Task<UploadResult> TryUploadAttachment(Attachment attachment, string attachmentFilePath, bool allowOverwrite)
+        private static async Task<UploadResult> TryUploadAttachmentAsync(Attachment attachment, string attachmentFilePath, bool allowOverwrite)
         {
 
-            return await UploadAttachment(attachment, attachmentFilePath, allowOverwrite)
+            return await UploadAttachmentAsync(attachment, attachmentFilePath, allowOverwrite)
                    .ContinueWith(async t =>
                    {
                        if (t.IsFaulted)
@@ -155,7 +155,7 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
                                // still possible that, under heavy load, another file has been created
                                // with the same name as the unique name that we've generated.
                                // Therefore, retry again.
-                               return await TryUploadAttachment(attachment, attachmentFilePath, allowOverwrite);
+                               return await TryUploadAttachmentAsync(attachment, attachmentFilePath, allowOverwrite);
                            }
 
                            string desc = String.Join(", ", exs);
@@ -181,7 +181,7 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
 
         }
 
-        private static async Task<UploadResult> UploadAttachment(Attachment attachment, string attachmentFilePath, bool overwriteExisting)
+        private static async Task<UploadResult> UploadAttachmentAsync(Attachment attachment, string attachmentFilePath, bool overwriteExisting)
         {
             // Create the directory, if it does not exist.
             Directory.CreateDirectory(Path.GetDirectoryName(attachmentFilePath));
