@@ -22,6 +22,8 @@ namespace Eu.EDelivery.AS4.Entities
         Forwarding,
         Forwarded,
 
+        ToBeRetried,
+
         ToBeNotified,
         Notifying,
         Notified,

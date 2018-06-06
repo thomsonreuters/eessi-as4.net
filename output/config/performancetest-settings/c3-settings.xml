@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Settings 
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+<Settings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
   xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
   xmlns="eu:edelivery:as4">
   <IdFormat>{GUID}@{IPADDRESS}</IdFormat>
@@ -117,7 +116,6 @@
       <StepConfiguration>
         <NormalPipeline>
           <Step type="Eu.EDelivery.AS4.Steps.Notify.SendNotifyMessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-          <Step type="Eu.EDelivery.AS4.Steps.Notify.NotifyUpdateDatastoreStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
         </NormalPipeline>
       </StepConfiguration>
     </NotifyAgent>
@@ -131,7 +129,6 @@
       <StepConfiguration>
         <NormalPipeline>
           <Step type="Eu.EDelivery.AS4.Steps.Notify.SendNotifyMessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-          <Step type="Eu.EDelivery.AS4.Steps.Notify.NotifyUpdateDatastoreStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
         </NormalPipeline>
       </StepConfiguration>
     </NotifyAgent>
@@ -145,7 +142,6 @@
       <StepConfiguration>
         <NormalPipeline>
           <Step type="Eu.EDelivery.AS4.Steps.Notify.SendNotifyMessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-          <Step type="Eu.EDelivery.AS4.Steps.Notify.NotifyUpdateDatastoreStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
         </NormalPipeline>
       </StepConfiguration>
     </NotifyAgent>
@@ -159,7 +155,6 @@
       <StepConfiguration>
         <NormalPipeline>
           <Step type="Eu.EDelivery.AS4.Steps.Notify.SendNotifyMessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-          <Step type="Eu.EDelivery.AS4.Steps.Notify.NotifyUpdateDatastoreStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
         </NormalPipeline>
       </StepConfiguration>
     </NotifyAgent>

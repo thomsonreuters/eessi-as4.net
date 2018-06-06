@@ -124,6 +124,17 @@ namespace Eu.EDelivery.AS4.Repositories
         #region InException functionality
 
         /// <summary>
+        /// Retrieves information for a specified InException using a <paramref name="refToMessageId"/>.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <param name="refToMessageId"></param>
+        /// <param name="selection">The selection.</param>
+        /// <returns></returns>
+        IEnumerable<TResult> GetInExceptionsData<TResult>(
+            string refToMessageId,
+            Expression<Func<InException, TResult>> selection);
+
+        /// <summary>
         /// Inserts the in exception.
         /// </summary>
         /// <param name="inException">The in exception.</param>
@@ -139,6 +150,17 @@ namespace Eu.EDelivery.AS4.Repositories
         #endregion
 
         #region OutException functionality
+
+        /// <summary>
+        /// Retrieves information for a specified OutException using a <paramref name="refToMessageId"/>.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <param name="refToMessageId"></param>
+        /// <param name="selection">The selection.</param>
+        /// <returns></returns>
+        IEnumerable<TResult> GetOutExceptionsData<TResult>(
+            string refToMessageId,
+            Expression<Func<OutException, TResult>> selection);
 
         /// <summary>
         /// Inserts the out exception.

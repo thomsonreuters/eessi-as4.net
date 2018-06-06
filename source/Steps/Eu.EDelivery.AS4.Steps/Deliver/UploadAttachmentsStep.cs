@@ -82,12 +82,20 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
                 }
             }
 
+            SendResult accResult = results
+                .Select(r => r.Status)
+                .Aggregate(SendResultUtils.Reduce);
+
             await UpdateDeliverMessageAccordinglyToUploadResult(
                 messageId: as4Message.GetPrimaryMessageId(),
-                status: results.Select(r => r.Status)
-                               .Aggregate(SendResultUtils.Reduce));
+                status: accResult);
 
-            return await StepResult.SuccessAsync(messagingContext);
+            if (accResult == SendResult.Success)
+            {
+                return StepResult.Success(messagingContext);
+            }
+            
+            return StepResult.Failed(messagingContext);
         }
 
         private IAttachmentUploader GetAttachmentUploader(ReceivingProcessingMode pmode)
@@ -131,7 +139,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
                     $"(Deliver) Attachment {attachment.Id} cannot be uploaded "
                     + $"because of an exception: {Environment.NewLine}" + exception);
 
-                throw;
+                return UploadResult.FatalFail;
             }
         }
 

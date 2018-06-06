@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Linq;
+using System.Linq.Expressions;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Strategies.Sender;
@@ -31,13 +33,14 @@ namespace Eu.EDelivery.AS4.Services
         /// <param name="status">The upload status during the delivery of the payloads.</param>
         public void UpdateDeliverMessageForUploadResult(string messageId, SendResult status)
         {
-            UpdateDeliverMessage(
+            _repository.UpdateInMessage(
                 messageId,
-                status,
-                onSuccess: _ =>
-                {
-                    Logger.Debug($"(Deliver)[{messageId}] Attachments are uploaded successfully, no retry is needed");
-                });
+                entity => UpdateMessageEntity(
+                    status,
+                    entity,
+                    s => _repository.GetInMessageData(messageId, s),
+                    onSuccess: _ => Logger.Debug($"(Deliver)[{messageId}] Attachments are uploaded successfully, no retry is needed"),
+                    onFailure: e => e.SetStatus(InStatus.Exception)));
         }
 
         /// <summary>
@@ -48,52 +51,172 @@ namespace Eu.EDelivery.AS4.Services
         /// <returns></returns>
         public void UpdateDeliverMessageForDeliverResult(string messageId, SendResult status)
         {
-            UpdateDeliverMessage(
+            _repository.UpdateInMessage(
                 messageId,
-                status,
-                onSuccess: inMessage =>
-                {
-                    Logger.Info($"(Deliver)[{messageId}] Mark deliver message as Delivered");
-                    Logger.Debug($"(Deliver)[{messageId}] Update InMessage with Status and Operation set to Delivered");
+                entity => UpdateMessageEntity(
+                    status,
+                    entity,
+                    s => _repository.GetInMessageData(messageId, s),
+                    onSuccess: e =>
+                    {
+                        Logger.Info($"(Deliver)[{messageId}] Mark deliver message as Delivered");
+                        Logger.Debug($"(Deliver)[{messageId}] Update InMessage with Status and Operation set to Delivered");
 
-                    inMessage.SetStatus(InStatus.Delivered);
-                    inMessage.SetOperation(Operation.Delivered);
-                });
+                        e.SetStatus(InStatus.Delivered);
+                        e.SetOperation(Operation.Delivered);
+                    },
+                    onFailure: e => e.SetStatus(InStatus.Exception)));
         }
 
-        private void UpdateDeliverMessage(string messageId, SendResult status, Action<InMessage> onSuccess)
+        /// <summary>
+        /// Updates the NotifyMessage stored as <see cref="InMessage"/> in the datastore, accordingly to the given notification result.
+        /// </summary>
+        /// <param name="messageId">Identifier to update the <see cref="InMessage"/></param>
+        /// <param name="result">Notification result used to determine the right update values for the to be updated entity</param>
+        public void UpdateNotifyMessageForIncomingMessage(string messageId, SendResult result)
         {
             _repository.UpdateInMessage(
                 messageId,
-                inMessage =>
+                entity => UpdateMessageEntity(
+                    result, 
+                    entity, 
+                    selector => _repository.GetInMessageData(messageId, selector),
+                    onSuccess: e =>
+                    {
+                        Logger.Info($"(Notify)[{messageId}] Mark NotifyMessage as Notified");
+                        Logger.Debug($"(Notify)[{messageId}] Update InMessage with Status and Operation set to Notified");
+
+                        e.SetStatus(InStatus.Notified);
+                        e.SetOperation(Operation.Notified);
+                    },
+                    onFailure: m => m.SetStatus(InStatus.Exception)));
+        }
+
+        /// <summary>
+        /// Updates the NotifyMessage stored as <see cref="OutMessage"/> in the datastore, accordingly to the given notification result.
+        /// </summary>
+        /// <param name="messageId">Identifier to update the <see cref="OutMessage"/></param>
+        /// <param name="result">Notification result used to determine the right update values for the to be updated entity</param>
+        public void UpdateNotifyMessageForOutgoingMessage(long messageId, SendResult result)
+        {
+            _repository.UpdateOutMessage(
+                messageId,
+                entity => UpdateMessageEntity(
+                    result,
+                    entity,
+                    selector => _repository.GetOutMessageData(messageId, selector),
+                    onSuccess: m =>
+                    {
+                        Logger.Info($"(Notify)[{messageId}] Mark NotifyMessage as Notified");
+                        Logger.Debug($"(Notify)[{messageId}] Update InMessage with Status and Operation set to Notified");
+
+                        m.SetStatus(OutStatus.Notified);
+                        m.SetOperation(Operation.Notified);
+                    },
+                    onFailure: m => m.SetStatus(OutStatus.Exception)));
+        }
+
+        private void UpdateMessageEntity<T>(
+            SendResult status,
+            T entity,
+            Func<Expression<Func<T, Tuple<int, int>>>, Tuple<int, int>> getter,
+            Action<T> onSuccess,
+            Action<T> onFailure) where T : MessageEntity
+        {
+            if (status == SendResult.Success)
+            {
+                onSuccess(entity);
+            }
+            else
+            {
+                (string type, string action) =
+                    entity.Operation == Operation.Delivering.ToString()
+                        ? ("Deliver", "delivery")
+                        : ("Notify", "notification");
+
+                (int current, int max) = getter(m => Tuple.Create(m.CurrentRetryCount, m.MaxRetryCount));
+                if (current < max && status == SendResult.RetryableFail)
                 {
-                    if (status == SendResult.Success)
-                    {
-                        onSuccess(inMessage);
-                    }
-                    else
-                    {
-                        (int current, int max) = _repository
-                            .GetInMessageData(messageId, m => Tuple.Create(m.CurrentRetryCount, m.MaxRetryCount));
+                    
+                    Logger.Info($"({type})[{entity.EbmsMessageId}] {type}Message failed this time, will be retried");
+                    Logger.Debug($"({type})[{entity.EbmsMessageId}]) Update {typeof(T).Name} with CurrentRetryCount={current + 1}, Operation=ToBeRetried");
 
-                        if (current < max && status == SendResult.RetryableFail)
-                        {
-                            Logger.Info($"(Deliver)[{messageId}] DeliverMessage failed this time, will be retried");
-                            Logger.Debug($"(Deliver[{messageId}]) Update InMessage with CurrentRetryCount={current + 1}, Operation=ToBeDelivered");
+                    entity.CurrentRetryCount = current + 1;
+                    entity.SetOperation(Operation.ToBeRetried);
+                }
+                else
+                {
+                    Logger.Info($"({type})[{entity.EbmsMessageId}] {type}Message failed during the {action}, exhausted retries");
+                    Logger.Debug($"({type})[{entity.EbmsMessageId}] Update {typeof(T).Name} with Status=Exception, Operation=DeadLettered");
 
-                            inMessage.CurrentRetryCount = current + 1;
-                            inMessage.SetOperation(Operation.ToBeDelivered);
-                        }
-                        else
-                        {
-                            Logger.Info($"(Deliver)[{messageId}] DeliverMessage failed during the delivery, exhausted retries");
-                            Logger.Debug($"(Deliver)[{messageId}] Update InMessage with Status=Exception, Operation=DeadLettered");
+                    onFailure(entity);
+                    entity.SetOperation(Operation.DeadLettered);
+                }
+            }
+        }
 
-                            inMessage.SetStatus(InStatus.Exception);
-                            inMessage.SetOperation(Operation.DeadLettered);
-                        }
-                    }
-                });
+        /// <summary>
+        /// Updates the NotifyMessage stored as <see cref="InException"/> in the datastore, accordingly to the given notification result.
+        /// </summary>
+        /// <param name="messageId">Identifier to update the <see cref="InException"/></param>
+        /// <param name="result">Notification result used to determine the right update values for the to be updated entity</param>
+        public void UpdateNotifyExceptionForIncomingMessage(string messageId, SendResult result)
+        {
+            _repository.UpdateInException(
+                messageId,
+                exEntity => UpdateExceptionEntity(
+                    result,
+                    exEntity,
+                    selector => _repository.GetInExceptionsData(messageId, selector).First()));
+        }
+
+        /// <summary>
+        /// Updates the NotifyMessage stored as <see cref="OutException"/> in the datastore, accordingly to the given notification result.
+        /// </summary>
+        /// <param name="messageId">Identifier to update the <see cref="OutException"/></param>
+        /// <param name="result">Notification result used to determine the right update values for the to be updated entity</param>
+        public void UpdateNotifyExceptionForOutgoingMessage(string messageId, SendResult result)
+        {
+            _repository.UpdateOutException(
+                messageId,
+                exEntity => UpdateExceptionEntity(
+                    result,
+                    exEntity,
+                    selector => _repository.GetOutExceptionsData(messageId, selector).First()));
+        }
+
+        private void UpdateExceptionEntity<T>(
+            SendResult status,
+            T entity,
+            Func<Expression<Func<T, Tuple<int, int>>>, Tuple<int, int>> getter) where T : ExceptionEntity
+        {
+            if (status == SendResult.Success)
+            {
+                Logger.Info($"(Notify)[{entity.EbmsRefToMessageId}] Mark NotifyMessage as Notified");
+                Logger.Debug($"(Notify)[{entity.EbmsRefToMessageId}] Update {typeof(T).Name} with Status and Operation set to Notified");
+
+                entity.SetOperation(Operation.Notified);
+            }
+            else
+            {
+                (int current, int max) = getter(m => Tuple.Create(m.CurrentRetryCount, m.MaxRetryCount));
+                if (current < max && status == SendResult.RetryableFail)
+                {
+
+                    Logger.Info($"(Notify)[{entity.EbmsRefToMessageId}] Exception NotifyMessage failed this time, will be retried");
+                    Logger.Debug($"(Notify)[{entity.EbmsRefToMessageId}]) Update {typeof(T).Name} with CurrentRetryCount={current + 1}, Operation=ToBeRetried");
+
+                    entity.CurrentRetryCount = current + 1;
+                    entity.SetOperation(Operation.ToBeRetried);
+                }
+                else
+                {
+                    Logger.Info($"(Notify)[{entity.EbmsRefToMessageId}] Exception NotifyMessage failed during the notification, exhausted retries");
+                    Logger.Debug($"(Notify)[{entity.EbmsRefToMessageId}] Update {typeof(T).Name} with Status=Exception, Operation=DeadLettered");
+
+                    entity.SetOperation(Operation.DeadLettered);
+                }
+            }
         }
     }
 }

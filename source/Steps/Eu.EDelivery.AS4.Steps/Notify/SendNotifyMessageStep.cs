@@ -3,11 +3,13 @@ using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
+using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.Notify;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Serialization;
+using Eu.EDelivery.AS4.Services;
 using Eu.EDelivery.AS4.Strategies.Sender;
 using NLog;
 
@@ -67,9 +69,14 @@ namespace Eu.EDelivery.AS4.Steps.Notify
             }
 
             Logger.Trace($"{messagingContext.LogTag} Start sending notify message...");
-            await SendNotifyMessage(messagingContext).ConfigureAwait(false);
-
+            SendResult result = await SendNotifyMessage(messagingContext).ConfigureAwait(false);
             Logger.Info($"{messagingContext.LogTag} Notify message sent");
+
+            await UpdateDatastoreAsync(
+                messagingContext.NotifyMessage,
+                messagingContext.MessageEntityId,
+                result);
+
             return StepResult.Success(messagingContext);
         }
 
@@ -94,14 +101,14 @@ namespace Eu.EDelivery.AS4.Steps.Notify
             }
         }
 
-        private async Task SendNotifyMessage(MessagingContext messagingContext)
+        private async Task<SendResult> SendNotifyMessage(MessagingContext messagingContext)
         {
             Method notifyMethod = GetNotifyMethod(messagingContext);
 
             INotifySender sender = _provider.GetNotifySender(notifyMethod.Type);
             sender.Configure(notifyMethod);
 
-            await sender.SendAsync(messagingContext.NotifyMessage).ConfigureAwait(false);
+            return await sender.SendAsync(messagingContext.NotifyMessage).ConfigureAwait(false);
         }
 
         private static Method GetNotifyMethod(MessagingContext messagingContext)
@@ -126,6 +133,44 @@ namespace Eu.EDelivery.AS4.Steps.Notify
             return isNotifyMessageFormedBySending
                 ? sendHandling?.NotifyMethod
                 : receiveHandling?.NotifyMethod;
+        }
+
+        private async Task UpdateDatastoreAsync(
+            NotifyMessageEnvelope notifyMessage, 
+            long? messageEntityId,
+            SendResult result)
+        {
+            using (DatastoreContext context = _createContext())
+            {
+                var repository = new DatastoreRepository(context);
+                var service = new RetryService(repository);
+
+                if (notifyMessage.EntityType == typeof(InMessage))
+                {
+                    service.UpdateNotifyMessageForIncomingMessage(notifyMessage.MessageInfo.MessageId, result);
+                }
+                else if (notifyMessage.EntityType == typeof(OutMessage) && messageEntityId != null)
+                {
+                    service.UpdateNotifyMessageForOutgoingMessage(messageEntityId.Value, result);
+                }
+                else if (notifyMessage.EntityType == typeof(InException))
+                {
+                    service.UpdateNotifyExceptionForIncomingMessage(notifyMessage.MessageInfo.RefToMessageId, result);
+                }
+                else if (notifyMessage.EntityType == typeof(OutException))
+                {
+                    service.UpdateNotifyExceptionForOutgoingMessage(notifyMessage.MessageInfo.RefToMessageId, result);
+                }
+                else
+                {
+                    throw new InvalidOperationException(
+                        $"Unable to update notified entities of type {notifyMessage.EntityType.FullName}." +
+                        "Please provide one of the following types in the notify message: " +
+                        "InMessage, OutMessage, InException, and OutException are supported.");
+                }
+
+                await context.SaveChangesAsync().ConfigureAwait(false);
+            }
         }
     }
 }

@@ -1,6 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Settings 
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+<Settings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
   xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
   xmlns="eu:edelivery:as4">
   <IdFormat>{GUID}@{IPADDRESS}</IdFormat>
@@ -94,9 +93,9 @@
       <Transformer type="Eu.EDelivery.AS4.Transformers.DeliverMessageTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
       <StepConfiguration>
         <NormalPipeline>
-          <Step type="Eu.EDelivery.AS4.Steps.Deliver.UploadAttachmentsStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" undecorated="false" />
-          <Step type="Eu.EDelivery.AS4.Steps.Deliver.CreateDeliverEnvelopeStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" undecorated="false" />
-          <Step type="Eu.EDelivery.AS4.Steps.Deliver.SendDeliverMessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" undecorated="false" />
+          <Step type="Eu.EDelivery.AS4.Steps.Deliver.UploadAttachmentsStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+          <Step type="Eu.EDelivery.AS4.Steps.Deliver.CreateDeliverEnvelopeStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+          <Step type="Eu.EDelivery.AS4.Steps.Deliver.SendDeliverMessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
         </NormalPipeline>
       </StepConfiguration>
     </DeliverAgent>
@@ -109,8 +108,7 @@
       <Transformer type="Eu.EDelivery.AS4.Transformers.NotifyMessageTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
       <StepConfiguration>
         <NormalPipeline>
-          <Step type="Eu.EDelivery.AS4.Steps.Notify.SendNotifyMessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" undecorated="false" />
-          <Step type="Eu.EDelivery.AS4.Steps.Notify.NotifyUpdateDatastoreStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" undecorated="false" />
+          <Step type="Eu.EDelivery.AS4.Steps.Notify.SendNotifyMessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
         </NormalPipeline>
       </StepConfiguration>
     </NotifyAgent>
@@ -123,8 +121,7 @@
       <Transformer type="Eu.EDelivery.AS4.Transformers.NotifyMessageTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
       <StepConfiguration>
         <NormalPipeline>
-          <Step type="Eu.EDelivery.AS4.Steps.Notify.SendNotifyMessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" undecorated="false" />
-          <Step type="Eu.EDelivery.AS4.Steps.Notify.NotifyUpdateDatastoreStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" undecorated="false" />
+          <Step type="Eu.EDelivery.AS4.Steps.Notify.SendNotifyMessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
         </NormalPipeline>
       </StepConfiguration>
     </NotifyAgent>

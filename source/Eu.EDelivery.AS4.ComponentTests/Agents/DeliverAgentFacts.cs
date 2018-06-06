@@ -91,12 +91,17 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             await InsertInMessage(inMessage);
 
             // Assert
-            Assert.Empty(Directory.EnumerateFiles(DeliveryRoot));
+            var spy = new DatabaseSpy(_as4Msh.GetConfiguration());
+            InMessage actual = await PollUntilPresent(
+                () => spy.GetInMessageFor(im => im.Id == inMessage.Id && im.Status == InStatus.Exception.ToString()),
+                TimeSpan.FromSeconds(10));
 
-            // TODO: the 'InMessage' is stil set on 'ToBeDeliverd' -> not valid?
+            Assert.Empty(Directory.EnumerateFiles(DeliveryRoot));
+            Assert.Equal(InStatus.Exception, InStatusUtils.Parse(actual.Status));
+            Assert.Equal(Operation.DeadLettered, OperationUtils.Parse(actual.Operation));
         }
 
-        [Fact]
+        [Fact(Skip="Implementing retry agent still ongoing...")]
         public async Task Message_Is_Set_To_Delivered_After_Its_Being_Retried()
         {
             InMessage actualMessage = await TestDeliverRetryByBlockingDeliveryLocationFor(TimeSpan.FromSeconds(5));
@@ -107,7 +112,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             Assert.True(0 < actualMessage.CurrentRetryCount, "0 < actualMessage.CurrentRetryCount");
         }
 
-        [Fact]
+        [Fact(Skip ="Implementing retry agent still ongoing...")]
         public async Task Message_Is_Set_To_Exception_If_Delivery_Fails_After_Exhausted_Retries()
         {
             InMessage actualMessage = await TestDeliverRetryByBlockingDeliveryLocationFor(TimeSpan.FromSeconds(15));
