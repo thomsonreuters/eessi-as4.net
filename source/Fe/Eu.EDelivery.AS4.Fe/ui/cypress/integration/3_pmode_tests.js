@@ -38,7 +38,7 @@ describe('pmode tests', () => {
     });
   });
 
-  it.only('should use the user-specified retry reliability values over the defaults', () => {
+  it('should use the user-specified retry reliability values over the defaults', () => {
     cy.visit('/pmodes/receiving');
     cy.getdatacy('select-pmodes').select('01-sample-pmode', { force: true });
 
