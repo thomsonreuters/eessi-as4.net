@@ -34,7 +34,7 @@ namespace Eu.EDelivery.AS4.Serialization
 
         public Task SerializeAsync(AS4Message message, Stream stream, CancellationToken cancellationToken)
         {
-            return Task.Run(() => this.Serialize(message, stream, cancellationToken), cancellationToken);
+            return Task.Run(() => Serialize(message, stream, cancellationToken), cancellationToken);
         }
 
         /// <summary>
@@ -202,7 +202,6 @@ namespace Eu.EDelivery.AS4.Serialization
 
             try
             {
-
                 return await ParseStreamToAS4MessageAsync(chainedStream, contentType, cancellationToken).ConfigureAwait(false);
             }
             finally
@@ -243,13 +242,15 @@ namespace Eu.EDelivery.AS4.Serialization
             AS4Message message = await _soapSerializer
                 .DeserializeAsync(envelopeStream, contentType, cancellationToken).ConfigureAwait(false);
 
-            // TODO: what if we have multiple usermessages with attachments ??
-            IEnumerable<PartInfo> referencedPartInfos = 
-                message.PrimaryUserMessage?.PayloadInfo ?? Enumerable.Empty<PartInfo>();
-
-            foreach (Attachment a in BodyPartsAsAttachments(bodyParts, referencedPartInfos))
+            foreach (var userMessage in message.UserMessages)
             {
-                message.AddAttachment(a);                
+                IEnumerable<PartInfo> referencedPartInfos =
+                    userMessage.PayloadInfo ?? Enumerable.Empty<PartInfo>();
+
+                foreach (Attachment a in BodyPartsAsAttachments(bodyParts, referencedPartInfos))
+                {
+                    message.AddAttachment(a);
+                }
             }
 
             return message;
