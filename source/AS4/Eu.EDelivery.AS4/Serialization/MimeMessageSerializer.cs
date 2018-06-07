@@ -197,11 +197,21 @@ namespace Eu.EDelivery.AS4.Serialization
                 Encoding.UTF8.GetBytes($"Content-Type: {contentType}\r\n\r\n"));
 
             var chainedStream = new ChainedStream();
-            chainedStream.Add(memoryStream, leaveOpen: true);
+            chainedStream.Add(memoryStream, leaveOpen: false);
             chainedStream.Add(inputStream, leaveOpen: true);
 
-            return await ParseStreamToAS4MessageAsync(chainedStream, contentType, cancellationToken).ConfigureAwait(false);
-            
+            try
+            {
+
+                return await ParseStreamToAS4MessageAsync(chainedStream, contentType, cancellationToken).ConfigureAwait(false);
+            }
+            finally
+            {
+                // Since the stream has been read, make sure that all
+                // parts of the chained-stream are re-positioned to the
+                // beginning of each stream.
+                chainedStream.Position = 0;
+            }
         }
 
         private void PreConditions(Stream inputStream, string contentType)
@@ -233,13 +243,13 @@ namespace Eu.EDelivery.AS4.Serialization
             AS4Message message = await _soapSerializer
                 .DeserializeAsync(envelopeStream, contentType, cancellationToken).ConfigureAwait(false);
 
+            // TODO: what if we have multiple usermessages with attachments ??
             IEnumerable<PartInfo> referencedPartInfos = 
                 message.PrimaryUserMessage?.PayloadInfo ?? Enumerable.Empty<PartInfo>();
 
             foreach (Attachment a in BodyPartsAsAttachments(bodyParts, referencedPartInfos))
             {
-                message.AddAttachment(a);
-                
+                message.AddAttachment(a);                
             }
 
             return message;

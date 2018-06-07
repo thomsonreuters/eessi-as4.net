@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -28,8 +29,8 @@ namespace Eu.EDelivery.AS4.Transformers
         /// <summary>
         /// Initializes a new instance of the <see cref="ReceiveMessageTransformer"/> class.
         /// </summary>
-        public ReceiveMessageTransformer() : this (Config.Instance) { }
-        
+        public ReceiveMessageTransformer() : this(Config.Instance) { }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="ReceiveMessageTransformer"/> class.
         /// </summary>
@@ -64,7 +65,7 @@ namespace Eu.EDelivery.AS4.Transformers
             if (message.UnderlyingStream == null)
             {
                 throw new InvalidMessageException(
-                    "The incoming stream is not an ebMS Message. " + 
+                    "The incoming stream is not an ebMS Message. " +
                     "Only ebMS messages conform with the AS4 Profile are supported.");
             }
 
@@ -77,7 +78,8 @@ namespace Eu.EDelivery.AS4.Transformers
 
             ReceivedMessage m = await EnsureIncomingStreamIsSeekable(message);
             AS4Message as4Message = await DeserializeToAS4Message(m);
-            StreamUtilities.MovePositionToStreamStart(m.UnderlyingStream);
+
+            Debug.Assert(m.UnderlyingStream.Position == 0, "The Deserializer failed to reposition the stream to its start-position");
 
             if (as4Message.IsSignalMessage && ReceivingPMode != null)
             {
@@ -87,14 +89,14 @@ namespace Eu.EDelivery.AS4.Transformers
 
                 throw new InvalidMessageException(
                     "Static Receive configuration doesn't allow receiving signal messages. ");
-            }            
+            }
 
             var context = new MessagingContext(m, MessagingContextMode.Receive);
             context.ModifyContext(as4Message);
 
             if (ReceivingPMode != null)
             {
-                ReceivingProcessingMode pmode = 
+                ReceivingProcessingMode pmode =
                     _config.GetReceivingPModes()
                            ?.FirstOrDefault(p => p.Id == ReceivingPMode);
 
@@ -105,7 +107,7 @@ namespace Eu.EDelivery.AS4.Transformers
                 else
                 {
                     string description =
-                        $"Receiving PMode with Id: {ReceivingPMode} was configured as default PMode, {Environment.NewLine}" + 
+                        $"Receiving PMode with Id: {ReceivingPMode} was configured as default PMode, {Environment.NewLine}" +
                         "but this PMode cannot be found in the configured receiving PModes.";
                     Logger.Error(
                         $@"{description} Configured Receiving PModes are placed on the folder: '.\config\receive-pmodes\'.");
@@ -124,7 +126,7 @@ namespace Eu.EDelivery.AS4.Transformers
                 return m;
             }
 
-            VirtualStream str = 
+            VirtualStream str =
                 VirtualStream.Create(
                     expectedSize: m.UnderlyingStream.CanSeek
                         ? m.UnderlyingStream.Length
