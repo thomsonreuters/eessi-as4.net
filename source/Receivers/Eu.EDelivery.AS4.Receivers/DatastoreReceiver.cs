@@ -22,7 +22,7 @@ namespace Eu.EDelivery.AS4.Receivers
     /// Receiver to poll the database to get the messages which validates a given Expression
     /// </summary>
     [Info("Datastore receiver")]
-    public class DatastoreReceiver : PollingTemplate<Entity, ReceivedMessage>, IReceiver
+    public class DatastoreReceiver : PollingTemplate<IEntity, ReceivedMessage>, IReceiver
     {
         private readonly Func<DatastoreContext> _storeExpression;
 
@@ -71,7 +71,7 @@ namespace Eu.EDelivery.AS4.Receivers
             Logger.Debug($"{action} Receiving on Datastore {_settings.DisplayString}");
         }
 
-        private IEnumerable<Entity> GetMessagesEntitiesForConfiguredExpression()
+        private IEnumerable<IEntity> GetMessagesEntitiesForConfiguredExpression()
         {
             using (DatastoreContext context = _storeExpression())
             {
@@ -86,7 +86,7 @@ namespace Eu.EDelivery.AS4.Receivers
 
                 try
                 {
-                    IEnumerable<Entity> entities = FindAnyMessageEntitiesWithConfiguredExpression(context);
+                    IEnumerable<IEntity> entities = FindAnyMessageEntitiesWithConfiguredExpression(context);
                     context.Database.CommitTransaction();
                     return entities;
                 }
@@ -113,11 +113,11 @@ namespace Eu.EDelivery.AS4.Receivers
             return __tableSetPropertyInfo;
         }
 
-        private IEnumerable<Entity> FindAnyMessageEntitiesWithConfiguredExpression(DatastoreContext context)
+        private IEnumerable<IEntity> FindAnyMessageEntitiesWithConfiguredExpression(DatastoreContext context)
         {
             var tablePropertyInfo = GetTableSetPropertyInfo();
 
-            if (!(tablePropertyInfo.GetValue(context) is IQueryable<Entity>))
+            if (!(tablePropertyInfo.GetValue(context) is IQueryable<IEntity>))
             {
                 throw new ConfigurationErrorsException($"The configured table {_settings.TableName} could not be found");
             }
@@ -145,7 +145,7 @@ namespace Eu.EDelivery.AS4.Receivers
         private PropertyInfo __updateProperty;
         // ReSharper restore InconsistentNaming
 
-        private PropertyInfo GetUpdateFieldProperty(Entity entity)
+        private PropertyInfo GetUpdateFieldProperty(IEntity entity)
         {
             PropertyInfo FindPropertyInHierarchy(string propertyName, Type t)
             {
@@ -177,7 +177,7 @@ namespace Eu.EDelivery.AS4.Receivers
             return __updateProperty;
         }
 
-        private void LockEntitiesBeforeContinueToProcessThem(IEnumerable<Entity> entities)
+        private void LockEntitiesBeforeContinueToProcessThem(IEnumerable<IEntity> entities)
         {
             if (entities.Any() == false)
             {
@@ -186,7 +186,7 @@ namespace Eu.EDelivery.AS4.Receivers
 
             PropertyInfo updateFieldInfo = GetUpdateFieldProperty(entities.First());
 
-            foreach (Entity entity in entities)
+            foreach (IEntity entity in entities)
             {
                 object updateValue = Conversion.Convert(updateFieldInfo.PropertyType, Update);
 
@@ -205,7 +205,7 @@ namespace Eu.EDelivery.AS4.Receivers
             Function messageCallback,
             CancellationToken token)
         {
-            Logger.Info($"Received Message from {Table} ({Filter}) with Ebms Message Id: \"{messageEntity.EbmsMessageId}\"");
+            Logger.Info($"[{messageEntity.EbmsMessageId}] Received Message from {Table} ({Filter})");
 
             using (Stream stream = await messageEntity.RetrieveMessageBody(Registry.Instance.MessageBodyStore))
             {
@@ -233,7 +233,7 @@ namespace Eu.EDelivery.AS4.Receivers
             return new ReceivedMessageEntityMessage(messageEntity, stream, messageEntity.ContentType);
         }
 
-        private static async void ReceiveEntity(Entity entity, Function messageCallback, CancellationToken token)
+        private static async void ReceiveEntity(IEntity entity, Function messageCallback, CancellationToken token)
         {
             var message = new ReceivedEntityMessage(entity);
             MessagingContext result = await messageCallback(message, token).ConfigureAwait(false);
@@ -336,7 +336,7 @@ namespace Eu.EDelivery.AS4.Receivers
         /// </summary>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        protected override IEnumerable<Entity> GetMessagesToPoll(CancellationToken cancellationToken)
+        protected override IEnumerable<IEntity> GetMessagesToPoll(CancellationToken cancellationToken)
         {
             try
             {
@@ -361,7 +361,7 @@ namespace Eu.EDelivery.AS4.Receivers
         /// <param name="entity"></param>
         /// <param name="messageCallback"></param>
         /// <param name="token"></param>
-        protected override void MessageReceived(Entity entity, Function messageCallback, CancellationToken token)
+        protected override void MessageReceived(IEntity entity, Function messageCallback, CancellationToken token)
         {
             if (entity is MessageEntity messageEntity)
             {
@@ -373,7 +373,7 @@ namespace Eu.EDelivery.AS4.Receivers
             }
         }
 
-        protected override void HandleMessageException(Entity message, Exception exception)
+        protected override void HandleMessageException(IEntity message, Exception exception)
         {
             Logger.Error(exception.Message);
 

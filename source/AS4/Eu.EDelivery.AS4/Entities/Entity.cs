@@ -2,7 +2,7 @@
 
 namespace Eu.EDelivery.AS4.Entities
 {
-    public class Entity : IEquatable<Entity>
+    public class Entity : IEquatable<Entity>, IEntity
     {
         public long Id { get; private set; }
 
