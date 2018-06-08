@@ -53,7 +53,7 @@ install this P-Mode on instance A.
             </Parameter>
         </DefaultDelivery>
         <ReceptionAwareness>
-            <MaxRetries>4</MaxRetries>
+            <MaxRetries>0</MaxRetries>
             <RetryInterval>30</RetryInterval>
         </ReceptionAwareness>
         <UserMessageFlow>

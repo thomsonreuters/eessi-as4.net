@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -28,8 +29,8 @@ namespace Eu.EDelivery.AS4.Transformers
         /// <summary>
         /// Initializes a new instance of the <see cref="ReceiveMessageTransformer"/> class.
         /// </summary>
-        public ReceiveMessageTransformer() : this (Config.Instance) { }
-        
+        public ReceiveMessageTransformer() : this(Config.Instance) { }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="ReceiveMessageTransformer"/> class.
         /// </summary>
@@ -75,7 +76,11 @@ namespace Eu.EDelivery.AS4.Transformers
                     $"Supported ContentTypes are {Constants.ContentTypes.Soap} and {Constants.ContentTypes.Mime}");
             }
 
-            AS4Message as4Message = await DeserializeToAS4Message(message);
+            ReceivedMessage m = await EnsureIncomingStreamIsSeekable(message);
+            AS4Message as4Message = await DeserializeToAS4Message(m);
+
+            Debug.Assert(m.UnderlyingStream.Position == 0, "The Deserializer failed to reposition the stream to its start-position");
+
             if (as4Message.IsSignalMessage && ReceivingPMode != null)
             {
                 Logger.Error(
@@ -85,9 +90,6 @@ namespace Eu.EDelivery.AS4.Transformers
                 throw new InvalidMessageException(
                     "Static Receive configuration doesn't allow receiving signal messages. ");
             }
-
-            ReceivedMessage m = await EnsureIncomingStreamIsSeekable(message);
-            m.UnderlyingStream.Position = 0;
 
             var context = new MessagingContext(m, MessagingContextMode.Receive);
             context.ModifyContext(as4Message);
@@ -107,8 +109,8 @@ namespace Eu.EDelivery.AS4.Transformers
                     string description =
                         $"Receiving PMode with Id: {ReceivingPMode} was configured as default PMode, {Environment.NewLine}" +
                         "but this PMode cannot be found in the configured receiving PModes.";
-
-                    Logger.Error($@"{description} Configured Receiving PModes are placed in the folder: "".\config\receive-pmodes\"".");
+                    Logger.Error(
+                        $@"{description} Configured Receiving PModes are placed on the folder: '.\config\receive-pmodes\'.");
 
                     throw new InvalidOperationException(description);
                 }
@@ -117,13 +119,33 @@ namespace Eu.EDelivery.AS4.Transformers
             return context;
         }
 
+        private static async Task<ReceivedMessage> EnsureIncomingStreamIsSeekable(ReceivedMessage m)
+        {
+            if (m.UnderlyingStream.CanSeek)
+            {
+                return m;
+            }
+
+            VirtualStream str =
+                VirtualStream.Create(
+                    expectedSize: m.UnderlyingStream.CanSeek
+                        ? m.UnderlyingStream.Length
+                        : VirtualStream.ThresholdMax,
+                    forAsync: true);
+
+            await m.UnderlyingStream.CopyToFastAsync(str);
+            str.Position = 0;
+
+            return new ReceivedMessage(str, m.ContentType);
+        }
+
         private static async Task<AS4Message> DeserializeToAS4Message(ReceivedMessage message)
         {
             try
             {
                 return await SerializerProvider.Default
-                    .Get(message.ContentType)
-                    .DeserializeAsync(message.UnderlyingStream, message.ContentType, CancellationToken.None);
+                                               .Get(message.ContentType)
+                                               .DeserializeAsync(message.UnderlyingStream, message.ContentType, CancellationToken.None);
 
             }
             catch (Exception ex)
@@ -135,26 +157,6 @@ namespace Eu.EDelivery.AS4.Transformers
                     $"although the Content-Type is: {message.ContentType}. " +
                     "Only ebMS messages conform with the AS4 Profile are supported.");
             }
-        }
-
-        private static async Task<ReceivedMessage> EnsureIncomingStreamIsSeekable(ReceivedMessage m)
-        {
-            if (m.UnderlyingStream.CanSeek)
-            {
-                return m;
-            }
-
-            VirtualStream str = 
-                VirtualStream.Create(
-                    expectedSize: m.UnderlyingStream.CanSeek
-                        ? m.UnderlyingStream.Length
-                        : VirtualStream.ThresholdMax,
-                    forAsync: true);
-
-            await m.UnderlyingStream.CopyToFastAsync(str);
-            str.Position = 0;
-
-            return new ReceivedMessage(str, m.ContentType);
         }
     }
 }

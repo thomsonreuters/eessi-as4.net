@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Entities;
 using Eu.EDelivery.AS4.Common;
@@ -12,6 +13,8 @@ using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
+using Eu.EDelivery.AS4.Serialization;
+using Eu.EDelivery.AS4.Streaming;
 using NLog;
 using MessageExchangePattern = Eu.EDelivery.AS4.Entities.MessageExchangePattern;
 
@@ -101,9 +104,12 @@ namespace Eu.EDelivery.AS4.Services
                 await messageBodyStore.SaveAS4MessageStreamAsync(
                     location: _configuration.InMessageStoreLocation,
                     as4MessageStream: context.ReceivedMessage.UnderlyingStream).ConfigureAwait(false);
+
+            StreamUtilities.MovePositionToStreamStart(context.ReceivedMessage.UnderlyingStream);
+
             try
             {
-                AS4Message as4Message = context.AS4Message;
+                var as4Message = context.AS4Message;
 
                 InsertUserMessages(as4Message, mep, location, context.SendingPMode);
                 InsertSignalMessages(as4Message, mep, location, context.SendingPMode);
