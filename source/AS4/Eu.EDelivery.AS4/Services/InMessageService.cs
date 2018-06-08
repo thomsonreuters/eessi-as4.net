@@ -273,7 +273,7 @@ namespace Eu.EDelivery.AS4.Services
                     {
                         message.SetPModeInformation(receivingPModeId, receivingPModeString);
 
-                        if (UserMessageNeedsToBeDelivered(ctx.ReceivingPMode, userMessage) 
+                        if (UserMessageNeedsToBeDelivered(ctx.ReceivingPMode, userMessage)
                             && message.Intermediary == false)
                         {
                             message.SetOperation(Operation.ToBeDelivered);
@@ -288,6 +288,7 @@ namespace Eu.EDelivery.AS4.Services
             {
                 IEnumerable<Entities.RetryReliability> reliabilities =
                     ctx.AS4Message.UserMessages
+                       .Where(um => UserMessageNeedsToBeDelivered(ctx.ReceivingPMode, um))
                        .Select(um => _repository.GetInMessageData(um.MessageId, im => im.Id))
                        .Select(id => 
                             Entities.RetryReliability.CreateForInMessage(

@@ -227,9 +227,15 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
         }
 
         [Theory]
-        [InlineData(true, 3, "0:00:00:05")]
-        [InlineData(false, 0, "0:00:00")]
-        public async Task Updates_UserMessage_InMessage_With_Retry_Info_When_Specified(bool enabled, int count, string interval)
+        [InlineData(false, false, 0, "0:00:00")]
+        [InlineData(false, true, 0, "0:00:00")]
+        [InlineData(true, false, 3, "0:00:00:05")]
+        [InlineData(true, true, 0, "0:00:00")]
+        public async Task Updates_UserMessage_InMessage_With_Retry_Info_When_Specified(
+            bool enabled, 
+            bool isTest,
+            int count, 
+            string interval)
         {
             // Arrange
             string ebmsMessageId = "user-" + Guid.NewGuid();
@@ -245,21 +251,37 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 };
 
             // Act
-            await ExerciseUpdateReceivedMessage(as4Message, sendPMode: null, receivePMode: pmode);
+            await ExerciseUpdateReceivedMessage(
+                as4Message, 
+                sendPMode: null, 
+                receivePMode: pmode,
+                alterAfterSaved: as4 => as4.PrimaryUserMessage.IsTest = isTest);
 
             // Assert
             InMessage actual = GetDataStoreContext.GetInMessage(m => m.EbmsMessageId == ebmsMessageId);
-            Assert.Equal(Operation.ToBeDelivered, OperationUtils.Parse(actual.Operation));
+            bool needsToBeDelivered = enabled && !isTest;
+            Assert.True(
+                !isTest == (Operation.ToBeDelivered == OperationUtils.Parse(actual.Operation)),
+                "InMessage.Operation <> ToBeDelivered when not test message");
 
             GetDataStoreContext.AssertRetryRelatedInMessage(
                 actual.Id,
                 rr =>
                 {
-                    Assert.True(enabled == (rr != null), "RetryReliability inserted while not enabled");
-                    Assert.True(enabled == (0 == rr?.CurrentRetryCount), "CurrentRetryCount != 0 when enabled");
-                    Assert.True(enabled == (count == rr?.MaxRetryCount), $"MaxRetryCount {count} != {rr?.MaxRetryCount} when enabled");
                     Assert.True(
-                        enabled == (interval == rr?.RetryInterval?.Substring(0, interval.Length)),
+                        needsToBeDelivered == (rr != null), 
+                        "RetryReliability inserted while not enabled and not test message");
+
+                    Assert.True(
+                        needsToBeDelivered == (0 == rr?.CurrentRetryCount), 
+                        "CurrentRetryCount != 0 when enabled and not test message");
+
+                    Assert.True(
+                        needsToBeDelivered == (count == rr?.MaxRetryCount), 
+                        $"MaxRetryCount {count} != {rr?.MaxRetryCount} when enabled and not test message");
+
+                    Assert.True(
+                        needsToBeDelivered == (interval == rr?.RetryInterval?.Substring(0, interval.Length)),
                         $"RetryInterval {interval} != {rr?.RetryInterval} when enabled");
 
                 });
@@ -268,13 +290,16 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
         private async Task ExerciseUpdateReceivedMessage(
             AS4Message as4Message,
             SendingProcessingMode sendPMode,
-            ReceivingProcessingMode receivePMode)
+            ReceivingProcessingMode receivePMode,
+            Action<AS4Message> alterAfterSaved = null)
         {
             // We need to mimick the retrieval of the SendingPMode.
             MessagingContext ctx = CreateMessageReceivedContext(as4Message, sendPMode, receivePMode);
 
             var sut = new UpdateReceivedAS4MessageBodyStep(GetDataStoreContext, _messageBodyStore);
             MessagingContext savedResult = await ExecuteSaveReceivedMessage(ctx);
+            alterAfterSaved?.Invoke(savedResult.AS4Message);
+
             await sut.ExecuteAsync(savedResult);
         }
 
