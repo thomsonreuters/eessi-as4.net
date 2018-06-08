@@ -1,11 +1,16 @@
 ﻿using System;
 using System.Configuration;
+using System.IO;
 using System.Linq;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Agents;
 using Eu.EDelivery.AS4.ComponentTests.Common;
+using Eu.EDelivery.AS4.Entities;
+using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
+using Eu.EDelivery.AS4.Model.PMode;
+using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.TestUtils.Stubs;
 using Xunit;
 
@@ -37,21 +42,78 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         {
             string pullSenderUrl = RetrievePullingUrlFromConfig();
 
-            // Wait a little bit to be sure that everything is started and a PullRequest has already been sent.
-            await Task.Delay(TimeSpan.FromSeconds(2));
+            await RespondToPullRequest(pullSenderUrl, _ => throw new InvalidOperationException());
 
-            var waiter = new ManualResetEvent(false);
+            Assert.False(_databaseSpy.GetInExceptions(r => true).Any(), "No logged InExceptions are expected.");
+        }
 
-            StubHttpServer.StartServer(pullSenderUrl, response => { throw new InvalidOperationException(); }, waiter);
+        [Fact(Skip = "Waiting for multiple (bunlded) UserMessages implementation")]
+        public async Task Received_Bundled_Response_Should_Process_All_Messages()
+        {
+            // Arrange
+            string storedMessageId = "stored-" + Guid.NewGuid();
+            StoreToBeAckOutMessage(storedMessageId);
+            AS4Message bundled = CreateBundledMultipleUserMessagesWithRefTo();
 
-            waiter.WaitOne();
+            string pullSenderUrl = RetrievePullingUrlFromConfig();
 
-            Assert.False(_databaseSpy.GetInExceptions((r) => true).Any(), "No logged InExceptions are expected.");
+            // Act
+            await RespondToPullRequest(
+                pullSenderUrl,
+                response =>
+                {
+                    response.ContentType = bundled.ContentType;
+                    using (Stream output = response.OutputStream)
+                    {
+                        SerializerProvider.Default
+                            .Get(bundled.ContentType)
+                            .Serialize(bundled, output, CancellationToken.None);
+                    }
+                });
+
+            // Assert
+            Assert.Collection(
+                _databaseSpy.GetInMessages(bundled.UserMessages.Select(u => u.MessageId).ToArray()),
+                userMessage1 =>
+                {
+                    Assert.Equal(InStatus.Received, InStatusUtils.Parse(userMessage1.Status));
+                    Assert.Equal(Operation.ToBeDelivered, OperationUtils.Parse(userMessage1.Operation));
+                },
+                userMessage2 =>
+                {
+                    Assert.Equal(InStatus.Received, InStatusUtils.Parse(userMessage2.Status));
+                    Assert.Equal(Operation.ToBeDelivered, OperationUtils.Parse(userMessage2.Operation));
+                });
+            Assert.Collection(
+                _databaseSpy.GetOutMessages(storedMessageId),
+                stored => Assert.Equal(OutStatus.Ack, OutStatusUtils.Parse(stored.Status)));
+        }
+
+        private void StoreToBeAckOutMessage(string storedMessageId)
+        {
+            var storedUserMessage = new OutMessage(ebmsMessageId: storedMessageId);
+            storedUserMessage.SetEbmsMessageType(MessageType.UserMessage);
+            storedUserMessage.SetStatus(OutStatus.Sent);
+
+            _databaseSpy.InsertOutMessage(storedUserMessage);
+        }
+
+        private static AS4Message CreateBundledMultipleUserMessagesWithRefTo()
+        {
+            var userMessage1 = new UserMessage(messageId: "user1-" + Guid.NewGuid());
+            userMessage1.CollaborationInfo.AgreementReference.PModeId = "pullreceive_bundled_pmode";
+            var userMessage2 = new UserMessage(messageId: "user2-" + Guid.NewGuid());
+            userMessage1.CollaborationInfo.AgreementReference.PModeId = "some-other-pmode-id";
+
+            var bundled = AS4Message.Create(userMessage1);
+            bundled.AddMessageUnit(userMessage2);
+
+            return bundled;
         }
 
         private string RetrievePullingUrlFromConfig()
         {
-            var pullReceiveAgent = _pullReceiveSettings.Agents.PullReceiveAgents.FirstOrDefault();
+            AgentSettings pullReceiveAgent = _pullReceiveSettings.Agents.PullReceiveAgents.FirstOrDefault();
 
             if (pullReceiveAgent == null)
             {
@@ -60,7 +122,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
             string pmodeId = pullReceiveAgent.Receiver.Setting.First().Key;
 
-            var pmode = _as4Msh.GetConfiguration().GetSendingPMode(pmodeId);
+            SendingProcessingMode pmode = _as4Msh.GetConfiguration().GetSendingPMode(pmodeId);
 
             if (pmode == null)
             {
@@ -68,6 +130,19 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             }
 
             return pmode.PushConfiguration.Protocol.Url;
+        }
+
+        private static async Task RespondToPullRequest(string url, Action<HttpListenerResponse> response)
+        {
+            // Wait a little bit to be sure that everything is started and a PullRequest has already been sent.
+            await Task.Delay(TimeSpan.FromSeconds(2));
+
+            var waiter = new ManualResetEvent(false);
+            StubHttpServer.StartServer(url, response, waiter);
+            waiter.WaitOne(timeout: TimeSpan.FromSeconds(5));
+
+            // Wait till the response is processed correctly.
+            await Task.Delay(TimeSpan.FromSeconds(2));
         }
     }
 }
