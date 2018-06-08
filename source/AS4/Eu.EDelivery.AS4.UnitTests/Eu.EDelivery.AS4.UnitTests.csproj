@@ -55,6 +55,7 @@
     <Compile Include="Agents\GivenDefaultAgentStepRegistryFacts.cs" />
     <Compile Include="Agents\GivenDefaultAgentTransformerRegistryFacts.cs" />
     <Compile Include="Agents\SpyAgent.cs" />
+    <Compile Include="Common\GivenConfigFacts.cs" />
     <Compile Include="Entities\GivenExceptionEntityPersitenceFacts.cs" />
     <Compile Include="Entities\GivenInMessageEntityFacts.cs" />
     <Compile Include="Entities\GivenInMessagePersistenceFacts.cs" />

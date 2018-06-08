@@ -35,6 +35,7 @@ namespace Eu.EDelivery.AS4.Common
         
         private Settings _settings;
         private TimeSpan _retention;
+        private TimeSpan _retryPollingInterval;
 
         internal Config()
         {
@@ -58,6 +59,12 @@ namespace Eu.EDelivery.AS4.Common
         /// </summary>
         /// <value>The retention period in days.</value>
         public TimeSpan RetentionPeriod => OnlyAfterInitialized(() => _retention);
+
+        /// <summary>
+        /// Gets the retry polling interval for which the Retry Agent will poll 
+        /// for 'to-be-retried' messages/exceptions for a delivery or notification operation.
+        /// </summary>
+        public TimeSpan RetryPollingInterval => OnlyAfterInitialized(() => _retryPollingInterval);
 
         /// <summary>
         /// Gets the in message store location.
@@ -230,7 +237,7 @@ namespace Eu.EDelivery.AS4.Common
         public IEnumerable<SettingsMinderAgent> GetEnabledMinderTestAgents()
         {
             return OnlyAfterInitialized(
-                () => _settings.Agents.MinderTestAgents?.Where(a => a.Enabled)
+                () => _settings.Agents?.MinderTestAgents?.Where(a => a.Enabled)
                       ?? Enumerable.Empty<SettingsMinderAgent>());
         }
 
@@ -304,7 +311,9 @@ namespace Eu.EDelivery.AS4.Common
                 throw new XmlException("Invalid Settings file");
             }
 
-            AssignSettingsToGlobalConfiguration();
+            AddFixedSettings();
+            AddCustomSettings();
+            AddCustomAgents();
         }
 
         private static string BaseDirCombine(params string[] paths)
@@ -312,7 +321,7 @@ namespace Eu.EDelivery.AS4.Common
             return Path.Combine(new[] {ApplicationPath}.Concat(paths).ToArray());
         }
 
-        private T TryDeserialize<T>(string path) where T : class
+        private static T TryDeserialize<T>(string path) where T : class
         {
             try
             {
@@ -339,24 +348,34 @@ namespace Eu.EDelivery.AS4.Common
             }
         }
 
-        private void AssignSettingsToGlobalConfiguration()
-        {
-            AddFixedSettings();
-            AddCustomSettings();
-            AddCustomAgents();
-        }
-
         private void AddFixedSettings()
         {
             _configuration["IdFormat"] = _settings.IdFormat;
+
+
+            if (_settings.Database == null)
+            {
+                throw new InvalidOperationException(
+                    "The settings file requires a '<Database/>' tag");
+            }
+
             _configuration["Provider"] = _settings.Database.Provider;
             _configuration["ConnectionString"] = _settings.Database.ConnectionString;
-            _configuration["CertificateStore"] = _settings.CertificateStore.StoreName;
-            _configuration["CertificateRepository"] = _settings.CertificateStore?.Repository?.Type;
+
+            if (_settings.CertificateStore != null)
+            {
+                _configuration["CertificateStore"] = _settings.CertificateStore.StoreName;
+                _configuration["CertificateRepository"] = _settings.CertificateStore?.Repository?.Type;
+            }          
+
             _retention = ParseRetentionPeriod();
+            _retryPollingInterval = ParseRetryPollingInterval();
 
             // TODO: this is hardcoded right now, should be configurable in the settings.xml
-            string authorizationMap = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, Properties.Resources.configurationfolder, "Security\\pull_authorizationmap.xml");
+            string authorizationMap = Path.Combine(
+                AppDomain.CurrentDomain.BaseDirectory, 
+                Properties.Resources.configurationfolder, 
+                "Security\\pull_authorizationmap.xml");
 
             _pullRequestPullAuthorizationMapProvider = new FilePullAuthorizationMapProvider(authorizationMap);
         }
@@ -377,6 +396,24 @@ namespace Eu.EDelivery.AS4.Common
             return TimeSpan.FromDays(defaultRetentionPeriod);
         }
 
+        private TimeSpan ParseRetryPollingInterval()
+        {
+            if (_settings.RetryReliability != null
+                && TimeSpan.TryParse(_settings.RetryReliability.PollingInterval, out TimeSpan t) 
+                && t > default(TimeSpan))
+            {
+                return t;
+            }
+
+            const int defaultPollingRetryInterval = 5;
+
+            LogManager.GetCurrentClassLogger().Warn(
+                $"No valid (> 0:00:00) Retry Polling Interval found: '{_settings.RetryReliability?.PollingInterval ?? "(null)"}', " +
+                $"{defaultPollingRetryInterval} seconds as default will be used");
+
+            return TimeSpan.FromSeconds(defaultPollingRetryInterval);
+        }
+
         private void AddCustomSettings()
         {
             if (_settings.CustomSettings?.Setting == null)
@@ -392,16 +429,18 @@ namespace Eu.EDelivery.AS4.Common
 
         private void AddCustomAgents()
         {
-            AddCustomAgentsIfNotNull(AgentType.ReceptionAwareness, _settings.Agents.ReceptionAwarenessAgent);
-            AddCustomAgentsIfNotNull(AgentType.Notify, _settings.Agents.NotifyAgents);
-            AddCustomAgentsIfNotNull(AgentType.Deliver, _settings.Agents.DeliverAgents);
-            AddCustomAgentsIfNotNull(AgentType.PushSend, _settings.Agents.SendAgents);
-            AddCustomAgentsIfNotNull(AgentType.Submit, _settings.Agents.SubmitAgents);
-            AddCustomAgentsIfNotNull(AgentType.Receive, _settings.Agents.ReceiveAgents);
-            AddCustomAgentsIfNotNull(AgentType.PullReceive, _settings.Agents.PullReceiveAgents);
-            AddCustomAgentsIfNotNull(AgentType.PullSend, _settings.Agents.PullSendAgents);
-            AddCustomAgentsIfNotNull(AgentType.OutboundProcessing, _settings.Agents.OutboundProcessingAgents);
-            AddCustomAgentsIfNotNull(AgentType.Forward, _settings.Agents.ForwardAgents);
+            AddCustomAgentsIfNotNull(AgentType.ReceptionAwareness, _settings.Agents?.ReceptionAwarenessAgent);
+            AddCustomAgentsIfNotNull(AgentType.Notify, _settings.Agents?.NotifyAgents);
+            AddCustomAgentsIfNotNull(AgentType.Deliver, _settings.Agents?.DeliverAgents);
+            AddCustomAgentsIfNotNull(AgentType.PushSend, _settings.Agents?.SendAgents);
+            AddCustomAgentsIfNotNull(AgentType.Submit, _settings.Agents?.SubmitAgents);
+            AddCustomAgentsIfNotNull(AgentType.Receive, _settings.Agents?.ReceiveAgents);
+            AddCustomAgentsIfNotNull(AgentType.PullReceive, _settings.Agents?.PullReceiveAgents);
+            AddCustomAgentsIfNotNull(AgentType.PullSend, _settings.Agents?.PullSendAgents);
+            AddCustomAgentsIfNotNull(AgentType.OutboundProcessing, _settings.Agents?.OutboundProcessingAgents);
+            AddCustomAgentsIfNotNull(AgentType.Forward, _settings.Agents?.ForwardAgents);
+
+
         }
 
         private void AddCustomAgentsIfNotNull(AgentType type, params AgentSettings[] agents)
