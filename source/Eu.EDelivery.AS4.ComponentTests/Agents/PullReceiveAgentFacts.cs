@@ -47,13 +47,13 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             Assert.False(_databaseSpy.GetInExceptions(r => true).Any(), "No logged InExceptions are expected.");
         }
 
-        [Fact(Skip = "Not yet fully implemented")]
+        [Fact(Skip = "Waiting for multiple (bunlded) UserMessages implementation")]
         public async Task Received_Bundled_Response_Should_Process_All_Messages()
         {
             // Arrange
             string storedMessageId = "stored-" + Guid.NewGuid();
             StoreToBeAckOutMessage(storedMessageId);
-            AS4Message bundled = CreateBundledUserReceiptMessageWithRefTo(storedMessageId);
+            AS4Message bundled = CreateBundledMultipleUserMessagesWithRefTo();
 
             string pullSenderUrl = RetrievePullingUrlFromConfig();
 
@@ -73,18 +73,16 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
             // Assert
             Assert.Collection(
-                _databaseSpy.GetInMessages(bundled.PrimaryUserMessage.MessageId),
-                inUserMessage =>
+                _databaseSpy.GetInMessages(bundled.UserMessages.Select(u => u.MessageId).ToArray()),
+                userMessage1 =>
                 {
-                    Assert.Equal(InStatus.Received, InStatusUtils.Parse(inUserMessage.Status));
-                    Assert.Equal(Operation.ToBeDelivered, OperationUtils.Parse(inUserMessage.Operation));
-                });
-            Assert.Collection(
-                _databaseSpy.GetInMessages(bundled.PrimarySignalMessage.MessageId),
-                inReceipt =>
+                    Assert.Equal(InStatus.Received, InStatusUtils.Parse(userMessage1.Status));
+                    Assert.Equal(Operation.ToBeDelivered, OperationUtils.Parse(userMessage1.Operation));
+                },
+                userMessage2 =>
                 {
-                    Assert.Equal(InStatus.Received, InStatusUtils.Parse(inReceipt.Status));
-                    Assert.Equal(Operation.ToBeNotified, OperationUtils.Parse(inReceipt.Operation));
+                    Assert.Equal(InStatus.Received, InStatusUtils.Parse(userMessage2.Status));
+                    Assert.Equal(Operation.ToBeDelivered, OperationUtils.Parse(userMessage2.Operation));
                 });
             Assert.Collection(
                 _databaseSpy.GetOutMessages(storedMessageId),
@@ -100,15 +98,16 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             _databaseSpy.InsertOutMessage(storedUserMessage);
         }
 
-        private static AS4Message CreateBundledUserReceiptMessageWithRefTo(string storedMessageId)
+        private static AS4Message CreateBundledMultipleUserMessagesWithRefTo()
         {
-            var userMessage = new UserMessage(messageId: "usermessage-" + Guid.NewGuid());
-            userMessage.CollaborationInfo.AgreementReference.PModeId = "pullreceive_bundled_pmode";
-            var receipt = new Receipt(messageId: "receipt-" + Guid.NewGuid());
-            receipt.RefToMessageId = storedMessageId;
+            var userMessage1 = new UserMessage(messageId: "user1-" + Guid.NewGuid());
+            userMessage1.CollaborationInfo.AgreementReference.PModeId = "pullreceive_bundled_pmode";
+            var userMessage2 = new UserMessage(messageId: "user2-" + Guid.NewGuid());
+            userMessage1.CollaborationInfo.AgreementReference.PModeId = "some-other-pmode-id";
 
-            var bundled = AS4Message.Create(userMessage);
-            bundled.AddMessageUnit(receipt);
+            var bundled = AS4Message.Create(userMessage1);
+            bundled.AddMessageUnit(userMessage2);
+
             return bundled;
         }
 
