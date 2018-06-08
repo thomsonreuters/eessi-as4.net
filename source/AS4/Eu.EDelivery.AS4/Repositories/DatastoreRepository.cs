@@ -454,7 +454,6 @@ namespace Eu.EDelivery.AS4.Repositories
         /// Inserts the retry reliability information referencing a <see cref="InMessage"/>.
         /// </summary>
         /// <param name="reliability">The <see cref="RetryReliability"/> entity to insert</param>
-        /// 
         public void InsertRetryReliability(RetryReliability reliability)
         {
             _datastoreContext.RetryReliability.Add(reliability);
