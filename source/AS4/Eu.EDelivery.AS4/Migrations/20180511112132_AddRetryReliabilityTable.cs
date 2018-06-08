@@ -40,28 +40,32 @@ namespace Eu.EDelivery.AS4.Migrations
                     name: "FK_InMessages_Id_RetryReliability_RefToInMessageId",
                     column: "RefToInMessageId",
                     principalTable: "InMessages",
-                    principalColumn: "Id");
+                    principalColumn: "Id",
+                    onDelete: ReferentialAction.Cascade);
 
                 migrationBuilder.AddForeignKey(
                     table: "RetryReliability",
                     name: "FK_OutMessages_Id_RetryReliability_RefToOutMessageId",
                     column: "RefToOutMessageId",
                     principalTable: "OutMessages",
-                    principalColumn: "Id");
+                    principalColumn: "Id",
+                    onDelete: ReferentialAction.Cascade);
 
                 migrationBuilder.AddForeignKey(
                     table: "RetryReliability",
                     name: "FK_InExceptions_Id_RetryReliability_RefToInExceptionId",
                     column: "RefToInExceptionId",
                     principalTable: "InExceptions",
-                    principalColumn: "Id");
+                    principalColumn: "Id",
+                    onDelete: ReferentialAction.Cascade);
 
                 migrationBuilder.AddForeignKey(
                     table: "RetryReliability",
                     name: "FK_OutExceptions_Id_RetryReliability_RefToOutExceptionId",
                     column: "RefToOutExceptionId",
                     principalTable: "OutExceptions",
-                    principalColumn: "Id");
+                    principalColumn: "Id",
+                    onDelete: ReferentialAction.Cascade);
             }
 
             migrationBuilder.CreateIndex(
