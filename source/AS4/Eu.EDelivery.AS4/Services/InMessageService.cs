@@ -283,17 +283,15 @@ namespace Eu.EDelivery.AS4.Services
 
                 if (reliability?.IsEnabled ?? false)
                 {
-                    long id = _repository.GetInMessageData(userMessage.MessageId, m => m.Id);
-                    var entity = new Entities.RetryReliability
-                    {
-                        CurrentRetryCount = 0,
-                        MaxRetryCount = reliability.RetryCount,
-                        RefToInMessageId = id,
-                    };
-                    entity.SetRetryInterval(reliability.RetryInterval.AsTimeSpan());
-                    entity.SetStatus(ReceptionStatus.Pending);
-                    entity.SetRetryType(RetryType.Delivery);
-                    _repository.InsertRetryReliability(entity);
+                    InMessage im = _repository.GetInMessageData(userMessage.MessageId, m => m);
+
+                    var r = new Entities.RetryReliability(
+                        referencedEntity: im,
+                        maxRetryCount: reliability.RetryCount,
+                        retryInterval: reliability.RetryInterval.AsTimeSpan(),
+                        type: RetryType.Delivery);
+
+                    _repository.InsertRetryReliability(r);
                 }
             }
         }
@@ -334,20 +332,16 @@ namespace Eu.EDelivery.AS4.Services
                     bool isRetryEnabled = reliability?.IsEnabled ?? false;
                     if (isRetryEnabled)
                     {
-                        var ids = _repository.GetInMessagesData(signalsToNotify, m => m.Id);
-                        foreach (var id in ids)
+                        IEnumerable<InMessage> es = _repository.GetInMessagesData(signalsToNotify, m => m);
+                        foreach (InMessage e in es)
                         {
-                            var entity = new Entities.RetryReliability
-                            {
-                                CurrentRetryCount = 0,
-                                MaxRetryCount = reliability.RetryCount,
-                                RefToInMessageId = id
-                            };
-                            entity.SetRetryInterval(reliability.RetryInterval.AsTimeSpan());
-                            entity.SetRetryType(RetryType.Notification);
-                            entity.SetStatus(ReceptionStatus.Pending);
+                            var r = new Entities.RetryReliability(
+                                referencedEntity: e,
+                                maxRetryCount: reliability.RetryCount,
+                                retryInterval: reliability.RetryInterval.AsTimeSpan(),
+                                type: RetryType.Notification);
 
-                            _repository.InsertRetryReliability(entity);
+                            _repository.InsertRetryReliability(r);
                         }
                     }
                 }

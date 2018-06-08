@@ -56,11 +56,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
                     m.SetStatus(InStatus.Created);
                     factory.InsertInMessage(m);
 
-                    var r = new RetryReliability
+                    var r = new RetryReliability(
+                        referencedEntity: m,
+                        maxRetryCount: max,
+                        retryInterval: default(TimeSpan),
+                        type: RetryType.Notification)
                     {
                         CurrentRetryCount = current,
-                        MaxRetryCount = max,
-                        RefToInMessageId = m.Id
                     };
                     factory.InsertRetryReliability(r);
                     return m;
@@ -80,11 +82,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
                     m.SetStatus(OutStatus.Created);
                     factory.InsertOutMessage(m, withReceptionAwareness: false);
 
-                    var r = new RetryReliability
+                    var r = new RetryReliability(
+                        referencedEntity: m,
+                        maxRetryCount: max,
+                        retryInterval: default(TimeSpan),
+                        type: RetryType.Delivery)
                     {
                         CurrentRetryCount = current,
-                        MaxRetryCount = max,
-                        RefToOutMessageId = m.Id
                     };
                     factory.InsertRetryReliability(r);
                     return m;
@@ -102,11 +106,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
                     ex.SetOperation(Operation.ToBeNotified);
                     factory.InsertInException(ex);
 
-                    var r = new RetryReliability
+                    var r = new RetryReliability(
+                        referencedEntity: ex,
+                        maxRetryCount: max,
+                        retryInterval: default(TimeSpan),
+                        type: RetryType.Delivery)
                     {
                         CurrentRetryCount = current,
-                        MaxRetryCount = max,
-                        RefToInExceptionId = ex.Id
                     };
                     factory.InsertRetryReliability(r);
                     return ex;
@@ -124,11 +130,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
                     ex.SetOperation(Operation.ToBeNotified);
                     factory.InsertOutException(ex);
 
-                    var r = new RetryReliability
+                    var r = new RetryReliability(
+                        referencedEntity: ex,
+                        maxRetryCount: max,
+                        retryInterval: default(TimeSpan),
+                        type: RetryType.Delivery)
                     {
                         CurrentRetryCount = current,
-                        MaxRetryCount = max,
-                        RefToOutExceptionId = ex.Id
                     };
                     factory.InsertRetryReliability(r);
                     return ex;

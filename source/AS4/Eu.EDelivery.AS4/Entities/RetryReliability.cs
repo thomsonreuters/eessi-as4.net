@@ -3,6 +3,10 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Eu.EDelivery.AS4.Entities
 {
+    /// <summary>
+    /// Persistence model to store the retry information during the Delivery, Notification 
+    /// about other entity records (In/Out Message/Exception).
+    /// </summary>
     public class RetryReliability
     {
         /// <summary>
@@ -11,39 +15,70 @@ namespace Eu.EDelivery.AS4.Entities
         public RetryReliability()
         {
             CurrentRetryCount = 0;
-            MaxRetryCount = 0;
-            RetryInterval = "0:00:00:00,0000000";
+            RetryInterval = "0:00:00:00";
+            Status = ReceptionStatus.Pending.ToString();
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RetryReliability"/> class.
+        /// </summary>
+        /// <param name="referencedEntity">Referenced entity to </param>
+        /// <param name="maxRetryCount"></param>
+        /// <param name="retryInterval"></param>
+        /// <param name="type"></param>
+        public RetryReliability(
+            Entity referencedEntity,
+            int maxRetryCount,
+            TimeSpan retryInterval,
+            RetryType type) : this()
+        {
+            if (referencedEntity is InMessage im)
+            {
+                RefToInMessageId = im.Id;
+            }
+            else if (referencedEntity is OutMessage om)
+            {
+                RefToOutMessageId = om.Id;
+            }
+            else if (referencedEntity is InException ie)
+            {
+                RefToInExceptionId = ie.Id;
+            }
+            else if (referencedEntity is OutException oe)
+            {
+                RefToOutExceptionId = oe.Id;
+            }
+            else
+            {
+                throw new ArgumentException(
+                    $@"Only In/Out Message/Exception types are supported to reference a {nameof(RetryReliability)}",
+                    paramName: nameof(referencedEntity));
+            }
+
+            MaxRetryCount = maxRetryCount;
+            RetryInterval = retryInterval.ToString("G");
+            RetryType = type.ToString();
         }
 
         public long Id { get; set; }
 
-        public long? RefToInMessageId { get; set; }
+        public long? RefToInMessageId { get; private set; }
 
-        public long? RefToOutMessageId { get; set; }
+        public long? RefToOutMessageId { get; private set; }
 
-        public long? RefToInExceptionId { get; set; }
+        public long? RefToInExceptionId { get; private set; }
 
-        public long? RefToOutExceptionId { get; set; }
+        public long? RefToOutExceptionId { get; private set; }
 
         [MaxLength(12)]
         public string RetryType { get; private set; }
 
-        public void SetRetryType(RetryType t)
-        {
-            RetryType = t.ToString();
-        }
-
         public int CurrentRetryCount { get; set; }
 
-        public int MaxRetryCount { get; set; }
+        public int MaxRetryCount { get; private set; }
 
         [MaxLength(50)]
         public string RetryInterval { get; private set; }
-
-        public void SetRetryInterval(TimeSpan t)
-        {
-            RetryInterval = t.ToString("G");
-        }
 
         [MaxLength(25)]
         public string Status { get; private set; }

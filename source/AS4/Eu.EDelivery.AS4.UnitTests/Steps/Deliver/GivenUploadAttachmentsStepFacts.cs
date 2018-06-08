@@ -48,11 +48,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
             string id = "deliver-" + Guid.NewGuid();
             InMessage im = InsertInMessage(id);
             GetDataStoreContext.InsertRetryReliability(
-                new RetryReliability
+                new RetryReliability(
+                    referencedEntity: im,
+                    maxRetryCount: input.MaxRetryCount,
+                    retryInterval: default(TimeSpan),
+                    type: RetryType.Delivery)
                 {
-                    RefToInMessageId = im.Id,
                     CurrentRetryCount = input.CurrentRetryCount,
-                    MaxRetryCount = input.MaxRetryCount
                 });
 
             var a = new FilledAttachment();
@@ -90,11 +92,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
             string id = "deliver-" + Guid.NewGuid();
             InMessage im = InsertInMessage(id);
             GetDataStoreContext.InsertRetryReliability(
-                new RetryReliability
+                new RetryReliability(
+                    referencedEntity: im,
+                    maxRetryCount: input.MaxRetryCount,
+                    retryInterval: default(TimeSpan),
+                    type: RetryType.Delivery)
                 {
-                    RefToInMessageId = im.Id,
                     CurrentRetryCount = input.CurrentRetryCount,
-                    MaxRetryCount = input.MaxRetryCount
                 });
 
 

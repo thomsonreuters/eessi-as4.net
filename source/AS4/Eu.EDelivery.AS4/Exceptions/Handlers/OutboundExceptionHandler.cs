@@ -97,7 +97,7 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
             });
 
             Entities.RetryReliability r = CreateRelatedRetryForOutException(
-                outException.Id, 
+                outException, 
                 context.SendingPMode?.ExceptionHandling?.Reliability);
             if (r != null)
             {
@@ -132,21 +132,15 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
             return outEx;
         }
 
-        private static Entities.RetryReliability CreateRelatedRetryForOutException(long id, RetryReliability reliability)
+        private static Entities.RetryReliability CreateRelatedRetryForOutException(Entity e, RetryReliability reliability)
         {
             if (reliability != null && reliability.IsEnabled)
             {
-                var r = new Entities.RetryReliability
-                {
-                    CurrentRetryCount = 0,
-                    MaxRetryCount = reliability.RetryCount,
-                    RefToOutExceptionId = id
-                };
-                r.SetRetryInterval(reliability.RetryInterval.AsTimeSpan());
-                r.SetStatus(ReceptionStatus.Pending);
-                r.SetRetryType(RetryType.Notification);
-
-                return r;
+                return new Entities.RetryReliability(
+                    referencedEntity: e,
+                    maxRetryCount: reliability.RetryCount,
+                    retryInterval: reliability.RetryInterval.AsTimeSpan(),
+                    type: RetryType.Notification);
             }
 
             return null;

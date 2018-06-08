@@ -293,10 +293,11 @@ namespace Eu.EDelivery.AS4.Common
 
             modelBuilder.Entity<RetryReliability>().HasKey(rr => rr.Id).HasName("PK_RetryReliability");
             modelBuilder.Entity<RetryReliability>().Property(rr => rr.Id).UseSqlServerIdentityColumn();
-            //modelBuilder.Entity<RetryReliability>().HasAlternateKey(rr => rr.RefToInMessageId).HasName("AK_RetryReliability_RefToInMessageId");
-            //modelBuilder.Entity<RetryReliability>().HasAlternateKey(rr => rr.RefToOutMessageId).HasName("AK_RetryReliability_RefToOutMessageId");
-            //modelBuilder.Entity<RetryReliability>().HasAlternateKey(rr => rr.RefToInExceptionId).HasName("AK_RetryReliability_RefToInExceptionId");
-            //modelBuilder.Entity<RetryReliability>().HasAlternateKey(rr => rr.RefToOutExceptionId).HasName("AK_RetryReliability_RefToOutExceptionId");
+            modelBuilder.Entity<RetryReliability>().Property(rr => rr.RefToInMessageId).UsePropertyAccessMode(PropertyAccessMode.Field);
+            modelBuilder.Entity<RetryReliability>().Property(rr => rr.RefToOutMessageId).UsePropertyAccessMode(PropertyAccessMode.Field);
+            modelBuilder.Entity<RetryReliability>().Property(rr => rr.RefToInExceptionId).UsePropertyAccessMode(PropertyAccessMode.Field);
+            modelBuilder.Entity<RetryReliability>().Property(rr => rr.RefToOutExceptionId).UsePropertyAccessMode(PropertyAccessMode.Field);
+            modelBuilder.Entity<RetryReliability>().Property(rr => rr.MaxRetryCount).UsePropertyAccessMode(PropertyAccessMode.Field);
             modelBuilder.Entity<RetryReliability>().Property(rr => rr.RetryInterval).UsePropertyAccessMode(PropertyAccessMode.Field);
             modelBuilder.Entity<RetryReliability>().Property(rr => rr.RetryType).UsePropertyAccessMode(PropertyAccessMode.Field);
             modelBuilder.Entity<RetryReliability>().Property(rr => rr.Status).UsePropertyAccessMode(PropertyAccessMode.Field);
