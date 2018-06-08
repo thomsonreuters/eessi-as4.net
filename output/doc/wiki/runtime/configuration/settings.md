@@ -18,6 +18,9 @@ Below you find a pseudo example of the settings shipped with the component itsel
         <StoreName>My</StoreName>
         <Repository type="Eu.EDelivery.AS4.Repositories.CertificateRepository" />
     </CertificateStore>
+    <RetryReliability>
+        <PollingInterval>00:00:05</RetryPollingInterval>
+    </RetryReliability>
     <Agents>
         <SubmitAgent name="FILE Submit Agent">
             <Receiver type="Eu.EDelivery.AS4.Receivers.FileReceiver">
