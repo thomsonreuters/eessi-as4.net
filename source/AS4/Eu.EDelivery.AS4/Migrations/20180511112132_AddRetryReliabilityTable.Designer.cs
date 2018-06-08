@@ -12,7 +12,7 @@ namespace Eu.EDelivery.AS4.Migrations
 {
     [DbContext(typeof(DatastoreContext))]
     [Migration("20180511112132_AddRetryInformation")]
-    partial class AddRetryInformation
+    partial class AddRetryReliabilityTable
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {

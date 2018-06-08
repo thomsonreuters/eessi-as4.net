@@ -34,11 +34,11 @@ namespace Eu.EDelivery.AS4.Services
         public void UpdateDeliverMessageForUploadResult(string messageId, SendResult status)
         {
             _repository.UpdateInMessage(
-                messageId,
-                entity => UpdateMessageEntity(
-                    status,
-                    entity,
-                    s => _repository.GetInMessageData(messageId, s),
+                messageId: messageId,
+                updateAction: entity => UpdateMessageEntity(
+                    status: status,
+                    entity: entity,
+                    getter: s => _repository.GetRetryReliability(r => r.RefToInMessageId == entity.Id, s).First(),
                     onSuccess: _ => Logger.Debug($"(Deliver)[{messageId}] Attachments are uploaded successfully, no retry is needed"),
                     onFailure: e => e.SetStatus(InStatus.Exception)));
         }
@@ -52,11 +52,11 @@ namespace Eu.EDelivery.AS4.Services
         public void UpdateDeliverMessageForDeliverResult(string messageId, SendResult status)
         {
             _repository.UpdateInMessage(
-                messageId,
-                entity => UpdateMessageEntity(
-                    status,
-                    entity,
-                    s => _repository.GetInMessageData(messageId, s),
+                messageId: messageId,
+                updateAction: entity => UpdateMessageEntity(
+                    status: status,
+                    entity: entity,
+                    getter: s => _repository.GetRetryReliability(r => r.RefToInMessageId == entity.Id, s).First(),
                     onSuccess: e =>
                     {
                         Logger.Info($"(Deliver)[{messageId}] Mark deliver message as Delivered");
@@ -76,11 +76,11 @@ namespace Eu.EDelivery.AS4.Services
         public void UpdateNotifyMessageForIncomingMessage(string messageId, SendResult result)
         {
             _repository.UpdateInMessage(
-                messageId,
-                entity => UpdateMessageEntity(
-                    result, 
-                    entity, 
-                    selector => _repository.GetInMessageData(messageId, selector),
+                messageId: messageId,
+                updateAction: entity => UpdateMessageEntity(
+                    status: result, 
+                    entity: entity, 
+                    getter: selector => _repository.GetRetryReliability(r => r.RefToInMessageId == entity.Id, selector).First(),
                     onSuccess: e =>
                     {
                         Logger.Info($"(Notify)[{messageId}] Mark NotifyMessage as Notified");
@@ -102,9 +102,9 @@ namespace Eu.EDelivery.AS4.Services
             _repository.UpdateOutMessage(
                 messageId,
                 entity => UpdateMessageEntity(
-                    result,
-                    entity,
-                    selector => _repository.GetOutMessageData(messageId, selector),
+                    status: result,
+                    entity: entity,
+                    getter: selector => _repository.GetRetryReliability(r => r.RefToOutMessageId == entity.Id, selector).First(),
                     onSuccess: m =>
                     {
                         Logger.Info($"(Notify)[{messageId}] Mark NotifyMessage as Notified");
@@ -119,7 +119,7 @@ namespace Eu.EDelivery.AS4.Services
         private void UpdateMessageEntity<T>(
             SendResult status,
             T entity,
-            Func<Expression<Func<T, Tuple<int, int>>>, Tuple<int, int>> getter,
+            Func<Expression<Func<RetryReliability, RetryReliability>>, RetryReliability> getter,
             Action<T> onSuccess,
             Action<T> onFailure) where T : MessageEntity
         {
@@ -134,14 +134,14 @@ namespace Eu.EDelivery.AS4.Services
                         ? ("Deliver", "delivery")
                         : ("Notify", "notification");
 
-                (int current, int max) = getter(m => Tuple.Create(m.CurrentRetryCount, m.MaxRetryCount));
-                if (current < max && status == SendResult.RetryableFail)
+                RetryReliability rr = getter(r => r);
+                if (rr.CurrentRetryCount < rr.MaxRetryCount && status == SendResult.RetryableFail)
                 {
                     
                     Logger.Info($"({type})[{entity.EbmsMessageId}] {type}Message failed this time, will be retried");
-                    Logger.Debug($"({type})[{entity.EbmsMessageId}]) Update {typeof(T).Name} with CurrentRetryCount={current + 1}, Operation=ToBeRetried");
+                    Logger.Debug($"({type})[{entity.EbmsMessageId}]) Update {typeof(T).Name} with CurrentRetryCount={rr.CurrentRetryCount + 1}, Operation=ToBeRetried");
 
-                    entity.CurrentRetryCount = current + 1;
+                    rr.CurrentRetryCount = rr.CurrentRetryCount + 1;
                     entity.SetOperation(Operation.ToBeRetried);
                 }
                 else
@@ -163,11 +163,11 @@ namespace Eu.EDelivery.AS4.Services
         public void UpdateNotifyExceptionForIncomingMessage(string messageId, SendResult result)
         {
             _repository.UpdateInException(
-                messageId,
-                exEntity => UpdateExceptionEntity(
-                    result,
-                    exEntity,
-                    selector => _repository.GetInExceptionsData(messageId, selector).First()));
+                refToMessageId: messageId,
+                updateAction: exEntity => UpdateExceptionRetry(
+                    status: result,
+                    entity: exEntity,
+                    getter: selector => _repository.GetRetryReliability(r => r.RefToInExceptionId == exEntity.Id, selector).First()));
         }
 
         /// <summary>
@@ -178,17 +178,17 @@ namespace Eu.EDelivery.AS4.Services
         public void UpdateNotifyExceptionForOutgoingMessage(string messageId, SendResult result)
         {
             _repository.UpdateOutException(
-                messageId,
-                exEntity => UpdateExceptionEntity(
-                    result,
-                    exEntity,
-                    selector => _repository.GetOutExceptionsData(messageId, selector).First()));
+                refToMessageId: messageId,
+                updateAction: exEntity => UpdateExceptionRetry(
+                    status: result,
+                    entity: exEntity,
+                    getter: selector => _repository.GetRetryReliability(r => r.RefToOutExceptionId == exEntity.Id, selector).First()));
         }
 
-        private void UpdateExceptionEntity<T>(
+        private void UpdateExceptionRetry<T>(
             SendResult status,
             T entity,
-            Func<Expression<Func<T, Tuple<int, int>>>, Tuple<int, int>> getter) where T : ExceptionEntity
+            Func<Expression<Func<RetryReliability, RetryReliability>>, RetryReliability> getter) where T : ExceptionEntity
         {
             if (status == SendResult.Success)
             {
@@ -199,14 +199,14 @@ namespace Eu.EDelivery.AS4.Services
             }
             else
             {
-                (int current, int max) = getter(m => Tuple.Create(m.CurrentRetryCount, m.MaxRetryCount));
-                if (current < max && status == SendResult.RetryableFail)
+                RetryReliability rr = getter(r => r);
+                if (rr.CurrentRetryCount < rr.MaxRetryCount && status == SendResult.RetryableFail)
                 {
 
                     Logger.Info($"(Notify)[{entity.EbmsRefToMessageId}] Exception NotifyMessage failed this time, will be retried");
-                    Logger.Debug($"(Notify)[{entity.EbmsRefToMessageId}]) Update {typeof(T).Name} with CurrentRetryCount={current + 1}, Operation=ToBeRetried");
+                    Logger.Debug($"(Notify)[{entity.EbmsRefToMessageId}]) Update {typeof(T).Name} with CurrentRetryCount={rr.CurrentRetryCount + 1}, Operation=ToBeRetried");
 
-                    entity.CurrentRetryCount = current + 1;
+                    rr.CurrentRetryCount = rr.CurrentRetryCount + 1;
                     entity.SetOperation(Operation.ToBeRetried);
                 }
                 else

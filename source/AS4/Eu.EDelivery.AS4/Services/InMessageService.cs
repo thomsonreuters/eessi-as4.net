@@ -17,6 +17,7 @@ using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Streaming;
 using NLog;
 using MessageExchangePattern = Eu.EDelivery.AS4.Entities.MessageExchangePattern;
+using RetryReliability = Eu.EDelivery.AS4.Model.PMode.RetryReliability;
 
 namespace Eu.EDelivery.AS4.Services
 {
@@ -258,17 +259,22 @@ namespace Eu.EDelivery.AS4.Services
             }
         }
 
-        private void UpdateUserMessagesForDeliveryAndNotification(MessagingContext messagingContext)
+        private void UpdateUserMessagesForDeliveryAndNotification(MessagingContext ctx)
         {
-            if (messagingContext.AS4Message.UserMessages.Any() == false)
+            IEnumerable<UserMessage> userMsgs = ctx.AS4Message.UserMessages;
+            if (userMsgs.Any() == false)
             {
                 return;
             }
 
-            string receivingPModeId = messagingContext.ReceivingPMode?.Id;
-            string receivingPModeString = messagingContext.GetReceivingPModeString();
+            string receivingPModeId = ctx.ReceivingPMode?.Id;
+            string receivingPModeString = ctx.GetReceivingPModeString();
 
-            foreach (UserMessage userMessage in messagingContext.AS4Message.UserMessages)
+            var xs = _repository
+                .GetInMessagesData(userMsgs.Select(um => um.MessageId), im => im.Id)
+                .Zip(userMsgs, Tuple.Create);
+
+            foreach ((long id, UserMessage userMessage) in xs)
             {
                 _repository.UpdateInMessage(
                     userMessage.MessageId,
@@ -276,21 +282,24 @@ namespace Eu.EDelivery.AS4.Services
                     {
                         message.SetPModeInformation(receivingPModeId, receivingPModeString);
 
-                        if (UserMessageNeedsToBeDelivered(messagingContext.ReceivingPMode, userMessage) 
+                        if (UserMessageNeedsToBeDelivered(ctx.ReceivingPMode, userMessage)
                             && message.Intermediary == false)
                         {
                             message.SetOperation(Operation.ToBeDelivered);
 
-                            RetryReliability reliability = 
-                                messagingContext.ReceivingPMode.MessageHandling?.DeliverInformation?.Reliability;
+                            RetryReliability reliability =
+                                ctx.ReceivingPMode.MessageHandling?.DeliverInformation?.Reliability;
 
                             if (reliability?.IsEnabled ?? false)
                             {
-                                message.CurrentRetryCount = 0;
-                                message.MaxRetryCount = reliability.RetryCount;
-                                message.SetRetryInterval(reliability.RetryInterval.AsTimeSpan());
-                            }
+                                var r = Entities.RetryReliability.CreateForInMessage(
+                                    refToInMessageId: id,
+                                    maxRetryCount: reliability.RetryCount,
+                                    retryInterval: reliability.RetryInterval.AsTimeSpan(),
+                                    type: RetryType.Delivery);
 
+                                _repository.InsertRetryReliability(r);
+                            }
                         }
                     });
             }
@@ -327,19 +336,23 @@ namespace Eu.EDelivery.AS4.Services
                 {
                     _repository.UpdateInMessages(
                         m => signalsToNotify.Contains(m.EbmsMessageId) && m.Intermediary == false,
-                        m =>
+                        m => m.SetOperation(Operation.ToBeNotified));
+
+                    bool isRetryEnabled = reliability?.IsEnabled ?? false;
+                    if (isRetryEnabled)
+                    {
+                        IEnumerable<long> ids = _repository.GetInMessagesData(signalsToNotify, m => m.Id);
+                        foreach (long id in ids)
                         {
-                            m.SetOperation(Operation.ToBeNotified);
+                            var r = Entities.RetryReliability.CreateForInMessage(
+                                refToInMessageId: id,
+                                maxRetryCount: reliability.RetryCount,
+                                retryInterval: reliability.RetryInterval.AsTimeSpan(),
+                                type: RetryType.Notification);
 
-                            bool isRetryEnabled = reliability?.IsEnabled ?? false;
-                            if (isRetryEnabled)
-                            {
-                                m.CurrentRetryCount = 0;
-                                m.MaxRetryCount = reliability.RetryCount;
-                                m.SetRetryInterval(reliability.RetryInterval.AsTimeSpan());
-                            }
-
-                        });
+                            _repository.InsertRetryReliability(r);
+                        }
+                    }
                 }
             }
 

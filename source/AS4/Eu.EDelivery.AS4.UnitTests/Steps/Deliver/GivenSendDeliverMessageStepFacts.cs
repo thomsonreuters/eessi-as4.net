@@ -14,6 +14,7 @@ using Eu.EDelivery.AS4.UnitTests.Repositories;
 using Eu.EDelivery.AS4.UnitTests.Strategies.Sender;
 using Moq;
 using Xunit;
+using RetryReliability = Eu.EDelivery.AS4.Entities.RetryReliability;
 
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
 {
@@ -98,10 +99,16 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
             // Arrange
             string id = Guid.NewGuid().ToString();
 
-            InMessage msg = CreateInMessage(id, InStatus.Received, Operation.Delivering);
-            msg.CurrentRetryCount = input.CurrentRetryCount;
-            msg.MaxRetryCount = input.MaxRetryCount;
-            GetDataStoreContext.InsertInMessage(msg);
+            InMessage im = CreateInMessage(id, InStatus.Received, Operation.Delivering);
+            GetDataStoreContext.InsertInMessage(im);
+
+            var r = RetryReliability.CreateForInMessage(
+                refToInMessageId: im.Id,
+                maxRetryCount: input.MaxRetryCount,
+                retryInterval: default(TimeSpan),
+                type: RetryType.Notification);
+            r.CurrentRetryCount = input.CurrentRetryCount;
+            GetDataStoreContext.InsertRetryReliability(r);
 
             DeliverMessageEnvelope envelope = AnonymousDeliverEnvelope(id);
 
@@ -118,10 +125,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
             GetDataStoreContext.AssertInMessage(id, inMessage =>
             {
                 Assert.NotNull(inMessage);
-
-                Assert.Equal(input.ExpectedCurrentRetryCount, inMessage.CurrentRetryCount);
                 Assert.Equal(input.ExpectedOperation, OperationUtils.Parse(inMessage.Operation));
                 Assert.Equal(input.ExpectedStatus, InStatusUtils.Parse(inMessage.Status));
+            });
+            GetDataStoreContext.AssertRetryRelatedInMessage(im.Id, rr =>
+            {
+                Assert.Equal(input.ExpectedCurrentRetryCount, rr.CurrentRetryCount);
             });
         }
 

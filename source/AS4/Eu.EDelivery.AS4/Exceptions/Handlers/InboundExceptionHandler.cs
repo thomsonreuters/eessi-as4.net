@@ -9,6 +9,7 @@ using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Streaming;
 using NLog;
+using RetryReliability = Eu.EDelivery.AS4.Model.PMode.RetryReliability;
 
 namespace Eu.EDelivery.AS4.Exceptions.Handlers
 {
@@ -77,7 +78,6 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
             bool isSubmitMessage = context.SubmitMessage != null;
 
             InException ex = await CreateInExceptionBasedOnContext(exception, context);
-
             await UseRepositorySaveAfterwards(repo =>
             {
                 if (!isSubmitMessage)
@@ -89,6 +89,15 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
 
                 repo.InsertInException(ex);
             });
+
+            Entities.RetryReliability r = CreateRelatedRetryForInException(
+                ex.Id,
+                context.ReceivingPMode?.ExceptionHandling?.Reliability);
+
+            if (r != null)
+            {
+                await UseRepositorySaveAfterwards(repo => repo.InsertRetryReliability(r));
+            }
 
             return new MessagingContext(exception)
             {
@@ -116,16 +125,22 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
             ReceiveHandling handling = context.ReceivingPMode?.ExceptionHandling;
             bool needsToBeNotified = handling?.NotifyMessageConsumer == true;
             inEx.SetOperation(needsToBeNotified ? Operation.ToBeNotified : default(Operation));
-                
-            RetryReliability reliability = handling?.Reliability;
-            if (reliability != null && reliability.IsEnabled)
-            {
-                inEx.CurrentRetryCount = 0;
-                inEx.MaxRetryCount = reliability.RetryCount;
-                inEx.SetRetryInterval(reliability.RetryInterval.AsTimeSpan());
-            }
 
             return inEx;
+        }
+
+        private static Entities.RetryReliability CreateRelatedRetryForInException(long refToInExceptionId, RetryReliability reliability)
+        {
+            if (reliability != null && reliability.IsEnabled)
+            {
+                return Entities.RetryReliability.CreateForInException(
+                    refToInExceptionId: refToInExceptionId,
+                    maxRetryCount: reliability.RetryCount,
+                    retryInterval: reliability.RetryInterval.AsTimeSpan(),
+                    type: RetryType.Notification);
+            }
+
+            return null;
         }
         
         private async Task UseRepositorySaveAfterwards(Action<DatastoreRepository> usage)

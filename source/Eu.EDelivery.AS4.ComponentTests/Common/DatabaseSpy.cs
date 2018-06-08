@@ -48,6 +48,19 @@ namespace Eu.EDelivery.AS4.ComponentTests.Common
         }
 
         /// <summary>
+        /// Gets the first <see cref="RetryReliability"/> instance that matches the given criterium in the <paramref name="expression"/>.
+        /// </summary>
+        /// <param name="expression">The expression to search for a ginel <see cref="RetryReliability"/>.</param>
+        /// <returns></returns>
+        public RetryReliability GetRetryReliabilityFor(Expression<Func<RetryReliability, bool>> expression)
+        {
+            using (var context = new DatastoreContext(_configuration))
+            {
+                return context.RetryReliability.Where(expression).FirstOrDefault();
+            }
+        }
+
+        /// <summary>
         /// Inserts the given <see cref="OutMessage"/> into the <see cref="DatastoreContext"/>.
         /// </summary>
         /// <param name="message">The message.</param>

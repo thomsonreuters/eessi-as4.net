@@ -130,13 +130,14 @@
     <Compile Include="Builders\Entities\OutMessageBuilder.cs" />
     <Compile Include="Builders\GenericTypeBuilder.cs" />
     <Compile Include="Builders\Security\DecryptionStrategyBuilder.cs" />
+    <Compile Include="Entities\RetryReliability.cs" />
     <Compile Include="Migrations\20180302141116_RemoveOutMessagesConstraint.cs" />
     <Compile Include="Migrations\20180302141116_RemoveOutMessagesConstraint.designer.cs">
       <DependentUpon>20180302141116_RemoveOutMessagesConstraint.cs</DependentUpon>
     </Compile>
-    <Compile Include="Migrations\20180511112132_AddRetryInformation.cs" />
-    <Compile Include="Migrations\20180511112132_AddRetryInformation.designer.cs">
-      <DependentUpon>20180511112132_AddRetryInformation.cs</DependentUpon>
+    <Compile Include="Migrations\20180511112132_AddRetryReliabilityTable.cs" />
+    <Compile Include="Migrations\20180511112132_AddRetryReliabilityTable.Designer.cs">
+      <DependentUpon>20180511112132_AddRetryReliabilityTable.cs</DependentUpon>
     </Compile>
     <Compile Include="Model\PMode\SafeIntJsonConverter.cs" />
     <Compile Include="Resources\XsdSchemaDefinitions.cs" />
