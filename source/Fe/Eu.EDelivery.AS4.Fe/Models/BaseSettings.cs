@@ -6,6 +6,7 @@ namespace Eu.EDelivery.AS4.Fe.Models
     {
         public string IdFormat { get; set; }
         public int RetentionPeriod { get; set; }
+        public SettingsRetryReliability RetryReliability { get; set; }
         public CertificateStore CertificateStore { get; set; }
     }
 }
