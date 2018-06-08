@@ -255,7 +255,8 @@ namespace Eu.EDelivery.AS4.Services
 
         private void UpdateUserMessagesForDeliveryAndNotification(MessagingContext ctx)
         {
-            if (ctx.AS4Message.UserMessages.Any() == false)
+            IEnumerable<UserMessage> userMsgs = ctx.AS4Message.UserMessages;
+            if (userMsgs.Any() == false)
             {
                 return;
             }
@@ -263,9 +264,11 @@ namespace Eu.EDelivery.AS4.Services
             string receivingPModeId = ctx.ReceivingPMode?.Id;
             string receivingPModeString = ctx.GetReceivingPModeString();
 
-            
+            var xs = _repository
+                .GetInMessagesData(userMsgs.Select(um => um.MessageId), im => im.Id)
+                .Zip(userMsgs, Tuple.Create);
 
-            foreach (UserMessage userMessage in ctx.AS4Message.UserMessages)
+            foreach ((long id, UserMessage userMessage) in xs)
             {
                 _repository.UpdateInMessage(
                     userMessage.MessageId,
@@ -277,27 +280,22 @@ namespace Eu.EDelivery.AS4.Services
                             && message.Intermediary == false)
                         {
                             message.SetOperation(Operation.ToBeDelivered);
+
+                            RetryReliability reliability =
+                                ctx.ReceivingPMode.MessageHandling?.DeliverInformation?.Reliability;
+
+                            if (reliability?.IsEnabled ?? false)
+                            {
+                                var r = Entities.RetryReliability.CreateForInMessage(
+                                    refToInMessageId: id,
+                                    maxRetryCount: reliability.RetryCount,
+                                    retryInterval: reliability.RetryInterval.AsTimeSpan(),
+                                    type: RetryType.Delivery);
+
+                                _repository.InsertRetryReliability(r);
+                            }
                         }
                     });
-            }
-
-            RetryReliability reliability =
-                ctx.ReceivingPMode.MessageHandling?.DeliverInformation?.Reliability;
-
-            if (reliability?.IsEnabled ?? false)
-            {
-                IEnumerable<Entities.RetryReliability> reliabilities =
-                    ctx.AS4Message.UserMessages
-                       .Where(um => UserMessageNeedsToBeDelivered(ctx.ReceivingPMode, um))
-                       .Select(um => _repository.GetInMessageData(um.MessageId, im => im.Id))
-                       .Select(id => 
-                            Entities.RetryReliability.CreateForInMessage(
-                                refToInMessageId: id,
-                                maxRetryCount: reliability.RetryCount,
-                                retryInterval: reliability.RetryInterval.AsTimeSpan(),
-                                type: RetryType.Delivery));
-
-                _repository.InsertRetryReliabilities(reliabilities);
             }
         }
 
