@@ -22,39 +22,14 @@ namespace Eu.EDelivery.AS4.Entities
         /// <summary>
         /// Initializes a new instance of the <see cref="RetryReliability"/> class.
         /// </summary>
-        /// <param name="referencedEntity">Referenced entity to </param>
-        /// <param name="maxRetryCount"></param>
-        /// <param name="retryInterval"></param>
-        /// <param name="type"></param>
-        public RetryReliability(
-            Entity referencedEntity,
+        /// <param name="maxRetryCount">The maximum retry count</param>
+        /// <param name="retryInterval">The interval in which the retry should happen</param>
+        /// <param name="type">The type of the retry</param>
+        private RetryReliability(
             int maxRetryCount,
             TimeSpan retryInterval,
             RetryType type) : this()
         {
-            if (referencedEntity is InMessage im)
-            {
-                RefToInMessageId = im.Id;
-            }
-            else if (referencedEntity is OutMessage om)
-            {
-                RefToOutMessageId = om.Id;
-            }
-            else if (referencedEntity is InException ie)
-            {
-                RefToInExceptionId = ie.Id;
-            }
-            else if (referencedEntity is OutException oe)
-            {
-                RefToOutExceptionId = oe.Id;
-            }
-            else
-            {
-                throw new ArgumentException(
-                    $@"Only In/Out Message/Exception types are supported to reference a {nameof(RetryReliability)}",
-                    paramName: nameof(referencedEntity));
-            }
-
             MaxRetryCount = maxRetryCount;
             RetryInterval = retryInterval.ToString("G");
             RetryType = type.ToString();
@@ -89,6 +64,86 @@ namespace Eu.EDelivery.AS4.Entities
         }
 
         public DateTimeOffset LastRetryTime { get; set; }
+
+        /// <summary>
+        /// Creates a <see cref="RetryReliability"/> instance referencing a <see cref="InMessage"/>.
+        /// </summary>
+        /// <param name="refToInMessageId">Reference to the <see cref="InMessage"/> entity</param>
+        /// <param name="maxRetryCount">The maximum retry count</param>
+        /// <param name="retryInterval">The interval in which the retry should happen</param>
+        /// <param name="type">The type of the retry</param>
+        /// <returns></returns>
+        public static RetryReliability CreateForInMessage(
+            long refToInMessageId,
+            int maxRetryCount,
+            TimeSpan retryInterval,
+            RetryType type)
+        {
+            return new RetryReliability(maxRetryCount, retryInterval, type)
+            {
+                RefToInMessageId = refToInMessageId
+            };
+        }
+
+        /// <summary>
+        /// Creates a <see cref="RetryReliability"/> instance referencing a <see cref="OutMessage"/>.
+        /// </summary>
+        /// <param name="refToOutMessageId">Reference to the <see cref="OutMessage"/> entity</param>
+        /// <param name="maxRetryCount">The maximum retry count</param>
+        /// <param name="retryInterval">The interval in which the retry should happen</param>
+        /// <param name="type">The type of the retry</param>
+        /// <returns></returns>
+        public static RetryReliability CreateForOutMessage(
+            long refToOutMessageId,
+            int maxRetryCount,
+            TimeSpan retryInterval,
+            RetryType type)
+        {
+            return new RetryReliability(maxRetryCount, retryInterval, type)
+            {
+                RefToOutMessageId = refToOutMessageId
+            };
+        }
+
+        /// <summary>
+        /// Creates a <see cref="RetryReliability"/> instance referencing a <see cref="InException"/>.
+        /// </summary>
+        /// <param name="refToInExceptionId">Reference to the <see cref="InException"/> entity</param>
+        /// <param name="maxRetryCount">The maximum retry count</param>
+        /// <param name="retryInterval">The interval in which the retry should happen</param>
+        /// <param name="type">The type of the retry</param>
+        /// <returns></returns>
+        public static RetryReliability CreateForInException(
+            long refToInExceptionId,
+            int maxRetryCount,
+            TimeSpan retryInterval,
+            RetryType type)
+        {
+            return new RetryReliability(maxRetryCount, retryInterval, type)
+            {
+                RefToInExceptionId = refToInExceptionId
+            };
+        }
+
+        /// <summary>
+        /// Creates a <see cref="RetryReliability"/> instance referencing a <see cref="OutException"/>.
+        /// </summary>
+        /// <param name="refToOutExceptionId">Reference to the <see cref="OutException"/> entity</param>
+        /// <param name="maxRetryCount">The maximum retry count</param>
+        /// <param name="retryInterval">The interval in which the retry should happen</param>
+        /// <param name="type">The type of the retry</param>
+        /// <returns></returns>
+        public static RetryReliability CreateForOutException(
+            long refToOutExceptionId,
+            int maxRetryCount,
+            TimeSpan retryInterval,
+            RetryType type)
+        {
+            return new RetryReliability(maxRetryCount, retryInterval, type)
+            {
+                RefToOutExceptionId = refToOutExceptionId
+            };
+        }
     }
 
     public enum RetryType

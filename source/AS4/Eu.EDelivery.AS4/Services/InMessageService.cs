@@ -253,17 +253,19 @@ namespace Eu.EDelivery.AS4.Services
             }
         }
 
-        private void UpdateUserMessagesForDeliveryAndNotification(MessagingContext messagingContext)
+        private void UpdateUserMessagesForDeliveryAndNotification(MessagingContext ctx)
         {
-            if (messagingContext.AS4Message.UserMessages.Any() == false)
+            if (ctx.AS4Message.UserMessages.Any() == false)
             {
                 return;
             }
 
-            string receivingPModeId = messagingContext.ReceivingPMode?.Id;
-            string receivingPModeString = messagingContext.GetReceivingPModeString();
+            string receivingPModeId = ctx.ReceivingPMode?.Id;
+            string receivingPModeString = ctx.GetReceivingPModeString();
 
-            foreach (UserMessage userMessage in messagingContext.AS4Message.UserMessages)
+            
+
+            foreach (UserMessage userMessage in ctx.AS4Message.UserMessages)
             {
                 _repository.UpdateInMessage(
                     userMessage.MessageId,
@@ -271,28 +273,30 @@ namespace Eu.EDelivery.AS4.Services
                     {
                         message.SetPModeInformation(receivingPModeId, receivingPModeString);
 
-                        if (UserMessageNeedsToBeDelivered(messagingContext.ReceivingPMode, userMessage) 
+                        if (UserMessageNeedsToBeDelivered(ctx.ReceivingPMode, userMessage) 
                             && message.Intermediary == false)
                         {
                             message.SetOperation(Operation.ToBeDelivered);
                         }
                     });
+            }
 
-                RetryReliability reliability =
-                    messagingContext.ReceivingPMode.MessageHandling?.DeliverInformation?.Reliability;
+            RetryReliability reliability =
+                ctx.ReceivingPMode.MessageHandling?.DeliverInformation?.Reliability;
 
-                if (reliability?.IsEnabled ?? false)
-                {
-                    InMessage im = _repository.GetInMessageData(userMessage.MessageId, m => m);
+            if (reliability?.IsEnabled ?? false)
+            {
+                IEnumerable<Entities.RetryReliability> reliabilities =
+                    ctx.AS4Message.UserMessages
+                       .Select(um => _repository.GetInMessageData(um.MessageId, im => im.Id))
+                       .Select(id => 
+                            Entities.RetryReliability.CreateForInMessage(
+                                refToInMessageId: id,
+                                maxRetryCount: reliability.RetryCount,
+                                retryInterval: reliability.RetryInterval.AsTimeSpan(),
+                                type: RetryType.Delivery));
 
-                    var r = new Entities.RetryReliability(
-                        referencedEntity: im,
-                        maxRetryCount: reliability.RetryCount,
-                        retryInterval: reliability.RetryInterval.AsTimeSpan(),
-                        type: RetryType.Delivery);
-
-                    _repository.InsertRetryReliability(r);
-                }
+                _repository.InsertRetryReliabilities(reliabilities);
             }
         }
 
@@ -332,11 +336,11 @@ namespace Eu.EDelivery.AS4.Services
                     bool isRetryEnabled = reliability?.IsEnabled ?? false;
                     if (isRetryEnabled)
                     {
-                        IEnumerable<InMessage> es = _repository.GetInMessagesData(signalsToNotify, m => m);
-                        foreach (InMessage e in es)
+                        IEnumerable<long> ids = _repository.GetInMessagesData(signalsToNotify, m => m.Id);
+                        foreach (long id in ids)
                         {
-                            var r = new Entities.RetryReliability(
-                                referencedEntity: e,
+                            var r = Entities.RetryReliability.CreateForInMessage(
+                                refToInMessageId: id,
                                 maxRetryCount: reliability.RetryCount,
                                 retryInterval: reliability.RetryInterval.AsTimeSpan(),
                                 type: RetryType.Notification);

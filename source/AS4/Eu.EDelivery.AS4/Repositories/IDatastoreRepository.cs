@@ -222,6 +222,12 @@ namespace Eu.EDelivery.AS4.Repositories
         /// 
         void InsertRetryReliability(RetryReliability reliability);
 
+        /// <summary>
+        /// Inserts the retry reliability informations referencing <see cref="InMessage"/>'s.
+        /// </summary>
+        /// <param name="reliabilities">The <see cref="RetryReliability"/> entities to insert</param>
+        void InsertRetryReliabilities(IEnumerable<RetryReliability> reliabilities);
+
         #endregion
     }
 }

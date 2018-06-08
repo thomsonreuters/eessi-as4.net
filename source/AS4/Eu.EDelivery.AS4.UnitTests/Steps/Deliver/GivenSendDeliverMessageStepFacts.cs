@@ -101,15 +101,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
 
             InMessage im = CreateInMessage(id, InStatus.Received, Operation.Delivering);
             GetDataStoreContext.InsertInMessage(im);
-            GetDataStoreContext.InsertRetryReliability(
-                new RetryReliability(
-                    referencedEntity: im, 
-                    maxRetryCount: input.MaxRetryCount, 
-                    retryInterval: default(TimeSpan), 
-                    type: RetryType.Notification)
-                {
-                    CurrentRetryCount = input.CurrentRetryCount,
-                });
+
+            var r = RetryReliability.CreateForInMessage(
+                refToInMessageId: im.Id,
+                maxRetryCount: input.MaxRetryCount,
+                retryInterval: default(TimeSpan),
+                type: RetryType.Notification);
+            r.CurrentRetryCount = input.CurrentRetryCount;
+            GetDataStoreContext.InsertRetryReliability(r);
 
             DeliverMessageEnvelope envelope = AnonymousDeliverEnvelope(id);
 

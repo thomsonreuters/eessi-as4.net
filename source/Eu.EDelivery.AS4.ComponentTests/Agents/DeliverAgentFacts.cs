@@ -148,14 +148,11 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
                 // Act
                 await InsertRetryReliability(
-                    new RetryReliability(
-                        referencedEntity: inMessage,
+                    RetryReliability.CreateForInMessage(
+                        refToInMessageId: inMessage.Id,
                         maxRetryCount: 3,
                         retryInterval: default(TimeSpan),
-                        type: RetryType.Notification)
-                    {
-                        CurrentRetryCount = 0,
-                    });
+                        type: RetryType.Notification));
 
                 // Assert
                 // Blocks the delivery location for a period of time

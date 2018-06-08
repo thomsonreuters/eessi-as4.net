@@ -47,15 +47,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
             // Arrange
             string id = "deliver-" + Guid.NewGuid();
             InMessage im = InsertInMessage(id);
-            GetDataStoreContext.InsertRetryReliability(
-                new RetryReliability(
-                    referencedEntity: im,
-                    maxRetryCount: input.MaxRetryCount,
-                    retryInterval: default(TimeSpan),
-                    type: RetryType.Delivery)
-                {
-                    CurrentRetryCount = input.CurrentRetryCount,
-                });
+
+            var r = RetryReliability.CreateForInMessage(
+                refToInMessageId: im.Id,
+                maxRetryCount: input.MaxRetryCount,
+                retryInterval: default(TimeSpan),
+                type: RetryType.Delivery);
+            r.CurrentRetryCount = input.CurrentRetryCount;
+            GetDataStoreContext.InsertRetryReliability(r);
 
             var a = new FilledAttachment();
             var userMessage = new FilledUserMessage(id, a.Id);
@@ -91,15 +90,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
             // Arrange
             string id = "deliver-" + Guid.NewGuid();
             InMessage im = InsertInMessage(id);
-            GetDataStoreContext.InsertRetryReliability(
-                new RetryReliability(
-                    referencedEntity: im,
-                    maxRetryCount: input.MaxRetryCount,
-                    retryInterval: default(TimeSpan),
-                    type: RetryType.Delivery)
-                {
-                    CurrentRetryCount = input.CurrentRetryCount,
-                });
+
+            var r = RetryReliability.CreateForInMessage(
+                refToInMessageId: im.Id,
+                maxRetryCount: input.MaxRetryCount,
+                retryInterval: default(TimeSpan),
+                type: RetryType.Delivery);
+            r.CurrentRetryCount = input.CurrentRetryCount;
+            GetDataStoreContext.InsertRetryReliability(r);
 
 
             var a1 = new FilledAttachment("attachment-1");

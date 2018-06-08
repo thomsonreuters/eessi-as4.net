@@ -91,7 +91,7 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
             });
 
             Entities.RetryReliability r = CreateRelatedRetryForInException(
-                ex,
+                ex.Id,
                 context.ReceivingPMode?.ExceptionHandling?.Reliability);
 
             if (r != null)
@@ -129,12 +129,12 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
             return inEx;
         }
 
-        private static Entities.RetryReliability CreateRelatedRetryForInException(Entity e, RetryReliability reliability)
+        private static Entities.RetryReliability CreateRelatedRetryForInException(long refToInExceptionId, RetryReliability reliability)
         {
             if (reliability != null && reliability.IsEnabled)
             {
-                return new Entities.RetryReliability(
-                    referencedEntity: e,
+                return Entities.RetryReliability.CreateForInException(
+                    refToInExceptionId: refToInExceptionId,
                     maxRetryCount: reliability.RetryCount,
                     retryInterval: reliability.RetryInterval.AsTimeSpan(),
                     type: RetryType.Notification);
