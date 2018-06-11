@@ -48,7 +48,7 @@ namespace Eu.EDelivery.AS4.Agents
         /// <returns></returns>
         public async Task Start(CancellationToken cancellation)
         {
-            Logger.Info($"{AgentConfig.Name} Started!");
+            Logger.Debug($"{AgentConfig.Name} Started");
             Logger.Debug($"Will clean up entries older than: \"{DateTimeOffset.Now.Subtract(_retentionPeriod)}\"");
 
             try
@@ -78,7 +78,7 @@ namespace Eu.EDelivery.AS4.Agents
                     Operation.Undetermined
                 };
 
-                foreach (string table in DatastoreTable.TablesByName.Keys.Where(k => !k.Equals("ReceptionAwareness")))
+                foreach (string table in DatastoreTable.EntityTables)
                 {
                     context.NativeCommands
                            .BatchDeleteOverRetentionPeriod(table, _retentionPeriod, allowedOperations);

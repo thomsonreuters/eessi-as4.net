@@ -57,7 +57,7 @@ namespace Eu.EDelivery.AS4.Strategies.Database
         /// <param name="filter">Order by this field.</param>
         /// <param name="takeRows">Take this amount of rows.</param>
         /// <returns></returns>
-        public IEnumerable<Entity> ExclusivelyRetrieveEntities(string tableName, string filter, int takeRows)
+        public IEnumerable<IEntity> ExclusivelyRetrieveEntities(string tableName, string filter, int takeRows)
         {
             if (!(DatastoreTable.IsTableNameKnown(tableName) && _tablesByName.ContainsKey(tableName)))
             {
@@ -66,7 +66,7 @@ namespace Eu.EDelivery.AS4.Strategies.Database
 
             return _tablesByName[tableName](_context)
                 .Where(filter.Replace("\'", "\""))
-                .OrderBy(x => x.InsertionTime)
+                .OrderOnlyEntityBy(tableName, x => x.InsertionTime)
                 .Take(takeRows)
                 .ToList();
         }

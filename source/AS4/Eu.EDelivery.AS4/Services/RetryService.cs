@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using Eu.EDelivery.AS4.Entities;
@@ -38,9 +39,13 @@ namespace Eu.EDelivery.AS4.Services
                 updateAction: entity => UpdateMessageEntity(
                     status: status,
                     entity: entity,
-                    getter: s => _repository.GetRetryReliability(r => r.RefToInMessageId == entity.Id, s).First(),
-                    onSuccess: _ => Logger.Debug($"(Deliver)[{messageId}] Attachments are uploaded successfully, no retry is needed"),
-                    onFailure: e => e.SetStatus(InStatus.Exception)));
+                    getter: s => _repository.GetRetryReliability(r => r.RefToInMessageId == entity.Id, s),
+                    onSuccess: _ => Logger.Debug("Attachments are uploaded successfully, no retry is needed"),
+                    onFailure: e =>
+                    {
+                        Logger.Info($"(Deliver)[{entity.EbmsMessageId}] DeliverMessage failed during the delivery, exhausted retries");
+                        e.SetStatus(InStatus.Exception);
+                    }));
         }
 
         /// <summary>
@@ -56,16 +61,20 @@ namespace Eu.EDelivery.AS4.Services
                 updateAction: entity => UpdateMessageEntity(
                     status: status,
                     entity: entity,
-                    getter: s => _repository.GetRetryReliability(r => r.RefToInMessageId == entity.Id, s).First(),
+                    getter: s => _repository.GetRetryReliability(r => r.RefToInMessageId == entity.Id, s),
                     onSuccess: e =>
                     {
                         Logger.Info($"(Deliver)[{messageId}] Mark deliver message as Delivered");
-                        Logger.Debug($"(Deliver)[{messageId}] Update InMessage with Status and Operation set to Delivered");
+                        Logger.Debug("Update InMessage with Status and Operation set to Delivered");
 
                         e.SetStatus(InStatus.Delivered);
                         e.SetOperation(Operation.Delivered);
                     },
-                    onFailure: e => e.SetStatus(InStatus.Exception)));
+                    onFailure: e =>
+                    {
+                        Logger.Info($"(Deliver)[{entity.EbmsMessageId}] DeliverMessage failed during the delivery, exhausted retries");
+                        e.SetStatus(InStatus.Exception);
+                    }));
         }
 
         /// <summary>
@@ -80,16 +89,20 @@ namespace Eu.EDelivery.AS4.Services
                 updateAction: entity => UpdateMessageEntity(
                     status: result, 
                     entity: entity, 
-                    getter: selector => _repository.GetRetryReliability(r => r.RefToInMessageId == entity.Id, selector).First(),
+                    getter: selector => _repository.GetRetryReliability(r => r.RefToInMessageId == entity.Id, selector),
                     onSuccess: e =>
                     {
                         Logger.Info($"(Notify)[{messageId}] Mark NotifyMessage as Notified");
-                        Logger.Debug($"(Notify)[{messageId}] Update InMessage with Status and Operation set to Notified");
+                        Logger.Debug("Update InMessage with Status and Operation set to Notified");
 
                         e.SetStatus(InStatus.Notified);
                         e.SetOperation(Operation.Notified);
                     },
-                    onFailure: m => m.SetStatus(InStatus.Exception)));
+                    onFailure: m =>
+                    {
+                        Logger.Info($"(Notify)[{entity.EbmsMessageId}] NotifyMessage failed during the notification, exhausted retries");
+                        m.SetStatus(InStatus.Exception);
+                    }));
         }
 
         /// <summary>
@@ -104,7 +117,7 @@ namespace Eu.EDelivery.AS4.Services
                 entity => UpdateMessageEntity(
                     status: result,
                     entity: entity,
-                    getter: selector => _repository.GetRetryReliability(r => r.RefToOutMessageId == entity.Id, selector).First(),
+                    getter: selector => _repository.GetRetryReliability(r => r.RefToOutMessageId == entity.Id, selector),
                     onSuccess: m =>
                     {
                         Logger.Info($"(Notify)[{messageId}] Mark NotifyMessage as Notified");
@@ -113,13 +126,17 @@ namespace Eu.EDelivery.AS4.Services
                         m.SetStatus(OutStatus.Notified);
                         m.SetOperation(Operation.Notified);
                     },
-                    onFailure: m => m.SetStatus(OutStatus.Exception)));
+                    onFailure: m =>
+                    {
+                        Logger.Info($"(Notify)[{entity.EbmsMessageId}] NotifyMessage failed during the notification, exhausted retries");
+                        m.SetStatus(OutStatus.Exception);
+                    }));
         }
 
         private void UpdateMessageEntity<T>(
             SendResult status,
             T entity,
-            Func<Expression<Func<RetryReliability, RetryReliability>>, RetryReliability> getter,
+            Func<Expression<Func<RetryReliability, RetryReliability>>, IEnumerable<RetryReliability>> getter,
             Action<T> onSuccess,
             Action<T> onFailure) where T : MessageEntity
         {
@@ -129,25 +146,24 @@ namespace Eu.EDelivery.AS4.Services
             }
             else
             {
-                (string type, string action) =
-                    entity.Operation == Operation.Delivering.ToString()
-                        ? ("Deliver", "delivery")
-                        : ("Notify", "notification");
+                RetryReliability rr = getter(r => r).FirstOrDefault();
+                if (rr == null)
+                {                    
+                    Logger.Debug($"Update {typeof(T).Name} with Status=Exception, Operation=DeadLettered");
 
-                RetryReliability rr = getter(r => r);
-                if (rr.CurrentRetryCount < rr.MaxRetryCount && status == SendResult.RetryableFail)
+                    onFailure(entity);
+                    entity.SetOperation(Operation.DeadLettered);
+                }
+                else if (status == SendResult.RetryableFail)
                 {
-                    
-                    Logger.Info($"({type})[{entity.EbmsMessageId}] {type}Message failed this time, will be retried");
-                    Logger.Debug($"({type})[{entity.EbmsMessageId}]) Update {typeof(T).Name} with CurrentRetryCount={rr.CurrentRetryCount + 1}, Operation=ToBeRetried");
+                    Logger.Info($"[{entity.EbmsMessageId}] Message failed this time, will be retried");
+                    Logger.Debug($"Update {typeof(T).Name} with Operation=ToBeRetried");
 
-                    rr.CurrentRetryCount = rr.CurrentRetryCount + 1;
                     entity.SetOperation(Operation.ToBeRetried);
                 }
                 else
                 {
-                    Logger.Info($"({type})[{entity.EbmsMessageId}] {type}Message failed during the {action}, exhausted retries");
-                    Logger.Debug($"({type})[{entity.EbmsMessageId}] Update {typeof(T).Name} with Status=Exception, Operation=DeadLettered");
+                    Logger.Debug($"[{entity.EbmsMessageId}] Update {typeof(T).Name} with Status=Exception, Operation=DeadLettered");
 
                     onFailure(entity);
                     entity.SetOperation(Operation.DeadLettered);
@@ -167,7 +183,7 @@ namespace Eu.EDelivery.AS4.Services
                 updateAction: exEntity => UpdateExceptionRetry(
                     status: result,
                     entity: exEntity,
-                    getter: selector => _repository.GetRetryReliability(r => r.RefToInExceptionId == exEntity.Id, selector).First()));
+                    getter: selector => _repository.GetRetryReliability(r => r.RefToInExceptionId == exEntity.Id, selector)));
         }
 
         /// <summary>
@@ -182,37 +198,42 @@ namespace Eu.EDelivery.AS4.Services
                 updateAction: exEntity => UpdateExceptionRetry(
                     status: result,
                     entity: exEntity,
-                    getter: selector => _repository.GetRetryReliability(r => r.RefToOutExceptionId == exEntity.Id, selector).First()));
+                    getter: selector => _repository.GetRetryReliability(r => r.RefToOutExceptionId == exEntity.Id, selector)));
         }
 
         private void UpdateExceptionRetry<T>(
             SendResult status,
             T entity,
-            Func<Expression<Func<RetryReliability, RetryReliability>>, RetryReliability> getter) where T : ExceptionEntity
+            Func<Expression<Func<RetryReliability, RetryReliability>>, IEnumerable<RetryReliability>> getter) where T : ExceptionEntity
         {
             if (status == SendResult.Success)
             {
                 Logger.Info($"(Notify)[{entity.EbmsRefToMessageId}] Mark NotifyMessage as Notified");
-                Logger.Debug($"(Notify)[{entity.EbmsRefToMessageId}] Update {typeof(T).Name} with Status and Operation set to Notified");
+                Logger.Debug($"Update {typeof(T).Name} with Status and Operation set to Notified");
 
                 entity.SetOperation(Operation.Notified);
             }
             else
             {
-                RetryReliability rr = getter(r => r);
-                if (rr.CurrentRetryCount < rr.MaxRetryCount && status == SendResult.RetryableFail)
+                RetryReliability rr = getter(r => r).FirstOrDefault();
+                if (rr == null)
                 {
+                    Logger.Info($"(Notify)[{entity.EbmsRefToMessageId}] Exception NotifyMessage failed during the notification, exhausted retries");
+                    Logger.Debug($"Update {typeof(T).Name} with Status=Exception, Operation=DeadLettered");
 
+                    entity.SetOperation(Operation.DeadLettered);
+                }
+                else if (status == SendResult.RetryableFail)
+                {
                     Logger.Info($"(Notify)[{entity.EbmsRefToMessageId}] Exception NotifyMessage failed this time, will be retried");
-                    Logger.Debug($"(Notify)[{entity.EbmsRefToMessageId}]) Update {typeof(T).Name} with CurrentRetryCount={rr.CurrentRetryCount + 1}, Operation=ToBeRetried");
+                    Logger.Debug($"Update {typeof(T).Name} with Operation=ToBeRetried");
 
-                    rr.CurrentRetryCount = rr.CurrentRetryCount + 1;
                     entity.SetOperation(Operation.ToBeRetried);
                 }
                 else
                 {
                     Logger.Info($"(Notify)[{entity.EbmsRefToMessageId}] Exception NotifyMessage failed during the notification, exhausted retries");
-                    Logger.Debug($"(Notify)[{entity.EbmsRefToMessageId}] Update {typeof(T).Name} with Status=Exception, Operation=DeadLettered");
+                    Logger.Debug($"Update {typeof(T).Name} with Status=Exception, Operation=DeadLettered");
 
                     entity.SetOperation(Operation.DeadLettered);
                 }

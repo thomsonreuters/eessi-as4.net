@@ -1,4 +1,6 @@
-﻿namespace Eu.EDelivery.AS4.Entities
+﻿using System;
+
+namespace Eu.EDelivery.AS4.Entities
 {
     public interface IEntity
     {

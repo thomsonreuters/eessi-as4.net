@@ -25,6 +25,7 @@ namespace Eu.EDelivery.AS4.Receivers
     public class DatastoreReceiver : PollingTemplate<IEntity, ReceivedMessage>, IReceiver
     {
         private readonly Func<DatastoreContext> _storeExpression;
+        private readonly Func<DatastoreContext, IEnumerable<IEntity>> _retrieveEntities;
 
         private DatastoreReceiverSettings _settings;
 
@@ -42,6 +43,17 @@ namespace Eu.EDelivery.AS4.Receivers
             _storeExpression = storeExpression;
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DatastoreReceiver"/> class.
+        /// </summary>
+        public DatastoreReceiver(
+            Func<DatastoreContext> storeExpression,
+            Func<DatastoreContext, IEnumerable<IEntity>> retrieveEntities)
+        {
+            _storeExpression = storeExpression;
+            _retrieveEntities = retrieveEntities;
+        }
+
         protected override ILogger Logger { get; } = LogManager.GetCurrentClassLogger();
 
         /// <summary>
@@ -51,9 +63,9 @@ namespace Eu.EDelivery.AS4.Receivers
         /// <param name="cancellationToken"></param>
         public void StartReceiving(Function messageCallback, CancellationToken cancellationToken)
         {
-            if (_settings == null)
+            if (_settings == null && _retrieveEntities == null)
             {
-                throw new InvalidOperationException("The DatastoreReceiver is not configured.");
+                throw new InvalidOperationException("The DatastoreReceiver is not configured");
             }
 
             LogReceiverSpecs(true);
@@ -119,15 +131,19 @@ namespace Eu.EDelivery.AS4.Receivers
 
             if (!(tablePropertyInfo.GetValue(context) is IQueryable<IEntity>))
             {
-                throw new ConfigurationErrorsException($"The configured table {_settings.TableName} could not be found");
+                throw new ConfigurationErrorsException(
+                    $"The configured table {_settings.TableName} could not be found");
             }
 
             // TODO: 
             // - validate the Filter clause for sql injection
-            // - make sure that single quotes are used around string vars.  (Maybe make it dependent on the DB type, same is true for escape characters [] in sql server, ...             
+            // - make sure that single quotes are used around string vars.  
+            //      (Maybe make it dependent on the DB type, same is true for escape characters [] in sql server, ...             
 
-            IEnumerable<Entity> entities = 
-                context.NativeCommands.ExclusivelyRetrieveEntities(Table, Filter, TakeRows);
+            IEnumerable<IEntity> entities = 
+                _retrieveEntities == null
+                    ? context.NativeCommands.ExclusivelyRetrieveEntities(Table, Filter, TakeRows)
+                    : _retrieveEntities(context);
 
             if (!entities.Any())
             {
@@ -141,6 +157,7 @@ namespace Eu.EDelivery.AS4.Receivers
             return entities;
         }
 
+        // TODO: isn't this someting 'Lazy<>' would solve?
         // ReSharper disable InconsistentNaming  (__ indicates that this field should not be used directly; use the GetUpdateFieldProperty instead.)               
         private PropertyInfo __updateProperty;
         // ReSharper restore InconsistentNaming
@@ -154,7 +171,12 @@ namespace Eu.EDelivery.AS4.Receivers
                     return null;
                 }
 
-                var pi = t.GetProperty(propertyName, BindingFlags.Instance | BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.NonPublic);
+                PropertyInfo pi = t.GetProperty(
+                    propertyName,
+                    BindingFlags.Instance
+                    | BindingFlags.DeclaredOnly
+                    | BindingFlags.Public
+                    | BindingFlags.NonPublic);
 
                 if (pi == null)
                 {
@@ -170,7 +192,8 @@ namespace Eu.EDelivery.AS4.Receivers
 
                 if (__updateProperty == null)
                 {
-                    throw new ConfigurationErrorsException($"The configured Update-field {_settings.UpdateField} could not be found.");
+                    throw new ConfigurationErrorsException(
+                        $"The configured Update-field {_settings.UpdateField} could not be found");
                 }
             }
 
@@ -211,7 +234,8 @@ namespace Eu.EDelivery.AS4.Receivers
             {
                 if (stream == null)
                 {
-                    Logger.Error($"MessageBody cannot be retrieved for Ebms Message Id: {messageEntity.EbmsMessageId}");
+                    Logger.Error(
+                        $"MessageBody cannot be retrieved for Ebms Message Id: {messageEntity.EbmsMessageId}");
                 }
                 else
                 {
@@ -306,7 +330,8 @@ namespace Eu.EDelivery.AS4.Receivers
 
             Setting configuredTakeRecords = properties.ReadOptionalProperty(SettingKeys.TakeRows, null);
 
-            if (configuredTakeRecords == null || Int32.TryParse(configuredTakeRecords.Value, out int takeRecords) == false)
+            if (configuredTakeRecords == null 
+                || Int32.TryParse(configuredTakeRecords.Value, out int takeRecords) == false)
             {
                 takeRecords = DatastoreReceiverSettings.DefaultTakeRows;
             }
@@ -317,7 +342,8 @@ namespace Eu.EDelivery.AS4.Receivers
 
             if (updateSetting["field"] == null)
             {
-                throw new ConfigurationErrorsException("The Update setting does not contain a field attribute that indicates the field that must be updated.");
+                throw new ConfigurationErrorsException(
+                    "The Update setting does not contain a field attribute that indicates the field that must be updated");
             }
 
             _settings = new DatastoreReceiverSettings(
@@ -347,8 +373,7 @@ namespace Eu.EDelivery.AS4.Receivers
                 Logger logger = LogManager.GetCurrentClassLogger();
 
                 logger.Error($"An error occured while polling the datastore: {exception.Message}");
-                logger.Error(
-                    $"Polling on table {Table} with interval {PollingInterval.TotalSeconds} seconds.");
+                logger.Error($"Polling on table {Table} with interval {PollingInterval.TotalSeconds} seconds");
                 logger.Trace(exception.StackTrace);
 
                 return Enumerable.Empty<Entity>();

@@ -46,15 +46,16 @@ namespace Eu.EDelivery.AS4.Strategies.Database
         /// <param name="filter">Order by this field.</param>
         /// <param name="takeRows">Take this amount of rows.</param>
         /// <returns></returns>
-        public IEnumerable<Entity> ExclusivelyRetrieveEntities(string tableName, string filter, int takeRows)
+        public IEnumerable<IEntity> ExclusivelyRetrieveEntities(string tableName, string filter, int takeRows)
         {
             DatastoreTable.EnsureTableNameIsKnown(tableName);
 
             string filterExpression = filter.Replace("\'", "\"");
 
-            return DatastoreTable.FromTableName(tableName)(_context)
+            return DatastoreTable
+                .FromTableName(tableName)(_context)
                 .Where(filterExpression)
-                .OrderBy(x => x.InsertionTime)
+                .OrderOnlyEntityBy(tableName, e => e.InsertionTime)
                 .Take(takeRows)
                 .ToList();
         }

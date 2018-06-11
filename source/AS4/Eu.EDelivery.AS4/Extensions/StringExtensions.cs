@@ -17,11 +17,16 @@ namespace Eu.EDelivery.AS4.Extensions
 
                 if (isParsedCorrectly)
                 {
-                    return resultedTimeSpan;                                        
+                    return resultedTimeSpan;
                 }
             }
 
             return defaulTimeSpan;
+        }
+
+        public static T ToEnum<T>(this string x) where T : struct, IConvertible
+        {
+            return (T) Enum.Parse(typeof(T), x, ignoreCase: true);
         }
     }
 }

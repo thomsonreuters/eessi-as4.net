@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -37,18 +38,18 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
         /// Start sending the <see cref="DeliverMessage"/>
         /// </summary>
         /// <param name="deliverMessage"></param>
-        public Task<SendResult> SendAsync(DeliverMessageEnvelope deliverMessage)
+        public async Task<SendResult> SendAsync(DeliverMessageEnvelope deliverMessage)
         {
             SendResult directoryResult = EnsureDirectory(Location);
             if (directoryResult == SendResult.FatalFail)
             {
-                return Task.FromResult(directoryResult);
+                return directoryResult;
             }
 
             string location = CombineDestinationFullName(deliverMessage.MessageInfo.MessageId, Location);
             Logger.Trace($"(Deliver) Sending DeliverMessage to {location}");
 
-            SendResult result = WriteContentsToFile(location, deliverMessage.DeliverMessage);
+            SendResult result = await TryWriteContentsToFileAsync(location, deliverMessage.DeliverMessage);
             if (result == SendResult.Success)
             {
                 Logger.Info(
@@ -56,33 +57,33 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
                     $"is successfully send to {location}");
             }
 
-            return Task.FromResult(result);
+            return result;
         }
 
         /// <summary>
         /// Start sending the <see cref="NotifyMessage"/>
         /// </summary>
         /// <param name="notifyMessage"></param>
-        public Task<SendResult> SendAsync(NotifyMessageEnvelope notifyMessage)
+        public async Task<SendResult> SendAsync(NotifyMessageEnvelope notifyMessage)
         {
             SendResult directoryResult = EnsureDirectory(Location);
             if (directoryResult == SendResult.FatalFail)
             {
-                return Task.FromResult(directoryResult);
+                return directoryResult;
             }
 
             string location = CombineDestinationFullName(notifyMessage.MessageInfo.MessageId, Location);
             Logger.Trace($"(Notify) Sending NotifyMessage to {location}");
 
-            SendResult result = WriteContentsToFile(location, notifyMessage.NotifyMessage);
+            SendResult result = await TryWriteContentsToFileAsync(location, notifyMessage.NotifyMessage);
             if (result == SendResult.Success)
             {
                 Logger.Info(
                     $"(Notify) NotifyMessage {notifyMessage.MessageInfo.MessageId} " +
-                    $"is successfully send to {location}"); 
+                    $"is successfully send to {location}");
             }
 
-            return Task.FromResult(result);
+            return result;
         }
 
         private static string CombineDestinationFullName(string fileName, string destinationFolder)
@@ -109,33 +110,78 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
             }
         }
 
-        private static SendResult WriteContentsToFile(string locationPath, byte[] contents)
+        private static Task<SendResult> TryWriteContentsToFileAsync(string locationPath, byte[] contents)
         {
-            try
-            {
-                using (FileStream fileStream = FileUtils.CreateAsync(locationPath, FileOptions.SequentialScan))
-                {
-                    Task t = fileStream.WriteAsync(contents, 0, contents.Length);
-                    t.Wait();
+            return WriteContentsToFileAsync(locationPath, contents)
+                .ContinueWith(async t =>
+                   {
+                       if (t.IsFaulted)
+                       {
+                           IEnumerable<Exception> exs = t.Exception?.Flatten().InnerExceptions;
+                           if (exs == null || exs.Any() == false)
+                           {
+                               return SendResult.RetryableFail;
+                           }
 
-                    return SendResult.Success;
-                }
-            }
-            catch (AggregateException ex)
-            {
-                Logger.Error(ex);
+                           Exception unauthorizedEx = exs.FirstOrDefault(ex => ex is UnauthorizedAccessException);
+                           if (unauthorizedEx != null)
+                           {
+                               Logger.Error(
+                                   "A fatal error occured while "
+                                   + $"uploading the file to {locationPath}: {unauthorizedEx.Message}");
 
-                bool containsAnyUnauthorizedExceptions =
-                    ex.Flatten().InnerExceptions.Any(e => e is UnauthorizedAccessException);
+                               return SendResult.FatalFail;
+                           }
 
-                return containsAnyUnauthorizedExceptions
-                    ? SendResult.FatalFail
-                    : SendResult.RetryableFail;
-            }
-            catch (IOException ex)
+                           // Filter IOExceptions on a specific HResult.
+                           // -2147024816 is the HResult if the IOException is thrown because the file already exists.
+                           Exception fileAlreadyExsitsEx =
+                               exs.FirstOrDefault(ex => ex is IOException x && x.HResult == -2147024816);
+                           if (fileAlreadyExsitsEx != null)
+                           {
+                               Logger.Error(
+                                   "(Deliver) Uploading file will be retried "
+                                   + $"because a file already exists with the same name: {fileAlreadyExsitsEx}");
+
+                               // If we happen to be in a concurrent scenario where there already
+                               // exists a file with the same name, try to upload the file as well.
+                               // The TryUploadAttachment method will generate a new name, but it is 
+                               // still possible that, under heavy load, another file has been created
+                               // with the same name as the unique name that we've generated.
+                               // Therefore, retry again.
+                               return await TryWriteContentsToFileAsync(locationPath, contents);
+                           }
+
+                           string desc = String.Join(", ", exs);
+                           Logger.Error(
+                               "An error occured while "
+                               + $"uploading the file to {locationPath}: {desc}, will be retried");
+
+                           return SendResult.RetryableFail;
+
+                       }
+
+                       if (t.IsCanceled)
+                       {
+                           return SendResult.RetryableFail;
+                       }
+
+                       if (t.IsCompleted)
+                       {
+                           return t.Result;
+                       }
+
+                       return SendResult.RetryableFail;
+                   }).Unwrap();
+        }
+
+        private static async Task<SendResult> WriteContentsToFileAsync(string locationPath, byte[] contents)
+        {
+            using (FileStream fileStream = FileUtils.CreateAsync(locationPath, FileOptions.SequentialScan))
             {
-                Logger.Error(ex);
-                return SendResult.RetryableFail;
+                await fileStream.WriteAsync(contents, 0, contents.Length);
+
+                return SendResult.Success;
             }
         }
     }

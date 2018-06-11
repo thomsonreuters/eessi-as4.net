@@ -65,6 +65,11 @@ namespace Eu.EDelivery.AS4.Repositories
             return _datastoreContext.InMessages.Where(where).Select(selection);
         }
 
+        public TResult GetInMessageData<TResult>(long messageId, Expression<Func<InMessage, TResult>> selection)
+        {
+            return GetInMessageData(m => m.Id == messageId, selection).SingleOrDefault();
+        }
+
         /// <summary>
         /// Selects some information of specified InMessages.
         /// </summary>
@@ -121,6 +126,15 @@ namespace Eu.EDelivery.AS4.Repositories
             }
 
             _datastoreContext.InMessages.Add(inMessage);
+        }
+
+        public void UpdateInMessage(long id, Action<InMessage> update)
+        {
+            InMessage entity = _datastoreContext.InMessages.Single(m => m.Id == id);
+
+            update(entity);
+
+            entity.ModificationTime = DateTimeOffset.Now;
         }
 
         /// <summary>
@@ -198,6 +212,13 @@ namespace Eu.EDelivery.AS4.Repositories
             return _datastoreContext.OutMessages.Any(predicate);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="TResult"></typeparam>
+        /// <param name="messageId"></param>
+        /// <param name="selection"></param>
+        /// <returns></returns>
         public TResult GetOutMessageData<TResult>(long messageId, Expression<Func<OutMessage, TResult>> selection)
         {
             return GetOutMessageData(m => m.Id == messageId, selection).SingleOrDefault();
@@ -340,6 +361,11 @@ namespace Eu.EDelivery.AS4.Repositories
 
         #region OutException related functionality
 
+        public TResult GetOutExceptionData<TResult>(long id, Expression<Func<OutException, TResult>> selector)
+        {
+            return _datastoreContext.OutExceptions.Where(ex => ex.Id == id).Select(selector).SingleOrDefault();
+        }
+
         /// <summary>
         /// Retrieves information for a specified OutException using a <paramref name="refToMessageId"/>.
         /// </summary>
@@ -366,6 +392,15 @@ namespace Eu.EDelivery.AS4.Repositories
             _datastoreContext.OutExceptions.Add(outException);
         }
 
+        public void UpdateOutException(long id, Action<OutException> update)
+        {
+            OutException entity = _datastoreContext.OutExceptions.Single(ex => ex.Id == id);
+
+            update(entity);
+
+            entity.ModificationTime = DateTimeOffset.Now;
+        }
+
         /// <summary>
         /// Update a found OutException (by AS4 Ref Message Id) in the Data store.
         /// </summary>
@@ -388,6 +423,11 @@ namespace Eu.EDelivery.AS4.Repositories
         #endregion
 
         #region InException functionality
+
+        public TResult GetInExceptionData<TResult>(long id, Expression<Func<InException, TResult>> selector)
+        {
+            return _datastoreContext.InExceptions.Where(ex => ex.Id == id).Select(selector).SingleOrDefault();
+        }
 
         /// <summary>
         /// Retrieves information for specified InException.
@@ -412,6 +452,15 @@ namespace Eu.EDelivery.AS4.Repositories
             inException.InsertionTime = DateTimeOffset.Now;
 
             _datastoreContext.InExceptions.Add(inException);
+        }
+
+        public void UpdateInException(long id, Action<InException> update)
+        {
+            InException entity = _datastoreContext.InExceptions.Single(ex => ex.Id == id);
+
+            update(entity);
+
+            entity.ModificationTime = DateTimeOffset.Now;
         }
 
         /// <summary>
@@ -466,6 +515,15 @@ namespace Eu.EDelivery.AS4.Repositories
         public void InsertRetryReliabilities(IEnumerable<RetryReliability> reliabilities)
         {
             _datastoreContext.RetryReliability.AddRange(reliabilities);
+        }
+
+        public void UpdateRetryReliability(long id, Action<RetryReliability> update)
+        {
+            RetryReliability rr = _datastoreContext.RetryReliability.SingleOrDefault(r => r.Id == id);
+            if (rr != null)
+            {
+                update(rr);
+            }
         }
 
         #endregion
