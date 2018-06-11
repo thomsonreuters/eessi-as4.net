@@ -34,12 +34,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
             new NotifyRetry(
                 currentRetryCount: 3,
                 maxRetryCount: 3,
-                sendResult: SendResult.RetryableFail,
-                expectedCurrentRetryCount: 3,
-                expectedOperation: Operation.DeadLettered),
-            new NotifyRetry(
-                currentRetryCount: 3,
-                maxRetryCount: 3,
                 sendResult: SendResult.FatalFail,
                 expectedCurrentRetryCount: 3,
                 expectedOperation: Operation.DeadLettered)

@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.Notify;
@@ -41,9 +39,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
                 ebmsMessageId,
                 e =>
                 {
-                    (int actualCurrentRetry, string actualOperation) = type.Getter(GetDataStoreContext, e);
-
-                    Assert.Equal(retry.ExpectedCurrentRetryCount, actualCurrentRetry);
+                    (int _, string actualOperation) = type.Getter(GetDataStoreContext, e);
                     Assert.Equal(retry.ExpectedOperation, OperationUtils.Parse(actualOperation));
                 });
         }
