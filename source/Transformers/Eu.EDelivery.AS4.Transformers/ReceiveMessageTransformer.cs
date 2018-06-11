@@ -42,7 +42,7 @@ namespace Eu.EDelivery.AS4.Transformers
 
         public const string ReceivingPModeKey = "ReceivingPMode";
 
-        [Info("Receiving Processing Mode", required: false)]
+        [Info("Receiving Processing Mode", required: false, type: "receivingpmode")]
         [Description("ReceivingPMode identifier that defines the PMode that must be used while processing a received AS4 Message")]
         private string ReceivingPMode => _properties?.ReadOptionalProperty(ReceivingPModeKey);
 
