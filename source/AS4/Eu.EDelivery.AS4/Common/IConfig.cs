@@ -86,6 +86,12 @@ namespace Eu.EDelivery.AS4.Common
         /// </summary>
         /// <returns></returns>
         IPullAuthorizationMapProvider PullRequestAuthorizationMapProvider { get; }
+
+        /// <summary>
+        /// Gets the retry polling interval for which the Retry Agent will poll 
+        /// for 'to-be-retried' messages/exceptions for a delivery or notification operation.
+        /// </summary>
+        TimeSpan RetryPollingInterval { get; }
     }
 
     public enum PropertyType

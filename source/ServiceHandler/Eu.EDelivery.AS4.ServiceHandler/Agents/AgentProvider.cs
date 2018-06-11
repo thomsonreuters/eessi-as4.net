@@ -42,7 +42,8 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
                                 Registry.Instance.CreateDatastoreContext, 
                                 config.RetentionPeriod),
                             new RetryAgent(
-                                CreateRetryReceiver(),
+                                CreateRetryReceiver(config),
+                                config.RetryPollingInterval,
                                 Registry.Instance.CreateDatastoreContext)
                         });
             }
@@ -76,7 +77,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
             return MinderAgentProvider.GetMinderSpecificAgentsFromConfig(_config);
         }
 
-        private static IReceiver CreateRetryReceiver()
+        private static IReceiver CreateRetryReceiver(IConfig config)
         {
             // TODO: this receiver is now created only for the retry agent, this creation should be moved closer to this agent
 
@@ -90,8 +91,8 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
                             tableName: "RetryReliability",
                             filter: "Status = 'Pending' AND Now < LastRetryTime + RetryInterval",
                             updateField: "Status",
-                            updateValue: "Busy"));
-
+                            updateValue: "Busy",
+                            pollingInterval: config.RetryPollingInterval));
             return r;
         }
 

@@ -33,6 +33,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
         public virtual TimeSpan RetentionPeriod => throw new NotImplementedException();
 
         /// <summary>
+        /// Gets the retry polling interval for which the Retry Agent will poll 
+        /// for 'to-be-retried' messages/exceptions for a delivery or notification operation.
+        /// </summary>
+        public TimeSpan RetryPollingInterval => throw new NotImplementedException();
+
+        /// <summary>
         /// Retrieve Setting from the Global Configurations
         /// </summary>
         /// <param name="key">Registered Key for the Setting</param>
