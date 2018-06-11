@@ -2,24 +2,32 @@
     <div content>
         <as4-base-settings [settings]="settings" #baseSettings #dirtycheck></as4-base-settings>
     </div>
-    <button [disabled]="!(baseSettings.isDirty | async)" action type="button" class="btn btn-box-tool" (click)="baseSettings.save()"><i class="fa fa-save" [class.active]="baseSettings.isDirty | async"></i></button>
+    <button data-cy="save" [disabled]="!(baseSettings.isDirty | async)" action type="button" class="btn btn-box-tool" (click)="baseSettings.save()">
+        <i class="fa fa-save" [class.active]="baseSettings.isDirty | async"></i>
+    </button>
 </as4-box>
 <as4-box [title]="'ConnectionString settings'">
     <div content>
         <as4-database-settings [settings]="settings && settings.database" #databaseSettings #dirtycheck></as4-database-settings>
     </div>
-    <button [disabled]="!(databaseSettings.isDirty | async)" action type="button" class="btn btn-box-tool" (click)="databaseSettings.save()"><i class="fa fa-save" [class.active]="databaseSettings.isDirty | async"></i></button>
+    <button [disabled]="!(databaseSettings.isDirty | async)" action type="button" class="btn btn-box-tool" (click)="databaseSettings.save()">
+        <i class="fa fa-save" [class.active]="databaseSettings.isDirty | async"></i>
+    </button>
 </as4-box>
 <as4-box title="Authorization map">
     <div content>
         <as4-authorizationmap #authorizationmap></as4-authorizationmap>
     </div>
     <button [attr.disabled]="(authorizationmap.isSaveEnabled | async) ? null : true" action type="button" class="btn btn-box-tool"
-        (click)="authorizationmap.save()"><i class="fa fa-save" [class.active]="authorizationmap.isSaveEnabled | async"></i></button>
+        (click)="authorizationmap.save()">
+        <i class="fa fa-save" [class.active]="authorizationmap.isSaveEnabled | async"></i>
+    </button>
 </as4-box>
 <as4-box [title]="'Custom settings'">
     <div content>
         <as4-custom-settings [settings]="settings && settings.customSettings" #customSettings #dirtycheck></as4-custom-settings>
     </div>
-    <button [disabled]="(customSettings.isSaveEnabled | async) ? null : true" action type="button" class="btn btn-box-tool" (click)="customSettings.save()"><i class="fa fa-save" [class.active]="customSettings.isSaveEnabled | async"></i></button>
+    <button [disabled]="(customSettings.isSaveEnabled | async) ? null : true" action type="button" class="btn btn-box-tool" (click)="customSettings.save()">
+        <i class="fa fa-save" [class.active]="customSettings.isSaveEnabled | async"></i>
+    </button>
 </as4-box>
