@@ -137,7 +137,13 @@ namespace Eu.EDelivery.AS4.Agents
                 return await _exceptionHandler.HandleTransformationException(exception, message);
             }
 
+            if (context.ErrorResult != null)
+            {
+                return context;
+            }
+
             return await TryExecuteSteps(context);
+
         }
 
         private async Task<MessagingContext> TryExecuteSteps(MessagingContext currentContext)
