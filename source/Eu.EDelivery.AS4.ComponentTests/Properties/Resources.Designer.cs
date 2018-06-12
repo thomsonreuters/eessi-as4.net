@@ -63,6 +63,16 @@ namespace Eu.EDelivery.AS4.ComponentTests.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
+        internal static byte[] c3_minderreceiveagent_request {
+            get {
+                object obj = ResourceManager.GetObject("c3_minderreceiveagent_request", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
         internal static byte[] deliveragent_message {
             get {
                 object obj = ResourceManager.GetObject("deliveragent_message", resourceCulture);
