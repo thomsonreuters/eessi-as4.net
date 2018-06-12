@@ -99,7 +99,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
 
                 if (privateKey == null)
                 {
-                    throw new InvalidOperationException("The Private Key of the signing certificate is not present.");
+                    throw new CryptographicException("Signing certificate does not have a private key");
                 }
 
                 return privateKey;
