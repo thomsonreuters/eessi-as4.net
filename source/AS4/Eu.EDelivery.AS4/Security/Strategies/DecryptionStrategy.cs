@@ -12,6 +12,7 @@ using Eu.EDelivery.AS4.Security.Factories;
 using Eu.EDelivery.AS4.Security.Serializers;
 using Eu.EDelivery.AS4.Streaming;
 using MimeKit;
+using NLog;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Encodings;
 using Org.BouncyCastle.Security;
@@ -20,10 +21,11 @@ namespace Eu.EDelivery.AS4.Security.Strategies
 {
     internal class DecryptionStrategy : CryptoStrategy
     {
-
         private readonly XmlDocument _soapEnvelope;
         private readonly IEnumerable<Attachment> _attachments;
         private readonly X509Certificate2 _certificate;
+
+        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DecryptionStrategy"/> class.
@@ -94,14 +96,20 @@ namespace Eu.EDelivery.AS4.Security.Strategies
             }
 
             string uri = encryptedData.CipherData.CipherReference.Uri;
-            Attachment attachment = _attachments.Single(x => string.Equals(x.Id, uri.Substring(4)));
+            Attachment attachment = _attachments.SingleOrDefault(x => string.Equals(x.Id, uri.Substring(4)));
+            if (attachment != null)
+            {
+                Stream decryptedStream = DecryptData(encryptedData, attachment.Content, decryptAlgorithm);
 
-            Stream decryptedStream = DecryptData(encryptedData, attachment.Content, decryptAlgorithm);
+                var transformer = AttachmentTransformer.Create(encryptedData.Type);
+                transformer.Transform(attachment, decryptedStream);
 
-            var transformer = AttachmentTransformer.Create(encryptedData.Type);
-            transformer.Transform(attachment, decryptedStream);
-
-            attachment.ContentType = encryptedData.MimeType;
+                attachment.ContentType = encryptedData.MimeType;
+            }
+            else
+            {
+                Logger.Warn($"Attachment {uri.Substring(4)} cannot be found and can therefore not be decrypted");
+            }
         }
 
         private Stream DecryptData(EncryptedData encryptedData, Stream encryptedTextStream, SymmetricAlgorithm encryptionAlgorithm)

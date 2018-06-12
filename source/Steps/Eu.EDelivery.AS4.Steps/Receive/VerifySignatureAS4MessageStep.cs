@@ -194,7 +194,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
         private static StepResult InvalidSignatureResult(string description, ErrorAlias errorAlias, MessagingContext context)
         {
-            context.ErrorResult = new ErrorResult($"{context.LogTag} Invalid Signature: {description}", errorAlias);
+            context.ErrorResult = new ErrorResult($"Invalid Signature: {description}", errorAlias);
             return StepResult.Failed(context);
         }
     }

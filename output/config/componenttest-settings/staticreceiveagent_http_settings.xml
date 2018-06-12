@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Settings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-  xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
-  xmlns="eu:edelivery:as4">
+<Settings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="eu:edelivery:as4">
   <IdFormat>{GUID}@{IPADDRESS}</IdFormat>
   <FeInProcess>false</FeInProcess>
   <PayloadServiceInProcess>false</PayloadServiceInProcess>
@@ -19,7 +17,7 @@
         <Setting key="Url">http://localhost:7071/msh/</Setting>
       </Receiver>
       <Transformer type="Eu.EDelivery.AS4.Transformers.ReceiveMessageTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-        <Setting key="ReceivingPMode">ComponentTest_ReceiveAgent_Sample1</Setting>
+        <Setting key="ReceivingPMode">static-receive-pmode</Setting>
       </Transformer>
       <StepConfiguration>
         <NormalPipeline>
