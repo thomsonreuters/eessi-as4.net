@@ -6,19 +6,29 @@ The following section describes what the **Pull Receive Agent** is and what's it
 
 ## Agent Responsibility
 
-The **Pull Receive Agent** is has the same responsibility as the (Push) **Receive Agent**: to receive `AS4Message`'s via the configured _Receiver_ from the sending MSH but instead of receiving directly the message the agent polls for an available message.
+The **Pull Receive Agent** has the same responsibility as the (Push) **Receive Agent**: to receive `AS4Message`'s via the configured _Receiver_ from a sending MSH. Instead of receiving messages directly, the **Pull Receive Agent** polls the sender for an available messages.
 
-It's useful to use this type of agent if the the receiving MSH isn't always online, or as a limited bandwidth, ... Because the agent polls for available message on the sending MSH; the receiving-side takes control of when a new `AS4Message` arrives instead of waiting and constantly making sure there's an available connection endpoint to send messages to.
+Since the **Pull Receive Agent** polls for available messages on the sending MSH, this agent takes control of when an AS4 Message is received instead of making sure that there's constantly a receive-endpoint available.
+The **Pull Receive Agent** is useful in situations where the receiving MSH isn't always online or has a limited bandwith.
 
 ## Message Flow
 
-The receival of `AS4Message`'s is identical to the (Push) **Receive Agent**, it's the triggering that's different not the receival.
-See the message flow on the **Receive Agent** page to get the actual steps that happen during a **Receive Operation**.
+The `AS4Message`'s that are received by the **Pull Receive Agent** are processed in exactly the same way as the (Push) **Receive Agent** would handle them.
+See the message flow section in the (Push) **Receive Agent** documentation for more information on how a received `AS4Message`is processed.
 
 ## Agent Trigger
 
-Because the agent itself is responsible for polling for `AS4Message`'s; the _Receiver_ is isn't actually "receiving" messages directly. Instead the **Pull Receive Agent** is made to use a _Exponential Backoff_ strategy which means that the longer it takes for a `AS4Message` to be available at the sending side, the longer the _Receiver_ will wait to poll for the next `AS4Message`.
+The  **Pull Receive Agent** initiates the receive process by sending a _PullRequest_ signal message to the sending MSH.  When the sending MSH receives such a _PullRequest_, the sender responds with an `AS4Message` that contains a `UserMessage`.  If the sending MSH does not have any `UserMessage`s available for the received `PullRequest`, the sender responds with a special `Error` message that indicates that there are no `UserMessage`s available.
+
+The _PullRequest_ signal messages are sent by the **Pull Receive Agent** using an _Exponential Backoff_ algorithm: 
+
+- when the sending MSH responds with a _no messages available_ message, the _Receiver_ will wait a bit longer to poll for the next `AS4Message`.  
+- when the sending MSH responds with a `UserMessage`, the _Receiver_ will reset the polling interval and will immediately sent a new _PullRequest_.
 
 > The minimum and maximum polling interval used in the _Exponential Backoff_ is configurable on the _Receiver_.
 
-Each time the _Receiver_ triggers the polling, a _PullRequest_ is send to the sending MSH which will result in either an `UserMessage` or `Error` saying that there's no available `UserMessage`. When a `UserMessage` arrives at the receiving MSH, the same message flow as the (Push) **Receive Agent** will take place.
+## Message Partition Channels
+
+It is possible to specify that only certain `UserMessage`s may be received.  This is done by specifying the **Message Partition Channel** or **MPC** to which the `UserMessage`s that are being polled for, must belong to.
+
+The **MPC** that must be used is defined in the PMode that is configured on the _Receiver_ of the **Pull Receive Agent**.  If no **MPC** is specified in the PMode, the default **MPC** (h<span>ttp://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMPC</span>) will be used.
