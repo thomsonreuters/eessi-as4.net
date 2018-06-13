@@ -6,29 +6,40 @@ The following section describes what the **Pull Send Agent** is and what its res
 
 ## Agent Responsibility
 
-The **Pull Send Agent** has the responsibility to respond with `AS4Message`'s on received _PullRequest_'s. Just like the (Push) **Send Agent**, this agent will send out `AS4Message`'s but not by its own. It will wait for a _PullRequest_ to arrive to respond with the 'to-be-sent' `AS4Message`.
-
-This agent works together with the **Pull Receive Agent** by which the **Pull Receive Agent** will send out _Pull Request_'s that the **Pull Send Agent** will respond to with either an available _UserMessage_ or an _Error_ indicating that there's no _UserMessage_ available.
+The **Pull Send Agent** is responsible for sending `AS4Message`s.  
+This agent doesn't take the initiative to start sending messages.  Instead, the **Pull Send Agent** waits until he receives a _PullRequest_ signal message.  
+When the **Pull Send Agent** receives a _PullRequest_, the agent responds by sending the 'to-be-sent' `AS4Message`.  If there are no `UserMessage`s available for the received _PullRequest_, the agent responds with an `Error` message that contains a warning which indicates that there are no messages available.
 
 ## Message Flow
 
-When an `AS4Message` gets submitted by the Business Application (message producer), the **Pull Send Agent** will wait for a _PullRequest_ that arrives that requests that _UserMessage_.
+The **Pull Send Agent** is configured with a HTTP receiver.  The agent is idle until it receives a _PullRequest_ signalmessage.
 
-The selection of _UserMessage_'s will happen with the information that's found in the received _PullRequest_ which includes the _Message Partition Channel_ (MPC) and the _Message Exchange Pattern_ (MEP).
+Upon receival of a _PullRequest_ signalmessage, the **Pull Send Agent** inspects the information that is contained in the received _PullRequest_.
+The **Pull Send Agent** will lookup the `UserMessage`s in the datastore that are waiting to be sent via Pulling and whose _Message Partition Channel_ (MPC) matches the MPC that is present in the _PullRequest_ message.
+The oldest of those messages is sent by the **Pull Send Agent** by writing it to the HTTP response stream of the HTTP request on which the _PullRequest_ was received. 
 
-The **Pull Send Agent** will only respond with the selected _UserMessage_ if the signed _PullRequest_ is configured in the **Authorization Map** for the _UserMessage_. Otherwise the agent will respond with an _Error_ saying that the _PullRequest_ is not authorized to receive these kind of _UserMessage_'s
+The selected _UserMessage_ will only be sent by the **Pull Send Agent** if the receiving MSH (the MSH that has sent the _PullRequest_) is allowed to receive messages for the requested MPC.
 
-> If the _PullRequest_ isn't signed and no entries are present in the **Authorization Map**, the _PullRequest_ will be seen as an authorized _PullRequest_.
+If the _PullRequest_ is signed, the **Pull Send Agent** will inspect the **Authorization Map** for an entry that matches the requested MPC and a certificate thumbprint that matches the thumbprint of the certificate that was used to sign the _PullRequest_.
+If the **Authorization Map** states that this combination is allowed, the selected _UserMessage_ will be sent, otherwise the agent will respond with an _Error_ saying that the receiver is not authorized to receive _UserMessages_ for this MPC.
+
+>If the _PullRequest_ is not signed then:
+>
+> - The _PullRequest_ will be authorized if the **Authorization Map** is empty.
+> - The _PullRequest_ will not be authorized if there are entries configured in the **Authorization Map**.
 
 ## Authorization Map
 
-The **Authorization Map** is a file that's located at `.\config\Security\pull_authorizationmap.xml`. The file contains all the authorized _PullRequest_'s together with the certificate thumprint which should be the same as the thumprint used to sign the _PullRequest_.
+The **Authorization Map** is a file that's located at `.\config\Security\pull_authorizationmap.xml`. 
+
+This file contains authorization entries that define whether or not a receiver is allowed to receive messages for a specified MPC.  
+The receiver is identified by the thumbprint of the certificate that he uses to sign the _PullRequest_ messages.
 
 The file has the following structure:
 
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
 <PullRequestAuthorizationMap>
-    <AuthorizationEntry mpc="my-pullrequest-mpc" certificatethumprint="my-certificate-thumprint" allowed="true" />
+    <AuthorizationEntry mpc="my-pullrequest-mpc" certificatethumprint="my-certificate-thumbprint" allowed="true" />
 </PullRequestAuthorizationMap>
 ```
