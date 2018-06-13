@@ -95,7 +95,8 @@ namespace Eu.EDelivery.AS4.Steps.Send
         {
             X509Certificate2 certificate = RetrieveCertificate(context);
 
-            if (!certificate.HasPrivateKey)
+            // Use GetRSAPrivateKey instead of HasPrivateKey to avoid 'Keyset does not exists' exception.
+            if (certificate.GetRSAPrivateKey() == null)
             {
                 throw new CryptographicException(
                     $"{context.LogTag} Cannot use certificate for signing: certificate does not have a private key. " +
