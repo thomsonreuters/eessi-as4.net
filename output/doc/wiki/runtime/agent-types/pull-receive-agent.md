@@ -6,19 +6,20 @@ The following section describes what the **Pull Receive Agent** is and what's it
 
 ## Agent Responsibility
 
-The **Pull Receive Agent** has the same responsibility as the (Push) **Receive Agent**: to receive `AS4Message`'s via the configured _Receiver_ from a sending MSH. Instead of receiving messages directly, the **Pull Receive Agent** polls the sender for an available messages.
+The **Pull Receive Agent** has the same responsibility as the (Push) **Receive Agent**: to receive `AS4Message`'s via the configured _Receiver_ from a sending MSH. Instead of receiving messages directly, the **Pull Receive Agent** polls the sender for available messages.
 
 Since the **Pull Receive Agent** polls for available messages on the sending MSH, this agent takes control of when an AS4 Message is received instead of making sure that there's constantly a receive-endpoint available.
 The **Pull Receive Agent** is useful in situations where the receiving MSH isn't always online or has a limited bandwith.
 
 ## Message Flow
 
-The `AS4Message`'s that are received by the **Pull Receive Agent** are processed in exactly the same way as the (Push) **Receive Agent** would handle them.
-See the message flow section in the (Push) **Receive Agent** documentation for more information on how a received `AS4Message`is processed.
+The `AS4Message`'s that are received by the **Pull Receive Agent** are processed in exactly the same way as the (Push) **Receive Agent** would handle them.  
+See the message flow section in the (Push) **Receive Agent** documentation for more information on how a received `AS4Message` is processed.
 
 ## Agent Trigger
 
-The  **Pull Receive Agent** initiates the receive process by sending a _PullRequest_ signal message to the sending MSH.  When the sending MSH receives such a _PullRequest_, the sender responds with an `AS4Message` that contains a `UserMessage`.  If the sending MSH does not have any `UserMessage`s available for the received `PullRequest`, the sender responds with a special `Error` message that indicates that there are no `UserMessage`s available.
+The  **Pull Receive Agent** initiates the receive process by sending a _PullRequest_ signal message to the sending MSH.  When the sending MSH receives such a _PullRequest_, the sender responds with an `AS4Message` that contains a `UserMessage`.  
+If the sending MSH does not have any `UserMessage`s available for the received `PullRequest`, the sender responds with a special `Error` message that indicates that there are no `UserMessage`s available.
 
 The _PullRequest_ signal messages are sent by the **Pull Receive Agent** using an _Exponential Backoff_ algorithm: 
 
