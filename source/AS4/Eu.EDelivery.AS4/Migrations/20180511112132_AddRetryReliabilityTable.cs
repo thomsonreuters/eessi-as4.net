@@ -23,7 +23,9 @@ namespace Eu.EDelivery.AS4.Migrations
                     MaxRetryCount = table.Column<int>(nullable: false),
                     RetryInterval = table.Column<string>(maxLength: 50, nullable: false),
                     Status = table.Column<string>(maxLength: 25),
-                    LastRetryTime = table.Column<DateTimeOffset>()
+                    LastRetryTime = table.Column<DateTimeOffset>(),
+                    InsertionTime = table.Column<DateTimeOffset>(nullable: false),
+                    ModificationTime = table.Column<DateTimeOffset>(nullable: false),
                 },
                 constraints: table =>
                 {

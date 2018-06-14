@@ -24,7 +24,8 @@ namespace Eu.EDelivery.AS4.Strategies.Database
                 {"OutMessages", c => c.OutMessages.FromSql(CreateSqlStatement("OutMessages"))},
                 {"InExceptions", c => c.InExceptions.FromSql(CreateSqlStatement("InExceptions"))},
                 {"OutExceptions", c => c.OutExceptions.FromSql(CreateSqlStatement("OutExceptions"))},
-                {"ReceptionAwareness", c => c.ReceptionAwareness.FromSql(CreateSqlStatement("ReceptionAwareness"))}
+                {"ReceptionAwareness", c => c.ReceptionAwareness.FromSql(CreateSqlStatement("ReceptionAwareness"))},
+                {"RetryReliability", c => c.RetryReliability.FromSql(CreateSqlStatement("RetryReliability"))}
             };
 
         /// <summary>
@@ -66,7 +67,7 @@ namespace Eu.EDelivery.AS4.Strategies.Database
 
             return _tablesByName[tableName](_context)
                 .Where(filter.Replace("\'", "\""))
-                .OrderOnlyEntityBy(tableName, x => x.InsertionTime)
+                .OrderBy(x => x.InsertionTime)
                 .Take(takeRows)
                 .ToList();
         }

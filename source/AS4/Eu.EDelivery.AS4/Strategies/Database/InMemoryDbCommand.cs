@@ -46,17 +46,6 @@ namespace Eu.EDelivery.AS4.Strategies.Database
         }
 
         /// <summary>
-        /// Wraps the given <paramref name="funcToWrap"/> into a DBMS storage type specific transaction.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="funcToWrap">The function to wrap.</param>
-        /// <returns></returns>
-        public T WithTransaction<T>(Func<DatastoreContext, T> funcToWrap)
-        {
-            return funcToWrap(_context);
-        }
-
-        /// <summary>
         /// Exclusively retrieves the entities.
         /// </summary>
         /// <param name="tableName">Name of the Db table.</param>

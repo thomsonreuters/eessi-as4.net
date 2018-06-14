@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Data;
 using System.Linq;
 using System.Linq.Dynamic.Core;
@@ -55,7 +54,7 @@ namespace Eu.EDelivery.AS4.Strategies.Database
             return DatastoreTable
                 .FromTableName(tableName)(_context)
                 .Where(filterExpression)
-                .OrderOnlyEntityBy(tableName, e => e.InsertionTime)
+                .OrderBy(e => e.InsertionTime)
                 .Take(takeRows)
                 .ToList();
         }

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
-using System.Linq.Expressions;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 
@@ -28,6 +27,7 @@ namespace Eu.EDelivery.AS4.Strategies.Database
         /// Gets the message tables.
         /// </summary>
         /// <value>The message tables.</value>
+        /// TODO: the name isn't actually the 'Entity' tables but the table name without the 'infrastructure' collumns.
         public static IEnumerable<string> EntityTables =
             TablesByName.Keys.Where(k => !new[] { "ReceptionAwareness", "RetryReliability" }.Contains(k));
 
@@ -41,22 +41,6 @@ namespace Eu.EDelivery.AS4.Strategies.Database
         public static bool IsTableNameKnown(string tableName)
         {
             return TablesByName.ContainsKey(tableName);
-        }
-
-        /// <summary>
-        /// Order only instances that inherit the <see cref="Entity"/> class.
-        /// </summary>
-        /// <typeparam name="TResult">The result to use to order the given values</typeparam>
-        /// <param name="xs">The list type="of values to order"</param>
-        /// <param name="tableName">The name of the table to verify whether or not the table instances inherit the <see cref="Entity"/> class</param>
-        /// <param name="ordering">The selector to manipulate the value on which the ordering must happen</param>
-        /// <returns></returns>
-        public static IQueryable<Entity> OrderOnlyEntityBy<TResult>(
-            this IQueryable<Entity> xs, 
-            string tableName, 
-            Expression<Func<Entity, TResult>> ordering)
-        {
-            return EntityTables.Contains(tableName) ? xs.Cast<Entity>().OrderBy(ordering) : xs;
         }
 
         /// <summary>
