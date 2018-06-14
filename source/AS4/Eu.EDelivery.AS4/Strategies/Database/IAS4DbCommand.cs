@@ -30,7 +30,7 @@ namespace Eu.EDelivery.AS4.Strategies.Database
         /// <param name="filter">Order by this field.</param>
         /// <param name="takeRows">Take this amount of rows.</param>
         /// <returns></returns>
-        IEnumerable<IEntity> ExclusivelyRetrieveEntities(
+        IEnumerable<Entity> ExclusivelyRetrieveEntities(
             string tableName,
             string filter,
             int takeRows);

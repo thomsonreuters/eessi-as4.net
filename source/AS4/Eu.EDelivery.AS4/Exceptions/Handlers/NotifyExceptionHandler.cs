@@ -51,7 +51,7 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
             }
         }
 
-        private static IEntity GetReceivedEntity(ReceivedMessage message)
+        private static Entity GetReceivedEntity(ReceivedMessage message)
         {
             var receivedEntityMessage = message as ReceivedEntityMessage;
 

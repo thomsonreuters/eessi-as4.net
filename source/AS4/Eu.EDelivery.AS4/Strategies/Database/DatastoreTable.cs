@@ -13,8 +13,8 @@ namespace Eu.EDelivery.AS4.Strategies.Database
     /// </summary>
     public static class DatastoreTable
     {
-        public static readonly IDictionary<string, Func<DatastoreContext, IQueryable<IEntity>>> TablesByName =
-            new Dictionary<string, Func<DatastoreContext, IQueryable<IEntity>>>
+        public static readonly IDictionary<string, Func<DatastoreContext, IQueryable<Entity>>> TablesByName =
+            new Dictionary<string, Func<DatastoreContext, IQueryable<Entity>>>
             {
                 {"InMessages", c => c.InMessages},
                 {"OutMessages", c => c.OutMessages},
@@ -51,8 +51,8 @@ namespace Eu.EDelivery.AS4.Strategies.Database
         /// <param name="tableName">The name of the table to verify whether or not the table instances inherit the <see cref="Entity"/> class</param>
         /// <param name="ordering">The selector to manipulate the value on which the ordering must happen</param>
         /// <returns></returns>
-        public static IQueryable<IEntity> OrderOnlyEntityBy<TResult>(
-            this IQueryable<IEntity> xs, 
+        public static IQueryable<Entity> OrderOnlyEntityBy<TResult>(
+            this IQueryable<Entity> xs, 
             string tableName, 
             Expression<Func<Entity, TResult>> ordering)
         {
@@ -78,7 +78,7 @@ namespace Eu.EDelivery.AS4.Strategies.Database
         /// <param name="tableName">The name of the table to determine the datastore selector</param>
         /// <returns></returns>
         /// <exception cref="ConfigurationErrorsException">Throws if the given <paramref name="tableName"/> isn't known</exception>
-        public static Func<DatastoreContext, IQueryable<IEntity>> FromTableName(string tableName)
+        public static Func<DatastoreContext, IQueryable<Entity>> FromTableName(string tableName)
         {
             if (!TablesByName.ContainsKey(tableName))
             {

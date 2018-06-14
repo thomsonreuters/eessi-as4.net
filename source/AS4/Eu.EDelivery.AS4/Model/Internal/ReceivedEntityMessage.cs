@@ -8,7 +8,7 @@ namespace Eu.EDelivery.AS4.Model.Internal
     /// </summary>
     public class ReceivedEntityMessage : ReceivedMessage
     {
-        public IEntity Entity { get; set; }
+        public Entity Entity { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ReceivedEntityMessage"/> class. 
@@ -17,11 +17,11 @@ namespace Eu.EDelivery.AS4.Model.Internal
         /// </summary>
         /// <param name="entity">
         /// </param>
-        public ReceivedEntityMessage(IEntity entity) : this(entity, Stream.Null, string.Empty)
+        public ReceivedEntityMessage(Entity entity) : this(entity, Stream.Null, string.Empty)
         {
         }
 
-        public ReceivedEntityMessage(IEntity entity, Stream underlyingStream, string contentType) : base(underlyingStream, contentType)
+        public ReceivedEntityMessage(Entity entity, Stream underlyingStream, string contentType) : base(underlyingStream, contentType)
         {
             this.Entity = entity;
         }

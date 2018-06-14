@@ -57,7 +57,7 @@ namespace Eu.EDelivery.AS4.Strategies.Database
         /// <param name="filter">Order by this field.</param>
         /// <param name="takeRows">Take this amount of rows.</param>
         /// <returns></returns>
-        public IEnumerable<IEntity> ExclusivelyRetrieveEntities(string tableName, string filter, int takeRows)
+        public IEnumerable<Entity> ExclusivelyRetrieveEntities(string tableName, string filter, int takeRows)
         {
             if (!(DatastoreTable.IsTableNameKnown(tableName) && _tablesByName.ContainsKey(tableName)))
             {

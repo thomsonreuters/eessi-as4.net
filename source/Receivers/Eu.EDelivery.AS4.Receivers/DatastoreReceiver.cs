@@ -22,10 +22,10 @@ namespace Eu.EDelivery.AS4.Receivers
     /// Receiver to poll the database to get the messages which validates a given Expression
     /// </summary>
     [Info("Datastore receiver")]
-    public class DatastoreReceiver : PollingTemplate<IEntity, ReceivedMessage>, IReceiver
+    public class DatastoreReceiver : PollingTemplate<Entity, ReceivedMessage>, IReceiver
     {
         private readonly Func<DatastoreContext> _storeExpression;
-        private readonly Func<DatastoreContext, IEnumerable<IEntity>> _retrieveEntities;
+        private readonly Func<DatastoreContext, IEnumerable<Entity>> _retrieveEntities;
 
         private DatastoreReceiverSettings _settings;
 
@@ -48,7 +48,7 @@ namespace Eu.EDelivery.AS4.Receivers
         /// </summary>
         public DatastoreReceiver(
             Func<DatastoreContext> storeExpression,
-            Func<DatastoreContext, IEnumerable<IEntity>> retrieveEntities)
+            Func<DatastoreContext, IEnumerable<Entity>> retrieveEntities)
         {
             _storeExpression = storeExpression;
             _retrieveEntities = retrieveEntities;
@@ -83,7 +83,7 @@ namespace Eu.EDelivery.AS4.Receivers
             Logger.Debug($"{action} Receiving on Datastore {_settings.DisplayString}");
         }
 
-        private IEnumerable<IEntity> GetMessagesEntitiesForConfiguredExpression()
+        private IEnumerable<Entity> GetMessagesEntitiesForConfiguredExpression()
         {
             using (DatastoreContext context = _storeExpression())
             {
@@ -98,7 +98,7 @@ namespace Eu.EDelivery.AS4.Receivers
 
                 try
                 {
-                    IEnumerable<IEntity> entities = FindAnyMessageEntitiesWithConfiguredExpression(context);
+                    IEnumerable<Entity> entities = FindAnyMessageEntitiesWithConfiguredExpression(context);
                     context.Database.CommitTransaction();
                     return entities;
                 }
@@ -125,11 +125,11 @@ namespace Eu.EDelivery.AS4.Receivers
             return __tableSetPropertyInfo;
         }
 
-        private IEnumerable<IEntity> FindAnyMessageEntitiesWithConfiguredExpression(DatastoreContext context)
+        private IEnumerable<Entity> FindAnyMessageEntitiesWithConfiguredExpression(DatastoreContext context)
         {
             var tablePropertyInfo = GetTableSetPropertyInfo();
 
-            if (!(tablePropertyInfo.GetValue(context) is IQueryable<IEntity>))
+            if (!(tablePropertyInfo.GetValue(context) is IQueryable<Entity>))
             {
                 throw new ConfigurationErrorsException(
                     $"The configured table {_settings.TableName} could not be found");
@@ -140,7 +140,7 @@ namespace Eu.EDelivery.AS4.Receivers
             // - make sure that single quotes are used around string vars.  
             //      (Maybe make it dependent on the DB type, same is true for escape characters [] in sql server, ...             
 
-            IEnumerable<IEntity> entities = 
+            IEnumerable<Entity> entities = 
                 _retrieveEntities == null
                     ? context.NativeCommands.ExclusivelyRetrieveEntities(Table, Filter, TakeRows)
                     : _retrieveEntities(context);
@@ -162,7 +162,7 @@ namespace Eu.EDelivery.AS4.Receivers
         private PropertyInfo __updateProperty;
         // ReSharper restore InconsistentNaming
 
-        private PropertyInfo GetUpdateFieldProperty(IEntity entity)
+        private PropertyInfo GetUpdateFieldProperty(Entity entity)
         {
             PropertyInfo FindPropertyInHierarchy(string propertyName, Type t)
             {
@@ -200,7 +200,7 @@ namespace Eu.EDelivery.AS4.Receivers
             return __updateProperty;
         }
 
-        private void LockEntitiesBeforeContinueToProcessThem(IEnumerable<IEntity> entities)
+        private void LockEntitiesBeforeContinueToProcessThem(IEnumerable<Entity> entities)
         {
             if (entities.Any() == false)
             {
@@ -209,7 +209,7 @@ namespace Eu.EDelivery.AS4.Receivers
 
             PropertyInfo updateFieldInfo = GetUpdateFieldProperty(entities.First());
 
-            foreach (IEntity entity in entities)
+            foreach (Entity entity in entities)
             {
                 object updateValue = Conversion.Convert(updateFieldInfo.PropertyType, Update);
 
@@ -257,7 +257,7 @@ namespace Eu.EDelivery.AS4.Receivers
             return new ReceivedMessageEntityMessage(messageEntity, stream, messageEntity.ContentType);
         }
 
-        private static async void ReceiveEntity(IEntity entity, Function messageCallback, CancellationToken token)
+        private static async void ReceiveEntity(Entity entity, Function messageCallback, CancellationToken token)
         {
             var message = new ReceivedEntityMessage(entity);
             MessagingContext result = await messageCallback(message, token).ConfigureAwait(false);
@@ -362,7 +362,7 @@ namespace Eu.EDelivery.AS4.Receivers
         /// </summary>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        protected override IEnumerable<IEntity> GetMessagesToPoll(CancellationToken cancellationToken)
+        protected override IEnumerable<Entity> GetMessagesToPoll(CancellationToken cancellationToken)
         {
             try
             {
@@ -386,7 +386,7 @@ namespace Eu.EDelivery.AS4.Receivers
         /// <param name="entity"></param>
         /// <param name="messageCallback"></param>
         /// <param name="token"></param>
-        protected override void MessageReceived(IEntity entity, Function messageCallback, CancellationToken token)
+        protected override void MessageReceived(Entity entity, Function messageCallback, CancellationToken token)
         {
             if (entity is MessageEntity messageEntity)
             {
@@ -398,7 +398,7 @@ namespace Eu.EDelivery.AS4.Receivers
             }
         }
 
-        protected override void HandleMessageException(IEntity message, Exception exception)
+        protected override void HandleMessageException(Entity message, Exception exception)
         {
             Logger.Error(exception.Message);
 

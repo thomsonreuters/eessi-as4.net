@@ -13,8 +13,8 @@ namespace Eu.EDelivery.AS4.Strategies.Database
     {
         private readonly DatastoreContext _context;
 
-        private static readonly IDictionary<string, Func<IEntity, string>> GetOperationString = 
-            new Dictionary<string, Func<IEntity, string>>
+        private static readonly IDictionary<string, Func<Entity, string>> GetOperationString = 
+            new Dictionary<string, Func<Entity, string>>
             {
                 ["OutMessages"] = e => (e as OutMessage)?.Operation,
                 ["InMessages"] = e => (e as InMessage)?.Operation,
@@ -63,7 +63,7 @@ namespace Eu.EDelivery.AS4.Strategies.Database
         /// <param name="filter">Order by this field.</param>
         /// <param name="takeRows">Take this amount of rows.</param>
         /// <returns></returns>
-        public IEnumerable<IEntity> ExclusivelyRetrieveEntities(string tableName, string filter, int takeRows)
+        public IEnumerable<Entity> ExclusivelyRetrieveEntities(string tableName, string filter, int takeRows)
         {
             string filterExpression = filter.Replace("\'", "\"");
 
@@ -84,7 +84,7 @@ namespace Eu.EDelivery.AS4.Strategies.Database
             TimeSpan retentionPeriod,
             IEnumerable<Operation> allowedOperations)
         {
-            IQueryable<IEntity> entities =
+            IQueryable<Entity> entities =
                 DatastoreTable.FromTableName(tableName)(_context)
                               .Cast<Entity>()
                               .Where(x => x.InsertionTime < DateTimeOffset.Now.Subtract(retentionPeriod)
