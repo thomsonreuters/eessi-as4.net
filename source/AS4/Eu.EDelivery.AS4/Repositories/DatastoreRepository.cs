@@ -59,12 +59,19 @@ namespace Eu.EDelivery.AS4.Repositories
         /// <typeparam name="TResult">The type of the result.</typeparam>
         /// <param name="where">The where.</param>
         /// <param name="selection">The selection.</param>
-        /// <returns></returns>
+        /// <returns></returns>s
         public IEnumerable<TResult> GetInMessageData<TResult>(Expression<Func<InMessage, bool>> where, Expression<Func<InMessage, TResult>> selection)
         {
             return _datastoreContext.InMessages.Where(where).Select(selection);
         }
 
+        /// <summary>
+        /// Retrieves information for a <see cref="InMessage"/> for a given <paramref name="messageId"/>.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result to return</typeparam>
+        /// <param name="messageId">The identifier to locate the <see cref="InMessage"/></param>
+        /// <param name="selection">The selector function to manipulate the <typeparamref name="TResult"/> type</param>
+        /// <returns></returns>
         public TResult GetInMessageData<TResult>(long messageId, Expression<Func<InMessage, TResult>> selection)
         {
             return GetInMessageData(m => m.Id == messageId, selection).SingleOrDefault();
@@ -128,6 +135,11 @@ namespace Eu.EDelivery.AS4.Repositories
             _datastoreContext.InMessages.Add(inMessage);
         }
 
+        /// <summary>
+        /// Updates a <see cref="InMessage"/> using a given <paramref name="update"/> function.
+        /// </summary>
+        /// <param name="id">The identifier to locate the <see cref="InMessage"/></param>
+        /// <param name="update">The update function to change the located <see cref="InMessage"/></param>
         public void UpdateInMessage(long id, Action<InMessage> update)
         {
             InMessage entity = _datastoreContext.InMessages.Single(m => m.Id == id);
@@ -162,6 +174,12 @@ namespace Eu.EDelivery.AS4.Repositories
             }
         }
 
+        /// <summary>
+        /// Updates a set of <see cref="InMessage"/> entities using a <paramref name="updateAction"/> function 
+        /// for which the given <paramref name="predicate"/> holds.
+        /// </summary>
+        /// <param name="predicate">The predicate function to locate a set of <see cref="InMessage"/> entities</param>
+        /// <param name="updateAction">The update function to change the located <see cref="InMessage"/> entities</param>
         public void UpdateInMessages(Expression<Func<InMessage, bool>> predicate, Action<InMessage> updateAction)
         {
             var inMessageIds = _datastoreContext.InMessages.Where(predicate).Select(m => new { m.EbmsMessageId, m.Id }).ToArray();
@@ -207,17 +225,22 @@ namespace Eu.EDelivery.AS4.Repositories
 
         #region OutMessage related functionality
 
+        /// <summary>
+        /// Determines whether any stored <see cref="OutMessage"/> satisfies a given <paramref name="predicate"/>.
+        /// </summary>
+        /// <param name="predicate">The predicate function used in the determination</param>
+        /// <returns></returns>
         public bool OutMessageExists(Expression<Func<OutMessage, bool>> predicate)
         {
             return _datastoreContext.OutMessages.Any(predicate);
         }
 
         /// <summary>
-        /// 
+        /// Retrieves information for a single <see cref="OutMessage"/> for a given <paramref name="messageId"/>.
         /// </summary>
-        /// <typeparam name="TResult"></typeparam>
-        /// <param name="messageId"></param>
-        /// <param name="selection"></param>
+        /// <typeparam name="TResult">The type of result to return</typeparam>
+        /// <param name="messageId">The identifier to locate the <see cref="OutMessage"/></param>
+        /// <param name="selection">The selector function to manipulate the <typeparamref name="TResult"/> type</param>
         /// <returns></returns>
         public TResult GetOutMessageData<TResult>(long messageId, Expression<Func<OutMessage, TResult>> selection)
         {
@@ -265,6 +288,12 @@ namespace Eu.EDelivery.AS4.Repositories
             UpdateMessageEntityIfNotNull(updateAction, msg);
         }
 
+        /// <summary>
+        /// Updates a set of <see cref="OutMessage"/> entities using a given <paramref name="updateAction"/>
+        /// for which the given <paramref name="predicate"/> holds.
+        /// </summary>
+        /// <param name="predicate">The predicate function to locate the <see cref="OutMessage"/> entities</param>
+        /// <param name="updateAction">The update function to change the located <see cref="OutMessage"/> entities</param>
         public void UpdateOutMessages(Expression<Func<OutMessage, bool>> predicate, Action<OutMessage> updateAction)
         {
             var keys = _datastoreContext.OutMessages.Where(predicate).Select(m => new { m.Id }).ToArray();
@@ -361,6 +390,13 @@ namespace Eu.EDelivery.AS4.Repositories
 
         #region OutException related functionality
 
+        /// <summary>
+        /// Retrieves information for a single <see cref="OutException"/> entity for a given <paramref name="id"/>.
+        /// </summary>
+        /// <typeparam name="TResult">The type of result to return</typeparam>
+        /// <param name="id">The identifier to locate the <see cref="OutException"/> entity</param>
+        /// <param name="selector">The selector function to manipulate the <typeparamref name="TResult"/> type</param>
+        /// <returns></returns>s
         public TResult GetOutExceptionData<TResult>(long id, Expression<Func<OutException, TResult>> selector)
         {
             return _datastoreContext.OutExceptions.Where(ex => ex.Id == id).Select(selector).SingleOrDefault();
@@ -392,6 +428,11 @@ namespace Eu.EDelivery.AS4.Repositories
             _datastoreContext.OutExceptions.Add(outException);
         }
 
+        /// <summary>
+        /// Updates a single <see cref="OutException"/> entity for given <paramref name="id"/>.
+        /// </summary>
+        /// <param name="id">The identifier to locate the <see cref="OutException"/> entity</param>
+        /// <param name="update">The update function to change the located <see cref="OutException"/> entity</param>
         public void UpdateOutException(long id, Action<OutException> update)
         {
             OutException entity = _datastoreContext.OutExceptions.Single(ex => ex.Id == id);
@@ -424,6 +465,13 @@ namespace Eu.EDelivery.AS4.Repositories
 
         #region InException functionality
 
+        /// <summary>
+        /// Retrieves information for a single <see cref="InException"/> for a given <paramref name="id"/>.
+        /// </summary>
+        /// <typeparam name="TResult">The type of result to return</typeparam>
+        /// <param name="id">The identifier to locate the <see cref="InException"/></param>
+        /// <param name="selector">The selector function to manipulate the <typeparamref name="TResult"/> type</param>
+        /// <returns></returns>
         public TResult GetInExceptionData<TResult>(long id, Expression<Func<InException, TResult>> selector)
         {
             return _datastoreContext.InExceptions.Where(ex => ex.Id == id).Select(selector).SingleOrDefault();
@@ -454,6 +502,11 @@ namespace Eu.EDelivery.AS4.Repositories
             _datastoreContext.InExceptions.Add(inException);
         }
 
+        /// <summary>
+        /// Updates a single <see cref="InException"/> for a given <paramref name="id"/>.
+        /// </summary>
+        /// <param name="id">The identifier to locate the <see cref="InException"/> entity</param>
+        /// <param name="update">The update function to change the <see cref="InException"/> entity</param>
         public void UpdateInException(long id, Action<InException> update)
         {
             InException entity = _datastoreContext.InExceptions.Single(ex => ex.Id == id);
@@ -517,6 +570,11 @@ namespace Eu.EDelivery.AS4.Repositories
             _datastoreContext.RetryReliability.AddRange(reliabilities);
         }
 
+        /// <summary>
+        /// Updates a single <see cref="RetryReliability"/> record for a given <paramref name="id"/>.
+        /// </summary>
+        /// <param name="id">The identifier to locate the <see cref="RetryReliability"/> record</param>
+        /// <param name="update">The update function to change the <see cref="RetryReliability"/> record</param>
         public void UpdateRetryReliability(long id, Action<RetryReliability> update)
         {
             RetryReliability rr = _datastoreContext.RetryReliability.SingleOrDefault(r => r.Id == id);
