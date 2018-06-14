@@ -148,7 +148,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
             using (DatastoreContext context = _createDbContext())
             {
                 var repository = new DatastoreRepository(context);
-                var service = new RetryService(repository);
+                var service = new MarkForRetryService(repository);
 
                 service.UpdateDeliverMessageForUploadResult(messageId, status);
                 await context.SaveChangesAsync().ConfigureAwait(false);

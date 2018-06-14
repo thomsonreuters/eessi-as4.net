@@ -83,7 +83,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
             using (DatastoreContext context = _createDbContext())
             {
                 var repository = new DatastoreRepository(context);
-                var retryService = new RetryService(repository);
+                var retryService = new MarkForRetryService(repository);
                 retryService.UpdateDeliverMessageForDeliverResult(
                     messagingContext.DeliverMessage.MessageInfo.MessageId, result);
 

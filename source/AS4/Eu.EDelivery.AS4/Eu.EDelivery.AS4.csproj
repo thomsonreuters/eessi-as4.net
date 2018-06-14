@@ -313,7 +313,7 @@
     <Compile Include="Services\OutMessageService.cs" />
     <Compile Include="Services\PullRequestAuthorization\PullRequestAuthorizationEntry.cs" />
     <Compile Include="Services\ReceptionAwarenessService.cs" />
-    <Compile Include="Services\RetryService.cs" />
+    <Compile Include="Services\MarkForRetryService.cs" />
     <Compile Include="Strategies\Database\IAS4DbCommand.cs" />
     <Compile Include="Strategies\Database\InMemoryDbCommand.cs" />
     <Compile Include="Strategies\Database\SqliteDbCommand.cs" />

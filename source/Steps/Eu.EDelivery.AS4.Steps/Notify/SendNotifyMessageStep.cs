@@ -143,7 +143,7 @@ namespace Eu.EDelivery.AS4.Steps.Notify
             using (DatastoreContext context = _createContext())
             {
                 var repository = new DatastoreRepository(context);
-                var service = new RetryService(repository);
+                var service = new MarkForRetryService(repository);
 
                 if (notifyMessage.EntityType == typeof(InMessage))
                 {

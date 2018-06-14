@@ -12,17 +12,17 @@ namespace Eu.EDelivery.AS4.Services
     /// <summary>
     /// Service abstraction to set the referenced deliver message to the right Status/Operation accordingly to the <see cref="Eu.EDelivery.AS4.Strategies.Sender.SendResult"/>.
     /// </summary>
-    public class RetryService
+    public class MarkForRetryService
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 
         private readonly IDatastoreRepository _repository;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="RetryService"/> class.
+        /// Initializes a new instance of the <see cref="MarkForRetryService"/> class.
         /// </summary>
         /// <param name="respository">The repository.</param>
-        public RetryService(IDatastoreRepository respository)
+        public MarkForRetryService(IDatastoreRepository respository)
         {
             _repository = respository;
         }
