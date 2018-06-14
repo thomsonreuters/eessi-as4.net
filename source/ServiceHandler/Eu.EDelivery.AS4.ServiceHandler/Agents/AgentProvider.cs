@@ -5,6 +5,7 @@ using System.Linq;
 using Eu.EDelivery.AS4.Agents;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Exceptions.Handlers;
+using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Receivers;
 using Eu.EDelivery.AS4.ServiceHandler.Builder;
@@ -39,7 +40,11 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
                         {
                             new CleanUpAgent(
                                 Registry.Instance.CreateDatastoreContext, 
-                                config.RetentionPeriod)
+                                config.RetentionPeriod),
+                            new RetryAgent(
+                                CreateRetryReceiver(config),
+                                config.RetryPollingInterval,
+                                Registry.Instance.CreateDatastoreContext)
                         });
             }
             catch (Exception exception)
@@ -47,15 +52,6 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
                 LogManager.GetCurrentClassLogger().Error(exception.Message);
             }
             
-        }
-
-        /// <summary>
-        /// Return all the Registered <see cref="IAgent" /> Implementations
-        /// </summary>
-        /// <returns></returns>
-        public IEnumerable<IAgent> GetAgents()
-        {
-            return _agents.ToArray();
         }
 
         private IEnumerable<Agent> CreateCustomAgents()
@@ -73,6 +69,40 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
                 transformerConfig: config.Settings.Transformer,
                 exceptionHandler: ExceptionHandlerRegistry.GetHandler(config.Type),
                 stepConfiguration: config.Settings.StepConfiguration ?? GetDefaultStepConfigurationForAgentType(config.Type));
+        }
+
+        [ExcludeFromCodeCoverage]
+        private IEnumerable<Agent> CreateMinderAgents()
+        {
+            return MinderAgentProvider.GetMinderSpecificAgentsFromConfig(_config);
+        }
+
+        private static IReceiver CreateRetryReceiver(IConfig config)
+        {
+            // TODO: this receiver is now created only for the retry agent, this creation should be moved closer to this agent
+
+            var r = new DatastoreReceiver(
+                Registry.Instance.CreateDatastoreContext,
+                ctx => ctx.RetryReliability.Where(
+                    rr => rr.Status == "Pending" 
+                          && DateTimeOffset.Now >= rr.LastRetryTime.Add(rr.RetryInterval.AsTimeSpan())).ToList());
+
+            r.Configure(new DatastoreReceiverSettings(
+                            tableName: "RetryReliability",
+                            filter: "Status = 'Pending' AND Now < LastRetryTime + RetryInterval",
+                            updateField: "Status",
+                            updateValue: "Busy",
+                            pollingInterval: config.RetryPollingInterval));
+            return r;
+        }
+
+        /// <summary>
+        /// Return all the Registered <see cref="IAgent" /> Implementations
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerable<IAgent> GetAgents()
+        {
+            return _agents.ToArray();
         }
 
         /// <summary>
@@ -93,12 +123,6 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
         public static TransformerConfigEntry GetDefaultTransformerForAgentType(AgentType agentType)
         {
             return DefaultAgentTransformerRegistry.GetDefaultTransformerFor(agentType);
-        }        
-
-        [ExcludeFromCodeCoverage]
-        private IEnumerable<Agent> CreateMinderAgents()
-        {
-            return MinderAgentProvider.GetMinderSpecificAgentsFromConfig(_config);
         }
     }
 }

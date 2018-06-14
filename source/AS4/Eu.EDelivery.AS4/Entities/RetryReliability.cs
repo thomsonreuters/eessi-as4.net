@@ -7,7 +7,7 @@ namespace Eu.EDelivery.AS4.Entities
     /// Persistence model to store the retry information during the Delivery, Notification 
     /// about other entity records (In/Out Message/Exception).
     /// </summary>
-    public class RetryReliability
+    public class RetryReliability : Entity
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="RetryReliability"/> class.
@@ -34,8 +34,6 @@ namespace Eu.EDelivery.AS4.Entities
             RetryInterval = retryInterval.ToString("G");
             RetryType = type.ToString();
         }
-
-        public long Id { get; set; }
 
         public long? RefToInMessageId { get; private set; }
 

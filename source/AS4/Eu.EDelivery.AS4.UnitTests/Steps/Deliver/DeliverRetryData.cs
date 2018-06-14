@@ -44,16 +44,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
                 new DeliverRetry(
                     currentRetryCount: 3,
                     maxRetryCount: 3,
-                    sendResult: SendResult.RetryableFail,
-                    expectedCurrentRetryCount: 3,
-                    expectedOperation: Operation.DeadLettered,
-                    expectedStatus: InStatus.Exception)
-            },
-            new object[]
-            {
-                new DeliverRetry(
-                    currentRetryCount: 3,
-                    maxRetryCount: 3,
                     sendResult: SendResult.FatalFail,
                     expectedCurrentRetryCount: 3,
                     expectedOperation: Operation.DeadLettered,

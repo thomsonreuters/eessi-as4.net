@@ -77,10 +77,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
                 Assert.Equal(input.ExpectedStatus, InStatusUtils.Parse(actual.Status));
                 Assert.Equal(input.ExpectedOperation, OperationUtils.Parse(actual.Operation));
             });
-            GetDataStoreContext.AssertRetryRelatedInMessage(im.Id, rr =>
-            {
-                Assert.Equal(input.ExpectedCurrentRetryCount, rr.CurrentRetryCount);
-            });
         }
 
         [Theory]

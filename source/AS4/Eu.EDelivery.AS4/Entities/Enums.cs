@@ -36,6 +36,7 @@ namespace Eu.EDelivery.AS4.Entities
 
     public static class OperationUtils
     {
+        [Obsolete("You can now use the 'ToEnum<>' extension method instead")]
         public static Operation Parse(string operationString)
         {
             return (Operation)Enum.Parse(typeof(Operation), operationString, true);
@@ -50,6 +51,7 @@ namespace Eu.EDelivery.AS4.Entities
 
     public static class MessageExchangePatternUtils
     {
+        [Obsolete("You can now use the 'ToEnum<>' extension method instead")]
         public static MessageExchangePattern Parse(string mepString)
         {
             return (MessageExchangePattern)Enum.Parse(typeof(MessageExchangePattern), mepString, true);
@@ -65,6 +67,7 @@ namespace Eu.EDelivery.AS4.Entities
 
     public static class MessageTypeUtils
     {
+        [Obsolete("You can now use the 'ToEnum<>' extension method instead")]
         public static MessageType Parse(string messageTypeString)
         {
             return (MessageType)Enum.Parse(typeof(MessageType), messageTypeString, true);
@@ -86,6 +89,7 @@ namespace Eu.EDelivery.AS4.Entities
 
     public static class InStatusUtils
     {
+        [Obsolete("You can now use the 'ToEnum<>' extension method instead")]
         public static InStatus Parse(string status)
         {
             return (InStatus)Enum.Parse(typeof(InStatus), status, true);
@@ -110,6 +114,7 @@ namespace Eu.EDelivery.AS4.Entities
 
     public static class OutStatusUtils
     {
+        [Obsolete("You can now use the 'ToEnum<>' extension method instead")]
         public static OutStatus Parse(string status)
         {
             return (OutStatus)Enum.Parse(typeof(OutStatus), status, true);

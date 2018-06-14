@@ -15,7 +15,6 @@ using Eu.EDelivery.AS4.TestUtils;
 using Xunit;
 using static Eu.EDelivery.AS4.ComponentTests.Properties.Resources;
 using MessageExchangePattern = Eu.EDelivery.AS4.Entities.MessageExchangePattern;
-using RetryReliability = Eu.EDelivery.AS4.Entities.RetryReliability;
 
 namespace Eu.EDelivery.AS4.ComponentTests.Agents
 {
@@ -102,65 +101,6 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             Assert.Equal(Operation.DeadLettered, OperationUtils.Parse(actual.Operation));
         }
 
-        [Fact(Skip="Implementing retry agent still ongoing...")]
-        public async Task Message_Is_Set_To_Delivered_After_Its_Being_Retried()
-        {
-            InMessage actualMessage = await TestDeliverRetryByBlockingDeliveryLocationFor(TimeSpan.FromSeconds(5));
-
-            // Assert
-            Assert.Equal(InStatus.Delivered, InStatusUtils.Parse(actualMessage.Status));
-            Assert.Equal(Operation.Delivered, OperationUtils.Parse(actualMessage.Operation));
-
-            var spy = new DatabaseSpy(_as4Msh.GetConfiguration());
-            RetryReliability rr = spy.GetRetryReliabilityFor(r => r.RefToInMessageId == actualMessage.Id);
-            Assert.True(0 < rr.CurrentRetryCount, "0 < actualMessage.CurrentRetryCount");
-        }
-
-        [Fact(Skip ="Implementing retry agent still ongoing...")]
-        public async Task Message_Is_Set_To_Exception_If_Delivery_Fails_After_Exhausted_Retries()
-        {
-            InMessage actualMessage = await TestDeliverRetryByBlockingDeliveryLocationFor(TimeSpan.FromSeconds(15));
-
-            Assert.Equal(InStatus.Exception, InStatusUtils.Parse(actualMessage.Status));
-            Assert.Equal(Operation.DeadLettered, OperationUtils.Parse(actualMessage.Operation));
-
-            var spy = new DatabaseSpy(_as4Msh.GetConfiguration());
-            RetryReliability rr = spy.GetRetryReliabilityFor(r => r.RefToInMessageId == actualMessage.Id);
-            Assert.Equal(3, rr.CurrentRetryCount);
-        }
-
-        private async Task<InMessage> TestDeliverRetryByBlockingDeliveryLocationFor(TimeSpan period)
-        {
-            // Arrange
-            AS4Message as4Message = await CreateAS4MessageFrom(deliveragent_message);
-
-            string deliverLocation = DeliverMessageLocationOf(as4Message);
-            CleanDirectoryAt(Path.GetDirectoryName(deliverLocation));
-
-            IPMode pmode = CreateReceivedPMode(
-                deliverMessageLocation: DeliveryRoot,
-                deliverPayloadLocation: DeliveryRoot);
-
-            using (WriteBlockingFileTo(deliverLocation))
-            {
-                InMessage inMessage = CreateInMessageRepresentingUserMessage(as4Message, pmode);
-                await InsertInMessage(inMessage);
-
-                // Act
-                await InsertRetryReliability(
-                    RetryReliability.CreateForInMessage(
-                        refToInMessageId: inMessage.Id,
-                        maxRetryCount: 3,
-                        retryInterval: default(TimeSpan),
-                        type: RetryType.Notification));
-
-                // Assert
-                // Blocks the delivery location for a period of time
-                Thread.Sleep(period);
-            }
-
-            return GetToBeDeliveredMessage(as4Message);
-        }
 
         private static async Task<AS4Message> CreateAS4MessageFrom(byte[] deliveragentMessage)
         {
@@ -177,21 +117,6 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             {
                 file.Delete();
             }
-        }
-
-        private static IDisposable WriteBlockingFileTo(string deliverLocation)
-        {
-            var fileStream = new FileStream(deliverLocation, FileMode.CreateNew);
-            var streamWriter = new StreamWriter(fileStream);
-
-            streamWriter.Write("<blocking content>");
-
-            return streamWriter;
-        }
-
-        private static string DeliverMessageLocationOf(AS4Message as4Message)
-        {
-            return Path.Combine(Environment.CurrentDirectory, @"messages\in", as4Message.GetPrimaryMessageId() + ".xml");
         }
 
         private static string DeliverPayloadLocationOf(Attachment a)
@@ -217,25 +142,6 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             repository.InsertInMessage(createInMessageFrom);
 
             await context.SaveChangesAsync();
-        }
-
-        private async Task InsertRetryReliability(RetryReliability r)
-        {
-            var context = new DatastoreContext(_as4Msh.GetConfiguration());
-            var repository = new DatastoreRepository(context);
-
-            repository.InsertRetryReliability(r);
-
-            await context.SaveChangesAsync();
-        }
-
-        private InMessage GetToBeDeliveredMessage(AS4Message as4Message)
-        {
-            // Wait till the AS4 Component has updated the record
-            Thread.Sleep(TimeSpan.FromSeconds(5));
-
-            var spy = new DatabaseSpy(_as4Msh.GetConfiguration());
-            return spy.GetInMessageFor(m => m.EbmsMessageId.Equals(as4Message.GetPrimaryMessageId()));
         }
 
         private static InMessage CreateInMessageRepresentingUserMessage(AS4Message as4Message, IPMode pmode)

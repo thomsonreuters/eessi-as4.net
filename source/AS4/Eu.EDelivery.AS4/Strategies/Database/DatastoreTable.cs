@@ -19,14 +19,16 @@ namespace Eu.EDelivery.AS4.Strategies.Database
                 {"OutMessages", c => c.OutMessages},
                 {"InExceptions", c => c.InExceptions},
                 {"OutExceptions", c => c.OutExceptions},
-                {"ReceptionAwareness", c => c.ReceptionAwareness}
+                {"ReceptionAwareness", c => c.ReceptionAwareness},
+                {"RetryReliability", c => c.RetryReliability}
             };
 
         /// <summary>
         /// Gets the message tables.
         /// </summary>
         /// <value>The message tables.</value>
-        public static IEnumerable<string> MessageTables => TablesByName.Keys.Where(k => !k.Equals("ReceptionAwareness"));
+        public static IEnumerable<string> DomainEntityTables =
+            TablesByName.Keys.Where(k => !new[] { "ReceptionAwareness", "RetryReliability" }.Contains(k));
 
         /// <summary>
         /// Determines whether [is table name known] [the specified table name].
@@ -40,6 +42,11 @@ namespace Eu.EDelivery.AS4.Strategies.Database
             return TablesByName.ContainsKey(tableName);
         }
 
+        /// <summary>
+        /// Ensure thath the given <paramref name="tableName"/> is known.
+        /// </summary>
+        /// <param name="tableName">The name of the table</param>
+        /// <exception cref="ConfigurationErrorsException">Throws when the given <paramref name="tableName"/> isn't known.</exception>
         public static void EnsureTableNameIsKnown(string tableName)
         {
             if (!IsTableNameKnown(tableName))
@@ -48,6 +55,12 @@ namespace Eu.EDelivery.AS4.Strategies.Database
             }
         }
 
+        /// <summary>
+        /// Retrieve a selector function based on a given <paramref name="tableName"/>.
+        /// </summary>
+        /// <param name="tableName">The name of the table to determine the datastore selector</param>
+        /// <returns></returns>
+        /// <exception cref="ConfigurationErrorsException">Throws if the given <paramref name="tableName"/> isn't known</exception>
         public static Func<DatastoreContext, IQueryable<Entity>> FromTableName(string tableName)
         {
             if (!TablesByName.ContainsKey(tableName))

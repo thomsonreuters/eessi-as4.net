@@ -128,10 +128,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
                 Assert.Equal(input.ExpectedOperation, OperationUtils.Parse(inMessage.Operation));
                 Assert.Equal(input.ExpectedStatus, InStatusUtils.Parse(inMessage.Status));
             });
-            GetDataStoreContext.AssertRetryRelatedInMessage(im.Id, rr =>
-            {
-                Assert.Equal(input.ExpectedCurrentRetryCount, rr.CurrentRetryCount);
-            });
         }
 
         private static InMessage CreateInMessage(string id, InStatus status, Operation operation)
