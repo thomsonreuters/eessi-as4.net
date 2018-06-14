@@ -108,7 +108,10 @@ namespace Eu.EDelivery.AS4.Security.Strategies
             }
             else
             {
-                Logger.Warn($"Attachment {uri.Substring(4)} cannot be found and can therefore not be decrypted");
+                string description = $"Attachment {uri.Substring(4)} cannot be found and can therefore not be decrypted";
+                Logger.Error(description);
+
+                throw new CryptographicException(description);
             }
         }
 

@@ -138,6 +138,61 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 ErrorResult error = result.MessagingContext.ErrorResult;
                 Assert.Equal(ErrorCode.Ebms0103, error.Code);
             }
+
+            [Fact]
+            public async Task Decrypt_Fails_When_Attachment_Isnt_Referenced_By_EncryptedData()
+            {
+                // Arrange
+                AS4Message m =
+                    await SerializeToEncryptedMessage(
+                        Properties.Resources.as4_soap_wrong_encrypted_no_encrypteddata_for_attachment);
+
+                // Act
+                StepResult result = await ExerciseDecryption(
+                    new MessagingContext(m, MessagingContextMode.Receive)
+                    {
+                        ReceivingPMode = ReceivingPModeForDecryption()
+                    });
+
+                // Assert
+                Assert.False(result.CanProceed);
+                Assert.Equal(ErrorAlias.FailedDecryption, result.MessagingContext.ErrorResult.Alias);
+            }
+
+            private static ReceivingProcessingMode ReceivingPModeForDecryption()
+            {
+                return new ReceivingProcessingMode
+                {
+                    Security =
+                    {
+                        Decryption =
+                        {
+                            Encryption = Limit.Required,
+                            CertificateType = PrivateKeyCertificateChoiceType.PrivateKeyCertificate,
+                            DecryptCertificateInformation = new CertificateFindCriteria
+                            {
+                                CertificateFindType = X509FindType.FindBySubjectName,
+                                CertificateFindValue = "ExampleC"
+                            }
+                        }
+                    }
+                };
+            }
+
+            private static async Task<AS4Message> SerializeToEncryptedMessage(byte[] messageContents)
+            {
+                Stream inputStream = new MemoryStream(messageContents);
+                var serializer = new MimeMessageSerializer(new SoapEnvelopeSerializer());
+
+                var message = await serializer.DeserializeAsync(
+                    inputStream,
+                    "multipart/related; boundary=\"MIMEBoundary_64ed729f813b10a65dfdc363e469e2206ff40c4aa5f4bd11\"",
+                    CancellationToken.None);
+
+                Assert.True(message.IsEncrypted, "The AS4 Message to use in this testcase should be encrypted");
+
+                return message;
+            }
         }
 
         private static Task<StepResult> ExerciseDecryption(MessagingContext ctx)
