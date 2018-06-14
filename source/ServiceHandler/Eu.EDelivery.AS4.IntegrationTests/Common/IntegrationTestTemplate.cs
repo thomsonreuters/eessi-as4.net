@@ -112,40 +112,6 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
 
         #endregion
 
-        private static void CleanUpDirectory(string directoryPath)
-        {
-            if (Directory.Exists(directoryPath) == false)
-            {
-                return;
-            }
-
-            Console.WriteLine($"Deleting directory {directoryPath}");
-            Try(() => Directory.Delete(directoryPath, recursive: true));
-        }
-
-        private static void Try(Action action)
-        {
-            if (!TryOnce(action))
-            {
-                Console.WriteLine(@"Retrying...");
-                TryOnce(action);
-            }
-        }
-
-        private static bool TryOnce(Action action)
-        {
-            try
-            {
-                action();
-                return true;
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                return false;
-            }
-        }
-
         /// <summary>
         /// Cleanup files in a given Directory
         /// </summary>
