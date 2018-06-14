@@ -46,7 +46,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             AS4Message as4Message = CreateAS4Message();
 
             // Act
-            await TestDeliverRetryByBlockingDeliveryLocationFor(as4Message, TimeSpan.FromSeconds(1));
+            await TestDeliverRetryByBlockingDeliveryLocationFor(as4Message, TimeSpan.FromSeconds(5));
 
             // Assert
             InMessage actual =
@@ -60,6 +60,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
             RetryReliability rr = _databaseSpy.GetRetryReliabilityFor(r => r.RefToInMessageId == actual.Id);
             Assert.True(0 < rr.CurrentRetryCount, "0 < actualMessage.CurrentRetryCount");
+            Assert.Equal(ReceptionStatus.Completed, rr.Status.ToEnum<ReceptionStatus>());
         }
 
         [Fact]
@@ -81,7 +82,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                 _databaseSpy.GetRetryReliabilityFor(r => r.RefToInMessageId == actual.Id);
 
             Assert.Equal(rr.CurrentRetryCount, rr.MaxRetryCount);
-            Assert.Equal(ReceptionStatus.Completed.ToString(), rr.Status);
+            Assert.Equal(ReceptionStatus.Completed, rr.Status.ToEnum<ReceptionStatus>());
         }
 
         private async Task TestDeliverRetryByBlockingDeliveryLocationFor(AS4Message as4Message, TimeSpan period)

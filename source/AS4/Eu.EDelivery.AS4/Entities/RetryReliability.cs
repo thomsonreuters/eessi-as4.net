@@ -17,6 +17,7 @@ namespace Eu.EDelivery.AS4.Entities
             CurrentRetryCount = 0;
             RetryInterval = "0:00:00:00";
             Status = ReceptionStatus.Pending.ToString();
+            LastRetryTime = DateTimeOffset.Now;
         }
 
         /// <summary>

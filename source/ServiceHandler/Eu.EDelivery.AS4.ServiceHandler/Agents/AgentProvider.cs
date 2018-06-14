@@ -89,7 +89,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
 
             r.Configure(new DatastoreReceiverSettings(
                             tableName: "RetryReliability",
-                            filter: "Status = 'Pending' AND Now < LastRetryTime + RetryInterval",
+                            filter: "Status = 'Pending' AND Now >= LastRetryTime + RetryInterval",
                             updateField: "Status",
                             updateValue: "Busy",
                             pollingInterval: config.RetryPollingInterval));
