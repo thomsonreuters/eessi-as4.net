@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Linq;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
@@ -75,16 +76,27 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
             if (Logger.IsInfoEnabled)
             {
-                string signalMessageType =
-                    messagingContext.AS4Message.PrimarySignalMessage is Receipt
-                        ? "Receipt"
-                        : "Error";
+                string errorDescriptions =
+                    messagingContext.AS4Message.PrimarySignalMessage is Error e
+                        ? ": " + ConcatErrorDescriptions(e)
+                        : String.Empty;
 
                 Logger.Info(
-                    $"{messagingContext.LogTag} {signalMessageType} will be written to the response");
+                    $"{messagingContext.LogTag} {messagingContext.AS4Message.PrimarySignalMessage.GetType().Name} " + 
+                    $"will be written to the response {errorDescriptions}");
             }
 
             return StepResult.Success(messagingContext);
+        }
+
+        private static string ConcatErrorDescriptions(Error e)
+        {
+            if (e.Errors != null)
+            {
+                return String.Join(", ", e.Errors.Select(er => er.Detail));
+            }
+
+            return String.Empty;
         }
 
         private static bool IsReplyPatternCallback(MessagingContext message)

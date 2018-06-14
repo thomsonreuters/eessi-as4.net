@@ -87,6 +87,8 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         private static StepResult FailedDecryptResult(string description, ErrorAlias errorAlias, MessagingContext context)
         {
             context.ErrorResult = new ErrorResult("Cannot decrypt incoming message: " + description, errorAlias);
+            Logger.Error($"{context.LogTag} {context.ErrorResult.Description}");
+
             return StepResult.Failed(context);
         }
 
