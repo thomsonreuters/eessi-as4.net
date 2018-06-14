@@ -5,7 +5,9 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.ComponentTests.Common;
+using Eu.EDelivery.AS4.ComponentTests.Extensions;
 using Eu.EDelivery.AS4.Entities;
+using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Serialization;
@@ -86,7 +88,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         }
 
         [Fact]
-        public async Task Agent_Returns_500_StatusCode_When_ReceivingPMode_Cannot_Be_Found()
+        public async Task Agent_Returns_Error_When_ReceivingPMode_Cannot_Be_Found()
         {
             OverrideTransformerReceivingPModeSetting(
                 StaticReceiveSettings, 
@@ -96,12 +98,26 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                 StaticReceiveSettings,
                 async (url, _) =>
                 {
+                    AS4Message userMessage = AS4Message.Create(new UserMessage("user-" + Guid.NewGuid()));
+
                     // Act
                     HttpResponseMessage response =
-                        await StubSender.SendAS4Message(url, AS4Message.Empty);
+                        await StubSender.SendAS4Message(url, userMessage);
 
                     // Assert
-                    Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
+                    Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+                    AS4Message error = await response.DeserializeToAS4Message();
+                    Assert.Collection(
+                        error.MessageUnits,
+                        m =>
+                        {
+                            Assert.IsType<Error>(m);
+                            var e = (Error) m;
+
+                            Assert.Equal(
+                                ErrorAlias.ProcessingModeMismatch.ToString(),
+                                e.Errors.First().ShortDescription);
+                        });
                 });
 
         }
