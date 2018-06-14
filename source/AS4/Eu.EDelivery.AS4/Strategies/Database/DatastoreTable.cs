@@ -27,8 +27,7 @@ namespace Eu.EDelivery.AS4.Strategies.Database
         /// Gets the message tables.
         /// </summary>
         /// <value>The message tables.</value>
-        /// TODO: the name isn't actually the 'Entity' tables but the table name without the 'infrastructure' collumns.
-        public static IEnumerable<string> EntityTables =
+        public static IEnumerable<string> DomainEntityTables =
             TablesByName.Keys.Where(k => !new[] { "ReceptionAwareness", "RetryReliability" }.Contains(k));
 
         /// <summary>

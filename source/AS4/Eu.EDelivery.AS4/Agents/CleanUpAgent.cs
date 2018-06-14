@@ -78,7 +78,7 @@ namespace Eu.EDelivery.AS4.Agents
                     Operation.Undetermined
                 };
 
-                foreach (string table in DatastoreTable.EntityTables)
+                foreach (string table in DatastoreTable.DomainEntityTables)
                 {
                     context.NativeCommands
                            .BatchDeleteOverRetentionPeriod(table, _retentionPeriod, allowedOperations);
