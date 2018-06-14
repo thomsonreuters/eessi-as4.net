@@ -297,7 +297,7 @@ namespace Eu.EDelivery.AS4.Serialization
                 }
                 else
                 {
-                    Logger.Warn($"Attachment {attachment.Id} will be ignored beause no matching <PartInfo /> is found");
+                    Logger.Warn($"Attachment {attachment.Id} will be ignored because no matching <PartInfo /> is found");
                 }
             }
         }
