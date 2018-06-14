@@ -1,13 +1,12 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.ComponentTests.Common;
 using Eu.EDelivery.AS4.Entities;
+using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
-using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.TestUtils.Stubs;
 using Xunit;
 using RetryReliability = Eu.EDelivery.AS4.Entities.RetryReliability;
@@ -53,11 +52,11 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             InMessage actual =
                 await PollUntilPresent(
                     () => _databaseSpy.GetInMessageFor(m => m.Operation == nameof(Operation.Delivered)),
-                    TimeSpan.FromSeconds(10));
+                    timeout: TimeSpan.FromSeconds(10));
 
             // Assert
-            Assert.Equal(InStatus.Delivered, InStatusUtils.Parse(actual.Status));
-            Assert.Equal(Operation.Delivered, OperationUtils.Parse(actual.Operation));
+            Assert.Equal(InStatus.Delivered, actual.Status.ToEnum<InStatus>());
+            Assert.Equal(Operation.Delivered, actual.Operation.ToEnum<Operation>());
 
             RetryReliability rr = _databaseSpy.GetRetryReliabilityFor(r => r.RefToInMessageId == actual.Id);
             Assert.True(0 < rr.CurrentRetryCount, "0 < actualMessage.CurrentRetryCount");
@@ -76,7 +75,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             InMessage actual =
                 await PollUntilPresent(
                     () => _databaseSpy.GetInMessageFor(m => m.Operation == nameof(Operation.DeadLettered)),
-                    TimeSpan.FromSeconds(10));
+                    timeout: TimeSpan.FromSeconds(10));
 
             RetryReliability rr = 
                 _databaseSpy.GetRetryReliabilityFor(r => r.RefToInMessageId == actual.Id);
@@ -87,11 +86,6 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
         private async Task TestDeliverRetryByBlockingDeliveryLocationFor(AS4Message as4Message, TimeSpan period)
         {
-            using (var fs = File.Create(".\\test.as4"))
-            {
-                SerializerProvider.Default.Get(as4Message.ContentType).Serialize(as4Message, fs, CancellationToken.None);
-            }
-
             string deliverLocation = DeliverMessageLocationOf(as4Message);
             CleanDirectoryAt(Path.GetDirectoryName(deliverLocation));
 
