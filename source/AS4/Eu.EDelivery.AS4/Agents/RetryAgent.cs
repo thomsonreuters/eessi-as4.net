@@ -60,19 +60,27 @@ namespace Eu.EDelivery.AS4.Agents
 
         private Task<MessagingContext> OnReceived(ReceivedMessage rm, CancellationToken ct)
         {
-            if (rm is ReceivedEntityMessage rem && rem.Entity is RetryReliability rr)
+            try
             {
-                using (DatastoreContext ctx = _createContext())
+                if (rm is ReceivedEntityMessage rem && rem.Entity is RetryReliability rr)
                 {
-                    var repo = new DatastoreRepository(ctx);
-                    OnReceivedEntity(rr, repo);
-                    ctx.SaveChanges();
+                    using (DatastoreContext ctx = _createContext())
+                    {
+                        var repo = new DatastoreRepository(ctx);
+                        OnReceivedEntity(rr, repo);
+                        ctx.SaveChanges();
+                    }
+                }
+                else
+                {
+                    throw new NotSupportedException(
+                        $"Only {nameof(ReceivedEntityMessage)} implementations are allowed");
                 }
             }
-            else
+            catch (Exception ex)
             {
-                throw new NotSupportedException(
-                    $"Only {nameof(ReceivedEntityMessage)} implementations are allowed");
+                // TODO: must the agent be stopped?
+                Logger.Error(ex);
             }
 
             return Task.FromResult(
@@ -118,15 +126,28 @@ namespace Eu.EDelivery.AS4.Agents
 
         private static (long, Entity) GetRefToEntityIdWithType(RetryReliability r)
         {
-            var identifier = new[]
+            if (r.RefToInMessageId.HasValue)
             {
-                (r.RefToInMessageId, Entity.InMessage),
-                (r.RefToOutMessageId, Entity.OutMessage),
-                (r.RefToInExceptionId, Entity.InException),
-                (r.RefToOutExceptionId, Entity.OutException)
-            }.Single(id => id.Item1.HasValue);
+                return (r.RefToInMessageId.Value, Entity.InMessage);
+            }
 
-            return (identifier.Item1.Value, identifier.Item2);
+            if (r.RefToOutMessageId.HasValue)
+            {
+                return (r.RefToOutMessageId.Value, Entity.OutMessage);
+            }
+
+            if (r.RefToInExceptionId.HasValue)
+            {
+                return (r.RefToInExceptionId.Value, Entity.InException);
+            }
+
+            if (r.RefToOutExceptionId.HasValue)
+            {
+                return (r.RefToOutExceptionId.Value, Entity.OutException);
+            }
+
+            throw new InvalidOperationException(
+                "Invalid 'RetryReliability' record: requries a reference to In/Out Messages/Exceptions");
         }
 
         private enum Entity { InMessage, OutMessage, InException, OutException }
