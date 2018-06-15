@@ -17,7 +17,7 @@ namespace Eu.EDelivery.AS4.Entities
             CurrentRetryCount = 0;
             RetryInterval = "0:00:00:00";
             Status = ReceptionStatus.Pending.ToString();
-            LastRetryTime = DateTimeOffset.Now;
+            LastRetryTime = null;
         }
 
         /// <summary>
@@ -62,7 +62,7 @@ namespace Eu.EDelivery.AS4.Entities
             Status = s.ToString();
         }
 
-        public DateTimeOffset LastRetryTime { get; set; }
+        public DateTimeOffset? LastRetryTime { get; set; }
 
         /// <summary>
         /// Creates a <see cref="RetryReliability"/> instance referencing a <see cref="InMessage"/>.

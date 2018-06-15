@@ -122,6 +122,11 @@ namespace Eu.EDelivery.AS4.Agents
                 UpdateRefEntityOperation(repo, refToEntityId, entityType, Operation.DeadLettered);
                 repo.UpdateRetryReliability(rr.Id, r => r.SetStatus(ReceptionStatus.Completed));
             }
+            else
+            {
+                Logger.Debug($"({rr.RetryType}) Retry operation happend too soon, will reset Status=Pending");
+                repo.UpdateRetryReliability(rr.Id, r => r.SetStatus(ReceptionStatus.Pending));
+            }
         }
 
         private static (long, Entity) GetRefToEntityIdWithType(RetryReliability r)

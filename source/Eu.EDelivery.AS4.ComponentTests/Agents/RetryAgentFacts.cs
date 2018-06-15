@@ -46,7 +46,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             AS4Message as4Message = CreateAS4Message();
 
             // Act
-            await TestDeliverRetryByBlockingDeliveryLocationFor(as4Message, TimeSpan.FromSeconds(5));
+            await TestDeliverRetryByBlockingDeliveryLocationFor(as4Message, TimeSpan.FromSeconds(1));
 
             // Assert
             InMessage actual =

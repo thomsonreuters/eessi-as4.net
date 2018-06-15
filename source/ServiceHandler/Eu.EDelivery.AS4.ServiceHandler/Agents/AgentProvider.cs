@@ -85,7 +85,8 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
                 Registry.Instance.CreateDatastoreContext,
                 ctx => ctx.RetryReliability.Where(
                     rr => rr.Status == "Pending" 
-                          && DateTimeOffset.Now >= rr.LastRetryTime.Add(rr.RetryInterval.AsTimeSpan())).ToList());
+                          && (rr.LastRetryTime.HasValue == false 
+                              || DateTimeOffset.Now >= rr.LastRetryTime.Value.Add(rr.RetryInterval.AsTimeSpan()))).ToList());
 
             r.Configure(new DatastoreReceiverSettings(
                             tableName: "RetryReliability",
