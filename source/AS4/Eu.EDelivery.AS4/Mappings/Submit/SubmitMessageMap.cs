@@ -23,7 +23,6 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
                 .ForMember(dest => dest.Sender, src => src.ResolveUsing(SubmitSenderPartyResolver.Default.Resolve))
                 .ForMember(dest => dest.Receiver, src => src.ResolveUsing(SubmitReceiverResolver.Default.Resolve))
                 .ForMember(dest => dest.MessageProperties, src => src.ResolveUsing(SubmitMessagePropertiesResolver.Default.Resolve))
-                .ForMember(dest => dest.PayloadInfo, src => src.ResolveUsing(SubmitPayloadInfoResolver.Default.Resolve))
 
                 .ForMember(dest => dest.CollaborationInfo, src => src.MapFrom(s => s.Collaboration))
                 .ForMember(dest => dest.IsTest, src => src.Ignore())
@@ -40,6 +39,15 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
                         userMessage.CollaborationInfo.Service = SubmitServiceResolver.Default.Resolve(submitMessage);
                         userMessage.CollaborationInfo.Action =  SubmitActionResolver.Default.Resolve(submitMessage);
                         userMessage.CollaborationInfo.ConversationId = SubmitConversationIdResolver.Default.Resolve(submitMessage);
+
+                        if (submitMessage.HasPayloads)
+                        {
+                            foreach (Model.Core.PartInfo p in 
+                                SubmitPayloadInfoResolver.Default.Resolve(submitMessage))
+                            {
+                                userMessage.AddPartInfo(p);
+                            }
+                        }
                     });
         }
     }
