@@ -192,10 +192,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
         {
             const string attachmentId = "attachment-id";
 
-            var userMessage = new UserMessage(messageId: Guid.NewGuid().ToString())
-            {
-                PayloadInfo = { new PartInfo($"cid:{attachmentId}") }
-            };
+            var userMessage = new UserMessage(messageId: Guid.NewGuid().ToString());
+            userMessage.AddPartInfo(new PartInfo($"cid:{attachmentId}"));
             AS4Message as4Message = AS4Message.Create(userMessage);
             as4Message.AddAttachment(
                 new Attachment(attachmentId)

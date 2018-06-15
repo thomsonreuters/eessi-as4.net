@@ -118,8 +118,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
         private static UserMessage UserMessageWithCompressedInfo(string attachmentId)
         {
             var properties = new Dictionary<string, string> { ["MimeType"] = "html/text" };
-            var partInfo = new PartInfo("cid:" + attachmentId) { Properties = properties };
-            var userMessage = new UserMessage("message-id") { PayloadInfo = new List<PartInfo> { partInfo } };
+            var partInfo = new PartInfo("cid:" + attachmentId, properties, new Schema[0]);
+            var userMessage = new UserMessage("message-id");
+            userMessage.AddPartInfo(partInfo);
 
             return userMessage;
         }

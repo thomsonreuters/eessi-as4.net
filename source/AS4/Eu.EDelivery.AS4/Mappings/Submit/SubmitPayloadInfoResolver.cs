@@ -34,26 +34,21 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
 
         private static PartInfo CreatePartInfo(Payload submitPayload, SubmitMessage submit)
         {
-            string href = submitPayload.Id ?? IdentifierFactory.Instance.Create();
-            
-            var returnPayload = new PartInfo(href.StartsWith("cid:") ? href : $"cid:{href}");
+            string id = submitPayload.Id ?? IdentifierFactory.Instance.Create();
+            string href = id.StartsWith("cid:") ? id : $"cid:{id}";
 
-            if (submitPayload.Schemas != null)
-            {
-                returnPayload.Schemas = submitPayload.Schemas
-                    .Select(AS4Mapper.Map<Model.Core.Schema>)
-                    .ToList();
-            }
+            IEnumerable<Model.Core.Schema> schemas = 
+                (submitPayload.Schemas ?? new Model.Common.Schema[0])
+                .Select(AS4Mapper.Map<Model.Core.Schema>)
+                .ToList();
 
-            if (submitPayload.PayloadProperties != null)
-            {
-                returnPayload.Properties = submitPayload.PayloadProperties
-                    .Select(prop => (prop.Name, prop.Value))
-                    .Concat(CompressionProperties(submitPayload, submit))
-                    .ToDictionary<(string propName, string propValue), string, string>(t => t.propName, t => t.propValue);
-            }
+            IDictionary<string, string> properties =
+                (submitPayload.PayloadProperties ?? new Model.Common.PayloadProperty[0])
+                .Select(prop => (prop.Name, prop.Value))
+                .Concat(CompressionProperties(submitPayload, submit))
+                .ToDictionary<(string propName, string propValue), string, string>(t => t.propName, t => t.propValue);
 
-            return returnPayload;
+            return new PartInfo(href, properties, schemas);
         }
 
 

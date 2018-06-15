@@ -79,7 +79,7 @@ namespace Eu.EDelivery.AS4.Transformers
             ReceivedMessage m = await EnsureIncomingStreamIsSeekable(message);
             AS4Message as4Message = await DeserializeToAS4Message(m);
 
-            Debug.Assert(m.UnderlyingStream.Position == 0, "The Deserializer failed to reposition the stream to its start-position");
+            //Debug.Assert(m.UnderlyingStream.Position == 0, "The Deserializer failed to reposition the stream to its start-position");
 
             if (as4Message.IsSignalMessage && ReceivingPMode != null)
             {

@@ -119,7 +119,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
             // Set the PayloadInfo.
             foreach (PartInfo partInfo in userMessage.PayloadInfo)
             {
-                deliverMessage.PayloadInfo.Add(partInfo);
+                deliverMessage.AddPartInfo(partInfo);
             }
 
             deliverMessage.MessageProperties.Add(new MessageProperty("MessageId", userMessage.MessageId));
