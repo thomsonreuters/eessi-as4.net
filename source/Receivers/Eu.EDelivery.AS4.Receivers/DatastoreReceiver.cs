@@ -213,6 +213,8 @@ namespace Eu.EDelivery.AS4.Receivers
             {
                 object updateValue = Conversion.Convert(updateFieldInfo.PropertyType, Update);
 
+                Logger.Debug($"Update {entity.GetType().Name}.{updateFieldInfo.Name} to {updateValue}");
+
                 updateFieldInfo.SetValue(
                     obj: entity, 
                     value: updateValue, 

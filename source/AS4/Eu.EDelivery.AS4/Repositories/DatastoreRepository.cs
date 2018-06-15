@@ -558,6 +558,9 @@ namespace Eu.EDelivery.AS4.Repositories
         /// <param name="reliability">The <see cref="RetryReliability"/> entity to insert</param>
         public void InsertRetryReliability(RetryReliability reliability)
         {
+            reliability.InsertionTime = DateTimeOffset.Now;
+            reliability.ModificationTime = DateTimeOffset.Now;
+
             _datastoreContext.RetryReliability.Add(reliability);
         }
 
@@ -567,6 +570,12 @@ namespace Eu.EDelivery.AS4.Repositories
         /// <param name="reliabilities">The <see cref="RetryReliability"/> entities to insert</param>
         public void InsertRetryReliabilities(IEnumerable<RetryReliability> reliabilities)
         {
+            foreach (var r in reliabilities)
+            {
+                r.InsertionTime = DateTimeOffset.Now;
+                r.ModificationTime = DateTimeOffset.Now;
+            }
+
             _datastoreContext.RetryReliability.AddRange(reliabilities);
         }
 
@@ -581,6 +590,7 @@ namespace Eu.EDelivery.AS4.Repositories
             if (rr != null)
             {
                 update(rr);
+                rr.ModificationTime = DateTimeOffset.Now;
             }
         }
 
