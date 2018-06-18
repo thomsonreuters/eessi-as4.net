@@ -140,13 +140,16 @@ namespace Eu.EDelivery.AS4.Services
             Action<T> onSuccess,
             Action<T> onFailure) where T : MessageEntity
         {
+            RetryReliability rr = getter(r => r).FirstOrDefault();
             if (status == SendResult.Success)
             {
                 onSuccess(entity);
+
+                Logger.Debug("Successful result, so update RetryReliability.Status=Completed");
+                rr?.SetStatus(ReceptionStatus.Completed);
             }
             else
             {
-                RetryReliability rr = getter(r => r).FirstOrDefault();
                 if (rr == null)
                 {                    
                     Logger.Debug($"Update {typeof(T).Name} with Status=Exception, Operation=DeadLettered");
@@ -206,16 +209,17 @@ namespace Eu.EDelivery.AS4.Services
             T entity,
             Func<Expression<Func<RetryReliability, RetryReliability>>, IEnumerable<RetryReliability>> getter) where T : ExceptionEntity
         {
+            RetryReliability rr = getter(r => r).FirstOrDefault();
             if (status == SendResult.Success)
             {
                 Logger.Info($"(Notify)[{entity.EbmsRefToMessageId}] Mark NotifyMessage as Notified");
                 Logger.Debug($"Update {typeof(T).Name} with Status and Operation set to Notified");
 
                 entity.SetOperation(Operation.Notified);
+                rr?.SetStatus(ReceptionStatus.Completed);
             }
             else
             {
-                RetryReliability rr = getter(r => r).FirstOrDefault();
                 if (rr == null)
                 {
                     Logger.Info($"(Notify)[{entity.EbmsRefToMessageId}] Exception NotifyMessage failed during the notification, exhausted retries");

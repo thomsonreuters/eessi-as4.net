@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Xml;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Extensions;
@@ -92,6 +90,8 @@ namespace Eu.EDelivery.AS4.Agents
             (long refToEntityId, Entity entityType) = GetRefToEntityIdWithType(rr);
             Operation op = GetRefEntityOperation(repo, refToEntityId, entityType);
 
+            Logger.Debug($"Retry on {entityType} {refToEntityId} with Operation={op}");
+
             if (op == Operation.ToBeRetried && rr.CurrentRetryCount < rr.MaxRetryCount)
             {
                 var t = rr.RetryType.ToEnum<RetryType>();
@@ -121,6 +121,11 @@ namespace Eu.EDelivery.AS4.Agents
 
                 UpdateRefEntityOperation(repo, refToEntityId, entityType, Operation.DeadLettered);
                 repo.UpdateRetryReliability(rr.Id, r => r.SetStatus(ReceptionStatus.Completed));
+            }
+            else
+            {
+                Logger.Debug($"({rr.RetryType}) Retry operation happend too soon, will reset Status=Pending");
+                repo.UpdateRetryReliability(rr.Id, r => r.SetStatus(ReceptionStatus.Pending));
             }
         }
 

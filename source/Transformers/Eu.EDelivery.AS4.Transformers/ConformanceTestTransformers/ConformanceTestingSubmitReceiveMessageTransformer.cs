@@ -43,6 +43,12 @@ namespace Eu.EDelivery.AS4.Transformers.ConformanceTestTransformers
                 var transformer = new AS4MessageTransformer();
                 var messagingContext = await transformer.TransformAsync(receivedMessage);
 
+                if (messagingContext.AS4Message == null)
+                {
+                    throw new InvalidMessageException(
+                        "Messaging context must contain an AS4 Message");
+                }
+
                 if (messagingContext.AS4Message?.FirstUserMessage?.CollaborationInfo?.Action?.Equals("Submit", StringComparison.OrdinalIgnoreCase) ?? false)
                 {
                     var as4Message =
@@ -54,14 +60,10 @@ namespace Eu.EDelivery.AS4.Transformers.ConformanceTestTransformers
                     return messagingContext;
                 }
 
-                if (messagingContext.AS4Message != null)
-                {
-                    throw new InvalidMessageException(
-                        "Only AS4Messages with a UserMessage.CollaborationInfo.Action = 'Submit' are allowed to be transformed");
-                }
-
                 receivedStream.Position = 0;
-                return new MessagingContext(receivedMessage, MessagingContextMode.Receive);
+                var receiveContext = new MessagingContext(receivedMessage, MessagingContextMode.Receive);
+                receiveContext.ModifyContext(messagingContext.AS4Message);
+                return receiveContext;
             }
             catch (Exception ex)
             {
