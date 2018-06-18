@@ -34,7 +34,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Negative_Receive_Scenarios._8._4._3_
 
         private static void AssertErrorMessage(AS4Message as4Message)
         {
-            var error = as4Message.FirstSignalMessage as Error;
+            var error = as4Message.PrimaryMessageUnit as Error;
             Assert.NotNull(error);
 
             Assert.NotEmpty(error.Errors);

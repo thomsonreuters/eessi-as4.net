@@ -91,8 +91,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             // Assert
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
             AS4Message as4Message = await response.DeserializeToAS4Message();
-            Assert.True(as4Message.IsSignalMessage);
-            Assert.True(as4Message.FirstSignalMessage is Error);
+            Assert.IsType<Error>(as4Message.PrimaryMessageUnit);
         }
 
         [Fact]
@@ -210,8 +209,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
             AS4Message receivedAS4Message = await response.DeserializeToAS4Message();
-            Assert.True(receivedAS4Message.IsSignalMessage);
-            Assert.True(receivedAS4Message.FirstSignalMessage is Receipt);
+            Assert.IsType<Receipt>(receivedAS4Message.PrimaryMessageUnit);
 
             InMessage receivedUserMessage = GetInsertedUserMessageFor(receivedAS4Message);
             Assert.NotNull(receivedUserMessage);
