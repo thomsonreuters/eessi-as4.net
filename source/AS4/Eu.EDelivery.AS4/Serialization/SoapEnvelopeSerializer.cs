@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -247,7 +249,7 @@ namespace Eu.EDelivery.AS4.Serialization
 
         private static Messaging DeserializeMessagingHeader(XmlDocument document, XmlNamespaceManager nsMgr)
         {
-            var messagingHeader = document.SelectSingleNode("/s:Envelope/s:Header/eb3:Messaging", nsMgr);
+            XmlNode messagingHeader = document.SelectSingleNode("/s:Envelope/s:Header/eb3:Messaging", nsMgr);
 
             if (messagingHeader == null)
             {
@@ -260,21 +262,33 @@ namespace Eu.EDelivery.AS4.Serialization
             return result as Messaging;
         }
         
-        public static IEnumerable<MessageUnit> GetMessageUnitsFromMessagingHeader(Messaging messagingHeader)
+        internal static IEnumerable<MessageUnit> GetMessageUnitsFromMessagingHeader(XmlDocument envelopeDocument, Messaging messagingHeader)
         {
-            if (messagingHeader.SignalMessage != null)
+            IEnumerable<string> messageUnitTagNames = envelopeDocument.SelectSingleNode(
+                "/s:Envelope/s:Header/eb3:Messaging", 
+                GetNamespaceManagerForDocument(envelopeDocument))
+                            ?.ChildNodes
+                            .Cast<XmlNode>()
+                            .Select(n => n.LocalName);
+
+            if (messageUnitTagNames == null)
             {
-                foreach (Xml.SignalMessage signalMessage in messagingHeader.SignalMessage)
-                {
-                    yield return ConvertFromXml(signalMessage);
-                }
+                yield break;
             }
 
-            if (messagingHeader.UserMessage != null)
+            var signals = new Queue<Xml.SignalMessage>(messagingHeader.SignalMessage ?? new Xml.SignalMessage[0]);
+            var users = new Queue<Xml.UserMessage>(messagingHeader.UserMessage ?? new Xml.UserMessage[0]);
+
+            foreach (string messageUnitTagName in messageUnitTagNames)
             {
-                foreach (Xml.UserMessage userMessage in messagingHeader.UserMessage)
+                if (messageUnitTagName.Equals("UserMessage", StringComparison.OrdinalIgnoreCase))
                 {
-                    yield return AS4Mapper.Map<UserMessage>(userMessage);
+                    yield return AS4Mapper.Map<UserMessage>(users.Dequeue());
+                }
+
+                if (messageUnitTagName.Equals("SignalMessage", StringComparison.OrdinalIgnoreCase))
+                {
+                    yield return ConvertFromXml(signals.Dequeue());
                 }
             }
         }
