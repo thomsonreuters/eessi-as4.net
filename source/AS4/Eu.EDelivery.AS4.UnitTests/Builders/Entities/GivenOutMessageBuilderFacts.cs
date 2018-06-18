@@ -1,8 +1,8 @@
 ﻿using System;
-using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Entities;
 using Eu.EDelivery.AS4.Entities;
+using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Serialization;
@@ -29,7 +29,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
                 // Assert
                 Assert.NotNull(outMessage);
                 Assert.Equal(as4Message.ContentType, outMessage.ContentType);
-                Assert.Equal(MessageType.UserMessage, MessageTypeUtils.Parse(outMessage.EbmsMessageType));
+                Assert.Equal(MessageType.UserMessage, outMessage.EbmsMessageType.ToEnum<MessageType>());
                 Assert.Equal(await AS4XmlSerializer.ToStringAsync(ExpectedPMode()), outMessage.PMode);
             }
 
@@ -66,7 +66,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
 
                 // Assert
                 Assert.Equal(messageId, outMessage.EbmsMessageId);
-                Assert.Equal(MessageType.Receipt, MessageTypeUtils.Parse(outMessage.EbmsMessageType));
+                Assert.Equal(MessageType.Receipt, outMessage.EbmsMessageType.ToEnum<MessageType>());
             }
 
             [Fact]
@@ -81,7 +81,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
 
                 // Assert
                 Assert.Equal(messageId, outMessage.EbmsMessageId);
-                Assert.Equal(MessageType.Error, MessageTypeUtils.Parse(outMessage.EbmsMessageType));
+                Assert.Equal(MessageType.Error, outMessage.EbmsMessageType.ToEnum<MessageType>());
             }
 
             private OutMessage BuildForSignalMessage(AS4Message as4Message)

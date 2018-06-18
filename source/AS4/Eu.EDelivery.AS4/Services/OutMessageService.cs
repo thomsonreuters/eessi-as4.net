@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Entities;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
+using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
@@ -105,7 +106,7 @@ namespace Eu.EDelivery.AS4.Services
             var relatedInMessageMeps =
                 _repository.GetInMessagesData(message.SignalMessages.Select(s => s.RefToMessageId).Distinct(), inMsg => new { inMsg.EbmsMessageId, inMsg.MEP })
                            .Distinct()
-                           .ToDictionary(r => r.EbmsMessageId, r => MessageExchangePatternUtils.Parse(r.MEP));
+                           .ToDictionary(r => r.EbmsMessageId, r => r.MEP.ToEnum<MessageExchangePattern>());
 
             foreach (var messageUnit in messageUnits)
             {
