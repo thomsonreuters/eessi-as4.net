@@ -85,13 +85,15 @@ namespace Eu.EDelivery.AS4.Model.Internal
         /// Initializes a new instance of the <see cref="MessagingContext"/> class.
         /// </summary>
         /// <param name="notifyMessage">The notify message.</param>
-        public MessagingContext(NotifyMessageEnvelope notifyMessage)
+        /// <param name="entityId"></param>
+        public MessagingContext(NotifyMessageEnvelope notifyMessage, long? entityId = null)
         {
             SubmitMessage = null;
             ReceivedMessage = null;
             AS4Message = null;
             DeliverMessage = null;
             NotifyMessage = notifyMessage;
+            MessageEntityId = entityId;
             Mode = MessagingContextMode.Notify;
         }
 
