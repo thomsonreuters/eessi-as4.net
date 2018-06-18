@@ -4,6 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
+using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Streaming;
@@ -52,11 +53,15 @@ namespace Eu.EDelivery.AS4.Transformers.ConformanceTestTransformers
 
                     return messagingContext;
                 }
-                else
+
+                if (messagingContext.AS4Message != null)
                 {
-                    receivedStream.Position = 0;
-                    return new MessagingContext(receivedMessage, MessagingContextMode.Receive);
+                    throw new InvalidMessageException(
+                        "Only AS4Messages with a UserMessage.CollaborationInfo.Action = 'Submit' are allowed to be transformed");
                 }
+
+                receivedStream.Position = 0;
+                return new MessagingContext(receivedMessage, MessagingContextMode.Receive);
             }
             catch (Exception ex)
             {

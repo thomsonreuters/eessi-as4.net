@@ -5,9 +5,11 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Extensions;
+using Eu.EDelivery.AS4.Factories;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
@@ -42,7 +44,7 @@ namespace Eu.EDelivery.AS4.Transformers
 
         public const string ReceivingPModeKey = "ReceivingPMode";
 
-        [Info("Receiving Processing Mode", required: false)]
+        [Info("Receiving Processing Mode", required: false, type: "receivingpmode")]
         [Description("ReceivingPMode identifier that defines the PMode that must be used while processing a received AS4 Message")]
         private string ReceivingPMode => _properties?.ReadOptionalProperty(ReceivingPModeKey);
 
@@ -109,10 +111,21 @@ namespace Eu.EDelivery.AS4.Transformers
                     string description =
                         $"Receiving PMode with Id: {ReceivingPMode} was configured as default PMode, {Environment.NewLine}" +
                         "but this PMode cannot be found in the configured receiving PModes.";
+
                     Logger.Error(
                         $@"{description} Configured Receiving PModes are placed on the folder: '.\config\receive-pmodes\'.");
 
-                    throw new InvalidOperationException(description);
+                    var errorResult = new ErrorResult(description, ErrorAlias.ProcessingModeMismatch);
+                    var as4Error = new ErrorBuilder(IdentifierFactory.Instance.Create())
+                        .WithErrorResult(errorResult)
+                        .WithRefToEbmsMessageId(as4Message.GetPrimaryMessageId())
+                        .Build();
+
+                    return new MessagingContext(
+                        AS4Message.Create(as4Error), MessagingContextMode.Receive)
+                        {
+                            ErrorResult = errorResult
+                        };
                 }
             }
 

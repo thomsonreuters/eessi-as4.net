@@ -21,17 +21,18 @@ namespace Eu.EDelivery.AS4.Common
     /// </summary>
     public class DatastoreContext : DbContext
     {
-        private readonly IConfig _config;
-        private readonly IDictionary<string, Func<string, DbContextOptionsBuilder>> _providers =
-            new Dictionary<string, Func<string, DbContextOptionsBuilder>>(StringComparer.InvariantCulture);
+        private static readonly IDictionary<string, Func<string, DbContextOptionsBuilder, DbContextOptionsBuilder>> DbProviders =
+            InitializeDbProviders();
 
-        private readonly IDictionary<string, Func<DatastoreContext, IAS4DbCommand>> _retrieveCommands =
+        private static readonly IDictionary<string, Func<DatastoreContext, IAS4DbCommand>> NativeCommandsProvider =
             new Dictionary<string, Func<DatastoreContext, IAS4DbCommand>>
             {
-                {"SqlServer", ctx => new SqlServerDbCommand(ctx)},
-                {"Sqlite", ctx => new SqliteDbCommand(ctx)},
-                {"InMemory", ctx => new InMemoryDbCommand(ctx)}
+                { "SqlServer", ctx => new SqlServerDbCommand(ctx) },
+                { "Sqlite", ctx => new SqliteDbCommand(ctx) },
+                { "InMemory", ctx => new InMemoryDbCommand(ctx) }
             };
+
+        private readonly IConfig _config;
 
         private RetryPolicy _policy;
 
@@ -41,7 +42,16 @@ namespace Eu.EDelivery.AS4.Common
         /// </summary>
         public DatastoreContext(DbContextOptions<DatastoreContext> options) : this(options, Config.Instance)
         {
+        }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DatastoreContext"/> class. 
+        /// Create a new Data Store Context with given a Configuration Dependency
+        /// </summary>
+        /// <param name="config">
+        /// </param>
+        public DatastoreContext(IConfig config) : this(new DbContextOptions<DatastoreContext>(), config)
+        {
         }
 
         /// <summary>
@@ -71,16 +81,43 @@ namespace Eu.EDelivery.AS4.Common
         //    return optionsBuilder.Options;
         //}
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="DatastoreContext"/> class. 
-        /// Create a new Data Store Context with given a Configuration Dependency
-        /// </summary>
-        /// <param name="config">
-        /// </param>
-        public DatastoreContext(IConfig config)
+        private static IDictionary<string, Func<string, DbContextOptionsBuilder, DbContextOptionsBuilder>> InitializeDbProviders()
         {
-            _config = config;
-            InitializeFields();
+            return new Dictionary<string, Func<string, DbContextOptionsBuilder, DbContextOptionsBuilder>>(StringComparer.InvariantCulture)
+            {
+                {
+                    "Sqlite", (c, b) =>
+                    {
+                        string GetDirectoryFromConnectionString(string connectionString)
+                        {
+                            string[] parts = connectionString.Split('=');
+
+                            if (parts.Length != 2)
+                            {
+                                return string.Empty;
+                            }
+
+                            return Path.GetDirectoryName(parts[1]);
+                        }
+
+                        string databaseLocation = GetDirectoryFromConnectionString(c);
+
+                        if (!String.IsNullOrWhiteSpace(databaseLocation) && !Directory.Exists(databaseLocation))
+                        {
+                            Directory.CreateDirectory(databaseLocation);
+                        }
+
+                        return b.UseSqlite(c);
+                    }
+                },
+                {
+                    "SqlServer", (c, b) => b.UseSqlServer(c)
+                },
+                {
+                    "InMemory", (c, b) => b.UseInMemoryDatabase(Guid.NewGuid().ToString())
+                                           .ConfigureWarnings(w => w.Ignore(RelationalEventId.AmbientTransactionWarning))
+                }
+            };
         }
 
         private void InitializeFields()
@@ -89,16 +126,19 @@ namespace Eu.EDelivery.AS4.Common
                 .Handle<DbUpdateException>()
                 .RetryAsync();
 
-            if (_config == null) { return; }
+            if (_config == null)
+            {
+                return;
+            }
 
             string providerKey = _config.GetSetting("Provider");
-            if (!_retrieveCommands.ContainsKey(providerKey))
+            if (!NativeCommandsProvider.ContainsKey(providerKey))
             {
                 throw new KeyNotFoundException(
                     $"No Native Command implementation found for DBMS-type: '{providerKey}'");
             }
 
-            NativeCommands = _retrieveCommands[providerKey](this);
+            NativeCommands = NativeCommandsProvider[providerKey](this);
         }
 
         public DbSet<InMessage> InMessages { get; set; }
@@ -143,59 +183,25 @@ namespace Eu.EDelivery.AS4.Common
             string providerKey = _config.GetSetting("Provider");
             string connectionString = _config.GetSetting("connectionstring");
 
-            ConfigureProviders(optionsBuilder);
-
-            if (!_providers.ContainsKey(providerKey))
+            if (!DbProviders.ContainsKey(providerKey))
             {
                 throw new KeyNotFoundException($"No Database provider found for key: {providerKey}");
             }
 
-            _providers[providerKey](connectionString);
+            var databaseInitializer = DbProviders[providerKey];
+
+            databaseInitializer(connectionString, optionsBuilder);
 
             // Make sure no InvalidOperation is thrown when an ambient transaction is detected.
             optionsBuilder.ConfigureWarnings(x => x.Ignore(CoreEventId.IncludeIgnoredWarning));
             optionsBuilder.ConfigureWarnings(x => x.Ignore(RelationalEventId.AmbientTransactionWarning));
             optionsBuilder.ConfigureWarnings(x => x.Ignore(InMemoryEventId.TransactionIgnoredWarning));
 
-            var logger = new LoggerFactory();
-            logger.AddProvider(new TraceLoggerProvider());
 
-            optionsBuilder.UseLoggerFactory(logger);
+            optionsBuilder.UseLoggerFactory(Logger);
         }
 
-        private void ConfigureProviders(DbContextOptionsBuilder optionsBuilder)
-        {
-            _providers["Sqlite"] = c =>
-            {
-                string GetDirectoryFromConnectionString(string connectionString)
-                {
-                    string[] parts = connectionString.Split('=');
-
-                    if (parts.Length != 2)
-                    {
-                        return string.Empty;
-                    }
-
-                    return Path.GetDirectoryName(parts[1]);
-                }
-
-                string databaseLocation = GetDirectoryFromConnectionString(c);
-
-                if (!String.IsNullOrWhiteSpace(databaseLocation) && !Directory.Exists(databaseLocation))
-                {
-                    Directory.CreateDirectory(databaseLocation);
-                }
-
-                return optionsBuilder.UseSqlite(c);
-            };
-
-            _providers["SqlServer"] = c => optionsBuilder.UseSqlServer(c);
-
-            // TODO: add other providers
-            _providers["InMemory"] = _ =>
-                optionsBuilder.UseInMemoryDatabase(Guid.NewGuid().ToString())
-                              .ConfigureWarnings(w => w.Ignore(RelationalEventId.AmbientTransactionWarning));
-        }
+        private static readonly LoggerFactory Logger = new LoggerFactory(new[] { new TraceLoggerProvider() });
 
         /// <summary>
         ///     Override this method to further configure the model that was discovered by convention from the entity types

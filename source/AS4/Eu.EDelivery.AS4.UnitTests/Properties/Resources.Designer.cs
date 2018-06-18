@@ -217,6 +217,16 @@ namespace Eu.EDelivery.AS4.UnitTests.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] as4_soap_wrong_encrypted_no_encrypteddata_for_attachment {
+            get {
+                object obj = ResourceManager.GetObject("as4_soap_wrong_encrypted_no_encrypteddata_for_attachment", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to &lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;&lt;s12:Envelope xmlns:s12=&quot;http://www.w3.org/2003/05/soap-envelope&quot;&gt;&lt;s12:Header&gt;&lt;Security xmlns=&quot;http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd&quot;&gt;&lt;BinarySecurityToken EncodingType=&quot;http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary&quot; ValueType=&quot;http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509v3&quot; p4:Id=&quot;cert-c4488537-0e5a-4360-b7f0-a14ba48d52e0&quot; xmlns:p4=&quot;http:// [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string as4_soap_wrong_signed_message {

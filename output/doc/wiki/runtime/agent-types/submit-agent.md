@@ -27,7 +27,7 @@ The **Submit Agent** can be configured as a **Static Submit Agent**. This requir
 
 To configure a **Static Submit Agent**, do the following:
 
-* Go to the configuration of the **Submit Agent** you want to make static
-* Change the **Transformer** to a `SubmitPayloadTransformer`
-* The setting `SendingPMode` will be appear
-* Specify the _Sending Processing Mode_ that must be used to create `AS4Message`'s for the files that are sent to the **Submit Agent **
+- Go to the configuration of the **Submit Agent** you want to make static
+- Change the **Transformer** to a `SubmitPayloadTransformer`
+- The setting `SendingPMode` will appear
+- Specify the _Sending Processing Mode_ that must be used to create `AS4Message`'s for the files that are sent to the **Submit Agent**

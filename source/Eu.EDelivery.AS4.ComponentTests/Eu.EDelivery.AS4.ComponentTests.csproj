@@ -48,10 +48,12 @@
     <Compile Include="Agents\CleanUpAgentsFacts.cs" />
     <Compile Include="Agents\DeliverAgentFacts.cs" />
     <Compile Include="Agents\ForwardAgentFacts.cs" />
+    <Compile Include="Agents\MinderReceiveAgentFacts.cs" />
     <Compile Include="Agents\OutboundProcessingAgentFacts.cs" />
     <Compile Include="Agents\PullReceiveAgentFacts.cs" />
     <Compile Include="Agents\PullSendAgentFacts.cs" />
     <Compile Include="Agents\ReceiveAgentFacts.cs" />
+    <Compile Include="Agents\RetryAgentFacts.cs" />
     <Compile Include="Agents\StaticReceiveAgentFacts.cs" />
     <Compile Include="Agents\StaticSubmitAgentFacts.cs" />
     <Compile Include="Common\AS4MessageResponseHandler.cs" />
@@ -111,6 +113,7 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <None Include="Resources\c3_minderreceiveagent_request.as4" />
     <Content Include="Resources\deliveragent-pmode.xml" />
     <None Include="Resources\earth" />
     <Content Include="Resources\pullsendagent_submit.xml" />

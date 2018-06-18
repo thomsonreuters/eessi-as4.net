@@ -30,6 +30,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
         public override TimeSpan RetentionPeriod => default(TimeSpan);
 
         /// <summary>
+        /// Gets the retry polling interval for which the Retry Agent will poll 
+        /// for 'to-be-retried' messages/exceptions for a delivery or notification operation.
+        /// </summary>
+        public override TimeSpan RetryPollingInterval => default(TimeSpan);
+
+        /// <summary>
         /// Gets the agent settings.
         /// </summary>
         /// <returns></returns>

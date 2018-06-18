@@ -124,6 +124,7 @@
     <Compile Include="Agents\Agent.cs" />
     <Compile Include="Agents\AgentConfig.cs" />
     <Compile Include="Agents\CleanUpAgent.cs" />
+    <Compile Include="Agents\RetryAgent.cs" />
     <Compile Include="Builders\Core\ErrorBuilder.cs" />
     <Compile Include="Builders\Core\NonRepudiationInformationBuilder.cs" />
     <Compile Include="Builders\Entities\InMessageBuilder.cs" />
@@ -313,7 +314,7 @@
     <Compile Include="Services\OutMessageService.cs" />
     <Compile Include="Services\PullRequestAuthorization\PullRequestAuthorizationEntry.cs" />
     <Compile Include="Services\ReceptionAwarenessService.cs" />
-    <Compile Include="Services\RetryService.cs" />
+    <Compile Include="Services\MarkForRetryService.cs" />
     <Compile Include="Strategies\Database\IAS4DbCommand.cs" />
     <Compile Include="Strategies\Database\InMemoryDbCommand.cs" />
     <Compile Include="Strategies\Database\SqliteDbCommand.cs" />

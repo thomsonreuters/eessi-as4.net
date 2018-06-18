@@ -1,6 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
@@ -77,7 +77,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
         [Theory]
         [InlineData("none-existing-id")]
         [InlineData("")]
-        public async Task Fails_When_ReceivePMode_Is_Not_Defined(string id)
+        public async Task Returns_With_Error_PMode_Not_Found_When_ReceivePMode_Is_Not_Defined(string id)
         {
             // Arrange
             var stub = new Mock<IConfig>();
@@ -93,9 +93,17 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
                 AS4Message.Empty.ToStream(), 
                 Constants.ContentTypes.Soap);
 
-            // Act / Assert
-            await Assert.ThrowsAsync<InvalidOperationException>(
-                () => sut.TransformAsync(msg));
+            // Act
+            MessagingContext actual = await sut.TransformAsync(msg);
+
+            // Assert
+            MessageUnit primaryMessageUnit = actual.AS4Message.MessageUnits.First();
+            Assert.IsType<Error>(primaryMessageUnit);
+            var error = (Error) primaryMessageUnit;
+
+            Assert.Equal(
+                ErrorAlias.ProcessingModeMismatch.ToString(), 
+                error.Errors.First().ShortDescription);
         }
 
         [Theory]
@@ -127,3 +135,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
         }
     }
 }
+
+
+

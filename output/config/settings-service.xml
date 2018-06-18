@@ -5,6 +5,10 @@
     <IdFormat>{GUID}@{IPADDRESS}</IdFormat>
     <FeInProcess>true</FeInProcess>
     <PayloadServiceInProcess>true</PayloadServiceInProcess>
+    <RetentionPeriod>90</RetentionPeriod>
+    <RetryReliability>
+        <PollingInterval>00:00:05</PollingInterval>
+    </RetryReliability>
     <Database>
         <Provider>Sqlite</Provider>
         <ConnectionString>Filename=database\messages.db</ConnectionString>

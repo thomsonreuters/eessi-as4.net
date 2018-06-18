@@ -21,6 +21,8 @@ namespace Eu.EDelivery.AS4.Serialization
     {
         private readonly ISerializer _soapSerializer;
 
+        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+
         /// <summary>
         /// Initializes a new instance of the <see cref="MimeMessageSerializer"/> class. 
         /// Create a MIME Serializer of the <see cref="AS4Message"/>
@@ -292,6 +294,10 @@ namespace Eu.EDelivery.AS4.Serialization
                 {
                     attachment.Properties = value.Properties;
                     yield return attachment;
+                }
+                else
+                {
+                    Logger.Warn($"Attachment {attachment.Id} will be ignored because no matching <PartInfo /> is found");
                 }
             }
         }
