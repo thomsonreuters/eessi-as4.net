@@ -73,7 +73,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                         $"{messagingContext.LogTag} Receiving PMode ({messagingContext.ReceivingPMode?.Id}) " + 
                         "is configured to reply with Non-Repudation Receipts, but incoming UserMessage isn't signed");
 
-                    receipt.UserMessage = receivedAS4Message.PrimaryUserMessage;
+                    receipt.UserMessage = receivedAS4Message.FirstUserMessage;
                 }
             }
             else
@@ -81,7 +81,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 Logger.Debug(
                     $"{messagingContext.LogTag} Receiving PMode is configured to not use the Non-Repudiation format." + 
                     "This means the original UserMessage will be included in the Receipt");
-                receipt.UserMessage = receivedAS4Message.PrimaryUserMessage;
+                receipt.UserMessage = receivedAS4Message.FirstUserMessage;
             }
 
             // If the Receipt is a Receipt on a MultihopMessage, then we'll need to add some routing-info.
@@ -92,7 +92,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                     "we will send the Receipt as MultiHop also");
 
                 receipt.MultiHopRouting = 
-                    AS4Mapper.Map<RoutingInputUserMessage>(receivedAS4Message.PrimaryUserMessage);
+                    AS4Mapper.Map<RoutingInputUserMessage>(receivedAS4Message.FirstUserMessage);
             }
 
             return receipt;

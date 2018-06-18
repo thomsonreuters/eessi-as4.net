@@ -50,7 +50,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
                 AS4Message expected = CreateAS4MessageWithUserMessage();
 
                 // Act
-                MessageEntity actual = BuildForMessageUnit(expected.PrimaryUserMessage);
+                MessageEntity actual = BuildForMessageUnit(expected.FirstUserMessage);
 
                 // Assert
                 MessageEntityAssertion.AssertPartyInfo(expected, actual);
@@ -63,7 +63,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
                 AS4Message expected = CreateAS4MessageWithUserMessage();
 
                 // Act
-                MessageEntity actual = BuildForMessageUnit(expected.PrimaryUserMessage);
+                MessageEntity actual = BuildForMessageUnit(expected.FirstUserMessage);
 
                 // Assert
                 MessageEntityAssertion.AssertCollaborationInfo(expected, actual);
@@ -76,7 +76,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
                 AS4Message expected = CreateAS4MessageWithUserMessage();
 
                 // Act
-                MessageEntity actual = BuildForMessageUnit(expected.PrimaryUserMessage);
+                MessageEntity actual = BuildForMessageUnit(expected.FirstUserMessage);
 
                 // Assert
                 MessageEntityAssertion.AssertUserMessageMetaInfo(expected, actual);
@@ -91,7 +91,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
                 AS4Message expected = CreateAS4MessageWithReceiptMessage(isDuplicate: isDuplicate);
 
                 // Act
-                MessageEntity actual = BuildForMessageUnit(expected.PrimarySignalMessage);
+                MessageEntity actual = BuildForMessageUnit(expected.FirstSignalMessage);
 
                 // Assert
                 MessageEntityAssertion.AssertSignalMessageMetaInfo(expected, actual);
@@ -105,10 +105,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
                 AS4Message expected = CreateAS4MessageWithUserMessage();
 
                 // Act
-                MessageEntity actual = BuildForMessageUnit(expected.PrimaryUserMessage);
+                MessageEntity actual = BuildForMessageUnit(expected.FirstUserMessage);
 
                 // Assert
-                MessageEntityAssertion.AssertSoapEnvelope(expected.PrimaryUserMessage, actual);
+                MessageEntityAssertion.AssertSoapEnvelope(expected.FirstUserMessage, actual);
             }
 
             private static AS4Message CreateAS4MessageWithUserMessage()

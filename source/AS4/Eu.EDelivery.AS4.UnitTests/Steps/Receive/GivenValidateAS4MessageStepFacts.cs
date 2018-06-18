@@ -25,7 +25,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             });
             message.AddAttachment(new Attachment("earth") {Content = Stream.Null});
             message = await SerializeDeserialize(message);
-            message.PrimaryUserMessage.PayloadInfo.First().Href = null;
+            message.FirstUserMessage.PayloadInfo.First().Href = null;
 
             // Act
             StepResult result = await ExerciseValidation(message);

@@ -73,11 +73,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Forward
 
             private static InMessage CreateInMessage(AS4Message message)
             {
-                var primaryMessageUnit = (MessageUnit) message.PrimaryUserMessage ?? message.PrimarySignalMessage;
-
                 var result = new InMessage(message.GetPrimaryMessageId())
                 {
-                    EbmsRefToMessageId = primaryMessageUnit.RefToMessageId,
+                    EbmsRefToMessageId = message.PrimaryMessageUnit.RefToMessageId,
                     ContentType = message.ContentType,
                     Intermediary = true
                 };
@@ -85,7 +83,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Forward
                 result.SetEbmsMessageType(MessageType.UserMessage);
                 result.SetOperation(Operation.ToBeForwarded);
 
-                result.AssignAS4Properties(primaryMessageUnit);
+                result.AssignAS4Properties(message.PrimaryMessageUnit);
 
                 return result;
             }

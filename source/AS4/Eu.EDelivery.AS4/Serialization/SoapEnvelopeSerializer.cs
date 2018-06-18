@@ -106,17 +106,17 @@ namespace Eu.EDelivery.AS4.Serialization
 
         private static void SetMultiHopHeaders(SoapEnvelopeBuilder builder, AS4Message as4Message)
         {
-            if (as4Message.IsSignalMessage && as4Message.PrimarySignalMessage.MultiHopRouting != null)
+            if (as4Message.IsSignalMessage && as4Message.FirstSignalMessage.MultiHopRouting != null)
             {
                 var to = new To { Role = Constants.Namespaces.EbmsNextMsh };
                 builder.SetToHeader(to);
 
-                string actionValue = as4Message.PrimarySignalMessage.GetActionValue();
+                string actionValue = as4Message.FirstSignalMessage.GetActionValue();
                 builder.SetActionHeader(actionValue);
 
                 var routingInput = new RoutingInput
                 {
-                    UserMessage = as4Message.PrimarySignalMessage.MultiHopRouting,
+                    UserMessage = as4Message.FirstSignalMessage.MultiHopRouting,
                     mustUnderstand = false,
                     mustUnderstandSpecified = true,
                     IsReferenceParameter = true,
@@ -174,9 +174,9 @@ namespace Eu.EDelivery.AS4.Serialization
                 var routing = await AS4XmlSerializer.FromStringAsync<RoutingInput>(routingInput.OuterXml);
                 if (routing != null)
                 {
-                    if (as4Message.PrimarySignalMessage != null)
+                    if (as4Message.FirstSignalMessage != null)
                     {
-                        as4Message.PrimarySignalMessage.MultiHopRouting = routing.UserMessage;
+                        as4Message.FirstSignalMessage.MultiHopRouting = routing.UserMessage;
                     }
                 }
             }

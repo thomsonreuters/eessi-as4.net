@@ -43,10 +43,10 @@ namespace Eu.EDelivery.AS4.Transformers.ConformanceTestTransformers
                 var transformer = new AS4MessageTransformer();
                 var messagingContext = await transformer.TransformAsync(receivedMessage);
 
-                if (messagingContext.AS4Message?.PrimaryUserMessage?.CollaborationInfo?.Action?.Equals("Submit", StringComparison.OrdinalIgnoreCase) ?? false)
+                if (messagingContext.AS4Message?.FirstUserMessage?.CollaborationInfo?.Action?.Equals("Submit", StringComparison.OrdinalIgnoreCase) ?? false)
                 {
                     var as4Message =
-                        TransformMinderSubmitToAS4Message(messagingContext.AS4Message.PrimaryUserMessage, messagingContext.AS4Message.Attachments);
+                        TransformMinderSubmitToAS4Message(messagingContext.AS4Message.FirstUserMessage, messagingContext.AS4Message.Attachments);
                     messagingContext = new MessagingContext(as4Message, MessagingContextMode.Submit);
 
                     AssignPModeToContext(messagingContext);
@@ -145,7 +145,7 @@ namespace Eu.EDelivery.AS4.Transformers.ConformanceTestTransformers
             AS4Message as4Message = context.AS4Message;
 
             // The PMode that must be used is defined in the CollaborationInfo.Service property.
-            var pmode = Config.Instance.GetSendingPMode(as4Message.PrimaryUserMessage.CollaborationInfo.Action);
+            var pmode = Config.Instance.GetSendingPMode(as4Message.FirstUserMessage.CollaborationInfo.Action);
             context.SendingPMode = pmode;
         }
        

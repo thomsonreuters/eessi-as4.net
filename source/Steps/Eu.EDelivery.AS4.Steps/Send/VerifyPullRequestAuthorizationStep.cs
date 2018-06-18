@@ -43,7 +43,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 return StepResult.SuccessAsync(messagingContext);
             }
 
-            string mpc = (as4Message.PrimarySignalMessage as PullRequest)?.Mpc ?? string.Empty;
+            string mpc = (as4Message.PrimaryMessageUnit as PullRequest)?.Mpc ?? string.Empty;
             throw new SecurityException(
                 $"{messagingContext.LogTag} PullRequest for MPC {mpc} is not authorized. " + 
                 "Either change the PullRequest MPC or add the MPC value to the authorization map");

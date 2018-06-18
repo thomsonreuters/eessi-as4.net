@@ -50,7 +50,7 @@ namespace Eu.EDelivery.AS4.Services.PullRequestAuthorization
                 throw new InvalidMessageException("The AS4 Message is not a PullRequest message");
             }
 
-            var mpc = ((PullRequest)pullRequestMessage.PrimarySignalMessage).Mpc;
+            var mpc = ((PullRequest)pullRequestMessage.FirstSignalMessage).Mpc;
 
             var authorizationEntries = _mapProvider.RetrievePullRequestAuthorizationEntriesForMpc(mpc);
 

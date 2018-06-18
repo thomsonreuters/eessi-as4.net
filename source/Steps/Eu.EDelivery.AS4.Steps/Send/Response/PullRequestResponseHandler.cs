@@ -27,7 +27,7 @@ namespace Eu.EDelivery.AS4.Steps.Send.Response
         /// <returns></returns>
         public async Task<StepResult> HandleResponse(IAS4Response response)
         {
-            bool isEmptyChannelWarning = (response.ReceivedAS4Message.PrimarySignalMessage as Error)?.IsWarningForEmptyPullRequest == true;
+            bool isEmptyChannelWarning = (response.ReceivedAS4Message.PrimaryMessageUnit as Error)?.IsWarningForEmptyPullRequest == true;
             
             if (isEmptyChannelWarning)
             {

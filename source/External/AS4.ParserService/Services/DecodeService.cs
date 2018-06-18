@@ -34,9 +34,9 @@ namespace AS4.ParserService.Services
 
                 if (as4Message.IsSignalMessage)
                 {
-                    return DecodeResult.CreateAccepted(as4Message.PrimarySignalMessage is Receipt ? EbmsMessageType.Receipt : EbmsMessageType.Error,
+                    return DecodeResult.CreateAccepted(as4Message.FirstSignalMessage is Receipt ? EbmsMessageType.Receipt : EbmsMessageType.Error,
                                                        as4Message.GetPrimaryMessageId(),
-                                                       (as4Message.PrimarySignalMessage as Error)?.Errors);
+                                                       (as4Message.FirstSignalMessage as Error)?.Errors);
                 }
 
                 // Start Processing
@@ -115,16 +115,16 @@ namespace AS4.ParserService.Services
                 }
             }
 
-            if (!(processingResult.AS4Message.PrimarySignalMessage is Error))
+            if (!(processingResult.AS4Message.FirstSignalMessage is Error))
             {
                 throw new InvalidProgramException("An AS4 Error Message was expected.");
             }
 
             // What we have now, must an error.
             return DecodeResult.CreateWithError(Serializer.ToByteArray(processingResult.AS4Message),
-                                                ((Error) processingResult.AS4Message.PrimarySignalMessage).Errors,
-                                                processingResult.AS4Message.PrimarySignalMessage.RefToMessageId,
-                                                processingResult.AS4Message.PrimarySignalMessage.MessageId);
+                                                ((Error) processingResult.AS4Message.FirstSignalMessage).Errors,
+                                                processingResult.AS4Message.FirstSignalMessage.RefToMessageId,
+                                                processingResult.AS4Message.FirstSignalMessage.MessageId);
         }
 
         private static IEnumerable<PayloadInfo> RetrievePayloadsFromMessage(AS4Message message)

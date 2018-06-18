@@ -67,7 +67,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
                 Assert.NotNull(context.AS4Message);
                 Assert.True(context.AS4Message.IsPullRequest);
                 
-                var actualSignalMessage = context.AS4Message.PrimarySignalMessage as PullRequest;
+                var actualSignalMessage = context.AS4Message.FirstSignalMessage as PullRequest;
                 Assert.Equal(expectedMpc, actualSignalMessage?.Mpc);
                 Assert.Equal(expectedSendingPMode.Id, context.SendingPMode.Id);
             }

@@ -67,7 +67,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                     return StepResult.Success(messagingContext);
                 }
 
-                SendPMode pmode = await DetermineSendingPModeForSignalMessageAsync(as4Message.PrimarySignalMessage);
+                SendPMode pmode = await DetermineSendingPModeForSignalMessageAsync(as4Message.PrimaryMessageUnit);
 
                 if (pmode != null)
                 {
@@ -79,7 +79,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 {
                     throw new InvalidOperationException(
                         $"{messagingContext.LogTag} Cannot determine Sending PMode for incoming SignalMessage: " + 
-                        $"no referenced OutMessage with Id: {as4Message.PrimarySignalMessage.RefToMessageId} " + 
+                        $"no referenced OutMessage with Id: {as4Message.PrimaryMessageUnit.RefToMessageId} " + 
                         "is stored in the Datastore to retrieve the Sending PMode from");
                 }
             }
@@ -99,7 +99,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             return await DetermineReceivingPModeAsync(messagingContext);
         }
 
-        private async Task<SendPMode> DetermineSendingPModeForSignalMessageAsync(SignalMessage signalMessage)
+        private async Task<SendPMode> DetermineSendingPModeForSignalMessageAsync(MessageUnit signalMessage)
         {
             if (String.IsNullOrWhiteSpace(signalMessage.RefToMessageId))
             {
@@ -200,7 +200,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                     $"(Receive)[{as4Message.GetPrimaryMessageId()}] Incoming message is a UserMessage, " + 
                     "so the incoming message itself will be used to match the right Receiving PMode");
 
-                return as4Message.PrimaryUserMessage;
+                return as4Message.FirstUserMessage;
             }
 
             Logger.Debug(
@@ -208,7 +208,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 "so the embeded Multi-Hop UserMessage will be used to match the right Receiving PMode");
 
             RoutingInputUserMessage routedUserMessage = 
-                as4Message.PrimarySignalMessage?.MultiHopRouting;
+                as4Message.FirstSignalMessage?.MultiHopRouting;
 
             if (routedUserMessage != null)
             {

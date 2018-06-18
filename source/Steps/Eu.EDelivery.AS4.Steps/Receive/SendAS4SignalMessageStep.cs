@@ -77,12 +77,12 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             if (Logger.IsInfoEnabled)
             {
                 string errorDescriptions =
-                    messagingContext.AS4Message.PrimarySignalMessage is Error e
+                    messagingContext.AS4Message.FirstSignalMessage is Error e
                         ? ": " + ConcatErrorDescriptions(e)
                         : String.Empty;
 
                 Logger.Info(
-                    $"{messagingContext.LogTag} {messagingContext.AS4Message.PrimarySignalMessage.GetType().Name} " + 
+                    $"{messagingContext.LogTag} {messagingContext.AS4Message.FirstSignalMessage.GetType().Name} " + 
                     $"will be written to the response {errorDescriptions}");
             }
 

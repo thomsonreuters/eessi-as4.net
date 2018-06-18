@@ -84,7 +84,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         private static void AddPartInfo(AS4Message as4Message, Attachment attachment)
         {
             PartInfo partInfo = CreateAttachmentPartInfo(attachment);
-            as4Message.PrimaryUserMessage.PayloadInfo.Add(partInfo);
+            as4Message.FirstUserMessage.PayloadInfo.Add(partInfo);
         }
 
         private static PartInfo CreateAttachmentPartInfo(Attachment attachment)

@@ -87,7 +87,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
                 Logger.Trace($"{context.LogTag} Attachment {attachment.Id} will be decompressed");
                 DecompressAttachment(attachment);
-                AssignAttachmentProperties(as4Message.PrimaryUserMessage.PayloadInfo.ToList(), attachment);
+                AssignAttachmentProperties(as4Message.FirstUserMessage.PayloadInfo.ToList(), attachment);
                 Logger.Debug($"{context.LogTag} Attachment {attachment.Id} is decompressed to a type of {attachment.ContentType}");
             }
 

@@ -83,7 +83,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
 
             // Assert
             Assert.Single(actualMessage.AS4Message.UserMessages);
-            UserMessage actualUserMessage = actualMessage.AS4Message.PrimaryUserMessage;
+            UserMessage actualUserMessage = actualMessage.AS4Message.FirstUserMessage;
             Assert.Equal(expectedId, actualUserMessage.MessageId);
         }
 

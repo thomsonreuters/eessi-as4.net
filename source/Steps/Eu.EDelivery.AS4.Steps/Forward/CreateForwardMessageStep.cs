@@ -85,7 +85,7 @@ namespace Eu.EDelivery.AS4.Steps.Forward
                     // Only create an OutMessage for the primary message-unit.
                     OutMessage outMessage = OutMessageBuilder
                         .ForMessageUnit(
-                            GetPrimaryMessageUnit(msg),
+                            msg.PrimaryMessageUnit,
                             receivedInMessage.ContentType,
                             messagingContext.SendingPMode)
                         .Build();
@@ -110,15 +110,6 @@ namespace Eu.EDelivery.AS4.Steps.Forward
             }
 
             return StepResult.Success(messagingContext);
-        }
-
-        private static MessageUnit GetPrimaryMessageUnit(AS4Message as4Message)
-        {
-            if (as4Message.IsUserMessage)
-            {
-                return as4Message.PrimaryUserMessage;
-            }
-            return as4Message.PrimarySignalMessage;
         }
     }
 }

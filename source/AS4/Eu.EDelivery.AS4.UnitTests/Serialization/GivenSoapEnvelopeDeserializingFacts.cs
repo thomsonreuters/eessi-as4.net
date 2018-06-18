@@ -27,7 +27,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                     Assert.True(message.SecurityHeader.IsEncrypted);
 
                     Assert.True(message.IsUserMessage);
-                    Assert.Equal("30392f3c-bc9c-4a1f-ba5e-5d4d81382eef@CLT-SNEIRINCK", message.PrimaryUserMessage.MessageId);
+                    Assert.Equal("30392f3c-bc9c-4a1f-ba5e-5d4d81382eef@CLT-SNEIRINCK", message.PrimaryMessageUnit.MessageId);
                 }
                 finally
                 {
@@ -72,7 +72,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                     Assert.True(message.SecurityHeader.IsSigned);
 
                     Assert.True(message.IsUserMessage);
-                    Assert.Equal("b495f1e1-ef0f-4da3-a311-0f5ab6ab27a9@mindertestbed.org", message.PrimaryUserMessage.MessageId);
+                    Assert.Equal("b495f1e1-ef0f-4da3-a311-0f5ab6ab27a9@mindertestbed.org", message.FirstUserMessage.MessageId);
                 }
                 finally
                 {
@@ -95,7 +95,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                     Assert.True(message.SecurityHeader.IsSigned);
 
                     Assert.True(message.IsUserMessage);
-                    Assert.Equal("cdcc838c-96ed-414a-b127-0937f5cd6549@CLT-FGHEYSELS.ad.codit.eu", message.PrimaryUserMessage.MessageId);
+                    Assert.Equal("cdcc838c-96ed-414a-b127-0937f5cd6549@CLT-FGHEYSELS.ad.codit.eu", message.FirstUserMessage.MessageId);
                 }
                 finally
                 {

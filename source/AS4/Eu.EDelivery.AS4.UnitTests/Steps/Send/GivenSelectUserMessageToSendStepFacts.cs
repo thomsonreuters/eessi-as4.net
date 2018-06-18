@@ -32,7 +32,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             StepResult result = await ExerciseSelection(expectedMpc: null);
 
             // Assert
-            var signal = result.MessagingContext.AS4Message.PrimarySignalMessage as PullRequestError;
+            var signal = result.MessagingContext.AS4Message.FirstSignalMessage as PullRequestError;
             Assert.Equal(new PullRequestError(), signal);
             Assert.False(result.CanProceed);
         }
@@ -53,7 +53,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
 
             var as4Message = await RetrieveAS4MessageFromContext(result.MessagingContext);
 
-            UserMessage userMessage = as4Message.PrimaryUserMessage;
+            UserMessage userMessage = as4Message.FirstUserMessage;
 
             Assert.Equal(expectedMpc, userMessage.Mpc);
             AssertOutMessage(userMessage.MessageId, m => Assert.True(OperationUtils.Parse(m.Operation) == Operation.Sent));
