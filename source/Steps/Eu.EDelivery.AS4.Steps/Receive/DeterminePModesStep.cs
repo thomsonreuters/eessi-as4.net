@@ -79,7 +79,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 {
                     throw new InvalidOperationException(
                         $"{messagingContext.LogTag} Cannot determine Sending PMode for incoming SignalMessage: " + 
-                        $"no referenced OutMessage with Id: {as4Message.PrimaryMessageUnit.RefToMessageId} " + 
+                        $"no referenced OutMessage with Id: {as4Message.FirstUserMessage.RefToMessageId} " + 
                         "is stored in the Datastore to retrieve the Sending PMode from");
                 }
             }
