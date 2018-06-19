@@ -162,6 +162,7 @@
   <xs:complexType name="Security">
     <xs:sequence>
       <xs:element minOccurs="0" maxOccurs="1" name="Signing" type="tns:Signing" />
+      <xs:element minOccurs="0" maxOccurs="1" name="SigningVerification" type="tns:SigningVerification" />
       <xs:element minOccurs="0" maxOccurs="1" name="Encryption" type="tns:Encryption" />
     </xs:sequence>
   </xs:complexType>
@@ -188,6 +189,20 @@
       <xs:enumeration value="BSTReference" />
       <xs:enumeration value="KeyIdentifier" />
       <xs:enumeration value="IssuerSerial" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:complexType name="SigningVerification">
+    <xs:sequence>
+      <xs:element minOccurs="1" maxOccurs="1" name="Signature" type="tns:Limit" />
+      <xs:element minOccurs="0" maxOccurs="1" default="false" name="AllowUnknownRootCertificate" type="xs:boolean" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:simpleType name="Limit">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Allowed" />
+      <xs:enumeration value="NotAllowed" />
+      <xs:enumeration value="Required" />
+      <xs:enumeration value="Ignored" />
     </xs:restriction>
   </xs:simpleType>
   <xs:complexType name="Encryption">

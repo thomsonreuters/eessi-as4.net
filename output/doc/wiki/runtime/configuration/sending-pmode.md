@@ -278,6 +278,9 @@ This contract describes all the properties available in the Sending PMode. The r
                 <br/><br/><br/><br/>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Algorithm<br/>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;HashFunction<br/>
+                &nbsp;&nbsp;<i>SigningVerification</i><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Signature<br/><br/><br/><br/><br/><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AllowUnknownRootCertificate
                 &nbsp;&nbsp;<i><u>Encryption</u></i><br/>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IsEnabled<br/>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PublicKeyCertificate<br/>
@@ -305,7 +308,10 @@ This contract describes all the properties available in the Sending PMode. The r
                 M<br/>
                 M<br/><br/><br/><br/>
                 M<br/>
-                M<br/>
+                O<br/>
+                O<br/>
+                M<br/><br/><br/><br/><br/><br/>
+                O<br/>
                 O<br/>
                 O<br/>
                 O<br/>
@@ -352,6 +358,15 @@ This contract describes all the properties available in the Sending PMode. The r
                     <li>KeyIdentifier</li>
                 </ul>
                 <br/><br/><br/>
+                <i>Enumeration</i>
+                <ul style="margin:0;">
+                    <li>Allowed (<i>default)</i></li>
+                    <li>Not allowed</li>
+                    <li>Required</li>
+                    <li>Ignored</li>
+                </ul>
+                <br/>
+                <div style="width:550px;">Indicates whether certificates with an unknown root authority are trusted. (Default <i>false</i>)</div><br/>               <i>Enumeration:</i>
                 <i>Default</i>: false<br/>
                 PublicKeyCertificate or CertificateFindCriteria must be specified<br/>
                 Base64 representation of the certificate that must be used<br/>
