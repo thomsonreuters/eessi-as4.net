@@ -71,7 +71,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
         [Description("Security settings")]
         public Security Security { get; set; }
 
-        [Description("Send message pacjaging")]
+        [Description("Send message packaging")]
         public SendMessagePackaging MessagePackaging { get; set; }
 
         #region Serialization-control properties
@@ -103,11 +103,15 @@ namespace Eu.EDelivery.AS4.Model.PMode
         public Security()
         {
             Signing = new Signing();
+            SigningVerification = new SigningVerification();
             Encryption = new Encryption();
         }
 
         [Description("Signing")]
         public Signing Signing { get; set; }
+
+        [Description("Signing verification")]
+        public SigningVerification SigningVerification { get; set; }
 
         [Description("Encryption")]
         public Encryption Encryption { get; set; }
