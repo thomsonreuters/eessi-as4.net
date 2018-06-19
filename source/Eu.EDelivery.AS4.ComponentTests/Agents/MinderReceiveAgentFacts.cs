@@ -33,11 +33,11 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                 "multipart/related; boundary=\"=-GpNI15tekzCG48QM0jucBg==\"; type=\"application/soap+xml\"";
 
             HttpResponseMessage response = await StubSender.SendRequest(
-                _receiveUrl, 
+                _receiveUrl,
                 Properties.Resources.c3_minderreceiveagent_request, 
                 contentType);
 
-            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         }
 
         protected override void Disposing(bool isDisposing)
