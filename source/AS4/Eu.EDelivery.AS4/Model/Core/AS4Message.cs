@@ -108,7 +108,12 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// <param name="bodyElement"></param>
         ///<remarks>This method should only be used when creating an AS4 Message via deserialization.</remarks>
         /// <returns></returns>
-        internal static AS4Message Create(XmlDocument soapEnvelope, string contentType, SecurityHeader securityHeader, Xml.Messaging messagingHeader, Xml.Body1 bodyElement)
+        internal static AS4Message Create(
+            XmlDocument soapEnvelope, 
+            string contentType, 
+            SecurityHeader securityHeader, 
+            Xml.Messaging messagingHeader, 
+            Xml.Body1 bodyElement)
         {
             if (soapEnvelope == null)
             {
@@ -162,7 +167,7 @@ namespace Eu.EDelivery.AS4.Model.Core
             result.SigningId = new SigningId(messagingHeader.SecurityId, bodySecurityId);
 
             result._messageUnits.AddRange(
-                SoapEnvelopeSerializer.GetMessageUnitsFromMessagingHeader(messagingHeader));
+                SoapEnvelopeSerializer.GetMessageUnitsFromMessagingHeader(soapEnvelope, messagingHeader));
 
             return result;
         }

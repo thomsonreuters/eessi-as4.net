@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.Remoting;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -113,9 +114,29 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
             }
         }
 
-        /// <summary>
-        /// Testing if the AS4Message Succeeds
-        /// </summary>
+        public class AS4MessageDeserializeFacts
+        {
+            [Fact]
+            public async Task Then_MessageUnits_Appear_In_The_Same_Order_As_Serialized()
+            {
+                var serializer = new SoapEnvelopeSerializer();
+                using (var str = new MemoryStream(
+                    Encoding.UTF8.GetBytes(
+                        Properties.Resources.as4_soap_user_receipt_message)))
+                {
+                    AS4Message actual = await serializer
+                        .DeserializeAsync(str, Constants.ContentTypes.Soap, CancellationToken.None);
+
+                    Assert.IsType<Receipt>(actual.MessageUnits.First());
+                    Assert.IsType<UserMessage>(actual.MessageUnits.ElementAt(1));
+                    Assert.IsType<Receipt>(actual.MessageUnits.Last());
+                    Assert.Equal(
+                        Enumerable.Range(1, 3),
+                        actual.MessageUnits.Select(m => int.Parse(m.MessageId)));
+                }
+            }
+        }
+
         public class AS4MessageSerializeFacts : GivenAS4MessageFacts
         {
             [Theory]
