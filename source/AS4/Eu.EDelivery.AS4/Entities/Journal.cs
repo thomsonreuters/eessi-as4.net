@@ -13,7 +13,7 @@ namespace Eu.EDelivery.AS4.Entities
         public DateTimeOffset LogDate { get; set; }
 
         [MaxLength(20)]
-        public string AgentType { get; set; }
+        public string AgentType { get; private set; }
 
         public void SetAgentType(AgentType t)
         {
