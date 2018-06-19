@@ -1,49 +1,28 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 
 namespace Eu.EDelivery.AS4.Model.Core
 {
-    [DebuggerDisplay("Href {" + nameof(Href) + "}")]
-    public class PartInfo : IEquatable<PartInfo>
+    [DebuggerDisplay("Location {" + nameof(Location) + "}")]
+    public class Schema : IEquatable<Schema>
     {
-        public string Href { get; }
+        public string Location { get; }
 
-        public IDictionary<string, string> Properties { get; }
+        public string Version { get; }
 
-        public IEnumerable<Schema> Schemas { get; }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="PartInfo"/> class.
-        /// </summary>
-        public PartInfo(string href) : this(href, new Dictionary<string, string>(), new Schema[0]) { }
+        public string Namespace { get; }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="PartInfo"/> class.
+        /// Initializes a new instance of the <see cref="Schema"/> class.
         /// </summary>
-        public PartInfo(
-            string href, 
-            IDictionary<string, string> properties, 
-            IEnumerable<Schema> schemas)
+        /// <param name="location"></param>
+        /// <param name="version"></param>
+        /// <param name="namespace"></param>
+        public Schema(string location, string version, string @namespace)
         {
-            if (href == null)
-            {
-                throw new ArgumentNullException(nameof(href));
-            }
-
-            if (properties == null)
-            {
-                throw new ArgumentNullException(nameof(properties));
-            }
-
-            if (schemas == null)
-            {
-                throw new ArgumentNullException(nameof(schemas));
-            }
-
-            Href = href.Replace(" ", string.Empty);
-            Properties = properties;
-            Schemas = schemas;
+            Location = location;
+            Version = version;
+            Namespace = @namespace;
         }
 
         /// <summary>
@@ -51,7 +30,7 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// </summary>
         /// <param name="other">An object to compare with this object.</param>
         /// <returns>true if the current object is equal to the <paramref name="other" /> parameter; otherwise, false.</returns>
-        public bool Equals(PartInfo other)
+        public bool Equals(Schema other)
         {
             if (other is null)
             {
@@ -63,7 +42,9 @@ namespace Eu.EDelivery.AS4.Model.Core
                 return true;
             }
 
-            return string.Equals(Href, other.Href);
+            return string.Equals(Location, other.Location)
+                   && string.Equals(Version, other.Version)
+                   && string.Equals(Namespace, other.Namespace);
         }
 
         /// <summary>
@@ -83,9 +64,9 @@ namespace Eu.EDelivery.AS4.Model.Core
                 return true;
             }
 
-            if (obj is PartInfo p)
+            if (obj is Schema s)
             {
-                return Equals(p);
+                return Equals(s);
             }
 
             return false;
@@ -97,27 +78,33 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// <returns>A hash code for the current object.</returns>
         public override int GetHashCode()
         {
-            return Href != null ? Href.GetHashCode() : 0;
+            unchecked
+            {
+                int hashCode = Location != null ? Location.GetHashCode() : 0;
+                hashCode = (hashCode * 397) ^ (Version != null ? Version.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (Namespace != null ? Namespace.GetHashCode() : 0);
+                return hashCode;
+            }
         }
 
         /// <summary>
-        /// Returns a value that indicates whether the values of two <see cref="T:Eu.EDelivery.AS4.Model.Core.PartInfo" /> objects are equal.
+        /// Returns a value that indicates whether the values of two <see cref="T:Eu.EDelivery.AS4.Model.Core.Schema" /> objects are equal.
         /// </summary>
         /// <param name="left">The first value to compare.</param>
         /// <param name="right">The second value to compare.</param>
         /// <returns>true if the <paramref name="left" /> and <paramref name="right" /> parameters have the same value; otherwise, false.</returns>
-        public static bool operator ==(PartInfo left, PartInfo right)
+        public static bool operator ==(Schema left, Schema right)
         {
             return Equals(left, right);
         }
 
         /// <summary>
-        /// Returns a value that indicates whether two <see cref="T:Eu.EDelivery.AS4.Model.Core.PartInfo" /> objects have different values.
+        /// Returns a value that indicates whether two <see cref="T:Eu.EDelivery.AS4.Model.Core.Schema" /> objects have different values.
         /// </summary>
         /// <param name="left">The first value to compare.</param>
         /// <param name="right">The second value to compare.</param>
         /// <returns>true if <paramref name="left" /> and <paramref name="right" /> are not equal; otherwise, false.</returns>
-        public static bool operator !=(PartInfo left, PartInfo right)
+        public static bool operator !=(Schema left, Schema right)
         {
             return !Equals(left, right);
         }

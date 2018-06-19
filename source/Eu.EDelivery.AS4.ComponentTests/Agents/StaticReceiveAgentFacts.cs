@@ -90,18 +90,16 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         {
             string attachmentId = "attachment-" + Guid.NewGuid();
 
-            AS4Message m = AS4Message.Create(
-                new UserMessage(ebmsMessageId)
+            var user = new UserMessage(ebmsMessageId)
+            {
+                CollaborationInfo =
                 {
-                    CollaborationInfo =
-                    {
-                        AgreementReference = { PModeId = DefaultPModeId }
-                    },
-                    PayloadInfo = new[]
-                    {
-                        new PartInfo("cid:" + attachmentId)
-                    }
-                });
+                    AgreementReference = { PModeId = DefaultPModeId }
+                }
+            };
+            user.AddPartInfo(new PartInfo("cid:" + attachmentId));
+
+            AS4Message m = AS4Message.Create(user);
 
             m.AddAttachment(
                     new Attachment(attachmentId)

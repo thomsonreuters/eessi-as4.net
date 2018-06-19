@@ -33,11 +33,6 @@ namespace Eu.EDelivery.AS4.Mappings.Core
                             userMessage.MessageProperties = null;
                         }
 
-                        if (routingInput.PayloadInfo?.Length == 0)
-                        {
-                            userMessage.PayloadInfo = null;
-                        }
-
                     })
                     .ForAllOtherMembers(m => m.Ignore());            
         }

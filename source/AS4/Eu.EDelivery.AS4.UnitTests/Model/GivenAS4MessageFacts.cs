@@ -1,11 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
-using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.PMode;
@@ -79,11 +79,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
             }
 
             [Property]
-            public void ThenMessageRemainsSoapAfterAttachmentsAreRemoved(NonEmptyArray<NonNull<string>> ids)
+            public void ThenMessageRemainsSoapAfterAttachmentsAreRemoved(NonEmptyArray<Guid> ids)
             {
                 // Arrange
                 AS4Message sut = AS4Message.Empty;
-                IEnumerable<Attachment> attachments = ids.Get.Select(i => new Attachment(i.Get));
+                IEnumerable<Attachment> attachments = ids.Get.Select(i => new Attachment(i.ToString()));
 
                 // Act / Assert
                 Assert.All(attachments, a =>

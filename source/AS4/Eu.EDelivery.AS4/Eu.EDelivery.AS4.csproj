@@ -140,6 +140,7 @@
     <Compile Include="Migrations\20180511112132_AddRetryReliabilityTable.Designer.cs">
       <DependentUpon>20180511112132_AddRetryReliabilityTable.cs</DependentUpon>
     </Compile>
+    <Compile Include="Model\Core\Schema.cs" />
     <Compile Include="Model\PMode\SafeIntJsonConverter.cs" />
     <Compile Include="Resources\XsdSchemaDefinitions.cs" />
     <Compile Include="Security\Signing\CalculateSignatureConfig.cs" />

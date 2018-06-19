@@ -27,10 +27,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
             Sender = CreateParty("Sender", "org:holodeckb2b:example:company:A");
             MessageProperties = CreateMessageProperties();
 
-            PayloadInfo = attachmentIds
+            IEnumerable<PartInfo> partInfos = attachmentIds
                 .DefaultIfEmpty("attachment-uri")
-                .Select(id => new PartInfo(href: $"cid:{id}"))
-                .ToList();
+                .Select(id => new PartInfo(href: $"cid:{id}"));
+
+            foreach (PartInfo p in partInfos)
+            {
+                AddPartInfo(p);
+            }
         }
 
         private static CollaborationInfo CreateCollaborationInfo()
