@@ -1,4 +1,5 @@
 ﻿using Eu.EDelivery.AS4.Entities;
+using Eu.EDelivery.AS4.Extensions;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Entities
@@ -11,7 +12,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
         [Fact]
         public void ExceptionEntityHasDefaultOperation()
         {
-            Assert.Equal(Operation.NotApplicable, OperationUtils.Parse(new ExceptionEntity().Operation));
+            Assert.Equal(Operation.NotApplicable, new ExceptionEntity().Operation.ToEnum<Operation>());
         }
 
         [Fact]
@@ -25,7 +26,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
             sut.Lock(expectedOperation.ToString());
 
             // Assert
-            Assert.Equal(expectedOperation, OperationUtils.Parse(sut.Operation));
+            Assert.Equal(expectedOperation, sut.Operation.ToEnum<Operation>());
         }
 
         [Fact]
@@ -40,7 +41,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
             sut.Lock(expectedOperation.ToString());
 
             // Assert
-            Assert.NotEqual(expectedOperation, OperationUtils.Parse(sut.Operation));
+            Assert.NotEqual(expectedOperation, sut.Operation.ToEnum<Operation>());
         }
     }
 }

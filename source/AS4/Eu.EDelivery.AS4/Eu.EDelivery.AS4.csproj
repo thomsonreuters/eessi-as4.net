@@ -145,6 +145,7 @@
     <Compile Include="Migrations\20180618120333_AddJournalTable.designer.cs">
       <DependentUpon>20180618120333_AddJournalTable.cs</DependentUpon>
     </Compile>
+    <Compile Include="Model\Core\Schema.cs" />
     <Compile Include="Model\PMode\SafeIntJsonConverter.cs" />
     <Compile Include="Resources\XsdSchemaDefinitions.cs" />
     <Compile Include="Security\Signing\CalculateSignatureConfig.cs" />

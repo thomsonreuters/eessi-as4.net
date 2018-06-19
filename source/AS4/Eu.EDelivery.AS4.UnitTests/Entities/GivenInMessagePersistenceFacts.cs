@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Entities;
+using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.UnitTests.Common;
 using Xunit;
 
@@ -61,7 +62,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
                 var inMessage = db.InMessages.FirstOrDefault(i => i.Id == savedInMessageId);
 
                 Assert.NotNull(inMessage);
-                Assert.Equal(MessageExchangePattern.Pull, MessageExchangePatternUtils.Parse(inMessage.MEP));
+                Assert.Equal(MessageExchangePattern.Pull, inMessage.MEP.ToEnum<MessageExchangePattern>());
             }
         }
 

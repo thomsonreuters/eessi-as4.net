@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Entities;
+using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.UnitTests.Common;
 using Xunit;
 
@@ -35,7 +36,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
                 var message = db.OutMessages.FirstOrDefault(i => i.Id == savedInMessageId);
 
                 Assert.NotNull(message);
-                Assert.Equal(Operation.Sent, OperationUtils.Parse(message.Operation));
+                Assert.Equal(Operation.Sent, message.Operation.ToEnum<Operation>());
             }
         }
 
@@ -63,7 +64,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
                 var msg = db.OutMessages.FirstOrDefault(i => i.Id == savedInMessageId);
 
                 Assert.NotNull(msg);
-                Assert.Equal(OutStatus.Ack, OutStatusUtils.Parse(msg.Status));
+                Assert.Equal(OutStatus.Ack, msg.Status.ToEnum<OutStatus>());
             }
         }
 
@@ -91,7 +92,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
                 var message = db.OutMessages.FirstOrDefault(i => i.Id == savedId);
 
                 Assert.NotNull(message);
-                Assert.Equal(MessageType.Receipt, MessageTypeUtils.Parse(message.EbmsMessageType));
+                Assert.Equal(MessageType.Receipt, message.EbmsMessageType.ToEnum<MessageType>());
             }
         }
 

@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Model.Core;
@@ -54,15 +55,18 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
 
             private static AS4Message AS4MessageWithTwoAttachments()
             {
-                var attachment = new Attachment("attachment-id")
+                Attachment CreateAttachment()
                 {
-                    Content = new MemoryStream(Encoding.UTF8.GetBytes("Plain Dummy Text")),
-                    ContentType = "text/plain"
-                };
+                    return new Attachment("attachment" + Guid.NewGuid())
+                    {
+                        Content = new MemoryStream(Encoding.UTF8.GetBytes("Plain Dummy Text")),
+                        ContentType = "text/plain"
+                    };
+                }
 
                 AS4Message message = AS4Message.Empty;
-                message.AddAttachment(attachment);
-                message.AddAttachment(attachment);
+                message.AddAttachment(CreateAttachment());
+                message.AddAttachment(CreateAttachment());
 
                 return message;
             }

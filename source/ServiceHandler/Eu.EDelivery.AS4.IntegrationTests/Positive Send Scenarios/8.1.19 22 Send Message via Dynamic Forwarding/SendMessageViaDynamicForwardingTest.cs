@@ -181,16 +181,20 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._19_22
 
         private static AS4Message UserMessageWithAttachment(string argRefPModeId)
         {
-            const string payloadId = "earth";
-
-            AS4Message userMessage = AS4Message.Create(new UserMessage(Guid.NewGuid().ToString())
+            var user = new UserMessage(Guid.NewGuid().ToString())
             {
                 CollaborationInfo = HolodeckCollaboration(argRefPModeId),
-                Receiver = new Party(HolodeckPartyRole, new PartyId(HolodeckBId) {Type = HolodeckBId}),
-                PayloadInfo = {ImagePayload(payloadId)}
-            }, new SendingProcessingMode {MessagePackaging = {IsMultiHop = true}});
+                Receiver = new Party(HolodeckPartyRole, new PartyId(HolodeckBId) { Type = HolodeckBId }),
+            };
 
-            userMessage.AddAttachment(ImageAttachment(payloadId));
+            AS4Message userMessage = AS4Message.Create(user, new SendingProcessingMode {MessagePackaging = {IsMultiHop = true}});
+            userMessage.AddAttachment(
+                attachment: ImageAttachment(id: "earth"),
+                partProperties: new Dictionary<string, string>
+                {
+                    ["Part Property"] = "Some Holodeck required Part Property"
+                },
+                partSchemas: new Schema[0]);
 
             return userMessage;
         }
@@ -210,17 +214,6 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._19_22
                 {
                     Type = Constants.Namespaces.TestService,
                     Value = Constants.Namespaces.TestService
-                }
-            };
-        }
-
-        private static PartInfo ImagePayload(string id)
-        {
-            return new PartInfo("cid:" + id)
-            {
-                Properties = new Dictionary<string, string>
-                {
-                    ["Part Property"] = "Some Holodeck required Part Property"
                 }
             };
         }
