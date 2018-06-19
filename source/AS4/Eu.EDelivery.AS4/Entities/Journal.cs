@@ -26,7 +26,6 @@ namespace Eu.EDelivery.AS4.Entities
         [MaxLength(100)]
         public string EbmsMessageId { get; set; }
 
-        [MaxLength(100)]
         public string LogEntry { get; set; }
 
         [MaxLength(20)]

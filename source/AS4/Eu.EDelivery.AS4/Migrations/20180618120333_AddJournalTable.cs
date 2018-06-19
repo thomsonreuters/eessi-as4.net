@@ -16,7 +16,7 @@ namespace Eu.EDelivery.AS4.Migrations
                               .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     RefToInMessageId = table.Column<long?>(nullable: true),
                     RefToOutMessageId = table.Column<long?>(nullable: true),
-                    LogEntry = table.Column<string>(nullable: false, maxLength: 100),
+                    LogEntry = table.Column<string>(nullable: false),
                     LogDate = table.Column<DateTimeOffset>(nullable: false),
                     AgentType = table.Column<string>(nullable: false, maxLength: 20),
                     AgentName = table.Column<string>(nullable: false, maxLength: 50),
