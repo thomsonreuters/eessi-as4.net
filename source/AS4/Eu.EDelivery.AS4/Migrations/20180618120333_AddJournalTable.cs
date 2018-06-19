@@ -54,13 +54,13 @@ namespace Eu.EDelivery.AS4.Migrations
                 name: "IX_Journal_RefToInMessageId",
                 table: "Journal",
                 column: "RefToInMessageId",
-                unique: true);
+                unique: false);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Journal_RefToOutMessageId",
                 table: "Journal",
                 column: "RefToOutMessageId",
-                unique: true);
+                unique: false);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
