@@ -33,6 +33,16 @@ namespace Eu.EDelivery.AS4.Model.Core
         public Receipt(string messageId) : base(messageId) {}
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="Receipt"/> class.
+        /// </summary>
+        /// <param name="messageId">The message identifier.</param>
+        /// <param name="refToMessageId">The reference to a <see cref="UserMessage"/></param>
+        public Receipt(string messageId, string refToMessageId) : base(messageId)
+        {
+            RefToMessageId = refToMessageId;
+        }
+
+        /// <summary>
         /// Gets the action value.
         /// </summary>
         /// <returns></returns>

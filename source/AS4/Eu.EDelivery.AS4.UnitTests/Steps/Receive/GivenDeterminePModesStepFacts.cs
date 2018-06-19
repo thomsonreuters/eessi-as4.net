@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
@@ -33,6 +34,43 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
         public class GivenValidArguments : GivenDeterminePModesStepFacts
         {
+            [Fact]
+            public async Task Determine_Both_Sending_And_Receiving_PMode_When_Bundled()
+            {
+                // Arrange
+                var nonMultihopSignal = new Receipt(
+                    messageId: $"receipt-{Guid.NewGuid()}", 
+                    refToMessageId: $"reftoid-{Guid.NewGuid()}");
+
+                string receivePModeId = $"receive-pmodeid-{Guid.NewGuid()}";
+                var userMesssage = new UserMessage(messageId: $"user-{Guid.NewGuid()}");
+                userMesssage.CollaborationInfo.AgreementReference.PModeId = receivePModeId;
+
+                string sendPModeId = $"send-pmodeid-{Guid.NewGuid()}";
+                var expected = new SendingProcessingMode { Id = sendPModeId };
+                InsertOutMessage(nonMultihopSignal.RefToMessageId, expected);
+
+                var msg = AS4Message.Create(userMesssage);
+                msg.AddMessageUnit(nonMultihopSignal);
+
+                // Act
+                StepResult result = await ExerciseDeterminePModes(
+                    msg, 
+                    new ReceivePMode
+                    {
+                        Id = receivePModeId,
+                        ReplyHandling = new ReplyHandlingSetting { SendingPMode = "" }
+                    });
+
+                // Assert
+                Assert.Equal(
+                    receivePModeId,
+                    result.MessagingContext.ReceivingPMode.Id);
+                Assert.Equal(
+                    sendPModeId,
+                    result.MessagingContext.SendingPMode.Id);
+            }
+
             [Fact]
             public async Task Dont_Use_Scoring_System_ReceivingPMode_When_Already_Configure()
             {
@@ -80,9 +118,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 GetDataStoreContext.InsertOutMessage(outMessage, withReceptionAwareness: false);
             }
 
-            private async Task<StepResult> ExerciseDeterminePModes(AS4Message message)
+            private async Task<StepResult> ExerciseDeterminePModes(AS4Message message, params ReceivingProcessingMode[] pmodes)
             {
-                var sut = new DeterminePModesStep(null, GetDataStoreContext);
+                var stubConfig = new Mock<IConfig>();
+                stubConfig.Setup(c => c.GetReceivingPModes()).Returns(pmodes);
+                var sut = new DeterminePModesStep(stubConfig.Object, GetDataStoreContext);
 
                 return await sut.ExecuteAsync(
                     new MessagingContext(message, MessagingContextMode.Receive));
