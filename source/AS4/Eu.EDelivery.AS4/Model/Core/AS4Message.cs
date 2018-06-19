@@ -259,12 +259,48 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// Add Attachment to <see cref="AS4Message" />
         /// </summary>
         /// <param name="attachment"></param>
+        /// <exception cref="InvalidOperationException">Throws when there already exists an <see cref="Attachment"/> with the same id</exception>
         public void AddAttachment(Attachment attachment)
         {
-            _attachmens.Add(attachment);
-            if (!ContentType.Contains(Constants.ContentTypes.Mime))
+            if (!_attachmens.Exists(a => a.Id == attachment.Id))
             {
-                UpdateContentTypeHeader();
+                _attachmens.Add(attachment);
+                if (!ContentType.Contains(Constants.ContentTypes.Mime))
+                {
+                    UpdateContentTypeHeader();
+                }
+            }
+            else
+            {
+                throw new InvalidOperationException(
+                    $"Cannot add attachment because there already exists an 'Attachment' with the Id={attachment.Id}");
+            }
+        }
+
+        /// <summary>
+        /// Add Attachment to <see cref="AS4Message" />
+        /// </summary>
+        /// <param name="attachment"></param>
+        /// <param name="partProperties"></param>
+        /// <param name="partSchemas"></param>
+        /// <exception cref="InvalidOperationException">Throws when there already exists an <see cref="Attachment"/> with the same id</exception>
+        public void AddAttachment(
+            Attachment attachment,
+            IDictionary<string, string> partProperties,
+            IEnumerable<Schema> partSchemas)
+        {
+            if (!_attachmens.Exists(a => a.Id == attachment.Id))
+            {
+                _attachmens.Add(attachment);
+                if (!ContentType.Contains(Constants.ContentTypes.Mime))
+                {
+                    UpdateContentTypeHeader();
+                }
+            }
+            else
+            {
+                throw new InvalidOperationException(
+                    $"Cannot add attachment because there already exists an 'Attachment' with the Id={attachment.Id}");
             }
         }
 
@@ -300,6 +336,7 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// <param name="retrieval">The retrieval.</param>
         /// <returns></returns>
         /// <exception cref="Exception">A delegate callback throws an exception.</exception>
+        /// <exception cref="InvalidOperationException">Throws when an <see cref="Attachment"/> is being added to a non-UserMessage</exception>
         public async Task AddAttachments(IReadOnlyList<Payload> payloads, Func<Payload, Task<Stream>> retrieval)
         {
             foreach (Payload payload in payloads)

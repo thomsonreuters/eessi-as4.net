@@ -56,12 +56,10 @@ namespace Eu.EDelivery.AS4.Model.Core
         }
 
         public string Location { get; set; }
-        public List<Schema> Schemas { get; set; }
+
         public IDictionary<string, string> Properties { get; set; }
 
-        public Attachment() : this(IdentifierFactory.Instance.Create())
-        {
-        }
+        public Attachment() : this(IdentifierFactory.Instance.Create()) { }
 
         public Attachment(string id)
         {
@@ -113,16 +111,8 @@ namespace Eu.EDelivery.AS4.Model.Core
         private void InitializeDefaults()
         {
             Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-            Schemas = new List<Schema>();
             ContentType = "application/octet-stream";
             EstimatedContentSize = -1;
         }
-    }
-
-    public class Schema
-    {
-        public string Location { get; set; }
-        public string Version { get; set; }
-        public string Namespace { get; set; }
     }
 }

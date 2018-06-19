@@ -9,10 +9,8 @@ namespace Eu.EDelivery.AS4.Mappings.Common
     {
         public SchemaMap()
         {
-            CreateMap<Model.Common.Schema, Model.Core.Schema>()
-                .ForMember(dest => dest.Namespace, src => src.MapFrom(s => s.Namespace))
-                .ForMember(dest => dest.Location, src => src.MapFrom(s => s.Location))
-                .ForMember(dest => dest.Version, src => src.MapFrom(s => s.Version));
+            CreateMap<Model.Common.Schema, Model.Core.Schema>(MemberList.None)
+                .ConstructUsing(submit => new Model.Core.Schema(submit.Location, submit.Version, submit.Namespace));
         }
     }
 }

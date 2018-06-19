@@ -12,6 +12,7 @@ using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Resources;
 using Eu.EDelivery.AS4.Singletons;
+using Eu.EDelivery.AS4.Streaming;
 using Eu.EDelivery.AS4.Xml;
 using NLog;
 using Error = Eu.EDelivery.AS4.Model.Core.Error;
@@ -180,6 +181,8 @@ namespace Eu.EDelivery.AS4.Serialization
                     }
                 }
             }
+
+            StreamUtilities.MovePositionToStreamStart(envelopeStream);
 
             return as4Message;
         }

@@ -87,7 +87,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
                 Logger.Trace($"{context.LogTag} Attachment {attachment.Id} will be decompressed");
                 DecompressAttachment(attachment);
-                AssignAttachmentProperties(as4Message.FirstUserMessage.PayloadInfo.ToList(), attachment);
+                AssignAttachmentProperties(as4Message.FirstUserMessage.PayloadInfo, attachment);
                 Logger.Debug($"{context.LogTag} Attachment {attachment.Id} is decompressed to a type of {attachment.ContentType}");
             }
 
@@ -134,10 +134,10 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             }
         }
 
-        private static void AssignAttachmentProperties(List<PartInfo> messagePayloadInfo, Attachment attachment)
+        private static void AssignAttachmentProperties(IEnumerable<PartInfo> messagePayloadInfo, Attachment attachment)
         {
             attachment.Properties["CompressionType"] = GzipContentType;
-            string mimeType = messagePayloadInfo.Find(attachment.Matches).Properties["MimeType"];
+            string mimeType = messagePayloadInfo.FirstOrDefault(attachment.Matches)?.Properties["MimeType"];
 
             if (string.IsNullOrWhiteSpace(mimeType))
             {

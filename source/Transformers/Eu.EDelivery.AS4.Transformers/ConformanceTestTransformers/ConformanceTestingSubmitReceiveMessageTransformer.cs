@@ -130,7 +130,10 @@ namespace Eu.EDelivery.AS4.Transformers.ConformanceTestTransformers
 
         private static AS4Message CreateAS4Message(UserMessage userMessage, IEnumerable<PartInfo> payloadInfo, IEnumerable<Attachment> attachments)
         {
-            userMessage.PayloadInfo = new List<PartInfo>(payloadInfo);
+            foreach (PartInfo p in payloadInfo)
+            {
+                userMessage.AddPartInfo(p);
+            }
 
             var result = AS4Message.Create(userMessage, null);
 

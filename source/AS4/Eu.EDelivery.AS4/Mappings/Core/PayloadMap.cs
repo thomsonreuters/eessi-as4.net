@@ -1,6 +1,6 @@
 ﻿using System.Linq;
 using AutoMapper;
-using Eu.EDelivery.AS4.Utilities;
+using Eu.EDelivery.AS4.Singletons;
 
 namespace Eu.EDelivery.AS4.Mappings.Core
 {
@@ -20,21 +20,17 @@ namespace Eu.EDelivery.AS4.Mappings.Core
                             .Select(p => new Xml.Property {name = p.Key, Value = p.Value}).ToArray();
                     });
 
-            CreateMap<Xml.PartInfo, Model.Core.PartInfo>()
-                .ForMember(dest => dest.Href, src => src.MapFrom(t => t.href))
-                .ForMember(dest => dest.Schemas, src => src.MapFrom(t => t.Schemas ?? new Xml.Schema[] {}))
-                .ForMember(dest => dest.Properties, src => src.Ignore())
-                .AfterMap(
-                    (xmlPartInfo, modelPartInfo) =>
-                    {
-                        if (xmlPartInfo.PartProperties == null || xmlPartInfo.PartProperties.Length == 0)
-                        {
-                            return;
-                        }
+            CreateMap<Xml.PartInfo, Model.Core.PartInfo>(MemberList.None)
+                .ConstructUsing(xml =>
+                {
+                    Xml.Property[] props = xml.PartProperties ?? new Xml.Property[0];
+                    Xml.Schema[] schemas = xml.Schemas ?? new Xml.Schema[0];
 
-                        modelPartInfo.Properties = xmlPartInfo.PartProperties
-                            .ToDictionary(property => property.name, property => property.Value);
-                    });
+                    return new Model.Core.PartInfo(
+                        xml.href,
+                        props.ToDictionary(prop => prop.name, p => p.Value),
+                        schemas.Select(AS4Mapper.Map<Model.Core.Schema>));
+                });
         }
     }
 
@@ -47,10 +43,8 @@ namespace Eu.EDelivery.AS4.Mappings.Core
                 .ForMember(dest => dest.version, src => src.MapFrom(t => t.Version))
                 .ForMember(dest => dest.@namespace, src => src.MapFrom(t => t.Namespace));
 
-            CreateMap<Xml.Schema, Model.Core.Schema>()
-                .ForMember(dest => dest.Location, src => src.MapFrom(t => t.location))
-                .ForMember(dest => dest.Version, src => src.MapFrom(t => t.version))
-                .ForMember(dest => dest.Namespace, src => src.MapFrom(t => t.@namespace));
+            CreateMap<Xml.Schema, Model.Core.Schema>(MemberList.None)
+                .ConstructUsing(xml => new Model.Core.Schema(xml.location, xml.version, xml.@namespace));
         }
     }
 }

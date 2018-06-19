@@ -19,13 +19,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
         public async Task ValidationFailure_IfExternalPayloadReference()
         {
             // Arrange
-            AS4Message message = AS4Message.Create(new UserMessage
-            {
-                PayloadInfo = new[] {new PartInfo("cid:earth")}
-            });
+            var user = new UserMessage();
+            AS4Message message = AS4Message.Create(user);
             message.AddAttachment(new Attachment("earth") {Content = Stream.Null});
+            message.FirstUserMessage.AddPartInfo(new PartInfo("earth"));
             message = await SerializeDeserialize(message);
-            message.FirstUserMessage.PayloadInfo.First().Href = null;
 
             // Act
             StepResult result = await ExerciseValidation(message);
@@ -39,10 +37,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
         public async Task ValidationFailure_IfNoAttachmentCanBeFoundForEachPartInfo()
         {
             // Arrange
-            AS4Message message = AS4Message.Create(new UserMessage
-            {
-                PayloadInfo = new[] {new PartInfo("cid:some other href")}
-            });
+            var user = new UserMessage();
+            user.AddPartInfo(new PartInfo("cid:some other href"));
+            AS4Message message = AS4Message.Create(user);
             message.AddAttachment(new Attachment("earth") {Content = Stream.Null});
             message = await SerializeDeserialize(message);
 
@@ -74,22 +71,18 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
             StepResult result = await ExerciseValidation(message);
 
-            Assert.True(result.Succeeded);            
+            Assert.True(result.Succeeded);
         }
 
         [Fact]
         public async Task ValidationFailure_IfUserMessageContainsDuplicatePayloadIds()
         {
-            AS4Message message = AS4Message.Create(new UserMessage
-            {
-                PayloadInfo = new[]
-                {
-                    new PartInfo("cid:earth"),
-                    new PartInfo("cid:earth")
-                }
-            });
-
-            message.AddAttachment(new Attachment("earth") {Content = Stream.Null});
+            var user = new UserMessage();
+            user.AddPartInfo(new PartInfo("cid:earth1"));
+            user.AddPartInfo(new PartInfo("cid:earth2"));
+            
+            AS4Message message = AS4Message.Create(user);
+            message.AddAttachment(new Attachment("earth1") {Content = Stream.Null});
             message = await SerializeDeserialize(message);
 
             StepResult result = await ExerciseValidation(message);
