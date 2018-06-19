@@ -52,13 +52,13 @@ namespace Eu.EDelivery.AS4.Migrations
 
             migrationBuilder.CreateIndex(
                 name: "IX_Journal_RefToInMessageId",
-                table: "RetryReliability",
+                table: "Journal",
                 column: "RefToInMessageId",
                 unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Journal_RefToOutMessageId",
-                table: "RetryReliability",
+                table: "Journal",
                 column: "RefToOutMessageId",
                 unique: true);
         }
