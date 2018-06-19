@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
@@ -197,7 +198,7 @@ namespace Eu.EDelivery.AS4.Entities
         /// <param name="value">Value indicating the <see cref="Entity" /> is locked.</param>
         public override void Lock(string value)
         {
-            var updatedOperation = OperationUtils.Parse(value);
+            var updatedOperation = value.ToEnum<Operation>();
 
             if (updatedOperation != AS4.Entities.Operation.NotApplicable)
             {
