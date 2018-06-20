@@ -16,7 +16,9 @@ namespace Eu.EDelivery.AS4.Entities
         {
             CurrentRetryCount = 0;
             RetryInterval = "0:00:00:00";
-            Status = ReceptionStatus.Pending.ToString();
+            
+            // TODO: it would be better if we would have a different kind of enum with an 'Idle' status
+            Status = ReceptionStatus.Busy.ToString();
             LastRetryTime = null;
         }
 
