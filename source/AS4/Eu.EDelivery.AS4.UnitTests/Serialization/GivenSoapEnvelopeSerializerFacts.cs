@@ -45,6 +45,20 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
             private const string ServiceNamespace = "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service";
             private const string ActionNamespace = "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/test";
 
+            private static readonly XmlSchemaSet Soap12Schemas;
+
+            static GivenSoapEnvelopeSerializerSucceeds()
+            {
+                var schemas = new XmlSchemaSet();
+                using (var stringReader = new StringReader(Schemas.Soap12))
+                {
+                    XmlSchema schema = XmlSchema.Read(stringReader, (sender, args) => { });
+                    schemas.Add(schema);
+                }
+
+                Soap12Schemas = schemas;
+            }
+
             [Fact]
             public void ThenMpcAttributeIsCorrectlySerialized()
             {
@@ -236,14 +250,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
 
             private static bool IsValidEbmsEnvelope(XmlDocument envelopeDocument)
             {
-                var schemas = new XmlSchemaSet();
-                using (var stringReader = new StringReader(Schemas.Soap12))
-                {
-                    XmlSchema schema = XmlSchema.Read(stringReader, (sender, args) => { });
-                    schemas.Add(schema);
-                }
-
-                envelopeDocument.Schemas = schemas;
+                envelopeDocument.Schemas = Soap12Schemas;
 
                 return ValidateEnvelope(envelopeDocument);
             }
