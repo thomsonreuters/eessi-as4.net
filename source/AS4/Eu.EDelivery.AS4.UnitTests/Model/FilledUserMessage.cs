@@ -25,7 +25,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
             CollaborationInfo = CreateCollaborationInfo();
             Receiver = CreateParty("Receiver", "org:eu:europa:as4:example");
             Sender = CreateParty("Sender", "org:holodeckb2b:example:company:A");
-            MessageProperties = CreateMessageProperties();
+
+            foreach (MessageProperty p in CreateMessageProperties())
+            {
+                AddMessageProperty(p);
+            }
 
             IEnumerable<PartInfo> partInfos = attachmentIds
                 .DefaultIfEmpty("attachment-uri")
@@ -67,7 +71,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
 
         private static List<MessageProperty> CreateMessageProperties()
         {
-            return new List<MessageProperty> { new MessageProperty("Name", "Value") { Type = "Type" } };
+            return new List<MessageProperty> { new MessageProperty("Name", "Value", "Type") };
         }
     }
 }

@@ -110,7 +110,7 @@ namespace Eu.EDelivery.AS4.Mappings.Core
                 .AfterMap(
                     (modelUserMessage, xmlUserMessage) =>
                     {
-                        if (modelUserMessage.MessageProperties?.Count == 0)
+                        if (!modelUserMessage.MessageProperties.Any())
                         {
                             xmlUserMessage.MessageProperties = null;
                         }

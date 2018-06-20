@@ -33,9 +33,13 @@ namespace Eu.EDelivery.AS4.Factories
 
             if (pmode.MessagePackaging?.MessageProperties != null)
             {
-                foreach (var messageProperty in pmode.MessagePackaging?.MessageProperties)
+                foreach (var p in pmode.MessagePackaging?.MessageProperties)
                 {
-                    result.MessageProperties.Add(messageProperty);
+                    result.AddMessageProperty(
+                        new Model.Core.MessageProperty(
+                            p.Name, 
+                            p.Value, 
+                            p.Type));
                 }
             }
 

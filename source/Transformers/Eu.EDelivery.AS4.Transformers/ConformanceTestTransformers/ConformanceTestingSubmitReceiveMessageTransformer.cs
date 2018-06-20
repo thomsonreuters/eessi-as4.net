@@ -99,7 +99,7 @@ namespace Eu.EDelivery.AS4.Transformers.ConformanceTestTransformers
             return result;
         }
 
-        private static void SetCollaborationInfoProperties(UserMessage userMessage, IList<MessageProperty> properties)
+        private static void SetCollaborationInfoProperties(UserMessage userMessage, IEnumerable<MessageProperty> properties)
         {
             userMessage.CollaborationInfo.ConversationId = GetPropertyValue(properties, "ConversationId");
             userMessage.CollaborationInfo.Service.Value = GetPropertyValue(properties, "Service");
@@ -120,12 +120,14 @@ namespace Eu.EDelivery.AS4.Transformers.ConformanceTestTransformers
             userMessage.Receiver.Role = GetPropertyValue(submitMessage.MessageProperties, "ToPartyRole");
         }
 
-        private static void SetMessageProperties(UserMessage userMessage, IList<MessageProperty> properties)
+        private static void SetMessageProperties(UserMessage userMessage, IEnumerable<MessageProperty> properties)
         {
             string[] whiteList = { "originalSender", "finalRecipient", "trackingIdentifier" };
 
-            userMessage.MessageProperties = properties.Where(p => whiteList.Contains(p.Name, StringComparer.OrdinalIgnoreCase))
-                                                         .ToList();
+            foreach (MessageProperty p in properties.Where(p => whiteList.Contains(p.Name, StringComparer.OrdinalIgnoreCase)))
+            {
+                userMessage.AddMessageProperty(p);
+            }
         }
 
         private static AS4Message CreateAS4Message(UserMessage userMessage, IEnumerable<PartInfo> payloadInfo, IEnumerable<Attachment> attachments)
@@ -154,7 +156,7 @@ namespace Eu.EDelivery.AS4.Transformers.ConformanceTestTransformers
             context.SendingPMode = pmode;
         }
        
-        private static string GetPropertyValue(IList<MessageProperty> properties, string propertyName)
+        private static string GetPropertyValue(IEnumerable<MessageProperty> properties, string propertyName)
         {
             return properties.FirstOrDefault(p => p.Name.Equals(propertyName, StringComparison.OrdinalIgnoreCase))?.Value;
         }
