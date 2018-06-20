@@ -15,6 +15,7 @@ using Eu.EDelivery.AS4.ComponentTests.Common;
 using Eu.EDelivery.AS4.ComponentTests.Extensions;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Exceptions;
+using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
@@ -148,7 +149,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                 e => Assert.Equal($"EBMS:{(int)ErrorCode.Ebms0010:0000}", e.ErrorCode));
 
             InMessage inMessageRecord = _databaseSpy.GetInMessageFor(m => m.EbmsMessageId == messageId);
-            Assert.Equal(InStatus.Received, InStatusUtils.Parse(inMessageRecord.Status));
+            Assert.Equal(InStatus.Received, inMessageRecord.Status.ToEnum<InStatus>());
         }
 
         [Fact]
@@ -213,7 +214,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
             InMessage receivedUserMessage = GetInsertedUserMessageFor(receivedAS4Message);
             Assert.NotNull(receivedUserMessage);
-            Assert.Equal(Operation.ToBeDelivered, OperationUtils.Parse(receivedUserMessage.Operation));
+            Assert.Equal(Operation.ToBeDelivered, receivedUserMessage.Operation.ToEnum<Operation>());
         }
 
         private InMessage GetInsertedUserMessageFor(AS4Message receivedAS4Message)
@@ -248,7 +249,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
             InMessage receivedUserMessage = _databaseSpy.GetInMessageFor(m => m.EbmsMessageId == messageId);
             Assert.NotNull(receivedUserMessage);
-            Assert.Equal(Operation.ToBeForwarded, OperationUtils.Parse(receivedUserMessage.Operation));
+            Assert.Equal(Operation.ToBeForwarded, receivedUserMessage.Operation.ToEnum<Operation>());
         }
 
         [Fact]
@@ -342,7 +343,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
 
             InMessage insertedReceipt = _databaseSpy.GetInMessageFor(m => m.EbmsRefToMessageId == ebmsMessageId);
-            Assert.Equal(InStatus.Exception, InStatusUtils.Parse(insertedReceipt.Status));
+            Assert.Equal(InStatus.Exception, insertedReceipt.Status.ToEnum<InStatus>());
             Assert.NotEmpty(_databaseSpy.GetInExceptions(m => m.EbmsRefToMessageId == insertedReceipt.EbmsMessageId));
         }
 
@@ -431,8 +432,8 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
             var inMessage = _databaseSpy.GetInMessageFor(m => m.EbmsRefToMessageId == userMessageId);
             Assert.NotNull(inMessage);
-            Assert.Equal(MessageType.Receipt, MessageTypeUtils.Parse(inMessage.EbmsMessageType));
-            Assert.Equal(InStatus.Exception, InStatusUtils.Parse(inMessage.Status));
+            Assert.Equal(MessageType.Receipt, inMessage.EbmsMessageType.ToEnum<MessageType>());
+            Assert.Equal(InStatus.Exception, inMessage.Status.ToEnum<InStatus>());
 
             var inExceptions = _databaseSpy.GetInExceptions(m => m.EbmsRefToMessageId == inMessage.EbmsMessageId);
             Assert.NotNull(inExceptions);
@@ -463,7 +464,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
             Assert.NotNull(inUserMessage);
             Assert.True(inUserMessage.Intermediary);
-            Assert.Equal(Operation.ToBeForwarded, OperationUtils.Parse(inUserMessage.Operation));
+            Assert.Equal(Operation.ToBeForwarded, inUserMessage.Operation.ToEnum<Operation>());
         }
 
         [Fact]
@@ -489,10 +490,10 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
             Assert.NotNull(inUserMessage);
             Assert.False(inUserMessage.Intermediary);
-            Assert.Equal(Operation.ToBeDelivered, OperationUtils.Parse(inUserMessage.Operation));
+            Assert.Equal(Operation.ToBeDelivered, inUserMessage.Operation.ToEnum<Operation>());
 
             OutMessage outReceipt = _databaseSpy.GetOutMessageFor(m => m.EbmsRefToMessageId == userMessage.MessageId);
-            Assert.Equal(OutStatus.Sent, OutStatusUtils.Parse(outReceipt.Status));
+            Assert.Equal(OutStatus.Sent, outReceipt.Status.ToEnum<OutStatus>());
         }
 
         private static void AssertMessageMultihopAttributes(XmlDocument doc)
@@ -519,7 +520,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             var inMessage = _databaseSpy.GetInMessageFor(m => m.EbmsRefToMessageId == messageId);
 
             Assert.NotNull(inMessage);
-            Assert.Equal(InStatus.Exception, InStatusUtils.Parse(inMessage.Status));
+            Assert.Equal(InStatus.Exception, inMessage.Status.ToEnum<InStatus>());
 
             var inException = _databaseSpy.GetInExceptions(e => e.EbmsRefToMessageId == inMessage.EbmsMessageId);
             Assert.NotNull(inException);
@@ -540,7 +541,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
             Assert.NotNull(inMessage);
             Assert.True(inMessage.Intermediary);
-            Assert.Equal(Operation.ToBeForwarded, OperationUtils.Parse(inMessage.Operation));
+            Assert.Equal(Operation.ToBeForwarded, inMessage.Operation.ToEnum<Operation>());
 
             Stream messageBody = await Registry.Instance
                 .MessageBodyStore
@@ -581,11 +582,11 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             // Assert
             var inMessage = _databaseSpy.GetInMessageFor(m => m.EbmsRefToMessageId == messageId);
             Assert.NotNull(inMessage);
-            Assert.Equal(Operation.ToBeNotified, OperationUtils.Parse(inMessage.Operation));
+            Assert.Equal(Operation.ToBeNotified, inMessage.Operation.ToEnum<Operation>());
 
             var outMessage = _databaseSpy.GetOutMessageFor(m => m.EbmsMessageId == messageId);
             Assert.NotNull(outMessage);
-            Assert.Equal(OutStatus.Ack, OutStatusUtils.Parse(outMessage.Status));
+            Assert.Equal(OutStatus.Ack, outMessage.Status.ToEnum<OutStatus>());
         }
 
         [Fact]
@@ -603,7 +604,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
             var inMessage = _databaseSpy.GetInMessageFor(m => m.EbmsMessageId == id);
             Assert.NotNull(inMessage);
-            Assert.Equal(Operation.NotApplicable, OperationUtils.Parse(inMessage.Operation));
+            Assert.Equal(Operation.NotApplicable, inMessage.Operation.ToEnum<Operation>());
         }
 
         private static AS4Message CreateMultihopSignalMessage(string messageId, string refToMessageId)
@@ -690,8 +691,8 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         {
             InMessage inMessage = _databaseSpy.GetInMessageFor(m => m.EbmsRefToMessageId == expectedId);
             Assert.NotNull(inMessage);
-            Assert.Equal(InStatus.Received, InStatusUtils.Parse(inMessage.Status));
-            Assert.Equal(Operation.ToBeNotified, OperationUtils.Parse(inMessage.Operation));
+            Assert.Equal(InStatus.Received, inMessage.Status.ToEnum<InStatus>());
+            Assert.Equal(Operation.ToBeNotified, inMessage.Operation.ToEnum<Operation>());
         }
 
         // ReSharper disable once UnusedParameter.Local
@@ -700,7 +701,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             OutMessage outMessage = _databaseSpy.GetOutMessageFor(m => m.EbmsMessageId == expectedId);
 
             Assert.NotNull(outMessage);
-            Assert.Equal(expectedStatus, OutStatusUtils.Parse(outMessage.Status));
+            Assert.Equal(expectedStatus, outMessage.Status.ToEnum<OutStatus>());
         }
 
         // TODO:

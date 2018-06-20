@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq.Expressions;
 using Eu.EDelivery.AS4.Entities;
+using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Services;
 using Moq;
@@ -109,7 +110,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Services
                 ExerciseService(mockStore.Object, s => s.MarkReferencedMessageAsComplete(actual));
 
                 // Assert
-                Assert.Equal(ReceptionStatus.Completed, ReceptionStatusUtils.Parse(actual.Status));
+                Assert.Equal(ReceptionStatus.Completed, actual.Status.ToEnum<ReceptionStatus>());
             }
         }
 
@@ -139,7 +140,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Services
                 ExerciseService(mockRepository.Object, s => s.MarkReferencedMessageForResend(awareness));
 
                 // Assert
-                Assert.Equal(Operation.ToBeSent, OperationUtils.Parse(outMessage.Operation));
+                Assert.Equal(Operation.ToBeSent, outMessage.Operation.ToEnum<Operation>());
             }
 
             [Fact]
@@ -167,7 +168,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Services
                 ExerciseService(mockRepository.Object, s => s.MarkReferencedMessageForResend(awareness));
 
                 // Assert
-                Assert.Equal(ReceptionStatus.Pending, ReceptionStatusUtils.Parse(awareness.Status));
+                Assert.Equal(ReceptionStatus.Pending, awareness.Status.ToEnum<ReceptionStatus>());
             }
         }
 
@@ -236,7 +237,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Services
                 ExerciseService(mockRepository.Object, s => s.ResetReferencedMessage(actual));
 
                 // Assert
-                Assert.Equal(ReceptionStatus.Pending, ReceptionStatusUtils.Parse(actual.Status));
+                Assert.Equal(ReceptionStatus.Pending, actual.Status.ToEnum<ReceptionStatus>());
             }
         }
 

@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.ComponentTests.Common;
 using Eu.EDelivery.AS4.Entities;
+using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Factories;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
@@ -56,7 +57,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                 () => _databaseSpy.GetInMessageFor(m => m.EbmsRefToMessageId == ebmsMessageId), 
                 timeout: TimeSpan.FromSeconds(5));
 
-            Assert.Equal(InStatus.Received, InStatusUtils.Parse(receipt.Status));
+            Assert.Equal(InStatus.Received, receipt.Status.ToEnum<InStatus>());
         }
 
         [Fact]
@@ -190,9 +191,9 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             Assert.NotNull(sentMessage);
             Assert.NotNull(receivedMessage);
 
-            Assert.Equal(expectedOutStatus, OutStatusUtils.Parse(sentMessage.Status));
-            Assert.Equal(MessageType.Receipt, MessageTypeUtils.Parse(receivedMessage.EbmsMessageType));
-            Assert.Equal(expectedSignalOperation, OperationUtils.Parse(receivedMessage.Operation));
+            Assert.Equal(expectedOutStatus, sentMessage.Status.ToEnum<OutStatus>());
+            Assert.Equal(MessageType.Receipt, receivedMessage.EbmsMessageType.ToEnum<MessageType>());
+            Assert.Equal(expectedSignalOperation, receivedMessage.Operation.ToEnum<Operation>());
         }
 
         private void PutMessageToSend(AS4Message as4Message, SendingProcessingMode pmode, bool actAsIntermediaryMsh)
