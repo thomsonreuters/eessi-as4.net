@@ -91,8 +91,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             // Assert
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
             AS4Message as4Message = await response.DeserializeToAS4Message();
-            Assert.True(as4Message.IsSignalMessage);
-            Assert.True(as4Message.PrimarySignalMessage is Error);
+            Assert.IsType<Error>(as4Message.PrimaryMessageUnit);
         }
 
         [Fact]
@@ -142,7 +141,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                 .Get(Constants.ContentTypes.Soap)
                 .DeserializeAsync(await response.Content.ReadAsStreamAsync(), Constants.ContentTypes.Soap, CancellationToken.None);
 
-            var errorMsg = result.PrimarySignalMessage as Error;
+            var errorMsg = result.FirstSignalMessage as Error;
             Assert.NotNull(errorMsg);
             Assert.Collection(
                 errorMsg.Errors, 
@@ -174,7 +173,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
             Assert.True(result.IsSignalMessage);
 
-            var errorMessage = result.PrimarySignalMessage as Error;
+            var errorMessage = result.FirstSignalMessage as Error;
             Assert.NotNull(errorMessage);
             Assert.Equal("EBMS:0102", errorMessage.Errors.First().ErrorCode);
         }
@@ -210,8 +209,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
             AS4Message receivedAS4Message = await response.DeserializeToAS4Message();
-            Assert.True(receivedAS4Message.IsSignalMessage);
-            Assert.True(receivedAS4Message.PrimarySignalMessage is Receipt);
+            Assert.IsType<Receipt>(receivedAS4Message.PrimaryMessageUnit);
 
             InMessage receivedUserMessage = GetInsertedUserMessageFor(receivedAS4Message);
             Assert.NotNull(receivedUserMessage);
@@ -222,7 +220,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         {
             return
                 _databaseSpy.GetInMessageFor(
-                    i => i.EbmsMessageId.Equals(receivedAS4Message.PrimarySignalMessage.RefToMessageId));
+                    i => i.EbmsMessageId.Equals(receivedAS4Message.FirstSignalMessage.RefToMessageId));
         }
 
         [Fact]

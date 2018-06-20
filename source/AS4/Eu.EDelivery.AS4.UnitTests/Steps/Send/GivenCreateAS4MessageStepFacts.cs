@@ -76,7 +76,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
                 StepResult result = await ExerciseCreateAS4Message(context);
 
                 // Assert
-                UserMessage userMessage = result.MessagingContext.AS4Message.PrimaryUserMessage;
+                UserMessage userMessage = result.MessagingContext.AS4Message.FirstUserMessage;
                 Assert.NotNull(userMessage);
             }
 
@@ -93,7 +93,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
 
                 // Assert
                 MessageInfo submitMessageInfo = submitMessage.MessageInfo;
-                UserMessage userMessage = result.MessagingContext.AS4Message.PrimaryUserMessage;
+                UserMessage userMessage = result.MessagingContext.AS4Message.FirstUserMessage;
                 Assert.Equal(submitMessageInfo.MessageId, userMessage.MessageId);
                 Assert.Equal(submitMessageInfo.Mpc, userMessage.Mpc);
                 Assert.Equal(submitMessageInfo.RefToMessageId, userMessage.RefToMessageId);
@@ -110,7 +110,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
 
                 StepResult result = await ExerciseCreateAS4Message(context);
 
-                Assert.Equal(result.MessagingContext.AS4Message.PrimaryUserMessage.Mpc, submitMessage.MessageInfo.Mpc);
+                Assert.Equal(result.MessagingContext.AS4Message.FirstUserMessage.Mpc, submitMessage.MessageInfo.Mpc);
             }
 
             private static SubmitMessage CreateSubmitMessageWithMpc(string mpc)
@@ -134,7 +134,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
 
                 StepResult result = await ExerciseCreateAS4Message(context);
 
-                Assert.Equal("some-mpc", result.MessagingContext.AS4Message.PrimaryUserMessage.Mpc );
+                Assert.Equal("some-mpc", result.MessagingContext.AS4Message.FirstUserMessage.Mpc );
             }
 
             [Fact]
@@ -150,7 +150,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
                 StepResult result = await ExerciseCreateAS4Message(internalMessage);
 
                 // Assert
-                Assert.NotEmpty(result.MessagingContext.AS4Message.PrimaryUserMessage.MessageId);
+                Assert.NotEmpty(result.MessagingContext.AS4Message.FirstUserMessage.MessageId);
             }
 
             [Fact]
@@ -173,7 +173,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
                 AgreementReference pmodeAgreementRef =
                     submitMessage.PMode.MessagePackaging.CollaborationInfo.AgreementReference;
                 AgreementReference userMessageAgreementRef =
-                    messagingContext.AS4Message.PrimaryUserMessage.CollaborationInfo.AgreementReference;
+                    messagingContext.AS4Message.FirstUserMessage.CollaborationInfo.AgreementReference;
 
                 Assert.Equal(pmodeAgreementRef.Value, userMessageAgreementRef.Value);
                 Assert.Equal(pmodeAgreementRef.Type, userMessageAgreementRef.Type);
@@ -192,7 +192,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
 
                 // Assert
                 Service pmodService = submitMessage.PMode.MessagePackaging.CollaborationInfo.Service;
-                Service userMessageService = result.MessagingContext.AS4Message.PrimaryUserMessage.CollaborationInfo.Service;
+                Service userMessageService = result.MessagingContext.AS4Message.FirstUserMessage.CollaborationInfo.Service;
                 Assert.Equal(pmodService, userMessageService);
             }
 
@@ -209,7 +209,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
 
                 // Assert
                 string pmodeAction = submitMessage.PMode.MessagePackaging.CollaborationInfo.Action;
-                string userMessageAction = result.MessagingContext.AS4Message.PrimaryUserMessage.CollaborationInfo.Action;
+                string userMessageAction = result.MessagingContext.AS4Message.FirstUserMessage.CollaborationInfo.Action;
                 Assert.Equal(pmodeAction, userMessageAction);
             }
 
@@ -226,7 +226,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
 
                 // Assert
                 Party pmodeParty = submitMessage.PMode.MessagePackaging.PartyInfo.FromParty;
-                Party userMessageParty = result.MessagingContext.AS4Message.PrimaryUserMessage.Sender;
+                Party userMessageParty = result.MessagingContext.AS4Message.FirstUserMessage.Sender;
                 Assert.Equal(pmodeParty, userMessageParty);
             }
 
@@ -243,7 +243,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
 
                 // Assert
                 Party pmodeParty = submitMessage.PMode.MessagePackaging.PartyInfo.ToParty;
-                Party userMessageParty = result.MessagingContext.AS4Message.PrimaryUserMessage.Receiver;
+                Party userMessageParty = result.MessagingContext.AS4Message.FirstUserMessage.Receiver;
                 Assert.Equal(pmodeParty, userMessageParty);
             }
 
@@ -266,7 +266,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             {
                 SubmitMessageProperty submitMessageProperty = submitMessage.MessageProperties.First();
                 UserMessageProperty userMessageMessageProperty =
-                    messagingContext.AS4Message.PrimaryUserMessage.MessageProperties.First();
+                    messagingContext.AS4Message.FirstUserMessage.MessageProperties.First();
 
                 Assert.Equal(submitMessageProperty.Value, userMessageMessageProperty.Value);
                 Assert.Equal(submitMessageProperty.Name, userMessageMessageProperty.Name);

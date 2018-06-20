@@ -231,9 +231,9 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
             // Add a PMode Id to the primary usermessage, just to be sure that it can be picked up with
             // and processed with a specific receiving PMode.
-            if (as4Message.PrimaryUserMessage != null)
+            if (as4Message.FirstUserMessage != null)
             {
-                as4Message.PrimaryUserMessage.CollaborationInfo = new CollaborationInfo
+                as4Message.FirstUserMessage.CollaborationInfo = new CollaborationInfo
                 {
                     AgreementReference = new AgreementReference(pmodeId)
                 };

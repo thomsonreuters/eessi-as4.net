@@ -41,9 +41,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
 
             Assert.False(as4Message.IsEmpty);
             Assert.True(as4Message.IsUserMessage);
-            Assert.Equal(receivingParty.Role, as4Message.PrimaryUserMessage.Receiver.Role);
-            Assert.Equal(receivingParty.PartyIds.First().Id, as4Message.PrimaryUserMessage.Receiver.PartyIds.First().Id);
-            Assert.Equal(receivingParty.PartyIds.First().Type, as4Message.PrimaryUserMessage.Receiver.PartyIds.First().Type);
+            Assert.Equal(receivingParty.Role, as4Message.FirstUserMessage.Receiver.Role);
+            Assert.Equal(receivingParty.PartyIds.First().Id, as4Message.FirstUserMessage.Receiver.PartyIds.First().Id);
+            Assert.Equal(receivingParty.PartyIds.First().Type, as4Message.FirstUserMessage.Receiver.PartyIds.First().Type);
         }
 
         [Fact]
@@ -69,9 +69,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
 
             Assert.False(as4Message.IsEmpty);
             Assert.True(as4Message.IsUserMessage);
-            Assert.Equal(fromParty.Role, as4Message.PrimaryUserMessage.Sender.Role);
-            Assert.Equal(fromParty.PartyIds.First().Id, as4Message.PrimaryUserMessage.Sender.PartyIds.First().Id);
-            Assert.Equal(fromParty.PartyIds.First().Type, as4Message.PrimaryUserMessage.Sender.PartyIds.First().Type);
+            Assert.Equal(fromParty.Role, as4Message.FirstUserMessage.Sender.Role);
+            Assert.Equal(fromParty.PartyIds.First().Id, as4Message.FirstUserMessage.Sender.PartyIds.First().Id);
+            Assert.Equal(fromParty.PartyIds.First().Type, as4Message.FirstUserMessage.Sender.PartyIds.First().Type);
         }
 
         [Fact]
@@ -91,8 +91,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
 
             // Assert
             Assert.True(result.Succeeded);
-            Assert.Equal(Constants.Namespaces.EbmsDefaultFrom, result.MessagingContext.AS4Message.PrimaryUserMessage.Sender.PartyIds.First().Id);
-            Assert.Equal(Constants.Namespaces.EbmsDefaultRole, result.MessagingContext.AS4Message.PrimaryUserMessage.Sender.Role);
+            Assert.Equal(Constants.Namespaces.EbmsDefaultFrom, result.MessagingContext.AS4Message.FirstUserMessage.Sender.PartyIds.First().Id);
+            Assert.Equal(Constants.Namespaces.EbmsDefaultRole, result.MessagingContext.AS4Message.FirstUserMessage.Sender.Role);
         }
 
         [Fact]
@@ -110,8 +110,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
 
             // Assert
             Assert.True(result.Succeeded);
-            Assert.Equal(Constants.Namespaces.EbmsDefaultTo, result.MessagingContext.AS4Message.PrimaryUserMessage.Receiver.PartyIds.First().Id);
-            Assert.Equal(Constants.Namespaces.EbmsDefaultRole, result.MessagingContext.AS4Message.PrimaryUserMessage.Receiver.Role);
+            Assert.Equal(Constants.Namespaces.EbmsDefaultTo, result.MessagingContext.AS4Message.FirstUserMessage.Receiver.PartyIds.First().Id);
+            Assert.Equal(Constants.Namespaces.EbmsDefaultRole, result.MessagingContext.AS4Message.FirstUserMessage.Receiver.Role);
         }
 
         [Fact]
@@ -135,9 +135,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
 
             // Assert
             Assert.True(result.Succeeded);
-            Assert.Equal(2, as4Message.PrimaryUserMessage.MessageProperties.Count);
-            Assert.Equal("unregistered:C1", as4Message.PrimaryUserMessage.MessageProperties.FirstOrDefault(p => p.Name.Equals("originalSender"))?.Value);
-            Assert.Equal("unregistered:C2", as4Message.PrimaryUserMessage.MessageProperties.FirstOrDefault(p => p.Name.Equals("finalRecipient"))?.Value);
+            Assert.Equal(2, as4Message.FirstUserMessage.MessageProperties.Count);
+            Assert.Equal("unregistered:C1", as4Message.FirstUserMessage.MessageProperties.FirstOrDefault(p => p.Name.Equals("originalSender"))?.Value);
+            Assert.Equal("unregistered:C2", as4Message.FirstUserMessage.MessageProperties.FirstOrDefault(p => p.Name.Equals("finalRecipient"))?.Value);
         }
 
         [Fact]

@@ -18,8 +18,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
         public static void AssertPartyInfo(AS4Message expected, MessageEntity actual)
         {
             Func<Party, string> getPartyId = p => p.PartyIds.First().Id;
-            Assert.Equal(getPartyId(expected.PrimaryUserMessage.Sender), actual.FromParty);
-            Assert.Equal(getPartyId(expected.PrimaryUserMessage.Receiver), actual.ToParty);
+            Assert.Equal(getPartyId(expected.FirstUserMessage.Sender), actual.FromParty);
+            Assert.Equal(getPartyId(expected.FirstUserMessage.Receiver), actual.ToParty);
         }
 
         /// <summary>
@@ -29,7 +29,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
         /// <param name="actual">The actual.</param>
         public static void AssertCollaborationInfo(AS4Message expected, MessageEntity actual)
         {
-            CollaborationInfo expectedCollaboration = expected.PrimaryUserMessage.CollaborationInfo;
+            CollaborationInfo expectedCollaboration = expected.FirstUserMessage.CollaborationInfo;
             Assert.Equal(expectedCollaboration.Action, actual.Action);
             Assert.Equal(expectedCollaboration.ConversationId, actual.ConversationId);
             Assert.Equal(expectedCollaboration.Service.Value, actual.Service);
@@ -42,8 +42,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
         /// <param name="actual">The actual.</param>
         public static void AssertUserMessageMetaInfo(AS4Message expected, MessageEntity actual)
         {
-            Assert.Equal(expected.PrimaryUserMessage.IsTest, actual.IsTest);
-            Assert.Equal(expected.PrimaryUserMessage.IsDuplicate, actual.IsDuplicate);
+            Assert.Equal(expected.FirstUserMessage.IsTest, actual.IsTest);
+            Assert.Equal(expected.FirstUserMessage.IsDuplicate, actual.IsDuplicate);
         }
 
         /// <summary>
@@ -53,7 +53,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
         /// <param name="actual">The actual.</param>
         public static void AssertSignalMessageMetaInfo(AS4Message expected, MessageEntity actual)
         {
-            Assert.Equal(expected.PrimarySignalMessage.IsDuplicate, actual.IsDuplicate);
+            Assert.Equal(expected.FirstSignalMessage.IsDuplicate, actual.IsDuplicate);
         }
 
         /// <summary>

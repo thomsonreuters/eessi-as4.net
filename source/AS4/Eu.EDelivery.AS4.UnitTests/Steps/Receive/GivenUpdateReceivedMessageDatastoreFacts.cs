@@ -255,7 +255,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 as4Message, 
                 sendPMode: null, 
                 receivePMode: pmode,
-                alterAfterSaved: as4 => as4.PrimaryUserMessage.IsTest = isTest);
+                alterAfterSaved: as4 => as4.FirstUserMessage.IsTest = isTest);
 
             // Assert
             InMessage actual = GetDataStoreContext.GetInMessage(m => m.EbmsMessageId == ebmsMessageId);

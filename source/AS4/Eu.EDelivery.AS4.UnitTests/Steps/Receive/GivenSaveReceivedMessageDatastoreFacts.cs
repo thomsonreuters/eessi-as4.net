@@ -77,7 +77,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                     // Act           
                     // Execute the step twice.     
                     StepResult stepResult = await Step.ExecuteAsync(messagingContext);
-                    Assert.False(stepResult.MessagingContext.AS4Message.PrimarySignalMessage.IsDuplicate);
+                    Assert.False(stepResult.MessagingContext.AS4Message.FirstSignalMessage.IsDuplicate);
                 }
 
                 using (MessagingContext messagingContext = 
@@ -86,7 +86,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                     StepResult stepResult = await Step.ExecuteAsync(messagingContext);
 
                     // Assert
-                    Assert.True(stepResult.MessagingContext.AS4Message.PrimarySignalMessage.IsDuplicate);
+                    Assert.True(stepResult.MessagingContext.AS4Message.FirstSignalMessage.IsDuplicate);
                 }
             }
 

@@ -11,7 +11,7 @@ namespace Eu.EDelivery.AS4.Transformers
     {
         internal static NotifyMessage Convert(AS4Message as4Message)
         {
-            var notifyMessage = AS4Mapper.Map<NotifyMessage>(as4Message.PrimarySignalMessage);
+            var notifyMessage = AS4Mapper.Map<NotifyMessage>(as4Message.FirstSignalMessage);
 
             notifyMessage.StatusInfo.Any = GetOriginalSignalMessage(as4Message);
 

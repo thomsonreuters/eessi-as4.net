@@ -60,7 +60,7 @@ namespace Eu.EDelivery.AS4.Model.Core
         {
             get
             {
-                return (__hasMultiHopAttribute ?? false) || PrimarySignalMessage?.MultiHopRouting != null || _serializeAsMultiHop;
+                return (__hasMultiHopAttribute ?? false) || FirstSignalMessage?.MultiHopRouting != null || _serializeAsMultiHop;
             }
         }
 
@@ -80,13 +80,15 @@ namespace Eu.EDelivery.AS4.Model.Core
         public string[] MessageIds
             => UserMessages.Select(m => m.MessageId).Concat(SignalMessages.Select(m => m.MessageId)).ToArray();
 
-        public UserMessage PrimaryUserMessage => UserMessages.FirstOrDefault();
+        public UserMessage FirstUserMessage => UserMessages.FirstOrDefault();
 
-        public SignalMessage PrimarySignalMessage => SignalMessages.FirstOrDefault();
+        public SignalMessage FirstSignalMessage => SignalMessages.FirstOrDefault();
 
-        public bool IsSignalMessage => MessageUnits.FirstOrDefault() is SignalMessage;
+        public bool IsSignalMessage => PrimaryMessageUnit is SignalMessage;
 
-        public bool IsUserMessage => MessageUnits.FirstOrDefault() is UserMessage;
+        public bool IsUserMessage => PrimaryMessageUnit is UserMessage;
+
+        public MessageUnit PrimaryMessageUnit => MessageUnits.FirstOrDefault();
 
         public bool IsSigned => SecurityHeader.IsSigned;
 
@@ -94,9 +96,9 @@ namespace Eu.EDelivery.AS4.Model.Core
 
         public bool HasAttachments => Attachments?.Any() ?? false;
 
-        public bool IsEmpty => PrimarySignalMessage == null && PrimaryUserMessage == null;
+        public bool IsEmpty => FirstSignalMessage == null && FirstUserMessage == null;
 
-        public bool IsPullRequest => PrimarySignalMessage is PullRequest;
+        public bool IsPullRequest => FirstSignalMessage is PullRequest;
 
         /// <summary>
         /// Creates message with a SOAP envelope.
@@ -203,7 +205,7 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// <returns></returns>
         public string GetPrimaryMessageId()
         {
-            return IsUserMessage ? PrimaryUserMessage.MessageId : PrimarySignalMessage?.MessageId;
+            return IsUserMessage ? FirstUserMessage.MessageId : FirstSignalMessage?.MessageId;
         }
 
         /// <summary>
