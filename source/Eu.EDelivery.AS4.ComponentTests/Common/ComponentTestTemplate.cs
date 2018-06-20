@@ -41,6 +41,16 @@ namespace Eu.EDelivery.AS4.ComponentTests.Common
             return AS4XmlSerializer.FromString<Settings>(File.ReadAllText(specificSettings));
         }
 
+        protected async Task TestComponentWithSettings(string settingsFile, Func<Settings, AS4Component, Task> testCase)
+        {
+            Settings settings = OverrideSettings(settingsFile);
+
+            using (var as4Msh = AS4Component.Start(Environment.CurrentDirectory))
+            {
+                await testCase(settings, as4Msh);
+            }
+        }
+
         protected Task<TResult> PollUntilPresent<TResult>(Func<TResult> poll, TimeSpan timeout)
         {
             IObservable<TResult> polling =

@@ -131,6 +131,20 @@ namespace Eu.EDelivery.AS4.ComponentTests.Common
         }
 
         /// <summary>
+        /// Gets the <see cref="OutException"/> entities for which the given <paramref name="predicate"/> holds.
+        /// </summary>
+        /// <param name="predicate">The predicate used to filter out the <see cref="OutException"/> entities</param>
+        /// <returns></returns>
+        public IEnumerable<OutException> GetOutExceptions(
+            Expression<Func<OutException, bool>> predicate)
+        {
+            using (var context = new DatastoreContext(_configuration))
+            {
+                return context.OutExceptions.Where(predicate).ToList();
+            }
+        }
+
+        /// <summary>
         /// Gets the <see cref="OutException"/> entities where the <see cref="OutException.EbmsRefToMessageId"/> is one of the given <paramref name="ebmsMessageIds"/>.
         /// </summary>
         /// <param name="ebmsMessageIds">The ebms message ids.</param>
