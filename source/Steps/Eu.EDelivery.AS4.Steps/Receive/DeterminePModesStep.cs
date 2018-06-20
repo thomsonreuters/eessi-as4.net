@@ -67,7 +67,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                     return StepResult.Success(messagingContext);
                 }
 
-                SendPMode pmode = await DetermineSendingPModeForSignalMessageAsync(as4Message.PrimaryMessageUnit);
+                SendPMode pmode = await DetermineSendingPModeForSignalMessageAsync(as4Message.FirstSignalMessage);
 
                 if (pmode != null)
                 {

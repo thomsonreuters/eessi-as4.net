@@ -70,7 +70,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             if (resultContext != null && resultContext.Exception == null)
             {
                 if (resultContext.AS4Message.IsSignalMessage
-                    && String.IsNullOrWhiteSpace(resultContext.AS4Message.PrimaryMessageUnit.RefToMessageId))
+                    && String.IsNullOrWhiteSpace(resultContext.AS4Message.FirstSignalMessage.RefToMessageId))
                 {
                     Logger.Warn(
                         $"{messagingContext.LogTag} The received message is a SignalMessage without RefToMessageId. " +
