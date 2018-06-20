@@ -645,6 +645,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                 },
                 CollaborationInfo = new Xml.CollaborationInfo()
                 {
+                    AgreementRef = new Xml.AgreementRef { pmode = "Forward_Push" },
                     Action = "Forward_Push_Action",
                     Service = new Xml.Service()
                     {
