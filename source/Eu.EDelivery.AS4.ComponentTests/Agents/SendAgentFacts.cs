@@ -19,6 +19,8 @@ using Eu.EDelivery.AS4.TestUtils.Stubs;
 using Xunit;
 using MessageExchangePattern = Eu.EDelivery.AS4.Entities.MessageExchangePattern;
 using X509Certificate2 = System.Security.Cryptography.X509Certificates.X509Certificate2;
+using Party = Eu.EDelivery.AS4.Model.PMode.Party;
+using PartyId = Eu.EDelivery.AS4.Model.PMode.PartyId;
 
 namespace Eu.EDelivery.AS4.ComponentTests.Agents
 {

@@ -11,34 +11,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
         public class GivenValidArguments : GivenPartyFacts
         {
             [Theory]
-            [InlineData("role")]
-            public void ThenPartyIsNotEmptyForPartyId(string role)
-            {
-                // Arrange
-                var partyA = new Party {Role = role};
-
-                // Act
-                bool isEmpty = partyA.IsEmpty();
-
-                // Assert
-                Assert.False(isEmpty);
-            }
-
-            [Theory]
-            [InlineData("id")]
-            public void ThenPartyIsNotEmptyForRole(string id)
-            {
-                // Arrange
-                var partyA = new Party(new PartyId(id));
-
-                // Act
-                bool isEmpty = partyA.IsEmpty();
-
-                // Assert
-                Assert.False(isEmpty);
-            }
-
-            [Theory]
             [InlineData("shared-role", "shared-id")]
             public void ThenTwoPartiesAreEqual(string sharedRole, string sharedId)
             {

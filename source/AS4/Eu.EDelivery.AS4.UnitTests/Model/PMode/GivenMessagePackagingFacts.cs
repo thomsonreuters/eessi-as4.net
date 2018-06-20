@@ -5,6 +5,7 @@ using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.UnitTests.Extensions;
 using Xunit;
+using Party = Eu.EDelivery.AS4.Model.PMode.Party;
 
 namespace Eu.EDelivery.AS4.UnitTests.Model.PMode
 {
@@ -53,7 +54,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model.PMode
         {
             return new Party(
                 role: Guid.NewGuid().ToString(),
-                partyId: new PartyId(id: Guid.NewGuid().ToString()));
+                partyId: Guid.NewGuid().ToString());
         }
     }
 }

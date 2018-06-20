@@ -9,6 +9,8 @@ using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Streaming;
 using Xunit;
+using Party = Eu.EDelivery.AS4.Model.Core.Party;
+using PartyId = Eu.EDelivery.AS4.Model.Core.PartyId;
 
 namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._19_22_Send_Message_via_Dynamic_Forwarding
 {
@@ -184,7 +186,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._19_22
             var user = new UserMessage(Guid.NewGuid().ToString())
             {
                 CollaborationInfo = HolodeckCollaboration(argRefPModeId),
-                Receiver = new Party(HolodeckPartyRole, new PartyId(HolodeckBId) { Type = HolodeckBId }),
+                Receiver = new Party(HolodeckPartyRole, new PartyId(HolodeckBId, HolodeckBId)),
             };
 
             AS4Message userMessage = AS4Message.Create(user, new SendingProcessingMode {MessagePackaging = {IsMultiHop = true}});

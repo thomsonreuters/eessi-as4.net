@@ -1,10 +1,10 @@
-﻿using Eu.EDelivery.AS4.Model.Core;
-using Eu.EDelivery.AS4.Model.PMode;
+﻿using System.Linq;
+using Eu.EDelivery.AS4.Model.Core;
 
 namespace Eu.EDelivery.AS4.Mappings.PMode
 {
     /// <summary>
-    /// Resolve the <see cref="Party"/> from the <see cref="SendingProcessingMode"/>
+    /// Resolve the <see cref="Party"/> from the <see cref="Model.PMode.SendingProcessingMode"/>
     /// </summary>
     public class PModeSenderResolver : IPModeResolver<Party>
     {
@@ -22,25 +22,20 @@ namespace Eu.EDelivery.AS4.Mappings.PMode
         /// </summary>
         /// <param name="pmode"></param>
         /// <returns></returns>
-        public Party Resolve(SendingProcessingMode pmode)
+        public Party Resolve(Model.PMode.SendingProcessingMode pmode)
         {
-            if (IsPModeFromPartyNotNull(pmode))
+            Model.PMode.Party fromParty = pmode.MessagePackaging.PartyInfo?.FromParty;
+            bool isToPartyPresent = fromParty != null;
+            if (isToPartyPresent)
             {
-                return pmode.MessagePackaging.PartyInfo.FromParty;
+                return new Party(
+                    fromParty.Role, 
+                    fromParty.PartyIds?.Select(id => new PartyId(id.Id, id.Type)));
             }
 
-            return CreateDefaultParty();
-        }
-
-        private static bool IsPModeFromPartyNotNull(SendingProcessingMode pmode)
-        {
-            return pmode.MessagePackaging.PartyInfo?.FromParty != null;
-        }
-
-        private static Party CreateDefaultParty()
-        {
-            var partyId = new PartyId { Id = Constants.Namespaces.EbmsDefaultFrom };
-            return new Party(partyId) { Role = Constants.Namespaces.EbmsDefaultRole };
+            return new Party(
+                Constants.Namespaces.EbmsDefaultRole, 
+                new PartyId(Constants.Namespaces.EbmsDefaultFrom));
         }
     }
 }

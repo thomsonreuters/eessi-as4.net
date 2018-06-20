@@ -1,16 +1,17 @@
-﻿using Eu.EDelivery.AS4.Model.Core;
+﻿using System.Linq;
 using Eu.EDelivery.AS4.Model.PMode;
+using Party = Eu.EDelivery.AS4.Model.Core.Party;
+using PartyId = Eu.EDelivery.AS4.Model.Core.PartyId;
 
 namespace Eu.EDelivery.AS4.Mappings.PMode
 {
     /// <summary>
-    /// Resolve the Receiver <see cref="Party"/> from the <see cref="SendingProcessingMode"/>
+    /// Resolve the Receiver <see cref="Model.Core.Party" /> from the <see cref="Model.PMode.SendingProcessingMode" />
     /// </summary>
     public class PModeReceiverResolver : IPModeResolver<Party>
     {
-
         public static readonly PModeReceiverResolver Default = new PModeReceiverResolver();
-        
+
         /// <summary>
         /// 2. PMode / Message Packaging / PartyInfo / Toparty
         /// </summary>
@@ -18,23 +19,18 @@ namespace Eu.EDelivery.AS4.Mappings.PMode
         /// <returns></returns>
         public Party Resolve(SendingProcessingMode pmode)
         {
-            if (IsPModeToPartyNotNull(pmode))
+            Model.PMode.Party toParty = pmode.MessagePackaging.PartyInfo?.ToParty;
+            bool isToPartyPresent = toParty != null;
+            if (isToPartyPresent)
             {
-                return pmode.MessagePackaging.PartyInfo.ToParty;
+                return new Party(
+                    toParty.Role, 
+                    toParty.PartyIds?.Select(id => new PartyId(id.Id, id.Type)));
             }
 
-            return CreateDefaultParty();
-        }
-
-        private static bool IsPModeToPartyNotNull(SendingProcessingMode pmode)
-        {
-            return pmode.MessagePackaging.PartyInfo?.ToParty != null;
-        }
-
-        private static Party CreateDefaultParty()
-        {
-            var partyId = new PartyId {Id = Constants.Namespaces.EbmsDefaultTo};
-            return new Party(partyId) {Role = Constants.Namespaces.EbmsDefaultRole};
+            return new Party(
+                Constants.Namespaces.EbmsDefaultRole,
+                new PartyId(Constants.Namespaces.EbmsDefaultTo));
         }
     }
 }

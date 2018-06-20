@@ -15,6 +15,8 @@ using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.PMode;
 using NLog;
+using Party = Eu.EDelivery.AS4.Model.PMode.Party;
+using PartyId = Eu.EDelivery.AS4.Model.PMode.PartyId;
 
 namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
 {
@@ -173,22 +175,26 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
 
         private static void SetOriginalSender(SendingProcessingMode sendingPMode)
         {
-            MessageProperty existingOriginalSender =
+            var existingOriginalSender =
                 sendingPMode.MessagePackaging.MessageProperties.FirstOrDefault(
                     p => p.Name.Equals("originalSender", StringComparison.OrdinalIgnoreCase));
 
             if (existingOriginalSender == null)
             {
-                var originalSender = new MessageProperty("originalSender", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1");
+                var originalSender = new MessageProperty
+                {
+                    Name = "originalSender",
+                    Value = "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1"
+                };
                 sendingPMode.MessagePackaging.MessageProperties.Add(originalSender);
             }
         }
 
         private static void SetFinalRecipient(SendingProcessingMode sendingPMode, XmlDocument smpMetaData)
         {
-            MessageProperty finalRecipient = GetFinalRecipient(smpMetaData);
+            var finalRecipient = GetFinalRecipient(smpMetaData);
 
-            MessageProperty existingFinalRecipient =
+            var existingFinalRecipient =
                 sendingPMode.MessagePackaging.MessageProperties.FirstOrDefault(
                     p => p.Name.Equals("finalRecipient", StringComparison.OrdinalIgnoreCase));
 
@@ -205,7 +211,7 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
             XmlNode node = smpMetaData.SelectSingleNode("//*[local-name()='ParticipantIdentifier']");
             if (node == null) { throw new InvalidDataException("No ParticipantIdentifier element found in SMP meta-data"); }
 
-            var finalRecipient = new MessageProperty("finalRecipient", node.InnerText);
+            var finalRecipient = new MessageProperty { Name = "finalRecipient", Value = node.InnerText };
 
             XmlAttribute schemeAttribute = node.Attributes?
                 .OfType<XmlAttribute>()

@@ -52,10 +52,6 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
         private static Party MapToPartyFromSubmitMessage(SubmitMessage message)
         {
             var toParty = AS4Mapper.Map<Party>(message.PartyInfo.ToParty);
-
-            // AutoMapper doens't map "Role"
-            toParty.Role = message.PartyInfo.ToParty.Role;
-
             return toParty;
         }
 

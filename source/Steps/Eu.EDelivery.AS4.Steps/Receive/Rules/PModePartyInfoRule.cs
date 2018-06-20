@@ -63,14 +63,14 @@ namespace Eu.EDelivery.AS4.Steps.Receive.Rules
             return points;
         }
 
-        private static bool IsPartyInfoEqual(Party pmodeParty, Party messageParty)
+        private static bool IsPartyInfoEqual(Model.PMode.Party pmodeParty, Model.Core.Party messageParty)
         {
             if (pmodeParty == null || messageParty == null)
             {
                 return false;
             }
 
-            return pmodeParty.PartyIds.All(messageParty.PartyIds.Contains);
+            return pmodeParty.PartyIds.All(x => messageParty.PartyIds.Any(y => x.Id == y.Id && x.Type == y.Type));
         }
 
         private static bool IsPartyInfoRoleEqual(PartyInfo pmodePartyInfo, UserMessage userMessage)

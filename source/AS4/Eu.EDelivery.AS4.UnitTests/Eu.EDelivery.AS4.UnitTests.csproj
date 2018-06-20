@@ -172,7 +172,6 @@
     <Compile Include="Model\GivenCollaborationInfoFacts.cs" />
     <Compile Include="Model\GivenMessagingContextFacts.cs" />
     <Compile Include="Model\GivenPartyFacts.cs" />
-    <Compile Include="Model\GivenPartyIdFacts.cs" />
     <Compile Include="Model\GivenReceivingProcessingModeFacts.cs" />
     <Compile Include="Model\GivenSendingProcessingModeFacts.cs" />
     <Compile Include="Model\GivenServiceFacts.cs" />

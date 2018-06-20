@@ -1,8 +1,8 @@
 ﻿using System.Linq;
 using Eu.EDelivery.AS4.Mappings.PMode;
-using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.PMode;
 using Xunit;
+using CoreParty = Eu.EDelivery.AS4.Model.Core.Party;
 
 namespace Eu.EDelivery.AS4.UnitTests.Mappings.PMode
 {
@@ -21,7 +21,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.PMode
                 var resolver = PModeReceiverResolver.Default;
 
                 // Act
-                Party party = resolver.Resolve(pmode);
+                CoreParty party = resolver.Resolve(pmode);
 
                 // Assert
                 Assert.Equal(Constants.Namespaces.EbmsDefaultTo, party.PartyIds.FirstOrDefault()?.Id);
@@ -36,16 +36,18 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.PMode
                 {
                     MessagePackaging =
                     {
-                        PartyInfo = new PartyInfo {ToParty = new Party("role", new PartyId("party-id"))}
+                        PartyInfo = new PartyInfo {ToParty = new Party("role", "party-id")}
                     }
                 };
                 var resolver = PModeReceiverResolver.Default;
 
                 // Act
-                Party party = resolver.Resolve(pmode);
+                CoreParty party = resolver.Resolve(pmode);
 
                 // Assert
-                Assert.Equal(pmode.MessagePackaging.PartyInfo.ToParty, party);
+                Party toParty = pmode.MessagePackaging.PartyInfo.ToParty;
+                Assert.Equal(toParty.Role, party.Role);
+                Assert.Equal(toParty.PrimaryPartyId, party.PartyIds.First().Id);
             }
         }
     }

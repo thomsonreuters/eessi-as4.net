@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using System.Linq;
+using AutoMapper;
 
 namespace Eu.EDelivery.AS4.Mappings.Core
 {
@@ -20,13 +21,15 @@ namespace Eu.EDelivery.AS4.Mappings.Core
                 .ForMember(dest => dest.PartyId, src => src.MapFrom(t => t.PartyIds))
                 .ForAllOtherMembers(x => x.Ignore());
 
-            CreateMap<Xml.PartyInfo, Model.Core.Party>()
+            CreateMap<Xml.PartyInfo, Model.Core.Party>(MemberList.None)
                 .ForAllOtherMembers(x => x.Ignore());
 
             CreateMap<Xml.From, Model.Core.Party>()
-                .ForMember(dest => dest.Role, src => src.MapFrom(t => t.Role))
-                .ForMember(dest => dest.PartyIds, src => src.MapFrom(t => t.PartyId))
-                .ForAllOtherMembers(x => x.Ignore());
+                .ConstructUsing(
+                    src => new Model.Core.Party(
+                        src.Role,
+                        src.PartyId?.Select(
+                            id => new Model.Core.PartyId(id.Value, id.type))));
 
             CreateMap<Model.Core.Party, Xml.To>()
                 .ForMember(dest => dest.Role, src => src.MapFrom(t => t.Role))
@@ -34,9 +37,11 @@ namespace Eu.EDelivery.AS4.Mappings.Core
                 .ForAllOtherMembers(x => x.Ignore());
 
             CreateMap<Xml.To, Model.Core.Party>()
-                .ForMember(dest => dest.Role, src => src.MapFrom(t => t.Role))
-                .ForMember(dest => dest.PartyIds, src => src.MapFrom(t => t.PartyId))
-                .ForAllOtherMembers(x => x.Ignore());
+                .ConstructUsing(
+                    src => new Model.Core.Party(
+                        src.Role,
+                        src.PartyId?.Select(
+                            id => new Model.Core.PartyId(id.Value, id.type))));
         }
     }
 }

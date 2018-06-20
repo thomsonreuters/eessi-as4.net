@@ -143,7 +143,11 @@ namespace Eu.EDelivery.AS4.Transformers
 
         private void AssignMinderProperties(UserMessage userMessage, SignalMessage signalMessage)
         {
-            AssignToPartyIdentification(userMessage);
+            userMessage.Receiver = 
+                new Model.Core.Party(
+                    role: $"{MinderUriPrefix}/testdriver", 
+                    partyId: new Model.Core.PartyId(id: "minder"));
+
             AssignServiceAction(userMessage);
 
             if (signalMessage != null)
@@ -159,12 +163,6 @@ namespace Eu.EDelivery.AS4.Transformers
         {
             userMessage.CollaborationInfo.Action = "Notify";
             userMessage.CollaborationInfo.Service.Value = MinderUriPrefix;
-        }
-
-        private void AssignToPartyIdentification(UserMessage userMessage)
-        {
-            userMessage.Receiver.PartyIds.First().Id = "minder";
-            userMessage.Receiver.Role = $"{MinderUriPrefix}/testdriver";
         }
     }
 }

@@ -225,9 +225,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
                 StepResult result = await ExerciseCreateAS4Message(internalMessage);
 
                 // Assert
-                Party pmodeParty = submitMessage.PMode.MessagePackaging.PartyInfo.FromParty;
+                var pmodeParty = submitMessage.PMode.MessagePackaging.PartyInfo.FromParty;
                 Party userMessageParty = result.MessagingContext.AS4Message.PrimaryUserMessage.Sender;
-                Assert.Equal(pmodeParty, userMessageParty);
+                Assert.Equal(pmodeParty.Role, userMessageParty.Role);
+                Assert.Equal(pmodeParty.PrimaryPartyId, userMessageParty.PrimaryPartyId);
             }
 
             [Fact]
@@ -242,9 +243,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
                 StepResult result = await ExerciseCreateAS4Message(internalMessage);
 
                 // Assert
-                Party pmodeParty = submitMessage.PMode.MessagePackaging.PartyInfo.ToParty;
+                var pmodeParty = submitMessage.PMode.MessagePackaging.PartyInfo.ToParty;
                 Party userMessageParty = result.MessagingContext.AS4Message.PrimaryUserMessage.Receiver;
-                Assert.Equal(pmodeParty, userMessageParty);
+                Assert.Equal(pmodeParty.Role, userMessageParty.Role);
+                Assert.Equal(pmodeParty.PrimaryPartyId, userMessageParty.PrimaryPartyId);
             }
 
             [Fact]

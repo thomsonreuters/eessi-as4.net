@@ -26,6 +26,7 @@ using FsCheck.Xunit;
 using Xunit;
 using static Eu.EDelivery.AS4.UnitTests.Properties.Resources;
 using Error = Eu.EDelivery.AS4.Model.Core.Error;
+using Party = Eu.EDelivery.AS4.Model.Core.Party;
 using PartyId = Eu.EDelivery.AS4.Model.Core.PartyId;
 using Receipt = Eu.EDelivery.AS4.Model.Core.Receipt;
 using UserMessage = Eu.EDelivery.AS4.Model.Core.UserMessage;
@@ -365,8 +366,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
         {
             return new UserMessage("message-Id")
             {
-                Receiver = new Party("Receiver", new PartyId()),
-                Sender = new Party("Sender", new PartyId())
+                Receiver = new AS4.Model.Core.Party("Receiver", new PartyId()),
+                Sender = new AS4.Model.Core.Party("Sender", new PartyId())
             };
         }
     }
