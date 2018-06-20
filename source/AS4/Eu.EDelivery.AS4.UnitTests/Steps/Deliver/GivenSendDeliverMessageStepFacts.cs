@@ -89,7 +89,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
             {
                 Assert.NotNull(inmessage);
                 Assert.Equal(InStatus.Delivered, inmessage.Status.ToEnum<InStatus>());
-                Assert.Equal(Operation.Delivered, OperationUtils.Parse(inmessage.Operation));
+                Assert.Equal(Operation.Delivered, inmessage.Operation.ToEnum<Operation>());
             });
         }
 
@@ -126,8 +126,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
             GetDataStoreContext.AssertInMessage(id, inMessage =>
             {
                 Assert.NotNull(inMessage);
-                Assert.Equal(input.ExpectedOperation, OperationUtils.Parse(inMessage.Operation));
                 Assert.Equal(input.ExpectedStatus, inMessage.Status.ToEnum<InStatus>());
+                Assert.Equal(input.ExpectedOperation, inMessage.Operation.ToEnum<Operation>());
             });
         }
 

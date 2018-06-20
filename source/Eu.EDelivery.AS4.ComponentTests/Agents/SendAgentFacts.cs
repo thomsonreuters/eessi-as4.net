@@ -193,7 +193,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
             Assert.Equal(expectedOutStatus, sentMessage.Status.ToEnum<OutStatus>());
             Assert.Equal(MessageType.Receipt, receivedMessage.EbmsMessageType.ToEnum<MessageType>());
-            Assert.Equal(expectedSignalOperation, OperationUtils.Parse(receivedMessage.Operation));
+            Assert.Equal(expectedSignalOperation, receivedMessage.Operation.ToEnum<Operation>());
         }
 
         private void PutMessageToSend(AS4Message as4Message, SendingProcessingMode pmode, bool actAsIntermediaryMsh)

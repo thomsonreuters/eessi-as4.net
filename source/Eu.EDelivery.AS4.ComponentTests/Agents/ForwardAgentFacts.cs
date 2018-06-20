@@ -66,12 +66,12 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             var outMessage = _databaseSpy.GetOutMessageFor(m => m.EbmsMessageId == messageId);
 
             Assert.NotNull(inMessage);
-            Assert.Equal(Operation.Forwarded, OperationUtils.Parse(inMessage.Operation));
+            Assert.Equal(Operation.Forwarded, inMessage.Operation.ToEnum<Operation>());
             Assert.NotNull(AS4XmlSerializer.FromString<ReceivingProcessingMode>(inMessage.PMode));
 
             Assert.NotNull(outMessage);
             Assert.True(outMessage.Intermediary);
-            Assert.Equal(Operation.ToBeProcessed, OperationUtils.Parse(outMessage.Operation));
+            Assert.Equal(Operation.ToBeProcessed, outMessage.Operation.ToEnum<Operation>());
             Assert.NotNull(AS4XmlSerializer.FromString<SendingProcessingMode>(outMessage.PMode));
         }
 
@@ -97,15 +97,15 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             var secondaryOutMessage = _databaseSpy.GetOutMessageFor(m => m.EbmsMessageId == secondMessageId);
 
             Assert.NotNull(primaryInMessage);
-            Assert.Equal(Operation.Forwarded, OperationUtils.Parse(primaryInMessage.Operation));
+            Assert.Equal(Operation.Forwarded, primaryInMessage.Operation.ToEnum<Operation>());
             Assert.NotNull(AS4XmlSerializer.FromString<ReceivingProcessingMode>(primaryInMessage.PMode));
 
             Assert.NotNull(secondaryInMessage);
-            Assert.Equal(Operation.Forwarded, OperationUtils.Parse(primaryInMessage.Operation));
+            Assert.Equal(Operation.Forwarded, primaryInMessage.Operation.ToEnum<Operation>());
             Assert.NotNull(AS4XmlSerializer.FromString<ReceivingProcessingMode>(primaryInMessage.PMode));
 
             Assert.NotNull(primaryOutMessage);
-            Assert.Equal(Operation.ToBeProcessed, OperationUtils.Parse(primaryOutMessage.Operation));
+            Assert.Equal(Operation.ToBeProcessed, primaryOutMessage.Operation.ToEnum<Operation>());
             Assert.NotNull(AS4XmlSerializer.FromString<SendingProcessingMode>(primaryOutMessage.PMode));
 
             Assert.Null(secondaryOutMessage);
@@ -130,7 +130,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             var outMessage = _databaseSpy.GetOutMessageFor(m => m.EbmsMessageId == messageId);
 
             Assert.NotNull(inMessage);
-            Assert.Equal(Operation.Forwarded, OperationUtils.Parse(inMessage.Operation));
+            Assert.Equal(Operation.Forwarded, inMessage.Operation.ToEnum<Operation>());
 
             var receivingPMode = AS4XmlSerializer.FromString<ReceivingProcessingMode>(inMessage.PMode);
 
@@ -141,7 +141,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             var sendingPMode = AS4XmlSerializer.FromString<SendingProcessingMode>(outMessage.PMode);
 
             Assert.NotNull(sendingPMode);
-            Assert.Equal(Operation.ToBeProcessed, OperationUtils.Parse(outMessage.Operation));
+            Assert.Equal(Operation.ToBeProcessed, outMessage.Operation.ToEnum<Operation>());
             Assert.Equal(MessageExchangePattern.Pull, outMessage.MEP.ToEnum<MessageExchangePattern>());
             Assert.Equal(sendingPMode.MessagePackaging.Mpc, outMessage.Mpc);
         }
@@ -171,7 +171,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             var outMessage = _databaseSpy.GetOutMessageFor(m => m.EbmsMessageId == messageId);
 
             Assert.NotNull(inMessage);
-            Assert.Equal(Operation.Forwarded, OperationUtils.Parse(inMessage.Operation));
+            Assert.Equal(Operation.Forwarded, inMessage.Operation.ToEnum<Operation>());
 
             var receivingPMode = AS4XmlSerializer.FromString<ReceivingProcessingMode>(inMessage.PMode);
 
@@ -182,7 +182,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             var sendingPMode = AS4XmlSerializer.FromString<SendingProcessingMode>(outMessage.PMode);
 
             Assert.NotNull(sendingPMode);
-            Assert.Equal(Operation.ToBeProcessed, OperationUtils.Parse(outMessage.Operation));
+            Assert.Equal(Operation.ToBeProcessed, outMessage.Operation.ToEnum<Operation>());
             Assert.Equal(MessageExchangePattern.Push, outMessage.MEP.ToEnum<MessageExchangePattern>());
             Assert.Equal(sendingPMode.MessagePackaging.Mpc, outMessage.Mpc);
 

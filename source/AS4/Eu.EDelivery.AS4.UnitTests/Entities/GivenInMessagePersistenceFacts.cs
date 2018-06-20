@@ -34,7 +34,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
                 var inMessage = db.InMessages.FirstOrDefault(i => i.Id == savedInMessageId);
 
                 Assert.NotNull(inMessage);
-                Assert.Equal(Operation.Sent, OperationUtils.Parse(inMessage.Operation));
+                Assert.Equal(Operation.Sent, inMessage.Operation.ToEnum<Operation>());
             }
         }
 

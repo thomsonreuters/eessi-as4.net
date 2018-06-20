@@ -78,16 +78,16 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                 userMessage1 =>
                 {
                     Assert.Equal(InStatus.Received, userMessage1.Status.ToEnum<InStatus>());
-                    Assert.Equal(Operation.ToBeDelivered, OperationUtils.Parse(userMessage1.Operation));
+                    Assert.Equal(Operation.ToBeDelivered, userMessage1.Operation.ToEnum<Operation>());
                 },
                 userMessage2 =>
                 {
                     Assert.Equal(InStatus.Received, userMessage2.Status.ToEnum<InStatus>());
-                    Assert.Equal(Operation.ToBeDelivered, OperationUtils.Parse(userMessage2.Operation));
+                    Assert.Equal(Operation.ToBeDelivered, userMessage2.Operation.ToEnum<Operation>());
                 });
             Assert.Collection(
                 _databaseSpy.GetOutMessages(storedMessageId),
-                stored => Assert.Equal(OutStatus.Ack, OutStatusUtils.Parse(stored.Status)));
+                stored => Assert.Equal(OutStatus.Ack, stored.Status.ToEnum<OutStatus>()));
         }
 
         private void StoreToBeAckOutMessage(string storedMessageId)

@@ -129,7 +129,7 @@ namespace Eu.EDelivery.AS4.Services
 
             DateTimeOffset deadlineForResend = awareness.LastSendTime.Value.Add(TimeSpan.Parse(awareness.RetryInterval));
 
-            return ReceptionStatusUtils.Parse(awareness.Status) != ReceptionStatus.Completed
+            return awareness.Status.ToEnum<ReceptionStatus>() != ReceptionStatus.Completed
                    && awareness.CurrentRetryCount < awareness.TotalRetryCount
                    && DateTimeOffset.Now > deadlineForResend
                    && _repository.GetOutMessageData(messageId: awareness.RefToOutMessageId,

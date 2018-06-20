@@ -62,7 +62,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
                     // Assert
                     InMessage m = await GettUserInMessage(userMessage);
-                    Assert.Equal(Operation.NotApplicable, OperationUtils.Parse(m.Operation));
+                    Assert.Equal(Operation.NotApplicable, m.Operation.ToEnum<Operation>());
                 }
             }
 
@@ -109,7 +109,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
                     // Assert
                     InMessage m = await GettUserInMessage(userMessage);
-                    Assert.Equal(Operation.NotApplicable, OperationUtils.Parse(m.Operation));
+                    Assert.Equal(Operation.NotApplicable, m.Operation.ToEnum<Operation>());
                 }
             }
 

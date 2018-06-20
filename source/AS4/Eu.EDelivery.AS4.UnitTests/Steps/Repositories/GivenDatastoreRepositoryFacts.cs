@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
+using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.UnitTests.Common;
 using Eu.EDelivery.AS4.UnitTests.Repositories;
@@ -32,8 +33,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Repositories
 
                     // Act
                     Operation actual =
-                        repository.GetOutMessageData(where: m => m.EbmsMessageId == ebmsMessageId,
-                                                     selection: m => OperationUtils.Parse(m.Operation))
+                        repository.GetOutMessageData(@where: m => m.EbmsMessageId == ebmsMessageId,
+                                                     selection: m => m.Operation.ToEnum<Operation>())
                                   .SingleOrDefault();
 
                     // Assert
@@ -239,7 +240,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Repositories
                 }
 
                 // Assert
-                GetDataStoreContext.AssertInMessage(sharedId, m => Assert.Equal(Operation.Delivered, OperationUtils.Parse(m.Operation)));
+                GetDataStoreContext.AssertInMessage(sharedId, m => Assert.Equal(Operation.Delivered, m.Operation.ToEnum<Operation>()));
             }
 
             private void InsertInMessageWithOperation(string ebmsMessageId, Operation operation = Operation.NotApplicable)

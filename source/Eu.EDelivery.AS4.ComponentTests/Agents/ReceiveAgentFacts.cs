@@ -216,7 +216,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
             InMessage receivedUserMessage = GetInsertedUserMessageFor(receivedAS4Message);
             Assert.NotNull(receivedUserMessage);
-            Assert.Equal(Operation.ToBeDelivered, OperationUtils.Parse(receivedUserMessage.Operation));
+            Assert.Equal(Operation.ToBeDelivered, receivedUserMessage.Operation.ToEnum<Operation>());
         }
 
         private InMessage GetInsertedUserMessageFor(AS4Message receivedAS4Message)
@@ -251,7 +251,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
             InMessage receivedUserMessage = _databaseSpy.GetInMessageFor(m => m.EbmsMessageId == messageId);
             Assert.NotNull(receivedUserMessage);
-            Assert.Equal(Operation.ToBeForwarded, OperationUtils.Parse(receivedUserMessage.Operation));
+            Assert.Equal(Operation.ToBeForwarded, receivedUserMessage.Operation.ToEnum<Operation>());
         }
 
         [Fact]
@@ -466,7 +466,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
             Assert.NotNull(inUserMessage);
             Assert.True(inUserMessage.Intermediary);
-            Assert.Equal(Operation.ToBeForwarded, OperationUtils.Parse(inUserMessage.Operation));
+            Assert.Equal(Operation.ToBeForwarded, inUserMessage.Operation.ToEnum<Operation>());
         }
 
         [Fact]
@@ -492,7 +492,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
             Assert.NotNull(inUserMessage);
             Assert.False(inUserMessage.Intermediary);
-            Assert.Equal(Operation.ToBeDelivered, OperationUtils.Parse(inUserMessage.Operation));
+            Assert.Equal(Operation.ToBeDelivered, inUserMessage.Operation.ToEnum<Operation>());
 
             OutMessage outReceipt = _databaseSpy.GetOutMessageFor(m => m.EbmsRefToMessageId == userMessage.MessageId);
             Assert.Equal(OutStatus.Sent, outReceipt.Status.ToEnum<OutStatus>());
@@ -543,7 +543,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
             Assert.NotNull(inMessage);
             Assert.True(inMessage.Intermediary);
-            Assert.Equal(Operation.ToBeForwarded, OperationUtils.Parse(inMessage.Operation));
+            Assert.Equal(Operation.ToBeForwarded, inMessage.Operation.ToEnum<Operation>());
 
             Stream messageBody = await Registry.Instance
                 .MessageBodyStore
@@ -584,7 +584,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             // Assert
             var inMessage = _databaseSpy.GetInMessageFor(m => m.EbmsRefToMessageId == messageId);
             Assert.NotNull(inMessage);
-            Assert.Equal(Operation.ToBeNotified, OperationUtils.Parse(inMessage.Operation));
+            Assert.Equal(Operation.ToBeNotified, inMessage.Operation.ToEnum<Operation>());
 
             var outMessage = _databaseSpy.GetOutMessageFor(m => m.EbmsMessageId == messageId);
             Assert.NotNull(outMessage);
@@ -606,7 +606,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
             var inMessage = _databaseSpy.GetInMessageFor(m => m.EbmsMessageId == id);
             Assert.NotNull(inMessage);
-            Assert.Equal(Operation.NotApplicable, OperationUtils.Parse(inMessage.Operation));
+            Assert.Equal(Operation.NotApplicable, inMessage.Operation.ToEnum<Operation>());
         }
 
         private static AS4Message CreateMultihopSignalMessage(string messageId, string refToMessageId)
@@ -693,7 +693,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             InMessage inMessage = _databaseSpy.GetInMessageFor(m => m.EbmsRefToMessageId == expectedId);
             Assert.NotNull(inMessage);
             Assert.Equal(InStatus.Received, inMessage.Status.ToEnum<InStatus>());
-            Assert.Equal(Operation.ToBeNotified, OperationUtils.Parse(inMessage.Operation));
+            Assert.Equal(Operation.ToBeNotified, inMessage.Operation.ToEnum<Operation>());
         }
 
         // ReSharper disable once UnusedParameter.Local

@@ -140,7 +140,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Services
                 ExerciseService(mockRepository.Object, s => s.MarkReferencedMessageForResend(awareness));
 
                 // Assert
-                Assert.Equal(Operation.ToBeSent, OperationUtils.Parse(outMessage.Operation));
+                Assert.Equal(Operation.ToBeSent, outMessage.Operation.ToEnum<Operation>());
             }
 
             [Fact]

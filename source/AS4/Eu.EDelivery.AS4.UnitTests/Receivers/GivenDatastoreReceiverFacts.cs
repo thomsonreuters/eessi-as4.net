@@ -64,11 +64,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
 
             // Assert
             AssertOutMessageIf(
-                m => OperationUtils.Parse(m.Operation) == Operation.Sending,
+                m => m.Operation.ToEnum<Operation>() == Operation.Sending,
                 message =>
                 {
-                    Assert.Equal(Operation.Sending, OperationUtils.Parse(message.Operation));
                     Assert.Equal(OutStatus.Sent, message.Status.ToEnum<OutStatus>());
+                    Assert.Equal(Operation.Sending, message.Operation.ToEnum<Operation>());
                 });
         }
 

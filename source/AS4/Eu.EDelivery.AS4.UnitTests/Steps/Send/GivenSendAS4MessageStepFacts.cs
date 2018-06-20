@@ -41,8 +41,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
                 outMessageId,
                 message =>
                 {
-                    Assert.Equal(Operation.Sent, OperationUtils.Parse(message.Operation));
                     Assert.Equal(OutStatus.Sent, message.Status.ToEnum<OutStatus>());
+                    Assert.Equal(Operation.Sent, message.Operation.ToEnum<Operation>());
                 });
         }
 

@@ -6,6 +6,7 @@ using System.Linq.Dynamic.Core;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
+using Eu.EDelivery.AS4.Extensions;
 
 namespace Eu.EDelivery.AS4.Strategies.Database
 {
@@ -78,9 +79,8 @@ namespace Eu.EDelivery.AS4.Strategies.Database
                               .Cast<Entity>()
                               .Where(x => x.InsertionTime < DateTimeOffset.Now.Subtract(retentionPeriod)
                                           && allowedOperations.Contains(
-                                              OperationUtils.Parse(
-                                                  GetOperationString[tableName](x) ??
-                                                  Operation.NotApplicable.ToString())));
+                                              (GetOperationString[tableName](x) ??
+                                               Operation.NotApplicable.ToString()).ToEnum<Operation>()));
 
             if (tableName.Equals("OutMessages"))
             {

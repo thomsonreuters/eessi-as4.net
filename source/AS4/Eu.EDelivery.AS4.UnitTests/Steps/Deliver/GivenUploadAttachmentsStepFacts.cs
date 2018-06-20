@@ -2,6 +2,7 @@
 using System.IO;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Entities;
+using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
@@ -74,8 +75,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
             GetDataStoreContext.AssertInMessage(id, actual =>
             {
                 Assert.NotNull(actual);
-                Assert.Equal(input.ExpectedStatus, InStatusUtils.Parse(actual.Status));
-                Assert.Equal(input.ExpectedOperation, OperationUtils.Parse(actual.Operation));
+                Assert.Equal(input.ExpectedStatus, actual.Status.ToEnum<InStatus>());
+                Assert.Equal(input.ExpectedOperation, actual.Operation.ToEnum<Operation>());
             });
         }
 
@@ -123,9 +124,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
             GetDataStoreContext.AssertInMessage(id, actual =>
             {
                 Assert.NotNull(actual);
-                Operation op = OperationUtils.Parse(actual.Operation);
+                Operation op = actual.Operation.ToEnum<Operation>();
                 Assert.NotEqual(Operation.Delivered, op);
-                InStatus st = InStatusUtils.Parse(actual.Status);
+                InStatus st = actual.Status.ToEnum<InStatus>();
                 Assert.NotEqual(InStatus.Delivered, st);
 
                 bool operationToBeRetried = Operation.ToBeRetried == op;

@@ -1,4 +1,5 @@
 ﻿using System;
+using Eu.EDelivery.AS4.Extensions;
 
 namespace Eu.EDelivery.AS4.Entities
 {
@@ -31,16 +32,6 @@ namespace Eu.EDelivery.AS4.Entities
         ToBeDelivered,
         Delivering,
         Delivered
-    }
-
-
-    public static class OperationUtils
-    {
-        [Obsolete("You can now use the 'ToEnum<>' extension method instead")]
-        public static Operation Parse(string operationString)
-        {
-            return (Operation)Enum.Parse(typeof(Operation), operationString, true);
-        }
     }
 
     public enum MessageExchangePattern

@@ -99,7 +99,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
             Assert.Empty(Directory.EnumerateFiles(DeliveryRoot));
             Assert.Equal(InStatus.Exception, actual.Status.ToEnum<InStatus>());
-            Assert.Equal(Operation.DeadLettered, OperationUtils.Parse(actual.Operation));
+            Assert.Equal(Operation.DeadLettered, actual.Operation.ToEnum<Operation>());
         }
 
 
