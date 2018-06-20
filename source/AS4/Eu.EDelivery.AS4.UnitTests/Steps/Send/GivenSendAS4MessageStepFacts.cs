@@ -3,6 +3,7 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Entities;
+using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
@@ -41,7 +42,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
                 message =>
                 {
                     Assert.Equal(Operation.Sent, OperationUtils.Parse(message.Operation));
-                    Assert.Equal(OutStatus.Sent, OutStatusUtils.Parse(message.Status));
+                    Assert.Equal(OutStatus.Sent, message.Status.ToEnum<OutStatus>());
                 });
         }
 

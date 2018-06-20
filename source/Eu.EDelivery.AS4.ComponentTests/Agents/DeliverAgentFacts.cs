@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.ComponentTests.Common;
 using Eu.EDelivery.AS4.Entities;
+using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
@@ -97,7 +98,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                 TimeSpan.FromSeconds(10));
 
             Assert.Empty(Directory.EnumerateFiles(DeliveryRoot));
-            Assert.Equal(InStatus.Exception, InStatusUtils.Parse(actual.Status));
+            Assert.Equal(InStatus.Exception, actual.Status.ToEnum<InStatus>());
             Assert.Equal(Operation.DeadLettered, OperationUtils.Parse(actual.Operation));
         }
 

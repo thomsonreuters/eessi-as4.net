@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Entities;
+using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Deliver;
 using Eu.EDelivery.AS4.Model.Internal;
@@ -87,7 +88,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
             GetDataStoreContext.AssertInMessage(id, inmessage =>
             {
                 Assert.NotNull(inmessage);
-                Assert.Equal(InStatus.Delivered, InStatusUtils.Parse(inmessage.Status));
+                Assert.Equal(InStatus.Delivered, inmessage.Status.ToEnum<InStatus>());
                 Assert.Equal(Operation.Delivered, OperationUtils.Parse(inmessage.Operation));
             });
         }
@@ -126,7 +127,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
             {
                 Assert.NotNull(inMessage);
                 Assert.Equal(input.ExpectedOperation, OperationUtils.Parse(inMessage.Operation));
-                Assert.Equal(input.ExpectedStatus, InStatusUtils.Parse(inMessage.Status));
+                Assert.Equal(input.ExpectedStatus, inMessage.Status.ToEnum<InStatus>());
             });
         }
 

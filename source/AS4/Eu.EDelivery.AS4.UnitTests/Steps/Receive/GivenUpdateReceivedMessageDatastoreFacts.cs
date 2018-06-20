@@ -62,7 +62,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 m =>
                 {
                     Assert.NotNull(m);
-                    Assert.Equal(OutStatus.Ack, OutStatusUtils.Parse(m.Status));
+                    Assert.Equal(OutStatus.Ack, m.Status.ToEnum<OutStatus>());
                 });
         }
 
@@ -115,7 +115,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 m =>
                 {
                     Assert.NotNull(m);
-                    Assert.Equal(OutStatus.Nack, OutStatusUtils.Parse(m.Status));
+                    Assert.Equal(OutStatus.Nack, m.Status.ToEnum<OutStatus>());
                 });
         }
 

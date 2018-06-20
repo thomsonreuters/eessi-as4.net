@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.ComponentTests.Common;
 using Eu.EDelivery.AS4.Entities;
+using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
@@ -76,12 +77,12 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                 _databaseSpy.GetInMessages(bundled.UserMessages.Select(u => u.MessageId).ToArray()),
                 userMessage1 =>
                 {
-                    Assert.Equal(InStatus.Received, InStatusUtils.Parse(userMessage1.Status));
+                    Assert.Equal(InStatus.Received, userMessage1.Status.ToEnum<InStatus>());
                     Assert.Equal(Operation.ToBeDelivered, OperationUtils.Parse(userMessage1.Operation));
                 },
                 userMessage2 =>
                 {
-                    Assert.Equal(InStatus.Received, InStatusUtils.Parse(userMessage2.Status));
+                    Assert.Equal(InStatus.Received, userMessage2.Status.ToEnum<InStatus>());
                     Assert.Equal(Operation.ToBeDelivered, OperationUtils.Parse(userMessage2.Operation));
                 });
             Assert.Collection(

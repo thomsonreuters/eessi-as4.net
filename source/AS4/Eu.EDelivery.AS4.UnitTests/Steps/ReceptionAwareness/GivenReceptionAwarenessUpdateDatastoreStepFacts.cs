@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
+using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Steps;
@@ -45,7 +46,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.ReceptionAwareness
                 // Assert
                 AssertReceptionAwareness(
                     awareness.RefToEbmsMessageId,
-                    x => Assert.Equal(ReceptionStatus.Completed, ReceptionStatusUtils.Parse(x.Status)));
+                    x => Assert.Equal(ReceptionStatus.Completed, x.Status.ToEnum<ReceptionStatus>()));
             }
 
             private EntityReceptionAwareness InsertAlreadyAnsweredMessage()
@@ -87,7 +88,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.ReceptionAwareness
                 AssertNotNullInMessage(awareness.RefToEbmsMessageId);
                 AssertReceptionAwareness(
                     awareness.RefToEbmsMessageId,
-                    x => Assert.Equal(ReceptionStatus.Completed, ReceptionStatusUtils.Parse(x.Status)));
+                    x => Assert.Equal(ReceptionStatus.Completed, x.Status.ToEnum<ReceptionStatus>()));
             }
 
             private void AssertNotNullInMessage(string messageId)
@@ -117,7 +118,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.ReceptionAwareness
                 AssertOutMessage(awareness.RefToEbmsMessageId, x => Assert.Equal(Operation.ToBeSent, OperationUtils.Parse(x.Operation)));
                 AssertReceptionAwareness(
                     awareness.RefToEbmsMessageId,
-                    x => Assert.Equal(ReceptionStatus.Pending, ReceptionStatusUtils.Parse(x.Status)));
+                    x => Assert.Equal(ReceptionStatus.Pending, x.Status.ToEnum<ReceptionStatus>()));
             }
 
             private EntityReceptionAwareness CreateOutMessageWithReceptionAwareness(int currentRetryCount = 0, ReceptionStatus status = ReceptionStatus.Pending)
