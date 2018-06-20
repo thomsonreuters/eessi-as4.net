@@ -191,8 +191,7 @@
     <Compile Include="Mappings\PMode\IPModeResolver.cs" />
     <Compile Include="Mappings\PMode\PModeActionResolver.cs" />
     <Compile Include="Mappings\PMode\PModeAgreementRefResolver.cs" />
-    <Compile Include="Mappings\PMode\PModeReceiverResolver.cs" />
-    <Compile Include="Mappings\PMode\PModeSenderResolver.cs" />
+    <Compile Include="Mappings\PMode\PModePartyResolver.cs" />
     <Compile Include="Mappings\PMode\PModeServiceResolver.cs" />
     <Compile Include="Model\Core\PullRequestError.cs" />
     <Compile Include="Model\Deliver\DeliverMessageEnvelope.cs" />
@@ -225,7 +224,7 @@
     <Compile Include="Mappings\Submit\SubmitConversationIdResolver.cs" />
     <Compile Include="Mappings\Submit\SubmitMessagePropertiesResolver.cs" />
     <Compile Include="Mappings\Submit\SubmitMpcResolver.cs" />
-    <Compile Include="Mappings\Submit\SubmitSenderPartyResolver.cs" />
+    <Compile Include="Mappings\Submit\SubmitSenderResolver.cs" />
     <Compile Include="Mappings\Submit\SubmitMessageAgreementMapper.cs" />
     <Compile Include="Mappings\Submit\SubmitPayloadInfoResolver.cs" />
     <Compile Include="Mappings\Submit\SubmitReceiverResolver.cs" />

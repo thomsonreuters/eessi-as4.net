@@ -366,8 +366,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
         {
             return new UserMessage("message-Id")
             {
-                Receiver = new AS4.Model.Core.Party("Receiver", new PartyId()),
-                Sender = new AS4.Model.Core.Party("Sender", new PartyId())
+                Receiver = new Party("Receiver", new PartyId(Guid.NewGuid().ToString())),
+                Sender = new Party("Sender", new PartyId(Guid.NewGuid().ToString()))
             };
         }
     }

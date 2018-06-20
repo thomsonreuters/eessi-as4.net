@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Linq;
+using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Singletons;
 using Eu.EDelivery.AS4.Xml;
 using Xunit;
+using CollaborationInfo = Eu.EDelivery.AS4.Xml.CollaborationInfo;
+using PartyId = Eu.EDelivery.AS4.Xml.PartyId;
 
 namespace Eu.EDelivery.AS4.UnitTests.Mappings.Core
 {
@@ -35,13 +38,19 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Core
 
             Assert.NotNull(userMessage);
 
-            Assert.Equal(routingInput.PartyInfo.From.PartyId.First().Value, userMessage.Sender.PartyIds.First().Id);
-            Assert.Equal(routingInput.PartyInfo.From.PartyId.First().type, userMessage.Sender.PartyIds.First().Type);
-            Assert.Equal(routingInput.PartyInfo.From.Role, userMessage.Sender.Role);
 
-            Assert.Equal(routingInput.PartyInfo.To.PartyId.First().Value, userMessage.Receiver.PartyIds.First().Id);
-            Assert.Equal(routingInput.PartyInfo.To.PartyId.First().type, userMessage.Receiver.PartyIds.First().Type);
-            Assert.Equal(routingInput.PartyInfo.To.Role, userMessage.Receiver.Role);
+            From fromParty = routingInput.PartyInfo.From;
+            To toParty = routingInput.PartyInfo.To;
+            Party sender = userMessage.Sender;
+            Party receiver = userMessage.Receiver;
+
+            Assert.Equal(fromParty.PartyId.First().Value, sender.PartyIds.First().Id);
+            Assert.True((fromParty.PartyId.First().type == null) == (sender.PartyIds.First().Type == String.Empty));
+            Assert.Equal(fromParty.Role, userMessage.Sender.Role);
+
+            Assert.Equal(toParty.PartyId.First().Value, receiver.PartyIds.First().Id);
+            Assert.True((toParty.PartyId.First().type == null) == (receiver.PartyIds.First().Type == String.Empty));
+            Assert.Equal(toParty.Role, receiver.Role);
         }
 
         [Fact]

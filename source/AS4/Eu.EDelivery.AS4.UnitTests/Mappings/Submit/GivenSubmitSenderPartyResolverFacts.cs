@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Linq;
-using Eu.EDelivery.AS4.Mappings.Submit;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Model.Submit;
 using Xunit;
+using static Eu.EDelivery.AS4.Mappings.Submit.SubmitSenderResolver;
 using CommonParty = Eu.EDelivery.AS4.Model.Common.Party;
 using CoreParty = Eu.EDelivery.AS4.Model.Core.Party;
 using PModeParty = Eu.EDelivery.AS4.Model.PMode.Party;
@@ -11,9 +11,6 @@ using PartyInfo = Eu.EDelivery.AS4.Model.PMode.PartyInfo;
 
 namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
 {
-    /// <summary>
-    /// Testing <see cref="SubmitSenderPartyResolver" />
-    /// </summary>
     public class GivenSubmitSenderPartyResolverFacts
     {
         public class GivenValidArguments : GivenSubmitSenderPartyResolverFacts
@@ -23,10 +20,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
             {
                 // Arrange
                 var submitMessage = new SubmitMessage {PMode = new SendingProcessingMode()};
-                var resolver = SubmitSenderPartyResolver.Default;
 
                 // Act
-                CoreParty party = resolver.Resolve(submitMessage);
+                CoreParty party = ResolveSender(submitMessage);
 
                 // Assert
                 Assert.Equal(Constants.Namespaces.EbmsDefaultFrom, party.PartyIds.First().Id);
@@ -45,10 +41,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
                             MessagePackaging = {PartyInfo = new PartyInfo {FromParty = CreatePopulatedPModeParty()}}
                         }
                 };
-                var resolver = SubmitSenderPartyResolver.Default;
 
                 // Act
-                CoreParty party = resolver.Resolve(submitMessage);
+                CoreParty party = ResolveSender(submitMessage);
 
                 // Assert
                 var fromParty = submitMessage.PMode.MessagePackaging.PartyInfo.FromParty;
@@ -65,10 +60,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
                     PartyInfo = {FromParty = CreatePopulatedCommonParty()},
                     PMode = new SendingProcessingMode {AllowOverride = true}
                 };
-                var resolver = SubmitSenderPartyResolver.Default;
 
                 // Act
-                CoreParty party = resolver.Resolve(submitMessage);
+                CoreParty party = ResolveSender(submitMessage);
 
                 // Assert
                 CommonParty fromParty = submitMessage.PartyInfo.FromParty;
@@ -95,10 +89,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
                         }
                 };
 
-                var resolver = SubmitSenderPartyResolver.Default;
 
                 // Act / Assert
-                Assert.ThrowsAny<Exception>(() => resolver.Resolve(submitMessage));
+                Assert.ThrowsAny<Exception>(() => ResolveSender(submitMessage));
             }
         }
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using static Eu.EDelivery.AS4.Constants.Namespaces;
 
 namespace Eu.EDelivery.AS4.Model.Core
 {
@@ -10,10 +11,15 @@ namespace Eu.EDelivery.AS4.Model.Core
 
         public string Role { get; }
 
+        public static Party DefaultFrom = new Party(EbmsDefaultRole, new PartyId(EbmsDefaultFrom));
+
+        public static Party DefaultTo = new Party(EbmsDefaultRole, new PartyId(EbmsDefaultTo));
+
         /// <summary>
         /// Initializes a new instance of the <see cref="Party" /> class.
         /// </summary>
         /// <param name="partyId"></param>
+        /// <exception cref="ArgumentNullException"></exception>
         public Party(PartyId partyId) : this(null, new[] { partyId }) { }
 
         /// <summary>
@@ -21,15 +27,27 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// </summary>
         /// <param name="role"></param>
         /// <param name="partyId"></param>
+        /// <exception cref="ArgumentNullException"></exception>
         public Party(string role, PartyId partyId) : this(role, new[] { partyId }) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Party" /> class.
         /// </summary>
+        /// <exception cref="ArgumentNullException"></exception>
         public Party(string role, IEnumerable<PartyId> partyIds)
         {
+            if (role == null)
+            {
+                throw new ArgumentNullException(nameof(role));
+            }
+
+            if (partyIds == null || partyIds.Any(id => id == null))
+            {
+                throw new ArgumentNullException(nameof(partyIds));
+            }
+
             Role = role;
-            PartyIds = partyIds != null && partyIds.All(id => id != null) ? partyIds : new PartyId[0];
+            PartyIds = partyIds;
         }
 
         /// <summary>

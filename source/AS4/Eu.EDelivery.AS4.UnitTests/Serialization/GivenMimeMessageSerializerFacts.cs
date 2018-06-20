@@ -112,8 +112,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
             {
                 return new UserMessage("message-id")
                 {
-                    Receiver = new Party("Receiver", new PartyId()),
-                    Sender = new Party("Sender", new PartyId())
+                    Receiver = new Party("Receiver", new PartyId(Guid.NewGuid().ToString())),
+                    Sender = new Party("Sender", new PartyId(Guid.NewGuid().ToString()))
                 };
             }
 

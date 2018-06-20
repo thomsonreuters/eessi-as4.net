@@ -153,8 +153,7 @@
     <Compile Include="Mappings\Notify\GivenReceiptToNotifyMapFacts.cs" />
     <Compile Include="Mappings\PMode\GivenPModeActionResolverFacts.cs" />
     <Compile Include="Mappings\PMode\GivenPModeAgreemenRefResolverFacts.cs" />
-    <Compile Include="Mappings\PMode\GivenPModeReceiverResolverFacts.cs" />
-    <Compile Include="Mappings\PMode\GivenPModeSenderResolverFacts.cs" />
+    <Compile Include="Mappings\PMode\GivenPModePartyResolverFacts.cs" />
     <Compile Include="Mappings\PMode\GivenPModeServiceResolverFacts.cs" />
     <Compile Include="Mappings\Submit\GivenSubmitActionResolverFacts.cs" />
     <Compile Include="Mappings\Submit\GivenSubmitAgreementMapperFacts.cs" />

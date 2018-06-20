@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using AutoMapper;
+using Eu.EDelivery.AS4.Singletons;
 
 namespace Eu.EDelivery.AS4.Mappings.Core
 {
@@ -28,8 +29,7 @@ namespace Eu.EDelivery.AS4.Mappings.Core
                 .ConstructUsing(
                     src => new Model.Core.Party(
                         src.Role,
-                        src.PartyId?.Select(
-                            id => new Model.Core.PartyId(id.Value, id.type))));
+                        src.PartyId?.Select(AS4Mapper.Map<Model.Core.PartyId>)));
 
             CreateMap<Model.Core.Party, Xml.To>()
                 .ForMember(dest => dest.Role, src => src.MapFrom(t => t.Role))
@@ -40,8 +40,7 @@ namespace Eu.EDelivery.AS4.Mappings.Core
                 .ConstructUsing(
                     src => new Model.Core.Party(
                         src.Role,
-                        src.PartyId?.Select(
-                            id => new Model.Core.PartyId(id.Value, id.type))));
+                        src.PartyId?.Select(AS4Mapper.Map<Model.Core.PartyId>)));
         }
     }
 }

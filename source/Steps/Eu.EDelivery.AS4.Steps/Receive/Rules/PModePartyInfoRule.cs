@@ -70,7 +70,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive.Rules
                 return false;
             }
 
-            return pmodeParty.PartyIds.All(x => messageParty.PartyIds.Any(y => x.Id == y.Id && x.Type == y.Type));
+            return pmodeParty.PartyIds.All(x => messageParty.PartyIds.Any(y => x.Id == y.Id && (x.Type ?? string.Empty) == y.Type));
         }
 
         private static bool IsPartyInfoRoleEqual(PartyInfo pmodePartyInfo, UserMessage userMessage)
