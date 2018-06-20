@@ -25,12 +25,12 @@ namespace Eu.EDelivery.AS4.Mappings.Core
                 .AfterMap(
                     (modelUserMessage, xmlUserMessage) =>
                     {
-                        if (modelUserMessage.MessageProperties?.Any() == false)
+                        if (!modelUserMessage.MessageProperties.Any())
                         {
                             xmlUserMessage.MessageProperties = null;
                         }
 
-                        if (modelUserMessage.PayloadInfo.Any() == false)
+                        if (!modelUserMessage.PayloadInfo.Any())
                         {
                             xmlUserMessage.PayloadInfo = null;
                         }
