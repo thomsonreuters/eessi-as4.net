@@ -67,7 +67,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
                 Logger.Debug(
                     $"{messagingContext.LogTag} Stops execution to return empty SOAP envelope to the orignal sender. " +
-                    "This happens when the message musn't be forwarded");
+                    "This happens when the message must be forwarded");
 
                 return StepResult.Success(messagingContext).AndStopExecution();
             }
