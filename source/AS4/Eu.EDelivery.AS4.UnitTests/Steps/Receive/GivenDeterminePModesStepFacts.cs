@@ -59,7 +59,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                     new ReceivePMode
                     {
                         Id = receivePModeId,
-                        ReplyHandling = new ReplyHandlingSetting { SendingPMode = "" }
+                        ReplyHandling = new ReplyHandlingSetting { SendingPMode = "some-other-send-pmodeid" }
                     });
 
                 // Assert
@@ -118,7 +118,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 GetDataStoreContext.InsertOutMessage(outMessage, withReceptionAwareness: false);
             }
 
-            private async Task<StepResult> ExerciseDeterminePModes(AS4Message message, params ReceivingProcessingMode[] pmodes)
+            private async Task<StepResult> ExerciseDeterminePModes(AS4Message message, params ReceivePMode[] pmodes)
             {
                 var stubConfig = new Mock<IConfig>();
                 stubConfig.Setup(c => c.GetReceivingPModes()).Returns(pmodes);

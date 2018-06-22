@@ -86,7 +86,11 @@ namespace Eu.EDelivery.AS4.Model.Core
 
         public bool IsSignalMessage => PrimaryMessageUnit is SignalMessage;
 
+        public bool HasSignalMessage => MessageUnits.Any(m => m is SignalMessage);
+
         public bool IsUserMessage => PrimaryMessageUnit is UserMessage;
+
+        public bool HasUserMessage => MessageUnits.Any(m => m is UserMessage);
 
         public MessageUnit PrimaryMessageUnit => MessageUnits.FirstOrDefault();
 

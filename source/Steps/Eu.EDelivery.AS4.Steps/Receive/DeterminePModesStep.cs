@@ -18,7 +18,6 @@ using FluentValidation.Results;
 using NLog;
 using ReceivePMode = Eu.EDelivery.AS4.Model.PMode.ReceivingProcessingMode;
 using SendPMode = Eu.EDelivery.AS4.Model.PMode.SendingProcessingMode;
-using SignalMessage = Eu.EDelivery.AS4.Model.Core.SignalMessage;
 using UserMessage = Eu.EDelivery.AS4.Model.Core.UserMessage;
 
 namespace Eu.EDelivery.AS4.Steps.Receive
@@ -60,7 +59,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         {
             AS4Message as4Message = messagingContext.AS4Message;
 
-            if (as4Message.IsSignalMessage)
+            if (as4Message.HasSignalMessage)
             {
                 if (as4Message.IsMultiHopMessage == false && messagingContext.SendingPMode != null)
                 {
@@ -68,14 +67,11 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 }
 
                 SendPMode pmode = await DetermineSendingPModeForSignalMessageAsync(as4Message.FirstSignalMessage);
-
                 if (pmode != null)
                 {
                     messagingContext.SendingPMode = pmode;
-                    return StepResult.Success(messagingContext);
                 }
-
-                if (as4Message.IsMultiHopMessage == false)
+                else if (as4Message.IsMultiHopMessage == false)
                 {
                     throw new InvalidOperationException(
                         $"{messagingContext.LogTag} Cannot determine Sending PMode for incoming SignalMessage: " + 
@@ -94,9 +90,14 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 return StepResult.Success(messagingContext);
             }
 
-            Logger.Trace(
-                $"{messagingContext.LogTag} Incoming message hasn't yet a ReceivingPMode, will determine one");
-            return await DetermineReceivingPModeAsync(messagingContext);
+            if (as4Message.HasUserMessage)
+            {
+                Logger.Trace(
+                       $"{messagingContext.LogTag} Incoming message hasn't yet a ReceivingPMode, will determine one");
+                return await DetermineReceivingPModeAsync(messagingContext); 
+            }
+
+            return StepResult.Success(messagingContext);
         }
 
         private async Task<SendPMode> DetermineSendingPModeForSignalMessageAsync(MessageUnit signalMessage)
@@ -140,7 +141,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
                 Logger.Error(description);
 
-                if (messagingContext.AS4Message.IsUserMessage)
+                if (messagingContext.AS4Message.HasUserMessage)
                 {
                     return FailedStepResult(description, messagingContext);
                 }
@@ -159,7 +160,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                     $"Candidates are:{Environment.NewLine}" + 
                     String.Join(Environment.NewLine, possibilities.Select(p => p.Id).ToArray()));
 
-                if (messagingContext.AS4Message.IsUserMessage)
+                if (messagingContext.AS4Message.HasUserMessage)
                 {
                     return FailedStepResult(description, messagingContext);
                 }
@@ -185,7 +186,6 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             }
 
             messagingContext.ReceivingPMode = pmode;
-            messagingContext.SendingPMode = GetReferencedSendingPMode(pmode);
 
             return await StepResult.SuccessAsync(messagingContext);
         }
@@ -247,27 +247,6 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         private List<PModeParticipant> GetPModeParticipants(UserMessage primaryUser)
         {
             return _config.GetReceivingPModes().Select(pmode => new PModeParticipant(pmode, primaryUser)).ToList();
-        }
-
-        private SendPMode GetReferencedSendingPMode(ReceivePMode receivePMode)
-        {
-            if (string.IsNullOrWhiteSpace(receivePMode.ReplyHandling?.SendingPMode))
-            {
-                if (receivePMode.MessageHandling.MessageHandlingType != MessageHandlingChoiceType.Forward)
-                {
-                    Logger.Warn(
-                        $"(Receive) No referenced SendingPMode defined in ReplyHandling of Received PMode {receivePMode.Id}. " +
-                        "This means that this PMode cannot be used to send/forward a message");
-                }
-                return null;
-            }
-
-            string pmodeId = receivePMode.ReplyHandling.SendingPMode;
-            Logger.Debug(
-                $"(Receive) Referenced Sending PMode found with Id: {pmodeId}. " +
-                "This PMode will be used to further send/forward the message");
-
-            return _config.GetSendingPMode(pmodeId);
         }
     }
 }
