@@ -30,7 +30,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Core
             {
                 // Arrange
                 AS4Message as4Message = await GetPopulatedModelReceipt();
-                var coreReceipt = as4Message.PrimarySignalMessage as CoreReceipt;
+                var coreReceipt = as4Message.FirstSignalMessage as CoreReceipt;
 
                 // Act
                 var xmlReceipt = AS4Mapper.Map<XmlReceipt>(coreReceipt);

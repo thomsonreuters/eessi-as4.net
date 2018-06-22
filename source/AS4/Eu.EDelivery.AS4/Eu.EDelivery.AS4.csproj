@@ -131,6 +131,7 @@
     <Compile Include="Builders\Entities\OutMessageBuilder.cs" />
     <Compile Include="Builders\GenericTypeBuilder.cs" />
     <Compile Include="Builders\Security\DecryptionStrategyBuilder.cs" />
+    <Compile Include="Entities\Journal.cs" />
     <Compile Include="Entities\RetryReliability.cs" />
     <Compile Include="Migrations\20180302141116_RemoveOutMessagesConstraint.cs" />
     <Compile Include="Migrations\20180302141116_RemoveOutMessagesConstraint.designer.cs">
@@ -140,6 +141,11 @@
     <Compile Include="Migrations\20180511112132_AddRetryReliabilityTable.Designer.cs">
       <DependentUpon>20180511112132_AddRetryReliabilityTable.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\20180618120333_AddJournalTable.cs" />
+    <Compile Include="Migrations\20180618120333_AddJournalTable.designer.cs">
+      <DependentUpon>20180618120333_AddJournalTable.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Model\Core\Schema.cs" />
     <Compile Include="Model\PMode\SafeIntJsonConverter.cs" />
     <Compile Include="Resources\XsdSchemaDefinitions.cs" />
     <Compile Include="Security\Signing\CalculateSignatureConfig.cs" />

@@ -46,7 +46,7 @@ namespace Eu.EDelivery.AS4.Transformers
             if (notifyMessage?.StatusInfo != null)
             {
                 notifyMessage.StatusInfo.Status =
-                    as4Message.PrimarySignalMessage is Receipt
+                    as4Message.FirstSignalMessage is Receipt
                         ? Status.Delivered
                         : Status.Error;
             }

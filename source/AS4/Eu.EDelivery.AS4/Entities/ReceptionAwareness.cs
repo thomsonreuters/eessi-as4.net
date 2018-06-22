@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Eu.EDelivery.AS4.Extensions;
 
 namespace Eu.EDelivery.AS4.Entities
 {
@@ -69,7 +70,7 @@ namespace Eu.EDelivery.AS4.Entities
         /// <param name="value">Value indicating the <see cref="Entity"/> is locked.</param>
         public override void Lock(string value)
         {
-            var updatedStatus = ReceptionStatusUtils.Parse(value);
+            var updatedStatus = value.ToEnum<ReceptionStatus>();
 
             SetStatus(updatedStatus);
         }
@@ -80,13 +81,5 @@ namespace Eu.EDelivery.AS4.Entities
         Pending,
         Busy,
         Completed
-    }
-
-    public static class ReceptionStatusUtils
-    {
-        public static ReceptionStatus Parse(string value)
-        {
-            return (ReceptionStatus)Enum.Parse(typeof(ReceptionStatus), value, true);
-        }
     }
 }

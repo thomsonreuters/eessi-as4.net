@@ -5,6 +5,7 @@ using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Exceptions.Handlers;
+using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
@@ -168,12 +169,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Exceptions.Handlers
             await exercise(new Exception(), context);
 
             // Assert
-            GetDataStoreContext.AssertInMessage(_expectedId, m => Assert.Equal(InStatus.Exception, InStatusUtils.Parse(m.Status)));
+            GetDataStoreContext.AssertInMessage(_expectedId, m => Assert.Equal(InStatus.Exception, m.Status.ToEnum<InStatus>()));
             GetDataStoreContext.AssertInException(
                 _expectedId,
                 ex =>
                 {
-                    Assert.Equal(expected, OperationUtils.Parse(ex.Operation));
+                    Assert.Equal(expected, ex.Operation.ToEnum<Operation>());
                     Assert.Null(ex.MessageBody);
                 });
         }

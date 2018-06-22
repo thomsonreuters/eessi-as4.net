@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
+using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
@@ -39,13 +40,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Forward
                 {
                     OutMessage outMessage = db.OutMessages.First(m => m.EbmsMessageId == receivedInMessage.EbmsMessageId);
 
-                    Assert.Equal(Operation.ToBeProcessed, OperationUtils.Parse(outMessage.Operation));
+                    Assert.Equal(Operation.ToBeProcessed, outMessage.Operation.ToEnum<Operation>());
                     Assert.Equal(messagingContext.SendingPMode.MessagePackaging.Mpc, outMessage.Mpc);
                     Assert.Equal(messagingContext.SendingPMode.MepBinding.ToString(), outMessage.MEP);
 
                     InMessage inMessage = db.InMessages.First(m => m.EbmsMessageId == receivedInMessage.EbmsMessageId);
 
-                    Assert.Equal(Operation.Forwarded, OperationUtils.Parse(inMessage.Operation));
+                    Assert.Equal(Operation.Forwarded, inMessage.Operation.ToEnum<Operation>());
                 }
             }
 
@@ -73,11 +74,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Forward
 
             private static InMessage CreateInMessage(AS4Message message)
             {
-                var primaryMessageUnit = (MessageUnit) message.PrimaryUserMessage ?? message.PrimarySignalMessage;
-
                 var result = new InMessage(message.GetPrimaryMessageId())
                 {
-                    EbmsRefToMessageId = primaryMessageUnit.RefToMessageId,
+                    EbmsRefToMessageId = message.PrimaryMessageUnit.RefToMessageId,
                     ContentType = message.ContentType,
                     Intermediary = true
                 };
@@ -85,7 +84,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Forward
                 result.SetEbmsMessageType(MessageType.UserMessage);
                 result.SetOperation(Operation.ToBeForwarded);
 
-                result.AssignAS4Properties(primaryMessageUnit);
+                result.AssignAS4Properties(message.PrimaryMessageUnit);
 
                 return result;
             }
@@ -97,7 +96,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Forward
                 using (DatastoreContext db = GetDataStoreContext())
                 {
                     InMessage inMessage =
-                        db.InMessages.First(m => OperationUtils.Parse(m.Operation) == Operation.ToBeForwarded);
+                        db.InMessages.First(m => m.Operation.ToEnum<Operation>() == Operation.ToBeForwarded);
 
                     receivedMessage = new ReceivedMessageEntityMessage(inMessage, Stream.Null, "");
                 }

@@ -101,6 +101,7 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
 
                     if (context.NotifyMessage.EntityType == typeof(InMessage))
                     {
+                        Logger.Debug("Fatal fail in notification, set InMessage(s).Status=Exception");
                         repository.UpdateInMessage(context.EbmsMessageId, i => i.SetStatus(InStatus.Exception));
                     }
                 }
@@ -113,9 +114,19 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
                     if (context.NotifyMessage.EntityType == typeof(OutMessage) &&
                         context.MessageEntityId != null)
                     {
-                        repository.UpdateOutMessage(context.MessageEntityId.Value,
-                                                    o => o.SetStatus(OutStatus.Exception));
+                        Logger.Debug("Fatal fail in notification, set OutMessage.Status=Exception");
+                        repository.UpdateOutMessage(
+                            context.MessageEntityId.Value,
+                            o => o.SetStatus(OutStatus.Exception));
                     }
+                }
+
+                if (context.MessageEntityId != null)
+                {
+                    Logger.Debug("Abort retry operation due to fatal notification exception, set Status=Completed");
+                    repository.UpdateRetryReliability(
+                        context.MessageEntityId.Value,
+                        r => r.SetStatus(ReceptionStatus.Completed));
                 }
 
                 await dbContext.SaveChangesAsync();

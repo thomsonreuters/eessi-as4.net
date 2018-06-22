@@ -10,6 +10,7 @@ using Eu.EDelivery.AS4.ComponentTests.Common;
 using Eu.EDelivery.AS4.ComponentTests.Extensions;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Exceptions;
+using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Repositories;
@@ -80,8 +81,8 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                         () => spy.GetInMessageFor(im => im.EbmsMessageId == ebmsMessageId),
                         timeout: TimeSpan.FromSeconds(5));
 
-                    Assert.Equal(Operation.ToBeDelivered, OperationUtils.Parse(actual.Operation));
-                    Assert.Equal(InStatus.Received, InStatusUtils.Parse(actual.Status));
+                    Assert.Equal(Operation.ToBeDelivered, actual.Operation.ToEnum<Operation>());
+                    Assert.Equal(InStatus.Received, actual.Status.ToEnum<InStatus>());
                     Assert.Equal(DefaultPModeId, actual.PModeId);
                 });
         }
@@ -90,18 +91,16 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         {
             string attachmentId = "attachment-" + Guid.NewGuid();
 
-            AS4Message m = AS4Message.Create(
-                new UserMessage(ebmsMessageId)
+            var user = new UserMessage(ebmsMessageId)
+            {
+                CollaborationInfo =
                 {
-                    CollaborationInfo =
-                    {
-                        AgreementReference = { PModeId = DefaultPModeId }
-                    },
-                    PayloadInfo = new[]
-                    {
-                        new PartInfo("cid:" + attachmentId)
-                    }
-                });
+                    AgreementReference = { PModeId = DefaultPModeId }
+                }
+            };
+            user.AddPartInfo(new PartInfo("cid:" + attachmentId));
+
+            AS4Message m = AS4Message.Create(user);
 
             m.AddAttachment(
                     new Attachment(attachmentId)

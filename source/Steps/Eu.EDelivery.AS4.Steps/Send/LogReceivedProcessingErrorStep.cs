@@ -54,7 +54,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             using (DatastoreContext context = _createContext())
             {
                 var repository = new DatastoreRepository(context);
-                var exception = new InException(messagingContext.AS4Message?.PrimarySignalMessage?.RefToMessageId, messagingContext.ErrorResult.Description)
+                var exception = new InException(messagingContext.AS4Message?.FirstSignalMessage?.RefToMessageId, messagingContext.ErrorResult.Description)
                 {
                     InsertionTime = DateTimeOffset.Now,
                     ModificationTime = DateTimeOffset.Now

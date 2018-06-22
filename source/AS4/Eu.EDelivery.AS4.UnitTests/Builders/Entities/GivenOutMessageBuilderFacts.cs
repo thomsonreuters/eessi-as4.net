@@ -1,8 +1,8 @@
 ﻿using System;
-using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Entities;
 using Eu.EDelivery.AS4.Entities;
+using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Serialization;
@@ -24,12 +24,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
                 AS4Message as4Message = CreateAS4MessageWithUserMessage(Guid.NewGuid().ToString());
 
                 // Act
-                OutMessage outMessage = BuildForUserMessage(as4Message);
+                OutMessage outMessage = BuildForPrimaryMessageUnit(as4Message);
 
                 // Assert
                 Assert.NotNull(outMessage);
                 Assert.Equal(as4Message.ContentType, outMessage.ContentType);
-                Assert.Equal(MessageType.UserMessage, MessageTypeUtils.Parse(outMessage.EbmsMessageType));
+                Assert.Equal(MessageType.UserMessage, outMessage.EbmsMessageType.ToEnum<MessageType>());
                 Assert.Equal(await AS4XmlSerializer.ToStringAsync(ExpectedPMode()), outMessage.PMode);
             }
 
@@ -42,16 +42,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
 
 
                 // Act
-                OutMessage outMessage = BuildForUserMessage(as4Message);
+                OutMessage outMessage = BuildForPrimaryMessageUnit(as4Message);
 
                 // Assert
                 Assert.Equal(messageId, outMessage.EbmsMessageId);
-            }
-
-            private OutMessage BuildForUserMessage(AS4Message as4Message)
-            {
-                return OutMessageBuilder.ForMessageUnit(as4Message.PrimaryUserMessage, as4Message.ContentType, ExpectedPMode())
-                                        .Build();
             }
 
             [Fact]
@@ -62,11 +56,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
                 AS4Message as4Message = AS4Message.Create(new Receipt(messageId), ExpectedPMode());
 
                 // Act
-                OutMessage outMessage = BuildForSignalMessage(as4Message);
+                OutMessage outMessage = BuildForPrimaryMessageUnit(as4Message);
 
                 // Assert
                 Assert.Equal(messageId, outMessage.EbmsMessageId);
-                Assert.Equal(MessageType.Receipt, MessageTypeUtils.Parse(outMessage.EbmsMessageType));
+                Assert.Equal(MessageType.Receipt, outMessage.EbmsMessageType.ToEnum<MessageType>());
             }
 
             [Fact]
@@ -77,17 +71,18 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
                 AS4Message as4Message = AS4Message.Create(new Error(messageId), ExpectedPMode());
 
                 // Act
-                OutMessage outMessage = BuildForSignalMessage(as4Message);
+                OutMessage outMessage = BuildForPrimaryMessageUnit(as4Message);
 
                 // Assert
                 Assert.Equal(messageId, outMessage.EbmsMessageId);
-                Assert.Equal(MessageType.Error, MessageTypeUtils.Parse(outMessage.EbmsMessageType));
+                Assert.Equal(MessageType.Error, outMessage.EbmsMessageType.ToEnum<MessageType>());
             }
 
-            private OutMessage BuildForSignalMessage(AS4Message as4Message)
+            private OutMessage BuildForPrimaryMessageUnit(AS4Message m)
             {
-                return OutMessageBuilder.ForMessageUnit(as4Message.PrimarySignalMessage, as4Message.ContentType, ExpectedPMode())
-                                        .Build();
+                return OutMessageBuilder
+                    .ForMessageUnit(m.PrimaryMessageUnit, m.ContentType, ExpectedPMode())
+                    .Build();
             }
         }
 

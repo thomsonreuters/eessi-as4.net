@@ -207,6 +207,23 @@ namespace Eu.EDelivery.AS4.UnitTests.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to &lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
+        ///
+        ///&lt;s12:Envelope xmlns:s12=&quot;http://www.w3.org/2003/05/soap-envelope&quot;&gt;
+        ///	&lt;s12:Header&gt;
+        ///		&lt;eb:Messaging xmlns:wsu=&quot;http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd&quot;
+        ///		              xmlns:wsse=&quot;http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd&quot;
+        ///		              xmlns:s12=&quot;http://www.w3.org/2003/05/soap-envelope&quot;
+        ///		              wsu:Id=&quot;header-fcd4d20d-3842-479a-bcaf-91a8a6d97275&quot;
+        ///		              xmlns:eb [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string as4_soap_user_receipt_message {
+            get {
+                return ResourceManager.GetString("as4_soap_user_receipt_message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
         internal static byte[] as4_soap_wrong_encrypted_message {

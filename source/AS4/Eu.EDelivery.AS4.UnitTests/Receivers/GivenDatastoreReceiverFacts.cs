@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Xml;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
+using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Receivers;
 using Eu.EDelivery.AS4.UnitTests.Common;
@@ -63,11 +64,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
 
             // Assert
             AssertOutMessageIf(
-                m => OperationUtils.Parse(m.Operation) == Operation.Sending,
+                m => m.Operation.ToEnum<Operation>() == Operation.Sending,
                 message =>
                 {
-                    Assert.Equal(Operation.Sending, OperationUtils.Parse(message.Operation));
-                    Assert.Equal(OutStatus.Sent, OutStatusUtils.Parse(message.Status));
+                    Assert.Equal(OutStatus.Sent, message.Status.ToEnum<OutStatus>());
+                    Assert.Equal(Operation.Sending, message.Operation.ToEnum<Operation>());
                 });
         }
 

@@ -4,6 +4,7 @@ using Eu.EDelivery.AS4.Builders.Entities;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Exceptions;
+using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
@@ -60,7 +61,7 @@ namespace Eu.EDelivery.AS4.Services
                 selection: m => new
                 {
                     pmode = AS4XmlSerializer.FromString<SendingProcessingMode>(m.PMode),
-                    mep = MessageExchangePatternUtils.Parse(m.MEP)
+                    mep = m.MEP.ToEnum<Entities.MessageExchangePattern>()
                 });
 
             Error errorMessage = CreateError(ebmsMessageId);
@@ -128,7 +129,7 @@ namespace Eu.EDelivery.AS4.Services
 
             DateTimeOffset deadlineForResend = awareness.LastSendTime.Value.Add(TimeSpan.Parse(awareness.RetryInterval));
 
-            return ReceptionStatusUtils.Parse(awareness.Status) != ReceptionStatus.Completed
+            return awareness.Status.ToEnum<ReceptionStatus>() != ReceptionStatus.Completed
                    && awareness.CurrentRetryCount < awareness.TotalRetryCount
                    && DateTimeOffset.Now > deadlineForResend
                    && _repository.GetOutMessageData(messageId: awareness.RefToOutMessageId,

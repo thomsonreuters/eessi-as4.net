@@ -40,7 +40,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
             IEnumerable<PartInfo> invalidPartInfos =
                context.AS4Message.UserMessages.SelectMany(
-                   message => message.PayloadInfo.Where(payload => payload.Href == null || payload.Href.StartsWith("cid:") == false));
+                   message => message.PayloadInfo.Where(payload => payload.Href.StartsWith("cid:") == false));
 
             if (invalidPartInfos.Any())
             {
@@ -53,7 +53,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 AS4Message message = context.AS4Message;
 
                 bool noAttachmentCanBeFoundForEachPartInfo =
-                    message.PrimaryUserMessage.PayloadInfo?.Count(
+                    message.FirstUserMessage.PayloadInfo?.Count(
                         p => message.Attachments.FirstOrDefault(a => a.Matches(p)) == null) > 0;
 
                 if (noAttachmentCanBeFoundForEachPartInfo)
@@ -62,7 +62,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                     return ValidationFailure(context);
                 }
 
-                if (message.PrimaryUserMessage.PayloadInfo?.GroupBy(p => p.Href).All(g => g.Count() == 1) == false)
+                if (message.FirstUserMessage.PayloadInfo?.GroupBy(p => p.Href).All(g => g.Count() == 1) == false)
                 {
                     context.ErrorResult = DuplicateAttachmentInvalidHeaderError();
                     return ValidationFailure(context);

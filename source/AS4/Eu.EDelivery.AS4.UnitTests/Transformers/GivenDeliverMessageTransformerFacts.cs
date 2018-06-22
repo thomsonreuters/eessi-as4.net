@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -45,7 +46,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             const string expectedId = "usermessage-id";
             const string expectedUri = "expected-attachment-uri";
 
-            AS4Message message = AS4Message.Create(new FilledUserMessage(expectedId, expectedUri));
+            var user = new UserMessage(expectedId);
+            user.AddPartInfo(new PartInfo("cid:" + expectedUri));
+            AS4Message message = AS4Message.Create(user);
             message.AddAttachment(FilledAttachment(expectedUri));
             message.AddAttachment(FilledAttachment());
             message.AddAttachment(FilledAttachment());
@@ -57,9 +60,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             Assert.Single(actualMessage.AS4Message.Attachments);
         }
 
-        private static Attachment FilledAttachment(string attachmentId = "attachment-id")
+        private static Attachment FilledAttachment(string attachmentId = null)
         {
-            return new Attachment(attachmentId)
+            return new Attachment(attachmentId ?? Guid.NewGuid().ToString())
             {
                 Content = new MemoryStream(Encoding.UTF8.GetBytes("serialize me!")),
                 ContentType = "text/plain"
@@ -83,7 +86,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
 
             // Assert
             Assert.Single(actualMessage.AS4Message.UserMessages);
-            UserMessage actualUserMessage = actualMessage.AS4Message.PrimaryUserMessage;
+            UserMessage actualUserMessage = actualMessage.AS4Message.FirstUserMessage;
             Assert.Equal(expectedId, actualUserMessage.MessageId);
         }
 

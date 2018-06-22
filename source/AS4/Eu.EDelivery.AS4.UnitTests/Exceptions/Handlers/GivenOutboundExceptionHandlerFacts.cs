@@ -6,6 +6,7 @@ using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Exceptions.Handlers;
+using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
@@ -199,13 +200,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Exceptions.Handlers
             await exercise(_expectedException, context);
 
             // Assert
-            GetDataStoreContext.AssertOutMessage(_expectedId, m => Assert.Equal(OutStatus.Exception, OutStatusUtils.Parse(m.Status)));
+            GetDataStoreContext.AssertOutMessage(_expectedId, m => Assert.Equal(OutStatus.Exception, m.Status.ToEnum<OutStatus>()));
             GetDataStoreContext.AssertOutException(
                 _expectedId,
                 exception =>
                 {
                     Assert.True(exception.Exception.IndexOf(_expectedException.Message, StringComparison.CurrentCultureIgnoreCase) > -1, "Message does not contain expected message");
-                    Assert.True(expected == OperationUtils.Parse(exception.Operation), "Not equal 'Operation' inserted");
+                    Assert.True(expected == exception.Operation.ToEnum<Operation>(), "Not equal 'Operation' inserted");
                     Assert.True(exception.MessageBody == null, "Inserted exception body is not empty");
                 });
         }

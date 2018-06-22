@@ -84,15 +84,15 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         private static void AddPartInfo(AS4Message as4Message, Attachment attachment)
         {
             PartInfo partInfo = CreateAttachmentPartInfo(attachment);
-            as4Message.PrimaryUserMessage.PayloadInfo.Add(partInfo);
+            as4Message.FirstUserMessage.AddPartInfo(partInfo);
         }
 
         private static PartInfo CreateAttachmentPartInfo(Attachment attachment)
         {
-            return new PartInfo("cid:" + attachment.Id)
-            {
-                Properties = new Dictionary<string, string> {["MimeType"] = attachment.ContentType}
-            };
+            return new PartInfo(
+                href: "cid:" + attachment.Id, 
+                properties: new Dictionary<string, string> { ["MimeType"] = attachment.ContentType }, 
+                schemas: new Schema[0]);
         }
     }
 }

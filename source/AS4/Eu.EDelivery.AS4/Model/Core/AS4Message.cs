@@ -60,7 +60,7 @@ namespace Eu.EDelivery.AS4.Model.Core
         {
             get
             {
-                return (__hasMultiHopAttribute ?? false) || PrimarySignalMessage?.MultiHopRouting != null || _serializeAsMultiHop;
+                return (__hasMultiHopAttribute ?? false) || FirstSignalMessage?.MultiHopRouting != null || _serializeAsMultiHop;
             }
         }
 
@@ -80,13 +80,15 @@ namespace Eu.EDelivery.AS4.Model.Core
         public string[] MessageIds
             => UserMessages.Select(m => m.MessageId).Concat(SignalMessages.Select(m => m.MessageId)).ToArray();
 
-        public UserMessage PrimaryUserMessage => UserMessages.FirstOrDefault();
+        public UserMessage FirstUserMessage => UserMessages.FirstOrDefault();
 
-        public SignalMessage PrimarySignalMessage => SignalMessages.FirstOrDefault();
+        public SignalMessage FirstSignalMessage => SignalMessages.FirstOrDefault();
 
-        public bool IsSignalMessage => MessageUnits.FirstOrDefault() is SignalMessage;
+        public bool IsSignalMessage => PrimaryMessageUnit is SignalMessage;
 
-        public bool IsUserMessage => MessageUnits.FirstOrDefault() is UserMessage;
+        public bool IsUserMessage => PrimaryMessageUnit is UserMessage;
+
+        public MessageUnit PrimaryMessageUnit => MessageUnits.FirstOrDefault();
 
         public bool IsSigned => SecurityHeader.IsSigned;
 
@@ -94,9 +96,9 @@ namespace Eu.EDelivery.AS4.Model.Core
 
         public bool HasAttachments => Attachments?.Any() ?? false;
 
-        public bool IsEmpty => PrimarySignalMessage == null && PrimaryUserMessage == null;
+        public bool IsEmpty => FirstSignalMessage == null && FirstUserMessage == null;
 
-        public bool IsPullRequest => PrimarySignalMessage is PullRequest;
+        public bool IsPullRequest => FirstSignalMessage is PullRequest;
 
         /// <summary>
         /// Creates message with a SOAP envelope.
@@ -108,7 +110,12 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// <param name="bodyElement"></param>
         ///<remarks>This method should only be used when creating an AS4 Message via deserialization.</remarks>
         /// <returns></returns>
-        internal static AS4Message Create(XmlDocument soapEnvelope, string contentType, SecurityHeader securityHeader, Xml.Messaging messagingHeader, Xml.Body1 bodyElement)
+        internal static AS4Message Create(
+            XmlDocument soapEnvelope, 
+            string contentType, 
+            SecurityHeader securityHeader, 
+            Xml.Messaging messagingHeader, 
+            Xml.Body1 bodyElement)
         {
             if (soapEnvelope == null)
             {
@@ -162,7 +169,7 @@ namespace Eu.EDelivery.AS4.Model.Core
             result.SigningId = new SigningId(messagingHeader.SecurityId, bodySecurityId);
 
             result._messageUnits.AddRange(
-                SoapEnvelopeSerializer.GetMessageUnitsFromMessagingHeader(messagingHeader));
+                SoapEnvelopeSerializer.GetMessageUnitsFromMessagingHeader(soapEnvelope, messagingHeader));
 
             return result;
         }
@@ -198,7 +205,7 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// <returns></returns>
         public string GetPrimaryMessageId()
         {
-            return IsUserMessage ? PrimaryUserMessage.MessageId : PrimarySignalMessage?.MessageId;
+            return IsUserMessage ? FirstUserMessage.MessageId : FirstSignalMessage?.MessageId;
         }
 
         /// <summary>
@@ -257,12 +264,48 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// Add Attachment to <see cref="AS4Message" />
         /// </summary>
         /// <param name="attachment"></param>
+        /// <exception cref="InvalidOperationException">Throws when there already exists an <see cref="Attachment"/> with the same id</exception>
         public void AddAttachment(Attachment attachment)
         {
-            _attachmens.Add(attachment);
-            if (!ContentType.Contains(Constants.ContentTypes.Mime))
+            if (!_attachmens.Exists(a => a.Id == attachment.Id))
             {
-                UpdateContentTypeHeader();
+                _attachmens.Add(attachment);
+                if (!ContentType.Contains(Constants.ContentTypes.Mime))
+                {
+                    UpdateContentTypeHeader();
+                }
+            }
+            else
+            {
+                throw new InvalidOperationException(
+                    $"Cannot add attachment because there already exists an 'Attachment' with the Id={attachment.Id}");
+            }
+        }
+
+        /// <summary>
+        /// Add Attachment to <see cref="AS4Message" />
+        /// </summary>
+        /// <param name="attachment"></param>
+        /// <param name="partProperties"></param>
+        /// <param name="partSchemas"></param>
+        /// <exception cref="InvalidOperationException">Throws when there already exists an <see cref="Attachment"/> with the same id</exception>
+        public void AddAttachment(
+            Attachment attachment,
+            IDictionary<string, string> partProperties,
+            IEnumerable<Schema> partSchemas)
+        {
+            if (!_attachmens.Exists(a => a.Id == attachment.Id))
+            {
+                _attachmens.Add(attachment);
+                if (!ContentType.Contains(Constants.ContentTypes.Mime))
+                {
+                    UpdateContentTypeHeader();
+                }
+            }
+            else
+            {
+                throw new InvalidOperationException(
+                    $"Cannot add attachment because there already exists an 'Attachment' with the Id={attachment.Id}");
             }
         }
 
@@ -298,6 +341,7 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// <param name="retrieval">The retrieval.</param>
         /// <returns></returns>
         /// <exception cref="Exception">A delegate callback throws an exception.</exception>
+        /// <exception cref="InvalidOperationException">Throws when an <see cref="Attachment"/> is being added to a non-UserMessage</exception>
         public async Task AddAttachments(IReadOnlyList<Payload> payloads, Func<Payload, Task<Stream>> retrieval)
         {
             foreach (Payload payload in payloads)
