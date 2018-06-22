@@ -609,10 +609,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
         private static AS4Message CreateMultihopSignalMessage(string messageId, string refToMessageId)
         {
-            var receipt = new Receipt(messageId)
-            {
-                RefToMessageId = refToMessageId
-            };
+            var receipt = new Receipt(messageId, refToMessageId);
 
             receipt.MultiHopRouting = new RoutingInputUserMessage()
             {

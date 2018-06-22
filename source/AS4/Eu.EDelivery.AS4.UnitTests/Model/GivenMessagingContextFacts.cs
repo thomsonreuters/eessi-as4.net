@@ -175,7 +175,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
             public void ThenMessagingContextHasEbmsIdFromSignalMessage()
             {
                 // Arrange
-                var signalMessage = new Receipt("message-Id");
+                var signalMessage = new Receipt("message-Id", Guid.NewGuid().ToString());
 
                 var context = new MessagingContext(AS4Message.Create(signalMessage), MessagingContextMode.Unknown);
 

@@ -77,7 +77,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
 
         protected Receipt CreateReceiptMessageUnit()
         {
-            return new Receipt(Guid.NewGuid().ToString()) { RefToMessageId = Guid.NewGuid().ToString() };
+            return new Receipt(Guid.NewGuid().ToString(), Guid.NewGuid().ToString());
         }
     }
 }
