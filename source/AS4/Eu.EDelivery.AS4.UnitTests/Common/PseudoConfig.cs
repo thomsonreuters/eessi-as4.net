@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Configuration;
 using Eu.EDelivery.AS4.Agents;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Services.PullRequestAuthorization;
-using Eu.EDelivery.AS4.Watchers;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Common
@@ -37,6 +35,16 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
         /// for 'to-be-retried' messages/exceptions for a delivery or notification operation.
         /// </summary>
         public virtual TimeSpan RetryPollingInterval => throw new NotImplementedException();
+
+        /// <summary>
+        /// Retrieve referenced <see cref="SendingProcessingMode"/> from a given <see cref="ReceivingProcessingMode"/>.
+        /// </summary>
+        /// <param name="receivePMode"></param>
+        /// <returns></returns>
+        public SendingProcessingMode GetReferencedSendingPMode(ReceivingProcessingMode receivePMode)
+        {
+            throw new NotImplementedException();
+        }
 
         /// <summary>
         /// Retrieve Setting from the Global Configurations

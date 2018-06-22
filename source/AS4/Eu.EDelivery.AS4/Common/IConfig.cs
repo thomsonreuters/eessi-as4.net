@@ -92,6 +92,13 @@ namespace Eu.EDelivery.AS4.Common
         /// for 'to-be-retried' messages/exceptions for a delivery or notification operation.
         /// </summary>
         TimeSpan RetryPollingInterval { get; }
+
+        /// <summary>
+        /// Retrieve referenced <see cref="SendingProcessingMode"/> from a given <see cref="ReceivingProcessingMode"/>.
+        /// </summary>
+        /// <param name="receivePMode"></param>
+        /// <returns></returns>
+        SendingProcessingMode GetReferencedSendingPMode(ReceivingProcessingMode receivePMode);
     }
 
     public enum PropertyType
