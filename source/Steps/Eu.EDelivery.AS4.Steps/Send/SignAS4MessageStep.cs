@@ -22,13 +22,15 @@ namespace Eu.EDelivery.AS4.Steps.Send
     public class SignAS4MessageStep : IStep
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+
+        private readonly IConfig _config;
         private readonly ICertificateRepository _repository;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SignAS4MessageStep"/> class
         /// </summary>
         public SignAS4MessageStep() 
-            : this(Registry.Instance.CertificateRepository)
+            : this(Config.Instance, Registry.Instance.CertificateRepository)
         {
         }
 
@@ -36,10 +38,14 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// Initializes a new instance of the <see cref="SignAS4MessageStep"/> class. 
         /// Create Signing Step with a given Certificate Store Repository
         /// </summary>
+        /// <param name="config"></param>
         /// <param name="repository">
         /// </param>
-        public SignAS4MessageStep(ICertificateRepository repository)
+        public SignAS4MessageStep(
+            IConfig config,
+            ICertificateRepository repository)
         {
+            _config = config;
             _repository = repository;
         }
 
@@ -56,28 +62,44 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 return await StepResult.SuccessAsync(messagingContext);
             }
 
-            if (messagingContext.SendingPMode?.Security.Signing.IsEnabled != true)
+            SendingProcessingMode pmode = _config.GetReferencedSendingPMode(messagingContext.ReceivingPMode);
+
+            if (pmode.Security.Signing.IsEnabled != true)
             {
                 Logger.Debug(
                     $"{messagingContext.LogTag} No signing will be performend on the message " +
-                    $"because the SendingPMode {messagingContext.SendingPMode?.Id} siging information is disabled");
+                    $"because the SendingPMode {pmode.Id} siging information is disabled");
 
                 return await StepResult.SuccessAsync(messagingContext);
             }
 
-            TrySignAS4Message(messagingContext);
+            Logger.Info(
+                $"{messagingContext.LogTag} Sign AS4Message with " + 
+                $"given signing information of the SendingPMode {pmode.Id}");
+
+            SignAS4Message(pmode, messagingContext.AS4Message);
 
             return await StepResult.SuccessAsync(messagingContext);
         }
 
-        private void TrySignAS4Message(MessagingContext context)
+        private void SignAS4Message(SendingProcessingMode pmode, AS4Message message)
         {
             try
             {
-                Logger.Info(
-                    $"{context.LogTag} Sign AS4Message with given signing information of the SendingPMode {context.SendingPMode.Id}");
+                X509Certificate2 certificate = RetrieveCertificate(pmode);
 
-                SignAS4Message(context);
+                // Use GetRSAPrivateKey instead of HasPrivateKey to avoid 'Keyset does not exists' exception.
+                if (certificate.GetRSAPrivateKey() == null)
+                {
+                    throw new CryptographicException(
+                        "Cannot use certificate for signing: certificate does not have a private key. " +
+                        "Please make sure that the private key is included in the certificate and is marked as 'Exportable'");
+                }
+
+                CalculateSignatureConfig settings = 
+                    CreateSignConfig(certificate, pmode.Security.Signing);
+
+                message.Sign(settings);
             }
             catch (Exception exception)
             {
@@ -91,32 +113,15 @@ namespace Eu.EDelivery.AS4.Steps.Send
             }
         }
 
-        private void SignAS4Message(MessagingContext context)
+        private X509Certificate2 RetrieveCertificate(SendingProcessingMode pmode)
         {
-            X509Certificate2 certificate = RetrieveCertificate(context);
-
-            // Use GetRSAPrivateKey instead of HasPrivateKey to avoid 'Keyset does not exists' exception.
-            if (certificate.GetRSAPrivateKey() == null)
-            {
-                throw new CryptographicException(
-                    $"{context.LogTag} Cannot use certificate for signing: certificate does not have a private key. " +
-                    "Please make sure that the private key is included in the certificate and is marked as Exportable");
-            }
-
-            CalculateSignatureConfig calculateSignatureConfig = CreateSignConfig(certificate, context.SendingPMode);
-
-            context.AS4Message.Sign(calculateSignatureConfig);
-        }
-
-        private X509Certificate2 RetrieveCertificate(MessagingContext messagingContext)
-        {
-            Signing signInfo = messagingContext.SendingPMode.Security.Signing;
+            Signing signInfo = pmode.Security.Signing;
 
             if (signInfo.SigningCertificateInformation == null)
             {
                 throw new ConfigurationErrorsException(
-                    $"{messagingContext.LogTag} No signing certificate information found " +
-                    $"in Sending PMode {messagingContext.SendingPMode.Id} to perform signing. " +
+                    "No signing certificate information found " +
+                    $"in Sending PMode {pmode.Id} to perform signing. " +
                     "Please provide either a <CertificateFindCriteria/> or <PrivateKeyCertificate/> tag to the Security.Signing element");
             }
 
@@ -143,15 +148,13 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 "Please provide either a <CertificateFindCriteria/> or <PrivateKeyCertificate/> tag to the Security.Signing element");
         }
 
-        private static CalculateSignatureConfig CreateSignConfig(X509Certificate2 signCertificate, SendingProcessingMode pmode)
+        private static CalculateSignatureConfig CreateSignConfig(X509Certificate2 signCertificate, Signing settings)
         {
-            Signing signing = pmode.Security.Signing;
-
             return new CalculateSignatureConfig(
                 signingCertificate: signCertificate,
-                referenceTokenType: signing.KeyReferenceMethod,
-                signingAlgorithm: signing.Algorithm,
-                hashFunction: signing.HashFunction);
+                referenceTokenType: settings.KeyReferenceMethod,
+                signingAlgorithm: settings.Algorithm,
+                hashFunction: settings.HashFunction);
         }
     }
 }
