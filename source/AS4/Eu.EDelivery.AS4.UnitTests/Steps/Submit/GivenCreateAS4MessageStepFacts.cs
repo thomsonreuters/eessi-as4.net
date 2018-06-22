@@ -135,7 +135,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
 
             // Assert
             Assert.True(result.Succeeded);
-            Assert.Equal(2, as4Message.FirstUserMessage.MessageProperties.Count);
+            Assert.Equal(2, as4Message.FirstUserMessage.MessageProperties.Count());
             Assert.Equal("unregistered:C1", as4Message.FirstUserMessage.MessageProperties.FirstOrDefault(p => p.Name.Equals("originalSender"))?.Value);
             Assert.Equal("unregistered:C2", as4Message.FirstUserMessage.MessageProperties.FirstOrDefault(p => p.Name.Equals("finalRecipient"))?.Value);
         }
