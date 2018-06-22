@@ -54,7 +54,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 m =>
                 {
                     Assert.NotNull(m);
-                    Assert.Equal(Operation.ToBeNotified, OperationUtils.Parse(m.Operation));
+                    Assert.Equal(Operation.ToBeNotified, m.Operation.ToEnum<Operation>());
                 });
 
             GetDataStoreContext.AssertOutMessage(
@@ -62,7 +62,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 m =>
                 {
                     Assert.NotNull(m);
-                    Assert.Equal(OutStatus.Ack, OutStatusUtils.Parse(m.Status));
+                    Assert.Equal(OutStatus.Ack, m.Status.ToEnum<OutStatus>());
                 });
         }
 
@@ -115,7 +115,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 m =>
                 {
                     Assert.NotNull(m);
-                    Assert.Equal(OutStatus.Nack, OutStatusUtils.Parse(m.Status));
+                    Assert.Equal(OutStatus.Nack, m.Status.ToEnum<OutStatus>());
                 });
         }
 
@@ -255,13 +255,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 as4Message, 
                 sendPMode: null, 
                 receivePMode: pmode,
-                alterAfterSaved: as4 => as4.PrimaryUserMessage.IsTest = isTest);
+                alterAfterSaved: as4 => as4.FirstUserMessage.IsTest = isTest);
 
             // Assert
             InMessage actual = GetDataStoreContext.GetInMessage(m => m.EbmsMessageId == ebmsMessageId);
             bool needsToBeDelivered = enabled && !isTest;
             Assert.True(
-                !isTest == (Operation.ToBeDelivered == OperationUtils.Parse(actual.Operation)),
+                !isTest == (Operation.ToBeDelivered == actual.Operation.ToEnum<Operation>()),
                 "InMessage.Operation <> ToBeDelivered when not test message");
 
             GetDataStoreContext.AssertRetryRelatedInMessage(

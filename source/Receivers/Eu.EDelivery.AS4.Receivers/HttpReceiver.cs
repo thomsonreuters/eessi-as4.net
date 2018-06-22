@@ -481,7 +481,7 @@ namespace Eu.EDelivery.AS4.Receivers
 
                 private static bool IsAS4MessageAnError(MessagingContext messagingContext)
                 {
-                    return messagingContext.AS4Message.PrimarySignalMessage is Error;
+                    return messagingContext.AS4Message.PrimaryMessageUnit is Error;
                 }
 
                 protected override HttpListenerContentResult ExecuteCore(HttpListenerRequest request, MessagingContext processorResult)

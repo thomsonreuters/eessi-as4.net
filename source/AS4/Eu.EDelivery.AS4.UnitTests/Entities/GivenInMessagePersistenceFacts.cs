@@ -34,7 +34,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
                 var inMessage = db.InMessages.FirstOrDefault(i => i.Id == savedInMessageId);
 
                 Assert.NotNull(inMessage);
-                Assert.Equal(Operation.Sent, OperationUtils.Parse(inMessage.Operation));
+                Assert.Equal(Operation.Sent, inMessage.Operation.ToEnum<Operation>());
             }
         }
 
@@ -90,7 +90,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
                 var inMessage = db.InMessages.FirstOrDefault(i => i.Id == savedInMessageId);
 
                 Assert.NotNull(inMessage);
-                Assert.Equal(InStatus.Notified, InStatusUtils.Parse(inMessage.Status));
+                Assert.Equal(InStatus.Notified, inMessage.Status.ToEnum<InStatus>());
             }
         }
 
@@ -118,7 +118,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
                 var inMessage = db.InMessages.FirstOrDefault(i => i.Id == savedInMessageId);
 
                 Assert.NotNull(inMessage);
-                Assert.Equal(MessageType.Receipt, MessageTypeUtils.Parse(inMessage.EbmsMessageType));
+                Assert.Equal(MessageType.Receipt, inMessage.EbmsMessageType.ToEnum<MessageType>());
             }
         }
 

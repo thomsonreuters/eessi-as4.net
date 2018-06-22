@@ -32,7 +32,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 AS4Message result = await ExerciseCreateReceipt(messagingContext);
 
                 // Assert
-                Assert.IsType<Receipt>(result.PrimarySignalMessage);
+                Assert.IsType<Receipt>(result.FirstSignalMessage);
             }
 
             [Fact]
@@ -45,7 +45,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 AS4Message result = await ExerciseCreateReceipt(messagingContext);
 
                 // Assert
-                var receiptMessage = result.PrimarySignalMessage as Receipt;
+                var receiptMessage = result.FirstSignalMessage as Receipt;
                 Assert.IsType<Receipt>(receiptMessage);
                 Assert.Null(receiptMessage.NonRepudiationInformation);
             }
@@ -61,7 +61,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
                 // Assert
                 Assert.False(result.IsSigned);
-                var receipt = result.PrimarySignalMessage as Receipt;
+                var receipt = result.FirstSignalMessage as Receipt;
                 Assert.IsType<Receipt>(receipt);
                 Assert.NotNull(receipt.UserMessage);
             }
@@ -77,7 +77,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 AS4Message result = await ExerciseCreateReceipt(messagingContext);
 
                 // Assert
-                var receiptMessage = result.PrimarySignalMessage as Receipt;
+                var receiptMessage = result.FirstSignalMessage as Receipt;
                 Assert.IsType<Receipt>(receiptMessage);
                 Assert.NotNull(receiptMessage.NonRepudiationInformation);
                 Assert.Null(receiptMessage.UserMessage);
@@ -94,7 +94,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 AS4Message result = await ExerciseCreateReceipt(messagingContext);
 
                 // Assert
-                var receiptMessage = result.PrimarySignalMessage as Receipt;
+                var receiptMessage = result.FirstSignalMessage as Receipt;
                 SecurityHeader securityHeader = messagingContext.AS4Message.SecurityHeader;
                 Assert.NotNull(receiptMessage);
                 Assert.NotNull(securityHeader);
@@ -112,7 +112,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 AS4Message result = await ExerciseCreateReceipt(messagingContext);
 
                 // Assert
-                var receipt = result.PrimarySignalMessage as Receipt;
+                var receipt = result.FirstSignalMessage as Receipt;
                 Assert.IsType<Receipt>(receipt);
                 Assert.Null(receipt.NonRepudiationInformation);
             }

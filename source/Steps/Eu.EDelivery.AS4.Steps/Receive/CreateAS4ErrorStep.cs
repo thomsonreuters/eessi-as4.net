@@ -122,7 +122,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             if (originalContext.SendingPMode?.MessagePackaging?.IsMultiHop == true)
             {
                 error.MultiHopRouting =
-                    AS4Mapper.Map<RoutingInputUserMessage>(originalContext.AS4Message?.PrimaryUserMessage);
+                    AS4Mapper.Map<RoutingInputUserMessage>(originalContext.AS4Message?.FirstUserMessage);
             }
 
             return error;

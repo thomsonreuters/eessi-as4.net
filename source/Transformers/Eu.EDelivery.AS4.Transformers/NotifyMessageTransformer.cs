@@ -38,7 +38,9 @@ namespace Eu.EDelivery.AS4.Transformers
             // Get the one signal-message that must be notified.
             var as4Message = await GetAS4MessageForNotification(entityMessage);
 
-            var context = new MessagingContext(await CreateNotifyMessageEnvelope(as4Message, entityMessage.Entity.GetType()));
+            var context = new MessagingContext(
+                await CreateNotifyMessageEnvelope(as4Message, entityMessage.Entity.GetType()),
+                entityMessage.Entity.Id);
 
             await DecorateContextWithPModes(context, entityMessage);
 
@@ -115,7 +117,7 @@ namespace Eu.EDelivery.AS4.Transformers
                 else
                 {
                     notifyMessage.StatusInfo.Status =
-                        as4Message.PrimarySignalMessage is Receipt
+                        as4Message.FirstSignalMessage is Receipt
                             ? Status.Delivered
                             : Status.Error;
                 }

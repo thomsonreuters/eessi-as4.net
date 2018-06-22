@@ -3,6 +3,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Entities;
+using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Steps.Submit;
@@ -37,7 +38,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
                 id,
                 async m =>
                 {
-                    Assert.Equal(Operation.ToBeProcessed, OperationUtils.Parse(m.Operation));
+                    Assert.Equal(Operation.ToBeProcessed, m.Operation.ToEnum<Operation>());
                     Assert.True(await _messageBodyStore.LoadMessageBodyAsync(m.MessageLocation) != Stream.Null);
                 });
         }

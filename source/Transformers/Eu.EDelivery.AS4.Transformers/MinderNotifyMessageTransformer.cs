@@ -54,8 +54,8 @@ namespace Eu.EDelivery.AS4.Transformers
 
         internal async Task<NotifyMessageEnvelope> CreateNotifyMessageEnvelope(AS4Message as4Message, Type receivedEntityType)
         {
-            UserMessage userMessage = as4Message.PrimaryUserMessage;
-            SignalMessage signalMessage = as4Message.PrimarySignalMessage;
+            UserMessage userMessage = as4Message.FirstUserMessage;
+            SignalMessage signalMessage = as4Message.FirstSignalMessage;
 
             if (signalMessage != null)
             {
@@ -63,7 +63,7 @@ namespace Eu.EDelivery.AS4.Transformers
             }
             else
             {
-                Logger.Warn($"{as4Message.PrimaryUserMessage?.MessageId} AS4Message does not contain a primary SignalMessage");
+                Logger.Warn($"{as4Message.FirstUserMessage?.MessageId} AS4Message does not contain a primary SignalMessage");
             }
 
             return await CreateMinderNotifyMessageEnvelope(userMessage, signalMessage, receivedEntityType).ConfigureAwait(false);

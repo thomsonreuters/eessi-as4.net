@@ -32,11 +32,11 @@ namespace Eu.EDelivery.AS4.Transformers.InteropTestTransformers
 
             var as4Message = messagingContext.AS4Message;
             
-            if (as4Message?.PrimaryUserMessage?.CollaborationInfo?.Action?.Equals("Submit", StringComparison.OrdinalIgnoreCase) ?? false)
+            if (as4Message?.FirstUserMessage?.CollaborationInfo?.Action?.Equals("Submit", StringComparison.OrdinalIgnoreCase) ?? false)
             {
-                var properties = as4Message.PrimaryUserMessage?.MessageProperties;
+                var properties = as4Message.FirstUserMessage?.MessageProperties;
 
-                TransformUserMessage(as4Message.PrimaryUserMessage, properties);
+                TransformUserMessage(as4Message.FirstUserMessage, properties);
 
                 messagingContext = new MessagingContext(as4Message, MessagingContextMode.Submit);
 
@@ -55,7 +55,7 @@ namespace Eu.EDelivery.AS4.Transformers.InteropTestTransformers
             // The PMode that should be used can be determind by concatenating several items to create the PMode ID
             // - CollaborationInfo.Action
             // - ToParty
-            string pmodeKey = $"{as4Message.PrimaryUserMessage.CollaborationInfo.Action}_FROM_{as4Message.PrimaryUserMessage.Sender.PartyIds.First().Id}_TO_{as4Message.PrimaryUserMessage.Receiver.PartyIds.First().Id}";
+            string pmodeKey = $"{as4Message.FirstUserMessage.CollaborationInfo.Action}_FROM_{as4Message.FirstUserMessage.Sender.PartyIds.First().Id}_TO_{as4Message.FirstUserMessage.Receiver.PartyIds.First().Id}";
 
             // The PMode that must be used is defined in the CollaborationInfo.Service property.
             var pmode = Config.Instance.GetSendingPMode(pmodeKey);

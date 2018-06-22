@@ -54,7 +54,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 StepResult result = await Step.ExecuteAsync(fixture);
 
                 // Assert
-                var error = result.MessagingContext.AS4Message.PrimarySignalMessage as Error;
+                var error = result.MessagingContext.AS4Message.FirstSignalMessage as Error;
 
                 Assert.NotNull(error);
                 Assert.Equal("message-id", error.RefToMessageId);

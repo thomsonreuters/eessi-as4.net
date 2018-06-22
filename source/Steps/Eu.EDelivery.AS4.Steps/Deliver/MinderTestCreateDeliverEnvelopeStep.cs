@@ -97,7 +97,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
 
         private UserMessage CreateMinderDeliverMessage(AS4Message as4Message)
         {
-            UserMessage userMessage = as4Message.PrimaryUserMessage;
+            UserMessage userMessage = as4Message.FirstUserMessage;
 
             var deliverMessage = new UserMessage(userMessage.MessageId)
             {

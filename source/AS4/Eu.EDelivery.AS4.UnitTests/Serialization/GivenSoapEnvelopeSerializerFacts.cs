@@ -45,6 +45,20 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
             private const string ServiceNamespace = "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service";
             private const string ActionNamespace = "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/test";
 
+            private static readonly XmlSchemaSet Soap12Schemas;
+
+            static GivenSoapEnvelopeSerializerSucceeds()
+            {
+                var schemas = new XmlSchemaSet();
+                using (var stringReader = new StringReader(Schemas.Soap12))
+                {
+                    XmlSchema schema = XmlSchema.Read(stringReader, (sender, args) => { });
+                    schemas.Add(schema);
+                }
+
+                Soap12Schemas = schemas;
+            }
+
             [Fact]
             public void ThenMpcAttributeIsCorrectlySerialized()
             {
@@ -236,14 +250,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
 
             private static bool IsValidEbmsEnvelope(XmlDocument envelopeDocument)
             {
-                var schemas = new XmlSchemaSet();
-                using (var stringReader = new StringReader(Schemas.Soap12))
-                {
-                    XmlSchema schema = XmlSchema.Read(stringReader, (sender, args) => { });
-                    schemas.Add(schema);
-                }
-
-                envelopeDocument.Schemas = schemas;
+                envelopeDocument.Schemas = Soap12Schemas;
 
                 return ValidateEnvelope(envelopeDocument);
             }
@@ -466,7 +473,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
             AssertMessagingElement(doc);
 
             string actualRefToMessageId = DeserializeMessagingHeader(doc).SignalMessage.First().MessageInfo.RefToMessageId;
-            string expectedUserMessageId = as4Message.PrimaryUserMessage.MessageId;
+            string expectedUserMessageId = as4Message.FirstUserMessage.MessageId;
 
             Assert.Equal(expectedUserMessageId, actualRefToMessageId);
         }
@@ -478,10 +485,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
             AS4Message expectedAS4Message = await CreateReceivedAS4Message(CreateMultiHopPMode());
 
             Error error = new ErrorBuilder()
-                .WithRefToEbmsMessageId(expectedAS4Message.PrimaryUserMessage.MessageId)
+                .WithRefToEbmsMessageId(expectedAS4Message.FirstUserMessage.MessageId)
                 .Build();
 
-            error.MultiHopRouting = AS4Mapper.Map<RoutingInputUserMessage>(expectedAS4Message.PrimaryUserMessage);
+            error.MultiHopRouting = AS4Mapper.Map<RoutingInputUserMessage>(expectedAS4Message.FirstUserMessage);
 
 
             AS4Message errorMessage = AS4Message.Create(error);
@@ -524,8 +531,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                                                 CancellationToken.None);
 
                 Assert.NotNull(multihopReceipt);
-                Assert.NotNull(multihopReceipt.PrimarySignalMessage);
-                Assert.NotNull(multihopReceipt.PrimarySignalMessage.MultiHopRouting);
+                Assert.NotNull(multihopReceipt.FirstSignalMessage);
+                Assert.NotNull(multihopReceipt.FirstSignalMessage.MultiHopRouting);
 
                 // Serialize the Deserialized receipt again, and make sure the RoutingInput element is present and correct.
                 XmlDocument doc = AS4XmlSerializer.ToSoapEnvelopeDocument(multihopReceipt, CancellationToken.None);
@@ -594,7 +601,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
             var routingInput = AS4XmlSerializer.FromString<RoutingInput>(routingInputNode.OuterXml);
 
             RoutingInputUserMessage actualUserMessage = routingInput.UserMessage;
-            UserMessage expectedUserMessage = expectedAS4Message.PrimaryUserMessage;
+            UserMessage expectedUserMessage = expectedAS4Message.FirstUserMessage;
 
             Assert.Equal(expectedUserMessage.Sender.Role, actualUserMessage.PartyInfo.To.Role);
             Assert.Equal(

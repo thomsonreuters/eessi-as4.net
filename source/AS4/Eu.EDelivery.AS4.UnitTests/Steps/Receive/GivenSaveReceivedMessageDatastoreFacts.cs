@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
+using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
@@ -61,7 +62,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
                     // Assert
                     InMessage m = await GettUserInMessage(userMessage);
-                    Assert.Equal(Operation.NotApplicable, OperationUtils.Parse(m.Operation));
+                    Assert.Equal(Operation.NotApplicable, m.Operation.ToEnum<Operation>());
                 }
             }
 
@@ -77,7 +78,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                     // Act           
                     // Execute the step twice.     
                     StepResult stepResult = await Step.ExecuteAsync(messagingContext);
-                    Assert.False(stepResult.MessagingContext.AS4Message.PrimarySignalMessage.IsDuplicate);
+                    Assert.False(stepResult.MessagingContext.AS4Message.FirstSignalMessage.IsDuplicate);
                 }
 
                 using (MessagingContext messagingContext = 
@@ -86,7 +87,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                     StepResult stepResult = await Step.ExecuteAsync(messagingContext);
 
                     // Assert
-                    Assert.True(stepResult.MessagingContext.AS4Message.PrimarySignalMessage.IsDuplicate);
+                    Assert.True(stepResult.MessagingContext.AS4Message.FirstSignalMessage.IsDuplicate);
                 }
             }
 
@@ -108,7 +109,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
                     // Assert
                     InMessage m = await GettUserInMessage(userMessage);
-                    Assert.Equal(Operation.NotApplicable, OperationUtils.Parse(m.Operation));
+                    Assert.Equal(Operation.NotApplicable, m.Operation.ToEnum<Operation>());
                 }
             }
 
@@ -132,7 +133,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                                                        .FirstOrDefaultAsync(m => m.EbmsMessageId.Equals(userMessage.MessageId));
 
                     Assert.NotNull(inMessage);
-                    Assert.Equal(MessageType.UserMessage, MessageTypeUtils.Parse(inMessage.EbmsMessageType));
+                    Assert.Equal(MessageType.UserMessage, inMessage.EbmsMessageType.ToEnum<MessageType>());
 
                     return inMessage;
                 }

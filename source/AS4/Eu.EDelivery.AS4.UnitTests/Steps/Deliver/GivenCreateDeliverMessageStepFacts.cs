@@ -123,7 +123,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
         {
             // Arrange
             AS4Message as4Message = AS4MessageWithUserMessage();
-            as4Message.PrimaryUserMessage.MessageId = null;
+            as4Message.FirstUserMessage.MessageId = null;
 
             // Act / Assert
             await Assert.ThrowsAnyAsync<Exception>(() => ExecuteStepWith(as4Message));

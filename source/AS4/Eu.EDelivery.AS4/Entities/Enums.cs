@@ -1,4 +1,5 @@
 ﻿using System;
+using Eu.EDelivery.AS4.Extensions;
 
 namespace Eu.EDelivery.AS4.Entities
 {
@@ -33,29 +34,10 @@ namespace Eu.EDelivery.AS4.Entities
         Delivered
     }
 
-
-    public static class OperationUtils
-    {
-        [Obsolete("You can now use the 'ToEnum<>' extension method instead")]
-        public static Operation Parse(string operationString)
-        {
-            return (Operation)Enum.Parse(typeof(Operation), operationString, true);
-        }
-    }
-
     public enum MessageExchangePattern
     {
         Push = 0,
         Pull = 1
-    }
-
-    public static class MessageExchangePatternUtils
-    {
-        [Obsolete("You can now use the 'ToEnum<>' extension method instead")]
-        public static MessageExchangePattern Parse(string mepString)
-        {
-            return (MessageExchangePattern)Enum.Parse(typeof(MessageExchangePattern), mepString, true);
-        }
     }
 
     public enum MessageType
@@ -63,15 +45,6 @@ namespace Eu.EDelivery.AS4.Entities
         UserMessage,
         Error,
         Receipt
-    }
-
-    public static class MessageTypeUtils
-    {
-        [Obsolete("You can now use the 'ToEnum<>' extension method instead")]
-        public static MessageType Parse(string messageTypeString)
-        {
-            return (MessageType)Enum.Parse(typeof(MessageType), messageTypeString, true);
-        }
     }
 
     /// <summary>
@@ -85,15 +58,6 @@ namespace Eu.EDelivery.AS4.Entities
         Created,
         Notified,
         Exception
-    }
-
-    public static class InStatusUtils
-    {
-        [Obsolete("You can now use the 'ToEnum<>' extension method instead")]
-        public static InStatus Parse(string status)
-        {
-            return (InStatus)Enum.Parse(typeof(InStatus), status, true);
-        }
     }
 
     /// <summary>
@@ -110,15 +74,6 @@ namespace Eu.EDelivery.AS4.Entities
         Exception,
         Created,
         Notified
-    }
-
-    public static class OutStatusUtils
-    {
-        [Obsolete("You can now use the 'ToEnum<>' extension method instead")]
-        public static OutStatus Parse(string status)
-        {
-            return (OutStatus)Enum.Parse(typeof(OutStatus), status, true);
-        }
     }
 
     public enum Entities

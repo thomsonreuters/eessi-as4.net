@@ -200,7 +200,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Exceptions.Handlers
             await exercise(_expectedException, context);
 
             // Assert
-            GetDataStoreContext.AssertOutMessage(_expectedId, m => Assert.Equal(OutStatus.Exception, OutStatusUtils.Parse(m.Status)));
+            GetDataStoreContext.AssertOutMessage(_expectedId, m => Assert.Equal(OutStatus.Exception, m.Status.ToEnum<OutStatus>()));
             GetDataStoreContext.AssertOutException(
                 _expectedId,
                 exception =>

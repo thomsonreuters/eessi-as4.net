@@ -104,7 +104,7 @@ namespace Eu.EDelivery.AS4.Transformers
 
         private static List<Attachment> SelectToBeDeliveredUserMessageAttachments(AS4Message as4Message)
         {
-            return as4Message.PrimaryUserMessage.PayloadInfo
+            return as4Message.FirstUserMessage.PayloadInfo
                 .Select(partInfo => as4Message.Attachments.FirstOrDefault(a => a.Matches(partInfo)))
                 .Where(a => a != null)
                 .ToList();

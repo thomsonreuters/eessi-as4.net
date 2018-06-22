@@ -146,12 +146,14 @@ namespace Eu.EDelivery.AS4.Services
                 onSuccess(entity);
 
                 Logger.Debug("Successful result, so update RetryReliability.Status=Completed");
+
                 rr?.SetStatus(ReceptionStatus.Completed);
             }
             else
             {
                 if (rr == null)
-                {                    
+                {
+                    Logger.Debug("No retry reliability configured, can't be retried");
                     Logger.Debug($"Update {typeof(T).Name} with Status=Exception, Operation=DeadLettered");
 
                     onFailure(entity);
@@ -159,17 +161,20 @@ namespace Eu.EDelivery.AS4.Services
                 }
                 else if (status == SendResult.RetryableFail)
                 {
-                    Logger.Info($"[{entity.EbmsMessageId}] Message failed this time, will be retried");
+                    Logger.Info($"[{entity.EbmsMessageId}] Message failed this time, set for retry");
                     Logger.Debug($"Update {typeof(T).Name} with Operation=ToBeRetried");
 
                     entity.SetOperation(Operation.ToBeRetried);
+                    rr.SetStatus(ReceptionStatus.Pending);
                 }
                 else
                 {
+                    Logger.Info($"[{entity.EbmsMessageId}] Message failed this time due to a fatal result during sending");
                     Logger.Debug($"[{entity.EbmsMessageId}] Update {typeof(T).Name} with Status=Exception, Operation=DeadLettered");
 
                     onFailure(entity);
                     entity.SetOperation(Operation.DeadLettered);
+                    rr.SetStatus(ReceptionStatus.Completed);
                 }
             }
         }
@@ -233,6 +238,7 @@ namespace Eu.EDelivery.AS4.Services
                     Logger.Debug($"Update {typeof(T).Name} with Operation=ToBeRetried");
 
                     entity.SetOperation(Operation.ToBeRetried);
+                    rr.SetStatus(ReceptionStatus.Pending);
                 }
                 else
                 {
@@ -240,6 +246,7 @@ namespace Eu.EDelivery.AS4.Services
                     Logger.Debug($"Update {typeof(T).Name} with Status=Exception, Operation=DeadLettered");
 
                     entity.SetOperation(Operation.DeadLettered);
+                    rr.SetStatus(ReceptionStatus.Completed);
                 }
             }
         }
