@@ -63,17 +63,17 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
-            (IPMode pmode, SigningVerification verification) = DetermineSigningVerification(messagingContext);
+            SigningVerification verification = DetermineSigningVerification(messagingContext);
             AS4Message as4Message = messagingContext.AS4Message;
 
-            (bool unsignedButRequired, string desRequired) = SigningRequiredRule(pmode, verification, as4Message);
+            (bool unsignedButRequired, string desRequired) = SigningRequiredRule(verification, as4Message);
             if (unsignedButRequired)
             {
                 return InvalidSignatureResult(
                     desRequired, ErrorAlias.PolicyNonCompliance, messagingContext);
             }
 
-            (bool signedMessageButUnallowed, string desUnallowed) = SigningUnallowedRule(pmode, verification, as4Message);
+            (bool signedMessageButUnallowed, string desUnallowed) = SigningUnallowedRule(verification, as4Message);
             if (signedMessageButUnallowed)
             {
                 return InvalidSignatureResult(
@@ -109,28 +109,31 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             return await TryVerifyingSignature(messagingContext, verification).ConfigureAwait(false);
         }
 
-        private static (IPMode, SigningVerification) DetermineSigningVerification(MessagingContext ctx)
+        private static SigningVerification DetermineSigningVerification(MessagingContext ctx)
         {
-            return ctx.AS4Message.IsSignalMessage
-                && !ctx.AS4Message.IsMultiHopMessage
-                    ? ((IPMode) ctx.SendingPMode, ctx.SendingPMode.Security.SigningVerification)
-                    : (ctx.ReceivingPMode, ctx.ReceivingPMode.Security.SigningVerification);
+            if (ctx.AS4Message.IsSignalMessage
+                && !ctx.AS4Message.IsMultiHopMessage)
+            {
+                Logger.Debug($"Use SendingPMode {ctx.SendingPMode.Id} for signature verification");
+                return ctx.SendingPMode.Security.SigningVerification;
+            }
+
+            Logger.Debug($"Use ReceivingPMode {ctx.ReceivingPMode.Id} for signature verification");
+            return ctx.ReceivingPMode.Security.SigningVerification;
         }
 
-        private static (bool, string) SigningRequiredRule(IPMode p, SigningVerification v, AS4Message m)
+        private static (bool, string) SigningRequiredRule(SigningVerification v, AS4Message m)
         {
             bool isMessageFailsTheRequiredSigning = v?.Signature == Limit.Required && !m.IsSigned;
-            string description = 
-                $"{p.GetType().Name} PMode {p.Id} requires a Signed AS4 Message and the message is not";
+            const string description = "PMode requires a Signed AS4 Message and the message is not";
 
             return (isMessageFailsTheRequiredSigning, description);
         }
 
-        private static (bool, string) SigningUnallowedRule(IPMode p, SigningVerification v, AS4Message m)
+        private static (bool, string) SigningUnallowedRule(SigningVerification v, AS4Message m)
         {
             bool isMessageFailedTheUnallowedSigning = v?.Signature == Limit.NotAllowed && m.IsSigned;
-            string description = 
-                $"{p.GetType().Name} PMode {p.Id} doesn't allow a signed AS4 Message and the message is";
+            const string description = "PMode doesn't allow a signed AS4 Message and the message is";
 
             return (isMessageFailedTheUnallowedSigning, description);
         }
