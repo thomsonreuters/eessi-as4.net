@@ -10,8 +10,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
     {
         public class GivenValidArguments : GivenCollaborationInfoFacts
         {
-            private const string DefaultAction = "http://docs.oasis-open.org/ebxml-msg/ebMS/v3.0/ns/core/200704/test";
-
             [Fact]
             public void ThenCollaborationInfoHasDefaults()
             {
@@ -19,8 +17,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
                 var collaborationInfo = new CollaborationInfo();
 
                 // Assert
-                Assert.NotNull(collaborationInfo);
-                Assert.Null(collaborationInfo.Action);
+                Assert.Equal(Constants.Namespaces.TestAction, collaborationInfo.Action);
                 Assert.Null(collaborationInfo.ConversationId);
             }
 
@@ -31,7 +28,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
                 var collaborationInfo = new CollaborationInfo();
 
                 // Assert
-                Assert.NotNull(collaborationInfo);
                 Assert.NotNull(collaborationInfo.Service);
                 Assert.NotNull(collaborationInfo.AgreementReference);
             }

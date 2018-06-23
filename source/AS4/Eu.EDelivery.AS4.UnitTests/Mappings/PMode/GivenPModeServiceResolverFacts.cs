@@ -47,7 +47,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.PMode
                     MessagePackaging =
                     {
                         CollaborationInfo =
-                            new CollaborationInfo {Service = new Service {Value = "name", Type = "type"}}
+                            new AS4.Model.PMode.CollaborationInfo {Service = new Service {Value = "name", Type = "type"}}
                     }
                 };
             }

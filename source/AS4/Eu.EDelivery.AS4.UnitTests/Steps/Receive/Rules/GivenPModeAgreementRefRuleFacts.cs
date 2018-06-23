@@ -2,6 +2,7 @@
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Steps.Receive.Rules;
 using Xunit;
+using CollaborationInfo = Eu.EDelivery.AS4.Model.PMode.CollaborationInfo;
 
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive.Rules
 {
@@ -134,7 +135,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive.Rules
             {
                 MessagePackaging =
                 {
-                    CollaborationInfo = new CollaborationInfo {AgreementReference = {Value = name, Type = type}}
+                    CollaborationInfo = new AS4.Model.PMode.CollaborationInfo {AgreementReference = {Value = name, Type = type}}
                 }
             };
         }

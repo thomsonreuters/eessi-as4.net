@@ -24,8 +24,8 @@ namespace Eu.EDelivery.AS4.Steps.Receive.Rules
 
         private static bool ServiceActionCondition(ReceivingProcessingMode pmode, UserMessage userMessage)
         {
-            CollaborationInfo pmodeCollaboration = pmode.MessagePackaging.CollaborationInfo;
-            CollaborationInfo messageCollaboration = userMessage.CollaborationInfo;
+            Model.PMode.CollaborationInfo pmodeCollaboration = pmode.MessagePackaging.CollaborationInfo;
+            Model.Core.CollaborationInfo messageCollaboration = userMessage.CollaborationInfo;
 
             if (pmodeCollaboration == null || messageCollaboration == null)
             {

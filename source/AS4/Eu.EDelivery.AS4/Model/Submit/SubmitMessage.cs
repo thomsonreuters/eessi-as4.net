@@ -1,6 +1,7 @@
 ﻿using System.Xml.Serialization;
 using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.PMode;
+using CollaborationInfo = Eu.EDelivery.AS4.Model.Common.CollaborationInfo;
 using PartyInfo = Eu.EDelivery.AS4.Model.Common.PartyInfo;
 
 namespace Eu.EDelivery.AS4.Model.Submit

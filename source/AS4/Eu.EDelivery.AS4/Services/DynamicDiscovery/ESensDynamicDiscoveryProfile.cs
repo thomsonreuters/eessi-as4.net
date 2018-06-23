@@ -223,7 +223,7 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
         {
             if (sendingPMode.MessagePackaging.CollaborationInfo == null)
             {
-                sendingPMode.MessagePackaging.CollaborationInfo = new CollaborationInfo();
+                sendingPMode.MessagePackaging.CollaborationInfo = new Model.PMode.CollaborationInfo();
             }
 
             SetCollaborationService(sendingPMode, smpMetaData);
