@@ -28,11 +28,6 @@ namespace Eu.EDelivery.AS4.Mappings.Core
                         AssignAction(userMessage);
                         AssignMpc(userMessage);
 
-                        if (routingInput.MessageProperties?.Length == 0)
-                        {
-                            userMessage.MessageProperties = null;
-                        }
-
                     })
                     .ForAllOtherMembers(m => m.Ignore());            
         }
