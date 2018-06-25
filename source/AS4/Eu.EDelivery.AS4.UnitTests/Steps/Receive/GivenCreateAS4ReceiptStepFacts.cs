@@ -146,7 +146,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             var stub = new StubConfig(
                 sendingPModes: new Dictionary<string, SendingProcessingMode>
                 {
-                    [sendPModeId] = new SendingProcessingMode { MessagePackaging = { IsMultiHop = true } }
+                    [sendPModeId] = new SendingProcessingMode
+                    {
+                        Id = sendPModeId,
+                        MessagePackaging = { IsMultiHop = true }
+                    }
                 },
                 receivingPModes: new Dictionary<string, ReceivingProcessingMode>());
 
