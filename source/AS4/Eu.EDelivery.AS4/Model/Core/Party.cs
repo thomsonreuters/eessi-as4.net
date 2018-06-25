@@ -11,9 +11,9 @@ namespace Eu.EDelivery.AS4.Model.Core
 
         public string Role { get; }
 
-        public static Party DefaultFrom = new Party(EbmsDefaultRole, new PartyId(EbmsDefaultFrom));
+        public static readonly Party DefaultFrom = new Party(EbmsDefaultRole, new PartyId(EbmsDefaultFrom));
 
-        public static Party DefaultTo = new Party(EbmsDefaultRole, new PartyId(EbmsDefaultTo));
+        public static readonly Party DefaultTo = new Party(EbmsDefaultRole, new PartyId(EbmsDefaultTo));
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Party" /> class.
