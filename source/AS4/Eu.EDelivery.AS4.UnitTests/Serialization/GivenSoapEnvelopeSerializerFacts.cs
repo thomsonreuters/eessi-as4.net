@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Schema;
 using Eu.EDelivery.AS4.Builders.Core;
+using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
@@ -23,6 +24,7 @@ using Eu.EDelivery.AS4.UnitTests.Model;
 using Eu.EDelivery.AS4.UnitTests.Resources;
 using Eu.EDelivery.AS4.Xml;
 using FsCheck.Xunit;
+using Moq;
 using Xunit;
 using static Eu.EDelivery.AS4.UnitTests.Properties.Resources;
 using Error = Eu.EDelivery.AS4.Model.Core.Error;
@@ -446,10 +448,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
 
             var message = new MessagingContext(as4Message, MessagingContextMode.Receive);
 
-            // Create a receipt for this message.
-            // Use the CreateReceiptStep, since there is no other way.
-            var step = new CreateAS4ReceiptStep();
-            StepResult result = await step.ExecuteAsync(message);
+            StepResult result = await CreateReceiptForUserMessage(message, CreateMultiHopPMode());
 
             // The result should contain a signalmessage, which is a receipt.
             Assert.True(result.MessagingContext.AS4Message.IsSignalMessage);
@@ -550,10 +549,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
 
             var context = new MessagingContext(as4Message, MessagingContextMode.Unknown);
 
-            // Create a receipt for this message.
-            // Use the CreateReceiptStep, since there is no other way.
-            var step = new CreateAS4ReceiptStep();
-            StepResult result = await step.ExecuteAsync(context);
+            StepResult result = await CreateReceiptForUserMessage(context, CreateNonMultiHopPMode());
 
             // The result should contain a signalmessage, which is a receipt.
             Assert.True(result.MessagingContext.AS4Message.IsSignalMessage);
@@ -567,6 +563,22 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
             Assert.False(ContainsActionElement(doc));
             Assert.False(ContainsUserMessageElement(doc));
             Assert.Null(doc.SelectSingleNode(@"//*[local-name()='RoutingInput']"));
+        }
+
+        private static async Task<StepResult> CreateReceiptForUserMessage(
+            MessagingContext ctx,
+            SendingProcessingMode responsePMode)
+        {
+            var stub = new Mock<IConfig>();
+            stub.Setup(c => c.GetSendingPMode(responsePMode.Id))
+                .Returns(responsePMode);
+
+            ctx.ReceivingPMode = new ReceivingProcessingMode { ReplyHandling = { SendingPMode = responsePMode.Id } };
+
+            // Create a receipt for this message.
+            // Use the CreateReceiptStep, since there is no other way.
+            var step = new CreateAS4ReceiptStep(stub.Object);
+            return await step.ExecuteAsync(ctx);
         }
 
         private static bool ContainsUserMessageElement(XmlNode doc)

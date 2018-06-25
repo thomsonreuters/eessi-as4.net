@@ -72,6 +72,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             };
 
             MessagingContext context = AS4UserMessageWithAttachment();
+            context.SendingPMode = pmode;
 
             // Act / Assert
             await Assert.ThrowsAnyAsync<Exception>(() => ExerciseSigning(context, certWithoutPrivateKey));

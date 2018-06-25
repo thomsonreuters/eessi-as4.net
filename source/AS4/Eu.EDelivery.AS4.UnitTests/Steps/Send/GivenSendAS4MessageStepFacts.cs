@@ -109,6 +109,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
                 StubHttpClient.ThatReturns(HttpStatusCode.Accepted));
 
             MessagingContext ctx = CreateMessagingContextWithDefaultPullRequest();
+            ctx.SendingPMode = CreateSendPModeWithPushUrl();
 
             // Act
             StepResult actualResult = await sut.ExecuteAsync(ctx);

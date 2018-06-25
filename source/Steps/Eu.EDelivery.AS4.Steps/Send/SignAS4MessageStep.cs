@@ -58,6 +58,15 @@ namespace Eu.EDelivery.AS4.Steps.Send
             }
 
             SendingProcessingMode pmode = messagingContext.SendingPMode;
+            if (pmode == null)
+            {
+                Logger.Debug(
+                    $"{messagingContext.LogTag} No signing will be performend on the message " +
+                    "because no SendingPMode is found to get the signing configuration from");
+
+                return await StepResult.FailedAsync(messagingContext);
+            }
+
             if (pmode.Security.Signing.IsEnabled != true)
             {
                 Logger.Debug(

@@ -125,7 +125,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
         {
             var stub = new Mock<IConfig>();
             stub.Setup(c => c.GetSendingPMode(referencedSendPModeId))
-                .Returns(new SendingProcessingMode());
+                .Returns(new SendingProcessingMode { Id = referencedSendPModeId });
 
             return new CreateAS4ErrorStep(stub.Object, GetDataStoreContext);
         }

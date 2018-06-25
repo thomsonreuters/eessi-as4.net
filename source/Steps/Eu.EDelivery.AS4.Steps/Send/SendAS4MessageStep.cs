@@ -72,13 +72,13 @@ namespace Eu.EDelivery.AS4.Steps.Send
             }
 
             SendingProcessingMode sendPMode = messagingContext.SendingPMode;
-            PushConfiguration sendConfiguration = sendPMode.PushConfiguration;
+            PushConfiguration sendConfiguration = sendPMode?.PushConfiguration;
 
             if (sendConfiguration == null)
             {
                 throw new ConfigurationErrorsException(
                     $"{messagingContext.LogTag} Message cannot be send: " +
-                    $"SendingPMode {sendPMode.Id} does not contain a <PushConfiguration/> element");
+                    $"SendingPMode {sendPMode?.Id} does not contain a <PushConfiguration/> element");
             }
 
             AS4Message as4Message = await DeserializeUnderlyingStreamIfPresent(

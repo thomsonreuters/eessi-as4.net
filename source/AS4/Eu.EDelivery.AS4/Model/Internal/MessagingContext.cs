@@ -236,6 +236,14 @@ namespace Eu.EDelivery.AS4.Model.Internal
             ReceivingProcessingMode receivePMode,
             IConfig config)
         {
+            if (receivePMode == null)
+            {
+                Logger.Error(
+                    "Cannot determine referenced SendingPMode because there's no ReceivingPMode");
+
+                return null;
+            }
+
             if (string.IsNullOrWhiteSpace(receivePMode.ReplyHandling?.SendingPMode))
             {
                 Logger.Error(
