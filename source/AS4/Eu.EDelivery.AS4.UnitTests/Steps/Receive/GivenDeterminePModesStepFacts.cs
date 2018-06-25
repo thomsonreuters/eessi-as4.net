@@ -121,7 +121,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
                 MessagingContext messagingContext = 
                     new MessageContextBuilder()
-                        .WithPartys(
+                        .WithParties(
                             new AS4.Model.Core.Party(fromId, new AS4.Model.Core.PartyId(fromId)), 
                             new AS4.Model.Core.Party(toId, new AS4.Model.Core.PartyId(toId)))
                         .Build();
@@ -173,7 +173,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 MessagingContext messagingContext =
                     new MessageContextBuilder()
                         .WithPModeId(sharedId)
-                        .WithPartys(
+                        .WithParties(
                             new AS4.Model.Core.Party(fromId, new AS4.Model.Core.PartyId(fromId)),
                             new AS4.Model.Core.Party(toId, new AS4.Model.Core.PartyId(toId)))
                         .Build();
@@ -213,7 +213,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
                 MessagingContext messagingContext =
                     new MessageContextBuilder()
-                        .WithPartys(
+                        .WithParties(
                             new AS4.Model.Core.Party(fromId, new AS4.Model.Core.PartyId(fromId)),
                             new AS4.Model.Core.Party(toId, new AS4.Model.Core.PartyId(toId)))
                         .WithServiceAction(service, action)
@@ -246,7 +246,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 MessagingContext messagingContext =
                     new MessageContextBuilder()
                         .WithServiceAction(service, action)
-                        .WithPartys(
+                        .WithParties(
                             new AS4.Model.Core.Party(fromId, new AS4.Model.Core.PartyId(fromId)),
                             new AS4.Model.Core.Party(toId, new AS4.Model.Core.PartyId(toId)))
                         .Build();

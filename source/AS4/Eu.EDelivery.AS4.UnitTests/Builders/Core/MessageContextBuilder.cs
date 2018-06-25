@@ -52,7 +52,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Core
         /// <param name="fromParty"></param>
         /// <param name="toParty"></param>
         /// <returns></returns>
-        public MessageContextBuilder WithPartys(AS4.Model.Core.Party fromParty, AS4.Model.Core.Party toParty)
+        public MessageContextBuilder WithParties(AS4.Model.Core.Party fromParty, AS4.Model.Core.Party toParty)
         {
             UserMessage userMessage = _messagingContext.AS4Message.UserMessages.First();
             userMessage.Sender = fromParty;
