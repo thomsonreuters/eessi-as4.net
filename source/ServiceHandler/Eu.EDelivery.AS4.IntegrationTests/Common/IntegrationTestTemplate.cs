@@ -300,14 +300,21 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
 
             foreach (string file in Directory.GetFiles(Path.GetFullPath(@".\logs")))
             {
-                Console.WriteLine($@"From file: '{file}':");
-
-                foreach (string line in File.ReadAllLines(file))
+                try
                 {
-                    Console.WriteLine(line);
-                }
+                    Console.WriteLine($@"From file: '{file}':");
 
-                Console.WriteLine(Environment.NewLine);
+                    foreach (string line in File.ReadAllLines(file))
+                    {
+                        Console.WriteLine(line);
+                    }
+
+                    Console.WriteLine(Environment.NewLine);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex);
+                }
             }
         }
 
