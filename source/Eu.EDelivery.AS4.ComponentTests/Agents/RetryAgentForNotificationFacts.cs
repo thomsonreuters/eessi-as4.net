@@ -74,7 +74,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                     Entities.RetryReliability referenced = await PollUntilPresent(
                         () => spy.GetRetryReliabilityFor(r => r.RefToInMessageId == notified.Id),
                         timeout: TimeSpan.FromSeconds(5));
-                    Assert.Equal(ReceptionStatus.Completed, referenced.Status.ToEnum<ReceptionStatus>());
+                    Assert.Equal(RetryStatus.Completed, referenced.Status.ToEnum<RetryStatus>());
                 });
         }
 
@@ -129,7 +129,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                     Entities.RetryReliability referenced = await PollUntilPresent(
                         () => spy.GetRetryReliabilityFor(r => r.RefToOutMessageId == notified.Id),
                         timeout: TimeSpan.FromSeconds(5));
-                    Assert.Equal(ReceptionStatus.Completed, referenced.Status.ToEnum<ReceptionStatus>());
+                    Assert.Equal(RetryStatus.Completed, referenced.Status.ToEnum<RetryStatus>());
                 });
         }
 
@@ -192,7 +192,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                     Entities.RetryReliability referenced = await PollUntilPresent(
                         () => spy.GetRetryReliabilityFor(r => r.RefToOutExceptionId == notified.Id),
                         timeout: TimeSpan.FromSeconds(5));
-                    Assert.Equal(ReceptionStatus.Completed, referenced.Status.ToEnum<ReceptionStatus>());
+                    Assert.Equal(RetryStatus.Completed, referenced.Status.ToEnum<RetryStatus>());
                 });
         }
 
@@ -274,7 +274,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                     Entities.RetryReliability referenced = await PollUntilPresent(
                         () => spy.GetRetryReliabilityFor(r => r.RefToInExceptionId == notified.Id),
                         timeout: TimeSpan.FromSeconds(5));
-                    Assert.Equal(ReceptionStatus.Completed, referenced.Status.ToEnum<ReceptionStatus>());
+                    Assert.Equal(RetryStatus.Completed, referenced.Status.ToEnum<RetryStatus>());
                 });
         }
 

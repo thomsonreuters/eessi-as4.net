@@ -10,6 +10,7 @@ using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Serialization;
 using NLog;
+using MessageProperty = Eu.EDelivery.AS4.Model.PMode.MessageProperty;
 
 namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
 {
@@ -97,7 +98,7 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
 
             pmode.MessagePackaging.MessageProperties =
                 pmode.MessagePackaging.MessageProperties ?? new List<MessageProperty>();
-            pmode.MessagePackaging.MessageProperties.Add(new MessageProperty("finalRecipient", smpResponse.FinalRecipient));
+            pmode.MessagePackaging.MessageProperties.Add(new MessageProperty { Name = "finalRecipient", Value = smpResponse.FinalRecipient });
 
             pmode.MessagePackaging.CollaborationInfo =
                 pmode.MessagePackaging.CollaborationInfo ?? new CollaborationInfo();
