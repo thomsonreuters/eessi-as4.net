@@ -9,10 +9,8 @@ namespace Eu.EDelivery.AS4.Mappings.Core
     {
         public MessagePropertyMap()
         {
-            CreateMap<Xml.Property, Model.Core.MessageProperty>()
-                .ForMember(dest => dest.Name, src => src.MapFrom(t => t.name))
-                .ForMember(dest => dest.Value, src => src.MapFrom(t => t.Value))
-                .ForMember(dest => dest.Type, src => src.MapFrom(t => t.Type))
+            CreateMap<Xml.Property, Model.Core.MessageProperty>(MemberList.None)
+                .ConstructUsing(xml => new Model.Core.MessageProperty(xml.name, xml.Value, xml.Type))
                 .ForSourceMember(src => src.TypeSpecified, x => x.Ignore());
 
             CreateMap<Model.Core.MessageProperty, Xml.Property>()

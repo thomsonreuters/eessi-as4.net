@@ -1,15 +1,14 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
+using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Submit;
-using CoreMessageProperty = Eu.EDelivery.AS4.Model.Core.MessageProperty;
-using SubmitMessageProperty = Eu.EDelivery.AS4.Model.Common.MessageProperty;
-
 
 namespace Eu.EDelivery.AS4.Mappings.Submit
 {
     /// <summary>
-    /// Resolve the <see cref="Model.Core.MessageProperty"/>
+    /// Resolve the <see cref="MessageProperty"/>
     /// </summary>
-    public class SubmitMessagePropertiesResolver : ISubmitResolver<CoreMessageProperty[]>
+    public class SubmitMessagePropertiesResolver : ISubmitResolver<MessageProperty[]>
     {
         public static readonly SubmitMessagePropertiesResolver Default = new SubmitMessagePropertiesResolver();
 
@@ -18,43 +17,28 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
         /// </summary>
         /// <param name="message"></param>
         /// <returns></returns>
-        public CoreMessageProperty[] Resolve(SubmitMessage message)
+        public MessageProperty[] Resolve(SubmitMessage message)
         {
-            var returnProperties = new List<CoreMessageProperty>();
-
-            RetrieveCoreMessageProperties(message, returnProperties);
-
-            return returnProperties.ToArray();
-        }
-
-        private static void RetrieveCoreMessageProperties(SubmitMessage message, List<CoreMessageProperty> returnProperties)
-        {
-            if (message.MessageProperties != null)
+            IEnumerable<MessageProperty> RetrieveCoreMessageProperties()
             {
-                MoveSubmitPropertiesToCoreProperties(returnProperties, message.MessageProperties);
+                if (message.MessageProperties != null)
+                {
+                    foreach (var p in message.MessageProperties)
+                    {
+                        yield return new MessageProperty(p.Name, p.Value, p.Type);
+                    }
+                }
+
+                if (message.PMode.MessagePackaging.MessageProperties != null)
+                {
+                    foreach (var p in message.PMode.MessagePackaging.MessageProperties)
+                    {
+                        yield return new MessageProperty(p.Name, p.Value, p.Type);
+                    }
+                }
             }
 
-            if (message.PMode.MessagePackaging.MessageProperties != null)
-            {
-                returnProperties.AddRange(message.PMode.MessagePackaging.MessageProperties);
-            }
-        }
-
-        private static void MoveSubmitPropertiesToCoreProperties(
-            ICollection<CoreMessageProperty> returnProperties, IEnumerable<SubmitMessageProperty> submitProperties)
-        {
-            foreach (SubmitMessageProperty current in submitProperties)
-            {
-                MoveSubmitPropertyToCoreProperty(returnProperties, current);
-            }
-        }
-
-        private static void MoveSubmitPropertyToCoreProperty(
-            ICollection<CoreMessageProperty> returnProperties, SubmitMessageProperty current)
-        {
-            var messageProperty = new CoreMessageProperty(current.Name, current.Value) { Type = current.Type };
-
-            returnProperties.Add(messageProperty);
+            return RetrieveCoreMessageProperties().ToArray();
         }
     }
 }

@@ -13,6 +13,7 @@ using Eu.EDelivery.AS4.UnitTests.Model.PMode;
 using FsCheck;
 using FsCheck.Xunit;
 using Xunit;
+using MessageProperty = Eu.EDelivery.AS4.Model.Core.MessageProperty;
 
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
 {
@@ -51,7 +52,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
         public override SendingProcessingMode GetSendingPMode(string id)
         {
             SendingProcessingMode pmode = ValidSendingPModeFactory.Create();
-            pmode.MessagePackaging.MessageProperties = new List<MessageProperty>();
+            pmode.MessagePackaging.MessageProperties = new List<AS4.Model.PMode.MessageProperty>();
 
             return pmode;
         }

@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using System.Linq;
+using AutoMapper;
 using Eu.EDelivery.AS4.Factories;
 
 namespace Eu.EDelivery.AS4.Mappings.Submit
@@ -22,7 +23,6 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
 
                 .ForMember(dest => dest.Sender, src => src.ResolveUsing(SubmitSenderPartyResolver.Default.Resolve))
                 .ForMember(dest => dest.Receiver, src => src.ResolveUsing(SubmitReceiverResolver.Default.Resolve))
-                .ForMember(dest => dest.MessageProperties, src => src.ResolveUsing(SubmitMessagePropertiesResolver.Default.Resolve))
 
                 .ForMember(dest => dest.CollaborationInfo, src => src.MapFrom(s => s.Collaboration))
                 .ForMember(dest => dest.IsTest, src => src.Ignore())
@@ -46,6 +46,15 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
                                 SubmitPayloadInfoResolver.Default.Resolve(submitMessage))
                             {
                                 userMessage.AddPartInfo(p);
+                            }
+                        }
+
+                        if (submitMessage.MessageProperties?.Any() == true)
+                        {
+                            foreach (Model.Core.MessageProperty p in
+                                SubmitMessagePropertiesResolver.Default.Resolve(submitMessage))
+                            {
+                                userMessage.AddMessageProperty(p);
                             }
                         }
                     });

@@ -13,6 +13,7 @@ using Eu.EDelivery.AS4.Model.Notify;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Singletons;
 using NLog;
+using MessageProperty = Eu.EDelivery.AS4.Model.Core.MessageProperty;
 
 namespace Eu.EDelivery.AS4.Transformers
 {
@@ -148,8 +149,8 @@ namespace Eu.EDelivery.AS4.Transformers
 
             if (signalMessage != null)
             {
-                userMessage.MessageProperties.Add(new MessageProperty("RefToMessageId", signalMessage.RefToMessageId));
-                userMessage.MessageProperties.Add(new MessageProperty("SignalType", signalMessage.GetType().Name));
+                userMessage.AddMessageProperty(new MessageProperty("RefToMessageId", signalMessage.RefToMessageId));
+                userMessage.AddMessageProperty(new MessageProperty("SignalType", signalMessage.GetType().Name));
 
                 userMessage.RefToMessageId = signalMessage.MessageId;
             }

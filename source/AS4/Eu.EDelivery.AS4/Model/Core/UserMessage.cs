@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Xml.Serialization;
 using Eu.EDelivery.AS4.Factories;
@@ -8,21 +9,31 @@ namespace Eu.EDelivery.AS4.Model.Core
 {
     public class UserMessage : MessageUnit
     {
-        private readonly List<PartInfo> _partInfos;
+        private readonly ICollection<PartInfo> _partInfos;
+        private readonly ICollection<MessageProperty> _messageProperties;
 
         public string Mpc { get; set; }
+
         public Party Sender { get; set; }
+
         public Party Receiver { get; set; }
 
         public CollaborationInfo CollaborationInfo { get; set; }
-        public IList<MessageProperty> MessageProperties { get; set; }
-        public IEnumerable<PartInfo> PayloadInfo => _partInfos.AsReadOnly();
+
+        public IEnumerable<MessageProperty> MessageProperties => _messageProperties.AsEnumerable();
+
+        public IEnumerable<PartInfo> PayloadInfo => _partInfos.AsEnumerable();
 
         // TODO: this should happen together with the adding of Attachments
         // TODO: only unique PartInfo's are allowed
         public void AddPartInfo(PartInfo p)
         {
             _partInfos.Add(p);
+        }
+
+        public void AddMessageProperty(MessageProperty p)
+        {
+            _messageProperties.Add(p);
         }
 
         [XmlIgnore]
@@ -47,9 +58,9 @@ namespace Eu.EDelivery.AS4.Model.Core
             Sender = new Party(new PartyId { Id = Constants.Namespaces.EbmsDefaultFrom }) { Role = Constants.Namespaces.EbmsDefaultFrom };
             Receiver = new Party(new PartyId { Id = Constants.Namespaces.EbmsDefaultTo }) { Role = Constants.Namespaces.EbmsDefaultTo };
             CollaborationInfo = new CollaborationInfo();
-            MessageProperties = new List<MessageProperty>();
 
-            _partInfos = new List<PartInfo>();
+            _partInfos = new Collection<PartInfo>();
+            _messageProperties = new Collection<MessageProperty>();
         }
 
 
