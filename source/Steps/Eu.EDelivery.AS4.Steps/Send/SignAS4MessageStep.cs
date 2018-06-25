@@ -23,14 +23,13 @@ namespace Eu.EDelivery.AS4.Steps.Send
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 
-        private readonly IConfig _config;
         private readonly ICertificateRepository _repository;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SignAS4MessageStep"/> class
         /// </summary>
         public SignAS4MessageStep() 
-            : this(Config.Instance, Registry.Instance.CertificateRepository)
+            : this(Registry.Instance.CertificateRepository)
         {
         }
 
@@ -38,14 +37,10 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// Initializes a new instance of the <see cref="SignAS4MessageStep"/> class. 
         /// Create Signing Step with a given Certificate Store Repository
         /// </summary>
-        /// <param name="config"></param>
         /// <param name="repository">
         /// </param>
-        public SignAS4MessageStep(
-            IConfig config,
-            ICertificateRepository repository)
+        public SignAS4MessageStep(ICertificateRepository repository)
         {
-            _config = config;
             _repository = repository;
         }
 
@@ -62,10 +57,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 return await StepResult.SuccessAsync(messagingContext);
             }
 
-            SendingProcessingMode pmode = 
-                messagingContext.SendingPMode 
-                ?? _config.GetReferencedSendingPMode(messagingContext.ReceivingPMode);
-
+            SendingProcessingMode pmode = messagingContext.SendingPMode;
             if (pmode.Security.Signing.IsEnabled != true)
             {
                 Logger.Debug(

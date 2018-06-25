@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Net;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Http;
@@ -15,7 +14,6 @@ using Eu.EDelivery.AS4.UnitTests.Common;
 using Eu.EDelivery.AS4.UnitTests.Extensions;
 using Eu.EDelivery.AS4.UnitTests.Model;
 using Eu.EDelivery.AS4.UnitTests.Repositories;
-using Moq;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
@@ -35,32 +33,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
 
             // Act 
             IStep sut = CreateSendStepWithResponse(
-                StubHttpClient.ThatReturns(AS4Message.Create(new Receipt())),
-                referencedSendPMode: null);
-
-            await sut.ExecuteAsync(ctx);
-
-            // Assert
-            GetDataStoreContext.AssertOutMessage(
-                ebmsMessageId,
-                message =>
-                {
-                    Assert.Equal(OutStatus.Sent, message.Status.ToEnum<OutStatus>());
-                    Assert.Equal(Operation.Sent, message.Operation.ToEnum<Operation>());
-                });
-        }
-
-        [Fact]
-        public async Task After_Send_Updates_Request_Operation_And_Status_To_Sent_For_Response_SendPMode()
-        {
-            // Arrange
-            string ebmsMessageId = $"user-{Guid.NewGuid()}";
-            MessagingContext ctx = SetupMessagingContextWithToBeSentMessage(ebmsMessageId);
-
-            // Act 
-            IStep sut = CreateSendStepWithResponse(
-                StubHttpClient.ThatReturns(AS4Message.Create(new Receipt())),
-                referencedSendPMode: CreateSendPModeWithPushUrl());
+                StubHttpClient.ThatReturns(AS4Message.Create(new Receipt())));
 
             await sut.ExecuteAsync(ctx);
 
@@ -98,29 +71,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             // Arrange
             AS4Message as4Message = AS4Message.Create(new PullRequestError());
             IStep sut = CreateSendStepWithResponse(
-                StubHttpClient.ThatReturns(as4Message),
-                referencedSendPMode: null);
+                StubHttpClient.ThatReturns(as4Message));
 
             MessagingContext ctx = CreateMessagingContextWithDefaultPullRequest();
             ctx.SendingPMode = CreateSendPModeWithPushUrl();
-
-            // Act
-            StepResult actualResult = await sut.ExecuteAsync(ctx);
-
-            // Assert
-            Assert.False(actualResult.CanProceed);
-        }
-
-        [Fact]
-        public async Task Send_Results_In_Stop_Execution_If_Response_Is_PullRequest_Warning_For_Response_SendPMode()
-        {
-            // Arrange
-            AS4Message as4Message = AS4Message.Create(new PullRequestError());
-            IStep sut = CreateSendStepWithResponse(
-                StubHttpClient.ThatReturns(as4Message),
-                referencedSendPMode: CreateSendPModeWithPushUrl());
-
-            MessagingContext ctx = CreateMessagingContextWithDefaultPullRequest();
 
             // Act
             StepResult actualResult = await sut.ExecuteAsync(ctx);
@@ -134,8 +88,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
         {
             // Arrange
             IStep sut = CreateSendStepWithResponse(
-                StubHttpClient.ThatReturns(HttpStatusCode.Accepted),
-                referencedSendPMode: null);
+                StubHttpClient.ThatReturns(HttpStatusCode.Accepted));
 
             MessagingContext ctx = CreateMessagingContextWithDefaultPullRequest();
             ctx.SendingPMode = CreateSendPModeWithPushUrl();
@@ -153,8 +106,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
         {
             // Arrange
             IStep sut = CreateSendStepWithResponse(
-                StubHttpClient.ThatReturns(HttpStatusCode.Accepted),
-                referencedSendPMode: CreateSendPModeWithPushUrl());
+                StubHttpClient.ThatReturns(HttpStatusCode.Accepted));
 
             MessagingContext ctx = CreateMessagingContextWithDefaultPullRequest();
 
@@ -178,21 +130,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
                 MessagingContextMode.Receive);
         }
 
-        private IStep CreateSendStepWithResponse(IHttpClient client, SendingProcessingMode referencedSendPMode)
+        private IStep CreateSendStepWithResponse(IHttpClient client)
         {
-            return new SendAS4MessageStep(
-                CreateStubConfig(referencedSendPMode), 
-                GetDataStoreContext, 
-                client);
-        }
-
-        private static IConfig CreateStubConfig(SendingProcessingMode referencedSendPMode)
-        {
-            var stub = new Mock<IConfig>();
-            stub.Setup(c => c.GetReferencedSendingPMode(It.IsAny<ReceivingProcessingMode>()))
-                .Returns(referencedSendPMode);
-
-            return stub.Object;
+            return new SendAS4MessageStep(GetDataStoreContext, client);
         }
 
         private static SendingProcessingMode CreateSendPModeWithPushUrl()

@@ -174,37 +174,6 @@ namespace Eu.EDelivery.AS4.Common
         }
 
         /// <summary>
-        /// Retrieve referenced <see cref="SendingProcessingMode"/> from a given <see cref="ReceivingProcessingMode"/>.
-        /// </summary>
-        /// <param name="receivePMode"></param>
-        /// <returns></returns>
-        public SendingProcessingMode GetReferencedSendingPMode(ReceivingProcessingMode receivePMode)
-        {
-            if (string.IsNullOrWhiteSpace(receivePMode.ReplyHandling?.SendingPMode))
-            {
-                throw new InvalidOperationException(
-                    $"No referenced SendingPMode defined in ReplyHandling of ReceivedPMode {receivePMode.Id}. " + 
-                    "This means that this PMode cannot be used to send/forward a message");
-            }
-
-            string pmodeId = receivePMode.ReplyHandling.SendingPMode;
-            SendingProcessingMode sendPMode = GetSendingPMode(pmodeId);
-
-            if (sendPMode == null)
-            {
-                throw new InvalidOperationException(
-                    $"ReplyHandling .SendingPMode \"{pmodeId}\"  found in ReceivingPMode \"{receivePMode.Id}\" "+ 
-                    "does not reference an exsisting SendingPMode. Please define an existing SendingPMode id or define one at: '.\\config\\send-pmodes\\'");
-            }
-
-            Logger.Debug(
-                $"Referenced Sending PMode found with Id: {pmodeId}. " +
-                "This PMode will be used to further send/forward the message");
-
-            return sendPMode;
-        }
-
-        /// <summary>
         /// Retrieve the PMode from the Global Settings
         /// </summary>
         /// <param name="id"></param>

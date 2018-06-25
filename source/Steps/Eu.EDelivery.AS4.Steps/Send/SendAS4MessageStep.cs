@@ -30,7 +30,6 @@ namespace Eu.EDelivery.AS4.Steps.Send
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 
-        private readonly IConfig _config;
         private readonly Func<DatastoreContext> _createDatastore;
         private readonly IHttpClient _httpClient;
 
@@ -38,17 +37,15 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// Initializes a new instance of the <see cref="SendAS4MessageStep" /> class
         /// </summary>
         public SendAS4MessageStep() : 
-            this(Config.Instance, Registry.Instance.CreateDatastoreContext, new ReliableHttpClient()) { }
+            this(Registry.Instance.CreateDatastoreContext, new ReliableHttpClient()) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SendAS4MessageStep" /> class.
         /// </summary>
-        /// <param name="config">The configuration used to determine the <see cref="SendingProcessingMode"/> used during the sending</param>
         /// <param name="createDatastore">Delegate to create a new context.</param>
         /// <param name="client">Instance to handle the HTTP response.</param>
-        public SendAS4MessageStep(IConfig config, Func<DatastoreContext> createDatastore, IHttpClient client)
+        public SendAS4MessageStep(Func<DatastoreContext> createDatastore, IHttpClient client)
         {
-            _config = config;
             _createDatastore = createDatastore;
             _httpClient = client;
         }
@@ -74,10 +71,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
                     "expects a PullRequest AS4 Message when the MessagingContext does not contain a ReceivedStream");
             }
 
-            SendingProcessingMode sendPMode = 
-                messagingContext.SendingPMode
-                ?? _config.GetReferencedSendingPMode(messagingContext.ReceivingPMode);
-
+            SendingProcessingMode sendPMode = messagingContext.SendingPMode;
             PushConfiguration sendConfiguration = sendPMode.PushConfiguration;
 
             if (sendConfiguration == null)
@@ -129,7 +123,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 string contentType = ctx.ReceivedMessage?.ContentType ?? ctx.AS4Message.ContentType;
                 HttpWebRequest request = CreateWebRequest(sendPMode, contentType.Replace("charset=\"utf-8\"", ""));
 
-                if (await TryWriteToHttpRequestStreamAsync(request, ctx).ConfigureAwait(false))
+                if (await WriteToHttpRequestStreamAsync(request, ctx).ConfigureAwait(false))
                 {
                     ctx.ModifyContext(as4Message);
 
@@ -216,7 +210,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             return null;
         }
 
-        private static async Task<bool> TryWriteToHttpRequestStreamAsync(HttpWebRequest request, MessagingContext ctx)
+        private static async Task<bool> WriteToHttpRequestStreamAsync(HttpWebRequest request, MessagingContext ctx)
         {
             try
             {

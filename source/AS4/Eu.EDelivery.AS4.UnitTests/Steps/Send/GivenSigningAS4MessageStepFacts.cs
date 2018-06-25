@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Security.Cryptography.X509Certificates;
-using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
@@ -11,7 +9,6 @@ using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Steps.Send;
 using Eu.EDelivery.AS4.UnitTests.Common;
 using Eu.EDelivery.AS4.UnitTests.Model;
-using Moq;
 using Xunit;
 using static Eu.EDelivery.AS4.UnitTests.Properties.Resources;
 
@@ -29,20 +26,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             var context = new MessagingContext(AS4Message.Empty, MessagingContextMode.Unknown);
 
             // Act
-            StepResult stepResult = await ExerciseSigning(context, sendPMode: null);
-
-            // Assert
-            AssertNotSignedSecurityHeader(stepResult);
-        }
-
-        [Fact]
-        public async Task Doesnt_Sign_If_Response_PMode_Signing_Is_Disabled()
-        {
-            // Arrange
-            MessagingContext context = AS4UserMessageWithAttachment();
-
-            // Act
-            StepResult stepResult = await ExerciseSigning(context, PModeWithoutSigningSettings());
+            StepResult stepResult = await ExerciseSigning(context);
 
             // Assert
             AssertNotSignedSecurityHeader(stepResult);
@@ -56,7 +40,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             context.SendingPMode = PModeWithoutSigningSettings();
 
             // Act
-            StepResult stepResult = await ExerciseSigning(context, sendPMode: null);
+            StepResult stepResult = await ExerciseSigning(context);
 
             // Assert
             AssertNotSignedSecurityHeader(stepResult);
@@ -90,20 +74,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             MessagingContext context = AS4UserMessageWithAttachment();
 
             // Act / Assert
-            await Assert.ThrowsAnyAsync<Exception>(() => ExerciseSigning(context, pmode, certWithoutPrivateKey));
-        }
-
-        [Fact]
-        public async Task Sign_Message_If_Response_PMode_Signing_Is_Enabled()
-        {
-            // Arrange
-            MessagingContext context = AS4UserMessageWithAttachment();
-
-            // Act
-            StepResult result = await ExerciseSigning(context, PModeWithSigningSettings());
-
-            // Assert
-            Assert.True(result.MessagingContext.AS4Message.SecurityHeader.IsSigned);
+            await Assert.ThrowsAnyAsync<Exception>(() => ExerciseSigning(context, certWithoutPrivateKey));
         }
 
         [Fact]
@@ -114,7 +85,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             context.SendingPMode = PModeWithSigningSettings();
 
             // Act
-            StepResult result = await ExerciseSigning(context, sendPMode: null);
+            StepResult result = await ExerciseSigning(context);
 
             // Assert
             Assert.True(result.MessagingContext.AS4Message.SecurityHeader.IsSigned);
@@ -150,28 +121,24 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             };
         }
 
-        private static async Task<StepResult> ExerciseSigning(MessagingContext context, SendingProcessingMode sendPMode)
+        private static async Task<StepResult> ExerciseSigning(MessagingContext context)
         {
-            return await ExerciseSigning(context, sendPMode, r => { });
+            return await ExerciseSigning(context, r => { });
         }
 
-        private static async Task<StepResult> ExerciseSigning(MessagingContext context, SendingProcessingMode sendPMode, X509Certificate2 certificate)
+        private static async Task<StepResult> ExerciseSigning(MessagingContext context, X509Certificate2 certificate)
         {
-            return await ExerciseSigning(context, sendPMode, r => r.CertificateStore.Add(certificate));
+            return await ExerciseSigning(context, r => r.CertificateStore.Add(certificate));
         }
 
         private static async Task<StepResult> ExerciseSigning(
             MessagingContext context,
-            SendingProcessingMode sendPMode,
             Action<StubCertificateRepository> updateStore)
         {
             var stubCertRepo = new StubCertificateRepository();
             updateStore(stubCertRepo);
 
-            var stubConfig = new Mock<IConfig>();
-            stubConfig.Setup(c => c.GetReferencedSendingPMode(context.ReceivingPMode)).Returns(sendPMode);
-
-            var sut = new SignAS4MessageStep(stubConfig.Object, stubCertRepo);
+            var sut = new SignAS4MessageStep(stubCertRepo);
             return await sut.ExecuteAsync(context);
         }
     }

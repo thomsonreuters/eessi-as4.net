@@ -6,8 +6,10 @@ using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
+using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
+using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Singletons;
 using Eu.EDelivery.AS4.Xml;
@@ -23,19 +25,24 @@ namespace Eu.EDelivery.AS4.Steps.Receive
     [Description("Create an AS4 Error message to inform the sender that something went wrong processing the received AS4 message.")]
     public class CreateAS4ErrorStep : IStep
     {
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+        private readonly IConfig _config;
         private readonly Func<DatastoreContext> _createDatastoreContext;
+
+        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CreateAS4ErrorStep" /> class.
         /// </summary>
-        public CreateAS4ErrorStep() : this(Registry.Instance.CreateDatastoreContext) { }
+        public CreateAS4ErrorStep() : this(Config.Instance, Registry.Instance.CreateDatastoreContext) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CreateAS4ErrorStep"/> class.
         /// </summary>
-        public CreateAS4ErrorStep(Func<DatastoreContext> createDatastoreContext)
+        public CreateAS4ErrorStep(
+            IConfig config,
+            Func<DatastoreContext> createDatastoreContext)
         {
+            _config = config;
             _createDatastoreContext = createDatastoreContext;
         }
 
@@ -53,7 +60,13 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 return await StepResult.SuccessAsync(messagingContext);
             }
 
-            AS4Message errorMessage = CreateAS4Error(messagingContext);
+            SendingProcessingMode responseSendPMode =
+                messagingContext.GetReferencedSendingPMode(messagingContext.ReceivingPMode, _config);
+
+            AS4Message errorMessage = CreateAS4Error(
+                sendPMode: responseSendPMode,
+                referenced: messagingContext.AS4Message,
+                result: messagingContext.ErrorResult);
 
             if (messagingContext.ErrorResult != null)
             {
@@ -61,6 +74,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             }
 
             messagingContext.ModifyContext(errorMessage);
+            messagingContext.SendingPMode = responseSendPMode;
 
             if (Logger.IsInfoEnabled && errorMessage.MessageUnits.Any())
             {
@@ -68,6 +82,33 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             }
 
             return await StepResult.SuccessAsync(messagingContext);
+        }
+
+        private static AS4Message CreateAS4Error(
+            SendingProcessingMode sendPMode, 
+            AS4Message referenced,
+            ErrorResult result)
+        {
+            AS4Message errorMessage = AS4Message.Create(sendPMode);
+            errorMessage.SigningId = referenced.SigningId;
+
+            foreach (UserMessage userMessage in referenced.UserMessages)
+            {
+                Error error = new ErrorBuilder()
+                    .WithRefToEbmsMessageId(userMessage.MessageId)
+                    .WithErrorResult(result)
+                    .Build();
+
+                if (sendPMode?.MessagePackaging?.IsMultiHop == true)
+                {
+                    error.MultiHopRouting =
+                        AS4Mapper.Map<RoutingInputUserMessage>(referenced?.FirstUserMessage);
+                }
+
+                errorMessage.AddMessageUnit(error);
+            }
+
+            return errorMessage;
         }
 
         private async Task CreateExceptionForReceivedSignalMessagesAsync(MessagingContext context)
@@ -96,36 +137,6 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
                 await dbContext.SaveChangesAsync();
             }
-        }
-
-        private static AS4Message CreateAS4Error(MessagingContext context)
-        {
-            AS4Message errorMessage = AS4Message.Create(context.SendingPMode);
-            errorMessage.SigningId = context.AS4Message.SigningId;
-
-            foreach (UserMessage userMessage in context.AS4Message.UserMessages)
-            {
-                Error error = CreateError(userMessage.MessageId, context);
-                errorMessage.AddMessageUnit(error);
-            }
-
-            return errorMessage;
-        }
-
-        private static Error CreateError(string userMessageId, MessagingContext originalContext)
-        {
-            Error error = new ErrorBuilder()
-                .WithRefToEbmsMessageId(userMessageId)
-                .WithErrorResult(originalContext.ErrorResult)
-                .Build();
-
-            if (originalContext.SendingPMode?.MessagePackaging?.IsMultiHop == true)
-            {
-                error.MultiHopRouting =
-                    AS4Mapper.Map<RoutingInputUserMessage>(originalContext.AS4Message?.FirstUserMessage);
-            }
-
-            return error;
         }
     }
 }

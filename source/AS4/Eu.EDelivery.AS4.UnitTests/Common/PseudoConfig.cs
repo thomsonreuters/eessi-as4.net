@@ -37,16 +37,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
         public virtual TimeSpan RetryPollingInterval => throw new NotImplementedException();
 
         /// <summary>
-        /// Retrieve referenced <see cref="SendingProcessingMode"/> from a given <see cref="ReceivingProcessingMode"/>.
-        /// </summary>
-        /// <param name="receivePMode"></param>
-        /// <returns></returns>
-        public SendingProcessingMode GetReferencedSendingPMode(ReceivingProcessingMode receivePMode)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
         /// Retrieve Setting from the Global Configurations
         /// </summary>
         /// <param name="key">Registered Key for the Setting</param>
