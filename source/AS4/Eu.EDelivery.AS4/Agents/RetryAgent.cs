@@ -85,7 +85,7 @@ namespace Eu.EDelivery.AS4.Agents
                 new MessagingContext(rm, MessagingContextMode.Unknown));
         }
 
-        private void OnReceivedEntity(RetryReliability rr, DatastoreRepository repo)
+        private static void OnReceivedEntity(RetryReliability rr, DatastoreRepository repo)
         {
             (long refToEntityId, Entity entityType) = GetRefToEntityIdWithType(rr);
             Operation op = GetRefEntityOperation(repo, refToEntityId, entityType);
@@ -109,7 +109,6 @@ namespace Eu.EDelivery.AS4.Agents
                 repo.UpdateRetryReliability(rr.Id, r =>
                 {
                     r.CurrentRetryCount = r.CurrentRetryCount + 1;
-                    r.SetStatus(ReceptionStatus.Pending);
                     r.LastRetryTime = DateTimeOffset.Now;
                 });
 
@@ -117,15 +116,11 @@ namespace Eu.EDelivery.AS4.Agents
             else if (rr.CurrentRetryCount >= rr.MaxRetryCount)
             {
                 Logger.Debug($"({rr.RetryType}) Retry operation is completed, no new retries will happen");
+                Logger.Debug($"({rr.RetryType}) Update referenced entity {{Operation=DeadLettered}}");
                 Logger.Debug($"({rr.RetryType}) Update retry {{Status=Completed}}");
 
                 UpdateRefEntityOperation(repo, refToEntityId, entityType, Operation.DeadLettered);
-                repo.UpdateRetryReliability(rr.Id, r => r.SetStatus(ReceptionStatus.Completed));
-            }
-            else
-            {
-                Logger.Debug($"({rr.RetryType}) Retry operation happend too soon, will reset Status=Pending");
-                repo.UpdateRetryReliability(rr.Id, r => r.SetStatus(ReceptionStatus.Pending));
+                repo.UpdateRetryReliability(rr.Id, r => r.SetStatus(RetryStatus.Completed));
             }
         }
 

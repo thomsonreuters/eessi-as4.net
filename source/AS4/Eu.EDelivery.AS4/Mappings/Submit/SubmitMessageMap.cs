@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using System.Linq;
+using AutoMapper;
 using Eu.EDelivery.AS4.Factories;
 
 namespace Eu.EDelivery.AS4.Mappings.Submit
@@ -11,7 +12,6 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
                 .ForMember(dest => dest.MessageId, src => src.Ignore())
                 .ForMember(dest => dest.RefToMessageId, src => src.MapFrom(s => s.MessageInfo.RefToMessageId))
                 .ForMember(dest => dest.Timestamp, src => src.Ignore())
-                .ForMember(dest => dest.MessageProperties, src => src.ResolveUsing(SubmitMessagePropertiesResolver.Default.Resolve))
                 .ForMember(dest => dest.CollaborationInfo, src => src.MapFrom(s => s.Collaboration))
                 .ForMember(dest => dest.IsTest, src => src.Ignore())
                 .ForMember(dest => dest.IsDuplicate, src => src.Ignore())
@@ -40,6 +40,14 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
                             }
                         }
 
+                        if (submitMessage.MessageProperties?.Any() == true)
+                        {
+                            foreach (Model.Core.MessageProperty p in
+                                SubmitMessagePropertiesResolver.Default.Resolve(submitMessage))
+                            {
+                                userMessage.AddMessageProperty(p);
+                            }
+                        }
                     }).ForAllOtherMembers(x => x.Ignore());
         }
     }

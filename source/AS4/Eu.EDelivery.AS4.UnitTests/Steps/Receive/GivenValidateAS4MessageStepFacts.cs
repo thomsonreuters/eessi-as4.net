@@ -22,7 +22,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             var user = new UserMessage();
             AS4Message message = AS4Message.Create(user);
             message.AddAttachment(new Attachment("earth") {Content = Stream.Null});
-            message.PrimaryUserMessage.AddPartInfo(new PartInfo("earth"));
+            message.FirstUserMessage.AddPartInfo(new PartInfo("earth"));
             message = await SerializeDeserialize(message);
 
             // Act

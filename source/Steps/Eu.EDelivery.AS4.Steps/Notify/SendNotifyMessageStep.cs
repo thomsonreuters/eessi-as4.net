@@ -58,9 +58,10 @@ namespace Eu.EDelivery.AS4.Steps.Notify
             if (messagingContext.SendingPMode == null)
             {
                 SendingProcessingMode pmode =
-                    RetrieveSendingPModeForMessageWithEbmsMessageId(messagingContext.NotifyMessage
-                                                                                    .MessageInfo
-                                                                                    .RefToMessageId);
+                    RetrieveSendingPModeForMessageWithEbmsMessageId(
+                        messagingContext.NotifyMessage
+                                        .MessageInfo
+                                        .RefToMessageId);
 
                 if (pmode != null)
                 {
@@ -70,7 +71,7 @@ namespace Eu.EDelivery.AS4.Steps.Notify
 
             Logger.Trace($"{messagingContext.LogTag} Start sending notify message...");
             SendResult result = await SendNotifyMessage(messagingContext).ConfigureAwait(false);
-            Logger.Info($"{messagingContext.LogTag} Notify message sent");
+            Logger.Trace($"{messagingContext.LogTag} Notify message sent result in: {result}");
 
             await UpdateDatastoreAsync(
                 messagingContext.NotifyMessage,
@@ -87,8 +88,9 @@ namespace Eu.EDelivery.AS4.Steps.Notify
                 var repository = new DatastoreRepository(context);
 
                 var outMessageData = 
-                    repository.GetOutMessageData(where: m => m.EbmsMessageId == ebmsMessageId && m.Intermediary == false,
-                                                selection: m => new { m.PMode, m.ModificationTime })
+                    repository.GetOutMessageData(
+                                  where: m => m.EbmsMessageId == ebmsMessageId && m.Intermediary == false,
+                                  selection: m => new { m.PMode, m.ModificationTime })
                               .OrderByDescending(m => m.ModificationTime)
                               .FirstOrDefault();
 

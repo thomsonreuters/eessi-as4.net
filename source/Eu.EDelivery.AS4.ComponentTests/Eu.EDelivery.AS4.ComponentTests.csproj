@@ -53,7 +53,8 @@
     <Compile Include="Agents\PullReceiveAgentFacts.cs" />
     <Compile Include="Agents\PullSendAgentFacts.cs" />
     <Compile Include="Agents\ReceiveAgentFacts.cs" />
-    <Compile Include="Agents\RetryAgentFacts.cs" />
+    <Compile Include="Agents\RetryAgentForDeliveryFacts.cs" />
+    <Compile Include="Agents\RetryAgentForNotificationFacts.cs" />
     <Compile Include="Agents\StaticReceiveAgentFacts.cs" />
     <Compile Include="Agents\StaticSubmitAgentFacts.cs" />
     <Compile Include="Common\AS4MessageResponseHandler.cs" />

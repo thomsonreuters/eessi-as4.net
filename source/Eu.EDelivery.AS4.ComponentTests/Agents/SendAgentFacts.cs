@@ -5,9 +5,11 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+
 using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.ComponentTests.Common;
 using Eu.EDelivery.AS4.Entities;
+using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Factories;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
@@ -16,7 +18,9 @@ using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Steps.Receive;
 using Eu.EDelivery.AS4.TestUtils;
 using Eu.EDelivery.AS4.TestUtils.Stubs;
+
 using Xunit;
+
 using MessageExchangePattern = Eu.EDelivery.AS4.Entities.MessageExchangePattern;
 using X509Certificate2 = System.Security.Cryptography.X509Certificates.X509Certificate2;
 using Party = Eu.EDelivery.AS4.Model.PMode.Party;
@@ -58,7 +62,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                 () => _databaseSpy.GetInMessageFor(m => m.EbmsRefToMessageId == ebmsMessageId), 
                 timeout: TimeSpan.FromSeconds(5));
 
-            Assert.Equal(InStatus.Received, InStatusUtils.Parse(receipt.Status));
+            Assert.Equal(InStatus.Received, receipt.Status.ToEnum<InStatus>());
         }
 
         [Fact]
@@ -141,60 +145,45 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             return AS4MessageUtils.SignWithCertificate(receipt, cert);
         }
 
-        [Fact]
-        public async Task CorrectHandlingOnSynchronouslyReceivedMultiHopReceipt_OutStatusSent_OperationToBeForwarded()
-        {
-            await CorrectHandlingOnSynchronouslyReceivedMultiHopReceipt(
-                actAsIntermediaryMsh: true,
-                expectedOutStatus: OutStatus.Sent,
-                expectedSignalOperation: Operation.ToBeForwarded);
-        }
-
-        [Fact]
-        public async Task CorrectHandlingOnSynchronouslyReceivedMultiHopReceipt_OutStatusAck_OperationToBeNotified()
-        {
-            await CorrectHandlingOnSynchronouslyReceivedMultiHopReceipt(
-                actAsIntermediaryMsh: false,
-                expectedOutStatus: OutStatus.Ack,
-                expectedSignalOperation: Operation.ToBeNotified);
-        }
-
-        private async Task CorrectHandlingOnSynchronouslyReceivedMultiHopReceipt(
+        [Theory]
+        [InlineData(false, OutStatus.Ack, Operation.ToBeNotified)]
+        [InlineData(true, OutStatus.Sent, Operation.ToBeForwarded)]
+        public async Task CorrectHandlingOnSynchronouslyReceivedMultiHopReceipt(
             bool actAsIntermediaryMsh, 
             OutStatus expectedOutStatus, 
             Operation expectedSignalOperation)
         {
-            const string messageId = "multihop-message-id";
+            // Arrange
+            string messageId = $"multihop-message-id-{Guid.NewGuid()}";
 
-            var pmode = CreateMultihopPMode(StubListenLocation);
+            SendingProcessingMode pmode = CreateMultihopPMode(StubListenLocation);
+            AS4Message as4Message = CreateMultiHopAS4UserMessage(messageId, pmode);
+            as4Message.FirstUserMessage.CollaborationInfo.AgreementReference.PModeId = "Forward_Push";
 
-            var as4Message = CreateMultiHopMessage(messageId, pmode);
-
-            ManualResetEvent signal = new ManualResetEvent(false);
-
-            AS4MessageResponseHandler r = new AS4MessageResponseHandler(CreateMultiHopReceiptFor(as4Message));
-
+            var signal = new ManualResetEvent(false);
+            var r = new AS4MessageResponseHandler(CreateMultiHopReceiptFor(as4Message));
             StubHttpServer.StartServer(StubListenLocation, r.WriteResponse, signal);
 
+            // Act
             PutMessageToSend(as4Message, pmode, actAsIntermediaryMsh);
 
+            // Assert
             signal.WaitOne();
-            
-            
-            var sentMessage = await PollUntilPresent(
-                () => _databaseSpy.GetOutMessageFor(m => m.EbmsMessageId == messageId), 
-                timeout: TimeSpan.FromSeconds(5));
 
-            var receivedMessage = await PollUntilPresent(
+            OutMessage sentMessage = await PollUntilPresent(
+                () => _databaseSpy.GetOutMessageFor(m => m.EbmsMessageId == messageId), 
+                timeout: TimeSpan.FromSeconds(10));
+
+            InMessage receivedMessage = await PollUntilPresent(
                 () => _databaseSpy.GetInMessageFor(m => m.EbmsRefToMessageId == messageId), 
-                timeout: TimeSpan.FromSeconds(5));
+                timeout: TimeSpan.FromSeconds(10));
 
             Assert.NotNull(sentMessage);
             Assert.NotNull(receivedMessage);
 
-            Assert.Equal(expectedOutStatus, OutStatusUtils.Parse(sentMessage.Status));
-            Assert.Equal(MessageType.Receipt, MessageTypeUtils.Parse(receivedMessage.EbmsMessageType));
-            Assert.Equal(expectedSignalOperation, OperationUtils.Parse(receivedMessage.Operation));
+            Assert.Equal(expectedOutStatus, sentMessage.Status.ToEnum<OutStatus>());
+            Assert.Equal(MessageType.Receipt, receivedMessage.EbmsMessageType.ToEnum<MessageType>());
+            Assert.Equal(expectedSignalOperation, receivedMessage.Operation.ToEnum<Operation>());
         }
 
         private void PutMessageToSend(AS4Message as4Message, SendingProcessingMode pmode, bool actAsIntermediaryMsh)
@@ -228,7 +217,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             _databaseSpy.InsertOutMessage(outMessage);
         }
 
-        private static AS4Message CreateMultiHopMessage(string messageId, SendingProcessingMode sendingPMode)
+        private static AS4Message CreateMultiHopAS4UserMessage(string messageId, SendingProcessingMode sendingPMode)
         {
             var simpleUserMessage = UserMessageFactory.Instance.Create(sendingPMode);
             simpleUserMessage.MessageId = messageId;

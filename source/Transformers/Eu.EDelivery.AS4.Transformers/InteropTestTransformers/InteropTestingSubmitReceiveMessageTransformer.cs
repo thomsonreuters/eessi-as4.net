@@ -32,11 +32,11 @@ namespace Eu.EDelivery.AS4.Transformers.InteropTestTransformers
 
             var as4Message = messagingContext.AS4Message;
             
-            if (as4Message?.PrimaryUserMessage?.CollaborationInfo?.Action?.Equals("Submit", StringComparison.OrdinalIgnoreCase) ?? false)
+            if (as4Message?.FirstUserMessage?.CollaborationInfo?.Action?.Equals("Submit", StringComparison.OrdinalIgnoreCase) ?? false)
             {
-                var properties = as4Message.PrimaryUserMessage?.MessageProperties;
+                var properties = as4Message.FirstUserMessage?.MessageProperties;
 
-                TransformUserMessage(as4Message.PrimaryUserMessage, properties);
+                TransformUserMessage(as4Message.FirstUserMessage, properties);
 
                 messagingContext = new MessagingContext(as4Message, MessagingContextMode.Submit);
 
@@ -55,7 +55,7 @@ namespace Eu.EDelivery.AS4.Transformers.InteropTestTransformers
             // The PMode that should be used can be determind by concatenating several items to create the PMode ID
             // - CollaborationInfo.Action
             // - ToParty
-            string pmodeKey = $"{as4Message.PrimaryUserMessage.CollaborationInfo.Action}_FROM_{as4Message.PrimaryUserMessage.Sender.PartyIds.First().Id}_TO_{as4Message.PrimaryUserMessage.Receiver.PartyIds.First().Id}";
+            string pmodeKey = $"{as4Message.FirstUserMessage.CollaborationInfo.Action}_FROM_{as4Message.FirstUserMessage.Sender.PartyIds.First().Id}_TO_{as4Message.FirstUserMessage.Receiver.PartyIds.First().Id}";
 
             // The PMode that must be used is defined in the CollaborationInfo.Service property.
             var pmode = Config.Instance.GetSendingPMode(pmodeKey);
@@ -63,7 +63,7 @@ namespace Eu.EDelivery.AS4.Transformers.InteropTestTransformers
             message.SendingPMode = pmode;
         }
 
-        private static void TransformUserMessage(UserMessage userMessage, IList<MessageProperty> properties)
+        private static void TransformUserMessage(UserMessage userMessage, IEnumerable<MessageProperty> properties)
         {
             SetMessageInfoProperties(userMessage, properties);
             SetCollaborationInfoProperties(userMessage, properties);
@@ -76,18 +76,22 @@ namespace Eu.EDelivery.AS4.Transformers.InteropTestTransformers
         {
             string[] whiteList = { "originalSender", "finalRecipient", "trackingIdentifier", "TA_Id" };
 
-            userMessage.MessageProperties = userMessage.MessageProperties.Where(p => whiteList.Contains(p.Name, StringComparer.OrdinalIgnoreCase))
-                .ToList();
+            foreach (MessageProperty p in 
+                userMessage.MessageProperties
+                           .Where(p => whiteList.Contains(p.Name, StringComparer.OrdinalIgnoreCase)))
+            {
+                userMessage.AddMessageProperty(p);
+            }
         }
 
-        private static void SetMessageInfoProperties(UserMessage userMessage, IList<MessageProperty> properties)
+        private static void SetMessageInfoProperties(UserMessage userMessage, IEnumerable<MessageProperty> properties)
         {
             userMessage.MessageId = GetPropertyValue(properties, "MessageId");
             userMessage.RefToMessageId = GetPropertyValue(properties, "RefToMessageId");
             userMessage.Timestamp = DateTimeOffset.Now;
         }
 
-        private static void SetCollaborationInfoProperties(UserMessage userMessage, IList<MessageProperty> properties)
+        private static void SetCollaborationInfoProperties(UserMessage userMessage, IEnumerable<MessageProperty> properties)
         {
             userMessage.CollaborationInfo.ConversationId = GetPropertyValue(properties, "ConversationId");
             userMessage.CollaborationInfo.Service.Value = GetPropertyValue(properties, "Service");
@@ -97,7 +101,7 @@ namespace Eu.EDelivery.AS4.Transformers.InteropTestTransformers
             userMessage.CollaborationInfo.AgreementReference = null;
         }
 
-        private static void SetPartyProperties(UserMessage userMessage, IList<MessageProperty> properties)
+        private static void SetPartyProperties(UserMessage userMessage, IEnumerable<MessageProperty> properties)
         {
             userMessage.Sender =
                 new Party(
@@ -114,7 +118,7 @@ namespace Eu.EDelivery.AS4.Transformers.InteropTestTransformers
                         type: GetPropertyValue(properties, "ToPartyType")));
         }
 
-        private static string GetPropertyValue(IList<MessageProperty> properties, string propertyName)
+        private static string GetPropertyValue(IEnumerable<MessageProperty> properties, string propertyName)
         {
             return properties.FirstOrDefault(p => p.Name.Equals(propertyName, StringComparison.OrdinalIgnoreCase))?.Value;
         }

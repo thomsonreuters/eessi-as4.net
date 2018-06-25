@@ -15,6 +15,7 @@ using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.PMode;
 using NLog;
+using MessageProperty = Eu.EDelivery.AS4.Model.PMode.MessageProperty;
 using Party = Eu.EDelivery.AS4.Model.PMode.Party;
 using PartyId = Eu.EDelivery.AS4.Model.PMode.PartyId;
 

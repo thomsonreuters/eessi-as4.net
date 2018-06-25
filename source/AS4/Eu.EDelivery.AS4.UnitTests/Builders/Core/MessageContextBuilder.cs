@@ -40,7 +40,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Core
         /// <returns></returns>
         public MessageContextBuilder WithAgreementRef(AgreementReference agreementRef)
         {
-            UserMessage userMessage = _messagingContext.AS4Message.PrimaryUserMessage;
+            UserMessage userMessage = _messagingContext.AS4Message.FirstUserMessage;
             userMessage.CollaborationInfo.AgreementReference = agreementRef;
 
             return this;

@@ -25,10 +25,12 @@ namespace Eu.EDelivery.AS4.ComponentTests.Samples
 
             // Wait some time till component has processed the sample
             WaitUntil(
-                () => Directory.EnumerateFiles(DeliverPath).Any() 
+                () => Directory.EnumerateFiles(DeliverPath, GeneratedIdPattern).Any() 
                       && Directory.EnumerateFiles(NotifyReceiptPath).Any(),
                 retryCount: 100,
                 retryInterval: TimeSpan.FromSeconds(1));
+
+            Msh.Dispose();
 
             Assert.All(payloads, m =>
             {

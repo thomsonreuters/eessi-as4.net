@@ -1,0 +1,131 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<s12:Envelope xmlns:s12="http://www.w3.org/2003/05/soap-envelope">
+	<s12:Header>
+		<eb:Messaging xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd"
+		              xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd"
+		              xmlns:s12="http://www.w3.org/2003/05/soap-envelope"
+		              wsu:Id="header-fcd4d20d-3842-479a-bcaf-91a8a6d97275"
+		              xmlns:eb="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/">
+			<eb:SignalMessage>
+        <eb:MessageInfo>
+          <eb:Timestamp>2016-11-17T15:19:59.710Z</eb:Timestamp>
+          <eb:MessageId>1</eb:MessageId>
+          <eb:RefToMessageId>66abf773-937d-4425-934f-0f4f54c88abe@192.168.0.177</eb:RefToMessageId>
+        </eb:MessageInfo>
+        <eb:Receipt>
+          <ebbp:NonRepudiationInformation xmlns:ebbp="http://docs.oasis-open.org/ebxml-bp/ebbp-signals-2.0">
+            <ebbp:MessagePartNRInformation>
+              <Reference xmlns="http://www.w3.org/2000/09/xmldsig#" URI="#header-23848796-df22-46e9-b508-f37be2331312">
+                <Transforms>
+                  <Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
+                </Transforms>
+                <DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/>
+                <DigestValue>sV5Bm9wtWahwwGQvBi8xUdLySkbvUxp8fvqhGaLwnMg=</DigestValue>
+              </Reference>
+            </ebbp:MessagePartNRInformation>
+            <ebbp:MessagePartNRInformation>
+              <Reference xmlns="http://www.w3.org/2000/09/xmldsig#" URI="#body-5043880f-d135-47ee-bfcd-8e7867e05771">
+                <Transforms>
+                  <Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
+                </Transforms>
+                <DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/>
+                <DigestValue>Qe8YpXFAjKHlRkw1gZzGzb54CdNi4Ug7E7J6cZ54rbs=</DigestValue>
+              </Reference>
+            </ebbp:MessagePartNRInformation>
+            <ebbp:MessagePartNRInformation>
+              <Reference xmlns="http://www.w3.org/2000/09/xmldsig#" URI="cid:earth">
+                <Transforms>
+                  <Transform Algorithm="http://docs.oasis-open.org/wss/oasis-wss-SwAProfile-1.1#Attachment-Content-Signature-Transform"/>
+                </Transforms>
+                <DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/>
+                <DigestValue>Hu4oYLpkMivWihpZ0wJVxPfqQBi5JZOEMIuG7IS8AHE=</DigestValue>
+              </Reference>
+            </ebbp:MessagePartNRInformation>
+            <ebbp:MessagePartNRInformation>
+              <Reference xmlns="http://www.w3.org/2000/09/xmldsig#" URI="cid:earth2">
+                <Transforms>
+                  <Transform Algorithm="http://docs.oasis-open.org/wss/oasis-wss-SwAProfile-1.1#Attachment-Content-Signature-Transform"/>
+                </Transforms>
+                <DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/>
+                <DigestValue>Hu4oYLpkMivWihpZ0wJVxPfqQBi5JZOEMIuG7IS8AHE=</DigestValue>
+              </Reference>
+            </ebbp:MessagePartNRInformation>
+          </ebbp:NonRepudiationInformation>
+        </eb:Receipt>
+			</eb:SignalMessage>
+			<eb:UserMessage>
+				<eb:MessageInfo>
+					<eb:Timestamp>2016-09-07T06:23:49.8575025Z</eb:Timestamp>
+					<eb:MessageId>2</eb:MessageId>
+				</eb:MessageInfo>
+				<eb:PartyInfo>
+					<eb:From>
+						<eb:PartyId>org:eu:europa:as4:example</eb:PartyId><eb:Role>Sender</eb:Role>
+					</eb:From>
+					<eb:To>
+						<eb:PartyId>org:holodeckb2b:example:company:B</eb:PartyId><eb:Role>Receiver</eb:Role>
+					</eb:To>
+				</eb:PartyInfo>
+				<eb:CollaborationInfo>
+					<eb:AgreementRef pmode="push-sample">http://agreements.holodeckb2b.org/examples/agreement0</eb:AgreementRef>
+					<eb:Service>http://docs.oasis-open.org/ebxml-msg/ebMS/v3.0/ns/core/200704/service</eb:Service>
+					<eb:Action>http://docs.oasis-open.org/ebxml-msg/ebMS/v3.0/ns/core/200704/test</eb:Action>
+					<eb:ConversationId>eu:edelivery:as4:sampleconversation</eb:ConversationId>
+				</eb:CollaborationInfo>
+				<eb:MessageProperties>
+					<eb:Property name="Test" type="Test">Test</eb:Property><eb:Property name="Test" type="Test">Test</eb:Property>
+				</eb:MessageProperties>
+			</eb:UserMessage>
+			<eb:SignalMessage>
+        <eb:MessageInfo>
+          <eb:Timestamp>2016-11-17T15:19:59.710Z</eb:Timestamp>
+          <eb:MessageId>3</eb:MessageId>
+          <eb:RefToMessageId>66abf773-937d-4425-934f-0f4f54c88abe@192.168.0.177</eb:RefToMessageId>
+        </eb:MessageInfo>
+        <eb:Receipt>
+          <ebbp:NonRepudiationInformation xmlns:ebbp="http://docs.oasis-open.org/ebxml-bp/ebbp-signals-2.0">
+            <ebbp:MessagePartNRInformation>
+              <Reference xmlns="http://www.w3.org/2000/09/xmldsig#" URI="#header-23848796-df22-46e9-b508-f37be2331312">
+                <Transforms>
+                  <Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
+                </Transforms>
+                <DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/>
+                <DigestValue>sV5Bm9wtWahwwGQvBi8xUdLySkbvUxp8fvqhGaLwnMg=</DigestValue>
+              </Reference>
+            </ebbp:MessagePartNRInformation>
+            <ebbp:MessagePartNRInformation>
+              <Reference xmlns="http://www.w3.org/2000/09/xmldsig#" URI="#body-5043880f-d135-47ee-bfcd-8e7867e05771">
+                <Transforms>
+                  <Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
+                </Transforms>
+                <DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/>
+                <DigestValue>Qe8YpXFAjKHlRkw1gZzGzb54CdNi4Ug7E7J6cZ54rbs=</DigestValue>
+              </Reference>
+            </ebbp:MessagePartNRInformation>
+            <ebbp:MessagePartNRInformation>
+              <Reference xmlns="http://www.w3.org/2000/09/xmldsig#" URI="cid:earth">
+                <Transforms>
+                  <Transform Algorithm="http://docs.oasis-open.org/wss/oasis-wss-SwAProfile-1.1#Attachment-Content-Signature-Transform"/>
+                </Transforms>
+                <DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/>
+                <DigestValue>Hu4oYLpkMivWihpZ0wJVxPfqQBi5JZOEMIuG7IS8AHE=</DigestValue>
+              </Reference>
+            </ebbp:MessagePartNRInformation>
+            <ebbp:MessagePartNRInformation>
+              <Reference xmlns="http://www.w3.org/2000/09/xmldsig#" URI="cid:earth2">
+                <Transforms>
+                  <Transform Algorithm="http://docs.oasis-open.org/wss/oasis-wss-SwAProfile-1.1#Attachment-Content-Signature-Transform"/>
+                </Transforms>
+                <DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/>
+                <DigestValue>Hu4oYLpkMivWihpZ0wJVxPfqQBi5JZOEMIuG7IS8AHE=</DigestValue>
+              </Reference>
+            </ebbp:MessagePartNRInformation>
+          </ebbp:NonRepudiationInformation>
+        </eb:Receipt>
+      </eb:SignalMessage>
+		</eb:Messaging>
+	</s12:Header>
+	<s12:Body p2:Id="body-5e30d21b-3680-459a-a458-1a97d8481500"
+	          xmlns:p2="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" />
+</s12:Envelope>

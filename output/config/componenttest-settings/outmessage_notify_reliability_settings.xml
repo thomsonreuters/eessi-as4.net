@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Settings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+    xmlns="eu:edelivery:as4">
+    <IdFormat>{GUID}@{IPADDRESS}</IdFormat>
+    <FeInProcess>false</FeInProcess>
+    <PayloadServiceInProcess>false</PayloadServiceInProcess>
+    <RetryReliability>
+        <PollingInterval>00:00:01</PollingInterval>
+    </RetryReliability>
+    <Database>
+        <Provider>Sqlite</Provider>
+        <ConnectionString>Filename=database\messages.db</ConnectionString>
+    </Database>
+    <CertificateStore>
+        <StoreName>My</StoreName>
+        <Repository type="Eu.EDelivery.AS4.Repositories.CertificateRepository, Eu.EDelivery.AS4, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+    </CertificateStore>
+    <Agents>
+        <NotifyAgent name="OutMessage Notify Agent">
+            <Receiver type="Eu.EDelivery.AS4.Receivers.DatastoreReceiver, Eu.EDelivery.AS4.Receivers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+                <Setting key="Table">OutMessages</Setting>
+                <Setting key="Filter">Operation = 'ToBeNotified'</Setting>
+                <Setting key="Update" field="Operation">Notifying</Setting>
+                <Setting key="PollingInterval">00:00:01</Setting>
+            </Receiver>
+            <Transformer type="Eu.EDelivery.AS4.Transformers.NotifyMessageTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+            <StepConfiguration>
+                <NormalPipeline>
+                    <Step type="Eu.EDelivery.AS4.Steps.Notify.SendNotifyMessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+                </NormalPipeline>
+            </StepConfiguration>
+        </NotifyAgent>
+    </Agents>
+</Settings>

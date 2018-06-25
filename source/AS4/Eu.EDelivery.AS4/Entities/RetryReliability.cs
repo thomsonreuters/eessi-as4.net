@@ -16,7 +16,7 @@ namespace Eu.EDelivery.AS4.Entities
         {
             CurrentRetryCount = 0;
             RetryInterval = "0:00:00:00";
-            Status = ReceptionStatus.Pending.ToString();
+            Status = RetryStatus.Idle.ToString();
             LastRetryTime = null;
         }
 
@@ -57,7 +57,7 @@ namespace Eu.EDelivery.AS4.Entities
         [MaxLength(25)]
         public string Status { get; private set; }
 
-        public void SetStatus(ReceptionStatus s)
+        public void SetStatus(RetryStatus s)
         {
             Status = s.ToString();
         }
@@ -149,5 +149,13 @@ namespace Eu.EDelivery.AS4.Entities
     {
         Delivery,
         Notification
+    }
+
+    public enum RetryStatus
+    {
+        Idle,
+        Pending,
+        Busy,
+        Completed
     }
 }

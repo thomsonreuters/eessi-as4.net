@@ -28,7 +28,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Samples
             FileSystemUtils.CreateOrClearDirectory(@".\messages\exceptions");
 
 
-            Msh = AS4Component.Start(Environment.CurrentDirectory);
+            Msh = AS4Component.Start(Environment.CurrentDirectory, cleanSlate: false);
         }
 
         private static void CleanSlateReceivingPModesFrom(string pmodesPath)
@@ -86,9 +86,6 @@ namespace Eu.EDelivery.AS4.ComponentTests.Samples
             }
         }
 
-        protected void Disposing(bool isDisposing)
-        {
-            Msh.Dispose();
-        }
+        protected virtual void Disposing(bool isDisposing) { }
     }
 }

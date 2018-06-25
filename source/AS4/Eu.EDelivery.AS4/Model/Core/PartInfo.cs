@@ -4,13 +4,25 @@ using System.Diagnostics;
 
 namespace Eu.EDelivery.AS4.Model.Core
 {
+    /// <summary>
+    /// Element in the <see cref="AS4Message"/> that relates to a <see cref="Attachment"/> instance.
+    /// </summary>
     [DebuggerDisplay("Href {" + nameof(Href) + "}")]
     public class PartInfo : IEquatable<PartInfo>
     {
+        /// <summary>
+        /// The 'Content-Id' of the related <see cref="Attachment"/>, prefixed with &quot;c:d&quot;.
+        /// </summary>
         public string Href { get; }
 
+        /// <summary>
+        /// Properties of the related <see cref="Attachment"/>.
+        /// </summary>
         public IDictionary<string, string> Properties { get; }
 
+        /// <summary>
+        /// Schemas of the related <see cref="Attachment"/>.
+        /// </summary>
         public IEnumerable<Schema> Schemas { get; }
 
         /// <summary>
@@ -21,6 +33,7 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// <summary>
         /// Initializes a new instance of the <see cref="PartInfo"/> class.
         /// </summary>
+        /// <exception cref="ArgumentNullException"></exception>
         public PartInfo(
             string href, 
             IDictionary<string, string> properties, 
@@ -83,12 +96,7 @@ namespace Eu.EDelivery.AS4.Model.Core
                 return true;
             }
 
-            if (obj is PartInfo p)
-            {
-                return Equals(p);
-            }
-
-            return false;
+            return obj is PartInfo p && Equals(p);
         }
 
         /// <summary>

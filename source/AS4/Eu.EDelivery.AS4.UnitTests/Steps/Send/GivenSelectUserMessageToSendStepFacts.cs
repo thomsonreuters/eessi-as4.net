@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
+using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Factories;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
@@ -32,7 +33,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             StepResult result = await ExerciseSelection(expectedMpc: null);
 
             // Assert
-            var signal = result.MessagingContext.AS4Message.PrimarySignalMessage as PullRequestError;
+            var signal = result.MessagingContext.AS4Message.FirstSignalMessage as PullRequestError;
             Assert.Equal(new PullRequestError(), signal);
             Assert.False(result.CanProceed);
         }
@@ -53,10 +54,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
 
             var as4Message = await RetrieveAS4MessageFromContext(result.MessagingContext);
 
-            UserMessage userMessage = as4Message.PrimaryUserMessage;
+            UserMessage userMessage = as4Message.FirstUserMessage;
 
             Assert.Equal(expectedMpc, userMessage.Mpc);
-            AssertOutMessage(userMessage.MessageId, m => Assert.True(OperationUtils.Parse(m.Operation) == Operation.Sent));
+            AssertOutMessage(userMessage.MessageId, m => Assert.True(m.Operation.ToEnum<Operation>() == Operation.Sent));
             Assert.NotNull(result.MessagingContext.SendingPMode);
         }
 

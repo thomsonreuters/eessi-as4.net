@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -107,17 +109,17 @@ namespace Eu.EDelivery.AS4.Serialization
 
         private static void SetMultiHopHeaders(SoapEnvelopeBuilder builder, AS4Message as4Message)
         {
-            if (as4Message.IsSignalMessage && as4Message.PrimarySignalMessage.MultiHopRouting != null)
+            if (as4Message.IsSignalMessage && as4Message.FirstSignalMessage.MultiHopRouting != null)
             {
                 var to = new To { Role = Constants.Namespaces.EbmsNextMsh };
                 builder.SetToHeader(to);
 
-                string actionValue = as4Message.PrimarySignalMessage.GetActionValue();
+                string actionValue = as4Message.FirstSignalMessage.GetActionValue();
                 builder.SetActionHeader(actionValue);
 
                 var routingInput = new RoutingInput
                 {
-                    UserMessage = as4Message.PrimarySignalMessage.MultiHopRouting,
+                    UserMessage = as4Message.FirstSignalMessage.MultiHopRouting,
                     mustUnderstand = false,
                     mustUnderstandSpecified = true,
                     IsReferenceParameter = true,
@@ -175,9 +177,9 @@ namespace Eu.EDelivery.AS4.Serialization
                 var routing = await AS4XmlSerializer.FromStringAsync<RoutingInput>(routingInput.OuterXml);
                 if (routing != null)
                 {
-                    if (as4Message.PrimarySignalMessage != null)
+                    if (as4Message.FirstSignalMessage != null)
                     {
-                        as4Message.PrimarySignalMessage.MultiHopRouting = routing.UserMessage;
+                        as4Message.FirstSignalMessage.MultiHopRouting = routing.UserMessage;
                     }
                 }
             }
@@ -250,7 +252,7 @@ namespace Eu.EDelivery.AS4.Serialization
 
         private static Messaging DeserializeMessagingHeader(XmlDocument document, XmlNamespaceManager nsMgr)
         {
-            var messagingHeader = document.SelectSingleNode("/s:Envelope/s:Header/eb3:Messaging", nsMgr);
+            XmlNode messagingHeader = document.SelectSingleNode("/s:Envelope/s:Header/eb3:Messaging", nsMgr);
 
             if (messagingHeader == null)
             {
@@ -263,21 +265,33 @@ namespace Eu.EDelivery.AS4.Serialization
             return result as Messaging;
         }
         
-        public static IEnumerable<MessageUnit> GetMessageUnitsFromMessagingHeader(Messaging messagingHeader)
+        internal static IEnumerable<MessageUnit> GetMessageUnitsFromMessagingHeader(XmlDocument envelopeDocument, Messaging messagingHeader)
         {
-            if (messagingHeader.SignalMessage != null)
+            IEnumerable<string> messageUnitTagNames = envelopeDocument.SelectSingleNode(
+                "/s:Envelope/s:Header/eb3:Messaging", 
+                GetNamespaceManagerForDocument(envelopeDocument))
+                            ?.ChildNodes
+                            .Cast<XmlNode>()
+                            .Select(n => n.LocalName);
+
+            if (messageUnitTagNames == null)
             {
-                foreach (Xml.SignalMessage signalMessage in messagingHeader.SignalMessage)
-                {
-                    yield return ConvertFromXml(signalMessage);
-                }
+                yield break;
             }
 
-            if (messagingHeader.UserMessage != null)
+            var signals = new Queue<Xml.SignalMessage>(messagingHeader.SignalMessage ?? new Xml.SignalMessage[0]);
+            var users = new Queue<Xml.UserMessage>(messagingHeader.UserMessage ?? new Xml.UserMessage[0]);
+
+            foreach (string messageUnitTagName in messageUnitTagNames)
             {
-                foreach (Xml.UserMessage userMessage in messagingHeader.UserMessage)
+                if (messageUnitTagName.Equals("UserMessage", StringComparison.OrdinalIgnoreCase))
                 {
-                    yield return AS4Mapper.Map<UserMessage>(userMessage);
+                    yield return AS4Mapper.Map<UserMessage>(users.Dequeue());
+                }
+
+                if (messageUnitTagName.Equals("SignalMessage", StringComparison.OrdinalIgnoreCase))
+                {
+                    yield return ConvertFromXml(signals.Dequeue());
                 }
             }
         }

@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.ComponentTests.Common;
 using Eu.EDelivery.AS4.Entities;
+using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
@@ -107,7 +108,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             OutMessage processedEntry = datastoreSpy.GetOutMessageFor(
                 m => m.EbmsMessageId == multihopMessage.GetPrimaryMessageId());
 
-            Assert.Equal(Operation.ToBeSent, OperationUtils.Parse(processedEntry.Operation));
+            Assert.Equal(Operation.ToBeSent, processedEntry.Operation.ToEnum<Operation>());
             Assert.False(processedEntry.Intermediary);
 
             AS4Message processedMessage =

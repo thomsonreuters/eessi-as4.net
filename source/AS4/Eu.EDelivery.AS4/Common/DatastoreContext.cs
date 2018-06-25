@@ -75,7 +75,7 @@ namespace Eu.EDelivery.AS4.Common
         //{
         //    var optionsBuilder = new DbContextOptionsBuilder<DatastoreContext>();
 
-        //    //optionsBuilder.UseSqlServer("Server=.;database=as4msh;integrated security=sspi");
+        //    //optionsBuilder.UseSqlServer("Server=.;database=journaltable;integrated security=sspi");
         //    optionsBuilder.UseSqlite(@"Filename=database\messages.db");
 
         //    return optionsBuilder.Options;
@@ -307,6 +307,15 @@ namespace Eu.EDelivery.AS4.Common
             modelBuilder.Entity<RetryReliability>().Property(rr => rr.RetryInterval).UsePropertyAccessMode(PropertyAccessMode.Field);
             modelBuilder.Entity<RetryReliability>().Property(rr => rr.RetryType).UsePropertyAccessMode(PropertyAccessMode.Field);
             modelBuilder.Entity<RetryReliability>().Property(rr => rr.Status).UsePropertyAccessMode(PropertyAccessMode.Field);
+
+            modelBuilder.Entity<Journal>().HasKey(j => j.Id).HasName("PK_Journal");
+            modelBuilder.Entity<Journal>().Property(j => j.Id).UseSqlServerIdentityColumn();
+            modelBuilder.Entity<Journal>().Property(j => j.Id).UsePropertyAccessMode(PropertyAccessMode.Field);
+            modelBuilder.Entity<Journal>().Property(j => j.RefToOutMessageId).UsePropertyAccessMode(PropertyAccessMode.Field);
+            modelBuilder.Entity<Journal>().Property(j => j.RefToInMessageId).UsePropertyAccessMode(PropertyAccessMode.Field);
+            modelBuilder.Entity<Journal>().Property(j => j.MessageStatus).UsePropertyAccessMode(PropertyAccessMode.Field);
+            modelBuilder.Entity<Journal>().Property(j => j.MessageOperation).UsePropertyAccessMode(PropertyAccessMode.Field);
+            modelBuilder.Entity<Journal>().Property(j => j.AgentType).UsePropertyAccessMode(PropertyAccessMode.Field);
         }
 
         /// <summary>

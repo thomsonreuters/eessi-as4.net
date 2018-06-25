@@ -13,6 +13,7 @@ using Eu.EDelivery.AS4.Model.Notify;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Singletons;
 using NLog;
+using MessageProperty = Eu.EDelivery.AS4.Model.Core.MessageProperty;
 
 namespace Eu.EDelivery.AS4.Transformers
 {
@@ -53,8 +54,8 @@ namespace Eu.EDelivery.AS4.Transformers
 
         internal async Task<NotifyMessageEnvelope> CreateNotifyMessageEnvelope(AS4Message as4Message, Type receivedEntityType)
         {
-            UserMessage userMessage = as4Message.PrimaryUserMessage;
-            SignalMessage signalMessage = as4Message.PrimarySignalMessage;
+            UserMessage userMessage = as4Message.FirstUserMessage;
+            SignalMessage signalMessage = as4Message.FirstSignalMessage;
 
             if (signalMessage != null)
             {
@@ -62,7 +63,7 @@ namespace Eu.EDelivery.AS4.Transformers
             }
             else
             {
-                Logger.Warn($"{as4Message.PrimaryUserMessage?.MessageId} AS4Message does not contain a primary SignalMessage");
+                Logger.Warn($"{as4Message.FirstUserMessage?.MessageId} AS4Message does not contain a primary SignalMessage");
             }
 
             return await CreateMinderNotifyMessageEnvelope(userMessage, signalMessage, receivedEntityType).ConfigureAwait(false);
@@ -152,8 +153,8 @@ namespace Eu.EDelivery.AS4.Transformers
 
             if (signalMessage != null)
             {
-                userMessage.MessageProperties.Add(new MessageProperty("RefToMessageId", signalMessage.RefToMessageId));
-                userMessage.MessageProperties.Add(new MessageProperty("SignalType", signalMessage.GetType().Name));
+                userMessage.AddMessageProperty(new MessageProperty("RefToMessageId", signalMessage.RefToMessageId));
+                userMessage.AddMessageProperty(new MessageProperty("SignalType", signalMessage.GetType().Name));
 
                 userMessage.RefToMessageId = signalMessage.MessageId;
             }

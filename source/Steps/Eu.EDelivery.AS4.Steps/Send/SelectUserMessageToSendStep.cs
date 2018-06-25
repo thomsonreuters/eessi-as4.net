@@ -58,7 +58,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
-            var pullRequest = messagingContext.AS4Message.PrimarySignalMessage as PullRequest;
+            var pullRequest = messagingContext.AS4Message.FirstSignalMessage as PullRequest;
 
             if (pullRequest == null)
             {

@@ -3,6 +3,9 @@ using Eu.EDelivery.AS4.Common;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
 using System;
 
 namespace Eu.EDelivery.AS4.Migrations
@@ -14,8 +17,7 @@ namespace Eu.EDelivery.AS4.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "1.1.2")
-                .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                .HasAnnotation("ProductVersion", "2.0.1-rtm-125");
 
             modelBuilder.Entity("Eu.EDelivery.AS4.Entities.InException", b =>
                 {
@@ -23,9 +25,6 @@ namespace Eu.EDelivery.AS4.Migrations
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("PropertyAccessMode", PropertyAccessMode.Field)
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<int>("CurrentRetryCount")
-                     .HasDefaultValue(0);
 
                     b.Property<string>("EbmsRefToMessageId")
                         .HasMaxLength(256)
@@ -35,9 +34,6 @@ namespace Eu.EDelivery.AS4.Migrations
                         .HasAnnotation("PropertyAccessMode", PropertyAccessMode.Field);
 
                     b.Property<DateTimeOffset>("InsertionTime");
-
-                    b.Property<int>("MaxRetryCount")
-                     .HasDefaultValue(0);
 
                     b.Property<byte[]>("MessageBody")
                         .HasAnnotation("PropertyAccessMode", PropertyAccessMode.Field);
@@ -54,12 +50,6 @@ namespace Eu.EDelivery.AS4.Migrations
                     b.Property<string>("PModeId")
                         .HasMaxLength(256)
                         .HasAnnotation("PropertyAccessMode", PropertyAccessMode.Field);
-
-                    b.Property<string>("RetryInterval")
-                     .HasMaxLength(50)
-                     .HasDefaultValue("00:00:00")
-                     .HasDefaultValueSql("00:00:00")
-                     .HasAnnotation("PropertyAccessMode", PropertyAccessMode.Field);
 
                     b.HasKey("Id")
                         .HasName("PK_InExceptions");
@@ -88,9 +78,6 @@ namespace Eu.EDelivery.AS4.Migrations
                     b.Property<string>("ConversationId")
                         .HasMaxLength(50);
 
-                    b.Property<int>("CurrentRetryCount")
-                     .HasDefaultValue(0);
-
                     b.Property<string>("EbmsMessageId")
                         .HasMaxLength(256);
 
@@ -116,9 +103,6 @@ namespace Eu.EDelivery.AS4.Migrations
                         .HasColumnName("MEP")
                         .HasMaxLength(25)
                         .HasAnnotation("PropertyAccessMode", PropertyAccessMode.Field);
-
-                    b.Property<int>("MaxRetryCount")
-                     .HasDefaultValue(0);
 
                     b.Property<string>("MessageLocation")
                         .HasMaxLength(512);
@@ -149,12 +133,6 @@ namespace Eu.EDelivery.AS4.Migrations
                         .HasColumnName("Status")
                         .HasMaxLength(50);
 
-                    b.Property<string>("RetryInterval")
-                     .HasMaxLength(50)
-                     .HasDefaultValue("00:00:00")
-                     .HasDefaultValueSql("00:00:00")
-                     .HasAnnotation("PropertyAccessMode", PropertyAccessMode.Field);
-
                     b.Property<string>("ToParty")
                         .HasMaxLength(255);
 
@@ -180,9 +158,6 @@ namespace Eu.EDelivery.AS4.Migrations
                         .HasAnnotation("PropertyAccessMode", PropertyAccessMode.Field)
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int>("CurrentRetryCount")
-                     .HasDefaultValue(0);
-
                     b.Property<string>("EbmsRefToMessageId")
                         .HasMaxLength(256)
                         .HasAnnotation("PropertyAccessMode", PropertyAccessMode.Field);
@@ -191,9 +166,6 @@ namespace Eu.EDelivery.AS4.Migrations
                         .HasAnnotation("PropertyAccessMode", PropertyAccessMode.Field);
 
                     b.Property<DateTimeOffset>("InsertionTime");
-
-                    b.Property<int>("MaxRetryCount")
-                     .HasDefaultValue(0);
 
                     b.Property<byte[]>("MessageBody")
                         .HasAnnotation("PropertyAccessMode", PropertyAccessMode.Field);
@@ -210,12 +182,6 @@ namespace Eu.EDelivery.AS4.Migrations
                     b.Property<string>("PModeId")
                         .HasMaxLength(256)
                         .HasAnnotation("PropertyAccessMode", PropertyAccessMode.Field);
-
-                    b.Property<string>("RetryInterval")
-                     .HasMaxLength(50)
-                     .HasDefaultValue("00:00:00")
-                     .HasDefaultValueSql("00:00:00")
-                     .HasAnnotation("PropertyAccessMode", PropertyAccessMode.Field);
 
                     b.HasKey("Id")
                         .HasName("PK_OutExceptions");
@@ -244,9 +210,6 @@ namespace Eu.EDelivery.AS4.Migrations
                     b.Property<string>("ConversationId")
                         .HasMaxLength(50);
 
-                    b.Property<int>("CurrentRetryCount")
-                     .HasDefaultValue(0);
-
                     b.Property<string>("EbmsMessageId")
                         .HasMaxLength(256);
 
@@ -272,9 +235,6 @@ namespace Eu.EDelivery.AS4.Migrations
                         .HasColumnName("MEP")
                         .HasMaxLength(25)
                         .HasAnnotation("PropertyAccessMode", PropertyAccessMode.Field);
-
-                    b.Property<int>("MaxRetryCount")
-                     .HasDefaultValue(0);
 
                     b.Property<string>("MessageLocation")
                         .HasMaxLength(512);
@@ -304,12 +264,6 @@ namespace Eu.EDelivery.AS4.Migrations
                     b.Property<string>("Status")
                         .HasColumnName("Status")
                         .HasMaxLength(50);
-
-                    b.Property<string>("RetryInterval")
-                     .HasMaxLength(50)
-                     .HasDefaultValue("00:00:00")
-                     .HasDefaultValueSql("00:00:00")
-                     .HasAnnotation("PropertyAccessMode", PropertyAccessMode.Field);
 
                     b.Property<string>("ToParty")
                         .HasMaxLength(255);
@@ -350,8 +304,7 @@ namespace Eu.EDelivery.AS4.Migrations
                         .IsRequired()
                         .HasMaxLength(256);
 
-                    b.Property<long>("RefToOutMessageId")
-                        .IsRequired();
+                    b.Property<long>("RefToOutMessageId");
 
                     b.Property<string>("RetryInterval")
                         .HasMaxLength(12);
@@ -371,6 +324,53 @@ namespace Eu.EDelivery.AS4.Migrations
                         .HasName("IX_ReceptionAwareness_Status_CurrentRetryCount");
 
                     b.ToTable("ReceptionAwareness");
+                });
+
+            modelBuilder.Entity("Eu.EDelivery.AS4.Entities.RetryReliability", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("CurrentRetryCount");
+
+                    b.Property<DateTimeOffset>("InsertionTime");
+
+                    b.Property<DateTimeOffset?>("LastRetryTime");
+
+                    b.Property<int>("MaxRetryCount")
+                        .HasAnnotation("PropertyAccessMode", PropertyAccessMode.Field);
+
+                    b.Property<DateTimeOffset>("ModificationTime");
+
+                    b.Property<long?>("RefToInExceptionId")
+                        .HasAnnotation("PropertyAccessMode", PropertyAccessMode.Field);
+
+                    b.Property<long?>("RefToInMessageId")
+                        .HasAnnotation("PropertyAccessMode", PropertyAccessMode.Field);
+
+                    b.Property<long?>("RefToOutExceptionId")
+                        .HasAnnotation("PropertyAccessMode", PropertyAccessMode.Field);
+
+                    b.Property<long?>("RefToOutMessageId")
+                        .HasAnnotation("PropertyAccessMode", PropertyAccessMode.Field);
+
+                    b.Property<string>("RetryInterval")
+                        .HasMaxLength(50)
+                        .HasAnnotation("PropertyAccessMode", PropertyAccessMode.Field);
+
+                    b.Property<string>("RetryType")
+                        .HasMaxLength(12)
+                        .HasAnnotation("PropertyAccessMode", PropertyAccessMode.Field);
+
+                    b.Property<string>("Status")
+                        .HasMaxLength(25)
+                        .HasAnnotation("PropertyAccessMode", PropertyAccessMode.Field);
+
+                    b.HasKey("Id")
+                        .HasName("PK_RetryReliability");
+
+                    b.ToTable("RetryReliability");
                 });
 
             modelBuilder.Entity("Eu.EDelivery.AS4.Entities.SmpConfiguration", b =>
@@ -461,4 +461,3 @@ namespace Eu.EDelivery.AS4.Migrations
         }
     }
 }
-

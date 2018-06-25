@@ -59,6 +59,8 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
             HttpWebRequest request = await CreateHttpPostRequest(deliverMessage.ContentType, deliverMessage.DeliverMessage).ConfigureAwait(false);
             HttpWebResponse response = await SendHttpPostRequest(request).ConfigureAwait(false);
 
+            Logger.Debug($"POST DeliverMessage to {Location} result in: {(int)response.StatusCode} {response.StatusCode}");
+
             response?.Close();
             return DetermineSendResultFromResponse(response);
         }
@@ -72,10 +74,12 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
             Logger.Info($"(Notify)[{notifyMessage.MessageInfo.MessageId}] Send Notification to {Location}");
 
             HttpWebRequest request = await CreateHttpPostRequest(notifyMessage.ContentType, notifyMessage.NotifyMessage);
-            HttpWebResponse httpPostResponse = await SendHttpPostRequest(request).ConfigureAwait(false);
+            HttpWebResponse response = await SendHttpPostRequest(request).ConfigureAwait(false);
 
-            httpPostResponse?.Close();
-            return DetermineSendResultFromResponse(httpPostResponse);
+            Logger.Debug($"POST Notification to {Location} result in: {(int) response.StatusCode} {response.StatusCode}");
+
+            response?.Close();
+            return DetermineSendResultFromResponse(response);
         }
 
         private async Task<HttpWebRequest> CreateHttpPostRequest(string contentType, byte[] contents)
@@ -111,7 +115,6 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
 
         private static void LogErrorResponse(HttpWebResponse response)
         {
-            Logger.Error($"Unexpected response received for http notification: {response.StatusCode}");
             Stream responseStream = response.GetResponseStream();
 
             if (!Logger.IsErrorEnabled || responseStream == null)
@@ -119,17 +122,19 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
                 return;
             }
 
-            using (var streamReader = new StreamReader(responseStream, detectEncodingFromByteOrderMarks: true))
+            using (var streamReader = new StreamReader(
+                responseStream, 
+                detectEncodingFromByteOrderMarks: true))
             {
-                Logger.Error(streamReader.ReadToEnd());
+                Logger.Error(
+                    $"Unexpected response received for http notification: {response.StatusCode}, {streamReader.ReadToEnd()}");
             }
         }
 
         private static bool IsResponseValid(HttpWebResponse response)
         {
-            return
-                response.StatusCode == HttpStatusCode.Accepted ||
-                response.StatusCode == HttpStatusCode.OK;
+            return response.StatusCode == HttpStatusCode.Accepted 
+                   || response.StatusCode == HttpStatusCode.OK;
         }
 
         private static SendResult DetermineSendResultFromResponse(HttpWebResponse response)

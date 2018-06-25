@@ -32,7 +32,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
             AS4Message as4Message = messagingContext.AS4Message;
-            DeliverMessage deliverMessage = CreateDeliverMessage(as4Message.PrimaryUserMessage, messagingContext);
+            DeliverMessage deliverMessage = CreateDeliverMessage(as4Message.FirstUserMessage, messagingContext);
             ValidateDeliverMessage(deliverMessage);
 
             string serialized = await AS4XmlSerializer.ToStringAsync(deliverMessage);

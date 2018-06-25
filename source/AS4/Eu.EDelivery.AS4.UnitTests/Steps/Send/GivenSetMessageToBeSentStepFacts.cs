@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Entities;
+using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Steps.Send;
@@ -35,7 +36,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
                 m =>
                 {
                     Assert.Equal(expected, m.MessageLocation);
-                    Assert.Equal(Operation.ToBeSent, OperationUtils.Parse(m.Operation));
+                    Assert.Equal(Operation.ToBeSent, m.Operation.ToEnum<Operation>());
                 });
         }
 

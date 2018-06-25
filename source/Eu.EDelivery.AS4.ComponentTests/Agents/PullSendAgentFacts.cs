@@ -46,7 +46,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             // Assert
             AS4Message as4Message = await userMessageResponse.DeserializeToAS4Message();
             Assert.True(as4Message.IsUserMessage, "AS4 Message isn't a User Message");
-            Assert.Equal(Constants.Namespaces.EbmsDefaultMpc, as4Message.PrimaryUserMessage.Mpc);
+            Assert.Equal(Constants.Namespaces.EbmsDefaultMpc, as4Message.FirstUserMessage.Mpc);
         }
 
         [Fact]
@@ -83,7 +83,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             // Assert
             AS4Message as4Message = await userMessageResponse.DeserializeToAS4Message();
             Assert.True(as4Message.IsUserMessage, "AS4 Message isn't a User Message");
-            Assert.Equal(mpc, as4Message.PrimaryUserMessage.Mpc);
+            Assert.Equal(mpc, as4Message.FirstUserMessage.Mpc);
         }
 
         [Fact]

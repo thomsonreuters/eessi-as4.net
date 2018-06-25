@@ -5,6 +5,7 @@ using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Model.Submit;
 using Eu.EDelivery.AS4.Serialization;
 using Xunit;
+using MessageProperty = Eu.EDelivery.AS4.Model.Core.MessageProperty;
 
 namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
 {
@@ -21,8 +22,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
                 // Arrange
                 SubmitMessage submitMessage = CreatePopulatedSubmitMessage();
                 SendingProcessingMode pmode = CreateaPopulatedSendingPMode();
-                MessageProperty pmodeProperty = CreatePopulatedMessageProperty();
-                pmode.MessagePackaging.MessageProperties = new List<MessageProperty> { pmodeProperty };
+                AS4.Model.PMode.MessageProperty pmodeProperty = CreatePopulatedMessageProperty();
+                pmode.MessagePackaging.MessageProperties = new List<AS4.Model.PMode.MessageProperty> { pmodeProperty };
                 submitMessage.PMode = pmode;
 
                 // Act
@@ -32,9 +33,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
                 Assert.Equal(2, properties.Length);
             }
 
-            private static MessageProperty CreatePopulatedMessageProperty()
+            private static AS4.Model.PMode.MessageProperty CreatePopulatedMessageProperty()
             {
-                return new MessageProperty("pmode-name", "pmode-value") { Type = "pmode-type" };
+                return new AS4.Model.PMode.MessageProperty
+                {
+                    Name = "pmode-name",
+                    Value = "pmode-value",
+                    Type = "pmode-type"
+                };
             }
 
             [Fact]

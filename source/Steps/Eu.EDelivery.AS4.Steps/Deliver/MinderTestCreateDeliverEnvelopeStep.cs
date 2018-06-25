@@ -97,7 +97,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
 
         private UserMessage CreateMinderDeliverMessage(AS4Message as4Message)
         {
-            UserMessage userMessage = as4Message.PrimaryUserMessage;
+            UserMessage userMessage = as4Message.FirstUserMessage;
 
             var deliverMessage = new UserMessage(userMessage.MessageId)
             {
@@ -122,7 +122,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
                 deliverMessage.AddPartInfo(partInfo);
             }
 
-            deliverMessage.MessageProperties.Add(new MessageProperty("MessageId", userMessage.MessageId));
+            deliverMessage.AddMessageProperty(new MessageProperty("MessageId", userMessage.MessageId));
             AddMessageProperty(deliverMessage, "RefToMessageId", userMessage.RefToMessageId);
             AddMessageProperty(deliverMessage, "ConversationId", userMessage.CollaborationInfo.ConversationId);
 
@@ -159,7 +159,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
                 return;
             }
 
-            message.MessageProperties.Add(property);
+            message.AddMessageProperty(property);
         }
     }
 }
