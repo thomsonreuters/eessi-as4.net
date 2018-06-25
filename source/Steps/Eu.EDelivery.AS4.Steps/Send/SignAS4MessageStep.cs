@@ -62,7 +62,9 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 return await StepResult.SuccessAsync(messagingContext);
             }
 
-            SendingProcessingMode pmode = _config.GetReferencedSendingPMode(messagingContext.ReceivingPMode);
+            SendingProcessingMode pmode = 
+                messagingContext.SendingPMode 
+                ?? _config.GetReferencedSendingPMode(messagingContext.ReceivingPMode);
 
             if (pmode.Security.Signing.IsEnabled != true)
             {
