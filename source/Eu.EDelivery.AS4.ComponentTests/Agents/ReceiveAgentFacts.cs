@@ -81,6 +81,26 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         #region Scenario's for received UserMessages that result in errors.
 
         [Fact]
+        public async Task ThenAgentReturnsError_IfResponseSendPModeIsNotFound()
+        {
+            // Arrange
+            var message = AS4Message.Create(new UserMessage());
+            message.FirstUserMessage.CollaborationInfo.AgreementReference.PModeId =
+                "receiveagent-non-exist-response-pmode";
+
+            // Act
+            HttpResponseMessage response = await StubSender.SendAS4Message(_receiveAgentUrl, message);
+
+            // Assert
+            AS4Message errorMessage = await response.DeserializeToAS4Message();
+            var e = errorMessage.PrimaryMessageUnit as Error;
+            Assert.True(e != null, "Primary Message Unit should be an 'Error'");
+            Assert.Equal(
+                ErrorAlias.ProcessingModeMismatch,
+                e.Errors.First().ShortDescription.ToEnum<ErrorAlias>());
+        }
+
+        [Fact]
         public async Task ThenAgentReturnsError_IfMessageHasNonExsistingAttachment()
         {
             // Arrange

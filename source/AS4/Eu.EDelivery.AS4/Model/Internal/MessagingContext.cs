@@ -18,6 +18,8 @@ namespace Eu.EDelivery.AS4.Model.Internal
     /// </summary>
     public class MessagingContext : IDisposable
     {
+        private static ILogger Logger = LogManager.GetCurrentClassLogger();
+
         /// <summary>
         /// Initializes a new instance of the <see cref="MessagingContext"/> class.
         /// </summary>
@@ -236,26 +238,39 @@ namespace Eu.EDelivery.AS4.Model.Internal
         {
             if (string.IsNullOrWhiteSpace(receivePMode.ReplyHandling?.SendingPMode))
             {
-                throw new InvalidOperationException(
-                    $"No referenced SendingPMode defined in ReplyHandling of ReceivedPMode {receivePMode.Id}. " +
+                Logger.Error(
+                    $"No referenced SendingPMode defined in ReplyHandling of ReceivedPMode {receivePMode.Id}. " + 
                     "This means that this PMode cannot be used to send/forward a message");
+
+                return null;
             }
 
             string pmodeId = receivePMode.ReplyHandling.SendingPMode;
-            SendingProcessingMode sendPMode = config.GetSendingPMode(pmodeId);
 
-            if (sendPMode == null)
+            try
             {
-                throw new InvalidOperationException(
-                    $"ReplyHandling .SendingPMode \"{pmodeId}\"  found in ReceivingPMode \"{receivePMode.Id}\" " +
-                    "does not reference an exsisting SendingPMode. Please define an existing SendingPMode id or define one at: '.\\config\\send-pmodes\\'");
+                SendingProcessingMode sendPMode = config.GetSendingPMode(pmodeId);
+
+                if (sendPMode == null)
+                {
+                    Logger.Error(
+                        $"ReplyHandling .SendingPMode \"{pmodeId}\"  found in ReceivingPMode \"{receivePMode.Id}\" " +
+                        "does not reference an exsisting SendingPMode. Please define an existing SendingPMode id or define one at: '.\\config\\send-pmodes\\'");
+
+                    return null;
+                }
+
+                Logger.Debug(
+                    $"Referenced Sending PMode found with Id: {pmodeId}. " +
+                    "This PMode will be used to further send/forward the message");
+
+                return sendPMode;
             }
-
-            LogManager.GetCurrentClassLogger().Debug(
-                $"Referenced Sending PMode found with Id: {pmodeId}. " +
-                "This PMode will be used to further send/forward the message");
-
-            return sendPMode;
+            catch (Exception ex)
+            {
+                Logger.Error(ex);
+                return null;
+            }
         }
 
         public bool ReceivedMessageMustBeForwarded => ReceivingPMode?.MessageHandling?.MessageHandlingType == MessageHandlingChoiceType.Forward;

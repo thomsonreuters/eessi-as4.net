@@ -63,7 +63,18 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             SendingProcessingMode responseSendPMode =
                 messagingContext.GetReferencedSendingPMode(messagingContext.ReceivingPMode, _config);
 
-            AS4Message errorMessage = CreateAS4Error(
+            if (responseSendPMode == null)
+            {
+                const string desc = "Cannot determine a Sending Processing Mode during the creation of the response";
+                var result = new ErrorResult(desc, ErrorAlias.ProcessingModeMismatch);
+
+                messagingContext.ModifyContext(
+                    CreateAS4ErrorWithoutMultihop(messagingContext.AS4Message, result));
+
+                return StepResult.Failed(messagingContext);
+            }
+
+            AS4Message errorMessage = CreateAS4ErrorWithPossibleMultihop(
                 sendPMode: responseSendPMode,
                 referenced: messagingContext.AS4Message,
                 result: messagingContext.ErrorResult);
@@ -84,7 +95,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             return await StepResult.SuccessAsync(messagingContext);
         }
 
-        private static AS4Message CreateAS4Error(
+        private static AS4Message CreateAS4ErrorWithPossibleMultihop(
             SendingProcessingMode sendPMode, 
             AS4Message referenced,
             ErrorResult result)
@@ -92,14 +103,9 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             AS4Message errorMessage = AS4Message.Create(sendPMode);
             errorMessage.SigningId = referenced.SigningId;
 
-            foreach (UserMessage userMessage in referenced.UserMessages)
+            foreach (Error error in CreateErrorMessageUnits(result, referenced.UserMessages))
             {
-                Error error = new ErrorBuilder()
-                    .WithRefToEbmsMessageId(userMessage.MessageId)
-                    .WithErrorResult(result)
-                    .Build();
-
-                if (sendPMode?.MessagePackaging?.IsMultiHop == true)
+                if (errorMessage.IsMultiHopMessage)
                 {
                     error.MultiHopRouting =
                         AS4Mapper.Map<RoutingInputUserMessage>(referenced?.FirstUserMessage);
@@ -109,6 +115,30 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             }
 
             return errorMessage;
+        }
+
+        private static AS4Message CreateAS4ErrorWithoutMultihop(
+            AS4Message referenced,
+            ErrorResult result)
+        {
+            var errorMessage = AS4Message.Empty;
+            errorMessage.SigningId = referenced.SigningId;
+
+            foreach (Error error in CreateErrorMessageUnits(result, referenced.UserMessages))
+            {
+                errorMessage.AddMessageUnit(error);
+            }
+
+            return errorMessage;
+        }
+
+        private static IEnumerable<Error> CreateErrorMessageUnits(ErrorResult result, IEnumerable<UserMessage> userMessages)
+        {
+            return userMessages.Select(
+                m => new ErrorBuilder()
+                     .WithRefToEbmsMessageId(m.MessageId)
+                     .WithErrorResult(result)
+                     .Build());
         }
 
         private async Task CreateExceptionForReceivedSignalMessagesAsync(MessagingContext context)

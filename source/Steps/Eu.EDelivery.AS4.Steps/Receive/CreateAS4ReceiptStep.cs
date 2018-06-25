@@ -1,9 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Common;
+using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
@@ -47,10 +49,19 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// <param name="messagingContext"></param>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
-            AS4Message receivedAS4Message = messagingContext.AS4Message;
             SendingProcessingMode responseSendPMode =
                 messagingContext.GetReferencedSendingPMode(messagingContext.ReceivingPMode, _config);
 
+            if (responseSendPMode == null)
+            {
+                const string desc = "Cannot determine a Sending Processing Mode during the creation of the response";
+                messagingContext.ErrorResult = new ErrorResult(desc, ErrorAlias.ProcessingModeMismatch);
+
+                return StepResult.Failed(messagingContext);
+            }
+
+            AS4Message receivedAS4Message = messagingContext.AS4Message;
+            
             // Should we create a Receipt for each and every UserMessage that can be present in the bundle ?
             // If no UserMessages are present, an Empty AS4Message should be returned.
             AS4Message receiptMessage = AS4Message.Create(responseSendPMode);
