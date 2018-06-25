@@ -74,7 +74,10 @@ namespace Eu.EDelivery.AS4.Steps.Send
                     "expects a PullRequest AS4 Message when the MessagingContext does not contain a ReceivedStream");
             }
 
-            SendingProcessingMode sendPMode = _config.GetReferencedSendingPMode(messagingContext.ReceivingPMode);
+            SendingProcessingMode sendPMode = 
+                messagingContext.SendingPMode
+                ?? _config.GetReferencedSendingPMode(messagingContext.ReceivingPMode);
+
             PushConfiguration sendConfiguration = sendPMode.PushConfiguration;
 
             if (sendConfiguration == null)

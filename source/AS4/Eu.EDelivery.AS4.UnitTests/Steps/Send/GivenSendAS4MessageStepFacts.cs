@@ -26,7 +26,32 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
     public class GivenSendAS4MessageStepFacts : GivenDatastoreFacts
     {
         [Fact]
-        public async Task StepUpdatesRequestOperationAndStatus_IfRequestIsBeingSent()
+        public async Task After_Send_Updates_Request_Operation_And_Status_To_Sent_For_Exsiting_SendPMode()
+        {
+            // Arrange
+            string ebmsMessageId = $"user-{Guid.NewGuid()}";
+            MessagingContext ctx = SetupMessagingContextWithToBeSentMessage(ebmsMessageId);
+            ctx.SendingPMode = CreateSendPModeWithPushUrl();
+
+            // Act 
+            IStep sut = CreateSendStepWithResponse(
+                StubHttpClient.ThatReturns(AS4Message.Create(new Receipt())),
+                referencedSendPMode: null);
+
+            await sut.ExecuteAsync(ctx);
+
+            // Assert
+            GetDataStoreContext.AssertOutMessage(
+                ebmsMessageId,
+                message =>
+                {
+                    Assert.Equal(OutStatus.Sent, message.Status.ToEnum<OutStatus>());
+                    Assert.Equal(Operation.Sent, message.Operation.ToEnum<Operation>());
+                });
+        }
+
+        [Fact]
+        public async Task After_Send_Updates_Request_Operation_And_Status_To_Sent_For_Response_SendPMode()
         {
             // Arrange
             string ebmsMessageId = $"user-{Guid.NewGuid()}";
@@ -34,7 +59,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
 
             // Act 
             IStep sut = CreateSendStepWithResponse(
-                StubHttpClient.ThatReturns(AS4Message.Create(new Receipt())));
+                StubHttpClient.ThatReturns(AS4Message.Create(new Receipt())),
+                referencedSendPMode: CreateSendPModeWithPushUrl());
 
             await sut.ExecuteAsync(ctx);
 
@@ -67,11 +93,32 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
         }
 
         [Fact]
-        public async Task StepReturnsStopExecutionResult_IfResponseIsPullRequestError()
+        public async Task Send_Results_In_Stop_Execution_If_Response_Is_PullRequest_Warning_For_Exsisting_SendPMode()
         {
             // Arrange
             AS4Message as4Message = AS4Message.Create(new PullRequestError());
-            IStep sut = CreateSendStepWithResponse(StubHttpClient.ThatReturns(as4Message));
+            IStep sut = CreateSendStepWithResponse(
+                StubHttpClient.ThatReturns(as4Message),
+                referencedSendPMode: null);
+
+            MessagingContext ctx = CreateMessagingContextWithDefaultPullRequest();
+            ctx.SendingPMode = CreateSendPModeWithPushUrl();
+
+            // Act
+            StepResult actualResult = await sut.ExecuteAsync(ctx);
+
+            // Assert
+            Assert.False(actualResult.CanProceed);
+        }
+
+        [Fact]
+        public async Task Send_Results_In_Stop_Execution_If_Response_Is_PullRequest_Warning_For_Response_SendPMode()
+        {
+            // Arrange
+            AS4Message as4Message = AS4Message.Create(new PullRequestError());
+            IStep sut = CreateSendStepWithResponse(
+                StubHttpClient.ThatReturns(as4Message),
+                referencedSendPMode: CreateSendPModeWithPushUrl());
 
             MessagingContext ctx = CreateMessagingContextWithDefaultPullRequest();
 
@@ -83,11 +130,31 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
         }
 
         [Fact]
-        public async Task SendReturnsEmptyResponseForEmptyRequest()
+        public async Task Send_Returns_Empty_Response_For_Empty_Request_For_Existing_SendPMode()
         {
             // Arrange
             IStep sut = CreateSendStepWithResponse(
-                StubHttpClient.ThatReturns(HttpStatusCode.Accepted));
+                StubHttpClient.ThatReturns(HttpStatusCode.Accepted),
+                referencedSendPMode: null);
+
+            MessagingContext ctx = CreateMessagingContextWithDefaultPullRequest();
+            ctx.SendingPMode = CreateSendPModeWithPushUrl();
+
+            // Act
+            StepResult actualResult = await sut.ExecuteAsync(ctx);
+
+            // Assert
+            Assert.True(actualResult.MessagingContext.AS4Message.IsEmpty);
+            Assert.False(actualResult.CanProceed);
+        }
+
+        [Fact]
+        public async Task Send_Returns_Empty_Response_For_Empty_Request_For_Response_SendPMode()
+        {
+            // Arrange
+            IStep sut = CreateSendStepWithResponse(
+                StubHttpClient.ThatReturns(HttpStatusCode.Accepted),
+                referencedSendPMode: CreateSendPModeWithPushUrl());
 
             MessagingContext ctx = CreateMessagingContextWithDefaultPullRequest();
 
@@ -111,10 +178,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
                 MessagingContextMode.Receive);
         }
 
-        private IStep CreateSendStepWithResponse(IHttpClient client)
+        private IStep CreateSendStepWithResponse(IHttpClient client, SendingProcessingMode referencedSendPMode)
         {
             return new SendAS4MessageStep(
-                CreateStubConfig(referencedSendPMode: CreateSendPModeWithPushUrl()), 
+                CreateStubConfig(referencedSendPMode), 
                 GetDataStoreContext, 
                 client);
         }
