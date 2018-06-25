@@ -304,7 +304,9 @@ namespace Eu.EDelivery.AS4.Common
             modelBuilder.Entity<RetryReliability>().Property(rr => rr.RefToInExceptionId).UsePropertyAccessMode(PropertyAccessMode.Field);
             modelBuilder.Entity<RetryReliability>().Property(rr => rr.RefToOutExceptionId).UsePropertyAccessMode(PropertyAccessMode.Field);
             modelBuilder.Entity<RetryReliability>().Property(rr => rr.MaxRetryCount).UsePropertyAccessMode(PropertyAccessMode.Field);
-            modelBuilder.Entity<RetryReliability>().Property(rr => rr.RetryInterval).UsePropertyAccessMode(PropertyAccessMode.Field);
+            modelBuilder.Entity<RetryReliability>().Property(rr => rr.RetryInterval)
+                        .HasConversion<string>()
+                        .UsePropertyAccessMode(PropertyAccessMode.Field);
             modelBuilder.Entity<RetryReliability>().Property(rr => rr.RetryType).UsePropertyAccessMode(PropertyAccessMode.Field);
             modelBuilder.Entity<RetryReliability>().Property(rr => rr.Status).UsePropertyAccessMode(PropertyAccessMode.Field);
 

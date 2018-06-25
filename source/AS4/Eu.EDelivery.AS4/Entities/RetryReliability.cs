@@ -15,7 +15,7 @@ namespace Eu.EDelivery.AS4.Entities
         public RetryReliability()
         {
             CurrentRetryCount = 0;
-            RetryInterval = "0:00:00:00";
+            RetryInterval = TimeSpan.Zero;
             Status = RetryStatus.Idle.ToString();
             LastRetryTime = null;
         }
@@ -32,7 +32,7 @@ namespace Eu.EDelivery.AS4.Entities
             RetryType type) : this()
         {
             MaxRetryCount = maxRetryCount;
-            RetryInterval = retryInterval.ToString("G");
+            RetryInterval = retryInterval;
             RetryType = type.ToString();
         }
 
@@ -52,7 +52,7 @@ namespace Eu.EDelivery.AS4.Entities
         public int MaxRetryCount { get; private set; }
 
         [MaxLength(50)]
-        public string RetryInterval { get; private set; }
+        public TimeSpan RetryInterval { get; private set; }
 
         [MaxLength(25)]
         public string Status { get; private set; }

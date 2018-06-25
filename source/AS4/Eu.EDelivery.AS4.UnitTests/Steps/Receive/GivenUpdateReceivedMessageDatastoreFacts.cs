@@ -145,8 +145,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
         [Theory]
         [InlineData(true, 5, "0:00:01:00")]
         [InlineData(false, 0, "0:00:00:00")]
-        public async Task Updates_Error_InMessage_With_Retry_Info_When_Specified(bool enabled, int count, string interval)
+        public async Task Updates_Error_InMessage_With_Retry_Info_When_Specified(bool enabled, int count, string intervalString)
         {
+            TimeSpan interval = intervalString.AsTimeSpan();
+
             // Arrange
             string ebmsMessageId = "error-" + Guid.NewGuid();
             OutMessage om = GetDataStoreContext.InsertOutMessage(
@@ -181,7 +183,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                     Assert.True(enabled == (0 == rr?.CurrentRetryCount), "CurrentRetryCount != 0 when enabled");
                     Assert.True(enabled == (count == rr?.MaxRetryCount), $"MaxRetryCount {count} != {rr?.MaxRetryCount} when enabled");
                     Assert.True(
-                        enabled == (interval == rr?.RetryInterval?.Substring(0, interval.Length)), 
+                        enabled == (interval == rr?.RetryInterval), 
                         $"RetryInterval {interval} != {rr?.RetryInterval} when enabled");
                 });
         }
@@ -189,8 +191,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
         [Theory]
         [InlineData(true, 3, "0:00:00:10")]
         [InlineData(false, 0, "0:00:00")]
-        public async Task Updates_Receipt_InMessage_With_Info_When_Specified(bool enabled, int count, string interval)
+        public async Task Updates_Receipt_InMessage_With_Info_When_Specified(bool enabled, int count, string intervalString)
         {
+            TimeSpan interval = intervalString.AsTimeSpan();
+
             // Arrange
             string ebmsMessageId = Guid.NewGuid().ToString();
             GetDataStoreContext.InsertOutMessage(
@@ -220,7 +224,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                     Assert.True(enabled == (0 == rr?.CurrentRetryCount), "CurrentRetryCount != 0 when enabled");
                     Assert.True(enabled == (count == rr?.MaxRetryCount), $"MaxRetryCount {count} != {rr?.MaxRetryCount} when enabled");
                     Assert.True(
-                        enabled == (interval == rr?.RetryInterval?.Substring(0, interval.Length)),
+                        enabled == (interval == rr?.RetryInterval),
                         $"RetryInterval {interval} != {rr?.RetryInterval} when enabled");
                 });
 
@@ -235,8 +239,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             bool enabled, 
             bool isTest,
             int count, 
-            string interval)
+            string intervalString)
         {
+            TimeSpan interval = intervalString.AsTimeSpan();
+
             // Arrange
             string ebmsMessageId = "user-" + Guid.NewGuid();
             AS4Message as4Message = AS4Message.Create(new FilledUserMessage(ebmsMessageId));
@@ -281,7 +287,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                         $"MaxRetryCount {count} != {rr?.MaxRetryCount} when enabled and not test message");
 
                     Assert.True(
-                        needsToBeDelivered == (interval == rr?.RetryInterval?.Substring(0, interval.Length)),
+                        needsToBeDelivered == (interval == rr?.RetryInterval),
                         $"RetryInterval {interval} != {rr?.RetryInterval} when enabled");
 
                 });

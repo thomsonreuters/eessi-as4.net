@@ -36,13 +36,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Exceptions.Handlers
             ClearInExceptions();
             var sut = new InboundExceptionHandler(GetDataStoreContext);
             var pmode = new ReceivingProcessingMode();
-            string intervalStr = interval.ToString("G");
+
             pmode.ExceptionHandling.Reliability =
                 new RetryReliability
                 {
                     IsEnabled = enabled,
                     RetryCount = count.Get,
-                    RetryInterval = intervalStr
+                    RetryInterval = interval.ToString("G")
                 };
 
             // Act
@@ -69,7 +69,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Exceptions.Handlers
                                 ? $"Max retry count failed on enabled: {count.Get} != {rr?.MaxRetryCount}"
                                 : $"Max retry count should be 0 on disabled but is {rr?.MaxRetryCount}");
                         Assert.True(
-                            enabled == (intervalStr == rr?.RetryInterval),
+                            enabled == (interval == rr?.RetryInterval),
                             enabled
                                 ? $"Retry interval failed on enabled: {interval:G} != {rr?.RetryInterval}"
                                 : $"Retry interval should be 0:00:00 on disabled but is {rr?.RetryInterval}");
