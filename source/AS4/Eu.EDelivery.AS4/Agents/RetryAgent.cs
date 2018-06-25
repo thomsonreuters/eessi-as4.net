@@ -120,7 +120,7 @@ namespace Eu.EDelivery.AS4.Agents
                 Logger.Debug($"({rr.RetryType}) Update retry {{Status=Completed}}");
 
                 UpdateRefEntityOperation(repo, refToEntityId, entityType, Operation.DeadLettered);
-                repo.UpdateRetryReliability(rr.Id, r => r.SetStatus(ReceptionStatus.Completed));
+                repo.UpdateRetryReliability(rr.Id, r => r.SetStatus(RetryStatus.Completed));
             }
         }
 
