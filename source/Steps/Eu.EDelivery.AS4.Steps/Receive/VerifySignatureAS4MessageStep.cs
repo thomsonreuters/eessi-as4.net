@@ -66,6 +66,15 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             SigningVerification verification = DetermineSigningVerification(messagingContext);
             AS4Message as4Message = messagingContext.AS4Message;
 
+            if (verification == null)
+            {
+                Logger.Debug(
+                    "No signature verification will take place for message " + 
+                    "that uses PModes without a Security.SigningVerification element");
+
+                return StepResult.Success(messagingContext);
+            }
+
             (bool unsignedButRequired, string desRequired) = SigningRequiredRule(verification, as4Message);
             if (unsignedButRequired)
             {
@@ -80,10 +89,10 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                     desUnallowed, ErrorAlias.PolicyNonCompliance, messagingContext);
             }
 
-            if (!as4Message.IsSigned || verification.Signature == Limit.Ignored)
+            if (!as4Message.IsSigned || verification?.Signature == Limit.Ignored)
             {
                 Logger.Debug(
-                    "No verification will take place for unsiged messages " + 
+                    "No signature verification will take place for unsiged messages " + 
                     "or PModes that has a SigningVerification=Ignored");
 
                 return StepResult.Success(messagingContext);
@@ -114,12 +123,12 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             if (ctx.AS4Message.IsSignalMessage
                 && !ctx.AS4Message.IsMultiHopMessage)
             {
-                Logger.Debug($"Use SendingPMode {ctx.SendingPMode.Id} for signature verification");
-                return ctx.SendingPMode.Security.SigningVerification;
+                Logger.Debug($"Use SendingPMode {ctx.SendingPMode?.Id} for signature verification");
+                return ctx.SendingPMode?.Security?.SigningVerification;
             }
 
-            Logger.Debug($"Use ReceivingPMode {ctx.ReceivingPMode.Id} for signature verification");
-            return ctx.ReceivingPMode.Security.SigningVerification;
+            Logger.Debug($"Use ReceivingPMode {ctx.ReceivingPMode?.Id} for signature verification");
+            return ctx.ReceivingPMode?.Security?.SigningVerification;
         }
 
         private static (bool, string) SigningRequiredRule(SigningVerification v, AS4Message m)
