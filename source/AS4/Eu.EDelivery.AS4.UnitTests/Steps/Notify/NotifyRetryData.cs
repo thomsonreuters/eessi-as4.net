@@ -61,7 +61,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
 
                 },
                 assertion: factory => factory.AssertInMessage,
-                operationOperationGetter: (factory, entity) =>
+                operationGetter: (factory, entity) =>
                 {
                     RetryReliability rr = factory.GetRetryReliability(r => r.RefToInMessageId == entity.Id);
                     return (rr.CurrentRetryCount, entity.Operation);
@@ -84,7 +84,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
                     return m;
                 },
                 assertion: factory => factory.AssertOutMessage,
-                operationOperationGetter: (factory, entity) =>
+                operationGetter: (factory, entity) =>
                 {
                     RetryReliability rr = factory.GetRetryReliability(r => r.RefToOutMessageId == entity.Id);
                     return (rr.CurrentRetryCount, entity.Operation);
@@ -106,7 +106,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
                     return ex;
                 },
                 assertion: factory => factory.AssertInException,
-                operationOperationGetter: (factory, entity) =>
+                operationGetter: (factory, entity) =>
                 {
                     RetryReliability rr = factory.GetRetryReliability(r => r.RefToInExceptionId == entity.Id);
                     return (rr.CurrentRetryCount, entity.Operation);
@@ -128,7 +128,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
                     return ex;
                 },
                 assertion: factory => factory.AssertOutException,
-                operationOperationGetter: (factory, entity) =>
+                operationGetter: (factory, entity) =>
                 {
                     RetryReliability rr = factory.GetRetryReliability(r => r.RefToOutExceptionId == entity.Id);
                     return (rr.CurrentRetryCount, entity.Operation);
@@ -196,11 +196,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
         public NotifyType(
             Func<Func<DatastoreContext>, Func<string, int, int, T>> insertion,
             Func<Func<DatastoreContext>, Action<string, Action<T>>> assertion,
-            Func<Func<DatastoreContext>, T, (int, Operation)> operationOperationGetter)
+            Func<Func<DatastoreContext>, T, (int, Operation)> operationGetter)
         {
             Insertion = insertion;
             Assertion = assertion;
-            OperationGetter = operationOperationGetter;
+            OperationGetter = operationGetter;
         }
 
         public Func<Func<DatastoreContext>, Func<string, int, int, T>> Insertion { get; }
