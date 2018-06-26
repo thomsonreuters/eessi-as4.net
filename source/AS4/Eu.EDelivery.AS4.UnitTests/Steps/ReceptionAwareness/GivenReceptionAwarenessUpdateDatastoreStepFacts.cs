@@ -185,7 +185,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.ReceptionAwareness
                 TotalRetryCount = 5
             };
 
-            receptionAwareness.SetStatus(ReceptionStatus.Pending);
+            receptionAwareness.Status = ReceptionStatus.Pending;
 
             return receptionAwareness;
         }

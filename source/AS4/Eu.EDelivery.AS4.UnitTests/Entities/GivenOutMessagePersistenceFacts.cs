@@ -15,10 +15,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
         {
             long savedInMessageId;
 
-            using (var db = this.GetDataStoreContext())
+            using (var db = GetDataStoreContext())
             {
-                var outMessage = new OutMessage(Guid.NewGuid().ToString());
-                outMessage.SetOperation(Operation.Sent);
+                var outMessage = new OutMessage(Guid.NewGuid().ToString()) { Operation = Operation.Sent };
 
                 db.OutMessages.Add(outMessage);
 
@@ -29,7 +28,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
                 Assert.NotEqual(default(long), savedInMessageId);
             }
 
-            using (var db = this.GetDataStoreContext())
+            using (var db = GetDataStoreContext())
             {
                 var message = db.OutMessages.FirstOrDefault(i => i.Id == savedInMessageId);
 
@@ -73,8 +72,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
 
             using (var db = this.GetDataStoreContext())
             {
-                var message = new OutMessage("message-id");
-                message.SetEbmsMessageType(MessageType.Receipt);
+                var message = new OutMessage("message-id") { EbmsMessageType = MessageType.Receipt };
 
                 db.OutMessages.Add(message);
 

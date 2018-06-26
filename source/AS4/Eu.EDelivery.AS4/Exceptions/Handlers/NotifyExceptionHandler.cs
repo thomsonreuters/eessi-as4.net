@@ -126,7 +126,7 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
                     Logger.Debug("Abort retry operation due to fatal notification exception, set Status=Completed");
                     repository.UpdateRetryReliability(
                         context.MessageEntityId.Value,
-                        r => r.SetStatus(RetryStatus.Completed));
+                        r => r.Status = RetryStatus.Completed);
                 }
 
                 await dbContext.SaveChangesAsync();

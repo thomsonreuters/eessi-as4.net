@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Threading;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.PMode;
@@ -90,9 +89,9 @@ namespace Eu.EDelivery.AS4.Builders.Entities
                 ModificationTime = DateTimeOffset.Now
             };
 
-            inMessage.SetEbmsMessageType(DetermineMessageType(_messageUnit));
-            inMessage.SetMessageExchangePattern(_mep);
-            inMessage.SetOperation(Operation.NotApplicable);
+            inMessage.EbmsMessageType = DetermineMessageType(_messageUnit);
+            inMessage.MEP = _mep;
+            inMessage.Operation = Operation.NotApplicable;
             inMessage.SetPModeInformation(_pmode);
             inMessage.SetStatus(InStatus.Received);
 

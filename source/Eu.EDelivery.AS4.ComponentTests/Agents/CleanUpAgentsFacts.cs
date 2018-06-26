@@ -41,7 +41,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                     IConfig config = EnsureLocalConfigPointsToCreatedDatastore();
                     var spy = new DatabaseSpy(config);
                     spy.InsertOutMessage(m);
-                    
+
                     // Act
                     ExerciseStartCleaning();
 
@@ -65,7 +65,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
                     string id = GenId();
                     InMessage m = CreateInMessage(id, insertionTime: DayBeforeYesterday);
-                    m.SetOperation(operation);
+                    m.Operation = operation;
 
                     IConfig config = EnsureLocalConfigPointsToCreatedDatastore();
                     var spy = new DatabaseSpy(config);
@@ -128,7 +128,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         private static Arbitrary<string> SupportedProviderSettings()
         {
             return Gen.Elements(
-                          "no_agents_settings-sqlite.xml", 
+                          "no_agents_settings-sqlite.xml",
                           "no_agents_settings-sqlserver.xml")
                       .ToArbitrary();
         }
@@ -146,7 +146,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             string outReferenceId = GenId(), outStandaloneId = GenId(),
                    inMessageId = GenId(), outExceptionId = GenId(),
                    inExceptionId = GenId();
-            
+
             var spy = new DatabaseSpy(config);
             spy.InsertOutMessage(CreateOutMessage(outReferenceId, insertionTime: DayBeforeYesterday, type: MessageType.Error));
             InsertReferencedReceptionAwareness(config, outReferenceId);
@@ -219,20 +219,20 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         }
 
         private static OutMessage CreateOutMessage(
-            string ebmsMessageId, 
+            string ebmsMessageId,
             DateTimeOffset insertionTime,
             MessageType type)
         {
             var m = new OutMessage(ebmsMessageId: ebmsMessageId)
             {
-                MessageLocation = 
+                MessageLocation =
                     Registry.Instance.MessageBodyStore.SaveAS4Message(
                         @"file:///.\database\as4messages\out",
                         AS4Message.Empty),
                 InsertionTime = insertionTime
             };
 
-            m.SetEbmsMessageType(type);
+            m.EbmsMessageType = type;
             return m;
         }
 
@@ -264,7 +264,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         }
 
         private static void InsertReferencedReceptionAwareness(
-            IConfig config, 
+            IConfig config,
             string ebmsMessageId,
             ReceptionStatus status = ReceptionStatus.Completed)
         {
@@ -273,14 +273,14 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                 long outMessageId = ctx.OutMessages.First(m => m.EbmsMessageId.Equals(ebmsMessageId)).Id;
 
                 var ra = new ReceptionAwareness(outMessageId, ebmsMessageId);
-                ra.SetStatus(status);
+                ra.Status = status;
 
                 ctx.ReceptionAwareness.Add(ra);
                 ctx.SaveChanges();
             }
         }
-         
-        private void ExerciseStartCleaning()
+
+        private static void ExerciseStartCleaning()
         {
             var msh = AS4Component.Start(Environment.CurrentDirectory, cleanSlate: false);
 

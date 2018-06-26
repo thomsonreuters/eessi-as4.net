@@ -23,7 +23,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
     /// <seealso cref="IStep" />
     [Info("Select message to send")]
     [Description(
-        "Selects a message that is eligible for sending via pulling. " + 
+        "Selects a message that is eligible for sending via pulling. " +
         "This step selects a message that matches the MPC of the received pull-request signalmessage.")]
     public class SelectUserMessageToSendStep : IStep
     {
@@ -44,7 +44,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// <param name="createContext">The create context.</param>
         /// <param name="messageBodyStore">The message body store.</param>
         public SelectUserMessageToSendStep(
-            Func<DatastoreContext> createContext, 
+            Func<DatastoreContext> createContext,
             IAS4MessageBodyStore messageBodyStore)
         {
             _createContext = createContext;
@@ -103,7 +103,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             {
                 using (DatastoreContext context = _createContext())
                 {
-                    OutMessage message = 
+                    OutMessage message =
                         context.OutMessages.Where(PullRequestQuery(pullRequestMessage))
                                            .OrderBy(m => m.InsertionTime).Take(1).FirstOrDefault();
                     if (message == null)
@@ -111,7 +111,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
                         return (false, null);
                     }
 
-                    message.SetOperation(Operation.Sent);
+                    message.Operation = Operation.Sent;
 
                     context.SaveChanges();
                     scope.Complete();

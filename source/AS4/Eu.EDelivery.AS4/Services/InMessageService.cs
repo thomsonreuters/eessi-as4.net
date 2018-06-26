@@ -248,7 +248,7 @@ namespace Eu.EDelivery.AS4.Services
                 _repository.UpdateInMessage(messageContext.AS4Message.GetPrimaryMessageId(),
                                             m =>
                                             {
-                                                m.SetOperation(Operation.ToBeForwarded);
+                                                m.Operation = Operation.ToBeForwarded;
                                             });
             }
             else
@@ -284,7 +284,7 @@ namespace Eu.EDelivery.AS4.Services
                         if (UserMessageNeedsToBeDelivered(ctx.ReceivingPMode, userMessage)
                             && message.Intermediary == false)
                         {
-                            message.SetOperation(Operation.ToBeDelivered);
+                            message.Operation = Operation.ToBeDelivered;
 
                             RetryReliability reliability =
                                 ctx.ReceivingPMode.MessageHandling?.DeliverInformation?.Reliability;
@@ -322,8 +322,8 @@ namespace Eu.EDelivery.AS4.Services
         }
 
         private void UpdateSignalMessages(
-            IEnumerable<SignalMessage> signalMessages, 
-            Func<bool> signalsMustBeNotified, 
+            IEnumerable<SignalMessage> signalMessages,
+            Func<bool> signalsMustBeNotified,
             OutStatus outStatus,
             RetryReliability reliability)
         {
@@ -335,7 +335,7 @@ namespace Eu.EDelivery.AS4.Services
                 {
                     _repository.UpdateInMessages(
                         m => signalsToNotify.Contains(m.EbmsMessageId) && m.Intermediary == false,
-                        m => m.SetOperation(Operation.ToBeNotified));
+                        m => m.Operation = Operation.ToBeNotified);
 
                     bool isRetryEnabled = reliability?.IsEnabled ?? false;
                     if (isRetryEnabled)

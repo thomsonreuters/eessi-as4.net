@@ -151,7 +151,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
                 // Arrange
                 const Operation expectedOperation = Operation.Notified;
                 var sut = new StubMessageEntity();
-                sut.SetOperation(expectedOperation);
+                sut.Operation = expectedOperation;
 
                 // Act
                 sut.Lock(Operation.NotApplicable.ToString());

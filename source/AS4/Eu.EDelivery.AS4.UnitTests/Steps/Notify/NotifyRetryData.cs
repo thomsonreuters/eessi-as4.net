@@ -93,7 +93,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
                 insertion: factory => (refToMessageId, current, max) =>
                 {
                     var ex = new InException(refToMessageId, "some error message");
-                    ex.SetOperation(Operation.ToBeNotified);
+                    ex.Operation = Operation.ToBeNotified;
                     factory.InsertInException(ex);
 
                     var r = RetryReliability.CreateForInException(
@@ -115,7 +115,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
                 insertion: factory => (refToMessageId, current, max) =>
                 {
                     var ex = new OutException(refToMessageId, "some error message");
-                    ex.SetOperation(Operation.ToBeNotified);
+                    ex.Operation = Operation.ToBeNotified;
                     factory.InsertOutException(ex);
 
                     var r = RetryReliability.CreateForOutException(

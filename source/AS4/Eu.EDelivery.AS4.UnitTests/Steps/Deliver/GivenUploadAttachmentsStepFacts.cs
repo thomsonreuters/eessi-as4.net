@@ -115,7 +115,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
 
             // Act
             await CreateUploadStep(stub.Object)
-                .ExecuteAsync(new MessagingContext(as4Msg , MessagingContextMode.Deliver)
+                .ExecuteAsync(new MessagingContext(as4Msg, MessagingContextMode.Deliver)
                 {
                     ReceivingPMode = CreateReceivingPModeWithPayloadMethod()
                 });
@@ -131,7 +131,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
 
                 bool operationToBeRetried = Operation.ToBeRetried == op;
                 bool uploadResultCanBeRetried =
-                    input.UploadResult.Status == SendResult.RetryableFail 
+                    input.UploadResult.Status == SendResult.RetryableFail
                     && input.CurrentRetryCount < input.MaxRetryCount;
 
                 Assert.True(
@@ -153,7 +153,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
         {
             var inMsg = new InMessage(id);
             inMsg.SetStatus(InStatus.Received);
-            inMsg.SetOperation(Operation.Delivering);
+            inMsg.Operation = Operation.Delivering;
 
             return GetDataStoreContext.InsertInMessage(inMsg);
         }
@@ -175,7 +175,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
             var stubUploader = new StubAttachmentUploader(expectedLocation);
 
             // Act
-            StepResult result = 
+            StepResult result =
                 await CreateUploadStep(stubUploader)
                     .ExecuteAsync(CreateAS4MessageWithAttachment());
 
@@ -185,7 +185,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
                 a => Assert.Equal(expectedLocation, a.Location));
         }
 
-        private MessagingContext CreateAS4MessageWithAttachment()
+        private static MessagingContext CreateAS4MessageWithAttachment()
         {
             const string attachmentId = "attachment-id";
 

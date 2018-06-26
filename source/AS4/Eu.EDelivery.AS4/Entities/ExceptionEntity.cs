@@ -69,7 +69,7 @@ namespace Eu.EDelivery.AS4.Entities
         /// </summary>
         protected internal ExceptionEntity()
         {
-            SetOperation(default(Operation));
+            Operation = default(Operation);
 
             InsertionTime = DateTimeOffset.Now;
             ModificationTime = DateTimeOffset.Now;
@@ -114,9 +114,9 @@ namespace Eu.EDelivery.AS4.Entities
         {
             var updatedOperation = value.ToEnum<Operation>();
 
-            if (updatedOperation != AS4.Entities.Operation.NotApplicable)
+            if (updatedOperation != Operation.NotApplicable)
             {
-                SetOperation(updatedOperation);
+                Operation = updatedOperation;
             }
         }
     }

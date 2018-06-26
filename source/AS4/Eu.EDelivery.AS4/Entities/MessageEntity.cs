@@ -203,9 +203,9 @@ namespace Eu.EDelivery.AS4.Entities
         {
             var updatedOperation = value.ToEnum<Operation>();
 
-            if (updatedOperation != AS4.Entities.Operation.NotApplicable)
+            if (updatedOperation != Operation.NotApplicable)
             {
-                SetOperation(updatedOperation);
+                Operation = updatedOperation;
             }
         }
 

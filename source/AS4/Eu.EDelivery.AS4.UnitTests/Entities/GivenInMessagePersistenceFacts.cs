@@ -18,7 +18,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
             using (var db = this.GetDataStoreContext())
             {
                 var inMessage = new InMessage(Guid.NewGuid().ToString());
-                inMessage.SetOperation(Operation.Sent);
+                inMessage.Operation = Operation.Sent;
 
                 db.InMessages.Add(inMessage);
 
@@ -102,7 +102,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
             using (var db = this.GetDataStoreContext())
             {
                 var inMessage = new InMessage(Guid.NewGuid().ToString());
-                inMessage.SetEbmsMessageType(MessageType.Receipt);
+                inMessage.EbmsMessageType = MessageType.Receipt;
 
                 db.InMessages.Add(inMessage);
 

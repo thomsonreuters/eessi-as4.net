@@ -63,7 +63,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
 
         private static ReceivedEntityMessage CreateReceivedExceptionMessage(ExceptionEntity exceptionEntity, Operation exceptionOperation)
         {            
-            exceptionEntity.SetOperation(exceptionOperation);
+            exceptionEntity.Operation = exceptionOperation;
 
             return new ReceivedEntityMessage(exceptionEntity);
         }

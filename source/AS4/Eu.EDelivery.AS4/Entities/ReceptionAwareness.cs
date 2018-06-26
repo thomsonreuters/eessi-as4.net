@@ -72,7 +72,7 @@ namespace Eu.EDelivery.AS4.Entities
         {
             var updatedStatus = value.ToEnum<ReceptionStatus>();
 
-            SetStatus(updatedStatus);
+            Status = updatedStatus;
         }
     }
 
