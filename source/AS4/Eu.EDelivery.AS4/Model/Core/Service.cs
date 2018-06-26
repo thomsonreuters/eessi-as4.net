@@ -15,7 +15,7 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// <param name="value"></param>
         public Service(string value)
         {
-            if (String.IsNullOrEmpty(value))
+            if (value == null)
             {
                 throw new ArgumentNullException(nameof(value));
             }
@@ -31,7 +31,7 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// <param name="type"></param>
         public Service(string value, string type)
         {
-            if (String.IsNullOrEmpty(value))
+            if (value == null)
             {
                 throw new ArgumentNullException(nameof(value));
             }
