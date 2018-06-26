@@ -47,7 +47,7 @@ namespace Eu.EDelivery.AS4.Fe.Monitor.Model
 
             if (Operation != null)
             {
-                var operations = Operation.Select(op => op.ToString());
+                var operations = Operation.Select(op => op);
                 query = query.Where(qr => operations.Contains(qr.Operation));
             }
 
@@ -86,13 +86,11 @@ namespace Eu.EDelivery.AS4.Fe.Monitor.Model
 
             if (MEP != null)
             {
-                var mepStrings = MEP.Select(mep => mep.ToString());
-                query = query.Where(qr => mepStrings.Contains(qr.MEP));
+                query = query.Where(qr => MEP.Contains(qr.MEP));
             }
             if (EbmsMessageType != null)
             {
-                var messageTypeStrings = EbmsMessageType.Select(type => type.ToString());
-                query = query.Where(qr => messageTypeStrings.Contains(qr.EbmsMessageType));
+                query = query.Where(qr => EbmsMessageType.Contains(qr.EbmsMessageType));
             }
             if (ContentType != null)
             {

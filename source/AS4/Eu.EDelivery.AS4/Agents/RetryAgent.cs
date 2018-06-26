@@ -27,7 +27,7 @@ namespace Eu.EDelivery.AS4.Agents
         /// <param name="pollingInterval">The interval in which the polling for retryable entities should happen</param>
         /// <param name="createContext">The factory creating a <see cref="DatastoreContext"/></param>
         public RetryAgent(
-            IReceiver receiver, 
+            IReceiver receiver,
             TimeSpan pollingInterval,
             Func<DatastoreContext> createContext)
         {
@@ -96,8 +96,8 @@ namespace Eu.EDelivery.AS4.Agents
             {
                 var t = rr.RetryType.ToEnum<RetryType>();
                 Operation updateOperation =
-                    t == RetryType.Delivery     ? Operation.ToBeDelivered :
-                    t == RetryType.Notification ? Operation.ToBeNotified  : Operation.NotApplicable;
+                    t == RetryType.Delivery ? Operation.ToBeDelivered :
+                    t == RetryType.Notification ? Operation.ToBeNotified : Operation.NotApplicable;
 
                 Logger.Debug($"({rr.RetryType}) Update for retry, set Operation={updateOperation}");
                 UpdateRefEntityOperation(repo, refToEntityId, entityType, updateOperation);
@@ -154,24 +154,19 @@ namespace Eu.EDelivery.AS4.Agents
 
         private static Operation GetRefEntityOperation(DatastoreRepository repo, long id, Entity type)
         {
-            string GetRefEntityOperation()
+            switch (type)
             {
-                switch (type)
-                {
-                    case Entity.InMessage:
-                        return repo.GetInMessageData(id, m => m.Operation);
-                    case Entity.OutMessage:
-                        return repo.GetOutMessageData(id, m => m.Operation);
-                    case Entity.InException:
-                        return repo.GetInExceptionData(id, ex => ex.Operation);
-                    case Entity.OutException:
-                        return repo.GetOutExceptionData(id, ex => ex.Operation);
-                    default:
-                        throw new ArgumentOutOfRangeException(paramName: nameof(type), actualValue: type, message: null);
-                }
+                case Entity.InMessage:
+                    return repo.GetInMessageData(id, m => m.Operation);
+                case Entity.OutMessage:
+                    return repo.GetOutMessageData(id, m => m.Operation);
+                case Entity.InException:
+                    return repo.GetInExceptionData(id, ex => ex.Operation);
+                case Entity.OutException:
+                    return repo.GetOutExceptionData(id, ex => ex.Operation);
+                default:
+                    throw new ArgumentOutOfRangeException(paramName: nameof(type), actualValue: type, message: null);
             }
-
-            return GetRefEntityOperation().ToEnum<Operation>();
         }
 
         private static void UpdateRefEntityOperation(DatastoreRepository repo, long id, Entity type, Operation o)
@@ -179,16 +174,16 @@ namespace Eu.EDelivery.AS4.Agents
             switch (type)
             {
                 case Entity.InMessage:
-                    repo.UpdateInMessage(id, m => m.SetOperation(o));
+                    repo.UpdateInMessage(id, m => m.Operation = o);
                     break;
                 case Entity.OutMessage:
-                    repo.UpdateOutMessage(id, m => m.SetOperation(o));
+                    repo.UpdateOutMessage(id, m => m.Operation = o);
                     break;
                 case Entity.InException:
-                    repo.UpdateInException(id, ex => ex.SetOperation(o));
+                    repo.UpdateInException(id, ex => ex.Operation = o);
                     break;
                 case Entity.OutException:
-                    repo.UpdateOutException(id, ex => ex.SetOperation(o));
+                    repo.UpdateOutException(id, ex => ex.Operation = o);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(paramName: nameof(type), actualValue: type, message: null);

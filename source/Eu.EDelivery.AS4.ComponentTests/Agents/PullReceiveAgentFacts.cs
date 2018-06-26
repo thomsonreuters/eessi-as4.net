@@ -78,12 +78,12 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                 userMessage1 =>
                 {
                     Assert.Equal(InStatus.Received, userMessage1.Status.ToEnum<InStatus>());
-                    Assert.Equal(Operation.ToBeDelivered, userMessage1.Operation.ToEnum<Operation>());
+                    Assert.Equal(Operation.ToBeDelivered, userMessage1.Operation);
                 },
                 userMessage2 =>
                 {
                     Assert.Equal(InStatus.Received, userMessage2.Status.ToEnum<InStatus>());
-                    Assert.Equal(Operation.ToBeDelivered, userMessage2.Operation.ToEnum<Operation>());
+                    Assert.Equal(Operation.ToBeDelivered, userMessage2.Operation);
                 });
             Assert.Collection(
                 _databaseSpy.GetOutMessages(storedMessageId),
@@ -93,7 +93,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         private void StoreToBeAckOutMessage(string storedMessageId)
         {
             var storedUserMessage = new OutMessage(ebmsMessageId: storedMessageId);
-            storedUserMessage.SetEbmsMessageType(MessageType.UserMessage);
+            storedUserMessage.EbmsMessageType = MessageType.UserMessage;
             storedUserMessage.SetStatus(OutStatus.Sent);
 
             _databaseSpy.InsertOutMessage(storedUserMessage);

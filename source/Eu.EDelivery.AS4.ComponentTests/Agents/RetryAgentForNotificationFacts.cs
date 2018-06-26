@@ -66,7 +66,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                     var spy = new DatabaseSpy(as4Msh.GetConfiguration());
                     InMessage notified = await PollUntilPresent(
                         () => spy.GetInMessageFor(
-                            m => m.Operation.ToEnum<Operation>() == expected),
+                            m => m.Operation == expected),
                         timeout: TimeSpan.FromSeconds(10));
 
                     Assert.Equal(ebmsMessageId, notified.EbmsMessageId);
@@ -122,7 +122,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                     var spy = new DatabaseSpy(as4Msh.GetConfiguration());
                     OutMessage notified = await PollUntilPresent(
                         () => spy.GetOutMessageFor(
-                            m => m.Operation.ToEnum<Operation>() == expected),
+                            m => m.Operation == expected),
                         timeout: TimeSpan.FromSeconds(10));
                     Assert.Equal(ebmsMessageId, notified.EbmsMessageId);
 
@@ -186,7 +186,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                     OutException notified =
                         await PollUntilPresent(
                             () => spy.GetOutExceptions(
-                                ex => ex.Operation.ToEnum<Operation>() == expected).FirstOrDefault(),
+                                ex => ex.Operation == expected).FirstOrDefault(),
                             timeout: TimeSpan.FromSeconds(10));
 
                     Entities.RetryReliability referenced = await PollUntilPresent(
@@ -268,7 +268,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                     var spy = new DatabaseSpy(as4Msh.GetConfiguration());
                     InException notified = await PollUntilPresent(
                         () => spy.GetInExceptions(
-                            ex => ex.Operation.ToEnum<Operation>() == expected).FirstOrDefault(),
+                            ex => ex.Operation == expected).FirstOrDefault(),
                         timeout: TimeSpan.FromSeconds(10));
 
                     Entities.RetryReliability referenced = await PollUntilPresent(

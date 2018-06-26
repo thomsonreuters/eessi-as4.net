@@ -46,7 +46,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
                 insertion: factory => (ebmsMessageId, current, max) =>
                 {
                     var m = new InMessage(ebmsMessageId);
-                    m.SetOperation(Operation.ToBeNotified);
+                    m.Operation = Operation.ToBeNotified;
                     m.SetStatus(InStatus.Created);
                     factory.InsertInMessage(m);
 
@@ -61,7 +61,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
 
                 },
                 assertion: factory => factory.AssertInMessage,
-                getter: (factory, entity) =>
+                operationOperationGetter: (factory, entity) =>
                 {
                     RetryReliability rr = factory.GetRetryReliability(r => r.RefToInMessageId == entity.Id);
                     return (rr.CurrentRetryCount, entity.Operation);
@@ -70,7 +70,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
                 insertion: factory => (ebmsMessageId, current, max) =>
                 {
                     var m = new OutMessage(ebmsMessageId);
-                    m.SetOperation(Operation.ToBeNotified);
+                    m.Operation = Operation.ToBeNotified;
                     m.SetStatus(OutStatus.Created);
                     factory.InsertOutMessage(m, withReceptionAwareness: false);
 
@@ -84,7 +84,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
                     return m;
                 },
                 assertion: factory => factory.AssertOutMessage,
-                getter: (factory, entity) =>
+                operationOperationGetter: (factory, entity) =>
                 {
                     RetryReliability rr = factory.GetRetryReliability(r => r.RefToOutMessageId == entity.Id);
                     return (rr.CurrentRetryCount, entity.Operation);
@@ -106,7 +106,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
                     return ex;
                 },
                 assertion: factory => factory.AssertInException,
-                getter: (factory, entity) =>
+                operationOperationGetter: (factory, entity) =>
                 {
                     RetryReliability rr = factory.GetRetryReliability(r => r.RefToInExceptionId == entity.Id);
                     return (rr.CurrentRetryCount, entity.Operation);
@@ -128,7 +128,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
                     return ex;
                 },
                 assertion: factory => factory.AssertOutException,
-                getter: (factory, entity) =>
+                operationOperationGetter: (factory, entity) =>
                 {
                     RetryReliability rr = factory.GetRetryReliability(r => r.RefToOutExceptionId == entity.Id);
                     return (rr.CurrentRetryCount, entity.Operation);
@@ -196,17 +196,17 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
         public NotifyType(
             Func<Func<DatastoreContext>, Func<string, int, int, T>> insertion,
             Func<Func<DatastoreContext>, Action<string, Action<T>>> assertion,
-            Func<Func<DatastoreContext>, T, (int, string)> getter)
+            Func<Func<DatastoreContext>, T, (int, Operation)> operationOperationGetter)
         {
             Insertion = insertion;
             Assertion = assertion;
-            Getter = getter;
+            OperationGetter = operationOperationGetter;
         }
 
         public Func<Func<DatastoreContext>, Func<string, int, int, T>> Insertion { get; }
 
         public Func<Func<DatastoreContext>, Action<string, Action<T>>> Assertion { get; }
 
-        public Func<Func<DatastoreContext>, T, (int, string)> Getter { get; }
+        public Func<Func<DatastoreContext>, T, (int, Operation)> OperationGetter { get; }
     }
 }

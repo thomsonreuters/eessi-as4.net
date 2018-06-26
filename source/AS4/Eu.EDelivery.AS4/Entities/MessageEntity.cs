@@ -113,31 +113,34 @@ namespace Eu.EDelivery.AS4.Entities
         [MaxLength(512)]
         public string MessageLocation { get; set; }
 
+        [Obsolete]
         public void SetOperation(Operation operation)
         {
-            Operation = operation.ToString();
+            Operation = operation;
         }
 
         [Column("Operation")]
         [MaxLength(50)]
-        public string Operation { get; private set; }
+        public Operation Operation { get; set; }
 
 
         [Column("MEP")]
         [MaxLength(25)]
-        public string MEP { get; private set; }
+        public MessageExchangePattern MEP { get; set; }
 
+        [Obsolete]
         public void SetMessageExchangePattern(MessageExchangePattern mep)
         {
-            MEP = mep.ToString();
+            MEP = mep;
         }
 
         [MaxLength(50)]
-        public string EbmsMessageType { get; private set; }
+        public MessageType EbmsMessageType { get; set; }
 
+        [Obsolete]
         public void SetEbmsMessageType(MessageType messageType)
         {
-            EbmsMessageType = messageType.ToString();
+            EbmsMessageType = messageType;
         }
 
         [Column("Status")]
@@ -151,9 +154,9 @@ namespace Eu.EDelivery.AS4.Entities
         /// </summary>
         protected MessageEntity()
         {
-            SetOperation(default(Operation));
-            SetEbmsMessageType(default(MessageType));
-            SetMessageExchangePattern(default(MessageExchangePattern));
+            Operation = default(Operation);
+            EbmsMessageType = default(MessageType);
+            MEP = default(MessageExchangePattern);
         }
 
         /// <summary>

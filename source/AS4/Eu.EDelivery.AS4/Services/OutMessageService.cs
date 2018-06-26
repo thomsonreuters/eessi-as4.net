@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Entities;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
-using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
@@ -56,7 +55,7 @@ namespace Eu.EDelivery.AS4.Services
         /// <param name="store">The provider.</param>
         /// <returns></returns>
         public async Task<IEnumerable<AS4Message>> GetNonIntermediaryAS4UserMessagesForIds(
-            IEnumerable<string> messageIds, 
+            IEnumerable<string> messageIds,
             IAS4MessageBodyStore store)
         {
             IEnumerable<OutMessage> messages = _repository
@@ -106,7 +105,7 @@ namespace Eu.EDelivery.AS4.Services
             var relatedInMessageMeps =
                 _repository.GetInMessagesData(message.SignalMessages.Select(s => s.RefToMessageId).Distinct(), inMsg => new { inMsg.EbmsMessageId, inMsg.MEP })
                            .Distinct()
-                           .ToDictionary(r => r.EbmsMessageId, r => r.MEP.ToEnum<MessageExchangePattern>());
+                           .ToDictionary(r => r.EbmsMessageId, r => r.MEP);
 
             foreach (var messageUnit in messageUnits)
             {
@@ -139,9 +138,9 @@ namespace Eu.EDelivery.AS4.Services
 
             outMessage.MessageLocation = location;
 
-            if (outMessage.EbmsMessageType == MessageType.UserMessage.ToString())
+            if (outMessage.EbmsMessageType == MessageType.UserMessage)
             {
-                outMessage.SetOperation(operation);
+                outMessage.Operation = operation;
             }
             else
             {
@@ -158,7 +157,7 @@ namespace Eu.EDelivery.AS4.Services
                     DetermineCorrectReplyPattern(messageContext.ReceivingPMode, inMessageMep);
 
                 outMessage.SetStatus(replyPattern.status);
-                outMessage.SetOperation(replyPattern.operation);
+                outMessage.Operation = replyPattern.operation;
             }
 
             return outMessage;
@@ -214,7 +213,7 @@ namespace Eu.EDelivery.AS4.Services
                 outMessageId,
                 m =>
                 {
-                    m.SetOperation(Operation.ToBeSent);
+                    m.Operation = Operation.ToBeSent;
                     m.MessageLocation = messageBodyLocation;
                 });
         }

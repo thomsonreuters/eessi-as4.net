@@ -174,7 +174,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Exceptions.Handlers
                 _expectedId,
                 ex =>
                 {
-                    Assert.Equal(expected, ex.Operation.ToEnum<Operation>());
+                    Assert.Equal(expected, ex.Operation);
                     Assert.Null(ex.MessageBody);
                 });
         }

@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Extensions;
@@ -36,7 +34,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
                 var message = db.OutMessages.FirstOrDefault(i => i.Id == savedInMessageId);
 
                 Assert.NotNull(message);
-                Assert.Equal(Operation.Sent, message.Operation.ToEnum<Operation>());
+                Assert.Equal(Operation.Sent, message.Operation);
             }
         }
 
@@ -92,7 +90,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
                 var message = db.OutMessages.FirstOrDefault(i => i.Id == savedId);
 
                 Assert.NotNull(message);
-                Assert.Equal(MessageType.Receipt, message.EbmsMessageType.ToEnum<MessageType>());
+                Assert.Equal(MessageType.Receipt, message.EbmsMessageType);
             }
         }
 

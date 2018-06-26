@@ -96,14 +96,15 @@ namespace Eu.EDelivery.AS4.Entities
             this.Exception = errorMessage;
         }
 
+        [Obsolete]
         public void SetOperation(Operation operation)
         {
-            Operation = operation.ToString();
+            Operation = operation;
         }
 
         [Column("Operation")]
         [MaxLength(50)]
-        public string Operation { get; private set; }
+        public Operation Operation { get; set; }
 
         /// <summary>
         /// Update the <see cref="Entity" /> to lock it with a given <paramref name="value" />.

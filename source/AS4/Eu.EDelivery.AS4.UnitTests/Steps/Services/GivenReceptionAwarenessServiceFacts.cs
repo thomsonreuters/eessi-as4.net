@@ -123,7 +123,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Services
                 var mockRepository = new Mock<IDatastoreRepository>();
                 var outMessage = new OutMessage(Guid.NewGuid().ToString());
                 outMessage.InitializeIdFromDatabase(1);
-                outMessage.SetOperation(Operation.Sent);
+                outMessage.Operation = Operation.Sent;
 
                 var awareness = new AS4.Entities.ReceptionAwareness(outMessage.Id, "not empty message-id");
                 awareness.InitializeIdFromDatabase(2);
@@ -140,7 +140,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Services
                 ExerciseService(mockRepository.Object, s => s.MarkReferencedMessageForResend(awareness));
 
                 // Assert
-                Assert.Equal(Operation.ToBeSent, outMessage.Operation.ToEnum<Operation>());
+                Assert.Equal(Operation.ToBeSent, outMessage.Operation);
             }
 
             [Fact]
@@ -149,7 +149,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Services
                 // Arrange
                 var mockRepository = new Mock<IDatastoreRepository>();
                 var awareness = new AS4.Entities.ReceptionAwareness(1, "not-empty-message-id");
-                
+
                 awareness.SetStatus(ReceptionStatus.Busy);
 
                 mockRepository.Setup(

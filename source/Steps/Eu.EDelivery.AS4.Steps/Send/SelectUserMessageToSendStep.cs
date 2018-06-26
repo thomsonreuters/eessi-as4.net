@@ -127,8 +127,8 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 $"(PullReceive) Query UserMessages with MPC={pullRequest.Mpc} && Operation=ToBeSent && MEP=Pull");
 
             return m => m.Mpc == pullRequest.Mpc &&
-                        m.Operation == Operation.ToBeSent.ToString() &&
-                        m.MEP == MessageExchangePattern.Pull.ToString();
+                        m.Operation == Operation.ToBeSent &&
+                        m.MEP == MessageExchangePattern.Pull;
         }
     }
 }
