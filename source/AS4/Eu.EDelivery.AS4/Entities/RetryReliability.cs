@@ -45,14 +45,14 @@ namespace Eu.EDelivery.AS4.Entities
         public long? RefToOutExceptionId { get; private set; }
 
         [MaxLength(12)]
-        public RetryType RetryType { get; }
+        public RetryType RetryType { get; private set; }
 
         public int CurrentRetryCount { get; set; }
 
-        public int MaxRetryCount { get; }
+        public int MaxRetryCount { get; private set; }
 
         [MaxLength(50)]
-        public TimeSpan RetryInterval { get; }
+        public TimeSpan RetryInterval { get; private set; }
 
         [MaxLength(25)]
         public RetryStatus Status { get; set; }
