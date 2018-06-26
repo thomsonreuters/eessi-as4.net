@@ -1,5 +1,4 @@
-﻿using Eu.EDelivery.AS4.Functional;
-using Eu.EDelivery.AS4.Mappings.PMode;
+﻿using Eu.EDelivery.AS4.Mappings.PMode;
 using Eu.EDelivery.AS4.Model.PMode;
 using Xunit;
 using Service = Eu.EDelivery.AS4.Model.PMode.Service;

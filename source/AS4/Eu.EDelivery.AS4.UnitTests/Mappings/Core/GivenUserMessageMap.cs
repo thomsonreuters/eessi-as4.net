@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using Eu.EDelivery.AS4.Functional;
 using Eu.EDelivery.AS4.Singletons;
 using Eu.EDelivery.AS4.Xml;
 using Xunit;

@@ -1,5 +1,4 @@
 ﻿using System;
-using Eu.EDelivery.AS4.Functional;
 
 namespace Eu.EDelivery.AS4.Model.Core
 {

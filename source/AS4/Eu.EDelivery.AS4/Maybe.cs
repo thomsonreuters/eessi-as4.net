@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 
-namespace Eu.EDelivery.AS4.Functional
+namespace Eu.EDelivery.AS4
 {
     /// <summary>
     /// Static class to reduce the need for generic type annotations when using the Factory Methods <see cref="Just{T}"/> and <see cref="Nothing{T}"/>.
@@ -28,7 +28,7 @@ namespace Eu.EDelivery.AS4.Functional
 
     /// <summary>
     /// Representation for a indication of a possible missing value.
-    /// Use static method <see cref="M:Eu.EDelivery.AS4.Functional.Maybe`1.Just``1(``0)" /> when there's a value present, and <see cref="P:Eu.EDelivery.AS4.Functional.Maybe`1.Nothing" /> when there isn't.
+    /// Use static method <see cref="M:Eu.EDelivery.AS4.Maybe`1.Just``1(``0)" /> when there's a value present, and <see cref="P:Eu.EDelivery.AS4.Maybe`1.Nothing" /> when there isn't.
     /// </summary>
     /// <typeparam name="TA">The type of a.</typeparam>
     public class Maybe<TA> : IEquatable<Maybe<TA>>

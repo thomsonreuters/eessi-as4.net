@@ -1,4 +1,3 @@
-using Eu.EDelivery.AS4.Functional;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.PMode;
 

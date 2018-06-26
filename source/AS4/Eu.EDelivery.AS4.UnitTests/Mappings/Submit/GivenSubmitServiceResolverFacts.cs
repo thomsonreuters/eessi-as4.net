@@ -1,5 +1,4 @@
-﻿using Eu.EDelivery.AS4.Functional;
-using Eu.EDelivery.AS4.Mappings.Submit;
+﻿using Eu.EDelivery.AS4.Mappings.Submit;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Model.Submit;
 using Xunit;

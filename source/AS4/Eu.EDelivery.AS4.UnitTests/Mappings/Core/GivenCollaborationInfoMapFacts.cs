@@ -1,5 +1,4 @@
-﻿using Eu.EDelivery.AS4.Functional;
-using Eu.EDelivery.AS4.Mappings.Core;
+﻿using Eu.EDelivery.AS4.Mappings.Core;
 using Eu.EDelivery.AS4.Singletons;
 using Eu.EDelivery.AS4.Xml;
 using Xunit;
