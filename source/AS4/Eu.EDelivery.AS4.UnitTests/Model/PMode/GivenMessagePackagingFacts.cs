@@ -51,9 +51,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Model.PMode
 
         private static Party CreateFilledParty()
         {
-            return new Party(
-                role: Guid.NewGuid().ToString(),
-                partyId: new PartyId(id: Guid.NewGuid().ToString()));
+            return new Party
+            {
+                Role = Guid.NewGuid().ToString(),
+                PartyIds = { new PartyId { Id = Guid.NewGuid().ToString() } }
+            };
         }
     }
 }

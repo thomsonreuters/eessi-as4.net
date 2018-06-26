@@ -1,7 +1,7 @@
 ﻿using System.Xml.Serialization;
 using Eu.EDelivery.AS4.Model.Common;
-using Eu.EDelivery.AS4.Model.PMode;
 using CollaborationInfo = Eu.EDelivery.AS4.Model.Common.CollaborationInfo;
+using MessageProperty = Eu.EDelivery.AS4.Model.Common.MessageProperty;
 using PartyInfo = Eu.EDelivery.AS4.Model.Common.PartyInfo;
 
 namespace Eu.EDelivery.AS4.Model.Submit
@@ -21,7 +21,7 @@ namespace Eu.EDelivery.AS4.Model.Submit
         public Payload[] Payloads { get; set; }
         
         [XmlIgnore]
-        public SendingProcessingMode PMode { get; set; }
+        public PMode.SendingProcessingMode PMode { get; set; }
 
         [XmlIgnore]
         public bool IsEmpty => string.IsNullOrWhiteSpace(Collaboration?.AgreementRef.PModeId);
