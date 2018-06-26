@@ -175,7 +175,6 @@
     <Compile Include="Model\GivenPartyIdFacts.cs" />
     <Compile Include="Model\GivenReceivingProcessingModeFacts.cs" />
     <Compile Include="Model\GivenSendingProcessingModeFacts.cs" />
-    <Compile Include="Model\GivenServiceFacts.cs" />
     <Compile Include="Model\GivenUserMessageFacts.cs" />
     <Compile Include="Model\Internal\GivenSettingsFacts.cs" />
     <Compile Include="Model\SubmitModel\GivenAgreementFacts.cs" />

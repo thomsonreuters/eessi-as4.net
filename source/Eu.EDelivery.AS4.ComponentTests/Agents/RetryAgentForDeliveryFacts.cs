@@ -113,7 +113,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                     agreementReference: new AgreementReference(pmodeId: "receiveagent-retryreliability-pmode"))
                 {
                     Action = "eu:sample:01",
-                    Service = new Service { Type = "getting:started", Value = "eu:europa:services" }
+                    Service = new Service("eu:europa:services", "getting:started")
                 },
                 Sender = new Party("Sender", new PartyId("org:eu:europa:as4:example:accesspoint:A")),
                 Receiver = new Party("Receiver", new PartyId("org:eu:europa:as4:example:accesspoint:B")),
