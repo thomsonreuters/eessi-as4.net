@@ -182,7 +182,7 @@ namespace Eu.EDelivery.AS4.Services
             IDictionary<string, bool> duplicateSignalMessages =
                 DetermineDuplicateSignalMessageIds(relatedUserMessageIds);
 
-            foreach (SignalMessage signalMessage in as4Message.SignalMessages)
+            foreach (SignalMessage signalMessage in as4Message.SignalMessages.Where(s => !(s is PullRequest)))
             {
                 signalMessage.IsDuplicate = IsSignalMessageDuplicate(signalMessage, duplicateSignalMessages);
 

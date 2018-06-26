@@ -147,7 +147,7 @@ namespace Eu.EDelivery.AS4.Services
 
                 Logger.Debug("Successful result, so update RetryReliability.Status=Completed");
 
-                rr?.SetStatus(ReceptionStatus.Completed);
+                rr?.SetStatus(RetryStatus.Completed);
             }
             else
             {
@@ -165,7 +165,7 @@ namespace Eu.EDelivery.AS4.Services
                     Logger.Debug($"Update {typeof(T).Name} with Operation=ToBeRetried");
 
                     entity.SetOperation(Operation.ToBeRetried);
-                    rr.SetStatus(ReceptionStatus.Pending);
+                    rr.SetStatus(RetryStatus.Pending);
                 }
                 else
                 {
@@ -174,7 +174,7 @@ namespace Eu.EDelivery.AS4.Services
 
                     onFailure(entity);
                     entity.SetOperation(Operation.DeadLettered);
-                    rr.SetStatus(ReceptionStatus.Completed);
+                    rr.SetStatus(RetryStatus.Completed);
                 }
             }
         }
@@ -221,7 +221,7 @@ namespace Eu.EDelivery.AS4.Services
                 Logger.Debug($"Update {typeof(T).Name} with Status and Operation set to Notified");
 
                 entity.SetOperation(Operation.Notified);
-                rr?.SetStatus(ReceptionStatus.Completed);
+                rr?.SetStatus(RetryStatus.Completed);
             }
             else
             {
@@ -238,7 +238,7 @@ namespace Eu.EDelivery.AS4.Services
                     Logger.Debug($"Update {typeof(T).Name} with Operation=ToBeRetried");
 
                     entity.SetOperation(Operation.ToBeRetried);
-                    rr.SetStatus(ReceptionStatus.Pending);
+                    rr.SetStatus(RetryStatus.Pending);
                 }
                 else
                 {
@@ -246,7 +246,7 @@ namespace Eu.EDelivery.AS4.Services
                     Logger.Debug($"Update {typeof(T).Name} with Status=Exception, Operation=DeadLettered");
 
                     entity.SetOperation(Operation.DeadLettered);
-                    rr.SetStatus(ReceptionStatus.Completed);
+                    rr.SetStatus(RetryStatus.Completed);
                 }
             }
         }

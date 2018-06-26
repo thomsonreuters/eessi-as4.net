@@ -155,7 +155,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
             SendingProcessingMode pmode = CreateMultihopPMode(StubListenLocation);
             AS4Message as4Message = CreateMultiHopAS4UserMessage(messageId, pmode);
-            as4Message.FirstUserMessage.CollaborationInfo.AgreementReference = new Model.Core.AgreementReference("agreement", "Forward_Push");
+            as4Message.FirstUserMessage.CollaborationInfo.AgreementReference.PModeId = "Forward_Push";
 
             var signal = new ManualResetEvent(false);
             var r = new AS4MessageResponseHandler(CreateMultiHopReceiptFor(as4Message));
