@@ -15,6 +15,7 @@ using Eu.EDelivery.AS4.UnitTests.Common;
 using Eu.EDelivery.AS4.UnitTests.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
+using Service = Eu.EDelivery.AS4.Model.Core.Service;
 
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 {
@@ -113,7 +114,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
         public async Task ThenExecuteStepUpdatesDuplicateReceiptMessage()
         {
             // Arrange
-            SignalMessage signalMessage = new Receipt("message-id") { RefToMessageId = "ref-to-message-id" };
+            SignalMessage signalMessage = new Receipt("message-id", "ref-to-message-id");
             signalMessage.IsDuplicate = false;
 
             using (MessagingContext messagingContext =
@@ -197,7 +198,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
         private static void AddTestableDataToUserMessage(UserMessage userMessage)
         {
             userMessage.CollaborationInfo.Action = Constants.Namespaces.TestAction;
-            userMessage.CollaborationInfo.Service.Value = Constants.Namespaces.TestService;
+            userMessage.CollaborationInfo.Service = new Service(Constants.Namespaces.TestService);
         }
 
         protected MessagingContext CreateReceivedMessagingContext(AS4Message as4Message, ReceivingProcessingMode receivingPMode)

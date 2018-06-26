@@ -45,11 +45,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Core
             Party receiver = userMessage.Receiver;
 
             Assert.Equal(fromParty.PartyId.First().Value, sender.PartyIds.First().Id);
-            Assert.True((fromParty.PartyId.First().type == null) == (sender.PartyIds.First().Type == String.Empty));
+            Assert.True((fromParty.PartyId.First().type == null) == (sender.PartyIds.First().Type == Maybe<string>.Nothing));
             Assert.Equal(fromParty.Role, userMessage.Sender.Role);
 
             Assert.Equal(toParty.PartyId.First().Value, receiver.PartyIds.First().Id);
-            Assert.True((toParty.PartyId.First().type == null) == (receiver.PartyIds.First().Type == String.Empty));
+            Assert.True((toParty.PartyId.First().type == null) == (receiver.PartyIds.First().Type == Maybe<string>.Nothing));
             Assert.Equal(toParty.Role, receiver.Role);
         }
 

@@ -173,7 +173,6 @@
     <Compile Include="Model\GivenPartyFacts.cs" />
     <Compile Include="Model\GivenReceivingProcessingModeFacts.cs" />
     <Compile Include="Model\GivenSendingProcessingModeFacts.cs" />
-    <Compile Include="Model\GivenServiceFacts.cs" />
     <Compile Include="Model\GivenUserMessageFacts.cs" />
     <Compile Include="Model\Internal\GivenSettingsFacts.cs" />
     <Compile Include="Model\SubmitModel\GivenAgreementFacts.cs" />
@@ -400,7 +399,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Fody">
-      <Version>3.0.3</Version>
+      <Version>3.1.3</Version>
     </PackageReference>
     <PackageReference Include="FsCheck">
       <Version>2.10.8</Version>
@@ -409,7 +408,7 @@
       <Version>2.10.8</Version>
     </PackageReference>
     <PackageReference Include="ModuleInit.Fody">
-      <Version>1.8.0</Version>
+      <Version>1.8.1</Version>
     </PackageReference>
     <PackageReference Include="Moq">
       <Version>4.7.99</Version>

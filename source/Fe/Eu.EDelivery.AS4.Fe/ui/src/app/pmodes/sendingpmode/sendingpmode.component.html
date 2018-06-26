@@ -83,50 +83,66 @@
             <div tabitem title="Security" formGroupName="security" [isValid]="!!!pmode.currentPmode || pmode.form.get('pmode.security').valid"
                 runtimeTooltip="security">
                 <div class="row">
-                    <div formGroupName="signing" class="col-xs-12 col-md-6">
-                        <div class="sub-header-1">Signing</div>
-                        <as4-input label="Enabled" runtimeTooltip="signing.isenabled" controlSize="6">
-                            <input type="checkbox" formControlName="isEnabled" />
-                        </as4-input>
-                        <as4-input label="Algorithm" runtimeTooltip="signing.algorithm" controlSize="6">
-                            <input type="text" formControlName="algorithm" />
-                        </as4-input>
-                        <as4-input label="HashFunction" runtimeTooltip="signing.hashfunction" controlSize="6">
-                            <input type="text" formControlName="hashFunction" />
-                        </as4-input>
-                        <div class="sub-header">Private key information</div>
-                        <ng-container formGroupName="signingCertificateInformation" runtimeTooltip="signingcertificateinformation">
-                            <as4-input label="Private key find type" runtimeTooltip="certificatefindtype" controlSize="6">
-                                <select formControlName="certificateFindType">
-                                    <option value="0">Find by thumbprint</option>
-                                    <option value="1">Find by subject name</option>
-                                    <option value="2">Find by subject distinguished name</option>
-                                    <option value="3">Find by issuer name</option>
-                                    <option value="4">Find by issuer distinguished name</option>
-                                    <option value="5">Find by serial number</option>
-                                    <option value="6">Find by time valid</option>
-                                    <option value="7">Find by time not yet valid</option>
-                                    <option value="8">Find by time expired</option>
-                                    <option value="9">Find by template name</option>
-                                    <option value="10">Find by application policy</option>
-                                    <option value="11">Find by certificate policy</option>
-                                    <option value="12">Find by extension</option>
-                                    <option value="13">Find by key usage</option>
-                                    <option value="14">Find by subject key identifier</option>
+                    <div class="col-xs-12 col-md-6">
+                        <div formGroupName="signing">
+                            <div class="sub-header-1">Signing</div>
+                            <as4-input label="Enabled" runtimeTooltip="signing.isenabled" controlSize="6">
+                                <input type="checkbox" formControlName="isEnabled" />
+                            </as4-input>
+                            <as4-input label="Algorithm" runtimeTooltip="signing.algorithm" controlSize="6">
+                                <input type="text" formControlName="algorithm" />
+                            </as4-input>
+                            <as4-input label="HashFunction" runtimeTooltip="signing.hashfunction" controlSize="6">
+                                <input type="text" formControlName="hashFunction" />
+                            </as4-input>
+                            <div class="sub-header">Private key information</div>
+                            <ng-container formGroupName="signingCertificateInformation" runtimeTooltip="signingcertificateinformation">
+                                <as4-input label="Private key find type" runtimeTooltip="certificatefindtype" controlSize="6">
+                                    <select formControlName="certificateFindType">
+                                        <option value="0">Find by thumbprint</option>
+                                        <option value="1">Find by subject name</option>
+                                        <option value="2">Find by subject distinguished name</option>
+                                        <option value="3">Find by issuer name</option>
+                                        <option value="4">Find by issuer distinguished name</option>
+                                        <option value="5">Find by serial number</option>
+                                        <option value="6">Find by time valid</option>
+                                        <option value="7">Find by time not yet valid</option>
+                                        <option value="8">Find by time expired</option>
+                                        <option value="9">Find by template name</option>
+                                        <option value="10">Find by application policy</option>
+                                        <option value="11">Find by certificate policy</option>
+                                        <option value="12">Find by extension</option>
+                                        <option value="13">Find by key usage</option>
+                                        <option value="14">Find by subject key identifier</option>
+                                    </select>
+                                </as4-input>
+                                <as4-input label="Private key find value" runtimeTooltip="certificatefindvalue" controlSize="6">
+                                    <as4-thumbprint-input formControlName="certificateFindValue"></as4-thumbprint-input>
+                                </as4-input>
+                            </ng-container>
+                            <div class="sub-header">Key reference method</div>
+                            <as4-input label="Key reference method" runtimeTooltip="signing.keyreferencemethod" controlSize="6">
+                                <select formControlName="keyReferenceMethod">
+                                    <option value="0">BSTReference</option>
+                                    <option value="1">KeyIdentifier</option>
+                                    <option value="2">IssuerSerial</option>
                                 </select>
                             </as4-input>
-                            <as4-input label="Private key find value" runtimeTooltip="certificatefindvalue" controlSize="6">
-                                <as4-thumbprint-input formControlName="certificateFindValue"></as4-thumbprint-input>
+                        </div>
+                        <div formGroupName="signingVerification">
+                            <div class="sub-header-1">Signing Verification</div>
+                            <as4-input label="Allow Unknown Root Certificate Authority" runtimeTooltip="allowUnknownRootCertificate">
+                                <input type="checkbox" formControlName="allowUnknownRootCertificate" />
                             </as4-input>
-                        </ng-container>
-                        <div class="sub-header">Key reference method</div>
-                        <as4-input label="Key reference method" runtimeTooltip="signing.keyreferencemethod" controlSize="6">
-                            <select formControlName="keyReferenceMethod">
-                                <option value="0">BSTReference</option>
-                                <option value="1">KeyIdentifier</option>
-                                <option value="2">IssuerSerial</option>
-                            </select>
-                        </as4-input>
+                            <as4-input label="Signing verification" runtimeTooltip="signature">
+                                <select formControlName="signature">
+                                    <option [ngValue]="0">Allowed</option>
+                                    <option [ngValue]="1">Not allowed</option>
+                                    <option [ngValue]="2">Required</option>
+                                    <option [ngValue]="3">Ignored</option>
+                                </select>
+                            </as4-input>
+                        </div>
                     </div>
                     <div formGroupName="encryption" class="col-xs-12 col-md-6" runtimeTooltip="encryption">
                         <div class="sub-header-1">Encryption</div>

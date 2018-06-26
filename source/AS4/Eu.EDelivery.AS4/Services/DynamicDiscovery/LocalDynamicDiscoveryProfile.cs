@@ -10,9 +10,11 @@ using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Serialization;
 using NLog;
+using CollaborationInfo = Eu.EDelivery.AS4.Model.PMode.CollaborationInfo;
 using MessageProperty = Eu.EDelivery.AS4.Model.PMode.MessageProperty;
 using Party = Eu.EDelivery.AS4.Model.PMode.Party;
 using PartyId = Eu.EDelivery.AS4.Model.PMode.PartyId;
+using Service = Eu.EDelivery.AS4.Model.PMode.Service;
 
 namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
 {

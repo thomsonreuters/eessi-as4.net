@@ -6,7 +6,6 @@ using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Model.Submit;
 using Xunit;
-using CollaborationInfo = Eu.EDelivery.AS4.Model.Core.CollaborationInfo;
 
 namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
 {
@@ -61,7 +60,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
                 // Arrange
                 var submitMessage = new SubmitMessage
                 {
-                    PMode = new SendingProcessingMode {MessagePackaging = {CollaborationInfo = new CollaborationInfo()}}
+                    PMode = new SendingProcessingMode {MessagePackaging = {CollaborationInfo = new AS4.Model.PMode.CollaborationInfo()}}
                 };
                 var userMessage = new UserMessage("message-id");
 
@@ -141,7 +140,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
                 MessagePackaging =
                 {
                     CollaborationInfo =
-                        new CollaborationInfo
+                        new AS4.Model.PMode.CollaborationInfo
                         {
                             AgreementReference = new AgreementReference {Value = "pmode-name", Type = "pmode-type"}
                         }

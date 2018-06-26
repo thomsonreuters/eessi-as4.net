@@ -43,7 +43,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
             Assert.True(as4Message.IsUserMessage);
             Assert.Equal(receivingParty.Role, as4Message.FirstUserMessage.Receiver.Role);
             Assert.Equal(receivingParty.PartyIds.First().Id, as4Message.FirstUserMessage.Receiver.PartyIds.First().Id);
-            Assert.Equal(receivingParty.PartyIds.First().Type, as4Message.FirstUserMessage.Receiver.PartyIds.First().Type);
+            Assert.Equal(receivingParty.PartyIds.First().Type, as4Message.FirstUserMessage.Receiver.PartyIds.First().Type.UnsafeGet);
         }
 
         [Fact]
@@ -71,7 +71,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
             Assert.True(as4Message.IsUserMessage);
             Assert.Equal(fromParty.Role, as4Message.FirstUserMessage.Sender.Role);
             Assert.Equal(fromParty.PartyIds.First().Id, as4Message.FirstUserMessage.Sender.PartyIds.First().Id);
-            Assert.Equal(fromParty.PartyIds.First().Type, as4Message.FirstUserMessage.Sender.PartyIds.First().Type);
+            Assert.Equal(fromParty.PartyIds.First().Type, as4Message.FirstUserMessage.Sender.PartyIds.First().Type.UnsafeGet);
         }
 
         [Fact]

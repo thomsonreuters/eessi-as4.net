@@ -4,6 +4,7 @@ using System.IO;
 using System.Threading;
 using Eu.EDelivery.AS4.IntegrationTests.Fixture;
 using Eu.EDelivery.AS4.Singletons;
+using Polly;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.IntegrationTests.Common
@@ -300,14 +301,19 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
 
             foreach (string file in Directory.GetFiles(Path.GetFullPath(@".\logs")))
             {
-                Console.WriteLine($@"From file: '{file}':");
+                Policy.Handle<IOException>()
+                      .Retry(3)
+                      .Execute(() =>
+                      {
+                          Console.WriteLine($@"From file: '{file}':");
 
-                foreach (string line in File.ReadAllLines(file))
-                {
-                    Console.WriteLine(line);
-                }
+                          foreach (string line in File.ReadAllLines(file))
+                          {
+                              Console.WriteLine(line);
+                          }
 
-                Console.WriteLine(Environment.NewLine);
+                          Console.WriteLine(Environment.NewLine);
+                      });
             }
         }
 

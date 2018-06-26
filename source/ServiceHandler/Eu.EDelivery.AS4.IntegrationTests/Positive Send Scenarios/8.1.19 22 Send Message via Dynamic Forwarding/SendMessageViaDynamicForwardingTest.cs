@@ -9,6 +9,8 @@ using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Streaming;
 using Xunit;
+using CollaborationInfo = Eu.EDelivery.AS4.Model.Core.CollaborationInfo;
+using Service = Eu.EDelivery.AS4.Model.Core.Service;
 using Party = Eu.EDelivery.AS4.Model.Core.Party;
 using PartyId = Eu.EDelivery.AS4.Model.Core.PartyId;
 
@@ -204,7 +206,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._19_22
         private static CollaborationInfo HolodeckCollaboration(string argRefPModeId)
         {
             return new CollaborationInfo
-            {
+            { 
                 AgreementReference =
                 {
                     PModeId = argRefPModeId,
@@ -212,11 +214,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._19_22
                 },
                 ConversationId = "eu:edelivery:as4:sampleconversation",
                 Action = Constants.Namespaces.TestAction,
-                Service =
-                {
-                    Type = Constants.Namespaces.TestService,
-                    Value = Constants.Namespaces.TestService
-                }
+                Service = Service.TestService
             };
         }
 

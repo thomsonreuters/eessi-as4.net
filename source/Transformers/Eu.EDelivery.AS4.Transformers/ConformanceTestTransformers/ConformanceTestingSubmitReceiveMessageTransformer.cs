@@ -102,7 +102,7 @@ namespace Eu.EDelivery.AS4.Transformers.ConformanceTestTransformers
         private static void SetCollaborationInfoProperties(UserMessage userMessage, IEnumerable<MessageProperty> properties)
         {
             userMessage.CollaborationInfo.ConversationId = GetPropertyValue(properties, "ConversationId");
-            userMessage.CollaborationInfo.Service.Value = GetPropertyValue(properties, "Service");
+            userMessage.CollaborationInfo.Service = new Service(GetPropertyValue(properties, "Service"));
             userMessage.CollaborationInfo.Action = GetPropertyValue(properties, "Action");
 
             // AgreementRef must not be present in the AS4Message for minder.

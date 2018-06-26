@@ -24,16 +24,31 @@ namespace Eu.EDelivery.AS4.Steps.Receive.Rules
 
         private static bool ServiceActionCondition(ReceivingProcessingMode pmode, UserMessage userMessage)
         {
-            CollaborationInfo pmodeCollaboration = pmode.MessagePackaging.CollaborationInfo;
-            CollaborationInfo messageCollaboration = userMessage.CollaborationInfo;
+            Model.PMode.CollaborationInfo pmodeCollaboration = pmode.MessagePackaging.CollaborationInfo;
+            Model.Core.CollaborationInfo messageCollaboration = userMessage.CollaborationInfo;
 
             if (pmodeCollaboration == null || messageCollaboration == null)
             {
                 return false;
             }
 
-            return pmodeCollaboration.Action?.Equals(messageCollaboration.Action) == true &&
-                   pmodeCollaboration.Service?.Equals(messageCollaboration.Service) == true;
+            bool equalAction = 
+                pmodeCollaboration.Action?.Equals(messageCollaboration.Action) == true;
+
+            bool noServiceType = 
+                pmodeCollaboration.Service?.Type == null
+                && messageCollaboration.Service.Type == Maybe<string>.Nothing;
+
+            bool equalServiceType = 
+                messageCollaboration.Service.Type
+                    .Select(t => pmodeCollaboration.Service?.Type == t)
+                    .GetOrElse(false);
+
+            bool equalService =
+                pmodeCollaboration.Service?.Value == messageCollaboration.Service.Value
+                && (noServiceType || equalServiceType);
+
+            return equalAction && equalService;
         }
     }
 }

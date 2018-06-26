@@ -2,6 +2,7 @@
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
+using Service = Eu.EDelivery.AS4.Model.Core.Service;
 
 namespace Eu.EDelivery.AS4.UnitTests.Builders.Core
 {
@@ -83,7 +84,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Core
         {
             UserMessage userMessage = _messagingContext.AS4Message.UserMessages.First();
             userMessage.CollaborationInfo.Action = action;
-            userMessage.CollaborationInfo.Service.Value = service;
+            userMessage.CollaborationInfo.Service = new Service(service);
 
             return this;
         }

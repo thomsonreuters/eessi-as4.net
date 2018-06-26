@@ -8,9 +8,11 @@ namespace Eu.EDelivery.AS4.Mappings.Core
         {
             CreateMap<Model.Core.PartyId, Xml.PartyId>(MemberList.None)
                 .ConstructUsing(model => 
-                    string.Empty == model.Type
-                        ? new Xml.PartyId { Value = model.Id }
-                        : new Xml.PartyId { Value = model.Id, type = model.Type });
+                    new Xml.PartyId
+                    {
+                        Value = model.Id,
+                        type = model.Type.GetOrElse(() => null)
+                    });
 
             CreateMap<Xml.PartyId, Model.Core.PartyId>(MemberList.None)
                 .ConstructUsing(xml =>

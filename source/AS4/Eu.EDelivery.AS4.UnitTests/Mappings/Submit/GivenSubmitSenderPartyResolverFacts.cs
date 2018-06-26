@@ -68,7 +68,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
                 CommonParty fromParty = submitMessage.PartyInfo.FromParty;
                 Assert.Equal(fromParty.Role, party.Role);
                 Assert.Equal(fromParty.PartyIds.First().Id, party.PartyIds.First().Id);
-                Assert.Equal(fromParty.PartyIds.First().Type, party.PartyIds.First().Type);
+                Assert.Equal(fromParty.PartyIds.First().Type, party.PartyIds.First().Type.UnsafeGet);
             }
         }
 

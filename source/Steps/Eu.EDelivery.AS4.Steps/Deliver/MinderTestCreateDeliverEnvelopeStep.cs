@@ -14,6 +14,7 @@ using Eu.EDelivery.AS4.Serialization;
 using MessageProperty = Eu.EDelivery.AS4.Model.Core.MessageProperty;
 using Party = Eu.EDelivery.AS4.Model.Core.Party;
 using PartyId = Eu.EDelivery.AS4.Model.Core.PartyId;
+using Service = Eu.EDelivery.AS4.Model.Core.Service;
 
 namespace Eu.EDelivery.AS4.Steps.Deliver
 {
@@ -105,8 +106,8 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
                 Timestamp = userMessage.Timestamp,
                 CollaborationInfo =
                 {
+                    Service = new Service(_uriPrefix),
                     Action = "Deliver",
-                    Service = {Value = _uriPrefix},
                     ConversationId = userMessage.CollaborationInfo.ConversationId
                 },
                 Sender = new Party($"{_uriPrefix}/sut", userMessage.Receiver.PartyIds.FirstOrDefault()),

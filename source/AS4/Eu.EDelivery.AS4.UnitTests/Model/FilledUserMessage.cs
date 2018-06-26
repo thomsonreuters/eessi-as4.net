@@ -46,9 +46,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
             return new CollaborationInfo
             {
                 Action = "StoreMessage",
-                Service = {
-                             Value = "Test", Type = "org:holodeckb2b:services"
-                          },
+                Service = new Service(value: "Test", type: "org:holodeckb2b:services"),
                 ConversationId = "org:holodeckb2b:test:conversation",
                 AgreementReference = CreateAgreementReference()
             };

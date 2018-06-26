@@ -13,6 +13,7 @@ using Eu.EDelivery.AS4.Model.Notify;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Singletons;
 using NLog;
+using Service = Eu.EDelivery.AS4.Model.Core.Service;
 using MessageProperty = Eu.EDelivery.AS4.Model.Core.MessageProperty;
 
 namespace Eu.EDelivery.AS4.Transformers
@@ -163,7 +164,9 @@ namespace Eu.EDelivery.AS4.Transformers
         private void AssignServiceAction(UserMessage userMessage)
         {
             userMessage.CollaborationInfo.Action = "Notify";
-            userMessage.CollaborationInfo.Service.Value = MinderUriPrefix;
+            userMessage.CollaborationInfo.Service = new Service(
+                value: MinderUriPrefix, 
+                type: userMessage.CollaborationInfo.Service?.Type.GetOrElse(String.Empty));
         }
     }
 }

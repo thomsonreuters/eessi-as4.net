@@ -1,5 +1,5 @@
 ﻿using System;
-using Eu.EDelivery.AS4.Agents;
+using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
@@ -8,6 +8,7 @@ using Eu.EDelivery.AS4.Model.Notify;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Model.Submit;
 using Eu.EDelivery.AS4.Serialization;
+using NLog;
 using ReceptionAwareness = Eu.EDelivery.AS4.Entities.ReceptionAwareness;
 
 namespace Eu.EDelivery.AS4.Model.Internal
@@ -17,6 +18,8 @@ namespace Eu.EDelivery.AS4.Model.Internal
     /// </summary>
     public class MessagingContext : IDisposable
     {
+        private static ILogger Logger = LogManager.GetCurrentClassLogger();
+
         /// <summary>
         /// Initializes a new instance of the <see cref="MessagingContext"/> class.
         /// </summary>
@@ -221,6 +224,61 @@ namespace Eu.EDelivery.AS4.Model.Internal
             }
 
             return _receivingPModeString;
+        }
+
+        /// <summary>
+        /// Retrieve referenced <see cref="SendingProcessingMode"/> from a given <see cref="ReceivingProcessingMode"/>.
+        /// </summary>
+        /// <param name="receivePMode">The <see cref="ReceivingProcessingMode"/> that references the <see cref="SendingProcessingMode"/></param>
+        /// <param name="config">The configuration used to retrieve the referenced <see cref="SendingProcessingMode"/></param>
+        /// <returns></returns>
+        public SendingProcessingMode GetReferencedSendingPMode(
+            ReceivingProcessingMode receivePMode,
+            IConfig config)
+        {
+            if (receivePMode == null)
+            {
+                Logger.Error(
+                    "Cannot determine referenced SendingPMode because there's no ReceivingPMode");
+
+                return null;
+            }
+
+            if (string.IsNullOrWhiteSpace(receivePMode.ReplyHandling?.SendingPMode))
+            {
+                Logger.Error(
+                    $"No referenced SendingPMode defined in ReplyHandling of ReceivedPMode {receivePMode.Id}. " + 
+                    "This means that this PMode cannot be used to send/forward a message");
+
+                return null;
+            }
+
+            string pmodeId = receivePMode.ReplyHandling.SendingPMode;
+
+            try
+            {
+                SendingProcessingMode sendPMode = config.GetSendingPMode(pmodeId);
+
+                if (sendPMode == null)
+                {
+                    Logger.Error(
+                        $"ReplyHandling .SendingPMode \"{pmodeId}\"  found in ReceivingPMode \"{receivePMode.Id}\" " +
+                        "does not reference an exsisting SendingPMode. Please define an existing SendingPMode id or define one at: '.\\config\\send-pmodes\\'");
+
+                    return null;
+                }
+
+                Logger.Debug(
+                    $"Referenced Sending PMode found with Id: {pmodeId}. " +
+                    "This PMode will be used to further send/forward the message");
+
+                return sendPMode;
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex);
+                return null;
+            }
         }
 
         public bool ReceivedMessageMustBeForwarded => ReceivingPMode?.MessageHandling?.MessageHandlingType == MessageHandlingChoiceType.Forward;

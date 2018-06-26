@@ -1,7 +1,7 @@
 ﻿using Eu.EDelivery.AS4.Mappings.PMode;
-using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.PMode;
 using Xunit;
+using Service = Eu.EDelivery.AS4.Model.PMode.Service;
 
 namespace Eu.EDelivery.AS4.UnitTests.Mappings.PMode
 {
@@ -20,10 +20,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.PMode
                 var resolver = new PModeServiceResolver();
 
                 // Act
-                Service service = resolver.Resolve(pmode);
+                AS4.Model.Core.Service service = resolver.Resolve(pmode);
 
                 // Assert
-                Assert.True(string.IsNullOrWhiteSpace(service.Value));                
+                Assert.Equal(AS4.Model.Core.Service.TestService, service);
             }
 
             [Fact]
@@ -34,10 +34,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.PMode
                 var resolver = new PModeServiceResolver();
 
                 // Act
-                Service service = resolver.Resolve(pmode);
+                AS4.Model.Core.Service actual = resolver.Resolve(pmode);
 
                 // Assert
-                Assert.Equal(pmode.MessagePackaging.CollaborationInfo.Service, service);
+                var expected = pmode.MessagePackaging.CollaborationInfo.Service;
+                Assert.Equal(expected.Value, actual.Value);
+                Assert.Equal(Maybe.Just(expected.Type), actual.Type);
             }
 
             private static SendingProcessingMode CreateDefaultSendingPMode()
@@ -47,7 +49,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.PMode
                     MessagePackaging =
                     {
                         CollaborationInfo =
-                            new CollaborationInfo {Service = new Service {Value = "name", Type = "type"}}
+                            new AS4.Model.PMode.CollaborationInfo {Service = new Service {Value = "name", Type = "type"}}
                     }
                 };
             }

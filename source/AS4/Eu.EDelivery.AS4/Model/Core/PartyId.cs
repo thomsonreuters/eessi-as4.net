@@ -6,14 +6,23 @@ namespace Eu.EDelivery.AS4.Model.Core
     {
         public string Id { get; }
 
-        public string Type { get; }
+        public Maybe<string> Type { get; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PartyId" /> class.
         /// </summary>
         /// <param name="id"></param>
         /// <exception cref="ArgumentException"></exception>
-        public PartyId(string id) : this(id, String.Empty) { }
+        public PartyId(string id)
+        {
+            if (id == null)
+            {
+                throw new ArgumentNullException(nameof(id));
+            }
+
+            Id = id;
+            Type = Maybe<string>.Nothing;
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PartyId" /> class.
@@ -22,11 +31,11 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// <param name="type"></param>
         /// <exception cref="ArgumentException"></exception>
         /// <exception cref="ArgumentNullException"></exception>
-        public PartyId(string id, string type)
+        public PartyId(string id, Maybe<string> type)
         {
-            if (string.IsNullOrEmpty(id))
+            if (id == null)
             {
-                throw new ArgumentException(@"Value cannot be null or empty.", nameof(id));
+                throw new ArgumentNullException(nameof(id));
             }
 
             if (type == null)
@@ -37,6 +46,30 @@ namespace Eu.EDelivery.AS4.Model.Core
 
             Id = id;
             Type = type;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PartyId" /> class.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="type"></param>
+        /// <exception cref="ArgumentException"></exception>
+        /// <exception cref="ArgumentNullException"></exception>
+        public PartyId(string id, string type)
+        {
+            if (id == null)
+            {
+                throw new ArgumentNullException(nameof(id));
+            }
+
+            if (type == null)
+            {
+                throw new ArgumentNullException(nameof(type));
+            }
+
+
+            Id = id;
+            Type = Maybe.Just(type);
         }
 
         /// <summary>
@@ -59,7 +92,12 @@ namespace Eu.EDelivery.AS4.Model.Core
             }
 
             bool equalId = string.Equals(Id, other.Id, StringComparison.OrdinalIgnoreCase);
-            bool equalType = string.Equals(Type, other.Type, StringComparison.OrdinalIgnoreCase);
+            bool equalType =
+                Type == Maybe<string>.Nothing && other.Type == Maybe<string>.Nothing
+                || Type.SelectMany(t1 => 
+                    other.Type.Select(t2 => 
+                        t1.Equals(t2, StringComparison.OrdinalIgnoreCase)))
+                    .GetOrElse(false);
 
             return equalId && equalType;
         }
@@ -97,7 +135,7 @@ namespace Eu.EDelivery.AS4.Model.Core
             unchecked
             {
                 int hashId = StringComparer.OrdinalIgnoreCase.GetHashCode(Id);
-                int hashType = Type == String.Empty ? StringComparer.OrdinalIgnoreCase.GetHashCode(Type) : 0;
+                int hashType = StringComparer.OrdinalIgnoreCase.GetHashCode(Type);
 
                 return (hashId * 397) ^ hashType;
             }

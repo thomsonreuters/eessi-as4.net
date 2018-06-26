@@ -40,12 +40,12 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
                             }
                         }
 
-                        if (submitMessage.MessageProperties?.Any() == true)
+                        if (submit.MessageProperties?.Any() == true)
                         {
                             foreach (Model.Core.MessageProperty p in
-                                SubmitMessagePropertiesResolver.Default.Resolve(submitMessage))
+                                SubmitMessagePropertiesResolver.Default.Resolve(submit))
                             {
-                                userMessage.AddMessageProperty(p);
+                                user.AddMessageProperty(p);
                             }
                         }
                     }).ForAllOtherMembers(x => x.Ignore());

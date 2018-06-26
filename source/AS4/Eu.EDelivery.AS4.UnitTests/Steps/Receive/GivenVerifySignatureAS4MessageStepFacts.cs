@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,6 +13,7 @@ using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
+using Eu.EDelivery.AS4.Security.Signing;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Steps.Receive;
@@ -21,7 +23,7 @@ using Eu.EDelivery.AS4.UnitTests.Common;
 using Eu.EDelivery.AS4.UnitTests.Model;
 using Eu.EDelivery.AS4.UnitTests.Repositories;
 using Xunit;
-using CryptoReference = System.Security.Cryptography.Xml.Reference;
+using static Eu.EDelivery.AS4.UnitTests.Properties.Resources;
 
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 {
@@ -30,29 +32,19 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
     /// </summary>
     public class GivenVerifySignatureAS4MessageStepFacts : GivenDatastoreFacts
     {
-        private const string ContentType =
-            "multipart/related; boundary=\"=-dXYE+NJdacou7AbmYZgUPw==\"; type=\"application/soap+xml\"; charset=\"utf-8\"";
-
-        private readonly VerifySignatureAS4MessageStep _step;
-        private MessagingContext _messagingContext;
-
-        public GivenVerifySignatureAS4MessageStepFacts()
-        {
-            _step = new VerifySignatureAS4MessageStep();
-        }
-
         public class GivenValidArguments : GivenVerifySignatureAS4MessageStepFacts
         {
             [Fact]
-            public async Task ThenExecuteStepSucceedsAsync()
+            public async Task Succeeds_Verify_Correct_Signed_UserMessage()
             {
                 // Arrange
-                _messagingContext = await GetSignedInternalMessageAsync(Properties.Resources.as4_soap_signed_message);
+                MessagingContext ctx = 
+                    await DeserializeSignedMessage(as4_soap_signed_message);
 
-                UsingAllowedSigningVerification();
+                ctx.ReceivingPMode = ReceivingPModeWithAllowedSigningVerification();
 
                 // Act
-                StepResult result = await _step.ExecuteAsync(_messagingContext);
+                StepResult result = await ExerciseVerify(ctx);
 
                 // Assert
                 Assert.NotNull(result);
@@ -60,7 +52,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             }
 
             [Fact]
-            public async Task ThenExecuteStepSuceeds_IfNRRHashesAreEqual()
+            public async Task Succeeds_Verify_Correct_Signed_Receipt_With_Matching_Repudiation_Hashes()
             {
                 // Arrange
                 byte[] EqualHashes(byte[] hashes) => hashes;
@@ -73,7 +65,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             }
 
             [Fact]
-            public async Task ThenExecuteStepSucceeds_IfNRRHashesAreNotEqual_AndPModeDoesntRequireValidNRIHashes()
+            public async Task Succeeds_Verify_Receipt_With_Corrupt_Repudiation_Hashes_On_Ignored()
             {
                 // Arrange
                 byte[] IncrementedHashes(byte[] hashes) => 
@@ -87,7 +79,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             }
 
             [Fact]
-            public async Task ThenExecuteStepSucceeds_IfThisReceiverIsTheFinalRecipient()
+            public async Task Succeeds_Verify_Receipt_With_Corrupt_Repudiation_Hashes_If_Receiver_Is_Final_Recipient()
             {
                 // Arrange
                 byte[] CorruptHashes(byte[] hashes) =>
@@ -99,21 +91,112 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 // Assert
                 Assert.True(verifyResult.CanProceed);
             }
+
+            [Fact]
+            public async Task Takes_Sending_PMode_Into_Account_When_Verifies_Non_Multihop_Signal()
+            {
+                // Arrange
+                var as4Msg = AS4Message.Create(new Receipt($"receipt-{Guid.NewGuid()}", $"reftoid-{Guid.NewGuid()}"));
+                as4Msg.AddMessageUnit(new UserMessage(messageId: $"user-{Guid.NewGuid()}"));
+
+                var ctx = new MessagingContext(as4Msg, MessagingContextMode.Receive)
+                {
+                    ReceivingPMode = new ReceivingProcessingMode
+                    {
+                        Security = { SigningVerification = { Signature = Limit.Required } }
+                    },
+                    SendingPMode = new SendingProcessingMode
+                    {
+                        Security = { SigningVerification = { Signature = Limit.Ignored } }
+                    }
+                };
+
+                // Act
+                StepResult result = await ExerciseVerify(ctx);
+
+                // Assert
+                Assert.True(result.CanProceed);
+            }
+
+            [Fact]
+            public async Task Succeeds_Wrong_Signed_SignalMessage_But_Ignored()
+            {
+                // Arrange
+                MessagingContext ctx =
+                    await DeserializeSignedMessage(as4_soap_wrong_signed_pullrequest);
+                ctx.SendingPMode = new SendingProcessingMode
+                {
+                    Security = { SigningVerification = { Signature = Limit.Ignored } }
+                };
+
+                // Act
+                StepResult result = await ExerciseVerify(ctx);
+
+                // Assert
+                Assert.True(result.Succeeded);
+            }
         }
 
         public class GivenInvalidArguments : GivenVerifySignatureAS4MessageStepFacts
         {
             [Fact]
-            public async Task ThenExecuteStepFailsAsync()
+            public async Task Fails_Verify_Unsigned_SignalMessage_But_Required()
             {
                 // Arrange
-                _messagingContext =
-                    await GetSignedInternalMessageAsync(Properties.Resources.as4_soap_wrong_signed_message);
-
-                UsingAllowedSigningVerification();
+                MessagingContext ctx = SignalMessageWithVerification(Limit.Required);
 
                 // Act
-                StepResult result = await _step.ExecuteAsync(_messagingContext);
+                StepResult result = await ExerciseVerify(ctx);
+
+                // Assert
+                Assert.False(result.Succeeded);
+                Assert.Equal(ErrorAlias.PolicyNonCompliance, result.MessagingContext.ErrorResult.Alias);
+            }
+
+            [Fact]
+            public async Task Fails_Verify_Signed_SignalMessage_But_Unallowed()
+            {
+                // Arrange
+                MessagingContext ctx = SignalMessageWithVerification(Limit.NotAllowed);
+                ctx.AS4Message.Sign(
+                    new CalculateSignatureConfig(
+                        signingCertificate: new X509Certificate2(
+                            rawData: holodeck_partya_certificate,
+                            password: certificate_password,
+                            keyStorageFlags: X509KeyStorageFlags.Exportable)));
+
+                // Act
+                StepResult result = await ExerciseVerify(ctx);
+
+                // Assert
+                Assert.False(result.Succeeded);
+                Assert.Equal(ErrorAlias.PolicyNonCompliance, result.MessagingContext.ErrorResult.Alias);
+            }
+
+            private static MessagingContext SignalMessageWithVerification(Limit sendSignature)
+            {
+                var signal = AS4Message.Create(new Receipt($"receipt-{Guid.NewGuid()}", $"reftoid-{Guid.NewGuid()}"));
+                var ctx = new MessagingContext(signal, MessagingContextMode.Receive)
+                {
+                    SendingPMode = new SendingProcessingMode
+                    {
+                        Security = { SigningVerification = { Signature = sendSignature } }
+                    }
+                };
+                return ctx;
+            }
+
+            [Fact]
+            public async Task Fails_Verify_UserMessage_With_Wrong_Signed_On_Allowed()
+            {
+                // Arrange
+                MessagingContext ctx =
+                    await DeserializeSignedMessage(as4_soap_wrong_signed_message);
+
+                ctx.ReceivingPMode = ReceivingPModeWithAllowedSigningVerification();
+
+                // Act
+                StepResult result = await ExerciseVerify(ctx);
 
                 // Assert
                 ErrorResult error = result.MessagingContext.ErrorResult;
@@ -121,16 +204,16 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             }
 
             [Fact]
-            public async Task ThenExecuteStepFailsWithUntrustedCertificateAsync()
+            public async Task Fails_Verify_UserMessage_With_Untrusted_Cert_On_Allowed()
             {
                 // Arrange
-                _messagingContext =
-                    await GetSignedInternalMessageAsync(Properties.Resources.as4_soap_untrusted_signed_message);
+                MessagingContext ctx =
+                    await DeserializeSignedMessage(as4_soap_untrusted_signed_message);
 
-                UsingAllowedSigningVerification();
+                ctx.ReceivingPMode = ReceivingPModeWithAllowedSigningVerification();
 
                 // Act
-                StepResult result = await _step.ExecuteAsync(_messagingContext);
+                StepResult result = await ExerciseVerify(ctx);
 
                 // Assert
                 ErrorResult error = result.MessagingContext.ErrorResult;
@@ -138,7 +221,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             }
 
             [Fact]
-            public async Task ThenExecuteStepFailsWithUnmatchingRepudiationHashes()
+            public async Task Fails_Verify_SignalMessage_With_Corrupt_Repidiation_Hashes()
             {
                 // Arrange
                 byte[] ReversedHashes(byte[] hashes) => hashes.Reverse().ToArray();
@@ -199,7 +282,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             Func<byte[], byte[]> adaptHashes)
         {
             var references = signedUserMessage.SecurityHeader.GetReferences()
-                .Cast<CryptoReference>()
                 .Select(r => new Reference
                 {
                     URI = r.Uri,
@@ -220,7 +302,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 }
             };
 
-            return await SerializeDeserializeSoap(AS4MessageUtils.SignWithCertificate(AS4Message.Create(receipt), new StubCertificateRepository().GetStubCertificate()));
+            return await SerializeDeserializeSoap(
+                AS4MessageUtils.SignWithCertificate(
+                    AS4Message.Create(receipt), 
+                    new StubCertificateRepository().GetStubCertificate()));
         }
 
         protected void InsertOutMessageWithLocation(
@@ -260,6 +345,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             var memory = new MemoryStream();
             serializer.Serialize(msg, memory, CancellationToken.None);
             memory.Position = 0;
+
             return serializer.DeserializeAsync(memory, msg.ContentType, CancellationToken.None);
         }
 
@@ -269,6 +355,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             var memory = new MemoryStream();
             serializer.Serialize(msg, memory, CancellationToken.None);
             memory.Position = 0;
+
             return serializer.DeserializeAsync(memory, msg.ContentType, CancellationToken.None);
         }
 
@@ -281,20 +368,36 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             return AS4MessageUtils.SignWithCertificate(userMessage, new StubCertificateRepository().GetStubCertificate());
         }
 
-        protected async Task<MessagingContext> GetSignedInternalMessageAsync(string xml)
+        protected async Task<MessagingContext> DeserializeSignedMessage(string xml)
         {
             var memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(xml));
             var serializer = new SoapEnvelopeSerializer();
-            AS4Message as4Message = await serializer.DeserializeAsync(memoryStream, ContentType, CancellationToken.None);
+
+            const string contentType = 
+                "multipart/related; boundary=\"=-dXYE+NJdacou7AbmYZgUPw==\"; type=\"application/soap+xml\"; charset=\"utf-8\"";
+
+            AS4Message as4Message = 
+                await serializer.DeserializeAsync(memoryStream, contentType, CancellationToken.None);
 
             return new MessagingContext(as4Message, MessagingContextMode.Unknown);
         }
 
-        protected void UsingAllowedSigningVerification()
+        protected ReceivingProcessingMode ReceivingPModeWithAllowedSigningVerification()
         {
             var receivingPMode = new ReceivingProcessingMode();
             receivingPMode.Security.SigningVerification.Signature = Limit.Allowed;
-            _messagingContext.ReceivingPMode = receivingPMode;
+
+            return receivingPMode;
+        }
+
+        private async Task<StepResult> ExerciseVerify(MessagingContext ctx)
+        {
+            var sut = new VerifySignatureAS4MessageStep(
+                GetDataStoreContext,
+                StubConfig.Default,
+                new AS4MessageBodyFileStore(SerializerProvider.Default));
+
+            return await sut.ExecuteAsync(ctx);
         }
     }
 }

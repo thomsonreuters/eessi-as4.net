@@ -16,6 +16,7 @@ using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.PMode;
 using NLog;
 using MessageProperty = Eu.EDelivery.AS4.Model.PMode.MessageProperty;
+using Service = Eu.EDelivery.AS4.Model.PMode.Service;
 using Party = Eu.EDelivery.AS4.Model.PMode.Party;
 using PartyId = Eu.EDelivery.AS4.Model.PMode.PartyId;
 
@@ -230,7 +231,7 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
         {
             if (sendingPMode.MessagePackaging.CollaborationInfo == null)
             {
-                sendingPMode.MessagePackaging.CollaborationInfo = new CollaborationInfo();
+                sendingPMode.MessagePackaging.CollaborationInfo = new Model.PMode.CollaborationInfo();
             }
 
             SetCollaborationService(sendingPMode, smpMetaData);

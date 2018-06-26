@@ -18,13 +18,6 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// <summary>
         /// Initializes a new instance of the <see cref="Party" /> class.
         /// </summary>
-        /// <param name="partyId"></param>
-        /// <exception cref="ArgumentNullException"></exception>
-        public Party(PartyId partyId) : this(null, new[] { partyId }) { }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="Party" /> class.
-        /// </summary>
         /// <param name="role"></param>
         /// <param name="partyId"></param>
         /// <exception cref="ArgumentNullException"></exception>
@@ -54,7 +47,7 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// Gets the primary party identifier of this <see cref="Party" />'s <see cref="PartyId" />.
         /// </summary>
         /// <value>The primary party identifier.</value>
-        public string PrimaryPartyId => PartyIds?.FirstOrDefault()?.Id;
+        public string PrimaryPartyId => PartyIds.FirstOrDefault()?.Id;
 
         /// <summary>
         /// Indicates whether the current object is equal to another object of the same type.
@@ -109,9 +102,11 @@ namespace Eu.EDelivery.AS4.Model.Core
         {
             unchecked
             {
-                int hashRole = Role != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(Role) : 0;
+                int hashRole = StringComparer.OrdinalIgnoreCase.GetHashCode(Role);
                 return (hashRole * 397) ^ PartyIds.GetHashCode();
             }
         }
+
+        
     }
 }
