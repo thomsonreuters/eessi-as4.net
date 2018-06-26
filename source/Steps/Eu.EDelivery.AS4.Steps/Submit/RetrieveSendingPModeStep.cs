@@ -3,7 +3,6 @@ using System.ComponentModel;
 using System.Configuration;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
-using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Validators;
@@ -70,7 +69,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
             return pmode;
         }
 
-        private string RetrieveProcessingModeId(CollaborationInfo collaborationInfo)
+        private string RetrieveProcessingModeId(Model.Common.CollaborationInfo collaborationInfo)
         {
             if (collaborationInfo == null)
             {

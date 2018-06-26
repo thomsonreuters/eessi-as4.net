@@ -5,7 +5,6 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-
 using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.ComponentTests.Common;
 using Eu.EDelivery.AS4.Entities;
@@ -18,9 +17,8 @@ using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Steps.Receive;
 using Eu.EDelivery.AS4.TestUtils;
 using Eu.EDelivery.AS4.TestUtils.Stubs;
-
 using Xunit;
-
+using CollaborationInfo = Eu.EDelivery.AS4.Model.PMode.CollaborationInfo;
 using MessageExchangePattern = Eu.EDelivery.AS4.Entities.MessageExchangePattern;
 using X509Certificate2 = System.Security.Cryptography.X509Certificates.X509Certificate2;
 

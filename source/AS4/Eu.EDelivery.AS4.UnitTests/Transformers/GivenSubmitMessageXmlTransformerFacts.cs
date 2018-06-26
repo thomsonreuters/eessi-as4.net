@@ -10,6 +10,7 @@ using Eu.EDelivery.AS4.Model.Submit;
 using Eu.EDelivery.AS4.Transformers;
 using Xunit;
 using static Eu.EDelivery.AS4.UnitTests.Properties.Resources;
+using CollaborationInfo = Eu.EDelivery.AS4.Model.Common.CollaborationInfo;
 
 namespace Eu.EDelivery.AS4.UnitTests.Transformers
 {

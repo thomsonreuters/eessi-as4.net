@@ -1,5 +1,7 @@
 ﻿using System.Xml.Serialization;
 using Eu.EDelivery.AS4.Model.Common;
+using CollaborationInfo = Eu.EDelivery.AS4.Model.Common.CollaborationInfo;
+using MessageProperty = Eu.EDelivery.AS4.Model.Common.MessageProperty;
 using PartyInfo = Eu.EDelivery.AS4.Model.Common.PartyInfo;
 
 namespace Eu.EDelivery.AS4.Model.Submit
