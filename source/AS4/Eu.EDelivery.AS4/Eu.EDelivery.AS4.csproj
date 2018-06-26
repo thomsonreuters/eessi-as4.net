@@ -147,6 +147,7 @@
     </Compile>
     <Compile Include="Model\Core\Schema.cs" />
     <Compile Include="Model\PMode\MessageProperty.cs" />
+    <Compile Include="Model\PMode\MessageProperty.cs" />
     <Compile Include="Model\PMode\CollaborationInfo.cs" />
     <Compile Include="Model\PMode\SafeIntJsonConverter.cs" />
     <Compile Include="Resources\XsdSchemaDefinitions.cs" />
