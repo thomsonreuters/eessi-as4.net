@@ -96,12 +96,6 @@ namespace Eu.EDelivery.AS4.Entities
             this.Exception = errorMessage;
         }
 
-        [Obsolete]
-        public void SetOperation(Operation operation)
-        {
-            Operation = operation;
-        }
-
         [Column("Operation")]
         [MaxLength(50)]
         public Operation Operation { get; set; }

@@ -36,12 +36,6 @@ namespace Eu.EDelivery.AS4.Entities
             set;
         }
 
-        [Obsolete]
-        public void SetStatus(ReceptionStatus status)
-        {
-            this.Status = status;
-        }
-
         /// <summary>
         /// Initializes a new instance of the <see cref="ReceptionAwareness"/> class.
         /// </summary>

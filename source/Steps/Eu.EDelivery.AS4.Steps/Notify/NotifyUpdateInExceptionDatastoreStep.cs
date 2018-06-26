@@ -33,7 +33,7 @@ namespace Eu.EDelivery.AS4.Steps.Notify
                 var repository = new DatastoreRepository(context);
                 repository.UpdateInException(
                     notifyMessageEnv.MessageInfo.RefToMessageId,
-                    ex => ex.SetOperation(Operation.Notified));
+                    ex => ex.Operation = Operation.Notified);
 
                 await context.SaveChangesAsync().ConfigureAwait(false);
             }

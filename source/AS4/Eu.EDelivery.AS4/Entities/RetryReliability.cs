@@ -57,12 +57,6 @@ namespace Eu.EDelivery.AS4.Entities
         [MaxLength(25)]
         public RetryStatus Status { get; set; }
 
-        [Obsolete]
-        public void SetStatus(RetryStatus s)
-        {
-            Status = s;
-        }
-
         public DateTimeOffset? LastRetryTime { get; set; }
 
         /// <summary>

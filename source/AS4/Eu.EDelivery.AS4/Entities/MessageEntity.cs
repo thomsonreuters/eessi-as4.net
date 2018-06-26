@@ -113,35 +113,16 @@ namespace Eu.EDelivery.AS4.Entities
         [MaxLength(512)]
         public string MessageLocation { get; set; }
 
-        [Obsolete]
-        public void SetOperation(Operation operation)
-        {
-            Operation = operation;
-        }
-
         [Column("Operation")]
         [MaxLength(50)]
         public Operation Operation { get; set; }
-
 
         [Column("MEP")]
         [MaxLength(25)]
         public MessageExchangePattern MEP { get; set; }
 
-        [Obsolete]
-        public void SetMessageExchangePattern(MessageExchangePattern mep)
-        {
-            MEP = mep;
-        }
-
         [MaxLength(50)]
         public MessageType EbmsMessageType { get; set; }
-
-        [Obsolete]
-        public void SetEbmsMessageType(MessageType messageType)
-        {
-            EbmsMessageType = messageType;
-        }
 
         [Column("Status")]
         [MaxLength(50)]
