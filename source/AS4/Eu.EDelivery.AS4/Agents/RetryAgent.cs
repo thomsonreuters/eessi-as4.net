@@ -3,7 +3,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
-using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Receivers;
 using Eu.EDelivery.AS4.Repositories;
@@ -94,7 +93,7 @@ namespace Eu.EDelivery.AS4.Agents
 
             if (op == Operation.ToBeRetried && rr.CurrentRetryCount < rr.MaxRetryCount)
             {
-                var t = rr.RetryType.ToEnum<RetryType>();
+                var t = rr.RetryType;
                 Operation updateOperation =
                     t == RetryType.Delivery ? Operation.ToBeDelivered :
                     t == RetryType.Notification ? Operation.ToBeNotified : Operation.NotApplicable;
@@ -120,7 +119,7 @@ namespace Eu.EDelivery.AS4.Agents
                 Logger.Debug($"({rr.RetryType}) Update retry {{Status=Completed}}");
 
                 UpdateRefEntityOperation(repo, refToEntityId, entityType, Operation.DeadLettered);
-                repo.UpdateRetryReliability(rr.Id, r => r.SetStatus(RetryStatus.Completed));
+                repo.UpdateRetryReliability(rr.Id, r => r.Status = RetryStatus.Completed);
             }
         }
 

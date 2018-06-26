@@ -16,7 +16,7 @@ namespace Eu.EDelivery.AS4.Entities
         {
             CurrentRetryCount = 0;
             RetryInterval = TimeSpan.Zero;
-            Status = RetryStatus.Idle.ToString();
+            Status = RetryStatus.Idle;
             LastRetryTime = null;
         }
 
@@ -33,7 +33,7 @@ namespace Eu.EDelivery.AS4.Entities
         {
             MaxRetryCount = maxRetryCount;
             RetryInterval = retryInterval;
-            RetryType = type.ToString();
+            RetryType = type;
         }
 
         public long? RefToInMessageId { get; private set; }
@@ -45,21 +45,22 @@ namespace Eu.EDelivery.AS4.Entities
         public long? RefToOutExceptionId { get; private set; }
 
         [MaxLength(12)]
-        public string RetryType { get; private set; }
+        public RetryType RetryType { get; }
 
         public int CurrentRetryCount { get; set; }
 
-        public int MaxRetryCount { get; private set; }
+        public int MaxRetryCount { get; }
 
         [MaxLength(50)]
-        public TimeSpan RetryInterval { get; private set; }
+        public TimeSpan RetryInterval { get; }
 
         [MaxLength(25)]
-        public string Status { get; private set; }
+        public RetryStatus Status { get; set; }
 
+        [Obsolete]
         public void SetStatus(RetryStatus s)
         {
-            Status = s.ToString();
+            Status = s;
         }
 
         public DateTimeOffset? LastRetryTime { get; set; }

@@ -241,7 +241,7 @@ namespace Eu.EDelivery.AS4.Common
                         .UsePropertyAccessMode(PropertyAccessMode.Field);
             modelBuilder.Entity<InMessage>().Property(im => im.EbmsMessageType)
                         .HasConversion<string>()
-                        .UsePropertyAccessMode(PropertyAccessMode.Field);            
+                        .UsePropertyAccessMode(PropertyAccessMode.Field);
             modelBuilder.Entity<InMessage>().Property(im => im.PMode).UsePropertyAccessMode(PropertyAccessMode.Field);
             modelBuilder.Entity<InMessage>().Property(im => im.PModeId).UsePropertyAccessMode(PropertyAccessMode.Field);
             modelBuilder.Entity<InMessage>().HasIndex(im => new { im.EbmsMessageId, im.IsDuplicate }).HasName("IX_InMessages_EbmsMessageId_IsDuplicate");
@@ -331,8 +331,12 @@ namespace Eu.EDelivery.AS4.Common
             modelBuilder.Entity<RetryReliability>().Property(rr => rr.RetryInterval)
                         .HasConversion<string>()
                         .UsePropertyAccessMode(PropertyAccessMode.Field);
-            modelBuilder.Entity<RetryReliability>().Property(rr => rr.RetryType).UsePropertyAccessMode(PropertyAccessMode.Field);
-            modelBuilder.Entity<RetryReliability>().Property(rr => rr.Status).UsePropertyAccessMode(PropertyAccessMode.Field);
+            modelBuilder.Entity<RetryReliability>().Property(rr => rr.RetryType)
+                        .HasConversion<string>()
+                        .UsePropertyAccessMode(PropertyAccessMode.Field);
+            modelBuilder.Entity<RetryReliability>().Property(rr => rr.Status)
+                        .HasConversion<string>()
+                        .UsePropertyAccessMode(PropertyAccessMode.Field);
 
             modelBuilder.Entity<Journal>().HasKey(j => j.Id).HasName("PK_Journal");
             modelBuilder.Entity<Journal>().Property(j => j.Id).UseSqlServerIdentityColumn();

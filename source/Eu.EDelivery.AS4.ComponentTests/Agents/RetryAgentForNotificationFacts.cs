@@ -52,9 +52,9 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                     SendingProcessingMode pmode = NotifySendingPMode(url);
                     Entities.RetryReliability CreateRetry(long id)
                         => Entities.RetryReliability.CreateForInMessage(
-                            refToInMessageId: id, 
-                            maxRetryCount: pmode.ReceiptHandling.Reliability.RetryCount, 
-                            retryInterval: pmode.ReceiptHandling.Reliability.RetryInterval.AsTimeSpan(), 
+                            refToInMessageId: id,
+                            maxRetryCount: pmode.ReceiptHandling.Reliability.RetryCount,
+                            retryInterval: pmode.ReceiptHandling.Reliability.RetryInterval.AsTimeSpan(),
                             type: RetryType.Notification);
 
                     // Act
@@ -74,7 +74,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                     Entities.RetryReliability referenced = await PollUntilPresent(
                         () => spy.GetRetryReliabilityFor(r => r.RefToInMessageId == notified.Id),
                         timeout: TimeSpan.FromSeconds(5));
-                    Assert.Equal(RetryStatus.Completed, referenced.Status.ToEnum<RetryStatus>());
+                    Assert.Equal(RetryStatus.Completed, referenced.Status);
                 });
         }
 
@@ -106,11 +106,11 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                     };
 
                     SendingProcessingMode pmode = NotifySendingPMode(url);
-                    Entities.RetryReliability CreateRetry(long id) 
+                    Entities.RetryReliability CreateRetry(long id)
                         => Entities.RetryReliability.CreateForOutMessage(
-                            refToOutMessageId: id, 
-                            maxRetryCount: pmode.ErrorHandling.Reliability.RetryCount, 
-                            retryInterval: pmode.ErrorHandling.Reliability.RetryInterval.AsTimeSpan(), 
+                            refToOutMessageId: id,
+                            maxRetryCount: pmode.ErrorHandling.Reliability.RetryCount,
+                            retryInterval: pmode.ErrorHandling.Reliability.RetryInterval.AsTimeSpan(),
                             type: RetryType.Notification);
 
                     // Act
@@ -129,20 +129,20 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                     Entities.RetryReliability referenced = await PollUntilPresent(
                         () => spy.GetRetryReliabilityFor(r => r.RefToOutMessageId == notified.Id),
                         timeout: TimeSpan.FromSeconds(5));
-                    Assert.Equal(RetryStatus.Completed, referenced.Status.ToEnum<RetryStatus>());
+                    Assert.Equal(RetryStatus.Completed, referenced.Status);
                 });
         }
 
         private static void InsertMessageEntityWithRetry(
-            MessageEntity im, 
-            IConfig config, 
+            MessageEntity im,
+            IConfig config,
             SendingProcessingMode pmode,
             Func<long, Entities.RetryReliability> createRetry)
         {
             using (var ctx = new DatastoreContext(config))
             {
                 im.SetPModeInformation(pmode);
-                im.SetOperation(Operation.ToBeNotified);
+                im.Operation = Operation.ToBeNotified;
 
                 ctx.Add(im);
                 ctx.SaveChanges();
@@ -192,7 +192,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                     Entities.RetryReliability referenced = await PollUntilPresent(
                         () => spy.GetRetryReliabilityFor(r => r.RefToOutExceptionId == notified.Id),
                         timeout: TimeSpan.FromSeconds(5));
-                    Assert.Equal(RetryStatus.Completed, referenced.Status.ToEnum<RetryStatus>());
+                    Assert.Equal(RetryStatus.Completed, referenced.Status);
                 });
         }
 
@@ -274,7 +274,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                     Entities.RetryReliability referenced = await PollUntilPresent(
                         () => spy.GetRetryReliabilityFor(r => r.RefToInExceptionId == notified.Id),
                         timeout: TimeSpan.FromSeconds(5));
-                    Assert.Equal(RetryStatus.Completed, referenced.Status.ToEnum<RetryStatus>());
+                    Assert.Equal(RetryStatus.Completed, referenced.Status);
                 });
         }
 
