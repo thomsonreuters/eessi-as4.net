@@ -15,11 +15,16 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
         public Property EqualsParties()
         {
             return Prop.ForAll(
-                Arb.From<NonNull<string>>().Generator.Three().Two().ToArbitrary(),
+                Gen.OneOf(
+                       Arb.From<NonNull<string>>().Generator.Two(),
+                       Arb.From<NonNull<string>>().Generator.Select(x => Tuple.Create(x, x)))
+                   .Three()
+                   .ToArbitrary(),
                 xs =>
                 {
-                    (NonNull<string> roleA, NonNull<string> idA, NonNull<string> typeA) = xs.Item1;
-                    (NonNull<string> roleB, NonNull<string> idB, NonNull<string> typeB) = xs.Item2;
+                    (NonNull<string> roleA, NonNull<string> roleB) = xs.Item1;
+                    (NonNull<string> idA, NonNull<string> idB) = xs.Item2;
+                    (NonNull<string> typeA, NonNull<string> typeB) = xs.Item3;
 
                     var a = new Party(roleA.Get, new PartyId(idA.Get, typeA.Get));
                     var b = new Party(roleB.Get, new PartyId(idB.Get, typeB.Get));
