@@ -1,4 +1,5 @@
-﻿using Eu.EDelivery.AS4.Mappings.Core;
+﻿using Eu.EDelivery.AS4.Functional;
+using Eu.EDelivery.AS4.Mappings.Core;
 using Eu.EDelivery.AS4.Singletons;
 using Eu.EDelivery.AS4.Xml;
 using Xunit;
@@ -53,7 +54,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Core
             Service expectedService = expectedInfo.Service;
             AS4.Model.Core.Service actualService = actualInfo.Service;
 
-            Assert.Equal(expectedService.type, actualService.Type);
+            Assert.Equal(Maybe.Just(expectedService.type), actualService.Type);
             Assert.Equal(expectedService.Value, actualService.Value);
         }
 

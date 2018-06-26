@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Eu.EDelivery.AS4.Functional;
 using Eu.EDelivery.AS4.Singletons;
 using Eu.EDelivery.AS4.Xml;
 using Xunit;
@@ -113,7 +114,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Core
             Service expectedService = expectedMessage.CollaborationInfo.Service;
             AS4.Model.Core.Service actualService = actualMessage.CollaborationInfo.Service;
 
-            Assert.Equal(expectedService.type, actualService.Type);
+            Assert.Equal(Maybe.Just(expectedService.type), actualService.Type);
             Assert.Equal(expectedService.Value, actualService.Value);
         }
 
