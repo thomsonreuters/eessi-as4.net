@@ -8,18 +8,14 @@ namespace Eu.EDelivery.AS4.Steps.Receive.Participant
     /// <summary>
     /// Class to Provide <see cref="IPModeRule" /> implementations
     /// </summary>
-    internal class PModeRuleVisitor : IPModeRuleVisitor
+    internal static class PModeRuleEngine
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
-        private readonly ICollection<IPModeRule> _rules;
+        private static readonly ICollection<IPModeRule> Rules;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="PModeRuleVisitor" /> class.
-        /// Create a new Visitor for the <see cref="PModeParticipant" />
-        /// </summary>
-        public PModeRuleVisitor()
+        static PModeRuleEngine()
         {
-            _rules = new Collection<IPModeRule>
+            Rules = new Collection<IPModeRule>
             {
                 new PModeIdRule(),
                 new PModePartyInfoRule(),
@@ -34,23 +30,17 @@ namespace Eu.EDelivery.AS4.Steps.Receive.Participant
         /// apply Rules on the Participant
         /// </summary>
         /// <param name="participant"></param>
-        public void Visit(PModeParticipant participant)
+        public static PModeParticipant ApplyRules(PModeParticipant participant)
         {
-            foreach (IPModeRule rule in _rules)
+            foreach (IPModeRule rule in Rules)
             {
                 int points = rule.DeterminePoints(participant.PMode, participant.UserMessage);
                 Logger.Trace($"PMode {participant.PMode.Id}: {points} Points determined for the {rule.GetType().Name}");
 
                 participant.Points += points;
             }
-        }
-    }
 
-    /// <summary>
-    /// Interface used for testing
-    /// </summary>
-    internal interface IPModeRuleVisitor
-    {
-        void Visit(PModeParticipant participant);
-    }
+            return participant;
+        }
+    }  
 }
