@@ -23,7 +23,7 @@ namespace Eu.EDelivery.AS4.Model.Core
         public CollaborationInfo()
         {
             AgreementReference = new AgreementReference();
-            Service = new Service();
+            Service = Service.TestService;
             Action = Constants.Namespaces.TestAction;
         }
 

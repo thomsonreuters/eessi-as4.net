@@ -1,6 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="14.0" DefaultTargets="Build" 
-  xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="..\..\packages\SQLite.3.13.0\build\net45\SQLite.props" Condition="Exists('..\..\packages\SQLite.3.13.0\build\net45\SQLite.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -134,6 +133,7 @@
     <Compile Include="Builders\Security\DecryptionStrategyBuilder.cs" />
     <Compile Include="Entities\Journal.cs" />
     <Compile Include="Entities\RetryReliability.cs" />
+    <Compile Include="Maybe.cs" />
     <Compile Include="Migrations\20180302141116_RemoveOutMessagesConstraint.cs" />
     <Compile Include="Migrations\20180302141116_RemoveOutMessagesConstraint.designer.cs">
       <DependentUpon>20180302141116_RemoveOutMessagesConstraint.cs</DependentUpon>
@@ -150,6 +150,7 @@
     <Compile Include="Model\PMode\MessageProperty.cs" />
     <Compile Include="Model\PMode\CollaborationInfo.cs" />
     <Compile Include="Model\PMode\SafeIntJsonConverter.cs" />
+    <Compile Include="Model\PMode\Service.cs" />
     <Compile Include="Resources\XsdSchemaDefinitions.cs" />
     <Compile Include="Security\Signing\CalculateSignatureConfig.cs" />
     <Compile Include="Security\Strategies\SignStrategy.cs" />

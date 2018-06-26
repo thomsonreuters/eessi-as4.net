@@ -28,7 +28,7 @@ namespace Eu.EDelivery.AS4.Mappings.Deliver
 
                     deliverMessage.CollaborationInfo.Service = deliverMessage.CollaborationInfo.Service ?? new Model.Common.Service();
                     deliverMessage.CollaborationInfo.Service.Value = userMessage.CollaborationInfo.Service?.Value;
-                    deliverMessage.CollaborationInfo.Service.Type = userMessage.CollaborationInfo.Service?.Type;
+                    deliverMessage.CollaborationInfo.Service.Type = userMessage.CollaborationInfo.Service?.Type.GetOrElse(() => null);
                 })
                 .ForAllOtherMembers(x => x.Ignore());
         }

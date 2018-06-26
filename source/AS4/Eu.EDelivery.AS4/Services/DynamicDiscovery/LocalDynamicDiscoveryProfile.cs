@@ -102,7 +102,7 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
 
             pmode.MessagePackaging.CollaborationInfo =
                 pmode.MessagePackaging.CollaborationInfo ?? new Model.PMode.CollaborationInfo();
-            pmode.MessagePackaging.CollaborationInfo.Service = new Service { Type = smpResponse.ServiceType, Value = smpResponse.ServiceValue }; 
+            pmode.MessagePackaging.CollaborationInfo.Service = new Model.PMode.Service { Type = smpResponse.ServiceType, Value = smpResponse.ServiceValue }; 
             pmode.MessagePackaging.CollaborationInfo.Action = smpResponse.Action;
 
             pmode.PushConfiguration = new PushConfiguration

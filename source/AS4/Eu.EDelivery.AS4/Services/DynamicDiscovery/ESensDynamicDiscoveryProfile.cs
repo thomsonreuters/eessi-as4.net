@@ -16,6 +16,7 @@ using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.PMode;
 using NLog;
 using MessageProperty = Eu.EDelivery.AS4.Model.PMode.MessageProperty;
+using Service = Eu.EDelivery.AS4.Model.PMode.Service;
 
 namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
 {

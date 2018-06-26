@@ -1,5 +1,6 @@
-﻿using Eu.EDelivery.AS4.Model.Core;
+﻿using System;
 using Eu.EDelivery.AS4.Model.PMode;
+using Service = Eu.EDelivery.AS4.Model.Core.Service;
 
 namespace Eu.EDelivery.AS4.Mappings.PMode
 {
@@ -16,14 +17,22 @@ namespace Eu.EDelivery.AS4.Mappings.PMode
         public Service Resolve(SendingProcessingMode pmode)
         {
             if (pmode.MessagePackaging?.CollaborationInfo?.Service != null)
-                return pmode.MessagePackaging.CollaborationInfo.Service;
+            {
+                var pmodeService = pmode.MessagePackaging.CollaborationInfo.Service;
+                if (String.IsNullOrEmpty(pmodeService.Value))
+                {
+                    return Service.TestService;
+                }
 
-            return GetDefaultService();
-        }
+                if (pmodeService.Type == null)
+                {
+                    return new Service(pmodeService.Value);
+                }
 
-        private Service GetDefaultService()
-        {
-            return new Service();
+                return new Service(pmodeService.Value, pmodeService.Type);
+            }
+
+            return Service.TestService;
         }
     }
 }

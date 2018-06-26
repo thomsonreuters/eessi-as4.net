@@ -7,12 +7,17 @@ namespace Eu.EDelivery.AS4.Mappings.Core
         public ServiceMap()
         {
             CreateMap<Model.Core.Service, Xml.Service>()
-                .ForMember(dest => dest.type, src => src.MapFrom(t => t.Type))
-                .ForMember(dest => dest.Value, src => src.MapFrom(t => t.Value));
+                .ConstructUsing(model => new Xml.Service
+                {
+                    Value = model.Value,
+                    type = model.Type.GetOrElse(() => null)
+                });
 
-            CreateMap<Xml.Service, Model.Core.Service>()
-                .ForMember(dest => dest.Type, src => src.MapFrom(t => t.type))
-                .ForMember(dest => dest.Value, src => src.MapFrom(t => t.Value));
+            CreateMap<Xml.Service, Model.Core.Service>(MemberList.None)
+                .ConstructUsing(xml => 
+                    xml.type == null
+                        ? new Model.Core.Service(xml.Value)
+                        : new Model.Core.Service(xml.Value, xml.type));
         }
     }
 }

@@ -26,7 +26,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
                 CoreService service = resolver.Resolve(submitMessage);
 
                 // Assert
-                Assert.True(string.IsNullOrWhiteSpace(service.Value));
+               Assert.Equal(CoreService.TestService, service);
             }
 
             [Fact]
@@ -45,10 +45,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
                 var resolver = SubmitServiceResolver.Default;
 
                 // Act
-                CoreService service = resolver.Resolve(submitMessage);
+                CoreService actual = resolver.Resolve(submitMessage);
 
                 // Assert
-                Assert.Equal(submitMessage.PMode.MessagePackaging.CollaborationInfo.Service, service);
+                Service expected = submitMessage.PMode.MessagePackaging.CollaborationInfo.Service;
+                Assert.Equal(expected.Value, actual.Value);
+                Assert.Equal(Maybe.Just(expected.Type), actual.Type);
             }
 
             [Fact]
@@ -67,7 +69,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
 
                 // Assert
                 Assert.Equal(submitMessage.Collaboration.Service.Value, service.Value);
-                Assert.Equal(submitMessage.Collaboration.Service.Type, service.Type);
+                Assert.Equal(Maybe.Just(submitMessage.Collaboration.Service.Type), service.Type);
             }
         }
 
@@ -103,9 +105,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
             return new CommonService {Type = "submit-type", Value = "submit-value"};
         }
 
-        protected CoreService CreatePopulatedCoreService()
+        protected Service CreatePopulatedCoreService()
         {
-            return new CoreService {Value = "pmode-name", Type = "pmode-type"};
+            return new Service {Value = "pmode-name", Type = "pmode-type"};
         }
     }
 }

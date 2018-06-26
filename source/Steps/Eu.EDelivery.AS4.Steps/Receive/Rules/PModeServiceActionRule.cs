@@ -32,8 +32,23 @@ namespace Eu.EDelivery.AS4.Steps.Receive.Rules
                 return false;
             }
 
-            return pmodeCollaboration.Action?.Equals(messageCollaboration.Action) == true &&
-                   pmodeCollaboration.Service?.Equals(messageCollaboration.Service) == true;
+            bool equalAction = 
+                pmodeCollaboration.Action?.Equals(messageCollaboration.Action) == true;
+
+            bool noServiceType = 
+                pmodeCollaboration.Service?.Type == null
+                && messageCollaboration.Service.Type == Maybe<string>.Nothing;
+
+            bool equalServiceType = 
+                messageCollaboration.Service.Type
+                    .Select(t => pmodeCollaboration.Service?.Type == t)
+                    .GetOrElse(false);
+
+            bool equalService =
+                pmodeCollaboration.Service?.Value == messageCollaboration.Service.Value
+                && (noServiceType || equalServiceType);
+
+            return equalAction && equalService;
         }
     }
 }
