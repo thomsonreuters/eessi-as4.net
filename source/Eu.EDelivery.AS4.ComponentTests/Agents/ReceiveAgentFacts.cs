@@ -124,11 +124,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                         Value = "http://agreements.europa.org/agreement"
                     },
                     Action = "Invalid_PMode_Test_Action",
-                    Service =
-                    {
-                        Type = "eu:europa:services",
-                        Value = "Invalid_PMode_Test_Service"
-                    }
+                    Service = new Model.Core.Service("Invalid_PMode_Test_Service", "eu:europa:services")
                 }
             });
 

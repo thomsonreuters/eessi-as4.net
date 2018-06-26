@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Eu.EDelivery.AS4.Functional;
 using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
@@ -191,9 +192,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
                 StepResult result = await ExerciseCreateAS4Message(internalMessage);
 
                 // Assert
-                Service pmodService = submitMessage.PMode.MessagePackaging.CollaborationInfo.Service;
+                AS4.Model.PMode.Service pmodService = submitMessage.PMode.MessagePackaging.CollaborationInfo.Service;
                 Service userMessageService = result.MessagingContext.AS4Message.FirstUserMessage.CollaborationInfo.Service;
-                Assert.Equal(pmodService, userMessageService);
+
+                Assert.Equal(pmodService.Value, userMessageService.Value);
+                Assert.Equal(Maybe.Just(pmodService.Type), userMessageService.Type);
             }
 
             [Fact]

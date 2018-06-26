@@ -2,6 +2,7 @@
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Steps.Receive.Rules;
 using Xunit;
+using Service = Eu.EDelivery.AS4.Model.PMode.Service;
 
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive.Rules
 {
@@ -78,11 +79,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive.Rules
             }
         }
 
-        protected Service CreateService(string name, string type)
-        {
-            return new Service() {Value = name, Type = type};
-        }
-
         protected ReceivingProcessingMode CreateServiceActionReceivingPMode(
             string serviceName, string serviceType, string action)
         {
@@ -93,7 +89,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive.Rules
                     CollaborationInfo = new AS4.Model.PMode.CollaborationInfo()
                     {
                         Action = action,
-                        Service = CreateService(serviceName, serviceType)
+                        Service = new Service() {Value = serviceName, Type = serviceType}
                     }
                 }
             };
@@ -106,7 +102,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive.Rules
                 CollaborationInfo =
                 {
                     Action = action,
-                    Service = CreateService(serviceName, serviceType)
+                    Service = new AS4.Model.Core.Service(serviceName, serviceType)
                 }
             };
         }

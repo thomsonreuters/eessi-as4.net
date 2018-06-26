@@ -15,6 +15,7 @@ using Eu.EDelivery.AS4.UnitTests.Common;
 using Eu.EDelivery.AS4.UnitTests.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
+using Service = Eu.EDelivery.AS4.Model.Core.Service;
 
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 {
@@ -41,125 +42,154 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
         /// </summary>
         protected override IStep Step { get; }
 
-        public class GivenValidArguments : GivenSaveReceivedMessageDatastoreFacts
+        [Fact]
+        public async Task ThenExecuteStepIgnoresPullRequests()
         {
-            [Fact]
-            public async Task ThenExecuteStepIsTestUserMessageAsync()
+            // Arrange
+            var pr = AS4Message.Create(
+                new PullRequest(
+                    $"pr-mpc-{Guid.NewGuid()}",
+                    $"pr-msg-id-{Guid.NewGuid()}"));
+
+            // Act
+            using (MessagingContext ctx = 
+                CreateReceivedMessagingContext(pr, new ReceivingProcessingMode()))
             {
-                // Arrange
-                UserMessage userMessage = CreateUserMessage();
-                AddTestableDataToUserMessage(userMessage);
-
-                var as4Message = AS4Message.Create(userMessage);
-
-                var pmode = new ReceivingProcessingMode();
-                pmode.Reliability.DuplicateElimination.IsEnabled = true;
-
-                using (var messagingContext = CreateReceivedMessagingContext(as4Message, pmode))
-                {
-                    // Act
-                    await Step.ExecuteAsync(messagingContext);
-
-                    // Assert
-                    InMessage m = await GettUserInMessage(userMessage);
-                    Assert.Equal(Operation.NotApplicable, m.Operation.ToEnum<Operation>());
-                }
+                await Step.ExecuteAsync(ctx);
             }
 
-            [Fact]
-            public async Task ThenExecuteStepUpdatesDuplicateReceiptMessageAsync()
+            // Assert
+            InMessage im = GetDataStoreContext.GetInMessage(
+                m => m.EbmsMessageId == pr.GetPrimaryMessageId());
+            Assert.Null(im);
+        }
+
+        [Fact]
+        public async Task ThenExecuteStepSavesBothUserAndReceiptMessage()
+        {
+            // Arrange
+            UserMessage um = CreateUserMessage();
+            SignalMessage r = CreateReceipt();
+            var as4 = AS4Message.Empty;
+            as4.AddMessageUnit(um);
+            as4.AddMessageUnit(r);
+
+            // Act
+            using (MessagingContext ctx = 
+                CreateReceivedMessagingContext(as4, new ReceivingProcessingMode()))
             {
-                // Arrange
-                SignalMessage signalMessage = new Receipt("message-id") { RefToMessageId = "ref-to-message-id" };
-                signalMessage.IsDuplicate = false;
-
-                using (var messagingContext = CreateReceivedMessagingContext(AS4Message.Create(signalMessage), null))
-                {
-                    // Act           
-                    // Execute the step twice.     
-                    StepResult stepResult = await Step.ExecuteAsync(messagingContext);
-                    Assert.False(stepResult.MessagingContext.AS4Message.FirstSignalMessage.IsDuplicate);
-                }
-
-                using (MessagingContext messagingContext = 
-                    CreateReceivedMessagingContext(AS4Message.Create(signalMessage), null))
-                {
-                    StepResult stepResult = await Step.ExecuteAsync(messagingContext);
-
-                    // Assert
-                    Assert.True(stepResult.MessagingContext.AS4Message.FirstSignalMessage.IsDuplicate);
-                }
+                // Act
+                await Step.ExecuteAsync(ctx);
             }
 
-            [Fact]
-            public async Task ThenExecuteStepUpdatesDuplicateUserMessageAsync()
+            // Assert
+            GetDataStoreContext.AssertInMessage(um.MessageId, Assert.NotNull);
+            GetDataStoreContext.AssertInMessage(r.MessageId, Assert.NotNull);
+        }
+
+        [Fact]
+        public async Task ThenExecuteStepIsTestUserMessage()
+        {
+            // Arrange
+            UserMessage userMessage = CreateUserMessage();
+            AddTestableDataToUserMessage(userMessage);
+
+            AS4Message as4Message = AS4Message.Create(userMessage);
+
+            var pmode = new ReceivingProcessingMode();
+            pmode.Reliability.DuplicateElimination.IsEnabled = true;
+
+            using (MessagingContext messagingContext = CreateReceivedMessagingContext(as4Message, pmode))
             {
-                // Arrange
-                UserMessage userMessage = CreateUserMessage();
-                await InsertDuplicateUserMessage(userMessage);
+                // Act
+                await Step.ExecuteAsync(messagingContext);
 
-                var pmode = new ReceivingProcessingMode();
-                pmode.Reliability.DuplicateElimination.IsEnabled = true;
-
-                using (MessagingContext context = 
-                    CreateReceivedMessagingContext(AS4Message.Create(userMessage), pmode))
-                {
-                    // Act
-                    await Step.ExecuteAsync(context);
-
-                    // Assert
-                    InMessage m = await GettUserInMessage(userMessage);
-                    Assert.Equal(Operation.NotApplicable, m.Operation.ToEnum<Operation>());
-                }
-            }
-
-            
-
-            private async Task InsertDuplicateUserMessage(MessageUnit userMessage)
-            {
-                using (DatastoreContext context = GetDataStoreContext())
-                {
-                    var inMessage = new InMessage(ebmsMessageId: userMessage.MessageId);
-                    context.InMessages.Add(inMessage);
-                    await context.SaveChangesAsync();
-                }
-            }
-
-            private async Task<InMessage> GettUserInMessage(MessageUnit userMessage)
-            {
-                using (DatastoreContext context = GetDataStoreContext())
-                {
-                    InMessage inMessage = await context.InMessages
-                                                       .FirstOrDefaultAsync(m => m.EbmsMessageId.Equals(userMessage.MessageId));
-
-                    Assert.NotNull(inMessage);
-                    Assert.Equal(MessageType.UserMessage, inMessage.EbmsMessageType.ToEnum<MessageType>());
-
-                    return inMessage;
-                }
-            }
-
-            [Fact]
-            public async Task ThenExecuteStepSucceedsAsync()
-            {
-                // Arrange
-                using (MessagingContext context = 
-                    CreateReceivedMessagingContext(AS4Message.Empty, receivingPMode: null))
-                {
-                    // Act
-                    StepResult result = await Step.ExecuteAsync(context);
-
-                    // Assert
-                    Assert.NotNull(result);
-                }
+                // Assert
+                InMessage m = GetUserInMessageForEbmsMessageId(userMessage);
+                Assert.Equal(Operation.NotApplicable, m.Operation.ToEnum<Operation>());
             }
         }
 
-        /// <summary>
-        /// Create a <see cref="UserMessage" /> based on the configured Id's.
-        /// </summary>
-        /// <returns></returns>
-        protected UserMessage CreateUserMessage()
+        [Fact]
+        public async Task ThenExecuteStepUpdatesDuplicateReceiptMessage()
+        {
+            // Arrange
+            SignalMessage signalMessage = new Receipt("message-id") { RefToMessageId = "ref-to-message-id" };
+            signalMessage.IsDuplicate = false;
+
+            using (MessagingContext messagingContext =
+                CreateReceivedMessagingContext(AS4Message.Create(signalMessage), null))
+            {
+                // Act           
+                // Execute the step twice.     
+                StepResult stepResult = await Step.ExecuteAsync(messagingContext);
+                Assert.False(stepResult.MessagingContext.AS4Message.FirstSignalMessage.IsDuplicate);
+            }
+
+            using (MessagingContext messagingContext =
+                CreateReceivedMessagingContext(AS4Message.Create(signalMessage), null))
+            {
+                StepResult stepResult = await Step.ExecuteAsync(messagingContext);
+
+                // Assert
+                Assert.True(stepResult.MessagingContext.AS4Message.FirstSignalMessage.IsDuplicate);
+            }
+        }
+
+        [Fact]
+        public async Task ThenExecuteStepUpdatesDuplicateUserMessage()
+        {
+            // Arrange
+            UserMessage userMessage = CreateUserMessage();
+            InsertDuplicateUserMessage(userMessage);
+
+            var pmode = new ReceivingProcessingMode();
+            pmode.Reliability.DuplicateElimination.IsEnabled = true;
+
+            using (MessagingContext context =
+                CreateReceivedMessagingContext(AS4Message.Create(userMessage), pmode))
+            {
+                // Act
+                await Step.ExecuteAsync(context);
+            }
+
+            // Assert
+            InMessage m = GetUserInMessageForEbmsMessageId(userMessage);
+            Assert.Equal(Operation.NotApplicable, m.Operation.ToEnum<Operation>());
+        }
+
+        private void InsertDuplicateUserMessage(MessageUnit userMessage)
+        {
+            GetDataStoreContext.InsertInMessage(new InMessage(ebmsMessageId: userMessage.MessageId));
+        }
+
+        private InMessage GetUserInMessageForEbmsMessageId(MessageUnit userMessage)
+        {
+            InMessage inMessage = GetDataStoreContext
+                .GetInMessage(m => m.EbmsMessageId.Equals(userMessage.MessageId));
+
+            Assert.NotNull(inMessage);
+            Assert.Equal(MessageType.UserMessage, inMessage.EbmsMessageType.ToEnum<MessageType>());
+
+            return inMessage;
+        }
+
+        [Fact]
+        public async Task ThenExecuteStepSucceedsAsync()
+        {
+            // Arrange
+            using (MessagingContext context =
+                CreateReceivedMessagingContext(AS4Message.Empty, receivingPMode: null))
+            {
+                // Act
+                StepResult result = await Step.ExecuteAsync(context);
+
+                // Assert
+                Assert.NotNull(result);
+            }
+        }
+
+        private static UserMessage CreateUserMessage()
         {
             string userMessageId = Guid.NewGuid().ToString();
             return new UserMessage(userMessageId) { RefToMessageId = userMessageId };
@@ -168,20 +198,24 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
         private static void AddTestableDataToUserMessage(UserMessage userMessage)
         {
             userMessage.CollaborationInfo.Action = Constants.Namespaces.TestAction;
-            userMessage.CollaborationInfo.Service.Value = Constants.Namespaces.TestService;
+            userMessage.CollaborationInfo.Service = new Service(Constants.Namespaces.TestService);
         }
 
         protected MessagingContext CreateReceivedMessagingContext(AS4Message as4Message, ReceivingProcessingMode receivingPMode)
         {
             var stream = new MemoryStream();
 
-            SerializerProvider.Default.Get(as4Message.ContentType).Serialize(as4Message, stream, CancellationToken.None);
+            SerializerProvider
+                .Default
+                .Get(as4Message.ContentType)
+                .Serialize(as4Message, stream, CancellationToken.None);
+
             stream.Position = 0;
 
             var ctx = new MessagingContext(
-                new ReceivedMessage(stream, as4Message.ContentType), 
-                MessagingContextMode.Receive)
-                {ReceivingPMode = receivingPMode};
+                    new ReceivedMessage(stream, as4Message.ContentType),
+                    MessagingContextMode.Receive)
+                { ReceivingPMode = receivingPMode };
 
             ctx.ModifyContext(as4Message);
             return ctx;

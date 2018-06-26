@@ -133,6 +133,7 @@
     <Compile Include="Builders\Security\DecryptionStrategyBuilder.cs" />
     <Compile Include="Entities\Journal.cs" />
     <Compile Include="Entities\RetryReliability.cs" />
+    <Compile Include="Functional\Maybe.cs" />
     <Compile Include="Migrations\20180302141116_RemoveOutMessagesConstraint.cs" />
     <Compile Include="Migrations\20180302141116_RemoveOutMessagesConstraint.designer.cs">
       <DependentUpon>20180302141116_RemoveOutMessagesConstraint.cs</DependentUpon>
@@ -149,6 +150,7 @@
     <Compile Include="Model\PMode\MessageProperty.cs" />
     <Compile Include="Model\PMode\CollaborationInfo.cs" />
     <Compile Include="Model\PMode\SafeIntJsonConverter.cs" />
+    <Compile Include="Model\PMode\Service.cs" />
     <Compile Include="Resources\XsdSchemaDefinitions.cs" />
     <Compile Include="Security\Signing\CalculateSignatureConfig.cs" />
     <Compile Include="Security\Strategies\SignStrategy.cs" />
