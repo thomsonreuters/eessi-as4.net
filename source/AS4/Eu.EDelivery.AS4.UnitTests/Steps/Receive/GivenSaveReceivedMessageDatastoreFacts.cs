@@ -113,7 +113,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
         public async Task ThenExecuteStepUpdatesDuplicateReceiptMessage()
         {
             // Arrange
-            SignalMessage signalMessage = new Receipt("message-id") { RefToMessageId = "ref-to-message-id" };
+            SignalMessage signalMessage = new Receipt("message-id", "ref-to-message-id");
             signalMessage.IsDuplicate = false;
 
             using (MessagingContext messagingContext =

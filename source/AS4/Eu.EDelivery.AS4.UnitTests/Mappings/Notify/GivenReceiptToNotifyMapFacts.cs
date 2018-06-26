@@ -1,4 +1,5 @@
-﻿using Eu.EDelivery.AS4.Mappings.Notify;
+﻿using System;
+using Eu.EDelivery.AS4.Mappings.Notify;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Notify;
 using Eu.EDelivery.AS4.Singletons;
@@ -18,7 +19,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Notify
             public void ThenMapMessageInfoSucceeds()
             {
                 // Arrange
-                var receipt = new Receipt("message-id") {RefToMessageId = "ref-to-message-id"};
+                var receipt = new Receipt("message-id", "ref-to-message-id");
 
                 // Act
                 var notifyMessage = AS4Mapper.Map<NotifyMessage>(receipt);
@@ -33,7 +34,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Notify
             public void ThenNotifyMessageHasStatusDelivered()
             {
                 // Arrange
-                var receipt = new Receipt("message-id");
+                var receipt = new Receipt("message-id", Guid.NewGuid().ToString());
 
                 // Act
                 var notifyMessage = AS4Mapper.Map<NotifyMessage>(receipt);

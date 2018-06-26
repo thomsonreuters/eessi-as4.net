@@ -1,6 +1,7 @@
-﻿using System.Linq;
-using System.Threading;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
+using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
@@ -10,6 +11,7 @@ using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Steps.Receive;
 using Eu.EDelivery.AS4.UnitTests.Common;
 using Eu.EDelivery.AS4.UnitTests.Model;
+using Moq;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
@@ -19,94 +21,113 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
     /// </summary>
     public class GivenCreateAS4ErrorStepFacts : GivenDatastoreFacts
     {
-        public class GivenValidArguments : GivenCreateAS4ErrorStepFacts
+        [Fact]
+        public async Task ThenNotApplicableIfMessageIsEmptySoapBodyAsync()
         {
-            public IStep Step => new CreateAS4ErrorStep();
+            // Arrange
+            var fixture = new MessagingContext(AS4Message.Empty, MessagingContextMode.Receive);
 
-            [Fact]
-            public async Task ThenNotApplicableIfMessageIsEmptySoapBodyAsync()
+            // Act
+            StepResult result = await CreateErrorStepWith(
+                referencedSendPModeId: Guid.NewGuid().ToString())
+                .ExecuteAsync(fixture);
+
+            // Assert
+            Assert.Equal(fixture, result.MessagingContext);
+        }
+
+        [Fact]
+        public async Task ThenErrorIsCreatedWithAS4ExceptionAsync()
+        {
+            // Arrange
+            AS4Message as4Message = CreateFilledAS4Message();
+            string sendPModeId = $"send-{Guid.NewGuid()}";
+            var fixture = new MessagingContext(
+                as4Message,
+                MessagingContextMode.Unknown)
             {
-                // Arrange
-                var fixture = new MessagingContext(AS4Message.Empty, MessagingContextMode.Receive);
+                ErrorResult = new ErrorResult(string.Empty, ErrorAlias.ConnectionFailure),
+                ReceivingPMode = CreateReceivePModeWithReferencedSendPMode(sendPModeId)
+            };
 
-                // Act
-                StepResult result = await Step.ExecuteAsync(fixture);
+            // Act
+            StepResult result = await CreateErrorStepWith(sendPModeId).ExecuteAsync(fixture);
 
-                // Assert
-                Assert.Equal(fixture, result.MessagingContext);
-            }
+            // Assert
+            var error = result.MessagingContext.AS4Message.FirstSignalMessage as Error;
 
-            [Fact]
-            public async Task ThenErrorIsCreatedWithAS4ExceptionAsync()
+            Assert.NotNull(error);
+            Assert.Equal("message-id", error.RefToMessageId);
+            Assert.Equal("EBMS:0005", error.Errors.First().ErrorCode);
+            Assert.Equal(sendPModeId, result.MessagingContext.SendingPMode.Id);
+        }
+
+        [Fact]
+        public async Task ThenErrorIsCreatedWithPModesAsync()
+        {
+            // Arrange
+            string sendPModeId = $"send-{Guid.NewGuid()}";
+            var fixture = new MessagingContext(
+                CreateFilledAS4Message(),
+                MessagingContextMode.Unknown)
             {
-                // Arrange
-                AS4Message as4Message = CreateFilledAS4Message();
-                var fixture = new MessagingContext(
-                    as4Message, 
-                    MessagingContextMode.Unknown)
-                    {
-                        ErrorResult = new ErrorResult(description: string.Empty, alias: ErrorAlias.ConnectionFailure),
-                        SendingPMode = new SendingProcessingMode(),
-                        ReceivingPMode = new ReceivingProcessingMode()
-                    };
+                ReceivingPMode = CreateReceivePModeWithReferencedSendPMode(sendPModeId)
+            };
 
-                // Act
-                StepResult result = await Step.ExecuteAsync(fixture);
+            // Act
+            StepResult result = await CreateErrorStepWith(sendPModeId).ExecuteAsync(fixture);
 
-                // Assert
-                var error = result.MessagingContext.AS4Message.FirstSignalMessage as Error;
+            // Assert
+            Assert.Equal(fixture.ReceivingPMode, result.MessagingContext.ReceivingPMode);
+            Assert.Equal(sendPModeId, result.MessagingContext.SendingPMode.Id);
+        }
 
-                Assert.NotNull(error);
-                Assert.Equal("message-id", error.RefToMessageId);
-                Assert.Equal("EBMS:0005", error.Errors.First().ErrorCode);
-            }
+        [Fact]
+        public async Task ThenErrorIsCreatedWithSigningIdAsync()
+        {
+            // Arrange
+            AS4Message as4Message = CreateFilledAS4Message();
+            as4Message.SigningId = new SigningId("header-id", "body-id");
+            string sendPModeId = $"send-{Guid.NewGuid()}";
 
-            [Fact]
-            public async Task ThenErrorIsCreatedWithPModesAsync()
+            var fixture = new MessagingContext(
+                as4Message,
+                MessagingContextMode.Unknown)
             {
-                // Arrange
-                var fixture = new MessagingContext(
-                    CreateFilledAS4Message(), 
-                    MessagingContextMode.Unknown)
-                    {
-                        SendingPMode = new SendingProcessingMode(),
-                        ReceivingPMode = new ReceivingProcessingMode()
-                    };
+                ReceivingPMode = CreateReceivePModeWithReferencedSendPMode(sendPModeId)
+            };
 
-                // Act
-                StepResult result = await Step.ExecuteAsync(fixture);
+            // Act
+            StepResult result = await CreateErrorStepWith(sendPModeId).ExecuteAsync(fixture);
 
-                // Assert
-                Assert.Equal(fixture.ReceivingPMode, result.MessagingContext.ReceivingPMode);
-                Assert.Equal(fixture.SendingPMode, result.MessagingContext.SendingPMode);
-            }
+            // Assert
+            Assert.Equal(as4Message.SigningId, result.MessagingContext.AS4Message.SigningId);
+            Assert.Equal(sendPModeId, result.MessagingContext.SendingPMode.Id);
+        }
 
-            [Fact]
-            public async Task ThenErrorIsCreatedWithSigningIdAsync()
+        private static AS4Message CreateFilledAS4Message()
+        {
+            return AS4Message.Create(new FilledUserMessage());
+        }
+
+        private static ReceivingProcessingMode CreateReceivePModeWithReferencedSendPMode(string id)
+        {
+            return new ReceivingProcessingMode
             {
-                // Arrange
-                AS4Message as4Message = CreateFilledAS4Message();   
-                as4Message.SigningId = new SigningId("header-id", "body-id");
+                ReplyHandling =
+                {
+                    SendingPMode = id
+                }
+            };
+        }
 
-                var fixture = new MessagingContext(
-                    as4Message, 
-                    MessagingContextMode.Unknown)
-                    {
-                        SendingPMode = new SendingProcessingMode(),
-                        ReceivingPMode = new ReceivingProcessingMode()
-                    };
+        private IStep CreateErrorStepWith(string referencedSendPModeId)
+        {
+            var stub = new Mock<IConfig>();
+            stub.Setup(c => c.GetSendingPMode(referencedSendPModeId))
+                .Returns(new SendingProcessingMode { Id = referencedSendPModeId });
 
-                // Act
-                StepResult result = await Step.ExecuteAsync(fixture);
-
-                // Assert
-                Assert.Equal(as4Message.SigningId, result.MessagingContext.AS4Message.SigningId);
-            }
-
-            private static AS4Message CreateFilledAS4Message()
-            {
-                return AS4Message.Create(new FilledUserMessage());
-            }
+            return new CreateAS4ErrorStep(stub.Object, GetDataStoreContext);
         }
     }
 }

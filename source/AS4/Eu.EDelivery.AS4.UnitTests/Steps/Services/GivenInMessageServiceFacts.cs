@@ -34,7 +34,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Services
                     MessagingContextMode.Receive);
 
                 string ebmsMessageId = $"receipt-{Guid.NewGuid()}";
-                AS4Message receipt = AS4Message.Create(new Receipt(ebmsMessageId));
+                AS4Message receipt = AS4Message.Create(new Receipt(ebmsMessageId, Guid.NewGuid().ToString()));
                 ctx.ModifyContext(receipt);
 
                 using (DatastoreContext dbCtx = GetDataStoreContext())

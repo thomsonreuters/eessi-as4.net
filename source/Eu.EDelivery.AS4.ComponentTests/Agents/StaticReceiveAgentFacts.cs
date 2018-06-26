@@ -47,7 +47,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                 {
                     // Arrange
                     AS4Message receipt = AS4Message.Create(
-                        new Receipt($"ebms-id-receipt-{Guid.NewGuid()}"));
+                        new Receipt($"ebms-id-receipt-{Guid.NewGuid()}", $"reftoid-{Guid.NewGuid()}"));
 
                     // Act
                     HttpResponseMessage response =

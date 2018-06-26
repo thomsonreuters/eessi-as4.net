@@ -1,9 +1,9 @@
 ﻿using System;
-using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Extensions;
+using Eu.EDelivery.AS4.Http;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
@@ -13,6 +13,7 @@ using Eu.EDelivery.AS4.TestUtils.Stubs;
 using Eu.EDelivery.AS4.UnitTests.Common;
 using Eu.EDelivery.AS4.UnitTests.Extensions;
 using Eu.EDelivery.AS4.UnitTests.Model;
+using Eu.EDelivery.AS4.UnitTests.Repositories;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
@@ -23,22 +24,22 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
     public class GivenSendAS4MessageStepFacts : GivenDatastoreFacts
     {
         [Fact]
-        public async Task StepUpdatesRequestOperationAndStatus_IfRequestIsBeingSent()
+        public async Task After_Send_Updates_Request_Operation_And_Status_To_Sent_For_Exsiting_SendPMode()
         {
             // Arrange
-            var messagingContext = SetupMessagingContextWithToBeSentMessage("some-message-id");
-
-            long outMessageId = ((ReceivedEntityMessage)messagingContext.ReceivedMessage).Entity.Id;
+            string ebmsMessageId = $"user-{Guid.NewGuid()}";
+            MessagingContext ctx = SetupMessagingContextWithToBeSentMessage(ebmsMessageId);
+            ctx.SendingPMode = CreateSendPModeWithPushUrl();
 
             // Act 
-            var step = new SendAS4MessageStep(GetDataStoreContext,
-                                              StubHttpClient.ThatReturns(AS4Message.Create(new Receipt())));
+            IStep sut = CreateSendStepWithResponse(
+                StubHttpClient.ThatReturns(AS4Message.Create(new Receipt())));
 
-            await step.ExecuteAsync(messagingContext);
+            await sut.ExecuteAsync(ctx);
 
             // Assert
-            AssertSentUserMessage(
-                outMessageId,
+            GetDataStoreContext.AssertOutMessage(
+                ebmsMessageId,
                 message =>
                 {
                     Assert.Equal(OutStatus.Sent, message.Status.ToEnum<OutStatus>());
@@ -48,67 +49,70 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
 
         private MessagingContext SetupMessagingContextWithToBeSentMessage(string ebmsMessageId)
         {
-            var as4Message = AS4Message.Create(new FilledUserMessage(ebmsMessageId));
+            AS4Message tobeSentMsg = AS4Message.Create(new FilledUserMessage(ebmsMessageId));
 
-            OutMessage outMessage = null;
+            var inserted = new OutMessage(ebmsMessageId: ebmsMessageId);
+            GetDataStoreContext.InsertOutMessage(inserted, withReceptionAwareness: false);
 
-            using (var context = GetDataStoreContext())
-            {
-                outMessage = new OutMessage(ebmsMessageId: ebmsMessageId);
-                context.OutMessages.Add(outMessage);
-                context.SaveChanges();
-            }
+            var receivedMessage = new ReceivedMessageEntityMessage(
+                inserted,
+                tobeSentMsg.ToStream(),
+                tobeSentMsg.ContentType);
 
-            var receivedMessage = new ReceivedMessageEntityMessage(outMessage,
-                                                                   as4Message.ToStream(),
-                                                                   as4Message.ContentType);
-
-            var messagingContext = new MessagingContext(receivedMessage, MessagingContextMode.Send)
-            {
-                SendingPMode = CreateValidSendingPMode()
-            };
-
-            messagingContext.ModifyContext(as4Message);
+            var messagingContext = new MessagingContext(receivedMessage, MessagingContextMode.Send);
+            messagingContext.ModifyContext(tobeSentMsg);
 
             return messagingContext;
         }
 
-        private void AssertSentUserMessage(long outMessageId, Action<OutMessage> assertion)
-        {
-            using (var context = GetDataStoreContext())
-            {
-                OutMessage outMessage = context.OutMessages.FirstOrDefault(
-                    m => m.Id == outMessageId);
-
-                assertion(outMessage);
-            }
-        }
-
         [Fact]
-        public async Task StepReturnsStopExecutionResult_IfResponseIsPullRequestError()
+        public async Task Send_Results_In_Stop_Execution_If_Response_Is_PullRequest_Warning_For_Exsisting_SendPMode()
         {
             // Arrange
             AS4Message as4Message = AS4Message.Create(new PullRequestError());
-            var step = new SendAS4MessageStep(GetDataStoreContext, StubHttpClient.ThatReturns(as4Message));
+            IStep sut = CreateSendStepWithResponse(
+                StubHttpClient.ThatReturns(as4Message));
 
-            MessagingContext dummyMessage = CreateMessagingContextWithDefaultPullRequest();
+            MessagingContext ctx = CreateMessagingContextWithDefaultPullRequest();
+            ctx.SendingPMode = CreateSendPModeWithPushUrl();
 
             // Act
-            StepResult actualResult = await step.ExecuteAsync(dummyMessage);
+            StepResult actualResult = await sut.ExecuteAsync(ctx);
 
             // Assert
             Assert.False(actualResult.CanProceed);
         }
 
         [Fact]
-        public async Task SendReturnsEmptyResponseForEmptyRequest()
+        public async Task Send_Returns_Empty_Response_For_Empty_Request_For_Existing_SendPMode()
         {
             // Arrange
-            var step = new SendAS4MessageStep(GetDataStoreContext, StubHttpClient.ThatReturns(HttpStatusCode.Accepted));
-            MessagingContext dummyMessage = CreateMessagingContextWithDefaultPullRequest();
+            IStep sut = CreateSendStepWithResponse(
+                StubHttpClient.ThatReturns(HttpStatusCode.Accepted));
+
+            MessagingContext ctx = CreateMessagingContextWithDefaultPullRequest();
+            ctx.SendingPMode = CreateSendPModeWithPushUrl();
 
             // Act
-            StepResult actualResult = await step.ExecuteAsync(dummyMessage);
+            StepResult actualResult = await sut.ExecuteAsync(ctx);
+
+            // Assert
+            Assert.True(actualResult.MessagingContext.AS4Message.IsEmpty);
+            Assert.False(actualResult.CanProceed);
+        }
+
+        [Fact]
+        public async Task Send_Returns_Empty_Response_For_Empty_Request_For_Response_SendPMode()
+        {
+            // Arrange
+            IStep sut = CreateSendStepWithResponse(
+                StubHttpClient.ThatReturns(HttpStatusCode.Accepted));
+
+            MessagingContext ctx = CreateMessagingContextWithDefaultPullRequest();
+            ctx.SendingPMode = CreateSendPModeWithPushUrl();
+
+            // Act
+            StepResult actualResult = await sut.ExecuteAsync(ctx);
 
             // Assert
             Assert.True(actualResult.MessagingContext.AS4Message.IsEmpty);
@@ -117,22 +121,33 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
 
         private static MessagingContext CreateMessagingContextWithDefaultPullRequest()
         {
-            var pullRequest = AS4Message.Create(new PullRequest(mpc: null, messageId: "message-id"));
+            var pullRequest = AS4Message.Create(
+                new PullRequest(mpc: null, messageId: "message-id"));
 
-            var ms = pullRequest.ToStream();
-
-            MessagingContext context = new MessagingContext(new ReceivedMessage(ms, pullRequest.ContentType), MessagingContextMode.Receive);
-            context.SendingPMode = CreateValidSendingPMode();
-
-            return context;
+            return new MessagingContext(
+                new ReceivedMessage(
+                    pullRequest.ToStream(), 
+                    pullRequest.ContentType),
+                MessagingContextMode.Receive);
         }
 
-        private static SendingProcessingMode CreateValidSendingPMode()
+        private IStep CreateSendStepWithResponse(IHttpClient client)
+        {
+            return new SendAS4MessageStep(GetDataStoreContext, client);
+        }
+
+        private static SendingProcessingMode CreateSendPModeWithPushUrl()
         {
             return new SendingProcessingMode
             {
-                PushConfiguration = new PushConfiguration { Protocol = { Url = "http://ignored/path" } },
-                Reliability = { ReceptionAwareness = { IsEnabled = true } }
+                PushConfiguration = new PushConfiguration
+                {
+                    Protocol = { Url = "http://ignored/path" }
+                },
+                Reliability =
+                {
+                    ReceptionAwareness = { IsEnabled = true }
+                }
             };
         }
     }

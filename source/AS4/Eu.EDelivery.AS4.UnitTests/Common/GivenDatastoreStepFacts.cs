@@ -57,7 +57,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
         /// <returns></returns>
         protected Receipt CreateReceipt()
         {
-            return new Receipt(ReceiptMessageId) { RefToMessageId = ReceiptMessageId };
+            return new Receipt(ReceiptMessageId, ReceiptMessageId);
         }
 
         /// <summary>

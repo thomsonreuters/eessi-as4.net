@@ -96,7 +96,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             public async Task Takes_Sending_PMode_Into_Account_When_Verifies_Non_Multihop_Signal()
             {
                 // Arrange
-                var as4Msg = AS4Message.Create(new Receipt(messageId: $"receipt-{Guid.NewGuid()}"));
+                var as4Msg = AS4Message.Create(new Receipt($"receipt-{Guid.NewGuid()}", $"reftoid-{Guid.NewGuid()}"));
                 as4Msg.AddMessageUnit(new UserMessage(messageId: $"user-{Guid.NewGuid()}"));
 
                 var ctx = new MessagingContext(as4Msg, MessagingContextMode.Receive)
@@ -175,7 +175,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
             private static MessagingContext SignalMessageWithVerification(Limit sendSignature)
             {
-                var signal = AS4Message.Create(new Receipt($"receipt-{Guid.NewGuid()}"));
+                var signal = AS4Message.Create(new Receipt($"receipt-{Guid.NewGuid()}", $"reftoid-{Guid.NewGuid()}"));
                 var ctx = new MessagingContext(signal, MessagingContextMode.Receive)
                 {
                     SendingPMode = new SendingProcessingMode
