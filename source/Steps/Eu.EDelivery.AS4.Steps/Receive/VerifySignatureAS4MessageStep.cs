@@ -89,7 +89,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                     desUnallowed, ErrorAlias.PolicyNonCompliance, messagingContext);
             }
 
-            if (!as4Message.IsSigned || verification.Signature == Limit.Ignored)
+            if (!as4Message.IsSigned || verification?.Signature == Limit.Ignored)
             {
                 Logger.Debug(
                     "No signature verification will take place for unsiged messages " + 
