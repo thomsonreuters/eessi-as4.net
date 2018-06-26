@@ -296,6 +296,9 @@ namespace Eu.EDelivery.AS4.Common
 
             modelBuilder.Entity<ReceptionAwareness>().HasKey(r => r.Id).HasName("PK_ReceptionAwareness");
             modelBuilder.Entity<ReceptionAwareness>().Property(r => r.Id).UseSqlServerIdentityColumn();
+            modelBuilder.Entity<ReceptionAwareness>().Property(r => r.Status)
+                        .HasConversion<string>()
+                        .UsePropertyAccessMode(PropertyAccessMode.Field);
             modelBuilder.Entity<ReceptionAwareness>().HasAlternateKey(r => r.RefToOutMessageId).HasName("AK_ReceptionAwareness_RefToOutMessageId");
             modelBuilder.Entity<ReceptionAwareness>().HasIndex(r => new { r.Status, r.CurrentRetryCount }).HasName("IX_ReceptionAwareness_Status_CurrentRetryCount");
 

@@ -4,7 +4,6 @@ using Eu.EDelivery.AS4.Builders.Entities;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Exceptions;
-using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
@@ -129,7 +128,7 @@ namespace Eu.EDelivery.AS4.Services
 
             DateTimeOffset deadlineForResend = awareness.LastSendTime.Value.Add(TimeSpan.Parse(awareness.RetryInterval));
 
-            return awareness.Status.ToEnum<ReceptionStatus>() != ReceptionStatus.Completed
+            return awareness.Status != ReceptionStatus.Completed
                    && awareness.CurrentRetryCount < awareness.TotalRetryCount
                    && DateTimeOffset.Now > deadlineForResend
                    && _repository.GetOutMessageData(messageId: awareness.RefToOutMessageId,
@@ -171,7 +170,7 @@ namespace Eu.EDelivery.AS4.Services
 
         private void UpdateReceptionAwareness(ReceptionAwareness awarenes, ReceptionStatus receptionStatus)
         {
-            _repository.UpdateReceptionAwareness(awarenes.Id, r => r.SetStatus(receptionStatus));
+            _repository.UpdateReceptionAwareness(awarenes.Id, r => r.Status = receptionStatus);
         }
     }
 }

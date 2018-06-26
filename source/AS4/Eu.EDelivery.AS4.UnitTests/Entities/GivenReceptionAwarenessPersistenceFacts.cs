@@ -1,7 +1,6 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Entities;
-using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.UnitTests.Common;
 using Xunit;
 
@@ -16,8 +15,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
 
             using (var db = GetDataStoreContext())
             {
-                var ra = new ReceptionAwareness(1, "id");                
-                ra.SetStatus(ReceptionStatus.Busy);
+                var ra = new ReceptionAwareness(1, "id");
+                ra.Status = ReceptionStatus.Busy;
 
                 db.ReceptionAwareness.Add(ra);
 
@@ -30,7 +29,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
             {
                 var ra = db.ReceptionAwareness.First(r => r.Id == id);
 
-                Assert.Equal(ReceptionStatus.Busy, ra.Status.ToEnum<ReceptionStatus>());
+                Assert.Equal(ReceptionStatus.Busy, ra.Status);
             }
         }
     }

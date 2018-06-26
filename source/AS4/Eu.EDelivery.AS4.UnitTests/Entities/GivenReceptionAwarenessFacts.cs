@@ -1,5 +1,4 @@
 ﻿using Eu.EDelivery.AS4.Entities;
-using Eu.EDelivery.AS4.Extensions;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Entities
@@ -12,7 +11,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
         [Fact]
         public void ReceptionAwarenessHasDefaultStatus()
         {
-            Assert.Equal(ReceptionStatus.Pending, new ReceptionAwareness(1, "message-id").Status.ToEnum<ReceptionStatus>());
+            Assert.Equal(ReceptionStatus.Pending, new ReceptionAwareness(1, "message-id").Status);
         }
 
         [Fact]
@@ -21,13 +20,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
             // Arrange
             const ReceptionStatus expectedStatus = ReceptionStatus.Busy;
             var sut = new ReceptionAwareness(1, "message-id");
-            sut.SetStatus(ReceptionStatus.Pending);
+            sut.Status = ReceptionStatus.Pending;
 
             // Act
             sut.Lock(expectedStatus.ToString());
 
             // Assert
-            Assert.Equal(expectedStatus, sut.Status.ToEnum<ReceptionStatus>());
+            Assert.Equal(expectedStatus, sut.Status);
         }
     }
 }
