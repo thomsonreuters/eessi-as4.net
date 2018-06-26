@@ -2,7 +2,6 @@
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Model.Submit;
 using Xunit;
-using CollaborationInfo = Eu.EDelivery.AS4.Model.Core.CollaborationInfo;
 using CommonService = Eu.EDelivery.AS4.Model.Common.Service;
 using CoreService = Eu.EDelivery.AS4.Model.Core.Service;
 using Exception = System.Exception;
@@ -39,7 +38,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
                 {
                     MessagePackaging =
                     {
-                        CollaborationInfo = new CollaborationInfo {Service = CreatePopulatedCoreService()}
+                        CollaborationInfo = new AS4.Model.PMode.CollaborationInfo {Service = CreatePopulatedCoreService()}
                     }
                 };
                 submitMessage.PMode = pmode;

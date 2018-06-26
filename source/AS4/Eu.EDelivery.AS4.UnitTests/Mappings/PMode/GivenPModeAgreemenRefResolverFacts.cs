@@ -59,7 +59,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.PMode
                     MessagePackaging =
                     {
                         IncludePModeId = includePMode,
-                        CollaborationInfo = new CollaborationInfo {AgreementReference = CreateDefaultAgreementRef()}
+                        CollaborationInfo = new AS4.Model.PMode.CollaborationInfo {AgreementReference = CreateDefaultAgreementRef()}
                     }
                 };
             }

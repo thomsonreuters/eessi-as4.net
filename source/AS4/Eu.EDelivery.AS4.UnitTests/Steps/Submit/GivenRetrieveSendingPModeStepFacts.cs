@@ -9,6 +9,7 @@ using Eu.EDelivery.AS4.Steps.Submit;
 using Eu.EDelivery.AS4.UnitTests.Model.PMode;
 using Moq;
 using Xunit;
+using CollaborationInfo = Eu.EDelivery.AS4.Model.Common.CollaborationInfo;
 
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
 {

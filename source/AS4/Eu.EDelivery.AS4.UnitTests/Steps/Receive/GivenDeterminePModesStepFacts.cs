@@ -14,6 +14,7 @@ using Eu.EDelivery.AS4.UnitTests.Common;
 using Eu.EDelivery.AS4.UnitTests.Repositories;
 using Moq;
 using Xunit;
+using CollaborationInfo = Eu.EDelivery.AS4.Model.PMode.CollaborationInfo;
 using ReceivePMode = Eu.EDelivery.AS4.Model.PMode.ReceivingProcessingMode;
 
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive

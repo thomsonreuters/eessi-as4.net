@@ -90,7 +90,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive.Rules
             {
                 MessagePackaging =
                 {
-                    CollaborationInfo = new CollaborationInfo()
+                    CollaborationInfo = new AS4.Model.PMode.CollaborationInfo()
                     {
                         Action = action,
                         Service = CreateService(serviceName, serviceType)

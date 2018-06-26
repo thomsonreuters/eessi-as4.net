@@ -18,7 +18,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.PMode
                 // Arrange
                 var pmode = new SendingProcessingMode
                 {
-                    MessagePackaging = {CollaborationInfo = new CollaborationInfo {Action = "action"}}
+                    MessagePackaging = {CollaborationInfo = new AS4.Model.PMode.CollaborationInfo {Action = "action"}}
                 };
                 var resolver = new PModeActionResolver();
 

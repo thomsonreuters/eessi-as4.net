@@ -1,5 +1,5 @@
-﻿using Eu.EDelivery.AS4.Model.Core;
-using Eu.EDelivery.AS4.Model.PMode;
+﻿using Eu.EDelivery.AS4.Model.PMode;
+using CollaborationInfo = Eu.EDelivery.AS4.Model.PMode.CollaborationInfo;
 
 namespace Eu.EDelivery.AS4.Mappings.PMode
 {
