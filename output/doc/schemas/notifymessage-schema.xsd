@@ -1,29 +1,7 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<xs:schema elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
-  <xs:element name="NotifyMessage" nillable="true" type="NotifyMessage" />
-  <xs:complexType name="NotifyMessage">
-    <xs:sequence>
-      <xs:element minOccurs="0" maxOccurs="1" name="MessageInfo" type="MessageInfo" />
-      <xs:element minOccurs="0" maxOccurs="1" name="StatusInfo" type="StatusInfo" />
-    </xs:sequence>
-  </xs:complexType>
-  <xs:complexType name="MessageInfo">
-    <xs:sequence>
-      <xs:element minOccurs="0" maxOccurs="1" name="MessageId" type="xs:string" />
-      <xs:element minOccurs="0" maxOccurs="1" name="RefToMessageId" type="xs:string" />
-    </xs:sequence>
-  </xs:complexType>
-  <xs:complexType name="StatusInfo">
-    <xs:sequence>
-      <xs:element minOccurs="1" maxOccurs="1" name="Status" type="Status" />
-      <xs:any minOccurs="0" maxOccurs="unbounded" processContents="lax" />
-    </xs:sequence>
-  </xs:complexType>
-  <xs:simpleType name="Status">
-    <xs:restriction base="xs:string">
-      <xs:enumeration value="Error" />
-      <xs:enumeration value="Delivered" />
-      <xs:enumeration value="Exception" />
-    </xs:restriction>
-  </xs:simpleType>
-</xs:schema>
+﻿<xs:complexType name="StatusInfo">
+  <xs:sequence>
+    <xs:element minOccurs="1" maxOccurs="1" name="Status" type="Status" />
+    <xs:any minOccurs="0" maxOccurs="unbounded" />
+  </xs:sequence>
+</xs:complexType>
+<xs:simpleType name="Status">
