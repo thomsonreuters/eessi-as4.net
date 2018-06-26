@@ -44,7 +44,7 @@ namespace Eu.EDelivery.AS4.Model.Core
             Type = Maybe.Just(type);
         }
 
-        public static Service TestService = new Service(Constants.Namespaces.TestService);
+        public static readonly Service TestService = new Service(Constants.Namespaces.TestService);
 
         /// <summary>
         /// Indicates whether the current object is equal to another object of the same type.
