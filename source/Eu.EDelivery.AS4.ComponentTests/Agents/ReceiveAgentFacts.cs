@@ -25,6 +25,8 @@ using Eu.EDelivery.AS4.TestUtils.Stubs;
 using Eu.EDelivery.AS4.Xml;
 using Xunit;
 using static Eu.EDelivery.AS4.ComponentTests.Properties.Resources;
+using AgreementReference = Eu.EDelivery.AS4.Model.Core.AgreementReference;
+using CollaborationInfo = Eu.EDelivery.AS4.Model.Core.CollaborationInfo;
 using Error = Eu.EDelivery.AS4.Model.Core.Error;
 using MessagePartNRInformation = Eu.EDelivery.AS4.Model.Core.MessagePartNRInformation;
 using NonRepudiationInformation = Eu.EDelivery.AS4.Model.Core.NonRepudiationInformation;
@@ -85,8 +87,11 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         {
             // Arrange
             var message = AS4Message.Create(new UserMessage());
-            message.FirstUserMessage.CollaborationInfo.AgreementReference.PModeId =
-                "receiveagent-non-exist-response-pmode";
+            message.FirstUserMessage.CollaborationInfo = 
+                new CollaborationInfo(
+                    new AgreementReference(
+                        value: "agreement", 
+                        pmodeId: "receiveagent-non-exist-response-pmode"));
 
             // Act
             HttpResponseMessage response = await StubSender.SendAS4Message(_receiveAgentUrl, message);
@@ -137,15 +142,11 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                     },
                     Role = "Receiver"
                 },
-                CollaborationInfo =
-                {
-                    AgreementReference =
-                    {
-                        Value = "http://agreements.europa.org/agreement"
-                    },
-                    Action = "Invalid_PMode_Test_Action",
-                    Service = new Model.Core.Service("Invalid_PMode_Test_Service", "eu:europa:services")
-                }
+                CollaborationInfo = new CollaborationInfo(
+                    new AgreementReference("http://agreements.europa.org/agreement"),
+                    new Model.Core.Service("Invalid_PMode_Test_Service", "eu:europa:services"),
+                    "Invalid_PMode_Test_Action",
+                    CollaborationInfo.DefaultConversationId)
             });
 
             // Act
@@ -172,7 +173,8 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         public async Task ReturnsErrorMessageWhenDecryptionCertificateCannotBeFound()
         {
             var userMessage = new UserMessage();
-            userMessage.CollaborationInfo.AgreementReference.PModeId = "receiveagent-non_existing_decrypt_cert-pmode";
+            userMessage.CollaborationInfo = 
+                new CollaborationInfo(new AgreementReference("agreement", "type", "receiveagent-non_existing_decrypt_cert-pmode"));
 
             var as4Message = CreateAS4MessageWithAttachment(userMessage);
 
@@ -248,12 +250,13 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             var as4Message = AS4Message.Create(new UserMessage
             {
                 MessageId = messageId,
-                CollaborationInfo = { AgreementReference = new AgreementReference()
-                {
-                    // Make sure that the forwarding receiving pmode is used; therefore
-                    // explicitly set the Id of the PMode that must be used by the receive-agent.
-                    PModeId = "Forward_Push"
-                }}
+                CollaborationInfo = new CollaborationInfo(
+                    new AgreementReference(
+                        value: "forwarding/agreement",
+                        type: "forwarding",
+                        // Make sure that the forwarding receiving pmode is used; therefore
+                        // explicitly set the Id of the PMode that must be used by the receive-agent.
+                        pModeId: "Forward_Push"))
             });
 
             // Act
@@ -465,7 +468,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             // Arrange
             var userMessage = new UserMessage("test-" + Guid.NewGuid())
             {
-                CollaborationInfo = {AgreementReference = {PModeId = "Forward_Push_Multihop"}}
+                CollaborationInfo = new CollaborationInfo(new AgreementReference("agreement", "Forward_Push_Multihop"))
             };
             var multihopPMode = new SendingProcessingMode {MessagePackaging = {IsMultiHop = true}};
             AS4Message multihopMessage = AS4Message.Create(userMessage, multihopPMode);
@@ -489,7 +492,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             // Arrange
             var userMessage = new UserMessage("test-" + Guid.NewGuid())
             {
-                CollaborationInfo = {AgreementReference = {PModeId = "ComponentTest_ReceiveAgent_Sample1"}}
+                CollaborationInfo = new CollaborationInfo(new AgreementReference("agreement", "ComponentTest_ReceiveAgent_Sample1"))
             };
             var multihopPMode = new SendingProcessingMode {MessagePackaging = {IsMultiHop = true}};
             AS4Message multihopMessage = AS4Message.Create(userMessage, multihopPMode);

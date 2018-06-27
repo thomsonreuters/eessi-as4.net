@@ -2,6 +2,7 @@
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.PMode;
 using Xunit;
+using AgreementReference = Eu.EDelivery.AS4.Model.PMode.AgreementReference;
 
 namespace Eu.EDelivery.AS4.UnitTests.Mappings.PMode
 {
@@ -14,7 +15,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.PMode
         {
             private static AgreementReference CreateDefaultAgreementRef()
             {
-                return new AgreementReference {Value = "name", Type = "type"};
+                return new AgreementReference {Value = "name", Type = "type", PModeId = "pmode-id"};
             }
 
             [Fact]
@@ -22,16 +23,15 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.PMode
             {
                 // Arrange
                 SendingProcessingMode pmode = CreateSendingPMode(includePMode: false);
-                var resolver = new PModeAgreementRefResolver();
 
                 // Act
-                AgreementReference agreementRef = resolver.Resolve(pmode);
+                AS4.Model.Core.AgreementReference agreementRef = PModeAgreementRefResolver.ResolveAgreementReference(pmode).UnsafeGet;
 
                 // Assert
                 AgreementReference pmodeRef = pmode.MessagePackaging.CollaborationInfo.AgreementReference;
                 Assert.Equal(pmodeRef.Value, agreementRef.Value);
-                Assert.Equal(pmodeRef.Type, agreementRef.Type);
-                Assert.NotEqual(pmode.Id, agreementRef.PModeId);
+                Assert.Equal(Maybe.Just(pmodeRef.Type), agreementRef.Type);
+                Assert.NotEqual(Maybe.Just(pmode.Id), agreementRef.PModeId);
             }
 
             [Fact]
@@ -39,16 +39,15 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.PMode
             {
                 // Arrange
                 SendingProcessingMode pmode = CreateSendingPMode(includePMode: true);
-                var resolver = new PModeAgreementRefResolver();
 
                 // Act
-                AgreementReference agreementRef = resolver.Resolve(pmode);
+                AS4.Model.Core.AgreementReference agreementRef = PModeAgreementRefResolver.ResolveAgreementReference(pmode).UnsafeGet;
 
                 // Assert
                 AgreementReference pmodeRef = pmode.MessagePackaging.CollaborationInfo.AgreementReference;
                 Assert.Equal(pmodeRef.Value, agreementRef.Value);
-                Assert.Equal(pmodeRef.Type, agreementRef.Type);
-                Assert.Equal(pmode.Id, agreementRef.PModeId);
+                Assert.Equal(Maybe.Just(pmodeRef.Type), agreementRef.Type);
+                Assert.Equal(Maybe.Just(pmode.Id), agreementRef.PModeId);
             }
 
             private static SendingProcessingMode CreateSendingPMode(bool includePMode)

@@ -1,5 +1,6 @@
 ﻿using System;
 using Eu.EDelivery.AS4.Mappings.PMode;
+using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Model.Submit;
 using Eu.EDelivery.AS4.Singletons;
 using CoreService = Eu.EDelivery.AS4.Model.Core.Service;
@@ -9,20 +10,8 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
     /// <summary>
     /// Resolve the <see cref="CoreService"/>
     /// </summary>
-    public class SubmitServiceResolver : ISubmitResolver<CoreService>
+    public class SubmitServiceResolver
     {
-        private readonly IPModeResolver<CoreService> _pmodeResolver;
-
-        public static readonly SubmitServiceResolver Default = new SubmitServiceResolver();
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="SubmitServiceResolver"/> class
-        /// </summary>
-        public SubmitServiceResolver()
-        {
-            _pmodeResolver = new PModeServiceResolver();
-        }
-
         /// <summary>
         /// 1. SubmitMessage / CollaborationInfo / Service / Value
         /// 2. PMode / Message Packaging / CollaborationInfo / Service / Value
@@ -30,7 +19,7 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
         /// </summary>
         /// <param name="message"></param>
         /// <returns></returns>
-        public CoreService Resolve(SubmitMessage message)
+        public static CoreService ResolveService(SubmitMessage message)
         {
             if (message.PMode.AllowOverride == false && DoesSubmitMessageTriesToOverridePModeValues(message))
             {
@@ -42,7 +31,8 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
                 return AS4Mapper.Map<CoreService>(message.Collaboration.Service);
             }
 
-            return _pmodeResolver.Resolve(message.PMode);
+            SendingProcessingMode pmode = message.PMode;
+            return PModeServiceResolver.ResolveService(pmode);
         }
 
         private static bool DoesSubmitMessageTriesToOverridePModeValues(SubmitMessage message)

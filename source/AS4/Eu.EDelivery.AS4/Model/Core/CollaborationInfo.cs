@@ -1,46 +1,128 @@
-﻿using System.ComponentModel;
+﻿using System;
 
 namespace Eu.EDelivery.AS4.Model.Core
 {
     public class CollaborationInfo
     {
-        [Description("Agreement reference")]
-        public AgreementReference AgreementReference { get; set; }
+        public Maybe<AgreementReference> AgreementReference { get; set; }
 
-        [Description("Service")]
         public Service Service { get; set; }
 
-        [Description("Action")]
-        public string Action { get; set; }
+        public string Action { get; }
 
-        [Description("Conversation ID")]
         public string ConversationId { get; set; }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="CollaborationInfo"/> class. 
-        /// Create a basic <see cref="CollaborationInfo"/> Model
-        /// </summary>
-        public CollaborationInfo()
+        public static readonly string DefaultConversationId = "1";
+
+        static CollaborationInfo()
         {
-            AgreementReference = new AgreementReference();
-            Service = Service.TestService;
-            Action = Constants.Namespaces.TestAction;
+            Default = new CollaborationInfo(
+                agreement: Maybe<AgreementReference>.Nothing, 
+                service: Service.TestService, 
+                action: Constants.Namespaces.TestAction, 
+                conversationId: DefaultConversationId);
+        }
+
+        public static readonly CollaborationInfo Default;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CollaborationInfo"/> class.
+        /// </summary>
+        /// <param name="agreement"></param>
+        public CollaborationInfo(AgreementReference agreement)
+            : this(
+                agreement: agreement,
+                service: Service.TestService,
+                action: Constants.Namespaces.TestAction,
+                conversationId: DefaultConversationId) { }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CollaborationInfo"/> class.
+        /// </summary>
+        /// <param name="service"></param>
+        public CollaborationInfo(Service service) 
+            : this(
+                Maybe<AgreementReference>.Nothing, 
+                service, 
+                Constants.Namespaces.TestAction, 
+                DefaultConversationId) { }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CollaborationInfo"/> class.
+        /// </summary>
+        /// <param name="agreement"></param>
+        /// <param name="service"></param>
+        /// <param name="action"></param>
+        /// <param name="conversationId"></param>
+        public CollaborationInfo(
+            AgreementReference agreement,
+            Service service,
+            string action,
+            string conversationId)
+        {
+            if (agreement == null)
+            {
+                throw new ArgumentNullException(nameof(agreement));
+            }
+
+            if (service == null)
+            {
+                throw new ArgumentNullException(nameof(service));
+            }
+
+            if (action == null)
+            {
+                throw new ArgumentNullException(nameof(action));
+            }
+
+            if (conversationId == null)
+            {
+                throw new ArgumentNullException(nameof(conversationId));
+            }
+
+            AgreementReference = Maybe.Just(agreement);
+            Service = service;
+            Action = action;
+            ConversationId = conversationId;
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="CollaborationInfo"/> class. 
-        /// Create a <see cref="CollaborationInfo"/> Model
-        /// with a given <paramref name="conversationId"/> 
-        /// and <paramref name="agreementReference"/>
+        /// Initializes a new instance of the <see cref="CollaborationInfo"/> class.
         /// </summary>
-        /// <param name="conversationId">
-        /// </param>
-        /// <param name="agreementReference">
-        /// </param>
-        public CollaborationInfo(string conversationId, AgreementReference agreementReference)
+        /// <param name="agreement"></param>
+        /// <param name="service"></param>
+        /// <param name="action"></param>
+        /// <param name="conversationId"></param>
+        public CollaborationInfo(
+            Maybe<AgreementReference> agreement, 
+            Service service, 
+            string action, 
+            string conversationId)
         {
-            this.ConversationId = conversationId;
-            this.AgreementReference = agreementReference;
+            if (agreement == null)
+            {
+                throw new ArgumentNullException(nameof(agreement));
+            }
+
+            if (service == null)
+            {
+                throw new ArgumentNullException(nameof(service));
+            }
+
+            if (action == null)
+            {
+                throw new ArgumentNullException(nameof(action));
+            }
+
+            if (conversationId == null)
+            {
+                throw new ArgumentNullException(nameof(conversationId));
+            }
+
+            AgreementReference = agreement;
+            Service = service;
+            Action = action;
+            ConversationId = conversationId;
         }
     }
 }

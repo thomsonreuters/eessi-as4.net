@@ -93,15 +93,13 @@ namespace Eu.EDelivery.AS4.Transformers.InteropTestTransformers
 
         private static void SetCollaborationInfoProperties(UserMessage userMessage, IEnumerable<MessageProperty> properties)
         {
-            userMessage.CollaborationInfo.ConversationId = GetPropertyValue(properties, "ConversationId");
-            userMessage.CollaborationInfo.Service = new Service(
-                value: GetPropertyValue(properties, "Service"),
-                type: userMessage.CollaborationInfo.Service?.Type.GetOrElse(String.Empty));
+            // AgreementRef must not be present in the AS4Message for minder.
 
-            userMessage.CollaborationInfo.Action = GetPropertyValue(properties, "Action");
-
-            // AgreementRef must not be present in the AS4Message for testing.
-            userMessage.CollaborationInfo.AgreementReference = null;
+            userMessage.CollaborationInfo = new CollaborationInfo(
+                Maybe<AgreementReference>.Nothing,
+                new Service(GetPropertyValue(properties, "Service")),
+                GetPropertyValue(properties, "Action"),
+                GetPropertyValue(properties, "ConversationId"));
         }
 
         private static void SetPartyProperties(UserMessage userMessage, IEnumerable<MessageProperty> properties)

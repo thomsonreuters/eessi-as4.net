@@ -109,12 +109,10 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             {
                 MessageId = "user-" + Guid.NewGuid(),
                 CollaborationInfo = new CollaborationInfo(
-                    conversationId: "0",
-                    agreementReference: new AgreementReference(pmodeId: "receiveagent-retryreliability-pmode"))
-                {
-                    Action = "eu:sample:01",
-                    Service = new Service("eu:europa:services", "getting:started")
-                },
+                    new AgreementReference("agreement", "receiveagent-retryreliability-pmode"),
+                    new Service("eu:europa:services", "getting:started"),
+                    action: "eu:sample:01",
+                    conversationId: "1"),
                 Sender = new Party("Sender", new PartyId("org:eu:europa:as4:example:accesspoint:A")),
                 Receiver = new Party("Receiver", new PartyId("org:eu:europa:as4:example:accesspoint:B")),
             });

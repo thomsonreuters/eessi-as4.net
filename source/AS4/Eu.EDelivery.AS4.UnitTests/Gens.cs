@@ -1,7 +1,9 @@
-﻿using Eu.EDelivery.AS4.Model.Core;
+﻿using System;
+using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.UnitTests.Model;
 using FsCheck;
 using FsCheck.Xunit;
+using Microsoft.FSharp.Core;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests
@@ -23,6 +25,18 @@ namespace Eu.EDelivery.AS4.UnitTests
         {
             return Gen.Elements<SignalMessage>(new Receipt(), new FilledNRRReceipt(), new Error())
                       .ToArbitrary();
+        }
+
+        public static Arbitrary<Maybe<T>> MaybeArbitrary<T>()
+        {
+            return Arb.Default
+                .Option<T>()
+                .Generator
+                .Select(x => 
+                    Equals(x, FSharpOption<T>.None) 
+                        ? Maybe<T>.Nothing 
+                        : Maybe.Just(x.Value))
+                .ToArbitrary();
         }
     }
 }

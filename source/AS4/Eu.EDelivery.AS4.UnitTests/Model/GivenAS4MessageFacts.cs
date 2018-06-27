@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.Remoting;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -17,6 +16,7 @@ using FsCheck;
 using FsCheck.Xunit;
 using MimeKit;
 using Xunit;
+using AgreementReference = Eu.EDelivery.AS4.Model.Core.AgreementReference;
 
 namespace Eu.EDelivery.AS4.UnitTests.Model
 {
@@ -240,7 +240,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
 
         protected UserMessage CreateUserMessage()
         {
-            return new UserMessage("message-id") { CollaborationInfo = { AgreementReference = new AgreementReference() } };
+            return new UserMessage("message-id") { CollaborationInfo = { AgreementReference = new AgreementReference(String.Empty).AsMaybe() } };
         }
 
         protected XmlDocument SerializeSoapMessage(AS4Message message, MemoryStream soapStream)
@@ -253,6 +253,21 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
             document.Load(soapStream);
 
             return document;
+        }
+
+        protected XmlDocument SerializeSoapMessage(AS4Message message)
+        {
+            using (var soapStream = new MemoryStream())
+            {
+                ISerializer serializer = new SoapEnvelopeSerializer();
+                serializer.Serialize(message, soapStream, CancellationToken.None);
+
+                soapStream.Position = 0;
+                var document = new XmlDocument();
+                document.Load(soapStream);
+
+                return document; 
+            }
         }
 
         protected MimeMessage SerializeMimeMessage(AS4Message message, MemoryStream mimeStream)

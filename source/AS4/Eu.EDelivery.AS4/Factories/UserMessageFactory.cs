@@ -49,12 +49,11 @@ namespace Eu.EDelivery.AS4.Factories
 
         private static CollaborationInfo ResolveCollaborationInfo(SendingProcessingMode pmode)
         {
-            return new CollaborationInfo()
-            {
-                Action = new PModeActionResolver().Resolve(pmode),
-                AgreementReference = new PModeAgreementRefResolver().Resolve(pmode),
-                Service = new PModeServiceResolver().Resolve(pmode)
-            };
+            return new CollaborationInfo(
+                PModeAgreementRefResolver.ResolveAgreementReference(pmode),
+                PModeServiceResolver.ResolveService(pmode),
+                PModeActionResolver.ResolveAction(pmode),
+                CollaborationInfo.DefaultConversationId);
         }
     }
 }

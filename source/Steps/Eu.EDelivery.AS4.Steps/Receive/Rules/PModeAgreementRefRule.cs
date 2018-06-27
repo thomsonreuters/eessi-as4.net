@@ -24,18 +24,30 @@ namespace Eu.EDelivery.AS4.Steps.Receive.Rules
 
         private static bool IsAgreementRefEqual(ReceivingProcessingMode pmode, UserMessage userMessage)
         {
-            AgreementReference pmodeAgreementRef = pmode.MessagePackaging.CollaborationInfo?.AgreementReference;
-            AgreementReference userMessageAgreementRef = userMessage.CollaborationInfo?.AgreementReference;
+            Model.PMode.AgreementReference pmodeAgreementRef = pmode.MessagePackaging.CollaborationInfo?.AgreementReference;
+            Model.Core.AgreementReference userMessageAgreementRef = userMessage.CollaborationInfo?.AgreementReference?.GetOrElse(() => null);
 
-            return AgreementRefIsPresent(pmodeAgreementRef, userMessageAgreementRef) &&
-                   (pmodeAgreementRef?.Equals(userMessageAgreementRef) ?? false);
-        }
+            if (userMessageAgreementRef == null)
+            {
+                return false;
+            }
 
-        private static bool AgreementRefIsPresent(
-            AgreementReference pmodeAgreementRef,
-            AgreementReference userMessageAgreementRef)
-        {
-            return pmodeAgreementRef != null && userMessageAgreementRef != null;
+            bool equalPModeId =
+                (pmodeAgreementRef?.PModeId != null)
+                .ThenMaybe(pmodeAgreementRef?.PModeId)
+                .Equals(userMessageAgreementRef?.PModeId);
+
+            bool equalType =
+                (pmodeAgreementRef?.Type != null)
+                .ThenMaybe(pmodeAgreementRef?.Type)
+                .Equals(userMessageAgreementRef?.Type);
+
+            bool areBothEqual =
+                equalPModeId
+                && equalType
+                && pmodeAgreementRef?.Value == userMessageAgreementRef?.Value;
+
+            return pmodeAgreementRef != null && areBothEqual;
         }
     }
 }

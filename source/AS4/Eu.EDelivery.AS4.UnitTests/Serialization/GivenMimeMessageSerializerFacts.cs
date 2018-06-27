@@ -133,7 +133,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                 var attachmentStream = new MemoryStream(Encoding.UTF8.GetBytes(messageContents.Get));
                 var attachment = new Attachment("attachment-id") { Content = attachmentStream };
 
-                var userMessage = new UserMessage("message-id") { CollaborationInfo = { AgreementReference = new AgreementReference() } };
+                var userMessage = new UserMessage("message-id");
 
                 AS4Message message = AS4Message.Create(userMessage);
                 message.AddAttachment(attachment);

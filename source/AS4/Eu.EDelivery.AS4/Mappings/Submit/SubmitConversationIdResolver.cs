@@ -6,16 +6,14 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
     /// 1. SubmitMessage / CollaborationInfo / ConversationId 
     /// 2. Default Conversation Id
     /// </summary>
-    public class SubmitConversationIdResolver : ISubmitResolver<string>
+    public static class SubmitConversationIdResolver
     {
-        public static readonly SubmitConversationIdResolver Default = new SubmitConversationIdResolver();
-
         /// <summary>
         /// Resolve the Conversation Id
         /// </summary>
         /// <param name="submitMessage"></param>
         /// <returns></returns>
-        public string Resolve(SubmitMessage submitMessage)
+        public static string ResolveConverstationId(SubmitMessage submitMessage)
         {
             const string defaultConversationId = "1";
 

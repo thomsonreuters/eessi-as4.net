@@ -5,7 +5,6 @@ using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Agents;
 using Eu.EDelivery.AS4.ComponentTests.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Extensions;
@@ -15,6 +14,7 @@ using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.TestUtils.Stubs;
 using Xunit;
+using AgreementReference = Eu.EDelivery.AS4.Model.Core.AgreementReference;
 using CollaborationInfo = Eu.EDelivery.AS4.Model.Core.CollaborationInfo;
 using MessageExchangePattern = Eu.EDelivery.AS4.Entities.MessageExchangePattern;
 
@@ -235,10 +235,11 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             // and processed with a specific receiving PMode.
             if (as4Message.FirstUserMessage != null)
             {
-                as4Message.FirstUserMessage.CollaborationInfo = new CollaborationInfo
-                {
-                    AgreementReference = new AgreementReference(pmodeId)
-                };
+                as4Message.FirstUserMessage.CollaborationInfo = 
+                    new CollaborationInfo(new AgreementReference(
+                        value: String.Empty,
+                        type: String.Empty,
+                        pModeId: pmodeId));
             }
 
             return as4Message;

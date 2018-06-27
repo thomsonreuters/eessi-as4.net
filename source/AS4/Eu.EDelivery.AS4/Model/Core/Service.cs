@@ -44,6 +44,27 @@ namespace Eu.EDelivery.AS4.Model.Core
             Type = Maybe.Just(type);
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Service"/> class.
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="type"></param>
+        public Service(string value, Maybe<string> type)
+        {
+            if (value == null)
+            {
+                throw new ArgumentNullException(nameof(value));
+            }
+
+            if (type == null)
+            {
+                throw new ArgumentNullException(nameof(type));
+            }
+
+            Value = value;
+            Type = type;
+        }
+
         public static readonly Service TestService = new Service(Constants.Namespaces.TestService);
 
         /// <summary>

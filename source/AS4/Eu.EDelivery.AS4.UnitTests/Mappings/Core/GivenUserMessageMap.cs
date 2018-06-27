@@ -36,7 +36,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Core
             var actualMessage = AS4Mapper.Map<AS4.Model.Core.UserMessage>(expectedMessage);
 
             // Assert
-            Assert.Equal(expectedMessage.CollaborationInfo.AgreementRef.Value, actualMessage.CollaborationInfo.AgreementReference.Value);
+            Assert.Equal(
+                expectedMessage.CollaborationInfo.AgreementRef.Value.AsMaybe(), 
+                actualMessage.CollaborationInfo.AgreementReference.Select(a => a.Value));
         }
 
         [Fact]
