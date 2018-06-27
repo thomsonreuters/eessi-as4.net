@@ -90,7 +90,8 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 return StepResult.Success(messagingContext);
             }
 
-            if (as4Message.HasUserMessage)
+            if (as4Message.HasUserMessage 
+                || as4Message.SignalMessages.Any(s => s.MultiHopRouting != null))
             {
                 Logger.Trace(
                        $"{messagingContext.LogTag} Incoming message hasn't yet a ReceivingPMode, will determine one");
@@ -194,7 +195,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         {
             // TODO: is this enough ?
             // should we explictly check for multihop signals ?
-            if (as4Message.IsUserMessage)
+            if (as4Message.HasUserMessage)
             {
                 Logger.Debug(
                     $"(Receive)[{as4Message.GetPrimaryMessageId()}] Incoming message is a UserMessage, " + 
@@ -208,7 +209,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 "so the embeded Multi-Hop UserMessage will be used to match the right Receiving PMode");
 
             RoutingInputUserMessage routedUserMessage = 
-                as4Message.FirstSignalMessage?.MultiHopRouting;
+                as4Message.SignalMessages.FirstOrDefault(s => s.MultiHopRouting != null)?.MultiHopRouting;
 
             if (routedUserMessage != null)
             {
