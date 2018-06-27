@@ -1,7 +1,6 @@
 ﻿using System;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.PMode;
-using NLog;
 
 namespace Eu.EDelivery.AS4.Steps.Receive.Participant
 {
@@ -10,11 +9,11 @@ namespace Eu.EDelivery.AS4.Steps.Receive.Participant
     /// </summary>
     internal class PModeParticipant : IComparable<PModeParticipant>
     {
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+        public UserMessage UserMessage { get; }
 
-        public UserMessage UserMessage { get; set; }
-        public ReceivingProcessingMode PMode { get; set; }
-        public int Points { get; set; }
+        public ReceivingProcessingMode PMode { get; }
+
+        public int Points { get; internal set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PModeParticipant"/> class. 
@@ -26,21 +25,18 @@ namespace Eu.EDelivery.AS4.Steps.Receive.Participant
         /// </param>
         public PModeParticipant(ReceivingProcessingMode pmode, UserMessage userMessage)
         {
-            if (pmode == null) throw new ArgumentNullException(nameof(pmode));
-            if (userMessage == null) throw new ArgumentNullException(nameof(userMessage));
+            if (pmode == null)
+            {
+                throw new ArgumentNullException(nameof(pmode));
+            }
 
-            this.PMode = pmode;
-            this.UserMessage = userMessage;
-        }
+            if (userMessage == null)
+            {
+                throw new ArgumentNullException(nameof(userMessage));
+            }
 
-        /// <summary>
-        /// Accept visitor to visit this Participant
-        /// </summary>
-        /// <param name="visitor"></param>
-        public void Accept(IPModeRuleVisitor visitor)
-        {            
-            visitor.Visit(this);
-            Logger.Trace($"Receiving PMode: {PMode.Id} has {Points} Points");
+            PMode = pmode;
+            UserMessage = userMessage;
         }
 
         /// <summary>
@@ -50,8 +46,12 @@ namespace Eu.EDelivery.AS4.Steps.Receive.Participant
         /// <returns></returns>
         public int CompareTo(PModeParticipant other)
         {
-            if (other.Points > this.Points) return -1;
-            return other.Points == this.Points ? 0 : 1;
+            if (other.Points > Points)
+            {
+                return -1;
+            }
+
+            return other.Points == Points ? 0 : 1;
         }
     }
 }

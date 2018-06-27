@@ -86,15 +86,28 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                     $"{messagingContext.LogTag} Will not determine ReceivingPMode: incoming message has already a "
                     + $"ReceivingPMode: {messagingContext.ReceivingPMode.Id} confingured, "
                     + "this happens when the Receive Agent is configured as a \"Static Receive Agent\"");
-
-                return StepResult.Success(messagingContext);
             }
-
-            if (as4Message.HasUserMessage)
+            else if (as4Message.HasUserMessage)
             {
                 Logger.Trace(
-                       $"{messagingContext.LogTag} Incoming message hasn't yet a ReceivingPMode, will determine one");
-                return await DetermineReceivingPModeAsync(messagingContext); 
+                    $"{messagingContext.LogTag} Incoming message hasn't yet a ReceivingPMode, will determine one");
+
+                UserMessage userMessage = GetUserMessageFromFirstMessageUnitOrRoutingInput(messagingContext.AS4Message);
+                IEnumerable<ReceivePMode> possibilities = GetMatchingReceivingPModeForUserMessage(userMessage);
+
+                if (possibilities.Any() == false)
+                {
+                    return NoMatchingPModeFoundFailure(messagingContext);
+                }
+
+                if (possibilities.Count() > 1)
+                {
+                    return TooManyPossibilitiesFailure(messagingContext, possibilities);
+                }
+
+                ReceivePMode pmode = possibilities.First();
+                Logger.Info($"{messagingContext.LogTag} Found Receiving PMode {pmode.Id} to further process the incoming message");
+                messagingContext.ReceivingPMode = pmode;
             }
 
             return StepResult.Success(messagingContext);
@@ -116,8 +129,8 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 // will have to forward the signalmessage.
                 string pmodeString =
                     repository.GetOutMessageData(
-                                  where: m => m.EbmsMessageId == signalMessage.RefToMessageId && m.Intermediary == false,
-                                  selection: m => new { m.PMode, m.ModificationTime })
+                        where: m => m.EbmsMessageId == signalMessage.RefToMessageId && m.Intermediary == false,
+                        selection: m => new { m.PMode, m.ModificationTime })
                               .OrderByDescending(m => m.ModificationTime)
                               .FirstOrDefault()
                               ?.PMode;
@@ -126,71 +139,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             }
         }
 
-        private async Task<StepResult> DetermineReceivingPModeAsync(MessagingContext messagingContext)
-        {
-            UserMessage userMessage = RetrieveUserMessage(messagingContext.AS4Message);
-
-            IEnumerable<ReceivePMode> possibilities = GetPModeFromSettings(userMessage);
-
-            if (possibilities.Any() == false)
-            {
-                string description =
-                    $"{messagingContext.LogTag} Cannot determine Receiving PMode: " + 
-                    $"no configured Receiving PMode was found for Message with Id: {messagingContext.AS4Message.GetPrimaryMessageId()}. " +
-                    @"Please configure a Receiving PMode at .\config\receive-pmodes that matches the message packaging information";
-
-                Logger.Error(description);
-
-                if (messagingContext.AS4Message.HasUserMessage)
-                {
-                    return FailedStepResult(description, messagingContext);
-                }
-
-                throw new InvalidOperationException(description);
-            }
-
-            if (possibilities.Count() > 1)
-            {
-                const string description = 
-                    "Cannot determine Receiving PMode: more than one matching Receiving PMode was found. " +
-                    "Please stricten the matching information in the message packaging information so that only a single PMode is matched";
-
-                Logger.Error(description);
-                Logger.Error(
-                    $"Candidates are:{Environment.NewLine}" + 
-                    String.Join(Environment.NewLine, possibilities.Select(p => p.Id).ToArray()));
-
-                if (messagingContext.AS4Message.HasUserMessage)
-                {
-                    return FailedStepResult(description, messagingContext);
-                }
-
-                throw new InvalidOperationException(description);
-            }
-
-            ReceivePMode pmode = possibilities.First();
-
-            Logger.Info($"{messagingContext.LogTag} Found Receiving PMode {pmode.Id} to further process the incoming message");
-            ValidationResult validationResult = ReceivingProcessingModeValidator.Instance.Validate(pmode);
-
-            if (validationResult.IsValid == false)
-            {
-                string description = 
-                    $"Cannot use the determined Receiving PMode {pmode.Id}: the Receiving PMode is not valid";
-
-                messagingContext.ErrorResult = new ErrorResult(
-                    validationResult.AppendValidationErrorsToErrorMessage(description), 
-                    ErrorAlias.Other);
-
-                throw new InvalidPModeException(description, validationResult);
-            }
-
-            messagingContext.ReceivingPMode = pmode;
-
-            return await StepResult.SuccessAsync(messagingContext);
-        }
-
-        private static UserMessage RetrieveUserMessage(AS4Message as4Message)
+        private static UserMessage GetUserMessageFromFirstMessageUnitOrRoutingInput(AS4Message as4Message)
         {
             // TODO: is this enough ?
             // should we explictly check for multihop signals ?
@@ -221,32 +170,52 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 "This message can therefore not be used to determine the Receiving PMode");
         }
 
-        private static StepResult FailedStepResult(string description, MessagingContext context)
+        private IEnumerable<ReceivePMode> GetMatchingReceivingPModeForUserMessage(UserMessage userMessage)
         {
-            context.ErrorResult = new ErrorResult(description, ErrorAlias.ProcessingModeMismatch);
-            return StepResult.Failed(context);
-        }
-
-        private IEnumerable<ReceivePMode> GetPModeFromSettings(UserMessage userMessage)
-        {
-            List<PModeParticipant> participants = GetPModeParticipants(userMessage);
-            participants.ForEach(p => p.Accept(new PModeRuleVisitor()));
+            IEnumerable<PModeParticipant> participants = 
+                _config.GetReceivingPModes()
+                       .Select(pmode => new PModeParticipant(pmode, userMessage))
+                       .Select(PModeRuleEngine.ApplyRules);
 
             IEnumerable<int> scoresToConsider = participants.Select(p => p.Points).Where(p => p >= 10);
-
             if (scoresToConsider.Any() == false)
             {
                 return new ReceivePMode[] { };
             }
 
             int maxPoints = scoresToConsider.Max();
-
             return participants.Where(p => p.Points == maxPoints).Select(p => p.PMode);
         }
 
-        private List<PModeParticipant> GetPModeParticipants(UserMessage primaryUser)
+        private static StepResult TooManyPossibilitiesFailure(MessagingContext messagingContext, IEnumerable<ReceivePMode> possibilities)
         {
-            return _config.GetReceivingPModes().Select(pmode => new PModeParticipant(pmode, primaryUser)).ToList();
+            const string description =
+                "Cannot determine Receiving PMode: more than one matching Receiving PMode was found. " +
+                "Please stricten the matching information in the message packaging information so that only a single PMode is matched";
+
+            Logger.Error(description);
+            Logger.Error(
+                $"Candidates are:{Environment.NewLine}" +
+                String.Join(Environment.NewLine, possibilities.Select(p => p.Id).ToArray()));
+
+            return FailedStepResult(description, messagingContext);
+        }
+
+        private static StepResult NoMatchingPModeFoundFailure(MessagingContext messagingContext)
+        {
+            string description =
+                $"{messagingContext.LogTag} Cannot determine Receiving PMode: " +
+                $"no configured Receiving PMode was found for Message with Id: {messagingContext.AS4Message.GetPrimaryMessageId()}. " +
+                @"Please configure a Receiving PMode at .\config\receive-pmodes that matches the message packaging information";
+
+            Logger.Error(description);
+            return FailedStepResult(description, messagingContext);
+        }
+
+        private static StepResult FailedStepResult(string description, MessagingContext context)
+        {
+            context.ErrorResult = new ErrorResult(description, ErrorAlias.ProcessingModeMismatch);
+            return StepResult.Failed(context);
         }
     }
 }
