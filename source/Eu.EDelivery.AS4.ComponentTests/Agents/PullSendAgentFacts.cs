@@ -38,7 +38,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         public async Task PullSendAgentReturnsUserMessage_ForPullRequestWithEmptyMpc()
         {
             // Arrange
-            SubmitMessageToSubmitAgent(pullsendagent_submit).Wait();
+            await SubmitMessageToSubmitAgent(pullsendagent_submit);
 
             // Act
             HttpResponseMessage userMessageResponse = await StubSender.SendRequest(PullSendUrl, Encoding.UTF8.GetBytes(pullrequest_without_mpc), "application/soap+xml");
@@ -75,7 +75,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             submitMessage.Collaboration.AgreementRef.PModeId = "pullsendagent-pmode";
 
             // Arrange
-            SubmitMessageToSubmitAgent(AS4XmlSerializer.ToString(submitMessage)).Wait();
+            await SubmitMessageToSubmitAgent(AS4XmlSerializer.ToString(submitMessage));
 
             // Act
             HttpResponseMessage userMessageResponse = await StubSender.SendAS4Message(PullSendUrl, CreatePullRequestWithMpc(mpc));
@@ -136,7 +136,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
         private static AS4Message SignPullRequest(AS4Message message, X509Certificate2 certificate)
         {
-            
+
             CalculateSignatureConfig config = new CalculateSignatureConfig(certificate,
                 X509ReferenceType.BSTReference,
                 Constants.SignAlgorithms.Sha256,
