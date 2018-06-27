@@ -23,10 +23,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.PMode
             {
                 // Arrange
                 SendingProcessingMode pmode = CreateSendingPMode(includePMode: false);
-                var resolver = new PModeAgreementRefResolver();
 
                 // Act
-                AS4.Model.Core.AgreementReference agreementRef = resolver.Resolve(pmode).UnsafeGet;
+                AS4.Model.Core.AgreementReference agreementRef = PModeAgreementRefResolver.ResolveAgreementReference(pmode).UnsafeGet;
 
                 // Assert
                 AgreementReference pmodeRef = pmode.MessagePackaging.CollaborationInfo.AgreementReference;
@@ -40,10 +39,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.PMode
             {
                 // Arrange
                 SendingProcessingMode pmode = CreateSendingPMode(includePMode: true);
-                var resolver = new PModeAgreementRefResolver();
 
                 // Act
-                AS4.Model.Core.AgreementReference agreementRef = resolver.Resolve(pmode).UnsafeGet;
+                AS4.Model.Core.AgreementReference agreementRef = PModeAgreementRefResolver.ResolveAgreementReference(pmode).UnsafeGet;
 
                 // Assert
                 AgreementReference pmodeRef = pmode.MessagePackaging.CollaborationInfo.AgreementReference;

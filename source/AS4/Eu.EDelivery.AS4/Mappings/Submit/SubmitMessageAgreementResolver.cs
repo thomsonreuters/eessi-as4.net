@@ -20,7 +20,7 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
         /// </summary>
         /// <param name="submit"></param>
         /// <param name="user"></param>
-        public static Maybe<CoreAgreementReference> Resolve(SubmitMessage submit, UserMessage user)
+        public static Maybe<CoreAgreementReference> ResolveAgreementReference(SubmitMessage submit, UserMessage user)
         {
             SendingProcessingMode sendPMode = submit.PMode;
             Agreement submitAgreement = submit.Collaboration.AgreementRef;

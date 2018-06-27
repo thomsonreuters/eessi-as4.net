@@ -145,7 +145,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
 
         private static void ResolveAgreement(SubmitMessage submit, UserMessage user)
         {
-            user.CollaborationInfo.AgreementReference = SubmitMessageAgreementResolver.Resolve(submit, user);
+            user.CollaborationInfo.AgreementReference = SubmitMessageAgreementResolver.ResolveAgreementReference(submit, user);
         }
     }
 }

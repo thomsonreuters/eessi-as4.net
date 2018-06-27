@@ -13,12 +13,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
         public void ResolveSubmitConversationId_IfNotEmpty()
         {
             // Arrange
-            var sut = SubmitConversationIdResolver.Default;
             const string expectedId = "submit id";
             var message = new SubmitMessage {Collaboration = {ConversationId = expectedId}};
 
             // Act
-            string actualId = sut.Resolve(message);
+            string actualId = SubmitConversationIdResolver.ResolveConverstationId(message);
 
             // Assert
             Assert.Equal(expectedId, actualId);

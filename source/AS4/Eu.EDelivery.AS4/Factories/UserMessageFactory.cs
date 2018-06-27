@@ -50,9 +50,9 @@ namespace Eu.EDelivery.AS4.Factories
         private static CollaborationInfo ResolveCollaborationInfo(SendingProcessingMode pmode)
         {
             return new CollaborationInfo(
-                new PModeAgreementRefResolver().Resolve(pmode),
-                new PModeServiceResolver().Resolve(pmode),
-                new PModeActionResolver().Resolve(pmode),
+                PModeAgreementRefResolver.ResolveAgreementReference(pmode),
+                PModeServiceResolver.ResolveService(pmode),
+                PModeActionResolver.ResolveAction(pmode),
                 CollaborationInfo.DefaultConversationId);
         }
     }

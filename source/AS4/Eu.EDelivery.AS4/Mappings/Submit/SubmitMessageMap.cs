@@ -35,10 +35,10 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
                         user.Mpc = SubmitMpcResolver.Default.Resolve(submit);
 
                         user.CollaborationInfo = new Model.Core.CollaborationInfo(
-                            SubmitMessageAgreementResolver.Resolve(submit, user),
-                            SubmitServiceResolver.Default.Resolve(submit),
-                            SubmitActionResolver.Default.Resolve(submit),
-                            SubmitConversationIdResolver.Default.Resolve(submit));
+                            SubmitMessageAgreementResolver.ResolveAgreementReference(submit, user),
+                            SubmitServiceResolver.ResolveService(submit),
+                            SubmitActionResolver.ResolveAction(submit),
+                            SubmitConversationIdResolver.ResolveConverstationId(submit));
 
                         if (submit.HasPayloads)
                         {
