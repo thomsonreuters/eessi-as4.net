@@ -13,6 +13,8 @@ using Eu.EDelivery.AS4.Model.Notify;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Singletons;
 using NLog;
+using AgreementReference = Eu.EDelivery.AS4.Model.Core.AgreementReference;
+using CollaborationInfo = Eu.EDelivery.AS4.Model.Core.CollaborationInfo;
 using Service = Eu.EDelivery.AS4.Model.Core.Service;
 using MessageProperty = Eu.EDelivery.AS4.Model.Core.MessageProperty;
 
@@ -159,10 +161,12 @@ namespace Eu.EDelivery.AS4.Transformers
 
         private void AssignServiceAction(UserMessage userMessage)
         {
-            userMessage.CollaborationInfo.Action = "Notify";
-            userMessage.CollaborationInfo.Service = new Service(
-                value: MinderUriPrefix, 
-                type: userMessage.CollaborationInfo.Service?.Type.GetOrElse(String.Empty));
+            userMessage.CollaborationInfo = new CollaborationInfo(
+                Maybe<AgreementReference>.Nothing,
+                new Service(MinderUriPrefix),
+                "Notify",
+                CollaborationInfo.DefaultConversationId);
+
         }
 
         private void AssignToPartyIdentification(UserMessage userMessage)

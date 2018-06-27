@@ -8,18 +8,22 @@ namespace Eu.EDelivery.AS4.Model.Core
 
         public Service Service { get; set; }
 
-        public string Action { get; set; }
+        public string Action { get; }
 
         public string ConversationId { get; set; }
 
         public static readonly string DefaultConversationId = "1";
 
-        public static readonly CollaborationInfo Default = 
-            new CollaborationInfo(
+        static CollaborationInfo()
+        {
+            Default = new CollaborationInfo(
                 agreement: Maybe<AgreementReference>.Nothing, 
                 service: Service.TestService, 
                 action: Constants.Namespaces.TestAction, 
                 conversationId: DefaultConversationId);
+        }
+
+        public static readonly CollaborationInfo Default;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CollaborationInfo"/> class.

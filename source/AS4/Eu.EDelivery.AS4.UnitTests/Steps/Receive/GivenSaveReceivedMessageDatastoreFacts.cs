@@ -15,6 +15,7 @@ using Eu.EDelivery.AS4.UnitTests.Common;
 using Eu.EDelivery.AS4.UnitTests.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
+using CollaborationInfo = Eu.EDelivery.AS4.Model.Core.CollaborationInfo;
 using Service = Eu.EDelivery.AS4.Model.Core.Service;
 
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
@@ -197,8 +198,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
         private static void AddTestableDataToUserMessage(UserMessage userMessage)
         {
-            userMessage.CollaborationInfo.Action = Constants.Namespaces.TestAction;
-            userMessage.CollaborationInfo.Service = new Service(Constants.Namespaces.TestService);
+            userMessage.CollaborationInfo = 
+                new CollaborationInfo(
+                    userMessage.CollaborationInfo.AgreementReference, 
+                    Service.TestService,
+                    Constants.Namespaces.TestAction,
+                    userMessage.CollaborationInfo.ConversationId);
         }
 
         protected MessagingContext CreateReceivedMessagingContext(AS4Message as4Message, ReceivingProcessingMode receivingPMode)

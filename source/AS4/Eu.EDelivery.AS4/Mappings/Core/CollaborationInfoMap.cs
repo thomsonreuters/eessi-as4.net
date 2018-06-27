@@ -13,7 +13,7 @@ namespace Eu.EDelivery.AS4.Mappings.Core
                 .ForMember(dest => dest.Service, src => src.MapFrom(t => t.Service))
                 .AfterMap((modelInfo, xmlInfo) =>
                 {
-                    modelInfo.AgreementReference.Do(
+                    modelInfo?.AgreementReference?.Do(
                         a => xmlInfo.AgreementRef = AS4Mapper.Map<Xml.AgreementRef>(a));
                 }).ForAllOtherMembers(x => x.Ignore());
 
@@ -21,7 +21,7 @@ namespace Eu.EDelivery.AS4.Mappings.Core
                 .ConstructUsing(xml =>
                 {
                     Maybe<Model.Core.AgreementReference> a = (xml.AgreementRef?.Value != null)
-                        .ThenMaybe(AS4Mapper.Map<Model.Core.AgreementReference>(xml.AgreementRef));
+                        .ThenMaybe(() => AS4Mapper.Map<Model.Core.AgreementReference>(xml.AgreementRef));
 
                     Model.Core.Service s = xml.Service != null 
                         ? AS4Mapper.Map<Model.Core.Service>(xml.Service) 

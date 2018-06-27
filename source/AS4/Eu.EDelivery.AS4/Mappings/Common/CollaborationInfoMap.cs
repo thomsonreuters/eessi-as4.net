@@ -11,7 +11,7 @@ namespace Eu.EDelivery.AS4.Mappings.Common
                 .ConstructUsing(src =>
                 {
                     Maybe<Model.Core.AgreementReference> a = (src.AgreementRef?.Value != null)
-                        .ThenMaybe(AS4Mapper.Map<Model.Core.AgreementReference>(src.AgreementRef));
+                        .ThenMaybe(() => AS4Mapper.Map<Model.Core.AgreementReference>(src.AgreementRef));
 
                     Model.Core.Service s = src.Service != null
                         ? AS4Mapper.Map<Model.Core.Service>(src.Service)

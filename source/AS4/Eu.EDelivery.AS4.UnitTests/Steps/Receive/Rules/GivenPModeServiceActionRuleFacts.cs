@@ -1,7 +1,10 @@
-﻿using Eu.EDelivery.AS4.Model.Core;
+﻿using System;
+using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Steps.Receive.Rules;
 using Xunit;
+using AgreementReference = Eu.EDelivery.AS4.Model.Core.AgreementReference;
+using CollaborationInfo = Eu.EDelivery.AS4.Model.Core.CollaborationInfo;
 using Service = Eu.EDelivery.AS4.Model.PMode.Service;
 
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive.Rules
@@ -70,7 +73,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive.Rules
                 ReceivingProcessingMode receivingPMode =
                     base.CreateServiceActionReceivingPMode(serviceName, serviceType, action);
                 UserMessage userMessage = CreateServiceActionUserMesage(serviceName, serviceType, action);
-                userMessage.CollaborationInfo.Action = null;
+
+                userMessage.CollaborationInfo = new CollaborationInfo(
+                    userMessage.CollaborationInfo.AgreementReference,
+                    userMessage.CollaborationInfo.Service,
+                    action: String.Empty,
+                    conversationId: CollaborationInfo.DefaultConversationId);
+
                 var rule = new PModeServiceActionRule();
                 // Act
                 int points = rule.DeterminePoints(receivingPMode, userMessage);
@@ -99,11 +108,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive.Rules
         {
             return new UserMessage(messageId: "message-id")
             {
-                CollaborationInfo =
-                {
-                    Action = action,
-                    Service = new AS4.Model.Core.Service(serviceName, serviceType)
-                }
+                CollaborationInfo = new CollaborationInfo(
+                    Maybe<AgreementReference>.Nothing,
+                    new AS4.Model.Core.Service(serviceName, serviceType),
+                    action,
+                    CollaborationInfo.DefaultConversationId)
             };
         }
     }

@@ -3,6 +3,7 @@ using AutoMapper;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Singletons;
 using Eu.EDelivery.AS4.Xml;
+using CollaborationInfo = Eu.EDelivery.AS4.Model.Core.CollaborationInfo;
 using UserMessage = Eu.EDelivery.AS4.Model.Core.UserMessage;
 
 namespace Eu.EDelivery.AS4.Mappings.Core
@@ -38,7 +39,11 @@ namespace Eu.EDelivery.AS4.Mappings.Core
 
             if (!String.IsNullOrWhiteSpace(action) && action.EndsWith(".response", StringComparison.OrdinalIgnoreCase))
             {
-                userMessage.CollaborationInfo.Action = action.Substring(0, action.LastIndexOf(".response", StringComparison.OrdinalIgnoreCase));
+                userMessage.CollaborationInfo = new CollaborationInfo(
+                    userMessage.CollaborationInfo.AgreementReference,
+                    userMessage.CollaborationInfo.Service,
+                    action.Substring(0, action.LastIndexOf(".response", StringComparison.OrdinalIgnoreCase)),
+                    userMessage.CollaborationInfo.ConversationId);
             }
         }
 
