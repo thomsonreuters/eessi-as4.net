@@ -24,14 +24,10 @@ namespace Eu.EDelivery.AS4.Steps.Receive.Rules
 
         private static bool IsPModeIdEqual(ReceivingProcessingMode pmode, UserMessage userMessage)
         {
-            if (userMessage.CollaborationInfo?.AgreementReference == null)
-            {
-                return false;
-            }
-
-            string userMessagePModeId = userMessage.CollaborationInfo.AgreementReference.PModeId;
-
-            return userMessagePModeId != null && userMessagePModeId.Equals(pmode.Id);
+            return userMessage.CollaborationInfo.AgreementReference?
+                .Select(a => a.PModeId)
+                .Flatten()
+                .Equals((pmode.Id != null).ThenMaybe(pmode.Id)) ?? false;
         }
     }
 }

@@ -147,6 +147,7 @@
       <DependentUpon>20180618120333_AddJournalTable.cs</DependentUpon>
     </Compile>
     <Compile Include="Model\Core\Schema.cs" />
+    <Compile Include="Model\PMode\AgreementReference.cs" />
     <Compile Include="Model\PMode\MessageProperty.cs" />
     <Compile Include="Model\PMode\CollaborationInfo.cs" />
     <Compile Include="Model\PMode\SafeIntJsonConverter.cs" />
@@ -233,7 +234,7 @@
     <Compile Include="Mappings\Submit\SubmitMessagePropertiesResolver.cs" />
     <Compile Include="Mappings\Submit\SubmitMpcResolver.cs" />
     <Compile Include="Mappings\Submit\SubmitSenderPartyResolver.cs" />
-    <Compile Include="Mappings\Submit\SubmitMessageAgreementMapper.cs" />
+    <Compile Include="Mappings\Submit\SubmitMessageAgreementResolver.cs" />
     <Compile Include="Mappings\Submit\SubmitPayloadInfoResolver.cs" />
     <Compile Include="Mappings\Submit\SubmitReceiverResolver.cs" />
     <Compile Include="Mappings\Submit\SubmitServiceResolver.cs" />

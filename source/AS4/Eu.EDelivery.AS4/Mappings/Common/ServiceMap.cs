@@ -12,13 +12,14 @@ namespace Eu.EDelivery.AS4.Mappings.Common
                         ? new Model.Core.Service(src.Value)
                         : new Model.Core.Service(src.Value, src.Type));
 
-            CreateMap<Model.Core.Service, Model.Common.Service>(MemberList.None)
+            CreateMap<Model.Core.Service, Model.Common.Service>()
                 .ConstructUsing(src => 
                     new Model.Common.Service
                     {
                         Value = src.Value,
                         Type = src.Type.GetOrElse(() => null)
-                    });
+                    })
+                .ForAllOtherMembers(x => x.Ignore());
         }
     }
 }

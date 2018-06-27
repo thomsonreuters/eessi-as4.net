@@ -1,17 +1,14 @@
 ﻿using System;
-using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Mappings.Submit;
 using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Model.Submit;
 using Xunit;
+using AgreementReference = Eu.EDelivery.AS4.Model.PMode.AgreementReference;
 
 namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
 {
-    /// <summary>
-    /// Testing <see cref="SubmitMessageAgreementMapper" />
-    /// </summary>
     public class GivenSubmitAgreementMapperFacts
     {
         public class GivenValidArguments : GivenSubmitAgreementMapperFacts
@@ -24,15 +21,15 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
                 var userMessage = new UserMessage("message-id");
 
                 // Act
-                new SubmitMessageAgreementMapper().Map(submitMessage, userMessage);
+                ResolveAgreement(submitMessage, userMessage);
 
                 // Assert
-                AgreementReference userMessageAgreementRef = userMessage.CollaborationInfo.AgreementReference;
-                AgreementReference pmodeAgreementRef =
+                AS4.Model.Core.AgreementReference userMessageAgreementRef = userMessage.CollaborationInfo.AgreementReference.GetOrElse(() => null);
+                AS4.Model.PMode.AgreementReference pmodeAgreementRef =
                     submitMessage.PMode.MessagePackaging.CollaborationInfo.AgreementReference;
 
                 Assert.Equal(pmodeAgreementRef.Value, userMessageAgreementRef.Value);
-                Assert.Equal(pmodeAgreementRef.Type, userMessageAgreementRef.Type);
+                Assert.Equal(Maybe.Just(pmodeAgreementRef.Type), userMessageAgreementRef.Type);
             }
 
             [Fact]
@@ -44,14 +41,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
                 var userMessage = new UserMessage("message-id");
 
                 // Act
-                new SubmitMessageAgreementMapper().Map(submitMessage, userMessage);
+                ResolveAgreement(submitMessage, userMessage);
 
                 // Assert
-                AgreementReference userMessageAgreement = userMessage.CollaborationInfo.AgreementReference;
+                AS4.Model.Core.AgreementReference userMessageAgreement = userMessage.CollaborationInfo.AgreementReference.UnsafeGet;
                 Agreement submitAgreementRef = submitMessage.Collaboration.AgreementRef;
 
                 Assert.Equal(submitAgreementRef.Value, userMessageAgreement.Value);
-                Assert.Equal(submitAgreementRef.RefType, userMessageAgreement.Type);
+                Assert.Equal(Maybe.Just(submitAgreementRef.RefType), userMessageAgreement.Type);
             }
 
             [Fact]
@@ -65,12 +62,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
                 var userMessage = new UserMessage("message-id");
 
                 // Act
-                new SubmitMessageAgreementMapper().Map(submitMessage, userMessage);
+                ResolveAgreement(submitMessage, userMessage);
 
                 // Assert
-                AgreementReference userMessageAgreementRef = userMessage.CollaborationInfo.AgreementReference;
-                Assert.Null(userMessageAgreementRef.Value);
-                Assert.Null(userMessageAgreementRef.Type);
+                Assert.Equal(Maybe<AS4.Model.Core.AgreementReference>.Nothing, userMessage.CollaborationInfo.AgreementReference);
             }
         }
 
@@ -85,7 +80,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
                 var userMessage = new UserMessage("message-id");
 
                 // Act / Assert
-                Assert.ThrowsAny<Exception>(() => new SubmitMessageAgreementMapper().Map(submitMessage, userMessage));
+                Assert.ThrowsAny<Exception>(() => ResolveAgreement(submitMessage, userMessage));
             }
 
             [Fact]
@@ -99,7 +94,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
                 var userMessage = new UserMessage("message-id");
 
                 // Act / Assert
-                Assert.ThrowsAny<Exception>(() => new SubmitMessageAgreementMapper().Map(submitMessage, userMessage));
+                Assert.ThrowsAny<Exception>(() => ResolveAgreement(submitMessage, userMessage));
             }
 
             [Fact]
@@ -113,7 +108,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
                 var userMessage = new UserMessage("message-id");
 
                 // Act / Assert
-                Assert.ThrowsAny<Exception>(() => new SubmitMessageAgreementMapper().Map(submitMessage, userMessage));
+                Assert.ThrowsAny<Exception>(() => ResolveAgreement(submitMessage, userMessage));
             }
         }
 
@@ -146,6 +141,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
                         }
                 }
             };
+        }
+
+        private static void ResolveAgreement(SubmitMessage submit, UserMessage user)
+        {
+            user.CollaborationInfo.AgreementReference = SubmitMessageAgreementResolver.Resolve(submit, user);
         }
     }
 }

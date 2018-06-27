@@ -7,12 +7,23 @@ namespace Eu.EDelivery.AS4.Mappings.Common
         public AgreementReferenceMap()
         {
             CreateMap<Model.Common.Agreement, Model.Core.AgreementReference>()
-                .ForMember(dest => dest.Type, src => src.MapFrom(s => s.RefType))
-                .ForMember(dest => dest.Value, src => src.MapFrom(s => s.Value));
+                .ConstructUsing(src => 
+                    new Model.Core.AgreementReference(
+                        src.Value, 
+                        (src.RefType != null).ThenMaybe(src.RefType), 
+                        (src.PModeId != null).ThenMaybe(src.PModeId)))
+                .ForAllOtherMembers(x => x.Ignore());
 
             CreateMap<Model.Core.AgreementReference, Model.Common.Agreement>()
-                .ForMember(dest => dest.RefType, src => src.MapFrom(x => x.Type))
-                .ForMember(dest => dest.Value, src => src.MapFrom(x => x.Value));
+                .ConstructUsing(model =>
+                    new Model.Common.Agreement
+                    {
+                        Value = model.Value,
+                        RefType = model.Type.GetOrElse(() => null),
+                        PModeId = model.PModeId.GetOrElse(() => null)
+                    })
+                .ForAllOtherMembers(x => x.Ignore());
+
         }
     }
 }

@@ -9,6 +9,7 @@ using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Streaming;
 using Xunit;
+using AgreementReference = Eu.EDelivery.AS4.Model.Core.AgreementReference;
 using CollaborationInfo = Eu.EDelivery.AS4.Model.Core.CollaborationInfo;
 using Service = Eu.EDelivery.AS4.Model.Core.Service;
 
@@ -203,17 +204,11 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._19_22
 
         private static CollaborationInfo HolodeckCollaboration(string argRefPModeId)
         {
-            return new CollaborationInfo
-            { 
-                AgreementReference =
-                {
-                    PModeId = argRefPModeId,
-                    Value = "http://agreements.holodeckb2b.org/examples/agreement0"
-                },
-                ConversationId = "eu:edelivery:as4:sampleconversation",
-                Action = Constants.Namespaces.TestAction,
-                Service = Service.TestService
-            };
+            return new CollaborationInfo(
+                new AgreementReference("http://agreements.holodeckb2b.org/examples/agreement0", argRefPModeId),
+                Service.TestService, 
+                Constants.Namespaces.TestAction,
+                "eu:edelivery:as4:sampleconversation");
         }
 
         private static Attachment ImageAttachment(string id)
