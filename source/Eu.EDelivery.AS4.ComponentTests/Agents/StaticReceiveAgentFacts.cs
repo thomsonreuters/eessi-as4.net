@@ -79,7 +79,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                         () => spy.GetInMessageFor(im => im.EbmsMessageId == ebmsMessageId),
                         timeout: TimeSpan.FromSeconds(5));
 
-                    Assert.Equal(Operation.ToBeDelivered, actual.Operation.ToEnum<Operation>());
+                    Assert.Equal(Operation.ToBeDelivered, actual.Operation);
                     Assert.Equal(InStatus.Received, actual.Status.ToEnum<InStatus>());
                     Assert.Equal(DefaultPModeId, actual.PModeId);
                 });

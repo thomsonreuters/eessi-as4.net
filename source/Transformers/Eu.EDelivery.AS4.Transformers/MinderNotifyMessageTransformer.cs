@@ -114,14 +114,14 @@ namespace Eu.EDelivery.AS4.Transformers
                 MessageEntity ent = db.InMessages.FirstOrDefault(
                     m =>
                         m.EbmsMessageId == signalMessage.RefToMessageId &&
-                        m.EbmsMessageType == MessageType.UserMessage.ToString());
+                        m.EbmsMessageType == MessageType.UserMessage);
 
                 if (ent == null)
                 {
                     ent = db.OutMessages.FirstOrDefault(
                         m =>
                             m.EbmsMessageId == signalMessage.RefToMessageId &&
-                            m.EbmsMessageType == MessageType.UserMessage.ToString());
+                            m.EbmsMessageType == MessageType.UserMessage);
                 }
 
                 if (ent != null)

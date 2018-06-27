@@ -4,8 +4,8 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Eu.EDelivery.AS4.Agents;
 using Eu.EDelivery.AS4.Common;
+using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Exceptions.Handlers;
-using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Receivers;
 using Eu.EDelivery.AS4.ServiceHandler.Builder;
@@ -84,9 +84,9 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
             var r = new DatastoreReceiver(
                 Registry.Instance.CreateDatastoreContext,
                 ctx => ctx.RetryReliability.Where(
-                    rr => rr.Status == "Pending" 
+                    rr => rr.Status == RetryStatus.Pending
                           && (rr.LastRetryTime.HasValue == false 
-                              || DateTimeOffset.Now >= rr.LastRetryTime.Value.Add(rr.RetryInterval.AsTimeSpan()))).ToList());
+                              || DateTimeOffset.Now >= rr.LastRetryTime.Value.Add(rr.RetryInterval))).ToList());
 
             r.Configure(new DatastoreReceiverSettings(
                             tableName: "RetryReliability",

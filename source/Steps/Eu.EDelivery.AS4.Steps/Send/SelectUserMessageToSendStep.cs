@@ -12,6 +12,7 @@ using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Serialization;
+using Microsoft.EntityFrameworkCore;
 using NLog;
 using MessageExchangePattern = Eu.EDelivery.AS4.Entities.MessageExchangePattern;
 
@@ -23,7 +24,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
     /// <seealso cref="IStep" />
     [Info("Select message to send")]
     [Description(
-        "Selects a message that is eligible for sending via pulling. " + 
+        "Selects a message that is eligible for sending via pulling. " +
         "This step selects a message that matches the MPC of the received pull-request signalmessage.")]
     public class SelectUserMessageToSendStep : IStep
     {
@@ -44,7 +45,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// <param name="createContext">The create context.</param>
         /// <param name="messageBodyStore">The message body store.</param>
         public SelectUserMessageToSendStep(
-            Func<DatastoreContext> createContext, 
+            Func<DatastoreContext> createContext,
             IAS4MessageBodyStore messageBodyStore)
         {
             _createContext = createContext;
@@ -97,27 +98,24 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
         private (bool, OutMessage) RetrieveUserMessageForPullRequest(PullRequest pullRequestMessage)
         {
-            var options = new TransactionOptions { IsolationLevel = IsolationLevel.RepeatableRead };
-
-            using (var scope = new TransactionScope(TransactionScopeOption.Required, options))
+            using (DatastoreContext context = _createContext())
             {
-                using (DatastoreContext context = _createContext())
-                {
-                    OutMessage message = 
+                context.Database.BeginTransaction(System.Data.IsolationLevel.RepeatableRead);
+
+                OutMessage message =
                         context.OutMessages.Where(PullRequestQuery(pullRequestMessage))
                                            .OrderBy(m => m.InsertionTime).Take(1).FirstOrDefault();
-                    if (message == null)
-                    {
-                        return (false, null);
-                    }
-
-                    message.SetOperation(Operation.Sent);
-
-                    context.SaveChanges();
-                    scope.Complete();
-
-                    return (true, message);
+                if (message == null)
+                {
+                    return (false, null);
                 }
+
+                message.Operation = Operation.Sent;
+
+                context.SaveChanges();
+                context.Database.CommitTransaction();
+
+                return (true, message);
             }
         }
 
@@ -127,8 +125,8 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 $"(PullReceive) Query UserMessages with MPC={pullRequest.Mpc} && Operation=ToBeSent && MEP=Pull");
 
             return m => m.Mpc == pullRequest.Mpc &&
-                        m.Operation == Operation.ToBeSent.ToString() &&
-                        m.MEP == MessageExchangePattern.Pull.ToString();
+                        m.Operation == Operation.ToBeSent &&
+                        m.MEP == MessageExchangePattern.Pull;
         }
     }
 }

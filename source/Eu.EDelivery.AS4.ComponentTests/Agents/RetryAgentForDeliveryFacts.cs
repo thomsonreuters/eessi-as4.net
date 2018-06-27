@@ -54,16 +54,16 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             // Assert
             InMessage actual =
                 await PollUntilPresent(
-                    () => _databaseSpy.GetInMessageFor(m => m.Operation == nameof(Operation.Delivered)),
+                    () => _databaseSpy.GetInMessageFor(m => m.Operation == Operation.Delivered),
                     timeout: TimeSpan.FromSeconds(10));
 
             // Assert
             Assert.Equal(InStatus.Delivered, actual.Status.ToEnum<InStatus>());
-            Assert.Equal(Operation.Delivered, actual.Operation.ToEnum<Operation>());
+            Assert.Equal(Operation.Delivered, actual.Operation);
 
             RetryReliability rr = _databaseSpy.GetRetryReliabilityFor(r => r.RefToInMessageId == actual.Id);
             Assert.True(0 < rr.CurrentRetryCount, "0 < actualMessage.CurrentRetryCount");
-            Assert.Equal(RetryStatus.Completed, rr.Status.ToEnum<RetryStatus>());
+            Assert.Equal(RetryStatus.Completed, rr.Status);
         }
 
         [Fact]
@@ -78,14 +78,14 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             // Assert
             InMessage actual =
                 await PollUntilPresent(
-                    () => _databaseSpy.GetInMessageFor(m => m.Operation == nameof(Operation.DeadLettered)),
+                    () => _databaseSpy.GetInMessageFor(m => m.Operation == Operation.DeadLettered),
                     timeout: TimeSpan.FromSeconds(10));
 
             RetryReliability rr = 
                 _databaseSpy.GetRetryReliabilityFor(r => r.RefToInMessageId == actual.Id);
 
             Assert.Equal(rr.CurrentRetryCount, rr.MaxRetryCount);
-            Assert.Equal(RetryStatus.Completed, rr.Status.ToEnum<RetryStatus>());
+            Assert.Equal(RetryStatus.Completed, rr.Status);
         }
 
         private async Task TestDeliverRetryByBlockingDeliveryLocationFor(AS4Message as4Message, TimeSpan period)

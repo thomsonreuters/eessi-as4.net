@@ -58,7 +58,7 @@ namespace Eu.EDelivery.AS4.Steps.Notify
                     repository.UpdateInMessage(notifyMessage.MessageInfo.MessageId, m =>
                     {
                         m.SetStatus(InStatus.Notified);
-                        m.SetOperation(Operation.Notified);
+                        m.Operation = Operation.Notified;
                     });
                 }
                 else if (notifyMessage.EntityType == typeof(OutMessage) && messagingContext.MessageEntityId != null)
@@ -67,18 +67,18 @@ namespace Eu.EDelivery.AS4.Steps.Notify
                     repository.UpdateOutMessage(messagingContext.MessageEntityId.Value, m =>
                     {
                         m.SetStatus(OutStatus.Notified);
-                        m.SetOperation(Operation.Notified);
+                        m.Operation = Operation.Notified;
                     });
                 }
                 else if (notifyMessage.EntityType == typeof(InException))
                 {
                     Logger.Debug(messagingContext.LogTag + "Update InException with Status and Operation set to Notified");
-                    repository.UpdateInException(notifyMessage.MessageInfo.RefToMessageId, ex => ex.SetOperation(Operation.Notified));
+                    repository.UpdateInException(notifyMessage.MessageInfo.RefToMessageId, ex => ex.Operation = Operation.Notified);
                 }
                 else if (notifyMessage.EntityType == typeof(OutException))
                 {
                     Logger.Debug(messagingContext.LogTag + "Update OutException with Status and Operation set to Notified");
-                    repository.UpdateOutException(notifyMessage.MessageInfo.RefToMessageId, ex => ex.SetOperation(Operation.Notified));
+                    repository.UpdateOutException(notifyMessage.MessageInfo.RefToMessageId, ex => ex.Operation = Operation.Notified);
                 }
                 else
                 {

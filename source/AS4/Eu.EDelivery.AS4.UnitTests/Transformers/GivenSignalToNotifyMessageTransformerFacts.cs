@@ -126,7 +126,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
 
             receiptContent.Position = 0;
             InMessage receiptInMessage = new InMessage("non-existing-id");
-            receiptInMessage.SetEbmsMessageType(MessageType.Receipt);
+            receiptInMessage.EbmsMessageType = MessageType.Receipt;
 
             var receivedMessage = new ReceivedMessageEntityMessage(receiptInMessage, receiptContent, receiptInMessage.ContentType);
 
@@ -157,8 +157,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             };
 
             inMessage.SetStatus(InStatus.Received);
-            inMessage.SetOperation(Operation.ToBeNotified);
-            inMessage.SetEbmsMessageType(MessageType.Receipt);
+            inMessage.Operation = Operation.ToBeNotified;
+            inMessage.EbmsMessageType = MessageType.Receipt;
 
             return inMessage;
         }

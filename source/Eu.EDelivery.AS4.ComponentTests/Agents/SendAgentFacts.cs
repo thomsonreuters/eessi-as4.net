@@ -56,7 +56,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
             // Assert
             InMessage receipt = await PollUntilPresent(
-                () => _databaseSpy.GetInMessageFor(m => m.EbmsRefToMessageId == ebmsMessageId), 
+                () => _databaseSpy.GetInMessageFor(m => m.EbmsRefToMessageId == ebmsMessageId),
                 timeout: TimeSpan.FromSeconds(5));
 
             Assert.Equal(InStatus.Received, receipt.Status.ToEnum<InStatus>());
@@ -146,8 +146,8 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         [InlineData(false, OutStatus.Ack, Operation.ToBeNotified)]
         [InlineData(true, OutStatus.Sent, Operation.ToBeForwarded)]
         public async Task CorrectHandlingOnSynchronouslyReceivedMultiHopReceipt(
-            bool actAsIntermediaryMsh, 
-            OutStatus expectedOutStatus, 
+            bool actAsIntermediaryMsh,
+            OutStatus expectedOutStatus,
             Operation expectedSignalOperation)
         {
             // Arrange
@@ -169,19 +169,19 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             signal.WaitOne();
 
             OutMessage sentMessage = await PollUntilPresent(
-                () => _databaseSpy.GetOutMessageFor(m => m.EbmsMessageId == messageId), 
+                () => _databaseSpy.GetOutMessageFor(m => m.EbmsMessageId == messageId),
                 timeout: TimeSpan.FromSeconds(10));
 
             InMessage receivedMessage = await PollUntilPresent(
-                () => _databaseSpy.GetInMessageFor(m => m.EbmsRefToMessageId == messageId), 
+                () => _databaseSpy.GetInMessageFor(m => m.EbmsRefToMessageId == messageId),
                 timeout: TimeSpan.FromSeconds(10));
 
             Assert.NotNull(sentMessage);
             Assert.NotNull(receivedMessage);
 
             Assert.Equal(expectedOutStatus, sentMessage.Status.ToEnum<OutStatus>());
-            Assert.Equal(MessageType.Receipt, receivedMessage.EbmsMessageType.ToEnum<MessageType>());
-            Assert.Equal(expectedSignalOperation, receivedMessage.Operation.ToEnum<Operation>());
+            Assert.Equal(MessageType.Receipt, receivedMessage.EbmsMessageType);
+            Assert.Equal(expectedSignalOperation, receivedMessage.Operation);
         }
 
         private void PutMessageToSend(AS4Message as4Message, SendingProcessingMode pmode, bool actAsIntermediaryMsh)
@@ -207,9 +207,9 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                 Intermediary = actAsIntermediaryMsh,
             };
 
-            outMessage.SetEbmsMessageType(MessageType.UserMessage);
-            outMessage.SetMessageExchangePattern(MessageExchangePattern.Push);
-            outMessage.SetOperation(Operation.ToBeSent);
+            outMessage.EbmsMessageType = MessageType.UserMessage;
+            outMessage.MEP = MessageExchangePattern.Push;
+            outMessage.Operation = Operation.ToBeSent;
             outMessage.SetPModeInformation(pmode);
 
             _databaseSpy.InsertOutMessage(outMessage);

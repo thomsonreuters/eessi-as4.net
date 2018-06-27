@@ -33,7 +33,7 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
         private readonly string OutEbmsRefToMessageId2 = "OutEbmsRefToMessageId2";
         private readonly string InException = "THIS IS EXCEPTION 1";
         private readonly ReceivingProcessingMode pmode;
-        private readonly string MessageBody1 = "TEST";        
+        private readonly string MessageBody1 = "TEST";
         private DatastoreContext datastoreContext;
         private MonitorService monitorService;
         private DbContextOptions<DatastoreContext> options;
@@ -149,7 +149,7 @@ Failed to decrypt data element
                 }
 
                 datastoreContext.InExceptions.Add(new InException(InEbmsMessageId1, InException)
-                {                    
+                {
                     InsertionTime = DateTime.UtcNow.AddMinutes(-1),
                 });
                 datastoreContext.InExceptions.Add(new InException(OutEbmsRefToMessageId1, MessageBody1)
@@ -161,11 +161,11 @@ Failed to decrypt data element
                     InsertionTime = DateTime.UtcNow.AddMinutes(-1)
                 });
                 datastoreContext.OutExceptions.Add(new OutException(OutEbmsRefToMessageId1, InException)
-                {                    
+                {
                     InsertionTime = DateTime.UtcNow.AddMinutes(-1)
                 });
                 datastoreContext.OutExceptions.Add(new OutException(InEbmsRefToMessageId1, Exception)
-                {                    
+                {
                     InsertionTime = DateTime.UtcNow.AddMinutes(-1)
                 });
 
@@ -345,8 +345,8 @@ Failed to decrypt data element
                 [Fact]
                 public void Returns_Pmode_Number_From_Pmode_String()
                 {
-                    var pmode = File.ReadAllText(@"receivingpmode.xml");
-                    var result = Setup().monitorService.GetPmodeNumber(pmode);
+                    var pmodeContent = File.ReadAllText(@"receivingpmode.xml");
+                    var result = Setup().monitorService.GetPmodeNumber(pmodeContent);
                     Assert.True(result == "8.1.2-basePmode");
 
                     Cleanup();
@@ -490,10 +490,10 @@ Failed to decrypt data element
 
                         // Forwareded message
                         var newinMessage = new InMessage(ForwardedMessageId);
-                        newinMessage.SetOperation(Operation.Forwarded);
+                        newinMessage.Operation = Operation.Forwarded;
                         datastoreContext.InMessages.Add(newinMessage);
                         var newOutMessage = new OutMessage(ForwardedMessageId);
-                        newOutMessage.SetOperation(Operation.ToBeSent);
+                        newOutMessage.Operation = Operation.ToBeSent;
                         datastoreContext.OutMessages.Add(newOutMessage);
 
                         var pmodeId = pmode.Id;

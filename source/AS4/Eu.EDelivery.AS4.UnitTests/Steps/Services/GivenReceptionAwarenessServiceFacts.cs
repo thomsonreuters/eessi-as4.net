@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq.Expressions;
 using Eu.EDelivery.AS4.Entities;
-using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Services;
 using Moq;
@@ -22,7 +21,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Services
             [Fact]
             public void MessageDoesntNeedsToBeResend_IfStatusIsCompleted()
             {
-                TestMessageNeedsToBeResend(r => r.SetStatus(ReceptionStatus.Completed), expected: false);
+                TestMessageNeedsToBeResend(r => r.Status = ReceptionStatus.Completed, expected: false);
             }
 
             [Fact]
@@ -71,8 +70,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Services
                     TotalRetryCount = 5,
                     RetryInterval = "00:00:05",
                     LastSendTime = DateTimeOffset.MinValue,
+                    Status = ReceptionStatus.Pending,
                 };
-                awareness.SetStatus(ReceptionStatus.Pending);
 
                 arrangeAwareness(awareness);
 
@@ -92,7 +91,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Services
                 // Arrange
                 var mockStore = new Mock<IDatastoreRepository>();
                 var actual = new AS4.Entities.ReceptionAwareness(1, "message-id");
-                actual.SetStatus(ReceptionStatus.Busy);
+                actual.Status = ReceptionStatus.Busy;
 
                 mockStore.Setup(
                             s =>
@@ -110,7 +109,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Services
                 ExerciseService(mockStore.Object, s => s.MarkReferencedMessageAsComplete(actual));
 
                 // Assert
-                Assert.Equal(ReceptionStatus.Completed, actual.Status.ToEnum<ReceptionStatus>());
+                Assert.Equal(ReceptionStatus.Completed, actual.Status);
             }
         }
 
@@ -123,7 +122,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Services
                 var mockRepository = new Mock<IDatastoreRepository>();
                 var outMessage = new OutMessage(Guid.NewGuid().ToString());
                 outMessage.InitializeIdFromDatabase(1);
-                outMessage.SetOperation(Operation.Sent);
+                outMessage.Operation = Operation.Sent;
 
                 var awareness = new AS4.Entities.ReceptionAwareness(outMessage.Id, "not empty message-id");
                 awareness.InitializeIdFromDatabase(2);
@@ -140,7 +139,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Services
                 ExerciseService(mockRepository.Object, s => s.MarkReferencedMessageForResend(awareness));
 
                 // Assert
-                Assert.Equal(Operation.ToBeSent, outMessage.Operation.ToEnum<Operation>());
+                Assert.Equal(Operation.ToBeSent, outMessage.Operation);
             }
 
             [Fact]
@@ -149,8 +148,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Services
                 // Arrange
                 var mockRepository = new Mock<IDatastoreRepository>();
                 var awareness = new AS4.Entities.ReceptionAwareness(1, "not-empty-message-id");
-                
-                awareness.SetStatus(ReceptionStatus.Busy);
+
+                awareness.Status = ReceptionStatus.Busy;
 
                 mockRepository.Setup(
                                   r =>
@@ -168,7 +167,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Services
                 ExerciseService(mockRepository.Object, s => s.MarkReferencedMessageForResend(awareness));
 
                 // Assert
-                Assert.Equal(ReceptionStatus.Pending, awareness.Status.ToEnum<ReceptionStatus>());
+                Assert.Equal(ReceptionStatus.Pending, awareness.Status);
             }
         }
 
@@ -219,7 +218,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Services
                 // Arrange
                 var mockRepository = new Mock<IDatastoreRepository>();
                 var actual = new AS4.Entities.ReceptionAwareness(1, "some-message-id");
-                actual.SetStatus(ReceptionStatus.Busy);
+                actual.Status = ReceptionStatus.Busy;
 
                 mockRepository.Setup(
                                   r =>
@@ -237,7 +236,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Services
                 ExerciseService(mockRepository.Object, s => s.ResetReferencedMessage(actual));
 
                 // Assert
-                Assert.Equal(ReceptionStatus.Pending, actual.Status.ToEnum<ReceptionStatus>());
+                Assert.Equal(ReceptionStatus.Pending, actual.Status);
             }
         }
 

@@ -2,9 +2,7 @@
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
-using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
@@ -13,7 +11,6 @@ using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Steps.Receive;
 using Eu.EDelivery.AS4.UnitTests.Common;
 using Eu.EDelivery.AS4.UnitTests.Repositories;
-using Microsoft.EntityFrameworkCore;
 using Xunit;
 using CollaborationInfo = Eu.EDelivery.AS4.Model.Core.CollaborationInfo;
 using Service = Eu.EDelivery.AS4.Model.Core.Service;
@@ -107,7 +104,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
                 // Assert
                 InMessage m = GetUserInMessageForEbmsMessageId(userMessage);
-                Assert.Equal(Operation.NotApplicable, m.Operation.ToEnum<Operation>());
+                Assert.Equal(Operation.NotApplicable, m.Operation);
             }
         }
 
@@ -156,7 +153,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
             // Assert
             InMessage m = GetUserInMessageForEbmsMessageId(userMessage);
-            Assert.Equal(Operation.NotApplicable, m.Operation.ToEnum<Operation>());
+            Assert.Equal(Operation.NotApplicable, m.Operation);
         }
 
         private void InsertDuplicateUserMessage(MessageUnit userMessage)
@@ -170,7 +167,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 .GetInMessage(m => m.EbmsMessageId.Equals(userMessage.MessageId));
 
             Assert.NotNull(inMessage);
-            Assert.Equal(MessageType.UserMessage, inMessage.EbmsMessageType.ToEnum<MessageType>());
+            Assert.Equal(MessageType.UserMessage, inMessage.EbmsMessageType);
 
             return inMessage;
         }

@@ -15,7 +15,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
     /// </summary>
     [Info("Set reception awareness for the message")]
     [Description(
-        "This step makes sure that reception awareness is enabled for the message that is to be sent, " + 
+        "This step makes sure that reception awareness is enabled for the message that is to be sent, " +
         "if reception awareness is enabled in the sending PMode.")]
     public class SetReceptionAwarenessStep : IStep
     {
@@ -74,18 +74,18 @@ namespace Eu.EDelivery.AS4.Steps.Send
                     $"{context.LogTag} Unable to retrieve the OutMessage information from the MessagingContext.ReceivedMessage");
             }
 
-            Entities.ReceptionAwareness receptionAwareness = 
+            Entities.ReceptionAwareness receptionAwareness =
                 CreateReceptionAwareness(
-                    context.MessageEntityId.Value, 
-                    context.AS4Message.GetPrimaryMessageId(), 
+                    context.MessageEntityId.Value,
+                    context.AS4Message.GetPrimaryMessageId(),
                     context.SendingPMode);
 
             repository.InsertReceptionAwareness(receptionAwareness);
         }
 
         private static Entities.ReceptionAwareness CreateReceptionAwareness(
-            long outMessageId, 
-            string ebmsMessageId, 
+            long outMessageId,
+            string ebmsMessageId,
             SendingProcessingMode pmode)
         {
             // The Message hasn't been sent yet, so set the currentretrycount to -1 and the lastsendtime to null.
@@ -98,7 +98,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 LastSendTime = null,
             };
 
-            receptionAwareness.SetStatus(ReceptionStatus.Pending);
+            receptionAwareness.Status = ReceptionStatus.Pending;
 
             return receptionAwareness;
         }

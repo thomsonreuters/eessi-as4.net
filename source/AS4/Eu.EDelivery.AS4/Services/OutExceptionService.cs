@@ -6,7 +6,6 @@ using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
-using Eu.EDelivery.AS4.Serialization;
 using NLog;
 
 namespace Eu.EDelivery.AS4.Services
@@ -61,7 +60,7 @@ namespace Eu.EDelivery.AS4.Services
             var outException = new OutException(id, error.Description);
             
             await outException.SetPModeInformationAsync(sendingPMode);
-            outException.SetOperation(NeedsOutExceptionBeNotified(sendingPMode) ? Operation.ToBeNotified : Operation.NotApplicable);
+            outException.Operation = NeedsOutExceptionBeNotified(sendingPMode) ? Operation.ToBeNotified : Operation.NotApplicable;
 
             return outException;
         }

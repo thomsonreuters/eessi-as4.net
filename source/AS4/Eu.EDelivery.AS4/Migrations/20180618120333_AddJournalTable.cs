@@ -26,7 +26,7 @@ namespace Eu.EDelivery.AS4.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_RetryReliability", x => x.Id);
+                    table.PrimaryKey("PK_Journal", x => x.Id);
                 });
 
             if (migrationBuilder.ActiveProvider.Equals(

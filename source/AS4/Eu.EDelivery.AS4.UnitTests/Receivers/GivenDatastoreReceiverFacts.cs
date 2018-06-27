@@ -64,11 +64,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
 
             // Assert
             AssertOutMessageIf(
-                m => m.Operation.ToEnum<Operation>() == Operation.Sending,
+                m => m.Operation == Operation.Sending,
                 message =>
                 {
                     Assert.Equal(OutStatus.Sent, message.Status.ToEnum<OutStatus>());
-                    Assert.Equal(Operation.Sending, message.Operation.ToEnum<Operation>());
+                    Assert.Equal(Operation.Sending, message.Operation);
                 });
         }
 
@@ -103,12 +103,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
             using (DatastoreContext context = GetDataStoreContext())
             {
                 var outMessage = new OutMessage("message-id")
-                {                    
+                {
                     MessageLocation = "test://",
                     ContentType = contentType
                 };
 
-                outMessage.SetOperation(operation);
+                outMessage.Operation = operation;
 
                 context.OutMessages.Add(outMessage);
 
@@ -121,12 +121,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
             using (var context = GetDataStoreContext())
             {
                 var expectedMessage = new OutMessage("message-id")
-                {                    
+                {
                     MessageLocation = "ignored location"
                 };
 
                 expectedMessage.SetStatus(status);
-                expectedMessage.SetOperation(operation);
+                expectedMessage.Operation = operation;
 
                 context.OutMessages.Add(expectedMessage);
                 context.SaveChanges();

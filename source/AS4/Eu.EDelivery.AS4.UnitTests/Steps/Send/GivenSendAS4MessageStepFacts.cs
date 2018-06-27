@@ -43,7 +43,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
                 message =>
                 {
                     Assert.Equal(OutStatus.Sent, message.Status.ToEnum<OutStatus>());
-                    Assert.Equal(Operation.Sent, message.Operation.ToEnum<Operation>());
+                    Assert.Equal(Operation.Sent, message.Operation);
                 });
         }
 

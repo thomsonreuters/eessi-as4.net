@@ -99,7 +99,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
             Assert.Empty(Directory.EnumerateFiles(DeliveryRoot));
             Assert.Equal(InStatus.Exception, actual.Status.ToEnum<InStatus>());
-            Assert.Equal(Operation.DeadLettered, actual.Operation.ToEnum<Operation>());
+            Assert.Equal(Operation.DeadLettered, actual.Operation);
         }
 
 
@@ -149,16 +149,16 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         {
             var inMessage = new InMessage(as4Message.GetPrimaryMessageId())
             {
-                ContentType = as4Message.ContentType,                
+                ContentType = as4Message.ContentType,
                 MessageLocation =
                     Registry.Instance
                             .MessageBodyStore
                             .SaveAS4Message(@"file:///.\database\as4messages\in", as4Message)
             };
 
-            inMessage.SetEbmsMessageType(MessageType.UserMessage);
-            inMessage.SetMessageExchangePattern(MessageExchangePattern.Push);
-            inMessage.SetOperation(Operation.ToBeDelivered);
+            inMessage.EbmsMessageType = MessageType.UserMessage;
+            inMessage.MEP = MessageExchangePattern.Push;
+            inMessage.Operation = Operation.ToBeDelivered;
 
             inMessage.SetPModeInformation(pmode);
 
@@ -199,7 +199,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         }
 
         protected override void Disposing(bool isDisposing)
-        {           
+        {
             _as4Msh.Dispose();
         }
     }

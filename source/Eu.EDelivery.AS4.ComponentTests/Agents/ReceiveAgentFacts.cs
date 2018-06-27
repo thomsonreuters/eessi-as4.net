@@ -232,7 +232,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
             InMessage receivedUserMessage = GetInsertedUserMessageFor(receivedAS4Message);
             Assert.NotNull(receivedUserMessage);
-            Assert.Equal(Operation.ToBeDelivered, receivedUserMessage.Operation.ToEnum<Operation>());
+            Assert.Equal(Operation.ToBeDelivered, receivedUserMessage.Operation);
         }
 
         private InMessage GetInsertedUserMessageFor(AS4Message receivedAS4Message)
@@ -268,7 +268,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
             InMessage receivedUserMessage = _databaseSpy.GetInMessageFor(m => m.EbmsMessageId == messageId);
             Assert.NotNull(receivedUserMessage);
-            Assert.Equal(Operation.ToBeForwarded, receivedUserMessage.Operation.ToEnum<Operation>());
+            Assert.Equal(Operation.ToBeForwarded, receivedUserMessage.Operation);
         }
 
         [Fact]
@@ -451,7 +451,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
             var inMessage = _databaseSpy.GetInMessageFor(m => m.EbmsRefToMessageId == userMessageId);
             Assert.NotNull(inMessage);
-            Assert.Equal(MessageType.Receipt, inMessage.EbmsMessageType.ToEnum<MessageType>());
+            Assert.Equal(MessageType.Receipt, inMessage.EbmsMessageType);
             Assert.Equal(InStatus.Exception, inMessage.Status.ToEnum<InStatus>());
 
             var inExceptions = _databaseSpy.GetInExceptions(m => m.EbmsRefToMessageId == inMessage.EbmsMessageId);
@@ -483,7 +483,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
             Assert.NotNull(inUserMessage);
             Assert.True(inUserMessage.Intermediary);
-            Assert.Equal(Operation.ToBeForwarded, inUserMessage.Operation.ToEnum<Operation>());
+            Assert.Equal(Operation.ToBeForwarded, inUserMessage.Operation);
         }
 
         [Fact]
@@ -509,7 +509,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
             Assert.NotNull(inUserMessage);
             Assert.False(inUserMessage.Intermediary);
-            Assert.Equal(Operation.ToBeDelivered, inUserMessage.Operation.ToEnum<Operation>());
+            Assert.Equal(Operation.ToBeDelivered, inUserMessage.Operation);
 
             OutMessage outReceipt = _databaseSpy.GetOutMessageFor(m => m.EbmsRefToMessageId == userMessage.MessageId);
             Assert.Equal(OutStatus.Sent, outReceipt.Status.ToEnum<OutStatus>());
@@ -560,7 +560,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
             Assert.NotNull(inMessage);
             Assert.True(inMessage.Intermediary);
-            Assert.Equal(Operation.ToBeForwarded, inMessage.Operation.ToEnum<Operation>());
+            Assert.Equal(Operation.ToBeForwarded, inMessage.Operation);
 
             Stream messageBody = await Registry.Instance
                 .MessageBodyStore
@@ -601,7 +601,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             // Assert
             var inMessage = _databaseSpy.GetInMessageFor(m => m.EbmsRefToMessageId == messageId);
             Assert.NotNull(inMessage);
-            Assert.Equal(Operation.ToBeNotified, inMessage.Operation.ToEnum<Operation>());
+            Assert.Equal(Operation.ToBeNotified, inMessage.Operation);
 
             var outMessage = _databaseSpy.GetOutMessageFor(m => m.EbmsMessageId == messageId);
             Assert.NotNull(outMessage);
@@ -623,7 +623,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
             var inMessage = _databaseSpy.GetInMessageFor(m => m.EbmsMessageId == id);
             Assert.NotNull(inMessage);
-            Assert.Equal(Operation.NotApplicable, inMessage.Operation.ToEnum<Operation>());
+            Assert.Equal(Operation.NotApplicable, inMessage.Operation);
         }
 
         private static AS4Message CreateMultihopSignalMessage(string messageId, string refToMessageId)
@@ -660,7 +660,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                 },
                 CollaborationInfo = new Xml.CollaborationInfo()
                 {
-                    AgreementRef = new Xml.AgreementRef { pmode = "Forward_Push" },
+                    AgreementRef = new AgreementRef { pmode = "Forward_Push" },
                     Action = "Forward_Push_Action",
                     Service = new Xml.Service()
                     {
@@ -708,7 +708,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             InMessage inMessage = _databaseSpy.GetInMessageFor(m => m.EbmsRefToMessageId == expectedId);
             Assert.NotNull(inMessage);
             Assert.Equal(InStatus.Received, inMessage.Status.ToEnum<InStatus>());
-            Assert.Equal(Operation.ToBeNotified, inMessage.Operation.ToEnum<Operation>());
+            Assert.Equal(Operation.ToBeNotified, inMessage.Operation);
         }
 
         // ReSharper disable once UnusedParameter.Local

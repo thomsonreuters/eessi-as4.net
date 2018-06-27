@@ -1,10 +1,5 @@
-﻿using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Common;
+﻿using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
-using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Factories;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
@@ -16,6 +11,10 @@ using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Steps.Send;
 using Eu.EDelivery.AS4.UnitTests.Common;
 using Eu.EDelivery.AS4.UnitTests.Repositories;
+using System;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Xunit;
 using MessageExchangePattern = Eu.EDelivery.AS4.Entities.MessageExchangePattern;
 
@@ -57,7 +56,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             UserMessage userMessage = as4Message.FirstUserMessage;
 
             Assert.Equal(expectedMpc, userMessage.Mpc);
-            AssertOutMessage(userMessage.MessageId, m => Assert.True(m.Operation.ToEnum<Operation>() == Operation.Sent));
+            AssertOutMessage(userMessage.MessageId, m => Assert.True(m.Operation == Operation.Sent));
             Assert.NotNull(result.MessagingContext.SendingPMode);
         }
 
