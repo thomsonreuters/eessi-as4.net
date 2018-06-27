@@ -350,6 +350,25 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                 return noAgreementTagProp.Or(equalValueProp.And(noTypeProp).Or(equalTypeProp));
             }
 
+            [Fact]
+            public void Then_PayloadInfo_Is_Present_When_Defined()
+            {
+                // Arrange
+                var user = new UserMessage($"user-{Guid.NewGuid()}");
+                user.AddPartInfo(new AS4.Model.Core.PartInfo("cid:earth"));
+                
+                // Act
+                XmlDocument doc = SerializeSoapMessage(AS4Message.Create(user));
+
+                // Assert
+                XmlNode payloadInfoTag = doc.SelectXmlNode(
+                    "/s:Envelope/s:Header/ebms:Messaging/ebms:UserMessage/ebms:PayloadInfo");
+
+                Assert.NotNull(payloadInfoTag);
+                XmlNode partInfoTag = payloadInfoTag.FirstChild;
+                Assert.Equal("cid:earth", partInfoTag.Attributes?["href"]?.Value);
+            }
+
             [Property]
             public void ThenSerializeWithoutAttachmentsReturnsSoapMessage(Guid mpc)
             {

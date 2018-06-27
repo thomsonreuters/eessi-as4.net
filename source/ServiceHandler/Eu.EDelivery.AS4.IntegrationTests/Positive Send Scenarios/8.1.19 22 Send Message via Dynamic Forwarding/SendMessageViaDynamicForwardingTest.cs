@@ -189,15 +189,17 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._19_22
                 CollaborationInfo = HolodeckCollaboration(argRefPModeId),
                 Receiver = new Party(HolodeckPartyRole, new PartyId(HolodeckBId) { Type = HolodeckBId }),
             };
-
-            AS4Message userMessage = AS4Message.Create(user, new SendingProcessingMode {MessagePackaging = {IsMultiHop = true}});
-            userMessage.AddAttachment(
-                attachment: ImageAttachment(id: "earth"),
-                partProperties: new Dictionary<string, string>
+            user.AddPartInfo(new PartInfo(
+                href: "cid:earth", 
+                properties: new Dictionary<string, string>
                 {
                     ["Part Property"] = "Some Holodeck required Part Property"
-                },
-                partSchemas: new Schema[0]);
+                }, 
+                schemas: new Schema[0]));
+
+            AS4Message userMessage = AS4Message.Create(user, new SendingProcessingMode {MessagePackaging = {IsMultiHop = true}});
+
+            userMessage.AddAttachment(ImageAttachment(id: "earth"));
 
             return userMessage;
         }
@@ -206,7 +208,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._19_22
         {
             return new CollaborationInfo(
                 new AgreementReference("http://agreements.holodeckb2b.org/examples/agreement0", argRefPModeId),
-                Service.TestService, 
+                new Service(Constants.Namespaces.TestService, Constants.Namespaces.TestService), 
                 Constants.Namespaces.TestAction,
                 "eu:edelivery:as4:sampleconversation");
         }
