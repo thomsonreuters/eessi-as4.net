@@ -12,6 +12,7 @@ using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Serialization;
+using Microsoft.EntityFrameworkCore;
 using NLog;
 using MessageExchangePattern = Eu.EDelivery.AS4.Entities.MessageExchangePattern;
 
@@ -97,27 +98,24 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
         private (bool, OutMessage) RetrieveUserMessageForPullRequest(PullRequest pullRequestMessage)
         {
-            var options = new TransactionOptions { IsolationLevel = IsolationLevel.RepeatableRead };
-
-            using (var scope = new TransactionScope(TransactionScopeOption.Required, options))
+            using (DatastoreContext context = _createContext())
             {
-                using (DatastoreContext context = _createContext())
-                {
-                    OutMessage message =
+                context.Database.BeginTransaction(System.Data.IsolationLevel.RepeatableRead);
+
+                OutMessage message =
                         context.OutMessages.Where(PullRequestQuery(pullRequestMessage))
                                            .OrderBy(m => m.InsertionTime).Take(1).FirstOrDefault();
-                    if (message == null)
-                    {
-                        return (false, null);
-                    }
-
-                    message.Operation = Operation.Sent;
-
-                    context.SaveChanges();
-                    scope.Complete();
-
-                    return (true, message);
+                if (message == null)
+                {
+                    return (false, null);
                 }
+
+                message.Operation = Operation.Sent;
+
+                context.SaveChanges();
+                context.Database.CommitTransaction();
+
+                return (true, message);
             }
         }
 
