@@ -170,13 +170,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
 
             private static void AssertAgreementReference(SubmitMessage submitMessage, MessagingContext messagingContext)
             {
-                AgreementReference pmodeAgreementRef =
+                AS4.Model.PMode.AgreementReference pmodeAgreementRef =
                     submitMessage.PMode.MessagePackaging.CollaborationInfo.AgreementReference;
-                AgreementReference userMessageAgreementRef =
-                    messagingContext.AS4Message.FirstUserMessage.CollaborationInfo.AgreementReference;
+                AS4.Model.Core.AgreementReference userMessageAgreementRef =
+                    messagingContext.AS4Message.FirstUserMessage.CollaborationInfo.AgreementReference.UnsafeGet;
 
                 Assert.Equal(pmodeAgreementRef.Value, userMessageAgreementRef.Value);
-                Assert.Equal(pmodeAgreementRef.Type, userMessageAgreementRef.Type);
+                Assert.Equal(Maybe<string>.Nothing, userMessageAgreementRef.Type);
             }
 
             [Fact]

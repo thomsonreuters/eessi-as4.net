@@ -12,7 +12,6 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
                 .ForMember(dest => dest.MessageId, src => src.Ignore())
                 .ForMember(dest => dest.RefToMessageId, src => src.MapFrom(s => s.MessageInfo.RefToMessageId))
                 .ForMember(dest => dest.Timestamp, src => src.Ignore())
-                .ForMember(dest => dest.CollaborationInfo, src => src.MapFrom(s => s.Collaboration))
                 .ForMember(dest => dest.IsTest, src => src.Ignore())
                 .ForMember(dest => dest.IsDuplicate, src => src.Ignore())
                 .ForMember(dest => dest.Mpc, src => src.Ignore())
@@ -24,12 +23,12 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
                         user.Sender = SubmitSenderResolver.ResolveSender(submit);
                         user.Receiver = SubmitReceiverResolver.ResolveReceiver(submit);
 
-                        new SubmitMessageAgreementMapper().Map(submit, user);
-
                         user.Mpc = SubmitMpcResolver.Default.Resolve(submit);
-                        user.CollaborationInfo.Service = SubmitServiceResolver.Default.Resolve(submit);
-                        user.CollaborationInfo.Action =  SubmitActionResolver.Default.Resolve(submit);
-                        user.CollaborationInfo.ConversationId = SubmitConversationIdResolver.Default.Resolve(submit);
+                        user.CollaborationInfo = new Model.Core.CollaborationInfo(
+                            SubmitMessageAgreementResolver.ResolveAgreementReference(submit, user),
+                            SubmitServiceResolver.ResolveService(submit),
+                            SubmitActionResolver.ResolveAction(submit),
+                            SubmitConversationIdResolver.ResolveConverstationId(submit));
 
                         if (submit.HasPayloads)
                         {

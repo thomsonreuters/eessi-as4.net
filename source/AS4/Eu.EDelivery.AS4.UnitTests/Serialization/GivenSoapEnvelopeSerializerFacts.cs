@@ -23,14 +23,18 @@ using Eu.EDelivery.AS4.UnitTests.Extensions;
 using Eu.EDelivery.AS4.UnitTests.Model;
 using Eu.EDelivery.AS4.UnitTests.Resources;
 using Eu.EDelivery.AS4.Xml;
+using FsCheck;
 using FsCheck.Xunit;
 using Moq;
 using Xunit;
 using static Eu.EDelivery.AS4.UnitTests.Properties.Resources;
+using AgreementReference = Eu.EDelivery.AS4.Model.Core.AgreementReference;
 using Error = Eu.EDelivery.AS4.Model.Core.Error;
 using Party = Eu.EDelivery.AS4.Model.Core.Party;
 using PartyId = Eu.EDelivery.AS4.Model.Core.PartyId;
+using Property = FsCheck.Property;
 using Receipt = Eu.EDelivery.AS4.Model.Core.Receipt;
+using Service = Eu.EDelivery.AS4.Model.Core.Service;
 using UserMessage = Eu.EDelivery.AS4.Model.Core.UserMessage;
 
 namespace Eu.EDelivery.AS4.UnitTests.Serialization
@@ -272,6 +276,81 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
 
         public class AS4MessageSerializeFacts : GivenAS4MessageFacts
         {
+            [CustomProperty]
+            public Property Then_Service_Has_Only_Type_When_Defined(
+                Guid value,
+                Maybe<Guid> type)
+            {
+                // Arrange
+                var user = new UserMessage($"user-{Guid.NewGuid()}");
+                user.CollaborationInfo = 
+                    new AS4.Model.Core.CollaborationInfo(
+                        new Service(value.ToString(), type.Select(t => t.ToString())));
+
+                // Act
+                XmlDocument doc = SerializeSoapMessage(AS4Message.Create(user));
+
+                // Assert
+                XmlNode serviceNode = doc.SelectXmlNode(
+                    "/s:Envelope/s:Header/ebms:Messaging/ebms:UserMessage/ebms:CollaborationInfo/ebms:Service");
+
+                XmlAttribute serviceTypeAttr = serviceNode?.Attributes?["type"];
+
+                return (serviceNode?.FirstChild?.Value == value.ToString())
+                    .Label("Equal value")
+                    .And(serviceTypeAttr == null && type == Maybe<Guid>.Nothing)
+                    .Label("No service type present")
+                    .Or(type.Select(t => t.ToString() == serviceTypeAttr?.Value).GetOrElse(false))
+                    .Label("Equal service type");
+            }
+
+            [CustomProperty]
+            public Property Then_AgreementReference_Is_Present_When_Defined(
+                Maybe<Guid> value,
+                Maybe<Guid> type)
+            {
+                // Arrange
+                var a = value.Select(x => 
+                    new AgreementReference(
+                        value: x.ToString(), 
+                        type: type.Select(t => t.ToString()), 
+                        pmodeId: Maybe<string>.Nothing));
+
+                var user = new UserMessage($"user-{Guid.NewGuid()}");
+                user.CollaborationInfo =
+                    new AS4.Model.Core.CollaborationInfo(
+                        a, Service.TestService, Constants.Namespaces.TestAction, "1");
+
+                // Act
+                XmlDocument doc = SerializeSoapMessage(AS4Message.Create(user));
+
+                // Assert
+                XmlNode agreementNode = doc.SelectXmlNode(
+                    "/s:Envelope/s:Header/ebms:Messaging/ebms:UserMessage/ebms:CollaborationInfo/ebms:AgreementRef");
+
+                XmlAttribute agreementTypeAttr = agreementNode?.Attributes?["type"];
+
+                Property noAgreementTagProp = 
+                    (agreementNode == null && value == Maybe<Guid>.Nothing)
+                    .Label("No agreement tag");
+
+                Property equalValueProp = 
+                    value.Select(v => v.ToString() == agreementNode?.InnerText)
+                         .GetOrElse(false)
+                         .Label("Equal agreement value");
+
+                Property noTypeProp = 
+                    (agreementTypeAttr == null && type == Maybe<Guid>.Nothing)
+                    .Label("No agreement type");
+
+                Property equalTypeProp = 
+                    type.Select(t => t.ToString() == agreementTypeAttr?.Value)
+                        .GetOrElse(false)
+                        .Label("Equal agreement type");
+
+                return noAgreementTagProp.Or(equalValueProp.And(noTypeProp).Or(equalTypeProp));
+            }
+
             [Property]
             public void ThenSerializeWithoutAttachmentsReturnsSoapMessage(Guid mpc)
             {

@@ -87,7 +87,7 @@
     <Compile Include="Receive\Rules\PModeAgreementRefRule.cs" />
     <Compile Include="Receive\Rules\PModeIdRule.cs" />
     <Compile Include="Receive\Rules\PModePartyInfoRule.cs" />
-    <Compile Include="Receive\Participant\PModeRuleVisitor.cs" />
+    <Compile Include="Receive\Participant\PModeRuleEngine.cs" />
     <Compile Include="Receive\Rules\PModeServiceActionRule.cs" />
     <Compile Include="Receive\Rules\PModeUndefinedPartyInfoRule.cs" />
     <Compile Include="Receive\CreateAS4ReceiptStep.cs" />

@@ -51,6 +51,11 @@ namespace Eu.EDelivery.AS4
         /// <param name="value">The value.</param>
         private Maybe(TA value)
         {
+            if (value == null)
+            {
+                throw new ArgumentNullException(nameof(value));
+            }
+
             _isPresent = true;
             _value = value;
         }

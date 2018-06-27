@@ -9,8 +9,9 @@ namespace Eu.EDelivery.AS4.Mappings.Common
     {
         public MessagePropertyMap()
         {
-            CreateMap<Model.Common.MessageProperty, Model.Core.MessageProperty>(MemberList.None)
-                .ConstructUsing(src => new Model.Core.MessageProperty(src.Name, src.Value, src.Type));
+            CreateMap<Model.Common.MessageProperty, Model.Core.MessageProperty>()
+                .ConstructUsing(src => new Model.Core.MessageProperty(src.Name, src.Value, src.Type))
+                .ForAllOtherMembers(x => x.Ignore());
 
             CreateMap<Model.Core.MessageProperty, Model.Common.MessageProperty>()
                 .ForMember(dest => dest.Name, src => src.MapFrom(x => x.Name))

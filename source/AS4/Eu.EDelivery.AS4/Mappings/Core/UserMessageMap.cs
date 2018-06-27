@@ -92,18 +92,17 @@ namespace Eu.EDelivery.AS4.Mappings.Core
 
         private static void MapAgreementReference(Model.Core.CollaborationInfo modelInfo, Xml.CollaborationInfo xmlInfo)
         {
-            if (IsAgreementReferenceEmpty(modelInfo))
+            if (xmlInfo.AgreementRef?.Value != null)
             {
-                modelInfo.AgreementReference = modelInfo.AgreementReference ?? new Model.Core.AgreementReference();
-                modelInfo.AgreementReference.Value = xmlInfo.AgreementRef?.Value;
-                modelInfo.AgreementReference.PModeId = xmlInfo.AgreementRef?.pmode;
-                modelInfo.AgreementReference.Type = xmlInfo.AgreementRef?.type;
+                modelInfo.AgreementReference = new Model.Core.AgreementReference(
+                    xmlInfo.AgreementRef.Value,
+                    (xmlInfo.AgreementRef?.type != null).ThenMaybe(xmlInfo.AgreementRef?.type),
+                    (xmlInfo.AgreementRef?.pmode != null).ThenMaybe(xmlInfo.AgreementRef?.pmode)).AsMaybe();
             }
-        }
-
-        private static bool IsAgreementReferenceEmpty(Model.Core.CollaborationInfo modelCollaboration)
-        {
-            return modelCollaboration != null && string.IsNullOrEmpty(modelCollaboration.AgreementReference?.Value);
+            else
+            {
+                modelInfo.AgreementReference = Maybe<Model.Core.AgreementReference>.Nothing;
+            }
         }
 
         private void MapUserMessageToRoutingInputUserMessage()

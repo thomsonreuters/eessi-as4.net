@@ -104,12 +104,11 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
             {
                 RefToMessageId = userMessage.RefToMessageId,
                 Timestamp = userMessage.Timestamp,
-                CollaborationInfo =
-                {
-                    Service = new Service(_uriPrefix),
-                    Action = "Deliver",
-                    ConversationId = userMessage.CollaborationInfo.ConversationId
-                },
+                CollaborationInfo = new Model.Core.CollaborationInfo(
+                    Maybe<AgreementReference>.Nothing,
+                    new Service(_uriPrefix),
+                    "Deliver",
+                    userMessage.CollaborationInfo.ConversationId),
                 Sender = new Party($"{_uriPrefix}/sut", userMessage.Receiver.PartyIds.FirstOrDefault()),
                 Receiver = new Party($"{_uriPrefix}/testdriver", new PartyId("minder"))
             };

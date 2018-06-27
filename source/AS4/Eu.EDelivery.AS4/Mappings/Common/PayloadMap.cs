@@ -8,8 +8,9 @@ namespace Eu.EDelivery.AS4.Mappings.Common
     {
         public PayloadMap()
         {
-            CreateMap<Model.Common.Payload, Model.Core.PartInfo>(MemberList.None)
-                .ConstructUsing(src => new Model.Core.PartInfo(src.Id));
+            CreateMap<Model.Common.Payload, Model.Core.PartInfo>()
+                .ConstructUsing(src => new Model.Core.PartInfo(src.Id))
+                .ForAllOtherMembers(x => x.Ignore());
 
             CreateMap<Model.Core.PartInfo, Model.Common.Payload>()
                 .ForMember(dest => dest.Id, src => src.MapFrom(t => t.Href))

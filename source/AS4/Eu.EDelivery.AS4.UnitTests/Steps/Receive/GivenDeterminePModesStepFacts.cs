@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
@@ -14,6 +13,7 @@ using Eu.EDelivery.AS4.UnitTests.Common;
 using Eu.EDelivery.AS4.UnitTests.Repositories;
 using Moq;
 using Xunit;
+using AgreementReference = Eu.EDelivery.AS4.Model.Core.AgreementReference;
 using CollaborationInfo = Eu.EDelivery.AS4.Model.PMode.CollaborationInfo;
 using ReceivePMode = Eu.EDelivery.AS4.Model.PMode.ReceivingProcessingMode;
 using Party = Eu.EDelivery.AS4.Model.PMode.Party;
@@ -47,7 +47,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
                 string receivePModeId = $"receive-pmodeid-{Guid.NewGuid()}";
                 var userMesssage = new UserMessage(messageId: $"user-{Guid.NewGuid()}");
-                userMesssage.CollaborationInfo.AgreementReference.PModeId = receivePModeId;
+                userMesssage.CollaborationInfo = 
+                    new AS4.Model.Core.CollaborationInfo(
+                        new AgreementReference("agreement", receivePModeId));
 
                 string sendPModeId = $"send-pmodeid-{Guid.NewGuid()}";
                 var expected = new SendingProcessingMode { Id = sendPModeId };
@@ -158,7 +160,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
                 ReceivePMode pmode = CreatePModeWithParties(fromParty, toParty);
                 pmode.MessagePackaging.CollaborationInfo.AgreementReference.Value = "not-equal";
-                SetupPModes(pmode, new ReceivePMode());
+                SetupPModes(pmode, new ReceivePMode { Id = "other pmode", ReplyHandling = { SendingPMode = "other pmode" }});
 
                 MessagingContext messagingContext = 
                     new MessageContextBuilder()
@@ -197,7 +199,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             {
                 ReceivePMode pmode = CreatePModeWithActionService(service, action);
                 pmode.MessagePackaging.CollaborationInfo.AgreementReference.Value = "not-equal";
-                SetupPModes(pmode, new ReceivePMode());
+                SetupPModes(pmode, new ReceivePMode { Id = "other pmode", ReplyHandling = { SendingPMode = "other pmode" } });
 
                 return pmode;
             }
@@ -338,7 +340,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 ReceivePMode pmode = CreatePModeWithActionService(service, action);
                 pmode.MessagePackaging.CollaborationInfo.AgreementReference.Value = "not-equal";
                 DifferentiatePartyInfo(pmode);
-                SetupPModes(pmode, new ReceivePMode());
+                SetupPModes(pmode, new ReceivePMode() { Id = "other id", ReplyHandling = {SendingPMode = "other pmode"}});
             }
 
             [Theory]
@@ -346,11 +348,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             public async Task ThenAgreementRefIsNotEnoughAsync(string name, string type)
             {
                 // Arrange
-                var agreementRef = new AgreementReference { Value = name, Type = type };
+                var agreementRef = new AS4.Model.PMode.AgreementReference { Value = name, Type = type, PModeId = "pmode-id" };
                 ArrangePModeThenAgreementRefIsNotEnough(agreementRef);
 
                 MessagingContext messagingContext =
-                    new MessageContextBuilder().WithAgreementRef(agreementRef)
+                    new MessageContextBuilder().WithAgreementRef(new AgreementReference(name, type, "pmode-id"))
                                                 .WithServiceAction("service", "action")
                                                 .Build();
 
@@ -363,7 +365,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 Assert.Equal(ErrorCode.Ebms0010, errorResult.Code);
             }
 
-            private void ArrangePModeThenAgreementRefIsNotEnough(AgreementReference agreementRef)
+            private void ArrangePModeThenAgreementRefIsNotEnough(AS4.Model.PMode.AgreementReference agreementRef)
             {
                 ReceivePMode pmode = CreatePModeWithAgreementRef(agreementRef);
                 DifferentiatePartyInfo(pmode);
@@ -390,7 +392,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             _mockedConfig.Setup(c => c.GetReceivingPModes()).Returns(pmodes);
         }
 
-        protected ReceivePMode CreatePModeWithAgreementRef(AgreementReference agreementRef)
+        protected ReceivePMode CreatePModeWithAgreementRef(AS4.Model.PMode.AgreementReference agreementRef)
         {
             ReceivePMode pmode = CreateDefaultPMode("defaultPMode");
             pmode.MessagePackaging.CollaborationInfo.AgreementReference = agreementRef;

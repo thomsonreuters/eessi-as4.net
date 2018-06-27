@@ -133,6 +133,7 @@
     <Compile Include="Builders\Security\DecryptionStrategyBuilder.cs" />
     <Compile Include="Entities\Journal.cs" />
     <Compile Include="Entities\RetryReliability.cs" />
+    <Compile Include="Mappings\Submit\SubmitSenderResolver.cs" />
     <Compile Include="Maybe.cs" />
     <Compile Include="Migrations\20180302141116_RemoveOutMessagesConstraint.cs" />
     <Compile Include="Migrations\20180302141116_RemoveOutMessagesConstraint.designer.cs">
@@ -147,6 +148,7 @@
       <DependentUpon>20180618120333_AddJournalTable.cs</DependentUpon>
     </Compile>
     <Compile Include="Model\Core\Schema.cs" />
+    <Compile Include="Model\PMode\AgreementReference.cs" />
     <Compile Include="Model\PMode\MessageProperty.cs" />
     <Compile Include="Model\PMode\CollaborationInfo.cs" />
     <Compile Include="Model\PMode\Party.cs" />
@@ -233,8 +235,7 @@
     <Compile Include="Mappings\Submit\SubmitConversationIdResolver.cs" />
     <Compile Include="Mappings\Submit\SubmitMessagePropertiesResolver.cs" />
     <Compile Include="Mappings\Submit\SubmitMpcResolver.cs" />
-    <Compile Include="Mappings\Submit\SubmitSenderResolver.cs" />
-    <Compile Include="Mappings\Submit\SubmitMessageAgreementMapper.cs" />
+    <Compile Include="Mappings\Submit\SubmitMessageAgreementResolver.cs" />
     <Compile Include="Mappings\Submit\SubmitPayloadInfoResolver.cs" />
     <Compile Include="Mappings\Submit\SubmitReceiverResolver.cs" />
     <Compile Include="Mappings\Submit\SubmitServiceResolver.cs" />

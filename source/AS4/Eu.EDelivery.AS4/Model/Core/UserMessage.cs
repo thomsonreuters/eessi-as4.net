@@ -55,9 +55,9 @@ namespace Eu.EDelivery.AS4.Model.Core
 
         public UserMessage(string messageId) : base(messageId)
         {
+            CollaborationInfo = CollaborationInfo.Default;
             Sender = new Party(Constants.Namespaces.EbmsDefaultFrom, new PartyId(Constants.Namespaces.EbmsDefaultFrom));
-            Receiver = new Party(Constants.Namespaces.EbmsDefaultTo, new PartyId(Constants.Namespaces.EbmsDefaultTo));
-            CollaborationInfo = new CollaborationInfo();
+            Receiver = new Party(Constants.Namespaces.EbmsDefaultTo, new PartyId(Constants.Namespaces.EbmsDefaultTo));   
 
             _partInfos = new Collection<PartInfo>();
             _messageProperties = new Collection<MessageProperty>();

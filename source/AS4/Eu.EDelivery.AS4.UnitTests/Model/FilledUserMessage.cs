@@ -43,22 +43,19 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
 
         private static CollaborationInfo CreateCollaborationInfo()
         {
-            return new CollaborationInfo
-            {
-                Action = "StoreMessage",
-                Service = new Service(value: "Test", type: "org:holodeckb2b:services"),
-                ConversationId = "org:holodeckb2b:test:conversation",
-                AgreementReference = CreateAgreementReference()
-            };
+            return new CollaborationInfo(
+                agreement: CreateAgreementReference(),
+                service: new Service(value: "Test", type: "org:holodeckb2b:services"),
+                action: "StoreMessage",
+                conversationId: "org:holodeckb2b:test:conversation");
         }
 
         private static AgreementReference CreateAgreementReference()
         {
-            return new AgreementReference
-            {
-                Value = "http://agreements.holodeckb2b.org/examples/agreement0",
-                PModeId = "Id"
-            };
+            return new AgreementReference(
+                value: "http://agreements.holodeckb2b.org/examples/agreement0",
+                type: "agreement",
+                pModeId: "Id");
         }
 
         private static Party CreateParty(string role, string partyId)

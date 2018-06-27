@@ -20,10 +20,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
             {
                 // Arrange
                 var submitMessage = new SubmitMessage {PMode = new SendingProcessingMode()};
-                var resolver = SubmitServiceResolver.Default;
 
                 // Act
-                CoreService service = resolver.Resolve(submitMessage);
+                CoreService service = SubmitServiceResolver.ResolveService(submitMessage);
 
                 // Assert
                Assert.Equal(CoreService.TestService, service);
@@ -42,10 +41,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
                     }
                 };
                 submitMessage.PMode = pmode;
-                var resolver = SubmitServiceResolver.Default;
 
                 // Act
-                CoreService actual = resolver.Resolve(submitMessage);
+                CoreService actual = SubmitServiceResolver.ResolveService(submitMessage);
 
                 // Assert
                 Service expected = submitMessage.PMode.MessagePackaging.CollaborationInfo.Service;
@@ -62,10 +60,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
                     Collaboration = {Service = CreatePopulatedCommonService()},
                     PMode = new SendingProcessingMode()
                 };
-                var resolver = SubmitServiceResolver.Default;
 
                 // Act
-                CoreService service = resolver.Resolve(submitMessage);
+                CoreService service = SubmitServiceResolver.ResolveService(submitMessage);
 
                 // Assert
                 Assert.Equal(submitMessage.Collaboration.Service.Value, service.Value);
@@ -93,10 +90,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
                         }
                 };
 
-                var resolver = SubmitServiceResolver.Default;
 
                 // Act / Assert
-                Assert.ThrowsAny<Exception>(() => resolver.Resolve(submitMessage));
+                Assert.ThrowsAny<Exception>(() => SubmitServiceResolver.ResolveService(submitMessage));
             }
         }
 

@@ -7,14 +7,14 @@ namespace Eu.EDelivery.AS4.Mappings.PMode
     /// <summary>
     /// Resolve the <see cref="Service"/> 
     /// </summary>
-    public class PModeServiceResolver : IPModeResolver<Service>
+    public class PModeServiceResolver
     {
         /// <summary>
         /// 2. PMode / Message Packaging / CollaborationInfo / Service
         /// </summary>
         /// <param name="pmode"></param>
         /// <returns></returns>
-        public Service Resolve(SendingProcessingMode pmode)
+        public static Service ResolveService(SendingProcessingMode pmode)
         {
             if (pmode.MessagePackaging?.CollaborationInfo?.Service != null)
             {
