@@ -685,16 +685,15 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             StoreToBeAckOutMessage(ebmsMessageId, CreateSendingPMode());
 
             var userMessage = new UserMessage("usermessage-" + Guid.NewGuid());
-            userMessage.CollaborationInfo = new CollaborationInfo
-            {
-                AgreementReference = new AgreementReference
-                {
-                    Value = "http://agreements.europa.org/agreement",
-                    PModeId = "receive_bundled_message_pmode"
-                },
-                Service = new Service("bundling", "as4.net:receive_agent:componenttest"),
-                Action = "as4.net:receive_agent:bundling"
-            };
+            userMessage.CollaborationInfo = new CollaborationInfo(
+                agreement: new AgreementReference(
+                    value: "http://agreements.europa.org/agreement",
+                    pmodeId: "receive_bundled_message_pmode"),
+                service: new Service(
+                    value: "bundling", 
+                    type: "as4.net:receive_agent:componenttest"),
+                action: "as4.net:receive_agent:bundling",
+                conversationId: "as4.net:receive_agent:conversation");
 
             var receipt = new Receipt($"receipt-{Guid.NewGuid()}", ebmsMessageId);
 
