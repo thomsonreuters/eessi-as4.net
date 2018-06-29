@@ -276,7 +276,6 @@ namespace Eu.EDelivery.AS4.Services
 
             foreach ((long id, UserMessage userMessage) in xs)
             {
-
                 _repository.UpdateInMessage(
                     userMessage.MessageId,
                     message =>
