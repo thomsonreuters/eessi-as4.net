@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Xml.Serialization;
@@ -57,7 +56,11 @@ namespace Eu.EDelivery.AS4.Model.Core
         {
             Sender = new Party(new PartyId { Id = Constants.Namespaces.EbmsDefaultFrom }) { Role = Constants.Namespaces.EbmsDefaultFrom };
             Receiver = new Party(new PartyId { Id = Constants.Namespaces.EbmsDefaultTo }) { Role = Constants.Namespaces.EbmsDefaultTo };
-            CollaborationInfo = CollaborationInfo.Default;
+            CollaborationInfo = new CollaborationInfo(
+                agreement: Maybe<AgreementReference>.Nothing,
+                service: Service.TestService,
+                action: Constants.Namespaces.TestAction,
+                conversationId: CollaborationInfo.DefaultConversationId);
 
             _partInfos = new Collection<PartInfo>();
             _messageProperties = new Collection<MessageProperty>();
