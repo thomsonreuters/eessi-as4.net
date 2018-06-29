@@ -6,13 +6,14 @@ using Eu.EDelivery.AS4.Fe.Monitor;
 using Eu.EDelivery.AS4.Fe.Pmodes;
 using Eu.EDelivery.AS4.Fe.Pmodes.Model;
 using Eu.EDelivery.AS4.Fe.SubmitTool;
-using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Model.Submit;
 using HttpMultipartParser;
 using Microsoft.Extensions.Options;
 using NSubstitute;
 using Xunit;
+using Party = Eu.EDelivery.AS4.Model.PMode.Party;
+using PartyId = Eu.EDelivery.AS4.Model.PMode.PartyId;
 
 namespace Eu.EDelivery.AS4.Fe.UnitTests
 {

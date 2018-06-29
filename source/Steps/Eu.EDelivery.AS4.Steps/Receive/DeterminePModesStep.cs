@@ -144,7 +144,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         {
             // TODO: is this enough ?
             // should we explictly check for multihop signals ?
-            if (as4Message.IsUserMessage)
+            if (as4Message.HasUserMessage)
             {
                 Logger.Debug(
                     "Incoming message has a UserMessage, " + 

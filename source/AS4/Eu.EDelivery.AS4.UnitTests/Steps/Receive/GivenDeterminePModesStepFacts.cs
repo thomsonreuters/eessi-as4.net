@@ -16,6 +16,8 @@ using Xunit;
 using AgreementReference = Eu.EDelivery.AS4.Model.Core.AgreementReference;
 using CollaborationInfo = Eu.EDelivery.AS4.Model.PMode.CollaborationInfo;
 using ReceivePMode = Eu.EDelivery.AS4.Model.PMode.ReceivingProcessingMode;
+using Party = Eu.EDelivery.AS4.Model.PMode.Party;
+using PartyId = Eu.EDelivery.AS4.Model.PMode.PartyId;
 
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 {
@@ -158,14 +160,19 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             public async Task ThenPartyInfoMatchesAsync(string fromId, string toId)
             {
                 // Arrange
-                var fromParty = new Party(fromId, new PartyId(fromId));
-                var toParty = new Party(toId, new PartyId(toId));
+                var fromParty = new Party { Role = fromId, PartyIds = { new PartyId { Id = fromId } } };
+                var toParty = new Party { Role = toId, PartyIds = { new PartyId { Id = toId } } };
 
                 ReceivePMode pmode = CreatePModeWithParties(fromParty, toParty);
                 pmode.MessagePackaging.CollaborationInfo.AgreementReference.Value = "not-equal";
                 SetupPModes(pmode, new ReceivePMode { Id = "other pmode", ReplyHandling = { SendingPMode = "other pmode" }});
 
-                MessagingContext messagingContext = new MessageContextBuilder().WithPartys(fromParty, toParty).Build();
+                MessagingContext messagingContext = 
+                    new MessageContextBuilder()
+                        .WithParties(
+                            new AS4.Model.Core.Party(fromId, new AS4.Model.Core.PartyId(fromId)), 
+                            new AS4.Model.Core.Party(toId, new AS4.Model.Core.PartyId(toId)))
+                        .Build();
 
                 // Act               
                 StepResult result = await _step.ExecuteAsync(messagingContext);
@@ -207,12 +214,17 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             public async Task ThenPModeIdWinsOverPartyInfoAsync(string fromId, string toId, string sharedId)
             {
                 // Arrange 
-                var fromParty = new Party(fromId, new PartyId(fromId));
-                var toParty = new Party(toId, new PartyId(toId));
+                var fromParty = new Party { Role = fromId, PartyIds = { new PartyId { Id = fromId } } };
+                var toParty = new Party { Role = toId, PartyIds = { new PartyId { Id = toId } } };
                 ReceivePMode idPMode = ArrangePModeThenPModeWinsOverPartyInfo(sharedId, fromParty, toParty);
 
                 MessagingContext messagingContext =
-                    new MessageContextBuilder().WithPModeId(sharedId).WithPartys(fromParty, toParty).Build();
+                    new MessageContextBuilder()
+                        .WithPModeId(sharedId)
+                        .WithParties(
+                            new AS4.Model.Core.Party(fromId, new AS4.Model.Core.PartyId(fromId)),
+                            new AS4.Model.Core.Party(toId, new AS4.Model.Core.PartyId(toId)))
+                        .Build();
 
                 // Act
                 StepResult result = await _step.ExecuteAsync(messagingContext);
@@ -240,17 +252,20 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 string toId)
             {
                 // Arrange
-                var fromParty = new Party(fromId, new PartyId(fromId));
-                var toParty = new Party(toId, new PartyId(toId));
+                var fromParty = new Party { Role = fromId, PartyIds = { new PartyId { Id = fromId } } };
+                var toParty = new Party { Role = toId, PartyIds = { new PartyId { Id = toId } } };
 
                 ReceivePMode pmodeParties = CreatePModeWithParties(fromParty, toParty);
                 ReceivePMode pmodeServiceAction = CreatePModeWithActionService(service, action);
                 SetupPModes(pmodeParties, pmodeServiceAction);
 
                 MessagingContext messagingContext =
-                    new MessageContextBuilder().WithPartys(fromParty, toParty)
-                                                .WithServiceAction(service, action)
-                                                .Build();
+                    new MessageContextBuilder()
+                        .WithParties(
+                            new AS4.Model.Core.Party(fromId, new AS4.Model.Core.PartyId(fromId)),
+                            new AS4.Model.Core.Party(toId, new AS4.Model.Core.PartyId(toId)))
+                        .WithServiceAction(service, action)
+                        .Build();
 
                 // Act
                 StepResult result = await _step.ExecuteAsync(messagingContext);
@@ -268,8 +283,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 string toId)
             {
                 // Arrange
-                var fromParty = new Party(fromId, new PartyId(fromId));
-                var toParty = new Party(toId, new PartyId(toId));
+                var fromParty = new Party { Role = fromId, PartyIds = { new PartyId { Id = fromId } } };
+                var toParty = new Party { Role = toId, PartyIds = { new PartyId { Id = toId } } };
 
                 ReceivePMode pmodeServiceAction = CreatePModeWithActionService(service, action);
                 ReceivePMode pmodeParties = CreatePModeWithParties(fromParty, toParty);
@@ -277,9 +292,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 SetupPModes(pmodeServiceAction, pmodeParties);
 
                 MessagingContext messagingContext =
-                    new MessageContextBuilder().WithServiceAction(service, action)
-                                                .WithPartys(fromParty, toParty)
-                                                .Build();
+                    new MessageContextBuilder()
+                        .WithServiceAction(service, action)
+                        .WithParties(
+                            new AS4.Model.Core.Party(fromId, new AS4.Model.Core.PartyId(fromId)),
+                            new AS4.Model.Core.Party(toId, new AS4.Model.Core.PartyId(toId)))
+                        .Build();
 
                 // Act
                 StepResult result = await _step.ExecuteAsync(messagingContext);
@@ -408,8 +426,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             const string fromId = "from-Id";
             const string toId = "to-Id";
 
-            var fromParty = new Party(fromId, new PartyId(fromId));
-            var toParty = new Party(toId, new PartyId(toId));
+            var fromParty = new Party { Role = fromId, PartyIds = { new PartyId { Id = fromId } } };
+            var toParty = new Party { Role = toId, PartyIds = { new PartyId { Id = toId } } };
 
             pmode.MessagePackaging.PartyInfo = new PartyInfo { FromParty = fromParty, ToParty = toParty };
         }

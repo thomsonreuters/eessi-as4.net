@@ -233,8 +233,9 @@ namespace Eu.EDelivery.AS4.Services
                 throw new InvalidDataException($"Cannot update received AS4Message: Unable to find an InMessage for {as4Message.GetPrimaryMessageId()}");
             }
 
-            if (as4Message.IsUserMessage)
+            if (as4Message.HasUserMessage)
             {
+                Logger.Debug("Update stored message body because message contains UserMessages");
                 messageBodyStore.UpdateAS4Message(messageLocation, as4Message);
             }
 

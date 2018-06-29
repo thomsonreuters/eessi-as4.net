@@ -1,4 +1,7 @@
-﻿using Eu.EDelivery.AS4.Model.Core;
+﻿using System;
+using Eu.EDelivery.AS4.Model.Core;
+using FsCheck;
+using FsCheck.Xunit;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Model
@@ -8,36 +11,34 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
     /// </summary>
     public class GivenPartyFacts
     {
+        [Property]
+        public Property EqualsParties()
+        {
+            return Prop.ForAll(
+                Gen.OneOf(
+                       Arb.From<NonNull<string>>().Generator.Two(),
+                       Arb.From<NonNull<string>>().Generator.Select(x => Tuple.Create(x, x)))
+                   .Three()
+                   .ToArbitrary(),
+                xs =>
+                {
+                    (NonNull<string> roleA, NonNull<string> roleB) = xs.Item1;
+                    (NonNull<string> idA, NonNull<string> idB) = xs.Item2;
+                    (NonNull<string> typeA, NonNull<string> typeB) = xs.Item3;
+
+                    var a = new Party(roleA.Get, new PartyId(idA.Get, typeA.Get));
+                    var b = new Party(roleB.Get, new PartyId(idB.Get, typeB.Get));
+
+                    var equalRole = roleA.Equals(roleB);
+                    var equalId = idA.Equals(idB);
+                    var equalType = typeA.Equals(typeB);
+
+                    return a.Equals(b) == (equalRole && equalId && equalType);
+                });
+        }
+
         public class GivenValidArguments : GivenPartyFacts
         {
-            [Theory]
-            [InlineData("role")]
-            public void ThenPartyIsNotEmptyForPartyId(string role)
-            {
-                // Arrange
-                var partyA = new Party {Role = role};
-
-                // Act
-                bool isEmpty = partyA.IsEmpty();
-
-                // Assert
-                Assert.False(isEmpty);
-            }
-
-            [Theory]
-            [InlineData("id")]
-            public void ThenPartyIsNotEmptyForRole(string id)
-            {
-                // Arrange
-                var partyA = new Party(new PartyId(id));
-
-                // Act
-                bool isEmpty = partyA.IsEmpty();
-
-                // Assert
-                Assert.False(isEmpty);
-            }
-
             [Theory]
             [InlineData("shared-role", "shared-id")]
             public void ThenTwoPartiesAreEqual(string sharedRole, string sharedId)

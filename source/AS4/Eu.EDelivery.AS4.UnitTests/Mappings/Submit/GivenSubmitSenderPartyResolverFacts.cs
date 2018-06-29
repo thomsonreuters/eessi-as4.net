@@ -1,21 +1,16 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using Eu.EDelivery.AS4.Exceptions;
-using Eu.EDelivery.AS4.Mappings.Submit;
-using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Model.Submit;
 using Xunit;
+using static Eu.EDelivery.AS4.Mappings.Submit.SubmitSenderResolver;
 using CommonParty = Eu.EDelivery.AS4.Model.Common.Party;
 using CoreParty = Eu.EDelivery.AS4.Model.Core.Party;
+using PModeParty = Eu.EDelivery.AS4.Model.PMode.Party;
 using PartyInfo = Eu.EDelivery.AS4.Model.PMode.PartyInfo;
 
 namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
 {
-    /// <summary>
-    /// Testing <see cref="SubmitSenderPartyResolver" />
-    /// </summary>
     public class GivenSubmitSenderPartyResolverFacts
     {
         public class GivenValidArguments : GivenSubmitSenderPartyResolverFacts
@@ -25,10 +20,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
             {
                 // Arrange
                 var submitMessage = new SubmitMessage {PMode = new SendingProcessingMode()};
-                var resolver = SubmitSenderPartyResolver.Default;
 
                 // Act
-                CoreParty party = resolver.Resolve(submitMessage);
+                CoreParty party = ResolveSender(submitMessage);
 
                 // Assert
                 Assert.Equal(Constants.Namespaces.EbmsDefaultFrom, party.PartyIds.First().Id);
@@ -44,16 +38,17 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
                     PMode =
                         new SendingProcessingMode
                         {
-                            MessagePackaging = {PartyInfo = new PartyInfo {FromParty = CreatePopulatedCoreParty()}}
+                            MessagePackaging = {PartyInfo = new PartyInfo {FromParty = CreatePopulatedPModeParty()}}
                         }
                 };
-                var resolver = SubmitSenderPartyResolver.Default;
 
                 // Act
-                CoreParty party = resolver.Resolve(submitMessage);
+                CoreParty party = ResolveSender(submitMessage);
 
                 // Assert
-                Assert.Equal(submitMessage.PMode.MessagePackaging.PartyInfo.FromParty, party);
+                var fromParty = submitMessage.PMode.MessagePackaging.PartyInfo.FromParty;
+                Assert.Equal(fromParty.Role, party.Role);
+                Assert.Equal(fromParty.PrimaryPartyId, party.PartyIds.First().Id);
             }
 
             [Fact]
@@ -65,16 +60,15 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
                     PartyInfo = {FromParty = CreatePopulatedCommonParty()},
                     PMode = new SendingProcessingMode {AllowOverride = true}
                 };
-                var resolver = SubmitSenderPartyResolver.Default;
 
                 // Act
-                CoreParty party = resolver.Resolve(submitMessage);
+                CoreParty party = ResolveSender(submitMessage);
 
                 // Assert
                 CommonParty fromParty = submitMessage.PartyInfo.FromParty;
                 Assert.Equal(fromParty.Role, party.Role);
                 Assert.Equal(fromParty.PartyIds.First().Id, party.PartyIds.First().Id);
-                Assert.Equal(fromParty.PartyIds.First().Type, party.PartyIds.First().Type);
+                Assert.Equal(fromParty.PartyIds.First().Type, party.PartyIds.First().Type.UnsafeGet);
             }
         }
 
@@ -91,29 +85,24 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
                         new SendingProcessingMode
                         {
                             AllowOverride = false,
-                            MessagePackaging = {PartyInfo = new PartyInfo {FromParty = CreatePopulatedCoreParty()}}
+                            MessagePackaging = {PartyInfo = new PartyInfo {FromParty = CreatePopulatedPModeParty()}}
                         }
                 };
 
-                var resolver = SubmitSenderPartyResolver.Default;
 
                 // Act / Assert
-                Assert.ThrowsAny<Exception>(() => resolver.Resolve(submitMessage));
+                Assert.ThrowsAny<Exception>(() => ResolveSender(submitMessage));
             }
         }
 
         protected CommonParty CreatePopulatedCommonParty()
         {
-            return new CommonParty {Role = "submit-role", PartyIds = new[] {new PartyId("submit-id", "submit-type")}};
+            return new CommonParty {Role = "submit-role", PartyIds = new[] {new AS4.Model.Common.PartyId("submit-id", "submit-type")}};
         }
 
-        protected CoreParty CreatePopulatedCoreParty()
+        protected PModeParty CreatePopulatedPModeParty()
         {
-            return new CoreParty
-            {
-                Role = "pmode-role",
-                PartyIds = new List<AS4.Model.Core.PartyId> {new AS4.Model.Core.PartyId("pmode-id")}
-            };
+            return new PModeParty("pmode-role", "pmode-id");
         }
     }
 }

@@ -10,8 +10,8 @@ using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Steps.Submit;
 using Eu.EDelivery.AS4.UnitTests.Model.PMode;
 using Xunit;
-using Party = Eu.EDelivery.AS4.Model.Core.Party;
-using PartyId = Eu.EDelivery.AS4.Model.Core.PartyId;
+using Party = Eu.EDelivery.AS4.Model.PMode.Party;
+using PartyId = Eu.EDelivery.AS4.Model.PMode.PartyId;
 using PartyInfo = Eu.EDelivery.AS4.Model.PMode.PartyInfo;
 
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
@@ -43,7 +43,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
             Assert.True(as4Message.IsUserMessage);
             Assert.Equal(receivingParty.Role, as4Message.FirstUserMessage.Receiver.Role);
             Assert.Equal(receivingParty.PartyIds.First().Id, as4Message.FirstUserMessage.Receiver.PartyIds.First().Id);
-            Assert.Equal(receivingParty.PartyIds.First().Type, as4Message.FirstUserMessage.Receiver.PartyIds.First().Type);
+            Assert.Equal(receivingParty.PartyIds.First().Type, as4Message.FirstUserMessage.Receiver.PartyIds.First().Type.UnsafeGet);
         }
 
         [Fact]
@@ -71,7 +71,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
             Assert.True(as4Message.IsUserMessage);
             Assert.Equal(fromParty.Role, as4Message.FirstUserMessage.Sender.Role);
             Assert.Equal(fromParty.PartyIds.First().Id, as4Message.FirstUserMessage.Sender.PartyIds.First().Id);
-            Assert.Equal(fromParty.PartyIds.First().Type, as4Message.FirstUserMessage.Sender.PartyIds.First().Type);
+            Assert.Equal(fromParty.PartyIds.First().Type, as4Message.FirstUserMessage.Sender.PartyIds.First().Type.UnsafeGet);
         }
 
         [Fact]
@@ -190,7 +190,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
             };
         }
 
-        private static SendingProcessingMode CreateSendingPMode(Party fromParty, Party toParty)
+        private static SendingProcessingMode CreateSendingPMode(AS4.Model.PMode.Party fromParty, AS4.Model.PMode.Party toParty)
         {
             SendingProcessingMode pmode = ValidSendingPModeFactory.Create();
 

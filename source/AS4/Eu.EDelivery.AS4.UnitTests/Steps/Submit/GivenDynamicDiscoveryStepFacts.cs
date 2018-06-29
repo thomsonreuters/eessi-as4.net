@@ -11,6 +11,8 @@ using Eu.EDelivery.AS4.Services.DynamicDiscovery;
 using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Steps.Submit;
 using Xunit;
+using Party = Eu.EDelivery.AS4.Model.PMode.Party;
+using PartyId = Eu.EDelivery.AS4.Model.PMode.PartyId;
 
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
 {
@@ -59,7 +61,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
                 {
                     PartyInfo = new PartyInfo
                     {
-                        ToParty = new Party(role: Guid.NewGuid().ToString(), partyId: new PartyId(Guid.NewGuid().ToString()))
+                        ToParty = new Party
+                        {
+                            Role = Guid.NewGuid().ToString(),
+                            PartyIds = { new PartyId { Id = Guid.NewGuid().ToString()} }
+                        }
                     }
                 }
             };

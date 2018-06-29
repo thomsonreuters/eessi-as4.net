@@ -4,28 +4,72 @@ namespace Eu.EDelivery.AS4.Model.Core
 {
     public class PartyId : IEquatable<PartyId>
     {
-        public string Id { get; set; }
-        public string Type { get; set; }
+        public string Id { get; }
+
+        public Maybe<string> Type { get; }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="PartyId"/> class
-        /// </summary>
-        public PartyId() { }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="PartyId"/> class
-        /// with a given <paramref name="id"/>
+        /// Initializes a new instance of the <see cref="PartyId" /> class.
         /// </summary>
         /// <param name="id"></param>
+        /// <exception cref="ArgumentException"></exception>
         public PartyId(string id)
         {
-            this.Id = id;
+            if (id == null)
+            {
+                throw new ArgumentNullException(nameof(id));
+            }
+
+            Id = id;
+            Type = Maybe<string>.Nothing;
         }
 
-        public bool IsEmpty()
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PartyId" /> class.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="type"></param>
+        /// <exception cref="ArgumentException"></exception>
+        /// <exception cref="ArgumentNullException"></exception>
+        public PartyId(string id, Maybe<string> type)
         {
-            return String.IsNullOrWhiteSpace(Id) &&
-                   String.IsNullOrWhiteSpace(Type);
+            if (id == null)
+            {
+                throw new ArgumentNullException(nameof(id));
+            }
+
+            if (type == null)
+            {
+                throw new ArgumentNullException(nameof(type));
+            }
+
+
+            Id = id;
+            Type = type;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PartyId" /> class.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="type"></param>
+        /// <exception cref="ArgumentException"></exception>
+        /// <exception cref="ArgumentNullException"></exception>
+        public PartyId(string id, string type)
+        {
+            if (id == null)
+            {
+                throw new ArgumentNullException(nameof(id));
+            }
+
+            if (type == null)
+            {
+                throw new ArgumentNullException(nameof(type));
+            }
+
+
+            Id = id;
+            Type = Maybe.Just(type);
         }
 
         /// <summary>
@@ -37,12 +81,25 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// <param name="other">An object to compare with this object.</param>
         public bool Equals(PartyId other)
         {
-            if (ReferenceEquals(null, other)) return false;
-            if (ReferenceEquals(this, other)) return true;
+            if (other is null)
+            {
+                return false;
+            }
 
-            return
-                string.Equals(this.Id, other.Id, StringComparison.OrdinalIgnoreCase) &&
-                string.Equals(this.Type ?? string.Empty, other.Type ?? string.Empty, StringComparison.OrdinalIgnoreCase);
+            if (ReferenceEquals(this, other))
+            {
+                return true;
+            }
+
+            bool equalId = string.Equals(Id, other.Id, StringComparison.OrdinalIgnoreCase);
+            bool equalType =
+                Type == Maybe<string>.Nothing && other.Type == Maybe<string>.Nothing
+                || Type.SelectMany(t1 => 
+                    other.Type.Select(t2 => 
+                        t1.Equals(t2, StringComparison.OrdinalIgnoreCase)))
+                    .GetOrElse(false);
+
+            return equalId && equalType;
         }
 
         /// <summary>
@@ -54,17 +111,17 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// <param name="obj">The object to compare with the current object. </param>
         public override bool Equals(object obj)
         {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-
-            var other = obj as PartyId;
-
-            if (other == null)
+            if (obj is null)
             {
                 return false;
             }
 
-            return Equals(other);
+            if (ReferenceEquals(this, obj))
+            {
+                return true;
+            }
+
+            return obj is PartyId other && Equals(other);
         }
 
         /// <summary>
@@ -77,9 +134,10 @@ namespace Eu.EDelivery.AS4.Model.Core
         {
             unchecked
             {
-                return
-                    ((this.Id != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(this.Id) : 0) * 397) ^
-                    (this.Type != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(this.Type) : 0);
+                int hashId = StringComparer.OrdinalIgnoreCase.GetHashCode(Id);
+                int hashType = StringComparer.OrdinalIgnoreCase.GetHashCode(Type);
+
+                return (hashId * 397) ^ hashType;
             }
         }
     }

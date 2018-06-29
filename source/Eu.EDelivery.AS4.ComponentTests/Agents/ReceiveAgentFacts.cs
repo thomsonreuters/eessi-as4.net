@@ -135,19 +135,8 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             var message = AS4Message.Create(new UserMessage
             {
                 MessageId = messageId,
-                Sender =
-                {
-                    PartyIds = {new PartyId{Id = "org:eu:europa:as4:example:accesspoint:A" } },
-                    Role = "Sender"
-                },
-                Receiver =
-                {
-                    PartyIds =
-                    {
-                        new PartyId{ Id = "org:eu:europa:as4:example:accesspoint:B"}
-                    },
-                    Role = "Receiver"
-                },
+                Sender = new Model.Core.Party("Sender", new PartyId("org:eu:europa:as4:example:accesspoint:A")),
+                Receiver = new Model.Core.Party("Receiver", new PartyId("org:eu:europa:as4:example:accesspoint:B")),
                 CollaborationInfo = new CollaborationInfo(
                     new AgreementReference("http://agreements.europa.org/agreement"),
                     new Model.Core.Service("Invalid_PMode_Test_Service", "eu:europa:services"),
@@ -311,7 +300,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         {
             // Arrange
             const string expectedId = "message-id";
-            CreateExistingOutMessage(expectedId, CreateSendingPMode());
+            StoreToBeAckOutMessage(expectedId, CreateSendingPMode());
 
             AS4Message as4Message = CreateAS4ReceiptMessage(expectedId);
 
@@ -339,7 +328,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             // Arrange
             const string expectedId = "message-id";
 
-            CreateExistingOutMessage(expectedId, CreateSendingPMode());
+            StoreToBeAckOutMessage(expectedId, CreateSendingPMode());
 
             AS4Message as4Message = CreateAS4ErrorMessage(expectedId);
 
@@ -461,7 +450,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
             var receiptString = Encoding.UTF8.GetString(receipt_with_invalid_signature).Replace("{{RefToMessageId}}", userMessageId);
 
-            CreateExistingOutMessage(userMessageId, CreateSendingPMode());
+            StoreToBeAckOutMessage(userMessageId, CreateSendingPMode());
 
             var response = await StubSender.SendRequest(_receiveAgentUrl, Encoding.UTF8.GetBytes(receiptString), "application/soap+xml");
 
@@ -637,7 +626,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                 }
             };
 
-            CreateExistingOutMessage(messageId, sendingPMode);
+            StoreToBeAckOutMessage(messageId, sendingPMode);
 
             var as4Message = CreateMultihopSignalMessage(
                 messageId: "multihop-signalmessage-id", 
@@ -726,7 +715,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             return AS4Message.Create(receipt);
         }
 
-        private void CreateExistingOutMessage(string messageId, SendingProcessingMode sendingPMode)
+        private void StoreToBeAckOutMessage(string messageId, SendingProcessingMode sendingPMode)
         {
             var outMessage = new OutMessage(messageId);
 
@@ -734,6 +723,53 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             outMessage.SetPModeInformation(sendingPMode);
 
             _databaseSpy.InsertOutMessage(outMessage);
+        }
+
+        #endregion
+
+        #region Scenario's for receiving bundled messages
+
+        [Fact]
+        public async Task Received_Bundled_Message_Should_Process_All_Messages()
+        {
+            // Arrange
+            string ebmsMessageId = "test-" + Guid.NewGuid();
+            StoreToBeAckOutMessage(ebmsMessageId, CreateSendingPMode());
+
+            var userMessage = new UserMessage("usermessage-" + Guid.NewGuid());
+            userMessage.CollaborationInfo = new CollaborationInfo(
+                agreement: new AgreementReference(
+                    value: "http://agreements.europa.org/agreement",
+                    pmodeId: "receive_bundled_message_pmode"),
+                service: new Service(
+                    value: "bundling", 
+                    type: "as4.net:receive_agent:componenttest"),
+                action: "as4.net:receive_agent:bundling",
+                conversationId: "as4.net:receive_agent:conversation");
+
+            var receipt = new Receipt($"receipt-{Guid.NewGuid()}", ebmsMessageId);
+
+            var bundled = AS4Message.Create(userMessage);
+            bundled.AddMessageUnit(receipt);
+
+            // Act
+            HttpResponseMessage response = await StubSender.SendAS4Message(_receiveAgentUrl, bundled);
+
+            // Assert
+            AS4Message receivedReceipt = await response.DeserializeToAS4Message();
+
+            Assert.IsType<Receipt>(receivedReceipt.FirstSignalMessage);
+            Assert.Equal(userMessage.MessageId, receivedReceipt.FirstSignalMessage.RefToMessageId);
+
+            AssertIfInMessageExistsForSignalMessage(ebmsMessageId);
+            AssertIfInMesssageIsStoredFor(userMessage.MessageId, Operation.ToBeDelivered);
+        }
+
+        private void AssertIfInMesssageIsStoredFor(string id, Operation o = Operation.NotApplicable)
+        {
+            var inMessage = _databaseSpy.GetInMessageFor(m => m.EbmsMessageId == id);
+            Assert.NotNull(inMessage);
+            Assert.Equal(o.ToString(), inMessage.Operation.ToString());
         }
 
         #endregion

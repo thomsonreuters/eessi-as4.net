@@ -45,18 +45,16 @@ namespace Eu.EDelivery.AS4.Mappings.Core
                 .ForMember(dest => dest.MessageId, src => src.MapFrom(t => t.MessageInfo.MessageId))
                 .ForMember(dest => dest.RefToMessageId, src => src.MapFrom(t => t.MessageInfo.RefToMessageId))
                 .ForMember(dest => dest.Timestamp, src => src.MapFrom(t => t.MessageInfo.Timestamp))
-                .ForMember(dest => dest.Sender, src => src.MapFrom(t => t.PartyInfo.From))
-                .ForMember(dest => dest.Receiver, src => src.MapFrom(t => t.PartyInfo.To))
                 .ForMember(dest => dest.CollaborationInfo, src => src.MapFrom(t => t.CollaborationInfo))
                 .ForMember(dest => dest.MessageProperties,
-                    src => src.MapFrom(t => t.MessageProperties ?? new Xml.Property[] { }))
+                           src => src.MapFrom(t => t.MessageProperties ?? new Xml.Property[] { }))
                 .ForMember(dest => dest.IsTest, src => src.Ignore())
                 .ForMember(dest => dest.IsDuplicate, src => src.Ignore())
                 .AfterMap((xml, model) =>
                 {
                     if (xml.PayloadInfo != null && xml.PayloadInfo.Any())
                     {
-                        foreach (Xml.PartInfo p in 
+                        foreach (Xml.PartInfo p in
                             xml.PayloadInfo.Where(p => !string.IsNullOrEmpty(p?.href)))
                         {
                             var mapped = AS4Mapper.Map<Model.Core.PartInfo>(p);
@@ -76,7 +74,6 @@ namespace Eu.EDelivery.AS4.Mappings.Core
         {
             CreateMap<Model.Core.UserMessage, Xml.RoutingInputUserMessage>()
                 .ForMember(dest => dest.MessageInfo, src => src.MapFrom(t => t))
-                .ForMember(dest => dest.PartyInfo, src => src.MapFrom(t => t))
                 .ForMember(dest => dest.CollaborationInfo, src => src.MapFrom(t => t.CollaborationInfo))
                 .ForMember(dest => dest.mpc, src => src.MapFrom(t => t.Mpc))
                 .ForMember(dest => dest.PayloadInfo, src => src.MapFrom(t => t.PayloadInfo))
@@ -94,8 +91,11 @@ namespace Eu.EDelivery.AS4.Mappings.Core
                             xmlUserMessage.PayloadInfo = null;
                         }
 
-                        xmlUserMessage.PartyInfo.From = AS4Mapper.Map<Xml.From>(modelUserMessage.Receiver);
-                        xmlUserMessage.PartyInfo.To = AS4Mapper.Map<Xml.To>(modelUserMessage.Sender);
+                        xmlUserMessage.PartyInfo = new Xml.PartyInfo
+                        {
+                            From = AS4Mapper.Map<Xml.From>(modelUserMessage.Receiver),
+                            To = AS4Mapper.Map<Xml.To>(modelUserMessage.Sender)
+                        };
 
                         AssignAction(xmlUserMessage);
                         AssignMpc(xmlUserMessage);
