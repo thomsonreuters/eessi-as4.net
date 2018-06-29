@@ -22,7 +22,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
     {
         private static readonly DateTimeOffset DayBeforeYesterday = DateTimeOffset.Now.AddDays(-2);
 
-        [Property(MaxTest = 5)]
+        [Property(MaxTest = 1)]
         public Property Only_Awnsered_UserMessages_Are_Deleted()
         {
             return Prop.ForAll(
@@ -52,7 +52,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                 });
         }
 
-        [Property(MaxTest = 5)]
+        [Property(MaxTest = 1)]
         public Property Only_Entries_With_Allowed_Operations_Are_Deleted()
         {
             return Prop.ForAll(
@@ -92,7 +92,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                 Operation.Undetermined
             };
 
-        [Property(MaxTest = 5)]
+        [Property(MaxTest = 1)]
         public Property Only_Overdue_Entries_Are_Deleted()
         {
             return Prop.ForAll(

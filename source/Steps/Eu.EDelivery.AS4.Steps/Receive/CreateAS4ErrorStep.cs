@@ -63,17 +63,6 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             SendingProcessingMode responseSendPMode =
                 messagingContext.GetReferencedSendingPMode(messagingContext.ReceivingPMode, _config);
 
-            if (responseSendPMode == null)
-            {
-                const string desc = "Cannot determine a Sending Processing Mode during the creation of the response";
-                var result = new ErrorResult(desc, ErrorAlias.ProcessingModeMismatch);
-
-                messagingContext.ModifyContext(
-                    CreateAS4ErrorWithoutMultihop(messagingContext.AS4Message, result));
-
-                return StepResult.Failed(messagingContext);
-            }
-
             AS4Message errorMessage = CreateAS4ErrorWithPossibleMultihop(
                 sendPMode: responseSendPMode,
                 referenced: messagingContext.AS4Message,
@@ -111,21 +100,6 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                         AS4Mapper.Map<RoutingInputUserMessage>(referenced?.FirstUserMessage);
                 }
 
-                errorMessage.AddMessageUnit(error);
-            }
-
-            return errorMessage;
-        }
-
-        private static AS4Message CreateAS4ErrorWithoutMultihop(
-            AS4Message referenced,
-            ErrorResult result)
-        {
-            var errorMessage = AS4Message.Empty;
-            errorMessage.SigningId = referenced.SigningId;
-
-            foreach (Error error in CreateErrorMessageUnits(result, referenced.UserMessages))
-            {
                 errorMessage.AddMessageUnit(error);
             }
 

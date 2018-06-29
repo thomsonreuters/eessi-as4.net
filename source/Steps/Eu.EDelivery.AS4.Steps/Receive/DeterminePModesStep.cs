@@ -87,7 +87,8 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                     + $"ReceivingPMode: {messagingContext.ReceivingPMode.Id} confingured, "
                     + "this happens when the Receive Agent is configured as a \"Static Receive Agent\"");
             }
-            else if (as4Message.HasUserMessage)
+            else if (as4Message.HasUserMessage
+                    || as4Message.SignalMessages.Any(s => s.MultiHopRouting != null))
             {
                 Logger.Trace(
                     $"{messagingContext.LogTag} Incoming message hasn't yet a ReceivingPMode, will determine one");
@@ -146,18 +147,18 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             if (as4Message.IsUserMessage)
             {
                 Logger.Debug(
-                    $"(Receive)[{as4Message.GetPrimaryMessageId()}] Incoming message is a UserMessage, " + 
+                    "Incoming message has a UserMessage, " + 
                     "so the incoming message itself will be used to match the right Receiving PMode");
 
                 return as4Message.FirstUserMessage;
             }
 
             Logger.Debug(
-                $"(Receive)[{as4Message.GetPrimaryMessageId()}] Incoming message is a Multi-Hop SignalMessage, " +
+                "Incoming message is a Multi-Hop SignalMessage, " +
                 "so the embeded Multi-Hop UserMessage will be used to match the right Receiving PMode");
 
-            RoutingInputUserMessage routedUserMessage = 
-                as4Message.FirstSignalMessage?.MultiHopRouting;
+            RoutingInputUserMessage routedUserMessage =
+                as4Message.SignalMessages.FirstOrDefault(s => s.MultiHopRouting != null)?.MultiHopRouting;
 
             if (routedUserMessage != null)
             {

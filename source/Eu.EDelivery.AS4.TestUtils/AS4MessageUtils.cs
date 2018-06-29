@@ -44,5 +44,16 @@ namespace Eu.EDelivery.AS4.TestUtils
                 return await serializer.DeserializeAsync(targetStream, message.ContentType, CancellationToken.None);
             }
         }
+
+        public static void SaveToFile(this AS4Message m, string path)
+        {
+            using (FileStream fs = File.Create(path))
+            {
+                SerializerProvider
+                    .Default
+                    .Get(m.ContentType)
+                    .Serialize(m, fs, CancellationToken.None);
+            }
+        }
     }
 }

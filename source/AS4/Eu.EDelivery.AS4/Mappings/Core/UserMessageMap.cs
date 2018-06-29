@@ -67,34 +67,9 @@ namespace Eu.EDelivery.AS4.Mappings.Core
                         }
                     }
 
-                    Model.Core.CollaborationInfo modelInfo = model.CollaborationInfo;
-                    Xml.CollaborationInfo xmlInfo = xml.CollaborationInfo;
-                    if (xmlInfo == null)
-                    {
-                        return;
-                    }
-
-                    MapAgreementReference(modelInfo, xmlInfo);
-
-                    model.CollaborationInfo.ConversationId = xml.CollaborationInfo.ConversationId;
                     model.MessageId = xml.MessageInfo.MessageId;
                     model.RefToMessageId = xml.MessageInfo.RefToMessageId;
                 });
-        }
-
-        private static void MapAgreementReference(Model.Core.CollaborationInfo modelInfo, Xml.CollaborationInfo xmlInfo)
-        {
-            if (xmlInfo.AgreementRef?.Value != null)
-            {
-                modelInfo.AgreementReference = new Model.Core.AgreementReference(
-                    xmlInfo.AgreementRef.Value,
-                    (xmlInfo.AgreementRef?.type != null).ThenMaybe(xmlInfo.AgreementRef?.type),
-                    (xmlInfo.AgreementRef?.pmode != null).ThenMaybe(xmlInfo.AgreementRef?.pmode)).AsMaybe();
-            }
-            else
-            {
-                modelInfo.AgreementReference = Maybe<Model.Core.AgreementReference>.Nothing;
-            }
         }
 
         private void MapUserMessageToRoutingInputUserMessage()

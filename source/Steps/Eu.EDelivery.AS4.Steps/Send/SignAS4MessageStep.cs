@@ -53,7 +53,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
         {
             if (messagingContext.AS4Message == null || messagingContext.AS4Message.IsEmpty)
             {
-                Logger.Debug($"{messagingContext.LogTag} Incoming ");
+                Logger.Debug("No signing will be performed on the message because it's empty");
                 return await StepResult.SuccessAsync(messagingContext);
             }
 
@@ -61,7 +61,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             if (pmode == null)
             {
                 Logger.Debug(
-                    $"{messagingContext.LogTag} No signing will be performend on the message " +
+                    "No signing will be performend on the message " +
                     "because no SendingPMode is found to get the signing configuration from");
 
                 return await StepResult.FailedAsync(messagingContext);
@@ -70,7 +70,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             if (pmode.Security.Signing.IsEnabled != true)
             {
                 Logger.Debug(
-                    $"{messagingContext.LogTag} No signing will be performend on the message " +
+                    "No signing will be performend on the message " +
                     $"because the SendingPMode {pmode.Id} siging information is disabled");
 
                 return await StepResult.SuccessAsync(messagingContext);
