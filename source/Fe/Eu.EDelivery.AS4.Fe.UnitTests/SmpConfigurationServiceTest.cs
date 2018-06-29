@@ -189,8 +189,11 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
 
                 _smpConfiguration.EncryptPublicKeyCertificate = new byte[] { 1, 2, 3 };
 
+                SmpConfiguration.SmpConfiguration smpConfiguration = CreateFixture();
+                smpConfiguration.EncryptPublicKeyCertificate = "not empty";
+
                 // Act
-                var exception = await Assert.ThrowsAsync<BusinessException>(() => SmpConfigurationService.Update(dbSmpConfiguration.Id, CreateFixture()));
+                var exception = await Assert.ThrowsAsync<BusinessException>(() => SmpConfigurationService.Update(dbSmpConfiguration.Id, smpConfiguration));
 
                 // Assert
                 Assert.Equal("EncryptPublicKeyCertificateName needs to be provided when EncryptPublicKeyCertificate is not empty!", exception.Message);
