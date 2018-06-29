@@ -12,6 +12,8 @@ using Xunit;
 using AgreementReference = Eu.EDelivery.AS4.Model.Core.AgreementReference;
 using CollaborationInfo = Eu.EDelivery.AS4.Model.Core.CollaborationInfo;
 using Service = Eu.EDelivery.AS4.Model.Core.Service;
+using Party = Eu.EDelivery.AS4.Model.Core.Party;
+using PartyId = Eu.EDelivery.AS4.Model.Core.PartyId;
 
 namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._19_22_Send_Message_via_Dynamic_Forwarding
 {
@@ -187,7 +189,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._19_22
             var user = new UserMessage(Guid.NewGuid().ToString())
             {
                 CollaborationInfo = HolodeckCollaboration(argRefPModeId),
-                Receiver = new Party(HolodeckPartyRole, new PartyId(HolodeckBId) { Type = HolodeckBId }),
+                Receiver = new Party(HolodeckPartyRole, new PartyId(HolodeckBId, HolodeckBId)),
             };
             user.AddPartInfo(new PartInfo(
                 href: "cid:earth", 

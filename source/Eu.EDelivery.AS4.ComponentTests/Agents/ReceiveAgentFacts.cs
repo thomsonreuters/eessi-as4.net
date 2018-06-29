@@ -129,19 +129,8 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             var message = AS4Message.Create(new UserMessage
             {
                 MessageId = messageId,
-                Sender =
-                {
-                    PartyIds = {new PartyId{Id = "org:eu:europa:as4:example:accesspoint:A" } },
-                    Role = "Sender"
-                },
-                Receiver =
-                {
-                    PartyIds =
-                    {
-                        new PartyId{ Id = "org:eu:europa:as4:example:accesspoint:B"}
-                    },
-                    Role = "Receiver"
-                },
+                Sender = new Model.Core.Party("Sender", new PartyId("org:eu:europa:as4:example:accesspoint:A")),
+                Receiver = new Model.Core.Party("Receiver", new PartyId("org:eu:europa:as4:example:accesspoint:B")),
                 CollaborationInfo = new CollaborationInfo(
                     new AgreementReference("http://agreements.europa.org/agreement"),
                     new Model.Core.Service("Invalid_PMode_Test_Service", "eu:europa:services"),

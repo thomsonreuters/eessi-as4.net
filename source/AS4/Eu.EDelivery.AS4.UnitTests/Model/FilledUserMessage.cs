@@ -60,8 +60,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
 
         private static Party CreateParty(string role, string partyId)
         {
-            var partyIds = new List<PartyId> { new PartyId(partyId) };
-            return new Party { Role = role, PartyIds = partyIds };
+            return new Party(role, new PartyId(partyId));;
         }
 
         private static List<MessageProperty> CreateMessageProperties()

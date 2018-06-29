@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<xs:schema xmlns:tns="urn:cef:edelivery:eu:as4:messages" elementFormDefault="qualified" targetNamespace="urn:cef:edelivery:eu:as4:messages" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+<xs:schema xmlns:tns="urn:cef:edelivery:eu:as4:messages" elementFormDefault="qualified" targetNamespace="urn:cef:edelivery:eu:as4:messages" 
+  xmlns:xs="http://www.w3.org/2001/XMLSchema">
   <xs:element name="SubmitMessage" nillable="true" type="tns:SubmitMessage" />
   <xs:complexType name="SubmitMessage">
     <xs:sequence>

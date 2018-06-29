@@ -15,6 +15,7 @@ using Eu.EDelivery.AS4.Xml;
 using Xunit;
 using Encryption = Eu.EDelivery.AS4.Model.PMode.Encryption;
 using PartyId = Eu.EDelivery.AS4.Model.Core.PartyId;
+using Party = Eu.EDelivery.AS4.Model.Core.Party;
 using Receipt = Eu.EDelivery.AS4.Model.Core.Receipt;
 using Signing = Eu.EDelivery.AS4.Model.PMode.Signing;
 using UserMessage = Eu.EDelivery.AS4.Model.Core.UserMessage;
