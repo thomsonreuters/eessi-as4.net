@@ -1,11 +1,10 @@
 ﻿using System;
-using Eu.EDelivery.AS4.Mappings.Submit;
 using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Model.Submit;
 using Xunit;
-using AgreementReference = Eu.EDelivery.AS4.Model.PMode.AgreementReference;
+using static Eu.EDelivery.AS4.Mappings.Submit.SubmitMessageAgreementResolver;
 
 namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
 {
@@ -21,7 +20,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
                 var userMessage = new UserMessage("message-id");
 
                 // Act
-                ResolveAgreement(submitMessage, userMessage);
+                ResolveAgreementReference(submitMessage);
 
                 // Assert
                 AS4.Model.Core.AgreementReference userMessageAgreementRef = userMessage.CollaborationInfo.AgreementReference.GetOrElse(() => null);
@@ -41,7 +40,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
                 var userMessage = new UserMessage("message-id");
 
                 // Act
-                ResolveAgreement(submitMessage, userMessage);
+                ResolveAgreementReference(submitMessage);
 
                 // Assert
                 AS4.Model.Core.AgreementReference userMessageAgreement = userMessage.CollaborationInfo.AgreementReference.UnsafeGet;
@@ -62,7 +61,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
                 var userMessage = new UserMessage("message-id");
 
                 // Act
-                ResolveAgreement(submitMessage, userMessage);
+                ResolveAgreementReference(submitMessage);
 
                 // Assert
                 Assert.Equal(Maybe<AS4.Model.Core.AgreementReference>.Nothing, userMessage.CollaborationInfo.AgreementReference);
@@ -77,10 +76,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
                 // Arrange
                 SubmitMessage submitMessage = GetPopulatedSubmitMessage();
                 submitMessage.PMode.AllowOverride = false;
-                var userMessage = new UserMessage("message-id");
 
                 // Act / Assert
-                Assert.ThrowsAny<Exception>(() => ResolveAgreement(submitMessage, userMessage));
+                Assert.ThrowsAny<Exception>(() => ResolveAgreementReference(submitMessage));
             }
 
             [Fact]
@@ -91,10 +89,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
                 submitMessage.PMode.AllowOverride = false;
                 submitMessage.Collaboration.AgreementRef.RefType = null;
 
-                var userMessage = new UserMessage("message-id");
-
                 // Act / Assert
-                Assert.ThrowsAny<Exception>(() => ResolveAgreement(submitMessage, userMessage));
+                Assert.ThrowsAny<Exception>(() => ResolveAgreementReference(submitMessage));
             }
 
             [Fact]
@@ -105,10 +101,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
                 submitMessage.PMode.AllowOverride = false;
                 submitMessage.Collaboration.AgreementRef.Value = null;
 
-                var userMessage = new UserMessage("message-id");
-
                 // Act / Assert
-                Assert.ThrowsAny<Exception>(() => ResolveAgreement(submitMessage, userMessage));
+                Assert.ThrowsAny<Exception>(() => ResolveAgreementReference(submitMessage));
             }
         }
 
@@ -137,15 +131,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
                     CollaborationInfo =
                         new AS4.Model.PMode.CollaborationInfo
                         {
-                            AgreementReference = new AgreementReference {Value = "pmode-name", Type = "pmode-type"}
+                            AgreementReference = new AS4.Model.PMode.AgreementReference {Value = "pmode-name", Type = "pmode-type"}
                         }
                 }
             };
-        }
-
-        private static void ResolveAgreement(SubmitMessage submit, UserMessage user)
-        {
-            user.CollaborationInfo.AgreementReference = SubmitMessageAgreementResolver.ResolveAgreementReference(submit, user);
         }
     }
 }

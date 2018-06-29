@@ -87,17 +87,18 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         public async Task ThenAgentReturnsError_IfResponseSendPModeIsNotFound()
         {
             // Arrange
-            var message = AS4Message.Create(new UserMessage());
-            message.FirstUserMessage.CollaborationInfo = 
-                new CollaborationInfo(
-                    agreement: new AgreementReference(
-                        value: "agreement", 
-                        pmodeId: "receiveagent-non-exist-response-pmode"),
-                    service: new Service(
-                        value: "receive:agent:service",
-                        type: "receive:agent:type"),
-                    action: "receive:agent:action",
-                    conversationId: "receive:agent:conversation");
+            var message = AS4Message.Create(
+                new UserMessage(
+                    $"user-{Guid.NewGuid()}",
+                    new CollaborationInfo(
+                        agreement: new AgreementReference(
+                            value: "agreement",
+                            pmodeId: "receiveagent-non-exist-response-pmode"),
+                        service: new Service(
+                            value: "receive:agent:service",
+                            type: "receive:agent:type"),
+                        action: "receive:agent:action",
+                        conversationId: "receive:agent:conversation"));
 
             // Act
             HttpResponseMessage response = await StubSender.SendAS4Message(_receiveAgentUrl, message);
@@ -132,17 +133,20 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             const string messageId = "some-message-id";
 
             // Arrange
-            var message = AS4Message.Create(new UserMessage
-            {
-                MessageId = messageId,
-                Sender = new Model.Core.Party("Sender", new PartyId("org:eu:europa:as4:example:accesspoint:A")),
-                Receiver = new Model.Core.Party("Receiver", new PartyId("org:eu:europa:as4:example:accesspoint:B")),
-                CollaborationInfo = new CollaborationInfo(
-                    new AgreementReference("http://agreements.europa.org/agreement"),
-                    new Model.Core.Service("Invalid_PMode_Test_Service", "eu:europa:services"),
-                    "Invalid_PMode_Test_Action",
-                    CollaborationInfo.DefaultConversationId)
-            });
+            var message = AS4Message.Create(
+                new UserMessage(
+                    messageId: messageId,
+                    collaboration: new CollaborationInfo(
+                        agreement: new AgreementReference("http://agreements.europa.org/agreement"),
+                        service: new Model.Core.Service(
+                            value: "Invalid_PMode_Test_Service", 
+                            type: "eu:europa:services"),
+                        action: "Invalid_PMode_Test_Action",
+                        conversationId: CollaborationInfo.DefaultConversationId),
+                    sender: new Model.Core.Party("Sender", new PartyId("org:eu:europa:as4:example:accesspoint:A")),
+                    receiver: new Model.Core.Party("Receiver", new PartyId("org:eu:europa:as4:example:accesspoint:B")),
+                    partInfos: new Model.Core.PartInfo[0],
+                    messageProperties: new Model.Core.MessageProperty[0]));
 
             // Act
             HttpResponseMessage response = await StubSender.SendAS4Message(_receiveAgentUrl, message);
