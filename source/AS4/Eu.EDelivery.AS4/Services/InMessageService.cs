@@ -152,10 +152,6 @@ namespace Eu.EDelivery.AS4.Services
                     inMessage.SetPModeInformation(pmode);
                     inMessage.MessageLocation = location;
 
-                    Logger.Debug(
-                        $"Insert InMessage for UserMessage {userMessage.MessageId} " + 
-                        $"with {{Status={inMessage.Status}, Operation={inMessage.Operation}}}");
-
                     _repository.InsertInMessage(inMessage);
                 }
                 catch (Exception ex)
@@ -199,10 +195,6 @@ namespace Eu.EDelivery.AS4.Services
                     inMessage.MessageLocation = location;
                     inMessage.SetPModeInformation(pmode);
 
-                    Logger.Debug(
-                        $"Insert InMessage for {signalMessage.GetType().Name} {signalMessage.MessageId} " +
-                        $"with {{Status={inMessage.Status}, Operation={inMessage.Operation}}}");
-
                     _repository.InsertInMessage(inMessage);
                 }
                 catch (Exception exception)
@@ -240,9 +232,6 @@ namespace Eu.EDelivery.AS4.Services
 
             if (messageContext.ReceivedMessageMustBeForwarded)
             {
-                Logger.Debug("Update all stored referenced InMessage(s) with Intermediary=true");
-                Logger.Debug($"Update InMessage where EbmsMessageId={as4Message.GetPrimaryMessageId()} with Operation=ToBeForwarded");
-
                 var pmodeString = messageContext.GetReceivingPModeString();
                 var pmodeId = messageContext.ReceivingPMode?.Id;
 
@@ -312,10 +301,6 @@ namespace Eu.EDelivery.AS4.Services
 
                                 _repository.InsertRetryReliability(r);
                             }
-
-                            Logger.Debug(
-                                $"Update UserMessage InMessage where EbmsMessageId={userMessage.MessageId} " +
-                                $"with {{Operation={message.Operation}}}");
                         }
                     });
             }
@@ -352,13 +337,7 @@ namespace Eu.EDelivery.AS4.Services
                 {
                     _repository.UpdateInMessages(
                         m => signalsToNotify.Contains(m.EbmsMessageId) && m.Intermediary == false,
-                        m =>
-                        {
-                            m.SetOperation(Operation.ToBeNotified);
-                            Logger.Debug(
-                                $"Update SignalMessage InMessage where EbmsMessageId={m.EbmsMessageId} " +
-                                $"with {{Operation={m.Operation}}}");
-                        });
+                        m => m.SetOperation(Operation.ToBeNotified));
 
                     bool isRetryEnabled = reliability?.IsEnabled ?? false;
                     if (isRetryEnabled)
@@ -384,13 +363,7 @@ namespace Eu.EDelivery.AS4.Services
             {
                 _repository.UpdateOutMessages(
                     m => refToMessageIds.Contains(m.EbmsMessageId) && m.Intermediary == false,
-                    m =>
-                    {
-                        m.SetStatus(outStatus);
-                        Logger.Debug(
-                            $"Update UserMessage OutMessage where EbmsMessageId={m.EbmsMessageId} " +
-                            $"with {{Status={outStatus}}}");
-                    });
+                    m => m.SetStatus(outStatus));
             }
         }
 
@@ -454,24 +427,10 @@ namespace Eu.EDelivery.AS4.Services
         {
             if (pmode.MessageHandling?.DeliverInformation == null)
             {
-                Logger.Debug(
-                    $"Will not update UserMessage InMessage with EbmsMessageId={userMessage.MessageId} for delivery " + 
-                    $"because ReceivePMode {pmode.Id} hasn't a MessageHandling.Deliver element");
-
                 return false;
             }
 
-            bool needsToBeDelivered = 
-                pmode.MessageHandling.DeliverInformation.IsEnabled
-                && !userMessage.IsDuplicate
-                && !userMessage.IsTest;
-
-            Logger.Debug(
-                $"Will{(needsToBeDelivered ? "" : " not")} update UserMessage InMessage with EbmsMessageId={userMessage.MessageId} for delivery {Environment.NewLine}" +
-                $"because ReceivePMode {pmode.Id} MessageHandling.Deliver.IsEnabled={pmode.MessageHandling.DeliverInformation.IsEnabled}, " +
-                $"UserMessage {(userMessage.IsTest ? "is" : "isn't")} a test message and {(userMessage.IsDuplicate ? "is" : "isn't")} a duplicate one");
-
-            return needsToBeDelivered;
+            return pmode.MessageHandling.DeliverInformation.IsEnabled && !userMessage.IsDuplicate && !userMessage.IsTest;
         }
     }
 }
