@@ -25,6 +25,7 @@ using Eu.EDelivery.AS4.TestUtils.Stubs;
 using Eu.EDelivery.AS4.Xml;
 using Xunit;
 using static Eu.EDelivery.AS4.ComponentTests.Properties.Resources;
+using AgreementReference = Eu.EDelivery.AS4.Model.Core.AgreementReference;
 using CollaborationInfo = Eu.EDelivery.AS4.Model.Core.CollaborationInfo;
 using Error = Eu.EDelivery.AS4.Model.Core.Error;
 using MessagePartNRInformation = Eu.EDelivery.AS4.Model.Core.MessagePartNRInformation;
@@ -87,8 +88,11 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         {
             // Arrange
             var message = AS4Message.Create(new UserMessage());
-            message.FirstUserMessage.CollaborationInfo.AgreementReference.PModeId =
-                "receiveagent-non-exist-response-pmode";
+            message.FirstUserMessage.CollaborationInfo = 
+                new CollaborationInfo(
+                    new AgreementReference(
+                        value: "agreement", 
+                        pmodeId: "receiveagent-non-exist-response-pmode"));
 
             // Act
             HttpResponseMessage response = await StubSender.SendAS4Message(_receiveAgentUrl, message);
@@ -126,28 +130,13 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             var message = AS4Message.Create(new UserMessage
             {
                 MessageId = messageId,
-                Sender =
-                {
-                    PartyIds = {new PartyId{Id = "org:eu:europa:as4:example:accesspoint:A" } },
-                    Role = "Sender"
-                },
-                Receiver =
-                {
-                    PartyIds =
-                    {
-                        new PartyId{ Id = "org:eu:europa:as4:example:accesspoint:B"}
-                    },
-                    Role = "Receiver"
-                },
-                CollaborationInfo =
-                {
-                    AgreementReference =
-                    {
-                        Value = "http://agreements.europa.org/agreement"
-                    },
-                    Action = "Invalid_PMode_Test_Action",
-                    Service = new Model.Core.Service("Invalid_PMode_Test_Service", "eu:europa:services")
-                }
+                Sender = new Model.Core.Party("Sender", new PartyId("org:eu:europa:as4:example:accesspoint:A")),
+                Receiver = new Model.Core.Party("Receiver", new PartyId("org:eu:europa:as4:example:accesspoint:B")),
+                CollaborationInfo = new CollaborationInfo(
+                    new AgreementReference("http://agreements.europa.org/agreement"),
+                    new Model.Core.Service("Invalid_PMode_Test_Service", "eu:europa:services"),
+                    "Invalid_PMode_Test_Action",
+                    CollaborationInfo.DefaultConversationId)
             });
 
             // Act
@@ -174,7 +163,8 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         public async Task ReturnsErrorMessageWhenDecryptionCertificateCannotBeFound()
         {
             var userMessage = new UserMessage();
-            userMessage.CollaborationInfo.AgreementReference.PModeId = "receiveagent-non_existing_decrypt_cert-pmode";
+            userMessage.CollaborationInfo = 
+                new CollaborationInfo(new AgreementReference("agreement", "type", "receiveagent-non_existing_decrypt_cert-pmode"));
 
             var as4Message = CreateAS4MessageWithAttachment(userMessage);
 
@@ -232,7 +222,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
             InMessage receivedUserMessage = GetInsertedUserMessageFor(receivedAS4Message);
             Assert.NotNull(receivedUserMessage);
-            Assert.Equal(Operation.ToBeDelivered, receivedUserMessage.Operation.ToEnum<Operation>());
+            Assert.Equal(Operation.ToBeDelivered, receivedUserMessage.Operation);
         }
 
         private InMessage GetInsertedUserMessageFor(AS4Message receivedAS4Message)
@@ -250,12 +240,13 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             var as4Message = AS4Message.Create(new UserMessage
             {
                 MessageId = messageId,
-                CollaborationInfo = { AgreementReference = new AgreementReference()
-                {
-                    // Make sure that the forwarding receiving pmode is used; therefore
-                    // explicitly set the Id of the PMode that must be used by the receive-agent.
-                    PModeId = "Forward_Push"
-                }}
+                CollaborationInfo = new CollaborationInfo(
+                    new AgreementReference(
+                        value: "forwarding/agreement",
+                        type: "forwarding",
+                        // Make sure that the forwarding receiving pmode is used; therefore
+                        // explicitly set the Id of the PMode that must be used by the receive-agent.
+                        pModeId: "Forward_Push"))
             });
 
             // Act
@@ -267,7 +258,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
             InMessage receivedUserMessage = _databaseSpy.GetInMessageFor(m => m.EbmsMessageId == messageId);
             Assert.NotNull(receivedUserMessage);
-            Assert.Equal(Operation.ToBeForwarded, receivedUserMessage.Operation.ToEnum<Operation>());
+            Assert.Equal(Operation.ToBeForwarded, receivedUserMessage.Operation);
         }
 
         [Fact]
@@ -450,7 +441,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
             var inMessage = _databaseSpy.GetInMessageFor(m => m.EbmsRefToMessageId == userMessageId);
             Assert.NotNull(inMessage);
-            Assert.Equal(MessageType.Receipt, inMessage.EbmsMessageType.ToEnum<MessageType>());
+            Assert.Equal(MessageType.Receipt, inMessage.EbmsMessageType);
             Assert.Equal(InStatus.Exception, inMessage.Status.ToEnum<InStatus>());
 
             var inExceptions = _databaseSpy.GetInExceptions(m => m.EbmsRefToMessageId == inMessage.EbmsMessageId);
@@ -467,7 +458,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             // Arrange
             var userMessage = new UserMessage("test-" + Guid.NewGuid())
             {
-                CollaborationInfo = {AgreementReference = {PModeId = "Forward_Push_Multihop"}}
+                CollaborationInfo = new CollaborationInfo(new AgreementReference("agreement", "Forward_Push_Multihop"))
             };
             var multihopPMode = new SendingProcessingMode {MessagePackaging = {IsMultiHop = true}};
             AS4Message multihopMessage = AS4Message.Create(userMessage, multihopPMode);
@@ -482,7 +473,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
             Assert.NotNull(inUserMessage);
             Assert.True(inUserMessage.Intermediary);
-            Assert.Equal(Operation.ToBeForwarded, inUserMessage.Operation.ToEnum<Operation>());
+            Assert.Equal(Operation.ToBeForwarded, inUserMessage.Operation);
         }
 
         [Fact]
@@ -491,7 +482,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             // Arrange
             var userMessage = new UserMessage("test-" + Guid.NewGuid())
             {
-                CollaborationInfo = {AgreementReference = {PModeId = "ComponentTest_ReceiveAgent_Sample1"}}
+                CollaborationInfo = new CollaborationInfo(new AgreementReference("agreement", "ComponentTest_ReceiveAgent_Sample1"))
             };
             var multihopPMode = new SendingProcessingMode {MessagePackaging = {IsMultiHop = true}};
             AS4Message multihopMessage = AS4Message.Create(userMessage, multihopPMode);
@@ -508,7 +499,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
             Assert.NotNull(inUserMessage);
             Assert.False(inUserMessage.Intermediary);
-            Assert.Equal(Operation.ToBeDelivered, inUserMessage.Operation.ToEnum<Operation>());
+            Assert.Equal(Operation.ToBeDelivered, inUserMessage.Operation);
 
             OutMessage outReceipt = _databaseSpy.GetOutMessageFor(m => m.EbmsRefToMessageId == userMessage.MessageId);
             Assert.Equal(OutStatus.Sent, outReceipt.Status.ToEnum<OutStatus>());
@@ -559,7 +550,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
             Assert.NotNull(inMessage);
             Assert.True(inMessage.Intermediary);
-            Assert.Equal(Operation.ToBeForwarded, inMessage.Operation.ToEnum<Operation>());
+            Assert.Equal(Operation.ToBeForwarded, inMessage.Operation);
 
             Stream messageBody = await Registry.Instance
                 .MessageBodyStore
@@ -600,7 +591,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             // Assert
             var inMessage = _databaseSpy.GetInMessageFor(m => m.EbmsRefToMessageId == messageId);
             Assert.NotNull(inMessage);
-            Assert.Equal(Operation.ToBeNotified, inMessage.Operation.ToEnum<Operation>());
+            Assert.Equal(Operation.ToBeNotified, inMessage.Operation);
 
             var outMessage = _databaseSpy.GetOutMessageFor(m => m.EbmsMessageId == messageId);
             Assert.NotNull(outMessage);
@@ -622,7 +613,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
             var inMessage = _databaseSpy.GetInMessageFor(m => m.EbmsMessageId == id);
             Assert.NotNull(inMessage);
-            Assert.Equal(Operation.NotApplicable, inMessage.Operation.ToEnum<Operation>());
+            Assert.Equal(Operation.NotApplicable, inMessage.Operation);
         }
 
         private static AS4Message CreateMultihopSignalMessage(string messageId, string refToMessageId)
@@ -659,7 +650,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                 },
                 CollaborationInfo = new Xml.CollaborationInfo()
                 {
-                    AgreementRef = new Xml.AgreementRef { pmode = "Forward_Push" },
+                    AgreementRef = new AgreementRef { pmode = "Forward_Push" },
                     Action = "Forward_Push_Action",
                     Service = new Xml.Service()
                     {
@@ -755,7 +746,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             InMessage inMessage = _databaseSpy.GetInMessageFor(m => m.EbmsRefToMessageId == expectedId);
             Assert.NotNull(inMessage);
             Assert.Equal(InStatus.Received, inMessage.Status.ToEnum<InStatus>());
-            Assert.Equal(Operation.ToBeNotified, inMessage.Operation.ToEnum<Operation>());
+            Assert.Equal(Operation.ToBeNotified, inMessage.Operation);
         }
 
         // ReSharper disable once UnusedParameter.Local

@@ -2,6 +2,8 @@
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Steps.Receive.Rules;
 using Xunit;
+using AgreementReference = Eu.EDelivery.AS4.Model.Core.AgreementReference;
+using CollaborationInfo = Eu.EDelivery.AS4.Model.Core.CollaborationInfo;
 
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive.Rules
 {
@@ -17,7 +19,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive.Rules
             {
                 // Arrange
                 var userMessage = new UserMessage(messageId: "message-id");
-                userMessage.CollaborationInfo.AgreementReference.PModeId = pmodeId;
+                userMessage.CollaborationInfo = new CollaborationInfo(new AgreementReference(string.Empty, pmodeId));
                 var receivingPMode = new ReceivingProcessingMode {Id = pmodeId};
                 var rule = new PModeIdRule();
                 // Act

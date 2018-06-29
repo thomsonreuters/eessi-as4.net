@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Extensions;
@@ -89,7 +88,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
             {
                 Assert.NotNull(inmessage);
                 Assert.Equal(InStatus.Delivered, inmessage.Status.ToEnum<InStatus>());
-                Assert.Equal(Operation.Delivered, inmessage.Operation.ToEnum<Operation>());
+                Assert.Equal(Operation.Delivered, inmessage.Operation);
             });
         }
 
@@ -127,7 +126,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
             {
                 Assert.NotNull(inMessage);
                 Assert.Equal(input.ExpectedStatus, inMessage.Status.ToEnum<InStatus>());
-                Assert.Equal(input.ExpectedOperation, inMessage.Operation.ToEnum<Operation>());
+                Assert.Equal(input.ExpectedOperation, inMessage.Operation);
             });
         }
 
@@ -135,7 +134,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
         {
             var m = new InMessage(id);
             m.SetStatus(status);
-            m.SetOperation(operation);
+            m.Operation= operation;
 
             return m;
         }

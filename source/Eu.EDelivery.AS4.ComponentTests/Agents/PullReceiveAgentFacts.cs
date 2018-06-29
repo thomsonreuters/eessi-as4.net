@@ -14,6 +14,8 @@ using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.TestUtils.Stubs;
 using Xunit;
+using AgreementReference = Eu.EDelivery.AS4.Model.Core.AgreementReference;
+using CollaborationInfo = Eu.EDelivery.AS4.Model.Core.CollaborationInfo;
 
 namespace Eu.EDelivery.AS4.ComponentTests.Agents
 {
@@ -78,12 +80,12 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                 userMessage1 =>
                 {
                     Assert.Equal(InStatus.Received, userMessage1.Status.ToEnum<InStatus>());
-                    Assert.Equal(Operation.ToBeDelivered, userMessage1.Operation.ToEnum<Operation>());
+                    Assert.Equal(Operation.ToBeDelivered, userMessage1.Operation);
                 },
                 userMessage2 =>
                 {
                     Assert.Equal(InStatus.Received, userMessage2.Status.ToEnum<InStatus>());
-                    Assert.Equal(Operation.ToBeDelivered, userMessage2.Operation.ToEnum<Operation>());
+                    Assert.Equal(Operation.ToBeDelivered, userMessage2.Operation);
                 });
             Assert.Collection(
                 _databaseSpy.GetOutMessages(storedMessageId),
@@ -93,7 +95,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         private void StoreToBeAckOutMessage(string storedMessageId)
         {
             var storedUserMessage = new OutMessage(ebmsMessageId: storedMessageId);
-            storedUserMessage.SetEbmsMessageType(MessageType.UserMessage);
+            storedUserMessage.EbmsMessageType = MessageType.UserMessage;
             storedUserMessage.SetStatus(OutStatus.Sent);
 
             _databaseSpy.InsertOutMessage(storedUserMessage);
@@ -102,9 +104,10 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         private static AS4Message CreateBundledMultipleUserMessagesWithRefTo()
         {
             var userMessage1 = new UserMessage(messageId: "user1-" + Guid.NewGuid());
-            userMessage1.CollaborationInfo.AgreementReference.PModeId = "pullreceive_bundled_pmode";
+            userMessage1.CollaborationInfo = new CollaborationInfo(new AgreementReference(string.Empty, "pullreceive_bundled_pmode"));
+
             var userMessage2 = new UserMessage(messageId: "user2-" + Guid.NewGuid());
-            userMessage1.CollaborationInfo.AgreementReference.PModeId = "some-other-pmode-id";
+            userMessage2.CollaborationInfo = new CollaborationInfo(new AgreementReference(string.Empty, "some-other-pmode-id"));
 
             var bundled = AS4Message.Create(userMessage1);
             bundled.AddMessageUnit(userMessage2);

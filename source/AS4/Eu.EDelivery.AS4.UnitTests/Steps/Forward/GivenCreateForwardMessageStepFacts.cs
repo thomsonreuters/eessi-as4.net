@@ -1,10 +1,8 @@
 ﻿using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
-using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
@@ -40,13 +38,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Forward
                 {
                     OutMessage outMessage = db.OutMessages.First(m => m.EbmsMessageId == receivedInMessage.EbmsMessageId);
 
-                    Assert.Equal(Operation.ToBeProcessed, outMessage.Operation.ToEnum<Operation>());
+                    Assert.Equal(Operation.ToBeProcessed, outMessage.Operation);
                     Assert.Equal(messagingContext.SendingPMode.MessagePackaging.Mpc, outMessage.Mpc);
-                    Assert.Equal(messagingContext.SendingPMode.MepBinding.ToString(), outMessage.MEP);
+                    Assert.Equal(messagingContext.SendingPMode.MepBinding.ToString(), outMessage.MEP.ToString());
 
                     InMessage inMessage = db.InMessages.First(m => m.EbmsMessageId == receivedInMessage.EbmsMessageId);
 
-                    Assert.Equal(Operation.Forwarded, inMessage.Operation.ToEnum<Operation>());
+                    Assert.Equal(Operation.Forwarded, inMessage.Operation);
                 }
             }
 
@@ -81,8 +79,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Forward
                     Intermediary = true
                 };
 
-                result.SetEbmsMessageType(MessageType.UserMessage);
-                result.SetOperation(Operation.ToBeForwarded);
+                result.EbmsMessageType = MessageType.UserMessage;
+                result.Operation = Operation.ToBeForwarded;
 
                 result.AssignAS4Properties(message.PrimaryMessageUnit);
 
@@ -96,7 +94,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Forward
                 using (DatastoreContext db = GetDataStoreContext())
                 {
                     InMessage inMessage =
-                        db.InMessages.First(m => m.Operation.ToEnum<Operation>() == Operation.ToBeForwarded);
+                        db.InMessages.First(m => m.Operation == Operation.ToBeForwarded);
 
                     receivedMessage = new ReceivedMessageEntityMessage(inMessage, Stream.Null, "");
                 }

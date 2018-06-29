@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.ComponentTests.Common;
 using Eu.EDelivery.AS4.Entities;
-using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
@@ -16,6 +15,7 @@ using Eu.EDelivery.AS4.Xml;
 using Xunit;
 using Encryption = Eu.EDelivery.AS4.Model.PMode.Encryption;
 using PartyId = Eu.EDelivery.AS4.Model.Core.PartyId;
+using Party = Eu.EDelivery.AS4.Model.Core.Party;
 using Receipt = Eu.EDelivery.AS4.Model.Core.Receipt;
 using Signing = Eu.EDelivery.AS4.Model.PMode.Signing;
 using UserMessage = Eu.EDelivery.AS4.Model.Core.UserMessage;
@@ -90,8 +90,8 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             // Arrange
             var multihopPMode = new SendingProcessingMode
             {
-                MessagePackaging = {IsMultiHop = true, UseAS4Compression = pmodeInfo.useCompression},
-                Security = {Signing = pmodeInfo.signing, Encryption = pmodeInfo.encryption}
+                MessagePackaging = { IsMultiHop = true, UseAS4Compression = pmodeInfo.useCompression },
+                Security = { Signing = pmodeInfo.signing, Encryption = pmodeInfo.encryption }
             };
             AS4Message multihopMessage = createMessage(multihopPMode);
 
@@ -107,7 +107,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             OutMessage processedEntry = datastoreSpy.GetOutMessageFor(
                 m => m.EbmsMessageId == multihopMessage.GetPrimaryMessageId());
 
-            Assert.Equal(Operation.ToBeSent, processedEntry.Operation.ToEnum<Operation>());
+            Assert.Equal(Operation.ToBeSent, processedEntry.Operation);
             Assert.False(processedEntry.Intermediary);
 
             AS4Message processedMessage =
@@ -119,7 +119,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         private static AS4Message CreateUserMessage(SendingProcessingMode pmode)
         {
             var msg = AS4Message.Create(
-                pmode: pmode, 
+                pmode: pmode,
                 message: new UserMessage("test-" + Guid.NewGuid())
                 {
                     Sender = new Party("sender-role", new PartyId("sender-id")),
@@ -149,19 +149,19 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                     {
                         To = new To
                         {
-                            PartyId = new[] {new Xml.PartyId {Value = "org:eu:europa:as4:example:accesspoint:B"}},
+                            PartyId = new[] { new Xml.PartyId { Value = "org:eu:europa:as4:example:accesspoint:B" } },
                             Role = "Receiver"
                         },
                         From = new From
                         {
-                            PartyId = new[] {new Xml.PartyId {Value = "org:eu:europa:as4:example:accesspoint:A"}},
+                            PartyId = new[] { new Xml.PartyId { Value = "org:eu:europa:as4:example:accesspoint:A" } },
                             Role = "Sender"
                         }
                     },
                     CollaborationInfo = new Xml.CollaborationInfo
                     {
                         Action = "OutboundProcessing_Action",
-                        Service = new Xml.Service {Value = "OutboundProcessing_Service", type = "eu:europa:services"}
+                        Service = new Xml.Service { Value = "OutboundProcessing_Service", type = "eu:europa:services" }
                     }
                 }
             };
@@ -217,14 +217,14 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                 ContentType = msg.ContentType,
                 MessageLocation = bodyStore.SaveAS4Message(location, msg)
             };
-            tobeProcessedEntry.SetOperation(Operation.ToBeProcessed);
+            tobeProcessedEntry.Operation = Operation.ToBeProcessed;
             tobeProcessedEntry.SetPModeInformation(pmode);
 
             return tobeProcessedEntry;
         }
 
         private static async Task<AS4Message> DeserializeOutMessageBody(
-            IAS4MessageBodyStore bodyStore, 
+            IAS4MessageBodyStore bodyStore,
             OutMessage processedEntry)
         {
             using (Stream output = await bodyStore.LoadMessageBodyAsync(processedEntry.MessageLocation))

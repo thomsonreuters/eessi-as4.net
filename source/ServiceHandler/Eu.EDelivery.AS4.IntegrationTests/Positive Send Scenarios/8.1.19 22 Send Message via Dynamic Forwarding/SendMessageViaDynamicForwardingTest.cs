@@ -9,8 +9,11 @@ using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Streaming;
 using Xunit;
+using AgreementReference = Eu.EDelivery.AS4.Model.Core.AgreementReference;
 using CollaborationInfo = Eu.EDelivery.AS4.Model.Core.CollaborationInfo;
 using Service = Eu.EDelivery.AS4.Model.Core.Service;
+using Party = Eu.EDelivery.AS4.Model.Core.Party;
+using PartyId = Eu.EDelivery.AS4.Model.Core.PartyId;
 
 namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._19_22_Send_Message_via_Dynamic_Forwarding
 {
@@ -186,34 +189,30 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._19_22
             var user = new UserMessage(Guid.NewGuid().ToString())
             {
                 CollaborationInfo = HolodeckCollaboration(argRefPModeId),
-                Receiver = new Party(HolodeckPartyRole, new PartyId(HolodeckBId) { Type = HolodeckBId }),
+                Receiver = new Party(HolodeckPartyRole, new PartyId(HolodeckBId, HolodeckBId)),
             };
-
-            AS4Message userMessage = AS4Message.Create(user, new SendingProcessingMode {MessagePackaging = {IsMultiHop = true}});
-            userMessage.AddAttachment(
-                attachment: ImageAttachment(id: "earth"),
-                partProperties: new Dictionary<string, string>
+            user.AddPartInfo(new PartInfo(
+                href: "cid:earth", 
+                properties: new Dictionary<string, string>
                 {
                     ["Part Property"] = "Some Holodeck required Part Property"
-                },
-                partSchemas: new Schema[0]);
+                }, 
+                schemas: new Schema[0]));
+
+            AS4Message userMessage = AS4Message.Create(user, new SendingProcessingMode {MessagePackaging = {IsMultiHop = true}});
+
+            userMessage.AddAttachment(ImageAttachment(id: "earth"));
 
             return userMessage;
         }
 
         private static CollaborationInfo HolodeckCollaboration(string argRefPModeId)
         {
-            return new CollaborationInfo
-            { 
-                AgreementReference =
-                {
-                    PModeId = argRefPModeId,
-                    Value = "http://agreements.holodeckb2b.org/examples/agreement0"
-                },
-                ConversationId = "eu:edelivery:as4:sampleconversation",
-                Action = Constants.Namespaces.TestAction,
-                Service = Service.TestService
-            };
+            return new CollaborationInfo(
+                new AgreementReference("http://agreements.holodeckb2b.org/examples/agreement0", argRefPModeId),
+                new Service(Constants.Namespaces.TestService, Constants.Namespaces.TestService), 
+                Constants.Namespaces.TestAction,
+                "eu:edelivery:as4:sampleconversation");
         }
 
         private static Attachment ImageAttachment(string id)

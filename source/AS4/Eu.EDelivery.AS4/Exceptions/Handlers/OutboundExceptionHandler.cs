@@ -127,7 +127,7 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
 
             SendHandling handling = context.SendingPMode?.ExceptionHandling;
             bool needsToBeNotified = handling?.NotifyMessageProducer == true;
-            outEx.SetOperation(needsToBeNotified ? Operation.ToBeNotified : default(Operation));
+            outEx.Operation = needsToBeNotified ? Operation.ToBeNotified : default(Operation);
 
             return outEx;
         }

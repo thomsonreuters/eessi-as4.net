@@ -13,6 +13,8 @@ using Eu.EDelivery.AS4.Model.Notify;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Singletons;
 using NLog;
+using AgreementReference = Eu.EDelivery.AS4.Model.Core.AgreementReference;
+using CollaborationInfo = Eu.EDelivery.AS4.Model.Core.CollaborationInfo;
 using Service = Eu.EDelivery.AS4.Model.Core.Service;
 using MessageProperty = Eu.EDelivery.AS4.Model.Core.MessageProperty;
 
@@ -112,14 +114,14 @@ namespace Eu.EDelivery.AS4.Transformers
                 MessageEntity ent = db.InMessages.FirstOrDefault(
                     m =>
                         m.EbmsMessageId == signalMessage.RefToMessageId &&
-                        m.EbmsMessageType == MessageType.UserMessage.ToString());
+                        m.EbmsMessageType == MessageType.UserMessage);
 
                 if (ent == null)
                 {
                     ent = db.OutMessages.FirstOrDefault(
                         m =>
                             m.EbmsMessageId == signalMessage.RefToMessageId &&
-                            m.EbmsMessageType == MessageType.UserMessage.ToString());
+                            m.EbmsMessageType == MessageType.UserMessage);
                 }
 
                 if (ent != null)
@@ -145,7 +147,11 @@ namespace Eu.EDelivery.AS4.Transformers
 
         private void AssignMinderProperties(UserMessage userMessage, SignalMessage signalMessage)
         {
-            AssignToPartyIdentification(userMessage);
+            userMessage.Receiver = 
+                new Model.Core.Party(
+                    role: $"{MinderUriPrefix}/testdriver", 
+                    partyId: new Model.Core.PartyId(id: "minder"));
+
             AssignServiceAction(userMessage);
 
             if (signalMessage != null)
@@ -159,16 +165,12 @@ namespace Eu.EDelivery.AS4.Transformers
 
         private void AssignServiceAction(UserMessage userMessage)
         {
-            userMessage.CollaborationInfo.Action = "Notify";
-            userMessage.CollaborationInfo.Service = new Service(
-                value: MinderUriPrefix, 
-                type: userMessage.CollaborationInfo.Service?.Type.GetOrElse(String.Empty));
-        }
+            userMessage.CollaborationInfo = new CollaborationInfo(
+                Maybe<AgreementReference>.Nothing,
+                new Service(MinderUriPrefix),
+                "Notify",
+                CollaborationInfo.DefaultConversationId);
 
-        private void AssignToPartyIdentification(UserMessage userMessage)
-        {
-            userMessage.Receiver.PartyIds.First().Id = "minder";
-            userMessage.Receiver.Role = $"{MinderUriPrefix}/testdriver";
         }
     }
 }

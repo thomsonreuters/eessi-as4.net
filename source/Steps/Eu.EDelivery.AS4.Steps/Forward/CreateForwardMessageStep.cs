@@ -38,8 +38,8 @@ namespace Eu.EDelivery.AS4.Steps.Forward
         /// <param name="messageStore">The store where the datastore persist its messages.</param>
         /// <param name="createDatastoreContext">Create a new datastore context.</param>
         public CreateForwardMessageStep(
-            IConfig configuration, 
-            IAS4MessageBodyStore messageStore, 
+            IConfig configuration,
+            IAS4MessageBodyStore messageStore,
             Func<DatastoreContext> createDatastoreContext)
         {
             _configuration = configuration;
@@ -94,7 +94,7 @@ namespace Eu.EDelivery.AS4.Steps.Forward
                     outMessage.IsDuplicate = receivedInMessage.IsDuplicate;
                     outMessage.MessageLocation = outLocation;
                     outMessage.Mpc = messagingContext.SendingPMode.MessagePackaging?.Mpc ?? Constants.Namespaces.EbmsDefaultMpc;
-                    outMessage.SetOperation(Operation.ToBeProcessed);
+                    outMessage.Operation = Operation.ToBeProcessed;
 
                     Logger.Debug(messagingContext.LogTag + "Insert OutMessage { Intermediary=true, Operation=ToBeProcesed }");
                     repository.InsertOutMessage(outMessage);
@@ -103,7 +103,7 @@ namespace Eu.EDelivery.AS4.Steps.Forward
                     // We do this for all InMessages that are present in this AS4 Message
                     repository.UpdateInMessages(
                         m => msg.MessageIds.Contains(m.EbmsMessageId),
-                        r => r.SetOperation(Operation.Forwarded));
+                        r => r.Operation = Operation.Forwarded);
 
                     await dbContext.SaveChangesAsync();
                 }

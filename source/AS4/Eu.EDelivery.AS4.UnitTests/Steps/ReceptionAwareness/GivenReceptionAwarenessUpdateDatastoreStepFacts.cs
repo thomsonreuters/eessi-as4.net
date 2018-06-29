@@ -46,7 +46,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.ReceptionAwareness
                 // Assert
                 AssertReceptionAwareness(
                     awareness.RefToEbmsMessageId,
-                    x => Assert.Equal(ReceptionStatus.Completed, x.Status.ToEnum<ReceptionStatus>()));
+                    x => Assert.Equal(ReceptionStatus.Completed, x.Status));
             }
 
             private EntityReceptionAwareness InsertAlreadyAnsweredMessage()
@@ -88,7 +88,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.ReceptionAwareness
                 AssertNotNullInMessage(awareness.RefToEbmsMessageId);
                 AssertReceptionAwareness(
                     awareness.RefToEbmsMessageId,
-                    x => Assert.Equal(ReceptionStatus.Completed, x.Status.ToEnum<ReceptionStatus>()));
+                    x => Assert.Equal(ReceptionStatus.Completed, x.Status));
             }
 
             private void AssertNotNullInMessage(string messageId)
@@ -115,10 +115,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.ReceptionAwareness
                 await step.ExecuteAsync(messagingContext);
 
                 // Assert
-                AssertOutMessage(awareness.RefToEbmsMessageId, x => Assert.Equal(Operation.ToBeSent, x.Operation.ToEnum<Operation>()));
+                AssertOutMessage(awareness.RefToEbmsMessageId, x => Assert.Equal(Operation.ToBeSent, x.Operation));
                 AssertReceptionAwareness(
                     awareness.RefToEbmsMessageId,
-                    x => Assert.Equal(ReceptionStatus.Pending, x.Status.ToEnum<ReceptionStatus>()));
+                    x => Assert.Equal(ReceptionStatus.Pending, x.Status));
             }
 
             private EntityReceptionAwareness CreateOutMessageWithReceptionAwareness(int currentRetryCount = 0, ReceptionStatus status = ReceptionStatus.Pending)
@@ -136,7 +136,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.ReceptionAwareness
                     EntityReceptionAwareness awareness = CreateDefaultReceptionAwarenessFor(outMessage);
 
                     awareness.CurrentRetryCount = currentRetryCount;
-                    awareness.SetStatus(status);
+                    awareness.Status = status;
 
                     context.ReceptionAwareness.Add(awareness);
 
@@ -185,7 +185,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.ReceptionAwareness
                 TotalRetryCount = 5
             };
 
-            receptionAwareness.SetStatus(ReceptionStatus.Pending);
+            receptionAwareness.Status = ReceptionStatus.Pending;
 
             return receptionAwareness;
         }

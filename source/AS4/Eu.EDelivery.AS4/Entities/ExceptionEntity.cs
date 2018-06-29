@@ -69,7 +69,7 @@ namespace Eu.EDelivery.AS4.Entities
         /// </summary>
         protected internal ExceptionEntity()
         {
-            SetOperation(default(Operation));
+            Operation = default(Operation);
 
             InsertionTime = DateTimeOffset.Now;
             ModificationTime = DateTimeOffset.Now;
@@ -96,14 +96,9 @@ namespace Eu.EDelivery.AS4.Entities
             this.Exception = errorMessage;
         }
 
-        public void SetOperation(Operation operation)
-        {
-            Operation = operation.ToString();
-        }
-
         [Column("Operation")]
         [MaxLength(50)]
-        public string Operation { get; private set; }
+        public Operation Operation { get; set; }
 
         /// <summary>
         /// Update the <see cref="Entity" /> to lock it with a given <paramref name="value" />.
@@ -113,9 +108,9 @@ namespace Eu.EDelivery.AS4.Entities
         {
             var updatedOperation = value.ToEnum<Operation>();
 
-            if (updatedOperation != AS4.Entities.Operation.NotApplicable)
+            if (updatedOperation != Operation.NotApplicable)
             {
-                SetOperation(updatedOperation);
+                Operation = updatedOperation;
             }
         }
     }

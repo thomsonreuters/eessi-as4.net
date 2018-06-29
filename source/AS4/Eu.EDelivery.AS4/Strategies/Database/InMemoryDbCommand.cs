@@ -6,7 +6,6 @@ using System.Linq.Dynamic.Core;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
-using Eu.EDelivery.AS4.Extensions;
 
 namespace Eu.EDelivery.AS4.Strategies.Database
 {
@@ -14,13 +13,13 @@ namespace Eu.EDelivery.AS4.Strategies.Database
     {
         private readonly DatastoreContext _context;
 
-        private static readonly IDictionary<string, Func<Entity, string>> GetOperationString = 
-            new Dictionary<string, Func<Entity, string>>
+        private static readonly IDictionary<string, Func<Entity, Operation>> GetOperation = 
+            new Dictionary<string, Func<Entity, Operation>>
             {
-                ["OutMessages"] = e => (e as OutMessage)?.Operation,
-                ["InMessages"] = e => (e as InMessage)?.Operation,
-                ["OutExceptions"] = e => (e as OutException)?.Operation,
-                ["InExceptions"] = e => (e as InException)?.Operation
+                ["OutMessages"] = e => ((OutMessage)e).Operation,
+                ["InMessages"] = e => ((InMessage)e).Operation,
+                ["OutExceptions"] = e => ((OutException)e).Operation,
+                ["InExceptions"] = e => ((InException)e).Operation
             };
 
         /// <summary>
@@ -78,9 +77,7 @@ namespace Eu.EDelivery.AS4.Strategies.Database
                 DatastoreTable.FromTableName(tableName)(_context)
                               .Cast<Entity>()
                               .Where(x => x.InsertionTime < DateTimeOffset.Now.Subtract(retentionPeriod)
-                                          && allowedOperations.Contains(
-                                              (GetOperationString[tableName](x) ??
-                                               Operation.NotApplicable.ToString()).ToEnum<Operation>()));
+                                          && allowedOperations.Contains(GetOperation[tableName](x)));
 
             if (tableName.Equals("OutMessages"))
             {

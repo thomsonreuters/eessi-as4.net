@@ -113,32 +113,16 @@ namespace Eu.EDelivery.AS4.Entities
         [MaxLength(512)]
         public string MessageLocation { get; set; }
 
-        public void SetOperation(Operation operation)
-        {
-            Operation = operation.ToString();
-        }
-
         [Column("Operation")]
         [MaxLength(50)]
-        public string Operation { get; private set; }
-
+        public Operation Operation { get; set; }
 
         [Column("MEP")]
         [MaxLength(25)]
-        public string MEP { get; private set; }
-
-        public void SetMessageExchangePattern(MessageExchangePattern mep)
-        {
-            MEP = mep.ToString();
-        }
+        public MessageExchangePattern MEP { get; set; }
 
         [MaxLength(50)]
-        public string EbmsMessageType { get; private set; }
-
-        public void SetEbmsMessageType(MessageType messageType)
-        {
-            EbmsMessageType = messageType.ToString();
-        }
+        public MessageType EbmsMessageType { get; set; }
 
         [Column("Status")]
         [MaxLength(50)]
@@ -151,9 +135,9 @@ namespace Eu.EDelivery.AS4.Entities
         /// </summary>
         protected MessageEntity()
         {
-            SetOperation(default(Operation));
-            SetEbmsMessageType(default(MessageType));
-            SetMessageExchangePattern(default(MessageExchangePattern));
+            Operation = default(Operation);
+            EbmsMessageType = default(MessageType);
+            MEP = default(MessageExchangePattern);
         }
 
         /// <summary>
@@ -200,9 +184,9 @@ namespace Eu.EDelivery.AS4.Entities
         {
             var updatedOperation = value.ToEnum<Operation>();
 
-            if (updatedOperation != AS4.Entities.Operation.NotApplicable)
+            if (updatedOperation != Operation.NotApplicable)
             {
-                SetOperation(updatedOperation);
+                Operation = updatedOperation;
             }
         }
 

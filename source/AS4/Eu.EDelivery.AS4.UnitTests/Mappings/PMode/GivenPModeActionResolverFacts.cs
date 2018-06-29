@@ -20,10 +20,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.PMode
                 {
                     MessagePackaging = {CollaborationInfo = new AS4.Model.PMode.CollaborationInfo {Action = "action"}}
                 };
-                var resolver = new PModeActionResolver();
 
                 // Act
-                string action = resolver.Resolve(pmode);
+                string action = PModeActionResolver.ResolveAction(pmode);
 
                 // Assert
                 Assert.Equal(pmode.MessagePackaging.CollaborationInfo.Action, action);
@@ -34,10 +33,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.PMode
             {
                 // Arrange
                 var pmode = new SendingProcessingMode();
-                var resolver = new PModeActionResolver();
 
                 // Act
-                string action = resolver.Resolve(pmode);
+                string action = PModeActionResolver.ResolveAction(pmode);
 
                 // Assert
                 Assert.Equal(Constants.Namespaces.TestAction, action);

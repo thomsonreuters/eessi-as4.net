@@ -24,7 +24,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Core
             var actualInfo = AS4Mapper.Map<AS4.Model.Core.CollaborationInfo>(expectedInfo);
 
             // Assert
-            Assert.Equal(expectedRef, actualInfo.AgreementReference.Value);
+            Assert.Equal(Maybe.Just(expectedRef), actualInfo.AgreementReference.Select(a => a.Value));
         }
 
         [Fact]

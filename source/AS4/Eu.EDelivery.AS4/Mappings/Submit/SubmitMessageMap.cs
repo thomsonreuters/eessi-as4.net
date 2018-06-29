@@ -9,55 +9,45 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
         public SubmitMessageMap()
         {
             CreateMap<Model.Submit.SubmitMessage, Model.Core.UserMessage>()
-
-                // 1. SubmitMessage / MessageInfo / MessageId
-                // 2. Generated according to Settings / GuidFormat
                 .ForMember(dest => dest.MessageId, src => src.Ignore())
-
-                // 1. SubmitMessage / MessageInfo / EbmsRefToMessageId 
-                // 2. No EbmsRefToMessageId element
                 .ForMember(dest => dest.RefToMessageId, src => src.MapFrom(s => s.MessageInfo.RefToMessageId))
-
-                // 1. Generated. In UTC and in XML schema Date Time format (ISO8601), with the ‘Z’ time zone indicator being optional.
                 .ForMember(dest => dest.Timestamp, src => src.Ignore())
-
-                .ForMember(dest => dest.Sender, src => src.ResolveUsing(SubmitSenderPartyResolver.Default.Resolve))
-                .ForMember(dest => dest.Receiver, src => src.ResolveUsing(SubmitReceiverResolver.Default.Resolve))
-
-                .ForMember(dest => dest.CollaborationInfo, src => src.MapFrom(s => s.Collaboration))
                 .ForMember(dest => dest.IsTest, src => src.Ignore())
                 .ForMember(dest => dest.IsDuplicate, src => src.Ignore())
                 .ForMember(dest => dest.Mpc, src => src.Ignore())
                 .AfterMap(
-                    (submitMessage, userMessage) =>
+                    (submit, user) =>
                     {
-                        userMessage.MessageId = submitMessage.MessageInfo?.MessageId ?? IdentifierFactory.Instance.Create();
+                        user.MessageId = submit.MessageInfo?.MessageId ?? IdentifierFactory.Instance.Create();
 
-                        new SubmitMessageAgreementMapper().Map(submitMessage, userMessage);
+                        user.Sender = SubmitSenderResolver.ResolveSender(submit);
+                        user.Receiver = SubmitReceiverResolver.ResolveReceiver(submit);
 
-                        userMessage.Mpc = SubmitMpcResolver.Default.Resolve(submitMessage);
-                        userMessage.CollaborationInfo.Service = SubmitServiceResolver.Default.Resolve(submitMessage);
-                        userMessage.CollaborationInfo.Action =  SubmitActionResolver.Default.Resolve(submitMessage);
-                        userMessage.CollaborationInfo.ConversationId = SubmitConversationIdResolver.Default.Resolve(submitMessage);
+                        user.Mpc = SubmitMpcResolver.Default.Resolve(submit);
+                        user.CollaborationInfo = new Model.Core.CollaborationInfo(
+                            SubmitMessageAgreementResolver.ResolveAgreementReference(submit, user),
+                            SubmitServiceResolver.ResolveService(submit),
+                            SubmitActionResolver.ResolveAction(submit),
+                            SubmitConversationIdResolver.ResolveConverstationId(submit));
 
-                        if (submitMessage.HasPayloads)
+                        if (submit.HasPayloads)
                         {
                             foreach (Model.Core.PartInfo p in 
-                                SubmitPayloadInfoResolver.Default.Resolve(submitMessage))
+                                SubmitPayloadInfoResolver.Default.Resolve(submit))
                             {
-                                userMessage.AddPartInfo(p);
+                                user.AddPartInfo(p);
                             }
                         }
 
-                        if (submitMessage.MessageProperties?.Any() == true)
+                        if (submit.MessageProperties?.Any() == true)
                         {
                             foreach (Model.Core.MessageProperty p in
-                                SubmitMessagePropertiesResolver.Default.Resolve(submitMessage))
+                                SubmitMessagePropertiesResolver.Default.Resolve(submit))
                             {
-                                userMessage.AddMessageProperty(p);
+                                user.AddMessageProperty(p);
                             }
                         }
-                    });
+                    }).ForAllOtherMembers(x => x.Ignore());
         }
     }
 }

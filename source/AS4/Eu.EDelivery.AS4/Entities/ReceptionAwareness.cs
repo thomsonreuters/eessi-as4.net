@@ -1,6 +1,5 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 using Eu.EDelivery.AS4.Extensions;
 
 namespace Eu.EDelivery.AS4.Entities
@@ -31,15 +30,10 @@ namespace Eu.EDelivery.AS4.Entities
         public DateTimeOffset? LastSendTime { get; set; }
 
         [MaxLength(25)]
-        public string Status
+        public ReceptionStatus Status
         {
             get;
-            private set;
-        }
-
-        public void SetStatus(ReceptionStatus status)
-        {
-            this.Status = status.ToString();
+            set;
         }
 
         /// <summary>
@@ -47,7 +41,7 @@ namespace Eu.EDelivery.AS4.Entities
         /// </summary>
         private ReceptionAwareness()
         {
-            SetStatus(default(ReceptionStatus));
+            Status = default(ReceptionStatus);
         }
 
         public ReceptionAwareness(long refToOutMessageId, string refToEbmsMessageId) : this()
@@ -72,7 +66,7 @@ namespace Eu.EDelivery.AS4.Entities
         {
             var updatedStatus = value.ToEnum<ReceptionStatus>();
 
-            SetStatus(updatedStatus);
+            Status = updatedStatus;
         }
     }
 

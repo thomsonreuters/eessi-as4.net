@@ -5,16 +5,15 @@ using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Agents;
 using Eu.EDelivery.AS4.ComponentTests.Common;
 using Eu.EDelivery.AS4.Entities;
-using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.TestUtils.Stubs;
 using Xunit;
+using AgreementReference = Eu.EDelivery.AS4.Model.Core.AgreementReference;
 using CollaborationInfo = Eu.EDelivery.AS4.Model.Core.CollaborationInfo;
 using MessageExchangePattern = Eu.EDelivery.AS4.Entities.MessageExchangePattern;
 
@@ -67,12 +66,12 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             var outMessage = _databaseSpy.GetOutMessageFor(m => m.EbmsMessageId == messageId);
 
             Assert.NotNull(inMessage);
-            Assert.Equal(Operation.Forwarded, inMessage.Operation.ToEnum<Operation>());
+            Assert.Equal(Operation.Forwarded, inMessage.Operation);
             Assert.NotNull(AS4XmlSerializer.FromString<ReceivingProcessingMode>(inMessage.PMode));
 
             Assert.NotNull(outMessage);
             Assert.True(outMessage.Intermediary);
-            Assert.Equal(Operation.ToBeProcessed, outMessage.Operation.ToEnum<Operation>());
+            Assert.Equal(Operation.ToBeProcessed, outMessage.Operation);
             Assert.NotNull(AS4XmlSerializer.FromString<SendingProcessingMode>(outMessage.PMode));
         }
 
@@ -98,15 +97,15 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             var secondaryOutMessage = _databaseSpy.GetOutMessageFor(m => m.EbmsMessageId == secondMessageId);
 
             Assert.NotNull(primaryInMessage);
-            Assert.Equal(Operation.Forwarded, primaryInMessage.Operation.ToEnum<Operation>());
+            Assert.Equal(Operation.Forwarded, primaryInMessage.Operation);
             Assert.NotNull(AS4XmlSerializer.FromString<ReceivingProcessingMode>(primaryInMessage.PMode));
 
             Assert.NotNull(secondaryInMessage);
-            Assert.Equal(Operation.Forwarded, primaryInMessage.Operation.ToEnum<Operation>());
+            Assert.Equal(Operation.Forwarded, primaryInMessage.Operation);
             Assert.NotNull(AS4XmlSerializer.FromString<ReceivingProcessingMode>(primaryInMessage.PMode));
 
             Assert.NotNull(primaryOutMessage);
-            Assert.Equal(Operation.ToBeProcessed, primaryOutMessage.Operation.ToEnum<Operation>());
+            Assert.Equal(Operation.ToBeProcessed, primaryOutMessage.Operation);
             Assert.NotNull(AS4XmlSerializer.FromString<SendingProcessingMode>(primaryOutMessage.PMode));
 
             Assert.Null(secondaryOutMessage);
@@ -131,7 +130,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             var outMessage = _databaseSpy.GetOutMessageFor(m => m.EbmsMessageId == messageId);
 
             Assert.NotNull(inMessage);
-            Assert.Equal(Operation.Forwarded, inMessage.Operation.ToEnum<Operation>());
+            Assert.Equal(Operation.Forwarded, inMessage.Operation);
 
             var receivingPMode = AS4XmlSerializer.FromString<ReceivingProcessingMode>(inMessage.PMode);
 
@@ -142,8 +141,8 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             var sendingPMode = AS4XmlSerializer.FromString<SendingProcessingMode>(outMessage.PMode);
 
             Assert.NotNull(sendingPMode);
-            Assert.Equal(Operation.ToBeProcessed, outMessage.Operation.ToEnum<Operation>());
-            Assert.Equal(MessageExchangePattern.Pull, outMessage.MEP.ToEnum<MessageExchangePattern>());
+            Assert.Equal(Operation.ToBeProcessed, outMessage.Operation);
+            Assert.Equal(MessageExchangePattern.Pull, outMessage.MEP);
             Assert.Equal(sendingPMode.MessagePackaging.Mpc, outMessage.Mpc);
         }
 
@@ -172,7 +171,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             var outMessage = _databaseSpy.GetOutMessageFor(m => m.EbmsMessageId == messageId);
 
             Assert.NotNull(inMessage);
-            Assert.Equal(Operation.Forwarded, inMessage.Operation.ToEnum<Operation>());
+            Assert.Equal(Operation.Forwarded, inMessage.Operation);
 
             var receivingPMode = AS4XmlSerializer.FromString<ReceivingProcessingMode>(inMessage.PMode);
 
@@ -183,8 +182,8 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             var sendingPMode = AS4XmlSerializer.FromString<SendingProcessingMode>(outMessage.PMode);
 
             Assert.NotNull(sendingPMode);
-            Assert.Equal(Operation.ToBeProcessed, outMessage.Operation.ToEnum<Operation>());
-            Assert.Equal(MessageExchangePattern.Push, outMessage.MEP.ToEnum<MessageExchangePattern>());
+            Assert.Equal(Operation.ToBeProcessed, outMessage.Operation);
+            Assert.Equal(MessageExchangePattern.Push, outMessage.MEP);
             Assert.Equal(sendingPMode.MessagePackaging.Mpc, outMessage.Mpc);
 
         }
@@ -235,10 +234,11 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             // and processed with a specific receiving PMode.
             if (as4Message.FirstUserMessage != null)
             {
-                as4Message.FirstUserMessage.CollaborationInfo = new CollaborationInfo
-                {
-                    AgreementReference = new AgreementReference(pmodeId)
-                };
+                as4Message.FirstUserMessage.CollaborationInfo = 
+                    new CollaborationInfo(new AgreementReference(
+                        value: String.Empty,
+                        type: String.Empty,
+                        pModeId: pmodeId));
             }
 
             return as4Message;

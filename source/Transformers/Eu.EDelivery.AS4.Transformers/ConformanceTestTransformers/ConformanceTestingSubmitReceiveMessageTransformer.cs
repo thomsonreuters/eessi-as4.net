@@ -101,23 +101,30 @@ namespace Eu.EDelivery.AS4.Transformers.ConformanceTestTransformers
 
         private static void SetCollaborationInfoProperties(UserMessage userMessage, IEnumerable<MessageProperty> properties)
         {
-            userMessage.CollaborationInfo.ConversationId = GetPropertyValue(properties, "ConversationId");
-            userMessage.CollaborationInfo.Service = new Service(GetPropertyValue(properties, "Service"));
-            userMessage.CollaborationInfo.Action = GetPropertyValue(properties, "Action");
-
             // AgreementRef must not be present in the AS4Message for minder.
-            userMessage.CollaborationInfo.AgreementReference = null;
+
+            userMessage.CollaborationInfo = new CollaborationInfo(
+                Maybe<AgreementReference>.Nothing,
+                new Service(GetPropertyValue(properties, "Service")),
+                GetPropertyValue(properties, "Action"),
+                GetPropertyValue(properties, "ConversationId"));
         }
 
         private static void SetPartyInformation(UserMessage userMessage, UserMessage submitMessage)
         {
-            userMessage.Sender.PartyIds.First().Id = GetPropertyValue(submitMessage.MessageProperties, "FromPartyId");
-            userMessage.Sender.PartyIds.First().Type = submitMessage.Sender.PartyIds.First().Type;
-            userMessage.Sender.Role = GetPropertyValue(submitMessage.MessageProperties, "FromPartyRole");
+            userMessage.Sender = 
+                new Party(
+                    role: GetPropertyValue(submitMessage.MessageProperties, "FromPartyRole"),
+                    partyId: new PartyId(
+                        id: GetPropertyValue(submitMessage.MessageProperties, "FromPartyId"),
+                        type: submitMessage.Sender.PartyIds.First().Type));
 
-            userMessage.Receiver.PartyIds.First().Id = GetPropertyValue(submitMessage.MessageProperties, "ToPartyId");
-            userMessage.Receiver.PartyIds.First().Type = submitMessage.Receiver.PartyIds.First().Type;
-            userMessage.Receiver.Role = GetPropertyValue(submitMessage.MessageProperties, "ToPartyRole");
+            userMessage.Receiver =
+                new Party(
+                    role: GetPropertyValue(submitMessage.MessageProperties, "ToPartyRole"),
+                    partyId: new PartyId(
+                        id: GetPropertyValue(submitMessage.MessageProperties, "ToPartyId"),
+                        type: submitMessage.Receiver.PartyIds.First().Type));
         }
 
         private static void SetMessageProperties(UserMessage userMessage, IEnumerable<MessageProperty> properties)

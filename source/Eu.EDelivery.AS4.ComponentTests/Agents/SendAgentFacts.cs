@@ -22,6 +22,8 @@ using CollaborationInfo = Eu.EDelivery.AS4.Model.PMode.CollaborationInfo;
 using MessageExchangePattern = Eu.EDelivery.AS4.Entities.MessageExchangePattern;
 using Service = Eu.EDelivery.AS4.Model.PMode.Service;
 using X509Certificate2 = System.Security.Cryptography.X509Certificates.X509Certificate2;
+using Party = Eu.EDelivery.AS4.Model.PMode.Party;
+using PartyId = Eu.EDelivery.AS4.Model.PMode.PartyId;
 
 namespace Eu.EDelivery.AS4.ComponentTests.Agents
 {
@@ -56,7 +58,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
             // Assert
             InMessage receipt = await PollUntilPresent(
-                () => _databaseSpy.GetInMessageFor(m => m.EbmsRefToMessageId == ebmsMessageId), 
+                () => _databaseSpy.GetInMessageFor(m => m.EbmsRefToMessageId == ebmsMessageId),
                 timeout: TimeSpan.FromSeconds(5));
 
             Assert.Equal(InStatus.Received, receipt.Status.ToEnum<InStatus>());
@@ -146,8 +148,8 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         [InlineData(false, OutStatus.Ack, Operation.ToBeNotified)]
         [InlineData(true, OutStatus.Sent, Operation.ToBeForwarded)]
         public async Task CorrectHandlingOnSynchronouslyReceivedMultiHopReceipt(
-            bool actAsIntermediaryMsh, 
-            OutStatus expectedOutStatus, 
+            bool actAsIntermediaryMsh,
+            OutStatus expectedOutStatus,
             Operation expectedSignalOperation)
         {
             // Arrange
@@ -155,7 +157,8 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
             SendingProcessingMode pmode = CreateMultihopPMode(StubListenLocation);
             AS4Message as4Message = CreateMultiHopAS4UserMessage(messageId, pmode);
-            as4Message.FirstUserMessage.CollaborationInfo.AgreementReference.PModeId = "Forward_Push";
+            as4Message.FirstUserMessage.CollaborationInfo = 
+                new Model.Core.CollaborationInfo(new Model.Core.AgreementReference("agreement", "Forward_Push"));
 
             var signal = new ManualResetEvent(false);
             var r = new AS4MessageResponseHandler(CreateMultiHopReceiptFor(as4Message));
@@ -168,19 +171,19 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             signal.WaitOne();
 
             OutMessage sentMessage = await PollUntilPresent(
-                () => _databaseSpy.GetOutMessageFor(m => m.EbmsMessageId == messageId), 
+                () => _databaseSpy.GetOutMessageFor(m => m.EbmsMessageId == messageId),
                 timeout: TimeSpan.FromSeconds(10));
 
             InMessage receivedMessage = await PollUntilPresent(
-                () => _databaseSpy.GetInMessageFor(m => m.EbmsRefToMessageId == messageId), 
+                () => _databaseSpy.GetInMessageFor(m => m.EbmsRefToMessageId == messageId),
                 timeout: TimeSpan.FromSeconds(10));
 
             Assert.NotNull(sentMessage);
             Assert.NotNull(receivedMessage);
 
             Assert.Equal(expectedOutStatus, sentMessage.Status.ToEnum<OutStatus>());
-            Assert.Equal(MessageType.Receipt, receivedMessage.EbmsMessageType.ToEnum<MessageType>());
-            Assert.Equal(expectedSignalOperation, receivedMessage.Operation.ToEnum<Operation>());
+            Assert.Equal(MessageType.Receipt, receivedMessage.EbmsMessageType);
+            Assert.Equal(expectedSignalOperation, receivedMessage.Operation);
         }
 
         private void PutMessageToSend(AS4Message as4Message, SendingProcessingMode pmode, bool actAsIntermediaryMsh)
@@ -206,9 +209,9 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                 Intermediary = actAsIntermediaryMsh,
             };
 
-            outMessage.SetEbmsMessageType(MessageType.UserMessage);
-            outMessage.SetMessageExchangePattern(MessageExchangePattern.Push);
-            outMessage.SetOperation(Operation.ToBeSent);
+            outMessage.EbmsMessageType = MessageType.UserMessage;
+            outMessage.MEP = MessageExchangePattern.Push;
+            outMessage.Operation = Operation.ToBeSent;
             outMessage.SetPModeInformation(pmode);
 
             _databaseSpy.InsertOutMessage(outMessage);

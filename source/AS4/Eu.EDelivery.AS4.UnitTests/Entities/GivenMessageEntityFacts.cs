@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Entities;
-using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
@@ -28,19 +27,19 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
             [Fact]
             public void HasDefaultOperation()
             {
-                Assert.Equal(Operation.NotApplicable, new StubMessageEntity().Operation.ToEnum<Operation>());
+                Assert.Equal(Operation.NotApplicable, new StubMessageEntity().Operation);
             }
 
             [Fact]
             public void HasDefaultMessageExchangePattern()
             {
-                Assert.Equal(MessageExchangePattern.Push, new StubMessageEntity().MEP.ToEnum<MessageExchangePattern>());
+                Assert.Equal(MessageExchangePattern.Push, new StubMessageEntity().MEP);
             }
 
             [Fact]
             public void HasDefaultMessageType()
             {
-                Assert.Equal(MessageType.UserMessage, new StubMessageEntity().EbmsMessageType.ToEnum<MessageType>());
+                Assert.Equal(MessageType.UserMessage, new StubMessageEntity().EbmsMessageType);
             }
 
             [Fact]
@@ -143,7 +142,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
                 sut.Lock(expectedOperation.ToString());
 
                 // Assert
-                Assert.Equal(Operation.Sending, sut.Operation.ToEnum<Operation>());
+                Assert.Equal(Operation.Sending, sut.Operation);
             }
 
             [Fact]
@@ -152,13 +151,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
                 // Arrange
                 const Operation expectedOperation = Operation.Notified;
                 var sut = new StubMessageEntity();
-                sut.SetOperation(expectedOperation);
+                sut.Operation = expectedOperation;
 
                 // Act
                 sut.Lock(Operation.NotApplicable.ToString());
 
                 // Assert
-                Assert.Equal(expectedOperation, sut.Operation.ToEnum<Operation>());
+                Assert.Equal(expectedOperation, sut.Operation);
             }
         }
 

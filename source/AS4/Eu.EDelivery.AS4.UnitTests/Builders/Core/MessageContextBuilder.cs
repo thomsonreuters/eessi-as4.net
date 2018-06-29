@@ -1,7 +1,10 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
+using AgreementReference = Eu.EDelivery.AS4.Model.Core.AgreementReference;
+using CollaborationInfo = Eu.EDelivery.AS4.Model.Core.CollaborationInfo;
 using Service = Eu.EDelivery.AS4.Model.Core.Service;
 
 namespace Eu.EDelivery.AS4.UnitTests.Builders.Core
@@ -42,7 +45,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Core
         public MessageContextBuilder WithAgreementRef(AgreementReference agreementRef)
         {
             UserMessage userMessage = _messagingContext.AS4Message.FirstUserMessage;
-            userMessage.CollaborationInfo.AgreementReference = agreementRef;
+            userMessage.CollaborationInfo.AgreementReference = agreementRef.AsMaybe();
 
             return this;
         }
@@ -53,7 +56,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Core
         /// <param name="fromParty"></param>
         /// <param name="toParty"></param>
         /// <returns></returns>
-        public MessageContextBuilder WithPartys(Party fromParty, Party toParty)
+        public MessageContextBuilder WithParties(AS4.Model.Core.Party fromParty, AS4.Model.Core.Party toParty)
         {
             UserMessage userMessage = _messagingContext.AS4Message.UserMessages.First();
             userMessage.Sender = fromParty;
@@ -69,7 +72,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Core
         /// <returns></returns>
         public MessageContextBuilder WithPModeId(string pmodeId)
         {
-            _messagingContext.AS4Message.UserMessages.First().CollaborationInfo.AgreementReference.PModeId = pmodeId;
+            _messagingContext.AS4Message.UserMessages.First().CollaborationInfo.AgreementReference = new AgreementReference("agreement", pmodeId).AsMaybe();
 
             return this;
         }
@@ -83,8 +86,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Core
         public MessageContextBuilder WithServiceAction(string service, string action)
         {
             UserMessage userMessage = _messagingContext.AS4Message.UserMessages.First();
-            userMessage.CollaborationInfo.Action = action;
-            userMessage.CollaborationInfo.Service = new Service(service);
+            userMessage.CollaborationInfo = new CollaborationInfo(
+                userMessage.CollaborationInfo.AgreementReference,
+                new Service(service),
+                action,
+                userMessage.CollaborationInfo.ConversationId);
 
             return this;
         }
@@ -139,7 +145,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Core
         {
             var userMessage = new UserMessage
             {
-                CollaborationInfo = { AgreementReference = new AgreementReference() },
+                CollaborationInfo = { AgreementReference = new AgreementReference(Guid.NewGuid().ToString()).AsMaybe() },
                 MessageId = messageId
             };
 

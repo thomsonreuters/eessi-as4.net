@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
@@ -14,8 +13,11 @@ using Eu.EDelivery.AS4.UnitTests.Common;
 using Eu.EDelivery.AS4.UnitTests.Repositories;
 using Moq;
 using Xunit;
+using AgreementReference = Eu.EDelivery.AS4.Model.Core.AgreementReference;
 using CollaborationInfo = Eu.EDelivery.AS4.Model.PMode.CollaborationInfo;
 using ReceivePMode = Eu.EDelivery.AS4.Model.PMode.ReceivingProcessingMode;
+using Party = Eu.EDelivery.AS4.Model.PMode.Party;
+using PartyId = Eu.EDelivery.AS4.Model.PMode.PartyId;
 
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 {
@@ -45,7 +47,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
                 string receivePModeId = $"receive-pmodeid-{Guid.NewGuid()}";
                 var userMesssage = new UserMessage(messageId: $"user-{Guid.NewGuid()}");
-                userMesssage.CollaborationInfo.AgreementReference.PModeId = receivePModeId;
+                userMesssage.CollaborationInfo = 
+                    new AS4.Model.Core.CollaborationInfo(
+                        new AgreementReference("agreement", receivePModeId));
 
                 string sendPModeId = $"send-pmodeid-{Guid.NewGuid()}";
                 var expected = new SendingProcessingMode { Id = sendPModeId };
@@ -151,14 +155,19 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             public async Task ThenPartyInfoMatchesAsync(string fromId, string toId)
             {
                 // Arrange
-                var fromParty = new Party(fromId, new PartyId(fromId));
-                var toParty = new Party(toId, new PartyId(toId));
+                var fromParty = new Party { Role = fromId, PartyIds = { new PartyId { Id = fromId } } };
+                var toParty = new Party { Role = toId, PartyIds = { new PartyId { Id = toId } } };
 
                 ReceivePMode pmode = CreatePModeWithParties(fromParty, toParty);
                 pmode.MessagePackaging.CollaborationInfo.AgreementReference.Value = "not-equal";
-                SetupPModes(pmode, new ReceivePMode());
+                SetupPModes(pmode, new ReceivePMode { Id = "other pmode", ReplyHandling = { SendingPMode = "other pmode" }});
 
-                MessagingContext messagingContext = new MessageContextBuilder().WithPartys(fromParty, toParty).Build();
+                MessagingContext messagingContext = 
+                    new MessageContextBuilder()
+                        .WithParties(
+                            new AS4.Model.Core.Party(fromId, new AS4.Model.Core.PartyId(fromId)), 
+                            new AS4.Model.Core.Party(toId, new AS4.Model.Core.PartyId(toId)))
+                        .Build();
 
                 // Act               
                 StepResult result = await _step.ExecuteAsync(messagingContext);
@@ -190,7 +199,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             {
                 ReceivePMode pmode = CreatePModeWithActionService(service, action);
                 pmode.MessagePackaging.CollaborationInfo.AgreementReference.Value = "not-equal";
-                SetupPModes(pmode, new ReceivePMode());
+                SetupPModes(pmode, new ReceivePMode { Id = "other pmode", ReplyHandling = { SendingPMode = "other pmode" } });
 
                 return pmode;
             }
@@ -200,12 +209,17 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             public async Task ThenPModeIdWinsOverPartyInfoAsync(string fromId, string toId, string sharedId)
             {
                 // Arrange 
-                var fromParty = new Party(fromId, new PartyId(fromId));
-                var toParty = new Party(toId, new PartyId(toId));
+                var fromParty = new Party { Role = fromId, PartyIds = { new PartyId { Id = fromId } } };
+                var toParty = new Party { Role = toId, PartyIds = { new PartyId { Id = toId } } };
                 ReceivePMode idPMode = ArrangePModeThenPModeWinsOverPartyInfo(sharedId, fromParty, toParty);
 
                 MessagingContext messagingContext =
-                    new MessageContextBuilder().WithPModeId(sharedId).WithPartys(fromParty, toParty).Build();
+                    new MessageContextBuilder()
+                        .WithPModeId(sharedId)
+                        .WithParties(
+                            new AS4.Model.Core.Party(fromId, new AS4.Model.Core.PartyId(fromId)),
+                            new AS4.Model.Core.Party(toId, new AS4.Model.Core.PartyId(toId)))
+                        .Build();
 
                 // Act
                 StepResult result = await _step.ExecuteAsync(messagingContext);
@@ -233,17 +247,20 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 string toId)
             {
                 // Arrange
-                var fromParty = new Party(fromId, new PartyId(fromId));
-                var toParty = new Party(toId, new PartyId(toId));
+                var fromParty = new Party { Role = fromId, PartyIds = { new PartyId { Id = fromId } } };
+                var toParty = new Party { Role = toId, PartyIds = { new PartyId { Id = toId } } };
 
                 ReceivePMode pmodeParties = CreatePModeWithParties(fromParty, toParty);
                 ReceivePMode pmodeServiceAction = CreatePModeWithActionService(service, action);
                 SetupPModes(pmodeParties, pmodeServiceAction);
 
                 MessagingContext messagingContext =
-                    new MessageContextBuilder().WithPartys(fromParty, toParty)
-                                                .WithServiceAction(service, action)
-                                                .Build();
+                    new MessageContextBuilder()
+                        .WithParties(
+                            new AS4.Model.Core.Party(fromId, new AS4.Model.Core.PartyId(fromId)),
+                            new AS4.Model.Core.Party(toId, new AS4.Model.Core.PartyId(toId)))
+                        .WithServiceAction(service, action)
+                        .Build();
 
                 // Act
                 StepResult result = await _step.ExecuteAsync(messagingContext);
@@ -261,8 +278,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 string toId)
             {
                 // Arrange
-                var fromParty = new Party(fromId, new PartyId(fromId));
-                var toParty = new Party(toId, new PartyId(toId));
+                var fromParty = new Party { Role = fromId, PartyIds = { new PartyId { Id = fromId } } };
+                var toParty = new Party { Role = toId, PartyIds = { new PartyId { Id = toId } } };
 
                 ReceivePMode pmodeServiceAction = CreatePModeWithActionService(service, action);
                 ReceivePMode pmodeParties = CreatePModeWithParties(fromParty, toParty);
@@ -270,9 +287,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 SetupPModes(pmodeServiceAction, pmodeParties);
 
                 MessagingContext messagingContext =
-                    new MessageContextBuilder().WithServiceAction(service, action)
-                                                .WithPartys(fromParty, toParty)
-                                                .Build();
+                    new MessageContextBuilder()
+                        .WithServiceAction(service, action)
+                        .WithParties(
+                            new AS4.Model.Core.Party(fromId, new AS4.Model.Core.PartyId(fromId)),
+                            new AS4.Model.Core.Party(toId, new AS4.Model.Core.PartyId(toId)))
+                        .Build();
 
                 // Act
                 StepResult result = await _step.ExecuteAsync(messagingContext);
@@ -320,7 +340,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 ReceivePMode pmode = CreatePModeWithActionService(service, action);
                 pmode.MessagePackaging.CollaborationInfo.AgreementReference.Value = "not-equal";
                 DifferentiatePartyInfo(pmode);
-                SetupPModes(pmode, new ReceivePMode());
+                SetupPModes(pmode, new ReceivePMode() { Id = "other id", ReplyHandling = {SendingPMode = "other pmode"}});
             }
 
             [Theory]
@@ -328,11 +348,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             public async Task ThenAgreementRefIsNotEnoughAsync(string name, string type)
             {
                 // Arrange
-                var agreementRef = new AgreementReference { Value = name, Type = type };
+                var agreementRef = new AS4.Model.PMode.AgreementReference { Value = name, Type = type, PModeId = "pmode-id" };
                 ArrangePModeThenAgreementRefIsNotEnough(agreementRef);
 
                 MessagingContext messagingContext =
-                    new MessageContextBuilder().WithAgreementRef(agreementRef)
+                    new MessageContextBuilder().WithAgreementRef(new AgreementReference(name, type, "pmode-id"))
                                                 .WithServiceAction("service", "action")
                                                 .Build();
 
@@ -345,7 +365,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 Assert.Equal(ErrorCode.Ebms0010, errorResult.Code);
             }
 
-            private void ArrangePModeThenAgreementRefIsNotEnough(AgreementReference agreementRef)
+            private void ArrangePModeThenAgreementRefIsNotEnough(AS4.Model.PMode.AgreementReference agreementRef)
             {
                 ReceivePMode pmode = CreatePModeWithAgreementRef(agreementRef);
                 DifferentiatePartyInfo(pmode);
@@ -372,7 +392,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             _mockedConfig.Setup(c => c.GetReceivingPModes()).Returns(pmodes);
         }
 
-        protected ReceivePMode CreatePModeWithAgreementRef(AgreementReference agreementRef)
+        protected ReceivePMode CreatePModeWithAgreementRef(AS4.Model.PMode.AgreementReference agreementRef)
         {
             ReceivePMode pmode = CreateDefaultPMode("defaultPMode");
             pmode.MessagePackaging.CollaborationInfo.AgreementReference = agreementRef;
@@ -401,8 +421,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             const string fromId = "from-Id";
             const string toId = "to-Id";
 
-            var fromParty = new Party(fromId, new PartyId(fromId));
-            var toParty = new Party(toId, new PartyId(toId));
+            var fromParty = new Party { Role = fromId, PartyIds = { new PartyId { Id = fromId } } };
+            var toParty = new Party { Role = toId, PartyIds = { new PartyId { Id = toId } } };
 
             pmode.MessagePackaging.PartyInfo = new PartyInfo { FromParty = fromParty, ToParty = toParty };
         }

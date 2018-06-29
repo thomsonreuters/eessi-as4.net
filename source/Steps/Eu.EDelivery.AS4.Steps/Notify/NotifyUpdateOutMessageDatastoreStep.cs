@@ -36,7 +36,7 @@ namespace Eu.EDelivery.AS4.Steps.Notify
                     m =>
                     {
                         m.SetStatus(OutStatus.Notified);
-                        m.SetOperation(Operation.Notified);
+                        m.Operation = Operation.Notified;
                     });
 
                 await context.SaveChangesAsync().ConfigureAwait(false);

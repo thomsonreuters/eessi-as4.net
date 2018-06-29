@@ -1,4 +1,5 @@
-﻿using Eu.EDelivery.AS4.Model.Core;
+﻿using System;
+using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Steps.Receive.Rules;
 using Xunit;
@@ -18,8 +19,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive.Rules
             {
                 // Arrange
                 var userMessage = new UserMessage(messageId: "message-id");
-                userMessage.CollaborationInfo.AgreementReference.Value = name;
-                userMessage.CollaborationInfo.AgreementReference.Type = type;
+                userMessage.CollaborationInfo.AgreementReference = 
+                    new AS4.Model.Core.AgreementReference(name, Maybe.Just(type), Maybe<string>.Nothing).AsMaybe();
 
                 ReceivingProcessingMode receivingPMode =
                     base.CreateAgreementRefReceivingPMode(name, type);
@@ -36,8 +37,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive.Rules
             {
                 // Arrange
                 var userMessage = new UserMessage(messageId: "message-id");
-                userMessage.CollaborationInfo.AgreementReference.Value = "not-equal";
-                userMessage.CollaborationInfo.AgreementReference.Type = type;
+                userMessage.CollaborationInfo.AgreementReference = 
+                    new AS4.Model.Core.AgreementReference("not-equal", Maybe.Just(type), Maybe<string>.Nothing).AsMaybe();
 
                 ReceivingProcessingMode receivingPMode =
                     CreateAgreementRefReceivingPMode(name, type);
@@ -54,8 +55,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive.Rules
             {
                 // Arrange
                 var userMessage = new UserMessage(messageId: "message-id");
-                userMessage.CollaborationInfo.AgreementReference.Value = name;
-                userMessage.CollaborationInfo.AgreementReference.Type = "not-equal";
+                userMessage.CollaborationInfo.AgreementReference = 
+                    new AS4.Model.Core.AgreementReference(name, Maybe.Just("not-equal"), Maybe<string>.Nothing).AsMaybe();
 
                 ReceivingProcessingMode receivingPMode =
                     CreateAgreementRefReceivingPMode(name, type);
@@ -75,8 +76,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive.Rules
             {
                 // Arrange
                 var userMessage = new UserMessage(messageId: "message-id");
-                userMessage.CollaborationInfo.AgreementReference.Value = name;
-                userMessage.CollaborationInfo.AgreementReference.Type = type;
+                userMessage.CollaborationInfo.AgreementReference = 
+                    new AS4.Model.Core.AgreementReference(name, Maybe.Just(type), Maybe<string>.Nothing).AsMaybe();
 
                 var receivingPMode = new ReceivingProcessingMode
                 {
@@ -95,8 +96,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive.Rules
             {
                 // Arrange
                 var userMessage = new UserMessage(messageId: "message-id");
-                userMessage.CollaborationInfo.AgreementReference.Value = name;
-                userMessage.CollaborationInfo.AgreementReference.Type = type;
+                userMessage.CollaborationInfo.AgreementReference = 
+                    new AS4.Model.Core.AgreementReference(name, Maybe.Just(type), Maybe<string>.Nothing).AsMaybe();
 
                 var receivingPMode = new ReceivingProcessingMode
                 {

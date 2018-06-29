@@ -2,6 +2,8 @@
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Steps.Receive.Rules;
 using Xunit;
+using Party = Eu.EDelivery.AS4.Model.PMode.Party;
+using PartyId = Eu.EDelivery.AS4.Model.PMode.PartyId;
 
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive.Rules
 {
@@ -73,14 +75,22 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive.Rules
                 {
                     MessagePackaging =
                     {
-                        PartyInfo = new PartyInfo {ToParty = CreateFilledParty(), FromParty = CreateFilledParty()}
+                        PartyInfo = new PartyInfo
+                        {
+                            ToParty = CreateFilledParty(),
+                            FromParty = CreateFilledParty()
+                        }
                     }
                 };
             }
 
-            private Party CreateFilledParty()
+            private static Party CreateFilledParty()
             {
-                return new Party(role: "role", partyId: new PartyId("party-id"));
+                return new Party
+                {
+                    Role = "role",
+                    PartyIds = { new PartyId { Id = "party-id" } }
+                };
             }
         }
     }

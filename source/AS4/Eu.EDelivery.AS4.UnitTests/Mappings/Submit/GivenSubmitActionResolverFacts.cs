@@ -26,10 +26,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
                     MessagePackaging = {CollaborationInfo = new CollaborationInfo {Action = "pmode-action"}}
                 };
                 submitMessage.PMode = pmode;
-                var resolver = SubmitActionResolver.Default;
 
                 // Act
-                string action = resolver.Resolve(submitMessage);
+                string action = SubmitActionResolver.ResolveAction(submitMessage);
 
                 // Assert
                 Assert.Equal(pmode.MessagePackaging.CollaborationInfo.Action, action);
@@ -44,10 +43,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
                     PMode = new SendingProcessingMode(),
                     Collaboration = {Action = "submit-action"}
                 };
-                var resolver = SubmitActionResolver.Default;
 
                 // Act
-                string action = resolver.Resolve(submitMessage);
+                string action = SubmitActionResolver.ResolveAction(submitMessage);
 
                 // Assert
                 Assert.Equal(submitMessage.Collaboration.Action, action);
@@ -58,10 +56,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
             {
                 // Arrange
                 var submitMessage = new SubmitMessage {PMode = new SendingProcessingMode()};
-                var resolver = SubmitActionResolver.Default;
 
                 // Act
-                string action = resolver.Resolve(submitMessage);
+                string action = SubmitActionResolver.ResolveAction(submitMessage);
 
                 // Assert
                 Assert.Equal(Constants.Namespaces.TestAction, action);
@@ -84,10 +81,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
                             AllowOverride = false
                         }
                 };
-                var resolver = SubmitActionResolver.Default;
 
                 // Act / Assert
-                Assert.ThrowsAny<Exception>(() => resolver.Resolve(submitMessage));
+                Assert.ThrowsAny<Exception>(() => SubmitActionResolver.ResolveAction(submitMessage));
             }
         }
     }

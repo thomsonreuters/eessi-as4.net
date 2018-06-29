@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Extensions;
@@ -17,10 +15,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
         {
             long savedInMessageId;
 
-            using (var db = this.GetDataStoreContext())
+            using (var db = GetDataStoreContext())
             {
-                var outMessage = new OutMessage(Guid.NewGuid().ToString());
-                outMessage.SetOperation(Operation.Sent);
+                var outMessage = new OutMessage(Guid.NewGuid().ToString()) { Operation = Operation.Sent };
 
                 db.OutMessages.Add(outMessage);
 
@@ -31,12 +28,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
                 Assert.NotEqual(default(long), savedInMessageId);
             }
 
-            using (var db = this.GetDataStoreContext())
+            using (var db = GetDataStoreContext())
             {
                 var message = db.OutMessages.FirstOrDefault(i => i.Id == savedInMessageId);
 
                 Assert.NotNull(message);
-                Assert.Equal(Operation.Sent, message.Operation.ToEnum<Operation>());
+                Assert.Equal(Operation.Sent, message.Operation);
             }
         }
 
@@ -75,8 +72,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
 
             using (var db = this.GetDataStoreContext())
             {
-                var message = new OutMessage("message-id");
-                message.SetEbmsMessageType(MessageType.Receipt);
+                var message = new OutMessage("message-id") { EbmsMessageType = MessageType.Receipt };
 
                 db.OutMessages.Add(message);
 
@@ -92,7 +88,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
                 var message = db.OutMessages.FirstOrDefault(i => i.Id == savedId);
 
                 Assert.NotNull(message);
-                Assert.Equal(MessageType.Receipt, message.EbmsMessageType.ToEnum<MessageType>());
+                Assert.Equal(MessageType.Receipt, message.EbmsMessageType);
             }
         }
 

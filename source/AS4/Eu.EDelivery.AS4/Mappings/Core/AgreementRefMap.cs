@@ -1,5 +1,4 @@
-﻿using System;
-using AutoMapper;
+﻿using AutoMapper;
 
 namespace Eu.EDelivery.AS4.Mappings.Core
 {
@@ -8,14 +7,22 @@ namespace Eu.EDelivery.AS4.Mappings.Core
         public AgreementRefMap()
         {
             CreateMap<Model.Core.AgreementReference, Xml.AgreementRef>()
-                .ForMember(dest => dest.Value, src => src.MapFrom(t => t.Value))
-                .ForMember(dest => dest.pmode, src => src.MapFrom(t => t.PModeId))
-                .ForMember(dest => dest.type, src => src.MapFrom(t => t.Type));
+                .ConstructUsing(model => 
+                    new Xml.AgreementRef
+                    {
+                        Value = model.Value,
+                        type = model.Type.GetOrElse(() => null),
+                        pmode = model.PModeId.GetOrElse(() => null)
+                    })
+                .ForAllOtherMembers(x => x.Ignore());
 
             CreateMap<Xml.AgreementRef, Model.Core.AgreementReference>()
-                .ForMember(dest => dest.Value, src => src.MapFrom(t => t.Value))
-                .ForMember(dest => dest.PModeId, src => src.MapFrom(t => t.pmode))
-                .ForMember(dest => dest.Type, src => src.MapFrom(t => t.type));
+                .ConstructUsing(xml => 
+                    new Model.Core.AgreementReference(
+                        xml.Value, 
+                        (xml.type != null).ThenMaybe(xml.type), 
+                        (xml.pmode != null).ThenMaybe(xml.pmode)))
+                .ForAllOtherMembers(x => x.Ignore());
         }
     }
 }

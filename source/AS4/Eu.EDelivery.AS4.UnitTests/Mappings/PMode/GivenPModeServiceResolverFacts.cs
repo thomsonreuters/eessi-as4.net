@@ -20,7 +20,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.PMode
                 var resolver = new PModeServiceResolver();
 
                 // Act
-                AS4.Model.Core.Service service = resolver.Resolve(pmode);
+                AS4.Model.Core.Service service = PModeServiceResolver.ResolveService(pmode);
 
                 // Assert
                 Assert.Equal(AS4.Model.Core.Service.TestService, service);
@@ -34,7 +34,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.PMode
                 var resolver = new PModeServiceResolver();
 
                 // Act
-                AS4.Model.Core.Service actual = resolver.Resolve(pmode);
+                AS4.Model.Core.Service actual = PModeServiceResolver.ResolveService(pmode);
 
                 // Assert
                 var expected = pmode.MessagePackaging.CollaborationInfo.Service;

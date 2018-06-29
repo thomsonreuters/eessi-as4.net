@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Entities;
-using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.Notify;
 using Eu.EDelivery.AS4.Model.PMode;
@@ -40,8 +39,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
                 ebmsMessageId,
                 e =>
                 {
-                    (int _, string actualOperation) = type.Getter(GetDataStoreContext, e);
-                    Assert.Equal(retry.ExpectedOperation, actualOperation.ToEnum<Operation>());
+                    (int _, Operation actualOperation) = type.OperationGetter(GetDataStoreContext, e);
+                    Assert.Equal(retry.ExpectedOperation, actualOperation);
                 });
         }
 

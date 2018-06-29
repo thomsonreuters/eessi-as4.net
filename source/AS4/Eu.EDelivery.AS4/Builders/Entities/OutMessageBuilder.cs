@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.PMode;
@@ -45,9 +43,6 @@ namespace Eu.EDelivery.AS4.Builders.Entities
         /// <summary>
         /// Start Creating the <see cref="OutMessage"/>
         /// </summary>
-        /// <param name="cancellationToken">
-        /// The cancellation Token.
-        /// </param>
         /// <returns>
         /// </returns>
         public OutMessage Build()
@@ -61,9 +56,9 @@ namespace Eu.EDelivery.AS4.Builders.Entities
                 InsertionTime = DateTimeOffset.Now
             };
 
-            outMessage.SetOperation(Operation.NotApplicable);
-            outMessage.SetMessageExchangePattern(DetermineMepOf(_sendingProcessingMode));            
-            outMessage.SetEbmsMessageType(messageType);
+            outMessage.Operation = (Operation.NotApplicable);
+            outMessage.MEP = DetermineMepOf(_sendingProcessingMode);
+            outMessage.EbmsMessageType = messageType;
             outMessage.SetPModeInformation(_sendingProcessingMode);
 
             if (string.IsNullOrWhiteSpace(_messageUnit.RefToMessageId) == false)

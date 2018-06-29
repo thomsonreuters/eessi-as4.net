@@ -1,5 +1,6 @@
 ﻿using System;
 using Eu.EDelivery.AS4.Mappings.PMode;
+using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Model.Submit;
 
 namespace Eu.EDelivery.AS4.Mappings.Submit
@@ -9,25 +10,14 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
     /// 2. PMode / Message Packaging / CollaborationInfo / Action
     /// 3. Default Test Action Namespace
     /// </summary>
-    public class SubmitActionResolver : ISubmitResolver<string>
+    public static class SubmitActionResolver
     {
-        public static readonly SubmitActionResolver Default = new SubmitActionResolver();
-        private readonly IPModeResolver<string> _pmodeResolver;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="SubmitActionResolver" /> class
-        /// </summary>
-        public SubmitActionResolver()
-        {
-            _pmodeResolver = new PModeActionResolver();
-        }
-
         /// <summary>
         /// Resolve the Action
         /// </summary>
         /// <param name="submitMessage"></param>
         /// <returns></returns>
-        public string Resolve(SubmitMessage submitMessage)
+        public static string ResolveAction(SubmitMessage submitMessage)
         {
             if (submitMessage.PMode.AllowOverride == false && DoesSubmitMessageTriesToOverridePModeValues(submitMessage))
             {
@@ -40,7 +30,8 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
                 return submitMessage.Collaboration.Action;
             }
 
-            return _pmodeResolver.Resolve(submitMessage.PMode);
+            SendingProcessingMode pmode = submitMessage.PMode;
+            return PModeActionResolver.ResolveAction(pmode);
         }
 
         private static bool DoesSubmitMessageTriesToOverridePModeValues(SubmitMessage submitMessage)
