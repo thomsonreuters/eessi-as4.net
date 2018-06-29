@@ -45,6 +45,7 @@ namespace Eu.EDelivery.AS4.Mappings.Core
                 .ForMember(dest => dest.MessageId, src => src.MapFrom(t => t.MessageInfo.MessageId))
                 .ForMember(dest => dest.RefToMessageId, src => src.MapFrom(t => t.MessageInfo.RefToMessageId))
                 .ForMember(dest => dest.Timestamp, src => src.MapFrom(t => t.MessageInfo.Timestamp))
+                .ForMember(dest => dest.Sender, src => src.MapFrom(t => t.PartyInfo.From))
                 .ForMember(dest => dest.CollaborationInfo, src => src.MapFrom(t => t.CollaborationInfo))
                 .ForMember(dest => dest.MessageProperties,
                            src => src.MapFrom(t => t.MessageProperties ?? new Xml.Property[] { }))
@@ -65,9 +66,21 @@ namespace Eu.EDelivery.AS4.Mappings.Core
                         }
                     }
 
+                    var xmlFrom = xml.PartyInfo?.From;
+                    if (xmlFrom != null)
+                    {
+                        model.Sender = AS4Mapper.Map<Model.Core.Party>(xmlFrom);
+                    }
+
+                    var xmlTo = xml.PartyInfo?.To;
+                    if (xmlTo != null)
+                    {
+                        model.Receiver = AS4Mapper.Map<Model.Core.Party>(xmlTo);
+                    }
+
                     model.MessageId = xml.MessageInfo.MessageId;
                     model.RefToMessageId = xml.MessageInfo.RefToMessageId;
-                });
+                }).ForAllOtherMembers(x => x.Ignore());
         }
 
         private void MapUserMessageToRoutingInputUserMessage()
