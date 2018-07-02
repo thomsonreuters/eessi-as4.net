@@ -90,7 +90,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
 
         private static UserMessage CreateUserMessage(MessagingContext messagingContext)
         {
-            Logger.Trace($"{messagingContext.LogTag} Create UserMessage for SubmitMessage");
+            Logger.Trace("Create UserMessage for SubmitMessage");
             return AS4Mapper.Map<UserMessage>(messagingContext.SubmitMessage);
         }
 
@@ -100,7 +100,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
             {
                 if (context.SubmitMessage.HasPayloads)
                 {
-                    Logger.Trace($"{context.LogTag} Retrieve SubmitMessage payloads");
+                    Logger.Trace("Retrieve SubmitMessage payloads");
 
                     await as4Message.AddAttachments(
                         context.SubmitMessage.Payloads,

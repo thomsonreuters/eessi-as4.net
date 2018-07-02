@@ -157,7 +157,7 @@ namespace Eu.EDelivery.AS4.Services
                 if (rr == null)
                 {
                     Logger.Debug("No retry reliability configured, can't be retried");
-                    Logger.Debug($"Update {typeof(T).Name} with Status=Exception, Operation=DeadLettered");
+                    Logger.Debug($"Update {typeof(T).Name} with {{Status=Exception, Operation=DeadLettered}}");
 
                     onFailure(entity);
                     entity.Operation = Operation.DeadLettered;
@@ -173,7 +173,7 @@ namespace Eu.EDelivery.AS4.Services
                 else
                 {
                     Logger.Info($"[{entity.EbmsMessageId}] Message failed this time due to a fatal result during sending");
-                    Logger.Debug($"[{entity.EbmsMessageId}] Update {typeof(T).Name} with Status=Exception, Operation=DeadLettered");
+                    Logger.Debug($"Update {typeof(T).Name} with Status=Exception, Operation=DeadLettered");
 
                     onFailure(entity);
                     entity.Operation = Operation.DeadLettered;
@@ -221,7 +221,7 @@ namespace Eu.EDelivery.AS4.Services
             if (status == SendResult.Success)
             {
                 Logger.Info($"(Notify)[{entity.EbmsRefToMessageId}] Mark NotifyMessage as Notified");
-                Logger.Debug($"Update {typeof(T).Name} with Status and Operation set to Notified");
+                Logger.Debug($"Update {typeof(T).Name} with Operation=Notified");
 
                 entity.Operation = Operation.Notified;
                 if (rr != null)
@@ -234,7 +234,7 @@ namespace Eu.EDelivery.AS4.Services
                 if (rr == null)
                 {
                     Logger.Info($"(Notify)[{entity.EbmsRefToMessageId}] Exception NotifyMessage failed during the notification, exhausted retries");
-                    Logger.Debug($"Update {typeof(T).Name} with Status=Exception, Operation=DeadLettered");
+                    Logger.Debug($"Update {typeof(T).Name} with {{Status=Exception, Operation=DeadLettered}}");
 
                     entity.Operation = Operation.DeadLettered;
                 }
@@ -249,7 +249,7 @@ namespace Eu.EDelivery.AS4.Services
                 else
                 {
                     Logger.Info($"(Notify)[{entity.EbmsRefToMessageId}] Exception NotifyMessage failed during the notification, exhausted retries");
-                    Logger.Debug($"Update {typeof(T).Name} with Status=Exception, Operation=DeadLettered");
+                    Logger.Debug($"Update {typeof(T).Name} with {{Status=Exception, Operation=DeadLettered}}");
 
                     entity.Operation = Operation.DeadLettered;
                     rr.Status = RetryStatus.Completed;

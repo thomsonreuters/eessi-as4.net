@@ -242,7 +242,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 if (exception.Status == WebExceptionStatus.ConnectFailure
                     && (ctx.AS4Message?.IsPullRequest ?? false))
                 {
-                    Logger.Trace($"{ctx.LogTag}The PullRequest could not be send to {request.RequestUri} due to a WebException");
+                    Logger.Trace($"The PullRequest could not be send to {request.RequestUri} due to a WebException");
                     Logger.Trace(exception.Message);
                     return false;
                 }
@@ -282,7 +282,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             HttpWebRequest request,
             MessagingContext ctx)
         {
-            Logger.Debug($"{ctx.LogTag} AS4 Message received from: {request.Address}");
+            Logger.Debug($"AS4Message received from: {request.Address}");
 
             (HttpWebResponse webResponse, WebException exception) =
                 await _httpClient.Respond(request).ConfigureAwait(false);
@@ -351,7 +351,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
         private static WebException CreateFailedSendException(string requestUrl, Exception exception)
         {
-            return new WebException($"Failed to Send AS4 Message to Url: {requestUrl}.", exception);
+            return new WebException($"Failed to Send AS4Message to Url: {requestUrl}.", exception);
         }
     }
 }

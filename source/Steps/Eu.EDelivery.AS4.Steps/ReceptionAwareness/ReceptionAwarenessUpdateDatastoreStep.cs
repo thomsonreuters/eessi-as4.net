@@ -77,15 +77,14 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
             string logging = $"(ReceptionAwareness) [{receptionAwareness.RefToEbmsMessageId}] ";
             if (service.IsMessageAlreadyAnswered(receptionAwareness))
             {
-                Logger.Info(logging + "Complete message because it's already answered");
+                Logger.Info($"{logging} Complete message because it\'s already answered");
                 service.MarkReferencedMessageAsComplete(receptionAwareness);
             }
             else
             {
                 if (service.MessageNeedsToBeResend(receptionAwareness))
                 {
-                    Logger.Info(
-                        logging + "Mark message for resend because the reception awareness deadline isn't yet met");
+                    Logger.Info($"{logging} Mark message for resend because the reception awareness deadline isn\'t yet met");
 
                     service.MarkReferencedMessageForResend(receptionAwareness);
                 }
@@ -93,9 +92,7 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
                 {
                     if (IsMessageUnanswered(receptionAwareness))
                     {
-                        Logger.Warn(
-                            $"(ReceptionAwareness) [{receptionAwareness.RefToEbmsMessageId}] " + 
-                            "Complete message because it remains unanswered");
+                        Logger.Warn($"{logging} Complete message because it remains unanswered");
 
                         service.MarkReferencedMessageAsComplete(receptionAwareness);
 

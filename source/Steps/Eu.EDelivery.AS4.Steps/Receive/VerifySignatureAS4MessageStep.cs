@@ -198,7 +198,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                         messagingContext);
                 }
 
-                Logger.Info($"{messagingContext.LogTag} AS4 Message has a valid Signature present");
+                Logger.Info($"{messagingContext.LogTag} AS4Message has a valid Signature present");
                 return await StepResult.SuccessAsync(messagingContext);
             }
             catch (CryptographicException exception)

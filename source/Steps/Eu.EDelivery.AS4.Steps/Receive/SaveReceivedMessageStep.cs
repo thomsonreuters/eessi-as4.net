@@ -62,7 +62,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             {
                 throw new InvalidOperationException(
                     $"{messagingContext.LogTag} {nameof(SaveReceivedMessageStep)} " + 
-                    "requires a ReceivedStream to store the incoming message into the datastore");
+                    "requires a ReceivedMessage to store the incoming message into the datastore");
             }
 
             MessagingContext resultContext = await InsertReceivedAS4MessageAsync(messagingContext);
@@ -86,7 +86,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             }
 
             Logger.Error(
-                $"{messagingContext.LogTag} The AS4 Message is not stored " + 
+                $"{messagingContext.LogTag} The AS4Message is not stored " + 
                 $"correctly into the datastore {resultContext?.Exception}");
 
             return StepResult.Failed(resultContext);

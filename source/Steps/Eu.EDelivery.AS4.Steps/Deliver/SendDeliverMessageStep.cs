@@ -57,16 +57,17 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
             if (messagingContext.ReceivingPMode == null)
             {
                 throw new InvalidOperationException(
-                    "Unable to send DeliverMessage: the MessagingContext does not contain a Receiving PMode");
+                    "Unable to send DeliverMessage: no ReceivingPMode is set");
             }
 
             if (messagingContext.ReceivingPMode.MessageHandling?.DeliverInformation == null)
             {
                 throw new InvalidOperationException(
-                    "Unable to send DeliverMessage: the ReceivingPMode does not contain any DeliverInformation");
+                    $"Unable to send the DeliverMessage: the ReceivingPMode {messagingContext.ReceivingPMode.Id} does not contain any <DeliverInformation />." +
+                    "Please provide a correct <DeliverInformation /> tag to indicate where the deliver message (and its attachments) should be send to.");
             }
 
-            Logger.Trace($"{messagingContext.LogTag} Start sending the deliver message to the consuming business application...");
+            Logger.Trace($"{messagingContext.LogTag} Start sending the DeliverMessage to the consuming business application...");
 
             Method deliverMethod = messagingContext.ReceivingPMode.MessageHandling.DeliverInformation.DeliverMethod;
 
