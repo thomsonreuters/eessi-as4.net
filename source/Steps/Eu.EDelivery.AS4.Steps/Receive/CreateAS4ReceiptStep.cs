@@ -50,13 +50,15 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
             SendingProcessingMode responseSendPMode =
-                messagingContext.GetReferencedSendingPMode(messagingContext.ReceivingPMode, _config);
+                messagingContext.SendingPMode 
+                ?? messagingContext.GetReferencedSendingPMode(messagingContext.ReceivingPMode, _config);
 
             if (responseSendPMode == null)
             {
                 const string desc = "Cannot determine a Sending Processing Mode during the creation of the response";
-                messagingContext.ErrorResult = new ErrorResult(desc, ErrorAlias.ProcessingModeMismatch);
+                Logger.Error(desc);
 
+                messagingContext.ErrorResult = new ErrorResult(desc, ErrorAlias.ProcessingModeMismatch);
                 return StepResult.Failed(messagingContext);
             }
 

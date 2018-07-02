@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Core;
+using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.ComponentTests.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Extensions;
@@ -17,6 +18,7 @@ using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Steps.Receive;
 using Eu.EDelivery.AS4.TestUtils;
 using Eu.EDelivery.AS4.TestUtils.Stubs;
+using Moq;
 using Xunit;
 using CollaborationInfo = Eu.EDelivery.AS4.Model.PMode.CollaborationInfo;
 using MessageExchangePattern = Eu.EDelivery.AS4.Entities.MessageExchangePattern;
@@ -145,10 +147,11 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         }
 
         [Theory]
-        [InlineData(false, OutStatus.Ack, Operation.ToBeNotified)]
-        [InlineData(true, OutStatus.Sent, Operation.ToBeForwarded)]
+        [InlineData(false, "ComponentTest_ReceiveAgent_Sample1", OutStatus.Ack, Operation.ToBeNotified)]
+        [InlineData(true, "Forward_Push", OutStatus.Sent, Operation.ToBeForwarded)]
         public async Task CorrectHandlingOnSynchronouslyReceivedMultiHopReceipt(
             bool actAsIntermediaryMsh,
+            string receivePModeId,
             OutStatus expectedOutStatus,
             Operation expectedSignalOperation)
         {
@@ -158,10 +161,18 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             SendingProcessingMode pmode = CreateMultihopPMode(StubListenLocation);
             AS4Message as4Message = CreateMultiHopAS4UserMessage(messageId, pmode);
             as4Message.FirstUserMessage.CollaborationInfo = 
-                new Model.Core.CollaborationInfo(new Model.Core.AgreementReference("agreement", "Forward_Push"));
+                new Model.Core.CollaborationInfo(
+                    new Model.Core.AgreementReference(
+                        value: "http://agreements.europa.org/agreement", 
+                        pmodeId: receivePModeId),
+                    service: new Model.Core.Service(
+                        value: "Forward_Push_Service",
+                        type: "eu:europa:services"), 
+                    action: "Forward_Push_Action",
+                    conversationId: "eu:europe:conversation");
 
             var signal = new ManualResetEvent(false);
-            var r = new AS4MessageResponseHandler(CreateMultiHopReceiptFor(as4Message));
+            var r = new AS4MessageResponseHandler(CreateMultiHopReceiptFor(as4Message, pmode));
             StubHttpServer.StartServer(StubListenLocation, r.WriteResponse, signal);
 
             // Act
@@ -174,24 +185,25 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                 () => _databaseSpy.GetOutMessageFor(m => m.EbmsMessageId == messageId),
                 timeout: TimeSpan.FromSeconds(10));
 
+            Assert.NotNull(sentMessage);
+            Assert.Equal(expectedOutStatus, sentMessage.Status.ToEnum<OutStatus>());
+
             InMessage receivedMessage = await PollUntilPresent(
                 () => _databaseSpy.GetInMessageFor(m => m.EbmsRefToMessageId == messageId),
                 timeout: TimeSpan.FromSeconds(10));
 
-            Assert.NotNull(sentMessage);
             Assert.NotNull(receivedMessage);
-
-            Assert.Equal(expectedOutStatus, sentMessage.Status.ToEnum<OutStatus>());
             Assert.Equal(MessageType.Receipt, receivedMessage.EbmsMessageType);
             Assert.Equal(expectedSignalOperation, receivedMessage.Operation);
         }
 
         private void PutMessageToSend(AS4Message as4Message, SendingProcessingMode pmode, bool actAsIntermediaryMsh)
         {
-            string fileName = @".\database\as4messages\out\sendagent_test.as4";
+            const string fileName = @".\database\as4messages\out\sendagent_test.as4";
 
             string directory = Path.GetDirectoryName(fileName);
-            if (!String.IsNullOrWhiteSpace(directory) && Directory.Exists(directory) == false)
+            if (!String.IsNullOrWhiteSpace(directory) 
+                && Directory.Exists(directory) == false)
             {
                 Directory.CreateDirectory(directory);
             }
@@ -199,7 +211,10 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             Console.WriteLine($@"Put AS4Message to {directory}");
             using (var fs = new FileStream(fileName, FileMode.Create))
             {
-                SerializerProvider.Default.Get(as4Message.ContentType).Serialize(as4Message, fs, CancellationToken.None);
+                SerializerProvider
+                    .Default
+                    .Get(as4Message.ContentType)
+                    .Serialize(as4Message, fs, CancellationToken.None);
             }
 
             var outMessage = new OutMessage(as4Message.GetPrimaryMessageId())
@@ -225,11 +240,21 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             return AS4Message.Create(simpleUserMessage, sendingPMode);
         }
 
-        private static AS4Message CreateMultiHopReceiptFor(AS4Message message)
+        private static AS4Message CreateMultiHopReceiptFor(AS4Message message, SendingProcessingMode responsePMode)
         {
-            using (MessagingContext context = new MessagingContext(message, MessagingContextMode.Receive))
+            using (var context = new MessagingContext(message, MessagingContextMode.Receive))
             {
-                var createReceipt = new CreateAS4ReceiptStep();
+                var stubConfig = new Mock<IConfig>();
+                stubConfig.Setup(c => c.GetSendingPMode(responsePMode.Id))
+                          .Returns(responsePMode);
+
+                context.ReceivingPMode =
+                    new ReceivingProcessingMode
+                    {
+                        ReplyHandling = { SendingPMode = responsePMode.Id }
+                    };
+
+                var createReceipt = new CreateAS4ReceiptStep(stubConfig.Object);
                 var result = createReceipt.ExecuteAsync(context).Result;
 
                 Assert.True(result.Succeeded, "Unable to create Receipt");
@@ -241,42 +266,50 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
         private static SendingProcessingMode CreateMultihopPMode(string sendToUrl)
         {
-            return new SendingProcessingMode()
+            return new SendingProcessingMode
             {
                 Id = "PMode-Id",
-                PushConfiguration = new PushConfiguration()
+                PushConfiguration = new PushConfiguration
                 {
-                    Protocol = new Protocol()
-                    {
-                        Url = sendToUrl
-                    }
+                    Protocol = new Protocol { Url = sendToUrl }
                 },
-                ReceiptHandling = new SendReceiptHandling()
+                ReceiptHandling = new SendReceiptHandling
                 {
                     NotifyMessageProducer = true,
-                    NotifyMethod = new Method { Type = "FILE", Parameters = new List<Parameter> { new Parameter() { Name = "Location", Value = "." } } }
+                    NotifyMethod = new Method
+                    {
+                        Type = "FILE",
+                        Parameters = new List<Parameter>
+                        {
+                            new Parameter
+                            {
+                                Name = "Location",
+                                Value = "."
+                            }
+                        }
+                    }
                 },
                 MepBinding = MessageExchangePatternBinding.Push,
                 MessagePackaging = new SendMessagePackaging
                 {
                     IsMultiHop = true,
-                    PartyInfo = new PartyInfo()
+                    PartyInfo = new PartyInfo
                     {
-                        FromParty = new Party()
+                        FromParty = new Party
                         {
                             PartyIds = new List<PartyId> { new PartyId("org:eu:europa:as4:example:accesspoint:B") },
                             Role = "Sender"
                         },
-                        ToParty = new Party()
+                        ToParty = new Party
                         {
                             PartyIds = new List<PartyId> { new PartyId("org:eu:europa:as4:example:accesspoint:A") },
                             Role = "Receiver"
                         }
                     },
-                    CollaborationInfo = new CollaborationInfo()
+                    CollaborationInfo = new CollaborationInfo
                     {
                         Action = "Forward_Push_Action",
-                        Service = new Service()
+                        Service = new Service
                         {
                             Type = "eu:europa:services",
                             Value = "Forward_Push_Service"

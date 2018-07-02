@@ -285,7 +285,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                 var user = new UserMessage($"user-{Guid.NewGuid()}");
                 user.CollaborationInfo = 
                     new AS4.Model.Core.CollaborationInfo(
-                        new Service(value.ToString(), type.Select(t => t.ToString())));
+                        agreement: new AgreementReference("agreement"),
+                        service: new Service(
+                            value.ToString(), 
+                            type.Select(t => t.ToString())),
+                        action: "action",
+                        conversationId: "conversation");
 
                 // Act
                 XmlDocument doc = SerializeSoapMessage(AS4Message.Create(user));

@@ -3,6 +3,7 @@ using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.ComponentTests.Common;
@@ -16,6 +17,7 @@ using Xunit;
 using AgreementReference = Eu.EDelivery.AS4.Model.Core.AgreementReference;
 using CollaborationInfo = Eu.EDelivery.AS4.Model.Core.CollaborationInfo;
 using MessageExchangePattern = Eu.EDelivery.AS4.Entities.MessageExchangePattern;
+using Service = Eu.EDelivery.AS4.Model.Core.Service;
 
 namespace Eu.EDelivery.AS4.ComponentTests.Agents
 {
@@ -50,25 +52,20 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         [Fact]
         public async Task OutMessageIsCreatedForToBeForwardedMessage()
         {
+            // Arrange
             const string messageId = "message-id";
+            var as4Message = AS4Message.Create(CreateForwardPushUserMessage(messageId));
+            
+            // Act: Send an AS4Message to the AS4 MSH which has a receive-agent configured.
+            await SendAS4MessageTo(as4Message, _receiveAgentUrl);
 
-            // Send an AS4Message to the AS4 MSH which has a receive-agent configured.
-            var as4Message = CreateAS4Message("Forward_Push", new UserMessage(messageId));
-
-            var response = await StubSender.SendAS4Message(_receiveAgentUrl, as4Message);
-
-            Assert.Equal(HttpStatusCode.Accepted, response.StatusCode);
-
-            await Task.Delay(TimeSpan.FromSeconds(3));
-
-            // Assert if an OutMessage is created with the correct status and operation.
-            var inMessage = _databaseSpy.GetInMessageFor(m => m.EbmsMessageId == messageId);
-            var outMessage = _databaseSpy.GetOutMessageFor(m => m.EbmsMessageId == messageId);
-
+            // Assert: if an OutMessage is created with the correct status and operation.
+            InMessage inMessage = _databaseSpy.GetInMessageFor(m => m.EbmsMessageId == messageId);
             Assert.NotNull(inMessage);
             Assert.Equal(Operation.Forwarded, inMessage.Operation);
             Assert.NotNull(AS4XmlSerializer.FromString<ReceivingProcessingMode>(inMessage.PMode));
 
+            OutMessage outMessage = _databaseSpy.GetOutMessageFor(m => m.EbmsMessageId == messageId);
             Assert.NotNull(outMessage);
             Assert.True(outMessage.Intermediary);
             Assert.Equal(Operation.ToBeProcessed, outMessage.Operation);
@@ -78,114 +75,127 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         [Fact]
         public async Task OutMessageIsCreatedForPrimaryMessageUnitOfToBeForwardedAS4Message()
         {
-            const string messageId = "primary-message-id";
+            // Arrange
+            const string primaryMessageId = "primary-message-id";
             const string secondMessageId = "secondary-message-id";
 
-            // Send an AS4Message to the AS4 MSH which has a receive-agent configured.
-            var as4Message = CreateAS4Message("Forward_Push", new UserMessage(messageId), new UserMessage(secondMessageId));
+            var primaryUserMessage = CreateForwardPushUserMessage(primaryMessageId);
+            var secondaryUserMessage = new UserMessage(secondMessageId);
 
-            var response = await StubSender.SendAS4Message(_receiveAgentUrl, as4Message);
+            var as4Message = AS4Message.Create(primaryUserMessage);
+            as4Message.AddMessageUnit(secondaryUserMessage);
 
-            Assert.Equal(HttpStatusCode.Accepted, response.StatusCode);
+            // Act: Send an AS4Message to the AS4 MSH which has a receive-agent configured
+            await SendAS4MessageTo(as4Message, _receiveAgentUrl);
 
-            await Task.Delay(TimeSpan.FromSeconds(3));
-
-            // Assert if an OutMessage is created with the correct status and operation.
-            var primaryInMessage = _databaseSpy.GetInMessageFor(m => m.EbmsMessageId == messageId);
-            var secondaryInMessage = _databaseSpy.GetInMessageFor(m => m.EbmsMessageId == secondMessageId);
-            var primaryOutMessage = _databaseSpy.GetOutMessageFor(m => m.EbmsMessageId == messageId);
-            var secondaryOutMessage = _databaseSpy.GetOutMessageFor(m => m.EbmsMessageId == secondMessageId);
-
+            // Assert: if an OutMessage is created with the correct status and operation.
+            var primaryInMessage = _databaseSpy.GetInMessageFor(m => m.EbmsMessageId == primaryMessageId);
             Assert.NotNull(primaryInMessage);
             Assert.Equal(Operation.Forwarded, primaryInMessage.Operation);
             Assert.NotNull(AS4XmlSerializer.FromString<ReceivingProcessingMode>(primaryInMessage.PMode));
 
+            var secondaryInMessage = _databaseSpy.GetInMessageFor(m => m.EbmsMessageId == secondMessageId);
             Assert.NotNull(secondaryInMessage);
             Assert.Equal(Operation.Forwarded, primaryInMessage.Operation);
             Assert.NotNull(AS4XmlSerializer.FromString<ReceivingProcessingMode>(primaryInMessage.PMode));
 
+            var primaryOutMessage = _databaseSpy.GetOutMessageFor(m => m.EbmsMessageId == primaryMessageId);
             Assert.NotNull(primaryOutMessage);
             Assert.Equal(Operation.ToBeProcessed, primaryOutMessage.Operation);
             Assert.NotNull(AS4XmlSerializer.FromString<SendingProcessingMode>(primaryOutMessage.PMode));
 
+            var secondaryOutMessage = _databaseSpy.GetOutMessageFor(m => m.EbmsMessageId == secondMessageId);
             Assert.Null(secondaryOutMessage);
         }
 
         [Fact]
         public async Task ForwardingWithPullOnPush()
         {
+            // Arrange
             const string messageId = "message-id";
+            AS4Message as4Message = AS4Message.Create(CreateForwardPullUserMessage(messageId));
 
-            // Send an AS4Message to the AS4 MSH which has a receive-agent configured.
-            var as4Message = CreateAS4Message("Forward_Pull", new UserMessage(messageId));
+            // Act: Send an AS4Message to the AS4 MSH which has a receive-agent configured.
+            await SendAS4MessageTo(as4Message, _receiveAgentUrl);
 
-            var response = await StubSender.SendAS4Message(_receiveAgentUrl, as4Message);
-
-            Assert.Equal(HttpStatusCode.Accepted, response.StatusCode);
-
-            await Task.Delay(TimeSpan.FromSeconds(3));
-
-            // Assert if an OutMessage is created with the correct status and operation.
+            // Assert: if an OutMessage is created with the correct status and operation.
             var inMessage = _databaseSpy.GetInMessageFor(m => m.EbmsMessageId == messageId);
-            var outMessage = _databaseSpy.GetOutMessageFor(m => m.EbmsMessageId == messageId);
-
             Assert.NotNull(inMessage);
             Assert.Equal(Operation.Forwarded, inMessage.Operation);
 
             var receivingPMode = AS4XmlSerializer.FromString<ReceivingProcessingMode>(inMessage.PMode);
-
             Assert.NotNull(receivingPMode);
 
+            OutMessage outMessage = _databaseSpy.GetOutMessageFor(m => m.EbmsMessageId == messageId);
             Assert.NotNull(outMessage);
 
             var sendingPMode = AS4XmlSerializer.FromString<SendingProcessingMode>(outMessage.PMode);
-
             Assert.NotNull(sendingPMode);
             Assert.Equal(Operation.ToBeProcessed, outMessage.Operation);
             Assert.Equal(MessageExchangePattern.Pull, outMessage.MEP);
             Assert.Equal(sendingPMode.MessagePackaging.Mpc, outMessage.Mpc);
         }
 
+        private static UserMessage CreateForwardPullUserMessage(string messageId)
+        {
+            return new UserMessage(messageId)
+            {
+                CollaborationInfo = new CollaborationInfo(
+                    agreement: new AgreementReference(
+                        value: "http://agreements.europa.org/agreement",
+                        pmodeId: "Forward_Pull"),
+                    service: new Service(
+                        value: "Forward_Pull_Service",
+                        type: "eu:europa:services"),
+                    action: "Forward_Pull_Action",
+                    conversationId: "eu:europe:conversation")
+            };
+        }
+
+        private static async Task SendAS4MessageTo(AS4Message msg, string url)
+        {
+            HttpResponseMessage response = await StubSender.SendAS4Message(url, msg);
+            Assert.Equal(HttpStatusCode.Accepted, response.StatusCode);
+            await Task.Delay(TimeSpan.FromSeconds(3));
+        }
+
         [Fact]
         public async Task ForwardingWithPushOnPull()
         {
-            string pullingUrl = RetrievePullingUrlFromConfig();
-
-            var waiter = new ManualResetEvent(false);
-
+            // Arrange
             const string messageId = "user-message-id";
+            var tobeForwarded = AS4Message.Create(CreateForwardPushUserMessage(messageId));
 
-            var responseHandler = new AS4MessageResponseHandler(CreateAS4Message("Forward_Push", new UserMessage(messageId)));
+            // Act: Start a Stub HTTP Server that listens on the PullRequest endpoint
+            // and replies with an AS4 UserMessage
+            await RespondToPullRequestWith(tobeForwarded);
 
-            // Start a Stub HTTP Server that listens on the PullRequest endpoint and
-            // replies with an AS4 UserMessage.
-            StubHttpServer.StartServer(pullingUrl, responseHandler.WriteResponse, waiter);
-
-            Assert.True(waiter.WaitOne(TimeSpan.FromSeconds(15)));
-
-            // Wait a little bit so that the Message can be processed.
-            await Task.Delay(TimeSpan.FromSeconds(5));
-
-            // Assert if an OutMessage is created with the correct status and operation.
+            // Assert: if an OutMessage is created with the correct status and operation
             var inMessage = _databaseSpy.GetInMessageFor(m => m.EbmsMessageId == messageId);
-            var outMessage = _databaseSpy.GetOutMessageFor(m => m.EbmsMessageId == messageId);
-
             Assert.NotNull(inMessage);
             Assert.Equal(Operation.Forwarded, inMessage.Operation);
 
-            var receivingPMode = AS4XmlSerializer.FromString<ReceivingProcessingMode>(inMessage.PMode);
-
-            Assert.NotNull(receivingPMode);
-
+            var outMessage = _databaseSpy.GetOutMessageFor(m => m.EbmsMessageId == messageId);
             Assert.NotNull(outMessage);
 
             var sendingPMode = AS4XmlSerializer.FromString<SendingProcessingMode>(outMessage.PMode);
-
             Assert.NotNull(sendingPMode);
             Assert.Equal(Operation.ToBeProcessed, outMessage.Operation);
             Assert.Equal(MessageExchangePattern.Push, outMessage.MEP);
             Assert.Equal(sendingPMode.MessagePackaging.Mpc, outMessage.Mpc);
+        }
 
+        private async Task RespondToPullRequestWith(AS4Message tobeForwarded)
+        {
+            string pullingUrl = RetrievePullingUrlFromConfig();
+            var responseHandler = new AS4MessageResponseHandler(tobeForwarded);
+
+            var waiter = new ManualResetEvent(false);
+            StubHttpServer.StartServer(pullingUrl, responseHandler.WriteResponse, waiter);
+            Assert.True(waiter.WaitOne(TimeSpan.FromSeconds(15)));
+
+            // Wait a little bit so that the Message can be processed
+            await Task.Delay(TimeSpan.FromSeconds(5));
         }
 
         private string RetrievePullingUrlFromConfig()
@@ -210,38 +220,20 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             return pmode.PushConfiguration.Protocol.Url;
         }
 
-        /// <summary>
-        /// Creates an AS4 Message that can be send to a AS4.NET receive agent.
-        /// </summary>
-        /// <param name="pmodeId">The ID of the Receiving PMode that must be used by the Receive-Agent to handle the message.</param>
-        /// <param name="messageUnits"></param>
-        /// <returns></returns>
-        private AS4Message CreateAS4Message(string pmodeId, params MessageUnit[] messageUnits)
+        private static  UserMessage CreateForwardPushUserMessage(string messageId)
         {
-            if (messageUnits.Any() == false)
+            return new UserMessage(messageId)
             {
-                throw new ArgumentException(@"At least one messageUnit must be specified", nameof(messageUnits));
-            }
-
-            var as4Message = AS4Message.Create(messageUnits.First(), new SendingProcessingMode());
-
-            foreach (var mu in messageUnits.Skip(1))
-            {
-                as4Message.AddMessageUnit(mu);
-            }
-
-            // Add a PMode Id to the primary usermessage, just to be sure that it can be picked up with
-            // and processed with a specific receiving PMode.
-            if (as4Message.FirstUserMessage != null)
-            {
-                as4Message.FirstUserMessage.CollaborationInfo = 
-                    new CollaborationInfo(new AgreementReference(
-                        value: String.Empty,
-                        type: String.Empty,
-                        pModeId: pmodeId));
-            }
-
-            return as4Message;
+                CollaborationInfo = new CollaborationInfo(
+                    agreement: new AgreementReference(
+                        value: "http://agreements.europa.org/agreement",
+                        pmodeId: "Forward_Push"),
+                    service: new Service(
+                        value: "Forward_Push_Service", 
+                        type: "eu:europa:services"),
+                    action: "Forward_Push_Action",
+                    conversationId: "eu:europe:conversation")
+            };
         }
     }
 }

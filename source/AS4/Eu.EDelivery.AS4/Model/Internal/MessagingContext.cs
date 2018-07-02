@@ -238,9 +238,6 @@ namespace Eu.EDelivery.AS4.Model.Internal
         {
             if (receivePMode == null)
             {
-                Logger.Error(
-                    "Cannot determine referenced SendingPMode because there's no ReceivingPMode");
-
                 return null;
             }
 

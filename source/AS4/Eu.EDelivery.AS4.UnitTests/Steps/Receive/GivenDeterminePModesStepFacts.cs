@@ -49,7 +49,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 var userMesssage = new UserMessage(messageId: $"user-{Guid.NewGuid()}");
                 userMesssage.CollaborationInfo = 
                     new AS4.Model.Core.CollaborationInfo(
-                        new AgreementReference("agreement", receivePModeId));
+                        new AgreementReference(
+                            "agreement", 
+                            receivePModeId),
+                        AS4.Model.Core.Service.TestService,
+                        Constants.Namespaces.TestAction,
+                        AS4.Model.Core.CollaborationInfo.DefaultConversationId);
 
                 string sendPModeId = $"send-pmodeid-{Guid.NewGuid()}";
                 var expected = new SendingProcessingMode { Id = sendPModeId };

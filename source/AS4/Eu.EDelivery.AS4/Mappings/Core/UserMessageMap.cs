@@ -45,6 +45,7 @@ namespace Eu.EDelivery.AS4.Mappings.Core
                 .ForMember(dest => dest.MessageId, src => src.MapFrom(t => t.MessageInfo.MessageId))
                 .ForMember(dest => dest.RefToMessageId, src => src.MapFrom(t => t.MessageInfo.RefToMessageId))
                 .ForMember(dest => dest.Timestamp, src => src.MapFrom(t => t.MessageInfo.Timestamp))
+                .ForMember(dest => dest.Sender, src => src.MapFrom(t => t.PartyInfo.From))
                 .ForMember(dest => dest.CollaborationInfo, src => src.MapFrom(t => t.CollaborationInfo))
                 .ForMember(dest => dest.MessageProperties,
                            src => src.MapFrom(t => t.MessageProperties ?? new Xml.Property[] { }))
@@ -77,32 +78,9 @@ namespace Eu.EDelivery.AS4.Mappings.Core
                         model.Receiver = AS4Mapper.Map<Model.Core.Party>(xmlTo);
                     }
 
-                    Model.Core.CollaborationInfo modelInfo = model.CollaborationInfo;
-                    Xml.CollaborationInfo xmlInfo = xml.CollaborationInfo;
-                    if (xmlInfo != null)
-                    {
-                        MapAgreementReference(modelInfo, xmlInfo);
-
-                        model.CollaborationInfo.ConversationId = xml.CollaborationInfo.ConversationId;
-                        model.MessageId = xml.MessageInfo.MessageId;
-                        model.RefToMessageId = xml.MessageInfo.RefToMessageId;
-                    }
+                    model.MessageId = xml.MessageInfo.MessageId;
+                    model.RefToMessageId = xml.MessageInfo.RefToMessageId;
                 }).ForAllOtherMembers(x => x.Ignore());
-        }
-
-        private static void MapAgreementReference(Model.Core.CollaborationInfo modelInfo, Xml.CollaborationInfo xmlInfo)
-        {
-            if (xmlInfo.AgreementRef?.Value != null)
-            {
-                modelInfo.AgreementReference = new Model.Core.AgreementReference(
-                    xmlInfo.AgreementRef.Value,
-                    (xmlInfo.AgreementRef?.type != null).ThenMaybe(xmlInfo.AgreementRef?.type),
-                    (xmlInfo.AgreementRef?.pmode != null).ThenMaybe(xmlInfo.AgreementRef?.pmode)).AsMaybe();
-            }
-            else
-            {
-                modelInfo.AgreementReference = Maybe<Model.Core.AgreementReference>.Nothing;
-            }
         }
 
         private void MapUserMessageToRoutingInputUserMessage()

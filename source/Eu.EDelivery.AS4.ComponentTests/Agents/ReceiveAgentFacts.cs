@@ -90,9 +90,14 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             var message = AS4Message.Create(new UserMessage());
             message.FirstUserMessage.CollaborationInfo = 
                 new CollaborationInfo(
-                    new AgreementReference(
+                    agreement: new AgreementReference(
                         value: "agreement", 
-                        pmodeId: "receiveagent-non-exist-response-pmode"));
+                        pmodeId: "receiveagent-non-exist-response-pmode"),
+                    service: new Service(
+                        value: "receive:agent:service",
+                        type: "receive:agent:type"),
+                    action: "receive:agent:action",
+                    conversationId: "receive:agent:conversation");
 
             // Act
             HttpResponseMessage response = await StubSender.SendAS4Message(_receiveAgentUrl, message);
@@ -164,7 +169,15 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         {
             var userMessage = new UserMessage();
             userMessage.CollaborationInfo = 
-                new CollaborationInfo(new AgreementReference("agreement", "type", "receiveagent-non_existing_decrypt_cert-pmode"));
+                new CollaborationInfo(
+                    agreement: new AgreementReference(
+                        value: "http://agreements.europa.org/agreement", 
+                        pmodeId: "receiveagent-non_existing_decrypt_cert-pmode"),
+                    service: new Service(
+                        value: "errorhandling",
+                        type: "as4.net:receive_agent:componenttest"),
+                    action: "as4.net:receive_agent:decryption_failed",
+                    conversationId: "as4.net:receive_agent:conversation");
 
             var as4Message = CreateAS4MessageWithAttachment(userMessage);
 
@@ -241,12 +254,17 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             {
                 MessageId = messageId,
                 CollaborationInfo = new CollaborationInfo(
-                    new AgreementReference(
+                    agreement: new AgreementReference(
                         value: "forwarding/agreement",
                         type: "forwarding",
                         // Make sure that the forwarding receiving pmode is used; therefore
                         // explicitly set the Id of the PMode that must be used by the receive-agent.
-                        pModeId: "Forward_Push"))
+                        pModeId: "Forward_Push"),
+                    service: new Service(
+                        value: "Forward_Push_Service",
+                        type: "eu:europa:services"),
+                    action: "Forward_Push_Action",
+                    conversationId: "eu:europe:conversation")
             });
 
             // Act
@@ -458,7 +476,16 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             // Arrange
             var userMessage = new UserMessage("test-" + Guid.NewGuid())
             {
-                CollaborationInfo = new CollaborationInfo(new AgreementReference("agreement", "Forward_Push_Multihop"))
+                CollaborationInfo = new 
+                    CollaborationInfo(
+                        agreement: new AgreementReference(
+                            value: "http://agreements.europa.org/agreement", 
+                            pmodeId: "Forward_Push_Multihop"),
+                        service: new Service(
+                            value: "Forward_Push_Multihop_Service",
+                            type: "eu:europa:services"),
+                        action: "Forward_Push_Multihop_Action",
+                        conversationId: "eu:europe:conversation")
             };
             var multihopPMode = new SendingProcessingMode {MessagePackaging = {IsMultiHop = true}};
             AS4Message multihopMessage = AS4Message.Create(userMessage, multihopPMode);
@@ -482,7 +509,15 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             // Arrange
             var userMessage = new UserMessage("test-" + Guid.NewGuid())
             {
-                CollaborationInfo = new CollaborationInfo(new AgreementReference("agreement", "ComponentTest_ReceiveAgent_Sample1"))
+                CollaborationInfo = new CollaborationInfo(
+                    agreement: new AgreementReference(
+                        value: "http://agreements.europa.org/agreement", 
+                        pmodeId: "ComponentTest_ReceiveAgent_Sample1"),
+                    service: new Model.Core.Service(
+                        value: "getting:started",
+                        type: "eu:europa:services"),
+                    action: "eu:sample:01",
+                    conversationId: "eu:europa:conversation")
             };
             var multihopPMode = new SendingProcessingMode {MessagePackaging = {IsMultiHop = true}};
             AS4Message multihopMessage = AS4Message.Create(userMessage, multihopPMode);
@@ -540,7 +575,10 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         {
             // Arrange
             const string messageId = "multihop-signalmessage-id";
-            AS4Message as4Message = CreateMultihopSignalMessage(messageId, "someusermessageid");
+            AS4Message as4Message = CreateMultihopSignalMessage(
+                messageId, 
+                refToMessageId: "someusermessageid", 
+                pmodeId: "Forward_Push");
 
             // Act
             await StubSender.SendAS4Message(_receiveAgentUrl, as4Message);
@@ -566,24 +604,34 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         [Fact]
         public async Task ThenMultiHopSignalMessageThatHasReachedItsDestinationIsNotified()
         {
+            // Arrange
             const string messageId = "some-user-message-id";
-
-            var sendingPMode = new SendingProcessingMode()
+            var sendingPMode = new SendingProcessingMode
             {
-                ReceiptHandling = new SendReceiptHandling()
+                ReceiptHandling = new SendReceiptHandling
                 {
                     NotifyMessageProducer = true,
-                    NotifyMethod = new Method()
+                    NotifyMethod = new Method
                     {
                         Type = "FILE",
-                        Parameters = new List<Parameter>() { new Parameter { Name = "Location", Value = @".\messages\receipts" } }
+                        Parameters = new List<Parameter>
+                        {
+                            new Parameter
+                            {
+                                Name = "Location",
+                                Value = @".\messages\receipts"
+                            }
+                        }
                     }
                 }
             };
 
             StoreToBeAckOutMessage(messageId, sendingPMode);
 
-            var as4Message = CreateMultihopSignalMessage("multihop-signalmessage-id", messageId);
+            var as4Message = CreateMultihopSignalMessage(
+                messageId: "multihop-signalmessage-id", 
+                refToMessageId: messageId, 
+                pmodeId: "ComponentTest_ReceiveAgent_Sample1");
 
             // Act
             await StubSender.SendAS4Message(_receiveAgentUrl, as4Message);
@@ -616,7 +664,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             Assert.Equal(Operation.NotApplicable, inMessage.Operation);
         }
 
-        private static AS4Message CreateMultihopSignalMessage(string messageId, string refToMessageId)
+        private static AS4Message CreateMultihopSignalMessage(string messageId, string refToMessageId, string pmodeId)
         {
             var receipt = new Receipt(messageId, refToMessageId);
 
@@ -650,7 +698,11 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                 },
                 CollaborationInfo = new Xml.CollaborationInfo()
                 {
-                    AgreementRef = new AgreementRef { pmode = "Forward_Push" },
+                    AgreementRef = new AgreementRef
+                    {
+                        Value = "http://agreements.europa.org/agreement",
+                        pmode = pmodeId
+                    },
                     Action = "Forward_Push_Action",
                     Service = new Xml.Service()
                     {

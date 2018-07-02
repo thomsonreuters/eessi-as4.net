@@ -70,6 +70,7 @@
     <Compile Include="Factories\GivenPayloadFileNameFactoryFacts.cs" />
     <Compile Include="Gens.cs" />
     <Compile Include="Mappings\Core\GivenRoutingInputUserMessageMapFacts.cs" />
+    <Compile Include="Mappings\PMode\GivenPModePartyResolverFacts.cs" />
     <Compile Include="Model\Deliver\EmptyDeliverEnvelope.cs" />
     <Compile Include="Model\Notify\EmptyNotifyEnvelope.cs" />
     <Compile Include="Model\PMode\GivenMessagePackagingFacts.cs" />
@@ -153,7 +154,6 @@
     <Compile Include="Mappings\Notify\GivenReceiptToNotifyMapFacts.cs" />
     <Compile Include="Mappings\PMode\GivenPModeActionResolverFacts.cs" />
     <Compile Include="Mappings\PMode\GivenPModeAgreemenRefResolverFacts.cs" />
-    <Compile Include="Mappings\PMode\GivenPModePartyResolverFacts.cs" />
     <Compile Include="Mappings\PMode\GivenPModeServiceResolverFacts.cs" />
     <Compile Include="Mappings\Submit\GivenSubmitActionResolverFacts.cs" />
     <Compile Include="Mappings\Submit\GivenSubmitAgreementMapperFacts.cs" />
@@ -168,7 +168,6 @@
     <Compile Include="Model\FilledUserMessage.cs" />
     <Compile Include="Model\GivenAS4MessageFacts.cs" />
     <Compile Include="Model\GivenAttachmentFacts.cs" />
-    <Compile Include="Model\GivenCollaborationInfoFacts.cs" />
     <Compile Include="Model\GivenMessagingContextFacts.cs" />
     <Compile Include="Model\GivenPartyFacts.cs" />
     <Compile Include="Model\GivenReceivingProcessingModeFacts.cs" />

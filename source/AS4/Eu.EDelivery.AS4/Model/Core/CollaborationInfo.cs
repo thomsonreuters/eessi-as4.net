@@ -14,39 +14,6 @@ namespace Eu.EDelivery.AS4.Model.Core
 
         public static readonly string DefaultConversationId = "1";
 
-        static CollaborationInfo()
-        {
-            Default = new CollaborationInfo(
-                agreement: Maybe<AgreementReference>.Nothing, 
-                service: Service.TestService, 
-                action: Constants.Namespaces.TestAction, 
-                conversationId: DefaultConversationId);
-        }
-
-        public static readonly CollaborationInfo Default;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="CollaborationInfo"/> class.
-        /// </summary>
-        /// <param name="agreement"></param>
-        public CollaborationInfo(AgreementReference agreement)
-            : this(
-                agreement: agreement,
-                service: Service.TestService,
-                action: Constants.Namespaces.TestAction,
-                conversationId: DefaultConversationId) { }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="CollaborationInfo"/> class.
-        /// </summary>
-        /// <param name="service"></param>
-        public CollaborationInfo(Service service) 
-            : this(
-                Maybe<AgreementReference>.Nothing, 
-                service, 
-                Constants.Namespaces.TestAction, 
-                DefaultConversationId) { }
-
         /// <summary>
         /// Initializes a new instance of the <see cref="CollaborationInfo"/> class.
         /// </summary>

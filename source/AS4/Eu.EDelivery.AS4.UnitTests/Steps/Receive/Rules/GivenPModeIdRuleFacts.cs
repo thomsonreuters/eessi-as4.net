@@ -19,7 +19,15 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive.Rules
             {
                 // Arrange
                 var userMessage = new UserMessage(messageId: "message-id");
-                userMessage.CollaborationInfo = new CollaborationInfo(new AgreementReference(string.Empty, pmodeId));
+                userMessage.CollaborationInfo = 
+                    new CollaborationInfo(
+                        new AgreementReference(
+                            value: "agreement", 
+                            pmodeId: pmodeId),
+                        AS4.Model.Core.Service.TestService,
+                        Constants.Namespaces.TestAction,
+                        CollaborationInfo.DefaultConversationId);
+
                 var receivingPMode = new ReceivingProcessingMode {Id = pmodeId};
                 var rule = new PModeIdRule();
                 // Act

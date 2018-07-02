@@ -91,7 +91,15 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
             var user = new UserMessage(ebmsMessageId)
             {
-                CollaborationInfo = new CollaborationInfo(new AgreementReference(String.Empty, DefaultPModeId))
+                CollaborationInfo = new CollaborationInfo(
+                    agreement: new AgreementReference(
+                        value: "http://agreements.europa.org/agreement", 
+                        pmodeId: DefaultPModeId),
+                    service: new Service(
+                        value: "getting:started",
+                        type: "eu:europa:services"),
+                    action: "eu:sample:01",
+                    conversationId: "eu:europe:conversation")
             };
             user.AddPartInfo(new PartInfo("cid:" + attachmentId));
 
