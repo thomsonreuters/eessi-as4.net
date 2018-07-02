@@ -8,32 +8,53 @@ using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.TestUtils.Stubs;
 using Xunit;
+using static Eu.EDelivery.AS4.UnitTests.Properties.Resources;
 
 namespace Eu.EDelivery.AS4.UnitTests.Security.Encryption
 {
     public class GivenDecryptMessageFacts
     {
         [Fact]
-        public async Task ThenDecryptDecryptsTheAttachmentsCorrectly()
+        public async Task Decrypt_Multiple_Image_Payloads_Correctly()
         {
             // Arrange
             AS4Message as4Message = await GetEncryptedMessageAsync();
-            X509Certificate2 decryptCertificate = CreateDecryptCertificate();
+            X509Certificate2 decryptCertificate = GetDecryptCertificate();
 
             // Act
             as4Message.Decrypt(decryptCertificate);
 
             // Assert
-            Assert.Equal(Properties.Resources.flower1, GetAttachmentContents(as4Message.Attachments.ElementAt(0)));
-            Assert.Equal(Properties.Resources.flower2, GetAttachmentContents(as4Message.Attachments.ElementAt(1)));
+            Assert.Equal(
+                new [] { flower1, flower2 },
+                as4Message.Attachments.Select(GetAttachmentContents));
+            Assert.All(
+                as4Message.Attachments, 
+                a => Assert.Equal("image/jpeg", a.ContentType));
         }
 
         [Fact]
-        public async Task ThenSecurityHeaderIsNoLongerMarkedAsEncrypted()
+        public async Task Decrypt_Sets_Compressed_ContentType_For_Payloads_Afterwards()
+        {
+            // Arrange
+            AS4Message as4Message = await GetEncryptedCompressedMessageAsync();
+            X509Certificate2 decryptCert = GetDecryptCertificate();
+
+            // Act
+            as4Message.Decrypt(decryptCert);
+
+            // Assert
+            Assert.All(
+                as4Message.Attachments, 
+                a => Assert.Equal("application/gzip", a.ContentType));
+        }
+
+        [Fact]
+        public async Task Decrypt_Unmarks_SecurityHeader_As_Encrypted()
         {
             // Arrange
             AS4Message as4Message = await GetEncryptedMessageAsync();
-            X509Certificate2 decryptCertificate = CreateDecryptCertificate();
+            X509Certificate2 decryptCertificate = GetDecryptCertificate();
 
             Assert.True(as4Message.SecurityHeader.IsEncrypted);
 
@@ -44,11 +65,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Encryption
         }
 
         [Fact]
-        public async Task ThenSecurityHeaderNoLongerContainsEncryptionElements()
+        public async Task Decrypt_Removes_Encryption_Elements_From_SecurityHeader()
         {
             // Arrange
             AS4Message as4Message = await GetEncryptedMessageAsync();
-            X509Certificate2 decryptCertificate = CreateDecryptCertificate();
+            X509Certificate2 decryptCertificate = GetDecryptCertificate();
 
             // Act
             as4Message.Decrypt(decryptCertificate);
@@ -62,7 +83,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Encryption
         }
 
         [Fact]
-        public async Task ThenDecryptThrowsAnAS4Exception()
+        public async Task Decrypt_Fails_When_Wrong_Decryption_Certificate_Is_Given()
         {
             // Arrange
             AS4Message as4Message = await GetEncryptedMessageAsync();
@@ -72,25 +93,40 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Encryption
             Assert.ThrowsAny<Exception>(() => as4Message.Decrypt(certificate));
         }
 
-        private static async Task<AS4Message> GetEncryptedMessageAsync()
+        private static Task<AS4Message> GetEncryptedMessageAsync()
         {
-            Stream inputStream = new MemoryStream(Properties.Resources.as4_encrypted_message);
-            var serializer = new MimeMessageSerializer(new SoapEnvelopeSerializer());
-
-            var message = await serializer.DeserializeAsync(
-                inputStream,
-                "multipart/related; boundary=\"MIMEBoundary_64ed729f813b10a65dfdc363e469e2206ff40c4aa5f4bd11\"",
-                CancellationToken.None);
-
-            Assert.True(message.IsEncrypted, "The AS4 Message to use in this testcase should be encrypted");
-
-            return message;
+            return DeserializeEncryptedMessageAsync(
+                as4_encrypted_message,
+                "multipart/related; boundary=\"MIMEBoundary_64ed729f813b10a65dfdc363e469e2206ff40c4aa5f4bd11\"");
         }
 
-        private static X509Certificate2 CreateDecryptCertificate()
+        private static Task<AS4Message> GetEncryptedCompressedMessageAsync()
+        {
+            return DeserializeEncryptedMessageAsync(
+                as4_encrypted_compressed_message,
+                "multipart/related; boundary=\"=-6sJmyirLVoAPyUJUzCWk0w==\"");
+        }
+
+        private static async Task<AS4Message> DeserializeEncryptedMessageAsync(byte[] contents, string contentType)
+        {
+            var inputStr = new MemoryStream(contents);
+
+            AS4Message output =
+                await SerializerProvider
+                      .Default
+                      .Get(contentType)
+                      .DeserializeAsync(inputStr, contentType, CancellationToken.None);
+
+            Assert.True(output.IsEncrypted, "The AS4Message to use in this testcase should be encrypted");
+            Assert.All(output.Attachments, a => Assert.Equal("application/octet-stream", a.ContentType));
+
+            return output;
+        }
+
+        private static X509Certificate2 GetDecryptCertificate()
         {
             return new X509Certificate2(
-                Properties.Resources.holodeck_partyc_certificate,
+                holodeck_partyc_certificate,
                 "ExampleC",
                 X509KeyStorageFlags.Exportable);
         }
