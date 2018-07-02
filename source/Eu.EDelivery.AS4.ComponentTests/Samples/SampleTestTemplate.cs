@@ -1,10 +1,12 @@
 ﻿using System;
 using System.IO;
 using Eu.EDelivery.AS4.ComponentTests.Common;
-using Eu.EDelivery.AS4.TestUtils;
+using Xunit;
+using static Eu.EDelivery.AS4.TestUtils.FileSystemUtils;
 
 namespace Eu.EDelivery.AS4.ComponentTests.Samples
 {
+    [Collection(WindowsServiceCollection.CollectionId)]
     public abstract class SampleTestTemplate : IDisposable
     {
         private bool _restoreSettings;
@@ -14,26 +16,34 @@ namespace Eu.EDelivery.AS4.ComponentTests.Samples
         /// </summary>
         protected SampleTestTemplate()
         {
-            OverrideSettings("sample_settings.xml");
+            try
+            {
+                OverrideConsoleSettings("sample_console_settings.xml");
+                OverrideServiceSettings("sample_service_settings.xml");
 
-            // ReSharper disable once InconsistentNaming
-            string samples_pmodes = Path.Combine(".", "samples", "pmodes");
-            CleanSlateReceivingPModesFrom(samples_pmodes);
-            CleanSlateSendingPModesFrom(samples_pmodes);
+                // ReSharper disable once InconsistentNaming
+                string samples_pmodes = Path.Combine(".", "samples", "pmodes");
+                CleanSlateReceivingPModesFrom(samples_pmodes);
+                CleanSlateSendingPModesFrom(samples_pmodes);
 
-            FileSystemUtils.CreateOrClearDirectory(@".\messages\out");
-            FileSystemUtils.CreateOrClearDirectory(@".\messages\in");
-            FileSystemUtils.CreateOrClearDirectory(@".\messages\receipts");
-            FileSystemUtils.CreateOrClearDirectory(@".\messages\errors");
-            FileSystemUtils.CreateOrClearDirectory(@".\messages\exceptions");
+                CreateOrClearDirectory(@".\messages\out");
+                CreateOrClearDirectory(@".\messages\in");
+                CreateOrClearDirectory(@".\messages\receipts");
+                CreateOrClearDirectory(@".\messages\errors");
+                CreateOrClearDirectory(@".\messages\exceptions");
 
-
-            Msh = AS4Component.Start(Environment.CurrentDirectory, cleanSlate: false);
+                SenderMsh = AS4Component.Start(Environment.CurrentDirectory, cleanSlate: false);
+            }
+            catch (Exception)
+            {
+                SenderMsh?.Dispose();
+                throw;
+            }
         }
 
         private static void CleanSlateReceivingPModesFrom(string pmodesPath)
         {
-            FileSystemUtils.CreateOrClearDirectory(@".\config\receive-pmodes");
+            CreateOrClearDirectory(@".\config\receive-pmodes");
 
             foreach (string file in Directory.EnumerateFiles(pmodesPath, "*receive-pmode.xml"))
             {
@@ -43,7 +53,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Samples
 
         private static void CleanSlateSendingPModesFrom(string pmodesPath)
         {
-            FileSystemUtils.CreateOrClearDirectory(@".\config\send-pmodes");
+            CreateOrClearDirectory(@".\config\send-pmodes");
 
             File.Copy(Path.Combine(pmodesPath, "signed-response-pmode.xml"), @".\config\send-pmodes\signed-response-pmode.xml", overwrite: true);
             File.Copy(Path.Combine(pmodesPath, "unsigned-response-pmode.xml"), @".\config\send-pmodes\unsigned-response-pmode.xml", overwrite: true);
@@ -54,10 +64,17 @@ namespace Eu.EDelivery.AS4.ComponentTests.Samples
             }
         }
 
-        private void OverrideSettings(string settingsFile)
+        private void OverrideConsoleSettings(string settingsFile)
         {
             File.Copy(@".\config\settings.xml", @".\config\settings_original.xml", true);
             File.Copy($@".\config\componenttest-settings\{settingsFile}", @".\config\settings.xml", true);
+            _restoreSettings = true;
+        }
+
+        private void OverrideServiceSettings(string settingsFile)
+        {
+            File.Copy(@".\config\settings-service.xml", @".\config\settings_original.xml", true);
+            File.Copy($@".\config\componenttest-settings\{settingsFile}", @".\config\settings-service.xml", true);
             _restoreSettings = true;
         }
 
@@ -65,7 +82,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Samples
         /// Gets the MSH.
         /// </summary>
         /// <value>The MSH.</value>
-        protected AS4Component Msh { get; }
+        protected AS4Component SenderMsh { get; }
 
         /// <summary>
         /// Puts the sample to the polling directory so it can be picked up by the AS4.NET Component.
@@ -86,6 +103,9 @@ namespace Eu.EDelivery.AS4.ComponentTests.Samples
             }
         }
 
-        protected virtual void Disposing(bool isDisposing) { }
+        protected virtual void Disposing(bool isDisposing)
+        {
+            SenderMsh.Dispose();
+        }
     }
 }
