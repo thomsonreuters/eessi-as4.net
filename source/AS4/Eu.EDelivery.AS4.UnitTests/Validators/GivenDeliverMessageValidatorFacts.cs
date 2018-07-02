@@ -71,9 +71,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
         }
 
         [Theory]
-        [InlineData("Sender", "Id", null)]
-        [InlineData("Sender", null, "Type")]
-        public void ThenDeliverMessageIsInvalidWithMissingFromParty(string partyRole, string partyId, string partyType)
+        [InlineData("Sender", "Id", null, true)]
+        [InlineData("Sender", null, "Type", false)]
+        public void ThenDeliverMessageIsInvalidWithMissingFromParty(string partyRole, string partyId, string partyType, bool expected)
         {
             TestDeliverMessageValidation(
                 message =>
@@ -82,13 +82,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
                     message.PartyInfo.FromParty.PartyIds.First().Id = partyId;
                     message.PartyInfo.FromParty.PartyIds.First().Type = partyType;
                 }, 
-                expectedValid: false);
+                expectedValid: expected);
         }
 
         [Theory]
-        [InlineData("Receiver", "Id", null)]
-        [InlineData("Receiver", null, "Type")]
-        public void ThenDeliverMessageIsInvalidWithMissingToParty(string partyRole, string partyId, string partyType)
+        [InlineData("Receiver", "Id", null, true)]
+        [InlineData("Receiver", null, "Type", false)]
+        public void ThenDeliverMessageIsInvalidWithMissingToParty(string partyRole, string partyId, string partyType, bool expected)
         {
             TestDeliverMessageValidation(
                 message =>
@@ -97,7 +97,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
                     message.PartyInfo.ToParty.PartyIds.First().Id = partyId;
                     message.PartyInfo.ToParty.PartyIds.First().Type = partyType;
                 }, 
-                expectedValid: false);
+                expectedValid: expected);
         }
 
         private static void TestDeliverMessageValidation(Action<DeliverMessage> arrangeMessage, bool expectedValid)

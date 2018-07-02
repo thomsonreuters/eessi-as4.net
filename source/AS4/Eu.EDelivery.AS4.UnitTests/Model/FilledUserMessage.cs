@@ -60,7 +60,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
 
         private static Party CreateParty(string role, string partyId)
         {
-            return new Party(role, new PartyId(partyId));;
+            return new Party(role, new PartyId(partyId, type: $"https://eu.edelivery.as4.{role}"));
         }
 
         private static List<MessageProperty> CreateMessageProperties()

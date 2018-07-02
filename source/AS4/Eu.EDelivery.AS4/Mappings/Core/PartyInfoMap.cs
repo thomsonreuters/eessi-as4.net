@@ -29,7 +29,8 @@ namespace Eu.EDelivery.AS4.Mappings.Core
                 .ConstructUsing(
                     src => new Model.Core.Party(
                         src.Role,
-                        src.PartyId?.Select(AS4Mapper.Map<Model.Core.PartyId>)));
+                        src.PartyId?.Select(AS4Mapper.Map<Model.Core.PartyId>)))
+                .ForAllOtherMembers(x => x.Ignore());
 
             CreateMap<Model.Core.Party, Xml.To>()
                 .ForMember(dest => dest.Role, src => src.MapFrom(t => t.Role))
@@ -40,7 +41,8 @@ namespace Eu.EDelivery.AS4.Mappings.Core
                 .ConstructUsing(
                     src => new Model.Core.Party(
                         src.Role,
-                        src.PartyId?.Select(AS4Mapper.Map<Model.Core.PartyId>)));
+                        src.PartyId?.Select(AS4Mapper.Map<Model.Core.PartyId>)))
+                .ForAllOtherMembers(x => x.Ignore());
         }
     }
 }

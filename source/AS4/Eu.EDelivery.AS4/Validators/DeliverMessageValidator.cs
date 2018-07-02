@@ -30,10 +30,10 @@ namespace Eu.EDelivery.AS4.Validators
         private void RulesForPartyInfo()
         {
             RuleFor(i => i.PartyInfo.FromParty.PartyIds).NotNull();
-            RuleForEach(i => i.PartyInfo.FromParty.PartyIds).Must(i => i.Id != null && i.Type != null);
+            RuleForEach(i => i.PartyInfo.FromParty.PartyIds).Must(i => i.Id != null);
 
             RuleFor(i => i.PartyInfo.ToParty.PartyIds).NotNull();
-            RuleForEach(i => i.PartyInfo.ToParty.PartyIds).Must(i => i.Id != null && i.Type != null);
+            RuleForEach(i => i.PartyInfo.ToParty.PartyIds).Must(i => i.Id != null);
         }
 
         private void RulesForCollaborationInfo()

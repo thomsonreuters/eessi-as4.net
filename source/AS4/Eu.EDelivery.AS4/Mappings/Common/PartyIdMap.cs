@@ -7,21 +7,23 @@ namespace Eu.EDelivery.AS4.Mappings.Common
     {
         public PartyIdMap()
         {
-            CreateMap<Model.Common.PartyId, Model.Core.PartyId>(MemberList.None)
+            CreateMap<Model.Common.PartyId, Model.Core.PartyId>()
                 .ConstructUsing(src => 
-                    string.IsNullOrEmpty(src.Type)
+                    src.Type == null
                         ? new Model.Core.PartyId(src.Id) 
-                        : new Model.Core.PartyId(src.Id, src.Type));
+                        : new Model.Core.PartyId(src.Id, src.Type))
+                .ForAllOtherMembers(x => x.Ignore());
 
-            CreateMap<Model.Core.PartyId, Model.Common.PartyId>(MemberList.None)
+            CreateMap<Model.Core.PartyId, Model.Common.PartyId>()
                 .ConstructUsing(src =>
                 {
                     return new Model.Common.PartyId
                     {
                         Id = src.Id,
-                        Type = src.Type.GetOrElse(() => String.Empty)
+                        Type = src.Type.GetOrElse(() => null)
                     };
-                });
+                })
+                .ForAllOtherMembers(x => x.Ignore());
         }
     }
 }
