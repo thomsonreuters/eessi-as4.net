@@ -6,19 +6,21 @@ namespace Eu.EDelivery.AS4.Mappings.Core
     {
         public PartyIdMap()
         {
-            CreateMap<Model.Core.PartyId, Xml.PartyId>(MemberList.None)
+            CreateMap<Model.Core.PartyId, Xml.PartyId>()
                 .ConstructUsing(model => 
                     new Xml.PartyId
                     {
                         Value = model.Id,
                         type = model.Type.GetOrElse(() => null)
-                    });
+                    })
+                .ForAllOtherMembers(x => x.Ignore());
 
-            CreateMap<Xml.PartyId, Model.Core.PartyId>(MemberList.None)
+            CreateMap<Xml.PartyId, Model.Core.PartyId>()
                 .ConstructUsing(xml =>
-                    string.IsNullOrEmpty(xml.type)
+                    xml.type == null
                         ? new Model.Core.PartyId(xml.Value)
-                        : new Model.Core.PartyId(xml.Value, xml.type));
+                        : new Model.Core.PartyId(xml.Value, xml.type))
+                .ForAllOtherMembers(x => x.Ignore());
 
             CreateMap<Xml.PartyId[], Model.Core.PartyId>(MemberList.None)
                 .ForAllOtherMembers(x => x.Ignore());
