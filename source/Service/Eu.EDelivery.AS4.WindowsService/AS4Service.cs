@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
+using System.IO;
+using System.Reflection;
 using System.ServiceProcess;
 using System.Threading;
 using System.Threading.Tasks;
@@ -40,6 +42,13 @@ namespace Eu.EDelivery.AS4.WindowsService
 
             try
             {
+                string assemblyLocationFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+                if (string.Compare(Environment.CurrentDirectory, assemblyLocationFolder, StringComparison.OrdinalIgnoreCase) != 0
+                    && assemblyLocationFolder != null)
+                {
+                    Environment.CurrentDirectory = assemblyLocationFolder;
+                }
+
                 Config configuration = Config.Instance;
                 Registry registration = Registry.Instance;
                 configuration.Initialize("settings-service.xml");
