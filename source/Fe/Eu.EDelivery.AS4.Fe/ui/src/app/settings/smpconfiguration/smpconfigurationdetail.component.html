@@ -1,4 +1,4 @@
-<as4-modal [isVisible]="true" (okEvent)="saveItem($event)">
+<as4-modal [isVisible]="true" (okEvent)="saveItem($event)" [showDefaultButtons]="false">
     <form [formGroup]="form">
         <div class="row">
             <div class="col-md-6">
@@ -67,4 +67,6 @@
             </div>
         </div>
     </form>
+    <button type="button" buttons class="btn btn-flat" (click)="saveItem($event)" [disabled]="form.invalid ? true : null">OK</button>
+    <button type="button" buttons class="btn btn-flat" (click)="componentRef.destroy()">CANCEL</button>
 </as4-modal>

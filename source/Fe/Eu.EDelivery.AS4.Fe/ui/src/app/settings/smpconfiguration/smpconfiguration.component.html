@@ -34,8 +34,10 @@
                         <td>{{config.toPartyId}}</td>
                         <td data-cy="smp-row-partyrole">{{config.partyRole}}</td>
                         <td>{{config.partyType}}</td>
-                        <td>
-                            <a href="{{config.url}}">{{config.url}}</a>
+                        <td class="truncate">
+                            <a href="{{config.url}}" data-toggle="tooltip" title="{{config.url}}">
+                                {{config.url}}
+                            </a>
                         </td>
                         <td>{{config.serviceValue}}</td>
                         <td>{{config.serviceType}}</td>
