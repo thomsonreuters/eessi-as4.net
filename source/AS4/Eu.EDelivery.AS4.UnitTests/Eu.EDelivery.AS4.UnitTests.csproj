@@ -349,6 +349,7 @@
     <None Include="Resources\as4_soapattachment.as4" />
     <None Include="Resources\certificate-as4.pfx" />
     <None Include="Resources\as4_single_payload.as4" />
+    <None Include="Resources\as4-encrypted-compressed-message.as4" />
     <None Include="Resources\holodeck-partya-certificate.pfx" />
     <None Include="Resources\partyC.p12" />
     <None Include="Resources\Receipt_InvalidNRI_Namespace.as4" />
