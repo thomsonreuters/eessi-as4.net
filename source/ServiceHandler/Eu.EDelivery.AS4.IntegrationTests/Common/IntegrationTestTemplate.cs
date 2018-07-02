@@ -313,6 +313,10 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
                           }
 
                           Console.WriteLine(Environment.NewLine);
+                          if (File.Exists(file))
+                          {
+                              File.Delete(file); 
+                          }
                       });
             }
         }
