@@ -18,10 +18,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Core
         {
             private static void AssertReferenceDigest(Reference reference, NonRepudiationInformation nonRepudiation)
             {
-                MessagePartNRInformation partNRInformation = nonRepudiation.MessagePartNRInformation.First();
-                Assert.True(reference.DigestValue.SequenceEqual(partNRInformation.Reference.DigestValue));
+                AS4.Model.Core.Reference firstReference = nonRepudiation.MessagePartNRIReferences.First();
+                Assert.True(reference.DigestValue.SequenceEqual(firstReference.DigestValue));
                 var referenceDigestMethod = new ReferenceDigestMethod(reference.DigestMethod);
-                Assert.Equal(referenceDigestMethod.Algorithm, partNRInformation.Reference.DigestMethod.Algorithm);
+                Assert.Equal(referenceDigestMethod.Algorithm, firstReference.DigestMethod.Algorithm);
             }
 
             [Fact]
@@ -51,8 +51,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Core
                     new NonRepudiationInformationBuilder().WithSignedReferences(references).Build();
 
                 // Assert
-                MessagePartNRInformation partNRInformation = nonRepudiation.MessagePartNRInformation.First();
-                ReferenceTransform referenceTransform = partNRInformation.Reference.Transforms.First();
+                AS4.Model.Core.Reference firstReference = nonRepudiation.MessagePartNRIReferences.First();
+                ReferenceTransform referenceTransform = firstReference.Transforms.First();
                 Assert.Equal(reference.TransformChain[0].Algorithm, referenceTransform.Algorithm);
             }
 
@@ -68,8 +68,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Core
                     new NonRepudiationInformationBuilder().WithSignedReferences(references).Build();
 
                 // Assert
-                MessagePartNRInformation partNRInformation = nonRepudiation.MessagePartNRInformation.First();
-                Assert.Equal(reference.Uri, partNRInformation.Reference.URI);
+                AS4.Model.Core.Reference firstReference = nonRepudiation.MessagePartNRIReferences.First();
+                Assert.Equal(reference.Uri, firstReference.URI);
             }
         }
 

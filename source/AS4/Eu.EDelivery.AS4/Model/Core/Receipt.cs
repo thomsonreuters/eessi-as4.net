@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using CryptoReference = System.Security.Cryptography.Xml.Reference;
 
@@ -67,60 +66,10 @@ namespace Eu.EDelivery.AS4.Model.Core
 
         private byte[] GetNonRepudiationHashForUri(string userMessageReferenceUri)
         {
-            return NonRepudiationInformation.MessagePartNRInformation
-                .Where(i => i.Reference.URI.Equals(userMessageReferenceUri))
-                .Select(i => i.Reference.DigestValue)
+            return NonRepudiationInformation.MessagePartNRIReferences
+                .Where(r => r.URI.Equals(userMessageReferenceUri))
+                .Select(r => r.DigestValue)
                 .FirstOrDefault();
-        }
-    }
-
-    public class NonRepudiationInformation
-    {
-        public ICollection<MessagePartNRInformation> MessagePartNRInformation { get; set; }
-
-        public NonRepudiationInformation()
-        {
-            this.MessagePartNRInformation = new Collection<MessagePartNRInformation>();
-        }
-    }
-
-    public class MessagePartNRInformation
-    {
-        public Reference Reference { get; set; }
-    }
-
-    public class Reference
-    {
-        public ICollection<ReferenceTransform> Transforms { get; set; }
-        public ReferenceDigestMethod DigestMethod { get; set; }
-        public byte[] DigestValue { get; set; }
-        public string URI { get; set; }
-    }
-
-    public class ReferenceTransforms
-    {
-        public ReferenceTransform Transform { get; set; }
-    }
-
-    public class ReferenceTransform
-    {
-        public string Algorithm { get; set; }
-
-        public ReferenceTransform(string algorithm)
-        {
-            this.Algorithm = algorithm;
-        }
-    }
-
-    public class ReferenceDigestMethod
-    {
-        public string Algorithm { get; set; }
-
-        public ReferenceDigestMethod() {}
-
-        public ReferenceDigestMethod(string algorithm)
-        {
-            this.Algorithm = algorithm;
         }
     }
 }

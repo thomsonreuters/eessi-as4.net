@@ -281,25 +281,17 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             AS4Message signedUserMessage,
             Func<byte[], byte[]> adaptHashes)
         {
-            var references = signedUserMessage.SecurityHeader.GetReferences()
-                .Select(r => new Reference
-                {
-                    URI = r.Uri,
-                    DigestMethod = new ReferenceDigestMethod(),
-                    Transforms = new List<ReferenceTransform>(),
-                    DigestValue = adaptHashes(r.DigestValue)
-
-                })
-                .Select(r => new MessagePartNRInformation { Reference = r })
-                .ToList();
+            IEnumerable<Reference> references = signedUserMessage.SecurityHeader.GetReferences()
+                .Select(r => new Reference(
+                    uri: r.Uri, 
+                    transforms: new ReferenceTransform[0], 
+                    digestMethod: new ReferenceDigestMethod(Constants.SignAlgorithms.Sha256), 
+                    digestValue: adaptHashes(r.DigestValue)));
 
             var receipt = new Receipt
             {
                 RefToMessageId = messageId,
-                NonRepudiationInformation = new NonRepudiationInformation
-                {
-                    MessagePartNRInformation = references
-                }
+                NonRepudiationInformation = new NonRepudiationInformation(references)
             };
 
             return await SerializeDeserializeSoap(

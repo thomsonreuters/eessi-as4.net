@@ -113,7 +113,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
         private static void AssertSignedReferences(Receipt receiptMessage, SecurityHeader securityHeader)
         {
             IEnumerable<Reference> receiptRefs =
-                receiptMessage.NonRepudiationInformation.MessagePartNRInformation.Select(i => i.Reference);
+                receiptMessage.NonRepudiationInformation.MessagePartNRIReferences;
 
             Assert.All(
                 securityHeader.GetReferences(), 
