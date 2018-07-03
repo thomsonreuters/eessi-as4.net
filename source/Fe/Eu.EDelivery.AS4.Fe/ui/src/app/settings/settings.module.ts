@@ -24,53 +24,56 @@ import { SettingsStore } from './settings.store';
 import { SettingsComponent } from './settings/settings.component';
 import { SmpConfigurationComponent } from './smpconfiguration/smpconfiguration.component';
 import { SmpConfigurationService } from './smpconfiguration/smpconfiguration.service';
+import { SmpConfigurationDetailComponent } from './smpconfiguration/smpconfigurationdetail.component';
 import { StepSettingsComponent } from './step/step.component';
 import { TransformerComponent } from './transformer.component';
 
 const components: any = [
+  SettingsComponent,
+  BaseSettingsComponent,
+  CommonSettingsComponent,
+  DatabaseSettingsComponent,
+  AgentSettingsComponent,
+  ReceiverComponent,
+  TransformerComponent,
+  StepSettingsComponent,
+  ReceptionAwarenessAgentComponent,
+  PortalSettingsComponent,
+  AuthorizationMapComponent,
+  SmpConfigurationComponent,
+  SmpConfigurationDetailComponent
+];
+
+const services: any = [
+  SettingsService,
+  RuntimeService,
+  SettingsStore,
+  RuntimeStore,
+  AuthorizationMapService,
+  SmpConfigurationService
+];
+
+@NgModule({
+  entryComponents: [SmpConfigurationDetailComponent],
+  declarations: [...components],
+  providers: [...services],
+  imports: [
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    RouterModule.forChild(ROUTES),
+    SortablejsModule,
+    AuthenticationModule,
+    As4ComponentsModule,
+    RuntimeModule
+  ],
+  exports: [
     SettingsComponent,
     BaseSettingsComponent,
     CommonSettingsComponent,
     DatabaseSettingsComponent,
     AgentSettingsComponent,
-    ReceiverComponent,
-    TransformerComponent,
-    StepSettingsComponent,
-    ReceptionAwarenessAgentComponent,
-    PortalSettingsComponent,
-    AuthorizationMapComponent,
-    SmpConfigurationComponent
-];
-
-const services: any = [
-    SettingsService,
-    RuntimeService,
-    SettingsStore,
-    RuntimeStore,
-    AuthorizationMapService,
-    SmpConfigurationService
-];
-
-@NgModule({
-    declarations: [...components],
-    providers: [...services],
-    imports: [
-        CommonModule,
-        FormsModule,
-        ReactiveFormsModule,
-        RouterModule.forChild(ROUTES),
-        SortablejsModule,
-        AuthenticationModule,
-        As4ComponentsModule,
-        RuntimeModule
-    ],
-    exports: [
-        SettingsComponent,
-        BaseSettingsComponent,
-        CommonSettingsComponent,
-        DatabaseSettingsComponent,
-        AgentSettingsComponent,
-        ReceiverComponent
-    ]
+    ReceiverComponent
+  ]
 })
 export class SettingsModule {}

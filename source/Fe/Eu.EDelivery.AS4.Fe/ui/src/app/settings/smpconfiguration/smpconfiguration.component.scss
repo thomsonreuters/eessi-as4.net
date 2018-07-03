@@ -6,3 +6,15 @@
     box-shadow: 5px 5px 5px #ccc;
     padding: 10px;
 }
+
+.truncate {
+    width: 200px;
+}
+
+.truncate a {
+    display: block;
+    width: 200px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

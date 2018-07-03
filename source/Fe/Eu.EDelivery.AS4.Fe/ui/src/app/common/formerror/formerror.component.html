@@ -1,5 +1,5 @@
 <div class="errors">
-    <ul>
+    <ul *ngIf="!onTouched || control.touched">
         <li *ngFor="let error of errors" [ngSwitch]="error">
             <span *ngSwitchCase="'required'">This field is required.</span>
             <span *ngSwitchCase="'alreadyExists'">A combination with this value already exists.</span>

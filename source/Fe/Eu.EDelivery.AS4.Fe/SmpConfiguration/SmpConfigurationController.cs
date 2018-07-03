@@ -2,6 +2,7 @@
 using System.Net;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Fe.Authentication;
+using Eu.EDelivery.AS4.Fe.SmpConfiguration.Model;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.SwaggerGen;
@@ -30,10 +31,37 @@ namespace Eu.EDelivery.AS4.Fe.SmpConfiguration
         /// </summary>
         /// <returns>List of SMP configurations</returns>
         [HttpGet]
-        [SwaggerResponse((int) HttpStatusCode.OK, typeof(IEnumerable<Entities.SmpConfiguration>))]
-        public async Task<IEnumerable<Entities.SmpConfiguration>> Get()
+        [SwaggerResponse((int) HttpStatusCode.OK, typeof(IEnumerable<Model.SmpConfigurationRecord>))]
+        public async Task<IEnumerable<SmpConfigurationRecord>> Get()
         {
-            return await _smpConfiguration.GetAll();
+            return await _smpConfiguration.GetAllData(
+                smp => new SmpConfigurationRecord
+                {
+                    Id = smp.Id,
+                    ToPartyId = smp.ToPartyId,
+                    PartyType = smp.PartyType,
+                    PartyRole = smp.PartyRole,
+                    Url = smp.Url,
+                    ServiceValue = smp.ServiceValue,
+                    ServiceType = smp.ServiceType,
+                    Action = smp.Action,
+                    FinalRecipient = smp.FinalRecipient,
+                    EncryptionEnabled = smp.EncryptionEnabled,
+                    TlsEnabled = smp.TlsEnabled
+                });
+        }
+
+        /// <summary>
+        ///     Gets Smp configuration by identifier
+        /// </summary>
+        /// <param name="id">The identifier</param>
+        /// <returns>Matching Smp configuration</returns>
+        [HttpGet]
+        [Route("{id}")]
+        [SwaggerResponse((int) HttpStatusCode.OK, typeof(IEnumerable<SmpConfigurationDetail>))]
+        public async Task<SmpConfigurationDetail> Get(int id)
+        {
+            return await _smpConfiguration.GetById(id);
         }
 
         /// <summary>
@@ -43,7 +71,7 @@ namespace Eu.EDelivery.AS4.Fe.SmpConfiguration
         [HttpPost]
         [Authorize(Roles = Roles.Admin)]
         [SwaggerResponse((int) HttpStatusCode.OK, typeof(OkResult))]
-        public async Task<IActionResult> Post([FromBody] SmpConfiguration smpConfiguration)
+        public async Task<IActionResult> Post([FromBody] SmpConfigurationDetail smpConfiguration)
         {
             var configuration = await _smpConfiguration.Create(smpConfiguration);
             return new OkObjectResult(configuration);

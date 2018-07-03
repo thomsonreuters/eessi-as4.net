@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
 using EnsureThat;
 using Eu.EDelivery.AS4.Common;
+using Eu.EDelivery.AS4.Fe.SmpConfiguration.Model;
 using Microsoft.EntityFrameworkCore;
 
 namespace Eu.EDelivery.AS4.Fe.SmpConfiguration
@@ -34,20 +37,50 @@ namespace Eu.EDelivery.AS4.Fe.SmpConfiguration
         /// <returns>
         ///     Collection containing all <see cref="N:Eu.EDelivery.AS4.Fe.SmpConfiguration" />
         /// </returns>
-        public async Task<IEnumerable<Entities.SmpConfiguration>> GetAll()
+        public async Task<IEnumerable<SmpConfigurationDetail>> GetAll()
         {
             var configurations = await _datastoreContext.SmpConfigurations.ToListAsync();
-            return configurations;
+            return configurations.Select(ToDetail);
+        }
+
+        /// <summary>
+        ///     Get all SMP configurations
+        /// </summary>
+        /// <returns>
+        ///     Collection containing all <see cref="N:Eu.EDelivery.AS4.Fe.SmpConfiguration" />
+        /// </returns>
+        public async Task<IEnumerable<TResult>> GetAllData<TResult>(Func<SmpConfigurationDetail, TResult> selector)
+        {
+            return await (from s in _datastoreContext.SmpConfigurations select selector(ToDetail(s))).ToListAsync();
+        }
+
+        /// <summary>
+        ///     Get SMP configuration by identifier
+        /// </summary>
+        /// <returns>
+        ///     Matched <see cref="N:Eu.EDelivery.AS4.Fe.SmpConfiguration" /> if found
+        /// </returns>
+        public async Task<SmpConfigurationDetail> GetById(int id)
+        {
+            var entity = await _datastoreContext.SmpConfigurations.FirstOrDefaultAsync(s => s.Id == id);
+            if (entity == null)
+            {
+                return null;
+            }
+
+            return ToDetail(entity);
         }
 
         /// <summary>
         ///     Create an e new <see cref="N:Eu.EDelivery.AS4.Fe.SmpConfiguration" />
         /// </summary>
-        /// <param name="smpConfiguration">The SMP configuration.</param>
+        /// <param name="detail">The SMP configuration.</param>
         /// <returns></returns>
-        public async Task<Entities.SmpConfiguration> Create(SmpConfiguration smpConfiguration)
+        public async Task<SmpConfigurationDetail> Create(SmpConfigurationDetail detail)
         {
-            EnsureArg.IsNotNull(smpConfiguration, nameof(smpConfiguration));
+            EnsureArg.IsNotNull(detail, nameof(detail));
+
+            SmpConfiguration smpConfiguration = FromDetail(detail);
             ValidateSmpConfiguration(smpConfiguration);
 
             var configuration = _mapper.Map<Entities.SmpConfiguration>(smpConfiguration);
@@ -56,7 +89,57 @@ namespace Eu.EDelivery.AS4.Fe.SmpConfiguration
             await _datastoreContext.SmpConfigurations.AddAsync(configuration);
             await _datastoreContext.SaveChangesAsync();
 
-            return configuration;
+            return ToDetail(configuration);
+        }
+
+        private static SmpConfiguration FromDetail(SmpConfigurationDetail d)
+        {
+            return new SmpConfiguration
+            {
+                Id = d.Id,
+                Action = d.Action,
+                ServiceType = d.ServiceType,
+                ServiceValue = d.ServiceValue,
+                FinalRecipient = d.FinalRecipient,
+                ToPartyId = d.ToPartyId,
+                PartyRole = d.PartyRole,
+                TlsEnabled = d.TlsEnabled,
+                Url = d.Url,
+                PartyType = d.PartyType,
+                EncryptionEnabled = d.EncryptionEnabled,
+                EncryptAlgorithm = d.EncryptAlgorithm,
+                EncryptAlgorithmKeySize = d.EncryptAlgorithmKeySize,
+                EncryptKeyDigestAlgorithm = d.EncryptKeyDigestAlgorithm,
+                EncryptKeyMgfAlorithm = d.EncryptKeyMgfAlorithm,
+                EncryptPublicKeyCertificate = d.EncryptPublicKeyCertificate == null ? null : Encoding.UTF8.GetString(d.EncryptPublicKeyCertificate),
+                EncryptKeyTransportAlgorithm = d.EncryptKeyTransportAlgorithm,
+                EncryptPublicKeyCertificateName = d.EncryptPublicKeyCertificateName
+            };
+        }
+
+        private static SmpConfigurationDetail ToDetail(Entities.SmpConfiguration s)
+        {
+            return new SmpConfigurationDetail
+            {
+                Id = s.Id,
+                Action = s.Action,
+                ServiceType = s.ServiceType,
+                ServiceValue = s.ServiceValue,
+                FinalRecipient = s.FinalRecipient,
+                ToPartyId = s.ToPartyId,
+                PartyRole = s.PartyRole,
+                TlsEnabled = s.TlsEnabled,
+                Url = s.Url,
+                PartyType = s.PartyType,
+                EncryptionEnabled = s.EncryptionEnabled,
+                EncryptAlgorithm = s.EncryptAlgorithm,
+                EncryptAlgorithmKeySize = s.EncryptAlgorithmKeySize,
+                EncryptKeyDigestAlgorithm = s.EncryptKeyDigestAlgorithm,
+                EncryptKeyMgfAlorithm = s.EncryptKeyMgfAlorithm,
+                EncryptKeyTransportAlgorithm = s.EncryptKeyTransportAlgorithm,
+                EncryptPublicKeyCertificate = s.EncryptPublicKeyCertificate,
+                EncryptPublicKeyCertificateName = s.EncryptPublicKeyCertificateName
+            };
         }
 
         /// <summary>
@@ -69,6 +152,7 @@ namespace Eu.EDelivery.AS4.Fe.SmpConfiguration
         public async Task Update(long id, SmpConfiguration smpConfiguration)
         {
             EnsureArg.IsNotNull(smpConfiguration, nameof(smpConfiguration));
+            
             EnsureArg.IsTrue(id > 0, nameof(id));
             ValidateSmpConfiguration(smpConfiguration);
 

@@ -1,5 +1,32 @@
 /* tslint:disable */
 
+export class SmpConfigurationRecord {
+    id: number;
+    toPartyId: string;
+    partyRole: string;
+    partyType: string;
+    url: string;
+    serviceValue: string;
+    serviceType: string;
+    action: string;
+    tlsEnabled: boolean;
+    encryptionEnabled: boolean;
+    finalRecipient: string;
+
+    static FIELD_id = 'id';
+    static FIELD_ToPartyId = 'toPartyId';
+    static FIELD_PartyRole = 'partyRole';
+    static FIELD_PartyType = 'partyType';
+    static FIELD_Url = 'url';
+    static FIELD_ServiceValue = 'serviceValue';
+    static FIELD_ServiceType = 'serviceType';
+    static FIELD_Action = 'action';
+    static FIELD_TlsEnabled = 'tlsEnabled';
+    static FIELD_EncryptionEnabled = 'encryptionEnabled';
+    static FIELD_FinalRecipient = 'finalRecipient';
+
+}
+
 export class SmpConfiguration {
     id: number;
     toPartyId: string;
