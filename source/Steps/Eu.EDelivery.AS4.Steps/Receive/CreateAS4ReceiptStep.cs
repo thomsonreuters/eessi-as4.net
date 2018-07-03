@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
@@ -88,49 +87,57 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
         private static Receipt CreateReferencedReceipt(string ebmsMessageId, MessagingContext messagingContext)
         {
-            var receipt = new Receipt { RefToMessageId = ebmsMessageId };
-            AS4Message receivedAS4Message = messagingContext.AS4Message;
+            AS4Message as4Message = messagingContext.AS4Message;
             bool useNRRFormat = messagingContext.ReceivingPMode?.ReplyHandling.ReceiptHandling.UseNRRFormat ?? false;
 
-            if (useNRRFormat)
+            if (useNRRFormat && !as4Message.IsSigned)
             {
-                if (receivedAS4Message.IsSigned)
-                {
-                    Logger.Debug(
-                        $"ReceivingPMode {messagingContext.ReceivingPMode?.Id} " + 
-                        $"is configured to use Non-Repudiation for Receipt {receipt.MessageId} Creation");
-
-                    receipt.NonRepudiationInformation = GetNonRepudiationInformationFrom(receivedAS4Message);
-                }
-                else
-                {
-                    Logger.Warn(
-                        $"ReceivingPMode {messagingContext.ReceivingPMode?.Id} " + 
-                        "is configured to reply with Non-Repudation Receipts, but incoming UserMessage isn't signed");
-
-                    receipt.UserMessage = receivedAS4Message.FirstUserMessage;
-                }
+                Logger.Warn(
+                    $"Receiving PMode ({messagingContext.ReceivingPMode?.Id}) " +
+                    "is configured to reply with Non-Repudation Receipts, but incoming UserMessage isn't signed");
             }
-            else
+            else if (!useNRRFormat)
             {
                 Logger.Debug(
-                    $"ReceivingPMode {messagingContext.ReceivingPMode?.Id} is configured to not use the Non-Repudiation format." + 
+                    $"Receiving PMode is configured to not use the Non-Repudiation format." + 
                     "This means the original UserMessage will be included in the Receipt");
-                receipt.UserMessage = receivedAS4Message.FirstUserMessage;
             }
 
-            // If the Receipt is a Receipt on a MultihopMessage, then we'll need to add some routing-info.
-            if (receivedAS4Message.IsMultiHopMessage)
+            if (useNRRFormat && as4Message.IsSigned)
+            {
+                    Logger.Debug(
+                        $"{messagingContext.LogTag} Receiving PMode {messagingContext.ReceivingPMode?.Id} " + 
+                        $"is configured to use Non-Repudiation for Receipt {{RefToEbmsMessageId={ebmsMessageId}}} Creation");
+
+                    NonRepudiationInformation nonRepudiation = 
+                        GetNonRepudiationInformationFrom(as4Message);
+
+                    return GetRoutingInfoForUserMessage(as4Message)
+                        .Select(routing => new Receipt(ebmsMessageId, nonRepudiation, routing))
+                        .GetOrElse(() => new Receipt(ebmsMessageId, nonRepudiation));
+            }
+
+            return GetRoutingInfoForUserMessage(as4Message)
+                   .Select(routing => new Receipt(ebmsMessageId, as4Message.FirstUserMessage, routing))
+                   .GetOrElse(() => new Receipt(ebmsMessageId, as4Message.FirstUserMessage));
+        }
+
+        private static Maybe<RoutingInputUserMessage> GetRoutingInfoForUserMessage(AS4Message msg)
+        {
+            if (msg.IsMultiHopMessage)
             {
                 Logger.Debug(
-                    "Because the received UserMessage has been sent via MultiHop, we will send the Receipt as MultiHop also");
+                    "Because the received UserMessage has been sent via MultiHop, " + 
+                    "we will send the Receipt as MultiHop also");
 
-                receipt.MultiHopRouting = 
-                    AS4Mapper.Map<RoutingInputUserMessage>(receivedAS4Message.FirstUserMessage);
+                return Maybe.Just(
+                    AS4Mapper.Map<RoutingInputUserMessage>(msg.FirstUserMessage));
             }
 
-            return receipt;
+            return Maybe<RoutingInputUserMessage>.Nothing;
         }
+
+        
 
         private static NonRepudiationInformation GetNonRepudiationInformationFrom(AS4Message receivedAS4Message)
         {

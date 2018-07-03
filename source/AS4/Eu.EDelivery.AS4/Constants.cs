@@ -56,6 +56,12 @@ namespace Eu.EDelivery.AS4
             public const string EbmsMultiHop = "http://docs.oasis-open.org/ebxml-msg/ns/ebms/v3.0/multihop/200902/";
             public const string EbmsNextMsh = "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/part2/200811/nextmsh";
 
+            public const string EbmsOneWayReceipt =
+                "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/oneWay.receipt";
+
+            public const string EbmsOneWayError =
+                "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/oneWay.error";
+
             public const string EbmsSchema =
                 "https://docs.oasis-open.org/ebxml-msg/ebms/v3.0/core/ebms-header-3_0-200704.xsd";
 

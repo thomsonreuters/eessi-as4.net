@@ -138,33 +138,32 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
         private static AS4Message CreateSignalMessage(SendingProcessingMode pmode)
         {
-            var receipt = new Receipt
+            var routedUserMessage = new RoutingInputUserMessage
             {
-                MessageId = "test-" + Guid.NewGuid(),
-                RefToMessageId = "test-" + Guid.NewGuid(),
-                MultiHopRouting = new RoutingInputUserMessage
+                mpc = "some-mpc",
+                PartyInfo = new Xml.PartyInfo
                 {
-                    mpc = "some-mpc",
-                    PartyInfo = new Xml.PartyInfo
+                    To = new To
                     {
-                        To = new To
-                        {
-                            PartyId = new[] { new Xml.PartyId { Value = "org:eu:europa:as4:example:accesspoint:B" } },
-                            Role = "Receiver"
-                        },
-                        From = new From
-                        {
-                            PartyId = new[] { new Xml.PartyId { Value = "org:eu:europa:as4:example:accesspoint:A" } },
-                            Role = "Sender"
-                        }
+                        PartyId = new[] { new Xml.PartyId { Value = "org:eu:europa:as4:example:accesspoint:B" } },
+                        Role = "Receiver"
                     },
-                    CollaborationInfo = new Xml.CollaborationInfo
+                    From = new From
                     {
-                        Action = "OutboundProcessing_Action",
-                        Service = new Xml.Service { Value = "OutboundProcessing_Service", type = "eu:europa:services" }
+                        PartyId = new[] { new Xml.PartyId { Value = "org:eu:europa:as4:example:accesspoint:A" } },
+                        Role = "Sender"
                     }
+                },
+                CollaborationInfo = new Xml.CollaborationInfo
+                {
+                    Action = "OutboundProcessing_Action",
+                    Service = new Xml.Service { Value = "OutboundProcessing_Service", type = "eu:europa:services" }
                 }
             };
+            var receipt = new Receipt( 
+                $"test-{Guid.NewGuid()}", 
+                new Model.Core.NonRepudiationInformation(),
+                routedUserMessage);
 
             return AS4Message.Create(receipt, pmode);
         }

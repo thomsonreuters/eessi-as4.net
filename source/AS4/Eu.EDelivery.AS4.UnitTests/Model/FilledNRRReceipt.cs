@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Eu.EDelivery.AS4.Model.Core;
 
 namespace Eu.EDelivery.AS4.UnitTests.Model
@@ -9,27 +10,28 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
         /// Initializes a new instance of the <see cref="FilledNRRReceipt"/> class.
         /// </summary>
         public FilledNRRReceipt()
-        {
-            MessageId = "ignored id";
-            NonRepudiationInformation = new NonRepudiationInformation
-            {
-                MessagePartNRInformation =
-                    new List<MessagePartNRInformation>
-                    {
-                        new MessagePartNRInformation
+            : base(
+                "ignored-id",
+                "ref-to-message-id",
+                DateTimeOffset.Now,
+                new NonRepudiationInformation
+                {
+                    MessagePartNRInformation =
+                        new List<MessagePartNRInformation>
                         {
-                            Reference =
-                                new Reference
-                                {
-                                    DigestMethod = new ReferenceDigestMethod("ignored algorithm"),
-                                    DigestValue = new byte[0],
-                                    URI = "ignored URI",
-                                    Transforms =
-                                        new List<ReferenceTransform> {new ReferenceTransform("ignored algorithm")}
-                                }
+                            new MessagePartNRInformation
+                            {
+                                Reference =
+                                    new Reference
+                                    {
+                                        DigestMethod = new ReferenceDigestMethod("ignored algorithm"),
+                                        DigestValue = new byte[0],
+                                        URI = "ignored URI",
+                                        Transforms =
+                                            new List<ReferenceTransform> { new ReferenceTransform("ignored algorithm") }
+                                    }
+                            }
                         }
-                    }
-            };
-        }
+                }) { }
     }
 }

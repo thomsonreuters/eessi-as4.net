@@ -114,7 +114,7 @@ namespace Eu.EDelivery.AS4.Serialization
                 var to = new To { Role = Constants.Namespaces.EbmsNextMsh };
                 builder.SetToHeader(to);
 
-                string actionValue = as4Message.FirstSignalMessage.GetActionValue();
+                string actionValue = as4Message.FirstSignalMessage.MultihopAction;
                 builder.SetActionHeader(actionValue);
 
                 var routingInput = new RoutingInput

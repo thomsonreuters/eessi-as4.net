@@ -19,7 +19,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Notify
             public void ThenMapMessageInfoSucceeds()
             {
                 // Arrange
-                var receipt = new Receipt("message-id", "ref-to-message-id");
+                var receipt = new Receipt("ref-to-message-id");
 
                 // Act
                 var notifyMessage = AS4Mapper.Map<NotifyMessage>(receipt);
@@ -34,7 +34,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Notify
             public void ThenNotifyMessageHasStatusDelivered()
             {
                 // Arrange
-                var receipt = new Receipt("message-id", Guid.NewGuid().ToString());
+                var receipt = new Receipt(Guid.NewGuid().ToString());
 
                 // Act
                 var notifyMessage = AS4Mapper.Map<NotifyMessage>(receipt);

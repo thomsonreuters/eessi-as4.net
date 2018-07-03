@@ -41,9 +41,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             public async Task Determine_Both_Sending_And_Receiving_PMode_When_Bundled()
             {
                 // Arrange
-                var nonMultihopSignal = new Receipt(
-                    messageId: $"receipt-{Guid.NewGuid()}", 
-                    refToMessageId: $"reftoid-{Guid.NewGuid()}");
+                var nonMultihopSignal = new Receipt((string) $"reftoid-{Guid.NewGuid()}");
 
                 string receivePModeId = $"receive-pmodeid-{Guid.NewGuid()}";
                 var userMesssage = new UserMessage(messageId: $"user-{Guid.NewGuid()}");
@@ -110,7 +108,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 var expected = new SendingProcessingMode { Id = Guid.NewGuid().ToString() };
                 InsertOutMessage(messageId, expected);
 
-                AS4Message as4Message = AS4Message.Create(new Receipt { RefToMessageId = messageId });
+                AS4Message as4Message = AS4Message.Create(new Receipt(messageId));
 
                 // Act
                 StepResult result = await ExerciseDeterminePModes(as4Message);
