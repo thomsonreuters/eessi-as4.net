@@ -87,7 +87,6 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
         private static Receipt CreateReferencedReceipt(string ebmsMessageId, MessagingContext messagingContext)
         {
-            var receipt = new Receipt(ebmsMessageId);
             AS4Message as4Message = messagingContext.AS4Message;
             bool useNRRFormat = messagingContext.ReceivingPMode?.ReplyHandling.ReceiptHandling.UseNRRFormat ?? false;
 
@@ -108,7 +107,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             {
                     Logger.Debug(
                         $"{messagingContext.LogTag} Receiving PMode {messagingContext.ReceivingPMode?.Id} " + 
-                        $"is configured to use Non-Repudiation for Receipt {receipt.MessageId} Creation");
+                        $"is configured to use Non-Repudiation for Receipt {{RefToEbmsMessageId={ebmsMessageId}}} Creation");
 
                     NonRepudiationInformation nonRepudiation = 
                         GetNonRepudiationInformationFrom(as4Message);
