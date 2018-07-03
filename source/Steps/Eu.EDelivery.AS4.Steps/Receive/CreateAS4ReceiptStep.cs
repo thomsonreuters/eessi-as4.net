@@ -76,7 +76,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
             if (Logger.IsInfoEnabled && receiptMessage.MessageUnits.Any())
             {
-                Logger.Info($"{messagingContext.LogTag} Receipt message has been created for received AS4 UserMessages.");
+                Logger.Info($"{messagingContext.LogTag} Receipt message has been created for received AS4 UserMessages");
             }
 
             messagingContext.ModifyContext(receiptMessage);
@@ -93,13 +93,13 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             if (useNRRFormat && !as4Message.IsSigned)
             {
                 Logger.Warn(
-                    $"{messagingContext.LogTag} Receiving PMode ({messagingContext.ReceivingPMode?.Id}) " +
+                    $"Receiving PMode ({messagingContext.ReceivingPMode?.Id}) " +
                     "is configured to reply with Non-Repudation Receipts, but incoming UserMessage isn't signed");
             }
             else if (!useNRRFormat)
             {
                 Logger.Debug(
-                    $"{messagingContext.LogTag} Receiving PMode is configured to not use the Non-Repudiation format." +
+                    $"Receiving PMode is configured to not use the Non-Repudiation format." + 
                     "This means the original UserMessage will be included in the Receipt");
             }
 
@@ -127,7 +127,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             if (msg.IsMultiHopMessage)
             {
                 Logger.Debug(
-                    "Because the received UserMessage has been sent via MultiHop, " +
+                    "Because the received UserMessage has been sent via MultiHop, " + 
                     "we will send the Receipt as MultiHop also");
 
                 return Maybe.Just(

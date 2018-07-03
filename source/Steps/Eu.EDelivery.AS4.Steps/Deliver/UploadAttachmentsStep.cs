@@ -58,10 +58,16 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
                 return StepResult.Success(messagingContext);
             }
 
-            if (messagingContext.ReceivingPMode?.MessageHandling?.DeliverInformation == null)
+            if (messagingContext.ReceivingPMode == null)
             {
                 throw new InvalidOperationException(
-                    "Unable to send the deliver message: the ReceivingPMode does not contain any <DeliverInformation />." + 
+                    "Unable to send DeliverMessage: no ReceivingPMode is set");
+            }
+
+            if (messagingContext.ReceivingPMode.MessageHandling?.DeliverInformation == null)
+            {
+                throw new InvalidOperationException(
+                    $"Unable to send the DeliverMessage: the ReceivingPMode {messagingContext.ReceivingPMode?.Id} does not contain any <DeliverInformation />." +
                     "Please provide a correct <DeliverInformation /> tag to indicate where the deliver message (and its attachments) should be send to.");
             }
 
@@ -103,7 +109,11 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
             Method payloadReferenceMethod = pmode.MessageHandling.DeliverInformation.PayloadReferenceMethod;
             if (payloadReferenceMethod.Type == null)
             {
-                string description = $"(Deliver) Invalid configured Payload Reference Method in receive PMode {((IPMode) pmode).Id}";
+                string description = 
+                    $"(Deliver) Can't use ReceivingPMode {pmode.Id} to deliver payloads since no " + 
+                    "\'Type\' element indicating the right uploading strategy was found in the <PayloadReferenceMethod/> tag. " +
+                    "Default uploading strategies are: 'FILE' and 'HTTP'. See 'Deliver Uploading' for more information";
+
                 Logger.Error(description);
 
                 throw new InvalidDataException(description);
@@ -122,7 +132,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         {
             try
             {
-                Logger.Trace($"(Deliver)[{referringUserMessage.MessageId}] Start Uploading Attachment...");
+                Logger.Trace($"Start Uploading Attachment {attachment.Id}...");
 
                 UploadResult attachmentResult = 
                     await uploader.UploadAsync(attachment, referringUserMessage).ConfigureAwait(false);
@@ -130,14 +140,14 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
                 attachment.Location = attachmentResult.DownloadUrl;
                 attachment.ResetContentPosition();
 
-                Logger.Trace($"(Deliver)[{referringUserMessage.MessageId}] Attachment uploaded succesfully");
+                Logger.Trace($"Attachment {attachment.Id} uploaded succesfully");
                 return attachmentResult;
             }
             catch (Exception exception)
             {
                 Logger.Error(
-                    $"(Deliver) Attachment {attachment.Id} cannot be uploaded "
-                    + $"because of an exception: {Environment.NewLine}" + exception);
+                    $"(Deliver) Attachment {attachment.Id} cannot be uploaded " + 
+                    $"because of an exception: {Environment.NewLine}" + exception);
 
                 return UploadResult.FatalFail;
             }

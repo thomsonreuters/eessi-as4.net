@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Fe.SmpConfiguration;
+using Eu.EDelivery.AS4.Fe.SmpConfiguration.Model;
 using Eu.EDelivery.AS4.UnitTests.Common;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
@@ -12,7 +13,7 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
 {
     public class SmpConfigurationServiceTest
     {
-        private readonly SmpConfiguration.SmpConfiguration _smpConfiguration;
+        private readonly SmpConfigurationDetail _smpConfiguration;
 
         public DatastoreContext DbContext { get; private set; }
         public DbContextOptions<DatastoreContext> Options { get; }
@@ -21,7 +22,7 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
 
         public SmpConfigurationServiceTest()
         {
-            _smpConfiguration = new SmpConfiguration.SmpConfiguration
+            _smpConfiguration = new SmpConfigurationDetail
             {
                 Action = "Action",
                 EncryptAlgorithm = "EncryptAlgorithm",
@@ -100,7 +101,7 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
             public async Task ThrowsBusinessException_WhenKeyIsProvidedWithoutFileName()
             {
                 // Arrange
-                _smpConfiguration.EncryptPublicKeyCertificate = "fdsqfdsq";
+                _smpConfiguration.EncryptPublicKeyCertificate = new byte[] { 1, 2, 3 };
 
                 // Act
                 var exception = await Assert.ThrowsAsync<BusinessException>(() => SmpConfigurationService.Create(_smpConfiguration));
@@ -129,8 +130,33 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
             [Fact]
             public async Task ThrowsNotFoundException_WhenSmpConfigurationDoesntExist()
             {
+                SmpConfiguration.SmpConfiguration fixture = CreateFixture();
+
                 // Act / Assert
-                await Assert.ThrowsAsync<NotFoundException>(() => SmpConfigurationService.Update(int.MaxValue, _smpConfiguration));
+                await Assert.ThrowsAsync<NotFoundException>(() => SmpConfigurationService.Update(int.MaxValue, fixture));
+            }
+
+            private static SmpConfiguration.SmpConfiguration CreateFixture()
+            {
+                return new SmpConfiguration.SmpConfiguration
+                {
+                    Action = "Action",
+                    EncryptAlgorithm = "EncryptAlgorithm",
+                    EncryptAlgorithmKeySize = 10,
+                    EncryptKeyDigestAlgorithm = "EncryptKeyDigestAlgorithm",
+                    EncryptKeyMgfAlorithm = "EncryptKeyMgfAlorithm",
+                    EncryptKeyTransportAlgorithm = "EncryptKeyTransportAlgorithm",
+                    EncryptPublicKeyCertificate = null,
+                    EncryptionEnabled = true,
+                    FinalRecipient = "FinalRecipient",
+                    PartyRole = "PartyRole",
+                    PartyType = "PartyType",
+                    ServiceType = "ServiceType",
+                    ServiceValue = "ServiceValue",
+                    TlsEnabled = true,
+                    ToPartyId = "ToPartyId",
+                    Url = "Url"
+                };
             }
 
             [Fact]
@@ -144,7 +170,7 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
                 existingConfiguration.Action = Guid.NewGuid().ToString();
 
                 // Act
-                await SmpConfigurationService.Update(existingConfiguration.Id, _smpConfiguration);
+                await SmpConfigurationService.Update(existingConfiguration.Id, CreateFixture());
 
                 // Assert
                 var updatedFromDatabase = await DbContext.SmpConfigurations.FirstOrDefaultAsync(smpConfiguration =>
@@ -161,10 +187,13 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
                 // Arrange
                 var dbSmpConfiguration = await SmpConfigurationService.Create(_smpConfiguration);
 
-                _smpConfiguration.EncryptPublicKeyCertificate = "fdsqfdsq";
+                _smpConfiguration.EncryptPublicKeyCertificate = new byte[] { 1, 2, 3 };
+
+                SmpConfiguration.SmpConfiguration smpConfiguration = CreateFixture();
+                smpConfiguration.EncryptPublicKeyCertificate = "not empty";
 
                 // Act
-                var exception = await Assert.ThrowsAsync<BusinessException>(() => SmpConfigurationService.Update(dbSmpConfiguration.Id, _smpConfiguration));
+                var exception = await Assert.ThrowsAsync<BusinessException>(() => SmpConfigurationService.Update(dbSmpConfiguration.Id, smpConfiguration));
 
                 // Assert
                 Assert.Equal("EncryptPublicKeyCertificateName needs to be provided when EncryptPublicKeyCertificate is not empty!", exception.Message);

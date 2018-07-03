@@ -6,7 +6,7 @@ describe('page smoke tests', () => {
     cy.visit('/settings/portal');
   });
 
-  it.skip('go through all pages', () => {
+  it('go through all pages', () => {
     cy.fixture('pages').then((json) => {
       json.pages.forEach((page) => {
         cy.log(`go to ${page.title}`);

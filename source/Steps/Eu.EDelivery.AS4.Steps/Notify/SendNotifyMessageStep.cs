@@ -69,9 +69,9 @@ namespace Eu.EDelivery.AS4.Steps.Notify
                 }
             }
 
-            Logger.Trace($"{messagingContext.LogTag} Start sending notify message...");
+            Logger.Trace("Start sending NotifyMessage...");
             SendResult result = await SendNotifyMessage(messagingContext).ConfigureAwait(false);
-            Logger.Trace($"{messagingContext.LogTag} Notify message sent result in: {result}");
+            Logger.Trace($"NotifyMessage sent result in: {result}");
 
             await UpdateDatastoreAsync(
                 messagingContext.NotifyMessage,
@@ -124,7 +124,7 @@ namespace Eu.EDelivery.AS4.Steps.Notify
                 case Status.Delivered: return sendPMode.ReceiptHandling.NotifyMethod;
                 case Status.Error: return sendPMode.ErrorHandling.NotifyMethod;
                 case Status.Exception: return DetermineMethod(sendPMode, sendPMode?.ExceptionHandling, receivePMode?.ExceptionHandling);
-                default: throw new ArgumentOutOfRangeException($"Notify method not defined for status {notifyMessage.StatusCode}");
+                default: throw new ArgumentOutOfRangeException($"No NotifyMethod not defined for status {notifyMessage.StatusCode}");
             }
         }
 

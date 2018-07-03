@@ -51,6 +51,9 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         {
             if (context.AS4Message.IsSignalMessage)
             {
+                Logger.Debug(
+                    "AS4Message is a SignalMessage so no decryption will happen since the AS4.NET Component only supports encryption of payloads");
+
                 return StepResult.Success(context);
             }
 
@@ -61,7 +64,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             if (decryption.Encryption == Limit.Required && !as4Message.IsEncrypted)
             {
                 return FailedDecryptResult(
-                    $"AS4 Message is not encrypted but Receiving PMode {pmode.Id} requires it. " + 
+                    $"AS4Message is not encrypted but Receiving PMode {pmode.Id} requires it. " + 
                     "Please alter the PMode Decryption.Encryption element to Allowed or Ignored",
                     ErrorAlias.PolicyNonCompliance,
                     context);
@@ -70,7 +73,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             if (decryption.Encryption == Limit.NotAllowed && as4Message.IsEncrypted)
             {
                 return FailedDecryptResult(
-                    $"AS4 Message is encrypted but Receiving PMode {pmode.Id} doesn't allow it. " + 
+                    $"AS4Message is encrypted but Receiving PMode {pmode.Id} doesn't allow it. " + 
                     "Please alter the PMode Decryption.Encryption element to Required, Allowed or Ignored",
                     ErrorAlias.PolicyNonCompliance,
                     context);
@@ -101,7 +104,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             {
                 Logger.Info(
                     $"{messagingContext.LogTag} Decryption is ignored " + 
-                    $"in Receiving PMode {pmode.Id}, so no decryption will take place");
+                    $"in ReceivingPMode {pmode.Id}, so no decryption will take place");
             }
 
             return isIgnored;
@@ -111,11 +114,9 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         {
             try
             {
-                Logger.Trace($"{messagingContext} Start decrypting AS4 Message ...");
-
+                Logger.Trace("Start decrypting AS4Message ...");
                 messagingContext.AS4Message.Decrypt(GetCertificate(messagingContext));
-
-                Logger.Info($"{messagingContext} AS4 Message is decrypted correctly");
+                Logger.Info("AS4Message is decrypted correctly");
 
                 return await StepResult.SuccessAsync(messagingContext);
             }
@@ -138,7 +139,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             {
                 throw new ConfigurationErrorsException(
                     "Cannot start decrypting: no certificate information found " + 
-                    $"in Receiving PMode {messagingContext.ReceivingPMode.Id} to decrypt the message. " +
+                    $"in ReceivingPMode {messagingContext.ReceivingPMode.Id} to decrypt the message. " +
                     "Please use either a <CertificateFindCriteria/> or <PrivateKeyCertificate/> to specify the certificate information");
             }
 
@@ -160,7 +161,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             }
 
             throw new NotSupportedException(
-                "The decrypt-certificate information specified in the Receiving PMode " + 
+                "The decrypt-certificate information specified in the ReceivingPMode " + 
                 $"{messagingContext.ReceivingPMode.Id} could not be used to retrieve the certificate used for decryption. " + 
                 "Please use either a <CertificateFindCriteria/> or <PrivateKeyCertificate/> to specify the certificate information");
         }

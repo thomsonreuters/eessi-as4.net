@@ -107,7 +107,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         private static StepResult CreateEmptySoapResult(MessagingContext messagingContext)
         {
             Logger.Info(
-                $"{messagingContext} Empty Accepted response will be send " + 
+                $"{messagingContext.LogTag} Empty Accepted response will be send " + 
                 "to requested party since signal will be sent async");
 
             return StepResult.Success(

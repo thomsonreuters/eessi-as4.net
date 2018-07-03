@@ -8,6 +8,7 @@ using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Singletons;
 using Eu.EDelivery.AS4.TestUtils;
+using Polly;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.ComponentTests.Common
@@ -95,14 +96,23 @@ namespace Eu.EDelivery.AS4.ComponentTests.Common
 
             foreach (string file in Directory.GetFiles(Path.GetFullPath(@".\logs")))
             {
-                Console.WriteLine($@"From file: '{file}':");
+                Policy.Handle<IOException>()
+                      .Retry(3)
+                      .Execute(() =>
+                      {
+                          Console.WriteLine($@"From file: '{file}':");
 
-                foreach (string line in File.ReadAllLines(file))
-                {
-                    Console.WriteLine(line);
-                }
+                          foreach (string line in File.ReadAllLines(file))
+                          {
+                              Console.WriteLine(line);
+                          }
 
-                Console.WriteLine(Environment.NewLine);
+                          Console.WriteLine(Environment.NewLine);
+                          if (File.Exists(file))
+                          {
+                              File.Delete(file);
+                          }
+                      });
             }
         }
 

@@ -1,86 +1,63 @@
 <as4-box>
-    <button type="button" class="btn btn-primary" (click)="addItem()">
-        <i class="fa fa-plus"></i>
-    </button>
-</as4-box>
+    <div>
+        <button type="button" class="btn btn-small" (click)="addItem()" data-cy="smp-add">
+            <i class="fa fa-plus"></i>
+        </button>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-striped" data-cy="smp-configs">
+            <thead>
+                <th></th>
+                <th>To Party</th>
+                <th>To Party Role</th>
+                <th>To Party Type</th>
+                <th>Url</th>
+                <th>Service Value</th>
+                <th>Service Type</th>
+                <th>Action</th>
+                <th>Final Recipient</th>
+                <th>Encryption</th>
+                <th>Tls</th>
+            </thead>
+            <tbody>
+                <ng-container *ngFor="let config of configs | async; let i = index">
+                    <tr class="smp-row">
+                        <td>
+                            <button type="button" class="btn btn-small" (click)="deleteItem(config.id)" data-cy="smp-delete">
+                                <i class="fa fa-trash-o" aria-hidden="true"></i>
+                            </button>
+                            <button type="button" class="btn btn-small" (click)="editItem(config.id)" data-cy="smp-edit">
+                                <i class="fa fa-pencil" aria-hidden="true"></i>
+                            </button>
 
-<form [formGroup]="form">
-    <ng-container formArrayName="items">
-        <div class="panel" *ngFor="let control of itemsControl.controls; let i = index" [formGroupName]="i">
-            <div class="form-horizontal">
-                <button type="button" class="btn btn-primary" (click)="deleteItem(control.value, i)">
-                    <i class="fa fa-trash"></i>
-                </button>
-                <button type="button" class="btn btn-primary" (click)="saveItem(control)" [attr.disabled]="control.dirty && control.valid ? null : ''">
-                    <i class="fa fa-save"></i>
-                </button>
-                <div class="row">
-                    <div class="col-md-6">
-                        <as4-input label="To party">
-                            <input type="text" class="form-control" formControlName="toPartyId">
-                            <as4-form-error [control]="control.get('toPartyId')"></as4-form-error>
-                        </as4-input>
-                        <as4-input label="Party role">
-                            <input type="text" class="form-control" formControlName="partyRole">
-                            <as4-form-error [control]="control.get('partyRole')"></as4-form-error>
-                        </as4-input>
-                        <as4-input label="Party type">
-                            <input type="text" class="form-control" formControlName="partyType">
-                            <as4-form-error [control]="control.get('partyType')"></as4-form-error>
-                        </as4-input>
-                        <as4-input label="URL">
-                            <input type="text" class="form-control" formControlName="url">
-                            <as4-form-error [control]="control.get('url')"></as4-form-error>
-                        </as4-input>
-                        <as4-input label="Service value">
-                            <input type="text" class="form-control" formControlName="serviceValue">
-                            <as4-form-error [control]="control.get('serviceValue')"></as4-form-error>
-                        </as4-input>
-                        <as4-input label="Service type">
-                            <input type="text" class="form-control" formControlName="serviceType">
-                            <as4-form-error [control]="control.get('serviceType')"></as4-form-error>
-                        </as4-input>
-                        <as4-input label="Action">
-                            <input type="text" class="form-control" formControlName="action">
-                            <as4-form-error [control]="control.get('action')"></as4-form-error>
-                        </as4-input>
-                        <as4-input label="Final recipient">
-                            <input type="text" formControlName="finalRecipient">
-                            <as4-form-error [control]="control.get('finalRecipient')"></as4-form-error>
-                        </as4-input>
-                    </div>
-                    <div class="col-md-6">
-                        <as4-input label="TLS enabled">
-                            <input type="checkbox" formControlName="tlsEnabled">
-                        </as4-input>
-                        <as4-input label="Encryption">
-                            <input type="checkbox" formControlName="encryptionEnabled">
-                        </as4-input>
-                        <as4-input label="Encryption algorithm">
-                            <input type="text" class="form-control" formControlName="encryptAlgorithm">
-                            <as4-form-error [control]="control.get('encryptAlgorithm')"></as4-form-error>
-                        </as4-input>
-                        <as4-input label="Encryption MGF algorithm">
-                            <input type="text" class="form-control" formControlName="encryptKeyMgfAlorithm">
-                            <as4-form-error [control]="control.get('encryptKeyMgfAlorithm')"></as4-form-error>
-                        </as4-input>
-                        <as4-input label="Encryption algorithm key size">
-                            <input type="number" class="form-control" formControlName="encryptAlgorithmKeySize">
-                        </as4-input>
-                        <as4-input label="Encryption digest algorithm">
-                            <input type="text" class="form-control" formControlName="encryptKeyDigestAlgorithm">
-                            <as4-form-error [control]="control.get('encryptKeyDigestAlgorithm')"></as4-form-error>
-                        </as4-input>
-                        <as4-input label="Encryption key transport algorithm">
-                            <input type="text" class="form-control" formControlName="encryptKeyTransportAlgorithm">
-                            <as4-form-error [control]="control.get('encryptKeyTransportAlgorithm')"></as4-form-error>
-                        </as4-input>
-                        <as4-input label="Encryption public key certificate">
-                            <as4-file-select formControlName="encryptPublicKeyCertificate" [fileNameControl]="control.get('encryptPublicKeyCertificateName')"></as4-file-select>
-                        </as4-input>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </ng-container>
-</form>
+                        </td>
+                        <td>{{config.toPartyId}}</td>
+                        <td data-cy="smp-row-partyrole">{{config.partyRole}}</td>
+                        <td>{{config.partyType}}</td>
+                        <td class="truncate">
+                            <a href="{{config.url}}" data-toggle="tooltip" title="{{config.url}}">
+                                {{config.url}}
+                            </a>
+                        </td>
+                        <td>{{config.serviceValue}}</td>
+                        <td>{{config.serviceType}}</td>
+                        <td>{{config.action}}</td>
+                        <td>{{config.finalRecipient}}</td>
+                        <td *ngIf="config.encryptionEnabled === true">
+                            <i class="fa fa-check" aria-hidden="true" style="color:green"></i>
+                        </td>
+                        <td *ngIf="config.encryptionEnabled === false">
+                            <i class="fa fa-times" aria-hidden="true" style="color:red;"></i>
+                        </td>
+                        <td *ngIf="config.tlsEnabled === true">
+                            <i class="fa fa-check" aria-hidden="true" style="color:green"></i>
+                        </td>
+                        <td *ngIf="config.tlsEnabled === false">
+                            <i class="fa fa-times" aria-hidden="true" style="color:red;"></i>
+                        </td>
+                    </tr>
+                </ng-container>
+            </tbody>
+        </table>
+    </div>
+</as4-box>

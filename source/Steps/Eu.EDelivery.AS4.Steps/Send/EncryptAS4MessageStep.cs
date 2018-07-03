@@ -46,19 +46,22 @@ namespace Eu.EDelivery.AS4.Steps.Send
         {
             if (!messagingContext.SendingPMode.Security.Encryption.IsEnabled)
             {
-                return await ReturnSameMessagingContext(messagingContext);
+                Logger.Debug(
+                    "No encryption of the AS4Message will happen because the " + 
+                    $"SendingPMode {messagingContext.SendingPMode?.Id} Security.Encryption.IsEnabled is disabled");
+
+                return await StepResult.SuccessAsync(messagingContext);
             }
 
-            TryEncryptAS4Message(messagingContext);
-
+            EncryptAS4Message(messagingContext);
             return await StepResult.SuccessAsync(messagingContext);
         }
 
-        private void TryEncryptAS4Message(MessagingContext messagingContext)
+        private void EncryptAS4Message(MessagingContext messagingContext)
         {
             Logger.Info(
-                $"{messagingContext.LogTag} Encrypt AS4 Message with given encryption information " + 
-                $"configured in the Sending PMode: {messagingContext.SendingPMode.Id}");
+                $"{messagingContext.LogTag} Encrypt AS4Message with given encryption information " + 
+                $"configured in the SendingPMode: {messagingContext.SendingPMode.Id}");
 
             try
             {
@@ -72,7 +75,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             }
             catch (Exception exception)
             {
-                string description = $"{messagingContext.LogTag} Problems with encryption AS4 Message: {exception}";
+                string description = $"{messagingContext.LogTag} Problems with encryption AS4Message: {exception}";
                 Logger.Error(description);
 
                 throw new CryptographicException(description, exception);
@@ -94,7 +97,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             if (encryptionSettings.EncryptionCertificateInformation == null)
             {
                 throw new ConfigurationErrorsException(
-                    $"(Receive) No encryption certificate information found in Sending PMode {pmode.Id} to perform encryption");
+                    $"(Receive) No encryption certificate information found in SendingPMode {pmode.Id} to perform encryption");
             }
 
             if (encryptionSettings.EncryptionCertificateInformation is CertificateFindCriteria certFindCriteria)
@@ -111,15 +114,6 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
             throw new NotSupportedException(
                 $"(Receive) The encryption certificate information specified in the Sending PMode {pmode.Id} could not be used to retrieve the certificate");            
-        }
-
-        private static Task<StepResult> ReturnSameMessagingContext(MessagingContext messagingContext)
-        {
-            Logger.Debug(
-                $"{messagingContext.LogTag} No encryption will happen because the " + 
-                $"Sending PMode {messagingContext.SendingPMode.Id} encryption is disabled");
-
-            return StepResult.SuccessAsync(messagingContext);
         }
     }
 }
