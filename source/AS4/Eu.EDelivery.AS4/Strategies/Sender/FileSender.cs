@@ -47,14 +47,13 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
             }
 
             string location = CombineDestinationFullName(deliverMessage.MessageInfo.MessageId, Location);
-            Logger.Trace($"(Deliver) Sending DeliverMessage to {location}");
+            Logger.Trace($"Sending DeliverMessage to {location}");
 
             SendResult result = await TryWriteContentsToFileAsync(location, deliverMessage.DeliverMessage);
             if (result == SendResult.Success)
             {
                 Logger.Info(
-                    $"(Deliver) DeliverMessage {deliverMessage.MessageInfo.MessageId} " +
-                    $"is successfully send to {location}");
+                    $"(Deliver) DeliverMessage {deliverMessage.MessageInfo.MessageId} is successfully send to {location}");
             }
 
             return result;
@@ -73,14 +72,13 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
             }
 
             string location = CombineDestinationFullName(notifyMessage.MessageInfo.MessageId, Location);
-            Logger.Trace($"(Notify) Sending NotifyMessage to {location}");
+            Logger.Trace($"Sending NotifyMessage to {location}");
 
             SendResult result = await TryWriteContentsToFileAsync(location, notifyMessage.NotifyMessage);
             if (result == SendResult.Success)
             {
                 Logger.Info(
-                    $"(Notify) NotifyMessage {notifyMessage.MessageInfo.MessageId} " +
-                    $"is successfully send to {location}");
+                    $"(Notify) NotifyMessage {notifyMessage.MessageInfo.MessageId} is successfully send to {location}");
             }
 
             return result;
@@ -127,8 +125,7 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
                            if (unauthorizedEx != null)
                            {
                                Logger.Error(
-                                   "A fatal error occured while "
-                                   + $"uploading the file to {locationPath}: {unauthorizedEx.Message}");
+                                   $"A fatal error occured while uploading the file to {locationPath}: {unauthorizedEx.Message}");
 
                                return SendResult.FatalFail;
                            }
@@ -154,8 +151,7 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
 
                            string desc = String.Join(", ", exs);
                            Logger.Error(
-                               "An error occured while "
-                               + $"uploading the file to {locationPath}: {desc}, will be retried");
+                               $"An error occured while uploading the file to {locationPath}: {desc}, will be retried");
 
                            return SendResult.RetryableFail;
 

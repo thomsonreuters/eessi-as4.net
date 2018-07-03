@@ -35,7 +35,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             {
                 // When the message must be forwarded, no decompression must take place.
                 Logger.Debug(
-                    $"{messagingContext.LogTag} Because the incoming AS4Message must be forwarded, " + 
+                    "Because the incoming AS4Message must be forwarded, " +
                     "we can't alter the message. So, no decompression will take place");
 
                 return StepResult.Success(messagingContext);
@@ -43,7 +43,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
             if (messagingContext.AS4Message.HasAttachments == false)
             {
-                Logger.Debug($"{messagingContext.LogTag} Received AS4Message hasn't got any attachments to decompress");
+                Logger.Debug("No decompression will happend because the AS4Message hasn't got any attachments to decompress");
 
                 return StepResult.Success(messagingContext);
             }
@@ -75,7 +75,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             {
                 if (IsAttachmentNotCompressed(attachment))
                 {
-                    Logger.Debug($"{context.LogTag} Attachment {attachment.Id} is not compressed, so can't be decompressed");
+                    Logger.Debug($" Attachment {attachment.Id} is not compressed, so can't be decompressed");
                     continue;
                 }
 
@@ -85,10 +85,10 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                     return DecompressFailureResult(description, context);
                 }
 
-                Logger.Trace($"{context.LogTag} Attachment {attachment.Id} will be decompressed");
+                Logger.Trace($"Attachment {attachment.Id} will be decompressed");
                 DecompressAttachment(attachment);
                 AssignAttachmentProperties(as4Message.FirstUserMessage.PayloadInfo, attachment);
-                Logger.Debug($"{context.LogTag} Attachment {attachment.Id} is decompressed to a type of {attachment.ContentType}");
+                Logger.Debug($"Attachment {attachment.Id} is decompressed to a type of {attachment.ContentType}");
             }
 
             return await StepResult.SuccessAsync(context);

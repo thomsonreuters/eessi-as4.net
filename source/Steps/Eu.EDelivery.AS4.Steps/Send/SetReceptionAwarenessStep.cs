@@ -31,7 +31,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             if (!IsReceptionAwarenessEnabled(messagingContext))
             {
                 string pmodeId = messagingContext.SendingPMode.Id;
-                return await ReturnSameResult(messagingContext, $"Reception Awareness is not enabled in Sending PMode {pmodeId}");
+                return await ReturnSameResult(messagingContext, $"Reception Awareness is not enabled in SendingPMode {pmodeId}");
             }
 
             await InsertReceptionAwarenessAsync(messagingContext).ConfigureAwait(false);

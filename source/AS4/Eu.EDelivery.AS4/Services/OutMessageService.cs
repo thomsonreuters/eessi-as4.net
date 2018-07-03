@@ -11,6 +11,7 @@ using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Serialization;
+using NLog;
 using MessageExchangePattern = Eu.EDelivery.AS4.Entities.MessageExchangePattern;
 
 namespace Eu.EDelivery.AS4.Services
@@ -24,6 +25,8 @@ namespace Eu.EDelivery.AS4.Services
         private readonly IDatastoreRepository _repository;
         private readonly IAS4MessageBodyStore _messageBodyStore;
         private readonly IConfig _configuration;
+
+        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="OutMessageService"/> class. 
@@ -98,16 +101,16 @@ namespace Eu.EDelivery.AS4.Services
                     location: _configuration.OutMessageStoreLocation,
                     message: message);
 
-            var messageUnits = new List<MessageUnit>();
-            messageUnits.AddRange(message.UserMessages);
-            messageUnits.AddRange(message.SignalMessages);
-
-            var relatedInMessageMeps =
-                _repository.GetInMessagesData(message.SignalMessages.Select(s => s.RefToMessageId).Distinct(), inMsg => new { inMsg.EbmsMessageId, inMsg.MEP })
+            Dictionary<string, MessageExchangePattern> relatedInMessageMeps =
+                _repository.GetInMessagesData(
+                               message.SignalMessages
+                                      .Select(s => s.RefToMessageId)
+                                      .Distinct(), 
+                               inMsg => new { inMsg.EbmsMessageId, inMsg.MEP })
                            .Distinct()
                            .ToDictionary(r => r.EbmsMessageId, r => r.MEP);
 
-            foreach (var messageUnit in messageUnits)
+            foreach (var messageUnit in message.MessageUnits)
             {
                 var sendingPMode = GetSendingPMode(messageUnit is SignalMessage, messagingContext);
 
@@ -120,6 +123,7 @@ namespace Eu.EDelivery.AS4.Services
                         location: messageBodyLocation,
                         operation: operation);
 
+                Logger.Debug($"Insert OutMessage {outMessage.EbmsMessageType} with {{Operation={outMessage.Operation}, Status={outMessage.Status}}}");
                 _repository.InsertOutMessage(outMessage);
             }
         }

@@ -69,13 +69,13 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
             _validator.Validate(deliverMessage).Result(
                 onValidationSuccess: result =>
                 {
-                    string message = $"(Deliver) [{messageId}] Created deliver message is valid";
+                    string message = $"(Deliver)[{messageId}] DeliverMessage is created for UserMessage";
 
                     Logger.Info(message);
                 },
                 onValidationFailed: result =>
                 {
-                    string description = $"(Deliver) [{messageId}] Created deliver message is invalid and can not be delivered";
+                    string description = $"(Deliver)[{messageId}] Failed to create DeliverMessage: ";
                     string errorMessage = result.AppendValidationErrorsToErrorMessage(description);
 
                     throw new InvalidDataException(errorMessage);

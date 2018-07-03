@@ -63,7 +63,7 @@ namespace Eu.EDelivery.AS4.Steps.Forward
             }
 
             // Forward message by creating an OutMessage and set operation to 'ToBeProcessed'.
-            Logger.Info(messagingContext.LogTag + "Create a message that will be forwarded to the next MSH");
+            Logger.Info($"{messagingContext.LogTag} Create a message that will be forwarded to the next MSH");
             using (Stream originalInMessage =
                 await _messageStore.LoadMessageBodyAsync(receivedInMessage.MessageLocation))
             {
@@ -96,7 +96,7 @@ namespace Eu.EDelivery.AS4.Steps.Forward
                     outMessage.Mpc = messagingContext.SendingPMode.MessagePackaging?.Mpc ?? Constants.Namespaces.EbmsDefaultMpc;
                     outMessage.Operation = Operation.ToBeProcessed;
 
-                    Logger.Debug(messagingContext.LogTag + "Insert OutMessage { Intermediary=true, Operation=ToBeProcesed }");
+                    Logger.Debug("Insert OutMessage {{Intermediary=true, Operation=ToBeProcesed}}");
                     repository.InsertOutMessage(outMessage);
 
                     // Set the InMessage to Forwarded.

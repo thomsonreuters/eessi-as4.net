@@ -41,25 +41,22 @@ namespace Eu.EDelivery.AS4.Steps.Forward
             ValidateMessagingContext(messagingContext);
 
             string sendingPModeId = messagingContext.ReceivingPMode.MessageHandling.ForwardInformation.SendingPMode;
-            Logger.Trace(
-                $"{messagingContext.LogTag} Sending PMode {sendingPModeId} " +
-                $"must be used to forward Message with Id {messagingContext.EbmsMessageId}");
+            Logger.Trace($"SendingPMode {sendingPModeId} must be used to forward Message with Id {messagingContext.EbmsMessageId}");
 
             if (String.IsNullOrWhiteSpace(sendingPModeId))
             {
                 throw new ConfigurationErrorsException(
-                    "The Receiving PMode does not contain a SendingPMode-Id in the MessageHandling.Forward element." +
+                    "The ReceivingPMode does not contain a SendingPMode-Id in the MessageHandling.Forward element." +
                     "This SendingPMode-Id is required in a Forwarding scenario and will be used to forward the message to the next MSH.");
             }
 
             SendingProcessingMode sendingPMode = _configuration.GetSendingPMode(sendingPModeId);
-
             if (sendingPMode == null)
             {
                 throw new ConfigurationErrorsException(
                     $"No Sending Processing Mode found for {sendingPModeId}." +
                     "Please provide a valid Id that points to a configured Sending PMode." + 
-                    @"Sending PModes are configured in the .\config\send-pmodes\ folder.");
+                    @"SendingPModes are configured in the .\config\send-pmodes\ folder.");
             }
 
             messagingContext.SendingPMode = sendingPMode;
@@ -70,21 +67,21 @@ namespace Eu.EDelivery.AS4.Steps.Forward
         {
             if (messagingContext.ReceivedMessage == null)
             {
-                throw new InvalidOperationException(
-                    "DetermineRoutingStep requires a MessagingContext with a ReceivedMessage");
+                throw new NotSupportedException(
+                    "DetermineRoutingStep requires a 'ReceivedMessage'");
             }
 
             if (messagingContext.ReceivingPMode == null)
             {
                 throw new InvalidOperationException(
-                    "No Receiving PMode available in the MessagingContext." +
-                    "The Receiving PMode is used to correctly forward the message with the provided configured values inside this PMode.");
+                    "No ReceivingPMode available is set." +
+                    "The ReceivingPMode is used to correctly forward the message with the provided configured values inside this PMode.");
             }
 
             if (messagingContext.ReceivingPMode.MessageHandling?.ForwardInformation == null)
             {
                 throw new ConfigurationErrorsException(
-                    "The Receiving PMode does not contain a MessageHandling.Forward element." +
+                    "The ReceivingPMode does not contain a MessageHandling.Forward element." +
                     "This element is required in a Forwarding scenario.");
             }
         }

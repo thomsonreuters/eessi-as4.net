@@ -61,8 +61,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
-            Logger.Trace(
-                $"{messagingContext.LogTag} Storing the AS4Message with Operation = ToBeProcessed");
+            Logger.Trace("Storing the AS4Message with Operation=ToBeProcessed");
 
             using (DatastoreContext context = _createContext())
             {
@@ -77,7 +76,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
                 catch
                 {
                     messagingContext.ErrorResult = new ErrorResult(
-                        $"{messagingContext.LogTag} Unable to store the received message due to an exception", 
+                        "Unable to store the received message due to an exception", 
                         ErrorAlias.Other);
 
                     throw;
@@ -85,7 +84,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
             }
 
             Logger.Info(
-                $"{messagingContext.LogTag} Stored the AS4Message with Operation = ToBeProcesed so the next agent can handle the message");
+                $"{messagingContext.LogTag} Stored the AS4Message with Operation=ToBeProcesed so the next agent can handle the message");
 
             return await StepResult.SuccessAsync(messagingContext);
         }

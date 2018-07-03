@@ -43,7 +43,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
                 OverwriteAttachmentEntries(messagingContext.AS4Message, zipAttachment);
             }
 
-            LogManager.GetCurrentClassLogger().Info($"{messagingContext} Zip the Attachments to a single file");
+            LogManager.GetCurrentClassLogger().Info($"{messagingContext.LogTag} Zip the Attachments to a single file");
             return StepResult.Success(messagingContext);
         }
 
