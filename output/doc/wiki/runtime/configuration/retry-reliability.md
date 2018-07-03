@@ -1,8 +1,8 @@
 # Retry Reliability
 
-During the _Delivery_ and _Notification_ of _User_- and _SignalMesssage_'s it could happen that the message is not correctly delivered/notified the first time during for example a network timeout.
+During the _Delivery_ and _Notification_ of _User_- and _SignalMesssage_'s it could happen that the message is not correctly delivered or notified by the first attempt. Delivery or notification can fail for several reasons, for instance a network timeout.
 
-The <b>AS4.NET</b> Componnent supports retryable deliver/notification which can be configured in both the _Sending Processing Mode_ and _Receiving Processing Mode_ to make sure that we you have a more reliable deliver/notification system for your business application.
+To provide a more reliable deliver and notification system, AS4.NET supports retrying when delivery or notification fails. The retry deliver and notification functionality of the <b>AS4.NET</b> component is configured in the _Sending Processing Mode_ and _Receiving Processing Mode_.
 
 ## Processing Mode Configuration
 
@@ -31,7 +31,7 @@ For the _Receiving Processing Mode_:
 - The `<Deliver/>` tag can have a `Reliability` element
 - The `<ExceptionHandling/>` tag can have a `<Reliability/>` element
 
-That's all you need to do to set the delivery/notification ready to be retried on failure.
+That's all you need to do to enable the retry-functionality during the delivery or notification process.
 
 > Note that on certain failures, the retry will **NOT** happen even when it's configured this way. This could happen when the failure that occured is considered _FATAL_ (for example: a 401 HTTP response code which means that there's a problem with permissions). The reason for this is that even when an retry is configured, the message will still fail the second time arround, therefore no retry will happen.
 
