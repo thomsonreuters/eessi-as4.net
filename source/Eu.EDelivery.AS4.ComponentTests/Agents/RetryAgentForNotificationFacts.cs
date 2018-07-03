@@ -46,7 +46,11 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                         ContentType = Constants.ContentTypes.Soap,
                         MessageLocation = store.SaveAS4Message(
                             as4Msh.GetConfiguration().InMessageStoreLocation,
-                            AS4Message.Create(new Receipt(ebmsMessageId, $"reftoid-{Guid.NewGuid()}")))
+                            AS4Message.Create(
+                                new Receipt(
+                                    ebmsMessageId,
+                                    $"reftoid-{Guid.NewGuid()}",
+                                    DateTimeOffset.Now)))
                     };
 
                     SendingProcessingMode pmode = NotifySendingPMode(url);

@@ -137,11 +137,10 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                     }
                 });
 
-            AS4Message receipt = AS4Message.Create(new Receipt
-            {
-                RefToMessageId = signedUserMessage.GetPrimaryMessageId(),
-                NonRepudiationInformation = new NonRepudiationInformation { MessagePartNRInformation = hashes.ToList() }
-            });
+            AS4Message receipt = AS4Message.Create(
+                new Receipt(
+                    refToMessageId: signedUserMessage.GetPrimaryMessageId(),
+                    nonRepudiation: new NonRepudiationInformation { MessagePartNRInformation = hashes.ToList() }));
 
             return AS4MessageUtils.SignWithCertificate(receipt, cert);
         }

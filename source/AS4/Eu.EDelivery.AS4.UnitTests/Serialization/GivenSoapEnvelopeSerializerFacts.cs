@@ -809,23 +809,15 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
         private static Receipt CreateReceiptWithNonRepudiationInfo()
         {
             var nnri = new[] { new System.Security.Cryptography.Xml.Reference() };
-
-            var receipt = new Receipt
-            {
-                NonRepudiationInformation = new NonRepudiationInformationBuilder().WithSignedReferences(nnri).Build()
-            };
-
-            return receipt;
+            return new Receipt(
+                $"user-{Guid.NewGuid()}", 
+                new NonRepudiationInformationBuilder().WithSignedReferences(nnri).Build());
         }
 
         private static Receipt CreateReceiptWithRelatedUserMessageInfo()
         {
-            var receipt = new Receipt
-            {
-                UserMessage = new UserMessage("some-usermessage-id")
-            };
-
-            return receipt;
+            string ebmsMessageId = $"user-{Guid.NewGuid()}";
+            return new Receipt(ebmsMessageId, new UserMessage(ebmsMessageId));
         }
     }
 

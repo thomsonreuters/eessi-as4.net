@@ -34,6 +34,7 @@ using Parameter = Eu.EDelivery.AS4.Model.PMode.Parameter;
 using PartyId = Eu.EDelivery.AS4.Model.Core.PartyId;
 using Receipt = Eu.EDelivery.AS4.Model.Core.Receipt;
 using Service = Eu.EDelivery.AS4.Model.Core.Service;
+using SignalMessage = Eu.EDelivery.AS4.Model.Core.SignalMessage;
 using UserMessage = Eu.EDelivery.AS4.Model.Core.UserMessage;
 
 namespace Eu.EDelivery.AS4.ComponentTests.Agents
@@ -317,7 +318,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
         private static AS4Message CreateAS4ReceiptMessage(string refToMessageId)
         {
-            var r = new Receipt { RefToMessageId = refToMessageId };
+            var r = new Receipt(refToMessageId);
 
             return AS4Message.Create(r, CreateSendingPMode());
         }
@@ -434,11 +435,10 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                     }
                 });
 
-            AS4Message receipt = AS4Message.Create(new Receipt
-            {
-                RefToMessageId = signedUserMessage.GetPrimaryMessageId(),
-                NonRepudiationInformation = new NonRepudiationInformation {MessagePartNRInformation = hashes.ToList()}
-            });
+            AS4Message receipt = AS4Message.Create(
+                new Receipt(
+                    refToMessageId: signedUserMessage.GetPrimaryMessageId(), 
+                    nonRepudiation: new NonRepudiationInformation { MessagePartNRInformation = hashes.ToList() }));
 
             return AS4MessageUtils.SignWithCertificate(receipt, cert);
         }
@@ -574,17 +574,15 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         public async Task ThenMultiHopSignalMessageIsToBeForwarded()
         {
             // Arrange
-            const string messageId = "multihop-signalmessage-id";
-            AS4Message as4Message = CreateMultihopSignalMessage(
-                messageId, 
+            SignalMessage signal = CreateMultihopSignalMessage(
                 refToMessageId: "someusermessageid", 
                 pmodeId: "Forward_Push");
 
             // Act
-            await StubSender.SendAS4Message(_receiveAgentUrl, as4Message);
+            await StubSender.SendAS4Message(_receiveAgentUrl, AS4Message.Create(signal));
 
             // Assert
-            InMessage inMessage = _databaseSpy.GetInMessageFor(m => m.EbmsMessageId == messageId);
+            InMessage inMessage = _databaseSpy.GetInMessageFor(m => m.EbmsMessageId == signal.MessageId);
 
             Assert.NotNull(inMessage);
             Assert.True(inMessage.Intermediary);
@@ -628,13 +626,12 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
             StoreToBeAckOutMessage(messageId, sendingPMode);
 
-            var as4Message = CreateMultihopSignalMessage(
-                messageId: "multihop-signalmessage-id", 
+            SignalMessage signal = CreateMultihopSignalMessage(
                 refToMessageId: messageId, 
                 pmodeId: "ComponentTest_ReceiveAgent_Sample1");
 
             // Act
-            await StubSender.SendAS4Message(_receiveAgentUrl, as4Message);
+            await StubSender.SendAS4Message(_receiveAgentUrl, AS4Message.Create(signal));
 
             // Assert
             var inMessage = _databaseSpy.GetInMessageFor(m => m.EbmsRefToMessageId == messageId);
@@ -664,11 +661,9 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             Assert.Equal(Operation.NotApplicable, inMessage.Operation);
         }
 
-        private static AS4Message CreateMultihopSignalMessage(string messageId, string refToMessageId, string pmodeId)
+        private static SignalMessage CreateMultihopSignalMessage(string refToMessageId, string pmodeId)
         {
-            var receipt = new Receipt(messageId, refToMessageId);
-
-            receipt.MultiHopRouting = new RoutingInputUserMessage()
+            var routedUserMessage = new RoutingInputUserMessage()
             {
                 mpc = "some-mpc",
                 PartyInfo = new Xml.PartyInfo()
@@ -712,7 +707,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                 }
             };
 
-            return AS4Message.Create(receipt);
+            return new Receipt(refToMessageId, routedUserMessage);
         }
 
         private void StoreToBeAckOutMessage(string messageId, SendingProcessingMode sendingPMode)
@@ -747,7 +742,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                 action: "as4.net:receive_agent:bundling",
                 conversationId: "as4.net:receive_agent:conversation");
 
-            var receipt = new Receipt($"receipt-{Guid.NewGuid()}", ebmsMessageId);
+            var receipt = new Receipt(ebmsMessageId);
 
             var bundled = AS4Message.Create(userMessage);
             bundled.AddMessageUnit(receipt);

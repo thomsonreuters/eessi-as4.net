@@ -6,6 +6,13 @@ namespace Eu.EDelivery.AS4.Model.Core
 {
     public class Error : SignalMessage
     {
+        public IList<ErrorDetail> Errors { get; set; }
+
+        /// <summary>
+        /// Gets the multihop action value.
+        /// </summary>
+        public override string MultihopAction { get; } = Constants.Namespaces.EbmsOneWayError;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="Error"/> class.
         /// </summary>
@@ -17,8 +24,6 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// </summary>
         /// <param name="messageId"></param>
         public Error(string messageId) : base(messageId) {}
-
-        public IList<ErrorDetail> Errors { get; set; }
 
         /// <summary>
         /// Gets a value indicating whether the <see cref="Error"/> is originated from a Pull Request.
@@ -36,11 +41,6 @@ namespace Eu.EDelivery.AS4.Model.Core
 
                 return firstPullRequestError != null;
             }
-        }
-
-        public override string GetActionValue()
-        {
-            return "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/oneWay.error";
         }
     }
 

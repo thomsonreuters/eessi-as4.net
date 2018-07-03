@@ -39,7 +39,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 withReceptionAwareness: false);
 
             AS4Message receivedAS4Message =
-                AS4Message.Create(new Receipt { RefToMessageId = ebmsMessageId });
+                AS4Message.Create(new Receipt(ebmsMessageId));
 
             // Act
             await ExerciseUpdateReceivedMessage(
@@ -75,7 +75,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 withReceptionAwareness: false);
 
             var ctx = new MessagingContext(
-                AS4Message.Create(new Receipt { RefToMessageId = knownId }),
+                AS4Message.Create(new Receipt(knownId)),
                 MessagingContextMode.Unknown)
             {
                 SendingPMode = CreateNotifyAllSendingPMode()
@@ -200,7 +200,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 new OutMessage(ebmsMessageId),
                 withReceptionAwareness: false);
 
-            AS4Message receipt = AS4Message.Create(new Receipt { RefToMessageId = ebmsMessageId });
+            AS4Message receipt = AS4Message.Create(new Receipt(ebmsMessageId));
             SendingProcessingMode pmode = CreateNotifyAllSendingPMode();
             pmode.ReceiptHandling.Reliability =
                 new RetryReliability

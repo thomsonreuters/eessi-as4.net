@@ -4,7 +4,6 @@ using Eu.EDelivery.AS4.UnitTests.Model;
 using FsCheck;
 using FsCheck.Xunit;
 using Microsoft.FSharp.Core;
-using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests
 {
@@ -23,7 +22,10 @@ namespace Eu.EDelivery.AS4.UnitTests
     {
         public static Arbitrary<SignalMessage> Signals()
         {
-            return Gen.Elements<SignalMessage>(new Receipt(), new FilledNRRReceipt(), new Error())
+            return Gen.Elements<SignalMessage>(
+                          new Receipt($"ref-to-user-{Guid.NewGuid()}"), 
+                          new FilledNRRReceipt(), 
+                          new Error())
                       .ToArbitrary();
         }
 
