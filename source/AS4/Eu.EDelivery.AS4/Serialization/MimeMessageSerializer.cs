@@ -312,7 +312,7 @@ namespace Eu.EDelivery.AS4.Serialization
         }
 
         private static (bool, PartInfo) SelectReferencedPartInfo(
-            Attachment attachment,
+            Attachment attachment, 
             IEnumerable<PartInfo> referencedPartInfos)
         {
             PartInfo partInfo = referencedPartInfos.FirstOrDefault(i => i.Href?.Contains(attachment.Id) == true);
