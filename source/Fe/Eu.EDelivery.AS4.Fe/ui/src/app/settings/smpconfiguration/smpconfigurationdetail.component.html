@@ -67,6 +67,6 @@
             </div>
         </div>
     </form>
-    <button type="button" buttons class="btn btn-flat" (click)="saveItem($event)" [disabled]="form.invalid ? true : null">OK</button>
+    <button type="button" buttons class="btn btn-flat" (click)="saveItem($event)" [disabled]="form.invalid ? true : null" data-cy="ok">OK</button>
     <button type="button" buttons class="btn btn-flat" (click)="componentRef.destroy()">CANCEL</button>
 </as4-modal>
