@@ -7,19 +7,19 @@ namespace Eu.EDelivery.AS4.ComponentTests.Samples
     public class WindowsServiceFixture : IDisposable
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="WindowsServiceFixture"/> class.
+        /// Ensures that the Windows Service is started.
         /// </summary>
-        public WindowsServiceFixture()
-        {
-            StartWindowsService();
-        }
-
-        private static void StartWindowsService()
+        public void StartServiceIfNotYetStarted()
         {
             using (var controller = new ServiceController("AS4Service"))
             {
-                controller.Start();
-                controller.WaitForStatus(ServiceControllerStatus.Running);
+                if (controller.Status != ServiceControllerStatus.Running)
+                {
+                    controller.Start();
+                    controller.WaitForStatus(ServiceControllerStatus.Running);
+
+                    Console.WriteLine(@"Start AS4.NET Windows Service as Receiver MSH");
+                }
             }
         }
 
