@@ -144,9 +144,26 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             return AS4MessageUtils.SignWithCertificate(receipt, cert);
         }
 
-        [Theory]
-        [InlineData(false, "ComponentTest_ReceiveAgent_Sample1", OutStatus.Ack, Operation.ToBeNotified)]
-        [InlineData(true, "Forward_Push", OutStatus.Sent, Operation.ToBeForwarded)]
+        [Fact]
+        public Task CorrectHandlingOnSynchronouslyReceiveMulithopReceiptWithForwarding()
+        {
+            return CorrectHandlingOnSynchronouslyReceivedMultiHopReceipt(
+                actAsIntermediaryMsh: false,
+                receivePModeId: "ComponentTest_ReceiveAgent_Sample1",
+                expectedOutStatus: OutStatus.Ack,
+                expectedSignalOperation: Operation.ToBeNotified);
+        }
+
+        [Fact]
+        public Task CorrectHandlingOnSynchronouslyReceiveMulithopReceiptWithNotifing()
+        {
+            return CorrectHandlingOnSynchronouslyReceivedMultiHopReceipt(
+                actAsIntermediaryMsh: false,
+                receivePModeId: "Forward_Push",
+                expectedOutStatus: OutStatus.Sent,
+                expectedSignalOperation: Operation.ToBeForwarded);
+        }
+
         public async Task CorrectHandlingOnSynchronouslyReceivedMultiHopReceipt(
             bool actAsIntermediaryMsh,
             string receivePModeId,
