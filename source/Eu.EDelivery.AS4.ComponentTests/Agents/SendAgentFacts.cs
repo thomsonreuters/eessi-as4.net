@@ -144,7 +144,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             return AS4MessageUtils.SignWithCertificate(receipt, cert);
         }
 
-        [Theory(Skip = "not deterministic")]
+        [Theory]
         [InlineData(false, "ComponentTest_ReceiveAgent_Sample1", OutStatus.Ack, Operation.ToBeNotified)]
         [InlineData(true, "Forward_Push", OutStatus.Sent, Operation.ToBeForwarded)]
         public async Task CorrectHandlingOnSynchronouslyReceivedMultiHopReceipt(
@@ -193,34 +193,19 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
         private void PutMessageToSend(AS4Message as4Message, SendingProcessingMode pmode, bool actAsIntermediaryMsh)
         {
-            const string fileName = @".\database\as4messages\out\sendagent_test.as4";
-
-            string directory = Path.GetDirectoryName(fileName);
-            if (!String.IsNullOrWhiteSpace(directory) 
-                && Directory.Exists(directory) == false)
-            {
-                Directory.CreateDirectory(directory);
-            }
-
-            Console.WriteLine($@"Put AS4Message to {directory}");
-            using (var fs = new FileStream(fileName, FileMode.Create))
-            {
-                SerializerProvider
-                    .Default
-                    .Get(as4Message.ContentType)
-                    .Serialize(as4Message, fs, CancellationToken.None);
-            }
-
             var outMessage = new OutMessage(as4Message.GetPrimaryMessageId())
             {
                 ContentType = as4Message.ContentType,
-                MessageLocation = $"FILE:///{fileName}",
+                MessageLocation = 
+                    Registry.Instance
+                            .MessageBodyStore.SaveAS4Message(
+                                Config.Instance.OutMessageStoreLocation,
+                                as4Message),
                 Intermediary = actAsIntermediaryMsh,
+                EbmsMessageType = MessageType.UserMessage,
+                MEP = MessageExchangePattern.Push,
+                Operation = Operation.ToBeSent,
             };
-
-            outMessage.EbmsMessageType = MessageType.UserMessage;
-            outMessage.MEP = MessageExchangePattern.Push;
-            outMessage.Operation = Operation.ToBeSent;
             outMessage.SetPModeInformation(pmode);
 
             _databaseSpy.InsertOutMessage(outMessage);
