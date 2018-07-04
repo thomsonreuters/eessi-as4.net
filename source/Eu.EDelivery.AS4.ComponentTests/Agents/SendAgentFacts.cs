@@ -182,15 +182,11 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             OutMessage sentMessage = await PollUntilPresent(
                 () => _databaseSpy.GetOutMessageFor(m => m.EbmsMessageId == messageId),
                 timeout: TimeSpan.FromSeconds(10));
-
-            Assert.NotNull(sentMessage);
             Assert.Equal(expectedOutStatus, sentMessage.Status.ToEnum<OutStatus>());
 
             InMessage receivedMessage = await PollUntilPresent(
                 () => _databaseSpy.GetInMessageFor(m => m.EbmsRefToMessageId == messageId),
                 timeout: TimeSpan.FromSeconds(10));
-
-            Assert.NotNull(receivedMessage);
             Assert.Equal(MessageType.Receipt, receivedMessage.EbmsMessageType);
             Assert.Equal(expectedSignalOperation, receivedMessage.Operation);
         }
