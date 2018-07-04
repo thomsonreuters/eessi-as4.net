@@ -11,7 +11,7 @@ describe('smp configuration should support CRUD actions', () => {
       .should('have.length', l);
   };
 
-  it('should create a new smp configuration', () => {
+  it.skip('should create a new smp configuration', () => {
     shouldHaveRowsLength(0);
 
     cy.getdatacy('smp-add').click();
@@ -24,7 +24,7 @@ describe('smp configuration should support CRUD actions', () => {
     shouldHaveRowsLength(1);
   });
 
-  it('should change an existing smp configuration', () => {
+  it.skip('should change an existing smp configuration', () => {
     cy.getdatacy('smp-edit').click({ force: true });
     cy.getdatacy('smp-partyrole').type('{selectall}other role');
     cy.getdatacy('ok').click();
@@ -33,7 +33,7 @@ describe('smp configuration should support CRUD actions', () => {
     cy.getdatacy('smp-row-partyrole').should('have.text', 'other role');
   });
 
-  it('should delete an existing smp configuration', () => {
+  it.skip('should delete an existing smp configuration', () => {
     shouldHaveRowsLength(1);
 
     cy.getdatacy('smp-delete').click();
