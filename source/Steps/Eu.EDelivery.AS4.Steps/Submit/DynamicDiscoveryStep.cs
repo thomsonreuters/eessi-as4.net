@@ -98,7 +98,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         private static void ValidatePMode(SendingProcessingMode pmode)
         {
             SendingProcessingModeValidator.Instance.Validate(pmode).Result(
-                onValidationSuccess: result => Logger.Debug($"(Submit) Dynamically completed PMode {pmode.Id} is valid"),
+                onValidationSuccess: result => Logger.Debug($"Dynamically completed PMode {pmode.Id} is valid"),
                 onValidationFailed: result =>
                 {
                     string errorMessage = 

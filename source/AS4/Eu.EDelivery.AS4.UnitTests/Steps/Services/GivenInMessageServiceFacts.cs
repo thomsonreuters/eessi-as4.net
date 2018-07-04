@@ -33,9 +33,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Services
                     new ReceivedMessage(Stream.Null, Constants.ContentTypes.Soap),
                     MessagingContextMode.Receive);
 
-                string ebmsMessageId = $"receipt-{Guid.NewGuid()}";
-                AS4Message receipt = AS4Message.Create(new Receipt(ebmsMessageId, Guid.NewGuid().ToString()));
-                ctx.ModifyContext(receipt);
+                var receipt = new Receipt($"reftoid-{Guid.NewGuid()}");
+                AS4Message as4Message = AS4Message.Create(receipt);
+                ctx.ModifyContext(as4Message);
 
                 using (DatastoreContext dbCtx = GetDataStoreContext())
                 {
@@ -49,7 +49,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Services
                 }
 
                 // Assert
-                GetDataStoreContext.AssertInMessage(ebmsMessageId, Assert.NotNull);
+                GetDataStoreContext.AssertInMessage(receipt.MessageId, Assert.NotNull);
             }
 
             protected override void Disposing()

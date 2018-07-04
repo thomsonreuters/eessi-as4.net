@@ -1,0 +1,72 @@
+<as4-modal [isVisible]="true" (okEvent)="saveItem($event)" [showDefaultButtons]="false">
+    <form [formGroup]="form">
+        <div class="row">
+            <div class="col-md-6">
+                <as4-input label="To party">
+                    <input type="text" class="form-control" formControlName="toPartyId" data-cy="smp-toparty">
+                    <as4-form-error [control]="form.get('toPartyId')" [onTouched]="true"></as4-form-error>
+                </as4-input>
+                <as4-input label="Party role">
+                    <input type="text" class="form-control" formControlName="partyRole" data-cy="smp-partyrole">
+                    <as4-form-error [control]="form.get('partyRole')" [onTouched]="true"></as4-form-error>
+                </as4-input>
+                <as4-input label="Party type">
+                    <input type="text" class="form-control" formControlName="partyType" data-cy="smp-partytype">
+                    <as4-form-error [control]="form.get('partyType')" [onTouched]="true"></as4-form-error>
+                </as4-input>
+                <as4-input label="URL">
+                    <input type="text" class="form-control" formControlName="url" data-cy="smp-url">
+                    <as4-form-error [control]="form.get('url')" [onTouched]="true"></as4-form-error>
+                </as4-input>
+                <as4-input label="Service value">
+                    <input type="text" class="form-control" formControlName="serviceValue">
+                    <as4-form-error [control]="form.get('serviceValue')" [onTouched]="true"></as4-form-error>
+                </as4-input>
+                <as4-input label="Service type">
+                    <input type="text" class="form-control" formControlName="serviceType">
+                    <as4-form-error [control]="form.get('serviceType')" [onTouched]="true"></as4-form-error>
+                </as4-input>
+                <as4-input label="Action">
+                    <input type="text" class="form-control" formControlName="action">
+                    <as4-form-error [control]="form.get('action')" [onTouched]="true"></as4-form-error>
+                </as4-input>
+                <as4-input label="Final recipient">
+                    <input type="text" formControlName="finalRecipient">
+                    <as4-form-error [control]="form.get('finalRecipient')" [onTouched]="true"></as4-form-error>
+                </as4-input>
+            </div>
+            <div class="col-md-6">
+                <as4-input label="TLS enabled">
+                    <input type="checkbox" formControlName="tlsEnabled">
+                </as4-input>
+                <as4-input label="Encryption">
+                    <input type="checkbox" formControlName="encryptionEnabled">
+                </as4-input>
+                <as4-input label="Encryption algorithm">
+                    <input type="text" class="form-control" formControlName="encryptAlgorithm">
+                    <as4-form-error [control]="form.get('encryptAlgorithm')" [onTouched]="true"></as4-form-error>
+                </as4-input>
+                <as4-input label="Encryption MGF algorithm">
+                    <input type="text" class="form-control" formControlName="encryptKeyMgfAlorithm">
+                    <as4-form-error [control]="form.get('encryptKeyMgfAlorithm')" [onTouched]="true"></as4-form-error>
+                </as4-input>
+                <as4-input label="Encryption algorithm key size">
+                    <input type="number" class="form-control" formControlName="encryptAlgorithmKeySize">
+                </as4-input>
+                <as4-input label="Encryption digest algorithm">
+                    <input type="text" class="form-control" formControlName="encryptKeyDigestAlgorithm">
+                    <as4-form-error [control]="form.get('encryptKeyDigestAlgorithm')" [onTouched]="true"></as4-form-error>
+                </as4-input>
+                <as4-input label="Encryption key transport algorithm">
+                    <input type="text" class="form-control" formControlName="encryptKeyTransportAlgorithm">
+                    <as4-form-error [control]="form.get('encryptKeyTransportAlgorithm')" [onTouched]="true"></as4-form-error>
+                </as4-input>
+                <as4-input label="Encryption public key certificate">
+                    <as4-file-select formControlName="encryptPublicKeyCertificate" [fileNameControl]="form.get('encryptPublicKeyCertificateName')"></as4-file-select>
+                </as4-input>
+            </div>
+        </div>
+    </form>
+    <button type="button" buttons class="btn btn-flat" (click)="saveItem($event)" [disabled]="form.invalid ? true : null">OK</button>
+    <button type="button" buttons class="btn btn-flat" (click)="componentRef.destroy()">CANCEL</button>
+</as4-modal>

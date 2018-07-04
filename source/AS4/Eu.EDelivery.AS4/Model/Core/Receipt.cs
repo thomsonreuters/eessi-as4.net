@@ -1,5 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using Eu.EDelivery.AS4.Factories;
+using Eu.EDelivery.AS4.Xml;
 using CryptoReference = System.Security.Cryptography.Xml.Reference;
 
 namespace Eu.EDelivery.AS4.Model.Core
@@ -11,37 +14,167 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// </summary>
         /// <value>The user message.</value>
         /// <remarks>This property should only be populated when the NonRepudiationInformation is not filled out.</remarks>
-        public UserMessage UserMessage { get; set; }
+        public UserMessage UserMessage { get; }
 
         /// <summary>
         /// NonRepudiation information of the UserMessage for which this is a receipt.
         /// </summary>
         /// <value>The non repudiation information.</value>
         /// <remarks>This property is only populated when the UserMessage property is not filled out.</remarks>
-        public NonRepudiationInformation NonRepudiationInformation { get; set; }
+        public NonRepudiationInformation NonRepudiationInformation { get; }
+
+        /// <summary>
+        /// Gets the multihop action value.
+        /// </summary>
+        public override string MultihopAction { get; } = Constants.Namespaces.EbmsOneWayReceipt;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Receipt"/> class.
         /// </summary>
-        public Receipt() {}
+        /// <param name="refToMessageId">The reference to a <see cref="Core.UserMessage"/></param>
+        public Receipt(string refToMessageId) 
+            : base(IdentifierFactory.Instance.Create(), refToMessageId) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Receipt"/> class.
         /// </summary>
-        /// <param name="messageId">The message identifier.</param>
-        /// <param name="refToMessageId">The reference to a <see cref="UserMessage"/></param>
-        public Receipt(string messageId, string refToMessageId) : base(messageId)
+        /// <param name="messageId"></param>
+        /// <param name="refToMessageId"></param>
+        /// <param name="timestamp"></param>
+        public Receipt(
+            string messageId, 
+            string refToMessageId, 
+            DateTimeOffset timestamp) 
+            : base(messageId, refToMessageId, timestamp) { }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Receipt"/> class.
+        /// </summary>
+        /// <param name="refToMessageId"></param>
+        /// <param name="routedUserMessage"></param>
+        public Receipt(
+            string refToMessageId,
+            RoutingInputUserMessage routedUserMessage)
+            : base(IdentifierFactory.Instance.Create(), refToMessageId, routedUserMessage) { }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Receipt"/> class.
+        /// </summary>
+        /// <param name="refToMessageId"></param>
+        /// <param name="includedUserMessage"></param>
+        public Receipt(
+            string refToMessageId,
+            UserMessage includedUserMessage)
+            : base(IdentifierFactory.Instance.Create(), refToMessageId)
         {
-            RefToMessageId = refToMessageId;
+            if (includedUserMessage == null)
+            {
+                throw new ArgumentNullException(nameof(includedUserMessage));
+            }
+
+            UserMessage = includedUserMessage;
         }
 
         /// <summary>
-        /// Gets the action value.
+        /// Initializes a new instance of the <see cref="Receipt"/> class.
         /// </summary>
-        /// <returns></returns>
-        public override string GetActionValue()
+        /// <param name="refToMessageId"></param>
+        /// <param name="includedUserMessage"></param>
+        /// <param name="routedUserMessage"></param>
+        public Receipt(
+            string refToMessageId,
+            UserMessage includedUserMessage,
+            RoutingInputUserMessage routedUserMessage)
+            : base(IdentifierFactory.Instance.Create(), refToMessageId, routedUserMessage)
         {
-            return "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/oneWay.receipt";
+            if (includedUserMessage == null)
+            {
+                throw new ArgumentNullException(nameof(includedUserMessage));
+            }
+
+            UserMessage = includedUserMessage;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Receipt"/> class.
+        /// </summary>
+        /// <param name="messageId"></param>
+        /// <param name="refToMessageId"></param>
+        /// <param name="timestamp"></param>
+        /// <param name="includedUserMessage"></param>
+        public Receipt(
+            string messageId,
+            string refToMessageId,
+            DateTimeOffset timestamp,
+            UserMessage includedUserMessage)
+            : base(messageId, refToMessageId, timestamp)
+        {
+            if (includedUserMessage == null)
+            {
+                throw new ArgumentNullException(nameof(includedUserMessage));
+            }
+
+            UserMessage = includedUserMessage;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Receipt"/> class.
+        /// </summary>
+        /// <param name="refToMessageId"></param>
+        /// <param name="nonRepudiation"></param>
+        public Receipt(
+            string refToMessageId,
+            NonRepudiationInformation nonRepudiation)
+            : base(IdentifierFactory.Instance.Create(), refToMessageId)
+        {
+            if (nonRepudiation == null)
+            {
+                throw new ArgumentNullException(nameof(nonRepudiation));
+            }
+
+            NonRepudiationInformation = nonRepudiation;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Receipt"/> class.
+        /// </summary>
+        /// <param name="messageId"></param>
+        /// <param name="refToMessageId"></param>
+        /// <param name="timestamp"></param>
+        /// <param name="nonRepudiation"></param>
+        public Receipt(
+            string messageId,
+            string refToMessageId,
+            DateTimeOffset timestamp,
+            NonRepudiationInformation nonRepudiation)
+            : base(messageId, refToMessageId, timestamp)
+        {
+            if (nonRepudiation == null)
+            {
+                throw new ArgumentNullException(nameof(nonRepudiation));
+            }
+
+            NonRepudiationInformation = nonRepudiation;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Receipt"/> class.
+        /// </summary>
+        /// <param name="refToMessageId"></param>
+        /// <param name="nonRepudiation"></param>
+        /// <param name="routedUserMessage"></param>
+        public Receipt(
+            string refToMessageId,
+            NonRepudiationInformation nonRepudiation,
+            RoutingInputUserMessage routedUserMessage)
+            : base(IdentifierFactory.Instance.Create(), refToMessageId, routedUserMessage)
+        {
+            if (nonRepudiation == null)
+            {
+                throw new ArgumentNullException(nameof(nonRepudiation));
+            }
+
+            NonRepudiationInformation = nonRepudiation;
         }
 
         /// <summary>
@@ -52,7 +185,7 @@ namespace Eu.EDelivery.AS4.Model.Core
         public bool VerifyNonRepudiationInfo(AS4Message userMessage)
         {
             IEnumerable<CryptoReference> userReferences = 
-                userMessage.SecurityHeader.GetReferences().Cast<CryptoReference>();
+                userMessage.SecurityHeader.GetReferences();
 
             return userReferences.Any()
                    && userReferences.Select(IsNonRepudiationHashEqualToUserReferenceHash).All(r => r);

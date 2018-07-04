@@ -5,7 +5,6 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using Eu.EDelivery.AS4.Common;
-using NLog.Targets;
 
 namespace Eu.EDelivery.AS4.ComponentTests.Common
 {

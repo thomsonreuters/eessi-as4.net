@@ -136,12 +136,10 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                             r.DigestValue.Select(v => (byte)selection(v)).ToArray());
                     });
 
-
-            AS4Message receipt = AS4Message.Create(new Receipt
-            {
-                RefToMessageId = signedUserMessage.GetPrimaryMessageId(),
-                NonRepudiationInformation = new NonRepudiationInformation(hashes)
-            });
+            AS4Message receipt = AS4Message.Create(
+                new Receipt(
+                    refToMessageId: signedUserMessage.GetPrimaryMessageId(),
+                    nonRepudiation: new NonRepudiationInformation(hashes)));
 
             return AS4MessageUtils.SignWithCertificate(receipt, cert);
         }

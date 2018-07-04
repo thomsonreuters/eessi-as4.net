@@ -33,7 +33,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
 
             // Act 
             IStep sut = CreateSendStepWithResponse(
-                StubHttpClient.ThatReturns(AS4Message.Create(new Receipt())));
+                StubHttpClient.ThatReturns(AS4Message.Create(new Receipt($"receipt-{Guid.NewGuid()}"))));
 
             await sut.ExecuteAsync(ctx);
 

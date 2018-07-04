@@ -124,7 +124,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             {
                 throw new ConfigurationErrorsException(
                     "No signing certificate information found " +
-                    $"in Sending PMode {pmode.Id} to perform signing. " +
+                    $"in SendingPMode {pmode.Id} to perform signing. " +
                     "Please provide either a <CertificateFindCriteria/> or <PrivateKeyCertificate/> tag to the Security.Signing element");
             }
 
@@ -147,7 +147,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             }
 
             throw new NotSupportedException(
-                "The signing certificate information specified in the PMode could not be used to retrieve the certificate. " +
+                $"The signing certificate information specified in the SendingPMode {pmode.Id} could not be used to retrieve the certificate. " +
                 "Please provide either a <CertificateFindCriteria/> or <PrivateKeyCertificate/> tag to the Security.Signing element");
         }
 

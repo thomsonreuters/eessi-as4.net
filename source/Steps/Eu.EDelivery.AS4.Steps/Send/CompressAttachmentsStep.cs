@@ -37,8 +37,8 @@ namespace Eu.EDelivery.AS4.Steps.Send
         private static StepResult ReturnSameMessagingContext(MessagingContext messagingContext)
         {
             Logger.Debug(
-                $"{messagingContext.LogTag} No compression will happen because the" + 
-                $" Sending PMode {messagingContext.SendingPMode.Id} compression is disabled");
+                $"No compression will happen because the SendingPMode {messagingContext.SendingPMode.Id} " + 
+                "MessagePackaging.UseAS4Compression is disabled");
 
             return StepResult.Success(messagingContext);
         }
@@ -48,7 +48,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             try
             {
                 Logger.Info(
-                    $"{context.LogTag} Compress AS4 Message attachments with GZip compression");
+                    $"{context.LogTag} Compress AS4Message attachments with GZip compression");
 
                 context.AS4Message.CompressAttachments();
             }

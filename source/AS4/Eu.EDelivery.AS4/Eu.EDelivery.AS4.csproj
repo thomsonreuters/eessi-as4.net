@@ -133,6 +133,7 @@
     <Compile Include="Builders\Security\DecryptionStrategyBuilder.cs" />
     <Compile Include="Entities\Journal.cs" />
     <Compile Include="Entities\RetryReliability.cs" />
+    <Compile Include="Mappings\Core\ReceiptMap.cs" />
     <Compile Include="Mappings\Submit\SubmitSenderResolver.cs" />
     <Compile Include="Maybe.cs" />
     <Compile Include="Migrations\20180302141116_RemoveOutMessagesConstraint.cs" />
@@ -275,7 +276,6 @@
     <Compile Include="Mappings\Core\NonRepudiationInformationMap.cs" />
     <Compile Include="Mappings\Notify\ErrorToNotifyMap.cs" />
     <Compile Include="Mappings\Notify\ReceiptToNotifyMap.cs" />
-    <Compile Include="Mappings\Core\ReceiptMap.cs" />
     <Compile Include="Mappings\Common\AgreementReferenceMap.cs" />
     <Compile Include="Mappings\Common\CollaborationInfoMap.cs" />
     <Compile Include="Mappings\Common\MessagePropertyMap.cs" />

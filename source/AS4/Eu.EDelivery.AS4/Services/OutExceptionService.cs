@@ -40,6 +40,7 @@ namespace Eu.EDelivery.AS4.Services
                 {
                     OutException outException = await CreateOutExceptionAsync(error, sendingPMode, id);
 
+                    Logger.Debug($"Insert OutException with {{Operation={outException.Operation}, RefToEbmsMessageId={outException.EbmsRefToMessageId}}}");
                     repository.InsertOutException(outException);
                 }
                 catch (Exception exception)
@@ -50,17 +51,14 @@ namespace Eu.EDelivery.AS4.Services
             }
         }
 
-        private static bool NeedsOutExceptionBeNotified(SendingProcessingMode sendPMode)
-        {
-            return sendPMode?.ExceptionHandling?.NotifyMessageProducer == true;
-        }
-
         private static async Task<OutException> CreateOutExceptionAsync(ErrorResult error, SendingProcessingMode sendingPMode, string id)
         {
             var outException = new OutException(id, error.Description);
             
             await outException.SetPModeInformationAsync(sendingPMode);
-            outException.Operation = NeedsOutExceptionBeNotified(sendingPMode) ? Operation.ToBeNotified : Operation.NotApplicable;
+
+            bool needsToBeNotified = sendingPMode?.ExceptionHandling?.NotifyMessageProducer == true;
+            outException.Operation = needsToBeNotified ? Operation.ToBeNotified : Operation.NotApplicable;
 
             return outException;
         }

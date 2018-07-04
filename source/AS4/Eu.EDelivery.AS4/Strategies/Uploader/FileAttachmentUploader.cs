@@ -70,6 +70,7 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
             string downloadUrl = AssembleFileDownloadUrlFor(attachment, referringUserMessage);
             if (downloadUrl == null)
             {
+                Logger.Debug("No");
                 return Task.FromResult(UploadResult.FatalFail);
             }
 
@@ -84,12 +85,10 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
             try
             {
                 string extension = _repository.GetExtensionFromMimeType(attachment.ContentType);
-
                 string fileName = PayloadFileNameFactory.CreateFileName(NamePattern, attachment, referringUserMessage);
+                string validFileName = FilenameUtils.EnsureValidFilename($"{fileName}{extension}");
 
-                fileName = FilenameUtils.EnsureValidFilename($"{fileName}{extension}");
-
-                return Path.Combine(Location, fileName);
+                return Path.Combine(Location, validFileName);
             }
             catch (Exception ex)
             {
@@ -133,8 +132,7 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
                            if (unauthorizedEx != null)
                            {
                                Logger.Error(
-                                   "(Deliver) A fatal error occured while "
-                                   + $"uploading the attachment {attachment.Id}: {unauthorizedEx.Message}");
+                                   $"(Deliver) A fatal error occured while uploading the attachment {attachment.Id}: {unauthorizedEx.Message}");
 
                                return UploadResult.FatalFail;
                            }
@@ -146,8 +144,7 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
                            if (fileAlreadyExsitsEx != null)
                            {
                                Logger.Error(
-                                   "(Deliver) Uploading file will be retried "
-                                   + $"because a file already exists with the same name: {fileAlreadyExsitsEx}");
+                                   $"(Deliver) Uploading file will be retried because a file already exists with the same name: {fileAlreadyExsitsEx}");
 
                                // If we happen to be in a concurrent scenario where there already
                                // exists a file with the same name, try to upload the file as well.
@@ -160,8 +157,7 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
 
                            string desc = String.Join(", ", exs);
                            Logger.Error(
-                               "(Deliver) An error occured while "
-                               + $"uploading the attachment {attachment.Id}: {desc}, will be retried");
+                               $"(Deliver) An error occured while uploading the attachment {attachment.Id}: {desc}, will be retried");
 
                            return UploadResult.RetryableFail;
                        }
@@ -186,23 +182,25 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
             // Create the directory, if it does not exist.
             Directory.CreateDirectory(Path.GetDirectoryName(attachmentFilePath));
 
-            FileMode mode = FileMode.Create;
+            (FileMode fileMode, string filePath) =
+                overwriteExisting
+                    ? (FileMode.Create, attachmentFilePath)
+                    : (FileMode.CreateNew, FilenameUtils.EnsureFilenameIsUnique(attachmentFilePath)); 
 
-            if (overwriteExisting == false)
-            {
-                attachmentFilePath = FilenameUtils.EnsureFilenameIsUnique(attachmentFilePath);
-                mode = FileMode.CreateNew;
-            }
+            Logger.Trace($"Trying to upload attachment {attachment.Id} to {attachmentFilePath}");
 
-            Logger.Trace($"(Deliver) Trying to upload attachment {attachment.Id} to {attachmentFilePath}");
-
-            using (FileStream fileStream = new FileStream(attachmentFilePath, mode, FileAccess.Write, FileShare.None, 4096, FileOptions.Asynchronous | FileOptions.SequentialScan))
+            using (var fileStream = new FileStream(
+                filePath, 
+                fileMode, 
+                FileAccess.Write, 
+                FileShare.None, 
+                bufferSize: 4096, 
+                options: FileOptions.Asynchronous | FileOptions.SequentialScan))
             {
                 await attachment.Content.CopyToFastAsync(fileStream).ConfigureAwait(false);
             }
 
             Logger.Info($"(Deliver) Attachment {attachment.Id} is uploaded successfully to {attachmentFilePath}");
-
             return UploadResult.SuccessWithUrl(attachmentFilePath);
         }
     }

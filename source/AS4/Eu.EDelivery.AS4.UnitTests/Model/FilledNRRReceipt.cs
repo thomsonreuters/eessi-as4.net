@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Eu.EDelivery.AS4.Model.Core;
 
 namespace Eu.EDelivery.AS4.UnitTests.Model
@@ -9,16 +10,17 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
         /// Initializes a new instance of the <see cref="FilledNRRReceipt"/> class.
         /// </summary>
         public FilledNRRReceipt()
-        {
-            MessageId = "ignored id";
-            NonRepudiationInformation = new NonRepudiationInformation(new []
-            {
-                new Reference(
-                    "ignored URI",
-                    new List<ReferenceTransform> { new ReferenceTransform("ignored algorithm") },
-                    new ReferenceDigestMethod("ignored algorithm"),
-                    digestValue: new byte[0])
-            });
-        }
+            : base(
+                "ignored-id",
+                "ref-to-message-id",
+                DateTimeOffset.Now,
+                new NonRepudiationInformation(new []
+                {
+                    new Reference(
+                        "ignored URI",
+                        new List<ReferenceTransform> { new ReferenceTransform("ignored algorithm") },
+                        new ReferenceDigestMethod("ignored algorithm"),
+                        digestValue: new byte[0])
+                })) { }
     }
 }
