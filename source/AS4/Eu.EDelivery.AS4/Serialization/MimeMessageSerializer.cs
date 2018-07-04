@@ -279,7 +279,7 @@ namespace Eu.EDelivery.AS4.Serialization
         }
 
         private static IEnumerable<Attachment> BodyPartsAsAttachments(
-            IReadOnlyList<MimePart> bodyParts, 
+            IReadOnlyList<MimePart> bodyParts,
             IEnumerable<PartInfo> referencedPartInfos)
         {
             const int startAfterSoapHeader = 1;
@@ -312,7 +312,7 @@ namespace Eu.EDelivery.AS4.Serialization
         }
 
         private static (bool, PartInfo) SelectReferencedPartInfo(
-            Attachment attachment, 
+            Attachment attachment,
             IEnumerable<PartInfo> referencedPartInfos)
         {
             PartInfo partInfo = referencedPartInfos.FirstOrDefault(i => i.Href?.Contains(attachment.Id) == true);
