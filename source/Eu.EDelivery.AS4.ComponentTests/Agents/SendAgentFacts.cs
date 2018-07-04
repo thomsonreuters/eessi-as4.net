@@ -15,17 +15,26 @@ using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Serialization;
+using Eu.EDelivery.AS4.Singletons;
 using Eu.EDelivery.AS4.Steps.Receive;
 using Eu.EDelivery.AS4.TestUtils;
 using Eu.EDelivery.AS4.TestUtils.Stubs;
+using Eu.EDelivery.AS4.Xml;
 using Moq;
 using Xunit;
 using CollaborationInfo = Eu.EDelivery.AS4.Model.PMode.CollaborationInfo;
 using MessageExchangePattern = Eu.EDelivery.AS4.Entities.MessageExchangePattern;
+using NonRepudiationInformation = Eu.EDelivery.AS4.Model.Core.NonRepudiationInformation;
+using Parameter = Eu.EDelivery.AS4.Model.PMode.Parameter;
 using Service = Eu.EDelivery.AS4.Model.PMode.Service;
 using X509Certificate2 = System.Security.Cryptography.X509Certificates.X509Certificate2;
 using Party = Eu.EDelivery.AS4.Model.PMode.Party;
 using PartyId = Eu.EDelivery.AS4.Model.PMode.PartyId;
+using PartyInfo = Eu.EDelivery.AS4.Model.PMode.PartyInfo;
+using Protocol = Eu.EDelivery.AS4.Model.PMode.Protocol;
+using PushConfiguration = Eu.EDelivery.AS4.Model.PMode.PushConfiguration;
+using Receipt = Eu.EDelivery.AS4.Model.Core.Receipt;
+using UserMessage = Eu.EDelivery.AS4.Model.Core.UserMessage;
 
 namespace Eu.EDelivery.AS4.ComponentTests.Agents
 {
@@ -164,7 +173,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                 expectedSignalOperation: Operation.ToBeForwarded);
         }
 
-        public async Task CorrectHandlingOnSynchronouslyReceivedMultiHopReceipt(
+        private async Task CorrectHandlingOnSynchronouslyReceivedMultiHopReceipt(
             bool actAsIntermediaryMsh,
             string receivePModeId,
             OutStatus expectedOutStatus,
@@ -238,26 +247,12 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
         private static AS4Message CreateMultiHopReceiptFor(AS4Message message, SendingProcessingMode responsePMode)
         {
-            using (var context = new MessagingContext(message, MessagingContextMode.Receive))
-            {
-                var stubConfig = new Mock<IConfig>();
-                stubConfig.Setup(c => c.GetSendingPMode(responsePMode.Id))
-                          .Returns(responsePMode);
+            var receipt = new Receipt(
+                message.FirstUserMessage.MessageId,
+                message.FirstUserMessage,
+                AS4Mapper.Map<RoutingInputUserMessage>(message.FirstUserMessage));
 
-                context.ReceivingPMode =
-                    new ReceivingProcessingMode
-                    {
-                        ReplyHandling = { SendingPMode = responsePMode.Id }
-                    };
-
-                var createReceipt = new CreateAS4ReceiptStep(stubConfig.Object);
-                var result = createReceipt.ExecuteAsync(context).Result;
-
-                Assert.True(result.Succeeded, "Unable to create Receipt");
-                Assert.True(result.MessagingContext.AS4Message.IsMultiHopMessage, "Receipt is not created as a multihop receipt");
-
-                return result.MessagingContext.AS4Message;
-            }
+            return AS4Message.Create(receipt);
         }
 
         private static SendingProcessingMode CreateMultihopPMode(string sendToUrl)
