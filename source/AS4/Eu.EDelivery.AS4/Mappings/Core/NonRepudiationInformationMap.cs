@@ -56,6 +56,11 @@ namespace Eu.EDelivery.AS4.Mappings.Core
             CreateMap<Xml.NonRepudiationInformation, Model.Core.NonRepudiationInformation>()
                 .ConstructUsing(xml =>
                 {
+                    if (xml.MessagePartNRInformation == null)
+                    {
+                        return new Model.Core.NonRepudiationInformation(new Model.Core.Reference[0]);
+                    }
+
                     IEnumerable<Model.Core.Reference> references = 
                         xml.MessagePartNRInformation
                             .Select(p => p.Item)

@@ -162,7 +162,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             };
             var receipt = new Receipt( 
                 $"test-{Guid.NewGuid()}", 
-                new Model.Core.NonRepudiationInformation(),
+                new Model.Core.NonRepudiationInformation(new Reference[0]),
                 routedUserMessage);
 
             return AS4Message.Create(receipt, pmode);
