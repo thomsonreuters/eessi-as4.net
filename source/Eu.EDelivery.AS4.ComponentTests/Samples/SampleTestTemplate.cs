@@ -101,6 +101,8 @@ namespace Eu.EDelivery.AS4.ComponentTests.Samples
             {
                 File.Copy(@".\config\settings_original.xml", @".\config\settings.xml", true);
             }
+
+            AS4Component.WriteLogFilesToConsole();
         }
 
         protected virtual void Disposing(bool isDisposing)

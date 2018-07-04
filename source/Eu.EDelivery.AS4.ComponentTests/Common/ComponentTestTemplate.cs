@@ -8,7 +8,6 @@ using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Singletons;
 using Eu.EDelivery.AS4.TestUtils;
-using Polly;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.ComponentTests.Common
@@ -85,35 +84,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Common
                 File.Copy(@".\config\settings_original.xml", @".\config\settings.xml", true);
             }
 
-            WriteLogFilesToConsole();
-        }
-
-        private static void WriteLogFilesToConsole()
-        {
-            Console.WriteLine(Environment.NewLine);
-            Console.WriteLine(@"AS4.NET Component Logs:");
-            Console.WriteLine(Environment.NewLine);
-
-            foreach (string file in Directory.GetFiles(Path.GetFullPath(@".\logs")))
-            {
-                Policy.Handle<IOException>()
-                      .Retry(3)
-                      .Execute(() =>
-                      {
-                          Console.WriteLine($@"From file: '{file}':");
-
-                          foreach (string line in File.ReadAllLines(file))
-                          {
-                              Console.WriteLine(line);
-                          }
-
-                          Console.WriteLine(Environment.NewLine);
-                          if (File.Exists(file))
-                          {
-                              File.Delete(file);
-                          }
-                      });
-            }
+            AS4Component.WriteLogFilesToConsole();
         }
 
         protected virtual void Disposing(bool isDisposing) { }
