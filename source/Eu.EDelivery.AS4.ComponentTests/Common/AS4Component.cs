@@ -164,10 +164,6 @@ namespace Eu.EDelivery.AS4.ComponentTests.Common
                           }
 
                           Console.WriteLine(Environment.NewLine);
-                          if (File.Exists(file))
-                          {
-                              File.Delete(file);
-                          }
                       });
             }
         }

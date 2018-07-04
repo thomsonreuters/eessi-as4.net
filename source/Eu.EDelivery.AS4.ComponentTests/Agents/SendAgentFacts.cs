@@ -12,15 +12,12 @@ using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Factories;
 using Eu.EDelivery.AS4.Model.Core;
-using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Singletons;
-using Eu.EDelivery.AS4.Steps.Receive;
 using Eu.EDelivery.AS4.TestUtils;
 using Eu.EDelivery.AS4.TestUtils.Stubs;
 using Eu.EDelivery.AS4.Xml;
-using Moq;
 using Xunit;
 using CollaborationInfo = Eu.EDelivery.AS4.Model.PMode.CollaborationInfo;
 using MessageExchangePattern = Eu.EDelivery.AS4.Entities.MessageExchangePattern;
@@ -196,8 +193,17 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                     conversationId: "eu:europe:conversation");
 
             var signal = new ManualResetEvent(false);
-            var r = new AS4MessageResponseHandler(CreateMultiHopReceiptFor(as4Message, pmode));
-            StubHttpServer.StartServer(StubListenLocation, r.WriteResponse, signal);
+            var serializer = new SoapEnvelopeSerializer();
+            StubHttpServer.StartServer(
+                StubListenLocation,
+                res =>
+                {
+                    res.StatusCode = 200;
+                    res.ContentType = Constants.ContentTypes.Soap;
+                    AS4Message receipt = CreateMultiHopReceiptFor(as4Message);
+                    serializer.Serialize(receipt, res.OutputStream, CancellationToken.None);
+                }, 
+                signal);
 
             // Act
             PutMessageToSend(as4Message, pmode, actAsIntermediaryMsh);
@@ -245,12 +251,36 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             return AS4Message.Create(simpleUserMessage, sendingPMode);
         }
 
-        private static AS4Message CreateMultiHopReceiptFor(AS4Message message, SendingProcessingMode responsePMode)
+        private static AS4Message CreateMultiHopReceiptFor(AS4Message message)
         {
+            Model.Core.CollaborationInfo coll = message.FirstUserMessage.CollaborationInfo;
             var receipt = new Receipt(
                 message.FirstUserMessage.MessageId,
                 message.FirstUserMessage,
-                AS4Mapper.Map<RoutingInputUserMessage>(message.FirstUserMessage));
+                new RoutingInputUserMessage
+                {
+                    CollaborationInfo = new Xml.CollaborationInfo
+                    {
+                        Action = coll.Action,
+                        Service = new Xml.Service
+                        {
+                            Value = coll.Service.Value,
+                            type = coll.Service.Type.GetOrElse(() => null)
+                        },
+                        AgreementRef = new Xml.AgreementRef
+                        {
+                            pmode = coll.AgreementReference.UnsafeGet.PModeId.GetOrElse(() => null),
+                            type = coll.AgreementReference.UnsafeGet.Type.GetOrElse(() => null),
+                            Value = coll.AgreementReference.UnsafeGet.Value
+                        },
+                        ConversationId = coll.ConversationId
+                    },
+                    mpc = message.FirstUserMessage.Mpc,
+                    MessageInfo = new Xml.MessageInfo
+                    {
+                        MessageId = message.FirstUserMessage.MessageId
+                    }
+                });
 
             return AS4Message.Create(receipt);
         }
@@ -312,3 +342,4 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         }
     }
 }
+

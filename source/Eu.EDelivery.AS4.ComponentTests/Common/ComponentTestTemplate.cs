@@ -8,6 +8,7 @@ using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Singletons;
 using Eu.EDelivery.AS4.TestUtils;
+using Polly;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.ComponentTests.Common
@@ -23,6 +24,17 @@ namespace Eu.EDelivery.AS4.ComponentTests.Common
         public ComponentTestTemplate()
         {
             AS4Mapper.Initialize();
+            ClearLogFiles();
+        }
+
+        private static void ClearLogFiles()
+        {
+            foreach (string file in Directory.GetFiles(@".\logs"))
+            {
+                Policy.Handle<IOException>()
+                      .Retry(3)
+                      .Execute(() => File.Delete(file));
+            }
         }
 
         public string ComponentTestSettingsPath => @".\config\componenttest-settings";
