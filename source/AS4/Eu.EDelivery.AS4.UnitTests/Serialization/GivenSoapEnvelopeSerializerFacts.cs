@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
+using System.Security.Cryptography.Xml;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -808,7 +809,17 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
 
         private static Receipt CreateReceiptWithNonRepudiationInfo()
         {
-            var nnri = new[] { new System.Security.Cryptography.Xml.Reference() };
+            var nnri = new[]
+            {
+                new System.Security.Cryptography.Xml.Reference
+                {
+                    Uri = $"uri-{Guid.NewGuid()}",
+                    TransformChain = new TransformChain(),
+                    DigestMethod = $"digestmethod-{Guid.NewGuid()}",
+                    DigestValue = new byte[] { 1, 2, 3 }
+                }
+            };
+
             return new Receipt(
                 $"user-{Guid.NewGuid()}", 
                 new NonRepudiationInformationBuilder().WithSignedReferences(nnri).Build());

@@ -14,24 +14,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
                 "ignored-id",
                 "ref-to-message-id",
                 DateTimeOffset.Now,
-                new NonRepudiationInformation
+                new NonRepudiationInformation(new []
                 {
-                    MessagePartNRInformation =
-                        new List<MessagePartNRInformation>
-                        {
-                            new MessagePartNRInformation
-                            {
-                                Reference =
-                                    new Reference
-                                    {
-                                        DigestMethod = new ReferenceDigestMethod("ignored algorithm"),
-                                        DigestValue = new byte[0],
-                                        URI = "ignored URI",
-                                        Transforms =
-                                            new List<ReferenceTransform> { new ReferenceTransform("ignored algorithm") }
-                                    }
-                            }
-                        }
-                }) { }
+                    new Reference(
+                        "ignored URI",
+                        new List<ReferenceTransform> { new ReferenceTransform("ignored algorithm") },
+                        new ReferenceDigestMethod("ignored algorithm"),
+                        digestValue: new byte[0])
+                })) { }
     }
 }

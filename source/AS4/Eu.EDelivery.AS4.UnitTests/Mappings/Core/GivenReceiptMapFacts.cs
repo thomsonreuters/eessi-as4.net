@@ -4,25 +4,20 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Mappings.Core;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Singletons;
 using Eu.EDelivery.AS4.Xml;
 using Xunit;
-using CoreInformation = Eu.EDelivery.AS4.Model.Core.MessagePartNRInformation;
+using CoreReference = Eu.EDelivery.AS4.Model.Core.Reference;
 using CoreReceipt = Eu.EDelivery.AS4.Model.Core.Receipt;
 using XmlInformation = Eu.EDelivery.AS4.Xml.MessagePartNRInformation;
 using XmlReceipt = Eu.EDelivery.AS4.Xml.Receipt;
 
 namespace Eu.EDelivery.AS4.UnitTests.Mappings.Core
 {
-    /// <summary>
-    /// Testing <see cref="ReceiptMap" />
-    /// </summary>
     public class GivenReceiptMapFacts
     {
-
         public class GivenValidArguments : GivenReceiptMapFacts
         {
             [Fact]
@@ -42,14 +37,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Core
             private static void AssertReceiptReferences(CoreReceipt coreReceipt, XmlReceipt xmlReceipt)
             {
                 XmlInformation[] xmlInformations = xmlReceipt.NonRepudiationInformation.MessagePartNRInformation;
-                ICollection<CoreInformation> coreInformations = coreReceipt.NonRepudiationInformation.MessagePartNRInformation;
+                IEnumerable<CoreReference> coreReferences = coreReceipt.NonRepudiationInformation.MessagePartNRIReferences;
 
                 foreach (XmlInformation partNRInformation in xmlInformations)
                 {
                     var xmlReference = partNRInformation.Item as ReferenceType;
 
-                    Reference coreReference = coreInformations
-                        .FirstOrDefault(i => i.Reference.URI.Equals(xmlReference?.URI))?.Reference;
+                    CoreReference coreReference = coreReferences.FirstOrDefault(i => i.URI.Equals(xmlReference?.URI));
 
                     byte[] coreReferenceDigestValue = coreReference?.DigestValue ?? new byte[0];
                     Assert.True(xmlReference?.DigestValue.SequenceEqual(coreReferenceDigestValue));

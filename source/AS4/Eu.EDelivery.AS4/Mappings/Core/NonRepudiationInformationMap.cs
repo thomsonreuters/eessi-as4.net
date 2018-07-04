@@ -1,10 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using AutoMapper;
-using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Singletons;
-using Eu.EDelivery.AS4.Xml;
-using MessagePartNRInformation = Eu.EDelivery.AS4.Model.Core.MessagePartNRInformation;
 
 namespace Eu.EDelivery.AS4.Mappings.Core
 {
@@ -19,22 +16,24 @@ namespace Eu.EDelivery.AS4.Mappings.Core
         private void MapModelToXml()
         {
             CreateMap<Model.Core.NonRepudiationInformation, Xml.NonRepudiationInformation>()
-                .ForMember(dest => dest.MessagePartNRInformation, src => src.MapFrom(t => t.MessagePartNRInformation ?? new List<MessagePartNRInformation>()));
-
-            CreateMap<Model.Core.MessagePartNRInformation, Xml.MessagePartNRInformation>()
-                .ForMember(dest => (Xml.ReferenceType)dest.Item, src => src.MapFrom(t => t.Reference))
-                .AfterMap((modelInfo, xmlInfo) =>
-                {
-                    Model.Core.Reference modelReference = modelInfo.Reference;
-                    xmlInfo.Item = new Xml.ReferenceType
+                .ConstructUsing(model => 
+                    new Xml.NonRepudiationInformation
                     {
-                        URI = modelReference.URI,
-                        DigestMethod = new Xml.DigestMethodType { Algorithm = modelReference.DigestMethod.Algorithm },
-                        DigestValue = modelInfo.Reference.DigestValue,
-                        Transforms = modelReference.Transforms
-                            .Select(t => new Xml.TransformType { Algorithm = t.Algorithm }).ToArray()
-                    };
-                });
+                        MessagePartNRInformation = model.MessagePartNRIReferences.Select(r => 
+                            new Xml.MessagePartNRInformation
+                            {
+                                Item = new Xml.ReferenceType
+                                {
+                                    URI = r.URI,
+                                    DigestMethod = new Xml.DigestMethodType { Algorithm = r.DigestMethod.Algorithm },
+                                    DigestValue = r.DigestValue,
+                                    Transforms = r.Transforms
+                                                  .Select(t => new Xml.TransformType { Algorithm = t.Algorithm })
+                                                  .ToArray()
+                                }
+                            }).ToArray()
+                    })
+                .ForAllOtherMembers(x => x.Ignore());
 
             CreateMap<Model.Core.Reference, Xml.ReferenceType>()
                 .ForMember(dest => dest.Transforms, src => src.MapFrom(t => t.Transforms))
@@ -55,26 +54,31 @@ namespace Eu.EDelivery.AS4.Mappings.Core
         private void MapXmlToModel()
         {
             CreateMap<Xml.NonRepudiationInformation, Model.Core.NonRepudiationInformation>()
-                .ForMember(dest => dest.MessagePartNRInformation, src => src.MapFrom(t => t.MessagePartNRInformation ?? new Xml.MessagePartNRInformation[] { }));
+                .ConstructUsing(xml =>
+                {
+                    if (xml.MessagePartNRInformation == null)
+                    {
+                        return new Model.Core.NonRepudiationInformation(new Model.Core.Reference[0]);
+                    }
 
-            CreateMap<Xml.MessagePartNRInformation, Model.Core.MessagePartNRInformation>()
-                .ForMember(dest => dest.Reference,
-                           opt => opt.ResolveUsing(src => src.Item is ReferenceType ? AS4Mapper.Map<Reference>(src.Item) : new Reference()));
+                    IEnumerable<Model.Core.Reference> references = 
+                        xml.MessagePartNRInformation
+                            .Select(p => p.Item)
+                            .Where(i => i != null)
+                            .Cast<Xml.ReferenceType>()
+                            .Select(AS4Mapper.Map<Model.Core.Reference>);
 
-
-            CreateMap<Xml.ReferenceType, Model.Core.Reference>()
-                .ForMember(dest => dest.Transforms, src => src.MapFrom(t => t.Transforms))
-                .ForMember(dest => dest.DigestMethod, src => src.MapFrom(t => t.DigestMethod))
-                .ForMember(dest => dest.DigestValue, src => src.MapFrom(t => t.DigestValue))
-                .ForMember(dest => dest.URI, src => src.MapFrom(t => t.URI))
+                    return new Model.Core.NonRepudiationInformation(references);
+                })
                 .ForAllOtherMembers(x => x.Ignore());
 
-            CreateMap<Xml.TransformType, Model.Core.ReferenceTransform>()
-                .ForMember(dest => dest.Algorithm, src => src.MapFrom(t => t.Algorithm))
-                .ForAllMembers(x => x.Ignore());
-
-            CreateMap<Xml.DigestMethodType, Model.Core.ReferenceDigestMethod>()
-                .ForMember(dest => dest.Algorithm, src => src.MapFrom(t => t.Algorithm))
+            CreateMap<Xml.ReferenceType, Model.Core.Reference>()
+                .ConstructUsing(xml =>
+                    new Model.Core.Reference(
+                        xml.URI,
+                        xml.Transforms?.Select(t => new Model.Core.ReferenceTransform(t.Algorithm)),
+                        new Model.Core.ReferenceDigestMethod(xml.DigestMethod?.Algorithm), 
+                        xml.DigestValue))
                 .ForAllOtherMembers(x => x.Ignore());
         }
     }

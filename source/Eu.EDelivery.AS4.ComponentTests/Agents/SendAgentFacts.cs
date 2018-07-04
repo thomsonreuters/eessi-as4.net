@@ -123,24 +123,23 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
         private static AS4Message SignedNRReceipt(X509Certificate2 cert, AS4Message signedUserMessage, Func<int, int> selection)
         {
-            IEnumerable<MessagePartNRInformation> hashes = new NonRepudiationInformationBuilder()
-                .WithSignedReferences(signedUserMessage.SecurityHeader.GetReferences())
-                .Build()
-                .MessagePartNRInformation.Select(i => new MessagePartNRInformation
-                {
-                    Reference = new Reference
+            IEnumerable<Reference> hashes =
+                new NonRepudiationInformationBuilder()
+                    .WithSignedReferences(signedUserMessage.SecurityHeader.GetReferences())
+                    .Build()
+                    .MessagePartNRIReferences.Select(r =>
                     {
-                        DigestValue = i.Reference.DigestValue.Select(v => (byte)selection(v)).ToArray(),
-                        DigestMethod = i.Reference.DigestMethod,
-                        Transforms = i.Reference.Transforms,
-                        URI = i.Reference.URI
-                    }
-                });
+                        return new Reference(
+                            r.URI,
+                            r.Transforms,
+                            r.DigestMethod,
+                            r.DigestValue.Select(v => (byte)selection(v)).ToArray());
+                    });
 
             AS4Message receipt = AS4Message.Create(
                 new Receipt(
                     refToMessageId: signedUserMessage.GetPrimaryMessageId(),
-                    nonRepudiation: new NonRepudiationInformation { MessagePartNRInformation = hashes.ToList() }));
+                    nonRepudiation: new NonRepudiationInformation(hashes)));
 
             return AS4MessageUtils.SignWithCertificate(receipt, cert);
         }
