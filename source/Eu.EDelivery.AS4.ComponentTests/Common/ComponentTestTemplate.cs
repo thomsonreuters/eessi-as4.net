@@ -29,11 +29,14 @@ namespace Eu.EDelivery.AS4.ComponentTests.Common
 
         private static void ClearLogFiles()
         {
-            foreach (string file in Directory.GetFiles(@".\logs"))
+            if (Directory.Exists(@".\logs"))
             {
-                Policy.Handle<IOException>()
-                      .Retry(3)
-                      .Execute(() => File.Delete(file));
+                foreach (string file in Directory.GetFiles(@".\logs"))
+                {
+                    Policy.Handle<IOException>()
+                          .Retry(3)
+                          .Execute(() => File.Delete(file));
+                }
             }
         }
 
