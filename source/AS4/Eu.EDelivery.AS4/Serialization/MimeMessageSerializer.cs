@@ -279,7 +279,7 @@ namespace Eu.EDelivery.AS4.Serialization
         }
 
         private static IEnumerable<Attachment> BodyPartsAsAttachments(
-            IReadOnlyList<MimePart> bodyParts,
+            IReadOnlyList<MimePart> bodyParts, 
             IEnumerable<PartInfo> referencedPartInfos)
         {
             const int startAfterSoapHeader = 1;
