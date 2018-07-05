@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using Eu.EDelivery.AS4.Common;
+using Polly;
 
 namespace Eu.EDelivery.AS4.ComponentTests.Common
 {
@@ -72,12 +73,12 @@ namespace Eu.EDelivery.AS4.ComponentTests.Common
                 WindowStyle = ProcessWindowStyle.Minimized
             };
 
-            Console.WriteLine(@"Starting AS4.NET component...");
+            Console.WriteLine(@"Starting AS4.NET component.as Console ..");
             var as4Msh = new AS4Component(Process.Start(mshInfo));
 
             // Wait a little bit to make sure the DB is created.
             System.Threading.Thread.Sleep(TimeSpan.FromSeconds(10));
-            Console.WriteLine(@"AS4.NET component is started");
+            Console.WriteLine(@"AS4.NET component as Console is started");
 
             return as4Msh;
         }
@@ -137,6 +138,33 @@ namespace Eu.EDelivery.AS4.ComponentTests.Common
             if (!_as4ComponentProcess.HasExited)
             {
                 _as4ComponentProcess.Kill();
+            }
+        }
+
+        /// <summary>
+        /// Logs the log entries of this component to the console.
+        /// </summary>
+        public static void WriteLogFilesToConsole()
+        {
+            Console.WriteLine(Environment.NewLine);
+            Console.WriteLine(@"AS4.NET Component Logs:");
+            Console.WriteLine(Environment.NewLine);
+
+            foreach (string file in Directory.GetFiles(Path.GetFullPath(@".\logs")))
+            {
+                Policy.Handle<IOException>()
+                      .Retry(3)
+                      .Execute(() =>
+                      {
+                          Console.WriteLine($@"From file: '{file}':");
+
+                          foreach (string line in File.ReadAllLines(file))
+                          {
+                              Console.WriteLine(line);
+                          }
+
+                          Console.WriteLine(Environment.NewLine);
+                      });
             }
         }
     }

@@ -24,6 +24,20 @@ namespace Eu.EDelivery.AS4.ComponentTests.Common
         public ComponentTestTemplate()
         {
             AS4Mapper.Initialize();
+            ClearLogFiles();
+        }
+
+        private static void ClearLogFiles()
+        {
+            if (Directory.Exists(@".\logs"))
+            {
+                foreach (string file in Directory.GetFiles(@".\logs"))
+                {
+                    Policy.Handle<IOException>()
+                          .Retry(3)
+                          .Execute(() => File.Delete(file));
+                }
+            }
         }
 
         public string ComponentTestSettingsPath => @".\config\componenttest-settings";
@@ -85,35 +99,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Common
                 File.Copy(@".\config\settings_original.xml", @".\config\settings.xml", true);
             }
 
-            WriteLogFilesToConsole();
-        }
-
-        private static void WriteLogFilesToConsole()
-        {
-            Console.WriteLine(Environment.NewLine);
-            Console.WriteLine(@"AS4.NET Component Logs:");
-            Console.WriteLine(Environment.NewLine);
-
-            foreach (string file in Directory.GetFiles(Path.GetFullPath(@".\logs")))
-            {
-                Policy.Handle<IOException>()
-                      .Retry(3)
-                      .Execute(() =>
-                      {
-                          Console.WriteLine($@"From file: '{file}':");
-
-                          foreach (string line in File.ReadAllLines(file))
-                          {
-                              Console.WriteLine(line);
-                          }
-
-                          Console.WriteLine(Environment.NewLine);
-                          if (File.Exists(file))
-                          {
-                              File.Delete(file);
-                          }
-                      });
-            }
+            AS4Component.WriteLogFilesToConsole();
         }
 
         protected virtual void Disposing(bool isDisposing) { }

@@ -15,6 +15,8 @@ namespace Eu.EDelivery.AS4.ComponentTests.Samples
                              NotifyErrorPath = @".\messages\errors",
                              GeneratedIdPattern = "*@*.xml";
 
+        public SampleTests(WindowsServiceFixture fixture) : base(fixture) { }
+
         [Theory]
         [InlineData("01-sample-message.xml", "earth.jpg")]
         [InlineData("02-sample-message.xml", "earth.jpg", "xml-sample.xml")]
