@@ -23,8 +23,11 @@ namespace Eu.EDelivery.AS4.Mappings.Core
                 .AfterMap(
                     (routingInput, userMessage) =>
                     {
-                        userMessage.Sender = AS4Mapper.Map<Party>(routingInput.PartyInfo.From);
-                        userMessage.Receiver = AS4Mapper.Map<Party>(routingInput.PartyInfo.To);
+                        if (routingInput.PartyInfo != null)
+                        {
+                            userMessage.Sender = AS4Mapper.Map<Party>(routingInput.PartyInfo.From);
+                            userMessage.Receiver = AS4Mapper.Map<Party>(routingInput.PartyInfo.To); 
+                        }
 
                         AssignAction(userMessage);
                         AssignMpc(userMessage);

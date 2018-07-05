@@ -14,7 +14,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Samples
         /// <summary>
         /// Initializes a new instance of the <see cref="SampleTestTemplate"/> class.
         /// </summary>
-        protected SampleTestTemplate()
+        protected SampleTestTemplate(WindowsServiceFixture fixture)
         {
             try
             {
@@ -32,6 +32,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Samples
                 CreateOrClearDirectory(@".\messages\errors");
                 CreateOrClearDirectory(@".\messages\exceptions");
 
+                fixture.StartServiceIfNotYetStarted();
                 SenderMsh = AS4Component.Start(Environment.CurrentDirectory, cleanSlate: false);
             }
             catch (Exception)
@@ -101,6 +102,8 @@ namespace Eu.EDelivery.AS4.ComponentTests.Samples
             {
                 File.Copy(@".\config\settings_original.xml", @".\config\settings.xml", true);
             }
+
+            AS4Component.WriteLogFilesToConsole();
         }
 
         protected virtual void Disposing(bool isDisposing)

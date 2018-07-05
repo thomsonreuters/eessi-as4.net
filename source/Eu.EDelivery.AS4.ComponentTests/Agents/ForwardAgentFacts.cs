@@ -60,9 +60,11 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             await SendAS4MessageTo(as4Message, _receiveAgentUrl);
 
             // Assert: if an OutMessage is created with the correct status and operation.
-            InMessage inMessage = _databaseSpy.GetInMessageFor(m => m.EbmsMessageId == messageId);
-            Assert.NotNull(inMessage);
-            Assert.Equal(Operation.Forwarded, inMessage.Operation);
+            InMessage inMessage = await PollUntilPresent(
+                () => _databaseSpy.GetInMessageFor(
+                    m => m.EbmsMessageId == messageId
+                         && m.Operation == Operation.Forwarded),
+                TimeSpan.FromSeconds(5));
             Assert.NotNull(AS4XmlSerializer.FromString<ReceivingProcessingMode>(inMessage.PMode));
 
             OutMessage outMessage = _databaseSpy.GetOutMessageFor(m => m.EbmsMessageId == messageId);
@@ -89,9 +91,11 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             await SendAS4MessageTo(as4Message, _receiveAgentUrl);
 
             // Assert: if an OutMessage is created with the correct status and operation.
-            var primaryInMessage = _databaseSpy.GetInMessageFor(m => m.EbmsMessageId == primaryMessageId);
-            Assert.NotNull(primaryInMessage);
-            Assert.Equal(Operation.Forwarded, primaryInMessage.Operation);
+            InMessage primaryInMessage = await PollUntilPresent(
+                () => _databaseSpy.GetInMessageFor(
+                    m => m.EbmsMessageId == primaryMessageId
+                         && m.Operation == Operation.Forwarded),
+                TimeSpan.FromSeconds(5));
             Assert.NotNull(AS4XmlSerializer.FromString<ReceivingProcessingMode>(primaryInMessage.PMode));
 
             var secondaryInMessage = _databaseSpy.GetInMessageFor(m => m.EbmsMessageId == secondMessageId);
@@ -119,19 +123,23 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             await SendAS4MessageTo(as4Message, _receiveAgentUrl);
 
             // Assert: if an OutMessage is created with the correct status and operation.
-            var inMessage = _databaseSpy.GetInMessageFor(m => m.EbmsMessageId == messageId);
-            Assert.NotNull(inMessage);
-            Assert.Equal(Operation.Forwarded, inMessage.Operation);
+            InMessage inMessage = await PollUntilPresent(
+                () => _databaseSpy.GetInMessageFor(
+                    m => m.EbmsMessageId == messageId
+                         && m.Operation == Operation.Forwarded), 
+                TimeSpan.FromSeconds(5));
 
             var receivingPMode = AS4XmlSerializer.FromString<ReceivingProcessingMode>(inMessage.PMode);
             Assert.NotNull(receivingPMode);
 
-            OutMessage outMessage = _databaseSpy.GetOutMessageFor(m => m.EbmsMessageId == messageId);
-            Assert.NotNull(outMessage);
+            OutMessage outMessage = await PollUntilPresent(
+                () => _databaseSpy.GetOutMessageFor(
+                    m => m.EbmsMessageId == messageId
+                         && m.Operation == Operation.ToBeProcessed),
+                TimeSpan.FromSeconds(5));
 
             var sendingPMode = AS4XmlSerializer.FromString<SendingProcessingMode>(outMessage.PMode);
             Assert.NotNull(sendingPMode);
-            Assert.Equal(Operation.ToBeProcessed, outMessage.Operation);
             Assert.Equal(MessageExchangePattern.Pull, outMessage.MEP);
             Assert.Equal(sendingPMode.MessagePackaging.Mpc, outMessage.Mpc);
         }
@@ -156,7 +164,6 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         {
             HttpResponseMessage response = await StubSender.SendAS4Message(url, msg);
             Assert.Equal(HttpStatusCode.Accepted, response.StatusCode);
-            await Task.Delay(TimeSpan.FromSeconds(3));
         }
 
         [Fact]
@@ -168,15 +175,18 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
             // Act: Start a Stub HTTP Server that listens on the PullRequest endpoint
             // and replies with an AS4 UserMessage
-            await RespondToPullRequestWith(tobeForwarded);
+            RespondToPullRequestWith(tobeForwarded);
 
             // Assert: if an OutMessage is created with the correct status and operation
-            var inMessage = _databaseSpy.GetInMessageFor(m => m.EbmsMessageId == messageId);
-            Assert.NotNull(inMessage);
-            Assert.Equal(Operation.Forwarded, inMessage.Operation);
+            await PollUntilPresent(
+                () => _databaseSpy.GetInMessageFor(m => 
+                    m.EbmsMessageId == messageId 
+                    && m.Operation == Operation.Forwarded), 
+                TimeSpan.FromSeconds(6));
 
-            var outMessage = _databaseSpy.GetOutMessageFor(m => m.EbmsMessageId == messageId);
-            Assert.NotNull(outMessage);
+            OutMessage outMessage = await PollUntilPresent(
+                () => _databaseSpy.GetOutMessageFor(m => m.EbmsMessageId == messageId),
+                TimeSpan.FromSeconds(5));
 
             var sendingPMode = AS4XmlSerializer.FromString<SendingProcessingMode>(outMessage.PMode);
             Assert.NotNull(sendingPMode);
@@ -185,7 +195,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             Assert.Equal(sendingPMode.MessagePackaging.Mpc, outMessage.Mpc);
         }
 
-        private async Task RespondToPullRequestWith(AS4Message tobeForwarded)
+        private void RespondToPullRequestWith(AS4Message tobeForwarded)
         {
             string pullingUrl = RetrievePullingUrlFromConfig();
             var responseHandler = new AS4MessageResponseHandler(tobeForwarded);
@@ -193,9 +203,6 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             var waiter = new ManualResetEvent(false);
             StubHttpServer.StartServer(pullingUrl, responseHandler.WriteResponse, waiter);
             Assert.True(waiter.WaitOne(TimeSpan.FromSeconds(15)));
-
-            // Wait a little bit so that the Message can be processed
-            await Task.Delay(TimeSpan.FromSeconds(5));
         }
 
         private string RetrievePullingUrlFromConfig()
