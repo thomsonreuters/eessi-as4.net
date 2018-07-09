@@ -7,14 +7,11 @@ using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
-using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Singletons;
 using Eu.EDelivery.AS4.Steps.Receive.Participant;
-using Eu.EDelivery.AS4.Validators;
 using Eu.EDelivery.AS4.Xml;
-using FluentValidation.Results;
 using NLog;
 using ReceivePMode = Eu.EDelivery.AS4.Model.PMode.ReceivingProcessingMode;
 using SendPMode = Eu.EDelivery.AS4.Model.PMode.SendingProcessingMode;
@@ -59,7 +56,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         {
             AS4Message as4Message = messagingContext.AS4Message;
 
-            if (as4Message.HasSignalMessage)
+            if (as4Message.SignalMessages.Count(s => !(s is Model.Core.PullRequest)) > 1)
             {
                 if (as4Message.IsMultiHopMessage == false && messagingContext.SendingPMode != null)
                 {

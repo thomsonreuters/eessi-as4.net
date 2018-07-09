@@ -223,20 +223,24 @@ namespace Eu.EDelivery.AS4.Services
         public void UpdateAS4MessageForMessageHandling(MessagingContext messageContext, IAS4MessageBodyStore messageBodyStore)
         {
             AS4Message as4Message = messageContext.AS4Message;
-
-            string messageLocation = _repository.GetInMessageData(
-                as4Message.GetPrimaryMessageId(),
-                m => m.MessageLocation);
-
-            if (messageLocation == null)
-            {
-                throw new InvalidDataException($"Cannot update received AS4Message: Unable to find an InMessage for {as4Message.GetPrimaryMessageId()}");
-            }
-
+            
             if (as4Message.HasUserMessage)
             {
+                IEnumerable<string> messageLocations = _repository.GetInMessagesData(
+                    as4Message.UserMessages.Select(m => m.MessageId),
+                    m => m.MessageLocation);
+
+                if (!messageLocations.Any() || messageLocations.Any(m => m is null))
+                {
+                    throw new InvalidDataException(
+                        $"Cannot update received AS4Message: Unable to find an InMessage for {as4Message.GetPrimaryMessageId()}");
+                }
+
                 Logger.Debug("Update stored message body because message contains UserMessages");
-                messageBodyStore.UpdateAS4Message(messageLocation, as4Message);
+                foreach (string location in messageLocations)
+                {
+                    messageBodyStore.UpdateAS4Message(location, as4Message);
+                }
             }
 
             if (messageContext.ReceivedMessageMustBeForwarded)
@@ -379,7 +383,7 @@ namespace Eu.EDelivery.AS4.Services
                 }
             }
 
-            string[] refToMessageIds = signalMessages.Select(r => r.RefToMessageId).ToArray();
+            string[] refToMessageIds = signalMessages.Select(r => r.RefToMessageId).Where(id => id != null).ToArray();
             if (refToMessageIds.Any())
             {
                 _repository.UpdateOutMessages(
