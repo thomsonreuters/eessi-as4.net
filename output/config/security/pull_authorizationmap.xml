@@ -1,8 +1,6 @@
 <?xml version="1.0"?>
-<PullRequestAuthorizationMap xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<PullRequestAuthorizationMap xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <AuthorizationEntries xmlns="eu:edelivery:as4">
-    <!-- Define PullRequest-Authorization entries like this:
-    <Authorization mpc="mpc1" certificatethumbprint="abcdefgh" allowed="true" />
-    -->    
+    <Authorization mpc="my mpc" certificatethumbprint="0d512bdcd9f169ac4c22e1574ab98e3fa4d8af78" allowed="true" />
   </AuthorizationEntries>
 </PullRequestAuthorizationMap>
