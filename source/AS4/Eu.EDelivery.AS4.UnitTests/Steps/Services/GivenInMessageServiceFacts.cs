@@ -10,6 +10,7 @@ using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Services;
 using Eu.EDelivery.AS4.UnitTests.Common;
+using Eu.EDelivery.AS4.UnitTests.Model;
 using Eu.EDelivery.AS4.UnitTests.Repositories;
 using Moq;
 using Xunit;
@@ -64,10 +65,17 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Services
             public void FailsToUpdateMessage_IfNoMessageLocationCanBeFound()
             {
                 // Arrange
-                var notPopulatedRepository = Mock.Of<IDatastoreRepository>();
-                var sut = new InMessageService(config: null, repository: notPopulatedRepository);
+                var userMessage = new FilledUserMessage();
+                var context = new MessagingContext(
+                    AS4Message.Create(userMessage), 
+                    MessagingContextMode.Unknown);
 
-                var context = new MessagingContext(AS4Message.Empty, MessagingContextMode.Unknown);
+                var notPopulatedRepository = new Mock<IDatastoreRepository>();
+                notPopulatedRepository
+                    .Setup(r => r.GetInMessagesData(new[] { userMessage.MessageId }, m => m.MessageLocation))
+                    .Returns(new string[] { null });
+
+                var sut = new InMessageService(config: null, repository: notPopulatedRepository.Object);
 
                 // Act / Assert
                 Assert.ThrowsAny<InvalidDataException>(

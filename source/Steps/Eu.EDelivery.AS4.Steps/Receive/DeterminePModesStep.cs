@@ -56,7 +56,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         {
             AS4Message as4Message = messagingContext.AS4Message;
 
-            if (as4Message.SignalMessages.Count(s => !(s is Model.Core.PullRequest)) > 1)
+            if (as4Message.SignalMessages.Count(s => !(s is Model.Core.PullRequest)) > 0)
             {
                 if (as4Message.IsMultiHopMessage == false && messagingContext.SendingPMode != null)
                 {

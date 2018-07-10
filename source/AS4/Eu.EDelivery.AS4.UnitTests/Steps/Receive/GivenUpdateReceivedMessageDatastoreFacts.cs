@@ -71,11 +71,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             // Arrange
             string knownId = "known-id-" + Guid.NewGuid();
             GetDataStoreContext.InsertOutMessage(
-                new OutMessage("unknown-id-" + Guid.NewGuid()),
+                new OutMessage(knownId) {MessageLocation = null},
                 withReceptionAwareness: false);
 
             var ctx = new MessagingContext(
-                AS4Message.Create(new Receipt(knownId)),
+                AS4Message.Create(new FilledUserMessage(knownId)),
                 MessagingContextMode.Unknown)
             {
                 SendingPMode = CreateNotifyAllSendingPMode()
