@@ -39,7 +39,7 @@ namespace Eu.EDelivery.AS4.Services
                 updateAction: entity => UpdateMessageEntity(
                     status: status,
                     entity: entity,
-                    getter: s => _repository.GetRetryReliability(r => r.RefToInMessageId == entity.Id, s),
+                    getRetryEntries: () => _repository.GetRetryReliability(r => r.RefToInMessageId == entity.Id, r => r),
                     onSuccess: _ => Logger.Debug("Attachments are uploaded successfully, no retry is needed"),
                     onFailure: e =>
                     {
@@ -61,7 +61,7 @@ namespace Eu.EDelivery.AS4.Services
                 updateAction: entity => UpdateMessageEntity(
                     status: status,
                     entity: entity,
-                    getter: s => _repository.GetRetryReliability(r => r.RefToInMessageId == entity.Id, s),
+                    getRetryEntries: () => _repository.GetRetryReliability(r => r.RefToInMessageId == entity.Id, r => r),
                     onSuccess: e =>
                     {
                         Logger.Info($"(Deliver)[{messageId}] Mark deliver message as Delivered");
@@ -89,7 +89,7 @@ namespace Eu.EDelivery.AS4.Services
                 updateAction: entity => UpdateMessageEntity(
                     status: result,
                     entity: entity,
-                    getter: selector => _repository.GetRetryReliability(r => r.RefToInMessageId == entity.Id, selector),
+                    getRetryEntries: () => _repository.GetRetryReliability(r => r.RefToInMessageId == entity.Id, r => r),
                     onSuccess: e =>
                     {
                         Logger.Info($"(Notify)[{messageId}] Mark NotifyMessage as Notified");
@@ -117,7 +117,7 @@ namespace Eu.EDelivery.AS4.Services
                 entity => UpdateMessageEntity(
                     status: result,
                     entity: entity,
-                    getter: selector => _repository.GetRetryReliability(r => r.RefToOutMessageId == entity.Id, selector),
+                    getRetryEntries: () => _repository.GetRetryReliability(r => r.RefToOutMessageId == entity.Id, r => r),
                     onSuccess: m =>
                     {
                         Logger.Info($"(Notify)[{messageId}] Mark NotifyMessage as Notified");
@@ -136,11 +136,11 @@ namespace Eu.EDelivery.AS4.Services
         private static void UpdateMessageEntity<T>(
             SendResult status,
             T entity,
-            Func<Expression<Func<RetryReliability, RetryReliability>>, IEnumerable<RetryReliability>> getter,
+            Func<IEnumerable<RetryReliability>> getRetryEntries,
             Action<T> onSuccess,
             Action<T> onFailure) where T : MessageEntity
         {
-            RetryReliability rr = getter(r => r).FirstOrDefault();
+            RetryReliability rr = getRetryEntries().FirstOrDefault();
             if (status == SendResult.Success)
             {
                 onSuccess(entity);
@@ -194,7 +194,7 @@ namespace Eu.EDelivery.AS4.Services
                 updateAction: exEntity => UpdateExceptionRetry(
                     status: result,
                     entity: exEntity,
-                    getter: selector => _repository.GetRetryReliability(r => r.RefToInExceptionId == exEntity.Id, selector)));
+                    getRetryEntries: () => _repository.GetRetryReliability(r => r.RefToInExceptionId == exEntity.Id, r => r)));
         }
 
         /// <summary>
@@ -209,15 +209,15 @@ namespace Eu.EDelivery.AS4.Services
                 updateAction: exEntity => UpdateExceptionRetry(
                     status: result,
                     entity: exEntity,
-                    getter: selector => _repository.GetRetryReliability(r => r.RefToOutExceptionId == exEntity.Id, selector)));
+                    getRetryEntries: () => _repository.GetRetryReliability(r => r.RefToOutExceptionId == exEntity.Id, r => r)));
         }
 
         private static void UpdateExceptionRetry<T>(
             SendResult status,
             T entity,
-            Func<Expression<Func<RetryReliability, RetryReliability>>, IEnumerable<RetryReliability>> getter) where T : ExceptionEntity
+            Func<IEnumerable<RetryReliability>> getRetryEntries) where T : ExceptionEntity
         {
-            RetryReliability rr = getter(r => r).FirstOrDefault();
+            RetryReliability rr = getRetryEntries().FirstOrDefault();
             if (status == SendResult.Success)
             {
                 Logger.Info($"(Notify)[{entity.EbmsRefToMessageId}] Mark NotifyMessage as Notified");
