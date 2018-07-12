@@ -31,10 +31,12 @@ using Xunit;
 using static Eu.EDelivery.AS4.UnitTests.Properties.Resources;
 using AgreementReference = Eu.EDelivery.AS4.Model.Core.AgreementReference;
 using Error = Eu.EDelivery.AS4.Model.Core.Error;
+using NonRepudiationInformation = Eu.EDelivery.AS4.Model.Core.NonRepudiationInformation;
 using Party = Eu.EDelivery.AS4.Model.Core.Party;
 using PartyId = Eu.EDelivery.AS4.Model.Core.PartyId;
 using Property = FsCheck.Property;
 using Receipt = Eu.EDelivery.AS4.Model.Core.Receipt;
+using Reference = Eu.EDelivery.AS4.Model.Core.Reference;
 using Service = Eu.EDelivery.AS4.Model.Core.Service;
 using UserMessage = Eu.EDelivery.AS4.Model.Core.UserMessage;
 
@@ -187,7 +189,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
             public async Task AS4NRRReceipt_ValidatesWithXsdSchema()
             {
                 // Arrange
-                AS4Message receiptMessage = AS4Message.Create(new FilledNRRReceipt());
+                AS4Message receiptMessage = AS4Message.Create(new FilledNRReceipt());
 
                 // Act / Assert
                 await TestValidEbmsMessageEnvelopeFrom(receiptMessage);
@@ -821,8 +823,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
             };
 
             return new Receipt(
-                $"user-{Guid.NewGuid()}", 
-                new NonRepudiationInformationBuilder().WithSignedReferences(nnri).Build());
+                $"user-{Guid.NewGuid()}",
+                new NonRepudiationInformation(
+                    nnri.Select(Reference.CreateFromReferenceElement)));
         }
 
         private static Receipt CreateReceiptWithRelatedUserMessageInfo()

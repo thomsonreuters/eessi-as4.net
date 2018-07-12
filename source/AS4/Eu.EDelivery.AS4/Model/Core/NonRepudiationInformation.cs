@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.Xml;
 
 namespace Eu.EDelivery.AS4.Model.Core
 {
@@ -141,6 +142,36 @@ namespace Eu.EDelivery.AS4.Model.Core
             DigestMethod = digestMethod;
             DigestValue = digestValue;
             URI = uri;
+        }
+
+        /// <summary>
+        /// Creates a <see cref="Reference"/> model from a <see cref="System.Security.Cryptography.Xml.Reference"/> element.
+        /// </summary>
+        /// <param name="refElement"></param>
+        /// <returns></returns>
+        public static Reference CreateFromReferenceElement(System.Security.Cryptography.Xml.Reference refElement)
+        {
+            if (refElement == null)
+            {
+                throw new ArgumentNullException(nameof(refElement));
+            }
+
+            IEnumerable<ReferenceTransform> CreateTransformsFromChain(TransformChain chain)
+            {
+                if (chain != null)
+                {
+                    foreach (Transform transform in chain)
+                    {
+                        yield return new ReferenceTransform(transform.Algorithm);
+                    }
+                }
+            }
+
+            return new Reference(
+                refElement.Uri,
+                CreateTransformsFromChain(refElement.TransformChain),
+                new ReferenceDigestMethod(refElement.DigestMethod),
+                refElement.DigestValue);
         }
 
         /// <summary>

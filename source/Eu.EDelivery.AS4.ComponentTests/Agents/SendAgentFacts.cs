@@ -5,7 +5,6 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.ComponentTests.Common;
 using Eu.EDelivery.AS4.Entities;
@@ -129,16 +128,13 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         private static AS4Message SignedNRReceipt(X509Certificate2 cert, AS4Message signedUserMessage, Func<int, int> selection)
         {
             IEnumerable<Reference> hashes =
-                new NonRepudiationInformationBuilder()
-                    .WithSignedReferences(signedUserMessage.SecurityHeader.GetReferences())
-                    .Build()
-                    .MessagePartNRIReferences.Select(r =>
+                signedUserMessage
+                    .SecurityHeader
+                    .GetReferences()
+                    .Select(r =>
                     {
-                        return new Reference(
-                            r.URI,
-                            r.Transforms,
-                            r.DigestMethod,
-                            r.DigestValue.Select(v => (byte)selection(v)).ToArray());
+                        r.DigestValue = r.DigestValue.Select(v => (byte) selection(v)).ToArray();
+                        return Reference.CreateFromReferenceElement(r);
                     });
 
             AS4Message receipt = AS4Message.Create(
