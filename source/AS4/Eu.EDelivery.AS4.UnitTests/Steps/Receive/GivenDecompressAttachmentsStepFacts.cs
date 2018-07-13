@@ -91,12 +91,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
         private static Attachment CreateAttachment(string id)
         {
-            var attachment = new Attachment(id);
-
             byte[] bytes = Encoding.UTF8.GetBytes("Dummy Attachment Content");
-            attachment.Content = new MemoryStream(bytes);
-
-            return attachment;
+            return new Attachment(id, new MemoryStream(bytes), "text/plain");
         }
 
         private static void CompressAttachment(Attachment attachment)

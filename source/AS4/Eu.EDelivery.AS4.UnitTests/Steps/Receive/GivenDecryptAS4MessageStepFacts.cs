@@ -107,10 +107,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             private static async Task<AS4Message> CreateEncryptedAS4Message()
             {
                 AS4Message message = AS4Message.Create(new UserMessage("somemessage"));
-                message.AddAttachment(new Attachment("some-attachment")
-                {
-                    Content = Stream.Null
-                });
+                message.AddAttachment(
+                    new Attachment(
+                        "some-attachment",
+                        Stream.Null,
+                        "text/plain"));
 
                 AS4Message encryptedMessage =
                     AS4MessageUtils.EncryptWithCertificate(

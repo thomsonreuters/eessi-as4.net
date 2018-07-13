@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
@@ -37,11 +38,9 @@ namespace Eu.EDelivery.AS4.Transformers
 
         private static Attachment CreateAttachmentFromReceivedMessage(ReceivedMessage receivedMessage)
         {
-            return new Attachment
-            {
-                Content = receivedMessage.UnderlyingStream,
-                ContentType = receivedMessage.ContentType
-            };
+            return new Attachment(
+                receivedMessage.UnderlyingStream, 
+                receivedMessage.ContentType);
         }
     }
 }

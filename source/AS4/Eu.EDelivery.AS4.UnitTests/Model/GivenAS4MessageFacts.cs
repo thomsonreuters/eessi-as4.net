@@ -185,7 +185,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
             {
                 // Arrange
                 var attachmentStream = new MemoryStream(Encoding.UTF8.GetBytes(messageContents));
-                var attachment = new Attachment("attachment-id") { Content = attachmentStream };
+                var attachment = new Attachment("attachment-id", attachmentStream, "text/plain");
 
                 UserMessage userMessage = CreateUserMessage();
 

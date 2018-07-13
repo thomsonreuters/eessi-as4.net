@@ -304,11 +304,10 @@ namespace Eu.EDelivery.AS4.Serialization
 
         private static Attachment CreateAttachment(MimePart bodyPart)
         {
-            return new Attachment(id: bodyPart.ContentId)
-            {
-                Content = bodyPart.ContentObject.Open(),
-                ContentType = bodyPart.ContentType.MimeType,
-            };
+            return new Attachment(
+                id: bodyPart.ContentId,
+                content: bodyPart.ContentObject.Open(),
+                contentType: bodyPart.ContentType.MimeType);
         }
 
         private static (bool, PartInfo) SelectReferencedPartInfo(

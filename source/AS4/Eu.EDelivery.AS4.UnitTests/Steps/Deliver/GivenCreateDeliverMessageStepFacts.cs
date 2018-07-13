@@ -106,7 +106,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
             // Arrange
             const string referenceId = "payload id";
             AS4Message message = AS4MessageWithUserMessage(referenceId);
-            message.AddAttachment(new Attachment(referenceId) {Location = attachmentLocation});
+            message.AddAttachment(new Attachment(referenceId, attachmentLocation, "text/plain"));
 
             // Act
             DeliverMessageEnvelope deliverEnvelope = await ExecuteStepWith(message);

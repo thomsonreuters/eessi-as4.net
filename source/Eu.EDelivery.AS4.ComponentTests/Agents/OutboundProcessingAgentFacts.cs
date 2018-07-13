@@ -127,11 +127,10 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                 });
 
             msg.AddAttachment(
-                new Attachment("test-" + Guid.NewGuid())
-                {
-                    ContentType = "text/plain",
-                    Content = new MemoryStream(Encoding.UTF8.GetBytes("my content!"))
-                });
+                new Attachment(
+                    id: "test-" + Guid.NewGuid(),
+                    content: new MemoryStream(Encoding.UTF8.GetBytes("my content!")),
+                    contentType: "text/plain"));
 
             return msg;
         }
