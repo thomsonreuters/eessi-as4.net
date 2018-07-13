@@ -191,6 +191,18 @@ namespace Eu.EDelivery.AS4.Fe.Controllers
         }
 
         /// <summary>
+        /// Gets the default agent receiver.
+        /// </summary>
+        /// <param name="agentType">Type of the agent</param>
+        /// <returns>Receiver for the requested agent type</returns>
+        [HttpGet]
+        [Route("defaultagentreceiver/{agentType}")]
+        public IActionResult GetDefaultAgentReceiver(AgentType agentType)
+        {
+            return new OkObjectResult(AgentProvider.GetDefaultReceiverForAgentType(agentType));
+        }
+
+        /// <summary>
         /// Gets the default agent steps.
         /// </summary>
         /// <param name="agentType">Type of the agent.</param>
