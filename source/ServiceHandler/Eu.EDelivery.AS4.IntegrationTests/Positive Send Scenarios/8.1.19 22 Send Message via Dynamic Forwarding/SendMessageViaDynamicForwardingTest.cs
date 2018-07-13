@@ -217,15 +217,14 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._19_22
 
         private static Attachment ImageAttachment(string id)
         {
-            return new Attachment(id)
-            {
-                ContentType = "image/jpg",
-                Content = new FileStream(
+            return new Attachment(
+                id: id,
+                content: new FileStream(
                     Path.GetFullPath($@".\{Properties.Resources.submitmessage_single_payload_path}"),
                     FileMode.Open,
                     FileAccess.Read,
-                    FileShare.Read)
-            };
+                    FileShare.Read),
+                contentType: "image/jpg");
         }
 
         private static void SendMultiHopAS4Message(AS4Message userMessage)

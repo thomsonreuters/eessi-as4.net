@@ -3,20 +3,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Xml.Serialization;
-using Eu.EDelivery.AS4.Factories;
 using Eu.EDelivery.AS4.Streaming;
 
 namespace Eu.EDelivery.AS4.Model.Core
 {
     public class Attachment
     {
-        private string _id;
-
-        public string Id
-        {
-            get => _id;
-            set => _id = value?.Replace(" ", string.Empty);
-        }
+        public string Id { get; }
 
         public string ContentType { get; set; }
 
@@ -25,46 +18,191 @@ namespace Eu.EDelivery.AS4.Model.Core
         [XmlIgnore]
         public Stream Content
         {
-            get
-            {
-                return _content;
-            }
-            set
-            {
-                if (ReferenceEquals(_content, value) == false)
-                {
-                    _content?.Dispose();
-                }
-                _content = value;
+            get => _content;
+            set => UpdateContent(value);
+        }
 
-                if (_content != null)
-                {
-                    EstimatedContentSize = StreamUtilities.GetStreamSize(_content);
-                }
-                else
-                {
-                    EstimatedContentSize = -1;
-                }
+        private void UpdateContent(Stream value)
+        {
+            if (ReferenceEquals(_content, value) == false)
+            {
+                _content?.Dispose();
+            }
+
+            _content = value;
+            if (_content != null)
+            {
+                EstimatedContentSize = StreamUtilities.GetStreamSize(_content);
+            }
+            else
+            {
+                EstimatedContentSize = -1;
             }
         }
 
         [XmlIgnore]
-        public long EstimatedContentSize
-        {
-            get;
-            private set;
-        }
+        public long EstimatedContentSize { get; private set; }
 
         public string Location { get; set; }
 
-        public IDictionary<string, string> Properties { get; set; }
+        public IDictionary<string, string> Properties { get; set; } = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
-        public Attachment() : this(IdentifierFactory.Instance.Create()) { }
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Attachment"/> class.
+        /// </summary>
+        /// <param name="id"></param>
+        public Attachment(string id) : this(id, Stream.Null, "application/octet-stream") { }
 
-        public Attachment(string id)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Attachment"/> class.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="location"></param>
+        /// <param name="contentType"></param>
+        public Attachment(
+            string id,
+            string location,
+            string contentType)
         {
-            Id = id;
-            InitializeDefaults();
+            if (id == null)
+            {
+                throw new ArgumentNullException(nameof(id));
+            }
+
+            if (location == null)
+            {
+                throw new ArgumentNullException(nameof(location));
+            }
+
+            if (contentType == null)
+            {
+                throw new ArgumentNullException(nameof(contentType));
+            }
+
+            Id = id.Replace(" ", string.Empty);
+            Location = location;
+            ContentType = contentType;
+            EstimatedContentSize = -1;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Attachment"/> class.
+        /// </summary>
+        /// <param name="content"></param>
+        /// <param name="contentType"></param>
+        public Attachment(Stream content, string contentType) 
+            : this(Guid.NewGuid().ToString(), content, contentType) { }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Attachment"/> class.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="content"></param>
+        /// <param name="contentType"></param>
+        public Attachment(
+            string id,
+            Stream content,
+            string contentType)
+        {
+            if (id == null)
+            {
+                throw new ArgumentNullException(nameof(id));
+            }
+
+            if (content == null)
+            {
+                throw new ArgumentNullException(nameof(content));
+            }
+
+            if (contentType == null)
+            {
+                throw new ArgumentNullException(nameof(contentType));
+            }
+
+            Id = id.Replace(" ", string.Empty);
+            Content = content;
+            ContentType = contentType;
+            EstimatedContentSize = StreamUtilities.GetStreamSize(content);
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Attachment"/> class.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="content"></param>
+        /// <param name="location"></param>
+        /// <param name="contentType"></param>
+        public Attachment(
+            string id,
+            Stream content,
+            string location,
+            string contentType)
+        {
+            if (id == null)
+            {
+                throw new ArgumentNullException(nameof(id));
+            }
+
+            if (content == null)
+            {
+                throw new ArgumentNullException(nameof(content));
+            }
+
+            if (location == null)
+            {
+                throw new ArgumentNullException(nameof(location));
+            }
+
+            if (contentType == null)
+            {
+                throw new ArgumentNullException(nameof(contentType));
+            }
+
+            Id = id.Replace(" ", string.Empty);
+            Content = content;
+            Location = location;
+            ContentType = contentType;
+            EstimatedContentSize = StreamUtilities.GetStreamSize(content);
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Attachment"/> class.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="content"></param>
+        /// <param name="contentType"></param>
+        /// <param name="props"></param>
+        public Attachment(
+            string id,
+            Stream content,
+            string contentType,
+            IDictionary<string, string> props)
+        {
+            if (id == null)
+            {
+                throw new ArgumentNullException(nameof(id));
+            }
+
+            if (content == null)
+            {
+                throw new ArgumentNullException(nameof(content));
+            }
+
+            if (contentType == null)
+            {
+                throw new ArgumentNullException(nameof(contentType));
+            }
+
+            if (props == null)
+            {
+                throw new ArgumentNullException(nameof(props));
+            }
+
+            Id = id.Replace(" ", string.Empty);
+            Content = content;
+            ContentType = contentType;
+            Properties = props;
+            EstimatedContentSize = StreamUtilities.GetStreamSize(content);
         }
 
         /// <summary>
@@ -106,13 +244,6 @@ namespace Eu.EDelivery.AS4.Model.Core
             {
                 StreamUtilities.MovePositionToStreamStart(Content);
             }
-        }
-
-        private void InitializeDefaults()
-        {
-            Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-            ContentType = "application/octet-stream";
-            EstimatedContentSize = -1;
         }
     }
 }

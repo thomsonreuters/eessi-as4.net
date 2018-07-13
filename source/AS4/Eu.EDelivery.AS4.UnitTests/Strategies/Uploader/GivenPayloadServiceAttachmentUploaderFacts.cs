@@ -54,7 +54,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Strategies.Uploader
 
         private static Attachment CreateAnonymousAttachment()
         {
-            return new Attachment {Content = Stream.Null};
+            return new Attachment(Stream.Null, "text/plain");
         }
     }
 }

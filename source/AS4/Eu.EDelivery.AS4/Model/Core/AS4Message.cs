@@ -350,15 +350,10 @@ namespace Eu.EDelivery.AS4.Model.Core
         {
             foreach (Payload payload in payloads)
             {
-                Attachment attachment = CreateAttachmentFromPayload(payload);
-                attachment.Content = await retrieval(payload).ConfigureAwait(false);
+                Stream content = await retrieval(payload).ConfigureAwait(false);
+                var attachment = new Attachment(payload.Id, content, payload.Location, payload.MimeType);
                 AddAttachment(attachment);
             }
-        }
-
-        private static Attachment CreateAttachmentFromPayload(Payload payload)
-        {
-            return new Attachment(payload.Id) { ContentType = payload.MimeType, Location = payload.Location };
         }
 
         /// <summary>

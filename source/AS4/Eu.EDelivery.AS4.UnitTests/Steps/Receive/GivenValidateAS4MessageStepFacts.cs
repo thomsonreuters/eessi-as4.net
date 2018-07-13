@@ -21,7 +21,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             // Arrange
             var user = new UserMessage();
             AS4Message message = AS4Message.Create(user);
-            message.AddAttachment(new Attachment("earth") {Content = Stream.Null});
+            message.AddAttachment(new Attachment("earth", Stream.Null, "text/plain"));
             message.FirstUserMessage.AddPartInfo(new PartInfo("earth"));
             message = await SerializeDeserialize(message);
 
@@ -40,7 +40,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             var user = new UserMessage();
             user.AddPartInfo(new PartInfo("cid:some other href"));
             AS4Message message = AS4Message.Create(user);
-            message.AddAttachment(new Attachment("earth") {Content = Stream.Null});
+            message.AddAttachment(new Attachment("earth", Stream.Null, "text/plain"));
             message = await SerializeDeserialize(message);
 
             // Act
@@ -82,7 +82,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             user.AddPartInfo(new PartInfo("cid:earth2"));
             
             AS4Message message = AS4Message.Create(user);
-            message.AddAttachment(new Attachment("earth1") {Content = Stream.Null});
+            message.AddAttachment(new Attachment("earth1", Stream.Null, "text/plain"));
             message = await SerializeDeserialize(message);
 
             StepResult result = await ExerciseValidation(message);

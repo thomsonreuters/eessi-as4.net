@@ -119,11 +119,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
 
             private static Attachment CreateEarthAttachment()
             {
-                return new Attachment("attachment-id")
-                {
-                    Content = new MemoryStream(Encoding.UTF8.GetBytes("attachment-stream")),
-                    ContentType = "text/plain"
-                };
+                return new Attachment(
+                    id: "attachment-id",
+                    content: new MemoryStream(Encoding.UTF8.GetBytes("attachment-stream")),
+                    contentType: "text/plain");
             }
 
             [Property]
@@ -131,7 +130,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
             {
                 // Arrange
                 var attachmentStream = new MemoryStream(Encoding.UTF8.GetBytes(messageContents.Get));
-                var attachment = new Attachment("attachment-id") { Content = attachmentStream };
+                var attachment = new Attachment("attachment-id", attachmentStream, "text/plain");
 
                 var userMessage = new UserMessage("message-id");
 
