@@ -55,7 +55,16 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
             public async Task ThenAddAttachmentSucceeds()
             {
                 // Arrange
-                var submitMessage = new SubmitMessage { Payloads = new[] { new Payload(string.Empty) } };
+                var submitMessage = new SubmitMessage
+                {
+                    Payloads = new[]
+                    {
+                        new Payload(
+                            id: String.Empty, 
+                            location: String.Empty, 
+                            mimeType: string.Empty)
+                    }
+                };
                 AS4Message sut = AS4Message.Empty;
 
                 // Act
