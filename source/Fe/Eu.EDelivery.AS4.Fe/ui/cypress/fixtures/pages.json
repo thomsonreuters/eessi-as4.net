@@ -11,6 +11,7 @@
         { "url": "/settings/portal", "show": "Settings", "title": "Portal settings" },
         { "url": "/settings/runtime", "title": "Runtime settings" },
         { "url": "/settings/agents/outboundprocessing", "show": "Internal Agents", "title": "Outbound processing" },
+        { "url": "/settings/agents/forward", "show": "Internal Agents", "title": "Forward" },
         { "url": "/settings/agents/send", "title": "Send" },
         { "url": "/settings/agents/deliver", "title": "Deliver" },
         { "url": "/settings/agents/notify", "title": "Notify" },
