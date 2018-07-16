@@ -53,7 +53,7 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
             if (result == SendResult.Success)
             {
                 Logger.Info(
-                    $"(Deliver) DeliverMessage {deliverMessage.MessageInfo.MessageId} is successfully send to {location}");
+                    $"(Deliver) DeliverMessage {deliverMessage.MessageInfo.MessageId} is successfully send to \"{location}\"");
             }
 
             return result;
@@ -78,7 +78,7 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
             if (result == SendResult.Success)
             {
                 Logger.Info(
-                    $"(Notify) NotifyMessage {notifyMessage.MessageInfo.MessageId} is successfully send to {location}");
+                    $"(Notify) NotifyMessage {notifyMessage.MessageInfo.MessageId} is successfully send to \"{location}\"");
             }
 
             return result;
@@ -125,7 +125,7 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
                            if (unauthorizedEx != null)
                            {
                                Logger.Error(
-                                   $"A fatal error occured while uploading the file to {locationPath}: {unauthorizedEx.Message}");
+                                   $"A fatal error occured while uploading the file to \"{locationPath}\": {unauthorizedEx.Message}");
 
                                return SendResult.FatalFail;
                            }
@@ -151,7 +151,7 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
 
                            string desc = String.Join(", ", exs);
                            Logger.Error(
-                               $"An error occured while uploading the file to {locationPath}: {desc}, will be retried");
+                               $"An error occured while uploading the file to \"{locationPath}\": {desc}, will be retried");
 
                            return SendResult.RetryableFail;
 

@@ -67,8 +67,6 @@ namespace Eu.EDelivery.AS4.Transformers
                 throw new InvalidDataException($"ContentType is not supported {nameof(message.ContentType)}");
             }
 
-            Logger.Debug("Transform AS4 Message to Messaging Context");
-
             VirtualStream messageStream = await CopyIncomingStreamToVirtualStream(message);
             AS4Message as4Message = await DeserializeMessage(message.ContentType, messageStream, CancellationToken.None);
 

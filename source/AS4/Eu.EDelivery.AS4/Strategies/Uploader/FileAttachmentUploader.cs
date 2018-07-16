@@ -200,7 +200,7 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
                 await attachment.Content.CopyToFastAsync(fileStream).ConfigureAwait(false);
             }
 
-            Logger.Info($"(Deliver) Attachment {attachment.Id} is uploaded successfully to {attachmentFilePath}");
+            Logger.Info($"(Deliver) Attachment {attachment.Id} is uploaded successfully to \"{attachmentFilePath}\"");
             return UploadResult.SuccessWithUrl(attachmentFilePath);
         }
     }

@@ -93,21 +93,20 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             if (useNRRFormat && !as4Message.IsSigned)
             {
                 Logger.Warn(
-                    $"Receiving PMode ({messagingContext.ReceivingPMode?.Id}) " +
+                    $"ReceivingPMode ({messagingContext.ReceivingPMode?.Id}) " +
                     "is configured to reply with Non-Repudation Receipts, but incoming UserMessage isn't signed");
             }
             else if (!useNRRFormat)
             {
                 Logger.Debug(
-                    $"Receiving PMode is configured to not use the Non-Repudiation format." + 
+                    "ReceivingPMode is configured to not use the Non-Repudiation format." + 
                     "This means the original UserMessage will be included in the Receipt");
             }
 
             if (useNRRFormat && as4Message.IsSigned)
             {
                     Logger.Debug(
-                        $"{messagingContext.LogTag} Receiving PMode {messagingContext.ReceivingPMode?.Id} " + 
-                        $"is configured to use Non-Repudiation for Receipt {{RefToEbmsMessageId={ebmsMessageId}}} Creation");
+                        $"ReceivingPMode {messagingContext.ReceivingPMode?.Id} is configured to use Non-Repudiation for Receipt Creation");
 
                     NonRepudiationInformation nonRepudiation = 
                         GetNonRepudiationInformationFrom(as4Message);

@@ -73,7 +73,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                     && String.IsNullOrWhiteSpace(resultContext.AS4Message.FirstSignalMessage.RefToMessageId))
                 {
                     Logger.Warn(
-                        $"{messagingContext.LogTag} The received message is a SignalMessage without RefToMessageId. " +
+                        $"{messagingContext.LogTag} Received message is a SignalMessage without RefToMessageId. " +
                         "No such SignalMessage are supported so the message cannot be processed any further");
 
                     return StepResult
@@ -81,13 +81,12 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                         .AndStopExecution();
                 }
 
-                Logger.Debug($"{messagingContext.LogTag} The AS4 Message is successfully stored into the datastore");
+                Logger.Debug($"{messagingContext.LogTag} The AS4Message is successfully stored into the datastore");
                 return StepResult.Success(resultContext);
             }
 
             Logger.Error(
-                $"{messagingContext.LogTag} The AS4Message is not stored " + 
-                $"correctly into the datastore {resultContext?.Exception}");
+                $"{messagingContext.LogTag} The AS4Message is not stored correctly into the datastore {resultContext?.Exception}");
 
             return StepResult.Failed(resultContext);
         }

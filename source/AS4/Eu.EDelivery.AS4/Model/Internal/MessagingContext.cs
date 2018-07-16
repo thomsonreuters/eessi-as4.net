@@ -255,19 +255,17 @@ namespace Eu.EDelivery.AS4.Model.Internal
             try
             {
                 SendingProcessingMode sendPMode = config.GetSendingPMode(pmodeId);
-
                 if (sendPMode == null)
                 {
                     Logger.Error(
-                        $"ReplyHandling .SendingPMode \"{pmodeId}\"  found in ReceivingPMode \"{receivePMode.Id}\" " +
+                        $"Referenced SendingPMode \"{pmodeId}\"  found in ReceivingPMode{{ \"{receivePMode.Id}\"}}.ReplyHandling.SendingPMode " +
                         "does not reference an exsisting SendingPMode. Please define an existing SendingPMode id or define one at: '.\\config\\send-pmodes\\'");
 
                     return null;
                 }
 
                 Logger.Debug(
-                    $"Referenced Sending PMode found with Id: {pmodeId}. " +
-                    "This PMode will be used to further send/forward the message");
+                    $"Found referenced SendingPMode \"{pmodeId}\", this PMode will be used to further send/forward the message");
 
                 return sendPMode;
             }

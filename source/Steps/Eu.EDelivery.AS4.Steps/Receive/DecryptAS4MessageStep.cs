@@ -116,7 +116,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             {
                 Logger.Trace("Start decrypting AS4Message ...");
                 messagingContext.AS4Message.Decrypt(GetCertificate(messagingContext));
-                Logger.Info("AS4Message is decrypted correctly");
+                Logger.Info($"{messagingContext.LogTag} AS4Message is decrypted correctly");
 
                 return await StepResult.SuccessAsync(messagingContext);
             }
