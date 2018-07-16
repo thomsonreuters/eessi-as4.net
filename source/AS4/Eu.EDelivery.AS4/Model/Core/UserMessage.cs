@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Xml.Serialization;
@@ -27,12 +28,40 @@ namespace Eu.EDelivery.AS4.Model.Core
         // TODO: only unique PartInfo's are allowed
         public void AddPartInfo(PartInfo p)
         {
+            if (p == null)
+            {
+                throw new ArgumentNullException(nameof(p));
+            }
+
             _partInfos.Add(p);
         }
 
         public void AddMessageProperty(MessageProperty p)
         {
+            if (p == null)
+            {
+                throw new ArgumentNullException(nameof(p));
+            }
+
             _messageProperties.Add(p);
+        }
+
+        public void AddMessageProperties(IEnumerable<MessageProperty> props)
+        {
+            if (props == null)
+            {
+                throw new ArgumentNullException(nameof(props));
+            }
+
+            foreach (MessageProperty p in props)
+            {
+                AddMessageProperty(p);
+            }
+        }
+
+        public void ClearMessageProperties()
+        {
+            _messageProperties.Clear();
         }
 
         [XmlIgnore]
@@ -64,6 +93,48 @@ namespace Eu.EDelivery.AS4.Model.Core
 
             _partInfos = new Collection<PartInfo>();
             _messageProperties = new Collection<MessageProperty>();
+        }
+
+        public UserMessage(
+            string messageId, 
+            string refToMessageId, 
+            CollaborationInfo collaboration, 
+            Party sender, 
+            Party receiver, 
+            IEnumerable<PartInfo> partInfos, 
+            IEnumerable<MessageProperty> props) : base(messageId, refToMessageId)
+        {
+            if (collaboration == null)
+            {
+                throw new ArgumentNullException(nameof(collaboration));
+            }
+
+            if (sender == null)
+            {
+                throw new ArgumentNullException(nameof(sender));
+            }
+
+            if (receiver == null)
+            {
+                throw new ArgumentNullException(nameof(receiver));
+            }
+
+            if (partInfos == null || partInfos.Any(p => p is null))
+            {
+                throw new ArgumentNullException(nameof(partInfos));
+            }
+
+            if (props == null || props.Any(p => p is null))
+            {
+                throw new ArgumentNullException(nameof(props));
+            }
+
+            CollaborationInfo = collaboration;
+            Sender = sender;
+            Receiver = receiver;
+
+            _partInfos = partInfos.ToList();
+            _messageProperties = props.ToList();
         }
 
 

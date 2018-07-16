@@ -65,58 +65,60 @@ namespace Eu.EDelivery.AS4.Transformers.InteropTestTransformers
 
         private static void TransformUserMessage(UserMessage userMessage, IEnumerable<MessageProperty> properties)
         {
-            SetMessageInfoProperties(userMessage, properties);
-            SetCollaborationInfoProperties(userMessage, properties);
-            SetPartyProperties(userMessage, properties);
+            string messageId = GetPropertyValue(properties, "MessageId");
+            string refToMessageId = GetPropertyValue(properties, "RefToMessageId");
 
-            RemoveMessageInfoProperties(userMessage);
+            CollaborationInfo collaboration = GetCollaborationFromProperties(properties);
+
+            Party sender = GetSenderFromproperties(properties);
+            Party receiver = GetReceiverFromProperties(properties);
+
+            IEnumerable<MessageProperty> props = BlacklistMessageInfoProperties(userMessage);
+
+            userMessage.MessageId = messageId;
+            userMessage.RefToMessageId = refToMessageId;
+
+            userMessage.CollaborationInfo = collaboration;
+            userMessage.Sender = sender;
+            userMessage.Receiver = receiver;
+
+            userMessage.ClearMessageProperties();
+            userMessage.AddMessageProperties(props);
         }
 
-        private static void RemoveMessageInfoProperties(UserMessage userMessage)
+        private static IEnumerable<MessageProperty> BlacklistMessageInfoProperties(UserMessage userMessage)
         {
             string[] whiteList = { "originalSender", "finalRecipient", "trackingIdentifier", "TA_Id" };
-
-            foreach (MessageProperty p in 
-                userMessage.MessageProperties
-                           .Where(p => whiteList.Contains(p.Name, StringComparer.OrdinalIgnoreCase)))
-            {
-                userMessage.AddMessageProperty(p);
-            }
+            return userMessage.MessageProperties
+                       .Where(p => whiteList.Contains(p.Name, StringComparer.OrdinalIgnoreCase));
         }
 
-        private static void SetMessageInfoProperties(UserMessage userMessage, IEnumerable<MessageProperty> properties)
-        {
-            userMessage.MessageId = GetPropertyValue(properties, "MessageId");
-            userMessage.RefToMessageId = GetPropertyValue(properties, "RefToMessageId");
-            userMessage.Timestamp = DateTimeOffset.Now;
-        }
-
-        private static void SetCollaborationInfoProperties(UserMessage userMessage, IEnumerable<MessageProperty> properties)
+        private static CollaborationInfo GetCollaborationFromProperties(IEnumerable<MessageProperty> properties)
         {
             // AgreementRef must not be present in the AS4Message for minder.
-
-            userMessage.CollaborationInfo = new CollaborationInfo(
+            return new CollaborationInfo(
                 Maybe<AgreementReference>.Nothing,
                 new Service(GetPropertyValue(properties, "Service")),
                 GetPropertyValue(properties, "Action"),
                 GetPropertyValue(properties, "ConversationId"));
         }
 
-        private static void SetPartyProperties(UserMessage userMessage, IEnumerable<MessageProperty> properties)
+        private static Party GetReceiverFromProperties(IEnumerable<MessageProperty> properties)
         {
-            userMessage.Sender =
-                new Party(
-                    role: GetPropertyValue(properties, "FromPartyRole"),
-                    partyId: new PartyId(
-                        id: GetPropertyValue(properties, "FromPartyId"),
-                        type: GetPropertyValue(properties, "FromPartyType")));
+            return new Party(
+                role: GetPropertyValue(properties, "ToPartyRole"),
+                partyId: new PartyId(
+                    id: GetPropertyValue(properties, "ToPartyId"),
+                    type: GetPropertyValue(properties, "ToPartyType")));
+        }
 
-            userMessage.Receiver =
-                new Party(
-                    role: GetPropertyValue(properties, "ToPartyRole"),
-                    partyId: new PartyId(
-                        id: GetPropertyValue(properties, "ToPartyId"),
-                        type: GetPropertyValue(properties, "ToPartyType")));
+        private static Party GetSenderFromproperties(IEnumerable<MessageProperty> properties)
+        {
+            return new Party(
+                role: GetPropertyValue(properties, "FromPartyRole"),
+                partyId: new PartyId(
+                    id: GetPropertyValue(properties, "FromPartyId"),
+                    type: GetPropertyValue(properties, "FromPartyType")));
         }
 
         private static string GetPropertyValue(IEnumerable<MessageProperty> properties, string propertyName)
