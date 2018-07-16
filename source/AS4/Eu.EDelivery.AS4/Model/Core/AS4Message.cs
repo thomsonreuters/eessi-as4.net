@@ -271,7 +271,7 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// <exception cref="InvalidOperationException">Throws when there already exists an <see cref="Attachment"/> with the same id</exception>
         public void AddAttachment(Attachment attachment)
         {
-            if (!_attachmens.Exists(a => a.Id == attachment.Id))
+            if (!_attachmens.Contains(attachment))
             {
                 _attachmens.Add(attachment);
                 if (!ContentType.Contains(Constants.ContentTypes.Mime))
@@ -298,7 +298,7 @@ namespace Eu.EDelivery.AS4.Model.Core
             IDictionary<string, string> partProperties,
             IEnumerable<Schema> partSchemas)
         {
-            if (!_attachmens.Exists(a => a.Id == attachment.Id))
+            if (_attachmens.Contains(attachment))
             {
                 _attachmens.Add(attachment);
                 if (!ContentType.Contains(Constants.ContentTypes.Mime))
@@ -431,8 +431,7 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// <param name="tobeRemoved">The tobe removed.</param>
         public void RemoveAttachment(Attachment tobeRemoved)
         {
-            Attachment foundAttachment = _attachmens.FirstOrDefault(a => a.Id?.Equals(tobeRemoved?.Id) == true);
-
+            Attachment foundAttachment = _attachmens.FirstOrDefault(a => a == tobeRemoved);
             if (foundAttachment != null)
             {
                 _attachmens.Remove(foundAttachment);

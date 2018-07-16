@@ -286,35 +286,28 @@ namespace Eu.EDelivery.AS4.Serialization
             for (int i = startAfterSoapHeader; i < bodyParts.Count; i++)
             {
                 MimePart bodyPart = bodyParts[i];
-                Attachment attachment = CreateAttachment(bodyPart);
 
-                (bool hasValue, PartInfo value) = SelectReferencedPartInfo(attachment, referencedPartInfos);
-
+                (bool hasValue, PartInfo value) = SelectReferencedPartInfo(bodyPart.ContentId, referencedPartInfos);
                 if (hasValue)
                 {
-                    attachment.Properties = value.Properties;
-                    yield return attachment;
+                    yield return new Attachment(
+                        id: bodyPart.ContentId,
+                        content: bodyPart.ContentObject.Open(),
+                        contentType: bodyPart.ContentType.MimeType,
+                        props: value.Properties); ;
                 }
                 else
                 {
-                    Logger.Warn($"Attachment {attachment.Id} will be ignored because no matching <PartInfo /> is found");
+                    Logger.Warn($"Attachment {bodyPart.ContentId} will be ignored because no matching <PartInfo /> is found");
                 }
             }
         }
 
-        private static Attachment CreateAttachment(MimePart bodyPart)
-        {
-            return new Attachment(
-                id: bodyPart.ContentId,
-                content: bodyPart.ContentObject.Open(),
-                contentType: bodyPart.ContentType.MimeType);
-        }
-
         private static (bool, PartInfo) SelectReferencedPartInfo(
-            Attachment attachment, 
+            string attachmentId, 
             IEnumerable<PartInfo> referencedPartInfos)
         {
-            PartInfo partInfo = referencedPartInfos.FirstOrDefault(i => i.Href?.Contains(attachment.Id) == true);
+            PartInfo partInfo = referencedPartInfos.FirstOrDefault(i => i.Href?.Contains(attachmentId) == true);
 
             return (partInfo != null, partInfo);
         }

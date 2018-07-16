@@ -93,7 +93,7 @@ namespace Eu.EDelivery.AS4.Transformers
 
             foreach (Attachment attachment in as4Message.Attachments)
             {
-                if (attachments.Exists(a => a.Id == null || a.Id.Equals(attachment?.Id)) == false)
+                if (attachments.Contains(attachment) == false)
                 {
                     as4Message.RemoveAttachment(attachment);
                 }
