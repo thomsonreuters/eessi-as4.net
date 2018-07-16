@@ -49,6 +49,18 @@ namespace Eu.EDelivery.AS4.Mappings.Core
             return parts.Select(Map<Model.Core.PartInfo>).Where(p => p != null);
         }
 
+        private static IEnumerable<Model.Core.MessageProperty> MapMessageProperties(Xml.Property[] props)
+        {
+            if (props == null)
+            {
+                return Enumerable.Empty<Model.Core.MessageProperty>();
+            }
+
+            return props.Where(p => p != null)
+                        .Select(Map<Model.Core.MessageProperty>)
+                        .Where(p => p != null);
+        }
+
         private void MapXmlToUserMessage()
         {
             CreateMap<Xml.UserMessage, Model.Core.UserMessage>()
@@ -56,12 +68,12 @@ namespace Eu.EDelivery.AS4.Mappings.Core
                     new Model.Core.UserMessage(
                         messageId: xml.MessageInfo?.MessageId,
                         refToMessageId: xml.MessageInfo?.RefToMessageId,
-                        mpc: xml.mpc,
+                        mpc: xml.mpc ?? Constants.Namespaces.EbmsDefaultMpc,
                         collaboration: Map<Model.Core.CollaborationInfo>(xml.CollaborationInfo),
                         sender: Map<Model.Core.Party>(xml.PartyInfo?.From),
                         receiver: Map<Model.Core.Party>(xml.PartyInfo?.To),
                         partInfos: MapPartInfos(xml.PayloadInfo),
-                        messageProperties: Map<IEnumerable<Model.Core.MessageProperty>>(xml.MessageProperties)))
+                        messageProperties: MapMessageProperties(xml.MessageProperties)))
                 .ForMember(dest => dest.MessageId, src => src.MapFrom(t => t.MessageInfo.MessageId))
                 .ForMember(dest => dest.RefToMessageId, src => src.MapFrom(t => t.MessageInfo.RefToMessageId))
                 .ForMember(dest => dest.Timestamp, src => src.MapFrom(t => t.MessageInfo.Timestamp))

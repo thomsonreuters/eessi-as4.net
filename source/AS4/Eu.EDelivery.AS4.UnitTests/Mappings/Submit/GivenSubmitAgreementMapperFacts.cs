@@ -5,6 +5,7 @@ using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Model.Submit;
 using Xunit;
 using static Eu.EDelivery.AS4.Mappings.Submit.SubmitMessageAgreementResolver;
+using AgreementReference = Eu.EDelivery.AS4.Model.Core.AgreementReference;
 
 namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
 {
@@ -17,13 +18,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
             {
                 // Arrange
                 var submitMessage = new SubmitMessage {PMode = GetPopulatedSendPMode()};
-                var userMessage = new UserMessage("message-id");
 
                 // Act
-                ResolveAgreementReference(submitMessage);
+                AgreementReference userMessageAgreementRef = ResolveAgreementReference(submitMessage).UnsafeGet;
 
                 // Assert
-                AS4.Model.Core.AgreementReference userMessageAgreementRef = userMessage.CollaborationInfo.AgreementReference.GetOrElse(() => null);
                 AS4.Model.PMode.AgreementReference pmodeAgreementRef =
                     submitMessage.PMode.MessagePackaging.CollaborationInfo.AgreementReference;
 
@@ -37,13 +36,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
                 // Arrange
                 SubmitMessage submitMessage = GetPopulatedSubmitMessage();
                 submitMessage.PMode.AllowOverride = true;
-                var userMessage = new UserMessage("message-id");
 
                 // Act
-                ResolveAgreementReference(submitMessage);
+                AgreementReference userMessageAgreement = ResolveAgreementReference(submitMessage).UnsafeGet;
 
                 // Assert
-                AS4.Model.Core.AgreementReference userMessageAgreement = userMessage.CollaborationInfo.AgreementReference.UnsafeGet;
                 Agreement submitAgreementRef = submitMessage.Collaboration.AgreementRef;
 
                 Assert.Equal(submitAgreementRef.Value, userMessageAgreement.Value);
