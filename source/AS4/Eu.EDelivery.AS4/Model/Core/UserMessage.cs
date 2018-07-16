@@ -269,6 +269,73 @@ namespace Eu.EDelivery.AS4.Model.Core
             _messageProperties = messageProperties.ToList();
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="UserMessage"/> class.
+        /// </summary>
+        /// <param name="messageId">Ebms Message Identifier</param>
+        /// <param name="refToMessageId"></param>
+        /// <param name="mpc"></param>
+        /// <param name="collaboration">Collaboration information</param>
+        /// <param name="sender">The sender party</param>
+        /// <param name="receiver">The receiver party</param>
+        /// <param name="partInfos">The partinfos for the included attachments</param>
+        /// <param name="messageProperties">The metadata properties for this message</param>
+        public UserMessage(
+            string messageId,
+            string refToMessageId,
+            string mpc,
+            CollaborationInfo collaboration,
+            Party sender,
+            Party receiver,
+            IEnumerable<PartInfo> partInfos,
+            IEnumerable<MessageProperty> messageProperties) : base(messageId, refToMessageId)
+        {
+            if (messageId == null)
+            {
+                throw new ArgumentNullException(nameof(messageId));
+            }
+
+            if (mpc == null)
+            {
+                throw new ArgumentNullException(nameof(mpc));
+            }
+
+            if (collaboration == null)
+            {
+                throw new ArgumentNullException(nameof(collaboration));
+            }
+
+            if (sender == null)
+            {
+                throw new ArgumentNullException(nameof(sender));
+            }
+
+            if (receiver == null)
+            {
+                throw new ArgumentNullException(nameof(receiver));
+            }
+
+            if (partInfos == null || partInfos.Any(p => p is null))
+            {
+                throw new ArgumentNullException(nameof(partInfos));
+            }
+
+            if (messageProperties == null || messageProperties.Any(p => p is null))
+            {
+                throw new ArgumentNullException(nameof(messageProperties));
+            }
+
+            Mpc = mpc;
+            CollaborationInfo = collaboration;
+            Sender = sender;
+            Receiver = receiver;
+
+            IsTest = DetermineIfTestMessage(collaboration.Service, collaboration.Action);
+
+            _partInfos = partInfos.ToList();
+            _messageProperties = messageProperties.ToList();
+        }
+
         private static bool DetermineIfTestMessage(Service service, string action)
         {
             return

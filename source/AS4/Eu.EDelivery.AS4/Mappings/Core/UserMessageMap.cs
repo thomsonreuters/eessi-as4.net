@@ -55,6 +55,7 @@ namespace Eu.EDelivery.AS4.Mappings.Core
                 .ConstructUsing(xml => 
                     new Model.Core.UserMessage(
                         messageId: xml.MessageInfo?.MessageId,
+                        refToMessageId: xml.MessageInfo?.RefToMessageId,
                         mpc: xml.mpc,
                         collaboration: Map<Model.Core.CollaborationInfo>(xml.CollaborationInfo),
                         sender: Map<Model.Core.Party>(xml.PartyInfo?.From),
@@ -66,11 +67,7 @@ namespace Eu.EDelivery.AS4.Mappings.Core
                 .ForMember(dest => dest.Timestamp, src => src.MapFrom(t => t.MessageInfo.Timestamp))
                 .ForMember(dest => dest.IsTest, src => src.Ignore())
                 .ForMember(dest => dest.IsDuplicate, src => src.Ignore())
-                .AfterMap((xml, model) =>
-                {
-                    model.MessageId = xml.MessageInfo.MessageId;
-                    model.RefToMessageId = xml.MessageInfo.RefToMessageId;
-                }).ForAllOtherMembers(x => x.Ignore());
+                .ForAllOtherMembers(x => x.Ignore());
         }
 
         private void MapUserMessageToRoutingInputUserMessage()

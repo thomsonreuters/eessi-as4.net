@@ -101,16 +101,19 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
             UserMessage userMessage = as4Message.FirstUserMessage;
 
             var deliverMessage = new UserMessage(
-                userMessage.MessageId,
+                messageId: userMessage.MessageId,
+                refToMessageId: userMessage.RefToMessageId,
+                mpc: Constants.Namespaces.EbmsDefaultMpc,
                 collaboration: new Model.Core.CollaborationInfo(
                     agreement: Maybe<AgreementReference>.Nothing,
                     service: new Service(_uriPrefix),
                     action: "Deliver",
                     conversationId: userMessage.CollaborationInfo.ConversationId),
                 sender: new Party($"{_uriPrefix}/sut", userMessage.Receiver.PartyIds.FirstOrDefault()),
-                receiver: new Party($"{_uriPrefix}/testdriver", new PartyId("minder")))
+                receiver: new Party($"{_uriPrefix}/testdriver", new PartyId("minder")),
+                partInfos: new PartInfo[0],
+                messageProperties: new MessageProperty[0])
             {
-                RefToMessageId = userMessage.RefToMessageId,
                 Timestamp = userMessage.Timestamp,
             };
 
