@@ -12,13 +12,13 @@ namespace Eu.EDelivery.AS4.Model.Core
         private readonly ICollection<PartInfo> _partInfos;
         private readonly ICollection<MessageProperty> _messageProperties;
 
-        public string Mpc { get; set; }
+        public string Mpc { get; }
 
         public Party Sender { get; }
 
         public Party Receiver { get; }
 
-        public CollaborationInfo CollaborationInfo { get; set; }
+        public CollaborationInfo CollaborationInfo { get; }
 
         public IEnumerable<MessageProperty> MessageProperties => _messageProperties.AsEnumerable();
 
@@ -81,6 +81,8 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// <param name="messageId">Ebms Message Identifier</param>
         public UserMessage(string messageId) : base(messageId)
         {
+            Mpc = Constants.Namespaces.EbmsDefaultMpc;
+
             CollaborationInfo = new CollaborationInfo(
                 agreement: Maybe<AgreementReference>.Nothing,
                 service: Service.TestService,
@@ -99,6 +101,27 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// <summary>
         /// Initializes a new instance of the <see cref="UserMessage"/> class.
         /// </summary>
+        /// <param name="messageId"></param>
+        /// <param name="mpc"></param>
+        public UserMessage(string messageId, string mpc) : this(messageId)
+        {
+            Mpc = mpc;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="UserMessage"/> class.
+        /// </summary>
+        /// <param name="messageId"></param>
+        /// <param name="refToMessageId"></param>
+        /// <param name="mpc"></param>
+        public UserMessage(string messageId, string refToMessageId, string mpc) : this(messageId, refToMessageId)
+        {
+            Mpc = mpc;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="UserMessage"/> class.
+        /// </summary>
         /// <param name="messageId">Ebms Message Identifier</param>
         /// <param name="collaboration">Collaboration information</param>
         public UserMessage(string messageId, CollaborationInfo collaboration)
@@ -109,6 +132,23 @@ namespace Eu.EDelivery.AS4.Model.Core
                 Party.DefaultTo, 
                 new PartInfo[0], 
                 new MessageProperty[0]) { }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="UserMessage"/> class.
+        /// </summary>
+        /// <param name="messageId"></param>
+        /// <param name="sender"></param>
+        /// <param name="receiver"></param>
+        public UserMessage(string messageId, Party sender, Party receiver)
+            : this(
+                messageId, 
+                new CollaborationInfo(
+                    Maybe<AgreementReference>.Nothing, 
+                    Service.TestService, 
+                    Constants.Namespaces.TestAction, 
+                    CollaborationInfo.DefaultConversationId), 
+                sender, 
+                receiver) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="UserMessage"/> class.
@@ -193,6 +233,8 @@ namespace Eu.EDelivery.AS4.Model.Core
             {
                 throw new ArgumentNullException(nameof(messageProperties));
             }
+
+            Mpc = Constants.Namespaces.EbmsDefaultMpc;
 
             CollaborationInfo = collaboration;
             Sender = sender;

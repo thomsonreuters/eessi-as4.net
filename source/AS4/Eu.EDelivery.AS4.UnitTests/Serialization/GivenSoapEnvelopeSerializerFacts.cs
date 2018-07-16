@@ -70,7 +70,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
             [Fact]
             public void ThenMpcAttributeIsCorrectlySerialized()
             {
-                var userMessage = new UserMessage("some-message-id") { Mpc = "the-specified-mpc" };
+                var userMessage = new UserMessage("some-message-id", "the-specified-mpc");
                 var as4Message = AS4Message.Create(userMessage);
 
                 using (var messageStream = new MemoryStream())
@@ -283,15 +283,15 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                 Maybe<Guid> type)
             {
                 // Arrange
-                var user = new UserMessage($"user-{Guid.NewGuid()}");
-                user.CollaborationInfo = 
+                var user = new UserMessage(
+                    $"user-{Guid.NewGuid()}",
                     new AS4.Model.Core.CollaborationInfo(
                         agreement: new AgreementReference("agreement"),
                         service: new Service(
-                            value.ToString(), 
+                            value.ToString(),
                             type.Select(t => t.ToString())),
                         action: "action",
-                        conversationId: "conversation");
+                        conversationId: "conversation"));
 
                 // Act
                 XmlDocument doc = SerializeSoapMessage(AS4Message.Create(user));
@@ -322,10 +322,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                         type: type.Select(t => t.ToString()), 
                         pmodeId: Maybe<string>.Nothing));
 
-                var user = new UserMessage($"user-{Guid.NewGuid()}");
-                user.CollaborationInfo =
+                var user = new UserMessage(
+                    $"user-{Guid.NewGuid()}",
                     new AS4.Model.Core.CollaborationInfo(
-                        a, Service.TestService, Constants.Namespaces.TestAction, "1");
+                        a, Service.TestService, Constants.Namespaces.TestAction, "1"));
 
                 // Act
                 XmlDocument doc = SerializeSoapMessage(AS4Message.Create(user));
@@ -477,11 +477,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
 
         private static UserMessage CreateAnonymousUserMessage()
         {
-            return new UserMessage("message-Id")
-            {
-                Receiver = new Party("Receiver", new PartyId(Guid.NewGuid().ToString())),
-                Sender = new Party("Sender", new PartyId(Guid.NewGuid().ToString()))
-            };
+            return new UserMessage(
+                "message-Id",
+                new Party("Sender", new PartyId(Guid.NewGuid().ToString())),
+                new Party("Receiver", new PartyId(Guid.NewGuid().ToString())));
         }
     }
 
@@ -735,7 +734,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
             var sender = new Party("sender", new PartyId("senderId"));
             var receiver = new Party("rcv", new PartyId("receiverId"));
 
-            return AS4Message.Create(new UserMessage { Sender = sender, Receiver = receiver }, pmode);
+            return AS4Message.Create(new UserMessage(Guid.NewGuid().ToString(), sender, receiver), pmode);
         }
 
         private static async Task<AS4Message> CreateReceivedAS4Message(SendingProcessingMode sendPMode)
@@ -761,7 +760,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
             var sender = new Party("sender", new PartyId("senderId"));
             var receiver = new Party("rcv", new PartyId("receiverId"));
 
-            return AS4Message.Create(new UserMessage { Sender = sender, Receiver = receiver }, sendPMode);
+            return AS4Message.Create(new UserMessage(Guid.NewGuid().ToString(), sender, receiver), sendPMode);
         }
 
         private static SendingProcessingMode CreateMultiHopPMode()

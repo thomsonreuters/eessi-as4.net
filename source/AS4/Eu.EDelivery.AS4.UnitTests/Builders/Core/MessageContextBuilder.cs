@@ -24,7 +24,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Core
         {
             _messagingContext = new MessagingContext(AS4Message.Empty, MessagingContextMode.Receive);
 
-            UserMessage userMessage = CreateDefaultUserMessage(messageId);
+            UserMessage userMessage = new UserMessage(
+                messageId,
+                new CollaborationInfo(new AgreementReference(Guid.NewGuid().ToString())));
             _messagingContext.AS4Message.AddMessageUnit(userMessage);
         }
 
@@ -35,64 +37,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Core
         public MessagingContext Build()
         {
             return _messagingContext;
-        }
-
-        /// <summary>
-        /// Add Agreement Reference to the Builder
-        /// </summary>
-        /// <param name="agreementRef"></param>
-        /// <returns></returns>
-        public MessageContextBuilder WithAgreementRef(AgreementReference agreementRef)
-        {
-            UserMessage userMessage = _messagingContext.AS4Message.FirstUserMessage;
-            userMessage.CollaborationInfo.AgreementReference = agreementRef.AsMaybe();
-
-            return this;
-        }
-
-        /// <summary>
-        /// Add Parties to the Builder
-        /// </summary>
-        /// <param name="fromParty"></param>
-        /// <param name="toParty"></param>
-        /// <returns></returns>
-        public MessageContextBuilder WithParties(AS4.Model.Core.Party fromParty, AS4.Model.Core.Party toParty)
-        {
-            UserMessage userMessage = _messagingContext.AS4Message.UserMessages.First();
-            userMessage.Sender = fromParty;
-            userMessage.Receiver = toParty;
-
-            return this;
-        }
-
-        /// <summary>
-        /// Add a PMode Id to the Builder
-        /// </summary>
-        /// <param name="pmodeId"></param>
-        /// <returns></returns>
-        public MessageContextBuilder WithPModeId(string pmodeId)
-        {
-            _messagingContext.AS4Message.UserMessages.First().CollaborationInfo.AgreementReference = new AgreementReference("agreement", pmodeId).AsMaybe();
-
-            return this;
-        }
-
-        /// <summary>
-        /// Add Service/Action to the Builder
-        /// </summary>
-        /// <param name="service"></param>
-        /// <param name="action"></param>
-        /// <returns></returns>
-        public MessageContextBuilder WithServiceAction(string service, string action)
-        {
-            UserMessage userMessage = _messagingContext.AS4Message.UserMessages.First();
-            userMessage.CollaborationInfo = new CollaborationInfo(
-                userMessage.CollaborationInfo.AgreementReference,
-                new Service(service),
-                action,
-                userMessage.CollaborationInfo.ConversationId);
-
-            return this;
         }
 
         /// <summary>
@@ -139,17 +83,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Core
         {
             _messagingContext.ReceivingPMode = pmode;
             return this;
-        }
-
-        private static UserMessage CreateDefaultUserMessage(string messageId)
-        {
-            var userMessage = new UserMessage
-            {
-                CollaborationInfo = { AgreementReference = new AgreementReference(Guid.NewGuid().ToString()).AsMaybe() },
-                MessageId = messageId
-            };
-
-            return userMessage;
         }
     }
 }

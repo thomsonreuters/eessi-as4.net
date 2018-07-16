@@ -240,7 +240,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
 
         protected UserMessage CreateUserMessage()
         {
-            return new UserMessage("message-id") { CollaborationInfo = { AgreementReference = new AgreementReference(String.Empty).AsMaybe() } };
+            return new UserMessage("message-id");
         }
 
         protected XmlDocument SerializeSoapMessage(AS4Message message, MemoryStream soapStream)

@@ -11,7 +11,6 @@ namespace Eu.EDelivery.AS4.Model.Core
         protected SignalMessage() {}
 
         protected SignalMessage(string messageId) : base(messageId) {}
-        protected SignalMessage(string messageId, string refToMessageId) : base(messageId, refToMessageId) { }
 
         protected SignalMessage(string messageId, string refToMessageId) : base(messageId, refToMessageId) { }
 

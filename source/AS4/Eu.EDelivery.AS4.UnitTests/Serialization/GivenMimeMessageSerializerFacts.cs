@@ -110,11 +110,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
 
             private static UserMessage CreateUserMessage()
             {
-                return new UserMessage("message-id")
-                {
-                    Receiver = new Party("Receiver", new PartyId(Guid.NewGuid().ToString())),
-                    Sender = new Party("Sender", new PartyId(Guid.NewGuid().ToString()))
-                };
+                return new UserMessage(
+                    "message-id",
+                    new Party("Sender", new PartyId(Guid.NewGuid().ToString())),
+                    new Party("Receiver", new PartyId(Guid.NewGuid().ToString())));
             }
 
             private static Attachment CreateEarthAttachment()
