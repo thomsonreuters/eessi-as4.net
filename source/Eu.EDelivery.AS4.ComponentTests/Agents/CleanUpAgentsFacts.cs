@@ -149,7 +149,6 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
             var spy = new DatabaseSpy(config);
             spy.InsertOutMessage(CreateOutMessage(outReferenceId, insertionTime: DayBeforeYesterday, type: MessageType.Error));
-            InsertReferencedReceptionAwareness(config, outReferenceId);
             spy.InsertOutMessage(CreateOutMessage(outStandaloneId, insertionTime: DayBeforeYesterday, type: MessageType.Receipt));
             spy.InsertInMessage(CreateInMessage(inMessageId, DayBeforeYesterday));
             spy.InsertOutException(CreateOutException(outExceptionId, DayBeforeYesterday));
@@ -163,7 +162,6 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             Assert.Empty(spy.GetInMessages(inMessageId));
             Assert.Empty(spy.GetOutExceptions(outExceptionId));
             Assert.Empty(spy.GetInExceptions(inExceptionId));
-            Assert.Null(GetReferencedReceptionAwareness(config, outReferenceId));
         }
 
         private void OverrideWithSpecificSettings(string settingsFile, int retentionDays = 1)
@@ -205,7 +203,6 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         {
             using (var ctx = new DatastoreContext(config))
             {
-                ctx.Database.ExecuteSqlCommand("DELETE FROM ReceptionAwareness");
                 ctx.Database.ExecuteSqlCommand("DELETE FROM OutMessages");
                 ctx.Database.ExecuteSqlCommand("DELETE FROM InMessages");
                 ctx.Database.ExecuteSqlCommand("DELETE FROM OutExceptions");
@@ -263,23 +260,6 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             };
         }
 
-        private static void InsertReferencedReceptionAwareness(
-            IConfig config,
-            string ebmsMessageId,
-            ReceptionStatus status = ReceptionStatus.Completed)
-        {
-            using (var ctx = new DatastoreContext(config))
-            {
-                long outMessageId = ctx.OutMessages.First(m => m.EbmsMessageId.Equals(ebmsMessageId)).Id;
-
-                var ra = new ReceptionAwareness(outMessageId, ebmsMessageId);
-                ra.Status = status;
-
-                ctx.ReceptionAwareness.Add(ra);
-                ctx.SaveChanges();
-            }
-        }
-
         private static void ExerciseStartCleaning()
         {
             var msh = AS4Component.Start(Environment.CurrentDirectory, cleanSlate: false);
@@ -288,14 +268,6 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             Thread.Sleep(TimeSpan.FromSeconds(2));
 
             msh.Dispose();
-        }
-
-        private static ReceptionAwareness GetReferencedReceptionAwareness(IConfig config, string ebmsMessageId)
-        {
-            using (var ctx = new DatastoreContext(config))
-            {
-                return ctx.ReceptionAwareness.FirstOrDefault(r => r.RefToEbmsMessageId.Equals(ebmsMessageId));
-            }
         }
 
         protected override void Disposing(bool isDisposing)
