@@ -7,14 +7,16 @@ using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
-using Eu.EDelivery.AS4.Entities;
+using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Http;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Serialization;
+using Eu.EDelivery.AS4.Services;
 using Eu.EDelivery.AS4.Steps.Send.Response;
+using Eu.EDelivery.AS4.Strategies.Sender;
 using Eu.EDelivery.AS4.Streaming;
 using Eu.EDelivery.AS4.Utilities;
 using NLog;
@@ -128,26 +130,16 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 {
                     ctx.ModifyContext(as4Message);
 
-                    return await TryHandleHttpResponseAsync(request, ctx).ConfigureAwait(false);
+                    return await HandleHttpResponseAsync(request, ctx).ConfigureAwait(false);
                 }
 
                 return StepResult.Failed(ctx);
             }
             catch (Exception exception)
             {
-                Logger.Error(
-                    $"{ctx.LogTag} An error occured while trying to send the message: {exception}");
-
-                if (exception.InnerException != null)
-                {
-                    Logger.Error(exception.InnerException.Message);
-                }
-
+                Logger.ErrorDeep(exception);
+                UpdateMessageStatus(ctx, SendResult.RetryableFail);
                 throw;
-            }
-            finally
-            {
-                await UpdateMessageStatusAsync(ctx, Operation.Sent, OutStatus.Sent).ConfigureAwait(false);
             }
         }
 
@@ -235,6 +227,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
                     }
                 }
 
+                Logger.Debug($"AS4Message received from: {request.Address}");
                 return true;
             }
             catch (WebException exception)
@@ -245,12 +238,6 @@ namespace Eu.EDelivery.AS4.Steps.Send
                     Logger.Trace($"The PullRequest could not be send to {request.RequestUri} due to a WebException");
                     Logger.Trace(exception.Message);
                     return false;
-                }
-
-                Logger.Error(exception.Message);
-                if (exception.InnerException != null)
-                {
-                    Logger.Error(exception.InnerException.Message);
                 }
 
                 throw CreateFailedSendException(request.RequestUri.ToString(), exception);
@@ -278,55 +265,40 @@ namespace Eu.EDelivery.AS4.Steps.Send
             return ctx.AS4Message?.DetermineMessageSize(SerializerProvider.Default) ?? 0L;
         }
 
-        private async Task<StepResult> TryHandleHttpResponseAsync(
-            HttpWebRequest request,
-            MessagingContext ctx)
-        {
-            Logger.Debug($"AS4Message received from: {request.Address}");
-
-            (HttpWebResponse webResponse, WebException exception) =
-                await _httpClient.Respond(request).ConfigureAwait(false);
-
-            if (webResponse != null
-                && ContentTypeSupporter.IsContentTypeSupported(webResponse.ContentType))
+            private async Task<StepResult> HandleHttpResponseAsync(
+                HttpWebRequest request,
+                MessagingContext ctx)
             {
-                return
-                    await HandleAS4Response(ctx, webResponse)
-                        .ConfigureAwait(false);
-            }
+                Logger.Debug($"AS4Message received from: {request.Address}");
 
-            throw CreateFailedSendException(request.RequestUri.ToString(), exception);
-        }
+                (HttpWebResponse webResponse, WebException exception) =
+                    await _httpClient.Respond(request).ConfigureAwait(false);
 
-        private async Task UpdateMessageStatusAsync(MessagingContext ctx, Operation operation, OutStatus status)
-        {
-            if (ctx.MessageEntityId == null)
-            {
-                return;
-            }
-
-            using (DatastoreContext db = _createDatastore())
-            {
-                var repository = new DatastoreRepository(db);
-
-                repository.UpdateOutMessage(
-                    ctx.MessageEntityId.Value,
-                    updateAction: outMessage =>
-                    {
-                        outMessage.Operation = operation;
-                        outMessage.SetStatus(status);
-                    });
-
-                Entities.ReceptionAwareness ra =
-                    repository.GetReceptionAwarenessForOutMessage(ctx.MessageEntityId.Value);
-
-                if (ra != null)
+                if (webResponse != null
+                    && ContentTypeSupporter.IsContentTypeSupported(webResponse.ContentType))
                 {
-                    ra.LastSendTime = DateTimeOffset.Now;
-                    ra.CurrentRetryCount += 1;
+                    StepResult stepResult = await HandleAS4Response(ctx, webResponse)
+                        .ConfigureAwait(false);
+
+                    UpdateMessageStatus(ctx, SendResult.Success);
+
+                    return stepResult;
                 }
 
-                await db.SaveChangesAsync().ConfigureAwait(false);
+                throw CreateFailedSendException(request.RequestUri.ToString(), exception);
+            }
+
+        private void UpdateMessageStatus(MessagingContext ctx, SendResult result)
+        {
+            if (ctx.MessageEntityId.HasValue)
+            {
+                using (DatastoreContext db = _createDatastore())
+                {
+                    var repository = new DatastoreRepository(db);
+                    var service = new MarkForRetryService(repository);
+                    service.UpdateAS4MessageForSendResult(ctx.MessageEntityId.Value, result);
+                    db.SaveChanges();
+                }
             }
         }
 
@@ -351,6 +323,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
         private static WebException CreateFailedSendException(string requestUrl, Exception exception)
         {
+            Logger.ErrorDeep(exception);
             return new WebException($"Failed to Send AS4Message to Url: {requestUrl}.", exception);
         }
     }

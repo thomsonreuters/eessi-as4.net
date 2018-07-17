@@ -96,7 +96,8 @@ namespace Eu.EDelivery.AS4.Agents
                 var t = rr.RetryType;
                 Operation updateOperation =
                     t == RetryType.Delivery ? Operation.ToBeDelivered :
-                    t == RetryType.Notification ? Operation.ToBeNotified : Operation.NotApplicable;
+                    t == RetryType.Notification ? Operation.ToBeNotified : 
+                    t == RetryType.Sending ? Operation.ToBeSent : Operation.NotApplicable;
 
                 Logger.Debug($"({rr.RetryType}) Update for retry, set Operation={updateOperation}");
                 UpdateRefEntityOperation(repo, refToEntityId, entityType, updateOperation);

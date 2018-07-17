@@ -10,7 +10,7 @@ using NLog;
 namespace Eu.EDelivery.AS4.Services
 {
     /// <summary>
-    /// Service abstraction to set the referenced deliver message to the right Status/Operation accordingly to the <see cref="Eu.EDelivery.AS4.Strategies.Sender.SendResult"/>.
+    /// Service abstraction to set the referenced deliver message to the right Status/Operation accordingly to the <see cref="SendResult"/>.
     /// </summary>
     public class MarkForRetryService
     {
@@ -28,7 +28,35 @@ namespace Eu.EDelivery.AS4.Services
         }
 
         /// <summary>
-        /// Updates the message Status/Operation accordingly to the status of a 
+        /// Updates the AS4Message's Status/Operation accordingly to the status of the 
+        /// </summary>
+        /// <param name="messageId"></param>
+        /// <param name="status"></param>
+        public void UpdateAS4MessageForSendResult(long messageId, SendResult status)
+        {
+            _repository.UpdateOutMessage(
+                outMessageId: messageId,
+                updateAction: entity => UpdateMessageEntity(
+                    status: status,
+                    entity: entity,
+                    getter: s => _repository.GetRetryReliability(r => r.RefToOutMessageId == entity.Id, s),
+                    onSuccess: e =>
+                    {
+                        Logger.Info($"(Send)[{e.EbmsMessageId}] Mark AS4Message as Sent");
+                        Logger.Debug("Update OutMessage with Status and Operation set to Sent");
+
+                        e.SetStatus(OutStatus.Sent);
+                        e.Operation = Operation.Sent;
+                    },
+                    onFailure: e =>
+                    {
+                        Logger.Info($"(Send)[{e.EbmsMessageId}] AS4Message failed during the sending, exhausted retries");
+                        e.SetStatus(OutStatus.Exception);
+                    }));
+        }
+
+        /// <summary>
+        /// Updates the DeliverMessage's Status/Operation accordingly to <see cref="SendResult"/>.
         /// </summary>
         /// <param name="messageId">The message identifier.</param>
         /// <param name="status">The upload status during the delivery of the payloads.</param>
@@ -49,7 +77,7 @@ namespace Eu.EDelivery.AS4.Services
         }
 
         /// <summary>
-        /// Updates the message Status/Operation accordingly to <see cref="Eu.EDelivery.AS4.Strategies.Sender.SendResult"/>.
+        /// Updates the DeliverMessage's Status/Operation accordingly to <see cref="Eu.EDelivery.AS4.Strategies.Sender.SendResult"/>.
         /// </summary>
         /// <param name="messageId">The message identifier.</param>
         /// <param name="status">The deliver status during the delivery of the deliver message.</param>
@@ -64,7 +92,7 @@ namespace Eu.EDelivery.AS4.Services
                     getter: s => _repository.GetRetryReliability(r => r.RefToInMessageId == entity.Id, s),
                     onSuccess: e =>
                     {
-                        Logger.Info($"(Deliver)[{messageId}] Mark deliver message as Delivered");
+                        Logger.Info($"(Deliver)[{messageId}] Mark DeliverMessage as Delivered");
                         Logger.Debug("Update InMessage with Status and Operation set to Delivered");
 
                         e.SetStatus(InStatus.Delivered);
@@ -140,6 +168,13 @@ namespace Eu.EDelivery.AS4.Services
             Action<T> onSuccess,
             Action<T> onFailure) where T : MessageEntity
         {
+            // Only for records that are not yet been completly Notified/DeadLettered should we botter to retry
+            if (entity.Operation == Operation.Notified
+                || entity.Operation == Operation.DeadLettered)
+            {
+                return;
+            }
+
             RetryReliability rr = getter(r => r).FirstOrDefault();
             if (status == SendResult.Success)
             {
@@ -217,6 +252,14 @@ namespace Eu.EDelivery.AS4.Services
             T entity,
             Func<Expression<Func<RetryReliability, RetryReliability>>, IEnumerable<RetryReliability>> getter) where T : ExceptionEntity
         {
+            // There could be more In/Out Exceptions for a single message, 
+            // therefore we should only look for exceptions that are not yet been Notified/DeadLettered.
+            if (entity.Operation == Operation.Notified 
+                || entity.Operation == Operation.DeadLettered)
+            {
+                return;
+            }
+
             RetryReliability rr = getter(r => r).FirstOrDefault();
             if (status == SendResult.Success)
             {
