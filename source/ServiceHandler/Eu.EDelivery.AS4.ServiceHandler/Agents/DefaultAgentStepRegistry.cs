@@ -41,7 +41,6 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
                         new Step { Type = typeof(CompressAttachmentsStep).AssemblyQualifiedName },
                         new Step { Type = typeof(SignAS4MessageStep).AssemblyQualifiedName },
                         new Step { Type = typeof(EncryptAS4MessageStep).AssemblyQualifiedName },
-                        new Step { Type = typeof(SetReceptionAwarenessStep).AssemblyQualifiedName },
                         new Step { Type = typeof(SetMessageToBeSentStep).AssemblyQualifiedName }
                     }
                 });
@@ -155,16 +154,6 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
                         new Step { Type = typeof(SendNotifyMessageStep).AssemblyQualifiedName },
                     }
                 });
-
-            StepConfiguration.Add(AgentType.ReceptionAwareness,
-                new StepConfiguration
-                {
-                    NormalPipeline = new[]
-                    {
-                        new Step{ Type = typeof(ReceptionAwarenessUpdateDatastoreStep).AssemblyQualifiedName }
-                    }
-                });
-
         }
 
         #endregion

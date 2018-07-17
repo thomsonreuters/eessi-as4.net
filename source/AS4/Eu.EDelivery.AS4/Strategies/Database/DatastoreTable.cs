@@ -19,7 +19,6 @@ namespace Eu.EDelivery.AS4.Strategies.Database
                 {"OutMessages", c => c.OutMessages},
                 {"InExceptions", c => c.InExceptions},
                 {"OutExceptions", c => c.OutExceptions},
-                {"ReceptionAwareness", c => c.ReceptionAwareness},
                 {"RetryReliability", c => c.RetryReliability}
             };
 

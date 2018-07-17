@@ -555,60 +555,6 @@ namespace Eu.EDelivery.AS4.Fe.Controllers
         }
 
         /// <summary>
-        /// Creates the reception awareness agent.
-        /// </summary>
-        /// <param name="settingsAgent">The settings agent.</param>
-        /// <returns></returns>
-        [HttpPost]
-        [Route("receptionawarenessagent")]
-        [Authorize(Roles = Roles.Admin)]
-        [SwaggerResponse((int)HttpStatusCode.OK, typeof(OkResult))]
-        [SwaggerResponse((int)HttpStatusCode.Conflict, typeof(ErrorModel), "Indicates that another entity already exists")]
-        public async Task<IActionResult> CreateReceptionAwarenessAgent([FromBody] AgentSettings settingsAgent)
-        {
-            EnsureArg.IsNotNull(settingsAgent, nameof(settingsAgent));
-            await settingsService.CreateAgent(settingsAgent, agents => agents.ReceptionAwarenessAgent == null ? new AgentSettings[] { } : new[] { agents.ReceptionAwarenessAgent }, (settings, agents) => settings.ReceptionAwarenessAgent = agents[0]);
-            return new OkResult();
-        }
-
-        /// <summary>
-        /// Deletes the reception awareness agent.
-        /// </summary>
-        /// <param name="name">The name.</param>
-        /// <returns></returns>
-        [HttpDelete]
-        [Route("receptionawarenessagent")]
-        [Authorize(Roles = Roles.Admin)]
-        [SwaggerResponse((int)HttpStatusCode.OK, typeof(OkResult))]
-        [SwaggerResponse((int)HttpStatusCode.NotFound, typeof(ErrorModel), "Returned when the requested submit agent doesn't exist")]
-        public async Task<IActionResult> DeleteReceptionAwarenessAgent(string name)
-        {
-            EnsureArg.IsNotNullOrEmpty(name, nameof(name));
-            await settingsService.DeleteAgent(name, agents => agents.ReceptionAwarenessAgent == null ? new AgentSettings[] { } : new[] { agents.ReceptionAwarenessAgent }, (settings, agents) => settings.ReceptionAwarenessAgent = agents.FirstOrDefault());
-            return new OkResult();
-        }
-
-        /// <summary>
-        /// Updates the reception awareness agent.
-        /// </summary>
-        /// <param name="settingsAgent">The settings agent.</param>
-        /// <param name="originalName">Name of the original.</param>
-        /// <returns></returns>
-        [HttpPut]
-        [Route("receptionawarenessagent/{originalName}")]
-        [Authorize(Roles = Roles.Admin)]
-        [SwaggerResponse((int)HttpStatusCode.OK, typeof(OkResult))]
-        [SwaggerResponse((int)HttpStatusCode.Conflict, typeof(ErrorModel), "Indicates that another entity already exists")]
-        [SwaggerResponse((int)HttpStatusCode.NotFound, typeof(ErrorModel), "Returned when the requested submit agent doesn't exist")]
-        public async Task<IActionResult> UpdateReceptionAwarenessAgent([FromBody] AgentSettings settingsAgent, string originalName)
-        {
-            EnsureArg.IsNotNull(settingsAgent, nameof(settingsAgent));
-            EnsureArg.IsNotNullOrEmpty(originalName, nameof(originalName));
-            await settingsService.UpdateAgent(settingsAgent, originalName, agents => agents.ReceptionAwarenessAgent == null ? new AgentSettings[] { } : new[] { agents.ReceptionAwarenessAgent }, (settings, agents) => settings.ReceptionAwarenessAgent = agents[0]);
-            return new OkResult();
-        }
-
-        /// <summary>
         /// Creates the pull receive agent.
         /// </summary>
         /// <param name="settingsAgent">The settings agent.</param>

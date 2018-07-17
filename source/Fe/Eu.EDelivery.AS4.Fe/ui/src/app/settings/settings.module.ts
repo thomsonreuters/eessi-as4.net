@@ -15,7 +15,6 @@ import { CommonSettingsComponent } from './commonsettings.component';
 import { DatabaseSettingsComponent } from './database.component';
 import { PortalSettingsComponent } from './portalsettings/portalsettings.component';
 import { ReceiverComponent } from './receiver.component';
-import { ReceptionAwarenessAgentComponent } from './receptionawarenessagent/receptionawarenessagent.component';
 import { RuntimeService } from './runtime.service';
 import { RuntimeStore } from './runtime.store';
 import { ROUTES } from './settings.routes';
@@ -37,7 +36,6 @@ const components: any = [
   ReceiverComponent,
   TransformerComponent,
   StepSettingsComponent,
-  ReceptionAwarenessAgentComponent,
   PortalSettingsComponent,
   AuthorizationMapComponent,
   SmpConfigurationComponent,

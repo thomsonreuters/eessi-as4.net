@@ -11,6 +11,7 @@ namespace Eu.EDelivery.AS4.Transformers
     /// Transform the given <see cref="ReceptionAwareness" /> Model
     /// to a <see cref="MessagingContext" /> Model
     /// </summary>
+    [Obsolete("The ReceptionAwareness is now implemented as a part of the RetryAgent instead of a separate one.")]
     public class ReceptionAwarenessTransformer : ITransformer
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
