@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Net;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Model.Internal;
@@ -43,9 +44,13 @@ namespace Eu.EDelivery.AS4.Steps.Send.Response
 
                 if (Logger.IsErrorEnabled)
                 {
-                    using (StreamReader r = new StreamReader(response.ReceivedStream.UnderlyingStream))
+                    using (var r = new StreamReader(response.ReceivedStream.UnderlyingStream))
                     {
-                        Logger.Error(await r.ReadToEndAsync());
+                        string content = await r.ReadToEndAsync();
+                        if (!string.IsNullOrEmpty(content))
+                        {
+                            Logger.Error(content); 
+                        }
                     }
                 }
 
