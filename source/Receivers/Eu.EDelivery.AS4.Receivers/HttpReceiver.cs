@@ -259,13 +259,16 @@ namespace Eu.EDelivery.AS4.Receivers
 
                 try
                 {
-                    if (processor != null && StringComparer.OrdinalIgnoreCase.Equals(httpContext.Request.HttpMethod, "POST"))
+                    if (processor != null
+                        && StringComparer.OrdinalIgnoreCase.Equals(httpContext.Request.HttpMethod, "POST"))
                     {
-                        ReceivedMessage receivedMessage = await CreateReceivedMessage(httpContext.Request, useLogging).ConfigureAwait(false);
+                        ReceivedMessage receivedMessage = await CreateReceivedMessage(httpContext.Request, useLogging)
+                            .ConfigureAwait(false);
                         try
                         {
                             processorResult =
-                                await processor(receivedMessage, CancellationToken.None).ConfigureAwait(false);
+                                await processor(receivedMessage, CancellationToken.None)
+                                    .ConfigureAwait(false);
                         }
                         finally
                         {
@@ -273,9 +276,14 @@ namespace Eu.EDelivery.AS4.Receivers
                         }
                     }
 
-                    var result = ExecuteCore(httpContext.Request, processorResult);
+                    HttpListenerContentResult result = ExecuteCore(httpContext.Request, processorResult);
 
-                    await result.ExecuteResultAsync(httpContext.Response).ConfigureAwait(false);
+                    await result.ExecuteResultAsync(httpContext.Response)
+                                .ConfigureAwait(false);
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error(ex);
                 }
                 finally
                 {
@@ -344,7 +352,7 @@ namespace Eu.EDelivery.AS4.Receivers
                     string newReceivedMessageFile =
                                      FilenameUtils.EnsureValidFilename($"{hostInformation}.{Guid.NewGuid()}.{DateTime.Now:yyyyMMdd}");
 
-                    Logger.Info($"Logging to {newReceivedMessageFile}");
+                    Logger.Info($"Logging to \"{newReceivedMessageFile}\"");
                     using (var destinationStream = FileUtils.CreateAsync(Path.Combine(logDir, newReceivedMessageFile), options: FileOptions.SequentialScan))
                     {
                         await message.UnderlyingStream.CopyToFastAsync(destinationStream).ConfigureAwait(false);
@@ -512,43 +520,57 @@ namespace Eu.EDelivery.AS4.Receivers
 
                         HttpStatusCode statusCode = DetermineStatusCode(processorResult.Exception);
 
-                        return new ByteContentResult(statusCode, "text/plain",
-                                                     Encoding.UTF8.GetBytes(errorMessage));
+                        Logger.Error($"Respond with {(int) statusCode} {statusCode} {(string.IsNullOrEmpty(errorMessage) ? String.Empty : errorMessage)}");
+                        return new ByteContentResult(
+                            statusCode, 
+                            "text/plain",
+                            Encoding.UTF8.GetBytes(errorMessage));
                     }
 
                     // Ugly hack until the Transformer is refactored.
                     // When we're in SubmitMode and have an Empty AS4Message, then we should return an Accepted.
                     if (processorResult.Mode == MessagingContextMode.Submit && processorResult.AS4Message?.IsEmpty == false)
                     {
+                        Logger.Debug("Respond with 202 Accepted");
                         return ByteContentResult.Empty(HttpStatusCode.Accepted);
                     }
 
                     if (AreReceiptsOrErrorsSendInCallbackMode(processorResult))
                     {
+                        Logger.Debug("Respond with 202 Accepted: Receipt/Errors are responded async");
                         return ByteContentResult.Empty(HttpStatusCode.Accepted);
                     }
 
                     if (InForwardingRole(processorResult))
                     {
+                        Logger.Debug("Respond with 202 Accepted: message will be forwarded");
                         return ByteContentResult.Empty(HttpStatusCode.Accepted);
                     }
 
                     if (processorResult.Mode == MessagingContextMode.Send && processorResult.ReceivedMessage != null)
                     {
+                        Logger.Debug("Respond with 200 OK: AS4Message is result of pulling");
+
                         // When we're sending as a puller, make sure that the message that has been received, 
                         // is directly written to the stream.
-                        return new StreamContentResult(HttpStatusCode.OK,
-                                                       processorResult.ReceivedMessage.ContentType, processorResult.ReceivedMessage.UnderlyingStream);
+                        return new StreamContentResult(
+                            HttpStatusCode.OK,
+                            processorResult.ReceivedMessage.ContentType, 
+                            processorResult.ReceivedMessage.UnderlyingStream);
                     }
 
                     if (AreReceiptsOrErrorsSendInResponseMode(processorResult))
                     {
+                        HttpStatusCode statusCode = DetermineHttpCodeFrom(processorResult);
+
+                        Logger.Debug($"Respond with {(int) statusCode} {statusCode}: Receipt/Errors are responded sync");
                         return new AS4MessageContentResult(
-                            statusCode: DetermineHttpCodeFrom(processorResult),
+                            statusCode: statusCode,
                             contentType: processorResult.AS4Message?.ContentType,
                             messagingContext: processorResult);
                     }
 
+                    Logger.Debug("Respond with 202 Accepted: unknown reason");
                     return ByteContentResult.Empty(HttpStatusCode.Accepted);
                 }
 
@@ -746,7 +768,7 @@ namespace Eu.EDelivery.AS4.Receivers
         /// </summary>
         public void StopReceiving()
         {
-            Logger.Debug($"Stop listening on {_requestMeta.Hostname}");
+            Logger.Debug($"Stop listening on \"{_requestMeta.Hostname}\"");
 
             _listener?.Close();
         }

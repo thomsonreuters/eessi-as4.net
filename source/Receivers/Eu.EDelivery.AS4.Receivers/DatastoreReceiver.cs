@@ -68,19 +68,124 @@ namespace Eu.EDelivery.AS4.Receivers
                 throw new InvalidOperationException("The DatastoreReceiver is not configured");
             }
 
-            LogReceiverSpecs(true);
+            Logger.Debug($"Start Receiving on Datastore {_settings.DisplayString}");
             StartPolling(messageCallback, cancellationToken);
         }
 
+        /// <summary>
+        /// Stop the <see cref="IReceiver"/> instance from receiving.
+        /// </summary>
         public void StopReceiving()
         {
-            LogReceiverSpecs(false);
+            Logger.Debug($"Stop Receiving on Datastore {_settings.DisplayString}");
+        }        
+
+        #region Configuration
+
+        [Info("Table", required: true)]
+        private string Table => _settings.TableName;
+
+        [Info("Filter", required: true)]
+        private string Filter => _settings.Filter;
+
+        [Info("How many rows to take", defaultValue: SettingKeys.TakeRowsDefault, type: "int32")]
+        private int TakeRows => _settings.TakeRows;
+
+        [Info("Update", attributes: new[] { "field" })]
+        private string Update => _settings.UpdateValue;
+
+        private static class SettingKeys
+        {
+            public const string PollingInterval = "PollingInterval";
+            public const string Table = "Table";
+            public const string Filter = "Filter";
+            public const string TakeRows = "BatchSize";
+            public const string TakeRowsDefault = "20";
+            public const string Update = "Update";
+            public const string PollingIntervalDefault = "00:00:03";
         }
 
-        private void LogReceiverSpecs(bool startReceiving)
+        [Info("Polling interval (every)", defaultValue: SettingKeys.PollingIntervalDefault)]
+        protected override TimeSpan PollingInterval => _settings.PollingInterval;
+
+        /// <summary>
+        /// Configure the receiver with typed settings.
+        /// </summary>
+        /// <param name="settings"></param>
+        public void Configure(DatastoreReceiverSettings settings)
         {
-            string action = startReceiving ? "Start" : "Stop";
-            Logger.Debug($"{action} Receiving on Datastore {_settings.DisplayString}");
+            _settings = settings;
+        }
+
+        /// <summary>
+        /// Configure the receiver with a given settings dictionary.
+        /// </summary>
+        /// <param name="settings"></param>
+        void IReceiver.Configure(IEnumerable<Setting> settings)
+        {
+            var properties = settings.ToDictionary(s => s.Key, s => s);
+
+            Setting configuredTakeRecords = properties.ReadOptionalProperty(SettingKeys.TakeRows, null);
+
+            if (configuredTakeRecords == null 
+                || Int32.TryParse(configuredTakeRecords.Value, out int takeRecords) == false)
+            {
+                takeRecords = DatastoreReceiverSettings.DefaultTakeRows;
+            }
+
+            TimeSpan pollingInterval = GetPollingIntervalFromProperties(properties);
+
+            Setting updateSetting = properties.ReadMandatoryProperty(SettingKeys.Update);
+
+            if (updateSetting["field"] == null)
+            {
+                throw new ConfigurationErrorsException(
+                    "The Update setting does not contain a field attribute that indicates the field that must be updated");
+            }
+
+            _settings = new DatastoreReceiverSettings(
+                tableName: properties.ReadMandatoryProperty(SettingKeys.Table).Value,
+                filter: properties.ReadMandatoryProperty(SettingKeys.Filter).Value,
+                updateField: updateSetting["field"].Value,
+                updateValue: updateSetting.Value,
+                pollingInterval: pollingInterval,
+                takeRows: takeRecords);
+        }
+
+        private static TimeSpan GetPollingIntervalFromProperties(IDictionary<string, Setting> properties)
+        {
+            if (properties.ContainsKey(SettingKeys.PollingInterval) == false)
+            {
+                return DatastoreReceiverSettings.DefaultPollingInterval;
+            }
+
+            var pollingInterval = properties[SettingKeys.PollingInterval];
+            return pollingInterval.Value.AsTimeSpan(DatastoreReceiverSettings.DefaultPollingInterval);
+        }
+
+        #endregion
+
+        /// <summary>
+        /// Get the Out Messages from the Store with <see cref="Operation.ToBeSent" /> as Operation
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        protected override IEnumerable<Entity> GetMessagesToPoll(CancellationToken cancellationToken)
+        {
+            try
+            {
+                return GetMessagesEntitiesForConfiguredExpression();
+            }
+            catch (Exception exception)
+            {
+                Logger logger = LogManager.GetCurrentClassLogger();
+
+                logger.Error($"An error occured while polling the datastore: {exception.Message}");
+                logger.Error($"Polling on table {Table} with interval {PollingInterval.TotalSeconds} seconds");
+                logger.Trace(exception.StackTrace);
+
+                return Enumerable.Empty<Entity>();
+            }
         }
 
         private IEnumerable<Entity> GetMessagesEntitiesForConfiguredExpression()
@@ -112,19 +217,6 @@ namespace Eu.EDelivery.AS4.Receivers
             }
         }
 
-        // ReSharper disable once InconsistentNaming
-        private PropertyInfo __tableSetPropertyInfo;
-
-        private PropertyInfo GetTableSetPropertyInfo()
-        {
-            if (__tableSetPropertyInfo == null)
-            {
-                __tableSetPropertyInfo = typeof(DatastoreContext).GetProperty(_settings.TableName);
-            }
-
-            return __tableSetPropertyInfo;
-        }
-
         private IEnumerable<Entity> FindAnyMessageEntitiesWithConfiguredExpression(DatastoreContext context)
         {
             var tablePropertyInfo = GetTableSetPropertyInfo();
@@ -140,7 +232,7 @@ namespace Eu.EDelivery.AS4.Receivers
             // - make sure that single quotes are used around string vars.  
             //      (Maybe make it dependent on the DB type, same is true for escape characters [] in sql server, ...             
 
-            IEnumerable<Entity> entities = 
+            IEnumerable<Entity> entities =
                 _retrieveEntities == null
                     ? context.NativeCommands.ExclusivelyRetrieveEntities(Table, Filter, TakeRows)
                     : _retrieveEntities(context);
@@ -155,6 +247,45 @@ namespace Eu.EDelivery.AS4.Receivers
             context.SaveChanges();
 
             return entities;
+        }
+
+        // TODO: isn't this something Lazy<> would solve?
+        // ReSharper disable once InconsistentNaming
+        private PropertyInfo __tableSetPropertyInfo;
+
+        private PropertyInfo GetTableSetPropertyInfo()
+        {
+            if (__tableSetPropertyInfo == null)
+            {
+                __tableSetPropertyInfo = typeof(DatastoreContext).GetProperty(_settings.TableName);
+            }
+
+            return __tableSetPropertyInfo;
+        }
+
+        private void LockEntitiesBeforeContinueToProcessThem(IEnumerable<Entity> entities)
+        {
+            if (entities.Any() == false)
+            {
+                return;
+            }
+
+            PropertyInfo updateFieldInfo = GetUpdateFieldProperty(entities.First());
+
+            foreach (Entity entity in entities)
+            {
+                object updateValue = Conversion.Convert(updateFieldInfo.PropertyType, Update);
+
+                Logger.Debug($"Update {entity.GetType().Name}.{updateFieldInfo.Name}={updateValue}");
+
+                updateFieldInfo.SetValue(
+                    obj: entity,
+                    value: updateValue,
+                    invokeAttr: BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic,
+                    binder: null,
+                    index: null,
+                    culture: null);
+            }
         }
 
         // TODO: isn't this someting 'Lazy<>' would solve?
@@ -200,188 +331,6 @@ namespace Eu.EDelivery.AS4.Receivers
             return __updateProperty;
         }
 
-        private void LockEntitiesBeforeContinueToProcessThem(IEnumerable<Entity> entities)
-        {
-            if (entities.Any() == false)
-            {
-                return;
-            }
-
-            PropertyInfo updateFieldInfo = GetUpdateFieldProperty(entities.First());
-
-            foreach (Entity entity in entities)
-            {
-                object updateValue = Conversion.Convert(updateFieldInfo.PropertyType, Update);
-
-                Logger.Debug($"Update {entity.GetType().Name}.{updateFieldInfo.Name}={updateValue}");
-
-                updateFieldInfo.SetValue(
-                    obj: entity, 
-                    value: updateValue, 
-                    invokeAttr: BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, 
-                    binder: null, 
-                    index: null, 
-                    culture: null);
-            }
-        }
-
-        private async void ReceiveMessageEntity(
-            MessageEntity messageEntity,
-            Function messageCallback,
-            CancellationToken token)
-        {
-            Logger.Info($"[{messageEntity.EbmsMessageId}] Received Message from {Table} ({Filter})");
-
-            using (Stream stream = await messageEntity.RetrieveMessageBody(Registry.Instance.MessageBodyStore))
-            {
-                if (stream == null)
-                {
-                    Logger.Error(
-                        $"MessageBody cannot be retrieved for Ebms Message Id: {messageEntity.EbmsMessageId}");
-                }
-                else
-                {
-                    ReceivedMessage receivedMessage = CreateReceivedMessage(messageEntity, stream);
-                    try
-                    {
-                        await messageCallback(receivedMessage, token).ConfigureAwait(false);
-                    }
-                    finally
-                    {
-                        receivedMessage.UnderlyingStream.Dispose();
-                    }
-                }
-            }
-        }
-
-        private static ReceivedMessage CreateReceivedMessage(MessageEntity messageEntity, Stream stream)
-        {
-            return new ReceivedMessageEntityMessage(messageEntity, stream, messageEntity.ContentType);
-        }
-
-        private static async void ReceiveEntity(Entity entity, Function messageCallback, CancellationToken token)
-        {
-            var message = new ReceivedEntityMessage(entity);
-            MessagingContext result = await messageCallback(message, token).ConfigureAwait(false);
-            result?.Dispose();
-        }
-
-        private void LogExceptionAndInner(Exception exception)
-        {
-            Logger.Error(exception.Message);
-            Logger.Trace(exception.StackTrace);
-
-            if (exception.InnerException != null)
-            {
-                Logger.Error(exception.InnerException.Message);
-                Logger.Trace(exception.InnerException.StackTrace);
-            }
-        }
-
-        #region Configuration
-
-        [Info("Table", required: true)]
-        private string Table => _settings.TableName;
-
-        [Info("Filter", required: true)]
-        private string Filter => _settings.Filter;
-
-        [Info("How many rows to take", defaultValue: SettingKeys.TakeRowsDefault, type: "int32")]
-        private int TakeRows => _settings.TakeRows;
-
-        [Info("Update", attributes: new[] { "field" })]
-        private string Update => _settings.UpdateValue;
-
-        private static class SettingKeys
-        {
-            public const string PollingInterval = "PollingInterval";
-            public const string Table = "Table";
-            public const string Filter = "Filter";
-            public const string TakeRows = "BatchSize";
-            public const string TakeRowsDefault = "20";
-            public const string Update = "Update";
-            public const string PollingIntervalDefault = "00:00:03";
-        }
-
-        [Info("Polling interval (every)", defaultValue: SettingKeys.PollingIntervalDefault)]
-        protected override TimeSpan PollingInterval => _settings.PollingInterval;
-
-        private static TimeSpan GetPollingIntervalFromProperties(IDictionary<string, Setting> properties)
-        {
-            if (properties.ContainsKey(SettingKeys.PollingInterval) == false)
-            {
-                return DatastoreReceiverSettings.DefaultPollingInterval;
-            }
-
-            var pollingInterval = properties[SettingKeys.PollingInterval];
-            return pollingInterval.Value.AsTimeSpan(DatastoreReceiverSettings.DefaultPollingInterval);
-        }
-
-        public void Configure(DatastoreReceiverSettings settings)
-        {
-            _settings = settings;
-        }
-
-        /// <summary>
-        /// Configure the receiver with a given settings dictionary.
-        /// </summary>
-        /// <param name="settings"></param>
-        void IReceiver.Configure(IEnumerable<Setting> settings)
-        {
-            var properties = settings.ToDictionary(s => s.Key, s => s);
-
-            Setting configuredTakeRecords = properties.ReadOptionalProperty(SettingKeys.TakeRows, null);
-
-            if (configuredTakeRecords == null 
-                || Int32.TryParse(configuredTakeRecords.Value, out int takeRecords) == false)
-            {
-                takeRecords = DatastoreReceiverSettings.DefaultTakeRows;
-            }
-
-            TimeSpan pollingInterval = GetPollingIntervalFromProperties(properties);
-
-            Setting updateSetting = properties.ReadMandatoryProperty(SettingKeys.Update);
-
-            if (updateSetting["field"] == null)
-            {
-                throw new ConfigurationErrorsException(
-                    "The Update setting does not contain a field attribute that indicates the field that must be updated");
-            }
-
-            _settings = new DatastoreReceiverSettings(
-                tableName: properties.ReadMandatoryProperty(SettingKeys.Table).Value,
-                filter: properties.ReadMandatoryProperty(SettingKeys.Filter).Value,
-                updateField: updateSetting["field"].Value,
-                updateValue: updateSetting.Value,
-                pollingInterval: pollingInterval,
-                takeRows: takeRecords);
-        }
-
-        #endregion
-
-        /// <summary>
-        /// Get the Out Messages from the Store with <see cref="Operation.ToBeSent" /> as Operation
-        /// </summary>
-        /// <param name="cancellationToken"></param>
-        /// <returns></returns>
-        protected override IEnumerable<Entity> GetMessagesToPoll(CancellationToken cancellationToken)
-        {
-            try
-            {
-                return GetMessagesEntitiesForConfiguredExpression();
-            }
-            catch (Exception exception)
-            {
-                Logger logger = LogManager.GetCurrentClassLogger();
-
-                logger.Error($"An error occured while polling the datastore: {exception.Message}");
-                logger.Error($"Polling on table {Table} with interval {PollingInterval.TotalSeconds} seconds");
-                logger.Trace(exception.StackTrace);
-
-                return Enumerable.Empty<Entity>();
-            }
-        }
-
         /// <summary>
         /// Describe what to do when a Out Message is received
         /// </summary>
@@ -400,6 +349,42 @@ namespace Eu.EDelivery.AS4.Receivers
             }
         }
 
+        private async void ReceiveMessageEntity(
+            MessageEntity messageEntity,
+            Function messageCallback,
+            CancellationToken token)
+        {
+            Logger.Info($"[{messageEntity.EbmsMessageId}] Received message FROM {Table} WHERE {Filter}");
+
+            using (Stream stream = await messageEntity.RetrieveMessageBody(Registry.Instance.MessageBodyStore))
+            {
+                if (stream == null)
+                {
+                    Logger.Error($"MessageBody cannot be retrieved for EbmsMessageId: {messageEntity.EbmsMessageId}");
+                }
+                else
+                {
+                    var receivedMessage = new ReceivedMessageEntityMessage(messageEntity, stream, messageEntity.ContentType);
+                    try
+                    {
+                        await messageCallback(receivedMessage, token).ConfigureAwait(false);
+                    }
+                    finally
+                    {
+                        receivedMessage.UnderlyingStream.Dispose();
+                    }
+                }
+            }
+        }
+
+        private static async void ReceiveEntity(Entity entity, Function messageCallback, CancellationToken token)
+        {
+            var message = new ReceivedEntityMessage(entity);
+            MessagingContext result = await messageCallback(message, token).ConfigureAwait(false);
+            result?.Dispose();
+        }
+
+
         protected override void HandleMessageException(Entity message, Exception exception)
         {
             Logger.Error(exception.Message);
@@ -412,6 +397,18 @@ namespace Eu.EDelivery.AS4.Receivers
             foreach (Exception ex in aggregate.InnerExceptions)
             {
                 LogExceptionAndInner(ex);
+            }
+        }
+
+        private void LogExceptionAndInner(Exception exception)
+        {
+            Logger.Error(exception.Message);
+            Logger.Trace(exception.StackTrace);
+
+            if (exception.InnerException != null)
+            {
+                Logger.Error(exception.InnerException.Message);
+                Logger.Trace(exception.InnerException.StackTrace);
             }
         }
 

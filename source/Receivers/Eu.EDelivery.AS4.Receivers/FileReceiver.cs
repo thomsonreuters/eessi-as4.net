@@ -129,7 +129,7 @@ namespace Eu.EDelivery.AS4.Receivers
         public void StopReceiving()
         {
             _isReceiving = false;
-            Logger.Debug($"Stop receiving on '{Path.GetFullPath(FilePath)}' ...");
+            Logger.Debug($"Stop receiving on \"{Path.GetFullPath(FilePath)}\"");
         }
 
         /// <summary>
@@ -180,7 +180,7 @@ namespace Eu.EDelivery.AS4.Receivers
                     }
                     catch (IOException ex)
                     {
-                        Logger.Info($"FileReceiver on {FilePath}: {file.Name} skipped since it is in use.");
+                        Logger.Info($"FileReceiver on \"{file.FullName}\" skipped since it is in use.");
                         Logger.Trace(ex.Message);
                     }
                 }
@@ -234,22 +234,16 @@ namespace Eu.EDelivery.AS4.Receivers
         /// <param name="entity"></param>
         /// <param name="messageCallback">Message Callback after the Message is received</param>
         /// <param name="token"></param>
-        protected override void MessageReceived(FileInfo entity, Function messageCallback, CancellationToken token)
+        protected override async void MessageReceived(FileInfo entity, Function messageCallback, CancellationToken token)
         {
-            Logger.Info($"Received Message from Filesystem: {entity.Name}");
-            GetMessageFromFile(entity, messageCallback, token);
-        }
-
-        private async void GetMessageFromFile(FileInfo fileInfo, Function messageCallback, CancellationToken token)
-        {
-            if (!fileInfo.Exists)
+            Logger.Info($"Received message from Filesystem: \"{entity.Name}\"");
+            if (!entity.Exists)
             {
                 return;
             }
 
-            Logger.Info($"Getting Message from file \"{fileInfo.Name}\"");
 
-            var item = _pendingFiles.FirstOrDefault(f => f.file == fileInfo);
+            var item = _pendingFiles.FirstOrDefault(f => f.file == entity);
             await OpenStreamFromMessage(item, messageCallback, token);
             _pendingFiles.Remove(item);
         }
@@ -287,7 +281,7 @@ namespace Eu.EDelivery.AS4.Receivers
             }
             catch (Exception ex)
             {
-                Logger.Error($"An error occured while processing {_.fileInfo.Name}");
+                Logger.Error($"An error occured while processing \"{_.fileInfo.Name}\"");
                 Logger.Trace(ex.Message);
             }
         }
@@ -313,7 +307,7 @@ namespace Eu.EDelivery.AS4.Receivers
         private async Task CreateExceptionFile(FileSystemInfo fileInfo, Exception exception)
         {
             string fileName = fileInfo.FullName + ".details";
-            Logger.Info($"Exception Details are stored at: {fileName}");
+            Logger.Info($"Exception Details are stored at: \"{fileName}\"");
 
             using (var streamWriter = new StreamWriter(fileName))
             {
@@ -398,7 +392,7 @@ namespace Eu.EDelivery.AS4.Receivers
             }
             catch (Exception ex)
             {
-                Logger.Error($"Unable to MoveFile {fileInfo.FullName} to {destFileName}");
+                Logger.Error($"Unable to MoveFile \"{fileInfo.FullName}\" to \"{destFileName}\"");
                 Logger.Error(ex.Message);
                 Logger.Trace(ex.StackTrace);
                 return (success: false, filename: string.Empty);

@@ -46,8 +46,7 @@ namespace Eu.EDelivery.AS4.Receivers
             {
                 if (!_configuration.ContainsSendingPMode(setting.Key))
                 {
-                    Logger.Warn(
-                        $"The Processing Mode with Id {setting.Key} that is configured in a PullRequestReceiver could not be found.");
+                    Logger.Warn($"Configured SendingPMode {setting.Key} could not be found");
                     continue;
                 }
 
@@ -100,8 +99,7 @@ namespace Eu.EDelivery.AS4.Receivers
             {
                 bool isUserMessage = resultedMessage.AS4Message?.IsUserMessage == true;
                 Interval intervalResult = isUserMessage ? Interval.Reset : Interval.Increase;
-                Logger.Debug(
-                    $"'Pull Request' resulted in a '{(isUserMessage ? "User Message" : "Error")}' so the next interval will be '{intervalResult}'");
+                Logger.Debug($"PullRequest result in \"{(isUserMessage ? "UserMessage" : "Error")}\", next interval will be \"{intervalResult}\"");
 
                 return intervalResult;
             }
