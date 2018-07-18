@@ -14,7 +14,7 @@ using Reference = System.Security.Cryptography.Xml.Reference;
 
 namespace Eu.EDelivery.AS4.Security.Strategies
 {
-    public abstract class SignatureStrategy : SignedXml
+    internal abstract class SignatureStrategy : SignedXml
     {
         protected const string CidPrefix = "cid:";
 

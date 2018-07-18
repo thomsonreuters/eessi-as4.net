@@ -11,7 +11,7 @@ using NotSupportedException = System.NotSupportedException;
 
 namespace Eu.EDelivery.AS4.Agents
 {
-    public class RetryAgent : IAgent
+    internal class RetryAgent : IAgent
     {
         private readonly IReceiver _receiver;
         private readonly TimeSpan _pollingInterval;
