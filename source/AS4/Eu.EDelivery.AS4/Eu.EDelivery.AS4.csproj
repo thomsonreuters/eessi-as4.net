@@ -131,6 +131,7 @@
     <Compile Include="Builders\Entities\OutMessageBuilder.cs" />
     <Compile Include="Builders\GenericTypeBuilder.cs" />
     <Compile Include="Builders\Security\DecryptionStrategyBuilder.cs" />
+    <Compile Include="Common\IRegistry.cs" />
     <Compile Include="Entities\Journal.cs" />
     <Compile Include="Entities\RetryReliability.cs" />
     <Compile Include="Mappings\Core\ReceiptMap.cs" />

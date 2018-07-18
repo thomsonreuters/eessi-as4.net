@@ -11,11 +11,9 @@ namespace Eu.EDelivery.AS4.Common
     /// <summary>
     /// Global Registry to provide Strategies
     /// </summary>
-    public sealed class Registry
+    public sealed class Registry : IRegistry
     {
         public static readonly Registry Instance = new Registry();
-
-        private ICertificateRepository _certificateRepository;
         private Func<DatastoreContext> _createDatastore;
 
         /// <summary>
@@ -23,6 +21,8 @@ namespace Eu.EDelivery.AS4.Common
         /// </summary>
         private Registry()
         {
+            CertificateRepository = new CertificateRepository();
+
             SerializerProvider = new SerializerProvider();
 
             PayloadRetrieverProvider = new PayloadRetrieverProvider();
@@ -64,11 +64,13 @@ namespace Eu.EDelivery.AS4.Common
 
             IsInitialized = true;
 
-            string certificateTypeRepository = config.GetSetting("CertificateRepository");
-            _certificateRepository = 
-                String.IsNullOrWhiteSpace(certificateTypeRepository) 
-                    ? new CertificateRepository() 
-                    : GenericTypeBuilder.FromType(certificateTypeRepository).Build<ICertificateRepository>();
+            string certRepoType = config.GetSetting("CertificateRepository");
+            if (!String.IsNullOrWhiteSpace(certRepoType))
+            {
+                CertificateRepository = 
+                    GenericTypeBuilder.FromType(certRepoType)
+                                      .Build<ICertificateRepository>();
+            }
 
             _createDatastore = () => new DatastoreContext(config);
         }
@@ -83,8 +85,7 @@ namespace Eu.EDelivery.AS4.Common
 
         public INotifySenderProvider NotifySenderProvider { get; }
 
-        public ICertificateRepository CertificateRepository => OnlyAfterInitialized(() => _certificateRepository);
-
+        public ICertificateRepository CertificateRepository { get; private set; }
         public ISerializerProvider SerializerProvider { get; }
 
         public IAttachmentUploaderProvider AttachmentUploader { get; }

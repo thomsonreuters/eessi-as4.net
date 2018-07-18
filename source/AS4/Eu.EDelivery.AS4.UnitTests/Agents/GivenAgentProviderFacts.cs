@@ -2,10 +2,12 @@
 using System.Collections.Generic;
     using System.Linq;
 using Eu.EDelivery.AS4.Agents;
+using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.ServiceHandler.Agents;
 using Eu.EDelivery.AS4.UnitTests.Common;
 using FsCheck;
 using FsCheck.Xunit;
+using Moq;
 using Newtonsoft.Json;
 using Xunit;
 
@@ -18,7 +20,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Agents
         {
             // Arrange
             var expectedException = new Exception("ignored string");
-            var sut = new AgentProvider(new SaboteurAgentConfig(expectedException));
+            var sut = new AgentProvider(new SaboteurAgentConfig(expectedException), Mock.Of<IRegistry>());
 
             // Act
             IEnumerable<IAgent> agents = sut.GetAgents();
@@ -31,7 +33,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Agents
         public void AssembleAgentBaseClasses_IfTypeIsSpecified()
         {
             // Arrange
-            var sut = new AgentProvider(new SingleAgentConfig());
+            // Minder agents are being created and uses the registry
+            Registry.Instance.Initialize(StubConfig.Default);
+            var sut = new AgentProvider(new SingleAgentConfig(), Mock.Of<IRegistry>());
 
             // Act
             IEnumerable<IAgent> agents = sut.GetAgents();

@@ -62,7 +62,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler
                 return null;
             }
 
-            var agentProvider = new AgentProvider(config);
+            var agentProvider = new AgentProvider(config, registry);
             return new Kernel(agentProvider.GetAgents());
         }
 
