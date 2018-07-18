@@ -31,17 +31,17 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
 
         [Info("Location")]
         [Description("Folder where the payloads must be delivered")]
-        private string Location => _method["location"]?.Value;
+        private string Location => _method?["location"]?.Value;
 
         [Info("Payload Naming Pattern")]
         [Description(PayloadFileNameFactory.PatternDocumentation)]
-        private string NamePattern => _method["filenameformat"]?.Value;
+        private string NamePattern => _method?["filenameformat"]?.Value;
 
         [Info("Allow overwrite")]
         [Description(
             "When Allow overwrite is set to true, the file will be overwritten if it already exists.\n\r" +
             "When set to false, an attempt will be made to create a new unique filename. The default is false.")]
-        private string AllowOverwrite => _method["allowoverwrite"]?.Value;
+        private string AllowOverwrite => _method?["allowoverwrite"]?.Value;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="FileAttachmentUploader" /> class.

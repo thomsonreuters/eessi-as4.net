@@ -49,42 +49,56 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(MessagingContext context)
         {
+            if (context.AS4Message == null)
+            {
+                throw new InvalidOperationException(
+                    $"{nameof(DecryptAS4MessageStep)} requires a AS4Message to decrypt but hasn't got one");
+            }
+
             if (context.AS4Message.IsSignalMessage)
             {
-                Logger.Debug(
-                    "AS4Message is a SignalMessage so no decryption will happen since the AS4.NET Component only supports encryption of payloads");
-
+                Logger.Debug("AS4Message is SignalMessage so will skip decryption since AS4.NET Component only supports encryption of payloads");
                 return StepResult.Success(context);
             }
 
-            AS4Message as4Message = context.AS4Message;
-            ReceivingProcessingMode pmode = context.ReceivingPMode;
-            Decryption decryption = pmode.Security.Decryption;
+            if (context.ReceivingPMode?.Security?.Decryption == null)
+            {
+                Logger.Debug("AS4Message will not be decrypted sicne ReceivingPMode hasn't got a Security.Decryption element");
+                return StepResult.Success(context);
+            }
 
-            if (decryption.Encryption == Limit.Required && !as4Message.IsEncrypted)
+            ReceivingProcessingMode receivePMode = context.ReceivingPMode;
+            if (receivePMode.Security.Decryption.Encryption == Limit.Required && !context.AS4Message.IsEncrypted)
             {
                 return FailedDecryptResult(
-                    $"AS4Message is not encrypted but Receiving PMode {pmode.Id} requires it. " + 
+                    $"AS4Message is not encrypted but ReceivingPMode {receivePMode.Id} requires it. " + 
                     "Please alter the PMode Decryption.Encryption element to Allowed or Ignored",
                     ErrorAlias.PolicyNonCompliance,
                     context);
             }
 
-            if (decryption.Encryption == Limit.NotAllowed && as4Message.IsEncrypted)
+            if (receivePMode.Security.Decryption.Encryption == Limit.NotAllowed && context.AS4Message.IsEncrypted)
             {
                 return FailedDecryptResult(
-                    $"AS4Message is encrypted but Receiving PMode {pmode.Id} doesn't allow it. " + 
+                    $"AS4Message is encrypted but ReceivingPMode {receivePMode.Id} doesn't allow it. " + 
                     "Please alter the PMode Decryption.Encryption element to Required, Allowed or Ignored",
                     ErrorAlias.PolicyNonCompliance,
                     context);
             }
 
-            if (IsEncryptionIgnored(context) || !context.AS4Message.IsEncrypted)
+            if (!context.AS4Message.IsEncrypted)
             {
+                Logger.Debug("AS4Message is not encrypted so will skip decryption");
                 return StepResult.Success(context);
             }
 
-            return await TryDecryptAS4MessageAsync(context).ConfigureAwait(false);
+            if (context.ReceivingPMode?.Security?.Decryption?.Encryption == Limit.Ignored)
+            {
+                Logger.Debug($"Decryption is ignored in ReceivingPMode {receivePMode.Id}, so no decryption will take place");
+                return StepResult.Success(context);
+            }
+
+            return await DecryptAS4MessageAsync(context).ConfigureAwait(false);
         }
 
         private static StepResult FailedDecryptResult(string description, ErrorAlias errorAlias, MessagingContext context)
@@ -95,22 +109,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             return StepResult.Failed(context);
         }
 
-        private static bool IsEncryptionIgnored(MessagingContext messagingContext)
-        {
-            ReceivingProcessingMode pmode = messagingContext.ReceivingPMode;
-            bool isIgnored = pmode.Security.Decryption.Encryption == Limit.Ignored;
-
-            if (isIgnored)
-            {
-                Logger.Info(
-                    $"{messagingContext.LogTag} Decryption is ignored " + 
-                    $"in ReceivingPMode {pmode.Id}, so no decryption will take place");
-            }
-
-            return isIgnored;
-        }
-
-        private async Task<StepResult> TryDecryptAS4MessageAsync(MessagingContext messagingContext)
+        private async Task<StepResult> DecryptAS4MessageAsync(MessagingContext messagingContext)
         {
             try
             {

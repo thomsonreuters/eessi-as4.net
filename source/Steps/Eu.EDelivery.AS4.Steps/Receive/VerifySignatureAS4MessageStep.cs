@@ -63,16 +63,20 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
-            SigningVerification verification = DetermineSigningVerification(messagingContext);
-            AS4Message as4Message = messagingContext.AS4Message;
+            if (messagingContext.AS4Message == null)
+            {
+                throw new InvalidOperationException(
+                    $"{nameof(VerifySignatureAS4MessageStep)}requires an AS4Message to verify but hasn't got one");
+            }
 
+            SigningVerification verification = DetermineSigningVerification(messagingContext);
             if (verification == null)
             {
                 Logger.Debug("No PMode.Security.SigningVerification element found, so no signature verification will take place");
-
                 return StepResult.Success(messagingContext);
             }
 
+            AS4Message as4Message = messagingContext.AS4Message;
             (bool unsignedButRequired, string desRequired) = SigningRequiredRule(verification, as4Message);
             if (unsignedButRequired)
             {

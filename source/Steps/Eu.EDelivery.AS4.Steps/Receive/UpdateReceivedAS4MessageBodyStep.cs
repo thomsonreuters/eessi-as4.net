@@ -45,6 +45,12 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
+            if (messagingContext.AS4Message == null)
+            {
+                throw new InvalidOperationException(
+                    $"{nameof(UpdateReceivedAS4MessageBodyStep)} requires an AS4Message to update but hasn't got one");
+            }
+
             Logger.Trace("Updating the received message body...");
             using (DatastoreContext datastoreContext = _createDatastoreContext())
             {

@@ -57,16 +57,20 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
             Logger.Info($"{messagingContext.LogTag} Store the incoming AS4 Message to the datastore");
-
             if (messagingContext.ReceivedMessage == null)
             {
                 throw new InvalidOperationException(
-                    $"{messagingContext.LogTag} {nameof(SaveReceivedMessageStep)} " + 
+                    $"{nameof(SaveReceivedMessageStep)} " + 
                     "requires a ReceivedMessage to store the incoming message into the datastore");
             }
 
-            MessagingContext resultContext = await InsertReceivedAS4MessageAsync(messagingContext);
+            if (messagingContext.AS4Message == null)
+            {
+                throw new InvalidOperationException(
+                    $"{nameof(SaveReceivedMessageStep)} requires an AS4Message to save but hasn't got one")
+            }
 
+            MessagingContext resultContext = await InsertReceivedAS4MessageAsync(messagingContext);
             if (resultContext != null && resultContext.Exception == null)
             {
                 if (resultContext.AS4Message.IsSignalMessage

@@ -31,6 +31,12 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
+            if (messagingContext.AS4Message == null)
+            {
+                throw new InvalidOperationException(
+                    $"{nameof(DecompressAttachmentsStep)}requires a AS4Message but hasn't got one");
+            }
+
             if (messagingContext.ReceivedMessageMustBeForwarded)
             {
                 // When the message must be forwarded, no decompression must take place.
@@ -44,7 +50,6 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             if (messagingContext.AS4Message.HasAttachments == false)
             {
                 Logger.Debug("No decompression will happend because the AS4Message hasn't got any attachments to decompress");
-
                 return StepResult.Success(messagingContext);
             }
 

@@ -31,7 +31,7 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
         /// <param name="method"></param>
         public void Configure(Method method)
         {
-            Location = method["location"].Value;
+            Location = method?["location"]?.Value;
         }
 
         /// <summary>

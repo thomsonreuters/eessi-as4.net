@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
@@ -48,6 +49,13 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// <param name="messagingContext"></param>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
+            AS4Message receivedAS4Message = messagingContext.AS4Message;
+            if (receivedAS4Message == null)
+            {
+                throw new InvalidOperationException(
+                    $"{nameof(CreateAS4ReceiptStep)} requires an AS4Message to create a Receipt for but hasn't got one");
+            }
+
             SendingProcessingMode responseSendPMode =
                 messagingContext.SendingPMode 
                 ?? messagingContext.GetReferencedSendingPMode(messagingContext.ReceivingPMode, _config);
@@ -61,8 +69,6 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 return StepResult.Failed(messagingContext);
             }
 
-            AS4Message receivedAS4Message = messagingContext.AS4Message;
-            
             // Should we create a Receipt for each and every UserMessage that can be present in the bundle ?
             // If no UserMessages are present, an Empty AS4Message should be returned.
             AS4Message receiptMessage = AS4Message.Create(responseSendPMode);

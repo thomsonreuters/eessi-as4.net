@@ -54,6 +54,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         {
             if (messagingContext.AS4Message == null || messagingContext.AS4Message.IsEmpty)
             {
+                Logger.Debug("AS4Message is empty and not a SignalMessage so pass through this step");
                 return StepResult.Success(messagingContext);
             }
 

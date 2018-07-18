@@ -58,6 +58,10 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
             AS4Message as4Message = messagingContext.AS4Message;
+            if (as4Message == null)
+            {
+                throw new InvalidOperationException("Determination of PModes step requires an AS4Message but hasn't got one");
+            }
 
             if (as4Message.HasSignalMessage)
             {
