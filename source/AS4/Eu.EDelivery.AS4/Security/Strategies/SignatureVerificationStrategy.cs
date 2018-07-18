@@ -62,7 +62,8 @@ namespace Eu.EDelivery.AS4.Security.Strategies
         {
             using (var chain = new X509Chain())
             {
-                chain.ChainPolicy.RevocationMode = X509RevocationMode.NoCheck; // TODO: Make this configurable
+                // TODO: Make this configurable
+                chain.ChainPolicy.RevocationMode = X509RevocationMode.NoCheck;
 
                 if (allowUnknownRootAuthority)
                 {

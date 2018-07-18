@@ -68,9 +68,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
             if (verification == null)
             {
-                Logger.Debug(
-                    "No signature verification will take place for message " + 
-                    "that uses PModes without a Security.SigningVerification element");
+                Logger.Debug("No PMode.Security.SigningVerification element found, so no signature verification will take place");
 
                 return StepResult.Success(messagingContext);
             }
@@ -134,7 +132,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         private static (bool, string) SigningRequiredRule(SigningVerification v, AS4Message m)
         {
             bool isMessageFailsTheRequiredSigning = v.Signature == Limit.Required && !m.IsSigned;
-            const string description = "PMode requires a Signed AS4 Message and the message is not";
+            const string description = "PMode requires a Signed AS4Message and the message is not";
 
             return (isMessageFailsTheRequiredSigning, description);
         }
@@ -142,7 +140,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         private static (bool, string) SigningUnallowedRule(SigningVerification v, AS4Message m)
         {
             bool isMessageFailedTheUnallowedSigning = v.Signature == Limit.NotAllowed && m.IsSigned;
-            const string description = "PMode doesn't allow a signed AS4 Message and the message is";
+            const string description = "PMode doesn't allow a signed AS4Message and the message is";
 
             return (isMessageFailedTheUnallowedSigning, description);
         }
@@ -155,6 +153,11 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
             IEnumerable<AS4Message> userMessages =
                 (await ReferencedUserMessagesOf(receipts)).Where(m => m != null && m.IsSigned);
+
+            if (!userMessages.Any())
+            {
+                Logger.Warn("No referenced UserMessage(s) are found for the incoming Receipt(s)");
+            }
 
             return receipts.All(nrrReceipt =>
             {
@@ -190,6 +193,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 VerifySignatureConfig options =
                     CreateVerifyOptionsForAS4Message(messagingContext.AS4Message, verification);
 
+                Logger.Debug($"Verify signature on the AS4Message {{AllowUnknownRootCertificateAuthority={options.AllowUnknownRootCertificateAuthority}}}");
                 if (!messagingContext.AS4Message.VerifySignature(options))
                 {
                     return InvalidSignatureResult(
@@ -203,7 +207,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             }
             catch (CryptographicException exception)
             {
-                Logger.Error($"{messagingContext.LogTag} An exception occured while validating the signature");
+                Logger.Error($"{messagingContext.LogTag} An exception occured while validating the signature: {exception}");
                 return InvalidSignatureResult(
                     exception.Message, 
                     ErrorAlias.FailedAuthentication, 
@@ -224,10 +228,9 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
         private static StepResult InvalidSignatureResult(string description, ErrorAlias errorAlias, MessagingContext context)
         {
-            string prefixedDescription = $"Invalid Signature: {description}";
-            Logger.Error(prefixedDescription);
+            Logger.Error(description);
 
-            context.ErrorResult = new ErrorResult(prefixedDescription, errorAlias);
+            context.ErrorResult = new ErrorResult(description, errorAlias);
             return StepResult.Failed(context);
         }
     }
