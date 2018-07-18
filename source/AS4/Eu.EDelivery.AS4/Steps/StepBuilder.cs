@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
+using System.Reflection;
 using Eu.EDelivery.AS4.Builders;
 using Eu.EDelivery.AS4.Model.Internal;
 
@@ -45,7 +46,7 @@ namespace Eu.EDelivery.AS4.Steps
         /// Build the <see cref="IStep"/> implementation
         /// </summary>
         /// <returns></returns>
-        public IStep Build()
+        public IStep BuildAsSingleStep()
         {
             if (_conditionalStepConfig != null)
             {

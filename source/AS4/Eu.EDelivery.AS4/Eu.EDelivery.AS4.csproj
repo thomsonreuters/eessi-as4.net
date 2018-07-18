@@ -226,7 +226,6 @@
     <Compile Include="Repositories\IDatastoreRepository.cs" />
     <Compile Include="Security\Builders\EncryptedDataBuilder.cs" />
     <Compile Include="Builders\Security\EncryptionStrategyBuilder.cs" />
-    <Compile Include="Common\IRegistry.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="Common\DatastoreContext.cs" />
     <Compile Include="Entities\ExceptionEntity.cs" />

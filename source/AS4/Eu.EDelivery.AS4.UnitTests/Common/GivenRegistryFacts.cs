@@ -16,7 +16,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
     /// </summary>
     public class GivenRegistryFacts
     {
-        private IRegistry Registry { get; } = new Registry();
+        private Registry Registry { get; } = Registry.Instance;
 
         [Fact]
         public async Task ExpectedMessageBodyStores()

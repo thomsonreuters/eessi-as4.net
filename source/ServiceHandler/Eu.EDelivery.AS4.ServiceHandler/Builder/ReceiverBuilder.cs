@@ -10,7 +10,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Builder
     /// Builder to make <see cref="IReceiver"/> implementations
     /// from <see cref="Receiver"/> settings
     /// </summary>
-    public class ReceiverBuilder
+    internal class ReceiverBuilder
     {
         private Receiver _settingReceiver;
 
