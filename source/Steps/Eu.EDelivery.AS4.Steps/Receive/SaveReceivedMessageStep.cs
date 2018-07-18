@@ -67,7 +67,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             if (messagingContext.AS4Message == null)
             {
                 throw new InvalidOperationException(
-                    $"{nameof(SaveReceivedMessageStep)} requires an AS4Message to save but hasn't got one")
+                    $"{nameof(SaveReceivedMessageStep)} requires an AS4Message to save but hasn't got one");
             }
 
             MessagingContext resultContext = await InsertReceivedAS4MessageAsync(messagingContext);
