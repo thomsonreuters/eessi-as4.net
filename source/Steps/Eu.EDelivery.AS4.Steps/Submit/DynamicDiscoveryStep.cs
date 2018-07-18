@@ -32,8 +32,10 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
-            if (messagingContext.SendingPMode.DynamicDiscoverySpecified == false)
+            if (messagingContext.SendingPMode == null ||
+                messagingContext.SendingPMode.DynamicDiscoverySpecified == false)
             {
+                Logger.Debug($"Pass through dynamic discovery because SendingPMode {messagingContext.SendingPMode?.Id} hasn't a <DynamicDiscovery/> element");
                 return StepResult.Success(messagingContext);
             }
 

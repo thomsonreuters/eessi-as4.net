@@ -40,6 +40,12 @@ namespace Eu.EDelivery.AS4.Steps.Notify
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
             var notifyMessage = messagingContext.NotifyMessage;
+            if (notifyMessage == null)
+            {
+                throw new InvalidOperationException(
+                    $"{nameof(NotifyUpdateDatastoreStep)} requires a NotifyMessage to use during the update of the datastore but hasn't got one");
+            }
+
             Logger.Info($"{messagingContext.LogTag} Mark the stored notify message as Notified");
 
             await UpdateDatastoreAsync(notifyMessage, messagingContext).ConfigureAwait(false);

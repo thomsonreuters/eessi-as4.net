@@ -42,8 +42,13 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
-            Logger.Info($"{messagingContext.LogTag} Set the message's Operation = ToBeSent");
+            if (messagingContext.AS4Message == null)
+            {
+                throw new InvalidOperationException(
+                    $"{nameof(SetMessageToBeSentStep)} requires an AS4Message to mark for sending but hasn't got one");
+            }
 
+            Logger.Info($"{messagingContext.LogTag} Set the message's Operation=ToBeSent");
             if (messagingContext.MessageEntityId == null)
             {
                 throw new InvalidOperationException(

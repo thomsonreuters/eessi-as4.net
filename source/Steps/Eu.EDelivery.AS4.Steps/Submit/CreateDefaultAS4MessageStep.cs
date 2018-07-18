@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
@@ -57,6 +58,12 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
+            if (messagingContext.AS4Message == null)
+            {
+                throw new InvalidOperationException(
+                    $"{nameof(CreateDefaultAS4MessageStep)} requires an AS4Message to assign the default UserMessage to but hasn't got one");
+            }
+
             SendingProcessingMode pmode = GetDefaultPMode();
 
             UserMessage userMessage = UserMessageFactory.Instance.Create(pmode);

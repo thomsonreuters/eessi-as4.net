@@ -61,12 +61,16 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
-            Logger.Trace("Storing the AS4Message with Operation=ToBeProcessed");
+            if (messagingContext.AS4Message == null)
+            {
+                throw new InvalidOperationException(
+                    $"{nameof(StoreAS4MessageStep)} requires an AS4Message to save but hasn't got one");
+            }
 
+            Logger.Debug("Storing the AS4Message with Operation=ToBeProcessed");
             using (DatastoreContext context = _createContext())
             {
                 var service = new OutMessageService(_config, new DatastoreRepository(context), _messageBodyStore);
-
                 service.InsertAS4Message(messagingContext, Operation.ToBeProcessed);
 
                 try
@@ -83,9 +87,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
                 }
             }
 
-            Logger.Info(
-                $"{messagingContext.LogTag} Stored the AS4Message with Operation=ToBeProcesed so the next agent can handle the message");
-
+            Logger.Info($"{messagingContext.LogTag} Stored the AS4Message with Operation=ToBeProcesed so the next agent can handle the message");
             return await StepResult.SuccessAsync(messagingContext);
         }
     }

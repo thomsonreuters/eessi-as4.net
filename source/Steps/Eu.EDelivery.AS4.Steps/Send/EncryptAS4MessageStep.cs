@@ -10,6 +10,7 @@ using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Security.Encryption;
 using NLog;
+using InvalidOperationException = System.InvalidOperationException;
 
 namespace Eu.EDelivery.AS4.Steps.Send
 {
@@ -44,7 +45,13 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
-            if (!messagingContext.SendingPMode.Security.Encryption.IsEnabled)
+            if (messagingContext.AS4Message == null)
+            {
+                throw new InvalidOperationException(
+                    $"{nameof(EncryptAS4MessageStep)} requires an AS4Message to encrypt but hasn't got one");
+            }
+
+            if (messagingContext.SendingPMode?.Security?.Encryption?.IsEnabled == false)
             {
                 Logger.Debug(
                     "No encryption of the AS4Message will happen because the " + 

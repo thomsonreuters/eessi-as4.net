@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -35,6 +36,12 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
+            if (messagingContext.AS4Message == null)
+            {
+                throw new InvalidOperationException(
+                    $"{nameof(ZipAttachmentsStep)} requires an AS4Message to zip the attachments but hasn't got one");
+            }
+
             if (messagingContext.AS4Message.Attachments.Count() > 1)
             {
                 Stream zippedStream = await ZipAttachmentsInAS4Message(messagingContext.AS4Message).ConfigureAwait(false);
