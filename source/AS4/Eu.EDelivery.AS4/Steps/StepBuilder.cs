@@ -10,7 +10,7 @@ namespace Eu.EDelivery.AS4.Steps
     /// Builder to make <see cref="IStep"/> implementation
     /// from <see cref="Step"/> settings
     /// </summary>
-    public class StepBuilder
+    internal class StepBuilder
     {
         private readonly Step[] _stepConfiguration;
         private readonly ConditionalStepConfig _conditionalStepConfig;

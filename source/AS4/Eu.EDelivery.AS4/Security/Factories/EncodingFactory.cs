@@ -23,38 +23,42 @@ namespace Eu.EDelivery.AS4.Security.Factories
         /// <param name="digestAlgorithm"></param>
         /// <param name="mgfAlgorithm"></param>
         /// <returns></returns>
-        public OaepEncoding Create(string digestAlgorithm = EncryptionStrategy.XmlEncSHA1Url, string mgfAlgorithm = null)
+        public OaepEncoding Create(string digestAlgorithm = CryptoStrategy.XmlEncSHA1Url, string mgfAlgorithm = null)
         {
-            var digest = !string.IsNullOrWhiteSpace(digestAlgorithm) ? GetDigest(digestAlgorithm) : new Sha1Digest();
-            var mgf = !string.IsNullOrWhiteSpace(mgfAlgorithm) ? GetMgf(mgfAlgorithm) : new Sha1Digest();
+            IDigest digest = GetDigestForAlgorithm(digestAlgorithm);
+            IDigest mgf = GetMgfForAlgorithm(mgfAlgorithm);
 
-            return CreateEncoding(digest, mgf);
+            return new OaepEncoding(
+                cipher: new RsaEngine(),                
+                hash: digest,
+                mgf1Hash: mgf,
+                encodingParams: new byte[0]);
         }
 
-        private static IDigest GetDigest(string algorithm)
+        private static IDigest GetDigestForAlgorithm(string algorithm)
         {
+            if (string.IsNullOrWhiteSpace(algorithm))
+            {
+                return new Sha1Digest();
+            }
+
             return DigestUtilities.GetDigest(algorithm.Substring(algorithm.IndexOf('#') + 1));
         }
 
-        private static IDigest GetMgf(string algorithm)
+        private static IDigest GetMgfForAlgorithm(string algorithm)
         {
-            int startIndex = algorithm.IndexOf("#mgf1", StringComparison.OrdinalIgnoreCase) + 5;
+            if (string.IsNullOrWhiteSpace(algorithm))
+            {
+                return new Sha1Digest();
+            }
 
+            int startIndex = algorithm.IndexOf("#mgf1", StringComparison.OrdinalIgnoreCase) + 5;
             if (startIndex > algorithm.Length)
             {
                 return new Sha1Digest();
             }
 
             return DigestUtilities.GetDigest(algorithm.Substring(startIndex));
-        }
-
-        private static OaepEncoding CreateEncoding(IDigest digest, IDigest mgf)
-        {         
-            return new OaepEncoding(
-                cipher: new RsaEngine(),                
-                hash: digest,
-                mgf1Hash: mgf,
-                encodingParams: new byte[0]);
         }
     }
 }
