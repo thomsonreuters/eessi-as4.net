@@ -9,7 +9,7 @@ namespace Eu.EDelivery.AS4.Builders.Entities
     /// <summary>
     /// Builder to create <see cref="OutMessage"/> Models
     /// </summary>
-    internal class OutMessageBuilder
+    public class OutMessageBuilder
     {
         private readonly MessageUnit _messageUnit;
         private readonly string _contentType;
