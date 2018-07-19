@@ -32,7 +32,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
         public async Task FailsToTransform_IfMessageDoesntHaveAnyMatchingSignalMessages()
         {
             // Arrange
-            ReceivedMessageEntityMessage receival = await CreateInvalidReceivedReceiptMessage();
+            ReceivedEntityMessage receival = await CreateInvalidReceivedReceiptMessage();
 
             // Act / Assert
             await Assert.ThrowsAnyAsync<Exception>(() => ExerciseTransform(receival));
@@ -42,7 +42,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
         public async Task ThenNotifyMessageHasCorrectStatusCode()
         {
             // Arrange
-            ReceivedMessageEntityMessage receivedSignal = await CreateReceivedReceiptMessage();
+            ReceivedEntityMessage receivedSignal = await CreateReceivedReceiptMessage();
 
             // Act
             MessagingContext result = await ExerciseTransform(receivedSignal);
@@ -57,7 +57,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
         public async Task ThenSignalMessageIsTransformedToNotifyEnvelopeWithCorrectContents()
         {
             // Arrange
-            ReceivedMessageEntityMessage receivedSignal = await CreateReceivedReceiptMessage();
+            ReceivedEntityMessage receivedSignal = await CreateReceivedReceiptMessage();
 
             // Act
             MessagingContext result = await ExerciseTransform(receivedSignal);
@@ -83,8 +83,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
         public async Task ThenSignalMessageIsTransformedToNotifyEnvelopeWithCorrectMessageInfo()
         {
             // Arrange
-            ReceivedMessageEntityMessage receivedSignal = await CreateReceivedReceiptMessage();
-            MessageEntity receivedMessageEntity = receivedSignal.MessageEntity;
+            ReceivedEntityMessage receivedSignal = await CreateReceivedReceiptMessage();
+            var receivedMessageEntity = (MessageEntity) receivedSignal.Entity;
 
             // Act
             MessagingContext result = await ExerciseTransform(receivedSignal);
@@ -117,7 +117,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             return new StreamReader(stream).ReadToEnd();
         }
 
-        private static async Task<ReceivedMessageEntityMessage> CreateInvalidReceivedReceiptMessage()
+        private static async Task<ReceivedEntityMessage> CreateInvalidReceivedReceiptMessage()
         {
             var receiptContent = new MemoryStream(Encoding.UTF8.GetBytes(Properties.Resources.receipt));
 
@@ -128,12 +128,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             InMessage receiptInMessage = new InMessage("non-existing-id");
             receiptInMessage.EbmsMessageType = MessageType.Receipt;
 
-            var receivedMessage = new ReceivedMessageEntityMessage(receiptInMessage, receiptContent, receipt.ContentType);
+            var receivedMessage = new ReceivedEntityMessage(receiptInMessage, receiptContent, receipt.ContentType);
 
             return receivedMessage;
         }
 
-        private static async Task<ReceivedMessageEntityMessage> CreateReceivedReceiptMessage()
+        private static async Task<ReceivedEntityMessage> CreateReceivedReceiptMessage()
         {
             var receiptContent = new MemoryStream(Encoding.UTF8.GetBytes(Properties.Resources.receipt));
 
@@ -143,7 +143,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             receiptContent.Position = 0;
             InMessage receiptInMessage = CreateInMessageFor(receiptMessage);
 
-            var receivedMessage = new ReceivedMessageEntityMessage(receiptInMessage, receiptContent, receiptInMessage.ContentType);
+            var receivedMessage = new ReceivedEntityMessage(receiptInMessage, receiptContent, receiptInMessage.ContentType);
 
             return receivedMessage;
         }

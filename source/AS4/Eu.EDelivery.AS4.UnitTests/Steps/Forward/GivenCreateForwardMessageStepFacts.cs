@@ -89,14 +89,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Forward
 
             private MessagingContext ContextWithReferencedToBeForwardMessage()
             {
-                ReceivedMessageEntityMessage receivedMessage;
+                ReceivedEntityMessage receivedMessage;
 
                 using (DatastoreContext db = GetDataStoreContext())
                 {
                     InMessage inMessage =
                         db.InMessages.First(m => m.Operation == Operation.ToBeForwarded);
 
-                    receivedMessage = new ReceivedMessageEntityMessage(inMessage, Stream.Null, "");
+                    receivedMessage = new ReceivedEntityMessage(inMessage, Stream.Null, "");
                 }
 
                 return new MessagingContext(receivedMessage, MessagingContextMode.Forward)

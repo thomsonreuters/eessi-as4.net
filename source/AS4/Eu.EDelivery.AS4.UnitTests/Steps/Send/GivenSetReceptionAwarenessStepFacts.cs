@@ -87,7 +87,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
                     dbContext.SaveChanges();
                 }
 
-                var receivedMessage = new ReceivedMessageEntityMessage(outMessage, Stream.Null, as4Message.ContentType);
+                var receivedMessage = new ReceivedEntityMessage(outMessage, Stream.Null, as4Message.ContentType);
 
                 var context = new MessagingContext(receivedMessage, MessagingContextMode.Unknown)
                 {

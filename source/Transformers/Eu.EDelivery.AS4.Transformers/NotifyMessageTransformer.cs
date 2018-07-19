@@ -54,9 +54,9 @@ namespace Eu.EDelivery.AS4.Transformers
                 return CreateAS4ErrorFromException(ex);
             }
 
-            if (receivedMessage is ReceivedMessageEntityMessage me)
+            if (receivedMessage.Entity is MessageEntity me)
             {
-                return await RetrieveAS4MessageForNotificationFromReceivedMessage(me);
+                return await RetrieveAS4MessageForNotificationFromReceivedMessage(me.EbmsMessageId, receivedMessage);
             }
 
             throw new InvalidOperationException();
@@ -81,7 +81,9 @@ namespace Eu.EDelivery.AS4.Transformers
                 .Build();
         }
 
-        private static async Task<AS4Message> RetrieveAS4MessageForNotificationFromReceivedMessage(ReceivedMessageEntityMessage entityMessage)
+        private static async Task<AS4Message> RetrieveAS4MessageForNotificationFromReceivedMessage(
+            string ebmsMessageId,
+            ReceivedMessage entityMessage)
         {
             var as4Transformer = new AS4MessageTransformer();
             var messagingContext = await as4Transformer.TransformAsync(entityMessage);
@@ -94,13 +96,13 @@ namespace Eu.EDelivery.AS4.Transformers
             // Remove all signal-messages except the one that we should be notifying
             // Create the DeliverMessage for this specific UserMessage that has been received.
             var signalMessage = 
-                as4Message.SignalMessages.FirstOrDefault(m => m.MessageId.Equals(entityMessage.MessageEntity.EbmsMessageId, StringComparison.OrdinalIgnoreCase));
+                as4Message.SignalMessages.FirstOrDefault(m => m.MessageId.Equals(ebmsMessageId, StringComparison.OrdinalIgnoreCase));
 
             if (signalMessage == null)
             {
                 throw new InvalidOperationException(
                     $"Incoming SignalMessage from {entityMessage.Origin} with ID " + 
-                    $"{entityMessage.MessageEntity.EbmsMessageId} could not be found in the referenced AS4Message");
+                    $"{ebmsMessageId} could not be found in the referenced AS4Message");
             }
 
             return as4Message;
