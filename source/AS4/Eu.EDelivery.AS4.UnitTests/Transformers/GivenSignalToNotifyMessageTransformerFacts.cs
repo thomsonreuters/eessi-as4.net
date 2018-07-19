@@ -122,13 +122,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             var receiptContent = new MemoryStream(Encoding.UTF8.GetBytes(Properties.Resources.receipt));
 
             ISerializer serializer = SerializerProvider.Default.Get(Constants.ContentTypes.Soap);
-            await serializer.DeserializeAsync(receiptContent, Constants.ContentTypes.Soap, CancellationToken.None);
+            AS4Message receipt = await serializer.DeserializeAsync(receiptContent, Constants.ContentTypes.Soap, CancellationToken.None);
 
             receiptContent.Position = 0;
             InMessage receiptInMessage = new InMessage("non-existing-id");
             receiptInMessage.EbmsMessageType = MessageType.Receipt;
 
-            var receivedMessage = new ReceivedMessageEntityMessage(receiptInMessage, receiptContent, receiptInMessage.ContentType);
+            var receivedMessage = new ReceivedMessageEntityMessage(receiptInMessage, receiptContent, receipt.ContentType);
 
             return receivedMessage;
         }
