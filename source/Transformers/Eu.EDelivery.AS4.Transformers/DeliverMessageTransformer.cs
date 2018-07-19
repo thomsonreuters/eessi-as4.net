@@ -25,7 +25,6 @@ namespace Eu.EDelivery.AS4.Transformers
         public async Task<MessagingContext> TransformAsync(ReceivedMessage message)
         {
             var entityMessage = message as ReceivedMessageEntityMessage;
-
             if (entityMessage == null)
             {
                 throw new InvalidDataException(
@@ -38,7 +37,8 @@ namespace Eu.EDelivery.AS4.Transformers
 
             if (transformedMessage.AS4Message.UserMessages.Any() == false)
             {
-                throw new InvalidOperationException("The AS4Message should contain only one UserMessage.");
+                throw new InvalidOperationException(
+                    $"Incoming AS4Message stream from {message.Origin} should contain only a single UserMessage");
             }
 
             return transformedMessage;

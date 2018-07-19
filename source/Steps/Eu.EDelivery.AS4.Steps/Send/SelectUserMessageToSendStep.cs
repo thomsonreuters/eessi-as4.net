@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
@@ -60,7 +61,6 @@ namespace Eu.EDelivery.AS4.Steps.Send
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
             var pullRequest = messagingContext.AS4Message.FirstSignalMessage as PullRequest;
-
             if (pullRequest == null)
             {
                 throw new InvalidMessageException(
@@ -68,27 +68,21 @@ namespace Eu.EDelivery.AS4.Steps.Send
                     "so no UserMessage can be selected to return to the sender");
             }
 
-            (bool hasMatch, OutMessage match) selection = RetrieveUserMessageForPullRequest(pullRequest);
-
-            if (selection.hasMatch)
+            (bool hasMatch, OutMessage match) = RetrieveUserMessageForPullRequest(pullRequest);
+            if (hasMatch)
             {
-                Logger.Info(
-                    $"{messagingContext.LogTag} UserMessage found for PullRequest: {messagingContext.AS4Message.GetPrimaryMessageId()}");
-
                 // Retrieve the existing MessageBody and put that stream in the MessagingContext.
                 // The HttpReceiver processor will make sure that it gets serialized to the http response stream.
+                Stream messageBody = await match.RetrieveMessageBody(_messageBodyStore).ConfigureAwait(false);
 
-                var messageBody = await selection.match.RetrieveMessageBody(_messageBodyStore).ConfigureAwait(false);
+                messagingContext.ModifyContext(
+                    new ReceivedMessage(messageBody, match.ContentType), 
+                    MessagingContextMode.Send);
 
-                messagingContext.ModifyContext(new ReceivedMessage(messageBody, selection.match.ContentType), MessagingContextMode.Send);
-
-                messagingContext.SendingPMode = AS4XmlSerializer.FromString<SendingProcessingMode>(selection.match.PMode);
+                messagingContext.SendingPMode = AS4XmlSerializer.FromString<SendingProcessingMode>(match.PMode);
 
                 return StepResult.Success(messagingContext);
             }
-
-            Logger.Warn(
-                $"{messagingContext.LogTag} No UserMessage found for PullRequest: {messagingContext.AS4Message.GetPrimaryMessageId()}");
 
             AS4Message pullRequestWarning = AS4Message.Create(new PullRequestError());
             messagingContext.ModifyContext(pullRequestWarning);
@@ -96,17 +90,19 @@ namespace Eu.EDelivery.AS4.Steps.Send
             return StepResult.Success(messagingContext).AndStopExecution();
         }
 
-        private (bool, OutMessage) RetrieveUserMessageForPullRequest(PullRequest pullRequestMessage)
+        private (bool, OutMessage) RetrieveUserMessageForPullRequest(PullRequest pullRequest)
         {
             using (DatastoreContext context = _createContext())
             {
                 context.Database.BeginTransaction(System.Data.IsolationLevel.RepeatableRead);
 
-                OutMessage message =
-                        context.OutMessages.Where(PullRequestQuery(pullRequestMessage))
-                                           .OrderBy(m => m.InsertionTime).Take(1).FirstOrDefault();
+                OutMessage message = context.OutMessages
+                    .Where(PullRequestQuery(pullRequest))
+                    .OrderBy(m => m.InsertionTime).Take(1).FirstOrDefault();
+
                 if (message == null)
                 {
+                    Logger.Warn($"No UserMessage found for PullRequest.Mpc: {pullRequest.Mpc}");
                     return (false, null);
                 }
 
@@ -115,14 +111,14 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 context.SaveChanges();
                 context.Database.CommitTransaction();
 
+                Logger.Info($"(PullSend) UserMessage found for PullRequest.Mpc: {pullRequest.Mpc}");
                 return (true, message);
             }
         }
 
         private static Expression<Func<OutMessage, bool>> PullRequestQuery(PullRequest pullRequest)
         {
-            Logger.Debug(
-                $"Query UserMessages with MPC={pullRequest.Mpc} && Operation=ToBeSent && MEP=Pull");
+            Logger.Debug($"Query UserMessages with MPC={pullRequest.Mpc} && Operation=ToBeSent && MEP=Pull");
 
             return m => m.Mpc == pullRequest.Mpc &&
                         m.Operation == Operation.ToBeSent &&

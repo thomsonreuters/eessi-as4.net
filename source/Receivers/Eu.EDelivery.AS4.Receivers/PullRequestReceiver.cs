@@ -76,7 +76,11 @@ namespace Eu.EDelivery.AS4.Receivers
         {
             _messageCallback = async message =>
             {
-                var receivedMessage = new ReceivedMessage(await AS4XmlSerializer.ToStreamAsync(message.PMode), Constants.ContentTypes.Soap);
+                var receivedMessage = new ReceivedMessage(
+                    underlyingStream: await AS4XmlSerializer.ToStreamAsync(message.PMode), 
+                    contentType: Constants.ContentTypes.Soap,
+                    origin: message.PMode?.PushConfiguration?.Protocol?.Url ?? "unknown");
+
                 return await messageCallback(receivedMessage, cancellationToken);
             };
 

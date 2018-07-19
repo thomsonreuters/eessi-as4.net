@@ -32,7 +32,7 @@ namespace Eu.EDelivery.AS4.Transformers
             if (entityMessage == null)
             {
                 throw new NotSupportedException(
-                    "The message that must be transformed should be of type ReceivedEntityMessage");
+                    $"Incoming message stream from {message.Origin} that must be transformed should be of type {nameof(ReceivedEntityMessage)}");
             }
 
             // Get the one signal-message that must be notified.
@@ -98,7 +98,9 @@ namespace Eu.EDelivery.AS4.Transformers
 
             if (signalMessage == null)
             {
-                throw new InvalidOperationException($"The SignalMessage with ID {entityMessage.MessageEntity.EbmsMessageId} could not be found in the referenced AS4Message.");
+                throw new InvalidOperationException(
+                    $"Incoming SignalMessage from {entityMessage.Origin} with ID " + 
+                    $"{entityMessage.MessageEntity.EbmsMessageId} could not be found in the referenced AS4Message");
             }
 
             return as4Message;

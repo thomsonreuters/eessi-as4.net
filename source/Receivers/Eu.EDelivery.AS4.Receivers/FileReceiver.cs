@@ -273,7 +273,11 @@ namespace Eu.EDelivery.AS4.Receivers
                         {
                             fileStream.Seek(0, SeekOrigin.Begin);
 
-                            var receivedMessage = new ReceivedMessage(fileStream, _.contentType);
+                            var receivedMessage = new ReceivedMessage(
+                                underlyingStream: fileStream, 
+                                contentType: _.contentType,
+                                origin: result.filename,
+                                length: _.fileInfo.Length);
                             messagingContext = await messageCallback(receivedMessage, token).ConfigureAwait(false);
                         }
 

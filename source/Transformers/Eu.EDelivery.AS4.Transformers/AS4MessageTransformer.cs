@@ -59,12 +59,14 @@ namespace Eu.EDelivery.AS4.Transformers
         {
             if (message.UnderlyingStream == null)
             {
-                throw new InvalidDataException("The incoming stream is not an ebMS Message");
+                throw new InvalidDataException(
+                    $"The incoming stream from {message.Origin} is not an ebMS Message");
             }
 
             if (!ContentTypeSupporter.IsContentTypeSupported(message.ContentType))
             {
-                throw new InvalidDataException($"ContentType is not supported {nameof(message.ContentType)}");
+                throw new InvalidDataException(
+                    $"ContentType {nameof(message.ContentType)} is not supported");
             }
 
             Logger.Debug("Transform AS4 Message to Messaging Context");
