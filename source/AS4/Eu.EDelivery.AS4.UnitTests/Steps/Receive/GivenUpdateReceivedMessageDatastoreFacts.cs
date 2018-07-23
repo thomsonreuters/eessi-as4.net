@@ -30,6 +30,19 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
         }
 
         [Fact]
+        public async Task FailsToUpdateMessage_IfNoMessageLocationCanBeFound()
+        {
+            // Arrange
+            AS4Message as4Message = AS4Message.Create(new UserMessage($"user-{Guid.NewGuid()}"));
+            var context = new MessagingContext(as4Message, MessagingContextMode.Unknown);
+            var sut = new UpdateReceivedAS4MessageBodyStep(GetDataStoreContext, _messageBodyStore);
+
+            // Act / Assert
+            await Assert.ThrowsAnyAsync<InvalidDataException>(
+                () => sut.ExecuteAsync(context));
+        }
+
+        [Fact]
         public async Task Updates_ToBeNotified_When_Specified_SendingPMode_And_Reference_InMessage()
         {
             // Arrange
