@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Extensions;
@@ -116,10 +114,9 @@ namespace Eu.EDelivery.AS4.Transformers
                         $@"{description} Configured Receiving PModes are placed on the folder: '.\config\receive-pmodes\'.");
 
                     var errorResult = new ErrorResult(description, ErrorAlias.ProcessingModeMismatch);
-                    var as4Error = new ErrorBuilder(IdentifierFactory.Instance.Create())
-                        .WithErrorResult(errorResult)
-                        .WithRefToEbmsMessageId(as4Message.GetPrimaryMessageId())
-                        .Build();
+                    var as4Error = new Error(
+                        as4Message.GetPrimaryMessageId() ?? IdentifierFactory.Instance.Create(),
+                        ErrorLine.FromErrorResult(errorResult));
 
                     return new MessagingContext(
                         AS4Message.Create(as4Error), MessagingContextMode.Receive)

@@ -1,5 +1,4 @@
 ﻿using System;
-using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Builders.Entities;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
@@ -94,10 +93,9 @@ namespace Eu.EDelivery.AS4.Services
 
         private static Error CreateError(string messageId)
         {
-            return new ErrorBuilder()
-                .WithRefToEbmsMessageId(messageId)
-                .WithErrorResult(new ErrorResult($"[{messageId}] Missing Receipt", ErrorAlias.MissingReceipt))
-                .Build();
+            return Error.FromErrorResult(
+                refToMessageId: messageId, 
+                result: new ErrorResult("Missing Receipt", ErrorAlias.MissingReceipt));
         }
 
         /// <summary>

@@ -36,7 +36,7 @@ namespace AS4.ParserService.Services
                 {
                     return DecodeResult.CreateAccepted(as4Message.FirstSignalMessage is Receipt ? EbmsMessageType.Receipt : EbmsMessageType.Error,
                                                        as4Message.GetPrimaryMessageId(),
-                                                       (as4Message.FirstSignalMessage as Error)?.Errors);
+                                                       (as4Message.FirstSignalMessage as Error)?.ErrorLines);
                 }
 
                 // Start Processing
@@ -122,7 +122,7 @@ namespace AS4.ParserService.Services
 
             // What we have now, must an error.
             return DecodeResult.CreateWithError(Serializer.ToByteArray(processingResult.AS4Message),
-                                                ((Error) processingResult.AS4Message.FirstSignalMessage).Errors,
+                                                ((Error) processingResult.AS4Message.FirstSignalMessage).ErrorLines,
                                                 processingResult.AS4Message.FirstSignalMessage.RefToMessageId,
                                                 processingResult.AS4Message.FirstSignalMessage.MessageId);
         }

@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
@@ -51,7 +50,11 @@ namespace Eu.EDelivery.AS4.Transformers
         {
             if (receivedMessage.Entity is ExceptionEntity ex)
             {
-                return CreateAS4ErrorFromException(ex);
+                Error error = Error.FromErrorResult(
+                    ex.EbmsRefToMessageId, 
+                    new ErrorResult(ex.Exception, ErrorAlias.Other));
+
+                return AS4Message.Create(error, new SendingProcessingMode());
             }
 
             if (receivedMessage.Entity is MessageEntity me)
@@ -62,28 +65,7 @@ namespace Eu.EDelivery.AS4.Transformers
             throw new InvalidOperationException();
         }
 
-        private static AS4Message CreateAS4ErrorFromException(ExceptionEntity exceptionEntity)
-        {
-            Error error = CreateSignalErrorMessage(exceptionEntity);
-
-            AS4Message as4Message = AS4Message.Create(error, new SendingProcessingMode());
-
-            return as4Message;
-        }
-
-        private static Error CreateSignalErrorMessage(ExceptionEntity exceptionEntity)
-        {
-            var errorResult = new ErrorResult(exceptionEntity.Exception, ErrorAlias.Other);
-
-            return new ErrorBuilder()
-                .WithRefToEbmsMessageId(exceptionEntity.EbmsRefToMessageId)
-                .WithErrorResult(errorResult)
-                .Build();
-        }
-
-        private static async Task<AS4Message> RetrieveAS4MessageForNotificationFromReceivedMessage(
-            string ebmsMessageId,
-            ReceivedMessage entityMessage)
+        private static async Task<AS4Message> RetrieveAS4MessageForNotificationFromReceivedMessage(string ebmsMessageId, ReceivedMessage entityMessage)
         {
             var as4Transformer = new AS4MessageTransformer();
             var messagingContext = await as4Transformer.TransformAsync(entityMessage);

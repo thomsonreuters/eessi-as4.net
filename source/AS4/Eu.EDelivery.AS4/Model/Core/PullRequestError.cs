@@ -1,7 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using Eu.EDelivery.AS4.Exceptions;
+using Eu.EDelivery.AS4.Factories;
 
 namespace Eu.EDelivery.AS4.Model.Core
 {
@@ -13,26 +13,37 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// <summary>
         /// Initializes a new instance of the <see cref="PullRequestError"/> class.
         /// </summary>
-        public PullRequestError()
-        {
-            Errors = new List<ErrorDetail>
-            {
-                new ErrorDetail
-                {
-                    ErrorCode = $"EBMS:{(int) ErrorCode.Ebms0006:0000}",
-                    Severity = Severity.WARNING,
-                    ShortDescription = "EmptyMessagePartitionChannel"
-                }
-            };
-        }
+        public PullRequestError() 
+            : base(
+                messageId: null, 
+                refToMessageId: null, 
+                line: new ErrorLine(
+                    ErrorCode.Ebms0006,
+                    Severity.WARNING,
+                    ErrorAlias.EmptyMessagePartitionChannel)) { }
 
-        /// <summary>Indicates whether the current object is equal to another object of the same type.</summary>
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PullRequestError"/> class.
+        /// </summary>
+        /// <param name="refToMessageId"></param>
+        public PullRequestError(string refToMessageId)
+            : base(
+                IdentifierFactory.Instance.Create(),
+                refToMessageId,
+                new ErrorLine(
+                    ErrorCode.Ebms0006,
+                    Severity.WARNING,
+                    ErrorAlias.EmptyMessagePartitionChannel)) { }
+
+        /// <summary>I
+        /// ndicates whether the current object is equal to another object of the same type.
+        /// </summary>
         /// <returns>true if the current object is equal to the <paramref name="other" /> parameter; otherwise, false.</returns>
         /// <param name="other">An object to compare with this object.</param>
         public bool Equals(PullRequestError other)
         {
-            ErrorDetail thisDetail = Errors.First();
-            ErrorDetail otherDetail = other.Errors.First();
+            ErrorLine thisDetail = ErrorLines.First();
+            ErrorLine otherDetail = other.ErrorLines.First();
 
             return thisDetail.ErrorCode == otherDetail.ErrorCode 
                    && thisDetail.Severity == otherDetail.Severity

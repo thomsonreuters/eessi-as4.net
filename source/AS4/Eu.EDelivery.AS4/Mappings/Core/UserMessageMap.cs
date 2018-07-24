@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using AutoMapper;
 using static Eu.EDelivery.AS4.Singletons.AS4Mapper;
@@ -68,15 +69,13 @@ namespace Eu.EDelivery.AS4.Mappings.Core
                     new Model.Core.UserMessage(
                         messageId: xml.MessageInfo?.MessageId,
                         refToMessageId: xml.MessageInfo?.RefToMessageId,
+                        timestamp: xml.MessageInfo?.Timestamp ?? DateTimeOffset.Now,
                         mpc: xml.mpc ?? Constants.Namespaces.EbmsDefaultMpc,
                         collaboration: Map<Model.Core.CollaborationInfo>(xml.CollaborationInfo),
                         sender: Map<Model.Core.Party>(xml.PartyInfo?.From),
                         receiver: Map<Model.Core.Party>(xml.PartyInfo?.To),
                         partInfos: MapPartInfos(xml.PayloadInfo),
                         messageProperties: MapMessageProperties(xml.MessageProperties)))
-                .ForMember(dest => dest.MessageId, src => src.MapFrom(t => t.MessageInfo.MessageId))
-                .ForMember(dest => dest.RefToMessageId, src => src.MapFrom(t => t.MessageInfo.RefToMessageId))
-                .ForMember(dest => dest.Timestamp, src => src.MapFrom(t => t.MessageInfo.Timestamp))
                 .ForMember(dest => dest.IsTest, src => src.Ignore())
                 .ForMember(dest => dest.IsDuplicate, src => src.Ignore())
                 .ForAllOtherMembers(x => x.Ignore());

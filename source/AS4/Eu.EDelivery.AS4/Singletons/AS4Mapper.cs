@@ -61,5 +61,17 @@ namespace Eu.EDelivery.AS4.Singletons
         {
             return Mapper.Map<TDestination>(source);
         }
+
+        /// <summary>
+        /// Map/Project the given source Model to a given Destination Model
+        /// </summary>
+        /// <typeparam name="TDestination"></typeparam>
+        /// <param name="source"></param>
+        /// <param name="setMappingOptions"></param>
+        /// <returns></returns>
+        public static TDestination Map<TDestination>(object source, Action<IMappingOperationOptions> setMappingOptions)
+        {
+            return Mapper.Map<TDestination>(source, setMappingOptions);
+        }
     }
 }

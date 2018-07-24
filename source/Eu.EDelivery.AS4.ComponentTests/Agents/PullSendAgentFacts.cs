@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using Eu.EDelivery.AS4.ComponentTests.Common;
 using Eu.EDelivery.AS4.ComponentTests.Extensions;
 using Eu.EDelivery.AS4.Entities;
+using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Core;
@@ -155,20 +156,13 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
         private static Error CreateErrorRefTo(string userMessageId)
         {
-            return new Error($"error-{Guid.NewGuid()}")
-            {
-                RefToMessageId = userMessageId,
-                Errors = new List<ErrorDetail>
-                {
-                    new ErrorDetail
-                    {
-                        ErrorCode = "EBMS:0004",
-                        Detail = "some test error",
-                        Severity = Severity.FAILURE,
-                        ShortDescription = "Other"
-                    }
-                }
-            };
+            return new Error(
+                $"error-{Guid.NewGuid()}",
+                userMessageId,
+                new ErrorLine(
+                    ErrorCode.Ebms0004,
+                    Severity.FAILURE,
+                    ErrorAlias.Other));
         }
 
         [Fact]

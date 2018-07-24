@@ -16,6 +16,7 @@ using Eu.EDelivery.AS4.Security.Signing;
 using Eu.EDelivery.AS4.Security.Strategies;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Streaming;
+using Eu.EDelivery.AS4.Xml;
 using MimeKit;
 
 namespace Eu.EDelivery.AS4.Model.Core
@@ -60,7 +61,7 @@ namespace Eu.EDelivery.AS4.Model.Core
         {
             get
             {
-                return (__hasMultiHopAttribute ?? false) || FirstSignalMessage?.MultiHopRouting != null || _serializeAsMultiHop;
+                return (__hasMultiHopAttribute ?? false) || (FirstSignalMessage?.IsMultihopSignal ?? false) || _serializeAsMultiHop;
             }
         }
 
@@ -114,7 +115,7 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// <param name="bodyElement"></param>
         ///<remarks>This method should only be used when creating an AS4 Message via deserialization.</remarks>
         /// <returns></returns>
-        internal static AS4Message Create(
+        internal static async Task<AS4Message> CreateAsync(
             XmlDocument soapEnvelope, 
             string contentType, 
             SecurityHeader securityHeader, 
@@ -173,7 +174,7 @@ namespace Eu.EDelivery.AS4.Model.Core
             result.SigningId = new SigningId(messagingHeader.SecurityId, bodySecurityId);
 
             result._messageUnits.AddRange(
-                SoapEnvelopeSerializer.GetMessageUnitsFromMessagingHeader(soapEnvelope, messagingHeader));
+                await SoapEnvelopeSerializer.GetMessageUnitsFromMessagingHeader(soapEnvelope, messagingHeader));
 
             return result;
         }
@@ -199,6 +200,21 @@ namespace Eu.EDelivery.AS4.Model.Core
             AS4Message as4Message = Create(pmode);
 
             as4Message.AddMessageUnit(message);
+
+            return as4Message;
+        }
+
+        /// <summary>
+        /// Creates message with <see cref="MessageUnit"/>'s and a optional <see cref="SendingProcessingMode"/>.
+        /// </summary>
+        /// <param name="messages">The messages.</param>
+        /// <param name="pmode">The pmode.</param>
+        /// <returns></returns>
+        public static AS4Message Create(IEnumerable<MessageUnit> messages, SendingProcessingMode pmode = null)
+        {
+            AS4Message as4Message = Create(pmode);
+
+            as4Message.AddMessageUnits(messages);
 
             return as4Message;
         }
@@ -234,6 +250,20 @@ namespace Eu.EDelivery.AS4.Model.Core
             _messageUnits.Remove(old);
             _messageUnits.Add(replacement);
             EnvelopeDocument = null;
+        }
+
+        /// <summary>
+        /// Adds <see cref="MessageUnit"/>'s to the AS4 Message.
+        /// </summary>
+        /// <param name="messageUnits">The MessageUnits, which can be a signalmessage or a usermessage.</param>
+        /// <remarks>Adding a MessageUnit will cause the EnvelopeDocument property to be set to null, since the 
+        /// Envelope Document will no longer be in-sync.</remarks>
+        public void AddMessageUnits(IEnumerable<MessageUnit> messageUnits)
+        {
+            foreach (MessageUnit messageUnit in messageUnits)
+            {
+                AddMessageUnit(messageUnit);
+            }
         }
 
         /// <summary>
@@ -356,7 +386,7 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// <param name="payloads">The payloads.</param>
         /// <param name="retrieval">The retrieval.</param>
         /// <returns></returns>
-        /// <exception cref="Exception">A delegate callback throws an exception.</exception>
+        /// <exception cref="System.Exception">A delegate callback throws an exception.</exception>
         /// <exception cref="InvalidOperationException">Throws when an <see cref="Attachment"/> is being added to a non-UserMessage</exception>
         public async Task AddAttachments(IReadOnlyList<Payload> payloads, Func<Payload, Task<Stream>> retrieval)
         {

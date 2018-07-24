@@ -149,8 +149,8 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                             var e = (Error) m;
 
                             Assert.Equal(
-                                ErrorAlias.ProcessingModeMismatch.ToString(),
-                                e.Errors.First().ShortDescription);
+                                ErrorAlias.ProcessingModeMismatch,
+                                e.ErrorLines.First().ShortDescription);
                         });
                 });
 

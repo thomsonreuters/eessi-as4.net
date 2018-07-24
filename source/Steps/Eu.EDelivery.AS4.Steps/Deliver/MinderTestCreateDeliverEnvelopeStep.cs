@@ -103,6 +103,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
             var deliverMessage = new UserMessage(
                 messageId: userMessage.MessageId,
                 refToMessageId: userMessage.RefToMessageId,
+                timestamp: userMessage.Timestamp,
                 mpc: Constants.Namespaces.EbmsDefaultMpc,
                 collaboration: new Model.Core.CollaborationInfo(
                     agreement: Maybe<AgreementReference>.Nothing,
@@ -112,10 +113,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
                 sender: new Party($"{_uriPrefix}/sut", userMessage.Receiver.PartyIds.FirstOrDefault()),
                 receiver: new Party($"{_uriPrefix}/testdriver", new PartyId("minder")),
                 partInfos: new PartInfo[0],
-                messageProperties: new MessageProperty[0])
-            {
-                Timestamp = userMessage.Timestamp,
-            };
+                messageProperties: new MessageProperty[0]);
 
             // Party Information: sender is the receiver of the AS4Message that has been received.
             //                    receiver is minder.

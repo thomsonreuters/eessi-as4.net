@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 
 namespace Eu.EDelivery.AS4
@@ -8,6 +9,7 @@ namespace Eu.EDelivery.AS4
     /// <summary>
     /// Static class to reduce the need for generic type annotations when using the Factory Methods <see cref="Just{T}"/> and <see cref="Nothing{T}"/>.
     /// </summary>
+    [DebuggerStepThrough]
     public static class Maybe
     {
         /// <summary>
@@ -31,6 +33,7 @@ namespace Eu.EDelivery.AS4
     /// Use static method <see cref="M:Eu.EDelivery.AS4.Maybe`1.Just``1(``0)" /> when there's a value present, and <see cref="P:Eu.EDelivery.AS4.Maybe`1.Nothing" /> when there isn't.
     /// </summary>
     /// <typeparam name="TA">The type of a.</typeparam>
+    [DebuggerStepThrough]
     public class Maybe<TA> : IEquatable<Maybe<TA>>
     {
         private readonly TA _value;
@@ -266,7 +269,7 @@ namespace Eu.EDelivery.AS4
         /// <typeparam name="TA">The type of a.</typeparam>
         /// <param name="x">The x.</param>
         /// <returns></returns>
-        public static Maybe<TA> AsMaybe<TA>(this TA x) => Maybe<TA>.Just(x);
+        public static Maybe<TA> AsMaybe<TA>(this TA x) => x == null ? Maybe<TA>.Nothing : Maybe<TA>.Just(x);
 
         /// <summary>
         /// Only wraps a given value of type <typeparamref name="TA"/> into a <see cref="Maybe{TA}"/> when the given <paramref name="predicate"/> holds.
@@ -470,13 +473,14 @@ namespace Eu.EDelivery.AS4
         /// Chooses the specified f.
         /// </summary>
         /// <typeparam name="T"></typeparam>
+        /// <typeparam name="TResult"></typeparam>
         /// <param name="xs">The xs.</param>
         /// <param name="f">The f.</param>
         /// <returns></returns>
-        public static IEnumerable<T> Choose<T>(this IEnumerable<T> xs, Func<T, Maybe<T>> f)
+        public static IEnumerable<TResult> Choose<T, TResult>(this IEnumerable<T> xs, Func<T, Maybe<TResult>> f)
         {
             return xs.Select(f).Aggregate(
-                new Collection<T>(),
+                new Collection<TResult>(),
                 (acc, x) => { x.Do(acc.Add); return acc; });
         }
     }
