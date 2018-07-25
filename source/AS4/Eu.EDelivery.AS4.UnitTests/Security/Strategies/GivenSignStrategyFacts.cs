@@ -1,10 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System.Security.Cryptography.Xml;
 using System.Xml;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Security.References;
 using Eu.EDelivery.AS4.Security.Signing;
 using Eu.EDelivery.AS4.Security.Strategies;
 using Eu.EDelivery.AS4.TestUtils.Stubs;
+using Eu.EDelivery.AS4.UnitTests.Extensions;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Security.Strategies
@@ -18,9 +19,20 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Strategies
             SignStrategy signingStrategy = CreateSignStrategyForSigning();
 
             // Act
-            var signature = signingStrategy.SignDocument();
+            Signature signature = signingStrategy.SignDocument();
 
-            AssertSecurityElement(signature.GetXml());
+            XmlNode signatureElement = signature.GetXml();
+            Assert.Equal("Signature", signatureElement.LocalName);
+
+            XmlNodeList signedInfoReferences = signatureElement.SelectEbmsNodes("/dsig:SignedInfo/dsig:Reference");
+            Assert.True(
+                signedInfoReferences.Count == 2, 
+                "The required 2 <Reference/> elements are not present under the <SignedInfo/> element in the <Signature/>");
+
+            XmlNodeList keyInfoReferences = signatureElement.SelectEbmsNodes("/dsig:KeyInfo/wsse:SecurityTokenReference/wsse:Reference");
+            Assert.True(
+                keyInfoReferences.Count == 1,
+                "The required 1 <Reference/> element is not present under the <KeyInfo/> element in the <Signature/>");
         }
 
         private static SignStrategy CreateSignStrategyForSigning()
@@ -33,20 +45,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Strategies
                 X509ReferenceType.BSTReference, Constants.SignAlgorithms.Sha256, Constants.HashFunctions.Sha256);
 
             return SignStrategy.ForAS4Message(as4Message, signingConfig);
-        }
-
-        private static void AssertSecurityElement(XmlNode signatureElement)
-        {
-            Assert.Equal("Signature", signatureElement.LocalName);
-
-            XmlNodeList xmlReferences = signatureElement.SelectNodes("//*[local-name()='Reference'] ");
-            Assert.NotNull(xmlReferences);
-            Assert.True(xmlReferences.Count == 3, "The 3 required Reference elements are not present in the Signature.");
-        }
-
-        protected VerifySignatureConfig EmptyVerifyConfig()
-        {
-            return new VerifySignatureConfig(allowUnknownRootCertificateAuthority: false, attachments: new List<Attachment>());
         }
     }
 }
