@@ -31,7 +31,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
 
                 SendingProcessingMode invalidSendingPMode = ValidSendingPModeFactory.Create("my id");
                 invalidSendingPMode.MepBinding = MessageExchangePatternBinding.Pull;
-                invalidSendingPMode.PushConfiguration = new PushConfiguration();                
+                invalidSendingPMode.PushConfiguration = new PushConfiguration();
 
                 yield return new object[] { new ReceivedMessage(AS4XmlSerializer.ToStreamAsync(invalidSendingPMode).Result) };
                 yield return new object[] { new SaboteurReceivedMessage() };
@@ -70,6 +70,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
                 var actualSignalMessage = context.AS4Message.FirstSignalMessage as PullRequest;
                 Assert.Equal(expectedMpc, actualSignalMessage?.Mpc);
                 Assert.Equal(expectedSendingPMode.Id, context.SendingPMode.Id);
+                Assert.Equal(MessagingContextMode.PullReceive, context.Mode);
             }
         }
 
