@@ -58,5 +58,21 @@ namespace Eu.EDelivery.AS4.UnitTests.Agents
 
             return sameDefault.ToProperty().And(sameOthers);
         }
+
+        [Fact]
+        public void RegistryContainsDefaultConfigurationForAllAgentTypes()
+        {
+            Assert.All(
+                Enum.GetValues(typeof(AgentType)).Cast<AgentType>(),
+                t => Assert.NotNull(AgentProvider.GetDefaultStepConfigurationForAgentType(t)));
+        }
+
+        [Fact]
+        public void RegistryContainsDefaultTransformerForAllAgentTypes()
+        {
+            Assert.All(
+                Enum.GetValues(typeof(AgentType)).Cast<AgentType>(),
+                t => Assert.NotNull(AgentProvider.GetDefaultTransformerForAgentType(t)));
+        }
     }
 }
