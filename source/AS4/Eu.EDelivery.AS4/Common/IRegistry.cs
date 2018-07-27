@@ -18,7 +18,5 @@ namespace Eu.EDelivery.AS4.Common
         INotifySenderProvider NotifySenderProvider { get; }
         IPayloadRetrieverProvider PayloadRetrieverProvider { get; }
         ISerializerProvider SerializerProvider { get; }
-
-        void Initialize(IConfig config);
     }
 }
