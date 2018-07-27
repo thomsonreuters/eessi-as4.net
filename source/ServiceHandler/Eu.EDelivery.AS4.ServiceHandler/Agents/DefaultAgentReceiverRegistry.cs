@@ -22,7 +22,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
                 new Receiver
                 {
                     Type = typeof(DatastoreReceiver).AssemblyQualifiedName,
-                    Setting = DeserializeSettings("OutMessages", Operation.ToBeForwarded, Operation.Forwarding)
+                    Setting = CreateDatastoreSettings("OutMessages", Operation.ToBeForwarded, Operation.Forwarding)
                 });
 
             Receivers.Add(
@@ -30,7 +30,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
                 new Receiver
                 {
                     Type = typeof(DatastoreReceiver).AssemblyQualifiedName,
-                    Setting = DeserializeSettings("OutMessages", Operation.ToBeSent, Operation.Sending)
+                    Setting = CreateDatastoreSettings("OutMessages", Operation.ToBeSent, Operation.Sending)
                 });
 
             Receivers.Add(
@@ -38,7 +38,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
                 new Receiver
                 {
                     Type = typeof(DatastoreReceiver).AssemblyQualifiedName,
-                    Setting = DeserializeSettings("OutMessages", Operation.ToBeProcessed, Operation.Processing)
+                    Setting = CreateDatastoreSettings("OutMessages", Operation.ToBeProcessed, Operation.Processing)
                 });
 
             Receivers.Add(
@@ -46,7 +46,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
                 new Receiver
                 {
                     Type = typeof(DatastoreReceiver).AssemblyQualifiedName,
-                    Setting = DeserializeSettings("InMessages", Operation.ToBeDelivered, Operation.Delivering)
+                    Setting = CreateDatastoreSettings("InMessages", Operation.ToBeDelivered, Operation.Delivering)
                 });
 
             Receivers.Add(
@@ -54,11 +54,11 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
                 new Receiver
                 {
                     Type = typeof(DatastoreReceiver).AssemblyQualifiedName,
-                    Setting = DeserializeSettings(table: null, filter: Operation.ToBeNotified, update: Operation.Notifying)
+                    Setting = CreateDatastoreSettings(table: null, filter: Operation.ToBeNotified, update: Operation.Notifying)
                 });
         }
 
-        private static Setting[] DeserializeSettings(string table, Operation filter, Operation update)
+        private static Setting[] CreateDatastoreSettings(string table, Operation filter, Operation update)
         {
             XmlAttribute fieldAttribute = new XmlDocument().CreateAttribute("Field");
             fieldAttribute.Value = "Operation";
