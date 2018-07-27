@@ -73,7 +73,7 @@ namespace Eu.EDelivery.AS4.Transformers.InteropTestTransformers
             Party sender = GetSenderFromproperties(properties);
             Party receiver = GetReceiverFromProperties(properties);
 
-            IEnumerable<MessageProperty> props = BlacklistMessageInfoProperties(userMessage);
+            IEnumerable<MessageProperty> props = WhiteListedMessageProperties(userMessage);
 
             userMessage.MessageId = messageId;
             userMessage.RefToMessageId = refToMessageId;
@@ -86,7 +86,7 @@ namespace Eu.EDelivery.AS4.Transformers.InteropTestTransformers
             userMessage.AddMessageProperties(props);
         }
 
-        private static IEnumerable<MessageProperty> BlacklistMessageInfoProperties(UserMessage userMessage)
+        private static IEnumerable<MessageProperty> WhiteListedMessageProperties(UserMessage userMessage)
         {
             string[] whiteList = { "originalSender", "finalRecipient", "trackingIdentifier", "TA_Id" };
             return userMessage.MessageProperties
