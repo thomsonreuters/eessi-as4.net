@@ -236,11 +236,18 @@ namespace Eu.EDelivery.AS4.Services
                         $"Cannot update received AS4Message: Unable to find an InMessage for {as4Message.GetPrimaryMessageId()}");
                 }
 
-                Logger.Debug("Update stored message body because message contains UserMessages");
-                foreach (string location in messageLocations)
+                string firstLocation = messageLocations.First();
+                bool allTheSameLocations = messageLocations.SequenceEqual(
+                    Enumerable.Repeat(firstLocation, messageLocations.Count()));
+
+                if (!allTheSameLocations)
                 {
-                    messageBodyStore.UpdateAS4Message(location, as4Message);
+                    throw new InvalidOperationException(
+                        "Bundled UserMessage's should reference the same stored location");
                 }
+
+                Logger.Debug("Update stored message body because message contains UserMessages");
+                messageBodyStore.UpdateAS4Message(firstLocation, as4Message);
             }
 
             if (messageContext.ReceivedMessageMustBeForwarded)
@@ -334,21 +341,21 @@ namespace Eu.EDelivery.AS4.Services
             IEnumerable<Receipt> receipts = as4Message.SignalMessages.OfType<Receipt>();
             bool notifyReceipts = messagingContext.SendingPMode?.ReceiptHandling?.NotifyMessageProducer ?? false;
             RetryReliability retryReceipts = messagingContext.SendingPMode?.ReceiptHandling?.Reliability;
-            UpdateSignalMessages(receipts, () => notifyReceipts, OutStatus.Ack, retryReceipts);
+            UpdateSignalMessages(receipts, notifyReceipts, OutStatus.Ack, retryReceipts);
 
             IEnumerable<Error> errors = as4Message.SignalMessages.OfType<Error>();
             bool notifyErrors = messagingContext.SendingPMode?.ErrorHandling?.NotifyMessageProducer ?? false;
             RetryReliability retryErrors = messagingContext.SendingPMode?.ErrorHandling?.Reliability;
-            UpdateSignalMessages(errors, () => notifyErrors, OutStatus.Nack, retryErrors);
+            UpdateSignalMessages(errors, notifyErrors, OutStatus.Nack, retryErrors);
         }
 
         private void UpdateSignalMessages(
             IEnumerable<SignalMessage> signalMessages,
-            Func<bool> signalsMustBeNotified,
+            bool signalsMustBeNotified,
             OutStatus outStatus,
             RetryReliability reliability)
         {
-            if (signalsMustBeNotified())
+            if (signalsMustBeNotified)
             {
                 string[] signalsToNotify = 
                     signalMessages.Where(r => r.IsDuplicate == false)
@@ -383,7 +390,7 @@ namespace Eu.EDelivery.AS4.Services
                 }
             }
 
-            string[] refToMessageIds = signalMessages.Select(r => r.RefToMessageId).Where(id => id != null).ToArray();
+            string[] refToMessageIds = signalMessages.Select(r => r.RefToMessageId).Where(id => !String.IsNullOrEmpty(id)).ToArray();
             if (refToMessageIds.Any())
             {
                 _repository.UpdateOutMessages(
