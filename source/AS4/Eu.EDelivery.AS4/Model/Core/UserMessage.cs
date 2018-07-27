@@ -125,13 +125,7 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// <param name="messageId">Ebms Message Identifier</param>
         /// <param name="collaboration">Collaboration information</param>
         public UserMessage(string messageId, CollaborationInfo collaboration)
-            : this(
-                messageId, 
-                collaboration, 
-                Party.DefaultFrom, 
-                Party.DefaultTo, 
-                new PartInfo[0], 
-                new MessageProperty[0]) { }
+            : this(messageId, collaboration, Party.DefaultFrom, Party.DefaultTo, new PartInfo[0], new MessageProperty[0]) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="UserMessage"/> class.
@@ -164,12 +158,7 @@ namespace Eu.EDelivery.AS4.Model.Core
             Party receiver,
             IEnumerable<PartInfo> partInfos,
             IEnumerable<MessageProperty> messageProperties)
-            : this(IdentifierFactory.Instance.Create(),
-                   collaboration,
-                   sender,
-                   receiver,
-                   partInfos,
-                   messageProperties) { }
+            : this(IdentifierFactory.Instance.Create(), collaboration, sender, receiver, partInfos, messageProperties) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="UserMessage"/> class.
@@ -182,10 +171,7 @@ namespace Eu.EDelivery.AS4.Model.Core
             string messageId,
             CollaborationInfo collaboration,
             Party sender,
-            Party receiver) : this(messageId, collaboration, sender, receiver, new PartInfo[0], new MessageProperty[0])
-        {
-            
-        }
+            Party receiver) : this(messageId, collaboration, sender, receiver, new PartInfo[0], new MessageProperty[0]) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="UserMessage"/> class.
@@ -202,44 +188,8 @@ namespace Eu.EDelivery.AS4.Model.Core
             Party sender,
             Party receiver,
             IEnumerable<PartInfo> partInfos,
-            IEnumerable<MessageProperty> messageProperties) : base(messageId)
-        {
-            if (collaboration == null)
-            {
-                throw new ArgumentNullException(nameof(collaboration));
-            }
-
-            if (sender == null)
-            {
-                throw new ArgumentNullException(nameof(sender));
-            }
-
-            if (receiver == null)
-            {
-                throw new ArgumentNullException(nameof(receiver));
-            }
-
-            if (partInfos == null || partInfos.Any(p => p is null))
-            {
-                throw new ArgumentNullException(nameof(partInfos));
-            }
-
-            if (messageProperties == null || messageProperties.Any(p => p is null))
-            {
-                throw new ArgumentNullException(nameof(messageProperties));
-            }
-
-            Mpc = Constants.Namespaces.EbmsDefaultMpc;
-
-            CollaborationInfo = collaboration;
-            Sender = sender;
-            Receiver = receiver;
-
-            IsTest = DetermineIfTestMessage(collaboration.Service, collaboration.Action);
-
-            _partInfos = partInfos.ToList();
-            _messageProperties = messageProperties.ToList();
-        }
+            IEnumerable<MessageProperty> messageProperties) 
+            : this(messageId, Constants.Namespaces.EbmsDefaultMpc, collaboration, sender, receiver, partInfos, messageProperties) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="UserMessage"/> class.
@@ -258,48 +208,8 @@ namespace Eu.EDelivery.AS4.Model.Core
             Party sender,
             Party receiver,
             IEnumerable<PartInfo> partInfos,
-            IEnumerable<MessageProperty> messageProperties) : base(messageId)
-        {
-            if (mpc == null)
-            {
-                throw new ArgumentNullException(nameof(mpc));
-            }
-
-            if (collaboration == null)
-            {
-                throw new ArgumentNullException(nameof(collaboration));
-            }
-
-            if (sender == null)
-            {
-                throw new ArgumentNullException(nameof(sender));
-            }
-
-            if (receiver == null)
-            {
-                throw new ArgumentNullException(nameof(receiver));
-            }
-
-            if (partInfos == null || partInfos.Any(p => p is null))
-            {
-                throw new ArgumentNullException(nameof(partInfos));
-            }
-
-            if (messageProperties == null || messageProperties.Any(p => p is null))
-            {
-                throw new ArgumentNullException(nameof(messageProperties));
-            }
-
-            Mpc = mpc;
-            CollaborationInfo = collaboration;
-            Sender = sender;
-            Receiver = receiver;
-
-            IsTest = DetermineIfTestMessage(collaboration.Service, collaboration.Action);
-
-            _partInfos = partInfos.ToList();
-            _messageProperties = messageProperties.ToList();
-        }
+            IEnumerable<MessageProperty> messageProperties) 
+            : this(messageId, null, mpc, collaboration, sender, receiver, partInfos, messageProperties) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="UserMessage"/> class.
@@ -320,48 +230,8 @@ namespace Eu.EDelivery.AS4.Model.Core
             Party sender,
             Party receiver,
             IEnumerable<PartInfo> partInfos,
-            IEnumerable<MessageProperty> messageProperties) : base(messageId, refToMessageId)
-        {
-            if (mpc == null)
-            {
-                throw new ArgumentNullException(nameof(mpc));
-            }
-
-            if (collaboration == null)
-            {
-                throw new ArgumentNullException(nameof(collaboration));
-            }
-
-            if (sender == null)
-            {
-                throw new ArgumentNullException(nameof(sender));
-            }
-
-            if (receiver == null)
-            {
-                throw new ArgumentNullException(nameof(receiver));
-            }
-
-            if (partInfos == null || partInfos.Any(p => p is null))
-            {
-                throw new ArgumentNullException(nameof(partInfos));
-            }
-
-            if (messageProperties == null || messageProperties.Any(p => p is null))
-            {
-                throw new ArgumentNullException(nameof(messageProperties));
-            }
-
-            Mpc = mpc;
-            CollaborationInfo = collaboration;
-            Sender = sender;
-            Receiver = receiver;
-
-            IsTest = DetermineIfTestMessage(collaboration.Service, collaboration.Action);
-
-            _partInfos = partInfos.ToList();
-            _messageProperties = messageProperties.ToList();
-        }
+            IEnumerable<MessageProperty> messageProperties) 
+            : this(messageId, refToMessageId, DateTimeOffset.Now, mpc, collaboration, sender, receiver, partInfos, messageProperties) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="UserMessage"/> class.
