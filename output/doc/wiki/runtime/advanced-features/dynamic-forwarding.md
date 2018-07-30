@@ -1,42 +1,61 @@
-# Dynamic Forwarding (a.k.a. Dynamic Discovery)
+# Dynamic Discovery
 
-## What is _Dynamic Forwarding_?
+## What is _Dynamic Discovery_
 
-Dynamic Forwarding is a "special" way of message forwarding, by which the _Sending Processing Mode_ dynamically gets decorated with required routing information during the forward operation.
+Dynamic Discovery allows you to define _Sending Processing Modes_ that do not contain all the specific routing information.  
+The _Sending Processing Mode_ that is used to send an AS4 Message is dynamically decorated with the required routing information by the AS4 MSH during the send operation.
 
-This way of forwarding allows us to forward messages with an "incomplete" _Sending Processing Mode_ (without routing information). This _Processing Mode_ will be made "complete" during the forwarding by using either the configured _SMP Configurations_ (meta data, TODO: what's the full description of "SMP"?) stored in the datastore of the <b>AS4.NET</b> component or by requesting a _SMP Profile_ via a custom implementation.
+Dynamic Discovery makes it possible to have fewer _Sending Processing Modes_:  
+Instead of having full blown _Sending Processing Modes_, Dynamic Discovery allows you to have fewer 'incomplete' _Sending Processing Modes_ that act as a template.  The missing routing information will be dynamically added by the AS4.NET MessageHandler when an AS4 Message is being sent.
+When appropriate, using _Dynamic Discovery_ can save you time since there are fewer _Sending Processing Modes_ to maintain.
 
-This way of forwarding allows you to reuse certain _Sending Processing Modes_ and will therefore result in lesser _Processing Modes_ to maintain.
+## How does _Dynamic Discovery_ work
 
-> Following image show the message flow with an "incomplete" _Sending Processing Mode_ attached, and will be made complete by the local configured _SMP Configurations_ resulting in a message with a complete _Sending Processing Mode_.
+When _Dynamic Discovery_ is enabled in the _Sending Processing Mode_, AS4.NET will attempt to decorate the _Sending Processing Mode_ with routing information that is retrieved from an SMP server (_Service Metadata Publisher).
 
-![sending pmode smp completion](./images/sending-pmode-smp-completion.png)
+The _Sending Processing Mode_ defines the _SMP Profile_ that must be used to retrieve the routing information.  If there's no _SMP Profile_ specified, AS4.NET will use a default profile where AS4.NET itself will act as an SMP server.
+In this case, AS4.NET will retrieve routing information from its own routing table and will complete the _Sending Processing Mode_ with this information.
+Any routing information that is already defined in the _Sending Processing Mode_ will be overwritten during this operation!
+
+In AS4.NET, _Dynamic Discovery_ is supported in both regular submit/send scenario's and in receive/forward scenario's.
+
+TODO: add image that visualizes this ?
+
+## How to configure _Dynamic Discovery_
+
+### Define the SMP Profile in the _Sending Processing Mode_
+
+To enable _Dynamic Discovery_, a _Sending Processing Mode_ must have a `DynamicDiscovery`element.
+
+In this `DynamicDiscovery`element, the `SMP Profile` that must be used can be specified.
+The value that is configured in this element, refers to a class that implements the `IDynamicDiscoveryProfile` interface.
+If no `SMP Profile` is defined, AS4.NET will fall back to a default implementation that uses the routing rules that can be defined in AS4.NET.
 
 ## Incomplete _Sending Processing Mode_
 
-What makes the _Sending Processing Mode_ "incomplete"?
+To correctly sent or forward a message, we need to know some required routing information. 
+Normally, all this information is present in the _Sending Processing Mode_ but when using _Dynamic Discovery_, this information can be ommitted from the Sending PMode.
 
-To correctly forward a message (and therefore send out the message), we need to know some required routing information. All this routing info can be moved from your _Sending Processing Mode_ to a _SMP Configuration_ entry. This will result in that the _Sending Processing Mode_ is now "incomplete" due to the missing routing info.
-
-This routing information consists of:
+When making use of _dynamic discovery_, the following items can be ommitted from the _Sending Processing Mode_: 
 
 - **Push Configuration**
-  - Url to where to send the message to
-  - Whether or not the message must be send through TLS
+  - Url to where to message must be sent to
+  - Whether or not the message must be send using TLS
 - **Encryption**
-  - Public Key Certificate
-  - Key Transport Algorithms
+  - Public Key Certificate that must be used to encrypt the message
+  - Encryption algorithm information
 - **Message Packaging**
   - To Party (Role and Party Id)
   - Collaboration Info (Service and Action)
 
-> This routing information is simuliar to the information specified in the _Sending Processing Modes_. So, for more information about this routing info see the page about the _Sending Processing Mode_.
+AS4.NET will retrieve this information using an SMP and decorate the PMode with the information that has been received.
+The routing information that has been received has priority over any existing routing information that might already be present in the _Sending Processing Mode_.
 
-> Any routing information defined in the _Sending Processing Mode_ will be overwritten during the forward operation!
+## Specify routing information in AS4.NET
 
-## Move Routing Info to Local SMP Configuration
+The routing information that will be added to the _Sending Processing Mode_ will be retrieved by the AS4.NET MSH from a _Service Metadata Publisher_ server.  By default, AS4.NET will act as the SMP server if dynamic forwarding is enabled.
 
-Local _SMP Configurations_ are configured via the Frontend of the <b>AS4.NET</b> component:
+The routing information is to be configured via the Web Portal of the <b>AS4.NET</b> component:
 
 - In de sidebar click on the menu item **SMP Configuration**
   - This will show a list of all the configured configurations available for _Dynamic Forwarding_
@@ -49,8 +68,8 @@ TODO: show dialog detail view of the SMP Configuration
 
 > The SMP Configuration needs at least an _Url_ and _ToParty_ _Id_, _Role_, and _Type_
 
-## Retrieve Routing Info During Forwarding
+## Retrieve Routing Info During Sending or Forwarding
 
-To make a decision which _Sending Processing Mode_ to use during the forward operation, either the local or custom implementation will first retrieve the _SMP Profile_ via the **ToParty**.
+AS4.NET will query the SMP profile (default or custom) to retrieve the routing information that must be used to complete the _Sending Processing Mode_.
 
-With this profile, the same implementation (local or custom) will decorate the _Sending Processing Mode_ so it is complete and therefore ready to be used for sending.
+This information will be retrieved based on the **ToParty** information; this means that AS4.NET must know the identifier of the ToParty to determine the routing information.
