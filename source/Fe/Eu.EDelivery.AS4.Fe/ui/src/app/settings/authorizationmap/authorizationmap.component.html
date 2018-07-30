@@ -1,24 +1,44 @@
-<form [formGroup]="form">
-    <as4-input>
-        <p><button type="button" as4-auth class="btn btn-flat" (click)="add()"><i class="fa fa-plus"></i></button></p>
-        <table class="table table-condensed" formArray="form">
-            <tr>
-                <th></th>
-                <th>MPC</th>
-                <th>Thumbprint</th>
-                <th>Allowed</th>
-            </tr>
-            <tr *ngFor="let map of form.controls; index as i" [formGroupName]="i">
-                <td class="action"><button type="button" as4-auth class="btn btn-flat" (click)="remove(map)"><i class="fa fa-trash"></i></button></td>
-                <td><input type="text" formControlName="mpc" focus/></td>
-                <td>
-                    <as4-thumbprint-input formControlName="certificateThumbprint"></as4-thumbprint-input>
-                </td>
-                <td><input type="checkbox" formControlName="allowed" /></td>
-            </tr>
-            <tr *ngIf="!!!form.value.length">
-                <td colspan="4" class="center">No authorization map entries configured yet.</td>
-            </tr>
-        </table>
-    </as4-input>
-</form>
+<as4-box title=" ">
+    <div content>
+        <form [formGroup]="form">
+            <as4-input>
+                <p>
+                    <button type="button" as4-auth class="btn btn-flat" (click)="add()" data-cy="add">
+                        <i class="fa fa-plus"></i>
+                    </button>
+                </p>
+                <table class="table table-condensed" formArray="form" data-cy="entries">
+                    <tr>
+                        <th></th>
+                        <th>MPC</th>
+                        <th>Thumbprint</th>
+                        <th>Allowed</th>
+                    </tr>
+                    <tr *ngFor="let map of form.controls; index as i" [formGroupName]="i">
+                        <td class="action">
+                            <button type="button" as4-auth class="btn btn-flat" (click)="remove(map)" data-cy="remove">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                        </td>
+                        <td>
+                            <input type="text" formControlName="mpc" focus/>
+                        </td>
+                        <td>
+                            <as4-thumbprint-input formControlName="certificateThumbprint"></as4-thumbprint-input>
+                        </td>
+                        <td>
+                            <input type="checkbox" formControlName="allowed" />
+                        </td>
+                    </tr>
+                    <tr *ngIf="!!!form.value.length">
+                        <td colspan="4" class="center">No authorization map entries configured yet.</td>
+                    </tr>
+                </table>
+            </as4-input>
+        </form>
+    </div>
+    <button [attr.disabled]="(isSaveEnabled | async) ? null : true" action type="button" class="btn btn-box-tool" (click)="save()"
+        data-cy="save">
+        <i class="fa fa-save" [class.active]="isSaveEnabled | async"></i>
+    </button>
+</as4-box>
