@@ -19,11 +19,7 @@ In this case, AS4.NET will retrieve routing information from its own routing tab
 
 In AS4.NET, _Dynamic Discovery_ is supported in both receive/forward/send scenario's and in regular submit/send scenario's:
 
-![complete sending pmode receive forward send](images/send-pmode-completion-receive-forward.png)
-
-In submit/send scenario's, the internal process of the component will make sure that the _Dynamic Discovery_ happens:
-
-![complete sending pmode submit send](images/send-pmode-completion-submit-send.png)
+![dynamic discovery](images/dynamic-discovery.png)
 
 ## How to configure _Dynamic Discovery_
 
