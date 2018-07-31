@@ -36,7 +36,7 @@ The **MPC** that must be used is defined in the PMode that is configured on the 
 
 ## Configuration
 
-The **Pull Receive Agent** will need the `PullRequestReceiver` to send out _PullRequest_ signal messages. Multiple _Sending Processing Modes_ can be configured on this _Receiver_. each with a maximum and minimum time interval in which the _PullRequests_ will exponentially be send.
+The **Pull Receive Agent** will need the `PullRequestReceiver` to send out _PullRequest_ signal messages. Multiple _Sending Processing Modes_ can be configured on this _Receiver_, each with a maximum and minimum time interval in which the _PullRequests_ will exponentially be send.
 
 Following example shows how two different _Sending Processing Modes_ are configured on the _Receiver_:
 
@@ -47,7 +47,7 @@ Following example shows how two different _Sending Processing Modes_ are configu
 </Receiver>
 ```
 
-The settings on the _Receiver_ doesn't have a value but require three attributes:
+The settings on the _Receiver_ don't have a value but instead require three attributes:
 
 - `key`: defines for which _Sending Processing Mode_ a _PullRequest_ should be created
 - `tmin`: defines the start interval in the _Exponential Backoff_. In each interval, a _PullRequest_ will be send. The interval will exponentially increase for non-_UserMessages_ responses.
