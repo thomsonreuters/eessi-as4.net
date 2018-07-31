@@ -49,30 +49,14 @@ namespace Eu.EDelivery.AS4.WindowsService
                     Environment.CurrentDirectory = assemblyLocationFolder;
                 }
 
-                Config configuration = Config.Instance;
-                Registry registration = Registry.Instance;
-                configuration.Initialize("settings-service.xml");
-            
-                if (!configuration.IsInitialized)
+                _kernel = Kernel.CreateFromSettings("settings-service.xml");
+                if (!Config.Instance.IsInitialized || !Registry.Instance.IsInitialized)
                 {
                     _eventLog.WriteEntry("AS4.NET Component cannot be initialized", EventLogEntryType.Error);
 
                     Stop();
                     return;
                 }
-
-                string certificateTypeRepository = configuration.GetSetting("CertificateRepository");
-
-                registration.CertificateRepository =
-                    !string.IsNullOrEmpty(certificateTypeRepository)
-                        ? GenericTypeBuilder.FromType(certificateTypeRepository).Build<ICertificateRepository>()
-                        : new CertificateRepository();
-            
-
-                registration.CreateDatastoreContext = () => new DatastoreContext(configuration);
-
-                var provider = new AgentProvider(configuration);
-                _kernel = new Kernel(provider.GetAgents());
 
                 _cancellation = new CancellationTokenSource();
                 _rootTask = _kernel.StartAsync(_cancellation.Token);

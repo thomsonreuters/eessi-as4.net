@@ -131,6 +131,7 @@
     <Compile Include="Builders\Entities\OutMessageBuilder.cs" />
     <Compile Include="Builders\GenericTypeBuilder.cs" />
     <Compile Include="Builders\Security\DecryptionStrategyBuilder.cs" />
+    <Compile Include="Common\IRegistry.cs" />
     <Compile Include="Entities\Journal.cs" />
     <Compile Include="Entities\RetryReliability.cs" />
     <Compile Include="Mappings\Core\ReceiptMap.cs" />
@@ -226,7 +227,6 @@
     <Compile Include="Repositories\IDatastoreRepository.cs" />
     <Compile Include="Security\Builders\EncryptedDataBuilder.cs" />
     <Compile Include="Builders\Security\EncryptionStrategyBuilder.cs" />
-    <Compile Include="Common\IRegistry.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="Common\DatastoreContext.cs" />
     <Compile Include="Entities\ExceptionEntity.cs" />
@@ -488,8 +488,6 @@
       <LastGenOutput>Schemas.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Builders\Internal\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

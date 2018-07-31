@@ -37,7 +37,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
                 var pmodeWithReceptionAwareness = CreatePModeWithReceptionAwareness();
 
                 MessagingContext messagingContext = SetupMessagingContext(messageId, pmodeWithReceptionAwareness);
-                var step = new SetReceptionAwarenessStep();
+                var step = new SetReceptionAwarenessStep(GetDataStoreContext);
 
                 // Act                
                 await step.ExecuteAsync(messagingContext);
