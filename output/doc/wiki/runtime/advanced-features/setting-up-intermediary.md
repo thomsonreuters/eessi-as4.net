@@ -6,7 +6,7 @@ The following section will explain what is required to make <b>AS4.NET</b> compo
 
 ## Required Agents for Intermediary MSH
 
-A **Receive**, **Forward**, and **Send Agent** are required for a correctly configured i-MSH. An **Outbound Processing Agent** will also be required to compressed, signed or encrypted the forward messages.
+A **Receive**, **Forward**, and **Send Agent** are required for a correctly configured i-MSH.
 
 ![receive forward send agent](images/receive-forward-send-agent.png)
 
@@ -33,7 +33,7 @@ The agents can be configured via the Frontend of the component:
 
 The **Forward** and **Send Agents** are both _Internal_ agents, so they can be found in the sub-menu **Internal Agents** in the **Settings** menu.
 
-The same flow as described for the **Receive Agent** is applicable for the **Forward** and **Send Agent**.
+The same flow as described for the **Receive Agent** is applivcable for the **Forward** and **Send Agent**.
 
 > When creating a new agent, the default _Steps_ are automatically assigned to the Agent; only a _Receiver_ is needed when creating an _Agent_.
 
