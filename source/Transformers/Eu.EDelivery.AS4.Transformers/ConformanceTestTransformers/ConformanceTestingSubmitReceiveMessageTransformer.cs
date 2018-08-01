@@ -82,76 +82,57 @@ namespace Eu.EDelivery.AS4.Transformers.ConformanceTestTransformers
 
         private static AS4Message TransformMinderSubmitToAS4Message(UserMessage submitMessage, IEnumerable<Attachment> attachments)
         {
-            var userMessage = new UserMessage(GetPropertyValue(submitMessage.MessageProperties, "MessageId"))
+            var userMessage = new UserMessage(
+                GetPropertyValue(submitMessage.MessageProperties, "MessageId"),
+                GetPropertyValue(submitMessage.MessageProperties, "RefToMessageId"),
+                GetCollaborationFromProperties(submitMessage.MessageProperties),
+                GetSenderFromSender(submitMessage),
+                GetReceiverFromProperties(submitMessage),
+                submitMessage.PayloadInfo,
+                BlacklistMessageInfoProperties(submitMessage.MessageProperties));
+
+            AS4Message result = AS4Message.Create(userMessage);
+
+            foreach (Attachment attachment in attachments)
             {
-                RefToMessageId = GetPropertyValue(submitMessage.MessageProperties, "RefToMessageId"),
-                Timestamp = DateTimeOffset.Now
-            };
-
-            SetCollaborationInfoProperties(userMessage, submitMessage.MessageProperties);
-
-            SetPartyInformation(userMessage, submitMessage);
-
-            SetMessageProperties(userMessage, submitMessage.MessageProperties);
-
-            AS4Message result = CreateAS4Message(userMessage, submitMessage.PayloadInfo, attachments);
+                result.AddAttachment(attachment);
+            }
 
             return result;
         }
 
-        private static void SetCollaborationInfoProperties(UserMessage userMessage, IEnumerable<MessageProperty> properties)
+        private static CollaborationInfo GetCollaborationFromProperties(IEnumerable<MessageProperty> properties)
         {
             // AgreementRef must not be present in the AS4Message for minder.
-
-            userMessage.CollaborationInfo = new CollaborationInfo(
+            return new CollaborationInfo(
                 Maybe<AgreementReference>.Nothing,
                 new Service(GetPropertyValue(properties, "Service")),
                 GetPropertyValue(properties, "Action"),
                 GetPropertyValue(properties, "ConversationId"));
         }
 
-        private static void SetPartyInformation(UserMessage userMessage, UserMessage submitMessage)
+        private static Party GetSenderFromSender(UserMessage submitMessage)
         {
-            userMessage.Sender = 
-                new Party(
-                    role: GetPropertyValue(submitMessage.MessageProperties, "FromPartyRole"),
-                    partyId: new PartyId(
-                        id: GetPropertyValue(submitMessage.MessageProperties, "FromPartyId"),
-                        type: submitMessage.Sender.PartyIds.First().Type));
-
-            userMessage.Receiver =
-                new Party(
-                    role: GetPropertyValue(submitMessage.MessageProperties, "ToPartyRole"),
-                    partyId: new PartyId(
-                        id: GetPropertyValue(submitMessage.MessageProperties, "ToPartyId"),
-                        type: submitMessage.Receiver.PartyIds.First().Type));
+            return new Party(
+                role: GetPropertyValue(submitMessage.MessageProperties, "FromPartyRole"),
+                partyId: new PartyId(
+                    id: GetPropertyValue(submitMessage.MessageProperties, "FromPartyId"),
+                    type: submitMessage.Sender.PartyIds.First().Type));
         }
 
-        private static void SetMessageProperties(UserMessage userMessage, IEnumerable<MessageProperty> properties)
+        private static Party GetReceiverFromProperties(UserMessage submitMessage)
+        {
+            return new Party(
+                role: GetPropertyValue(submitMessage.MessageProperties, "ToPartyRole"),
+                partyId: new PartyId(
+                    id: GetPropertyValue(submitMessage.MessageProperties, "ToPartyId"),
+                    type: submitMessage.Receiver.PartyIds.First().Type));
+        }
+
+        private static IEnumerable<MessageProperty> BlacklistMessageInfoProperties(IEnumerable<MessageProperty> properties)
         {
             string[] whiteList = { "originalSender", "finalRecipient", "trackingIdentifier" };
-
-            foreach (MessageProperty p in properties.Where(p => whiteList.Contains(p.Name, StringComparer.OrdinalIgnoreCase)))
-            {
-                userMessage.AddMessageProperty(p);
-            }
-        }
-
-        private static AS4Message CreateAS4Message(UserMessage userMessage, IEnumerable<PartInfo> payloadInfo, IEnumerable<Attachment> attachments)
-        {
-            foreach (PartInfo p in payloadInfo)
-            {
-                userMessage.AddPartInfo(p);
-            }
-
-            var result = AS4Message.Create(userMessage, null);
-
-            foreach (var attachment in attachments)
-            {
-                result.AddAttachment(attachment);
-            }
-
-            return result;
+            return properties.Where(p => whiteList.Contains(p.Name, StringComparer.OrdinalIgnoreCase));
         }
 
         private static void AssignPModeToContext(MessagingContext context)

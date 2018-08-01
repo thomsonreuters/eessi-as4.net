@@ -15,6 +15,7 @@ using Eu.EDelivery.AS4.Steps.Receive;
 using Eu.EDelivery.AS4.UnitTests.Common;
 using Eu.EDelivery.AS4.UnitTests.Repositories;
 using Xunit;
+using AgreementReference = Eu.EDelivery.AS4.Model.Core.AgreementReference;
 using CollaborationInfo = Eu.EDelivery.AS4.Model.Core.CollaborationInfo;
 using Service = Eu.EDelivery.AS4.Model.Core.Service;
 
@@ -177,8 +178,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
         {
             // Arrange
             UserMessage userMessage = CreateUserMessage();
-            AddTestableDataToUserMessage(userMessage);
-
             AS4Message as4Message = AS4Message.Create(userMessage);
 
             var pmode = new ReceivingProcessingMode();
@@ -263,16 +262,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
         {
             string userMessageId = Guid.NewGuid().ToString();
             return new UserMessage(userMessageId) { RefToMessageId = userMessageId };
-        }
-
-        private static void AddTestableDataToUserMessage(UserMessage userMessage)
-        {
-            userMessage.CollaborationInfo = 
-                new CollaborationInfo(
-                    userMessage.CollaborationInfo.AgreementReference, 
-                    Service.TestService,
-                    Constants.Namespaces.TestAction,
-                    userMessage.CollaborationInfo.ConversationId);
         }
 
         protected MessagingContext CreateReceivedMessagingContext(AS4Message as4Message, ReceivingProcessingMode receivingPMode)

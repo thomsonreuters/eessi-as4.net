@@ -1,6 +1,7 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using AutoMapper;
-using Eu.EDelivery.AS4.Singletons;
+using static Eu.EDelivery.AS4.Singletons.AS4Mapper;
 
 namespace Eu.EDelivery.AS4.Mappings.Core
 {
@@ -38,49 +39,47 @@ namespace Eu.EDelivery.AS4.Mappings.Core
                 .ForAllOtherMembers(x => x.Ignore());
         }
 
+        private static IEnumerable<Model.Core.PartInfo> MapPartInfos(Xml.PartInfo[] parts)
+        {
+            if (parts == null || !parts.Any())
+            {
+                return new Model.Core.PartInfo[0];
+            }
+
+            return parts.Select(Map<Model.Core.PartInfo>).Where(p => p != null);
+        }
+
+        private static IEnumerable<Model.Core.MessageProperty> MapMessageProperties(Xml.Property[] props)
+        {
+            if (props == null)
+            {
+                return Enumerable.Empty<Model.Core.MessageProperty>();
+            }
+
+            return props.Where(p => p != null)
+                        .Select(Map<Model.Core.MessageProperty>)
+                        .Where(p => p != null);
+        }
+
         private void MapXmlToUserMessage()
         {
             CreateMap<Xml.UserMessage, Model.Core.UserMessage>()
-                .ForMember(dest => dest.Mpc, src => src.MapFrom(t => t.mpc))
+                .ConstructUsing(xml => 
+                    new Model.Core.UserMessage(
+                        messageId: xml.MessageInfo?.MessageId,
+                        refToMessageId: xml.MessageInfo?.RefToMessageId,
+                        mpc: xml.mpc ?? Constants.Namespaces.EbmsDefaultMpc,
+                        collaboration: Map<Model.Core.CollaborationInfo>(xml.CollaborationInfo),
+                        sender: Map<Model.Core.Party>(xml.PartyInfo?.From),
+                        receiver: Map<Model.Core.Party>(xml.PartyInfo?.To),
+                        partInfos: MapPartInfos(xml.PayloadInfo),
+                        messageProperties: MapMessageProperties(xml.MessageProperties)))
                 .ForMember(dest => dest.MessageId, src => src.MapFrom(t => t.MessageInfo.MessageId))
                 .ForMember(dest => dest.RefToMessageId, src => src.MapFrom(t => t.MessageInfo.RefToMessageId))
                 .ForMember(dest => dest.Timestamp, src => src.MapFrom(t => t.MessageInfo.Timestamp))
-                .ForMember(dest => dest.Sender, src => src.MapFrom(t => t.PartyInfo.From))
-                .ForMember(dest => dest.CollaborationInfo, src => src.MapFrom(t => t.CollaborationInfo))
-                .ForMember(dest => dest.MessageProperties,
-                           src => src.MapFrom(t => t.MessageProperties ?? new Xml.Property[] { }))
                 .ForMember(dest => dest.IsTest, src => src.Ignore())
                 .ForMember(dest => dest.IsDuplicate, src => src.Ignore())
-                .AfterMap((xml, model) =>
-                {
-                    if (xml.PayloadInfo != null && xml.PayloadInfo.Any())
-                    {
-                        foreach (Xml.PartInfo p in
-                            xml.PayloadInfo.Where(p => !string.IsNullOrEmpty(p?.href)))
-                        {
-                            var mapped = AS4Mapper.Map<Model.Core.PartInfo>(p);
-                            if (mapped != null)
-                            {
-                                model.AddPartInfo(mapped);
-                            }
-                        }
-                    }
-
-                    var xmlFrom = xml.PartyInfo?.From;
-                    if (xmlFrom != null)
-                    {
-                        model.Sender = AS4Mapper.Map<Model.Core.Party>(xmlFrom);
-                    }
-
-                    var xmlTo = xml.PartyInfo?.To;
-                    if (xmlTo != null)
-                    {
-                        model.Receiver = AS4Mapper.Map<Model.Core.Party>(xmlTo);
-                    }
-
-                    model.MessageId = xml.MessageInfo.MessageId;
-                    model.RefToMessageId = xml.MessageInfo.RefToMessageId;
-                }).ForAllOtherMembers(x => x.Ignore());
+                .ForAllOtherMembers(x => x.Ignore());
         }
 
         private void MapUserMessageToRoutingInputUserMessage()
@@ -106,8 +105,8 @@ namespace Eu.EDelivery.AS4.Mappings.Core
 
                         xmlUserMessage.PartyInfo = new Xml.PartyInfo
                         {
-                            From = AS4Mapper.Map<Xml.From>(modelUserMessage.Receiver),
-                            To = AS4Mapper.Map<Xml.To>(modelUserMessage.Sender)
+                            From = Map<Xml.From>(modelUserMessage.Receiver),
+                            To = Map<Xml.To>(modelUserMessage.Sender)
                         };
 
                         AssignAction(xmlUserMessage);

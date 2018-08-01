@@ -11,7 +11,7 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
     /// <summary>
     /// <see cref="SubmitMessage"/> Resolver to get the <see cref="PartInfo"/> Models
     /// </summary>
-    public class SubmitPayloadInfoResolver : ISubmitResolver<List<PartInfo>>
+    public class SubmitPayloadInfoResolver
     {
         public static readonly SubmitPayloadInfoResolver Default = new SubmitPayloadInfoResolver();
 
@@ -22,7 +22,7 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
         /// </summary>
         /// <param name="submitMessage"></param>
         /// <returns></returns>
-        public List<PartInfo> Resolve(SubmitMessage submitMessage)
+        public IEnumerable<PartInfo> Resolve(SubmitMessage submitMessage)
         {
             if (submitMessage.Payloads == null)
             {
