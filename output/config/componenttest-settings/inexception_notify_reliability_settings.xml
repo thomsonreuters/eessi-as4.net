@@ -14,20 +14,20 @@
     </Database>
     <CertificateStore>
         <StoreName>My</StoreName>
-        <Repository type="Eu.EDelivery.AS4.Repositories.CertificateRepository, Eu.EDelivery.AS4, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+        <Repository type="Eu.EDelivery.AS4.Repositories.CertificateRepository, Eu.EDelivery.AS4, Version=3.1.0.0, Culture=neutral, PublicKeyToken=null" />
     </CertificateStore>
     <Agents>
         <NotifyAgent name="InExceptions Notify Agent">
-            <Receiver type="Eu.EDelivery.AS4.Receivers.DatastoreReceiver, Eu.EDelivery.AS4.Receivers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+            <Receiver type="Eu.EDelivery.AS4.Receivers.DatastoreReceiver, Eu.EDelivery.AS4.Receivers, Version=3.1.0.0, Culture=neutral, PublicKeyToken=null">
                 <Setting key="Table">InExceptions</Setting>
                 <Setting key="Filter">Operation = 'ToBeNotified'</Setting>
                 <Setting key="Update" field="Operation">Notifying</Setting>
                 <Setting key="PollingInterval">00:00:01</Setting>
             </Receiver>
-            <Transformer type="Eu.EDelivery.AS4.Transformers.NotifyMessageTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+            <Transformer type="Eu.EDelivery.AS4.Transformers.NotifyMessageTransformer, Eu.EDelivery.AS4.Transformers, Version=3.1.0.0, Culture=neutral, PublicKeyToken=null" />
             <StepConfiguration>
                 <NormalPipeline>
-                    <Step type="Eu.EDelivery.AS4.Steps.Notify.SendNotifyMessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+                    <Step type="Eu.EDelivery.AS4.Steps.Notify.SendNotifyMessageStep, Eu.EDelivery.AS4.Steps, Version=3.1.0.0, Culture=neutral, PublicKeyToken=null" />
                 </NormalPipeline>
             </StepConfiguration>
         </NotifyAgent>
