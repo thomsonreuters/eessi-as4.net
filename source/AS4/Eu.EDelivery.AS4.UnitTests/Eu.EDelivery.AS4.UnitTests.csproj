@@ -125,7 +125,6 @@
     <Compile Include="Steps\Submit\GivenCreateDefaultAS4MessageStepFacts.cs" />
     <Compile Include="Transformers\DummyTransformer.cs" />
     <Compile Include="Builders\Core\GivenErrorBuilderFacts.cs" />
-    <Compile Include="Builders\Core\GivenNonRepudiationInformationBuilderFacts.cs" />
     <Compile Include="Builders\Entities\GivenInMessageBuilderFacts.cs" />
     <Compile Include="Builders\Entities\GivenOutMessageBuilderFacts.cs" />
     <Compile Include="Builders\Internal\GivenSoapEnvelopeBuilderFacts.cs" />
@@ -161,7 +160,7 @@
     <Compile Include="Mappings\Submit\GivenSubmitServiceResolverFacts.cs" />
     <Compile Include="Model\Core\GivenErrorFacts.cs" />
     <Compile Include="Model\EmptyMessagingContext.cs" />
-    <Compile Include="Model\FilledNRRReceipt.cs" />
+    <Compile Include="Model\FilledNRReceipt.cs" />
     <Compile Include="Model\FilledUserMessage.cs" />
     <Compile Include="Model\GivenAS4MessageFacts.cs" />
     <Compile Include="Model\GivenAttachmentFacts.cs" />

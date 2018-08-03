@@ -4,12 +4,12 @@ using Eu.EDelivery.AS4.Model.Core;
 
 namespace Eu.EDelivery.AS4.UnitTests.Model
 {
-    public class FilledNRRReceipt : Receipt
+    public class FilledNRReceipt : Receipt
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="FilledNRRReceipt"/> class.
+        /// Initializes a new instance of the <see cref="FilledNRReceipt"/> class.
         /// </summary>
-        public FilledNRRReceipt()
+        public FilledNRReceipt()
             : base(
                 "ignored-id",
                 "ref-to-message-id",
