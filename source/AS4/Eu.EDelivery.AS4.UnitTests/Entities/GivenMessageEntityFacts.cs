@@ -117,7 +117,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
 
             private static AS4Message CreateAS4MessageWithReceiptMessage(bool isDuplicate)
             {
-                return AS4Message.Create(new FilledNRRReceipt { IsDuplicate = isDuplicate });
+                return AS4Message.Create(new FilledNRReceipt { IsDuplicate = isDuplicate });
             }
 
             private static MessageEntity BuildForMessageUnit(MessageUnit expected)

@@ -24,7 +24,7 @@ namespace Eu.EDelivery.AS4.UnitTests
         {
             return Gen.Elements<SignalMessage>(
                           new Receipt($"ref-to-user-{Guid.NewGuid()}"), 
-                          new FilledNRRReceipt(), 
+                          new FilledNRReceipt(), 
                           new Error())
                       .ToArbitrary();
         }

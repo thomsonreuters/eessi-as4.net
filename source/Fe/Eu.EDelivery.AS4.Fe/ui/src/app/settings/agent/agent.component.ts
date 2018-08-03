@@ -87,13 +87,21 @@ export class AgentSettingsComponent
       .filter((result) => result != null)
       .map((result) => result.receivers);
 
+    if (!!this.activatedRoute.snapshot.data['type']) {
+      this.title = `${this.activatedRoute.snapshot.data['title']} agent`;
+      this.collapsed = false;
+      this.agent = this.activatedRoute.snapshot.data['type'];
+      this.beType = this.activatedRoute.snapshot.data['betype'];
+      this.showWarning = this.activatedRoute.snapshot.data['showwarning'];
+    }
+
     let settingsStoreSelector = this.settingsStore.changes
       .filter(
         (result) =>
           !!result && !!result.Settings && !!result.Settings.agents[this.agent]
       )
-      .map((result) => result.Settings.agents[this.agent] as SettingsAgent[]);
-
+      .map((result) => result.Settings.agents[this.agent] as SettingsAgent[])
+      .startWith(this.settingsStore.state.Settings.agents[this.agent]);
     settingsStoreSelector
       .filter((agents) => !!agents && agents.length > 0)
       .do((agents) => {
@@ -105,7 +113,6 @@ export class AgentSettingsComponent
         } else if (!!agents && agents.length > 0) {
           this.currentAgent = agents[0];
         }
-
         this.form = SettingsAgentForm.getForm(
           this._formWrapper,
           this.currentAgent
@@ -113,14 +120,6 @@ export class AgentSettingsComponent
         this.changeDetector.markForCheck();
       })
       .subscribe();
-
-    if (!!this.activatedRoute.snapshot.data['type']) {
-      this.title = `${this.activatedRoute.snapshot.data['title']} agent`;
-      this.collapsed = false;
-      this.agent = this.activatedRoute.snapshot.data['type'];
-      this.beType = this.activatedRoute.snapshot.data['betype'];
-      this.showWarning = this.activatedRoute.snapshot.data['showwarning'];
-    }
   }
 
   public ngOnInit() {
@@ -188,7 +187,6 @@ export class AgentSettingsComponent
                 newAgent.transformer.type =
                   transformer.defaultTransformer.technicalName;
 
-                console.log('normal steps length: ' + normalSteps.length);
                 newAgent.stepConfiguration.normalPipeline = normalSteps.map(
                   (itemType) => itemTypeToStep(itemType)
                 );
@@ -311,7 +309,6 @@ export class AgentSettingsComponent
           this.reset();
           return;
         }
-
         this.settingsService.deleteAgent(this.currentAgent!, this.agent);
       });
   }
