@@ -22,6 +22,13 @@ namespace Eu.EDelivery.AS4.Model.Core
             MessageId = messageid;
         }
 
+        protected MessageUnit(string messageId, string refToMessageId)
+        {
+            Timestamp = DateTimeOffset.Now;
+            MessageId = messageId;
+            RefToMessageId = refToMessageId;
+        }
+
         protected MessageUnit(string messageId, string refToMessageId, DateTimeOffset timestamp)
         {
             MessageId = messageId;
