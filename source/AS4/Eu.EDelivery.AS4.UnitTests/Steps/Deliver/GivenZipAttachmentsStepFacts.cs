@@ -25,7 +25,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
                 const string contentType = "image/png";
 
                 AS4Message as4Message = AS4Message.Empty;
-                as4Message.AddAttachment(new Attachment("attachment-id") { ContentType = contentType });
+                as4Message.AddAttachment(new Attachment("attachment-id", Stream.Null, contentType));
 
                 // Act
                 await new ZipAttachmentsStep().ExecuteAsync(
@@ -57,11 +57,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
             {
                 Attachment CreateAttachment()
                 {
-                    return new Attachment("attachment" + Guid.NewGuid())
-                    {
-                        Content = new MemoryStream(Encoding.UTF8.GetBytes("Plain Dummy Text")),
-                        ContentType = "text/plain"
-                    };
+                    return new Attachment(
+                        id: $"attachment{Guid.NewGuid()}",
+                        content: new MemoryStream(Encoding.UTF8.GetBytes("Plain Dummy Text")),
+                        contentType: "text/plain");
                 }
 
                 AS4Message message = AS4Message.Empty;

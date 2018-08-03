@@ -118,11 +118,11 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         private static AS4Message SignedUserMessage(string messageId, SendingProcessingMode nrrPMode, X509Certificate2 cert)
         {
             AS4Message userMessage = AS4Message.Create(new UserMessage(messageId), nrrPMode);
-            userMessage.AddAttachment(new Attachment("payload")
-            {
-                Content = new MemoryStream(Encoding.UTF8.GetBytes("some content!")),
-                ContentType = "text/plain"
-            });
+            userMessage.AddAttachment(
+                new Attachment(
+                    id: "payload",
+                    content: new MemoryStream(Encoding.UTF8.GetBytes("some content!")),
+                    contentType: "text/plain"));
 
             return AS4MessageUtils.SignWithCertificate(userMessage, cert);
         }

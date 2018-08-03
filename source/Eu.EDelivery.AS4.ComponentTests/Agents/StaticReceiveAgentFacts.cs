@@ -105,11 +105,10 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             AS4Message m = AS4Message.Create(user);
 
             m.AddAttachment(
-                    new Attachment(attachmentId)
-                    {
-                        ContentType = "image/jpg",
-                        Content = new MemoryStream(Properties.Resources.payload)
-                    });
+                new Attachment(
+                    id: attachmentId,
+                    content: new MemoryStream(Properties.Resources.payload),
+                    contentType: "image/jpg"));
 
             var certRepo = new CertificateRepository(msh.GetConfiguration());
 
