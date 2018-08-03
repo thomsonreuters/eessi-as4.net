@@ -59,14 +59,13 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             if (messagingContext.ReceivedMessage == null)
             {
                 throw new InvalidOperationException(
-                    $"{nameof(SaveReceivedMessageStep)} " + 
-                    "requires a ReceivedMessage to store the incoming message into the datastore");
+                    $"{nameof(SaveReceivedMessageStep)} requires a ReceivedMessage to store the incoming message into the datastore but no ReceivedMessage is present in the MessagingContext");
             }
 
             if (messagingContext.AS4Message == null)
             {
                 throw new InvalidOperationException(
-                    $"{nameof(SaveReceivedMessageStep)} requires an AS4Message to save but hasn't got one");
+                    $"{nameof(SaveReceivedMessageStep)} requires an AS4Message to save but no AS4Message is present in the MessagingContext");
             }
 
             MessagingContext resultContext = await InsertReceivedAS4MessageAsync(messagingContext);

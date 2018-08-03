@@ -57,7 +57,8 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             AS4Message as4Message = messagingContext.AS4Message;
             if (as4Message == null)
             {
-                throw new InvalidOperationException("Determination of PModes step requires an AS4Message but hasn't got one");
+                throw new InvalidOperationException(
+                    $"{nameof(DeterminePModesStep)} requires an AS4Message but no AS4Message is present in the MessagingContext");
             }
 
             if (as4Message.SignalMessages.Any(s => !(s is Model.Core.PullRequest)))

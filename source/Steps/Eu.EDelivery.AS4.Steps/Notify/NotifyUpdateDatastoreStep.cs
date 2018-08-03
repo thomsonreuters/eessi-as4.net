@@ -43,7 +43,7 @@ namespace Eu.EDelivery.AS4.Steps.Notify
             if (notifyMessage == null)
             {
                 throw new InvalidOperationException(
-                    $"{nameof(NotifyUpdateDatastoreStep)} requires a NotifyMessage to use during the update of the datastore but hasn't got one");
+                    $"{nameof(NotifyUpdateDatastoreStep)} requires a NotifyMessage to use during the update of the datastore but no NotifyMessage is present in the MessagingContext");
             }
 
             Logger.Info($"{messagingContext.LogTag} Mark the stored notify message as Notified");

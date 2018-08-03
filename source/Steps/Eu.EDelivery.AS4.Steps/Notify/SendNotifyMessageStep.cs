@@ -58,7 +58,7 @@ namespace Eu.EDelivery.AS4.Steps.Notify
             if (messagingContext.NotifyMessage == null)
             {
                 throw new InvalidOperationException(
-                    $"{nameof(SendNotifyMessageStep)} requires a NotifyMessage to send but hasn't got one");
+                    $"{nameof(SendNotifyMessageStep)} requires a NotifyMessage to send but no NotifyMessage is present in the MessagingContext");
             }
 
             if (messagingContext.SendingPMode == null)

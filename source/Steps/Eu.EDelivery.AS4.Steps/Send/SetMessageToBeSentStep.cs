@@ -45,7 +45,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             if (messagingContext.AS4Message == null)
             {
                 throw new InvalidOperationException(
-                    $"{nameof(SetMessageToBeSentStep)} requires an AS4Message to mark for sending but hasn't got one");
+                    $"{nameof(SetMessageToBeSentStep)} requires an AS4Message to mark for sending but no AS4Message is present in the MessagingContext");
             }
 
             Logger.Info($"{messagingContext.LogTag} Set the message's Operation=ToBeSent");

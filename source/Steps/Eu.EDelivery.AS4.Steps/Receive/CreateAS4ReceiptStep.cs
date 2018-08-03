@@ -53,7 +53,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             if (receivedAS4Message == null)
             {
                 throw new InvalidOperationException(
-                    $"{nameof(CreateAS4ReceiptStep)} requires an AS4Message to create a Receipt for but hasn't got one");
+                    $"{nameof(CreateAS4ReceiptStep)} requires an AS4Message to create a Receipt for but no AS4Message is present in the MessagingContext");
             }
 
             SendingProcessingMode responseSendPMode =

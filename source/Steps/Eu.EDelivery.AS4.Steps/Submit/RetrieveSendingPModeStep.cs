@@ -47,7 +47,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
             if (messagingContext.SubmitMessage == null)
             {
                 throw new InvalidOperationException(
-                    $"{nameof(RetrieveSendingPModeStep)} requires an SubmitMessage to retrieve the SendingPMode from but hasn't got one");
+                    $"{nameof(RetrieveSendingPModeStep)} requires an SubmitMessage to retrieve the SendingPMode from but no SubmitMessage is present in the MessagingContext");
             }
 
             messagingContext.SubmitMessage.PMode = RetrieveSendPMode(messagingContext);

@@ -52,7 +52,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             if (context.AS4Message == null)
             {
                 throw new InvalidOperationException(
-                    $"{nameof(DecryptAS4MessageStep)} requires a AS4Message to decrypt but hasn't got one");
+                    $"{nameof(DecryptAS4MessageStep)} requires a AS4Message to decrypt but no AS4Message is present in the MessagingContext");
             }
 
             if (context.AS4Message.IsSignalMessage)

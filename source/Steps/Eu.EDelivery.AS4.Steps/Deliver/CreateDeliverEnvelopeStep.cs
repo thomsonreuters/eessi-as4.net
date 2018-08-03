@@ -35,7 +35,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
             if (messagingContext.AS4Message == null)
             {
                 throw new InvalidOperationException(
-                    $"{nameof(CreateDeliverEnvelopeStep)} requires an AS4Message to create a DeliverMessage from but hasn't got one");
+                    $"{nameof(CreateDeliverEnvelopeStep)} requires an AS4Message to create a DeliverMessage from but no AS4Message is present in the MessagingContext");
             }
 
             AS4Message as4Message = messagingContext.AS4Message;

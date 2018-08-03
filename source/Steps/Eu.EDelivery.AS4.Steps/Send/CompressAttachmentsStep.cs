@@ -27,13 +27,13 @@ namespace Eu.EDelivery.AS4.Steps.Send
             if (messagingContext.AS4Message == null)
             {
                 throw new InvalidOperationException(
-                    $"{nameof(CompressAttachmentsStep)} requires an AS4Message to compress it attachments but hasn't got one");
+                    $"{nameof(CompressAttachmentsStep)} requires an AS4Message to compress it attachments but no AS4Message is present in the MessagingContext");
             }
 
             if (messagingContext.SendingPMode == null)
             {
                 throw new InvalidOperationException(
-                    $"{nameof(CompressAttachmentsStep)} requires a Sending Processing Mode to use during the compression but hasn't got one");
+                    $"{nameof(CompressAttachmentsStep)} requires a Sending Processing Mode to use during the compression but no Sending Processing Mode is present in the MessagingContext");
             }
 
             if (messagingContext.SendingPMode.MessagePackaging?.UseAS4Compression == false)

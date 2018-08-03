@@ -34,7 +34,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             if (messagingContext.AS4Message == null)
             {
                 throw new InvalidOperationException(
-                    $"{nameof(DecompressAttachmentsStep)}requires a AS4Message but hasn't got one");
+                    $"{nameof(DecompressAttachmentsStep)} requires a AS4Message but no AS4Message is present in the MessagingContext");
             }
 
             if (messagingContext.ReceivedMessageMustBeForwarded)

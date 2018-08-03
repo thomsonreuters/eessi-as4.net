@@ -55,7 +55,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
             if (messagingContext.AS4Message == null)
             {
                 throw new InvalidOperationException(
-                    $"{nameof(UploadAttachmentsStep)} requires an AS4Message to upload the attachments from but hasn't got one");
+                    $"{nameof(UploadAttachmentsStep)} requires an AS4Message to upload the attachments from but no AS4Message is present in the MessagingContext");
             }
 
             AS4Message as4Message = messagingContext.AS4Message;

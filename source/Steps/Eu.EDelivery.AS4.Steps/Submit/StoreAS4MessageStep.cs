@@ -64,7 +64,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
             if (messagingContext.AS4Message == null)
             {
                 throw new InvalidOperationException(
-                    $"{nameof(StoreAS4MessageStep)} requires an AS4Message to save but hasn't got one");
+                    $"{nameof(StoreAS4MessageStep)} requires an AS4Message to save but no AS4Message is present in the MessagingContext");
             }
 
             Logger.Debug("Storing the AS4Message with Operation=ToBeProcessed");

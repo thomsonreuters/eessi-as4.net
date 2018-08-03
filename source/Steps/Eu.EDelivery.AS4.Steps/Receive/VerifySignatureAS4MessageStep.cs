@@ -66,7 +66,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             if (messagingContext.AS4Message == null)
             {
                 throw new InvalidOperationException(
-                    $"{nameof(VerifySignatureAS4MessageStep)}requires an AS4Message to verify but hasn't got one");
+                    $"{nameof(VerifySignatureAS4MessageStep)} requires an AS4Message to verify but no AS4Message is present in the MessagingContext");
             }
 
             SigningVerification verification = DetermineSigningVerification(messagingContext);
@@ -158,7 +158,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
             if (!userMessages.Any())
             {
-                Logger.Debug("No referenced UserMessage(s) are found for the incoming Receipt(s)");
+                Logger.Debug("No UserMessage(s) are found for the incoming Receipt(s)");
             }
 
             return receipts.All(nrrReceipt =>
@@ -209,7 +209,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             }
             catch (CryptographicException exception)
             {
-                Logger.Error($"{messagingContext.LogTag} An exception occured while validating the signature: {exception}");
+                Logger.Error($"{messagingContext.LogTag} An exception occured while validating the signature: {exception.Message}");
                 return InvalidSignatureResult(
                     exception.Message, 
                     ErrorAlias.FailedAuthentication, 

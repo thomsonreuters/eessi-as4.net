@@ -61,7 +61,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
             if (messagingContext.AS4Message == null)
             {
                 throw new InvalidOperationException(
-                    $"{nameof(CreateDefaultAS4MessageStep)} requires an AS4Message to assign the default UserMessage to but hasn't got one");
+                    $"{nameof(CreateDefaultAS4MessageStep)} requires an AS4Message to assign the default UserMessage to but no AS4Message is present in the MessagingContext");
             }
 
             SendingProcessingMode pmode = GetDefaultPMode();

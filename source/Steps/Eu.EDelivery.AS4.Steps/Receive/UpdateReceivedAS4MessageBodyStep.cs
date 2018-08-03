@@ -48,7 +48,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             if (messagingContext.AS4Message == null)
             {
                 throw new InvalidOperationException(
-                    $"{nameof(UpdateReceivedAS4MessageBodyStep)} requires an AS4Message to update but hasn't got one");
+                    $"{nameof(UpdateReceivedAS4MessageBodyStep)} requires an AS4Message to update but no AS4Message is present in the MessagingContext");
             }
 
             Logger.Trace("Updating the received message body...");

@@ -52,7 +52,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
             if (messagingContext.SubmitMessage == null)
             {
                 throw new InvalidOperationException(
-                    $"{nameof(CreateAS4MessageStep)} requires a SubmitMessage to create an AS4Message from but hasn't got one");
+                    $"{nameof(CreateAS4MessageStep)} requires a SubmitMessage to create an AS4Message from but no AS4Message is present in the MessagingContext");
             }
 
             AS4Message as4Message = CreateAS4MessageFromSubmit(messagingContext);

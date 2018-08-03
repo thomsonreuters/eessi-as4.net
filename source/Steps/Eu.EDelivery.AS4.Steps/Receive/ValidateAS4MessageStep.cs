@@ -33,7 +33,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             if (context.AS4Message == null)
             {
                 throw new InvalidOperationException(
-                    $"{nameof(ValidateAS4MessageStep)} requires an AS4Message to validate but hasn't got one");
+                    $"{nameof(ValidateAS4MessageStep)} requires an AS4Message to validate but no AS4Message is present in the MessagingContext");
             }
 
             Logger.Trace("Validating the received AS4Message ...");

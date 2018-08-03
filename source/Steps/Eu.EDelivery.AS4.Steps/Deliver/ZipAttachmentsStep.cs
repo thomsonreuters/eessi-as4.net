@@ -39,7 +39,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
             if (messagingContext.AS4Message == null)
             {
                 throw new InvalidOperationException(
-                    $"{nameof(ZipAttachmentsStep)} requires an AS4Message to zip the attachments but hasn't got one");
+                    $"{nameof(ZipAttachmentsStep)} requires an AS4Message to zip the attachments but no AS4Message is present in the MessagingContext");
             }
 
             if (messagingContext.AS4Message.Attachments.Count() > 1)
