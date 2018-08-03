@@ -32,7 +32,6 @@
           <Step type="Eu.EDelivery.AS4.Steps.Send.CompressAttachmentsStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
           <Step type="Eu.EDelivery.AS4.Steps.Send.SignAS4MessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
           <Step type="Eu.EDelivery.AS4.Steps.Send.EncryptAS4MessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-          <Step type="Eu.EDelivery.AS4.Steps.Send.SetReceptionAwarenessStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
           <Step type="Eu.EDelivery.AS4.Steps.Send.SetMessageToBeSentStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
         </NormalPipeline>
       </StepConfiguration>
@@ -130,20 +129,6 @@
         </NormalPipeline>
       </StepConfiguration>
     </NotifyAgent>
-    <ReceptionAwarenessAgent name="Reception Awareness Agent">
-      <Receiver type="Eu.EDelivery.AS4.Receivers.DatastoreReceiver, Eu.EDelivery.AS4.Receivers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-        <Setting key="Table">ReceptionAwareness</Setting>
-        <Setting key="Filter">Status = 'Pending'</Setting>
-        <Setting key="Update" field="Status">Busy</Setting>
-        <Setting key="PollingInterval">0:00:05</Setting>
-      </Receiver>
-      <Transformer type="Eu.EDelivery.AS4.Transformers.ReceptionAwarenessTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-      <StepConfiguration>
-        <NormalPipeline>
-          <Step type="Eu.EDelivery.AS4.Steps.ReceptionAwareness.ReceptionAwarenessUpdateDatastoreStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-        </NormalPipeline>
-      </StepConfiguration>
-    </ReceptionAwarenessAgent>
     <!-- For ConformanceTesting using Minder, setup 2 instances of the consolehost application and enable only one minder-agent at each corner. -->
     <MinderSubmitReceiveAgent Enabled="true" UseLogging="false" Url="http://*:8080/as4-net-c2/">
       <Transformer type="Eu.EDelivery.AS4.Transformers.ConformanceTestTransformers.ConformanceTestingSubmitReceiveMessageTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
