@@ -58,7 +58,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 service.UpdateAS4MessageToBeSent(
                     messagingContext.MessageEntityId.Value, 
                     messagingContext.AS4Message,
-                    messagingContext.SendingPMode);
+                    messagingContext.SendingPMode?.Reliability?.ReceptionAwareness);
 
                 await context.SaveChangesAsync().ConfigureAwait(false);
             }

@@ -206,13 +206,13 @@ namespace Eu.EDelivery.AS4.Services
         /// Updates a <see cref="AS4Message"/>.
         /// </summary>
         /// <param name="outMessageId">The Id that uniquely identifies the OutMessage record in the database.</param>
-        /// <param name="message">The message.</param>
-        /// <param name="sendingPMode"></param>
+        /// <param name="message">The message to be sent.</param>
+        /// <param name="awareness">The reliability reception awareness used during the sending of the message</param>
         /// <returns></returns>
         public void UpdateAS4MessageToBeSent(
             long outMessageId,
             AS4Message message,
-            SendingProcessingMode sendingPMode)
+            ReceptionAwareness awareness)
         {
             string messageBodyLocation =
                 _repository.GetOutMessageData(outMessageId, m => m.MessageLocation);
@@ -226,7 +226,6 @@ namespace Eu.EDelivery.AS4.Services
                     m.Operation = Operation.ToBeSent;
                     m.MessageLocation = messageBodyLocation;
 
-                    ReceptionAwareness awareness = sendingPMode?.Reliability?.ReceptionAwareness;
                     if (awareness?.IsEnabled ?? false)
                     {
                         var r = Entities.RetryReliability.CreateForOutMessage(
@@ -250,15 +249,5 @@ namespace Eu.EDelivery.AS4.Services
         /// <param name="operation">The operation.</param>
         /// <returns></returns>
         void InsertAS4Message(MessagingContext message, Operation operation);
-
-        /// <summary>
-        /// Updates a <see cref="AS4Message"/>.
-        /// </summary>
-        /// <param name="outMessageId">The ID that uniquely identifies the OutMessage for
-        /// this <paramref name="message"/></param>
-        /// <param name="message">The message.</param>
-        /// <param name="sendingPMode"></param>
-        /// <returns></returns>
-        void UpdateAS4MessageToBeSent(long outMessageId, AS4Message message, SendingProcessingMode sendingPMode);
     }
 }
