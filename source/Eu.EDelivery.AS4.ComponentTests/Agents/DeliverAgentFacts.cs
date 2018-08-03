@@ -61,7 +61,6 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             return new Attachment(
                 id: "yet-another-attachment",
                 content: stream,
-                location: uri,
                 contentType: "image/jpeg");
         }
 

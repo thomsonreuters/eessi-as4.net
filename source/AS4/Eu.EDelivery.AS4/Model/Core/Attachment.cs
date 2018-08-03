@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Xml.Serialization;
 using Eu.EDelivery.AS4.Streaming;
 
 namespace Eu.EDelivery.AS4.Model.Core
@@ -14,37 +13,32 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// </summary>
         public string Id { get; }
 
-        // TODO: only the decompression step uses the public set, should be investigated
-        public string ContentType { get; set; }
+        public string ContentType { get; private set; }
 
-        private Stream _content;
-
-        // TODO: only the decompression step uses the public set, should be investigated
-        public Stream Content
-        {
-            get => _content;
-            set => UpdateContent(value);
-        }
-
-        private void UpdateContent(Stream value)
-        {
-            if (ReferenceEquals(_content, value) == false)
-            {
-                _content?.Dispose();
-            }
-
-            _content = value;
-            if (_content != null)
-            {
-                EstimatedContentSize = StreamUtilities.GetStreamSize(_content);
-            }
-            else
-            {
-                EstimatedContentSize = -1;
-            }
-        }
+        public Stream Content { get; private set; }
 
         public long EstimatedContentSize { get; private set; }
+
+        /// <summary>
+        /// Updates both the content and the type of the content in the <see cref="Attachment"/>.
+        /// </summary>
+        /// <param name="content"></param>
+        /// <param name="contentType"></param>
+        public void UpdateContent(Stream content, string contentType)
+        {
+            if (ReferenceEquals(Content, content) == false)
+            {
+                Content?.Dispose();
+            }
+
+            Content = content;
+            ContentType = contentType;
+
+            EstimatedContentSize = 
+                Content != null 
+                    ? StreamUtilities.GetStreamSize(Content) 
+                    : -1;
+        }
 
         // TODO: only the upload step uses the public set, should be investigated
         public string Location { get; set; }
@@ -56,38 +50,6 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// </summary>
         /// <param name="id"></param>
         public Attachment(string id) : this(id, Stream.Null, "application/octet-stream") { }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="Attachment"/> class.
-        /// </summary>
-        /// <param name="id"></param>
-        /// <param name="location"></param>
-        /// <param name="contentType"></param>
-        public Attachment(
-            string id,
-            string location,
-            string contentType)
-        {
-            if (id == null)
-            {
-                throw new ArgumentNullException(nameof(id));
-            }
-
-            if (location == null)
-            {
-                throw new ArgumentNullException(nameof(location));
-            }
-
-            if (contentType == null)
-            {
-                throw new ArgumentNullException(nameof(contentType));
-            }
-
-            Id = id.Replace(" ", string.Empty);
-            Location = location;
-            ContentType = contentType;
-            EstimatedContentSize = -1;
-        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Attachment"/> class.
@@ -125,46 +87,6 @@ namespace Eu.EDelivery.AS4.Model.Core
 
             Id = id.Replace(" ", string.Empty);
             Content = content;
-            ContentType = contentType;
-            EstimatedContentSize = StreamUtilities.GetStreamSize(content);
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="Attachment"/> class.
-        /// </summary>
-        /// <param name="id"></param>
-        /// <param name="content"></param>
-        /// <param name="location"></param>
-        /// <param name="contentType"></param>
-        public Attachment(
-            string id,
-            Stream content,
-            string location,
-            string contentType)
-        {
-            if (id == null)
-            {
-                throw new ArgumentNullException(nameof(id));
-            }
-
-            if (content == null)
-            {
-                throw new ArgumentNullException(nameof(content));
-            }
-
-            if (location == null)
-            {
-                throw new ArgumentNullException(nameof(location));
-            }
-
-            if (contentType == null)
-            {
-                throw new ArgumentNullException(nameof(contentType));
-            }
-
-            Id = id.Replace(" ", string.Empty);
-            Content = content;
-            Location = location;
             ContentType = contentType;
             EstimatedContentSize = StreamUtilities.GetStreamSize(content);
         }

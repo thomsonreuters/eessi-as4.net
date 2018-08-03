@@ -140,7 +140,7 @@ namespace Eu.EDelivery.AS4.Serialization
                 var tempStream = new VirtualStream(forAsync: true);
                 attachment.Content.CopyTo(tempStream);
                 tempStream.Position = 0;
-                attachment.Content = tempStream;
+                attachment.UpdateContent(tempStream, attachment.ContentType);
             }
 
             try

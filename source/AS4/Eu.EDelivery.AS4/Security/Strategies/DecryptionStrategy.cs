@@ -102,9 +102,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
                 Stream decryptedStream = DecryptData(encryptedData, attachment.Content, decryptAlgorithm);
 
                 var transformer = AttachmentTransformer.Create(encryptedData.Type);
-                transformer.Transform(attachment, decryptedStream);
-
-                attachment.ContentType = encryptedData.MimeType;
+                transformer.Transform(attachment, decryptedStream, encryptedData.MimeType);
             }
             else
             {
@@ -267,7 +265,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
                 }
             }
 
-            public abstract void Transform(Attachment attachment, Stream decryptedData);
+            public abstract void Transform(Attachment attachment, Stream decryptedData, string contentType);
 
             #region Implementations
 
@@ -277,7 +275,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
 
                 public static readonly AttachmentCompleteTransformer Default = new AttachmentCompleteTransformer();
 
-                public override void Transform(Attachment attachment, Stream decryptedData)
+                public override void Transform(Attachment attachment, Stream decryptedData, string contentType)
                 {
                     // The decrypted data can contain MIME headers, therefore we'll need to parse
                     // the decrypted data as a MimePart, and make sure that the content is set correctly
@@ -290,8 +288,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
                     }
 
                     attachment.Content.Dispose();
-
-                    attachment.Content = part.ContentObject.Stream;
+                    attachment.UpdateContent(part.ContentObject.Stream, contentType);
 
                     foreach (Header header in part.Headers)
                     {
@@ -306,10 +303,10 @@ namespace Eu.EDelivery.AS4.Security.Strategies
 
                 public static readonly AttachmentContentOnlyTransformer Default = new AttachmentContentOnlyTransformer();
 
-                public override void Transform(Attachment attachment, Stream decryptedData)
+                public override void Transform(Attachment attachment, Stream decryptedData, string contentType)
                 {
                     attachment.Content.Dispose();
-                    attachment.Content = decryptedData;
+                    attachment.UpdateContent(decryptedData, contentType);
                 }
             }
             #endregion

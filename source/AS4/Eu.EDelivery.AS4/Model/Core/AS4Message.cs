@@ -351,7 +351,7 @@ namespace Eu.EDelivery.AS4.Model.Core
             foreach (Payload payload in payloads)
             {
                 Stream content = await retrieval(payload).ConfigureAwait(false);
-                var attachment = new Attachment(payload.Id, content, payload.Location, payload.MimeType);
+                var attachment = new Attachment(payload.Id, content, payload.MimeType);
                 AddAttachment(attachment);
             }
         }
@@ -366,7 +366,6 @@ namespace Eu.EDelivery.AS4.Model.Core
             foreach (Attachment attachment in this.Attachments)
             {
                 CompressAttachment(attachment);
-                AssignAttachmentProperties(attachment);
             }
             // Since the headers in the message have changed, the EnvelopeDocument
             // is no longer in sync and should be set to null.
@@ -379,7 +378,7 @@ namespace Eu.EDelivery.AS4.Model.Core
                 VirtualStream.Create(
                     attachment.EstimatedContentSize > -1 ? attachment.EstimatedContentSize : VirtualStream.ThresholdMax);
 
-            var compressionLevel = DetermineCompressionLevelFor(attachment);
+            CompressionLevel compressionLevel = DetermineCompressionLevelFor(attachment);
 
             using (var gzipCompression = new GZipStream(outputStream, compressionLevel, leaveOpen: true))
             {
@@ -387,7 +386,9 @@ namespace Eu.EDelivery.AS4.Model.Core
             }
 
             outputStream.Position = 0;
-            attachment.Content = outputStream;
+            attachment.Properties["MimeType"] = attachment.ContentType;
+            attachment.Properties["CompressionType"] = "application/gzip";
+            attachment.UpdateContent(outputStream, "application/gzip");
         }
 
         private static CompressionLevel DetermineCompressionLevelFor(Attachment attachment)
@@ -416,13 +417,6 @@ namespace Eu.EDelivery.AS4.Model.Core
             }
 
             return CompressionLevel.Optimal;
-        }
-
-        private static void AssignAttachmentProperties(Attachment attachment)
-        {
-            attachment.Properties["CompressionType"] = "application/gzip";
-            attachment.Properties["MimeType"] = attachment.ContentType;
-            attachment.ContentType = "application/gzip";
         }
 
         /// <summary>
