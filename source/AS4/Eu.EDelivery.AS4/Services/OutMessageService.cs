@@ -233,7 +233,7 @@ namespace Eu.EDelivery.AS4.Services
                             outMessageId,
                             awareness.RetryCount,
                             awareness.RetryInterval.AsTimeSpan(),
-                            RetryType.Sending);
+                            RetryType.Send);
 
                         _repository.InsertRetryReliability(r);
                     }

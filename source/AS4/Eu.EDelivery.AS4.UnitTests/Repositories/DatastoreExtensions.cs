@@ -51,7 +51,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Repositories
                             refToOutMessageId: message.Id,
                             maxRetryCount: 0,
                             retryInterval: TimeSpan.Zero,
-                            type: RetryType.Sending));
+                            type: RetryType.Send));
 
                     context.SaveChanges();
                 }

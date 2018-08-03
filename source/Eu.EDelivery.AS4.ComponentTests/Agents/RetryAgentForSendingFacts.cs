@@ -43,7 +43,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                             id,
                             pmode.Reliability.ReceptionAwareness.RetryCount,
                             pmode.Reliability.ReceptionAwareness.RetryInterval.AsTimeSpan(),
-                            RetryType.Sending));
+                            RetryType.Send));
 
                     // Act
                     SimulateSendingFailureOnFirstAttempt(url, secondAttempt);
