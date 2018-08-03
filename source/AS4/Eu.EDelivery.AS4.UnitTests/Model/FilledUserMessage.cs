@@ -19,26 +19,20 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
         /// Initializes a new instance of the <see cref="FilledUserMessage"/> class.
         /// </summary>
         public FilledUserMessage(string messageId, params string[] attachmentIds)
+            : base(
+                messageId,
+                "mpc",
+                CreateCollaborationInfo(),
+                CreateParty("Sender", "org:holodeckb2b:example:company:A"),
+                CreateParty("Receiver", "org:eu:europa:as4:example"),
+                CreatePartInfos(attachmentIds),
+                CreateMessageProperties()) { }
+
+        private static IEnumerable<PartInfo> CreatePartInfos(string[] attachmentsIds)
         {
-            Mpc = "mpc";
-            MessageId = messageId;
-            CollaborationInfo = CreateCollaborationInfo();
-            Receiver = CreateParty("Receiver", "org:eu:europa:as4:example");
-            Sender = CreateParty("Sender", "org:holodeckb2b:example:company:A");
-
-            foreach (MessageProperty p in CreateMessageProperties())
-            {
-                AddMessageProperty(p);
-            }
-
-            IEnumerable<PartInfo> partInfos = attachmentIds
-                .DefaultIfEmpty("attachment-uri")
-                .Select(id => new PartInfo(href: $"cid:{id}"));
-
-            foreach (PartInfo p in partInfos)
-            {
-                AddPartInfo(p);
-            }
+            return attachmentsIds
+                   .DefaultIfEmpty("attachment-uri")
+                   .Select(id => new PartInfo(href: $"cid:{id}"));
         }
 
         private static CollaborationInfo CreateCollaborationInfo()

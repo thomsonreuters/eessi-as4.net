@@ -3,6 +3,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Xml;
 using Eu.EDelivery.AS4.Security.References;
 using Eu.EDelivery.AS4.UnitTests.Common;
+using Eu.EDelivery.AS4.UnitTests.Extensions;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Security.References
@@ -56,61 +57,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.References
 
                 // Assert
                 Assert.NotNull(xmlElement);
-                Assert.Equal("BinarySecurityToken", xmlElement.FirstChild.Name);
-                Assert.Equal(Constants.Namespaces.WssSecuritySecExt, xmlElement.FirstChild.NamespaceURI);
-            }
-
-            [Fact]
-            public void ThenSecurityTokenContainsEncodingTypeAttribute()
-            {
-                // Arrange
-                XmlDocument xmlDocument = CreateSecurityHeaderDocument();
-                XmlElement securityHeaderElement = GetSecurityHeaderElement(xmlDocument);                
-
-                // Act
-                XmlElement xmlElement = _reference.AppendSecurityTokenTo(securityHeaderElement, xmlDocument);
-
-                // Assert
-                Assert.NotNull(xmlElement);
-                Assert.NotNull(xmlElement.FirstChild.Attributes);
-                Assert.Equal("EncodingType", xmlElement.FirstChild.Attributes[0].Name);
-                Assert.Equal(Constants.Namespaces.Base64Binary, xmlElement.FirstChild.Attributes[0].Value);
-            }
-
-            [Fact]
-            public void ThenSecurityTokenContainsIdAttribute()
-            {
-                // Arrange
-                XmlDocument xmlDocument = CreateSecurityHeaderDocument();
-
-                // Act
-                XmlElement xmlElement = _reference.AppendSecurityTokenTo(
-                    xmlDocument.FirstChild as XmlElement,
-                    xmlDocument);
-
-                // Assert
-                Assert.NotNull(xmlElement);
-                Assert.NotNull(xmlElement.FirstChild.Attributes);
-                Assert.Equal("Id", xmlElement.FirstChild.Attributes[2].Name);
-                Assert.Equal(Constants.Namespaces.WssSecurityUtility, xmlElement.FirstChild.Attributes[2].NamespaceURI);
-                Assert.Equal(_reference.ReferenceId, xmlElement.FirstChild.Attributes[2].Value);
-            }
-
-            [Fact]
-            public void ThenSecurityTokenContainsValueTypeAttribute()
-            {
-                // Arrange
-                XmlDocument xmlDocument = CreateSecurityHeaderDocument();
-                XmlElement securityHeaderElement = GetSecurityHeaderElement(xmlDocument);                
-
-                // Act
-                XmlElement xmlElement = _reference.AppendSecurityTokenTo(securityHeaderElement, xmlDocument);
-
-                // Assert
-                Assert.NotNull(xmlElement);
-                Assert.NotNull(xmlElement.FirstChild.Attributes);
-                Assert.Equal("ValueType", xmlElement.FirstChild.Attributes[1].Name);
-                Assert.Equal(Constants.Namespaces.ValueType, xmlElement.FirstChild.Attributes[1].Value);
+                XmlNode binarySecurityTokenTag = xmlElement.SelectEbmsNode("/wsse:Security/wsse:BinarySecurityToken");
+                Assert.NotNull(binarySecurityTokenTag.Attributes);
+                Assert.Collection(
+                    binarySecurityTokenTag.Attributes.Cast<XmlAttribute>(),
+                    a1 => a1.AssertEbmsAttribute("EncodingType", Constants.Namespaces.Base64Binary),
+                    a2 => a2.AssertEbmsAttribute("ValueType", Constants.Namespaces.ValueType),
+                    a3 => a3.AssertEbmsAttribute("Id", _reference.ReferenceId));
             }
         }
 
@@ -127,54 +80,15 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.References
 
                 // Assert
                 Assert.NotNull(xmlElement);
-                Assert.Equal("Reference", xmlElement.FirstChild.LocalName);
-                Assert.Equal(Constants.Namespaces.WssSecuritySecExt, xmlElement.FirstChild.NamespaceURI);
-            }
-
-            [Fact]
-            public void ThenXmlContainsSecurityTokenReferenceElement()
-            {
-                // Act
-                XmlElement xmlElement = _reference.GetXml();
-
-                // Assert
-                Assert.NotNull(xmlElement);
                 Assert.Equal("SecurityTokenReference", xmlElement.LocalName);
                 Assert.Equal(Constants.Namespaces.WssSecuritySecExt, xmlElement.NamespaceURI);
-            }
 
-            [Fact]
-            public void ThenXmlReferenceContainsURIAttribute()
-            {
-                // Act
-                XmlElement xmlElement = _reference.GetXml();
-
-                // Assert
-                Assert.NotNull(xmlElement);
-                Assert.NotNull(xmlElement.FirstChild.Attributes);
-
-                var uriAttribute = xmlElement.FirstChild.Attributes.OfType<XmlAttribute>().FirstOrDefault(a => a.LocalName == "URI");
-
-                Assert.NotNull(uriAttribute);
-                Assert.Equal($"#{_reference.ReferenceId}", uriAttribute.Value);
-            }
-
-            [Fact]
-            public void ThenXmlReferenceContainsValueTypeAttribute()
-            {
-                // Act
-                XmlElement xmlElement = _reference.GetXml();
-
-                // Assert
-                Assert.NotNull(xmlElement);
-                Assert.NotNull(xmlElement.FirstChild.Attributes);
-
-                var valueTypeAttribute = 
-                    xmlElement.FirstChild.Attributes.OfType<XmlAttribute>()
-                                                    .FirstOrDefault(a => a.Name.Equals("ValueType"));
-
-                Assert.NotNull(valueTypeAttribute);
-                Assert.Equal(Constants.Namespaces.ValueType, valueTypeAttribute.Value);
+                XmlNode referenceNode = xmlElement.SelectEbmsNode("/wsse:Reference");
+                Assert.NotNull(referenceNode.Attributes);
+                Assert.Collection(
+                    referenceNode.Attributes.Cast<XmlAttribute>(),
+                    a1 => a1.AssertEbmsAttribute("URI", $"#{_reference.ReferenceId}"),
+                    a2 => a2.AssertEbmsAttribute("ValueType", Constants.Namespaces.ValueType));
             }
         }
 
@@ -226,9 +140,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.References
                 // Arrange
                 var xmlDocument = new XmlDocument();
                 xmlDocument.LoadXml(Properties.Resources.as4_soap_signed_message_with_extra_hashtag);
+                var securityTokenReferenceNode = 
+                    (XmlElement) xmlDocument.SelectEbmsNode("/s12:Envelope/s12:Header/wsse:Security/dsig:Signature/dsig:KeyInfo/wsse:SecurityTokenReference");
 
                 // Act
-                _reference.LoadXml((XmlElement)xmlDocument.SelectSingleNode("//*[local-name()='SecurityTokenReference']"));
+                _reference.LoadXml(securityTokenReferenceNode);
 
                 // Assert
                 Assert.NotNull(_reference.Certificate);
@@ -252,7 +168,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.References
                 var ibmSecurityHeader = new XmlDocument();
                 ibmSecurityHeader.LoadXml(Properties.Resources.ibm_security_header);
 
-                return ibmSecurityHeader.SelectNodes("//*[local-name()='SecurityTokenReference']").Item(1) as XmlElement;
+                XmlNode securityTokenReference = 
+                    ibmSecurityHeader.SelectEbmsNode("/wsse:Security/dsig:Signature/dsig:KeyInfo/wsse:SecurityTokenReference");
+
+                return (XmlElement) securityTokenReference;
             }
         }
 
@@ -280,7 +199,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.References
         protected XmlDocument CreateSecurityHeaderDocument()
         {
             var xmlDocument = new XmlDocument();
-            xmlDocument.AppendChild(xmlDocument.CreateElement("Security"));
+            xmlDocument.AppendChild(xmlDocument.CreateElement("wsse", "Security", Constants.Namespaces.WssSecuritySecExt));
             return xmlDocument;
         }
 

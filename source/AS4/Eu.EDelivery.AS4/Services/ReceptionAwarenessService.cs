@@ -13,7 +13,7 @@ using ReceptionAwareness = Eu.EDelivery.AS4.Entities.ReceptionAwareness;
 
 namespace Eu.EDelivery.AS4.Services
 {
-    public class ReceptionAwarenessService : IReceptionAwarenessService
+    internal class ReceptionAwarenessService
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 

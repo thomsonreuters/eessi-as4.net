@@ -1,6 +1,5 @@
 ﻿using System;
 using Eu.EDelivery.AS4.Model.Common;
-using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Model.Submit;
 using CoreAgreementReference = Eu.EDelivery.AS4.Model.Core.AgreementReference;
@@ -19,8 +18,7 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
         /// 1.SubmitMessage / CollaborationInfo / Agreement
         /// </summary>
         /// <param name="submit"></param>
-        /// <param name="user"></param>
-        public static Maybe<CoreAgreementReference> ResolveAgreementReference(SubmitMessage submit, UserMessage user)
+        public static Maybe<CoreAgreementReference> ResolveAgreementReference(SubmitMessage submit)
         {
             SendingProcessingMode sendPMode = submit.PMode;
             Agreement submitAgreement = submit.Collaboration.AgreementRef;

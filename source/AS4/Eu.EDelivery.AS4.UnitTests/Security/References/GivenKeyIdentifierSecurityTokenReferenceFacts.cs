@@ -1,14 +1,16 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Xml;
 using Eu.EDelivery.AS4.Security.References;
 using Eu.EDelivery.AS4.UnitTests.Common;
+using Eu.EDelivery.AS4.UnitTests.Extensions;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Security.References
 {
     /// <summary>
     /// Testing the <see cref="KeyIdentifierSecurityTokenReference" />
-    /// </summary>
+    /// </summary>s
     public class GivenKeyIdentifierSecurityTokenReferenceFacts
     {
         private readonly KeyIdentifierSecurityTokenReference _reference;
@@ -20,73 +22,27 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.References
             _reference = new KeyIdentifierSecurityTokenReference(repository.GetStubCertificate());
         }
 
-        /// <summary>
-        /// Testing if the Reference Succeeds for the "GetXml" Method
-        /// </summary>
-        public class GivenValidArgumentsForGetXml : GivenKeyIdentifierSecurityTokenReferenceFacts
+        [Fact]
+        public void ThenGetXmlContainsKeyIdentifier()
         {
-            [Fact]
-            public void ThenGetXmlContainsKeyIdentifier()
-            {
-                // Act
-                XmlElement xmlElement = _reference.GetXml();
+            // Arrange
+            const string subjectKeyIdentifier = "hRmOyHw/oLIBBsGKp/L9qzCUZ1k=";
 
-                // Assert
-                Assert.NotNull(xmlElement);
-                Assert.Equal("wsse:KeyIdentifier", xmlElement.FirstChild.Name);
-                Assert.Equal(Constants.Namespaces.WssSecuritySecExt, xmlElement.FirstChild.NamespaceURI);
-            }
+            // Act
+            XmlElement xml = _reference.GetXml();
 
-            [Fact]
-            public void ThenGetXmlContainsKeyIdentifierEncodingTypeAttribute()
-            {
-                // Act
-                XmlElement xmlElement = _reference.GetXml();
+            // Assert
+            Assert.NotNull(xml);
+            Assert.Equal("wsse:SecurityTokenReference", xml.Name);
+            Assert.Equal(Constants.Namespaces.WssSecuritySecExt, xml.NamespaceURI);
 
-                // Assert
-                Assert.NotNull(xmlElement);
-                Assert.NotNull(xmlElement.FirstChild.Attributes);
-                Assert.Equal("EncodingType", xmlElement.FirstChild.Attributes[0].Name);
-                Assert.Equal(Constants.Namespaces.Base64Binary, xmlElement.FirstChild.Attributes[0].Value);
-            }
-
-            [Fact]
-            public void ThenGetXmlContainsKeyIdentifierInnerText()
-            {
-                // Arrange
-                const string subjectKeyIdentifier = "hRmOyHw/oLIBBsGKp/L9qzCUZ1k=";
-
-                // Act
-                XmlElement xmlElement = _reference.GetXml();
-
-                // Assert
-                Assert.NotNull(xmlElement);
-                Assert.Equal(subjectKeyIdentifier, xmlElement.FirstChild.InnerText);
-            }
-
-            [Fact]
-            public void ThenGetXmlContainsKeyIdentifierValueTypeAttribute()
-            {
-                // Act
-                XmlElement xmlElement = _reference.GetXml();
-
-                // Assert
-                Assert.NotNull(xmlElement);
-                Assert.NotNull(xmlElement.FirstChild.Attributes);
-                Assert.Equal("ValueType", xmlElement.FirstChild.Attributes[1].Name);
-                Assert.Equal(Constants.Namespaces.SubjectKeyIdentifier, xmlElement.FirstChild.Attributes[1].Value);
-            }
-
-            [Fact]
-            public void ThenGetXmlContainsSecurityTokenReference()
-            {
-                // Act
-                XmlElement xmlElement = _reference.GetXml();
-
-                // Assert
-                Assert.Equal("wsse:SecurityTokenReference", xmlElement?.Name);
-                Assert.Equal(Constants.Namespaces.WssSecuritySecExt, xmlElement?.NamespaceURI);
-            }
+            XmlNode keyIdentifierNode = xml.SelectEbmsNode("/wsse:KeyIdentifier");
+            Assert.Equal(subjectKeyIdentifier, keyIdentifierNode.InnerText);
+            Assert.NotNull(keyIdentifierNode.Attributes);
+            Assert.Collection(
+                keyIdentifierNode.Attributes.Cast<XmlAttribute>(),
+                a1 => a1.AssertEbmsAttribute("EncodingType", Constants.Namespaces.Base64Binary),
+                a2 => a2.AssertEbmsAttribute("ValueType", Constants.Namespaces.SubjectKeyIdentifier));
         }
 
         /// <summary>

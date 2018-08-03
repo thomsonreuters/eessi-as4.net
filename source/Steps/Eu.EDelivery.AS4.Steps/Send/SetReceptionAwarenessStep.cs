@@ -21,6 +21,22 @@ namespace Eu.EDelivery.AS4.Steps.Send
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 
+        private readonly Func<DatastoreContext> _createDatastore;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SetReceptionAwarenessStep"/> class.
+        /// </summary>
+        public SetReceptionAwarenessStep() : this(Registry.Instance.CreateDatastoreContext) { }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SetReceptionAwarenessStep"/> class.
+        /// </summary>
+        /// <param name="createDatastore"></param>
+        public SetReceptionAwarenessStep(Func<DatastoreContext> createDatastore)
+        {
+            _createDatastore = createDatastore;
+        }
+
         /// <summary>
         /// Start configuring Reception Awareness
         /// </summary>
@@ -49,11 +65,11 @@ namespace Eu.EDelivery.AS4.Steps.Send
             return await StepResult.SuccessAsync(messagingContext);
         }
 
-        private static async Task InsertReceptionAwarenessAsync(MessagingContext messagingContext)
+        private async Task InsertReceptionAwarenessAsync(MessagingContext messagingContext)
         {
             Logger.Info($"{messagingContext.LogTag} Set Reception Awareness");
 
-            using (DatastoreContext context = Registry.Instance.CreateDatastoreContext())
+            using (DatastoreContext context = _createDatastore())
             {
                 var repository = new DatastoreRepository(context);
 

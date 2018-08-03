@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Agents;
 using Eu.EDelivery.AS4.Common;
+using Eu.EDelivery.AS4.ServiceHandler.Agents;
 using Eu.EDelivery.AS4.Singletons;
 using NLog;
 
@@ -25,14 +26,14 @@ namespace Eu.EDelivery.AS4.ServiceHandler
         /// Initializes a new instance of the <see cref="Kernel"/> class. 
         /// </summary>
         /// <param name="agents"></param>
-        public Kernel(IEnumerable<IAgent> agents) : this(agents, Config.Instance) { }
+        internal Kernel(IEnumerable<IAgent> agents) : this(agents, Config.Instance) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Kernel" /> class.
         /// </summary>
         /// <param name="agents">The agents.</param>
         /// <param name="config">The configuration.</param>
-        public Kernel(IEnumerable<IAgent> agents, IConfig config)
+        internal Kernel(IEnumerable<IAgent> agents, IConfig config)
         {
             if (agents == null)
             {
@@ -41,6 +42,28 @@ namespace Eu.EDelivery.AS4.ServiceHandler
 
             _agents = agents;
             _config = config;
+        }
+
+        /// <summary>
+        /// Create an <see cref="Kernel" /> instance from a given settings file name.
+        /// </summary>
+        /// <param name="settings"></param>
+        /// <returns></returns>
+        public static Kernel CreateFromSettings(string settings = "settings.xml")
+        {
+            Config config = Config.Instance;
+            Registry registry = Registry.Instance;
+
+            config.Initialize(settings);
+            registry.Initialize(config);
+
+            if (!config.IsInitialized || !registry.IsInitialized)
+            {
+                return null;
+            }
+
+            var agentProvider = new AgentProvider(config, registry);
+            return new Kernel(agentProvider.GetAgents());
         }
 
         /// <summary>

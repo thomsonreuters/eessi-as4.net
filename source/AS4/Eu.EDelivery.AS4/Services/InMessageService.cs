@@ -24,7 +24,7 @@ namespace Eu.EDelivery.AS4.Services
     /// Repository to expose Data store related operations
     /// for the Update Data store Steps
     /// </summary>
-    public class InMessageService : IInMessageService
+    internal class InMessageService
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 

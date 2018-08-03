@@ -9,7 +9,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Samples
         /// <summary>
         /// Ensures that the Windows Service is started.
         /// </summary>
-        public void StartServiceIfNotYetStarted()
+        public void EnsureServiceIsStarted()
         {
             using (var controller = new ServiceController("AS4Service"))
             {
@@ -30,8 +30,11 @@ namespace Eu.EDelivery.AS4.ComponentTests.Samples
         {
             using (var controller = new ServiceController("AS4Service"))
             {
-                controller.Stop();
-                controller.WaitForStatus(ServiceControllerStatus.Stopped);
+                if (controller.Status != ServiceControllerStatus.Stopped)
+                {
+                    controller.Stop();
+                    controller.WaitForStatus(ServiceControllerStatus.Stopped); 
+                }
             }
         }
     }

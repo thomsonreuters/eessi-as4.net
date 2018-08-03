@@ -58,51 +58,29 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 return StepResult.Success(messagingContext);
             }
 
-            using (DatastoreContext dataContext = _createDatastoreContext())
-            {
-                var outService = new OutMessageService(
-                    _config,
-                    new DatastoreRepository(dataContext),
-                    _messageBodyStore);
+            await InsertRespondSignalToDatastore(messagingContext);
 
-                outService.InsertAS4Message(messagingContext, Operation.NotApplicable);
-
-                await dataContext.SaveChangesAsync().ConfigureAwait(false);
-            }
-
-            if (IsReplyPatternCallback(messagingContext))
+            ReplyPattern? replyPattern = messagingContext.ReceivingPMode?.ReplyHandling?.ReplyPattern;
+            if (replyPattern == ReplyPattern.Callback || messagingContext.Mode == MessagingContextMode.PullReceive)
             {
                 return CreateEmptySoapResult(messagingContext);
             }
 
-            if (Logger.IsInfoEnabled)
-            {
-                string errorDescriptions =
-                    messagingContext.AS4Message.FirstSignalMessage is Error e
-                        ? ": " + ConcatErrorDescriptions(e)
-                        : String.Empty;
-
-                Logger.Info(
-                    $"{messagingContext.LogTag} {messagingContext.AS4Message.FirstSignalMessage.GetType().Name} " + 
-                    $"will be written to the response {errorDescriptions}");
-            }
-
-            return StepResult.Success(messagingContext);
+            return CreateSignalResult(messagingContext);
         }
 
-        private static string ConcatErrorDescriptions(Error e)
+        private async Task InsertRespondSignalToDatastore(MessagingContext messagingContext)
         {
-            if (e.Errors != null)
+            using (DatastoreContext dataContext = _createDatastoreContext())
             {
-                return String.Join(", ", e.Errors.Select(er => er.Detail));
+                var service = new OutMessageService(
+                    _config,
+                    new DatastoreRepository(dataContext),
+                    _messageBodyStore);
+
+                service.InsertAS4Message(messagingContext, Operation.NotApplicable);
+                await dataContext.SaveChangesAsync().ConfigureAwait(false);
             }
-
-            return String.Empty;
-        }
-
-        private static bool IsReplyPatternCallback(MessagingContext message)
-        {
-            return message.ReceivingPMode?.ReplyHandling?.ReplyPattern == ReplyPattern.Callback;
         }
 
         private static StepResult CreateEmptySoapResult(MessagingContext messagingContext)
@@ -118,6 +96,30 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 {
                     ReceivingPMode = messagingContext.ReceivingPMode
                 });
+        }
+
+        private static StepResult CreateSignalResult(MessagingContext context)
+        {
+            if (Logger.IsInfoEnabled)
+            {
+                string ConcatErrorDescriptions(Error err)
+                {
+                    return err.Errors != null 
+                        ? String.Join(", ", err.Errors.Select(e => e.Detail)) 
+                        : String.Empty;
+                }
+
+                string errorDescriptions =
+                    context.AS4Message.FirstSignalMessage is Error error
+                        ? ": " + ConcatErrorDescriptions(error)
+                        : String.Empty;
+
+                Logger.Info(
+                    $"{context.LogTag} {context.AS4Message.FirstSignalMessage.GetType().Name} " +
+                    $"will be written to the response {errorDescriptions}");
+            }
+
+            return StepResult.Success(context);
         }
     }
 }

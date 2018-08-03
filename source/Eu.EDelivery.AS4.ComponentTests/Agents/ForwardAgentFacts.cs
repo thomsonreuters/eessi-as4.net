@@ -146,9 +146,9 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
         private static UserMessage CreateForwardPullUserMessage(string messageId)
         {
-            return new UserMessage(messageId)
-            {
-                CollaborationInfo = new CollaborationInfo(
+            return new UserMessage(
+                messageId,
+                new CollaborationInfo(
                     agreement: new AgreementReference(
                         value: "http://agreements.europa.org/agreement",
                         pmodeId: "Forward_Pull"),
@@ -156,8 +156,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                         value: "Forward_Pull_Service",
                         type: "eu:europa:services"),
                     action: "Forward_Pull_Action",
-                    conversationId: "eu:europe:conversation")
-            };
+                    conversationId: "eu:europe:conversation"));
         }
 
         private static async Task SendAS4MessageTo(AS4Message msg, string url)
@@ -229,18 +228,17 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
         private static  UserMessage CreateForwardPushUserMessage(string messageId)
         {
-            return new UserMessage(messageId)
-            {
-                CollaborationInfo = new CollaborationInfo(
+            return new UserMessage(
+                messageId,
+                new CollaborationInfo(
                     agreement: new AgreementReference(
                         value: "http://agreements.europa.org/agreement",
                         pmodeId: "Forward_Push"),
                     service: new Service(
-                        value: "Forward_Push_Service", 
+                        value: "Forward_Push_Service",
                         type: "eu:europa:services"),
                     action: "Forward_Push_Action",
-                    conversationId: "eu:europe:conversation")
-            };
+                    conversationId: "eu:europe:conversation"));
         }
     }
 }
