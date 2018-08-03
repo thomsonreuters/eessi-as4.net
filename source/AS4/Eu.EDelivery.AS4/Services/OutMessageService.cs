@@ -20,7 +20,7 @@ namespace Eu.EDelivery.AS4.Services
     /// Repository to expose Data store related operations
     /// for the Exception Handling Decorator Steps
     /// </summary>
-    public class OutMessageService : IOutMessageService
+    internal class OutMessageService
     {
         private readonly IDatastoreRepository _repository;
         private readonly IAS4MessageBodyStore _messageBodyStore;
@@ -221,25 +221,5 @@ namespace Eu.EDelivery.AS4.Services
                     m.MessageLocation = messageBodyLocation;
                 });
         }
-    }
-
-    public interface IOutMessageService
-    {
-        /// <summary>
-        /// Inserts a s4 message.
-        /// </summary>
-        /// <param name="message">The message.</param>
-        /// <param name="operation">The operation.</param>
-        /// <returns></returns>
-        void InsertAS4Message(MessagingContext message, Operation operation);
-
-        /// <summary>
-        /// Updates a <see cref="AS4Message"/>.
-        /// </summary>
-        /// <param name="outMessageId">The ID that uniquely identifies the OutMessage for
-        /// this <paramref name="message"/></param>
-        /// <param name="message">The message.</param>
-        /// <returns></returns>
-        void UpdateAS4MessageToBeSent(long outMessageId, AS4Message message);
     }
 }

@@ -8,6 +8,7 @@ import { PortalSettingsComponent } from './portalsettings/portalsettings.compone
 import { ReceptionAwarenessAgentComponent } from './receptionawarenessagent/receptionawarenessagent.component';
 import { SettingsComponent } from './settings/settings.component';
 import { SmpConfigurationComponent } from './smpconfiguration/smpconfiguration.component';
+import { AuthorizationMapComponent } from './authorizationmap/authorizationmap.component';
 
 export const ROUTES: Routes = [
     {
@@ -36,6 +37,7 @@ export const ROUTES: Routes = [
                 path: 'agents', data: { title: 'Internal Agents' }, children: [
                     { path: '', redirectTo: 'submit', pathMatch: 'full', canDeactivate: [CanDeactivateGuard] },
                     { path: 'outboundprocessing', component: AgentSettingsComponent, data: { title: 'Outbound processing', header: 'Outbound processing agent', type: 'outboundProcessingAgents', betype: 8, showwarning: true }, canDeactivate: [CanDeactivateGuard] },
+                    { path: 'forward', component: AgentSettingsComponent, data: { title: 'Forward', header: 'Forward agent', type: 'forwardAgents', betype: 9, showwarning: true }, canDeactivate: [CanDeactivateGuard] },
                     { path: 'send', component: AgentSettingsComponent, data: { title: 'Send', header: 'Send agent', type: 'sendAgents', betype: 2, showwarning: true }, canDeactivate: [CanDeactivateGuard] },
                     { path: 'deliver', component: AgentSettingsComponent, data: { title: 'Deliver', header: 'Deliver agent', type: 'deliverAgents', betype: 3, showwarning: true }, canDeactivate: [CanDeactivateGuard] },
                     { path: 'notify', component: AgentSettingsComponent, data: { title: 'Notify', header: 'Notify agent', type: 'notifyAgents', betype: 4, showwarning: true }, canDeactivate: [CanDeactivateGuard] },
@@ -57,6 +59,19 @@ export const ROUTES: Routes = [
                 path: '',
                 component: SmpConfigurationComponent,
                 data: { title: 'Smp configuration' },
+                canDeactivate: [CanDeactivateGuard]
+            }
+        ]
+    },
+    {
+        path: 'pullauthorizationmap',
+        component: WrapperComponent,
+        canActivate: [MustBeAuthorizedGuard],
+        children: [
+            {
+                path: '',
+                component: AuthorizationMapComponent,
+                data: { title: 'Pull Authorization Map' },
                 canDeactivate: [CanDeactivateGuard]
             }
         ]

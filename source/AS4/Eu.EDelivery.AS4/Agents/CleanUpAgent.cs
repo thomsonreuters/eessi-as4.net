@@ -17,7 +17,7 @@ namespace Eu.EDelivery.AS4.Agents
     /// This job consists of deleting messages that are inserted older that the given retention period (local configuration settings specifies this in days).
     /// </summary>
     /// <seealso cref="IAgent" />
-    public class CleanUpAgent : IAgent
+    internal class CleanUpAgent : IAgent
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 

@@ -24,8 +24,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Model.PMode
             var doc = new XmlDocument();
             doc.LoadXml(xml);
 
-            Assert.Null(doc.SelectXmlNode("//*[local-name()='FromParty']"));
-            Assert.Null(doc.SelectXmlNode("//*[local-name()='ToParty']"));
+            Assert.Null(doc.SelectSingleNode("/PartyInfo/FromParty"));
+            Assert.Null(doc.SelectSingleNode("/PartyInfo/ToParty"));
         }
 
         private static Party CreateEmptyParty()
@@ -46,8 +46,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Model.PMode
             var doc = new XmlDocument();
             doc.LoadXml(xml);
 
-            doc.AssertXmlNodeNotNull("FromParty");
-            doc.AssertXmlNodeNotNull("ToParty");
+            Assert.NotNull(doc.SelectSingleNode("/PartyInfo/FromParty"));
+            Assert.NotNull(doc.SelectSingleNode("/PartyInfo/ToParty"));
         }
 
         private static Party CreateFilledParty()

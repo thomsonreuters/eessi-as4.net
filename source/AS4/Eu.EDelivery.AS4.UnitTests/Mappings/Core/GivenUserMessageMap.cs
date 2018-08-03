@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Eu.EDelivery.AS4.Factories;
 using Eu.EDelivery.AS4.Singletons;
 using Eu.EDelivery.AS4.Xml;
 using Xunit;
@@ -62,6 +63,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Core
             UserMessage expectedMessage = CreateAnonymousMessage();
             expectedMessage.PartyInfo = new PartyInfo
             {
+                To = new To { Role = "Receiver", PartyId = new [] {new PartyId {Value = Guid.NewGuid().ToString()}}},
                 From = new From {Role = "Sender", PartyId = new[] {new PartyId {Value = "org:holodeckb2b:example:company:D"}}}
             };
 
@@ -126,6 +128,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Core
             UserMessage expectedMessage = CreateAnonymousMessage();
             expectedMessage.PartyInfo = new PartyInfo
             {
+                From = new From { Role = "Sender", PartyId = new[] {new PartyId { Value = Guid.NewGuid().ToString()} }},
                 To = new To {Role = "Receiver", PartyId = new[] {new PartyId {Value = "org:holodeckb2b:example:company:C"}}}
             };
 
@@ -139,7 +142,36 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Core
 
         private static UserMessage CreateAnonymousMessage()
         {
-            return new UserMessage { MessageInfo = new MessageInfo { Timestamp = DateTime.UtcNow } };
+            string GenId() => Guid.NewGuid().ToString();
+            return new UserMessage
+            {
+                MessageInfo = new MessageInfo
+                {
+                    MessageId = GenId(),
+                    RefToMessageId = GenId(),
+                    Timestamp = DateTime.Now
+                },
+                CollaborationInfo = new CollaborationInfo
+                {
+                    AgreementRef = new AgreementRef
+                    {
+                        Value = GenId()
+                    }
+                },
+                PartyInfo = new PartyInfo
+                {
+                    From = new From
+                    {
+                        Role = "Sender",
+                        PartyId = new [] { new PartyId { Value = GenId() } }
+                    },
+                    To = new To
+                    {
+                        Role = "Receiver",
+                        PartyId = new [] { new PartyId { Value = GenId() } }
+                    }
+                }
+            };
         }
     }
 }
