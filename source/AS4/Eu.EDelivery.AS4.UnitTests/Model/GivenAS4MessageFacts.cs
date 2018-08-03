@@ -179,6 +179,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
                 }
             }
 
+            private static XmlAttribute GetMpcAttribute(XmlDocument document)
+            {
+                const string node = "/s12:Envelope/s12:Header/eb:Messaging/eb:SignalMessage/eb:PullRequest";
+                XmlAttributeCollection attributes = document.SelectEbmsNode(node).Attributes;
+
+                return attributes?.Cast<XmlAttribute>().FirstOrDefault(x => x.Name == "mpc");
+            }
+
             [Theory]
             [InlineData("mpc")]
             public void ThenSerializeWithAttachmentsReturnsMimeMessage(string messageContents)
@@ -210,14 +218,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
                 }
             }
 
-            private static XmlAttribute GetMpcAttribute(XmlDocument document)
-            {
-                const string node = "/s:Envelope/s:Header/ebms:Messaging/ebms:SignalMessage/ebms:PullRequest";
-                XmlAttributeCollection attributes = document.SelectXmlNode(node).Attributes;
-
-                return attributes?.Cast<XmlAttribute>().FirstOrDefault(x => x.Name == "mpc");
-            }
-
             [Fact]
             public void ThenSaveToUserMessageCorrectlySerialized()
             {
@@ -240,7 +240,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
 
         protected UserMessage CreateUserMessage()
         {
-            return new UserMessage("message-id") { CollaborationInfo = { AgreementReference = new AgreementReference(String.Empty).AsMaybe() } };
+            return new UserMessage("message-id");
         }
 
         protected XmlDocument SerializeSoapMessage(AS4Message message, MemoryStream soapStream)

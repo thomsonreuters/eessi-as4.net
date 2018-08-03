@@ -100,17 +100,21 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         {
             UserMessage userMessage = as4Message.FirstUserMessage;
 
-            var deliverMessage = new UserMessage(userMessage.MessageId)
+            var deliverMessage = new UserMessage(
+                messageId: userMessage.MessageId,
+                refToMessageId: userMessage.RefToMessageId,
+                mpc: Constants.Namespaces.EbmsDefaultMpc,
+                collaboration: new Model.Core.CollaborationInfo(
+                    agreement: Maybe<AgreementReference>.Nothing,
+                    service: new Service(_uriPrefix),
+                    action: "Deliver",
+                    conversationId: userMessage.CollaborationInfo.ConversationId),
+                sender: new Party($"{_uriPrefix}/sut", userMessage.Receiver.PartyIds.FirstOrDefault()),
+                receiver: new Party($"{_uriPrefix}/testdriver", new PartyId("minder")),
+                partInfos: new PartInfo[0],
+                messageProperties: new MessageProperty[0])
             {
-                RefToMessageId = userMessage.RefToMessageId,
                 Timestamp = userMessage.Timestamp,
-                CollaborationInfo = new Model.Core.CollaborationInfo(
-                    Maybe<AgreementReference>.Nothing,
-                    new Service(_uriPrefix),
-                    "Deliver",
-                    userMessage.CollaborationInfo.ConversationId),
-                Sender = new Party($"{_uriPrefix}/sut", userMessage.Receiver.PartyIds.FirstOrDefault()),
-                Receiver = new Party($"{_uriPrefix}/testdriver", new PartyId("minder"))
             };
 
             // Party Information: sender is the receiver of the AS4Message that has been received.

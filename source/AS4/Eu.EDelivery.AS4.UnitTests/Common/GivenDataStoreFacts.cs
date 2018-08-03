@@ -28,7 +28,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
         {
             Options = CreateNewContextOptions();
             GetDataStoreContext = () => new DatastoreContext(Options, StubConfig.Default);
-            Registry.Instance.CreateDatastoreContext = () => new DatastoreContext(Options, StubConfig.Default);
         }
 
         private DbContextOptions<DatastoreContext> CreateNewContextOptions()
@@ -49,7 +48,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
             Disposing();
 
             GetDataStoreContext = null;
-            Registry.Instance.CreateDatastoreContext = null;
         }
 
         protected virtual void Disposing() { }

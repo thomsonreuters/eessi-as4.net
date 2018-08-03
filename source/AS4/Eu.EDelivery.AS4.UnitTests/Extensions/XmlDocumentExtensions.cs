@@ -1,6 +1,5 @@
 ﻿using System.Xml;
 using Xunit;
-using Xunit.Sdk;
 
 namespace Eu.EDelivery.AS4.UnitTests.Extensions
 {
@@ -16,22 +15,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Extensions
         /// </summary>
         static XmlDocumentExtensions()
         {
-            NamespaceManager.AddNamespace("s", "http://www.w3.org/2003/05/soap-envelope");
-            NamespaceManager.AddNamespace("ebms", "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/");
-        }
-
-        /// <summary>
-        /// Asserts the select XML node.
-        /// </summary>
-        /// <param name="document">The document.</param>
-        /// <param name="localName">Name of the local.</param>
-        /// <returns></returns>
-        public static XmlNode AssertXmlNodeNotNull(this XmlDocument document, string localName)
-        {
-            XmlNode node = document.SelectSingleNode($"//*[local-name()='{localName}']");
-            Assert.NotNull(node);
-
-            return node;
+            NamespaceManager.AddNamespace("s12", Constants.Namespaces.Soap12);
+            NamespaceManager.AddNamespace("eb", Constants.Namespaces.EbmsXmlCore);
+            NamespaceManager.AddNamespace("ebbp", Constants.Namespaces.EbmsXmlSignals);
+            NamespaceManager.AddNamespace("mh", Constants.Namespaces.EbmsMultiHop);
+            NamespaceManager.AddNamespace("wsa", Constants.Namespaces.Addressing);
+            NamespaceManager.AddNamespace("wsse", Constants.Namespaces.WssSecuritySecExt);
+            NamespaceManager.AddNamespace("wsu", Constants.Namespaces.WssSecurityUtility);
+            NamespaceManager.AddNamespace("dsig", Constants.Namespaces.XmlDsig);
         }
 
         /// <summary>
@@ -40,37 +31,64 @@ namespace Eu.EDelivery.AS4.UnitTests.Extensions
         /// <param name="xmlDocument">The XML document.</param>
         /// <param name="xpath">The xpath.</param>
         /// <returns></returns>
-        public static XmlNode SelectXmlNode(this XmlDocument xmlDocument, string xpath)
+        public static XmlNode UnsafeSelectEbmsNode(this XmlDocument xmlDocument, string xpath)
         {
             return xmlDocument.SelectSingleNode(xpath, NamespaceManager);
         }
-    }
 
-    public class XmlDocumentExtensionsFacts
-    {
-        [Fact]
-        public void AssertXmlNode_Succeeds()
+        /// <summary>
+        /// Selects the XML node.
+        /// </summary>
+        /// <param name="node"></param>
+        /// <param name="xpath"></param>
+        /// <returns></returns>
+        public static XmlNode UnsafeSelectEbmsNode(this XmlNode node, string xpath)
         {
-            // Arrange
-            var sut = new XmlDocument();
-            sut.LoadXml("<?xml version=\"1.0\" encoding=\"utf-8\"?><Person></Person>");
-            XmlNode expected = sut.FirstChild;
-
-            // Act
-            XmlNode actual = sut.AssertXmlNodeNotNull("Person");
-
-            // Assert
-            Assert.Equal(expected, actual);
+            return node.SelectSingleNode(xpath, NamespaceManager);
         }
 
-        [Fact]
-        public void AssertXmlNode_Fails()
+        /// <summary>
+        /// Asserts on the presence of a XPath query selection on the specified <paramref name="node"/>.
+        /// </summary>
+        /// <param name="node"></param>
+        /// <param name="xpath"></param>
+        /// <returns></returns>
+        public static XmlNodeList SelectEbmsNodes(this XmlNode node, string xpath)
         {
-            // Arrange
-            var sut = new XmlDocument();
+            XmlNodeList result = node.SelectNodes(xpath, NamespaceManager);
+            Assert.True(
+                result != null,
+                $"XPath query: \n\n {xpath} \n\n doesn't have a result on: \n\n {node.OuterXml}");
 
-            // Act / Assert
-            Assert.Throws<NotNullException>(() => sut.AssertXmlNodeNotNull("Person"));
+            return result;
+        }
+
+        /// <summary>
+        /// Asserts on the presence of a XPath query selection on the specified <paramref name="node"/>.
+        /// </summary>
+        /// <param name="node"></param>
+        /// <param name="xpath"></param>
+        /// <returns></returns>
+        public static XmlNode SelectEbmsNode(this XmlNode node, string xpath)
+        {
+            XmlNode result = UnsafeSelectEbmsNode(node, xpath);
+            Assert.True(
+                result != null, 
+                $"XPath query: \n\n {xpath} \n\n doesn't have a result on: \n\n {node.OuterXml}");
+
+            return result;
+        }
+
+        /// <summary>
+        /// Asserts of the presence of a specified <paramref name="name"/> and <paramref name="value"/> in the XML attribute.
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="name"></param>
+        /// <param name="value"></param>
+        public static void AssertEbmsAttribute(this XmlAttribute a, string name, string value)
+        {
+            Assert.Equal(name, a.Name);
+            Assert.Equal(value, a.Value);
         }
     }
 }

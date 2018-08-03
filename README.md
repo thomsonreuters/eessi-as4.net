@@ -12,7 +12,7 @@ AS4.NET is interoperable with multiple other AS4 gateway providers; AS4.NET has 
 
 ## Installation
 
-AS4.NET v3.0.0 can be downloaded from [the following location](https://ec.europa.eu/cefdigital/artifact/content/groups/public/eu/eessi/as4/eessi_as4.net/3.0.0/eessi_as4.net-3.0.0.zip). 
+AS4.NET v3.1.0 can be downloaded from [the following location](https://ec.europa.eu/cefdigital/artifact/content/groups/public/eu/eessi/as4/eessi_as4.net/3.1.0/eessi_as4.net-3.1.0.zip). 
 
 ## Documentation
 
@@ -71,6 +71,11 @@ A configuration- and usermanual for AS4.NET can be found [online](https://ec.eur
 - Improvements in the web interface for configuration (v3.0.0)
 - Improvements to the internal messaging engine (v3.0.0)
 
+- Retry functionality for deliver operation (v3.1.0)
+- Retry functionality for notify operation (v3.1.0)
+- Static Receive support (v3.1.0)
+- Improvements in the web interface for configuration (v3.1.0)
+- Improvements in the internal messaging engine (v3.1.0)
  
 ## Third Party software
 The following third party libraries are used by AS4.NET:

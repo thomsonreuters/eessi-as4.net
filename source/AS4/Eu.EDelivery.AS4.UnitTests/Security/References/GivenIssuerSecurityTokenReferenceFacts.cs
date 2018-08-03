@@ -3,6 +3,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Xml;
 using Eu.EDelivery.AS4.Security.References;
 using Eu.EDelivery.AS4.UnitTests.Common;
+using Eu.EDelivery.AS4.UnitTests.Extensions;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Security.References
@@ -22,90 +23,36 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.References
             _reference = new IssuerSecurityTokenReference(certRepository.GetStubCertificate());
         }
 
-        /// <summary>
-        /// Testing the Reference with valid Arguments for the "GetXml" Method
-        /// </summary>
-        public class GivenValidArgumentsForGetXml : GivenIssuerSecurityTokenReferenceFacts
+        [Fact]
+        public void ThenGetXmlContainsSecurityTokenReference()
         {
-            [Fact]
-            public void ThenGetXmlContainsSecurityTokenReference()
-            {
-                // Act
-                XmlElement xmlElement = _reference.GetXml();
+            // Act
+            XmlElement xml = _reference.GetXml();
 
-                // Assert
-                Assert.NotNull(xmlElement);
-                Assert.Equal("wsse:SecurityTokenReference", xmlElement.Name);
-                Assert.Equal(Constants.Namespaces.WssSecuritySecExt, xmlElement.NamespaceURI);
-            }
+            // Assert
+            Assert.NotNull(xml);
+            Assert.Equal("wsse:SecurityTokenReference", xml.Name);
+            Assert.Equal(Constants.Namespaces.WssSecuritySecExt, xml.NamespaceURI);
 
-            [Fact]
-            public void ThenGetXmlContainsX509Data()
-            {
-                // Act
-                XmlElement xmlElement = _reference.GetXml();
+            XmlNode issuerName = xml.SelectEbmsNode("/dsig:X509Data/dsig:X509IssuerSerial/dsig:X509IssuerName");
+            Assert.Equal(_dummyCertificate.IssuerName.Name, issuerName.InnerText);
 
-                // Assert
-                Assert.NotNull(xmlElement);
-                Assert.Equal("ds:X509Data", xmlElement.FirstChild.Name);
-            }
-
-            [Fact]
-            public void ThenGetXmlContainsX509IssuerName()
-            {
-                // Act
-                XmlElement xmlElement = _reference.GetXml();
-
-                // Assert
-                Assert.NotNull(xmlElement);
-                Assert.Equal("ds:X509IssuerName", xmlElement.FirstChild.FirstChild.FirstChild.Name);
-                Assert.Equal(_dummyCertificate.IssuerName.Name, xmlElement.FirstChild.FirstChild.FirstChild.InnerText);
-            }
-
-            [Fact]
-            public void ThenGetXmlContainsX509IssuerSerial()
-            {
-                // Act
-                XmlElement xmlElement = _reference.GetXml();
-
-                // Assert
-                Assert.NotNull(xmlElement);
-                Assert.Equal("ds:X509IssuerSerial", xmlElement.FirstChild.FirstChild.Name);
-            }
-
-            [Fact]
-            public void ThenGetXmlContainsX509SerialNumber()
-            {
-                // Act
-                XmlElement xmlElement = _reference.GetXml();
-
-                // Assert
-                Assert.NotNull(xmlElement);
-                Assert.Equal("ds:X509SerialNumber", xmlElement.FirstChild.FirstChild.ChildNodes[1].Name);
-
-                string expectedSerialNumber = Convert.ToUInt64($"0x{_dummyCertificate.SerialNumber}", 16).ToString();
-                string actualSerialNumber = xmlElement.FirstChild.FirstChild.ChildNodes[1].InnerText;
-                Assert.Equal(expectedSerialNumber, actualSerialNumber);
-            }
+            XmlNode serialNumberNode = xml.SelectEbmsNode("/dsig:X509Data/dsig:X509IssuerSerial/dsig:X509SerialNumber");
+            string expectedSerialNumber = Convert.ToUInt64($"0x{_dummyCertificate.SerialNumber}", 16).ToString();
+            Assert.Equal(expectedSerialNumber, serialNumberNode.InnerText);
         }
 
-        /// <summary>
-        /// Testing the Reference with vlaid Arguments for the "LoadXml" Method
-        /// </summary>
-        public class GivenValidArgumentsForLoadXml : GivenIssuerSecurityTokenReferenceFacts
+        [Fact]
+        public void ThenLoadXmlGetsTheCertificateFromTheXml()
         {
-            [Fact]
-            public void ThenLoadXmlGetsTheCertificateFromTheXml()
-            {
-                // Arrange and Act
-                var reference = new IssuerSecurityTokenReference(GetDummyXml(), new StubCertificateRepository());
-                
-                // Assert
-                Assert.Equal(_dummyCertificate, reference.Certificate);
-            }
+            // Arrange and Act
+            var reference = new IssuerSecurityTokenReference(GetDummyXml(), new StubCertificateRepository());
+
+            // Assert
+            Assert.Equal(_dummyCertificate, reference.Certificate);
         }
 
-        protected XmlElement GetDummyXml()
+        private XmlElement GetDummyXml()
         {
             var xmlDocument = new XmlDocument {PreserveWhitespace = true};
 

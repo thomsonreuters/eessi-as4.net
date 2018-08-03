@@ -1,4 +1,5 @@
-﻿using System.Security.Cryptography.X509Certificates;
+﻿using System;
+using System.Security.Cryptography.X509Certificates;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Security.Strategies;
 
@@ -15,6 +16,11 @@ namespace Eu.EDelivery.AS4.Builders.Security
 
         private DecryptionStrategyBuilder(AS4Message message)
         {
+            if (message == null)
+            {
+                throw new ArgumentNullException(nameof(message));
+            }
+
             _message = message;
         }
 
@@ -35,6 +41,11 @@ namespace Eu.EDelivery.AS4.Builders.Security
         /// <returns></returns>
         public DecryptionStrategyBuilder WithCertificate(X509Certificate2 certificate)
         {
+            if (certificate == null)
+            {
+                throw new ArgumentNullException(nameof(certificate));
+            }
+
             _certificate = certificate;
             return this;
         }

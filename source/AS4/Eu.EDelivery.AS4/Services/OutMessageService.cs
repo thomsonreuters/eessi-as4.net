@@ -22,7 +22,7 @@ namespace Eu.EDelivery.AS4.Services
     /// Repository to expose Data store related operations
     /// for the Exception Handling Decorator Steps
     /// </summary>
-    public class OutMessageService : IOutMessageService
+    internal class OutMessageService
     {
         private readonly IDatastoreRepository _repository;
         private readonly IAS4MessageBodyStore _messageBodyStore;
