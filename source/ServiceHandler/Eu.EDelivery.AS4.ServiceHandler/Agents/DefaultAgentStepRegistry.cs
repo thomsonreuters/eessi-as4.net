@@ -53,6 +53,9 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
                     {
                         new Step { Type = typeof(VerifySignatureAS4MessageStep).AssemblyQualifiedName },
                         new Step { Type = typeof(VerifyPullRequestAuthorizationStep).AssemblyQualifiedName },
+                        new Step { Type = typeof(SaveReceivedMessageStep).AssemblyQualifiedName },
+                        new Step { Type = typeof(DeterminePModesStep).AssemblyQualifiedName },
+                        new Step { Type = typeof(UpdateReceivedAS4MessageBodyStep).AssemblyQualifiedName },
                         new Step { Type = typeof(SelectUserMessageToSendStep).AssemblyQualifiedName }
                     }
                 });

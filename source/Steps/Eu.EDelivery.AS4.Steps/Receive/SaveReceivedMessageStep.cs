@@ -1,9 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
-using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
-using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
@@ -71,6 +69,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             }
 
             MessagingContext resultContext = await InsertReceivedAS4MessageAsync(messagingContext);
+
             if (resultContext != null && resultContext.Exception == null)
             {
                 if (resultContext.AS4Message.IsSignalMessage

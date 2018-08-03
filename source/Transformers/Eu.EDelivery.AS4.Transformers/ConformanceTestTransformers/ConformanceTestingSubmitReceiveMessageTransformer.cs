@@ -89,7 +89,7 @@ namespace Eu.EDelivery.AS4.Transformers.ConformanceTestTransformers
                 GetSenderFromSender(submitMessage),
                 GetReceiverFromProperties(submitMessage),
                 submitMessage.PayloadInfo,
-                BlacklistMessageInfoProperties(submitMessage.MessageProperties));
+                WhiteListedMessageProperties(submitMessage.MessageProperties));
 
             AS4Message result = AS4Message.Create(userMessage);
 
@@ -129,7 +129,7 @@ namespace Eu.EDelivery.AS4.Transformers.ConformanceTestTransformers
                     type: submitMessage.Receiver.PartyIds.First().Type));
         }
 
-        private static IEnumerable<MessageProperty> BlacklistMessageInfoProperties(IEnumerable<MessageProperty> properties)
+        private static IEnumerable<MessageProperty> WhiteListedMessageProperties(IEnumerable<MessageProperty> properties)
         {
             string[] whiteList = { "originalSender", "finalRecipient", "trackingIdentifier" };
             return properties.Where(p => whiteList.Contains(p.Name, StringComparer.OrdinalIgnoreCase));
