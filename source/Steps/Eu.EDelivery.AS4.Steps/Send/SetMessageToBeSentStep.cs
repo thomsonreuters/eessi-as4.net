@@ -55,8 +55,11 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 var repository = new DatastoreRepository(context);
                 var service = new OutMessageService(repository, _messageStore);
 
-                service.UpdateAS4MessageToBeSent(messagingContext.MessageEntityId.Value, 
-                                                 messagingContext.AS4Message);
+                service.UpdateAS4MessageToBeSent(
+                    messagingContext.MessageEntityId.Value, 
+                    messagingContext.AS4Message,
+                    messagingContext.SendingPMode?.Reliability?.ReceptionAwareness);
+
                 await context.SaveChangesAsync().ConfigureAwait(false);
             }
 

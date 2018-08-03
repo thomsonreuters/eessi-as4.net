@@ -133,6 +133,7 @@
     <Compile Include="Common\IRegistry.cs" />
     <Compile Include="Entities\Journal.cs" />
     <Compile Include="Entities\RetryReliability.cs" />
+    <Compile Include="Extensions\LoggerExtensions.cs" />
     <Compile Include="Mappings\Core\ReceiptMap.cs" />
     <Compile Include="Mappings\Submit\SubmitSenderResolver.cs" />
     <Compile Include="Maybe.cs" />

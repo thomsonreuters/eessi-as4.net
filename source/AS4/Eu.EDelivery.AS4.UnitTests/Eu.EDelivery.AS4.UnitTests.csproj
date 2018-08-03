@@ -239,7 +239,6 @@
     <Compile Include="Steps\Send\GivenEncryptAS4MessageStepFacts.cs" />
     <Compile Include="Steps\Receive\GivenSaveReceivedMessageDatastoreFacts.cs" />
     <Compile Include="Steps\Send\GivenSendAS4MessageStepFacts.cs" />
-    <Compile Include="Steps\Send\GivenSetReceptionAwarenessStepFacts.cs" />
     <Compile Include="Steps\Send\Response\SpyAS4ResponseHandler.cs" />
     <Compile Include="Steps\Send\Response\GivenAS4ResponseFacts.cs" />
     <Compile Include="Steps\Send\Response\GivenResponseHandlerFacts.cs" />

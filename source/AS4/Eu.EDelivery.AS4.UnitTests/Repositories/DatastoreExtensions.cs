@@ -46,7 +46,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Repositories
 
                 if (withReceptionAwareness)
                 {
-                    context.Add(new ReceptionAwareness(message.Id, message.EbmsMessageId));
+                    context.Add(
+                        RetryReliability.CreateForOutMessage(
+                            refToOutMessageId: message.Id,
+                            maxRetryCount: 0,
+                            retryInterval: TimeSpan.Zero,
+                            type: RetryType.Send));
+
                     context.SaveChanges();
                 }
 
@@ -99,20 +105,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Repositories
                 context.SaveChanges();
 
                 return outException;
-            }
-        }
-
-        /// <summary>
-        /// Inserts the reception awareness.
-        /// </summary>
-        /// <param name="createContext">The create context.</param>
-        /// <param name="ra">The ra.</param>
-        public static void InsertReceptionAwareness(this Func<DatastoreContext> createContext, ReceptionAwareness ra)
-        {
-            using (DatastoreContext context = createContext())
-            {
-                context.ReceptionAwareness.Add(ra);
-                context.SaveChanges();
             }
         }
 
