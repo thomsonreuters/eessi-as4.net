@@ -87,7 +87,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
                 }
             }
 
-            Logger.Info($"{messagingContext.LogTag} Stored the AS4Message with Operation=ToBeProcesed so the next agent can handle the message");
+            Logger.Info($"{messagingContext.LogTag} Stored the AS4Message with Operation=ToBeProcesed");
             return await StepResult.SuccessAsync(messagingContext);
         }
     }

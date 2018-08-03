@@ -135,18 +135,16 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
         private static (bool, string) SigningRequiredRule(SigningVerification v, AS4Message m)
         {
-            bool isMessageFailsTheRequiredSigning = v.Signature == Limit.Required && !m.IsSigned;
-            const string description = "PMode requires a Signed AS4Message and the message is not";
-
-            return (isMessageFailsTheRequiredSigning, description);
+            return (
+                v.Signature == Limit.Required && !m.IsSigned, 
+                "PMode requires a signed AS4Message but the received AS4message is not signed");
         }
 
         private static (bool, string) SigningUnallowedRule(SigningVerification v, AS4Message m)
         {
-            bool isMessageFailedTheUnallowedSigning = v.Signature == Limit.NotAllowed && m.IsSigned;
-            const string description = "PMode doesn't allow a signed AS4Message and the message is";
-
-            return (isMessageFailedTheUnallowedSigning, description);
+            return (
+                v.Signature == Limit.NotAllowed && m.IsSigned,
+                "PMode doesn't allow a signed AS4Message and the received AS4Message is signed");
         }
 
         private async Task<bool> VerifyNonRepudiationHashes(AS4Message as4Message)
@@ -160,7 +158,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
             if (!userMessages.Any())
             {
-                Logger.Warn("No referenced UserMessage(s) are found for the incoming Receipt(s)");
+                Logger.Debug("No referenced UserMessage(s) are found for the incoming Receipt(s)");
             }
 
             return receipts.All(nrrReceipt =>

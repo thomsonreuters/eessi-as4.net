@@ -64,7 +64,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             {
                 throw new InvalidMessageException(
                     "The received message is not a PullRequest message, " +
-                    "so no UserMessage can be selected to return to the sender");
+                    "therefore no UserMessage can be selected to return to the sender");
             }
 
             (bool hasMatch, OutMessage match) selection = RetrieveUserMessageForPullRequest(pullRequest);
