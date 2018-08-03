@@ -72,13 +72,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive.Rules
                 // Arrange
                 ReceivingProcessingMode receivingPMode =
                     base.CreateServiceActionReceivingPMode(serviceName, serviceType, action);
-                UserMessage userMessage = CreateServiceActionUserMesage(serviceName, serviceType, action);
-
-                userMessage.CollaborationInfo = new CollaborationInfo(
-                    userMessage.CollaborationInfo.AgreementReference,
-                    userMessage.CollaborationInfo.Service,
-                    action: String.Empty,
-                    conversationId: CollaborationInfo.DefaultConversationId);
+                UserMessage userMessage = CreateServiceActionUserMesage(serviceName, serviceType, action: String.Empty);
 
                 var rule = new PModeServiceActionRule();
                 // Act
@@ -106,14 +100,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive.Rules
 
         protected UserMessage CreateServiceActionUserMesage(string serviceName, string serviceType, string action)
         {
-            return new UserMessage(messageId: "message-id")
-            {
-                CollaborationInfo = new CollaborationInfo(
+            return new UserMessage(
+                messageId: "message-id", 
+                collaboration: new CollaborationInfo(
                     Maybe<AgreementReference>.Nothing,
                     new AS4.Model.Core.Service(serviceName, serviceType),
                     action,
-                    CollaborationInfo.DefaultConversationId)
-            };
+                    CollaborationInfo.DefaultConversationId));
         }
     }
 }

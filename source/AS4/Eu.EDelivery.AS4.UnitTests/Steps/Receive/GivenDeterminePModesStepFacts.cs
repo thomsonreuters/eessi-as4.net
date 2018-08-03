@@ -18,6 +18,7 @@ using CollaborationInfo = Eu.EDelivery.AS4.Model.PMode.CollaborationInfo;
 using ReceivePMode = Eu.EDelivery.AS4.Model.PMode.ReceivingProcessingMode;
 using Party = Eu.EDelivery.AS4.Model.PMode.Party;
 using PartyId = Eu.EDelivery.AS4.Model.PMode.PartyId;
+using Service = Eu.EDelivery.AS4.Model.Core.Service;
 
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 {
@@ -44,15 +45,15 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 var nonMultihopSignal = new Receipt((string) $"reftoid-{Guid.NewGuid()}");
 
                 string receivePModeId = $"receive-pmodeid-{Guid.NewGuid()}";
-                var userMesssage = new UserMessage(messageId: $"user-{Guid.NewGuid()}");
-                userMesssage.CollaborationInfo = 
-                    new AS4.Model.Core.CollaborationInfo(
+                var userMesssage = new UserMessage(
+                    messageId: $"user-{Guid.NewGuid()}",
+                    collaboration: new AS4.Model.Core.CollaborationInfo(
                         new AgreementReference(
-                            "agreement", 
+                            "agreement",
                             receivePModeId),
-                        AS4.Model.Core.Service.TestService,
+                        Service.TestService,
                         Constants.Namespaces.TestAction,
-                        AS4.Model.Core.CollaborationInfo.DefaultConversationId);
+                        AS4.Model.Core.CollaborationInfo.DefaultConversationId));
 
                 string sendPModeId = $"send-pmodeid-{Guid.NewGuid()}";
                 var expected = new SendingProcessingMode { Id = sendPModeId };
@@ -144,7 +145,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 var pmode = CreateDefaultPMode("01-receive");
                 SetupPModes(pmode, CreateDefaultPMode("defaultMode"));
 
-                MessagingContext messagingContext = new MessageContextBuilder().WithPModeId(sharedId).Build();
+                var userMessage = new UserMessage(
+                    Guid.NewGuid().ToString(),
+                    new AS4.Model.Core.CollaborationInfo(
+                        new AgreementReference("agreement", sharedId)));
+
+                var messagingContext = new MessagingContext(AS4Message.Create(userMessage), MessagingContextMode.Receive);
 
                 // Act
                 StepResult result = await _step.ExecuteAsync(messagingContext);
@@ -165,12 +171,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 pmode.MessagePackaging.CollaborationInfo.AgreementReference.Value = "not-equal";
                 SetupPModes(pmode, new ReceivePMode { Id = "other pmode", ReplyHandling = { SendingPMode = "other pmode" }});
 
-                MessagingContext messagingContext = 
-                    new MessageContextBuilder()
-                        .WithParties(
-                            new AS4.Model.Core.Party(fromId, new AS4.Model.Core.PartyId(fromId)), 
-                            new AS4.Model.Core.Party(toId, new AS4.Model.Core.PartyId(toId)))
-                        .Build();
+                var userMessage = new UserMessage(
+                    Guid.NewGuid().ToString(),
+                    new AS4.Model.Core.CollaborationInfo(new AgreementReference("agreement")),
+                    new AS4.Model.Core.Party(fromId, new AS4.Model.Core.PartyId(fromId)),
+                    new AS4.Model.Core.Party(toId, new AS4.Model.Core.PartyId(toId)));
+
+                var messagingContext = new MessagingContext(AS4Message.Create(userMessage), MessagingContextMode.Receive);
 
                 // Act               
                 StepResult result = await _step.ExecuteAsync(messagingContext);
@@ -186,10 +193,15 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 // Arrange
                 ReceivePMode pmode = ArrangePModeThenPartyInfoNotDefined(service, action);
 
-                MessagingContext messagingContext =
-                    new MessageContextBuilder().WithUserMessage(new UserMessage("message-id"))
-                                                .WithServiceAction(service, action)
-                                                .Build();
+                var userMessage = new UserMessage(
+                    "message-id",
+                    collaboration: new AS4.Model.Core.CollaborationInfo(
+                        Maybe<AgreementReference>.Nothing,
+                        new Service(service), 
+                        action,
+                        "1"));
+
+                var messagingContext = new MessagingContext(AS4Message.Create(userMessage), MessagingContextMode.Receive);
 
                 // Act
                 StepResult result = await _step.ExecuteAsync(messagingContext);
@@ -216,13 +228,16 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 var toParty = new Party { Role = toId, PartyIds = { new PartyId { Id = toId } } };
                 ReceivePMode idPMode = ArrangePModeThenPModeWinsOverPartyInfo(sharedId, fromParty, toParty);
 
-                MessagingContext messagingContext =
-                    new MessageContextBuilder()
-                        .WithPModeId(sharedId)
-                        .WithParties(
-                            new AS4.Model.Core.Party(fromId, new AS4.Model.Core.PartyId(fromId)),
-                            new AS4.Model.Core.Party(toId, new AS4.Model.Core.PartyId(toId)))
-                        .Build();
+                var userMessage = new UserMessage(
+                    Guid.NewGuid().ToString(),
+                    collaboration: new AS4.Model.Core.CollaborationInfo(
+                        new AgreementReference(
+                            value: "agreement",
+                            pmodeId: sharedId)),
+                    sender: new AS4.Model.Core.Party(fromId, new AS4.Model.Core.PartyId(fromId)),
+                    receiver: new AS4.Model.Core.Party(toId, new AS4.Model.Core.PartyId(toId)));
+
+                var messagingContext = new MessagingContext(AS4Message.Create(userMessage), MessagingContextMode.Receive);
 
                 // Act
                 StepResult result = await _step.ExecuteAsync(messagingContext);
@@ -257,13 +272,17 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 ReceivePMode pmodeServiceAction = CreatePModeWithActionService(service, action);
                 SetupPModes(pmodeParties, pmodeServiceAction);
 
-                MessagingContext messagingContext =
-                    new MessageContextBuilder()
-                        .WithParties(
-                            new AS4.Model.Core.Party(fromId, new AS4.Model.Core.PartyId(fromId)),
-                            new AS4.Model.Core.Party(toId, new AS4.Model.Core.PartyId(toId)))
-                        .WithServiceAction(service, action)
-                        .Build();
+                var userMessage = new UserMessage(
+                    Guid.NewGuid().ToString(),
+                    new AS4.Model.Core.CollaborationInfo(
+                        agreement: Maybe<AgreementReference>.Nothing,
+                        service: new Service(service), 
+                        action: action,
+                        conversationId: "1"),
+                    new AS4.Model.Core.Party(fromId, new AS4.Model.Core.PartyId(fromId)),
+                    new AS4.Model.Core.Party(toId, new AS4.Model.Core.PartyId(toId)));
+
+                var messagingContext = new MessagingContext(AS4Message.Create(userMessage), MessagingContextMode.Receive);
 
                 // Act
                 StepResult result = await _step.ExecuteAsync(messagingContext);
@@ -289,13 +308,17 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
                 SetupPModes(pmodeServiceAction, pmodeParties);
 
-                MessagingContext messagingContext =
-                    new MessageContextBuilder()
-                        .WithServiceAction(service, action)
-                        .WithParties(
-                            new AS4.Model.Core.Party(fromId, new AS4.Model.Core.PartyId(fromId)),
-                            new AS4.Model.Core.Party(toId, new AS4.Model.Core.PartyId(toId)))
-                        .Build();
+                var userMessage = new UserMessage(
+                    Guid.NewGuid().ToString(),
+                    new AS4.Model.Core.CollaborationInfo(
+                        Maybe<AgreementReference>.Nothing,
+                        new Service(service),
+                        action,
+                        "1"),
+                    new AS4.Model.Core.Party(fromId, new AS4.Model.Core.PartyId(fromId)),
+                    new AS4.Model.Core.Party(toId, new AS4.Model.Core.PartyId(toId)));
+
+                var messagingContext = new MessagingContext(AS4Message.Create(userMessage), MessagingContextMode.Receive);
 
                 // Act
                 StepResult result = await _step.ExecuteAsync(messagingContext);
@@ -326,8 +349,15 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 // Arrange
                 ArrangePModeThenServiceAndActionIsNotEnough(action, service);
 
-                MessagingContext messagingContext =
-                    new MessageContextBuilder().WithServiceAction(service, action).Build();
+                var userMessage = new UserMessage(
+                    Guid.NewGuid().ToString(),
+                    new AS4.Model.Core.CollaborationInfo(
+                        Maybe<AgreementReference>.Nothing,
+                        new Service(service),
+                        action,
+                        "1"));
+
+                var messagingContext = new MessagingContext(AS4Message.Create(userMessage), MessagingContextMode.Receive);
 
                 // Act
                 StepResult result = await _step.ExecuteAsync(messagingContext);
@@ -354,10 +384,15 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 var agreementRef = new AS4.Model.PMode.AgreementReference { Value = name, Type = type, PModeId = "pmode-id" };
                 ArrangePModeThenAgreementRefIsNotEnough(agreementRef);
 
-                MessagingContext messagingContext =
-                    new MessageContextBuilder().WithAgreementRef(new AgreementReference(name, type, "pmode-id"))
-                                                .WithServiceAction("service", "action")
-                                                .Build();
+                var userMessage = new UserMessage(
+                    Guid.NewGuid().ToString(),
+                    new AS4.Model.Core.CollaborationInfo(
+                        agreement: new AgreementReference(name, type, "pmode-id"),
+                        service: new Service("service"), 
+                        action: "action",
+                        conversationId: "1"));
+
+                var messagingContext = new MessagingContext(AS4Message.Create(userMessage), MessagingContextMode.Receive);
 
                 // Act
                 StepResult result = await _step.ExecuteAsync(messagingContext);

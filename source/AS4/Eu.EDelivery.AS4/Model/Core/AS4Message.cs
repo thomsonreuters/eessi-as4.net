@@ -225,6 +225,18 @@ namespace Eu.EDelivery.AS4.Model.Core
         }
 
         /// <summary>
+        /// Updates a given <see cref="MessageUnit"/> in the <see cref="AS4Message"/>
+        /// </summary>
+        /// <param name="old"></param>
+        /// <param name="replacement"></param>
+        public void UpdateMessageUnit(MessageUnit old, MessageUnit replacement)
+        {
+            _messageUnits.Remove(old);
+            _messageUnits.Add(replacement);
+            EnvelopeDocument = null;
+        }
+
+        /// <summary>
         /// Removes the <paramref name="messageUnit"/> from the AS4 Message.
         /// </summary>
         /// <param name="messageUnit"></param>

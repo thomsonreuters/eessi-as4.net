@@ -6,7 +6,7 @@ import { ActivatedRoute } from '@angular/router';
 import { Subject } from 'rxjs';
 import { Observable } from 'rxjs/Observable';
 
-import { Setting, Step, Steps, Transformer } from '../../api';
+import { Receiver, Setting, Step, Steps, Transformer } from '../../api';
 import { SettingsAgent } from '../../api/SettingsAgent';
 import { SettingsAgentForm } from '../../api/SettingsAgentForm';
 import { TransformerConfigEntry } from '../../api/Transformer';
@@ -65,6 +65,7 @@ export class AgentSettingsComponent
   private _currentAgent: SettingsAgent | undefined;
   private _formWrapper: FormWrapper;
   private componentDestroyed$ = new Subject();
+  private defaultReceiver$: Observable<Receiver>;
   private defaultTransFormers$: Observable<TransformerConfigEntry>;
 
   constructor(
@@ -123,6 +124,9 @@ export class AgentSettingsComponent
 
   public ngOnInit() {
     if (this.beType !== undefined && this.beType !== null) {
+      this.defaultReceiver$ = this.settingsService.getDefaultAgentReceiver(
+        this.beType
+      );
       this.defaultTransFormers$ = this.settingsService.getDefaultAgentTransformer(
         this.beType
       );
@@ -167,12 +171,17 @@ export class AgentSettingsComponent
             newAgent = new SettingsAgent();
 
             Observable.combineLatest(
+              this.defaultReceiver$.defaultIfEmpty(undefined),
               this.defaultTransFormers$,
               this.normalSteps$,
               this.errorSteps$.defaultIfEmpty([])
             )
               .take(1)
-              .subscribe(([transformer, normalSteps, errorSteps]) => {
+              .subscribe(([receiver, transformer, normalSteps, errorSteps]) => {
+                if (receiver !== undefined) {
+                  newAgent.receiver = receiver;
+                }
+
                 newAgent.stepConfiguration = new Steps();
                 newAgent.transformer = new Transformer();
                 newAgent.transformer.type =

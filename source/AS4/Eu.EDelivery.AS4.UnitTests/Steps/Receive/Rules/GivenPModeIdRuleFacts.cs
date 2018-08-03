@@ -18,15 +18,15 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive.Rules
             public void ThenRuleApply(string pmodeId)
             {
                 // Arrange
-                var userMessage = new UserMessage(messageId: "message-id");
-                userMessage.CollaborationInfo = 
-                    new CollaborationInfo(
+                var userMessage = new UserMessage(
+                    messageId: "message-id",
+                    collaboration: new CollaborationInfo(
                         new AgreementReference(
-                            value: "agreement", 
+                            value: "agreement",
                             pmodeId: pmodeId),
                         AS4.Model.Core.Service.TestService,
                         Constants.Namespaces.TestAction,
-                        CollaborationInfo.DefaultConversationId);
+                        CollaborationInfo.DefaultConversationId));
 
                 var receivingPMode = new ReceivingProcessingMode {Id = pmodeId};
                 var rule = new PModeIdRule();
@@ -56,10 +56,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive.Rules
             public void ThenRuleDontApplyForNullAgreementRef()
             {
                 // Arrange
-                var userMessage = new UserMessage(messageId: "message-id")
-                {
-                    CollaborationInfo = {AgreementReference = null}
-                };
+                var userMessage = new UserMessage(messageId: "message-id");
                 var receivingPMode = new ReceivingProcessingMode { Id = "pmode-id" };
                 var rule = new PModeIdRule();
                 // Act

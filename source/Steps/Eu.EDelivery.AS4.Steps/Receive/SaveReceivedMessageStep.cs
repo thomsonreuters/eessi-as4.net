@@ -1,9 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
-using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
-using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
@@ -69,18 +67,6 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
             if (resultContext != null && resultContext.Exception == null)
             {
-                if (resultContext.AS4Message.IsSignalMessage
-                    && String.IsNullOrWhiteSpace(resultContext.AS4Message.FirstSignalMessage.RefToMessageId))
-                {
-                    Logger.Warn(
-                        $"{messagingContext.LogTag} The received message is a SignalMessage without RefToMessageId. " +
-                        "No such SignalMessage are supported so the message cannot be processed any further");
-
-                    return StepResult
-                        .Success(new MessagingContext(AS4Message.Empty, MessagingContextMode.Receive))
-                        .AndStopExecution();
-                }
-
                 Logger.Debug($"{messagingContext.LogTag} The AS4 Message is successfully stored into the datastore");
                 return StepResult.Success(resultContext);
             }
