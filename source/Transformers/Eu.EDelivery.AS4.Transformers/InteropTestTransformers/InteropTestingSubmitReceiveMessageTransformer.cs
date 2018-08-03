@@ -73,10 +73,10 @@ namespace Eu.EDelivery.AS4.Transformers.InteropTestTransformers
                 GetSenderFromproperties(properties),
                 GetReceiverFromProperties(properties),
                 new PartInfo[0],
-                BlacklistMessageInfoProperties(userMessage));
+                WhiteListedMessageProperties(userMessage));
         }
 
-        private static IEnumerable<MessageProperty> BlacklistMessageInfoProperties(UserMessage userMessage)
+        private static IEnumerable<MessageProperty> WhiteListedMessageProperties(UserMessage userMessage)
         {
             string[] whiteList = { "originalSender", "finalRecipient", "trackingIdentifier", "TA_Id" };
             return userMessage.MessageProperties
