@@ -15,7 +15,7 @@ namespace Eu.EDelivery.AS4.Security.Encryption
     /// <summary>
     /// AS4 Implementation to wrap the <see cref="EncryptedKey"/>
     /// </summary>
-    public class AS4EncryptedKey
+    internal class AS4EncryptedKey
     {
         #region Builder
 

@@ -66,4 +66,20 @@ describe('new empty agent', () => {
       errorPipelineShould: 'not.be.empty'
     });
   });
+
+  describe('outboundprocessing agent', () => {
+    beforeEach(() => cy.visit('/settings/agents/outboundprocessing'));
+
+    it('should have default datastore receiver', () => {
+      cy.getdatacy('new').click();
+      cy.getdatacy('agent-name').type('my outbound processing agent');
+      cy.getdatacy('clone').select('Empty');
+      cy.getdatacy('ok').click();
+
+      cy.getdatacy('receivers').should(
+        'have.value',
+        'Eu.EDelivery.AS4.Receivers.DatastoreReceiver, Eu.EDelivery.AS4.Receivers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null'
+      );
+    });
+  });
 });

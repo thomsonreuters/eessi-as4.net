@@ -118,6 +118,18 @@ export const ROUTES: Routes = [
             canDeactivate: [CanDeactivateGuard]
           },
           {
+            path: 'forward',
+            component: AgentSettingsComponent,
+            data: {
+              title: 'Forward',
+              header: 'Forward agent',
+              type: 'forwardAgents',
+              betype: 9,
+              showwarning: true
+            },
+            canDeactivate: [CanDeactivateGuard]
+          },
+          {
             path: 'deliver',
             component: AgentSettingsComponent,
             data: {

@@ -105,17 +105,16 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
         private static AS4Message CreateAS4Message()
         {
-            return AS4Message.Create(new UserMessage
-            {
-                MessageId = "user-" + Guid.NewGuid(),
-                CollaborationInfo = new CollaborationInfo(
-                    new AgreementReference("agreement", "receiveagent-retryreliability-pmode"),
-                    new Service("eu:europa:services", "getting:started"),
-                    action: "eu:sample:01",
-                    conversationId: "1"),
-                Sender = new Party("Sender", new PartyId("org:eu:europa:as4:example:accesspoint:A")),
-                Receiver = new Party("Receiver", new PartyId("org:eu:europa:as4:example:accesspoint:B")),
-            });
+            return AS4Message.Create(
+                new UserMessage(
+                    "user-" + Guid.NewGuid(),
+                    new CollaborationInfo(
+                        new AgreementReference("agreement", "receiveagent-retryreliability-pmode"),
+                        new Service("eu:europa:services", "getting:started"),
+                        action: "eu:sample:01",
+                        conversationId: "1"),
+                    new Party("Sender", new PartyId("org:eu:europa:as4:example:accesspoint:A")),
+                    new Party("Receiver", new PartyId("org:eu:europa:as4:example:accesspoint:B"))));
         }
 
         private static void CleanDirectoryAt(string location)

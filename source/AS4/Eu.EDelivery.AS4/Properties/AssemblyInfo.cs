@@ -2,6 +2,8 @@
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
+// TODO: we could limit these when we merge projects
+[assembly: InternalsVisibleTo("Eu.EDelivery.AS4.Steps")]
 [assembly: InternalsVisibleTo("Eu.EDelivery.AS4.UnitTests")]
 [assembly: InternalsVisibleTo("Eu.EDelivery.AS4.Fe.UnitTests")]
 [assembly: InternalsVisibleTo("Eu.EDelivery.AS4.ServiceHandler")]

@@ -191,6 +191,18 @@ namespace Eu.EDelivery.AS4.Fe.Controllers
         }
 
         /// <summary>
+        /// Gets the default agent receiver.
+        /// </summary>
+        /// <param name="agentType">Type of the agent</param>
+        /// <returns>Receiver for the requested agent type</returns>
+        [HttpGet]
+        [Route("defaultagentreceiver/{agentType}")]
+        public IActionResult GetDefaultAgentReceiver(AgentType agentType)
+        {
+            return new OkObjectResult(AgentProvider.GetDefaultReceiverForAgentType(agentType));
+        }
+
+        /// <summary>
         /// Gets the default agent steps.
         /// </summary>
         /// <param name="agentType">Type of the agent.</param>
@@ -336,6 +348,60 @@ namespace Eu.EDelivery.AS4.Fe.Controllers
         {
             EnsureArg.IsNotNullOrEmpty(name, nameof(name));
             await settingsService.DeleteAgent(name, agents => agents.OutboundProcessingAgents, (settings, agents) => settings.OutboundProcessingAgents = agents);
+            return new OkResult();
+        }
+
+        /// <summary>
+        /// Creates the forward agent.
+        /// </summary>
+        /// <param name="settingsAgent">The settings agent.</param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("forwardagents")]
+        [Authorize(Roles = Roles.Admin)]
+        [SwaggerResponse((int) HttpStatusCode.OK, typeof(OkResult))]
+        [SwaggerResponse((int) HttpStatusCode.Conflict, typeof(ErrorModel), "Indicates that another entity already exists")]
+        public async Task<IActionResult> CreateForwardAgent([FromBody] AgentSettings settingsAgent)
+        {
+            EnsureArg.IsNotNull(settingsAgent, nameof(settingsAgent));
+            await settingsService.CreateAgent(settingsAgent, agents => agents.ForwardAgents, (settings, agents) => settings.ForwardAgents = agents);
+            return new OkResult();
+        }
+
+        /// <summary>
+        /// Updates the forward agent.
+        /// </summary>
+        /// <param name="settingsAgent"></param>
+        /// <param name="originalName"></param>
+        /// <returns></returns>
+        [HttpPut]
+        [Route("forwardagents/{originalName}")]
+        [Authorize(Roles = Roles.Admin)]
+        [SwaggerResponse((int) HttpStatusCode.OK, typeof(OkResult))]
+        [SwaggerResponse((int) HttpStatusCode.Conflict, typeof(ErrorModel), "Indicates that another entity already exists")]
+        [SwaggerResponse((int) HttpStatusCode.NotFound, typeof(ErrorModel), "Returned when the requested submit agent doesn't exist")]
+        public async Task<IActionResult> UpdateForwardAgent([FromBody] AgentSettings settingsAgent, string originalName)
+        {
+            EnsureArg.IsNotNull(settingsAgent, nameof(settingsAgent));
+            EnsureArg.IsNotNullOrEmpty(originalName, nameof(originalName));
+            await settingsService.UpdateAgent(settingsAgent, originalName, agents => agents.ForwardAgents, (settings, agents) => settings.ForwardAgents = agents);
+            return new OkResult();
+        }
+
+        /// <summary>
+        /// Deletes the forward agent.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        [HttpDelete]
+        [Route("forwardagents")]
+        [Authorize(Roles = Roles.Admin)]
+        [SwaggerResponse((int) HttpStatusCode.OK, typeof(OkResult))]
+        [SwaggerResponse((int) HttpStatusCode.Conflict, typeof(ErrorModel), "Indicates that another entity already exists")]
+        public async Task<IActionResult> DeleteForwardAgent(string name)
+        {
+            EnsureArg.IsNotNullOrEmpty(name, nameof(name));
+            await settingsService.DeleteAgent(name, agents => agents.ForwardAgents, (settings, agents) => settings.ForwardAgents = agents);
             return new OkResult();
         }
 

@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Xml;
 using System.Net;
@@ -8,8 +10,11 @@ using System.Text;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.ComponentTests.Common;
 using Eu.EDelivery.AS4.ComponentTests.Extensions;
+using Eu.EDelivery.AS4.Entities;
+using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Core;
+using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Model.Submit;
 using Eu.EDelivery.AS4.Security.References;
 using Eu.EDelivery.AS4.Security.Signing;
@@ -25,13 +30,16 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
     {
         private const string SubmitUrl = "http://localhost:7070/msh/";
         private const string PullSendUrl = "http://localhost:8081/msh/";
+        private const string AllowedPullRequestMpc = "componenttest-mpc";
 
-        private AS4Component _as4Msh;
+        private readonly AS4Component _as4Msh;
+        private readonly DatabaseSpy _databaseSpy;
 
         public PullSendAgentFacts()
         {
             OverrideSettings("pullsendagent_settings.xml");
             _as4Msh = AS4Component.Start(Environment.CurrentDirectory);
+            _databaseSpy = new DatabaseSpy(_as4Msh.GetConfiguration());
         }
 
         [Fact]
@@ -41,7 +49,8 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             await SubmitMessageToSubmitAgent(pullsendagent_submit);
 
             // Act
-            HttpResponseMessage userMessageResponse = await StubSender.SendRequest(PullSendUrl, Encoding.UTF8.GetBytes(pullrequest_without_mpc), "application/soap+xml");
+            HttpResponseMessage userMessageResponse = 
+                await StubSender.SendRequest(PullSendUrl, Encoding.UTF8.GetBytes(pullrequest_without_mpc), "application/soap+xml");
 
             // Assert
             AS4Message as4Message = await userMessageResponse.DeserializeToAS4Message();
@@ -53,29 +62,22 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         public void TestPullRequestWithoutMpc()
         {
             // Arrange
-            XmlDocument doc = new XmlDocument();
+            var doc = new XmlDocument();
             doc.LoadXml(pullrequest_without_mpc);
 
-            var pullRequestNode = doc.SelectSingleNode("//*[local-name()='PullRequest']");
+            XmlNode pullRequestNode = doc.SelectSingleNode("//*[local-name()='PullRequest']");
 
             Assert.True(pullRequestNode != null, "Message does not contain a PullRequest");
-            Assert.True(pullRequestNode.Attributes["mpc"] == null, "The PullRequest message has an MPC defined");
+            Assert.True(pullRequestNode.Attributes != null, "The PullRequest message does not has attributes");
+            Assert.True(pullRequestNode.Attributes["mpc"] == null, "The PullRequest message does not has an MPC defined");
         }
 
         [Fact]
         public async Task TestPullRequestWithSpecifiedMpc()
         {
-            string mpc = "http://as4.net.eu/mpc/2";
-
-            var submitMessage = new SubmitMessage()
-            {
-                MessageInfo = new MessageInfo(null, mpc)
-            };
-
-            submitMessage.Collaboration.AgreementRef.PModeId = "pullsendagent-pmode";
-
             // Arrange
-            await SubmitMessageToSubmitAgent(AS4XmlSerializer.ToString(submitMessage));
+            const string mpc = "http://as4.net.eu/mpc/2";
+            await StoreToBeSentUserMessage(mpc);
 
             // Act
             HttpResponseMessage userMessageResponse = await StubSender.SendAS4Message(PullSendUrl, CreatePullRequestWithMpc(mpc));
@@ -90,7 +92,8 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         public async Task RespondsWithBadRequest_WhenInvalidMessageReceived()
         {
             // Act
-            HttpResponseMessage response = await StubSender.SendRequest(PullSendUrl, Encoding.UTF8.GetBytes(pullsendagent_submit), "application/soap+xml");
+            HttpResponseMessage response = 
+                await StubSender.SendRequest(PullSendUrl, Encoding.UTF8.GetBytes(pullsendagent_submit), "application/soap+xml");
 
             // Assert
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
@@ -115,9 +118,8 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         {
             OverridePullAuthorizationMap(@".\config\componenttest-settings\security\pull_authorizationmap_allowed_facts.xml");
 
-            var pullRequest = CreatePullRequestWithMpc("componenttest-mpc");
-
-            var signedPullRequest = SignPullRequest(pullRequest, new X509Certificate2(@".\samples\certificates\AccessPointA.pfx", "Pz4cZK4SULUwmraZa", X509KeyStorageFlags.Exportable));
+            AS4Message pullRequest = CreateAllowedPullRequest();
+            AS4Message signedPullRequest = SignAS4MessageWithPullRequestCert(pullRequest);
 
             // Act
             HttpResponseMessage response = await StubSender.SendAS4Message(PullSendUrl, signedPullRequest);
@@ -126,25 +128,192 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         }
 
-        private static AS4Message CreatePullRequestWithMpc(string mpc)
+        [Fact]
+        public async Task PiggyBacked_PullRequest_With_Bundled_Error_Respond_No_UserMessage_Available()
         {
-            PullRequest pr = new PullRequest(mpc);
-            var pullRequestMessage = AS4Message.Create(pr);
+            HttpResponseMessage response =
+                await PiggyBacked_PullRequest_With_Bundled_Signal(
+                    CreateErrorRefTo,
+                    OutStatus.Nack);
 
-            return pullRequestMessage;
+            await AssertResponseIsPullRequestWarning(response);
         }
 
-        private static AS4Message SignPullRequest(AS4Message message, X509Certificate2 certificate)
+        [Fact]
+        public async Task PiggyBacked_PullRequest_With_Bundled_Error_Respond_With_UserMessage()
         {
+            // Arrange
+            await StoreToBeSentUserMessage(AllowedPullRequestMpc);
 
-            CalculateSignatureConfig config = new CalculateSignatureConfig(certificate,
+            // Act
+            HttpResponseMessage response =
+                await PiggyBacked_PullRequest_With_Bundled_Signal(CreateErrorRefTo, OutStatus.Nack);
+
+            // Assert
+            await AssertRespondseIsAvailableUserMessage(response);
+        }
+
+        private static Error CreateErrorRefTo(string userMessageId)
+        {
+            return new Error($"error-{Guid.NewGuid()}")
+            {
+                RefToMessageId = userMessageId,
+                Errors = new List<ErrorDetail>
+                {
+                    new ErrorDetail
+                    {
+                        ErrorCode = "EBMS:0004",
+                        Detail = "some test error",
+                        Severity = Severity.FAILURE,
+                        ShortDescription = "Other"
+                    }
+                }
+            };
+        }
+
+        [Fact]
+        public async Task PiggyBacked_PullRequest_With_Bundled_Receipt_Respond_No_UserMessage_Available()
+        {
+            HttpResponseMessage response =
+                await PiggyBacked_PullRequest_With_Bundled_Signal(CreateReceiptRefTo, OutStatus.Ack);
+
+            await AssertResponseIsPullRequestWarning(response);
+        }
+
+        [Fact]
+        public async Task PiggyBacked_PullRequest_With_Bundled_Receipt_Respond_With_UserMessage()
+        {
+            // Arrange
+            await StoreToBeSentUserMessage(AllowedPullRequestMpc);
+
+            // Act
+            HttpResponseMessage response =
+                await PiggyBacked_PullRequest_With_Bundled_Signal(CreateReceiptRefTo, OutStatus.Ack);
+
+            // Assert
+            await AssertRespondseIsAvailableUserMessage(response);
+        }
+
+        private static async Task StoreToBeSentUserMessage(string mpc)
+        {
+            var submit = new SubmitMessage
+            {
+                MessageInfo = new MessageInfo(messageId: null, mpc: mpc),
+                Collaboration =
+                {
+                    AgreementRef =
+                    {
+                        PModeId = "pullsendagent-pmode"
+                    }
+                }
+            };
+
+            await SubmitMessageToSubmitAgent(AS4XmlSerializer.ToString(submit));
+        }
+
+        private static Receipt CreateReceiptRefTo(string userMessageId)
+        {
+            return new Receipt(
+                messageId: $"receipt-{Guid.NewGuid()}",
+                refToMessageId: userMessageId,
+                timestamp: DateTimeOffset.Now);
+        }
+
+        private async Task<HttpResponseMessage> PiggyBacked_PullRequest_With_Bundled_Signal(
+            Func<string, SignalMessage> createSignal,
+            OutStatus expStatus)
+        {
+            // Arrange
+            OverridePullAuthorizationMap(
+                @".\config\componenttest-settings\security\pull_authorizationmap_allowed_facts.xml");
+
+            string userMessageId = $"user-{Guid.NewGuid()}";
+            StoreToBeAckOutMessage(userMessageId, CreateSendingPMode());
+
+            AS4Message pullRequest = CreateAllowedPullRequest();
+            SignalMessage extraSignalMessage = createSignal(userMessageId);
+            pullRequest.AddMessageUnit(extraSignalMessage);
+
+            AS4Message signedBundled = SignAS4MessageWithPullRequestCert(pullRequest);
+
+            // Act
+            HttpResponseMessage response = await StubSender.SendAS4Message(PullSendUrl, signedBundled);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+            OutMessage storedUserMesage =
+                _databaseSpy.GetOutMessageFor(m => m.EbmsMessageId == userMessageId);
+            Assert.Equal(expStatus, storedUserMesage.Status.ToEnum<OutStatus>());
+
+            InMessage storedSignalMessage =
+                _databaseSpy.GetInMessageFor(m => m.EbmsMessageId == extraSignalMessage.MessageId);
+            Assert.Equal(InStatus.Received, storedSignalMessage.Status.ToEnum<InStatus>());
+
+            return response;
+        }
+
+        private static async Task AssertRespondseIsAvailableUserMessage(HttpResponseMessage response)
+        {
+            AS4Message actual = await response.DeserializeToAS4Message();
+            var userMessage = actual.PrimaryMessageUnit as UserMessage;
+            Assert.NotNull(userMessage);
+            Assert.Equal(AllowedPullRequestMpc, userMessage.Mpc);
+        }
+
+        private static async Task AssertResponseIsPullRequestWarning(HttpResponseMessage response)
+        {
+            AS4Message as4Message = await response.DeserializeToAS4Message();
+            var error = as4Message.PrimaryMessageUnit as Error;
+            Assert.NotNull(error);
+            Assert.True(error.IsWarningForEmptyPullRequest, "Responded Error is not a PullRequest warning");
+        }
+
+        private void StoreToBeAckOutMessage(string messageId, SendingProcessingMode sendingPMode)
+        {
+            var outMessage = new OutMessage(messageId);
+
+            outMessage.SetStatus(OutStatus.Sent);
+            outMessage.SetPModeInformation(sendingPMode);
+
+            _databaseSpy.InsertOutMessage(outMessage);
+        }
+
+        private static SendingProcessingMode CreateSendingPMode()
+        {
+            return new SendingProcessingMode
+            {
+                Id = "pullsend_agent_facts_pmode",
+                ReceiptHandling = { NotifyMessageProducer = true },
+                ErrorHandling = { NotifyMessageProducer = true }
+            };
+        }
+
+        private static AS4Message CreateAllowedPullRequest()
+        {
+            return CreatePullRequestWithMpc("componenttest-mpc");
+        }
+
+        private static AS4Message CreatePullRequestWithMpc(string mpc)
+        {
+            return AS4Message.Create(new PullRequest(mpc));
+        }
+
+        private static AS4Message SignAS4MessageWithPullRequestCert(AS4Message message)
+        {
+            var certificate = 
+                new X509Certificate2(
+                    @".\samples\certificates\AccessPointA.pfx",
+                    "Pz4cZK4SULUwmraZa",
+                    X509KeyStorageFlags.Exportable);
+
+            var config = new CalculateSignatureConfig(certificate,
                 X509ReferenceType.BSTReference,
                 Constants.SignAlgorithms.Sha256,
                 Constants.HashFunctions.Sha256);
 
-            var signer = SignStrategy.ForAS4Message(message, config);
-
-            message.SecurityHeader.Sign(signer);
+            message.SecurityHeader.Sign(
+                SignStrategy.ForAS4Message(message, config));
 
             return message;
         }
@@ -176,8 +345,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         protected override void Disposing(bool isDisposing)
         {
             RestorePullAuthorizationMap();
-            _as4Msh?.Dispose();
-            _as4Msh = null;
+            _as4Msh.Dispose();
         }
     }
 }

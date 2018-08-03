@@ -64,8 +64,6 @@ namespace Eu.EDelivery.AS4.Builders.Core
         /// <returns></returns>
         public Error Build()
         {
-            _errorMessage.Timestamp = DateTimeOffset.Now;
-
             if (_result != null)
             {
                 _errorMessage.Errors.Add(CreateErrorDetail(_result));

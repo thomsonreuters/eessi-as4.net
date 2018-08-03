@@ -31,7 +31,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
                 ["IdFormat"] = "{GUID}",
                 ["Provider"] = "InMemory",
                 ["ConnectionString"] = @"",
-                ["CertificateStore"] = "My"
+                ["CertificateStore"] = "My",
+                ["CertificateRepository"] = ""
             };
         }
 

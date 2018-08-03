@@ -39,12 +39,12 @@ namespace Eu.EDelivery.AS4.Steps
         {
             if (_condition(messagingContext))
             {
-                IStep steps = StepBuilder.FromSettings(_thenSteps).Build();
+                IStep steps = StepBuilder.FromSettings(_thenSteps).BuildAsSingleStep();
                 return await steps.ExecuteAsync(messagingContext).ConfigureAwait(false);
             }
             else
             {
-                IStep steps = StepBuilder.FromSettings(_elseSteps).Build();
+                IStep steps = StepBuilder.FromSettings(_elseSteps).BuildAsSingleStep();
                 return await steps.ExecuteAsync(messagingContext).ConfigureAwait(false);
             }
         }

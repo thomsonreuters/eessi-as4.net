@@ -9,6 +9,8 @@ namespace Eu.EDelivery.AS4.ComponentTests.Samples
     [Collection(WindowsServiceCollection.CollectionId)]
     public abstract class SampleTestTemplate : IDisposable
     {
+        private readonly WindowsServiceFixture _fixture;
+
         private bool _restoreSettings;
 
         /// <summary>
@@ -18,8 +20,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Samples
         {
             try
             {
-                OverrideConsoleSettings("sample_console_settings.xml");
-                OverrideServiceSettings("sample_service_settings.xml");
+                _fixture = fixture;
 
                 // ReSharper disable once InconsistentNaming
                 string samples_pmodes = Path.Combine(".", "samples", "pmodes");
@@ -31,13 +32,11 @@ namespace Eu.EDelivery.AS4.ComponentTests.Samples
                 CreateOrClearDirectory(@".\messages\receipts");
                 CreateOrClearDirectory(@".\messages\errors");
                 CreateOrClearDirectory(@".\messages\exceptions");
-
-                fixture.StartServiceIfNotYetStarted();
-                SenderMsh = AS4Component.Start(Environment.CurrentDirectory, cleanSlate: false);
             }
             catch (Exception)
             {
                 SenderMsh?.Dispose();
+                _fixture?.Dispose();
                 throw;
             }
         }
@@ -65,11 +64,23 @@ namespace Eu.EDelivery.AS4.ComponentTests.Samples
             }
         }
 
+        protected void StartSenderMsh(string settings)
+        {
+            OverrideConsoleSettings(settings);
+            SenderMsh = AS4Component.Start(Environment.CurrentDirectory, cleanSlate: false);
+        }
+
         private void OverrideConsoleSettings(string settingsFile)
         {
             File.Copy(@".\config\settings.xml", @".\config\settings_original.xml", true);
             File.Copy($@".\config\componenttest-settings\{settingsFile}", @".\config\settings.xml", true);
             _restoreSettings = true;
+        }
+
+        protected void StartReceiverMsh(string settings)
+        {
+            OverrideServiceSettings(settings);
+            _fixture.EnsureServiceIsStarted();
         }
 
         private void OverrideServiceSettings(string settingsFile)
@@ -83,7 +94,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Samples
         /// Gets the MSH.
         /// </summary>
         /// <value>The MSH.</value>
-        protected AS4Component SenderMsh { get; }
+        protected AS4Component SenderMsh { get; set; }
 
         /// <summary>
         /// Puts the sample to the polling directory so it can be picked up by the AS4.NET Component.
@@ -108,7 +119,8 @@ namespace Eu.EDelivery.AS4.ComponentTests.Samples
 
         protected virtual void Disposing(bool isDisposing)
         {
-            SenderMsh.Dispose();
+            SenderMsh?.Dispose();
+            _fixture.Dispose();
         }
     }
 }

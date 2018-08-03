@@ -104,27 +104,29 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
         private static AS4Message CreateBundledMultipleUserMessagesWithRefTo()
         {
-            var userMessage1 = new UserMessage(messageId: "user1-" + Guid.NewGuid());
-            userMessage1.CollaborationInfo = new CollaborationInfo(
-                agreement: new AgreementReference(
-                    value: "http://agreements.europa.org/agreement",
-                    pmodeId: "pullreceive_bundled_pmode"),
-                service: new Service(
-                    value: "bundling",
-                    type: "as4:net:pullreceive:bundling"),
-                action: "as4:net:pullreceive:bundling",
-                conversationId: "as4:net:pullreceive:conversation");
+            var userMessage1 = new UserMessage(
+                messageId: "user1-" + Guid.NewGuid(),
+                collaboration: new CollaborationInfo(
+                    agreement: new AgreementReference(
+                        value: "http://agreements.europa.org/agreement",
+                        pmodeId: "pullreceive_bundled_pmode"),
+                    service: new Service(
+                        value: "bundling",
+                        type: "as4:net:pullreceive:bundling"),
+                    action: "as4:net:pullreceive:bundling",
+                    conversationId: "as4:net:pullreceive:conversation"));
 
-            var userMessage2 = new UserMessage(messageId: "user2-" + Guid.NewGuid());
-            userMessage2.CollaborationInfo = new CollaborationInfo(
-                agreement: new AgreementReference(
-                    value: "http://agreements.europa.org/agreement", 
-                    pmodeId: "some-other-pmode-id"),
-                service: new Service(
-                    value: "bundling",
-                    type: "as4:net:pullreceive:bundling"),
-                action: "as4:net:pullreceive:bundling",
-                conversationId: "as4:net:pullreceive:conversation");
+            var userMessage2 = new UserMessage(
+                messageId: "user2-" + Guid.NewGuid(),
+                collaboration: new CollaborationInfo(
+                    agreement: new AgreementReference(
+                        value: "http://agreements.europa.org/agreement",
+                        pmodeId: "some-other-pmode-id"),
+                    service: new Service(
+                        value: "bundling",
+                        type: "as4:net:pullreceive:bundling"),
+                    action: "as4:net:pullreceive:bundling",
+                    conversationId: "as4:net:pullreceive:conversation"));
 
             var bundled = AS4Message.Create(userMessage1);
             bundled.AddMessageUnit(userMessage2);

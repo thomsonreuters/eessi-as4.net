@@ -104,11 +104,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             var sendingPMode = new SendingProcessingMode()
             {
                 Id = "SomePModeId",
-                MepBinding = GetMepBindingFromMep(pattern)
+                MepBinding = GetMepBindingFromMep(pattern),
+                MessagePackaging =
+                {
+                    Mpc = mpc
+                }
             };
 
             var userMessage = UserMessageFactory.Instance.Create(sendingPMode);
-            userMessage.Mpc = mpc;
 
             var as4Message = AS4Message.Create(userMessage, sendingPMode);
 
