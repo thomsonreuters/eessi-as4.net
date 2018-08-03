@@ -345,15 +345,12 @@ namespace Eu.EDelivery.AS4.Repositories
         /// </summary>
         /// <param name="receptionAwareness"></param>
         [Obsolete("The ReceptionAwareness is now implemented as a part of the RetryAgent instead of a separate one.")]
-        public void InsertReceptionAwareness(ReceptionAwareness receptionAwareness)
-        {
-            throw new NotSupportedException("The ReceptionAwareness is now implemented as a part of the RetryAgent instead of a separate one.");
-        }
+        public void InsertReceptionAwareness(ReceptionAwareness receptionAwareness) { }
 
         [Obsolete("The ReceptionAwareness is now implemented as a part of the RetryAgent instead of a separate one.")]
         public ReceptionAwareness GetReceptionAwarenessForOutMessage(long outMessageId)
         {
-            throw new NotSupportedException("The ReceptionAwareness is now implemented as a part of the RetryAgent instead of a separate one.");
+            return null;
         }
 
         /// <summary>
@@ -362,10 +359,7 @@ namespace Eu.EDelivery.AS4.Repositories
         /// <param name="receptionAwarenessId">The Id that uniquely identifies the ReceptionAwareness record.</param>
         /// <param name="updateAction"></param>
         [Obsolete("The ReceptionAwareness is now implemented as a part of the RetryAgent instead of a separate one.")]
-        public void UpdateReceptionAwareness(long receptionAwarenessId, Action<ReceptionAwareness> updateAction)
-        {
-            throw new NotSupportedException("The ReceptionAwareness is now implemented as a part of the RetryAgent instead of a separate one.");
-        }
+        public void UpdateReceptionAwareness(long receptionAwarenessId, Action<ReceptionAwareness> updateAction) { }
 
         #endregion
 
