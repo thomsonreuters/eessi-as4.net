@@ -104,9 +104,6 @@ namespace Eu.EDelivery.AS4.Model.Internal
         [XmlElement("ForwardAgent", IsNullable = false)]
         public AgentSettings[] ForwardAgents { get; set; }
 
-        [XmlElement("ReceptionAwarenessAgent", IsNullable = false)]
-        public AgentSettings ReceptionAwarenessAgent { get; set; }
-
         [XmlElement("PullReceiveAgent", IsNullable = false)]
         public AgentSettings[] PullReceiveAgents { get; set; }
 
