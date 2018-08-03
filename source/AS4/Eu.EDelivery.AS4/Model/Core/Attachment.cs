@@ -20,7 +20,6 @@ namespace Eu.EDelivery.AS4.Model.Core
         private Stream _content;
 
         // TODO: only the decompression step uses the public set, should be investigated
-        [XmlIgnore]
         public Stream Content
         {
             get => _content;
@@ -45,7 +44,6 @@ namespace Eu.EDelivery.AS4.Model.Core
             }
         }
 
-        [XmlIgnore]
         public long EstimatedContentSize { get; private set; }
 
         // TODO: only the upload step uses the public set, should be investigated
