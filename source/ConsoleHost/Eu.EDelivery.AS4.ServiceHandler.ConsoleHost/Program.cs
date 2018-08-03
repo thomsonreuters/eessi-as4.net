@@ -2,10 +2,7 @@
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Builders;
 using Eu.EDelivery.AS4.Common;
-using Eu.EDelivery.AS4.Repositories;
-using Eu.EDelivery.AS4.ServiceHandler.Agents;
 using NLog;
 
 namespace Eu.EDelivery.AS4.ServiceHandler.ConsoleHost
@@ -102,38 +99,15 @@ namespace Eu.EDelivery.AS4.ServiceHandler.ConsoleHost
 
         private static Kernel CreateKernel()
         {
-            Config config = Config.Instance;
-            Registry registry = Registry.Instance;
-
             try
             {
-                config.Initialize("settings.xml");
+                return Kernel.CreateFromSettings("settings.xml");
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
                 return null;
             }
-
-            if (!config.IsInitialized)
-            {
-                return null;
-            }
-
-            string certificateTypeRepository = config.GetSetting("CertificateRepository");
-            if (!String.IsNullOrWhiteSpace(certificateTypeRepository))
-            {
-                registry.CertificateRepository = GenericTypeBuilder.FromType(certificateTypeRepository).Build<ICertificateRepository>();
-            }
-            else
-            {
-                registry.CertificateRepository = new CertificateRepository();
-            }
-
-            registry.CreateDatastoreContext = () => new DatastoreContext(config);
-
-            var agentProvider = new AgentProvider(config);
-            return new Kernel(agentProvider.GetAgents());
         }
 
         private sealed class AS4ComponentLifecycle

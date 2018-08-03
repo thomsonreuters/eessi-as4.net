@@ -36,7 +36,8 @@ namespace Eu.EDelivery.AS4.Transformers.InteropTestTransformers
             {
                 var properties = as4Message.FirstUserMessage?.MessageProperties;
 
-                TransformUserMessage(as4Message.FirstUserMessage, properties);
+                UserMessage transformed = TransformUserMessage(as4Message.FirstUserMessage, properties);
+                as4Message.UpdateMessageUnit(as4Message.FirstUserMessage, transformed);
 
                 messagingContext = new MessagingContext(as4Message, MessagingContextMode.Submit);
 
@@ -63,27 +64,16 @@ namespace Eu.EDelivery.AS4.Transformers.InteropTestTransformers
             message.SendingPMode = pmode;
         }
 
-        private static void TransformUserMessage(UserMessage userMessage, IEnumerable<MessageProperty> properties)
+        private static UserMessage TransformUserMessage(UserMessage userMessage, IEnumerable<MessageProperty> properties)
         {
-            string messageId = GetPropertyValue(properties, "MessageId");
-            string refToMessageId = GetPropertyValue(properties, "RefToMessageId");
-
-            CollaborationInfo collaboration = GetCollaborationFromProperties(properties);
-
-            Party sender = GetSenderFromproperties(properties);
-            Party receiver = GetReceiverFromProperties(properties);
-
-            IEnumerable<MessageProperty> props = WhiteListedMessageProperties(userMessage);
-
-            userMessage.MessageId = messageId;
-            userMessage.RefToMessageId = refToMessageId;
-
-            userMessage.CollaborationInfo = collaboration;
-            userMessage.Sender = sender;
-            userMessage.Receiver = receiver;
-
-            userMessage.ClearMessageProperties();
-            userMessage.AddMessageProperties(props);
+            return new UserMessage(
+                GetPropertyValue(properties, "MessageId"),
+                GetPropertyValue(properties, "RefToMessageId"),
+                GetCollaborationFromProperties(properties),
+                GetSenderFromproperties(properties),
+                GetReceiverFromProperties(properties),
+                new PartInfo[0],
+                WhiteListedMessageProperties(userMessage));
         }
 
         private static IEnumerable<MessageProperty> WhiteListedMessageProperties(UserMessage userMessage)

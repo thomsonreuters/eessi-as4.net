@@ -97,11 +97,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
 
         private static AS4Message CreateAS4MessageWithoutAttachments()
         {
-            var userMessage = new UserMessage("message-id")
-            {
-                Receiver = new Party("Receiver", new PartyId(Guid.NewGuid().ToString())),
-                Sender = new Party("Sender", new PartyId(Guid.NewGuid().ToString()))
-            };
+            var userMessage = new UserMessage(
+                "message-id",
+                new Party("Sender", new PartyId(Guid.NewGuid().ToString())),
+                new Party("Receiver", new PartyId(Guid.NewGuid().ToString())));
 
             AS4Message as4Message = AS4Message.Create(userMessage);
 

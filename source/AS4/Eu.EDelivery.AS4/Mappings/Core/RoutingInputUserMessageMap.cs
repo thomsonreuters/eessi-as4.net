@@ -1,9 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using AutoMapper;
 using Eu.EDelivery.AS4.Model.Core;
-using Eu.EDelivery.AS4.Singletons;
 using Eu.EDelivery.AS4.Xml;
+using static Eu.EDelivery.AS4.Singletons.AS4Mapper;
 using CollaborationInfo = Eu.EDelivery.AS4.Model.Core.CollaborationInfo;
+using PartInfo = Eu.EDelivery.AS4.Model.Core.PartInfo;
+using Service = Eu.EDelivery.AS4.Model.Core.Service;
 using UserMessage = Eu.EDelivery.AS4.Model.Core.UserMessage;
 
 namespace Eu.EDelivery.AS4.Mappings.Core
@@ -16,46 +20,65 @@ namespace Eu.EDelivery.AS4.Mappings.Core
         public RoutingInputUserMessageMap()
         {
             CreateMap<RoutingInputUserMessage, UserMessage>()
-                .ForMember(dest => dest.Mpc, src => src.MapFrom(t => t.mpc))
-                .ForMember(dest => dest.CollaborationInfo, src => src.MapFrom(t => t.CollaborationInfo))
-                .ForMember(dest => dest.PayloadInfo, src => src.MapFrom(t => t.PayloadInfo))
-                .ForMember(dest => dest.MessageProperties, src => src.MapFrom(t => t.MessageProperties))
-                .AfterMap(
-                    (routingInput, userMessage) =>
-                    {
-                        if (routingInput.PartyInfo != null)
-                        {
-                            userMessage.Sender = AS4Mapper.Map<Party>(routingInput.PartyInfo.From);
-                            userMessage.Receiver = AS4Mapper.Map<Party>(routingInput.PartyInfo.To); 
-                        }
-
-                        AssignAction(userMessage);
-                        AssignMpc(userMessage);
-
-                    })
-                    .ForAllOtherMembers(m => m.Ignore());            
+                .ConstructUsing(xml => 
+                    new UserMessage(
+                        messageId: xml.MessageInfo?.MessageId,
+                        refToMessageId: xml.MessageInfo?.RefToMessageId,
+                        timestamp: xml?.MessageInfo?.Timestamp ?? DateTimeOffset.Now,
+                        mpc: String.IsNullOrEmpty(xml.mpc) ? Constants.Namespaces.EbmsDefaultMpc : xml.mpc,
+                        collaboration: RemoveResponsePostfixToActionWhenEmpty(Map<CollaborationInfo>(xml.CollaborationInfo)),
+                        sender: Map<Party>(xml.PartyInfo?.From),
+                        receiver: Map<Party>(xml.PartyInfo?.To),
+                        partInfos: MapPartInfos(xml.PayloadInfo),
+                        messageProperties: MapMessageProperties(xml.MessageProperties)))
+                .ForAllOtherMembers(m => m.Ignore());
         }
 
-        private static void AssignAction(UserMessage userMessage)
+        private static CollaborationInfo RemoveResponsePostfixToActionWhenEmpty(CollaborationInfo mapped)
         {
-            string action = userMessage.CollaborationInfo?.Action;
-
-            if (!String.IsNullOrWhiteSpace(action) && action.EndsWith(".response", StringComparison.OrdinalIgnoreCase))
+            if (mapped == null)
             {
-                userMessage.CollaborationInfo = new CollaborationInfo(
-                    userMessage.CollaborationInfo.AgreementReference,
-                    userMessage.CollaborationInfo.Service,
+                return new CollaborationInfo(
+                    Maybe<AgreementReference>.Nothing,
+                    Service.TestService,
+                    Constants.Namespaces.TestAction,
+                    CollaborationInfo.DefaultConversationId);
+            }
+
+            string action = mapped.Action;
+            if (!String.IsNullOrWhiteSpace(action)
+                && action.EndsWith(".response", StringComparison.OrdinalIgnoreCase))
+            {
+                return new CollaborationInfo(
+                    mapped.AgreementReference,
+                    mapped.Service,
                     action.Substring(0, action.LastIndexOf(".response", StringComparison.OrdinalIgnoreCase)),
-                    userMessage.CollaborationInfo.ConversationId);
+                    mapped.ConversationId);
             }
+
+            return mapped;
         }
 
-        private static void AssignMpc(UserMessage userMessage)
+        private static IEnumerable<PartInfo> MapPartInfos(Xml.PartInfo[] parts)
         {
-            if (string.IsNullOrEmpty(userMessage.Mpc))
+            if (parts == null || !parts.Any())
             {
-                userMessage.Mpc = Constants.Namespaces.EbmsDefaultMpc;
+                return new Model.Core.PartInfo[0];
             }
+
+            return parts.Select(Map<Model.Core.PartInfo>).Where(p => p != null);
+        }
+
+        private static IEnumerable<Model.Core.MessageProperty> MapMessageProperties(Xml.Property[] props)
+        {
+            if (props == null)
+            {
+                return Enumerable.Empty<Model.Core.MessageProperty>();
+            }
+
+            return props.Where(p => p != null)
+                        .Select(Map<Model.Core.MessageProperty>)
+                        .Where(p => p != null);
         }
     }
 }

@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Eu.EDelivery.AS4.Mappings.PMode;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.PMode;
 using CollaborationInfo = Eu.EDelivery.AS4.Model.Core.CollaborationInfo;
+using MessageProperty = Eu.EDelivery.AS4.Model.Core.MessageProperty;
 
 namespace Eu.EDelivery.AS4.Factories
 {
@@ -25,26 +28,18 @@ namespace Eu.EDelivery.AS4.Factories
                 throw new ArgumentNullException(nameof(pmode));
             }
 
-            var result = new UserMessage
-            {
-                Sender = PModePartyResolver.ResolveSender(pmode.MessagePackaging?.PartyInfo?.FromParty),
-                Receiver = PModePartyResolver.ResolveReceiver(pmode.MessagePackaging?.PartyInfo?.ToParty),
-                CollaborationInfo = ResolveCollaborationInfo(pmode)
-            };
+            IEnumerable<MessageProperty> properties =
+                pmode.MessagePackaging?.MessageProperties?.Select(
+                    p => new MessageProperty(p.Name, p.Value, p.Type)) ?? new MessageProperty[0];
 
-            if (pmode.MessagePackaging?.MessageProperties != null)
-            {
-                foreach (var p in pmode.MessagePackaging?.MessageProperties)
-                {
-                    result.AddMessageProperty(
-                        new Model.Core.MessageProperty(
-                            p.Name, 
-                            p.Value, 
-                            p.Type));
-                }
-            }
-
-            return result;
+            return new UserMessage(
+                IdentifierFactory.Instance.Create(),
+                pmode.MessagePackaging?.Mpc ?? Constants.Namespaces.EbmsDefaultMpc,
+                ResolveCollaborationInfo(pmode),
+                PModePartyResolver.ResolveSender(pmode.MessagePackaging?.PartyInfo?.FromParty),
+                PModePartyResolver.ResolveReceiver(pmode.MessagePackaging?.PartyInfo?.ToParty),
+                new PartInfo[0], 
+                properties);
         }
 
         private static CollaborationInfo ResolveCollaborationInfo(SendingProcessingMode pmode)

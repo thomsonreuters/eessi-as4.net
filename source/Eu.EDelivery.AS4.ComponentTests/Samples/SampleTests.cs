@@ -13,16 +13,28 @@ namespace Eu.EDelivery.AS4.ComponentTests.Samples
         private const string DeliverPath = @".\messages\in",
                              NotifyReceiptPath = @".\messages\receipts",
                              NotifyErrorPath = @".\messages\errors",
-                             GeneratedIdPattern = "*@*.xml";
+                             GeneratedIdPattern = "*@*.xml",
+                             SenderSettings = "sample_console_settings.xml",
+                             ReceiverSettings = "sample_service_settings.xml";
 
         public SampleTests(WindowsServiceFixture fixture) : base(fixture) { }
 
         [Theory]
-        [InlineData("01-sample-message.xml", "earth.jpg")]
-        [InlineData("02-sample-message.xml", "earth.jpg", "xml-sample.xml")]
-        [InlineData("03-sample-message.xml", "earth.jpg", "xml-sample.xml")]
-        public void Sending_Sample_Result_In_Delivered_And_Notified_Files(string file, params string[] payloads)
+        [InlineData("01-sample-message.xml", SenderSettings, ReceiverSettings, "earth.jpg")]
+        [InlineData("02-sample-message.xml", SenderSettings, ReceiverSettings, "earth.jpg", "xml-sample.xml")]
+        [InlineData("03-sample-message.xml", SenderSettings, ReceiverSettings, "earth.jpg", "xml-sample.xml")]
+        [InlineData("03-sample-message.xml", ReceiverSettings, SenderSettings, "earth.jpg", "xml-sample.xml")]
+        public void Sending_Sample_Result_In_Delivered_And_Notified_Files(
+            string file, 
+            string consoleSettings,
+            string serviceSettings,
+            params string[] payloads)
         {
+            // Arrange
+            StartSenderMsh(consoleSettings);
+            StartReceiverMsh(serviceSettings);
+
+            // Act
             PutSample(file);
 
             // Wait some time till component has processed the sample
@@ -32,8 +44,10 @@ namespace Eu.EDelivery.AS4.ComponentTests.Samples
                 retryCount: 100,
                 retryInterval: TimeSpan.FromSeconds(1));
 
+            // TearDown
             SenderMsh.Dispose();
 
+            // Assert
             Assert.All(payloads, m =>
             {
                 AssertFiles(DeliverPath, m);

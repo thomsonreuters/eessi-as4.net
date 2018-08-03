@@ -25,7 +25,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
                 message.Payloads = null;
 
                 // Act
-                List<PartInfo> actual = ExerciseResolve(message);
+                IEnumerable<PartInfo> actual = ExerciseResolve(message);
 
                 // Assert
                 Assert.Empty(actual);
@@ -39,10 +39,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
                 submitMessage.PMode = CreatePopulatedSendingPMode();
 
                 // Act
-                List<PartInfo> partInfos = ExerciseResolve(submitMessage);
+                IEnumerable<PartInfo> partInfos = ExerciseResolve(submitMessage);
 
                 // Assert
-                Assert.Equal(2, partInfos.Count);
+                Assert.Equal(2, partInfos.Count());
                 Assert.All(partInfos, p => Assert.DoesNotContain("CompressionType", p.Properties.Keys));
             }
 
@@ -54,10 +54,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
                 submitMessage.PMode = CreatePopulatedSendingPMode();
 
                 // Act
-                List<PartInfo> partInfos = ExerciseResolve(submitMessage);
+                IEnumerable<PartInfo> partInfos = ExerciseResolve(submitMessage);
 
                 // Assert
-                partInfos.ForEach(p => Assert.StartsWith("cid:", p.Href));
+                Assert.All(partInfos, p => Assert.StartsWith("cid:", p.Href));
             }
 
             [Fact]
@@ -69,7 +69,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
                 submitMessage.PMode.MessagePackaging.UseAS4Compression = true;
 
                 // Act
-                List<PartInfo> partInfos = ExerciseResolve(submitMessage);
+                IEnumerable<PartInfo> partInfos = ExerciseResolve(submitMessage);
 
                 // Assert
                 IEnumerable<PartInfo> compressedPartInfos =
@@ -88,7 +88,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
             return AS4XmlSerializer.FromString<SendingProcessingMode>(Properties.Resources.sendingprocessingmode);
         }
 
-        protected List<PartInfo> ExerciseResolve(SubmitMessage message)
+        protected IEnumerable<PartInfo> ExerciseResolve(SubmitMessage message)
         {
             var sut = SubmitPayloadInfoResolver.Default;
 

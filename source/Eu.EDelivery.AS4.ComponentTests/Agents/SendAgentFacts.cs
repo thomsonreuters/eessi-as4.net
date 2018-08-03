@@ -11,6 +11,7 @@ using Eu.EDelivery.AS4.ComponentTests.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Factories;
+using Eu.EDelivery.AS4.Mappings.PMode;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Serialization;
@@ -20,6 +21,7 @@ using Eu.EDelivery.AS4.Xml;
 using Xunit;
 using CollaborationInfo = Eu.EDelivery.AS4.Model.PMode.CollaborationInfo;
 using MessageExchangePattern = Eu.EDelivery.AS4.Entities.MessageExchangePattern;
+using MessageProperty = Eu.EDelivery.AS4.Model.Core.MessageProperty;
 using NonRepudiationInformation = Eu.EDelivery.AS4.Model.Core.NonRepudiationInformation;
 using Parameter = Eu.EDelivery.AS4.Model.PMode.Parameter;
 using Service = Eu.EDelivery.AS4.Model.PMode.Service;
@@ -176,20 +178,10 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             Operation expectedSignalOperation)
         {
             // Arrange
-            string messageId = $"multihop-message-id-{Guid.NewGuid()}";
-
             SendingProcessingMode pmode = CreateMultihopPMode(StubListenLocation);
-            AS4Message as4Message = CreateMultiHopAS4UserMessage(messageId, pmode);
-            as4Message.FirstUserMessage.CollaborationInfo = 
-                new Model.Core.CollaborationInfo(
-                    new Model.Core.AgreementReference(
-                        value: "http://agreements.europa.org/agreement", 
-                        pmodeId: receivePModeId),
-                    service: new Model.Core.Service(
-                        value: "Forward_Push_Service",
-                        type: "eu:europa:services"), 
-                    action: "Forward_Push_Action",
-                    conversationId: "eu:europe:conversation");
+            UserMessage simpleUserMessage = CreateMultihopUserMessage(receivePModeId, pmode);
+
+            AS4Message as4Message = AS4Message.Create(simpleUserMessage, pmode);
 
             var signal = new ManualResetEvent(false);
             var serializer = new SoapEnvelopeSerializer();
@@ -201,7 +193,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                     res.ContentType = Constants.ContentTypes.Soap;
                     AS4Message receipt = CreateMultiHopReceiptFor(as4Message);
                     serializer.Serialize(receipt, res.OutputStream, CancellationToken.None);
-                }, 
+                },
                 signal);
 
             // Act
@@ -211,15 +203,41 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             signal.WaitOne();
 
             OutMessage sentMessage = await PollUntilPresent(
-                () => _databaseSpy.GetOutMessageFor(m => m.EbmsMessageId == messageId),
+                () => _databaseSpy.GetOutMessageFor(m => m.EbmsMessageId == simpleUserMessage.MessageId),
                 timeout: TimeSpan.FromSeconds(10));
             Assert.Equal(expectedOutStatus, sentMessage.Status.ToEnum<OutStatus>());
 
             InMessage receivedMessage = await PollUntilPresent(
-                () => _databaseSpy.GetInMessageFor(m => m.EbmsRefToMessageId == messageId),
+                () => _databaseSpy.GetInMessageFor(m => m.EbmsRefToMessageId == simpleUserMessage.MessageId),
                 timeout: TimeSpan.FromSeconds(10));
             Assert.Equal(MessageType.Receipt, receivedMessage.EbmsMessageType);
             Assert.Equal(expectedSignalOperation, receivedMessage.Operation);
+        }
+
+        private static UserMessage CreateMultihopUserMessage(string receivePModeId, SendingProcessingMode pmode)
+        {
+            var collaboration =
+                new Model.Core.CollaborationInfo(
+                    new Model.Core.AgreementReference(
+                        value: "http://agreements.europa.org/agreement",
+                        pmodeId: receivePModeId),
+                    service: new Model.Core.Service(
+                        value: "Forward_Push_Service",
+                        type: "eu:europa:services"),
+                    action: "Forward_Push_Action",
+                    conversationId: "eu:europe:conversation");
+
+            IEnumerable<MessageProperty> properties =
+                pmode.MessagePackaging?.MessageProperties?.Select(
+                    p => new MessageProperty(p.Name, p.Value, p.Type)) ?? new MessageProperty[0];
+
+            return new UserMessage(
+                $"multihop-message-id-{Guid.NewGuid()}",
+                collaboration,
+                PModePartyResolver.ResolveSender(pmode.MessagePackaging?.PartyInfo.FromParty),
+                PModePartyResolver.ResolveSender(pmode.MessagePackaging?.PartyInfo.ToParty),
+                new Model.Core.PartInfo[0],
+                properties);
         }
 
         private void PutMessageToSend(AS4Message as4Message, SendingProcessingMode pmode, bool actAsIntermediaryMsh)
@@ -240,14 +258,6 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             outMessage.SetPModeInformation(pmode);
 
             _databaseSpy.InsertOutMessage(outMessage);
-        }
-
-        private static AS4Message CreateMultiHopAS4UserMessage(string messageId, SendingProcessingMode sendingPMode)
-        {
-            var simpleUserMessage = UserMessageFactory.Instance.Create(sendingPMode);
-            simpleUserMessage.MessageId = messageId;
-
-            return AS4Message.Create(simpleUserMessage, sendingPMode);
         }
 
         private static AS4Message CreateMultiHopReceiptFor(AS4Message message)

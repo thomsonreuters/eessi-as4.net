@@ -50,7 +50,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Servicehandler.Builder
                 Step[] settingSteps = CreateDefaultSettingSteps();
 
                 // Act
-                IStep step = StepBuilder.FromSettings(settingSteps).Build();
+                IStep step = StepBuilder.FromSettings(settingSteps).BuildAsSingleStep();
 
                 // Assert
                 Assert.IsType<CompositeStep>(step);
@@ -85,7 +85,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Servicehandler.Builder
                 ConditionalStepConfig config = CreateSimpleConditationalStepConfig();
 
                 // Act
-                IStep step = StepBuilder.FromConditionalConfig(config).Build();
+                IStep step = StepBuilder.FromConditionalConfig(config).BuildAsSingleStep();
 
                 // Assert
                 AssertConditionalStep(step);
@@ -113,7 +113,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Servicehandler.Builder
             {
                 StepConfiguration config = CreateInvalidConfigurableStepConfig();
 
-                Assert.Throws<ConfigurationErrorsException>(() => StepBuilder.FromSettings(config.NormalPipeline).Build());
+                Assert.Throws<ConfigurationErrorsException>(() => StepBuilder.FromSettings(config.NormalPipeline).BuildAsSingleStep());
             }
 
             private static StepConfiguration CreateInvalidConfigurableStepConfig()

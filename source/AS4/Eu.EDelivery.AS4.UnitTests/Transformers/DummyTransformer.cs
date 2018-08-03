@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Transformers;
-using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Transformers
 {
@@ -23,16 +22,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
         public Task<MessagingContext> TransformAsync(ReceivedMessage message)
         {
             throw new NotImplementedException();
-        }
-    }
-
-    public class DummyTransformerFacts
-    {
-        [Fact]
-        public async Task FailsToTransform()
-        {
-            await Assert.ThrowsAnyAsync<Exception>(
-                () => new DummyTransformer().TransformAsync(message: null));
         }
     }
 }

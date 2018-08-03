@@ -14,15 +14,6 @@
         <i class="fa fa-save" [class.active]="databaseSettings.isDirty | async"></i>
     </button>
 </as4-box>
-<as4-box title="Authorization map">
-    <div content>
-        <as4-authorizationmap #authorizationmap></as4-authorizationmap>
-    </div>
-    <button [attr.disabled]="(authorizationmap.isSaveEnabled | async) ? null : true" action type="button" class="btn btn-box-tool"
-        (click)="authorizationmap.save()">
-        <i class="fa fa-save" [class.active]="authorizationmap.isSaveEnabled | async"></i>
-    </button>
-</as4-box>
 <as4-box [title]="'Custom settings'">
     <div content>
         <as4-custom-settings [settings]="settings && settings.customSettings" #customSettings #dirtycheck></as4-custom-settings>
