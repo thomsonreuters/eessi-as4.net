@@ -131,10 +131,10 @@
                         </div>
                         <div formGroupName="signingVerification">
                             <div class="sub-header-1">Signing Verification</div>
-                            <as4-input label="Allow Unknown Root Certificate Authority" runtimeTooltip="allowUnknownRootCertificate">
+                            <as4-input label="Allow Unknown Root Certificate Authority" runtimeTooltip="signingVerification.allowunknownrootcertificate">
                                 <input type="checkbox" formControlName="allowUnknownRootCertificate" />
                             </as4-input>
-                            <as4-input label="Signing verification" runtimeTooltip="signature">
+                            <as4-input label="Signing verification" runtimeTooltip="signingVerification.signature">
                                 <select formControlName="signature">
                                     <option [ngValue]="0">Allowed</option>
                                     <option [ngValue]="1">Not allowed</option>

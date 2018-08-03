@@ -1,10 +1,8 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Linq;
 using System.Web.Script.Serialization;
 using System.Xml.Serialization;
-using Eu.EDelivery.AS4.Extensions;
 using Newtonsoft.Json;
 
 namespace Eu.EDelivery.AS4.Model.PMode
@@ -70,13 +68,16 @@ namespace Eu.EDelivery.AS4.Model.PMode
 
     public class ReplyHandlingSetting
     {
+        [Info("Reply pattern", defaultValue: ReplyPattern.Response)]
         [Description("Define whether the response must be sent directly by writing it to the Response stream of the HTTP call, or if it should be sent asynchronously by sending it later.")]
-        [DefaultValue(ReplyPattern.Response)]
         public ReplyPattern ReplyPattern { get; set; }
+
         [Description("ID of the (sending) PMode that must be used to send the Receipt or Error message.")]
         public string SendingPMode { get; set; }
+
         [Description("Receipt handling")]
         public ReceiveReceiptHandling ReceiptHandling { get; set; }
+
         [Description("Error handling")]
         public ReceiveErrorHandling ErrorHandling { get; set; }
 
@@ -102,8 +103,8 @@ namespace Eu.EDelivery.AS4.Model.PMode
                      "Receipt that will be sent.")]
         public bool UseNRRFormat
         {
-            get { return _useNRRFormat ?? false; }
-            set { _useNRRFormat = value; }
+            get => _useNRRFormat ?? false;
+            set => _useNRRFormat = value;
         }
 
         public ReceiveReceiptHandling()
@@ -148,16 +149,16 @@ namespace Eu.EDelivery.AS4.Model.PMode
         [Description("Use soap fault")]
         public bool UseSoapFault
         {
-            get { return _useSoapFault ?? false; }
-            set { _useSoapFault = value; }
+            get => _useSoapFault ?? false;
+            set => _useSoapFault = value;
         }
 
-        [DefaultValue(200)]
+        [Info("Response HTTP status code", defaultValue: 200)]
         [Description("HTTP statuscode that must be used when an Error signalmessage is sent.")]
         public int ResponseHttpCode
         {
-            get { return _responseHttpCode ?? 200; }
-            set { _responseHttpCode = value; }
+            get => _responseHttpCode ?? 200;
+            set => _responseHttpCode = value;
         }
 
         #region Serialization Control Properties
@@ -179,6 +180,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
     {
         [Description("Signing verification settings")]
         public SigningVerification SigningVerification { get; set; }
+
         [Description("Decryption settings")]
         public Decryption Decryption { get; set; }
 
@@ -191,19 +193,34 @@ namespace Eu.EDelivery.AS4.Model.PMode
 
     public class SigningVerification
     {
+        private bool? _allowUnknownRootCertificate;
+
         [Description("Define if the received Message must be signed (Required), may not be signed (Not Allowed), can be signed (Allowed) or if the signature must not be verified if present (Ignored).")]
         public Limit Signature { get; set; }
 
-        [DefaultValue(false)]
-        [Description("When enabled, signature verification will not fail if the certificate chain ends in a root certificate that is not trusted. The default value is false.")]
-        [Info("When set to true, signature verification will not fail if the certificate chain ends in a root certificate that is not trusted. The default value is false.")]
-        public bool AllowUnknownRootCertificate { get; set; }
+        [Info("Allow unknown root certificates")]
+        [Description(
+            "When enabled, signature verification will not fail if the certificate chain ends in a root certificate that is not trusted. The default value is false.")]
+        public bool AllowUnknownRootCertificate
+        {
+            get => _allowUnknownRootCertificate ?? false;
+            set => _allowUnknownRootCertificate = value;
+        }
 
         public SigningVerification()
         {
             Signature = Limit.Allowed;
             AllowUnknownRootCertificate = false;
         }
+
+        #region Serialization Control properties
+
+        [XmlIgnore]
+        [JsonIgnore]
+        [ScriptIgnore]
+        public bool AllowUnknownRootCertificateSpecified => _allowUnknownRootCertificate.HasValue;
+
+        #endregion
     }
 
     public class Decryption
@@ -233,7 +250,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
         [Description("Decryption Certificate")]
         public object DecryptCertificateInformation
         {
-            get { return _decryptCertificateInformation; }
+            get => _decryptCertificateInformation;
             set
             {
                 _decryptCertificateInformation = value;
@@ -278,7 +295,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
         [JsonConverter(typeof(MessageHandlingConverter))]
         public object Item
         {
-            get { return _item; }
+            get => _item;
             set
             {
                 _item = value;
@@ -339,13 +356,13 @@ namespace Eu.EDelivery.AS4.Model.PMode
         [Description("Indicate wheter or not the deliver operation should be retried on failure.")]
         public bool IsEnabled { get; set; }
 
-        [DefaultValue(4)]
+        [Info("Retry count", defaultValue: 4)]
         [JsonConverter(typeof(SafeIntJsonConverter))]
         [Description("Amount of retry cycles the deliver operation should be retried on failure.")]
         public int RetryCount { get; set; }
 
         [XmlElement("RetryInterval")]
-        [DefaultValue("0:00:01:00")]
+        [Info("Retry interval", defaultValue: "0:00:01:00")]
         [Description("Time interval between each retry cycle the deliver operation should be retried on failure.")]
         public string RetryInterval
         {
