@@ -149,11 +149,11 @@ namespace Eu.EDelivery.AS4.Common
 
         public DbSet<OutException> OutExceptions { get; set; }
 
-        public DbSet<ReceptionAwareness> ReceptionAwareness { get; set; }
-
         public DbSet<SmpConfiguration> SmpConfigurations { get; set; }
 
         public DbSet<RetryReliability> RetryReliability { get; set; }
+
+        public DbSet<Journal> Journal { get; set; }
 
         public IAS4DbCommand NativeCommands { get; private set; }
 

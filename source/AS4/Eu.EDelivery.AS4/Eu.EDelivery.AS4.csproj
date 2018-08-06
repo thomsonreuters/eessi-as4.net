@@ -149,6 +149,10 @@
     <Compile Include="Migrations\20180618120333_AddJournalTable.designer.cs">
       <DependentUpon>20180618120333_AddJournalTable.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\20180806071045_RemoveReceptionAwarenessTable.cs" />
+    <Compile Include="Migrations\20180806071045_RemoveReceptionAwarenessTable.designer.cs">
+      <DependentUpon>20180806071045_RemoveReceptionAwarenessTable.cs</DependentUpon>
+    </Compile>
     <Compile Include="Model\Core\NonRepudiationInformation.cs" />
     <Compile Include="Model\Core\Schema.cs" />
     <Compile Include="Model\PMode\AgreementReference.cs" />
