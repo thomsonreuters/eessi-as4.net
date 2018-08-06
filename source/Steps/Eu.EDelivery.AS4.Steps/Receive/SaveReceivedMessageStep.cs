@@ -66,10 +66,10 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
             MessagingContext resultContext = await InsertReceivedAS4MessageAsync(messagingContext);
 
-            if (messagingContext.AS4Message.PrimaryMessageUnit is SignalMessage signal
+            if (messagingContext.AS4Message.PrimaryMessageUnit is Error signal
                 && signal.RefToMessageId == null)
             {
-                Logger.Warn($"{messagingContext.LogTag} cannot further process incoming SignalMessage because it hasn't got a RefToMessageId");
+                Logger.Warn($"{messagingContext.LogTag} cannot further process incoming Error because it hasn't got a RefToMessageId");
                 
                 return StepResult.Success(
                     new MessagingContext(AS4Message.Empty, messagingContext.Mode))
