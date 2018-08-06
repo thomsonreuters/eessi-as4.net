@@ -236,18 +236,12 @@ namespace Eu.EDelivery.AS4.Services
                         $"Cannot update received AS4Message: Unable to find an InMessage for {as4Message.GetPrimaryMessageId()}");
                 }
 
-                string firstLocation = messageLocations.First();
-                bool allTheSameLocations = messageLocations.SequenceEqual(
-                    Enumerable.Repeat(firstLocation, messageLocations.Count()));
-
-                if (!allTheSameLocations)
+                // AS4Messages gets saved on a unique location, even when having the same EbmsMessageId
+                foreach (string location in messageLocations)
                 {
-                    throw new InvalidOperationException(
-                        "Bundled UserMessage's should reference the same stored location");
+                    Logger.Debug("Update stored message body because message contains UserMessages");
+                    messageBodyStore.UpdateAS4Message(location, as4Message); 
                 }
-
-                Logger.Debug("Update stored message body because message contains UserMessages");
-                messageBodyStore.UpdateAS4Message(firstLocation, as4Message);
             }
 
             if (messageContext.ReceivedMessageMustBeForwarded)
