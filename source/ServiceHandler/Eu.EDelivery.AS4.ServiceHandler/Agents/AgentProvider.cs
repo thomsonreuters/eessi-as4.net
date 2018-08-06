@@ -26,7 +26,8 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
         /// Initializes a new instance of the <see cref="AgentProvider"/> class. Create a <see cref="AgentProvider"/> with the Core and Custom Agents
         /// </summary>
         /// <param name="config">The config.</param>
-        public AgentProvider(IConfig config)
+        /// <param name="registry">The registry.</param>
+        public AgentProvider(IConfig config, IRegistry registry)
         {
             _config = config;
             _agents = new List<IAgent>();
@@ -39,12 +40,12 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
                         .Concat(new IAgent[]
                         {
                             new CleanUpAgent(
-                                Registry.Instance.CreateDatastoreContext, 
+                                registry.CreateDatastoreContext, 
                                 config.RetentionPeriod),
                             new RetryAgent(
-                                CreateRetryReceiver(config),
+                                CreateRetryReceiver(config, registry),
                                 config.RetryPollingInterval,
-                                Registry.Instance.CreateDatastoreContext)
+                                registry.CreateDatastoreContext)
                         });
             }
             catch (Exception exception)
@@ -77,12 +78,12 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
             return MinderAgentProvider.GetMinderSpecificAgentsFromConfig(_config);
         }
 
-        private static IReceiver CreateRetryReceiver(IConfig config)
+        private static IReceiver CreateRetryReceiver(IConfig config, IRegistry registry)
         {
             // TODO: this receiver is now created only for the retry agent, this creation should be moved closer to this agent
 
             var r = new DatastoreReceiver(
-                Registry.Instance.CreateDatastoreContext,
+                registry.CreateDatastoreContext,
                 ctx => ctx.RetryReliability.Where(
                     rr => rr.Status == RetryStatus.Pending
                           && (rr.LastRetryTime.HasValue == false 
@@ -107,13 +108,13 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
         }
 
         /// <summary>
-        /// Gets the default implementation of the <see cref="StepConfiguration"/> for the given <paramref name="agentType"/>.
+        /// Gets the default implementation of the <see cref="Receiver"/> for a given <paramref name="agentType"/>.
         /// </summary>
         /// <param name="agentType">Type of the agent.</param>
         /// <returns></returns>
-        public static StepConfiguration GetDefaultStepConfigurationForAgentType(AgentType agentType)
+        public static Receiver GetDefaultReceiverForAgentType(AgentType agentType)
         {
-            return DefaultAgentStepRegistry.GetDefaultStepConfigurationFor(agentType);
+            return DefaultAgentReceiverRegistry.GetDefaultReceiverFor(agentType);
         }
 
         /// <summary>
@@ -124,6 +125,16 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
         public static TransformerConfigEntry GetDefaultTransformerForAgentType(AgentType agentType)
         {
             return DefaultAgentTransformerRegistry.GetDefaultTransformerFor(agentType);
+        }
+
+        /// <summary>
+        /// Gets the default implementation of the <see cref="StepConfiguration"/> for the given <paramref name="agentType"/>.
+        /// </summary>
+        /// <param name="agentType">Type of the agent.</param>
+        /// <returns></returns>
+        public static StepConfiguration GetDefaultStepConfigurationForAgentType(AgentType agentType)
+        {
+            return DefaultAgentStepRegistry.GetDefaultStepConfigurationFor(agentType);
         }
     }
 }

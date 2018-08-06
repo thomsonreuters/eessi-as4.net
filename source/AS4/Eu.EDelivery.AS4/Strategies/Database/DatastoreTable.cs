@@ -10,7 +10,7 @@ namespace Eu.EDelivery.AS4.Strategies.Database
     /// <summary>
     /// Validate the name of the Datastore Table.
     /// </summary>
-    public static class DatastoreTable
+    internal static class DatastoreTable
     {
         public static readonly IDictionary<string, Func<DatastoreContext, IQueryable<Entity>>> TablesByName =
             new Dictionary<string, Func<DatastoreContext, IQueryable<Entity>>>
@@ -19,7 +19,6 @@ namespace Eu.EDelivery.AS4.Strategies.Database
                 {"OutMessages", c => c.OutMessages},
                 {"InExceptions", c => c.InExceptions},
                 {"OutExceptions", c => c.OutExceptions},
-                {"ReceptionAwareness", c => c.ReceptionAwareness},
                 {"RetryReliability", c => c.RetryReliability}
             };
 

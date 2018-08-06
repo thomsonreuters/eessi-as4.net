@@ -5,7 +5,7 @@ using Eu.EDelivery.AS4.Model.Internal;
 
 namespace Eu.EDelivery.AS4.Transformers
 {
-    public class TransformerBuilder
+    internal class TransformerBuilder
     {
         /// <summary>
         /// Prevents a default instance of the <see cref="TransformerBuilder"/> class from being created.

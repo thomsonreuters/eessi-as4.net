@@ -62,11 +62,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
 
         private static Attachment FilledAttachment(string attachmentId = null)
         {
-            return new Attachment(attachmentId ?? Guid.NewGuid().ToString())
-            {
-                Content = new MemoryStream(Encoding.UTF8.GetBytes("serialize me!")),
-                ContentType = "text/plain"
-            };
+            return new Attachment(
+                id: attachmentId ?? Guid.NewGuid().ToString(),
+                content: new MemoryStream(Encoding.UTF8.GetBytes("serialize me!")),
+                contentType: "text/plain");
         }
 
         [Fact]

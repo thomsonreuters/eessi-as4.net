@@ -225,6 +225,18 @@ namespace Eu.EDelivery.AS4.Model.Core
         }
 
         /// <summary>
+        /// Updates a given <see cref="MessageUnit"/> in the <see cref="AS4Message"/>
+        /// </summary>
+        /// <param name="old"></param>
+        /// <param name="replacement"></param>
+        public void UpdateMessageUnit(MessageUnit old, MessageUnit replacement)
+        {
+            _messageUnits.Remove(old);
+            _messageUnits.Add(replacement);
+            EnvelopeDocument = null;
+        }
+
+        /// <summary>
         /// Removes the <paramref name="messageUnit"/> from the AS4 Message.
         /// </summary>
         /// <param name="messageUnit"></param>
@@ -271,7 +283,7 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// <exception cref="InvalidOperationException">Throws when there already exists an <see cref="Attachment"/> with the same id</exception>
         public void AddAttachment(Attachment attachment)
         {
-            if (!_attachmens.Exists(a => a.Id == attachment.Id))
+            if (!_attachmens.Contains(attachment))
             {
                 _attachmens.Add(attachment);
                 if (!ContentType.Contains(Constants.ContentTypes.Mime))
@@ -298,7 +310,7 @@ namespace Eu.EDelivery.AS4.Model.Core
             IDictionary<string, string> partProperties,
             IEnumerable<Schema> partSchemas)
         {
-            if (!_attachmens.Exists(a => a.Id == attachment.Id))
+            if (_attachmens.Contains(attachment))
             {
                 _attachmens.Add(attachment);
                 if (!ContentType.Contains(Constants.ContentTypes.Mime))
@@ -350,15 +362,10 @@ namespace Eu.EDelivery.AS4.Model.Core
         {
             foreach (Payload payload in payloads)
             {
-                Attachment attachment = CreateAttachmentFromPayload(payload);
-                attachment.Content = await retrieval(payload).ConfigureAwait(false);
+                Stream content = await retrieval(payload).ConfigureAwait(false);
+                var attachment = new Attachment(payload.Id, content, payload.MimeType);
                 AddAttachment(attachment);
             }
-        }
-
-        private static Attachment CreateAttachmentFromPayload(Payload payload)
-        {
-            return new Attachment(payload.Id) { ContentType = payload.MimeType, Location = payload.Location };
         }
 
         /// <summary>
@@ -371,7 +378,6 @@ namespace Eu.EDelivery.AS4.Model.Core
             foreach (Attachment attachment in this.Attachments)
             {
                 CompressAttachment(attachment);
-                AssignAttachmentProperties(attachment);
             }
             // Since the headers in the message have changed, the EnvelopeDocument
             // is no longer in sync and should be set to null.
@@ -384,7 +390,7 @@ namespace Eu.EDelivery.AS4.Model.Core
                 VirtualStream.Create(
                     attachment.EstimatedContentSize > -1 ? attachment.EstimatedContentSize : VirtualStream.ThresholdMax);
 
-            var compressionLevel = DetermineCompressionLevelFor(attachment);
+            CompressionLevel compressionLevel = DetermineCompressionLevelFor(attachment);
 
             using (var gzipCompression = new GZipStream(outputStream, compressionLevel, leaveOpen: true))
             {
@@ -392,7 +398,9 @@ namespace Eu.EDelivery.AS4.Model.Core
             }
 
             outputStream.Position = 0;
-            attachment.Content = outputStream;
+            attachment.Properties["MimeType"] = attachment.ContentType;
+            attachment.Properties["CompressionType"] = "application/gzip";
+            attachment.UpdateContent(outputStream, "application/gzip");
         }
 
         private static CompressionLevel DetermineCompressionLevelFor(Attachment attachment)
@@ -423,21 +431,13 @@ namespace Eu.EDelivery.AS4.Model.Core
             return CompressionLevel.Optimal;
         }
 
-        private static void AssignAttachmentProperties(Attachment attachment)
-        {
-            attachment.Properties["CompressionType"] = "application/gzip";
-            attachment.Properties["MimeType"] = attachment.ContentType;
-            attachment.ContentType = "application/gzip";
-        }
-
         /// <summary>
         /// Removes the given attachment from this message.
         /// </summary>
         /// <param name="tobeRemoved">The tobe removed.</param>
         public void RemoveAttachment(Attachment tobeRemoved)
         {
-            Attachment foundAttachment = _attachmens.FirstOrDefault(a => a.Id?.Equals(tobeRemoved?.Id) == true);
-
+            Attachment foundAttachment = _attachmens.FirstOrDefault(a => a == tobeRemoved);
             if (foundAttachment != null)
             {
                 _attachmens.Remove(foundAttachment);

@@ -8,7 +8,7 @@ namespace Eu.EDelivery.AS4.Security.Repositories
     /// <summary>
     /// Respository to navigate the Reference ID Xml Elements
     /// </summary>
-    public class SignedXmlRepository
+    internal class SignedXmlRepository
     {
         private readonly string[] _allowedIdNodeNames;
         private readonly XmlDocument _document;

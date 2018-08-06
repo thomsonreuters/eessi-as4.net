@@ -2,7 +2,6 @@ using System;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Steps;
-using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Steps
 {
@@ -16,16 +15,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps
         public Task<StepResult> ExecuteAsync(MessagingContext internalMessage)
         {
             throw new NotImplementedException();
-        }
-    }
-
-    public class DummyStepFacts
-    {
-        [Fact]
-        public async Task FailsToExecuteStep()
-        {
-            await Assert.ThrowsAnyAsync<Exception>(
-                () => new DummyStep().ExecuteAsync(internalMessage: null));
         }
     }
 }

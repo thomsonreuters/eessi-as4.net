@@ -5,8 +5,7 @@ using Eu.EDelivery.AS4.Repositories;
 
 namespace Eu.EDelivery.AS4.Security.References
 {
-
-    public static class SecurityTokenReferenceProvider
+    internal static class SecurityTokenReferenceProvider
     {
         public static SecurityTokenReference Create(X509Certificate2 certificate, X509ReferenceType referenceType)
         {

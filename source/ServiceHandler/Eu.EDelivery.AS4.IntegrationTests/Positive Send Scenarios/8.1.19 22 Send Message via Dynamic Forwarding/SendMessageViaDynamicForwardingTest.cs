@@ -186,11 +186,12 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._19_22
 
         private static AS4Message UserMessageWithAttachment(string argRefPModeId)
         {
-            var user = new UserMessage(Guid.NewGuid().ToString())
-            {
-                CollaborationInfo = HolodeckCollaboration(argRefPModeId),
-                Receiver = new Party(HolodeckPartyRole, new PartyId(HolodeckBId, HolodeckBId)),
-            };
+            var user = new UserMessage(
+                Guid.NewGuid().ToString(),
+                HolodeckCollaboration(argRefPModeId),
+                new Party("Sender", new PartyId("eu.europe.org.party")),
+                new Party(HolodeckPartyRole, new PartyId(HolodeckBId, HolodeckBId)));
+
             user.AddPartInfo(new PartInfo(
                 href: "cid:earth", 
                 properties: new Dictionary<string, string>
@@ -217,15 +218,14 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._19_22
 
         private static Attachment ImageAttachment(string id)
         {
-            return new Attachment(id)
-            {
-                ContentType = "image/jpg",
-                Content = new FileStream(
+            return new Attachment(
+                id: id,
+                content: new FileStream(
                     Path.GetFullPath($@".\{Properties.Resources.submitmessage_single_payload_path}"),
                     FileMode.Open,
                     FileAccess.Read,
-                    FileShare.Read)
-            };
+                    FileShare.Read),
+                contentType: "image/jpg");
         }
 
         private static void SendMultiHopAS4Message(AS4Message userMessage)

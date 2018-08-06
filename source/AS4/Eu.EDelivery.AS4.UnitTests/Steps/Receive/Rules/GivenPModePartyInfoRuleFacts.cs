@@ -5,6 +5,8 @@ using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Steps.Receive.Rules;
 using Xunit;
+using AgreementReference = Eu.EDelivery.AS4.Model.Core.AgreementReference;
+using CollaborationInfo = Eu.EDelivery.AS4.Model.Core.CollaborationInfo;
 using CoreParty = Eu.EDelivery.AS4.Model.Core.Party;
 using CorePartyId = Eu.EDelivery.AS4.Model.Core.PartyId;
 using PModeParty = Eu.EDelivery.AS4.Model.PMode.Party;
@@ -151,11 +153,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive.Rules
             CoreParty fromParty,
             CoreParty toParty)
         {
-            return new UserMessage(messageId: "message-id")
-            {
-                Receiver = toParty,
-                Sender = fromParty
-            };
+            return new UserMessage(
+                messageId: "message-id",
+                sender: fromParty,
+                receiver: toParty);
         }
 
         protected ReceivingProcessingMode CreateReceivingPModeWithParties(

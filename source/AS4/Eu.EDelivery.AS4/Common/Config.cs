@@ -429,7 +429,6 @@ namespace Eu.EDelivery.AS4.Common
 
         private void AddCustomAgents()
         {
-            AddCustomAgentsIfNotNull(AgentType.ReceptionAwareness, _settings.Agents?.ReceptionAwarenessAgent);
             AddCustomAgentsIfNotNull(AgentType.Notify, _settings.Agents?.NotifyAgents);
             AddCustomAgentsIfNotNull(AgentType.Deliver, _settings.Agents?.DeliverAgents);
             AddCustomAgentsIfNotNull(AgentType.PushSend, _settings.Agents?.SendAgents);

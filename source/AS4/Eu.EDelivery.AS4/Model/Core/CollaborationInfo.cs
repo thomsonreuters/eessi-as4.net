@@ -4,15 +4,37 @@ namespace Eu.EDelivery.AS4.Model.Core
 {
     public class CollaborationInfo
     {
-        public Maybe<AgreementReference> AgreementReference { get; set; }
+        public Maybe<AgreementReference> AgreementReference { get; }
 
-        public Service Service { get; set; }
+        public Service Service { get; }
 
         public string Action { get; }
 
-        public string ConversationId { get; set; }
+        public string ConversationId { get; }
 
         public static readonly string DefaultConversationId = "1";
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CollaborationInfo"/> class.
+        /// </summary>
+        /// <param name="agreement"></param>
+        public CollaborationInfo(AgreementReference agreement)
+            : this(
+                agreement: agreement,
+                service: Service.TestService,
+                action: Constants.Namespaces.TestAction,
+                conversationId: DefaultConversationId) { }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CollaborationInfo"/> class.
+        /// </summary>
+        /// <param name="service"></param>
+        public CollaborationInfo(Service service) 
+            : this(
+                Maybe<AgreementReference>.Nothing, 
+                service, 
+                Constants.Namespaces.TestAction, 
+                DefaultConversationId) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CollaborationInfo"/> class.

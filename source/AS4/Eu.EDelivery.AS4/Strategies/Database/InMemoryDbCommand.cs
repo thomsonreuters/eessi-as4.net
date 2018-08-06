@@ -79,13 +79,6 @@ namespace Eu.EDelivery.AS4.Strategies.Database
                               .Where(x => x.InsertionTime < DateTimeOffset.Now.Subtract(retentionPeriod)
                                           && allowedOperations.Contains(GetOperation[tableName](x)));
 
-            if (tableName.Equals("OutMessages"))
-            {
-                long[] outMessageIds = entities.ToArray().Cast<OutMessage>().Select(m => m.Id).ToArray();
-                _context.ReceptionAwareness.RemoveRange(
-                    _context.ReceptionAwareness.Where(r => outMessageIds.Contains(r.RefToOutMessageId)).ToArray());
-            }
-
             _context.RemoveRange(entities);
             _context.SaveChanges();
         }

@@ -354,6 +354,7 @@ namespace Eu.EDelivery.AS4.Model.Internal
         Submit,
         Send,
         Receive,
+        PullReceive,
         Deliver,
         Forward,
         Notify

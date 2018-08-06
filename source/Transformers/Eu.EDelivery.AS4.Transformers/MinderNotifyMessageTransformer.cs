@@ -86,12 +86,12 @@ namespace Eu.EDelivery.AS4.Transformers
                 userMessage = new UserMessage();
             }
 
-            AssignMinderProperties(userMessage, signalMessage);
+            UserMessage minderUserMessage = CreateUserMessageFromMinderProperties(userMessage, signalMessage);
 
             var notifyMessage = AS4Mapper.Map<NotifyMessage>(signalMessage);
 
             // The NotifyMessage that Minder expects, is an AS4Message which contains the specific UserMessage.
-            var msg = AS4Message.Create(userMessage, new SendingProcessingMode());
+            var msg = AS4Message.Create(minderUserMessage, new SendingProcessingMode());
             var serializer = Registry.Instance.SerializerProvider.Get(msg.ContentType);
 
             byte[] content;
@@ -145,32 +145,36 @@ namespace Eu.EDelivery.AS4.Transformers
             }
         }
 
-        private void AssignMinderProperties(UserMessage userMessage, SignalMessage signalMessage)
+        private UserMessage CreateUserMessageFromMinderProperties(UserMessage userMessage, SignalMessage signalMessage)
         {
-            userMessage.Receiver = 
+            var receiver =
                 new Model.Core.Party(
                     role: $"{MinderUriPrefix}/testdriver", 
                     partyId: new Model.Core.PartyId(id: "minder"));
 
-            AssignServiceAction(userMessage);
-
-            if (signalMessage != null)
-            {
-                userMessage.AddMessageProperty(new MessageProperty("RefToMessageId", signalMessage.RefToMessageId));
-                userMessage.AddMessageProperty(new MessageProperty("SignalType", signalMessage.GetType().Name));
-
-                userMessage.RefToMessageId = signalMessage.MessageId;
-            }
-        }
-
-        private void AssignServiceAction(UserMessage userMessage)
-        {
-            userMessage.CollaborationInfo = new CollaborationInfo(
+            var collaboration = new CollaborationInfo(
                 Maybe<AgreementReference>.Nothing,
                 new Service(MinderUriPrefix),
                 "Notify",
                 CollaborationInfo.DefaultConversationId);
 
+            IEnumerable<MessageProperty> props =
+                signalMessage != null
+                    ? new[]
+                    {
+                        new MessageProperty("RefToMessageId", signalMessage.RefToMessageId),
+                        new MessageProperty("SignalType", signalMessage.GetType() .Name)
+                    }
+                    : Enumerable.Empty<MessageProperty>();
+
+            return new UserMessage(
+                userMessage.MessageId,
+                signalMessage != null ? signalMessage.RefToMessageId : userMessage.RefToMessageId,
+                collaboration,
+                userMessage.Sender,
+                receiver,
+                userMessage.PayloadInfo,
+                userMessage.MessageProperties.Concat(props));
         }
     }
 }

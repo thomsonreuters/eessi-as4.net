@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Entities;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
+using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
@@ -13,6 +14,7 @@ using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Serialization;
 using NLog;
 using MessageExchangePattern = Eu.EDelivery.AS4.Entities.MessageExchangePattern;
+using ReceptionAwareness = Eu.EDelivery.AS4.Model.PMode.ReceptionAwareness;
 
 namespace Eu.EDelivery.AS4.Services
 {
@@ -20,7 +22,7 @@ namespace Eu.EDelivery.AS4.Services
     /// Repository to expose Data store related operations
     /// for the Exception Handling Decorator Steps
     /// </summary>
-    public class OutMessageService : IOutMessageService
+    internal class OutMessageService
     {
         private readonly IDatastoreRepository _repository;
         private readonly IAS4MessageBodyStore _messageBodyStore;
@@ -204,9 +206,13 @@ namespace Eu.EDelivery.AS4.Services
         /// Updates a <see cref="AS4Message"/>.
         /// </summary>
         /// <param name="outMessageId">The Id that uniquely identifies the OutMessage record in the database.</param>
-        /// <param name="message">The message.</param>
+        /// <param name="message">The message to be sent.</param>
+        /// <param name="awareness">The reliability reception awareness used during the sending of the message</param>
         /// <returns></returns>
-        public void UpdateAS4MessageToBeSent(long outMessageId, AS4Message message)
+        public void UpdateAS4MessageToBeSent(
+            long outMessageId,
+            AS4Message message,
+            ReceptionAwareness awareness)
         {
             string messageBodyLocation =
                 _repository.GetOutMessageData(outMessageId, m => m.MessageLocation);
@@ -219,6 +225,17 @@ namespace Eu.EDelivery.AS4.Services
                 {
                     m.Operation = Operation.ToBeSent;
                     m.MessageLocation = messageBodyLocation;
+
+                    if (awareness?.IsEnabled ?? false)
+                    {
+                        var r = Entities.RetryReliability.CreateForOutMessage(
+                            outMessageId,
+                            awareness.RetryCount,
+                            awareness.RetryInterval.AsTimeSpan(),
+                            RetryType.Send);
+
+                        _repository.InsertRetryReliability(r);
+                    }
                 });
         }
     }
@@ -232,14 +249,5 @@ namespace Eu.EDelivery.AS4.Services
         /// <param name="operation">The operation.</param>
         /// <returns></returns>
         void InsertAS4Message(MessagingContext message, Operation operation);
-
-        /// <summary>
-        /// Updates a <see cref="AS4Message"/>.
-        /// </summary>
-        /// <param name="outMessageId">The ID that uniquely identifies the OutMessage for
-        /// this <paramref name="message"/></param>
-        /// <param name="message">The message.</param>
-        /// <returns></returns>
-        void UpdateAS4MessageToBeSent(long outMessageId, AS4Message message);
     }
 }

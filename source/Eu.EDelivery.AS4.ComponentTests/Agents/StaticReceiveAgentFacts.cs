@@ -89,28 +89,26 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         {
             string attachmentId = "attachment-" + Guid.NewGuid();
 
-            var user = new UserMessage(ebmsMessageId)
-            {
-                CollaborationInfo = new CollaborationInfo(
+            var user = new UserMessage(
+                ebmsMessageId,
+                new CollaborationInfo(
                     agreement: new AgreementReference(
-                        value: "http://agreements.europa.org/agreement", 
+                        value: "http://agreements.europa.org/agreement",
                         pmodeId: DefaultPModeId),
                     service: new Service(
                         value: "getting:started",
                         type: "eu:europa:services"),
                     action: "eu:sample:01",
-                    conversationId: "eu:europe:conversation")
-            };
+                    conversationId: "eu:europe:conversation"));
             user.AddPartInfo(new PartInfo("cid:" + attachmentId));
 
             AS4Message m = AS4Message.Create(user);
 
             m.AddAttachment(
-                    new Attachment(attachmentId)
-                    {
-                        ContentType = "image/jpg",
-                        Content = new MemoryStream(Properties.Resources.payload)
-                    });
+                new Attachment(
+                    id: attachmentId,
+                    content: new MemoryStream(Properties.Resources.payload),
+                    contentType: "image/jpg"));
 
             var certRepo = new CertificateRepository(msh.GetConfiguration());
 

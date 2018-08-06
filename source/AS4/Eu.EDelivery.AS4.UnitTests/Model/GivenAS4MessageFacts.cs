@@ -55,7 +55,16 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
             public async Task ThenAddAttachmentSucceeds()
             {
                 // Arrange
-                var submitMessage = new SubmitMessage { Payloads = new[] { new Payload(string.Empty) } };
+                var submitMessage = new SubmitMessage
+                {
+                    Payloads = new[]
+                    {
+                        new Payload(
+                            id: String.Empty, 
+                            location: String.Empty, 
+                            mimeType: string.Empty)
+                    }
+                };
                 AS4Message sut = AS4Message.Empty;
 
                 // Act
@@ -179,13 +188,21 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
                 }
             }
 
+            private static XmlAttribute GetMpcAttribute(XmlDocument document)
+            {
+                const string node = "/s12:Envelope/s12:Header/eb:Messaging/eb:SignalMessage/eb:PullRequest";
+                XmlAttributeCollection attributes = document.SelectEbmsNode(node).Attributes;
+
+                return attributes?.Cast<XmlAttribute>().FirstOrDefault(x => x.Name == "mpc");
+            }
+
             [Theory]
             [InlineData("mpc")]
             public void ThenSerializeWithAttachmentsReturnsMimeMessage(string messageContents)
             {
                 // Arrange
                 var attachmentStream = new MemoryStream(Encoding.UTF8.GetBytes(messageContents));
-                var attachment = new Attachment("attachment-id") { Content = attachmentStream };
+                var attachment = new Attachment("attachment-id", attachmentStream, "text/plain");
 
                 UserMessage userMessage = CreateUserMessage();
 
@@ -210,14 +227,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
                 }
             }
 
-            private static XmlAttribute GetMpcAttribute(XmlDocument document)
-            {
-                const string node = "/s:Envelope/s:Header/ebms:Messaging/ebms:SignalMessage/ebms:PullRequest";
-                XmlAttributeCollection attributes = document.SelectXmlNode(node).Attributes;
-
-                return attributes?.Cast<XmlAttribute>().FirstOrDefault(x => x.Name == "mpc");
-            }
-
             [Fact]
             public void ThenSaveToUserMessageCorrectlySerialized()
             {
@@ -240,7 +249,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
 
         protected UserMessage CreateUserMessage()
         {
-            return new UserMessage("message-id") { CollaborationInfo = { AgreementReference = new AgreementReference(String.Empty).AsMaybe() } };
+            return new UserMessage("message-id");
         }
 
         protected XmlDocument SerializeSoapMessage(AS4Message message, MemoryStream soapStream)

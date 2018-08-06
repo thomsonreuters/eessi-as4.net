@@ -127,13 +127,13 @@ namespace Eu.EDelivery.AS4.Security.Strategies
         {
             foreach (Attachment attachment in _attachments)
             {
-                attachment.Content = EncryptData(attachment.Content, encryptionAlgorithm);
+                Stream encrypted = EncryptData(attachment.Content, encryptionAlgorithm);
                 EncryptedData encryptedData = CreateEncryptedDataForAttachment(attachment, encryptedKey);
 
                 _encryptedDatas.Add(encryptedData);
 
                 encryptedKey.AddDataReference(encryptedData.Id);
-                attachment.ContentType = "application/octet-stream";
+                attachment.UpdateContent(encrypted, "application/octet-stream");
             }
         }
 

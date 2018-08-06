@@ -46,7 +46,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Encryption
         private static AS4Message CreateAS4Message()
         {
             byte[] attachmentContents = Encoding.UTF8.GetBytes("hi!");
-            var attachment = new Attachment("attachment-id") { Content = new MemoryStream(attachmentContents) };
+            var attachment = new Attachment("attachment-id", new MemoryStream(attachmentContents), "text/plain");
 
             AS4Message as4Message = AS4Message.Create(pmode: null);
             as4Message.AddAttachment(attachment);

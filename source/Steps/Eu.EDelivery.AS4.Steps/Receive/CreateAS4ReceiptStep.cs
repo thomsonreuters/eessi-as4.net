@@ -1,8 +1,6 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
@@ -13,7 +11,6 @@ using Eu.EDelivery.AS4.Xml;
 using NLog;
 using NonRepudiationInformation = Eu.EDelivery.AS4.Model.Core.NonRepudiationInformation;
 using Receipt = Eu.EDelivery.AS4.Model.Core.Receipt;
-using Reference = System.Security.Cryptography.Xml.Reference;
 
 namespace Eu.EDelivery.AS4.Steps.Receive
 {
@@ -141,12 +138,11 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
         private static NonRepudiationInformation GetNonRepudiationInformationFrom(AS4Message receivedAS4Message)
         {
-            IEnumerable<Reference> references = 
-                receivedAS4Message.SecurityHeader.GetReferences();
-
-            return new NonRepudiationInformationBuilder()
-                .WithSignedReferences(references)
-                .Build();
+            return new NonRepudiationInformation(
+                receivedAS4Message
+                    .SecurityHeader
+                    .GetReferences()
+                    .Select(Model.Core.Reference.CreateFromReferenceElement));
         }
     }
 }

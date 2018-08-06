@@ -56,6 +56,7 @@
     <Compile Include="Agents\ReceiveAgentFacts.cs" />
     <Compile Include="Agents\RetryAgentForDeliveryFacts.cs" />
     <Compile Include="Agents\RetryAgentForNotificationFacts.cs" />
+    <Compile Include="Agents\RetryAgentForSendingFacts.cs" />
     <Compile Include="Agents\StaticReceiveAgentFacts.cs" />
     <Compile Include="Agents\StaticSubmitAgentFacts.cs" />
     <Compile Include="Common\AS4MessageResponseHandler.cs" />
@@ -94,6 +95,10 @@
     <ProjectReference Include="..\AS4\Eu.EDelivery.AS4\Eu.EDelivery.AS4.csproj">
       <Project>{8b0ba38f-c3f7-46c1-9e68-a7291c7b16b1}</Project>
       <Name>Eu.EDelivery.AS4</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ConsoleHost\Eu.EDelivery.AS4.ServiceHandler.ConsoleHost\Eu.EDelivery.AS4.ServiceHandler.ConsoleHost.csproj">
+      <Project>{61d31a15-4a46-435b-a939-f30a5284d96c}</Project>
+      <Name>Eu.EDelivery.AS4.ServiceHandler.ConsoleHost</Name>
     </ProjectReference>
     <ProjectReference Include="..\Eu.EDelivery.AS4.TestUtils\Eu.EDelivery.AS4.TestUtils.csproj">
       <Project>{243cfd29-bb90-4a9e-9dd8-3c0228c845ed}</Project>

@@ -13,7 +13,8 @@ using ReceptionAwareness = Eu.EDelivery.AS4.Entities.ReceptionAwareness;
 
 namespace Eu.EDelivery.AS4.Services
 {
-    public class ReceptionAwarenessService : IReceptionAwarenessService
+    [Obsolete("The ReceptionAwareness is now implemented as a part of the RetryAgent instead of a separate one.")]
+    internal class ReceptionAwarenessService
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 

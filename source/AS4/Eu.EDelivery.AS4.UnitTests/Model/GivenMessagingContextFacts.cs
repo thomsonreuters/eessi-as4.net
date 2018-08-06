@@ -90,7 +90,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
 
             private static AS4Message AS4MessageWithEbmsMessageId()
             {
-                return AS4Message.Create(new FilledNRRReceipt());
+                return AS4Message.Create(new FilledNRReceipt());
             }
 
             private static AS4Message AS4MessageWithoutEbmsMessageId()

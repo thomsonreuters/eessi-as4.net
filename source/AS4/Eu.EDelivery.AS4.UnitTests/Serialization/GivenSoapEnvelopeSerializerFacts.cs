@@ -31,10 +31,12 @@ using Xunit;
 using static Eu.EDelivery.AS4.UnitTests.Properties.Resources;
 using AgreementReference = Eu.EDelivery.AS4.Model.Core.AgreementReference;
 using Error = Eu.EDelivery.AS4.Model.Core.Error;
+using NonRepudiationInformation = Eu.EDelivery.AS4.Model.Core.NonRepudiationInformation;
 using Party = Eu.EDelivery.AS4.Model.Core.Party;
 using PartyId = Eu.EDelivery.AS4.Model.Core.PartyId;
 using Property = FsCheck.Property;
 using Receipt = Eu.EDelivery.AS4.Model.Core.Receipt;
+using Reference = Eu.EDelivery.AS4.Model.Core.Reference;
 using Service = Eu.EDelivery.AS4.Model.Core.Service;
 using UserMessage = Eu.EDelivery.AS4.Model.Core.UserMessage;
 
@@ -70,7 +72,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
             [Fact]
             public void ThenMpcAttributeIsCorrectlySerialized()
             {
-                var userMessage = new UserMessage("some-message-id") { Mpc = "the-specified-mpc" };
+                var userMessage = new UserMessage("some-message-id", "the-specified-mpc");
                 var as4Message = AS4Message.Create(userMessage);
 
                 using (var messageStream = new MemoryStream())
@@ -187,7 +189,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
             public async Task AS4NRRReceipt_ValidatesWithXsdSchema()
             {
                 // Arrange
-                AS4Message receiptMessage = AS4Message.Create(new FilledNRRReceipt());
+                AS4Message receiptMessage = AS4Message.Create(new FilledNRReceipt());
 
                 // Act / Assert
                 await TestValidEbmsMessageEnvelopeFrom(receiptMessage);
@@ -283,22 +285,22 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                 Maybe<Guid> type)
             {
                 // Arrange
-                var user = new UserMessage($"user-{Guid.NewGuid()}");
-                user.CollaborationInfo = 
+                var user = new UserMessage(
+                    $"user-{Guid.NewGuid()}",
                     new AS4.Model.Core.CollaborationInfo(
                         agreement: new AgreementReference("agreement"),
                         service: new Service(
-                            value.ToString(), 
+                            value.ToString(),
                             type.Select(t => t.ToString())),
                         action: "action",
-                        conversationId: "conversation");
+                        conversationId: "conversation"));
 
                 // Act
                 XmlDocument doc = SerializeSoapMessage(AS4Message.Create(user));
 
                 // Assert
-                XmlNode serviceNode = doc.SelectXmlNode(
-                    "/s:Envelope/s:Header/ebms:Messaging/ebms:UserMessage/ebms:CollaborationInfo/ebms:Service");
+                XmlNode serviceNode = doc.UnsafeSelectEbmsNode(
+                    "/s12:Envelope/s12:Header/eb:Messaging/eb:UserMessage/eb:CollaborationInfo/eb:Service");
 
                 XmlAttribute serviceTypeAttr = serviceNode?.Attributes?["type"];
 
@@ -322,17 +324,17 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                         type: type.Select(t => t.ToString()), 
                         pmodeId: Maybe<string>.Nothing));
 
-                var user = new UserMessage($"user-{Guid.NewGuid()}");
-                user.CollaborationInfo =
+                var user = new UserMessage(
+                    $"user-{Guid.NewGuid()}",
                     new AS4.Model.Core.CollaborationInfo(
-                        a, Service.TestService, Constants.Namespaces.TestAction, "1");
+                        a, Service.TestService, Constants.Namespaces.TestAction, "1"));
 
                 // Act
                 XmlDocument doc = SerializeSoapMessage(AS4Message.Create(user));
 
                 // Assert
-                XmlNode agreementNode = doc.SelectXmlNode(
-                    "/s:Envelope/s:Header/ebms:Messaging/ebms:UserMessage/ebms:CollaborationInfo/ebms:AgreementRef");
+                XmlNode agreementNode = doc.UnsafeSelectEbmsNode(
+                    "/s12:Envelope/s12:Header/eb:Messaging/eb:UserMessage/eb:CollaborationInfo/eb:AgreementRef");
 
                 XmlAttribute agreementTypeAttr = agreementNode?.Attributes?["type"];
 
@@ -368,8 +370,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                 XmlDocument doc = SerializeSoapMessage(AS4Message.Create(user));
 
                 // Assert
-                XmlNode payloadInfoTag = doc.SelectXmlNode(
-                    "/s:Envelope/s:Header/ebms:Messaging/ebms:UserMessage/ebms:PayloadInfo");
+                XmlNode payloadInfoTag = doc.UnsafeSelectEbmsNode(
+                    "/s12:Envelope/s12:Header/eb:Messaging/eb:UserMessage/eb:PayloadInfo");
 
                 Assert.NotNull(payloadInfoTag);
                 XmlNode partInfoTag = payloadInfoTag.FirstChild;
@@ -416,8 +418,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
 
             private static XmlAttribute GetMpcAttribute(XmlDocument document)
             {
-                const string node = "/s:Envelope/s:Header/ebms:Messaging/ebms:SignalMessage/ebms:PullRequest";
-                XmlAttributeCollection attributes = document.SelectXmlNode(node).Attributes;
+                const string node = "/s12:Envelope/s12:Header/eb:Messaging/eb:SignalMessage/eb:PullRequest";
+                XmlAttributeCollection attributes = document.UnsafeSelectEbmsNode(node).Attributes;
 
                 return attributes?.Cast<XmlAttribute>().FirstOrDefault(x => x.Name == "mpc");
             }
@@ -477,11 +479,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
 
         private static UserMessage CreateAnonymousUserMessage()
         {
-            return new UserMessage("message-Id")
-            {
-                Receiver = new Party("Receiver", new PartyId(Guid.NewGuid().ToString())),
-                Sender = new Party("Sender", new PartyId(Guid.NewGuid().ToString()))
-            };
+            return new UserMessage(
+                "message-Id",
+                new Party("Sender", new PartyId(Guid.NewGuid().ToString())),
+                new Party("Receiver", new PartyId(Guid.NewGuid().ToString())));
         }
     }
 
@@ -539,7 +540,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
 
         private static void AssertUserMessageMultihopHeaders(XmlDocument doc)
         {
-            var messagingNode = doc.SelectSingleNode("//*[local-name()='Messaging']") as XmlElement;
+            var messagingNode = doc.UnsafeSelectEbmsNode("/s12:Envelope/s12:Header/eb:Messaging") as XmlElement;
 
             Assert.NotNull(messagingNode);
             Assert.Equal(Constants.Namespaces.EbmsNextMsh, messagingNode.GetAttribute("role", Constants.Namespaces.Soap12));
@@ -616,9 +617,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
         private static void AssertToElement(XmlNode doc)
         {
             XmlNode toAddressing =
-                doc.SelectSingleNode($@"//*[local-name()='To' and namespace-uri()='{Constants.Namespaces.Addressing}']");
+                doc.SelectEbmsNode("/s12:Envelope/s12:Header/wsa:To");
 
-            Assert.NotNull(toAddressing);
             Assert.Equal(Constants.Namespaces.ICloud, toAddressing.InnerText);
         }
 
@@ -641,7 +641,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                 // Serialize the Deserialized receipt again, and make sure the RoutingInput element is present and correct.
                 XmlDocument doc = AS4XmlSerializer.ToSoapEnvelopeDocument(multihopReceipt, CancellationToken.None);
 
-                XmlNode routingInput = doc.SelectSingleNode(@"//*[local-name()='RoutingInput']");
+                XmlNode routingInput = doc.UnsafeSelectEbmsNode("/s12:Envelope/s12:Header/mh:RoutingInput");
 
                 Assert.NotNull(routingInput);
             }
@@ -667,7 +667,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
             // - No RoutingInput node
             Assert.False(ContainsActionElement(doc));
             Assert.False(ContainsUserMessageElement(doc));
-            Assert.Null(doc.SelectSingleNode(@"//*[local-name()='RoutingInput']"));
+            Assert.Null(doc.UnsafeSelectEbmsNode("/s12:Envelope/s12:Header/mh:RoutingInput"));
         }
 
         private static async Task<StepResult> CreateReceiptForUserMessage(
@@ -688,12 +688,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
 
         private static bool ContainsUserMessageElement(XmlNode doc)
         {
-            return doc.SelectSingleNode($@"//*[local-name()='UserMessage' and namespace-uri()='{Constants.Namespaces.EbmsMultiHop}']") != null;
+            return doc.UnsafeSelectEbmsNode("/s12:Envelope/s12:Header/mh:RoutingInput/mh:UserMessage") != null;
         }
 
         private static bool ContainsActionElement(XmlNode doc)
         {
-            return doc.SelectSingleNode($@"//*[local-name()='Action' and namespace-uri()='{Constants.Namespaces.Addressing}']") != null;
+            return doc.UnsafeSelectEbmsNode("/s12:Envelope/s12:Header/wsa:Action") != null;
         }
 
         private static void AssertMessagingElement(XmlNode doc)
@@ -705,7 +705,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
 
         private static Messaging DeserializeMessagingHeader(XmlNode doc)
         {
-            XmlNode messagingNode = doc.SelectSingleNode(@"//*[local-name()='Messaging']");
+            XmlNode messagingNode = doc.UnsafeSelectEbmsNode("/s12:Envelope/s12:Header/eb:Messaging");
             Assert.NotNull(messagingNode);
 
             return AS4XmlSerializer.FromString<Messaging>(messagingNode.OuterXml);
@@ -713,7 +713,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
 
         private static void AssertIfSenderAndReceiverAreReversed(AS4Message expectedAS4Message, XmlNode doc)
         {
-            XmlNode routingInputNode = doc.SelectSingleNode(@"//*[local-name()='RoutingInput']");
+            XmlNode routingInputNode = doc.UnsafeSelectEbmsNode("/s12:Envelope/s12:Header/mh:RoutingInput");
             Assert.NotNull(routingInputNode);
             var routingInput = AS4XmlSerializer.FromString<RoutingInput>(routingInputNode.OuterXml);
 
@@ -735,7 +735,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
             var sender = new Party("sender", new PartyId("senderId"));
             var receiver = new Party("rcv", new PartyId("receiverId"));
 
-            return AS4Message.Create(new UserMessage { Sender = sender, Receiver = receiver }, pmode);
+            return AS4Message.Create(new UserMessage(Guid.NewGuid().ToString(), sender, receiver), pmode);
         }
 
         private static async Task<AS4Message> CreateReceivedAS4Message(SendingProcessingMode sendPMode)
@@ -761,7 +761,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
             var sender = new Party("sender", new PartyId("senderId"));
             var receiver = new Party("rcv", new PartyId("receiverId"));
 
-            return AS4Message.Create(new UserMessage { Sender = sender, Receiver = receiver }, sendPMode);
+            return AS4Message.Create(new UserMessage(Guid.NewGuid().ToString(), sender, receiver), sendPMode);
         }
 
         private static SendingProcessingMode CreateMultiHopPMode()
@@ -786,7 +786,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
 
             XmlDocument document = AS4XmlSerializer.ToSoapEnvelopeDocument(as4Message, CancellationToken.None);
 
-            var node = document.SelectSingleNode(@"//*[local-name()='NonRepudiationInformation']");
+            var node = document.UnsafeSelectEbmsNode("/s12:Envelope/s12:Header/eb:Messaging/eb:SignalMessage/eb:Receipt/ebbp:NonRepudiationInformation");
 
             Assert.NotNull(node);
             Assert.Equal(Constants.Namespaces.EbmsXmlSignals, node.NamespaceURI);
@@ -801,7 +801,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
 
             XmlDocument document = AS4XmlSerializer.ToSoapEnvelopeDocument(as4Message, CancellationToken.None);
 
-            var node = document.SelectSingleNode(@"//*[local-name()='UserMessage']");
+            var node = document.UnsafeSelectEbmsNode("/s12:Envelope/s12:Header/eb:Messaging/eb:SignalMessage/eb:Receipt/ebbp:UserMessage");
 
             Assert.NotNull(node);
             Assert.Equal(Constants.Namespaces.EbmsXmlSignals, node.NamespaceURI);
@@ -821,8 +821,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
             };
 
             return new Receipt(
-                $"user-{Guid.NewGuid()}", 
-                new NonRepudiationInformationBuilder().WithSignedReferences(nnri).Build());
+                $"user-{Guid.NewGuid()}",
+                new NonRepudiationInformation(
+                    nnri.Select(Reference.CreateFromReferenceElement)));
         }
 
         private static Receipt CreateReceiptWithRelatedUserMessageInfo()
@@ -890,18 +891,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
 
         private static void RemoveSecurityHeaderFromMessageEnvelope(AS4Message as4Message)
         {
-            var headerNode = as4Message.EnvelopeDocument.SelectSingleNode("//*[local-name()='Header']");
+            XmlNode headerNode = as4Message.EnvelopeDocument.UnsafeSelectEbmsNode("/s12:Envelope/s12:Header");
+            Assert.NotNull(headerNode);
 
-            if (headerNode == null)
-            {
-                return;
-            }
+            XmlNode securityHeader = as4Message.EnvelopeDocument.UnsafeSelectEbmsNode("/s12:Envelope/s12:Header/wsse:Security");
+            Assert.NotNull(securityHeader);
 
-            var securityHeader = headerNode.SelectSingleNode("//*[local-name()='Security']");
-            if (securityHeader != null)
-            {
-                headerNode.RemoveChild(securityHeader);
-            }
+            headerNode.RemoveChild(securityHeader);
         }
     }
 }

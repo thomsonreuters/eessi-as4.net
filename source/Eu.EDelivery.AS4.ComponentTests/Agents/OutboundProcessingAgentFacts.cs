@@ -120,18 +120,16 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         {
             var msg = AS4Message.Create(
                 pmode: pmode,
-                message: new UserMessage("test-" + Guid.NewGuid())
-                {
-                    Sender = new Party("sender-role", new PartyId("sender-id")),
-                    Receiver = new Party("receiver-role", new PartyId("receiver-id"))
-                });
+                message: new UserMessage(
+                    "test-" + Guid.NewGuid(), 
+                    new Party("sender-role", new PartyId("sender-id")), 
+                    new Party("receiver-role", new PartyId("receiver-id"))));
 
             msg.AddAttachment(
-                new Attachment("test-" + Guid.NewGuid())
-                {
-                    ContentType = "text/plain",
-                    Content = new MemoryStream(Encoding.UTF8.GetBytes("my content!"))
-                });
+                new Attachment(
+                    id: "test-" + Guid.NewGuid(),
+                    content: new MemoryStream(Encoding.UTF8.GetBytes("my content!")),
+                    contentType: "text/plain"));
 
             return msg;
         }
