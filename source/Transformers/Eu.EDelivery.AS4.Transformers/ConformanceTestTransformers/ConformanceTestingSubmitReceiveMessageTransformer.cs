@@ -36,7 +36,11 @@ namespace Eu.EDelivery.AS4.Transformers.ConformanceTestTransformers
             await message.UnderlyingStream.CopyToAsync(receivedStream);
             receivedStream.Position = 0;
 
-            var receivedMessage = new ReceivedMessage(receivedStream, message.ContentType);
+            var receivedMessage = new ReceivedMessage(
+                receivedStream, 
+                message.ContentType,
+                message.Origin,
+                message.Length);
 
             try
             {

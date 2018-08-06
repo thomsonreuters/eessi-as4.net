@@ -54,8 +54,8 @@ namespace Eu.EDelivery.AS4.Steps.Forward
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
-            var entityMessage = messagingContext.ReceivedMessage as ReceivedMessageEntityMessage;
-            if (!(entityMessage?.MessageEntity is InMessage receivedInMessage))
+            var entityMessage = messagingContext.ReceivedMessage as ReceivedEntityMessage;
+            if (!(entityMessage?.Entity is InMessage receivedInMessage))
             {
                 throw new InvalidOperationException(
                     "The MessagingContext must contain a ReceivedMessage that represents an InMessage." + Environment.NewLine +

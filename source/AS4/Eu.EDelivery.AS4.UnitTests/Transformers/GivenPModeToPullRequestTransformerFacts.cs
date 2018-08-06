@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
@@ -27,7 +28,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
         {
             get
             {
-                yield return new object[] { new ReceivedMessage(underlyingStream: null) };
+                yield return new object[] { new ReceivedMessage(underlyingStream: Stream.Null) };
 
                 SendingProcessingMode invalidSendingPMode = ValidSendingPModeFactory.Create("my id");
                 invalidSendingPMode.MepBinding = MessageExchangePatternBinding.Pull;

@@ -1,46 +1,98 @@
-﻿using System.IO;
-using Eu.EDelivery.AS4.Model.Core;
-using Eu.EDelivery.AS4.Receivers;
+﻿using System;
+using System.IO;
 
 namespace Eu.EDelivery.AS4.Model.Internal
 {
     /// <summary>
-    /// Canonical Return Message when the <see cref="IReceiver" />
-    /// implementation has received a Message
+    /// Canonical Return Message when the <see cref="Receivers.IReceiver" />  implementation has received a Message
     /// </summary>
     public class ReceivedMessage
     {
-        protected ReceivedMessage() { }
-
         /// <summary>
         /// Initializes a new instance of the <see cref="ReceivedMessage" /> class.
-        /// Create a new Received Message with a given RequestStream
         /// </summary>
-        /// <param name="underlyingStream">
-        /// </param>
-        public ReceivedMessage(Stream underlyingStream)
-        {
-            UnderlyingStream = underlyingStream;
-        }
+        /// <param name="underlyingStream"> </param>
+        public ReceivedMessage(Stream underlyingStream) 
+            : this(underlyingStream, "application/octet-stream") { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ReceivedMessage" /> class.
-        /// Create a new Received Message with a given RequestStream
         /// and Processing Mode
         /// </summary>
-        /// <param name="underlyingStream">
-        /// </param>
-        /// <param name="contentType">
-        /// </param>
-        public ReceivedMessage(Stream underlyingStream, string contentType)
+        /// <param name="underlyingStream"> </param>
+        /// <param name="contentType"> </param>
+        public ReceivedMessage(Stream underlyingStream, string contentType) 
+            : this(underlyingStream, contentType, origin: "unknown origin") { }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ReceivedMessage"/> class.
+        /// </summary>
+        /// <param name="underlyingStream"></param>
+        /// <param name="contentType"></param>
+        /// <param name="origin"></param>
+        public ReceivedMessage(Stream underlyingStream, string contentType, string origin) 
+            : this(underlyingStream, contentType, origin, length: -1) { }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ReceivedMessage"/> class.
+        /// </summary>
+        /// <param name="underlyingStream"></param>
+        /// <param name="contentType"></param>
+        /// <param name="origin"></param>
+        /// <param name="length"></param>
+        public ReceivedMessage(
+            Stream underlyingStream,
+            string contentType,
+            string origin,
+            long length)
         {
-            UnderlyingStream = underlyingStream;
+            if (contentType == null)
+            {
+                throw new ArgumentNullException(nameof(contentType));
+            }
+
+            if (underlyingStream == null)
+            {
+                throw new ArgumentNullException(nameof(underlyingStream));
+            }
+
+            if (origin == null)
+            {
+                throw new ArgumentNullException(nameof(origin));
+            }
+
+            if (length < -1)
+            {
+                throw new ArgumentOutOfRangeException(nameof(length));
+            }
+
             ContentType = contentType;
+            UnderlyingStream = underlyingStream;
+            Origin = origin;
+            Length = length;
         }
 
-        public string ContentType { get; private set; }
+        /// <summary>
+        /// Gets the type of the received contents.
+        /// </summary>
+        public string ContentType { get; }
 
-        public Stream UnderlyingStream { get; private set; }
+        /// <summary>
+        /// Gets the original underlying content stream.
+        /// </summary>
+        public Stream UnderlyingStream { get; }
+
+        /// <summary>
+        /// Gets the origin from where the the content stream comes from (when not set: 'unknown origin').
+        /// </summary>
+        /// <remarks>This could be 'unknown origin'</remarks>
+        public string Origin { get; }
+
+        /// <summary>
+        /// Gets the length of the contents stream (when not set: -1)
+        /// </summary>
+        /// <remarks>This could be -1</remarks>
+        public long Length { get; }
 
         /// <summary>
         /// Assign custom properties to the <see cref="ReceivedMessage" />

@@ -149,7 +149,11 @@ namespace Eu.EDelivery.AS4.Transformers
             await m.UnderlyingStream.CopyToFastAsync(str);
             str.Position = 0;
 
-            return new ReceivedMessage(str, m.ContentType);
+            return new ReceivedMessage(
+                str, 
+                m.ContentType,
+                m.Origin,
+                m.Length);
         }
 
         private static async Task<AS4Message> DeserializeToAS4Message(ReceivedMessage message)

@@ -34,19 +34,19 @@ namespace Eu.EDelivery.AS4.Transformers
         /// <returns></returns>
         public async Task<MessagingContext> TransformAsync(ReceivedMessage message)
         {
-            Logger.Info("Transforming ReceivedMessage to MessagingContext");
-
-            SubmitMessage submitMessage = DeserializeSubmitMessage(message.UnderlyingStream);
+            Logger.Trace("Start deserializing to a SubmitMessage...");
+            SubmitMessage submitMessage = DeserializeSubmitMessage(message);
+            Logger.Trace("Successfully deserialized to a SubmitMessage");
 
             return await Task.FromResult(new MessagingContext(submitMessage));
         }
 
-        private static SubmitMessage DeserializeSubmitMessage(Stream stream)
+        private static SubmitMessage DeserializeSubmitMessage(ReceivedMessage message)
         {
             try
             {
                 var doc = new XmlDocument();
-                doc.Load(stream);
+                doc.Load(message.UnderlyingStream);
 
                 var schemas = new XmlSchemaSet();
                 schemas.Add(XsdSchemaDefinitions.SubmitMessage);
@@ -62,7 +62,8 @@ namespace Eu.EDelivery.AS4.Transformers
             }
             catch (Exception ex)
             {
-                throw new InvalidMessageException("Received stream is not a SubmitMessage", ex);
+                throw new InvalidMessageException(
+                    $"Received stream from {message.Origin} is not a SubmitMessage", ex);
             }
         }
     }

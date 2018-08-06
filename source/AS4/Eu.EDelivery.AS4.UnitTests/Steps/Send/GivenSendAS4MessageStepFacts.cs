@@ -54,7 +54,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             var inserted = new OutMessage(ebmsMessageId: ebmsMessageId);
             GetDataStoreContext.InsertOutMessage(inserted, withReceptionAwareness: false);
 
-            var receivedMessage = new ReceivedMessageEntityMessage(
+            var receivedMessage = new ReceivedEntityMessage(
                 inserted,
                 tobeSentMsg.ToStream(),
                 tobeSentMsg.ContentType);
