@@ -138,7 +138,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             catch (Exception exception)
             {
                 Logger.ErrorDeep(exception);
-                UpdateMessageStatus(ctx, SendResult.RetryableFail);
+                UpdateMessageStatus(ctx, SendResult.FatalFail);
                 throw;
             }
         }
@@ -265,28 +265,37 @@ namespace Eu.EDelivery.AS4.Steps.Send
             return ctx.AS4Message?.DetermineMessageSize(SerializerProvider.Default) ?? 0L;
         }
 
-            private async Task<StepResult> HandleHttpResponseAsync(
-                HttpWebRequest request,
-                MessagingContext ctx)
+        private async Task<StepResult> HandleHttpResponseAsync(
+            HttpWebRequest request,
+            MessagingContext ctx)
+        {
+            Logger.Debug($"AS4Message received from: {request.Address}");
+
+            (HttpWebResponse webResponse, WebException exception) =
+                await _httpClient.Respond(request)
+                                 .ConfigureAwait(false);
+
+            if (webResponse != null
+                && ContentTypeSupporter.IsContentTypeSupported(webResponse.ContentType))
             {
-                Logger.Debug($"AS4Message received from: {request.Address}");
-
-                (HttpWebResponse webResponse, WebException exception) =
-                    await _httpClient.Respond(request).ConfigureAwait(false);
-
-                if (webResponse != null
-                    && ContentTypeSupporter.IsContentTypeSupported(webResponse.ContentType))
+                using (AS4Response res = await AS4Response.Create(ctx, webResponse).ConfigureAwait(false))
                 {
-                    StepResult stepResult = await HandleAS4Response(ctx, webResponse)
+                    UpdateMessageStatus(ctx, SendResultUtils.DetermineSendResultFromHttpResonse(res.StatusCode));
+
+                    var handler = new EmptyBodyResponseHandler(
+                        new PullRequestResponseHandler(
+                            new TailResponseHandler()));
+                    
+                    return await handler
+                        .HandleResponse(res)
                         .ConfigureAwait(false);
 
-                    UpdateMessageStatus(ctx, SendResult.Success);
 
-                    return stepResult;
                 }
-
-                throw CreateFailedSendException(request.RequestUri.ToString(), exception);
             }
+
+            throw CreateFailedSendException(request.RequestUri.ToString(), exception);
+        }
 
         private void UpdateMessageStatus(MessagingContext ctx, SendResult result)
         {
@@ -299,25 +308,6 @@ namespace Eu.EDelivery.AS4.Steps.Send
                     service.UpdateAS4MessageForSendResult(ctx.MessageEntityId.Value, result);
                     db.SaveChanges();
                 }
-            }
-        }
-
-        private static async Task<StepResult> HandleAS4Response(
-            MessagingContext originalMessage,
-            WebResponse webResponse)
-        {
-            using (AS4Response res =
-                await AS4Response.Create(
-                    requestMessage: originalMessage,
-                    webResponse: webResponse as HttpWebResponse).ConfigureAwait(false))
-            {
-                var handler = new EmptyBodyResponseHandler(
-                    new PullRequestResponseHandler(
-                        new TailResponseHandler()));
-
-                return await handler
-                    .HandleResponse(res)
-                    .ConfigureAwait(false);
             }
         }
 
