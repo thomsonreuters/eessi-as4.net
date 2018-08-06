@@ -226,22 +226,14 @@ namespace Eu.EDelivery.AS4.Services
             
             if (as4Message.HasUserMessage)
             {
-                IEnumerable<string> messageLocations = _repository.GetInMessagesData(
-                    as4Message.UserMessages.Select(m => m.MessageId),
-                    m => m.MessageLocation);
+                string savedLocation = 
+                    messageBodyStore.SaveAS4Message(_configuration.InMessageStoreLocation, as4Message);
 
-                if (!messageLocations.Any() || messageLocations.Any(m => m is null))
-                {
-                    throw new InvalidDataException(
-                        $"Cannot update received AS4Message: Unable to find an InMessage for {as4Message.GetPrimaryMessageId()}");
-                }
-
-                // AS4Messages gets saved on a unique location, even when having the same EbmsMessageId
-                foreach (string location in messageLocations)
-                {
-                    Logger.Debug("Update stored message body because message contains UserMessages");
-                    messageBodyStore.UpdateAS4Message(location, as4Message); 
-                }
+                _repository.UpdateInMessages(
+                    m => as4Message.UserMessages
+                                   .Select(u => u.MessageId)
+                                   .Any(id => id == m.EbmsMessageId), 
+                    m => m.MessageLocation = savedLocation);
             }
 
             if (messageContext.ReceivedMessageMustBeForwarded)
