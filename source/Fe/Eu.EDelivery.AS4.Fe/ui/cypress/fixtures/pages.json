@@ -15,7 +15,6 @@
         { "url": "/settings/agents/send", "title": "Send" },
         { "url": "/settings/agents/deliver", "title": "Deliver" },
         { "url": "/settings/agents/notify", "title": "Notify" },
-        { "url": "/settings/agents/receptionawareness", "title": "Reception awareness" },
         { "url": "/settings/agents/pullsend", "title": "Pull send" },
         { "url": "/monitor/messages", "show": "Monitor", "title": "Messages" },
         { "url": "/monitor/exceptions", "title": "Exceptions" }
