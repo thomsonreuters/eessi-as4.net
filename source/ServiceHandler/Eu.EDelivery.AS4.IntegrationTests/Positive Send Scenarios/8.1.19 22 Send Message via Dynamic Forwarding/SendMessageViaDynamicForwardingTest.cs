@@ -189,7 +189,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._19_22
             var user = new UserMessage(
                 Guid.NewGuid().ToString(),
                 HolodeckCollaboration(argRefPModeId),
-                new Party("Sender", new PartyId("eu.europe.org.party")),
+                new Party(Constants.Namespaces.EbmsDefaultFrom, new PartyId(Constants.Namespaces.EbmsDefaultFrom)),
                 new Party(HolodeckPartyRole, new PartyId(HolodeckBId, HolodeckBId)));
 
             user.AddPartInfo(new PartInfo(
