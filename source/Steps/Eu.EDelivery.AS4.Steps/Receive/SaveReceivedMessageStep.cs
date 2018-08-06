@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
+using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
@@ -64,6 +65,16 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             }
 
             MessagingContext resultContext = await InsertReceivedAS4MessageAsync(messagingContext);
+
+            if (messagingContext.AS4Message.PrimaryMessageUnit is SignalMessage signal
+                && signal.RefToMessageId == null)
+            {
+                Logger.Warn($"{messagingContext.LogTag} cannot further process incoming SignalMessage because it hasn't got a RefToMessageId");
+                
+                return StepResult.Success(
+                    new MessagingContext(AS4Message.Empty, messagingContext.Mode))
+                                 .AndStopExecution();
+            }
 
             if (resultContext != null && resultContext.Exception == null)
             {
