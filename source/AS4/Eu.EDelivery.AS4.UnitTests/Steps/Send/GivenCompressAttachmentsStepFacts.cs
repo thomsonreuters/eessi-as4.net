@@ -62,11 +62,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
 
         private static Attachment NonCompressedAttachment()
         {
-            return new Attachment("attachment-id")
-            {
-                Content = new MemoryStream(Encoding.UTF8.GetBytes("compress me!")),
-                ContentType = "text/plain"
-            };
+            return new Attachment(
+                id: "attachment-id",
+                content: new MemoryStream(Encoding.UTF8.GetBytes("compress me!")),
+                contentType: "text/plain");
         }
 
         private static MessagingContext AS4MessageContext(Attachment attachment, SendingProcessingMode pmode)

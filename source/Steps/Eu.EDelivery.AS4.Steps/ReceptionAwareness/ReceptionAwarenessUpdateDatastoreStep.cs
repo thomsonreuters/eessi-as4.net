@@ -13,6 +13,7 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
     /// <summary>
     /// Describes how the AS4 message has to be behave in a Reception Awareness scenario
     /// </summary>
+    [Obsolete("The ReceptionAwareness is now implemented as a part of the RetryAgent instead of a separate one.")]
     [Info("Reception Awareness cycle step")]
     [Description("This step determines what the Operation and Status of an AS4 Message for which reception awareness is enabled, must be.")]
     public class ReceptionAwarenessUpdateDatastoreStep : IStep

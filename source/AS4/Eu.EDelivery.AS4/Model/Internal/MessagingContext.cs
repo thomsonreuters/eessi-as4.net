@@ -150,11 +150,6 @@ namespace Eu.EDelivery.AS4.Model.Internal
                     return NotifyMessage.MessageInfo?.RefToMessageId;
                 }
 
-                if (ReceivedMessage is ReceivedMessageEntityMessage entityMessage)
-                {
-                    return entityMessage.MessageEntity?.EbmsMessageId;
-                }
-
                 if (ReceivedMessage is ReceivedEntityMessage e)
                 {
                     if (e.Entity is MessageEntity me)

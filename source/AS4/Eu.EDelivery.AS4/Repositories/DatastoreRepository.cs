@@ -344,18 +344,13 @@ namespace Eu.EDelivery.AS4.Repositories
         /// Insert a given <see cref="ReceptionAwareness"/> into the Data store.
         /// </summary>
         /// <param name="receptionAwareness"></param>
-        public void InsertReceptionAwareness(ReceptionAwareness receptionAwareness)
-        {
-            receptionAwareness.InsertionTime 
-                = receptionAwareness.ModificationTime 
-                = DateTimeOffset.Now;
+        [Obsolete("The ReceptionAwareness is now implemented as a part of the RetryAgent instead of a separate one.")]
+        public void InsertReceptionAwareness(ReceptionAwareness receptionAwareness) { }
 
-            _datastoreContext.ReceptionAwareness.Add(receptionAwareness);
-        }
-
+        [Obsolete("The ReceptionAwareness is now implemented as a part of the RetryAgent instead of a separate one.")]
         public ReceptionAwareness GetReceptionAwarenessForOutMessage(long outMessageId)
         {
-            return _datastoreContext.ReceptionAwareness.FirstOrDefault(r => r.RefToOutMessageId == outMessageId);
+            return null;
         }
 
         /// <summary>
@@ -363,28 +358,8 @@ namespace Eu.EDelivery.AS4.Repositories
         /// </summary>
         /// <param name="receptionAwarenessId">The Id that uniquely identifies the ReceptionAwareness record.</param>
         /// <param name="updateAction"></param>
-        public void UpdateReceptionAwareness(long receptionAwarenessId, Action<ReceptionAwareness> updateAction)
-        {
-            var entity = ReceptionAwareness.GetDetachedEntityForDatabaseUpdate(receptionAwarenessId);
-
-            if (_datastoreContext.IsEntityAttached(entity) == false)
-            {
-                _datastoreContext.Attach(entity);
-            }
-            else
-            {
-                entity = _datastoreContext.ReceptionAwareness.FirstOrDefault(r => r.Id == receptionAwarenessId);
-
-                if (entity == null)
-                {
-                    LogManager.GetCurrentClassLogger().Error($"Unable to update ReceptionAwareness entity. No record exists for ReceptionAwareness.Id {receptionAwarenessId}");
-                    return;
-                }
-            }
-
-            updateAction(entity);
-            entity.ModificationTime = DateTimeOffset.Now;
-        }
+        [Obsolete("The ReceptionAwareness is now implemented as a part of the RetryAgent instead of a separate one.")]
+        public void UpdateReceptionAwareness(long receptionAwarenessId, Action<ReceptionAwareness> updateAction) { }
 
         #endregion
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Threading;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
@@ -57,7 +58,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps
             {
 
                 AS4Message message = AS4Message.Empty;
-                message.AddAttachment(new Attachment());
+                message.AddAttachment(new Attachment(Stream.Null, "text/plain"));
 
                 return new MessagingContext(message, MessagingContextMode.Unknown);
             }

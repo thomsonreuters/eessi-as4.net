@@ -58,12 +58,10 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             string uri = Path.Combine(Environment.CurrentDirectory, "messages", "attachments", "earth.jpg");
             var stream = new FileStream(uri, FileMode.Open, FileAccess.Read, FileShare.Read);
 
-            return new Attachment("yet-another-attachment")
-            {
-                ContentType = "image/jpeg",
-                Content = stream,
-                Location = uri
-            };
+            return new Attachment(
+                id: "yet-another-attachment",
+                content: stream,
+                contentType: "image/jpeg");
         }
 
         private static void AssertOnDeliveredAttachments(string location, Action<FileInfo[]> assertion)

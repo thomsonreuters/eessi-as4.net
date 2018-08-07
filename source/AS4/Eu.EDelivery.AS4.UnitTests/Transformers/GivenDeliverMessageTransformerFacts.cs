@@ -24,7 +24,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
         {
             // Arrange
             var sut = new DeliverMessageTransformer();
-            ReceivedMessageEntityMessage receivedMessage = CreateReceivedMessage(receivedInMessageId: "ignored id", as4Message: AS4Message.Empty);
+            ReceivedEntityMessage receivedMessage = CreateReceivedMessage(receivedInMessageId: "ignored id", as4Message: AS4Message.Empty);
 
             // Act / Assert
             await Assert.ThrowsAnyAsync<Exception>(
@@ -62,11 +62,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
 
         private static Attachment FilledAttachment(string attachmentId = null)
         {
-            return new Attachment(attachmentId ?? Guid.NewGuid().ToString())
-            {
-                Content = new MemoryStream(Encoding.UTF8.GetBytes("serialize me!")),
-                ContentType = "text/plain"
-            };
+            return new Attachment(
+                id: attachmentId ?? Guid.NewGuid().ToString(),
+                content: new MemoryStream(Encoding.UTF8.GetBytes("serialize me!")),
+                contentType: "text/plain");
         }
 
         [Fact]
@@ -78,7 +77,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             AS4Message as4Message = AS4Message.Create(new FilledUserMessage(expectedId));
             as4Message.AddMessageUnit(new FilledUserMessage());
 
-            ReceivedMessageEntityMessage receivedMessage = CreateReceivedMessage(receivedInMessageId: expectedId, as4Message: as4Message);
+            ReceivedEntityMessage receivedMessage = CreateReceivedMessage(receivedInMessageId: expectedId, as4Message: as4Message);
             var sut = new DeliverMessageTransformer();
 
             // Act
@@ -92,17 +91,17 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
 
         private static async Task<MessagingContext> ExerciseTransform(string expectedId, AS4Message as4Message)
         {
-            ReceivedMessageEntityMessage receivedMessage = CreateReceivedMessage(receivedInMessageId: expectedId, as4Message: as4Message);
+            ReceivedEntityMessage receivedMessage = CreateReceivedMessage(receivedInMessageId: expectedId, as4Message: as4Message);
             var sut = new DeliverMessageTransformer();
 
             return await sut.TransformAsync(receivedMessage);
         }
 
-        private static ReceivedMessageEntityMessage CreateReceivedMessage(string receivedInMessageId, AS4Message as4Message)
+        private static ReceivedEntityMessage CreateReceivedMessage(string receivedInMessageId, AS4Message as4Message)
         {
             var inMessage = new InMessage(receivedInMessageId);
 
-            return new ReceivedMessageEntityMessage(inMessage, as4Message.ToStream(), as4Message.ContentType);
+            return new ReceivedEntityMessage(inMessage, as4Message.ToStream(), as4Message.ContentType);
         }
     }
 }

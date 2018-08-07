@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.Notify;
@@ -25,18 +26,18 @@ namespace Eu.EDelivery.AS4.Transformers
         /// <returns></returns>
         public async Task<MessagingContext> TransformAsync(ReceivedMessage message)
         {
-            var entityMessage = message as ReceivedMessageEntityMessage;
-            if (entityMessage == null)
+            var entityMessage = message as ReceivedEntityMessage;
+            if (entityMessage == null || !(entityMessage.Entity is MessageEntity me))
             {
                 throw new NotSupportedException(
-                    "The message that must be transformed should be of type ReceivedMessageEntityMessage");
+                    $"Incoming message that must be transformed should be of type {nameof(ReceivedEntityMessage)} with a {nameof(MessageEntity)} as entity");
             }
 
             // Get the AS4Message that is referred to by this entityMessage and modify it so that it just contains
             // the one usermessage that should be delivered.
-            AS4Message as4Message = await RetrieveAS4SignalMessageForNotification(entityMessage);
+            AS4Message as4Message = await RetrieveAS4SignalMessageForNotification(me.EbmsMessageId, entityMessage);
 
-            return new MessagingContext(await CreateNotifyMessageEnvelope(as4Message, entityMessage.MessageEntity.GetType()));
+            return new MessagingContext(await CreateNotifyMessageEnvelope(as4Message, entityMessage.Entity.GetType()));
         }
 
         protected virtual async Task<NotifyMessageEnvelope> CreateNotifyMessageEnvelope(AS4Message as4Message, Type receivedEntityType)
@@ -60,7 +61,9 @@ namespace Eu.EDelivery.AS4.Transformers
                                              receivedEntityType);
         }
 
-        private static async Task<AS4Message> RetrieveAS4SignalMessageForNotification(ReceivedMessageEntityMessage entityMessage)
+        private static async Task<AS4Message> RetrieveAS4SignalMessageForNotification(
+            string ebmsMessageId,
+            ReceivedEntityMessage entityMessage)
         {
             var as4Transformer = new AS4MessageTransformer();
             var messagingContext = await as4Transformer.TransformAsync(entityMessage);
@@ -73,11 +76,11 @@ namespace Eu.EDelivery.AS4.Transformers
             // Remove all signal-messages except the one that we should be notifying
             // Create the DeliverMessage for this specific UserMessage that has been received.
             var signalMessage = 
-                as4Message.SignalMessages.FirstOrDefault(m => m.MessageId.Equals(entityMessage.MessageEntity.EbmsMessageId, StringComparison.OrdinalIgnoreCase));
+                as4Message.SignalMessages.FirstOrDefault(m => m.MessageId.Equals(ebmsMessageId, StringComparison.OrdinalIgnoreCase));
 
             if (signalMessage == null)
             {
-                throw new InvalidOperationException($"The SignalMessage with ID {entityMessage.MessageEntity.EbmsMessageId} could not be found in the referenced AS4Message.");
+                throw new InvalidOperationException($"The SignalMessage with ID {ebmsMessageId} could not be found in the referenced AS4Message.");
             }
 
             return as4Message;

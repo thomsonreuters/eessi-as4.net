@@ -324,7 +324,11 @@ namespace Eu.EDelivery.AS4.Receivers
 
                 destinationStream.Position = 0;
 
-                return new ReceivedMessage(destinationStream, request.ContentType);
+                return new ReceivedMessage(
+                    underlyingStream: destinationStream, 
+                    contentType: request.ContentType,
+                    origin: request.UserHostAddress,
+                    length: request.ContentLength64);
             }
 
             private static async Task LogReceivedMessageMessage(ReceivedMessage message, Uri url)

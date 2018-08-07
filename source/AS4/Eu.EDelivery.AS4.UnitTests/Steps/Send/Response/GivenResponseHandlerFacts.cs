@@ -134,7 +134,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
                 await handler.HandleResponse(as4Response);
 
                 // Assert
-                Assert.True(spyHandler.IsCalled);  
+                Assert.True(spyHandler.IsCalled);
             }
 
             [Fact]
@@ -216,13 +216,17 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
 
         private static AS4Response CreateAnonymousAS4Response()
         {
+            var stubResponse = new Mock<HttpWebResponse>();
+            stubResponse.Setup(r => r.ContentType)
+                        .Returns(Constants.ContentTypes.Soap);
+
             return AS4Response.Create(
                 requestMessage: new EmptyMessagingContext
                 {
                     SendingPMode = new SendingProcessingMode(),
                     ReceivingPMode = new ReceivingProcessingMode()
                 },
-                webResponse: new Mock<HttpWebResponse>().Object).Result;
+                webResponse: stubResponse.Object).Result;
         }
 
         private static void AssertNoChangeInPModes(IAS4Response expected, StepResult actual)

@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Security.Cryptography.X509Certificates;
+using System.Security.Cryptography.Xml;
 using System.Web.Script.Serialization;
 using System.Xml.Serialization;
 using Eu.EDelivery.AS4.Security.References;
@@ -19,6 +20,8 @@ namespace Eu.EDelivery.AS4.Model.PMode
     [DebuggerDisplay("PMode Id = {" + nameof(Id) + "}")]
     public class SendingProcessingMode : IPMode, ICloneable
     {
+        private bool? _allowOverride;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="SendingProcessingMode" /> class.
         /// </summary>
@@ -38,10 +41,15 @@ namespace Eu.EDelivery.AS4.Model.PMode
         [Description("Id of the PMode")]
         public string Id { get; set; }
 
-        [DefaultValue(false)]
+        [Info("Allow override", defaultValue: false)]
         [Description("Indicate if settings in the PMode can be overwritten by settings from the submit message")]
-        public bool AllowOverride { get; set; }
+        public bool AllowOverride
+        {
+            get => _allowOverride ?? false;
+            set => _allowOverride = value;
+        }
 
+        [Info("Message exchange pattern")]
         [Description("Message exchange pattern")]
         public MessageExchangePattern Mep { get; set; }
 
@@ -75,6 +83,11 @@ namespace Eu.EDelivery.AS4.Model.PMode
         public SendMessagePackaging MessagePackaging { get; set; }
 
         #region Serialization-control properties
+
+        [XmlIgnore]
+        [JsonIgnore]
+        [ScriptIgnore]
+        public bool AllowOverrideSpecified => _allowOverride.HasValue;
 
         [XmlIgnore]
         [JsonIgnore]
@@ -139,11 +152,11 @@ namespace Eu.EDelivery.AS4.Model.PMode
         [Description("Indicate whether or not the message must be encrypted.")]
         public bool IsEnabled { get; set; }
 
-        [DefaultValue(Constants.Namespaces.XmlEnc11Aes128)]
+        [Info("Algorithm", defaultValue: Constants.Namespaces.XmlEnc11Aes128)]
         [Description("Defines the algorithm that must be used to encrypt the message symmetrically.")]
         public string Algorithm { get; set; }
 
-        [DefaultValue(128)]
+        [Info("Algorithm key size", defaultValue: 128)]
         [Description("Algorithm key size")]
         public int AlgorithmKeySize { get; set; }
 
@@ -159,7 +172,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
         [Description("Encryption certificate information")]
         public object EncryptionCertificateInformation
         {
-            get { return _encryptionCertificateInformation; }
+            get => _encryptionCertificateInformation;
             set
             {
                 _encryptionCertificateInformation = value;
@@ -243,16 +256,16 @@ namespace Eu.EDelivery.AS4.Model.PMode
 
         public KeyEncryption()
         {
-            TransportAlgorithm = EncryptionStrategy.XmlEncRSAOAEPUrlWithMgf;
-            DigestAlgorithm = EncryptionStrategy.XmlEncSHA256Url;
+            TransportAlgorithm = CryptoStrategy.XmlEncRSAOAEPUrlWithMgf;
+            DigestAlgorithm = EncryptedXml.XmlEncSHA256Url;
             MgfAlgorithm = null;
         }
 
-        [DefaultValue(EncryptionStrategy.XmlEncRSAOAEPUrlWithMgf)]
+        [Info("Transport algorithm", defaultValue: CryptoStrategy.XmlEncRSAOAEPUrlWithMgf)]
         [Description("The asymetrical encryption algorithm that must be used to encrypt the secret encryption key.")]
         public string TransportAlgorithm { get; set; }
 
-        [DefaultValue(EncryptionStrategy.XmlEncSHA256Url)]
+        [Info("Digest algorithm", defaultValue: EncryptedXml.XmlEncSHA256Url)]
         [Description("Digest algorithm")]
         public string DigestAlgorithm { get; set; }
 
@@ -309,7 +322,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
         [Description("Signing Certificate")]
         public object SigningCertificateInformation
         {
-            get { return _signingCertificateInformation; }
+            get => _signingCertificateInformation;
             set
             {
                 _signingCertificateInformation = value;
@@ -328,16 +341,16 @@ namespace Eu.EDelivery.AS4.Model.PMode
             }
         }
 
+        [Info("Key reference method", defaultValue: X509ReferenceType.BSTReference)]
         [Description("Define how the Signing Certificate must be referenced in the Message")]
-        [DefaultValue(X509ReferenceType.BSTReference)]
         public X509ReferenceType KeyReferenceMethod { get; set; }
 
+        [Info("Algorithm", defaultValue: DefaultAlgorithm)]
         [Description("Defines the algorithm that must be used to sign the message.")]
-        [DefaultValue(DefaultAlgorithm)]
         public string Algorithm { get; set; }
 
+        [Info("Hash function", defaultValue: DefaultHashFunction)]
         [Description("Define the hash algorithm that must be used when signing the message.")]
-        [DefaultValue(DefaultHashFunction)]
         public string HashFunction { get; set; }
 
         #region Properties that control serialization
@@ -383,14 +396,30 @@ namespace Eu.EDelivery.AS4.Model.PMode
 
     public class SendReceiptHandling : SendHandling
     {
+        private bool? _verifyNRR;
+
         public SendReceiptHandling()
         {
             VerifyNRR = true;
         }
 
-        [DefaultValue(true)]
-        [Description("Indicates if the MSH needs to verify the Non-Repudiation Information that is included in the receipt")]
-        public bool VerifyNRR { get; set; }
+        [Info("Verify Non-Repudiation Receipts", defaultValue: true)]
+        [Description(
+            "Indicates if the MSH needs to verify the Non-Repudiation Information that is included in the receipt")]
+        public bool VerifyNRR
+        {
+            get => _verifyNRR ?? false;
+            set => _verifyNRR = value;
+        }
+
+        #region Serialization Control properties
+
+        [XmlIgnore]
+        [JsonIgnore]
+        [ScriptIgnore]
+        public bool VerifyNRRSpecified => _verifyNRR.HasValue;
+
+        #endregion
     }
 
     [Serializable]
@@ -419,18 +448,18 @@ namespace Eu.EDelivery.AS4.Model.PMode
         [Description("Indicates if reception awareness is enabled")]
         public bool IsEnabled { get; set; }
 
+        [Info("Retry count", defaultValue: 5)]
         [Description("Defines how many retries the AS4.NET MSH must perform if a Receipt or Error-message is not received within " +
                      "the specified time-frame.")]
-        [DefaultValue(5)]
         public int RetryCount { get; set; }
 
-        [DefaultValue("00:01:00")]
+        [Info("Retry interval", defaultValue: "00:01:00")]
         [Description("The timeframe in which the MSH waits before re-sending the Message.  If a Receipt or Error message" +
                      "is received before the end of this timeframe, the MSH will not re-send the message.")]
         public string RetryInterval
         {
-            get { return _retryInterval.ToString(@"hh\:mm\:ss"); }
-            set { TimeSpan.TryParse(value, out _retryInterval); }
+            get => _retryInterval.ToString(@"hh\:mm\:ss");
+            set => TimeSpan.TryParse(value, out _retryInterval);
         }
     }
 
@@ -478,6 +507,9 @@ namespace Eu.EDelivery.AS4.Model.PMode
 
     public class Protocol
     {
+        private bool? _useChunking;
+        private bool? _useHttpCompression;
+
         public Protocol()
         {
             UseChunking = false;
@@ -487,31 +519,60 @@ namespace Eu.EDelivery.AS4.Model.PMode
         [Description("The address of the endpoint to where the message must be sent.")]
         public string Url { get; set; }
 
-        [DefaultValue(false)]
+        [Info("Use chunking", defaultValue: false)]
         [Description("Indicates if chunking is enabled")]
-        public bool UseChunking { get; set; }
+        public bool UseChunking
+        {
+            get => _useChunking ?? false;
+            set => _useChunking = value;
+        }
 
-        [DefaultValue(false)]
+        [Info("Use HTTP compresstion", defaultValue: false)]
         [Description("Indicates if HTTP compression is enabled")]
-        public bool UseHttpCompression { get; set; }
+        public bool UseHttpCompression
+        {
+            get => _useHttpCompression ?? false;
+            set => _useHttpCompression = value;
+        }
+
+        #region Serialization Control properties
+
+        [XmlIgnore]
+        [JsonIgnore]
+        [ScriptIgnore]
+        public bool UseChunkingSpecified => _useChunking.HasValue;
+
+        [XmlIgnore]
+        [JsonIgnore]
+        [ScriptIgnore]
+        public bool UseHttpCompressionSpecified => _useHttpCompression.HasValue;
+
+        #endregion
     }
 
     public class TlsConfiguration
     {
+        private const TlsVersion DefaultTlsVersion = TlsVersion.Tls12;
+
         private object _clientCertificateInformation;
+        private TlsVersion? _tlsVersion;
 
         public TlsConfiguration()
         {
             IsEnabled = false;
-            TlsVersion = TlsVersion.Tls12;
+            TlsVersion = DefaultTlsVersion;
         }
         
         [Description("Indicates if TLS is enabled")]
         public bool IsEnabled { get; set; }
 
-        [DefaultValue(TlsVersion.Tls12)]
+        [Info("TLS version", defaultValue: DefaultTlsVersion)]
         [Description("TLS version that must be used.")]
-        public TlsVersion TlsVersion { get; set; }
+        public TlsVersion TlsVersion
+        {
+            get => _tlsVersion ?? DefaultTlsVersion;
+            set => _tlsVersion = value;
+        }
 
         [XmlIgnore]
         [JsonIgnore]
@@ -523,7 +584,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
         [Description("Client certificate reference settings")]
         public object ClientCertificateInformation
         {
-            get { return _clientCertificateInformation; }
+            get => _clientCertificateInformation;
             set
             {
                 _clientCertificateInformation = value;
@@ -537,6 +598,15 @@ namespace Eu.EDelivery.AS4.Model.PMode
                 }
             }
         }
+
+        #region Serialization Control properties
+
+        [XmlIgnore]
+        [JsonIgnore]
+        [ScriptIgnore]
+        public bool TlsVersionSpecified => _tlsVersion.HasValue;
+
+        #endregion
     }
 
     public enum TlsCertificateChoiceType
@@ -547,7 +617,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
 
     public class ClientCertificateReference
     {
-        [DefaultValue(X509FindType.FindByThumbprint)]
+        [Info("Client certificate find type", defaultValue: X509FindType.FindByThumbprint)]
         [Description("X509 find type")]
         public X509FindType ClientCertificateFindType { get; set; }
 
@@ -557,6 +627,10 @@ namespace Eu.EDelivery.AS4.Model.PMode
 
     public class SendMessagePackaging : MessagePackaging
     {
+        private bool? _useAS4Compression, 
+                      _isMultiHop, 
+                      _includePModeId;
+
         public SendMessagePackaging()
         {
             UseAS4Compression = true;
@@ -565,21 +639,53 @@ namespace Eu.EDelivery.AS4.Model.PMode
             Mpc = Constants.Namespaces.EbmsDefaultMpc;
         }
 
-        [DefaultValue(Constants.Namespaces.EbmsDefaultMpc)]
+        [Info("Message partition channel", defaultValue: Constants.Namespaces.EbmsDefaultMpc)]
         [Description("Messaging partition channel")]
         public string Mpc { get; set; }
 
-        [DefaultValue(true)]
+        [Info("Use AS4 compression", defaultValue: true)]
         [Description("Indicate whether or not the message must be compressed")]
-        public bool UseAS4Compression { get; set; }
+        public bool UseAS4Compression
+        {
+            get => _useAS4Compression ?? false;
+            set => _useAS4Compression = value;
+        }
 
-        [DefaultValue(false)]
+        [Info("Is multihop", defaultValue: false)]
         [Description("Indicates if multihop is enabled")]
-        public bool IsMultiHop { get; set; }
+        public bool IsMultiHop
+        {
+            get => _isMultiHop ?? false;
+            set => _isMultiHop = value;
+        }
 
-        [DefaultValue(false)]
-        [Description("Indicate whether or not the PModeId must be included in the message meta-data")]
-        public bool IncludePModeId { get; set; }
+        [Info("Include Processing Mode Id", defaultValue: false)]
+        [Description("Indicate whether or not the Processing Mode Idetifier must be included in the message meta-data")]
+        public bool IncludePModeId
+        {
+            get => _includePModeId ?? false;
+            set => _includePModeId = value;
+        }
+
+        #region Serialization Control properties
+
+        [XmlIgnore]
+        [JsonIgnore]
+        [ScriptIgnore]
+        public bool UseAS4CompressionSpecified => _useAS4Compression.HasValue;
+
+        [XmlIgnore]
+        [JsonIgnore]
+        [ScriptIgnore]
+        public bool IsMultiHopSpecified => _isMultiHop.HasValue;
+
+        [XmlIgnore]
+        [JsonIgnore]
+        [ScriptIgnore]
+
+        public bool IncludePModeIdSpecified => _includePModeId.HasValue;
+
+        #endregion
     }
 
     public enum TlsVersion

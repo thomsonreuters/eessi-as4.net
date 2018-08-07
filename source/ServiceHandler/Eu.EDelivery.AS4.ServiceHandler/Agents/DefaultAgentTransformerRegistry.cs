@@ -17,7 +17,6 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
         /// </summary>
         static DefaultAgentTransformerRegistry()
         {
-            Registry[AgentType.ReceptionAwareness] = TransformerConfigEntry<ReceptionAwarenessTransformer>();
             Registry[AgentType.Deliver]            = TransformerConfigEntry<DeliverMessageTransformer>();
             Registry[AgentType.Submit]             = TransformerConfigEntry<SubmitMessageXmlTransformer>(typeof(SubmitPayloadTransformer));
             Registry[AgentType.OutboundProcessing] = TransformerConfigEntry<AS4MessageTransformer>();

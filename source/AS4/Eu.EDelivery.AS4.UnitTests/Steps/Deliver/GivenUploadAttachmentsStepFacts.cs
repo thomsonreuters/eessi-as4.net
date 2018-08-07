@@ -192,11 +192,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
             var userMessage = new UserMessage(messageId: Guid.NewGuid().ToString());
             userMessage.AddPartInfo(new PartInfo($"cid:{attachmentId}"));
             AS4Message as4Message = AS4Message.Create(userMessage);
-            as4Message.AddAttachment(
-                new Attachment(attachmentId)
-                {
-                    Content = Stream.Null
-                });
+            as4Message.AddAttachment(new Attachment(attachmentId, Stream.Null, "text/plain"));
             ReceivingProcessingMode pMode = CreateReceivingPModeWithPayloadMethod();
             return new MessagingContext(as4Message, MessagingContextMode.Unknown)
             {

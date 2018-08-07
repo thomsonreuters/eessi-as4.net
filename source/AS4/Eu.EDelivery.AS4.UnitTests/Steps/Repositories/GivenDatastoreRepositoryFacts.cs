@@ -271,59 +271,5 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Repositories
                 }
             }
         }
-
-        public class ReceptionAwareness : GivenDatastoreRepositoryFacts
-        {
-            [Fact]
-            public void Inserted_Entity_Log_Times_Gets_Updated()
-            {
-                // Arrange
-                const int refToOutMessageId = 0;
-                var entity = new AS4.Entities.ReceptionAwareness(refToOutMessageId, refToEbmsMessageId: string.Empty);
-                long id = InsertReceptionAwareness(entity);
-
-                // Act
-                UpdateReceptionAwarenessFor(id);
-
-                // Assert
-                using (DatastoreContext context = GetDataStoreContext())
-                {
-                    var sut = new DatastoreRepository(context);
-                    AS4.Entities.ReceptionAwareness actual = sut.GetReceptionAwarenessForOutMessage(refToOutMessageId);
-
-                    Assert.NotEqual(default(DateTimeOffset), actual.InsertionTime);
-                    Assert.NotEqual(default(DateTimeOffset), actual.ModificationTime);
-                    Assert.True(actual.InsertionTime < actual.ModificationTime);
-                }
-            }
-
-            private long InsertReceptionAwareness(AS4.Entities.ReceptionAwareness ra)
-            {
-                using (DatastoreContext context = GetDataStoreContext())
-                {
-                    var sut = new DatastoreRepository(context);
-
-                    sut.InsertReceptionAwareness(ra);
-                    context.SaveChanges();
-
-                    AS4.Entities.ReceptionAwareness inserted = sut.GetReceptionAwarenessForOutMessage(ra.RefToOutMessageId);
-                    Assert.NotEqual(default(DateTimeOffset), inserted.InsertionTime);
-                    Assert.NotEqual(default(DateTimeOffset), inserted.ModificationTime);
-
-                    return inserted.Id;
-                }
-            }
-
-            private void UpdateReceptionAwarenessFor(long id)
-            {
-                using (DatastoreContext context = GetDataStoreContext())
-                {
-                    var sut = new DatastoreRepository(context);
-
-                    sut.UpdateReceptionAwareness(id, r => { });
-                    context.SaveChanges();
-                }
-            }
-        }
     }
 }

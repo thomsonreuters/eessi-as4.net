@@ -4,6 +4,7 @@ using System.Data;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 
@@ -24,40 +25,36 @@ namespace Eu.EDelivery.AS4.Transformers
         /// <returns></returns>
         public async Task<MessagingContext> TransformAsync(ReceivedMessage message)
         {
-            var entityMessage = message as ReceivedMessageEntityMessage;
-
-            if (entityMessage == null)
+            var entityMessage = message as ReceivedEntityMessage;
+            if (entityMessage == null || !(entityMessage.Entity is MessageEntity me))
             {
                 throw new InvalidDataException(
-                    "The message that must be transformed should be of type ReceivedMessageEntityMessage");
+                    $"The message that must be transformed should be of type {nameof(ReceivedEntityMessage)} with a {nameof(MessageEntity)} as Entity");
             }
 
             // Get the AS4Message that is referred to by this entityMessage and modify it so that it just contains
             // the one usermessage that should be delivered.
-            MessagingContext transformedMessage = await RetrieveAS4Message(entityMessage);
+            MessagingContext transformedMessage = await RetrieveAS4Message(me.EbmsMessageId, entityMessage);
 
             if (transformedMessage.AS4Message.UserMessages.Any() == false)
             {
-                throw new InvalidOperationException("The AS4Message should contain only one UserMessage.");
+                throw new InvalidOperationException(
+                    $"Incoming AS4Message stream from {message.Origin} should contain only a single UserMessage");
             }
 
             return transformedMessage;
         }
 
-        /// <summary>
-        /// Retrieves the AS4Message that is referenced by the received ReceivedMessage and modify it so that it only contains
-        /// a single UserMessage.
-        /// </summary>
-        /// <param name="entityMessage"></param>
-        /// <returns></returns>
-        private static async Task<MessagingContext> RetrieveAS4Message(ReceivedMessageEntityMessage entityMessage)
+        private static async Task<MessagingContext> RetrieveAS4Message(
+            string ebmsMessageId,
+            ReceivedMessage entityMessage)
         {
             var as4Transformer = new AS4MessageTransformer();
             MessagingContext messagingContext = await as4Transformer.TransformAsync(entityMessage);
 
             AS4Message as4Message = RemoveUnnecessaryMessages(
                 messagingContext.AS4Message,
-                entityMessage.MessageEntity.EbmsMessageId);
+                ebmsMessageId);
 
             as4Message = RemoveUnnecessaryAttachments(as4Message);
 
@@ -93,7 +90,7 @@ namespace Eu.EDelivery.AS4.Transformers
 
             foreach (Attachment attachment in as4Message.Attachments)
             {
-                if (attachments.Exists(a => a.Id == null || a.Id.Equals(attachment?.Id)) == false)
+                if (attachments.Contains(attachment) == false)
                 {
                     as4Message.RemoveAttachment(attachment);
                 }

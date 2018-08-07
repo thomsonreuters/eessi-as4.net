@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
@@ -26,10 +27,10 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
     public class RetryAgentForNotificationFacts : ComponentTestTemplate
     {
         [Theory]
-        [InlineData(200, Operation.Notified)]
-        [InlineData(500, Operation.DeadLettered)]
+        [InlineData(HttpStatusCode.OK, Operation.Notified)]
+        [InlineData(HttpStatusCode.InternalServerError, Operation.DeadLettered)]
         public async Task InMessage_Is_Set_To_Notified_When_Retry_Happen_Within_Allowed_MaxRetry(
-            int secondAttemptStatusCode,
+            HttpStatusCode secondAttemptStatusCode,
             Operation expected)
         {
             await TestComponentWithSettings(
@@ -83,10 +84,10 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         }
 
         [Theory]
-        [InlineData(200, Operation.Notified)]
-        [InlineData(500, Operation.DeadLettered)]
+        [InlineData(HttpStatusCode.OK, Operation.Notified)]
+        [InlineData(HttpStatusCode.InternalServerError, Operation.DeadLettered)]
         public async Task OutMessage_Is_To_Notified_When_Retry_Happen_Withing_Allowed_MaxRetry(
-            int secondAttemptStatusCode,
+            HttpStatusCode secondAttemptStatusCode,
             Operation expected)
         {
             await TestComponentWithSettings(
@@ -159,10 +160,10 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         }
 
         [Theory]
-        [InlineData(200, Operation.Notified)]
-        [InlineData(500, Operation.DeadLettered)]
+        [InlineData(HttpStatusCode.OK, Operation.Notified)]
+        [InlineData(HttpStatusCode.InternalServerError, Operation.DeadLettered)]
         public async Task OutException_Is_Set_To_Notified_When_Retry_Happen_Within_Allowed_MaxRetry(
-            int secondAttempt,
+            HttpStatusCode secondAttempt,
             Operation expected)
         {
             await TestComponentWithSettings(
@@ -242,10 +243,10 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         }
 
         [Theory]
-        [InlineData(200, Operation.Notified)]
-        [InlineData(500, Operation.DeadLettered)]
+        [InlineData(HttpStatusCode.OK, Operation.Notified)]
+        [InlineData(HttpStatusCode.InternalServerError, Operation.DeadLettered)]
         public async Task InException_Is_Set_To_Notified_When_Retry_Happen_Within_Allowed_MaxRetry(
-            int secondAttempt,
+            HttpStatusCode secondAttempt,
             Operation expected)
         {
             await TestComponentWithSettings(
@@ -307,29 +308,10 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             };
         }
 
-        private static void SimulateNotifyFailureOnFirstAttempt(string url, int secondAttempt)
+        private static void SimulateNotifyFailureOnFirstAttempt(string url, HttpStatusCode secondAttempt)
         {
             var onSecondAttempt = new ManualResetEvent(initialState: false);
-            var currentRetryCount = 0;
-            StubHttpServer.StartServerLifetime(
-                url,
-                r =>
-                {
-                    if (++currentRetryCount >= 2)
-                    {
-                        r.StatusCode = secondAttempt;
-                        r.OutputStream.WriteByte(0);
-                        r.OutputStream.Dispose();
-                        return ServerLifetime.Stop;
-                    }
-
-                    r.StatusCode = 500;
-                    r.OutputStream.WriteByte(0);
-                    r.OutputStream.Dispose();
-                    return ServerLifetime.Continue;
-                },
-                onSecondAttempt);
-
+            StubHttpServer.SimulateFailureOnFirstAttempt(url, secondAttempt, onSecondAttempt);
             Assert.True(onSecondAttempt.WaitOne(TimeSpan.FromMinutes(1)));
         }
     }

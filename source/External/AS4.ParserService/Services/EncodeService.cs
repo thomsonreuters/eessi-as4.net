@@ -80,12 +80,11 @@ namespace AS4.ParserService.Services
 
             foreach (var payload in payloads)
             {
-                as4Message.AddAttachment(new Attachment(payload.PayloadName)
-                {
-                    Id = payload.PayloadName,
-                    Content = new MemoryStream(payload.Content),
-                    ContentType = payload.ContentType
-                });
+                as4Message.AddAttachment(
+                    new Attachment(
+                        payload.PayloadName,
+                        new MemoryStream(payload.Content),
+                        payload.ContentType));
             }
 
             return as4Message;

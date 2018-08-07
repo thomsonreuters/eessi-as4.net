@@ -34,7 +34,8 @@ namespace Eu.EDelivery.AS4.Transformers
         {
             if (receivedMessage.UnderlyingStream == null)
             {
-                throw new InvalidDataException("Invalid incoming request stream.");
+                throw new InvalidDataException(
+                    $"Invalid incoming request stream received from {receivedMessage.Origin}");
             }
 
             return CreatePullRequest(receivedMessage);

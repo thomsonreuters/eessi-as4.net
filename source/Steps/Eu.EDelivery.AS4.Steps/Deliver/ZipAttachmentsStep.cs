@@ -87,11 +87,10 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
 
         private static Attachment CreateZippedAttachment(Stream stream)
         {
-            return new Attachment
-            {
-                ContentType = "application/zip",
-                Content = stream
-            };
+            return new Attachment(
+                id: Guid.NewGuid().ToString(),
+                content: stream,
+                contentType: "application/zip");
         }
 
         private static void OverwriteAttachmentEntries(AS4Message message, Attachment zipAttachment)

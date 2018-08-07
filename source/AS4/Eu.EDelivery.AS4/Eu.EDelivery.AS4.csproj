@@ -133,6 +133,7 @@
     <Compile Include="Common\IRegistry.cs" />
     <Compile Include="Entities\Journal.cs" />
     <Compile Include="Entities\RetryReliability.cs" />
+    <Compile Include="Extensions\LoggerExtensions.cs" />
     <Compile Include="Mappings\Core\ReceiptMap.cs" />
     <Compile Include="Mappings\Submit\SubmitSenderResolver.cs" />
     <Compile Include="Maybe.cs" />
@@ -244,7 +245,6 @@
     <Compile Include="Model\Core\MessageProperty.cs" />
     <Compile Include="Model\Core\Service.cs" />
     <Compile Include="Model\Internal\ReceivedEntityMessage.cs" />
-    <Compile Include="Model\Internal\ReceivedMessageEntityMessage.cs" />
     <Compile Include="Model\PMode\ConfiguredPMode.cs" />
     <Compile Include="Model\PMode\IPMode.cs" />
     <Compile Include="Security\Algorithms\RsaPkCs1Sha384SignatureAlgorithm.cs" />

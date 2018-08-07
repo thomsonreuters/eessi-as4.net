@@ -364,7 +364,7 @@ namespace Eu.EDelivery.AS4.Receivers
                 }
                 else
                 {
-                    var receivedMessage = new ReceivedMessageEntityMessage(messageEntity, stream, messageEntity.ContentType);
+                    var receivedMessage = new ReceivedEntityMessage(messageEntity, stream, messageEntity.ContentType);
                     try
                     {
                         await messageCallback(receivedMessage, token).ConfigureAwait(false);

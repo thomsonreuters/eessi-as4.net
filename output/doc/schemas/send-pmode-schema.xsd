@@ -4,7 +4,7 @@
   <xs:complexType name="SendingProcessingMode">
     <xs:sequence>
       <xs:element minOccurs="1" maxOccurs="1" name="Id" nillable="true" type="xs:string" />
-      <xs:element minOccurs="0" maxOccurs="1" default="false" name="AllowOverride" type="xs:boolean" />
+      <xs:element minOccurs="0" maxOccurs="1" name="AllowOverride" type="xs:boolean" />
       <xs:element minOccurs="1" maxOccurs="1" name="Mep" type="tns:MessageExchangePattern" />
       <xs:element minOccurs="1" maxOccurs="1" name="MepBinding" type="tns:MessageExchangePatternBinding" />
       <xs:element minOccurs="0" maxOccurs="1" name="PushConfiguration" type="tns:PushConfiguration" />
@@ -38,14 +38,14 @@
   <xs:complexType name="Protocol">
     <xs:sequence>
       <xs:element minOccurs="0" maxOccurs="1" name="Url" type="xs:string" />
-      <xs:element minOccurs="0" maxOccurs="1" default="false" name="UseChunking" type="xs:boolean" />
-      <xs:element minOccurs="0" maxOccurs="1" default="false" name="UseHttpCompression" type="xs:boolean" />
+      <xs:element minOccurs="0" maxOccurs="1" name="UseChunking" type="xs:boolean" />
+      <xs:element minOccurs="0" maxOccurs="1" name="UseHttpCompression" type="xs:boolean" />
     </xs:sequence>
   </xs:complexType>
   <xs:complexType name="TlsConfiguration">
     <xs:sequence>
       <xs:element minOccurs="1" maxOccurs="1" name="IsEnabled" type="xs:boolean" />
-      <xs:element minOccurs="0" maxOccurs="1" default="Tls12" name="TlsVersion" type="tns:TlsVersion" />
+      <xs:element minOccurs="0" maxOccurs="1" name="TlsVersion" type="tns:TlsVersion" />
       <xs:choice minOccurs="1" maxOccurs="1">
         <xs:element minOccurs="0" maxOccurs="1" name="ClientCertificateReference" type="tns:ClientCertificateReference" />
         <xs:element minOccurs="0" maxOccurs="1" name="PrivateKeyCertificate" type="tns:PrivateKeyCertificate" />
@@ -62,7 +62,7 @@
   </xs:simpleType>
   <xs:complexType name="ClientCertificateReference">
     <xs:sequence>
-      <xs:element minOccurs="0" maxOccurs="1" default="FindByThumbprint" name="ClientCertificateFindType" type="tns:X509FindType" />
+      <xs:element minOccurs="1" maxOccurs="1" name="ClientCertificateFindType" type="tns:X509FindType" />
       <xs:element minOccurs="0" maxOccurs="1" name="ClientCertificateFindValue" type="xs:string" />
     </xs:sequence>
   </xs:complexType>
@@ -117,15 +117,15 @@
   <xs:complexType name="ReceptionAwareness">
     <xs:sequence>
       <xs:element minOccurs="1" maxOccurs="1" name="IsEnabled" type="xs:boolean" />
-      <xs:element minOccurs="0" maxOccurs="1" default="5" name="RetryCount" type="xs:int" />
-      <xs:element minOccurs="0" maxOccurs="1" default="00:01:00" name="RetryInterval" type="xs:string" />
+      <xs:element minOccurs="1" maxOccurs="1" name="RetryCount" type="xs:int" />
+      <xs:element minOccurs="0" maxOccurs="1" name="RetryInterval" type="xs:string" />
     </xs:sequence>
   </xs:complexType>
   <xs:complexType name="SendReceiptHandling">
     <xs:complexContent mixed="false">
       <xs:extension base="tns:SendHandling">
         <xs:sequence>
-          <xs:element minOccurs="0" maxOccurs="1" default="true" name="VerifyNRR" type="xs:boolean" />
+          <xs:element minOccurs="0" maxOccurs="1" name="VerifyNRR" type="xs:boolean" />
         </xs:sequence>
       </xs:extension>
     </xs:complexContent>
@@ -155,8 +155,8 @@
   <xs:complexType name="RetryReliability">
     <xs:sequence>
       <xs:element minOccurs="1" maxOccurs="1" name="IsEnabled" type="xs:boolean" />
-      <xs:element minOccurs="0" maxOccurs="1" default="4" name="RetryCount" type="xs:int" />
-      <xs:element minOccurs="0" maxOccurs="1" default="0:00:01:00" name="RetryInterval" type="xs:string" />
+      <xs:element minOccurs="1" maxOccurs="1" name="RetryCount" type="xs:int" />
+      <xs:element minOccurs="0" maxOccurs="1" name="RetryInterval" type="xs:string" />
     </xs:sequence>
   </xs:complexType>
   <xs:complexType name="Security">
@@ -173,9 +173,9 @@
         <xs:element minOccurs="0" maxOccurs="1" name="CertificateFindCriteria" type="tns:CertificateFindCriteria" />
         <xs:element minOccurs="0" maxOccurs="1" name="PrivateKeyCertificate" type="tns:PrivateKeyCertificate" />
       </xs:choice>
-      <xs:element minOccurs="0" maxOccurs="1" default="BSTReference" name="KeyReferenceMethod" type="tns:X509ReferenceType" />
-      <xs:element minOccurs="0" maxOccurs="1" default="http://www.w3.org/2001/04/xmldsig-more#rsa-sha256" name="Algorithm" type="xs:string" />
-      <xs:element minOccurs="0" maxOccurs="1" default="http://www.w3.org/2001/04/xmlenc#sha256" name="HashFunction" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="KeyReferenceMethod" type="tns:X509ReferenceType" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Algorithm" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="HashFunction" type="xs:string" />
     </xs:sequence>
   </xs:complexType>
   <xs:complexType name="CertificateFindCriteria">
@@ -194,7 +194,7 @@
   <xs:complexType name="SigningVerification">
     <xs:sequence>
       <xs:element minOccurs="1" maxOccurs="1" name="Signature" type="tns:Limit" />
-      <xs:element minOccurs="0" maxOccurs="1" default="false" name="AllowUnknownRootCertificate" type="xs:boolean" />
+      <xs:element minOccurs="0" maxOccurs="1" name="AllowUnknownRootCertificate" type="xs:boolean" />
     </xs:sequence>
   </xs:complexType>
   <xs:simpleType name="Limit">
@@ -208,8 +208,8 @@
   <xs:complexType name="Encryption">
     <xs:sequence>
       <xs:element minOccurs="1" maxOccurs="1" name="IsEnabled" type="xs:boolean" />
-      <xs:element minOccurs="0" maxOccurs="1" default="http://www.w3.org/2009/xmlenc11#aes128-gcm" name="Algorithm" type="xs:string" />
-      <xs:element minOccurs="0" maxOccurs="1" default="128" name="AlgorithmKeySize" type="xs:int" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Algorithm" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="AlgorithmKeySize" type="xs:int" />
       <xs:choice minOccurs="1" maxOccurs="1">
         <xs:element minOccurs="0" maxOccurs="1" name="CertificateFindCriteria" type="tns:CertificateFindCriteria" />
         <xs:element minOccurs="0" maxOccurs="1" name="PublicKeyCertificate" type="tns:PublicKeyCertificate" />
@@ -224,8 +224,8 @@
   </xs:complexType>
   <xs:complexType name="KeyEncryption">
     <xs:sequence>
-      <xs:element minOccurs="0" maxOccurs="1" default="http://www.w3.org/2009/xmlenc11#rsa-oaep" name="TransportAlgorithm" type="xs:string" />
-      <xs:element minOccurs="0" maxOccurs="1" default="http://www.w3.org/2001/04/xmlenc#sha256" name="DigestAlgorithm" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="TransportAlgorithm" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="DigestAlgorithm" type="xs:string" />
       <xs:element minOccurs="0" maxOccurs="1" name="MgfAlgorithm" type="xs:string" />
     </xs:sequence>
   </xs:complexType>
@@ -233,10 +233,10 @@
     <xs:complexContent mixed="false">
       <xs:extension base="tns:MessagePackaging">
         <xs:sequence>
-          <xs:element minOccurs="0" maxOccurs="1" default="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMPC" name="Mpc" type="xs:string" />
-          <xs:element minOccurs="0" maxOccurs="1" default="true" name="UseAS4Compression" type="xs:boolean" />
-          <xs:element minOccurs="0" maxOccurs="1" default="false" name="IsMultiHop" type="xs:boolean" />
-          <xs:element minOccurs="0" maxOccurs="1" default="false" name="IncludePModeId" type="xs:boolean" />
+          <xs:element minOccurs="0" maxOccurs="1" name="Mpc" type="xs:string" />
+          <xs:element minOccurs="0" maxOccurs="1" name="UseAS4Compression" type="xs:boolean" />
+          <xs:element minOccurs="0" maxOccurs="1" name="IsMultiHop" type="xs:boolean" />
+          <xs:element minOccurs="0" maxOccurs="1" name="IncludePModeId" type="xs:boolean" />
         </xs:sequence>
       </xs:extension>
     </xs:complexContent>

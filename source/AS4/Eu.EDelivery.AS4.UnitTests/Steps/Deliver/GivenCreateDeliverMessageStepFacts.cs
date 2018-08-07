@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -100,13 +101,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
 
         [Theory]
         [InlineData("attachment location", "attachment location")]
-        [InlineData(null, "")]
+        [InlineData("", "")]
         public async Task PartInfoLocationIsAttachmentLocation_IfIdMatches(string attachmentLocation, string expectedLocation)
         {
             // Arrange
             const string referenceId = "payload id";
             AS4Message message = AS4MessageWithUserMessage(referenceId);
-            message.AddAttachment(new Attachment(referenceId) {Location = attachmentLocation});
+            var a = new Attachment(referenceId, Stream.Null, "text/plain") { Location = attachmentLocation };
+            message.AddAttachment(a);
 
             // Act
             DeliverMessageEnvelope deliverEnvelope = await ExecuteStepWith(message);

@@ -22,8 +22,7 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
                 [AgentType.Forward] = () => new InboundExceptionHandler(),
                 [AgentType.Notify] = () => new NotifyExceptionHandler(),
                 [AgentType.PullReceive] = () => new InboundExceptionHandler(),
-                [AgentType.PullSend] = () => new PullSendAgentExceptionHandler(),
-                [AgentType.ReceptionAwareness] = () => new LogExceptionHandler()
+                [AgentType.PullSend] = () => new PullSendAgentExceptionHandler()
             };
 
         /// <summary>

@@ -39,7 +39,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             {
                 // Arrange
                 MessagingContext context = CompressedAS4Message();
-                context.AS4Message.Attachments.First().ContentType = "not supported MIME type";
+                Attachment first = context.AS4Message.Attachments.First();
+                first.UpdateContent(first.Content, "not supported MIME type");
 
                 // Act
                 StepResult stepResult = await ExerciseDecompress(context);
@@ -82,37 +83,18 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
         private static Attachment CompressedAttachment(string attachmentId)
         {
-            Attachment attachment = CreateAttachment(attachmentId);
-            CompressAttachment(attachment);
-            AssignAttachmentProperties(attachment);
-
-            return attachment;
-        }
-
-        private static Attachment CreateAttachment(string id)
-        {
-            var attachment = new Attachment(id);
-
-            byte[] bytes = Encoding.UTF8.GetBytes("Dummy Attachment Content");
-            attachment.Content = new MemoryStream(bytes);
-
-            return attachment;
-        }
-
-        private static void CompressAttachment(Attachment attachment)
-        {
             var memoryStream = new MemoryStream();
             var gzipStream = new GZipStream(memoryStream, CompressionMode.Compress);
-            attachment.Content.CopyTo(gzipStream);
+            var input = new MemoryStream(Encoding.UTF8.GetBytes("Dummy Attachment Content"));
+            input.CopyTo(gzipStream);
 
             memoryStream.Position = 0;
-            attachment.Content = memoryStream;
-        }
 
-        private static void AssignAttachmentProperties(Attachment attachment)
-        {
-            attachment.ContentType = "application/gzip";
-            attachment.Properties["MimeType"] = "html/text";
+            return new Attachment(
+                attachmentId,
+                memoryStream,
+                "application/gzip",
+                new Dictionary<string, string> { ["MimeType"] = "html/text" });
         }
 
         private static UserMessage UserMessageWithCompressedInfo(string attachmentId)

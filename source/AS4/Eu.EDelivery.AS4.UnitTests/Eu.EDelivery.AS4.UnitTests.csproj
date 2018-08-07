@@ -59,7 +59,6 @@
     <Compile Include="Entities\GivenInMessagePersistenceFacts.cs" />
     <Compile Include="Entities\GivenOutMessageEntityFacts.cs" />
     <Compile Include="Entities\GivenOutMessagePersistenceFacts.cs" />
-    <Compile Include="Entities\GivenReceptionAwarenessPersistenceFacts.cs" />
     <Compile Include="Exceptions\Handlers\ExerciseHandler.cs" />
     <Compile Include="Exceptions\Handlers\GivenInboundExceptionHandlerFacts.cs" />
     <Compile Include="Exceptions\Handlers\GivenOutboundExceptionHandlerFacts.cs" />
@@ -228,7 +227,6 @@
     <Compile Include="Steps\Receive\Rules\GivenPModePartyInfoRuleFacts.cs" />
     <Compile Include="Steps\Receive\Rules\GivenPModeServiceActionRuleFacts.cs" />
     <Compile Include="Steps\Receive\Rules\GivenPModeUndefinedPartyInfoRuleFacts.cs" />
-    <Compile Include="Steps\ReceptionAwareness\GivenReceptionAwarenessUpdateDatastoreStepFacts.cs" />
     <Compile Include="Steps\Repositories\GivenDatastoreRepositoryFacts.cs" />
     <Compile Include="Steps\Repositories\GivenMimeTypeRepositoryFacts.cs" />
     <Compile Include="Steps\SaboteurStep.cs" />
@@ -239,11 +237,9 @@
     <Compile Include="Steps\Send\GivenEncryptAS4MessageStepFacts.cs" />
     <Compile Include="Steps\Receive\GivenSaveReceivedMessageDatastoreFacts.cs" />
     <Compile Include="Steps\Send\GivenSendAS4MessageStepFacts.cs" />
-    <Compile Include="Steps\Send\GivenSetReceptionAwarenessStepFacts.cs" />
     <Compile Include="Steps\Send\Response\SpyAS4ResponseHandler.cs" />
     <Compile Include="Steps\Send\Response\GivenAS4ResponseFacts.cs" />
     <Compile Include="Steps\Send\Response\GivenResponseHandlerFacts.cs" />
-    <Compile Include="Steps\Services\GivenReceptionAwarenessServiceFacts.cs" />
     <Compile Include="Steps\SinkStep.cs" />
     <Compile Include="Steps\SpyStep.cs" />
     <Compile Include="Steps\Submit\GivenRetrieveSendingPModeStepFacts.cs" />
@@ -273,7 +269,6 @@
     <Compile Include="Transformers\GivenExceptionToNotifyMessageTransformerFacts.cs" />
     <Compile Include="Transformers\GivenPayloadTransformerFacts.cs" />
     <Compile Include="Transformers\GivenPModeToPullRequestTransformerFacts.cs" />
-    <Compile Include="Transformers\GivenReceptionAwarenessTransformerFacts.cs" />
     <Compile Include="Transformers\GivenSignalToNotifyMessageTransformerFacts.cs" />
     <Compile Include="Transformers\GivenSubmitMessageXmlTransformerFacts.cs" />
     <Compile Include="Factories\GivenIdentifierFactoryFacts.cs" />
@@ -389,6 +384,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Steps\Participant\" />
+    <Folder Include="Steps\ReceptionAwareness\" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Fody">

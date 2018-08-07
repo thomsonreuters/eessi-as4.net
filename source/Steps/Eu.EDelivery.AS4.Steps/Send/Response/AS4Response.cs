@@ -62,7 +62,13 @@ namespace Eu.EDelivery.AS4.Steps.Send.Response
             await responseStream.CopyToFastAsync(contentStream);
             contentStream.Position = 0;
 
-            response.ReceivedStream = new ReceivedMessage(contentStream, webResponse.ContentType);
+            response.ReceivedStream = 
+                new ReceivedMessage(
+                    contentStream, 
+                    webResponse.ContentType, 
+                    webResponse.ResponseUri?.AbsolutePath ?? "unknown",
+                    webResponse.ContentLength);
+
             response.ReceivedAS4Message = await TryDeserializeReceivedStream(response.ReceivedStream, CancellationToken.None);
 
             if (Logger.IsInfoEnabled)

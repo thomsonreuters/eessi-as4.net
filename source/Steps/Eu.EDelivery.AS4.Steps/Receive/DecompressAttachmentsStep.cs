@@ -91,8 +91,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 }
 
                 Logger.Trace($"Attachment {attachment.Id} will be decompressed");
-                DecompressAttachment(attachment);
-                AssignAttachmentProperties(as4Message.FirstUserMessage.PayloadInfo, attachment);
+                DecompressAttachment(as4Message.FirstUserMessage.PayloadInfo, attachment);
                 Logger.Debug($"Attachment {attachment.Id} is decompressed to a type of {attachment.ContentType}");
             }
 
@@ -116,7 +115,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             return !attachment.Properties.ContainsKey("MimeType");
         }
 
-        private static void DecompressAttachment(Attachment attachment)
+        private static void DecompressAttachment(IEnumerable<PartInfo> payloadInfo, Attachment attachment)
         {
             attachment.ResetContentPosition();
 
@@ -131,18 +130,10 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 outputStream.SetLength(unzipLength);
             }
 
-            using (var gzipCompression = new GZipStream(attachment.Content, CompressionMode.Decompress, true))
-            {
-                gzipCompression.CopyTo(outputStream);
-                outputStream.Position = 0;
-                attachment.Content = outputStream;
-            }
-        }
+            Stream decompressed = DecompressStream(attachment.Content);
 
-        private static void AssignAttachmentProperties(IEnumerable<PartInfo> messagePayloadInfo, Attachment attachment)
-        {
             attachment.Properties["CompressionType"] = GzipContentType;
-            string mimeType = messagePayloadInfo.FirstOrDefault(attachment.Matches)?.Properties["MimeType"];
+            string mimeType = payloadInfo.FirstOrDefault(attachment.Matches)?.Properties["MimeType"];
 
             if (string.IsNullOrWhiteSpace(mimeType))
             {
@@ -159,7 +150,28 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             }
 
             attachment.Properties["MimeType"] = mimeType;
-            attachment.ContentType = mimeType;
+            attachment.UpdateContent(decompressed, mimeType);
+        }
+
+        private static Stream DecompressStream(Stream input)
+        {
+            long unzipLength = StreamUtilities.DetermineOriginalSizeOfCompressedStream(input);
+
+            VirtualStream outputStream =
+                VirtualStream.Create(
+                    unzipLength > -1 ? unzipLength : VirtualStream.ThresholdMax);
+
+            if (unzipLength > 0)
+            {
+                outputStream.SetLength(unzipLength);
+            }
+
+            using (var gzipCompression = new GZipStream(input, CompressionMode.Decompress, true))
+            {
+                gzipCompression.CopyTo(outputStream);
+                outputStream.Position = 0;
+                return outputStream;
+            }
         }
     }
 }
