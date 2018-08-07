@@ -100,7 +100,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 return StepResult.Success(messagingContext);
             }
 
-            if (as4Message.IsSignalMessage &&
+            if (as4Message.MessageUnits.Any(u => u is Receipt) &&
                 (messagingContext.SendingPMode?.ReceiptHandling?.VerifyNRR ?? true))
             {
                 if (!await VerifyNonRepudiationHashes(as4Message))

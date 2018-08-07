@@ -35,6 +35,28 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
         public class GivenValidArguments : GivenVerifySignatureAS4MessageStepFacts
         {
             [Fact]
+            public async Task Succeeds_Verify_Bundled_Signed_AS4Message()
+            {
+                // Arrange
+                var user = new UserMessage($"user-{Guid.NewGuid()}");
+                var receipt = new Receipt($"receipt-{Guid.NewGuid()}");
+                var as4Message = AS4Message.Create(user);
+                as4Message.AddMessageUnit(receipt);
+                var cert = new X509Certificate2(holodeck_partya_certificate, certificate_password, X509KeyStorageFlags.Exportable);
+                AS4Message signed = AS4MessageUtils.SignWithCertificate(as4Message, cert);
+                signed = await SerializeDeserializeSoap(signed);
+
+                var ctx = new MessagingContext(signed, MessagingContextMode.Receive)
+                {
+                    ReceivingPMode = ReceivingPModeWithAllowedSigningVerification()
+                };
+                
+                // Act
+                StepResult result = await ExerciseVerify(ctx);
+                Assert.True(result.Succeeded);
+            }
+
+            [Fact]
             public async Task Succeeds_Verify_Correct_Signed_UserMessage()
             {
                 // Arrange
