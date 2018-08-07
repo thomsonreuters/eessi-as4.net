@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Configuration;
 using System.Linq;
@@ -32,10 +33,16 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
+            if (messagingContext == null)
+            {
+                throw new InvalidOperationException(
+                    $"{typeof(DynamicDiscoveryStep)} requires a Messaging Context to Dynamic Discover the Sending PMode");
+            }
+
             if (messagingContext.SendingPMode == null ||
                 messagingContext.SendingPMode.DynamicDiscoverySpecified == false)
             {
-                Logger.Debug($"Pass through dynamic discovery because SendingPMode {messagingContext.SendingPMode?.Id} hasn't a <DynamicDiscovery/> element");
+                Logger.Debug($"Dynamic Discovery in SendingPMode {messagingContext.SendingPMode?.Id} is not configured");
                 return StepResult.Success(messagingContext);
             }
 
