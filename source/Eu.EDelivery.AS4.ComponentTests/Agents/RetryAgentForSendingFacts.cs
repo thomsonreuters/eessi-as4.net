@@ -31,7 +31,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                 async (settings, as4Msh) =>
                 {
                     // Arrange
-                    const string url = "http://localhost:7071/business/sending/";
+                    const string url = "http://localhost:7171/business/sending/";
                     SendingProcessingMode pmode = ReceptionAwarenessSendingPMode(url);
                     OutMessage im = CreateOutMessageRefStoredAS4Message(as4Msh);
 
