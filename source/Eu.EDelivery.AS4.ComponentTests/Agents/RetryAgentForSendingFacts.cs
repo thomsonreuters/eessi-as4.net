@@ -20,7 +20,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
     public class RetryAgentForSendingFacts : ComponentTestTemplate
     {
         [Theory]
-        [InlineData(HttpStatusCode.OK, Operation.Sent)]
+        [InlineData(HttpStatusCode.Accepted, Operation.Sent)]
         [InlineData(HttpStatusCode.InternalServerError, Operation.DeadLettered)]
         public async Task OutMessage_Is_Set_To_Sent_When_Retry_Happen_Within_Allowed_MaxRetry(
             HttpStatusCode secondAttempt,
