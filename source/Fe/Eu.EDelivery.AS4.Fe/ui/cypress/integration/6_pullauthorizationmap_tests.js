@@ -5,7 +5,7 @@ describe('pull authorization map', () => {
     cy.exec('if exist .\\security exists ( del .\\security )');
   });
 
-  it('should add pull authorization entry', () => {
+  it.skip('should add pull authorization entry', () => {
     cy.getdatacy('add').click();
     cy.getdatacy('entries')
       .find('tr')
@@ -19,7 +19,7 @@ describe('pull authorization map', () => {
     cy.getdatacy('save').click();
   });
 
-  it('should remove pull authorization entry', () => {
+  it.skip('should remove pull authorization entry', () => {
     cy.getdatacy('remove').click();
     cy.getdatacy('ok').click(); // Are you sure?
 
