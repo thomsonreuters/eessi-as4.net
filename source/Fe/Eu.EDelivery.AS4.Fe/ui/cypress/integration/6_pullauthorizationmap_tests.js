@@ -10,7 +10,7 @@ describe('pull authorization map', () => {
       .find('tr')
       .within(() => {
         cy.get('input[formcontrolname=mpc]:first').type('my mpc');
-        cy.get('.input-group > .form-control').type(
+        cy.get('.input-group > .form-control:first').type(
           '0d512bdcd9f169ac4c22e1574ab98e3fa4d8af78'
         );
         cy.get('input[formcontrolname=allowed]').check();
