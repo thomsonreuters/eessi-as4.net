@@ -52,7 +52,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                     var spy = new DatabaseSpy(as4Msh.GetConfiguration());
                     OutMessage sent = await PollUntilPresent(
                         () => spy.GetOutMessageFor(m => m.Operation == expected),
-                        timeout: TimeSpan.FromSeconds(15));
+                        timeout: TimeSpan.FromSeconds(10));
                     Assert.Equal(im.EbmsMessageId, sent.EbmsMessageId);
 
                     RetryReliability referenced = await PollUntilPresent(
@@ -95,7 +95,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                     ReceptionAwareness =
                     {
                         IsEnabled = true,
-                        RetryCount = 2,
+                        RetryCount = 1,
                         RetryInterval = "00:00:01"
                     }
                 }

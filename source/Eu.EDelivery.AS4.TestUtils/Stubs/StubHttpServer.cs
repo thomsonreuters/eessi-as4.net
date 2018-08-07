@@ -111,11 +111,14 @@ namespace Eu.EDelivery.AS4.TestUtils.Stubs
                         r.OutputStream.Dispose();
                         return ServerLifetime.Stop;
                     }
+                    else
+                    {
+                        r.StatusCode = currentRetryCount <= 1 ? 500 : 200;
 
-                    r.StatusCode = 500;
-                    r.OutputStream.WriteByte(0);
-                    r.OutputStream.Dispose();
-                    return ServerLifetime.Continue;
+                        r.OutputStream.WriteByte(0);
+                        r.OutputStream.Dispose();
+                        return ServerLifetime.Continue; 
+                    }
                 },
                 onSecondAttempt);
         }
