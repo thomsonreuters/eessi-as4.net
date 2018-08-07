@@ -71,7 +71,7 @@ describe('new empty agent', () => {
     beforeEach(() => cy.visit('/settings/agents/outboundprocessing'));
 
     it('should have default datastore receiver', () => {
-      cy.getdatacy('new').click();
+      cy.getdatacy('new').click({ force: true });
       cy.getdatacy('agent-name').type('my outbound processing agent');
       cy.getdatacy('clone').select('Empty');
       cy.getdatacy('ok').click();
