@@ -86,7 +86,7 @@ Example of a **Retry Reliability** configuration with a **Polling Interval** of 
 </RetryReliability>
 ```
 
-> The `<RetryReliability/>` tag is available form version vXXX and up.
+> The `<RetryReliability/>` tag is available form version v3.1.0 and up.
 
 ### Database Provider
 
