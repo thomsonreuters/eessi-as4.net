@@ -31,7 +31,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                 async (settings, as4Msh) =>
                 {
                     // Arrange
-                    const string url = "http://localhost:7071/business/sending/";
+                    const string url = "http://localhost:7171/business/sending/";
                     SendingProcessingMode pmode = ReceptionAwarenessSendingPMode(url);
                     OutMessage im = CreateOutMessageRefStoredAS4Message(as4Msh);
 
@@ -48,7 +48,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                     // Act
                     SimulateSendingFailureOnFirstAttempt(url, secondAttempt);
 
-                    // Act
+                    // Assert
                     var spy = new DatabaseSpy(as4Msh.GetConfiguration());
                     OutMessage sent = await PollUntilPresent(
                         () => spy.GetOutMessageFor(m => m.Operation == expected),
