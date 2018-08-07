@@ -100,25 +100,24 @@ namespace Eu.EDelivery.AS4.TestUtils.Stubs
             HttpStatusCode secondAttempt,
             ManualResetEvent onSecondAttempt)
         {
-            var currentRetryCount = 0;
+            var first = true;
             StartServerLifetime(
                 url,
                 r =>
                 {
-                    if (++currentRetryCount >= 2)
-                    {
-                        r.StatusCode = (int) secondAttempt;
-                        r.OutputStream.Dispose();
-                        return ServerLifetime.Stop;
-                    }
-                    else
-                    {
-                        r.StatusCode = currentRetryCount <= 1 ? 500 : 200;
+                    r.StatusCode = (int)secondAttempt;
 
+                    if (first)
+                    {
+                        first = false;
+                        r.StatusCode = 500;
                         r.OutputStream.WriteByte(0);
                         r.OutputStream.Dispose();
-                        return ServerLifetime.Continue; 
+                        return ServerLifetime.Continue;
                     }
+
+                    r.OutputStream.Dispose();
+                    return ServerLifetime.Stop;
                 },
                 onSecondAttempt);
         }
