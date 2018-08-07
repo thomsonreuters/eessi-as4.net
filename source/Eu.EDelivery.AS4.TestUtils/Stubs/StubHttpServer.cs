@@ -83,6 +83,7 @@ namespace Eu.EDelivery.AS4.TestUtils.Stubs
 
                 if (result == ServerLifetime.Stop)
                 {
+                    Thread.Sleep(TimeSpan.FromSeconds(1));
                     onStop?.Set();
                     server.Stop();
                 }
