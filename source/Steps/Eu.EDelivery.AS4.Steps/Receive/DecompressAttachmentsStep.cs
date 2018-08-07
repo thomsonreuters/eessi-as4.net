@@ -44,7 +44,6 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             if (messagingContext.AS4Message.HasAttachments == false)
             {
                 Logger.Debug("No decompression will happend because the AS4Message hasn't got any attachments to decompress");
-
                 return StepResult.Success(messagingContext);
             }
 
@@ -69,9 +68,8 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
         private static async Task<StepResult> DecompressAttachmentsAsync(MessagingContext context)
         {
-            AS4Message as4Message = context.AS4Message;
-
-            foreach (Attachment attachment in as4Message.Attachments)
+            IEnumerable<PartInfo> partInfos = context.AS4Message.UserMessages.SelectMany(u => u.PayloadInfo);
+            foreach (Attachment attachment in context.AS4Message.Attachments)
             {
                 if (IsAttachmentNotCompressed(attachment))
                 {
@@ -79,14 +77,13 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                     continue;
                 }
 
-                if (HasntAttachmentMimeTypePartProperty(attachment))
+                if (!attachment.Properties.ContainsKey("MimeType"))
                 {
-                    string description = $"Attachment {attachment.Id} hasn't got a MimeType PartProperty";
-                    return DecompressFailureResult(description, context);
+                    return DecompressFailureResult($"Attachment {attachment.Id} hasn't got a MimeType PartProperty", context);
                 }
 
                 Logger.Trace($"Attachment {attachment.Id} will be decompressed");
-                DecompressAttachment(as4Message.FirstUserMessage.PayloadInfo, attachment);
+                DecompressAttachment(partInfos, attachment);
                 Logger.Debug($"Attachment {attachment.Id} is decompressed to a type of {attachment.ContentType}");
             }
 
@@ -103,11 +100,6 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         {
             return !attachment.ContentType.Equals(GzipContentType, StringComparison.OrdinalIgnoreCase) &&
                    !attachment.Properties.ContainsKey("CompressionType");
-        }
-
-        private static bool HasntAttachmentMimeTypePartProperty(Attachment attachment)
-        {
-            return !attachment.Properties.ContainsKey("MimeType");
         }
 
         private static void DecompressAttachment(IEnumerable<PartInfo> payloadInfo, Attachment attachment)
