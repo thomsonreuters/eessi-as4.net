@@ -234,7 +234,6 @@
     <Compile Include="Constants.cs" />
     <Compile Include="Common\DatastoreContext.cs" />
     <Compile Include="Entities\ExceptionEntity.cs" />
-    <Compile Include="Entities\ReceptionAwareness.cs" />
     <Compile Include="Mappings\Submit\ISubmitMapper.cs" />
     <Compile Include="Mappings\Submit\ISubmitResolver.cs" />
     <Compile Include="Mappings\Submit\SubmitActionResolver.cs" />
@@ -325,7 +324,6 @@
     <Compile Include="Services\InMessageService.cs" />
     <Compile Include="Services\OutMessageService.cs" />
     <Compile Include="Services\PullRequestAuthorization\PullRequestAuthorizationEntry.cs" />
-    <Compile Include="Services\ReceptionAwarenessService.cs" />
     <Compile Include="Services\MarkForRetryService.cs" />
     <Compile Include="Strategies\Database\IAS4DbCommand.cs" />
     <Compile Include="Strategies\Database\InMemoryDbCommand.cs" />
