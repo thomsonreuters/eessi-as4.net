@@ -70,7 +70,7 @@ describe('new empty agent', () => {
   describe('send agent', () => {
     beforeEach(() => cy.visit('/settings/agents/send'));
 
-    it('should have default datastore receiver', () => {
+    it.skip('should have default datastore receiver', () => {
       cy.getdatacy('new').click({ force: true });
       cy.getdatacy('agent-name').type('my send agent');
       cy.getdatacy('clone').select('Empty');

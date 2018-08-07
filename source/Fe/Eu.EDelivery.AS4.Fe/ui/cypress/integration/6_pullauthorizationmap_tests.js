@@ -2,6 +2,7 @@ describe('pull authorization map', () => {
   beforeEach(() => {
     cy.login();
     cy.visit('/pullauthorizationmap');
+    cy.resetenv();
   });
 
   it('should add pull authorization entry', () => {
