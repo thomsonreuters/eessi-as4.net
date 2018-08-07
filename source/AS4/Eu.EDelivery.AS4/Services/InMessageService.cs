@@ -260,7 +260,7 @@ namespace Eu.EDelivery.AS4.Services
                     m =>
                     {
                         m.Operation = Operation.ToBeForwarded;
-                        Logger.Debug($"Update InMessage {m.EbmsMessageType} with {{Operation={m.Operation}}}");
+                        Logger.Debug($"Update InMessage {m.EbmsMessageType} with Operation={m.Operation}");
                     });
             }
             else
@@ -312,7 +312,7 @@ namespace Eu.EDelivery.AS4.Services
                                 _repository.InsertRetryReliability(r);
                             }
 
-                            Logger.Debug($"Update InMessage UserMessage {userMessage.MessageId} with {{Operation={message.Operation}}}");
+                            Logger.Debug($"Update InMessage UserMessage {userMessage.MessageId} with Operation={message.Operation}");
                         }
                     });
             }
@@ -355,7 +355,7 @@ namespace Eu.EDelivery.AS4.Services
                         m =>
                         {
                             m.Operation = Operation.ToBeNotified;
-                            Logger.Debug($"Update InMessage {m.EbmsMessageType} {m.EbmsMessageId} with {{Operation={m.Operation}}}");
+                            Logger.Debug($"Update InMessage {m.EbmsMessageType} {m.EbmsMessageId} with Operation={m.Operation}");
                         });
 
                     bool isRetryEnabled = reliability?.IsEnabled ?? false;

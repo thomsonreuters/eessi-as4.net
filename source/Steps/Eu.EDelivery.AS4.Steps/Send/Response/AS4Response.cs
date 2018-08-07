@@ -56,9 +56,7 @@ namespace Eu.EDelivery.AS4.Steps.Send.Response
         public static async Task<AS4Response> Create(MessagingContext requestMessage, HttpWebResponse webResponse)
         {
             var response = new AS4Response(requestMessage, webResponse);
-
             var responseStream = webResponse.GetResponseStream() ?? Stream.Null;
-
             var contentStream = VirtualStream.Create(webResponse.ContentLength, forAsync: true);
 
             await responseStream.CopyToFastAsync(contentStream);
@@ -96,17 +94,19 @@ namespace Eu.EDelivery.AS4.Steps.Send.Response
         {
             try
             {
-
                 if (string.IsNullOrWhiteSpace(receivedStream.ContentType))
                 {
-                    if (Logger.IsInfoEnabled)
+                    if (Logger.IsDebugEnabled)
                     {
-                        Logger.Info("No ContentType set - returning an empty AS4 response.");
+                        Logger.Debug("No ContentType set - returning an empty AS4 response.");
 
+                        // Not in 'using' because it closes the underlying stream
                         var streamReader = new StreamReader(receivedStream.UnderlyingStream);
                         string responseContent = await streamReader.ReadToEndAsync();
-
-                        Logger.Info(responseContent);
+                        if (!string.IsNullOrEmpty(responseContent))
+                        {
+                            Logger.Debug(responseContent);
+                        }
                     }
 
                     return AS4Message.Empty;
@@ -127,7 +127,9 @@ namespace Eu.EDelivery.AS4.Steps.Send.Response
             }
         }
 
-        /// <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</summary>
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
         public void Dispose()
         {
             _httpWebResponse?.Dispose();

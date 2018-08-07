@@ -44,6 +44,12 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
+            if (messagingContext.SubmitMessage == null)
+            {
+                throw new InvalidOperationException(
+                    $"{nameof(RetrieveSendingPModeStep)} requires an SubmitMessage to retrieve the SendingPMode from but no SubmitMessage is present in the MessagingContext");
+            }
+
             messagingContext.SubmitMessage.PMode = RetrieveSendPMode(messagingContext);
             messagingContext.SendingPMode = messagingContext.SubmitMessage.PMode;
 

@@ -74,17 +74,16 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
             Entities.ReceptionAwareness receptionAwareness,
             ReceptionAwarenessService service)
         {
-            string logging = $"(ReceptionAwareness) [{receptionAwareness.RefToEbmsMessageId}] ";
             if (service.IsMessageAlreadyAnswered(receptionAwareness))
             {
-                Logger.Info($"{logging} Complete message because it\'s already answered");
+                Logger.Debug($"Complete message {receptionAwareness.RefToEbmsMessageId} because it\'s already answered");
                 service.MarkReferencedMessageAsComplete(receptionAwareness);
             }
             else
             {
                 if (service.MessageNeedsToBeResend(receptionAwareness))
                 {
-                    Logger.Info($"{logging} Mark message for resend because the reception awareness deadline isn\'t yet met");
+                    Logger.Debug($"Mark message {receptionAwareness.RefToEbmsMessageId} for resend because the ReceptionAwareness deadline isn\'t yet met");
 
                     service.MarkReferencedMessageForResend(receptionAwareness);
                 }
@@ -92,7 +91,7 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
                 {
                     if (IsMessageUnanswered(receptionAwareness))
                     {
-                        Logger.Warn($"{logging} Complete message because it remains unanswered");
+                        Logger.Warn($"Complete message {receptionAwareness.RefToEbmsMessageId} because it remains unanswered");
 
                         service.MarkReferencedMessageAsComplete(receptionAwareness);
 
@@ -103,7 +102,7 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
                     }
                     else
                     {
-                        Logger.Info(logging + "Mark message for resend because it's still not answered yet");
+                        Logger.Debug($"Mark message {receptionAwareness.RefToEbmsMessageId} for resend because it's still not answered yet");
                         service.ResetReferencedMessage(receptionAwareness);
                     }
                 }
@@ -119,9 +118,7 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
         {
             TimeSpan retryInterval = TimeSpan.Parse(receptionAwareness.RetryInterval);
 
-            Logger.Info(
-                $"(ReceptionAwareness) [{receptionAwareness.RefToEbmsMessageId}] " + 
-                $"Waiting retry interval {retryInterval:g} until next retry...");
+            Logger.Debug($"Waiting retry interval {retryInterval:g} until next retry...");
 
             Thread.Sleep(retryInterval);
         }

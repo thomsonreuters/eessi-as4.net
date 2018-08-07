@@ -49,6 +49,12 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
+            if (messagingContext.SubmitMessage == null)
+            {
+                throw new InvalidOperationException(
+                    $"{nameof(CreateAS4MessageStep)} requires a SubmitMessage to create an AS4Message from but no AS4Message is present in the MessagingContext");
+            }
+
             AS4Message as4Message = CreateAS4MessageFromSubmit(messagingContext);
             await AssignAttachmentsForAS4Message(as4Message, messagingContext).ConfigureAwait(false);
 
@@ -61,7 +67,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
             ValidateSubmitMessage(messagingContext.SubmitMessage);
 
             UserMessage userMessage = CreateUserMessage(messagingContext);
-            Logger.Info($"{messagingContext} UserMessage with Id {userMessage.MessageId} created from Submit Message");
+            Logger.Info($"{messagingContext.LogTag} UserMessage with Id \"{userMessage.MessageId}\" created from Submit Message");
 
             return AS4Message.Create(userMessage, messagingContext.SendingPMode);
         }
@@ -71,7 +77,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
             SubmitValidator
                 .Validate(submitMessage)
                 .Result(
-                    result => Logger.Trace($"Submit Message {submitMessage.MessageInfo.MessageId} is valid"),
+                    result => Logger.Trace($"SubmitMessage \"{submitMessage.MessageInfo.MessageId}\" is valid"),
                     result =>
                     {
                         result.LogErrors(Logger);
@@ -82,7 +88,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
 
         private static InvalidMessageException ThrowInvalidSubmitMessageException(SubmitMessage submitMessage)
         {
-            string description = $"(Submit) SubmitMessage {submitMessage.MessageInfo.MessageId} was invalid, see logging";
+            string description = $"(Submit) SubmitMessage \"{submitMessage.MessageInfo.MessageId}\" was invalid, see logging";
             Logger.Error(description);
 
             return new InvalidMessageException(description);

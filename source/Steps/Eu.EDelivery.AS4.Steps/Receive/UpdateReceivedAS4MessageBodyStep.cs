@@ -52,8 +52,13 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
-            Logger.Debug("Update the received message body");
+            if (messagingContext.AS4Message == null)
+            {
+                throw new InvalidOperationException(
+                    $"{nameof(UpdateReceivedAS4MessageBodyStep)} requires an AS4Message to update but no AS4Message is present in the MessagingContext");
+            }
 
+            Logger.Trace("Updating the received message body...");
             using (DatastoreContext datastoreContext = _createDatastoreContext())
             {
                 var repository = new DatastoreRepository(datastoreContext);
@@ -72,7 +77,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 // The MSH must answer with a HTTP Accepted status-code, so an empty context must be returned.
                 messagingContext.ModifyContext(AS4Message.Empty);
 
-                Logger.Debug(
+                Logger.Info(
                     "Stops execution to return empty SOAP envelope to the orignal sender. " +
                     "This happens when the message must be forwarded");
 
