@@ -140,7 +140,7 @@ namespace Eu.EDelivery.AS4.Services
         /// <param name="awareness">The awareness.</param>
         public void MarkReferencedMessageAsComplete(ReceptionAwareness awareness)
         {
-            Logger.Info($"[{awareness.RefToEbmsMessageId}] Reception Awareness completed");
+            Logger.Debug($"ReceptionAwareness {awareness.RefToEbmsMessageId} cycle is completed");
 
             UpdateReceptionAwareness(awareness, ReceptionStatus.Completed);
         }
@@ -151,8 +151,7 @@ namespace Eu.EDelivery.AS4.Services
         /// <param name="awareness">The awareness.</param>
         public void MarkReferencedMessageForResend(ReceptionAwareness awareness)
         {
-            Logger.Info(
-                $"[{awareness.RefToEbmsMessageId}] Update datastore so the ebMS message can be resend. (RetryCount = {awareness.CurrentRetryCount + 1})");
+            Logger.Debug($"Update ebMS message {awareness.RefToEbmsMessageId} for retry {{RetryCount = {awareness.CurrentRetryCount + 1}}}");
 
             _repository.UpdateOutMessage(awareness.RefToOutMessageId, m => m.Operation = Operation.ToBeSent);
             UpdateReceptionAwareness(awareness, ReceptionStatus.Pending);

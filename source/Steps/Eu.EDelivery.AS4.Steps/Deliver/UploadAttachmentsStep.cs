@@ -52,6 +52,12 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
+            if (messagingContext.AS4Message == null)
+            {
+                throw new InvalidOperationException(
+                    $"{nameof(UploadAttachmentsStep)} requires an AS4Message to upload the attachments from but no AS4Message is present in the MessagingContext");
+            }
+
             AS4Message as4Message = messagingContext.AS4Message;
             if (!as4Message.HasAttachments)
             {

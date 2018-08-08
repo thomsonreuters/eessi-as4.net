@@ -82,6 +82,16 @@ namespace Eu.EDelivery.AS4.UnitTests.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
+        internal static byte[] as4_bundled_encrypted_message {
+            get {
+                object obj = ResourceManager.GetObject("as4_bundled_encrypted_message", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
         internal static byte[] as4_encrypted_compressed_message {
             get {
                 object obj = ResourceManager.GetObject("as4_encrypted_compressed_message", resourceCulture);

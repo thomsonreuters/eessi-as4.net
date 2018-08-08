@@ -59,10 +59,11 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
             HttpWebRequest request = await CreateHttpPostRequest(deliverMessage.ContentType, deliverMessage.DeliverMessage).ConfigureAwait(false);
             HttpWebResponse response = await SendHttpPostRequest(request).ConfigureAwait(false);
 
-            Logger.Debug($"POST DeliverMessage to {Location} result in: {(int)response.StatusCode} {response.StatusCode}");
+            HttpStatusCode statusCode = response?.StatusCode ?? HttpStatusCode.InternalServerError;
+            Logger.Debug($"POST DeliverMessage to {Location} result in: {(int)statusCode} {response?.StatusCode}");
 
             response?.Close();
-            return DetermineSendResultFromResponse(response);
+            return SendResultUtils.DetermineSendResultFromHttpResonse(statusCode);
         }
 
         /// <summary>
@@ -76,10 +77,11 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
             HttpWebRequest request = await CreateHttpPostRequest(notifyMessage.ContentType, notifyMessage.NotifyMessage);
             HttpWebResponse response = await SendHttpPostRequest(request).ConfigureAwait(false);
 
-            Logger.Debug($"POST Notification to {Location} result in: {(int) response.StatusCode} {response.StatusCode}");
+            HttpStatusCode statusCode = response?.StatusCode ?? HttpStatusCode.InternalServerError;
+            Logger.Debug($"POST Notification to {Location} result in: {(int) statusCode} {response?.StatusCode}");
 
             response?.Close();
-            return DetermineSendResultFromResponse(response);
+            return SendResultUtils.DetermineSendResultFromHttpResonse(statusCode);
         }
 
         private async Task<HttpWebRequest> CreateHttpPostRequest(string contentType, byte[] contents)
@@ -135,29 +137,6 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
         {
             return response.StatusCode == HttpStatusCode.Accepted 
                    || response.StatusCode == HttpStatusCode.OK;
-        }
-
-        private static SendResult DetermineSendResultFromResponse(HttpWebResponse response)
-        {
-            if (response?.StatusCode == null)
-            {
-                return SendResult.FatalFail;
-            }
-
-            var code = (int) response?.StatusCode;
-            if (200 <= code && code < 300)
-            {
-                return SendResult.Success;
-            }
-
-            if (500 <= code && code < 600
-                || code == 408 
-                || code == 429)
-            {
-                return SendResult.RetryableFail;
-            }
-
-            return SendResult.FatalFail;
         }
     }
 }

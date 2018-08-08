@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
@@ -15,6 +16,7 @@ using Eu.EDelivery.AS4.TestUtils;
 using Eu.EDelivery.AS4.TestUtils.Stubs;
 using Moq;
 using Xunit;
+using static Eu.EDelivery.AS4.UnitTests.Properties.Resources;
 
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 {
@@ -25,6 +27,32 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
     {
         public class GivenValidArguments : GivenDecryptAS4MessageStepFacts
         {
+            [Fact]
+            public async Task Decrypt_Bundeld_Message_Correctly()
+            {
+                // Arrange
+                AS4Message as4Message = await GetBundledEncryptedMessageAsync();
+
+                // Act
+                StepResult result = await ExerciseDecryption(as4Message);
+
+                // Assert
+                Assert.False(result.MessagingContext.AS4Message.IsEncrypted);
+            }
+
+            private static async Task<AS4Message> GetBundledEncryptedMessageAsync()
+            {
+                AS4Message bundled = await DeserializeToEncryptedMessage(
+                    as4_bundled_encrypted_message,
+                    "multipart/related; boundary=\"MIMEBoundary_64ed729f813b10a65dfdc363e469e2206ff40c4aa5f4bd11\"");
+
+                Assert.True(
+                    bundled.MessageUnits.Count() > 1, 
+                    "Encrypted AS4Message was expected to be bundled (more than a single MessageUnit)");
+
+                return bundled;
+            }
+
             [Fact]
             public async Task ThenExecuteStepSucceedsAsync()
             {
@@ -145,8 +173,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             {
                 // Arrange
                 AS4Message m =
-                    await SerializeToEncryptedMessage(
-                        Properties.Resources.as4_soap_wrong_encrypted_no_encrypteddata_for_attachment);
+                    await DeserializeToEncryptedMessage(
+                        as4_soap_wrong_encrypted_no_encrypteddata_for_attachment,
+                        "multipart/related; boundary=\"MIMEBoundary_64ed729f813b10a65dfdc363e469e2206ff40c4aa5f4bd11\"");
 
                 // Act
                 StepResult result = await ExerciseDecryption(
@@ -159,41 +188,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 Assert.False(result.CanProceed);
                 Assert.Equal(ErrorAlias.FailedDecryption, result.MessagingContext.ErrorResult.Alias);
             }
-
-            private static ReceivingProcessingMode ReceivingPModeForDecryption()
-            {
-                return new ReceivingProcessingMode
-                {
-                    Security =
-                    {
-                        Decryption =
-                        {
-                            Encryption = Limit.Required,
-                            CertificateType = PrivateKeyCertificateChoiceType.PrivateKeyCertificate,
-                            DecryptCertificateInformation = new CertificateFindCriteria
-                            {
-                                CertificateFindType = X509FindType.FindBySubjectName,
-                                CertificateFindValue = "ExampleC"
-                            }
-                        }
-                    }
-                };
-            }
-
-            private static async Task<AS4Message> SerializeToEncryptedMessage(byte[] messageContents)
-            {
-                Stream inputStream = new MemoryStream(messageContents);
-                var serializer = new MimeMessageSerializer(new SoapEnvelopeSerializer());
-
-                var message = await serializer.DeserializeAsync(
-                    inputStream,
-                    "multipart/related; boundary=\"MIMEBoundary_64ed729f813b10a65dfdc363e469e2206ff40c4aa5f4bd11\"",
-                    CancellationToken.None);
-
-                Assert.True(message.IsEncrypted, "The AS4 Message to use in this testcase should be encrypted");
-
-                return message;
-            }
         }
 
         private static Task<StepResult> ExerciseDecryption(MessagingContext ctx)
@@ -203,12 +197,66 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             mockedRespository
                 .Setup(r => r.GetCertificate(It.IsAny<X509FindType>(), It.IsAny<string>()))
                 .Returns(new X509Certificate2(
-                    rawData: Properties.Resources.holodeck_partyc_certificate, 
+                    rawData: holodeck_partyc_certificate, 
                     password: "ExampleC", 
                     keyStorageFlags: X509KeyStorageFlags.Exportable));
 
             var sut = new DecryptAS4MessageStep(mockedRespository.Object);
             return sut.ExecuteAsync(ctx);
+        }
+
+        private static async Task<AS4Message> DeserializeToEncryptedMessage(byte[] messageContents, string contentType)
+        {
+            Stream inputStream = new MemoryStream(messageContents);
+            var serializer = new MimeMessageSerializer(new SoapEnvelopeSerializer());
+
+            var message = await serializer.DeserializeAsync(
+                inputStream,
+                contentType,
+                CancellationToken.None);
+
+            Assert.True(message.IsEncrypted, "The AS4 Message to use in this testcase should be encrypted");
+
+            return message;
+        }
+
+        private static Task<StepResult> ExerciseDecryption(AS4Message msg)
+        {
+            var mockedRespository = new Mock<ICertificateRepository>();
+
+            mockedRespository
+                .Setup(r => r.GetCertificate(It.IsAny<X509FindType>(), It.IsAny<string>()))
+                .Returns(new X509Certificate2(
+                             rawData: holodeck_partyc_certificate,
+                             password: "ExampleC",
+                             keyStorageFlags: X509KeyStorageFlags.Exportable));
+
+            var sut = new DecryptAS4MessageStep(mockedRespository.Object);
+            return sut.ExecuteAsync(
+                new MessagingContext(msg, MessagingContextMode.Receive)
+                {
+                    ReceivingPMode = ReceivingPModeForDecryption()
+                });
+        }
+
+        private static ReceivingProcessingMode ReceivingPModeForDecryption()
+        {
+            return new ReceivingProcessingMode
+            {
+                Security =
+                {
+                    Decryption =
+                    {
+                        Encryption = Limit.Required,
+                        CertificateType = PrivateKeyCertificateChoiceType.PrivateKeyCertificate,
+                        DecryptCertificateInformation = new CertificateFindCriteria
+                        {
+                            CertificateFindType = X509FindType.FindBySubjectName,
+                            CertificateFindValue = "ExampleC"
+                        }
+                    }
+                }
+            };
         }
 
         [Fact]
@@ -224,7 +272,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
         protected Task<AS4Message> GetEncryptedAS4MessageAsync()
         {
-            Stream inputStream = new MemoryStream(Properties.Resources.as4_encrypted_message);
+            Stream inputStream = new MemoryStream(as4_encrypted_message);
             var serializer = new MimeMessageSerializer(new SoapEnvelopeSerializer());
 
             return serializer.DeserializeAsync(

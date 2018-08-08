@@ -33,7 +33,7 @@ namespace Eu.EDelivery.AS4.Transformers
             ReceptionAwareness awareness = RetrieveReceptionAwareness(entityMessage);
             var messagingContext = new MessagingContext(awareness);
 
-            Logger.Info($"[{awareness.RefToEbmsMessageId}] Reception Awareness is successfully transformed");
+            Logger.Debug($"ReceptionAwareness {awareness.RefToEbmsMessageId} is successfully transformed");
             return await Task.FromResult(messagingContext);
         }
 

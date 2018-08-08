@@ -7,6 +7,7 @@ import { AgentSettingsComponent } from './agent/agent.component';
 import { PortalSettingsComponent } from './portalsettings/portalsettings.component';
 import { SettingsComponent } from './settings/settings.component';
 import { SmpConfigurationComponent } from './smpconfiguration/smpconfiguration.component';
+import { AuthorizationMapComponent } from './authorizationmap/authorizationmap.component';
 
 export const ROUTES: Routes = [
   {
@@ -181,6 +182,19 @@ export const ROUTES: Routes = [
         path: '',
         component: SmpConfigurationComponent,
         data: { title: 'Smp configuration' },
+        canDeactivate: [CanDeactivateGuard]
+      }
+    ]
+  },
+  {
+    path: 'pullauthorizationmap',
+    component: WrapperComponent,
+    canActivate: [MustBeAuthorizedGuard],
+    children: [
+      {
+        path: '',
+        component: AuthorizationMapComponent,
+        data: { title: 'Pull Authorization Map' },
         canDeactivate: [CanDeactivateGuard]
       }
     ]

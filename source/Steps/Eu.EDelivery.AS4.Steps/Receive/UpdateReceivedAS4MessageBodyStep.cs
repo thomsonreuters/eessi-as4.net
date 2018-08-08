@@ -16,6 +16,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 
+        private readonly IConfig _configuration;
         private readonly Func<DatastoreContext> _createDatastoreContext;
         private readonly IAS4MessageBodyStore _messageBodyStore;
 
@@ -23,17 +24,23 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// Initializes a new instance of the <see cref="UpdateReceivedAS4MessageBodyStep"/> class.
         /// </summary>
         public UpdateReceivedAS4MessageBodyStep() 
-            : this(Registry.Instance.CreateDatastoreContext, Registry.Instance.MessageBodyStore) { }
+            : this(
+                Config.Instance,
+                Registry.Instance.CreateDatastoreContext, 
+                Registry.Instance.MessageBodyStore) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="UpdateReceivedAS4MessageBodyStep" /> class.
         /// </summary>
+        /// <param name="configuration">The configuration used to save the message</param>
         /// <param name="createDatastoreContext">The create Datastore Context.</param>
         /// <param name="messageBodyStore">The <see cref="IAS4MessageBodyStore" /> that must be used to persist the messagebody content.</param>
         public UpdateReceivedAS4MessageBodyStep(
+            IConfig configuration,
             Func<DatastoreContext> createDatastoreContext,
             IAS4MessageBodyStore messageBodyStore)
         {
+            _configuration = configuration;
             _createDatastoreContext = createDatastoreContext;
             _messageBodyStore = messageBodyStore;
         }
@@ -45,12 +52,17 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
-            Logger.Debug("Update the received message body");
+            if (messagingContext.AS4Message == null)
+            {
+                throw new InvalidOperationException(
+                    $"{nameof(UpdateReceivedAS4MessageBodyStep)} requires an AS4Message to update but no AS4Message is present in the MessagingContext");
+            }
 
+            Logger.Trace("Updating the received message body...");
             using (DatastoreContext datastoreContext = _createDatastoreContext())
             {
                 var repository = new DatastoreRepository(datastoreContext);
-                var service = new InMessageService(repository);
+                var service = new InMessageService(_configuration, repository);
 
                 service.UpdateAS4MessageForMessageHandling(
                     messagingContext,
@@ -65,7 +77,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 // The MSH must answer with a HTTP Accepted status-code, so an empty context must be returned.
                 messagingContext.ModifyContext(AS4Message.Empty);
 
-                Logger.Debug(
+                Logger.Info(
                     "Stops execution to return empty SOAP envelope to the orignal sender. " +
                     "This happens when the message must be forwarded");
 

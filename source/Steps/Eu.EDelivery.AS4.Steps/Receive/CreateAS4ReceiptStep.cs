@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
@@ -45,6 +46,13 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// <param name="messagingContext"></param>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
+            AS4Message receivedAS4Message = messagingContext.AS4Message;
+            if (receivedAS4Message == null)
+            {
+                throw new InvalidOperationException(
+                    $"{nameof(CreateAS4ReceiptStep)} requires an AS4Message to create a Receipt for but no AS4Message is present in the MessagingContext");
+            }
+
             SendingProcessingMode responseSendPMode =
                 messagingContext.SendingPMode 
                 ?? messagingContext.GetReferencedSendingPMode(messagingContext.ReceivingPMode, _config);
@@ -58,8 +66,6 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 return StepResult.Failed(messagingContext);
             }
 
-            AS4Message receivedAS4Message = messagingContext.AS4Message;
-            
             // Should we create a Receipt for each and every UserMessage that can be present in the bundle ?
             // If no UserMessages are present, an Empty AS4Message should be returned.
             AS4Message receiptMessage = AS4Message.Create(responseSendPMode);
@@ -90,21 +96,20 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             if (useNRRFormat && !as4Message.IsSigned)
             {
                 Logger.Warn(
-                    $"Receiving PMode ({messagingContext.ReceivingPMode?.Id}) " +
+                    $"ReceivingPMode ({messagingContext.ReceivingPMode?.Id}) " +
                     "is configured to reply with Non-Repudation Receipts, but incoming UserMessage isn't signed");
             }
             else if (!useNRRFormat)
             {
                 Logger.Debug(
-                    $"Receiving PMode is configured to not use the Non-Repudiation format." + 
+                    "ReceivingPMode is configured to not use the Non-Repudiation format." + 
                     "This means the original UserMessage will be included in the Receipt");
             }
 
             if (useNRRFormat && as4Message.IsSigned)
             {
                     Logger.Debug(
-                        $"{messagingContext.LogTag} Receiving PMode {messagingContext.ReceivingPMode?.Id} " + 
-                        $"is configured to use Non-Repudiation for Receipt {{RefToEbmsMessageId={ebmsMessageId}}} Creation");
+                        $"ReceivingPMode {messagingContext.ReceivingPMode?.Id} is configured to use Non-Repudiation for Receipt Creation");
 
                     NonRepudiationInformation nonRepudiation = 
                         GetNonRepudiationInformationFrom(as4Message);

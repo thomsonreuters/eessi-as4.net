@@ -54,6 +54,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         {
             if (messagingContext.AS4Message == null || messagingContext.AS4Message.IsEmpty)
             {
+                Logger.Debug("No SignalMessage available to send");
                 return StepResult.Success(messagingContext);
             }
 

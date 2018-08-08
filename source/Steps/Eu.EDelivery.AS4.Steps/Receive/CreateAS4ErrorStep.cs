@@ -56,6 +56,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             bool noAS4MessagePresent = messagingContext.AS4Message == null || messagingContext.AS4Message.IsEmpty;
             if (noAS4MessagePresent && messagingContext.ErrorResult == null)
             {
+                Logger.Warn("Skip creating AS4 Error because AS4Message and ErrorResult is empty");
                 return await StepResult.SuccessAsync(messagingContext);
             }
 
@@ -77,7 +78,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
             if (Logger.IsInfoEnabled && errorMessage.MessageUnits.Any())
             {
-                Logger.Info($"{messagingContext.LogTag} Error message has been created for received AS4 UserMessages");
+                Logger.Info($"{messagingContext.LogTag} Error has been created for received UserMessages");
             }
 
             return await StepResult.SuccessAsync(messagingContext);
@@ -128,13 +129,18 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                     var ex = new InException(signal.MessageId, context.ErrorResult.Description);
                     await ex.SetPModeInformationAsync(context.ReceivingPMode);
 
+                    Logger.Debug($"Insert InException for {signal.MessageId}");
                     repository.InsertInException(ex);
                 }
 
                 IEnumerable<string> ebmsMessageIds = signalMessages.Select(s => s.MessageId).ToArray();
                 repository.UpdateInMessages(
                     m => ebmsMessageIds.Contains(m.EbmsMessageId),
-                    m => m.SetStatus(InStatus.Exception));
+                    m =>
+                    {
+                        Logger.Debug($"Set {m.EbmsMessageType} InMessage {m.EbmsMessageId} Status=Exception");
+                        m.SetStatus(InStatus.Exception);
+                    });
 
                 await dbContext.SaveChangesAsync();
             }

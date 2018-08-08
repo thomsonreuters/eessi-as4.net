@@ -332,6 +332,7 @@
     <None Include="Resources\as4message_duplicate_payloads.as4" />
     <None Include="Resources\as4_encrypted_message" />
     <None Include="Resources\as4-soap-wrong-encrypted-no-encrypteddata-for-attachment.as4" />
+    <None Include="Resources\as4_bundled_encrypted_message" />
     <None Include="Resources\as4_flame_envelope.as4" />
     <None Include="Resources\as4_soapattachment.as4" />
     <None Include="Resources\certificate-as4.pfx" />

@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -31,6 +32,12 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
+            if (messagingContext.AS4Message == null)
+            {
+                throw new InvalidOperationException(
+                    $"{nameof(CreateDeliverEnvelopeStep)} requires an AS4Message to create a DeliverMessage from but no AS4Message is present in the MessagingContext");
+            }
+
             AS4Message as4Message = messagingContext.AS4Message;
             DeliverMessage deliverMessage = CreateDeliverMessage(as4Message.FirstUserMessage, messagingContext);
             ValidateDeliverMessage(deliverMessage);
