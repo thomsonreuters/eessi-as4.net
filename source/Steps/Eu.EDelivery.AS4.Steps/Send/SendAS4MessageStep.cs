@@ -63,15 +63,13 @@ namespace Eu.EDelivery.AS4.Steps.Send
             if (messagingContext.ReceivedMessage == null && messagingContext.AS4Message == null)
             {
                 throw new InvalidOperationException(
-                    $"{messagingContext.LogTag} {nameof(SendAS4MessageStep)} " +
-                    "requires a MessagingContext with a ReceivedStream or an AS4 Message to correctly send the message");
+                    $"{nameof(SendAS4MessageStep)} requires a MessagingContext with a ReceivedStream or an AS4Message to correctly send the message");
             }
 
             if (messagingContext.ReceivedMessage == null && messagingContext.AS4Message.IsPullRequest == false)
             {
                 throw new InvalidOperationException(
-                    $"{messagingContext.LogTag} {nameof(SendAS4MessageStep)} " +
-                    "expects a PullRequest AS4 Message when the MessagingContext does not contain a ReceivedStream");
+                    $"{nameof(SendAS4MessageStep)} expects a PullRequest AS4Message when the MessagingContext does not contain a ReceivedStream");
             }
 
             SendingProcessingMode sendPMode = messagingContext.SendingPMode;

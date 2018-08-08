@@ -30,19 +30,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
         }
 
         [Fact]
-        public async Task FailsToUpdateMessage_IfNoMessageLocationCanBeFound()
-        {
-            // Arrange
-            AS4Message as4Message = AS4Message.Create(new UserMessage($"user-{Guid.NewGuid()}"));
-            var context = new MessagingContext(as4Message, MessagingContextMode.Unknown);
-            var sut = new UpdateReceivedAS4MessageBodyStep(GetDataStoreContext, _messageBodyStore);
-
-            // Act / Assert
-            await Assert.ThrowsAnyAsync<InvalidDataException>(
-                () => sut.ExecuteAsync(context));
-        }
-
-        [Fact]
         public async Task Updates_ToBeNotified_When_Specified_SendingPMode_And_Reference_InMessage()
         {
             // Arrange
@@ -94,11 +81,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 SendingPMode = CreateNotifyAllSendingPMode()
             };
 
-            var sut = new UpdateReceivedAS4MessageBodyStep(GetDataStoreContext, _messageBodyStore);
+            var sut = new UpdateReceivedAS4MessageBodyStep(StubConfig.Default, GetDataStoreContext, _messageBodyStore);
 
-            // Act / Assert
-            await Assert.ThrowsAsync<InvalidDataException>(
-                () => sut.ExecuteAsync(ctx));
+            // Act
+            await sut.ExecuteAsync(ctx);
+
+            // Assert
+            GetDataStoreContext.AssertOutMessage(knownId, m => Assert.Null(m.MessageLocation));
         }
 
         [Fact]
@@ -314,7 +303,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             // We need to mimick the retrieval of the SendingPMode.
             MessagingContext ctx = CreateMessageReceivedContext(as4Message, sendPMode, receivePMode);
 
-            var sut = new UpdateReceivedAS4MessageBodyStep(GetDataStoreContext, _messageBodyStore);
+            var sut = new UpdateReceivedAS4MessageBodyStep(StubConfig.Default, GetDataStoreContext, _messageBodyStore);
             MessagingContext savedResult = await ExecuteSaveReceivedMessage(ctx);
             alterAfterSaved?.Invoke(savedResult.AS4Message);
 

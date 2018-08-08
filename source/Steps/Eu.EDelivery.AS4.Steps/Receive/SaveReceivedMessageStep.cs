@@ -56,12 +56,16 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
             Logger.Info($"{messagingContext.LogTag} Store the incoming AS4 Message to the datastore");
-
             if (messagingContext.ReceivedMessage == null)
             {
                 throw new InvalidOperationException(
-                    $"{messagingContext.LogTag} {nameof(SaveReceivedMessageStep)} " + 
-                    "requires a ReceivedMessage to store the incoming message into the datastore");
+                    $"{nameof(SaveReceivedMessageStep)} requires a ReceivedMessage to store the incoming message into the datastore but no ReceivedMessage is present in the MessagingContext");
+            }
+
+            if (messagingContext.AS4Message == null)
+            {
+                throw new InvalidOperationException(
+                    $"{nameof(SaveReceivedMessageStep)} requires an AS4Message to save but no AS4Message is present in the MessagingContext");
             }
 
             MessagingContext resultContext = await InsertReceivedAS4MessageAsync(messagingContext);
@@ -78,13 +82,24 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
             if (resultContext != null && resultContext.Exception == null)
             {
-                Logger.Debug($"{messagingContext.LogTag} The AS4 Message is successfully stored into the datastore");
+                if (resultContext.AS4Message.IsSignalMessage
+                    && String.IsNullOrWhiteSpace(resultContext.AS4Message.FirstSignalMessage.RefToMessageId))
+                {
+                    Logger.Warn(
+                        $"{messagingContext.LogTag} Received message is a SignalMessage without RefToMessageId. " +
+                        "No such SignalMessage are supported so the message cannot be processed any further");
+
+                    return StepResult
+                        .Success(new MessagingContext(AS4Message.Empty, MessagingContextMode.Receive))
+                        .AndStopExecution();
+                }
+
+                Logger.Debug($"{messagingContext.LogTag} The AS4Message is successfully stored into the datastore");
                 return StepResult.Success(resultContext);
             }
 
             Logger.Error(
-                $"{messagingContext.LogTag} The AS4Message is not stored " + 
-                $"correctly into the datastore {resultContext?.Exception}");
+                $"{messagingContext.LogTag} The AS4Message is not stored correctly into the datastore {resultContext?.Exception}");
 
             return StepResult.Failed(resultContext);
         }
