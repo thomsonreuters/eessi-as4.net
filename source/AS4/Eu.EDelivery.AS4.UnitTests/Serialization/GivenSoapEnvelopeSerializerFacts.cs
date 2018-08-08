@@ -8,8 +8,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Schema;
-using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Common;
+using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
@@ -215,7 +215,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
             public async Task AS4Error_ValidatesWithXsdSchema()
             {
                 // Arrange
-                AS4Message errorMessage = AS4Message.Create(new Error("message-id"));
+                AS4Message errorMessage = AS4Message.Create(
+                    new Error($"error-{Guid.NewGuid()}", $"user-{Guid.NewGuid()}"));
 
                 // Act / Assert
                 await TestValidEbmsMessageEnvelopeFrom(errorMessage);
@@ -377,6 +378,35 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                 XmlNode partInfoTag = payloadInfoTag.FirstChild;
                 Assert.Equal("cid:earth", partInfoTag.Attributes?["href"]?.Value);
             }
+
+            [Property]
+            public void Then_Error_Detail_Is_Present_When_Defined()
+            {
+                // Arrange
+                var error = new Error(
+                   refToMessageId: $"user-{Guid.NewGuid()}",
+                   detail: ErrorLine.FromErrorResult(new ErrorResult("sample error", ErrorAlias.ConnectionFailure)));
+
+                // Act
+                XmlDocument doc = SerializeSoapMessage(AS4Message.Create(error));
+
+                // Assert
+                XmlNode errorTag = doc.SelectEbmsNode(
+                    "/s12:Envelope/s12:Header/eb:Messaging/eb:SignalMessage/eb:Error");
+
+                const string expected =
+                    "<eb:Error " + 
+                        "category=\"Communication\" " + 
+                        "errorCode=\"EBMS:0005\" " + 
+                        "severity=\"FAILURE\" " +
+                        "shortDescription=\"ConnectionFailure\" " + 
+                        "xmlns:eb=\"http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/\">" + 
+                        "<eb:ErrorDetail>sample error</eb:ErrorDetail>" + 
+                    "</eb:Error>";
+
+                Assert.Equal(expected, errorTag.OuterXml);
+            }
+
 
             [Property]
             public void ThenSerializeWithoutAttachmentsReturnsSoapMessage(Guid mpc)
@@ -589,12 +619,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
             // Arrange
             AS4Message expectedAS4Message = await CreateReceivedAS4Message(CreateMultiHopPMode());
 
-            Error error = new ErrorBuilder()
-                .WithRefToEbmsMessageId(expectedAS4Message.FirstUserMessage.MessageId)
-                .Build();
-
-            error.MultiHopRouting = AS4Mapper.Map<RoutingInputUserMessage>(expectedAS4Message.FirstUserMessage);
-
+            var error = new Error(
+                refToMessageId: expectedAS4Message.FirstUserMessage.MessageId, 
+                routing: AS4Mapper.Map<RoutingInputUserMessage>(expectedAS4Message.FirstUserMessage));
 
             AS4Message errorMessage = AS4Message.Create(error);
 
@@ -636,7 +663,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
 
                 Assert.NotNull(multihopReceipt);
                 Assert.NotNull(multihopReceipt.FirstSignalMessage);
-                Assert.NotNull(multihopReceipt.FirstSignalMessage.MultiHopRouting);
+                Assert.True(
+                    multihopReceipt.FirstSignalMessage.IsMultihopSignal, 
+                    "Should have multihop routing information");
 
                 // Serialize the Deserialized receipt again, and make sure the RoutingInput element is present and correct.
                 XmlDocument doc = AS4XmlSerializer.ToSoapEnvelopeDocument(multihopReceipt, CancellationToken.None);

@@ -33,7 +33,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
 
             // Assert
             var signal = result.MessagingContext.AS4Message.FirstSignalMessage as PullRequestError;
-            Assert.Equal(new PullRequestError(), signal);
+            Assert.Equal(new PullRequestError($"pull-{Guid.NewGuid()}"), signal);
             Assert.False(result.CanProceed);
         }
 

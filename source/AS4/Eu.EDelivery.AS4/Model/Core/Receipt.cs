@@ -51,16 +51,6 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// Initializes a new instance of the <see cref="Receipt"/> class.
         /// </summary>
         /// <param name="refToMessageId"></param>
-        /// <param name="routedUserMessage"></param>
-        public Receipt(
-            string refToMessageId,
-            RoutingInputUserMessage routedUserMessage)
-            : base(IdentifierFactory.Instance.Create(), refToMessageId, routedUserMessage) { }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="Receipt"/> class.
-        /// </summary>
-        /// <param name="refToMessageId"></param>
         /// <param name="includedUserMessage"></param>
         public Receipt(
             string refToMessageId,
@@ -120,6 +110,44 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// <summary>
         /// Initializes a new instance of the <see cref="Receipt"/> class.
         /// </summary>
+        /// <param name="messageId"></param>
+        /// <param name="refToMessageId"></param>
+        /// <param name="timestamp"></param>
+        /// <param name="routing"></param>
+        public Receipt(
+            string messageId,
+            string refToMessageId,
+            DateTimeOffset timestamp,
+            RoutingInputUserMessage routing)
+            : base(messageId, refToMessageId, timestamp, routing) { }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Receipt"/> class.
+        /// </summary>
+        /// <param name="messageId"></param>
+        /// <param name="refToMessageId"></param>
+        /// <param name="timestamp"></param>
+        /// <param name="includedUserMessage"></param>
+        /// <param name="routing"></param>
+        public Receipt(
+            string messageId,
+            string refToMessageId,
+            DateTimeOffset timestamp,
+            UserMessage includedUserMessage,
+            RoutingInputUserMessage routing)
+            : base(messageId, refToMessageId, timestamp, routing)
+        {
+            if (includedUserMessage == null)
+            {
+                throw new ArgumentNullException(nameof(includedUserMessage));
+            }
+
+            UserMessage = includedUserMessage;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Receipt"/> class.
+        /// </summary>
         /// <param name="refToMessageId"></param>
         /// <param name="nonRepudiation"></param>
         public Receipt(
@@ -148,6 +176,30 @@ namespace Eu.EDelivery.AS4.Model.Core
             DateTimeOffset timestamp,
             NonRepudiationInformation nonRepudiation)
             : base(messageId, refToMessageId, timestamp)
+        {
+            if (nonRepudiation == null)
+            {
+                throw new ArgumentNullException(nameof(nonRepudiation));
+            }
+
+            NonRepudiationInformation = nonRepudiation;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Receipt"/> class.
+        /// </summary>
+        /// <param name="messageId"></param>
+        /// <param name="refToMessageId"></param>
+        /// <param name="timestamp"></param>
+        /// <param name="nonRepudiation"></param>
+        /// <param name="routing"></param>
+        public Receipt(
+            string messageId,
+            string refToMessageId,
+            DateTimeOffset timestamp,
+            NonRepudiationInformation nonRepudiation,
+            RoutingInputUserMessage routing)
+            : base(messageId, refToMessageId, timestamp, routing)
         {
             if (nonRepudiation == null)
             {

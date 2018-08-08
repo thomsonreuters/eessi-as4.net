@@ -1,4 +1,5 @@
-﻿using Eu.EDelivery.AS4.Model.Core;
+﻿using System;
+using Eu.EDelivery.AS4.Model.Core;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Model.Core
@@ -14,7 +15,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model.Core
             public void IsTrueWhenSeverityAndShortDescriptionIsExpected()
             {
                 // Arrange
-                Error error = new PullRequestError();
+                Error error = new PullRequestError($"pull-{Guid.NewGuid()}");
 
                 // Act
                 bool fromPullRequest = error.IsWarningForEmptyPullRequest;

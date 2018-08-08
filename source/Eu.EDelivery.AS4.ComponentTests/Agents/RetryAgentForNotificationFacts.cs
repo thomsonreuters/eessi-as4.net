@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.ComponentTests.Common;
 using Eu.EDelivery.AS4.Entities;
+using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Exceptions.Handlers;
 using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Core;
@@ -99,15 +100,19 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                     string ebmsMessageId = $"error-{Guid.NewGuid()}";
 
                     var store = new AS4MessageBodyFileStore(SerializerProvider.Default);
+
                     var om = new OutMessage(ebmsMessageId)
                     {
                         ContentType = Constants.ContentTypes.Soap,
                         MessageLocation = store.SaveAS4Message(
                             as4Msh.GetConfiguration().InMessageStoreLocation,
-                            AS4Message.Create(new Error(ebmsMessageId)
-                            {
-                                Errors = new[] { new ErrorDetail { ShortDescription = "this is an error" } }
-                            }))
+                            AS4Message.Create(
+                                Error.FromErrorResult(
+                                    ebmsMessageId,
+                                    refToMessageId: $"user-{Guid.NewGuid()}",
+                                    result: new ErrorResult(
+                                        "Invalid header example description failure",
+                                        ErrorAlias.InvalidHeader))))
                     };
 
                     SendingProcessingMode pmode = NotifySendingPMode(url);

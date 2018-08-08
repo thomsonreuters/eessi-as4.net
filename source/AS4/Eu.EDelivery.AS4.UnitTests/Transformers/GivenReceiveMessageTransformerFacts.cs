@@ -102,8 +102,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             var error = (Error) primaryMessageUnit;
 
             Assert.Equal(
-                ErrorAlias.ProcessingModeMismatch.ToString(), 
-                error.Errors.First().ShortDescription);
+                ErrorAlias.ProcessingModeMismatch, 
+                error.ErrorLines.First().ShortDescription);
         }
 
         [Theory]

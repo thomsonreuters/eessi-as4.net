@@ -58,7 +58,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
             Assert.NotNull(error);
             Assert.Equal("message-id", error.RefToMessageId);
-            Assert.Equal("EBMS:0005", error.Errors.First().ErrorCode);
+            Assert.Equal(ErrorCode.Ebms0005, error.ErrorLines.First().ErrorCode);
             Assert.Equal(sendPModeId, result.MessagingContext.SendingPMode.Id);
         }
 

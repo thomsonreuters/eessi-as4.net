@@ -106,7 +106,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
         {
             // Arrange
             const string referenceId = "payload id";
-            AS4Message message = AS4MessageWithUserMessage(referenceId);
+            AS4Message message = AS4MessageWithUserMessage(attachmentId: referenceId);
             var a = new Attachment(referenceId, Stream.Null, "text/plain") { Location = attachmentLocation };
             message.AddAttachment(a);
 
@@ -124,8 +124,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
         public async Task FailsToCreateDeliverMessage_IfInvalidDeliverMessage()
         {
             // Arrange
-            AS4Message as4Message = AS4MessageWithUserMessage();
-            as4Message.FirstUserMessage.MessageId = null;
+            AS4Message as4Message = AS4MessageWithUserMessage(messageId: null);
 
             // Act / Assert
             await Assert.ThrowsAnyAsync<Exception>(() => ExecuteStepWith(as4Message));
@@ -153,9 +152,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
             return result.MessagingContext.DeliverMessage;
         }
 
-        private static AS4Message AS4MessageWithUserMessage(string attachmentId = "attachment-uri")
+        private static AS4Message AS4MessageWithUserMessage(
+            string messageId = "message-id",
+            string attachmentId = "attachment-uri")
         {
-            var msg = AS4Message.Create(new FilledUserMessage(attachmentId: attachmentId));
+            var msg = AS4Message.Create(new FilledUserMessage(messageId, attachmentId: attachmentId));
             msg.AddAttachment(new FilledAttachment());
 
             return msg;

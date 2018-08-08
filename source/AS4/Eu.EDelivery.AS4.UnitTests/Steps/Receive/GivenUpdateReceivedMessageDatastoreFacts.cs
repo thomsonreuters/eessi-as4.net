@@ -2,7 +2,6 @@ using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Extensions;
@@ -99,10 +98,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 CreateOutMessage(ebmsMessageId),
                 withReceptionAwareness: false);
 
-            var error = new ErrorBuilder()
-                .WithErrorResult(new ErrorResult("Some Error", ErrorAlias.ConnectionFailure))
-                .WithRefToEbmsMessageId(ebmsMessageId)
-                .Build();
+            var error = Error.FromErrorResult(
+                ebmsMessageId, 
+                new ErrorResult("Some Error", ErrorAlias.ConnectionFailure));
 
             // Act
             await ExerciseUpdateReceivedMessage(
@@ -156,10 +154,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 CreateOutMessage(ebmsMessageId),
                 withReceptionAwareness: false);
 
-            var error = new ErrorBuilder()
-                .WithErrorResult(new ErrorResult("Some Error occured", ErrorAlias.ConnectionFailure))
-                .WithRefToEbmsMessageId(ebmsMessageId)
-                .Build();
+            var error = Error.FromErrorResult(
+                ebmsMessageId, 
+                new ErrorResult("Some Error occured", ErrorAlias.ConnectionFailure));
 
             SendingProcessingMode pmode = CreateNotifyAllSendingPMode();
             pmode.ErrorHandling.Reliability =

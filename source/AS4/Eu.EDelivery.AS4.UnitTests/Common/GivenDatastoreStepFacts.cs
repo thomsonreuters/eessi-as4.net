@@ -66,7 +66,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
         /// <returns></returns>
         protected Error CreateError()
         {
-            return new Error(ErrorMessageId) { RefToMessageId = ErrorMessageId };
+            return new Error(ErrorMessageId, ErrorMessageId);
         }
     }
 }

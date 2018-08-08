@@ -125,7 +125,6 @@
     <Compile Include="Agents\AgentConfig.cs" />
     <Compile Include="Agents\CleanUpAgent.cs" />
     <Compile Include="Agents\RetryAgent.cs" />
-    <Compile Include="Builders\Core\ErrorBuilder.cs" />
     <Compile Include="Builders\Entities\InMessageBuilder.cs" />
     <Compile Include="Builders\Entities\OutMessageBuilder.cs" />
     <Compile Include="Builders\GenericTypeBuilder.cs" />

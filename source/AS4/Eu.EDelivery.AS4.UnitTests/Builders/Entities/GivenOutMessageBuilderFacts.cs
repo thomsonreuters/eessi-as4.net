@@ -69,7 +69,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
             {
                 // Arrange
                 string messageId = Guid.NewGuid().ToString();
-                AS4Message as4Message = AS4Message.Create(new Error(messageId), ExpectedPMode());
+                AS4Message as4Message = AS4Message.Create(new Error(messageId, $"user-{Guid.NewGuid()}"), ExpectedPMode());
 
                 // Act
                 OutMessage outMessage = BuildForPrimaryMessageUnit(as4Message);

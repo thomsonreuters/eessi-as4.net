@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Exceptions;
@@ -90,38 +89,28 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             AS4Message referenced,
             ErrorResult result)
         {
-            AS4Message errorMessage = AS4Message.Create(sendPMode);
+            var routedUserMessage = 
+                AS4Mapper.Map<RoutingInputUserMessage>(referenced?.FirstUserMessage);
 
-            if (sendPMode != null)
+            Error ToError(UserMessage u)
             {
-                Logger.Debug(
-                    $"Use SendingPMode \"{sendPMode.Id}\" to creating the " + 
-                    $"{(errorMessage.IsMultiHopMessage ? "multihop ": String.Empty)}Error response");
-            }
-
-            errorMessage.SigningId = referenced.SigningId;
-
-            foreach (Error error in CreateErrorMessageUnits(result, referenced.UserMessages))
-            {
-                if (errorMessage.IsMultiHopMessage)
+                if (routedUserMessage == null)
                 {
-                    error.MultiHopRouting =
-                        AS4Mapper.Map<RoutingInputUserMessage>(referenced?.FirstUserMessage);
+                    return result == null 
+                        ? new Error(u.MessageId) 
+                        : new Error(u.MessageId, ErrorLine.FromErrorResult(result));
                 }
 
-                errorMessage.AddMessageUnit(error);
+                return result == null 
+                    ? new Error(u.MessageId, routedUserMessage) 
+                    : new Error(u.MessageId, ErrorLine.FromErrorResult(result), routedUserMessage);
             }
 
-            return errorMessage;
-        }
+            IEnumerable<Error> errors = referenced?.UserMessages.Select(ToError) ?? new Error[0];
+            AS4Message errorMessage = AS4Message.Create(errors, sendPMode);
+            errorMessage.SigningId = referenced?.SigningId;
 
-        private static IEnumerable<Error> CreateErrorMessageUnits(ErrorResult result, IEnumerable<UserMessage> userMessages)
-        {
-            return userMessages.Select(
-                m => new ErrorBuilder()
-                     .WithRefToEbmsMessageId(m.MessageId)
-                     .WithErrorResult(result)
-                     .Build());
+            return errorMessage;
         }
 
         private async Task CreateExceptionForReceivedSignalMessagesAsync(MessagingContext context)
