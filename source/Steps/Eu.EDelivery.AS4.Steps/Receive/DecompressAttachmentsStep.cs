@@ -43,7 +43,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
             if (messagingContext.AS4Message.HasAttachments == false)
             {
-                Logger.Debug("No decompression will happend because the AS4Message hasn't got any attachments to decompress");
+                Logger.Debug("No decompression will happen because the AS4Message hasn't got any attachments to decompress");
                 return StepResult.Success(messagingContext);
             }
 
