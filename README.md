@@ -2,21 +2,21 @@
 
 ## Introduction
 
-AS4.NET is an open-source application that implements the OASIS AS4 specification. It supports both the e-SENS e-Delivery and the EESSI AS4 Messaging profile as an ebMS endpoint.  
-Since version 3.0.0, AS4.NET can also act as an intermediary MSH (i-MSH) with message forwarding support and MEP bridging.
+AS4.<span/>NET is an open-source application that implements the OASIS AS4 specification. It supports both the e-SENS e-Delivery and the EESSI AS4 Messaging profile as an ebMS endpoint.  
+Since version 3.0.0, AS4.<span/>NET can also act as an intermediary MSH (i-MSH) with message forwarding support and MEP bridging.
  
 The component has been conformance tested against the e-SENS eDelivery specifications.  
 Testing against the EESSI AS4 Messaging Profile has also been conducted.
 
-AS4.NET is interoperable with multiple other AS4 gateway providers; AS4.NET has undergone performance and interop-tests against Holodeck B2B, RSSBus, Domibus, Flame Message Server and IBM B2B.
+AS4.<span/>NET is interoperable with multiple other AS4 gateway providers; AS4.<span/>NET has undergone performance and interop-tests against Holodeck B2B, RSSBus, Domibus, Flame Message Server and IBM B2B.
 
 ## Installation
 
-AS4.NET v3.1.0 can be downloaded from [the following location](https://ec.europa.eu/cefdigital/artifact/content/groups/public/eu/eessi/as4/eessi_as4.net/3.1.0/eessi_as4.net-3.1.0.zip). 
+AS4.<b/>NET v3.1.0 can be downloaded from [the following location](https://ec.europa.eu/cefdigital/artifact/repository/public/eu/eessi/as4/eessi_as4.net/3.1.0/eessi_as4.net-3.1.0.zip). 
 
 ## Documentation
 
-A configuration- and usermanual for AS4.NET can be found [online](https://ec.europa.eu/cefdigital/wiki/display/EDELCOMMUNITY/AS4.NET).
+A configuration- and usermanual for AS4.<span/>NET can be found [online](https://ec.europa.eu/cefdigital/wiki/display/EDELCOMMUNITY/AS4.NET).
 
 ## Features
 
@@ -60,7 +60,7 @@ A configuration- and usermanual for AS4.NET can be found [online](https://ec.eur
   
 - Intermediary MSH functionality with message forwarding including MEP bridging support (v3.0.0)
 - Static Submit support (v3.0.0)
-- Possibility to run the AS4.NET MSH as a Windows Service (v3.0.0)
+- Possibility to run the AS4.<span/>NET MSH as a Windows Service (v3.0.0)
 - Improved Dynamic Discovery implementation (v3.0.0)
 - Dynamic Forwarding support (v3.0.0)
 - Improved high availability support (v3.0.0)
@@ -78,7 +78,7 @@ A configuration- and usermanual for AS4.NET can be found [online](https://ec.eur
 - Improvements in the internal messaging engine (v3.1.0)
  
 ## Third Party software
-The following third party libraries are used by AS4.NET:
+The following third party libraries are used by AS4.<span/>NET:
 - [Automapper](https://github.com/AutoMapper/AutoMapper) ([MIT License](https://opensource.org/licenses/MIT))
 - [BouncyCastle](https://github.com/bcgit/bc-csharp) ([MIT License](https://opensource.org/licenses/MIT))
 - [FluentValidation](https://github.com/JeremySkinner/FluentValidation) ([Apache 2](http://www.apache.org/licenses/LICENSE-2.0.html))
