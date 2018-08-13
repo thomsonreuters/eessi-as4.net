@@ -54,6 +54,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         {
             if (messagingContext.AS4Message == null || messagingContext.AS4Message.IsEmpty)
             {
+                Logger.Debug("No SignalMessage available to send");
                 return StepResult.Success(messagingContext);
             }
 
@@ -101,11 +102,14 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         {
             if (Logger.IsInfoEnabled)
             {
-                string ConcatErrorDescriptions(Error err)
+                string ConcatErrorDescriptions(Error e)
                 {
-                    return err.Errors != null 
-                        ? String.Join(", ", err.Errors.Select(e => e.Detail)) 
-                        : String.Empty;
+                    if (e.ErrorLines != null)
+                    {
+                        return String.Join(", ", e.ErrorLines.Select(er => er.Detail).Choose(x => x));
+                    }
+
+                    return String.Empty;
                 }
 
                 string errorDescriptions =

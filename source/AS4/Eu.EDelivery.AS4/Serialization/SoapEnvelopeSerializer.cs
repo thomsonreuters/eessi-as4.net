@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
+using AutoMapper;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Resources;
@@ -109,7 +110,7 @@ namespace Eu.EDelivery.AS4.Serialization
 
         private static void SetMultiHopHeaders(SoapEnvelopeBuilder builder, AS4Message as4Message)
         {
-            if (as4Message.IsSignalMessage && as4Message.FirstSignalMessage.MultiHopRouting != null)
+            if (as4Message.IsSignalMessage && as4Message.FirstSignalMessage.IsMultihopSignal)
             {
                 var to = new To { Role = Constants.Namespaces.EbmsNextMsh };
                 builder.SetToHeader(to);
@@ -119,7 +120,7 @@ namespace Eu.EDelivery.AS4.Serialization
 
                 var routingInput = new RoutingInput
                 {
-                    UserMessage = as4Message.FirstSignalMessage.MultiHopRouting,
+                    UserMessage = as4Message.FirstSignalMessage.MultiHopRouting.UnsafeGet,
                     mustUnderstand = false,
                     mustUnderstandSpecified = true,
                     IsReferenceParameter = true,
@@ -168,21 +169,7 @@ namespace Eu.EDelivery.AS4.Serialization
                 throw new InvalidMessageException("The envelopeStream does not contain a Messaging element");
             }
 
-            AS4Message as4Message = AS4Message.Create(envelopeDocument, contentType, securityHeader, messagingHeader, body);
-
-            XmlNode routingInput = envelopeDocument.SelectSingleNode(@"//*[local-name()='RoutingInput']");
-
-            if (routingInput != null)
-            {
-                var routing = await AS4XmlSerializer.FromStringAsync<RoutingInput>(routingInput.OuterXml);
-                if (routing != null)
-                {
-                    if (as4Message.FirstSignalMessage != null)
-                    {
-                        as4Message.FirstSignalMessage.MultiHopRouting = routing.UserMessage;
-                    }
-                }
-            }
+            AS4Message as4Message = await AS4Message.CreateAsync(envelopeDocument, contentType, securityHeader, messagingHeader, body);
 
             StreamUtilities.MovePositionToStreamStart(envelopeStream);
 
@@ -265,7 +252,9 @@ namespace Eu.EDelivery.AS4.Serialization
             return result as Messaging;
         }
         
-        internal static IEnumerable<MessageUnit> GetMessageUnitsFromMessagingHeader(XmlDocument envelopeDocument, Messaging messagingHeader)
+        internal static async Task<IEnumerable<MessageUnit>> GetMessageUnitsFromMessagingHeader(
+            XmlDocument envelopeDocument, 
+            Messaging messagingHeader)
         {
             IEnumerable<string> messageUnitTagNames = envelopeDocument.SelectSingleNode(
                 "/s:Envelope/s:Header/eb3:Messaging", 
@@ -276,31 +265,58 @@ namespace Eu.EDelivery.AS4.Serialization
 
             if (messageUnitTagNames == null)
             {
-                yield break;
+                return Enumerable.Empty<MessageUnit>();
             }
 
             var signals = new Queue<Xml.SignalMessage>(messagingHeader.SignalMessage ?? new Xml.SignalMessage[0]);
             var users = new Queue<Xml.UserMessage>(messagingHeader.UserMessage ?? new Xml.UserMessage[0]);
 
-            foreach (string messageUnitTagName in messageUnitTagNames)
-            {
-                if (messageUnitTagName.Equals("UserMessage", StringComparison.OrdinalIgnoreCase))
-                {
-                    yield return AS4Mapper.Map<UserMessage>(users.Dequeue());
-                }
+            Maybe<RoutingInputUserMessage> routing = await GetRoutingUserMessageFromXml(envelopeDocument);
 
-                if (messageUnitTagName.Equals("SignalMessage", StringComparison.OrdinalIgnoreCase))
+            IEnumerable<MessageUnit> DeserializeMessageUnits()
+            {
+                foreach (string messageUnitTagName in messageUnitTagNames)
                 {
-                    yield return ConvertFromXml(signals.Dequeue());
+                    if (messageUnitTagName.Equals("UserMessage", StringComparison.OrdinalIgnoreCase))
+                    {
+                        yield return AS4Mapper.Map<UserMessage>(users.Dequeue());
+                    }
+
+                    if (messageUnitTagName.Equals("SignalMessage", StringComparison.OrdinalIgnoreCase))
+                    {
+                        yield return ConvertFromXml(signals.Dequeue(), routing);
+                    }
                 }
             }
+
+            return DeserializeMessageUnits();
         }
 
-        private static SignalMessage ConvertFromXml(Xml.SignalMessage signalMessage)
+        private static async Task<Maybe<RoutingInputUserMessage>> GetRoutingUserMessageFromXml(XmlDocument envelopeDocument)
         {
+            XmlNode routingInputTag = envelopeDocument.SelectSingleNode(@"//*[local-name()='RoutingInput']");
+            if (routingInputTag != null)
+            {
+                var routingInput = await AS4XmlSerializer.FromStringAsync<RoutingInput>(routingInputTag.OuterXml);
+                if (routingInput != null && routingInput.UserMessage != null)
+                {
+                    return Maybe.Just(routingInput.UserMessage);
+                }
+            }
+
+            return Maybe<RoutingInputUserMessage>.Nothing;
+        }
+
+        private static SignalMessage ConvertFromXml(Xml.SignalMessage signalMessage, Maybe<RoutingInputUserMessage> routing)
+        {
+            void AddRouting(IMappingOperationOptions opts)
+            {
+                routing.Do(r => opts.Items.Add(SignalMessage.RoutingInputKey, r));
+            }
+
             if (signalMessage.Error != null)
             {
-                return AS4Mapper.Map<Error>(signalMessage);
+                return AS4Mapper.Map<Error>(signalMessage, AddRouting);
             }
 
             if (signalMessage.PullRequest != null)
@@ -310,7 +326,7 @@ namespace Eu.EDelivery.AS4.Serialization
 
             if (signalMessage.Receipt != null)
             {
-                return AS4Mapper.Map<Receipt>(signalMessage);
+                return AS4Mapper.Map<Receipt>(signalMessage, AddRouting);
             }
 
             throw new NotSupportedException("Unable to map Xml.SignalMessage to SignalMessage");

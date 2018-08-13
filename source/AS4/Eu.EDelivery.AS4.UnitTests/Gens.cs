@@ -1,4 +1,5 @@
 ﻿using System;
+using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.UnitTests.Model;
 using FsCheck;
@@ -25,7 +26,11 @@ namespace Eu.EDelivery.AS4.UnitTests
             return Gen.Elements<SignalMessage>(
                           new Receipt($"ref-to-user-{Guid.NewGuid()}"), 
                           new FilledNRReceipt(), 
-                          new Error())
+                          new Error(
+                              $"error-{Guid.NewGuid()}", 
+                              $"user-{Guid.NewGuid()}", 
+                              ErrorLine.FromErrorResult(
+                                  new ErrorResult($"desc-{Guid.NewGuid()}", ErrorAlias.Other))))
                       .ToArbitrary();
         }
 

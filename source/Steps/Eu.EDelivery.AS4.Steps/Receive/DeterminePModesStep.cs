@@ -55,6 +55,11 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
             AS4Message as4Message = messagingContext.AS4Message;
+            if (as4Message == null)
+            {
+                throw new InvalidOperationException(
+                    $"{nameof(DeterminePModesStep)} requires an AS4Message but no AS4Message is present in the MessagingContext");
+            }
 
             if (as4Message.SignalMessages.Any(s => !(s is Model.Core.PullRequest)))
             {
@@ -86,7 +91,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                     + "this happens when the Receive Agent is configured as a \"Static Receive Agent\"");
             }
             else if (as4Message.HasUserMessage
-                    || as4Message.SignalMessages.Any(s => s.MultiHopRouting != null))
+                    || as4Message.SignalMessages.Any(s => s.IsMultihopSignal))
             {
                 Logger.Trace("Incoming message hasn't yet a ReceivingPMode, will determine one");
 
@@ -153,12 +158,12 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 "Incoming message is a Multi-Hop SignalMessage, " +
                 "so the embeded Multi-Hop UserMessage will be used to match the right Receiving PMode");
 
-            RoutingInputUserMessage routedUserMessage =
-                as4Message.SignalMessages.FirstOrDefault(s => s.MultiHopRouting != null)?.MultiHopRouting;
+            Maybe<RoutingInputUserMessage> routedUserMessageM =
+                as4Message.SignalMessages.FirstOrDefault(s => s.IsMultihopSignal)?.MultiHopRouting;
 
-            if (routedUserMessage != null)
+            if (routedUserMessageM != null)
             {
-                return AS4Mapper.Map<UserMessage>(routedUserMessage);
+                return AS4Mapper.Map<UserMessage>(routedUserMessageM.UnsafeGet);
             }
 
             throw new InvalidOperationException(

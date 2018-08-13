@@ -64,7 +64,7 @@ namespace AS4.ParserService.Models
             };
         }
 
-        public static DecodeResult CreateAccepted(EbmsMessageType messageType, string receivedEbmsMessageId, IEnumerable<ErrorDetail> receivedErrorDetails)
+        public static DecodeResult CreateAccepted(EbmsMessageType messageType, string receivedEbmsMessageId, IEnumerable<ErrorLine> receivedErrorDetails)
         {
             string receivedErrorInformation = null;
             if (receivedErrorDetails != null && receivedErrorDetails.Any())
@@ -97,7 +97,7 @@ namespace AS4.ParserService.Models
             };
         }
 
-        public static DecodeResult CreateWithError(byte[] responseMessage, IEnumerable<ErrorDetail> errorDetails, string receivedEbmsMessageId, string errorEbmsMessageId)
+        public static DecodeResult CreateWithError(byte[] responseMessage, IEnumerable<ErrorLine> errorDetails, string receivedEbmsMessageId, string errorEbmsMessageId)
         {
             return new DecodeResult()
             {
@@ -112,7 +112,7 @@ namespace AS4.ParserService.Models
             };
         }
 
-        private static string CreateErrorInformationString(IEnumerable<ErrorDetail> receivedErrorDetails)
+        private static string CreateErrorInformationString(IEnumerable<ErrorLine> receivedErrorDetails)
         {
             if (receivedErrorDetails == null || receivedErrorDetails.Any() == false)
             {

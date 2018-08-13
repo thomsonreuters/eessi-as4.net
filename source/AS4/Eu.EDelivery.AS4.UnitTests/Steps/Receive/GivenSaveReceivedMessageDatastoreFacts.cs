@@ -261,7 +261,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
         private static UserMessage CreateUserMessage()
         {
             string userMessageId = Guid.NewGuid().ToString();
-            return new UserMessage(userMessageId) { RefToMessageId = userMessageId };
+            return new UserMessage(userMessageId);
         }
 
         protected MessagingContext CreateReceivedMessagingContext(AS4Message as4Message, ReceivingProcessingMode receivingPMode)

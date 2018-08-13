@@ -171,7 +171,7 @@ namespace Eu.EDelivery.AS4.Entities
                 if (messageUnit is SignalMessage signalMessage)
                 {
                     IsDuplicate = signalMessage.IsDuplicate;
-                    Mpc = signalMessage.MultiHopRouting?.mpc ?? Constants.Namespaces.EbmsDefaultMpc;
+                    Mpc = signalMessage.MultiHopRouting.Select(r => r.mpc).GetOrElse(Constants.Namespaces.EbmsDefaultMpc);
                 }
             }
         }

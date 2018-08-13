@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Exceptions;
+using Eu.EDelivery.AS4.Factories;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.Notify;
@@ -77,12 +77,9 @@ namespace Eu.EDelivery.AS4.Transformers
 
         private static Error CreateSignalErrorMessage(ExceptionEntity exceptionEntity)
         {
-            var errorResult = new ErrorResult(exceptionEntity.Exception, ErrorAlias.Other);
-
-            return new ErrorBuilder()
-                .WithRefToEbmsMessageId(exceptionEntity.EbmsRefToMessageId)
-                .WithErrorResult(errorResult)
-                .Build();
+            return Error.FromErrorResult(
+                exceptionEntity.EbmsRefToMessageId ?? IdentifierFactory.Instance.Create(), 
+                new ErrorResult(exceptionEntity.Exception, ErrorAlias.Other));
         }
 
         private static Task<T> GetPMode<T>(string pmode) where T : class

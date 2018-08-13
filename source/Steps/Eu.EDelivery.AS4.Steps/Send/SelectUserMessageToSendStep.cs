@@ -60,12 +60,12 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
-            var pullRequest = messagingContext.AS4Message.FirstSignalMessage as PullRequest;
+            var pullRequest = messagingContext?.AS4Message?.FirstSignalMessage as PullRequest;
             if (pullRequest == null)
             {
                 throw new InvalidMessageException(
-                    "(PullReceive) The received message is not a PullRequest message, " +
-                    "so no UserMessage can be selected to return to the sender");
+                    "The received message is not a PullRequest message, " +
+                    "therefore no UserMessage can be selected to return to the sender");
             }
 
             (bool hasMatch, OutMessage match) = RetrieveUserMessageForPullRequest(pullRequest);

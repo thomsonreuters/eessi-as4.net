@@ -9,7 +9,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
-using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.ComponentTests.Common;
 using Eu.EDelivery.AS4.ComponentTests.Extensions;
@@ -109,7 +108,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             Assert.True(e != null, "Primary Message Unit should be an 'Error'");
             Assert.Equal(
                 ErrorAlias.ProcessingModeMismatch,
-                e.Errors.First().ShortDescription.ToEnum<ErrorAlias>());
+                e.ErrorLines.First().ShortDescription);
         }
 
         [Fact]
@@ -161,8 +160,8 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             var errorMsg = result.FirstSignalMessage as Error;
             Assert.NotNull(errorMsg);
             Assert.Collection(
-                errorMsg.Errors, 
-                e => Assert.Equal($"EBMS:{(int)ErrorCode.Ebms0010:0000}", e.ErrorCode));
+                errorMsg.ErrorLines, 
+                e => Assert.Equal(ErrorCode.Ebms0010, e.ErrorCode));
 
             InMessage inMessageRecord = _databaseSpy.GetInMessageFor(m => m.EbmsMessageId == messageId);
             Assert.Equal(InStatus.Received, inMessageRecord.Status.ToEnum<InStatus>());
@@ -201,7 +200,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
             var errorMessage = result.FirstSignalMessage as Error;
             Assert.NotNull(errorMessage);
-            Assert.Equal("EBMS:0102", errorMessage.Errors.First().ErrorCode);
+            Assert.Equal(ErrorCode.Ebms0102, errorMessage.ErrorLines.First().ErrorCode);
         }
 
         private static AS4Message CreateAS4MessageWithAttachment(UserMessage msg)
@@ -642,8 +641,10 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         [Fact]
         public async Task CanReceiveErrorSignalWithoutRefToMessageId()
         {
-            var errorMessage = new ErrorBuilder().WithErrorResult(new ErrorResult("An Error occurred", ErrorAlias.NonApplicable)).Build();
-            var as4Message = AS4Message.Create(errorMessage);
+            var as4Message = AS4Message.Create(
+                Error.FromErrorResult(
+                    refToMessageId: null,
+                    result: new ErrorResult("An Error occurred", ErrorAlias.NonApplicable)));
 
             string id = as4Message.GetPrimaryMessageId();
 
@@ -703,7 +704,11 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                 }
             };
 
-            return new Receipt(refToMessageId, routedUserMessage);
+            return new Receipt(
+                messageId: $"receipt-{Guid.NewGuid()}",
+                refToMessageId: refToMessageId,
+                timestamp: DateTimeOffset.Now,
+                routing: routedUserMessage);
         }
 
         private void StoreToBeAckOutMessage(string messageId, SendingProcessingMode sendingPMode)
@@ -778,8 +783,9 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
         private static AS4Message CreateAS4ErrorMessage(string refToMessageId)
         {
-            var result = new ErrorResult("An error occurred", ErrorAlias.NonApplicable);
-            Error error = new ErrorBuilder().WithRefToEbmsMessageId(refToMessageId).WithErrorResult(result).Build();
+            Error error = Error.FromErrorResult(
+                refToMessageId, 
+                new ErrorResult("An error occurred", ErrorAlias.NonApplicable));
 
             return AS4Message.Create(error, CreateSendingPMode());
         }

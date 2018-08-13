@@ -83,6 +83,7 @@ namespace Eu.EDelivery.AS4.TestUtils.Stubs
 
                 if (result == ServerLifetime.Stop)
                 {
+                    Thread.Sleep(TimeSpan.FromSeconds(1));
                     onStop?.Set();
                     server.Stop();
                 }
@@ -100,22 +101,29 @@ namespace Eu.EDelivery.AS4.TestUtils.Stubs
             HttpStatusCode secondAttempt,
             ManualResetEvent onSecondAttempt)
         {
-            var currentRetryCount = 0;
+            Console.WriteLine(@"Second HTTP Status Code: " + secondAttempt);
+            var first = true;
             StartServerLifetime(
                 url,
                 r =>
                 {
-                    if (++currentRetryCount >= 2)
+                    r.StatusCode = (int)secondAttempt;
+
+                    if (first)
                     {
-                        r.StatusCode = (int) secondAttempt;
+                        Console.WriteLine(@"First attempt: first=" + first);
+
+                        first = false;
+                        r.StatusCode = 500;
+                        r.OutputStream.WriteByte(0);
                         r.OutputStream.Dispose();
-                        return ServerLifetime.Stop;
+                        return ServerLifetime.Continue;
                     }
 
-                    r.StatusCode = 500;
-                    r.OutputStream.WriteByte(0);
+                    Console.WriteLine(@"Second attempt: first=" + first);
+                    Console.WriteLine(@"Second attempt: HTTP Status Code=" + r.StatusCode);
                     r.OutputStream.Dispose();
-                    return ServerLifetime.Continue;
+                    return ServerLifetime.Stop;
                 },
                 onSecondAttempt);
         }

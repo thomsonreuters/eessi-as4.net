@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Xml;
 using System.Xml.Serialization;
@@ -9,6 +10,9 @@ namespace Eu.EDelivery.AS4.Mappings.Core
 {
     public class ReceiptMap : Profile
     {
+        private static readonly XmlSerializer NonRepudiationSerializer = 
+            new XmlSerializer(typeof(Xml.NonRepudiationInformation));
+
         public ReceiptMap()
         {
             CreateMap<Model.Core.Receipt, Xml.SignalMessage>()
@@ -22,52 +26,81 @@ namespace Eu.EDelivery.AS4.Mappings.Core
                .ForAllOtherMembers(x => x.Ignore());
 
             CreateMap<Xml.SignalMessage, Model.Core.Receipt>()
-                .ConstructUsing(xml =>
+                .ConstructUsing((xml, ctx) =>
                 {
-                    var timestamp = xml.MessageInfo?.Timestamp ?? default(DateTimeOffset);
-                    XmlElement firstNrrElement = xml.Receipt.Any?.FirstOrDefault();
+                    string messageId = xml.MessageInfo?.MessageId;
+                    string refToMessageId = xml.MessageInfo?.RefToMessageId;
+                    DateTimeOffset timestamp = xml.MessageInfo?.Timestamp ?? default(DateTimeOffset);
 
-                    if (firstNrrElement != null
-                        && firstNrrElement.LocalName.IndexOf(
-                            "NonRepudiationInformation",
-                            StringComparison.OrdinalIgnoreCase) > -1)
-                    {
-                        var serializer = new XmlSerializer(typeof(Model.Core.NonRepudiationInformation));
-                        object deserialize = serializer.Deserialize(new XmlNodeReader(firstNrrElement));
-                        var nonRepudiation = AS4Mapper.Map<Model.Core.NonRepudiationInformation>(deserialize);
+                    Maybe<Xml.RoutingInputUserMessage> routingM = GetRoutingFromMapperOptions(ctx.Items);
+                    Maybe<Model.Core.NonRepudiationInformation> nriM = GetNonRepudiationFromXml(xml.Receipt);
+                    Maybe<Model.Core.UserMessage> userM = GetUserMessageFromXml(xml.Receipt);
 
-                        return new Model.Core.Receipt(
-                                xml.MessageInfo?.MessageId,
-                                xml.MessageInfo?.RefToMessageId,
-                                timestamp,
-                                nonRepudiation);
-                    }
+                    var routingNriReceiptM = 
+                        routingM.Zip(nriM, (routing, nri) => new Model.Core.Receipt(messageId, refToMessageId, timestamp, nri, routing));
 
-                    if (xml.Receipt.NonRepudiationInformation != null)
-                    {
-                        return new Model.Core.Receipt(
-                                xml.MessageInfo?.MessageId,
-                                xml.MessageInfo?.RefToMessageId,
-                                timestamp,
-                                AS4Mapper.Map<Model.Core.NonRepudiationInformation>(
-                                    xml.Receipt.NonRepudiationInformation));
-                    }
+                    var routingUserReceiptM = 
+                        routingM.Zip(userM, (routing, user) => new Model.Core.Receipt(messageId, refToMessageId, timestamp, user, routing));
 
-                    if (xml.Receipt.UserMessage != null)
-                    {
-                        return new Model.Core.Receipt(
-                            xml.MessageInfo?.MessageId,
-                            xml.MessageInfo?.RefToMessageId,
-                            timestamp,
-                            AS4Mapper.Map<Model.Core.UserMessage>(xml.Receipt.UserMessage)); 
-                    }
+                    var routingReceipt = routingM.Select(routing => new Model.Core.Receipt(messageId, refToMessageId, timestamp, routing));
+                    var nriReceipt = nriM.Select(nri => new Model.Core.Receipt(messageId, refToMessageId, timestamp, nri));
+                    var userReceipt = userM.Select(user => new Model.Core.Receipt(messageId, refToMessageId, timestamp, user));
 
-                    return new Model.Core.Receipt(
-                        xml.MessageInfo?.MessageId,
-                        xml.MessageInfo?.RefToMessageId,
-                        timestamp);
+                    return routingNriReceiptM
+                        .OrElse(routingUserReceiptM)
+                        .OrElse(routingReceipt)
+                        .OrElse(nriReceipt)
+                        .OrElse(userReceipt)
+                        .GetOrElse(() => new Model.Core.Receipt(messageId, refToMessageId, timestamp));
 
                 }).ForAllOtherMembers(t => t.Ignore());
+        }
+
+        private static Maybe<Model.Core.NonRepudiationInformation> GetNonRepudiationFromXml(Xml.Receipt r)
+        {
+            XmlElement firstNrrElement = r.Any?.FirstOrDefault();
+
+            if (firstNrrElement != null
+                && firstNrrElement.LocalName.IndexOf(
+                    "NonRepudiationInformation",
+                    StringComparison.OrdinalIgnoreCase) > -1)
+            {
+                object deserialize = NonRepudiationSerializer.Deserialize(new XmlNodeReader(firstNrrElement));
+                var nonRepudiation = AS4Mapper.Map<Model.Core.NonRepudiationInformation>(deserialize);
+                return Maybe.Just(nonRepudiation);
+            }
+
+            if (r.NonRepudiationInformation != null)
+            {
+                var nonRepudiation = AS4Mapper.Map<Model.Core.NonRepudiationInformation>(
+                    r.NonRepudiationInformation);
+                
+                return Maybe.Just(nonRepudiation);
+            }
+
+            return Maybe<Model.Core.NonRepudiationInformation>.Nothing;
+        }
+
+        private static Maybe<Model.Core.UserMessage> GetUserMessageFromXml(Xml.Receipt r)
+        {
+            if (r.UserMessage == null)
+            {
+                return Maybe.Nothing<Model.Core.UserMessage>();
+            }
+
+            var userMessage = AS4Mapper.Map<Model.Core.UserMessage>(r.UserMessage);
+            return Maybe.Just(userMessage);
+        }
+
+        private static Maybe<Xml.RoutingInputUserMessage> GetRoutingFromMapperOptions(IDictionary<string, object> options)
+        {
+            if (options.TryGetValue(Model.Core.SignalMessage.RoutingInputKey, out object value))
+            {
+                var routing = (Xml.RoutingInputUserMessage) value;
+                return Maybe.Just(routing);
+            }
+
+            return Maybe.Nothing<Xml.RoutingInputUserMessage>();
         }
     }
 }

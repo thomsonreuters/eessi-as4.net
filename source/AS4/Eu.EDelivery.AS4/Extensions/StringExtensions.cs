@@ -24,9 +24,12 @@ namespace Eu.EDelivery.AS4.Extensions
             return defaulTimeSpan;
         }
 
-        public static T ToEnum<T>(this string x) where T : struct, IConvertible
+        public static T ToEnum<T>(this string x, T defaultValue = default(T)) where T : struct, IConvertible
         {
-            return (T) Enum.Parse(typeof(T), x, ignoreCase: true);
+            return x != null 
+                   && Enum.TryParse(x, ignoreCase: true, result: out T output)
+                ? output
+                : defaultValue;
         }
     }
 }

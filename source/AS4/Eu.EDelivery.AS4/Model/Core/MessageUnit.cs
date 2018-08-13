@@ -8,11 +8,11 @@ namespace Eu.EDelivery.AS4.Model.Core
     /// </summary>
     public abstract class MessageUnit : IEquatable<MessageUnit>
     {
-        public DateTimeOffset Timestamp { get; set; }
+        public DateTimeOffset Timestamp { get; }
 
-        public string MessageId { get; set; }
+        public string MessageId { get; }
 
-        public string RefToMessageId { get; set; }
+        public string RefToMessageId { get; }
        
         protected MessageUnit() : this(IdentifierFactory.Instance.Create()) { }
 

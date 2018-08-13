@@ -43,6 +43,11 @@ namespace Eu.EDelivery.AS4.Exceptions
 
     internal static class ErrorCodeUtils
     {
+        public static string GetString(this ErrorCode errorCode)
+        {
+            return $"EBMS:{(int) errorCode:0000}";
+        }
+
         public static string GetCategory(ErrorCode errorCode)
         {
             switch (errorCode)

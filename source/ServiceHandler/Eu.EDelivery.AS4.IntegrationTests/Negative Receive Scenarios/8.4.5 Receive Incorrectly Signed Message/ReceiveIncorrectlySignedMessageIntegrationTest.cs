@@ -35,14 +35,14 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Negative_Receive_Scenarios._8._4._5_
             var error = as4Message.PrimaryMessageUnit as Error;
             Assert.NotNull(error);
 
-            Assert.NotEmpty(error.Errors);
+            Assert.NotEmpty(error.ErrorLines);
             AssertErrorCode(error);
         }
 
         private static void AssertErrorCode(Error error)
         {
-            string errorCode = error.Errors.First().ErrorCode;
-            Assert.Equal($"EBMS:{(int)ErrorCode.Ebms0101:0000}", errorCode);
+            ErrorCode errorCode = error.ErrorLines.First().ErrorCode;
+            Assert.Equal(ErrorCode.Ebms0101, errorCode);
         }
     }
 }

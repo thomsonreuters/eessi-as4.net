@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Net;
 using System.Text;
 using System.Threading;
@@ -91,7 +92,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
             public async Task ThenNextHandlerGetsTheResponse_IfAS4MessageIsReceived()
             {
                 // Arrange
-                AS4Message as4Message = AS4Message.Create(new Error());
+                AS4Message as4Message = AS4Message.Create(new Error($"user-{Guid.NewGuid()}"));
                 IAS4Response as4Response = CreateAS4ResponseWithResultedMessage(as4Message);
 
                 var spyHandler = new SpyAS4ResponseHandler();
@@ -181,7 +182,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
             public async Task ThenHandlerReturnsStoppedExecutionStepResult()
             {
                 // Arrange
-                IAS4Response stubAS4Response = CreateResponseWith(request: new PullRequest(null), response: new PullRequestError());
+                IAS4Response stubAS4Response = CreateResponseWith(request: new PullRequest(null), response: new PullRequestError($"pull-{Guid.NewGuid()}"));
                 var handler = new PullRequestResponseHandler(CreateAnonymousNextHandler());
 
                 // Act
