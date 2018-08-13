@@ -177,30 +177,6 @@ namespace Eu.EDelivery.AS4.Repositories
 
         #endregion
 
-        #region ReceptionAwareness Functionality
-
-        /// <summary>
-        /// Inserts the reception awareness.
-        /// </summary>
-        /// <param name="receptionAwareness">The reception awareness.</param>
-        void InsertReceptionAwareness(ReceptionAwareness receptionAwareness);
-
-        /// <summary>
-        /// Updates the reception awareness.
-        /// </summary>
-        /// <param name="receptionAwarenessId">The Id that uniquely identifies the ReceptionAwareness record.</param>
-        /// <param name="updateAction">The update action.</param>
-        void UpdateReceptionAwareness(long receptionAwarenessId, Action<ReceptionAwareness> updateAction);
-
-        /// <summary>
-        /// Retrieves the ReceptionAwareness instance for the specified <paramref name="outMessageId"/>
-        /// </summary>
-        /// <param name="outMessageId">The unique OutMessage identifier.</param>
-        /// <returns></returns>        
-        ReceptionAwareness GetReceptionAwarenessForOutMessage(long outMessageId);
-
-        #endregion
-
         #region RetryReliability related functionality
 
         /// <summary>

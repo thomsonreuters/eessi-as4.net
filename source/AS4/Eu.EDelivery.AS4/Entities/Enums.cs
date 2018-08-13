@@ -1,7 +1,4 @@
-﻿using System;
-using Eu.EDelivery.AS4.Extensions;
-
-namespace Eu.EDelivery.AS4.Entities
+﻿namespace Eu.EDelivery.AS4.Entities
 {
     /// <summary>
     /// The operation field is used to control the interaction between the different asynchronous agents
@@ -74,14 +71,5 @@ namespace Eu.EDelivery.AS4.Entities
         Exception,
         Created,
         Notified
-    }
-
-    public enum Entities
-    {
-        OutMessage,
-        InMessage,
-        OutException,
-        InException,
-        ReceptionAwareness
     }
 }

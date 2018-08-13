@@ -6,7 +6,6 @@ using System.Linq.Expressions;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using NLog;
-using ReceptionAwareness = Eu.EDelivery.AS4.Entities.ReceptionAwareness;
 
 namespace Eu.EDelivery.AS4.Repositories
 {
@@ -335,31 +334,6 @@ namespace Eu.EDelivery.AS4.Repositories
                 msg.ModificationTime = DateTimeOffset.Now;
             }
         }
-
-        #endregion
-
-        #region Reception Awareness related functionality
-
-        /// <summary>
-        /// Insert a given <see cref="ReceptionAwareness"/> into the Data store.
-        /// </summary>
-        /// <param name="receptionAwareness"></param>
-        [Obsolete("The ReceptionAwareness is now implemented as a part of the RetryAgent instead of a separate one.")]
-        public void InsertReceptionAwareness(ReceptionAwareness receptionAwareness) { }
-
-        [Obsolete("The ReceptionAwareness is now implemented as a part of the RetryAgent instead of a separate one.")]
-        public ReceptionAwareness GetReceptionAwarenessForOutMessage(long outMessageId)
-        {
-            return null;
-        }
-
-        /// <summary>
-        /// Update a found <see cref="ReceptionAwareness"/> in the Data store.
-        /// </summary>
-        /// <param name="receptionAwarenessId">The Id that uniquely identifies the ReceptionAwareness record.</param>
-        /// <param name="updateAction"></param>
-        [Obsolete("The ReceptionAwareness is now implemented as a part of the RetryAgent instead of a separate one.")]
-        public void UpdateReceptionAwareness(long receptionAwarenessId, Action<ReceptionAwareness> updateAction) { }
 
         #endregion
 

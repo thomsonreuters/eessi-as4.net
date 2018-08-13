@@ -6,7 +6,6 @@ using Eu.EDelivery.AS4.Steps.Deliver;
 using Eu.EDelivery.AS4.Steps.Forward;
 using Eu.EDelivery.AS4.Steps.Notify;
 using Eu.EDelivery.AS4.Steps.Receive;
-using Eu.EDelivery.AS4.Steps.ReceptionAwareness;
 using Eu.EDelivery.AS4.Steps.Send;
 using Eu.EDelivery.AS4.Steps.Submit;
 

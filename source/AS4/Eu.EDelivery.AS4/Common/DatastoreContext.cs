@@ -149,11 +149,11 @@ namespace Eu.EDelivery.AS4.Common
 
         public DbSet<OutException> OutExceptions { get; set; }
 
-        public DbSet<ReceptionAwareness> ReceptionAwareness { get; set; }
-
         public DbSet<SmpConfiguration> SmpConfigurations { get; set; }
 
         public DbSet<RetryReliability> RetryReliability { get; set; }
+
+        public DbSet<Journal> Journal { get; set; }
 
         public IAS4DbCommand NativeCommands { get; private set; }
 
@@ -293,14 +293,6 @@ namespace Eu.EDelivery.AS4.Common
             modelBuilder.Entity<OutException>().Property(oe => oe.Exception).UsePropertyAccessMode(PropertyAccessMode.Field);
             modelBuilder.Entity<OutException>().Property(oe => oe.PMode).UsePropertyAccessMode(PropertyAccessMode.Field);
             modelBuilder.Entity<OutException>().Property(oe => oe.PModeId).UsePropertyAccessMode(PropertyAccessMode.Field);
-
-            modelBuilder.Entity<ReceptionAwareness>().HasKey(r => r.Id).HasName("PK_ReceptionAwareness");
-            modelBuilder.Entity<ReceptionAwareness>().Property(r => r.Id).UseSqlServerIdentityColumn();
-            modelBuilder.Entity<ReceptionAwareness>().Property(r => r.Status)
-                        .HasConversion<string>()
-                        .UsePropertyAccessMode(PropertyAccessMode.Field);
-            modelBuilder.Entity<ReceptionAwareness>().HasAlternateKey(r => r.RefToOutMessageId).HasName("AK_ReceptionAwareness_RefToOutMessageId");
-            modelBuilder.Entity<ReceptionAwareness>().HasIndex(r => new { r.Status, r.CurrentRetryCount }).HasName("IX_ReceptionAwareness_Status_CurrentRetryCount");
 
             modelBuilder.Entity<SmpConfiguration>().HasKey(sc => sc.Id).HasName("PK_SmpConfigurations");
             modelBuilder.Entity<SmpConfiguration>().Property(sc => sc.Id).UseSqlServerIdentityColumn();

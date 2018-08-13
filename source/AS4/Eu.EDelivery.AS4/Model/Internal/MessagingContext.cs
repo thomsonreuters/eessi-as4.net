@@ -9,7 +9,6 @@ using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Model.Submit;
 using Eu.EDelivery.AS4.Serialization;
 using NLog;
-using ReceptionAwareness = Eu.EDelivery.AS4.Entities.ReceptionAwareness;
 
 namespace Eu.EDelivery.AS4.Model.Internal
 {
@@ -110,16 +109,6 @@ namespace Eu.EDelivery.AS4.Model.Internal
             Mode = MessagingContextMode.Unknown;
         }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="MessagingContext" /> class.
-        /// </summary>
-        /// <param name="awareness">The awareness.</param>
-        public MessagingContext(ReceptionAwareness awareness)
-        {
-            ReceptionAwareness = awareness;
-            Mode = MessagingContextMode.Unknown;
-        }
-
         public long? MessageEntityId { get; }
 
         /// <summary>
@@ -175,8 +164,6 @@ namespace Eu.EDelivery.AS4.Model.Internal
         public DeliverMessageEnvelope DeliverMessage { get; private set; }
 
         public NotifyMessageEnvelope NotifyMessage { get; private set; }
-
-        public ReceptionAwareness ReceptionAwareness { get; }
 
         public MessagingContextMode Mode { get; private set; }
 
