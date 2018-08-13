@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="15.0" 
+  xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -92,11 +93,11 @@
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\AS4\Eu.EDelivery.AS4\Eu.EDelivery.AS4.csproj">
+    <ProjectReference Include="..\Eu.EDelivery.AS4\Eu.EDelivery.AS4.csproj">
       <Project>{8b0ba38f-c3f7-46c1-9e68-a7291c7b16b1}</Project>
       <Name>Eu.EDelivery.AS4</Name>
     </ProjectReference>
-    <ProjectReference Include="..\ConsoleHost\Eu.EDelivery.AS4.ServiceHandler.ConsoleHost\Eu.EDelivery.AS4.ServiceHandler.ConsoleHost.csproj">
+    <ProjectReference Include="..\Eu.EDelivery.AS4.ServiceHandler.ConsoleHost\Eu.EDelivery.AS4.ServiceHandler.ConsoleHost.csproj">
       <Project>{61d31a15-4a46-435b-a939-f30a5284d96c}</Project>
       <Name>Eu.EDelivery.AS4.ServiceHandler.ConsoleHost</Name>
     </ProjectReference>
@@ -104,11 +105,11 @@
       <Project>{243cfd29-bb90-4a9e-9dd8-3c0228c845ed}</Project>
       <Name>Eu.EDelivery.AS4.TestUtils</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Receivers\Eu.EDelivery.AS4.Receivers\Eu.EDelivery.AS4.Receivers.csproj">
+    <ProjectReference Include="..\Eu.EDelivery.AS4.Receivers\Eu.EDelivery.AS4.Receivers.csproj">
       <Project>{b0be265a-8190-415c-8e46-2b85fe6bdbe7}</Project>
       <Name>Eu.EDelivery.AS4.Receivers</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Steps\Eu.EDelivery.AS4.Steps\Eu.EDelivery.AS4.Steps.csproj">
+    <ProjectReference Include="..\Eu.EDelivery.AS4.Steps\Eu.EDelivery.AS4.Steps.csproj">
       <Project>{9208D4FA-018E-4DB4-A60D-EE475F5EC421}</Project>
       <Name>Eu.EDelivery.AS4.Steps</Name>
     </ProjectReference>
