@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
@@ -19,6 +20,19 @@ namespace Eu.EDelivery.AS4.UnitTests.Repositories
         }
 
         /// <summary>
+        /// Gets the <see cref="InMessage"/> instances for a given <paramref name="predicate"/>.
+        /// </summary>
+        /// <param name="createContext">The factory containing the datastore to get the records from</param>
+        /// <param name="predicate">The predicate to locate the <see cref="InMessage"/> records</param>
+        /// <returns></returns>
+        public static IEnumerable<InMessage> GetInMessages(this Func<DatastoreContext> createContext, Func<InMessage, bool> predicate)
+        {
+            return RetrieveEntity(createContext, ctx => ctx.InMessages.Where(predicate).ToArray());
+        }
+
+
+
+        /// <summary>
         /// Gets the <see cref="RetryReliability"/> instance for a given <paramref name="predicate"/>.
         /// </summary>
         /// <param name="createContext">The factory containing the datastore to get the record from</param>
@@ -36,8 +50,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Repositories
         /// </summary>
         /// <param name="createContext">The create context.</param>
         /// <param name="message">The message.</param>
+        /// <param name="withReceptionAwareness"></param>
         /// <returns>The OutMessage that has been inserted</returns>
-        public static OutMessage InsertOutMessage(this Func<DatastoreContext> createContext, OutMessage message, bool withReceptionAwareness)
+        public static OutMessage InsertOutMessage(
+            this Func<DatastoreContext> createContext, 
+            OutMessage message, 
+            bool withReceptionAwareness = false)
         {
             using (DatastoreContext context = createContext())
             {
