@@ -12,6 +12,7 @@ using Eu.EDelivery.AS4.Xml;
 using NLog;
 using NonRepudiationInformation = Eu.EDelivery.AS4.Model.Core.NonRepudiationInformation;
 using Receipt = Eu.EDelivery.AS4.Model.Core.Receipt;
+using UserMessage = Eu.EDelivery.AS4.Model.Core.UserMessage;
 
 namespace Eu.EDelivery.AS4.Steps.Receive
 {
@@ -37,6 +38,11 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// <param name="config"></param>
         public CreateAS4ReceiptStep(IConfig config)
         {
+            if (config == null)
+            {
+                throw new ArgumentNullException(nameof(config));
+            }
+
             _config = config;
         }
 
@@ -46,7 +52,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// <param name="messagingContext"></param>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
-            AS4Message receivedAS4Message = messagingContext.AS4Message;
+            AS4Message receivedAS4Message = messagingContext?.AS4Message;
             if (receivedAS4Message == null)
             {
                 throw new InvalidOperationException(
@@ -59,27 +65,31 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
             if (responseSendPMode == null)
             {
-                const string desc = "Cannot determine a Sending Processing Mode during the creation of the response";
-                Logger.Error(desc);
+                Logger.Error(
+                    "Failed to create Receipt response because no SendingPMode can be determined for the creation of the response, " + 
+                    "this can happen when the Receiving Processing Mode doesn't reference an exising Sending Processing Mode in the ReplyHandling.SendingPMode element");
 
-                messagingContext.ErrorResult = new ErrorResult(desc, ErrorAlias.ProcessingModeMismatch);
+                messagingContext.ErrorResult = 
+                    new ErrorResult(
+                        "Failed to create Receipt response because no Sending Processing Mode can be determined for the creation of the response", 
+                        ErrorAlias.ProcessingModeMismatch);
+
                 return StepResult.Failed(messagingContext);
             }
 
-            // Should we create a Receipt for each and every UserMessage that can be present in the bundle ?
-            // If no UserMessages are present, an Empty AS4Message should be returned.
             AS4Message receiptMessage = AS4Message.Create(responseSendPMode);
             receiptMessage.SigningId = receivedAS4Message.SigningId;
 
-            foreach (string messageId in receivedAS4Message.UserMessages.Select(m => m.MessageId))
+            foreach (UserMessage userMessage in receivedAS4Message.UserMessages)
             {
-                Receipt receipt = CreateReferencedReceipt(messageId, messagingContext);
+                Receipt receipt = CreateReferencedReceipt(userMessage, receivedAS4Message, messagingContext.ReceivingPMode);
                 receiptMessage.AddMessageUnit(receipt);
             }
 
             if (Logger.IsInfoEnabled && receiptMessage.MessageUnits.Any())
             {
-                Logger.Info($"{messagingContext.LogTag} Receipt message has been created for received AS4 UserMessages");
+                Logger.Info(
+                    $"{messagingContext.LogTag} {receiptMessage.MessageUnits.Count()} Receipt message(s) has been created for received AS4 UserMessages");
             }
 
             messagingContext.ModifyContext(receiptMessage);
@@ -88,66 +98,54 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             return await StepResult.SuccessAsync(messagingContext);
         }
 
-        private static Receipt CreateReferencedReceipt(string ebmsMessageId, MessagingContext messagingContext)
+        private static Receipt CreateReferencedReceipt(
+            UserMessage userMessage,
+            AS4Message received,
+            ReceivingProcessingMode receivingPMode)
         {
-            AS4Message as4Message = messagingContext.AS4Message;
-            bool useNRRFormat = messagingContext.ReceivingPMode?.ReplyHandling.ReceiptHandling.UseNRRFormat ?? false;
-
-            if (useNRRFormat && !as4Message.IsSigned)
+            bool useNRRFormat = receivingPMode?.ReplyHandling.ReceiptHandling.UseNRRFormat ?? false;
+            if (useNRRFormat && !received.IsSigned)
             {
                 Logger.Warn(
-                    $"ReceivingPMode ({messagingContext.ReceivingPMode?.Id}) " +
-                    "is configured to reply with Non-Repudation Receipts, but incoming UserMessage isn't signed");
+                    $"ReceivingPMode {receivingPMode?.Id} is configured to reply with Non-Repudation Receipts, " + 
+                    $"but incoming UserMessage {userMessage.MessageId} isn\'t signed");
             }
             else if (!useNRRFormat)
             {
                 Logger.Debug(
-                    "ReceivingPMode is configured to not use the Non-Repudiation format." + 
-                    "This means the original UserMessage will be included in the Receipt");
+                    $"ReceivingPMode {receivingPMode?.Id} is configured to not use the Non-Repudiation format." + 
+                    $"This means the original UserMessage {userMessage.MessageId} will be included in the Receipt");
             }
 
-            if (useNRRFormat && as4Message.IsSigned)
+            if (useNRRFormat && received.IsSigned)
             {
                     Logger.Debug(
-                        $"ReceivingPMode {messagingContext.ReceivingPMode?.Id} is configured to use Non-Repudiation for Receipt Creation");
+                        $"ReceivingPMode {receivingPMode?.Id} is configured to use Non-Repudiation for Receipt Creation");
 
-                    NonRepudiationInformation nonRepudiation = 
-                        GetNonRepudiationInformationFrom(as4Message);
+                    var nonRepudiation = new NonRepudiationInformation(
+                        received.SecurityHeader
+                                .GetReferences()
+                                .Select(Reference.CreateFromReferenceElement));
 
-                    return GetRoutingInfoForUserMessage(as4Message)
-                        .Select(routing => new Receipt(ebmsMessageId, nonRepudiation, routing))
-                        .GetOrElse(() => new Receipt(ebmsMessageId, nonRepudiation));
+                    return GetRoutingInfoForUserMessage(userMessage, received.IsMultiHopMessage)
+                        .Select(routing => new Receipt(userMessage.MessageId, nonRepudiation, routing))
+                        .GetOrElse(() => new Receipt(userMessage.MessageId, nonRepudiation));
             }
 
-            return GetRoutingInfoForUserMessage(as4Message)
-                   .Select(routing => new Receipt(ebmsMessageId, as4Message.FirstUserMessage, routing))
-                   .GetOrElse(() => new Receipt(ebmsMessageId, as4Message.FirstUserMessage));
+            return GetRoutingInfoForUserMessage(userMessage, received.IsMultiHopMessage)
+                .Select(routing => new Receipt(userMessage.MessageId, userMessage, routing))
+                .GetOrElse(() => new Receipt(userMessage.MessageId, userMessage));
         }
 
-        private static Maybe<RoutingInputUserMessage> GetRoutingInfoForUserMessage(AS4Message msg)
+        private static Maybe<RoutingInputUserMessage> GetRoutingInfoForUserMessage(UserMessage userMessage, bool isMultihop)
         {
-            if (msg.IsMultiHopMessage)
+            return isMultihop.ThenMaybe(() =>
             {
                 Logger.Debug(
-                    "Because the received UserMessage has been sent via MultiHop, " + 
-                    "we will send the Receipt as MultiHop also");
+                    $"Because the received UserMessage {userMessage.MessageId} has been sent via MultiHop, the Receipt will be send as MultiHop also");
 
-                return Maybe.Just(
-                    AS4Mapper.Map<RoutingInputUserMessage>(msg.FirstUserMessage));
-            }
-
-            return Maybe<RoutingInputUserMessage>.Nothing;
-        }
-
-        
-
-        private static NonRepudiationInformation GetNonRepudiationInformationFrom(AS4Message receivedAS4Message)
-        {
-            return new NonRepudiationInformation(
-                receivedAS4Message
-                    .SecurityHeader
-                    .GetReferences()
-                    .Select(Model.Core.Reference.CreateFromReferenceElement));
+                return AS4Mapper.Map<RoutingInputUserMessage>(userMessage);
+            });
         }
     }
 }

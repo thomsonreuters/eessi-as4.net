@@ -11,6 +11,8 @@ using Eu.EDelivery.AS4.Steps.Receive;
 using Eu.EDelivery.AS4.TestUtils;
 using Eu.EDelivery.AS4.UnitTests.Common;
 using Eu.EDelivery.AS4.UnitTests.Model;
+using FsCheck;
+using FsCheck.Xunit;
 using Moq;
 using Xunit;
 
@@ -19,6 +21,42 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
     public class GivenCreateAS4ReceiptStepFacts
     {
         private const string NonMultihopSendPModeId = "non-multihop-send-id";
+
+        [Property]
+        public Property Creates_Receipt_For_Each_UserMessage()
+        {
+            return Prop.ForAll(
+                Gen.Fresh(() => new UserMessage($"user-{Guid.NewGuid()}"))
+                   .NonEmptyListOf()
+                   .ToArbitrary(),
+                userMessages =>
+                {
+                    // Arrange
+                    AS4Message fixture = AS4Message.Create(userMessages);
+                    IEnumerable<string> fixtureMessageIds = fixture.MessageIds;
+                    var ctx = new MessagingContext(fixture, MessagingContextMode.Receive)
+                    {
+                        SendingPMode = new SendingProcessingMode()
+                    };
+
+                    // Act
+                    AS4Message result = 
+                        ExerciseCreateReceipt(ctx)
+                            .GetAwaiter()
+                            .GetResult();
+
+                    // Assert
+                    Assert.All(
+                        result.MessageUnits,
+                        messageUnit =>
+                        {
+                            Assert.IsType<Receipt>(messageUnit);
+                            var receipt = (Receipt) messageUnit;
+                            Assert.Contains(receipt.RefToMessageId, fixtureMessageIds);
+                            Assert.Equal(receipt.RefToMessageId, receipt.UserMessage.MessageId);
+                        });
+                });
+        }
 
         [Fact]
         public async Task Creates_Receipt_From_Default_UserMessage()

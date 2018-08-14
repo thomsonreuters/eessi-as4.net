@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
@@ -11,6 +12,8 @@ using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Steps.Receive;
 using Eu.EDelivery.AS4.UnitTests.Common;
 using Eu.EDelivery.AS4.UnitTests.Model;
+using FsCheck;
+using FsCheck.Xunit;
 using Moq;
 using Xunit;
 
@@ -21,6 +24,40 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
     /// </summary>
     public class GivenCreateAS4ErrorStepFacts : GivenDatastoreFacts
     {
+        [Property]
+        public Property Creates_Error_For_Each_Bundled_UserMessage()
+        {
+            return Prop.ForAll(
+                Gen.Fresh(() => new UserMessage($"user-{Guid.NewGuid()}"))
+                   .NonEmptyListOf()
+                   .ToArbitrary(),
+                userMessages =>
+                {
+                    // Arrange
+                    AS4Message fixture = AS4Message.Create(userMessages);
+                    IEnumerable<string> fixtureMessageIds = fixture.MessageIds;
+
+                    // Act
+                    StepResult result =
+                        CreateErrorStepWith("unknown-send-pmode-id")
+                            .ExecuteAsync(new MessagingContext(fixture, MessagingContextMode.Receive))
+                            .GetAwaiter()
+                            .GetResult();
+
+                    // Assert
+                    AS4Message errorMessage = result.MessagingContext.AS4Message;
+                    Assert.All(
+                        errorMessage.MessageUnits,
+                        messageUnit =>
+                        {
+                            Assert.IsType<Error>(messageUnit);
+                            var error = (Error) messageUnit;
+                            Assert.Contains(error.RefToMessageId, fixtureMessageIds);
+                            Assert.Equal(error.RefToMessageId, error.MultiHopRouting.UnsafeGet.MessageInfo?.MessageId);
+                        });
+                });
+        }
+
         [Fact]
         public async Task ThenNotApplicableIfMessageIsEmptySoapBodyAsync()
         {
