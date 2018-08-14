@@ -40,7 +40,7 @@ namespace Eu.EDelivery.AS4.Steps.Send.Response
                     return StepResult.Success(response.OriginalRequest).AndStopExecution();
                 }
 
-                Logger.Error($"Response with HTTP status {response.StatusCode} received.");
+                Logger.Error($"Response with HTTP status: {response.StatusCode}");
 
                 if (Logger.IsErrorEnabled)
                 {
@@ -49,7 +49,7 @@ namespace Eu.EDelivery.AS4.Steps.Send.Response
                         string content = await r.ReadToEndAsync();
                         if (!string.IsNullOrEmpty(content))
                         {
-                            Logger.Error(content); 
+                            Logger.Error("Response with HTTP content: " + content);
                         }
                     }
                 }

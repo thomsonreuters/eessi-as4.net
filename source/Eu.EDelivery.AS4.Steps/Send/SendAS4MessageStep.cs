@@ -283,12 +283,10 @@ namespace Eu.EDelivery.AS4.Steps.Send
                     var handler = new EmptyBodyResponseHandler(
                         new PullRequestResponseHandler(
                             new TailResponseHandler()));
-                    
+
                     return await handler
                         .HandleResponse(res)
                         .ConfigureAwait(false);
-
-
                 }
             }
 
@@ -303,7 +301,10 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 {
                     var repository = new DatastoreRepository(db);
                     var service = new MarkForRetryService(repository);
-                    service.UpdateAS4MessageForSendResult(ctx.MessageEntityId.Value, result);
+                    service.UpdateAS4MessageForSendResult(
+                        messageId: ctx.MessageEntityId.Value,
+                        status: result);
+
                     db.SaveChanges();
                 }
             }

@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Entities;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
+using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
@@ -83,6 +84,48 @@ namespace Eu.EDelivery.AS4.Services
         }
 
         /// <summary>
+        /// Insert a DeadLettered AS4 Error refering a specified <paramref name="ebmsMessageId"/> 
+        /// for a specified <paramref name="mep"/> notifying only if the specified <paramref name="sendPMode"/> is configured this way.
+        /// </summary>
+        /// <param name="ebmsMessageId"></param>
+        /// <param name="mep"></param>
+        /// <param name="sendPMode"></param>
+        internal void InsertDeadLetteredErrorForAsync(
+            string ebmsMessageId,
+            MessageExchangePattern mep,
+            SendingProcessingMode sendPMode)
+        {
+            Error errorMessage =
+                Error.FromErrorResult(
+                    ebmsMessageId,
+                    new ErrorResult("Missing Receipt", ErrorAlias.MissingReceipt));
+
+            AS4Message as4Message = AS4Message.Create(errorMessage, sendPMode);
+            InMessage inMessage = InMessageBuilder
+                .ForSignalMessage(errorMessage, as4Message, mep)
+                .WithPMode(sendPMode)
+                .Build();
+
+            // We do not use the InMessageService to persist the incoming message here, since this is not really
+            // an incoming message.  We create this InMessage in order to be able to notify the Message Producer
+            // if he should be notified when a message cannot be sent.
+            // (Maybe we should only create the InMessage when notification is enabled ?)
+            inMessage.MessageLocation = Registry.Instance
+                .MessageBodyStore
+                .SaveAS4Message(
+                    location: Config.Instance.InMessageStoreLocation,
+                    message: as4Message);
+
+            inMessage.Operation =
+                (sendPMode?.ErrorHandling?.NotifyMessageProducer ?? false)
+                    ? Operation.ToBeNotified
+                    : Operation.NotApplicable;
+
+            Logger.Debug($"(Send) Create Error for missed Receipt with {{Operation={inMessage.Operation}}}");
+            _repository.InsertInMessage(inMessage);
+        }
+
+        /// <summary>
         /// Inserts a received Message in the DataStore.
         /// For each message-unit that exists in the AS4Message,an InMessage record is created.
         /// The AS4 Message Body is persisted as it has been received.
@@ -153,7 +196,7 @@ namespace Eu.EDelivery.AS4.Services
                     inMessage.MessageLocation = location;
 
                     Logger.Debug(
-                        $"Insert InMessage UserMessage {userMessage.MessageId} with " + 
+                        $"Insert InMessage UserMessage {userMessage.MessageId} with " +
                         $" {{Operation={inMessage.Operation}, Status={inMessage.Status}, IsTest={userMessage.IsTest}, IsDuplicate={userMessage.IsDuplicate}}}");
 
                     _repository.InsertInMessage(inMessage);
@@ -200,7 +243,7 @@ namespace Eu.EDelivery.AS4.Services
                     inMessage.SetPModeInformation(pmode);
 
                     Logger.Debug(
-                        $"Insert InMessage {signalMessage.GetType().Name} {signalMessage.MessageId} with " + 
+                        $"Insert InMessage {signalMessage.GetType().Name} {signalMessage.MessageId} with " +
                         $"{{Operation={inMessage.Operation}, Status={inMessage.Status}}}");
 
                     _repository.InsertInMessage(inMessage);
@@ -223,16 +266,16 @@ namespace Eu.EDelivery.AS4.Services
         public void UpdateAS4MessageForMessageHandling(MessagingContext messageContext, IAS4MessageBodyStore messageBodyStore)
         {
             AS4Message as4Message = messageContext.AS4Message;
-            
+
             if (as4Message.HasUserMessage)
             {
-                string savedLocation = 
+                string savedLocation =
                     messageBodyStore.SaveAS4Message(_configuration.InMessageStoreLocation, as4Message);
 
                 _repository.UpdateInMessages(
                     m => as4Message.UserMessages
                                    .Select(u => u.MessageId)
-                                   .Any(id => id == m.EbmsMessageId), 
+                                   .Any(id => id == m.EbmsMessageId),
                     m => m.MessageLocation = savedLocation);
             }
 
@@ -343,7 +386,7 @@ namespace Eu.EDelivery.AS4.Services
         {
             if (signalsMustBeNotified)
             {
-                string[] signalsToNotify = 
+                string[] signalsToNotify =
                     signalMessages.Where(r => r.IsDuplicate == false)
                                   .Select(s => s.MessageId)
                                   .ToArray();
@@ -450,15 +493,15 @@ namespace Eu.EDelivery.AS4.Services
             if (pmode.MessageHandling?.DeliverInformation == null)
             {
                 Logger.Debug(
-                    "UserMessage will not be delivered since the " + 
+                    "UserMessage will not be delivered since the " +
                     $"ReceivingPMode {pmode.Id} has not a MessageHandling.Deliver element");
 
                 return false;
             }
 
-            bool needsToBeDelivered = 
-                pmode.MessageHandling.DeliverInformation.IsEnabled 
-                && !userMessage.IsDuplicate 
+            bool needsToBeDelivered =
+                pmode.MessageHandling.DeliverInformation.IsEnabled
+                && !userMessage.IsDuplicate
                 && !userMessage.IsTest;
 
             Logger.Debug(
