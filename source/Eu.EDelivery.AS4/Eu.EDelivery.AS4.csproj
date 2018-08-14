@@ -1,6 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="14.0" DefaultTargets="Build" 
-  xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="..\..\packages\SQLite.3.13.0\build\net45\SQLite.props" Condition="Exists('..\..\packages\SQLite.3.13.0\build\net45\SQLite.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -429,6 +428,7 @@
     <Compile Include="Watchers\PModeWatcher.cs" />
     <Compile Include="Xml\Generated.cs" />
     <Compile Include="Xml\MessagePartNRInformation.cs" />
+    <Compile Include="Xml\Messaging.cs" />
     <Compile Include="Xml\Property.cs" />
     <Compile Include="Xml\Receipt.cs" />
     <Compile Include="Xml\TlsConfiguration.cs" />

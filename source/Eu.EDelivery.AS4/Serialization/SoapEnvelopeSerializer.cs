@@ -19,6 +19,7 @@ using Eu.EDelivery.AS4.Streaming;
 using Eu.EDelivery.AS4.Xml;
 using NLog;
 using Error = Eu.EDelivery.AS4.Model.Core.Error;
+using NotSupportedException = System.NotSupportedException;
 using PullRequest = Eu.EDelivery.AS4.Model.Core.PullRequest;
 using Receipt = Eu.EDelivery.AS4.Model.Core.Receipt;
 using SignalMessage = Eu.EDelivery.AS4.Model.Core.SignalMessage;
@@ -38,6 +39,29 @@ namespace Eu.EDelivery.AS4.Serialization
             CloseOutput = false,
             Encoding = new UTF8Encoding(false)
         };
+
+        private static readonly XmlAttributeOverrides EnvelopeAttributeOverrides;
+
+        static SoapEnvelopeSerializer()
+        {
+            var overrides = new XmlAttributeOverrides();
+            overrides.Add(
+                typeof(Messaging),
+                "UserMessage",
+                new XmlAttributes
+                {
+                    XmlElements = { new XmlElementAttribute("OverrideUserMessage") }
+                });
+            overrides.Add(
+                typeof(Messaging),
+                "SignalMessage",
+                new XmlAttributes
+                {
+                    XmlElements = { new XmlElementAttribute("OverrideSignalMessage") }
+                });
+
+            EnvelopeAttributeOverrides = overrides;
+        }
 
         public Task SerializeAsync(AS4Message message, Stream stream, CancellationToken cancellationToken)
         {
@@ -67,7 +91,7 @@ namespace Eu.EDelivery.AS4.Serialization
 
                 Messaging messagingHeader = CreateMessagingHeader(message);
 
-                builder.SetMessagingHeader(messagingHeader);
+                builder.SetMessagingHeader(messagingHeader, EnvelopeAttributeOverrides);
                 builder.SetMessagingBody(message.SigningId.BodySecurityId);
             }
 
@@ -76,17 +100,23 @@ namespace Eu.EDelivery.AS4.Serialization
 
         private static Messaging CreateMessagingHeader(AS4Message message)
         {
-            var messagingHeader = new Messaging { SecurityId = message.SigningId.HeaderSecurityId };
-
-            if (message.SignalMessages.Any())
+            object ToGeneralMessageUnit(MessageUnit u)
             {
-                messagingHeader.SignalMessage = AS4Mapper.Map<Xml.SignalMessage[]>(message.SignalMessages);
+                switch (u)
+                {
+                    case UserMessage _: return AS4Mapper.Map<Xml.UserMessage>(u);
+                    case SignalMessage _: return AS4Mapper.Map<Xml.SignalMessage>(u);
+                    default:
+                        throw new NotSupportedException(
+                            $"AS4Message contains unkown MessageUnit of type: {u.GetType()}");
+                }
             }
 
-            if (message.UserMessages.Any())
+            var messagingHeader = new Messaging
             {
-                messagingHeader.UserMessage = AS4Mapper.Map<Xml.UserMessage[]>(message.UserMessages);
-            }
+                SecurityId = message.SigningId.HeaderSecurityId,
+                MessageUnits = message.MessageUnits.Select(ToGeneralMessageUnit).ToArray()
+            };
 
             if (message.IsMultiHopMessage)
             {
@@ -246,50 +276,35 @@ namespace Eu.EDelivery.AS4.Serialization
                 return null;
             }
 
-            XmlSerializer s = new XmlSerializer(typeof(Messaging));
-            var result = s.Deserialize(new XmlNodeReader(messagingHeader));
-
-            return result as Messaging;
+            var s = new XmlSerializer(typeof(Messaging), EnvelopeAttributeOverrides);
+            return s.Deserialize(new XmlNodeReader(messagingHeader)) as Messaging;
         }
         
         internal static async Task<IEnumerable<MessageUnit>> GetMessageUnitsFromMessagingHeader(
             XmlDocument envelopeDocument, 
             Messaging messagingHeader)
         {
-            IEnumerable<string> messageUnitTagNames = envelopeDocument.SelectSingleNode(
-                "/s:Envelope/s:Header/eb3:Messaging", 
-                GetNamespaceManagerForDocument(envelopeDocument))
-                            ?.ChildNodes
-                            .Cast<XmlNode>()
-                            .Select(n => n.LocalName);
-
-            if (messageUnitTagNames == null)
+            if (messagingHeader.MessageUnits == null)
             {
                 return Enumerable.Empty<MessageUnit>();
             }
 
-            var signals = new Queue<Xml.SignalMessage>(messagingHeader.SignalMessage ?? new Xml.SignalMessage[0]);
-            var users = new Queue<Xml.UserMessage>(messagingHeader.UserMessage ?? new Xml.UserMessage[0]);
-
             Maybe<RoutingInputUserMessage> routing = await GetRoutingUserMessageFromXml(envelopeDocument);
-
-            IEnumerable<MessageUnit> DeserializeMessageUnits()
+            MessageUnit ToMessageUnitModel(object u)
             {
-                foreach (string messageUnitTagName in messageUnitTagNames)
+                switch (u)
                 {
-                    if (messageUnitTagName.Equals("UserMessage", StringComparison.OrdinalIgnoreCase))
-                    {
-                        yield return AS4Mapper.Map<UserMessage>(users.Dequeue());
-                    }
-
-                    if (messageUnitTagName.Equals("SignalMessage", StringComparison.OrdinalIgnoreCase))
-                    {
-                        yield return ConvertFromXml(signals.Dequeue(), routing);
-                    }
+                    case Xml.UserMessage _:
+                        return AS4Mapper.Map<UserMessage>(u);
+                    case Xml.SignalMessage s:
+                        return ConvertSignalMessageFromXml(s, routing);
+                    default:
+                        throw new NotSupportedException(
+                            $"AS4Message has unknown MessageUnit of type: {u.GetType()}");
                 }
             }
 
-            return DeserializeMessageUnits();
+            return messagingHeader.MessageUnits.Select(ToMessageUnitModel);
         }
 
         private static async Task<Maybe<RoutingInputUserMessage>> GetRoutingUserMessageFromXml(XmlDocument envelopeDocument)
@@ -298,7 +313,7 @@ namespace Eu.EDelivery.AS4.Serialization
             if (routingInputTag != null)
             {
                 var routingInput = await AS4XmlSerializer.FromStringAsync<RoutingInput>(routingInputTag.OuterXml);
-                if (routingInput != null && routingInput.UserMessage != null)
+                if (routingInput?.UserMessage != null)
                 {
                     return Maybe.Just(routingInput.UserMessage);
                 }
@@ -307,7 +322,7 @@ namespace Eu.EDelivery.AS4.Serialization
             return Maybe<RoutingInputUserMessage>.Nothing;
         }
 
-        private static SignalMessage ConvertFromXml(Xml.SignalMessage signalMessage, Maybe<RoutingInputUserMessage> routing)
+        private static SignalMessage ConvertSignalMessageFromXml(Xml.SignalMessage signalMessage, Maybe<RoutingInputUserMessage> routing)
         {
             void AddRouting(IMappingOperationOptions opts)
             {

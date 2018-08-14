@@ -35,6 +35,29 @@ namespace Eu.EDelivery.AS4.Serialization
             private XmlNode _messagingHeaderElement;
             private XmlNode _routingInputHeaderElement;
 
+            internal static readonly XmlAttributeOverrides EnvelopeAttributesOverrides;
+
+            static SoapEnvelopeBuilder()
+            {
+                var overrides = new XmlAttributeOverrides();
+                overrides.Add(
+                    typeof(Messaging),
+                    "UserMessage",
+                    new XmlAttributes
+                    {
+                        XmlElements = { new XmlElementAttribute("OverrideUserMessage") }
+                    });
+                overrides.Add(
+                    typeof(Messaging),
+                    "SignalMessage",
+                    new XmlAttributes
+                    {
+                        XmlElements = { new XmlElementAttribute("OverrideSignalMessage") }
+                    });
+
+                EnvelopeAttributesOverrides = overrides;
+            }
+
             /// <summary>
             /// Initializes a new instance of the <see cref="SoapEnvelopeBuilder"/> class. 
             /// Create a Soap Envelope Builder
@@ -72,25 +95,26 @@ namespace Eu.EDelivery.AS4.Serialization
             /// Set Messaging Header
             /// </summary>
             /// <param name="messagingHeader"></param>
-            public SoapEnvelopeBuilder SetMessagingHeader(Messaging messagingHeader)
+            /// <param name="overrides"></param>
+            public SoapEnvelopeBuilder SetMessagingHeader(Messaging messagingHeader, XmlAttributeOverrides overrides)
             {
                 if (messagingHeader == null)
                 {
                     throw new ArgumentNullException(nameof(messagingHeader));
                 }
 
-                _messagingHeaderElement = SerializeMessagingHeaderToXmlDocument(messagingHeader);
+                _messagingHeaderElement = SerializeMessagingHeaderToXmlDocument(messagingHeader, overrides);
 
                 return this;
             }
 
-            private XmlNode SerializeMessagingHeaderToXmlDocument(Messaging messagingHeader)
+            private XmlNode SerializeMessagingHeaderToXmlDocument(Messaging messagingHeader, XmlAttributeOverrides overrides)
             {
                 var xmlDocument = new XmlDocument { PreserveWhitespace = true };
 
                 using (XmlWriter writer = xmlDocument.CreateNavigator().AppendChild())
                 {
-                    var serializer = new XmlSerializer(typeof(Messaging));
+                    var serializer = new XmlSerializer(typeof(Messaging), overrides);
                     serializer.Serialize(writer, messagingHeader, XmlSerializerNamespaceInfo);
                 }
 
