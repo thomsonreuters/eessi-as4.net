@@ -12,11 +12,11 @@ namespace Eu.EDelivery.AS4
         {
             public const string Sha256 = "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256";
 
-            private static readonly HashSet<string> _supportedAlgorithms = new HashSet<string> { Sha256 };
+            public static readonly HashSet<string> SupportedAlgorithms = new HashSet<string> { Sha256 };
 
             public static bool IsSupported(string algorithm)
             {
-                return _supportedAlgorithms.Contains(algorithm);
+                return SupportedAlgorithms.Contains(algorithm);
             }
         }
 
@@ -24,11 +24,11 @@ namespace Eu.EDelivery.AS4
         {
             public const string Sha256 = "http://www.w3.org/2001/04/xmlenc#sha256";
 
-            private static readonly HashSet<string> _supportedAlgorithms = new HashSet<string>() { Sha256 };
+            public static readonly HashSet<string> SupportedAlgorithms = new HashSet<string> { Sha256 };
 
             public static bool IsSupported(string hashFunction)
             {
-                return _supportedAlgorithms.Contains(hashFunction);
+                return SupportedAlgorithms.Contains(hashFunction);
             }
         }
 
