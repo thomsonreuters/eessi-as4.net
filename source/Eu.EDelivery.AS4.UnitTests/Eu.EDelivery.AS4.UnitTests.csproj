@@ -276,6 +276,8 @@
     <Compile Include="Validators\GivenSendingProcessingModeValidatorFacts.cs" />
     <Compile Include="Validators\GivenSubmitMessageValidatorFacts.cs" />
     <Compile Include="Validators\GivenValidationResultFacts.cs" />
+    <Compile Include="Validators\ValidationInputGenerators.cs" />
+    <Compile Include="Validators\ValidationOutputAssertions.cs" />
     <Compile Include="Xml\XsdValidationFacts.cs" />
   </ItemGroup>
   <ItemGroup>
