@@ -150,24 +150,30 @@ namespace Eu.EDelivery.AS4.Migrations
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("AgentName")
+                        .IsRequired()
                         .HasMaxLength(50);
 
                     b.Property<string>("AgentType")
+                        .IsRequired()
                         .HasMaxLength(20);
 
                     b.Property<string>("EbmsMessageId")
+                        .IsRequired()
                         .HasMaxLength(100);
 
                     b.Property<DateTimeOffset>("InsertionTime");
 
                     b.Property<DateTimeOffset>("LogDate");
 
-                    b.Property<string>("LogEntry");
+                    b.Property<string>("LogEntry")
+                        .IsRequired();
 
                     b.Property<string>("MessageOperation")
+                        .IsRequired()
                         .HasMaxLength(20);
 
                     b.Property<string>("MessageStatus")
+                        .IsRequired()
                         .HasMaxLength(20);
 
                     b.Property<DateTimeOffset>("ModificationTime");
