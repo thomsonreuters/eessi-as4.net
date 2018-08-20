@@ -1,0 +1,213 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" 
+  xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{F82AAC30-6DDC-442C-849D-5DDD0478893B}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Eu.EDelivery.AS4.IntegrationTests</RootNamespace>
+    <AssemblyName>Eu.EDelivery.AS4.IntegrationTests</AssemblyName>
+    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+    <DependsOnNETStandard>true</DependsOnNETStandard>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
+    <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\..\output\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>..\..\output\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="netstandard, Version=2.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51" />
+    <Reference Include="System" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Management" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Common\AS4Component.cs" />
+    <Compile Include="Common\DatastoreSpy.cs" />
+    <Compile Include="Common\FileSystemService.cs" />
+    <Compile Include="Common\Holodeck.cs" />
+    <Compile Include="Common\StubSender.cs" />
+    <Compile Include="Fixture\HolodeckFixture.cs" />
+    <Compile Include="Common\HolodeckLocations.cs" />
+    <Compile Include="Fixture\ParentProcess.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Negative Receive Scenarios\8.4.1 Receive Message that cannot be linked PMode\ReceiveMessageWithNotLinkedPModeIntegrationTest.cs" />
+    <Compile Include="Negative Receive Scenarios\8.4.2 Receive Message with External Payload References\ReceiveExternalPayloadReferencesMessageIntegrationTest.cs" />
+    <Compile Include="Negative Receive Scenarios\8.4.3 Receive Compressed Messages without MimeType\ReceiveCompressedMessageWithoutMimeTypeIntegrationTest.cs" />
+    <Compile Include="Negative Receive Scenarios\8.4.4 Receive Incorrectly Compressed Message\ReceiveIncorrectlyCompressedMessageIntegrationTest.cs" />
+    <Compile Include="Negative Receive Scenarios\8.4.5 Receive Incorrectly Signed Message\ReceiveIncorrectlySignedMessageIntegrationTest.cs" />
+    <Compile Include="Negative Receive Scenarios\8.4.6 Receive Incorrectly Encrypted Message\ReceiveIncorrectlyEncryptedMessageIntegrationTest.cs" />
+    <Compile Include="Negative Send Scenarios\8.2.1 Submit message override not allowed FILE\SubmitMessageOverrideNotAllowedIntegrationTest.cs" />
+    <Compile Include="Negative Send Scenarios\8.2.2 Submit message nonexisting PMode FILE\SubmitMessageContainsNonExistingPModeIntegrationTest.cs" />
+    <Compile Include="Negative Send Scenarios\8.2.3 Submit message PMode Id of invalid PMode FILE\SubmitMessageInvalidPModeIntegrationTest.cs" />
+    <Compile Include="Negative Send Scenarios\8.2.4 Submit message invalid payload reference FILE\SubmitMessageReferenceNonExistingPayloadIntegrationTest.cs" />
+    <Compile Include="Negative Send Scenarios\8.2.5 Configure PMode nonexisting signing certificate\SubmitMessageReferenceNonExistingCertificateIntegrationTest.cs" />
+    <Compile Include="Negative Send Scenarios\8.2.6 Configure PMode nonexisting encryption certificate\SendMessageWithNonExistingEncryptionCertificateIntegrationTest.cs" />
+    <Compile Include="Negative Send Scenarios\8.2.7 Send message to nonexisting URL\SubmitMessageReferenceNonExistingUrlIntegrationTest.cs" />
+    <Compile Include="Negative Send Scenarios\8.2.8 Send message to incorrectly configured R MSH\SendMessageToIncorrectlyConfiguredRMSHIntegrationTest.cs" />
+    <Compile Include="Negative Send Scenarios\8.2.9 Submit invalid serialized message result in Bad Request\SubmitInvalidSerializedMessageTest.cs" />
+    <Compile Include="Positive Receive Scenarios\8.3.17 Receive Singe Payload Via Payload Service\ReceiveSinglePayloadViaPayloadService.cs" />
+    <Compile Include="Positive Receive Scenarios\8.3.1 Receive Single Payload with FILE Deliver\ReceiveSinglePayloadIntegrationTest.cs" />
+    <Compile Include="Positive Receive Scenarios\8.3.10 Receive Single Payload Return Sync Receipt\ReceiveSinglePayloadReturnSyncReceiptIntegrationTest.cs" />
+    <Compile Include="Positive Receive Scenarios\8.3.11 Receive Single Payload Return Sync Signed NRR Receipt\ReceiveSinglePayloadReturnSyncSignedNRRReceiptIntegrationTest.cs" />
+    <Compile Include="Positive Receive Scenarios\8.3.12 Receive Single Payload Return Async Receipt\ReceiveSinglePayloadReturnAsyncReceiptIntegrationTest.cs" />
+    <Compile Include="Positive Receive Scenarios\8.3.13 Receive Single Payload Return Async Signed NRR Receipt\ReceiveSinglePayloadReturnAsyncSignedIntegrationTest.cs" />
+    <Compile Include="Positive Receive Scenarios\8.3.14 Receive Test Message\ReceiveTestMessageIntegrationTest.cs" />
+    <Compile Include="Positive Receive Scenarios\8.3.15 Receive Duplicate Message\ReceiveDuplicateMessageIntegrationTest.cs" />
+    <Compile Include="Positive Receive Scenarios\8.3.18 Receive Single Payload with HTTP Deliver\SpyHttpDeliverTarget.cs" />
+    <Compile Include="Positive Receive Scenarios\8.3.18 Receive Single Payload with HTTP Deliver\TestHttpDeliverSinglePayloadViaHttp.cs" />
+    <Compile Include="Positive Receive Scenarios\8.3.5 Receive Multiple Payloads Encrypted\ReceiveMultiplePayloadsEncryptedIntegrationTest.cs" />
+    <Compile Include="Positive Receive Scenarios\8.3.7 Receive Multiple Payloads Compressed Encrypted\ReceiveMultiplePayloadsCompressedEncryptedIntegrationTest.cs" />
+    <Compile Include="Positive Receive Scenarios\8.3.8 Receive Multiple Payloads Compressed Signed Encrypted\ReceiveMultiplePayloadsCompressedSignedEncryptedIntegrationTest.cs" />
+    <Compile Include="Positive Receive Scenarios\8.3.9 Receive Multiple Payloads Signed Encrypted\ReceiveMultiplePayloadsSignedEncryptedIntegrationTest.cs" />
+    <Compile Include="Positive Send Scenarios\8.1.12 Receive Async Signed NRR Receipt\ReceiveAsyncSignedNRRReceiptIntegrationTest.cs" />
+    <Compile Include="Positive Receive Scenarios\8.3.2 Receive Multiple Payloads with FILE Deliver\ReceiveMultiplePayloadIntegrationTest.cs" />
+    <Compile Include="Positive Receive Scenarios\8.3.3 Receive Multiple Payloads Compressed\ReceiveMultiplePayloadsCompressedIntegrationTest.cs" />
+    <Compile Include="Positive Receive Scenarios\8.3.4 Receive Multiple Payloads Signed\ReceiveMultiplePayloadsSignedIntegrationTest.cs" />
+    <Compile Include="Positive Receive Scenarios\8.3.6 Receive Multiple Payloads Compressed Signed\ReceiveMultiplePayloadsCompressedSignedIntegrationTest.cs" />
+    <Compile Include="Positive Send Scenarios\8.1.1. Send Single Payload with FILE Submit\SinglePayloadIntegrationTest.cs" />
+    <Compile Include="Positive Send Scenarios\8.1.10. Send Single Payload with Message Properties\SinglePayloadMessagePropertiesIntegrationTest.cs" />
+    <Compile Include="Positive Send Scenarios\8.1.11 Send Single Payload with Message Ids\SinglePayloadMessageIdsIntegrationTest.cs" />
+    <Compile Include="Positive Send Scenarios\8.1.13 Receive Async Error\ReceiveAsyncSignedErrorIntegrationTest.cs" />
+    <Compile Include="Positive Receive Scenarios\8.3.16 Receive Message Via Pulling\SendPullRequestResultInUserMessageTest.cs" />
+    <Compile Include="Positive Send Scenarios\8.1.15 Send Single Payload with HTTP Submit\SendSinglePayloadHttpSubmitTest.cs" />
+    <Compile Include="Positive Send Scenarios\8.1.16 Send Message via Pulling\SendMessageViaPullingTest.cs" />
+    <Compile Include="Positive Send Scenarios\8.1.18 Send Message via Pulling result in Error\SendMessageViaPullingResultInErrorTest.cs" />
+    <Compile Include="Positive Send Scenarios\8.1.19 22 Send Message via Dynamic Forwarding\SendMessageViaDynamicForwardingTest.cs" />
+    <Compile Include="Positive Send Scenarios\8.1.2. Send Multiple Payloads with FILE Submit\MultiplePayloadIntegrationTest.cs" />
+    <Compile Include="Positive Send Scenarios\8.1.3. Send Multiple Payloads Compressed\MultiplePayloadsCompressedIntegrationTest.cs" />
+    <Compile Include="Positive Send Scenarios\8.1.4. Send Multiple Payloads Signed\MultiplePayloadsSignedIntegrationTest.cs" />
+    <Compile Include="Positive Send Scenarios\8.1.5. Send Multiple Payloads Encrypted\MultiplePayloadsEncryptedIntegrationTest.cs" />
+    <Compile Include="Positive Send Scenarios\8.1.6. Send Multiple Payloads Compressed Signed\MultiplePayloadsCompressedSignedIntegrationTest.cs" />
+    <Compile Include="Common\IntegrationTestTemplate.cs" />
+    <Compile Include="Positive Send Scenarios\8.1.7. Send Multiple Payloads Compressed Encrypted\MultiplePayloadsCompressedEncryptedIntegrationTest.cs" />
+    <Compile Include="Positive Send Scenarios\8.1.8. Send Multiple Payloads Compressed Signed Encrypted\MultiplePayloadsCompressedSignedEncryptedIntegrationTest.cs" />
+    <Compile Include="Positive Send Scenarios\8.1.9. Send Multiple Payloads Signed Encrypted\MultiplePayloadsSignedEncryptedIntegrationTest.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Resources\as4-soap-wrong-signed-callback-message.txt" />
+    <Content Include="Resources\as4-soap-wrong-signed-message.txt" />
+    <Content Include="Resources\as4-soap-wrong-encrypted-message.txt" />
+    <None Include="app.config">
+      <SubType>Designer</SubType>
+    </None>
+    <Content Include="Resources\8.1.21-message.xml" />
+    <None Include="Resources\8.1.22-message.as4" />
+    <None Include="Resources\AccessPointB.cer" />
+    <None Include="Resources\as4message_external_payloads.txt" />
+    <None Include="Resources\as4message_missing_mime_property.txt" />
+    <None Include="Resources\as4message_incorect_compressed.txt" />
+    <None Include="Resources\as4message.txt" />
+    <None Include="Resources\earth.jpg" />
+    <None Include="Resources\pdf-document.pdf" />
+    <None Include="Resources\_8_1_22_message.as4" />
+    <None Include="Scripts\change-ip-in-pmode.ps1" />
+    <None Include="Scripts\start-as4-component-application.ps1" />
+    <None Include="Scripts\stop-as4-component-application.ps1" />
+    <None Include="Scripts\xunit-runner-console.ps1" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Eu.EDelivery.AS4\Eu.EDelivery.AS4.csproj">
+      <Project>{8b0ba38f-c3f7-46c1-9e68-a7291c7b16b1}</Project>
+      <Name>Eu.EDelivery.AS4</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CSharp">
+      <Version>4.5.0</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Net.Http">
+      <Version>2.0.20710</Version>
+    </PackageReference>
+    <PackageReference Include="Newtonsoft.Json">
+      <Version>10.0.3</Version>
+    </PackageReference>
+    <PackageReference Include="NLog">
+      <Version>4.3.5</Version>
+    </PackageReference>
+    <PackageReference Include="Remotion.Linq">
+      <Version>2.2.0</Version>
+    </PackageReference>
+    <PackageReference Include="SimpleHttpMock">
+      <Version>1.1.5</Version>
+    </PackageReference>
+    <PackageReference Include="xunit">
+      <Version>2.3.1</Version>
+    </PackageReference>
+    <PackageReference Include="xunit.abstractions">
+      <Version>2.0.1</Version>
+    </PackageReference>
+    <PackageReference Include="xunit.analyzers">
+      <Version>0.8.0</Version>
+    </PackageReference>
+    <PackageReference Include="xunit.assert">
+      <Version>2.3.1</Version>
+    </PackageReference>
+    <PackageReference Include="xunit.core">
+      <Version>2.3.1</Version>
+    </PackageReference>
+    <PackageReference Include="xunit.extensibility.core">
+      <Version>2.3.1</Version>
+    </PackageReference>
+    <PackageReference Include="xunit.extensibility.execution">
+      <Version>2.3.1</Version>
+    </PackageReference>
+    <PackageReference Include="xunit.runner.visualstudio">
+      <Version>2.3.1</Version>
+    </PackageReference>
+    <PackageReference Include="XunitRetry">
+      <Version>2.0.0</Version>
+    </PackageReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
