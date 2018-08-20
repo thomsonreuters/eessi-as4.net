@@ -66,7 +66,7 @@ namespace Eu.EDelivery.AS4.Factories
         /// </summary>
         /// <param name="idFormat"></param>
         /// <returns></returns>
-        internal string Create(string idFormat)
+        public string Create(string idFormat)
         {
             if (idFormat == null)
             {
