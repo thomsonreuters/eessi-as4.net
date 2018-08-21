@@ -305,6 +305,19 @@ namespace Eu.EDelivery.AS4.UnitTests.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to &lt;s12:Envelope xmlns:s12=&quot;http://www.w3.org/2003/05/soap-envelope&quot;&gt;
+        ///  &lt;s12:Header&gt;
+        ///    &lt;eb:Messaging xmlns:wsu=&quot;http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd&quot; xmlns:wsse=&quot;http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd&quot; xmlns:s12=&quot;http://www.w3.org/2003/05/soap-envelope&quot; wsu:Id=&quot;header-1b744354-0186-4847-a56a-0bf23ee5d0ee&quot; xmlns:eb=&quot;http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/&quot;&gt;
+        ///      &lt;eb:UserMessage&gt;
+        ///        &lt;eb:Mes [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string BizTalkUserMessage {
+            get {
+                return ResourceManager.GetString("BizTalkUserMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
         internal static byte[] certificate_as4 {

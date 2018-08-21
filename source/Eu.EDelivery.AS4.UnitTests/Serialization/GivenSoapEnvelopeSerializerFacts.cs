@@ -70,6 +70,20 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
             }
 
             [Fact]
+            public async Task ThenPredifinedUserMessageGetsSerialized()
+            {
+                using (var input = new MemoryStream(Encoding.UTF8.GetBytes(BizTalkUserMessage)))
+                using (var output = new MemoryStream())
+                {
+                    var sut = new SoapEnvelopeSerializer();
+                    AS4Message fixture = await sut.DeserializeAsync(input, Constants.ContentTypes.Soap, CancellationToken.None);
+
+
+                    sut.Serialize(fixture, output, CancellationToken.None);
+                }
+            }
+
+            [Fact]
             public void ThenMpcAttributeIsCorrectlySerialized()
             {
                 var userMessage = new UserMessage("some-message-id", "the-specified-mpc");

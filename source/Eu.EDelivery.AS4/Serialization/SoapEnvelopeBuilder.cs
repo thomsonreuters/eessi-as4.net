@@ -66,6 +66,12 @@ namespace Eu.EDelivery.AS4.Serialization
                     _headerElement = envelopeDocument.SelectSingleNode($"/{soapNamespace.Name}:Envelope/{soapNamespace.Name}:Header", nsMgr) as XmlElement;
                     _bodyElement = envelopeDocument.SelectSingleNode($"/{soapNamespace.Name}:Envelope/{soapNamespace.Name}:Body", nsMgr) as XmlElement;
                 }
+
+                if (_envelopeElement == null)
+                {
+                    throw new NotSupportedException(
+                        $"Envelope document requires a root <s12:Envelope/> element where s12={Constants.Namespaces.Soap12}");
+                }
             }
 
             /// <summary>
@@ -140,7 +146,7 @@ namespace Eu.EDelivery.AS4.Serialization
             /// </param>
             public SoapEnvelopeBuilder SetMessagingBody(string bodySecurityId)
             {
-                _bodyElement.SetAttribute("Id", Constants.Namespaces.WssSecurityUtility, bodySecurityId);
+                _bodyElement?.SetAttribute("Id", Constants.Namespaces.WssSecurityUtility, bodySecurityId);
 
                 return this;
             }
@@ -159,9 +165,9 @@ namespace Eu.EDelivery.AS4.Serialization
 
                 XmlAttribute roleAttribute = _document.CreateAttribute(soapNamespace.Name, "role", soapNamespace.Namespace);
                 roleAttribute.Value = to.Role;
-                toNode.Attributes.Append(roleAttribute);
+                toNode.Attributes?.Append(roleAttribute);
 
-                _headerElement.AppendChild(toNode);
+                _headerElement?.AppendChild(toNode);
                 return this;
             }
 
@@ -175,15 +181,16 @@ namespace Eu.EDelivery.AS4.Serialization
                 XmlNode actionNode = _document.CreateElement("wsa", "Action", Constants.Namespaces.Addressing);
                 actionNode.InnerText = action;
 
-                _headerElement.AppendChild(actionNode);
+                _headerElement?.AppendChild(actionNode);
                 return this;
             }
 
             private XmlElement CreateElement(SoapNamespace namespaceInfo, string elementName)
             {
-                return _document.CreateElement(NamespaceInformation[namespaceInfo].Name,
-                                               elementName,
-                                               NamespaceInformation[namespaceInfo].Namespace);
+                return _document.CreateElement(
+                    prefix: NamespaceInformation[namespaceInfo].Name,
+                    localName: elementName,
+                    namespaceURI: NamespaceInformation[namespaceInfo].Namespace);
             }
 
             /// <summary>
@@ -197,7 +204,7 @@ namespace Eu.EDelivery.AS4.Serialization
                 nsMgr.AddNamespace("soap", NamespaceInformation[SoapNamespace.Soap].Namespace);
                 nsMgr.AddNamespace("wsse", NamespaceInformation[SoapNamespace.SecurityExt].Namespace);
 
-                if (_securityHeaderElement != null)
+                if (_securityHeaderElement != null && _headerElement != null)
                 {
                     var existingSecurityHeader = _headerElement.SelectSingleNode("//soap:Header/wsse:Security", nsMgr);
                     if (existingSecurityHeader != null)
@@ -212,15 +219,15 @@ namespace Eu.EDelivery.AS4.Serialization
 
                 if (_routingInputHeaderElement != null)
                 {
-                    _headerElement.AppendChild(_routingInputHeaderElement);
+                    _headerElement?.AppendChild(_routingInputHeaderElement);
                 }
 
                 if (_messagingHeaderElement != null)
                 {
-                    _headerElement.AppendChild(_messagingHeaderElement);
+                    _headerElement?.AppendChild(_messagingHeaderElement);
                 }
 
-                if (_headerElement.HasChildNodes)
+                if (_headerElement?.HasChildNodes == true)
                 {
                     var existingHeader = _envelopeElement.SelectSingleNode("/soap:Envelope/soap:Header", nsMgr);
 
@@ -234,7 +241,7 @@ namespace Eu.EDelivery.AS4.Serialization
                     }
                 }
 
-                if (_bodyElement.HasAttributes)
+                if (_bodyElement?.HasAttributes == true)
                 {
                     _envelopeElement.AppendChild(_bodyElement);
                 }
