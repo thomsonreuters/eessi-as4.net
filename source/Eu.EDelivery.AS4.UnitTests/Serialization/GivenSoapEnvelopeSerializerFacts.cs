@@ -776,7 +776,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
             XmlNode messagingNode = doc.UnsafeSelectEbmsNode("/s12:Envelope/s12:Header/eb:Messaging");
             Assert.NotNull(messagingNode);
 
-            var s = new XmlSerializer(typeof(Messaging), SoapEnvelopeSerializer.SoapEnvelopeBuilder.EnvelopeAttributesOverrides);
+            var s = new XmlSerializer(typeof(Messaging), SoapEnvelopeSerializer.SoapEnvelopeBuilder.MessagingAttributeOverrides);
             return s.Deserialize(new XmlNodeReader(messagingNode)) as Messaging;
         }
 

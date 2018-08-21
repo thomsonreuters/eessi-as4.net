@@ -40,29 +40,6 @@ namespace Eu.EDelivery.AS4.Serialization
             Encoding = new UTF8Encoding(false)
         };
 
-        private static readonly XmlAttributeOverrides EnvelopeAttributeOverrides;
-
-        static SoapEnvelopeSerializer()
-        {
-            var overrides = new XmlAttributeOverrides();
-            overrides.Add(
-                typeof(Messaging),
-                "UserMessage",
-                new XmlAttributes
-                {
-                    XmlElements = { new XmlElementAttribute("OverrideUserMessage") }
-                });
-            overrides.Add(
-                typeof(Messaging),
-                "SignalMessage",
-                new XmlAttributes
-                {
-                    XmlElements = { new XmlElementAttribute("OverrideSignalMessage") }
-                });
-
-            EnvelopeAttributeOverrides = overrides;
-        }
-
         public Task SerializeAsync(AS4Message message, Stream stream, CancellationToken cancellationToken)
         {
             return Task.Run(() => this.Serialize(message, stream, cancellationToken), cancellationToken);
@@ -91,7 +68,7 @@ namespace Eu.EDelivery.AS4.Serialization
 
                 Messaging messagingHeader = CreateMessagingHeader(message);
 
-                builder.SetMessagingHeader(messagingHeader, EnvelopeAttributeOverrides);
+                builder.SetMessagingHeader(messagingHeader);
                 builder.SetMessagingBody(message.SigningId.BodySecurityId);
             }
 
@@ -276,7 +253,7 @@ namespace Eu.EDelivery.AS4.Serialization
                 return null;
             }
 
-            var s = new XmlSerializer(typeof(Messaging), EnvelopeAttributeOverrides);
+            var s = new XmlSerializer(typeof(Messaging), SoapEnvelopeBuilder.MessagingAttributeOverrides);
             return s.Deserialize(new XmlNodeReader(messagingHeader)) as Messaging;
         }
         

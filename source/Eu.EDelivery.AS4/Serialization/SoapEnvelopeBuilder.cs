@@ -35,7 +35,7 @@ namespace Eu.EDelivery.AS4.Serialization
             private XmlNode _messagingHeaderElement;
             private XmlNode _routingInputHeaderElement;
 
-            internal static readonly XmlAttributeOverrides EnvelopeAttributesOverrides;
+            internal static readonly XmlAttributeOverrides MessagingAttributeOverrides;
 
             static SoapEnvelopeBuilder()
             {
@@ -55,7 +55,7 @@ namespace Eu.EDelivery.AS4.Serialization
                         XmlElements = { new XmlElementAttribute("OverrideSignalMessage") }
                     });
 
-                EnvelopeAttributesOverrides = overrides;
+                MessagingAttributeOverrides = overrides;
             }
 
             /// <summary>
@@ -95,15 +95,14 @@ namespace Eu.EDelivery.AS4.Serialization
             /// Set Messaging Header
             /// </summary>
             /// <param name="messagingHeader"></param>
-            /// <param name="overrides"></param>
-            public SoapEnvelopeBuilder SetMessagingHeader(Messaging messagingHeader, XmlAttributeOverrides overrides)
+            public SoapEnvelopeBuilder SetMessagingHeader(Messaging messagingHeader)
             {
                 if (messagingHeader == null)
                 {
                     throw new ArgumentNullException(nameof(messagingHeader));
                 }
 
-                _messagingHeaderElement = SerializeMessagingHeaderToXmlDocument(messagingHeader, overrides);
+                _messagingHeaderElement = SerializeMessagingHeaderToXmlDocument(messagingHeader, MessagingAttributeOverrides);
 
                 return this;
             }
