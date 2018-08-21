@@ -111,18 +111,18 @@ namespace Eu.EDelivery.AS4.Serialization
                     throw new ArgumentNullException(nameof(messagingHeader));
                 }
 
-                _messagingHeaderElement = SerializeMessagingHeaderToXmlDocument(messagingHeader, MessagingAttributeOverrides);
+                _messagingHeaderElement = SerializeMessagingHeaderToXmlDocument(messagingHeader);
 
                 return this;
             }
 
-            private XmlNode SerializeMessagingHeaderToXmlDocument(Messaging messagingHeader, XmlAttributeOverrides overrides)
+            private XmlNode SerializeMessagingHeaderToXmlDocument(Messaging messagingHeader)
             {
                 var xmlDocument = new XmlDocument { PreserveWhitespace = true };
 
                 using (XmlWriter writer = xmlDocument.CreateNavigator().AppendChild())
                 {
-                    var serializer = new XmlSerializer(typeof(Messaging), overrides);
+                    var serializer = new XmlSerializer(typeof(Messaging), MessagingAttributeOverrides);
                     serializer.Serialize(writer, messagingHeader, XmlSerializerNamespaceInfo);
                 }
 
