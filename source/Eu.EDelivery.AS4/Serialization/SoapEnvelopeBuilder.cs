@@ -4,6 +4,7 @@ using System.Linq;
 using System.Xml;
 using System.Xml.Serialization;
 using Eu.EDelivery.AS4.Xml;
+using NotSupportedException = System.NotSupportedException;
 
 namespace Eu.EDelivery.AS4.Serialization
 {
@@ -68,11 +69,9 @@ namespace Eu.EDelivery.AS4.Serialization
             }
 
             /// <summary>
-            /// Initializes a new instance of the <see cref="SoapEnvelopeBuilder"/> class. 
-            /// Create a Soap Envelope Builder
+            /// Initializes a new instance of the <see cref="SoapEnvelopeBuilder"/> class.
             /// </summary>
-            public SoapEnvelopeBuilder() : this(null) { }
-
+            /// <param name="envelopeDocument"></param>
             public SoapEnvelopeBuilder(XmlDocument envelopeDocument)
             {
                 if (envelopeDocument == null)
@@ -103,6 +102,18 @@ namespace Eu.EDelivery.AS4.Serialization
                 {
                     throw new NotSupportedException(
                         $"Envelope document requires a root <s12:Envelope/> element where s12={Constants.Namespaces.Soap12}");
+                }
+
+                if (_headerElement == null)
+                {
+                    throw new NotSupportedException(
+                        $"Envelope document requires a child element <s12:Header/> inside the root <s12:Envelope/> element where s12={Constants.Namespaces.Soap12}");
+                }
+
+                if (_bodyElement == null)
+                {
+                    throw new NotSupportedException(
+                        $"Envelope document requires a child elemnt <s12:Body/> inside the root <s12:Envelope/> element where s12={Constants.Namespaces.Soap12}");
                 }
             }
 

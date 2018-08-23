@@ -16,14 +16,41 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Internal
 
         public GivenSoapEnvelopeBuilderFacts()
         {
-            _builder = new SoapEnvelopeSerializer.SoapEnvelopeBuilder();
+            _builder = new SoapEnvelopeSerializer.SoapEnvelopeBuilder(envelopeDocument: null);
         }
 
-        /// <summary>
-        /// Testing if the Builder Succeeds
-        /// </summary>
         public class GivenValidArgumentsBuilder : GivenSoapEnvelopeBuilderFacts
         {
+            [Fact]
+            public void Builder_Fails_To_Create_When_Envelope_Element_Is_Missing()
+            {
+                Assert.Throws<NotSupportedException>(
+                    () => new SoapEnvelopeSerializer.SoapEnvelopeBuilder(new XmlDocument()));
+            }
+
+            [Fact]
+            public void Builder_Fails_To_Create_When_Header_Element_Is_Missing()
+            {
+                var doc = new XmlDocument();
+                XmlElement envelope = doc.CreateElement("s12", "Envelope", Constants.Namespaces.Soap12);
+                doc.AppendChild(envelope);
+
+                Assert.Throws<NotSupportedException>(
+                    () => new SoapEnvelopeSerializer.SoapEnvelopeBuilder(doc));
+            }
+
+            [Fact]
+            public void Builder_Fails_To_Create_When_Body_Element_Is_Missing()
+            {
+                var doc = new XmlDocument();
+                XmlElement envelope = doc.CreateElement("s12", "Envelope", Constants.Namespaces.Soap12);
+                envelope.AppendChild(doc.CreateElement("s12", "Header", Constants.Namespaces.Soap12));
+                doc.AppendChild(envelope);
+
+                Assert.Throws<NotSupportedException>(
+                    () => new SoapEnvelopeSerializer.SoapEnvelopeBuilder(doc));
+            }
+
             [Theory]
             [InlineData(Constants.Namespaces.EbmsOneWayReceipt)]
             [InlineData(Constants.Namespaces.EbmsOneWayError)]
