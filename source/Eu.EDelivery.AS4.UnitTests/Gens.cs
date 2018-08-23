@@ -21,17 +21,30 @@ namespace Eu.EDelivery.AS4.UnitTests
 
     public static class Gens
     {
-        public static Arbitrary<SignalMessage> Signals()
+        public static Arbitrary<MessageUnit> MessageUnits()
         {
-            return Gen.Elements<SignalMessage>(
-                          new Receipt($"ref-to-user-{Guid.NewGuid()}"), 
-                          new FilledNRReceipt(), 
-                          new Error(
-                              $"error-{Guid.NewGuid()}", 
-                              $"user-{Guid.NewGuid()}", 
-                              ErrorLine.FromErrorResult(
-                                  new ErrorResult($"desc-{Guid.NewGuid()}", ErrorAlias.Other))))
+            return Gen.Elements<MessageUnit>(
+                new UserMessage($"user-{Guid.NewGuid()}"),
+                new Receipt(
+                    $"receipt-{Guid.NewGuid()}", 
+                    $"ref-to-user-{Guid.NewGuid()}",
+                    DateTimeOffset.Now),
+                new FilledNRReceipt(), 
+                new Error(
+                    $"error-{Guid.NewGuid()}", 
+                    $"user-{Guid.NewGuid()}", 
+                    ErrorLine.FromErrorResult(
+                        new ErrorResult($"desc-{Guid.NewGuid()}", ErrorAlias.Other))))
                       .ToArbitrary();
+        }
+
+        public static Arbitrary<SignalMessage> SignalMessages()
+        {
+            return MessageUnits()
+                   .Generator
+                   .Where(u => u is SignalMessage)
+                   .Select(u => u as SignalMessage)
+                   .ToArbitrary();
         }
 
         public static Arbitrary<Maybe<T>> MaybeArbitrary<T>()
