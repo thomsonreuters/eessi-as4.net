@@ -113,7 +113,7 @@ namespace Eu.EDelivery.AS4.Serialization
                 if (_bodyElement == null)
                 {
                     throw new NotSupportedException(
-                        $"Envelope document requires a child elemnt <s12:Body/> inside the root <s12:Envelope/> element where s12={Constants.Namespaces.Soap12}");
+                        $"Envelope document requires a child element <s12:Body/> inside the root <s12:Envelope/> element where s12={Constants.Namespaces.Soap12}");
                 }
             }
 
