@@ -35,52 +35,53 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._11_Se
         /// <summary>
         /// Perform extra validation for the output files of Holodeck
         /// </summary>
-        /// <param name="files">The files.</param>
-        protected override void ValidatePolledFiles(IEnumerable<FileInfo> files)
+        /// <param name="_">The files.</param>
+        protected override void ValidatePolledFiles(IEnumerable<FileInfo> _)
         {
-            AssertPayloads();
-            AssertAS4Receipt();
+            IEnumerable<FileInfo> holodeckInFiles = new DirectoryInfo(Holodeck.HolodeckBLocations.InputPath).GetFiles();
+            AS4Component.AssertEarthPayload(holodeckInFiles.FirstOrDefault(f => f.Extension.Equals(".jpg")));
+
+            XmlDocument userDoc = LoadUserMessageDocFrom(holodeckInFiles);
+            XmlDocument receiptDoc = LoadReceiptDocFrom(AS4ReceiptsPath);
+
+            XmlNode refToMessageIdNode = receiptDoc.SelectSingleNode("//*[local-name()='RefToMessageId']");
+            Assert.True(refToMessageIdNode != null, "Cannot find 'RefToMessageId' node in Receipt at AS4.NET component");
+
+            XmlNode messageIdNode = userDoc.SelectSingleNode("//*[local-name()='MessageId']");
+            Assert.True(messageIdNode != null, "Cannot find 'MessageId' node in UserMessage at Holodeck B");
+
+            Assert.Equal(messageIdNode.InnerText, refToMessageIdNode.InnerText);
         }
 
-        private void AssertPayloads()
+        private static XmlDocument LoadUserMessageDocFrom(IEnumerable<FileInfo> holodeckInFiles)
         {
-            IEnumerable<FileInfo> files = new DirectoryInfo(Holodeck.HolodeckBLocations.InputPath).GetFiles();
+            FileInfo userMessage = holodeckInFiles.FirstOrDefault(f => f.Extension.Equals(".xml"));
+            Assert.NotNull(userMessage);
 
-            AS4Component.AssertEarthPayload(files.FirstOrDefault(f => f.Extension.Equals(".jpg")));
+            var userDoc = new XmlDocument();
+            userDoc.Load(userMessage.FullName);
 
-            FileInfo receipt = files.FirstOrDefault(f => f.Extension.Equals(".xml"));
-            if (receipt != null)
-            {
-                AssertHolodeckReceipt(receipt);
-            }
+            AssertXmlTag("MessageId", userDoc);
+            AssertXmlTag("ConversationId", userDoc);
+            return userDoc;
         }
 
-        private static void AssertHolodeckReceipt(FileSystemInfo receipt)
+        private static XmlDocument LoadReceiptDocFrom(string inPath)
         {
-            var xmlDocument = new XmlDocument();
-            if (receipt != null)
-            {
-                xmlDocument.Load(receipt.FullName);
-            }
+            FileInfo receipt = new DirectoryInfo(inPath).GetFiles("*.xml").FirstOrDefault();
+            Assert.NotNull(receipt);
 
-            AssertXmlTag("RefToMessageId", xmlDocument);
-            AssertXmlTag("MessageId", xmlDocument);
-            AssertXmlTag("ConversationId", xmlDocument);
+            var receiptDoc = new XmlDocument();
+            receiptDoc.Load(receipt.FullName);
+            return receiptDoc;
         }
 
         private static void AssertXmlTag(string localName, XmlNode xmlDocument)
         {
             XmlNode xmlNode = xmlDocument.SelectSingleNode($"//*[local-name()='{localName}']");
 
-            Assert.NotNull(xmlNode);
+            Assert.True(xmlNode != null, $"Cannot find XML tag {localName} in Holodeck UserMessage");
             Console.WriteLine($@"{localName} found in Receipt");
-        }
-
-        private static void AssertAS4Receipt()
-        {
-            FileInfo receipt = new DirectoryInfo(AS4ReceiptsPath).GetFiles("*.xml").FirstOrDefault();
-
-            Assert.NotNull(receipt);
         }
     }
 }

@@ -35,6 +35,38 @@ namespace Eu.EDelivery.AS4.Serialization
             private XmlNode _messagingHeaderElement;
             private XmlNode _routingInputHeaderElement;
 
+            internal static readonly XmlAttributeOverrides MessagingAttributeOverrides;
+
+            static SoapEnvelopeBuilder()
+            {
+                /* Workarround for the Ebms Envelope serialization/deserialization:
+                 * During serialization/deserialization, the 'UserMessage' and 'SignalMessage' property
+                 * of the 'Messaging' model in the 'Generated.cs' file gets filled with their respectively message units.
+                 * The order of the message units gets lost by this; which can results in a different 'Primary Message Unit'.
+                 * The workarround below makes sure that we override the [XmlElement] attributes on both properties.
+                 * The 'real' message units gets set into a new property called 'MessageUnits',
+                 * now a property on the 'Messaging' model in a separate file 'Messaging.cs'.
+                 * The [XmlElement] attributes for both 'UserMessage' and 'SignalMessage' types are set on this new property which makes sure
+                 * that all message units are serialized/deserialized in the same property and not separated; keeping the correct order. */
+                var overrides = new XmlAttributeOverrides();
+                overrides.Add(
+                    typeof(Messaging),
+                    "UserMessage",
+                    new XmlAttributes
+                    {
+                        XmlElements = { new XmlElementAttribute("OverrideUserMessage") }
+                    });
+                overrides.Add(
+                    typeof(Messaging),
+                    "SignalMessage",
+                    new XmlAttributes
+                    {
+                        XmlElements = { new XmlElementAttribute("OverrideSignalMessage") }
+                    });
+
+                MessagingAttributeOverrides = overrides;
+            }
+
             /// <summary>
             /// Initializes a new instance of the <see cref="SoapEnvelopeBuilder"/> class. 
             /// Create a Soap Envelope Builder
@@ -96,7 +128,7 @@ namespace Eu.EDelivery.AS4.Serialization
 
                 using (XmlWriter writer = xmlDocument.CreateNavigator().AppendChild())
                 {
-                    var serializer = new XmlSerializer(typeof(Messaging));
+                    var serializer = new XmlSerializer(typeof(Messaging), MessagingAttributeOverrides);
                     serializer.Serialize(writer, messagingHeader, XmlSerializerNamespaceInfo);
                 }
 

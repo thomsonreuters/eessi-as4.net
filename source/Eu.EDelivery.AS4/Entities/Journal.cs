@@ -12,6 +12,7 @@ namespace Eu.EDelivery.AS4.Entities
 
         public DateTimeOffset LogDate { get; set; }
 
+        [Required]
         [MaxLength(20)]
         public string AgentType { get; private set; }
 
@@ -20,14 +21,18 @@ namespace Eu.EDelivery.AS4.Entities
             AgentType = t.ToString();
         }
 
+        [Required]
         [MaxLength(50)]
         public string AgentName { get; set; }
 
+        [Required]
         [MaxLength(100)]
         public string EbmsMessageId { get; set; }
 
+        [Required]
         public string LogEntry { get; set; }
 
+        [Required]
         [MaxLength(20)]
         public string MessageStatus { get; private set; }
 
@@ -41,6 +46,7 @@ namespace Eu.EDelivery.AS4.Entities
             MessageStatus = s.ToString();
         }
 
+        [Required]
         [MaxLength(20)]
         public string MessageOperation { get; private set; }
 
