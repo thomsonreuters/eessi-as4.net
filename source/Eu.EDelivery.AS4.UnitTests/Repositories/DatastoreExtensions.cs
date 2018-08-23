@@ -30,8 +30,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Repositories
             return RetrieveEntity(createContext, ctx => ctx.InMessages.Where(predicate).ToArray());
         }
 
-
-
         /// <summary>
         /// Gets the <see cref="RetryReliability"/> instance for a given <paramref name="predicate"/>.
         /// </summary>
