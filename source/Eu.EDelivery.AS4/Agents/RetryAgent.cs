@@ -19,9 +19,6 @@ namespace Eu.EDelivery.AS4.Agents
     internal class RetryAgent : IAgent
     {
         private readonly IReceiver _receiver;
-
-        // TODO: polling interval is defined here but is never used because the AgentProvider already creates the DatastoreReceiver used here.
-        private readonly TimeSpan _pollingInterval;
         private readonly Func<DatastoreContext> _createContext;
 
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
@@ -30,15 +27,12 @@ namespace Eu.EDelivery.AS4.Agents
         /// Initializes a new instance of the <see cref="RetryAgent"/> class.
         /// </summary>
         /// <param name="receiver">The receiver used to retrieve <see cref="RetryReliability"/> entities</param>
-        /// <param name="pollingInterval">The interval in which the polling for retryable entities should happen</param>
         /// <param name="createContext">The factory creating a <see cref="DatastoreContext"/></param>
         internal RetryAgent(
-            IReceiver receiver,
-            TimeSpan pollingInterval,
+            IReceiver receiver, 
             Func<DatastoreContext> createContext)
         {
             _receiver = receiver;
-            _pollingInterval = pollingInterval;
             _createContext = createContext;
         }
 
