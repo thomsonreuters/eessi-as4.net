@@ -8,10 +8,12 @@ namespace Eu.EDelivery.AS4.Validators
     /// </summary>
     internal class ParameterValidator : AbstractValidator<Parameter>
     {
+        public static ParameterValidator Instance = new ParameterValidator();
+
         public ParameterValidator()
         {
-            RuleFor(param => param.Name).NotNull();
-            RuleFor(param => param.Value).NotNull();
+            RuleFor(param => param.Name).NotEmpty();
+            RuleFor(param => param.Value).NotEmpty();
         }
     }
 }
