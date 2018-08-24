@@ -86,7 +86,7 @@ namespace Eu.EDelivery.AS4.Serialization
                 }
                 else
                 {
-                    var soapNamespace = NamespaceInformation[SoapNamespace.Soap];
+                    XmlQualifiedName soapNamespace = NamespaceInformation[SoapNamespace.Soap];
 
                     var nsMgr = new XmlNamespaceManager(envelopeDocument.NameTable);
                     nsMgr.AddNamespace(soapNamespace.Name, soapNamespace.Namespace);
@@ -189,7 +189,7 @@ namespace Eu.EDelivery.AS4.Serialization
             /// </param>
             public SoapEnvelopeBuilder SetMessagingBody(string bodySecurityId)
             {
-                _bodyElement?.SetAttribute("Id", Constants.Namespaces.WssSecurityUtility, bodySecurityId);
+                _bodyElement.SetAttribute("Id", Constants.Namespaces.WssSecurityUtility, bodySecurityId);
 
                 return this;
             }
@@ -210,7 +210,7 @@ namespace Eu.EDelivery.AS4.Serialization
                 roleAttribute.Value = to.Role;
                 toNode.Attributes?.Append(roleAttribute);
 
-                _headerElement?.AppendChild(toNode);
+                _headerElement.AppendChild(toNode);
                 return this;
             }
 
@@ -224,7 +224,7 @@ namespace Eu.EDelivery.AS4.Serialization
                 XmlNode actionNode = _document.CreateElement("wsa", "Action", Constants.Namespaces.Addressing);
                 actionNode.InnerText = action;
 
-                _headerElement?.AppendChild(actionNode);
+                _headerElement.AppendChild(actionNode);
                 return this;
             }
 
@@ -247,7 +247,7 @@ namespace Eu.EDelivery.AS4.Serialization
                 nsMgr.AddNamespace("soap", NamespaceInformation[SoapNamespace.Soap].Namespace);
                 nsMgr.AddNamespace("wsse", NamespaceInformation[SoapNamespace.SecurityExt].Namespace);
 
-                if (_securityHeaderElement != null && _headerElement != null)
+                if (_securityHeaderElement != null)
                 {
                     var existingSecurityHeader = _headerElement.SelectSingleNode("//soap:Header/wsse:Security", nsMgr);
                     if (existingSecurityHeader != null)
@@ -262,18 +262,17 @@ namespace Eu.EDelivery.AS4.Serialization
 
                 if (_routingInputHeaderElement != null)
                 {
-                    _headerElement?.AppendChild(_routingInputHeaderElement);
+                    _headerElement.AppendChild(_routingInputHeaderElement);
                 }
 
                 if (_messagingHeaderElement != null)
                 {
-                    _headerElement?.AppendChild(_messagingHeaderElement);
+                    _headerElement.AppendChild(_messagingHeaderElement);
                 }
 
-                if (_headerElement?.HasChildNodes == true)
+                if (_headerElement.HasChildNodes)
                 {
-                    var existingHeader = _envelopeElement.SelectSingleNode("/soap:Envelope/soap:Header", nsMgr);
-
+                    XmlNode existingHeader = _envelopeElement.SelectSingleNode("/soap:Envelope/soap:Header", nsMgr);
                     if (existingHeader != null)
                     {
                         _envelopeElement.ReplaceChild(_headerElement, existingHeader);
@@ -284,7 +283,7 @@ namespace Eu.EDelivery.AS4.Serialization
                     }
                 }
 
-                if (_bodyElement?.HasAttributes == true)
+                if (_bodyElement.HasAttributes)
                 {
                     _envelopeElement.AppendChild(_bodyElement);
                 }
