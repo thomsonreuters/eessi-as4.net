@@ -365,6 +365,7 @@
     <None Include="Resources\EncryptedKeyWithMGFSpec.txt" />
     <None Include="Resources\multihopreceipt.xml" />
     <None Include="Resources\as4message_external_payloads.as4" />
+    <Content Include="Resources\BizTalkUserMessage.xml" />
     <Content Include="Resources\receipt.xml" />
     <Content Include="Resources\receivingprocessingmode.xml" />
     <Content Include="Resources\sendingprocessingmode.xml" />

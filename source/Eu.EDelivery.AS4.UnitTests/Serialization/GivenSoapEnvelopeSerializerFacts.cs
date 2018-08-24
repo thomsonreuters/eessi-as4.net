@@ -73,6 +73,21 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
             }
 
             [Fact]
+            public async Task Predifined_BizTalk_Sample_Fails_To_Deserialize_Serialize_Because_Of_Missing_Body()
+            {
+                using (var input = new MemoryStream(Encoding.UTF8.GetBytes(BizTalkUserMessage)))
+                using (var output = new MemoryStream())
+                {
+                    var sut = new SoapEnvelopeSerializer();
+                    AS4Message fixture = await sut.DeserializeAsync(input, Constants.ContentTypes.Soap, CancellationToken.None);
+
+
+                    Assert.Throws<NotSupportedException>(
+                        () => sut.Serialize(fixture, output, CancellationToken.None));
+                }
+            }
+
+            [Fact]
             public void ThenMpcAttributeIsCorrectlySerialized()
             {
                 var userMessage = new UserMessage("some-message-id", "the-specified-mpc");
