@@ -1,29 +1,24 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
-using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Serialization;
-using Eu.EDelivery.AS4.Services;
 using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Steps.Receive;
 using Eu.EDelivery.AS4.UnitTests.Common;
 using Eu.EDelivery.AS4.UnitTests.Repositories;
+using FsCheck;
+using FsCheck.Xunit;
 using Xunit;
-using AgreementReference = Eu.EDelivery.AS4.Model.Core.AgreementReference;
-using CollaborationInfo = Eu.EDelivery.AS4.Model.Core.CollaborationInfo;
-using Service = Eu.EDelivery.AS4.Model.Core.Service;
 
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 {
-    /// <summary>
-    /// Testing the <see cref="SaveReceivedMessageStep" />
-    /// </summary>
     public class GivenSaveReceivedMessageDatastoreFacts : GivenDatastoreStepFacts
     {
         private readonly InMemoryMessageBodyStore _messageBodyStore = new InMemoryMessageBodyStore();
@@ -43,6 +38,38 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
         /// Gets a <see cref="IStep" /> implementation to exercise the datastore.
         /// </summary>
         protected override IStep Step { get; }
+
+        [Property(MaxTest = 10)]
+        public Property Saves_Bundled_MessageUnits_As_InMessages()
+        {
+            return Prop.ForAll(
+                Gen.OneOf(
+                    Gen.Fresh<MessageUnit>(() => new Receipt($"receipt-{Guid.NewGuid()}")),
+                    Gen.Fresh<MessageUnit>(() => new UserMessage($"user-{Guid.NewGuid()}")))
+                   .NonEmptyListOf()
+                   .ToArbitrary(),
+                messageUnits =>
+                {
+                    // Arrange
+                    AS4Message fixture = AS4Message.Create(messageUnits);
+                    var stub = new ReceivedMessage(Stream.Null, Constants.ContentTypes.Soap);
+                    var ctx = new MessagingContext(stub, MessagingContextMode.Receive);
+                    ctx.ModifyContext(fixture);
+
+                    // Act
+                    Step.ExecuteAsync(ctx).GetAwaiter().GetResult();
+
+                    // Assert
+                    IEnumerable<InMessage> inserts = 
+                        GetDataStoreContext.GetInMessages(m => fixture.MessageIds.Contains(m.EbmsMessageId));
+
+                    IEnumerable<string> expected = fixture.MessageIds.OrderBy(x => x);
+                    IEnumerable<string> actual = inserts.Select(i => i.EbmsMessageId).OrderBy(x => x);
+                    Assert.True(
+                        expected.SequenceEqual(actual),
+                        $"{String.Join(", ", expected)} != {String.Join(", ", actual)}");
+                });
+        }
 
         [Fact]
         public async Task ThenExecuteStepSucceedsAsync()

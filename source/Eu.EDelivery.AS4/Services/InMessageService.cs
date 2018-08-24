@@ -229,10 +229,10 @@ namespace Eu.EDelivery.AS4.Services
                 string savedLocation = 
                     messageBodyStore.SaveAS4Message(_configuration.InMessageStoreLocation, as4Message);
 
+                IEnumerable<string> userMessageIds = as4Message.UserMessages.Select(u => u.MessageId);
+
                 _repository.UpdateInMessages(
-                    m => as4Message.UserMessages
-                                   .Select(u => u.MessageId)
-                                   .Any(id => id == m.EbmsMessageId), 
+                    m => userMessageIds.Any(id => id == m.EbmsMessageId), 
                     m => m.MessageLocation = savedLocation);
             }
 
@@ -447,17 +447,17 @@ namespace Eu.EDelivery.AS4.Services
 
         private static bool UserMessageNeedsToBeDelivered(ReceivingProcessingMode pmode, UserMessage userMessage)
         {
-            if (pmode.MessageHandling?.DeliverInformation == null)
+            if (pmode?.MessageHandling?.DeliverInformation == null)
             {
                 Logger.Debug(
                     "UserMessage will not be delivered since the " + 
-                    $"ReceivingPMode {pmode.Id} has not a MessageHandling.Deliver element");
+                    $"ReceivingPMode {pmode?.Id} has not a MessageHandling.Deliver element");
 
                 return false;
             }
 
             bool needsToBeDelivered = 
-                pmode.MessageHandling.DeliverInformation.IsEnabled 
+                pmode.MessageHandling.DeliverInformation.IsEnabled
                 && !userMessage.IsDuplicate 
                 && !userMessage.IsTest;
 

@@ -29,7 +29,10 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// Initializes a new instance of the <see cref="SaveReceivedMessageStep" /> class
         /// </summary>
         public SaveReceivedMessageStep() 
-            : this(Config.Instance, Registry.Instance.CreateDatastoreContext, Registry.Instance.MessageBodyStore) { }
+            : this(
+                Config.Instance, 
+                Registry.Instance.CreateDatastoreContext, 
+                Registry.Instance.MessageBodyStore) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SaveReceivedMessageStep"/> class.
@@ -42,6 +45,21 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             Func<DatastoreContext> createDatastoreContext, 
             IAS4MessageBodyStore messageBodyStore)
         {
+            if (configuration == null)
+            {
+                throw new ArgumentNullException(nameof(configuration));
+            }
+
+            if (createDatastoreContext == null)
+            {
+                throw new ArgumentNullException(nameof(createDatastoreContext));
+            }
+
+            if (messageBodyStore == null)
+            {
+                throw new ArgumentNullException(nameof(messageBodyStore));
+            }
+
             _config = configuration;
             _createDatastoreContext = createDatastoreContext;
             _messageBodyStore = messageBodyStore;
@@ -55,8 +73,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// <exception cref="Exception">A delegate callback throws an exception.</exception>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
-            Logger.Info($"{messagingContext.LogTag} Store the incoming AS4 Message to the datastore");
-            if (messagingContext.ReceivedMessage == null)
+            if (messagingContext?.ReceivedMessage == null)
             {
                 throw new InvalidOperationException(
                     $"{nameof(SaveReceivedMessageStep)} requires a ReceivedMessage to store the incoming message into the datastore but no ReceivedMessage is present in the MessagingContext");
@@ -68,6 +85,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                     $"{nameof(SaveReceivedMessageStep)} requires an AS4Message to save but no AS4Message is present in the MessagingContext");
             }
 
+            Logger.Info($"{messagingContext.LogTag} Store the incoming AS4 Message to the datastore");
             MessagingContext resultContext = await InsertReceivedAS4MessageAsync(messagingContext);
 
             if (messagingContext.AS4Message.PrimaryMessageUnit is Error signal
@@ -108,9 +126,12 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         {
             using (DatastoreContext context = _createDatastoreContext())
             {
-                var service = new InMessageService(_config, new DatastoreRepository(context));
-                MessageExchangePattern mep = DetermineMessageExchangePattern(messagingContext);
+                MessageExchangePattern mep =
+                    messagingContext.SendingPMode?.MepBinding == MessageExchangePatternBinding.Pull
+                        ? MessageExchangePattern.Pull
+                        : MessageExchangePattern.Push;
 
+                var service = new InMessageService(_config, new DatastoreRepository(context));
                 MessagingContext resultContext = await service
                     .InsertAS4MessageAsync(messagingContext, mep, _messageBodyStore)
                     .ConfigureAwait(false);
@@ -119,16 +140,6 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
                 return resultContext;
             }
-        }
-
-        private static MessageExchangePattern DetermineMessageExchangePattern(MessagingContext messagingContext)
-        {
-            if (messagingContext.SendingPMode?.MepBinding == MessageExchangePatternBinding.Pull)
-            {
-                return MessageExchangePattern.Pull;
-            }
-
-            return MessageExchangePattern.Push;
         }
     }
 }
