@@ -124,7 +124,7 @@ namespace Eu.EDelivery.AS4.Validators
                 When(pmode => pmode.ReceiptHandling.NotifyMethod != null, () =>
                 {
                     RuleFor(pmode => pmode.ReceiptHandling.NotifyMethod.Type)
-                        .NotNull()
+                        .NotEmpty()
                         .WithMessage("ReceiptHandling.NotifyMethod.Type should be specified when the ReceiptHandling.NotifyMessageProducer = true");
 
                     RuleFor(pmode => pmode.ReceiptHandling.NotifyMethod.Parameters)
@@ -170,7 +170,7 @@ namespace Eu.EDelivery.AS4.Validators
                 When(pmode => pmode.ErrorHandling.NotifyMethod != null, () =>
                 {
                     RuleFor(pmode => pmode.ErrorHandling.NotifyMethod.Type)
-                        .NotNull()
+                        .NotEmpty()
                         .WithMessage("ErrorHandling.NotifyMethod.Type should be specified when the ErrorHandling.NotifyMessageProducer = true");
 
                     RuleFor(pmode => pmode.ErrorHandling.NotifyMethod.Parameters)
@@ -216,7 +216,7 @@ namespace Eu.EDelivery.AS4.Validators
                 When(pmode => pmode.ExceptionHandling.NotifyMethod != null, () =>
                 {
                     RuleFor(pmode => pmode.ExceptionHandling.NotifyMethod.Type)
-                        .NotNull()
+                        .NotEmpty()
                         .WithMessage("ExceptionHandling.NotifyMethod.Type should be specified when the ExceptionHandling.NotifyMessageProducer = true");
 
                     RuleFor(pmode => pmode.ExceptionHandling.NotifyMethod.Parameters)
