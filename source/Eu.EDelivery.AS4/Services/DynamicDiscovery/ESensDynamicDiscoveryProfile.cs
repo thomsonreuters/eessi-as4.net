@@ -10,9 +10,9 @@ using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 using System.Xml;
 using Eu.EDelivery.AS4.Extensions;
-using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.PMode;
 using NLog;
 using MessageProperty = Eu.EDelivery.AS4.Model.PMode.MessageProperty;
@@ -22,21 +22,30 @@ using PartyId = Eu.EDelivery.AS4.Model.PMode.PartyId;
 
 namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
 {
+    /// <summary>
+    /// ESens profile that 
+    /// </summary>
+    /// <seealso cref="IDynamicDiscoveryProfile"/>
     public class ESensDynamicDiscoveryProfile : IDynamicDiscoveryProfile
     {
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
-
-        private static readonly HttpClient HttpClient = new HttpClient();
-
         private const string DocumentIdentifier = "urn:oasis:names:specification:ubl:schema:xsd:Invoice-2::Invoice##urn:www.cenbii.eu:transaction:biitrns010:ver2.0:extended:urn:www.peppol.eu:bis:peppol5a:ver2.0::2.1";
         private const string DocumentIdentifierScheme = "busdox-docid-qns";
 
+        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+        private static readonly HttpClient HttpClient = new HttpClient();
+
         [Info("SML Scheme", defaultValue: "iso6523-actorid-upis")]
         [Description("Used to build the SML Uri")]
+        // Property is used to determine the configuration options via reflection
+        // ReSharper disable once UnusedMember.Local
+        // ReSharper disable once UnassignedGetOnlyAutoProperty
         private string SmlScheme { get; }
 
         [Info("SMP Server Domain Name", defaultValue: "isaitb.acc.edelivery.tech.ec.europa.eu")]
         [Description("Domain name that must be used in the Uri")]
+        // Property is used to determine the configuration options via reflection
+        // ReSharper disable once UnusedMember.Local
+        // ReSharper disable once UnassignedGetOnlyAutoProperty
         private string SmpServerDomainName { get; }
 
         private class ESensConfig
@@ -48,11 +57,22 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
             /// <param name="smpServerDomainName">Name of the SMP server domain.</param>
             private ESensConfig(string smlScheme, string smpServerDomainName)
             {
+                if (smlScheme == null)
+                {
+                    throw new ArgumentNullException(nameof(smlScheme));
+                }
+
+                if (smpServerDomainName == null)
+                {
+                    throw new ArgumentNullException(nameof(smpServerDomainName));
+                }
+
                 SmlScheme = smlScheme;
                 SmpServerDomainName = smpServerDomainName;
             }
 
             public string SmlScheme { get; }
+
             public string SmpServerDomainName { get;  }
 
             /// <summary>
@@ -62,12 +82,15 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
             /// <returns></returns>
             public static ESensConfig From(IDictionary<string, string> properties)
             {
+                string TrimDots(string s)
+                {
+                    return s.Trim('.');
+                }
+
                 return new ESensConfig(
                     TrimDots(properties.ReadOptionalProperty("SmlScheme", "iso6523-actorid-upis")),
                     TrimDots(properties.ReadOptionalProperty("SmpServerDomainName", "isaitb.acc.edelivery.tech.ec.europa.eu")));
             }
-
-            private static string TrimDots(string s) => s.Trim('.');
         }
 
         /// <summary>
@@ -85,7 +108,7 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
                 throw new InvalidOperationException("Given invalid 'ToParty'; requires a 'PartyId'");
             }
 
-            var smpUrl = CreateSmpServerUrl(party, ESensConfig.From(properties));
+            Uri smpUrl = CreateSmpServerUrl(party, ESensConfig.From(properties));
 
             return await RetrieveSmpMetaData(smpUrl);
         }
@@ -94,13 +117,16 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
         {
             string hashedPartyId = CalculateMD5Hash(party.PrimaryPartyId);
 
-            var host = $"b-{hashedPartyId}.{config.SmlScheme}.{config.SmpServerDomainName}";
-            var path = $"{config.SmlScheme}::{party.PrimaryPartyId}/services/{DocumentIdentifierScheme}::{DocumentIdentifier}";
+            string host = $"b-{hashedPartyId}.{config.SmlScheme}.{config.SmpServerDomainName}";
+            string path = $"{config.SmlScheme}::{party.PrimaryPartyId}/services/{DocumentIdentifierScheme}::{DocumentIdentifier}";
+
 
             var builder = new UriBuilder
             {
                 Host = host,
-                Path = path
+                // DotNetBug: Colons need to be Percentage encoded in final Url for SMP lookup. 
+                // Uri/HttpClient.GetAsync components encodes # but not : so we need to do it manually.
+                Path = HttpUtility.UrlEncode(path)
             };
 
             return builder.Uri;
@@ -111,7 +137,6 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
             using (MD5 md5 = MD5.Create())
             {
                 byte[] inputBytes = Encoding.UTF8.GetBytes(input);
-
                 byte[] hash = md5.ComputeHash(inputBytes);
 
                 var sb = new StringBuilder();
@@ -177,9 +202,11 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
 
         private static void SetOriginalSender(SendingProcessingMode sendingPMode)
         {
-            var existingOriginalSender =
-                sendingPMode.MessagePackaging.MessageProperties.FirstOrDefault(
-                    p => p.Name.Equals("originalSender", StringComparison.OrdinalIgnoreCase));
+            MessageProperty existingOriginalSender =
+                sendingPMode
+                    .MessagePackaging
+                    .MessageProperties
+                    .FirstOrDefault(p => p.Name.Equals("originalSender", StringComparison.OrdinalIgnoreCase));
 
             if (existingOriginalSender == null)
             {
@@ -194,11 +221,12 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
 
         private static void SetFinalRecipient(SendingProcessingMode sendingPMode, XmlDocument smpMetaData)
         {
-            var finalRecipient = GetFinalRecipient(smpMetaData);
-
-            var existingFinalRecipient =
-                sendingPMode.MessagePackaging.MessageProperties.FirstOrDefault(
-                    p => p.Name.Equals("finalRecipient", StringComparison.OrdinalIgnoreCase));
+            MessageProperty finalRecipient = CreateFinalRecipient(smpMetaData);
+            MessageProperty existingFinalRecipient =
+                sendingPMode
+                    .MessagePackaging
+                    .MessageProperties
+                    .FirstOrDefault(p => p.Name.Equals("finalRecipient", StringComparison.OrdinalIgnoreCase));
 
             if (existingFinalRecipient != null)
             {
@@ -208,30 +236,33 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
             sendingPMode.MessagePackaging.MessageProperties.Add(finalRecipient);
         }
 
-        private static MessageProperty GetFinalRecipient(XmlNode smpMetaData)
+        private static MessageProperty CreateFinalRecipient(XmlNode smpMetaData)
         {
             XmlNode node = smpMetaData.SelectSingleNode("//*[local-name()='ParticipantIdentifier']");
-            if (node == null) { throw new InvalidDataException("No ParticipantIdentifier element found in SMP meta-data"); }
-
-            var finalRecipient = new MessageProperty { Name = "finalRecipient", Value = node.InnerText };
-
-            XmlAttribute schemeAttribute = node.Attributes?
-                .OfType<XmlAttribute>()
-                .FirstOrDefault(a => a.Name.Equals("scheme", StringComparison.OrdinalIgnoreCase));
-
-            if (schemeAttribute != null)
+            if (node == null)
             {
-                finalRecipient.Type = schemeAttribute.Value;
+                throw new InvalidDataException("No ParticipantIdentifier element found in SMP meta-data");
             }
 
-            return finalRecipient;
+            string schemeAttribute = 
+                node.Attributes?
+                    .OfType<XmlAttribute>()
+                    .FirstOrDefault(a => a.Name.Equals("scheme", StringComparison.OrdinalIgnoreCase))
+                    ?.Value;
+
+            return new MessageProperty
+            {
+                Name = "finalRecipient",
+                Value = node.InnerText,
+                Type = schemeAttribute
+            };
         }
         
         private static void CompleteCollaborationInfo(SendingProcessingMode sendingPMode, XmlDocument smpMetaData)
         {
             if (sendingPMode.MessagePackaging.CollaborationInfo == null)
             {
-                sendingPMode.MessagePackaging.CollaborationInfo = new Model.PMode.CollaborationInfo();
+                sendingPMode.MessagePackaging.CollaborationInfo = new CollaborationInfo();
             }
 
             SetCollaborationService(sendingPMode, smpMetaData);
@@ -242,24 +273,23 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
         private static void SetCollaborationService(SendingProcessingMode sendingPMode, XmlNode smpMetaData)
         {
             XmlNode processIdentifier = 
-                smpMetaData.SelectSingleNode("//*[local-name()='ProcessList']/*[local-name()='Process']/*[local-name()='ProcessIdentifier']");
+                smpMetaData.SelectSingleNode(
+                    "//*[local-name()='ProcessList']/*[local-name()='Process']/*[local-name()='ProcessIdentifier']");
 
             if (processIdentifier == null)
             {
-                throw new ConfigurationErrorsException("Unable to complete CollaborationInfo: ProcessIdentifier element not found in SMP metadata");
+                // TODO: other exceptions here are 'InvalidDataExceptions', this should also be one?
+                throw new ConfigurationErrorsException(
+                    "Unable to complete CollaborationInfo: ProcessIdentifier element not found in SMP metadata");
             }
 
             string serviceValue = processIdentifier.InnerText;
-            string serviceType = null;
-
-            XmlAttribute schemeAttribute = processIdentifier.Attributes?
-                .OfType<XmlAttribute>()
-                .FirstOrDefault(a => a.Name.Equals("scheme", StringComparison.OrdinalIgnoreCase));
-
-            if (schemeAttribute != null)
-            {
-                serviceType = schemeAttribute.Value;
-            }
+            string serviceType = 
+                processIdentifier
+                    .Attributes
+                    ?.OfType<XmlAttribute>()
+                    .FirstOrDefault(a => a.Name.Equals("scheme", StringComparison.OrdinalIgnoreCase))
+                    ?.Value;
 
             sendingPMode.MessagePackaging.CollaborationInfo.Service = new Service
             {
@@ -271,11 +301,14 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
         private static void SetCollaborationAction(SendingProcessingMode sendingPMode, XmlNode smpMetaData)
         {
             XmlNode documentIdentifier =
-                smpMetaData.SelectSingleNode("//*[local-name()='ServiceInformation']/*[local-name()='DocumentIdentifier']");
+                smpMetaData.SelectSingleNode(
+                    "//*[local-name()='ServiceInformation']/*[local-name()='DocumentIdentifier']");
 
             if (documentIdentifier == null)
             {
-                throw new ConfigurationErrorsException("Unable to complete CollaborationInfo: DocumentIdentifier element not found in SMP metadata");
+                // TODO: other exceptions here are 'InvalidDataExceptions', this should also be one?
+                throw new ConfigurationErrorsException(
+                    "Unable to complete CollaborationInfo: DocumentIdentifier element not found in SMP metadata");
             }
 
             sendingPMode.MessagePackaging.CollaborationInfo.Action = documentIdentifier.InnerText;
@@ -283,12 +316,38 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
 
         private static void CompleteSendConfiguration(SendingProcessingMode sendingPMode, XmlNode smpMetaData)
         {
-            XmlNode endPoint = 
-                smpMetaData.SelectSingleNode("//*[local-name()='ServiceEndpointList']/*[local-name()='Endpoint' and @transportProfile='bdxr-transport-ebms3-as4-v1p0']");
+            XmlNode serviceEndpointList =
+                smpMetaData.SelectSingleNode("//*[local-name()='ServiceEndpointList']");
+
+            if (serviceEndpointList == null)
+            {
+                throw new InvalidDataException(
+                    "No <ServiceEndpointList/> element found in the SMP meta-data");
+            }
+
+            const string supportedTransportProfile = "bdxr-transport-ebms3-as4-v1p0";
+            XmlNode endPoint =
+                smpMetaData.SelectSingleNode(
+                    $"//*[local-name()='ServiceEndpointList']/*[local-name()='Endpoint' and @transportProfile='{supportedTransportProfile}']");
+
+            IEnumerable<string> foundTransportProfiles =
+                serviceEndpointList
+                    .ChildNodes
+                    .Cast<XmlNode>()
+                    .Select(n => n?.Attributes?["transportProfile"]?.Value)
+                    .Where(p => p != null);
 
             if (endPoint == null)
             {
-                throw new InvalidDataException("No ServiceEndpointList/Endpoint element found in SMP meta-data");
+                string foundTransportProfilesFormatted =
+                    foundTransportProfiles.Any()
+                    ? $"; did found: {String.Join(", ", foundTransportProfiles)} transport profiles"
+                    : "; no other transport profiles were found";
+
+                throw new InvalidDataException(
+                    "No <Endpoint/> element in a <ServiceEndpointList/> element found in SMP meta-data "
+                    + $"where the @transportProfile attribute is {supportedTransportProfile}"
+                    + foundTransportProfilesFormatted);
             }
 
             CompletePushConfiguration(sendingPMode, endPoint);
@@ -299,10 +358,10 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
         private static void CompletePushConfiguration(SendingProcessingMode sendingPMode, XmlNode endPoint)
         {
             XmlNode address = endPoint.SelectSingleNode("*[local-name()='EndpointReference']/*[local-name()='Address']");
-
             if (address == null)
             {
-                throw new InvalidDataException("No ServiceEndpointList/Endpoint/EndpointReference/Address element found in SMP meta-data");
+                throw new InvalidDataException(
+                    "No ServiceEndpointList/Endpoint/EndpointReference/Address element found in SMP meta-data");
             }
 
             if (sendingPMode.PushConfiguration == null)
@@ -310,16 +369,17 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
                 sendingPMode.PushConfiguration = new PushConfiguration();
             }
 
-            sendingPMode.PushConfiguration.Protocol = new Protocol
-            {
-                Url = address.InnerText
-            };
+            sendingPMode.PushConfiguration.Protocol = new Protocol { Url = address.InnerText };
         }
 
         private static void AddCertificateInformation(SendingProcessingMode sendingPMode, XmlNode endPoint)
         {
             XmlNode certificateNode = endPoint.SelectSingleNode("*[local-name()='Certificate']");
-            if (certificateNode == null) { return; }
+            if (certificateNode == null)
+            {
+                Logger.Debug("No <Certificate/> element found to use for encryption information");
+                return;
+            }
 
             sendingPMode.Security.Encryption.EncryptionCertificateInformation = new PublicKeyCertificate
             {
@@ -327,7 +387,9 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
             };
             sendingPMode.Security.Encryption.CertificateType = PublicKeyCertificateChoiceType.PublicKeyCertificate;
 
-            var cert = new X509Certificate2(Convert.FromBase64String(certificateNode.InnerText), (string) null);
+            var cert = new X509Certificate2(
+                rawData: Convert.FromBase64String(certificateNode.InnerText), 
+                password: (string) null);
 
             sendingPMode.MessagePackaging.PartyInfo = sendingPMode.MessagePackaging.PartyInfo ?? new PartyInfo();
             sendingPMode.MessagePackaging.PartyInfo.ToParty = new Party
@@ -339,6 +401,6 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
                 Id = cert.GetNameInfo(X509NameType.SimpleName, false),
                 Type = "urn:oasis:names:tc:ebcore:partyid-type:unregistered"
             });
-        }       
+        }
     }
 }

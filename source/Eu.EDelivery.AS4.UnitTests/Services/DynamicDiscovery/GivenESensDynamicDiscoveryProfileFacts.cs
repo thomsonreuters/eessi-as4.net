@@ -1,8 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Web;
 using System.Xml;
+using System.Xml.Linq;
+using System.Xml.XPath;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Services.DynamicDiscovery;
 using Xunit;
@@ -11,6 +16,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Services.DynamicDiscovery
 {
     public class GivenESensDynamicDiscoveryProfileFacts
     {
+        [Fact]
+        public void HttpUtility_Encodes_Colon()
+        {
+            const string uri = "http://test:test";
+            Assert.DoesNotContain(":", HttpUtility.UrlEncode(uri));
+        }
+
         [Fact]
         public async Task FailsToRetrieveSmpMetaData_IfPartyIsInvalid()
         {
@@ -25,15 +37,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Services.DynamicDiscovery
         [Fact]
         public void DecorateSendingPModeWithSMPResponse()
         {
-            // Arrange
-            var sut = new ESensDynamicDiscoveryProfile();
-
-            var pmode = new SendingProcessingMode();
-            var smpMetaData = new XmlDocument();
-            smpMetaData.LoadXml(SMPResponse());
-
             // Act
-            SendingProcessingMode actual = sut.DecoratePModeWithSmpMetaData(pmode, smpMetaData);
+            SendingProcessingMode actual = ExercisePModeDecorationWithSmp(CompleteSMPResponse());
 
             // Assert
             Assert.NotEmpty(actual.PushConfiguration.Protocol.Url);
@@ -43,7 +48,74 @@ namespace Eu.EDelivery.AS4.UnitTests.Services.DynamicDiscovery
             Assert.Contains(propNames, p => p == "finalRecipient" || p == "originalSender");
         }
 
-        private static string SMPResponse()
+        private static SendingProcessingMode ExercisePModeDecorationWithSmp(string smpResponse)
+        {
+            var sut = new ESensDynamicDiscoveryProfile();
+
+            var pmode = new SendingProcessingMode();
+            var smpMetaData = new XmlDocument();
+            smpMetaData.LoadXml(smpResponse);
+
+            return sut.DecoratePModeWithSmpMetaData(pmode, smpMetaData);
+        }
+
+        [Fact]
+        public void Decoration_PMode_Fails_With_Missing_ProcessIdentifier()
+        {
+            XDocument doc = XDocument.Parse(CompleteSMPResponse());
+            doc.XPathSelectElement("//*[local-name()='ProcessIdentifier']")
+               ?.Remove();
+
+            Assert.Throws<ConfigurationErrorsException>(
+                () => ExercisePModeDecorationWithSmp(doc));
+        }
+
+        [Fact]
+        public void Decoration_PMode_Fails_With_Missing_DocumentIdentifier()
+        {
+            XDocument doc = XDocument.Parse(CompleteSMPResponse());
+            doc.XPathSelectElement("//*[local-name()='DocumentIdentifier']")
+               ?.Remove();
+
+            Assert.Throws<ConfigurationErrorsException>(
+                () => ExercisePModeDecorationWithSmp(doc));
+        }
+
+        [Fact]
+        public void Decoration_PMode_Fails_With_Missing_Endpoint()
+        {
+            XDocument doc = XDocument.Parse(CompleteSMPResponse());
+            doc.XPathSelectElement("//*[local-name()='Endpoint']")
+               ?.Remove();
+
+            Assert.Throws<InvalidDataException>(
+                () => ExercisePModeDecorationWithSmp(doc));
+        }
+
+        [Fact]
+        public void Decoration_PMode_Fails_With_Missing_Endpoint_TransportProfile()
+        {
+            XDocument doc = XDocument.Parse(CompleteSMPResponse());
+            doc.XPathSelectElement("//*[local-name()='Endpoint']")
+               ?.Attribute(XName.Get("transportProfile"))
+               ?.Remove();
+
+            Assert.Throws<InvalidDataException>(
+                () => ExercisePModeDecorationWithSmp(doc));
+        }
+
+        [Fact]
+        public void Decoration_PMode_Fails_With_Missing_EndpointReference_Address()
+        {
+            XDocument doc = XDocument.Parse(CompleteSMPResponse());
+            doc.XPathSelectElement("//*[local-name()='Address']")
+               ?.Remove();
+
+            Assert.Throws<InvalidDataException>(
+                () => ExercisePModeDecorationWithSmp(doc));
+        }
+
+        private static string CompleteSMPResponse()
         {
             return @"<?xml version=""1.0"" encoding=""UTF-8"" standalone=""no""?>
                 <SignedServiceMetadata 
@@ -71,6 +143,19 @@ namespace Eu.EDelivery.AS4.UnitTests.Services.DynamicDiscovery
                         </ServiceInformation>
                     </ServiceMetadata>
                 </SignedServiceMetadata>";
+        }
+
+        private static SendingProcessingMode ExercisePModeDecorationWithSmp(XDocument smpResponse)
+        {
+            var sut = new ESensDynamicDiscoveryProfile();
+            var pmode = new SendingProcessingMode();
+
+            var smpMetaData = new XmlDocument();
+            using (XmlReader reader = smpResponse.CreateReader())
+            {
+                smpMetaData.Load(reader);
+                return sut.DecoratePModeWithSmpMetaData(pmode, smpMetaData);
+            }
         }
     }
 }
