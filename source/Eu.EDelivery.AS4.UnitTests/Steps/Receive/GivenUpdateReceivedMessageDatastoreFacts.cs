@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Entities;
@@ -13,8 +15,12 @@ using Eu.EDelivery.AS4.Steps.Receive;
 using Eu.EDelivery.AS4.UnitTests.Common;
 using Eu.EDelivery.AS4.UnitTests.Model;
 using Eu.EDelivery.AS4.UnitTests.Repositories;
+using FsCheck;
+using FsCheck.Xunit;
 using Xunit;
+using CollaborationInfo = Eu.EDelivery.AS4.Model.Core.CollaborationInfo;
 using RetryReliability = Eu.EDelivery.AS4.Model.PMode.RetryReliability;
+using Service = Eu.EDelivery.AS4.Model.Core.Service;
 
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 {
@@ -28,14 +34,112 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             base.Disposing();
         }
 
+        [Property(MaxTest = 10)]
+        public Property Updates_Bundled_MessageUnits_For_Forwarding()
+        {
+            return Prop.ForAll(
+                CreateUserReceiptArb(),
+                messageUnits =>
+                {
+                    // Before
+                    Assert.All(
+                        messageUnits,
+                        u => GetDataStoreContext.InsertInMessage(new InMessage(u.MessageId)));
+
+                    // Arrange
+                    AS4Message received = AS4Message.Create(messageUnits);
+
+                    // Act
+                    ExerciseUpdateReceivedMessage(
+                            received,
+                            CreateNotifyAllSendingPMode(),
+                            CreateForwardingReceivingPMode())
+                        .GetAwaiter()
+                        .GetResult();
+
+                    // Assert
+                    IEnumerable<InMessage> updates =
+                        GetDataStoreContext.GetInMessages(
+                            m => received.MessageIds.Contains(m.EbmsMessageId));
+
+                    Assert.All(updates, u => Assert.True(u.Intermediary));
+
+                    InMessage primaryUpdate = updates.First(u => u.EbmsMessageId == received.GetPrimaryMessageId());
+                    Assert.Equal(Operation.ToBeForwarded, primaryUpdate.Operation);
+                });
+        }
+
+        [Property(MaxTest = 5)]
+        public Property Updates_Bundled_MessageUnits_For_Delivery()
+        {
+            return Prop.ForAll(
+                CreateUserReceiptArb(),
+                messageUnits =>
+                {
+                    // Before
+                    Assert.All(
+                        messageUnits,
+                        u => GetDataStoreContext.InsertInMessage(
+                            new InMessage(u.MessageId)
+                            {
+                                EbmsMessageType = u is UserMessage 
+                                    ? MessageType.UserMessage
+                                    : MessageType.Receipt
+                            }));
+
+                    // Arrange
+                    var sut = new UpdateReceivedAS4MessageBodyStep(
+                        StubConfig.Default, 
+                        GetDataStoreContext, 
+                        _messageBodyStore);
+
+                    var ctx = new MessagingContext(
+                        AS4Message.Create(messageUnits), 
+                        MessagingContextMode.Receive)
+                        {
+                            SendingPMode = CreateNotifyAllSendingPMode(),
+                            ReceivingPMode = CreateDeliveryReceivingPMode()
+                        };
+
+                    // Act
+                    sut.ExecuteAsync(ctx)
+                       .GetAwaiter()
+                       .GetResult();
+
+                    // Assert
+                    Operation UpdatedOperationOf(MessageType t) 
+                        => t == MessageType.UserMessage 
+                            ? Operation.ToBeDelivered 
+                            : Operation.ToBeNotified;
+
+                    IEnumerable<InMessage> updates = 
+                        GetDataStoreContext.GetInMessages(
+                            m => ctx.AS4Message.MessageIds.Contains(m.EbmsMessageId));
+
+                    Assert.All(
+                        updates, 
+                        u => Assert.Equal(UpdatedOperationOf(u.EbmsMessageType), u.Operation));
+                });
+        }
+
+        private static Arbitrary<IList<MessageUnit>> CreateUserReceiptArb()
+        {
+            return Gen.OneOf(
+                Gen.Fresh<MessageUnit>(
+                    () => new UserMessage(
+                        $"user-{Guid.NewGuid()}", 
+                        new CollaborationInfo(new Service($"service-{Guid.NewGuid()}")))),
+                Gen.Fresh<MessageUnit>(() => new Receipt($"receipt-{Guid.NewGuid()}")))
+                      .NonEmptyListOf()
+                      .ToArbitrary();
+        }
+
         [Fact]
         public async Task Updates_ToBeNotified_When_Specified_SendingPMode_And_Reference_InMessage()
         {
             // Arrange
             string ebmsMessageId = Guid.NewGuid().ToString();
-            GetDataStoreContext.InsertOutMessage(
-                new OutMessage(ebmsMessageId),
-                withReceptionAwareness: false);
+            GetDataStoreContext.InsertOutMessage(new OutMessage(ebmsMessageId));
 
             AS4Message receivedAS4Message =
                 AS4Message.Create(new Receipt(ebmsMessageId));
@@ -70,8 +174,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             // Arrange
             string knownId = "known-id-" + Guid.NewGuid();
             GetDataStoreContext.InsertOutMessage(
-                new OutMessage(knownId) {MessageLocation = null},
-                withReceptionAwareness: false);
+                new OutMessage(knownId) { MessageLocation = null });
 
             var ctx = new MessagingContext(
                 AS4Message.Create(new FilledUserMessage(knownId)),
@@ -94,9 +197,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
         {
             // Arrange
             string ebmsMessageId = "error-" + Guid.NewGuid();
-            GetDataStoreContext.InsertOutMessage(
-                CreateOutMessage(ebmsMessageId),
-                withReceptionAwareness: false);
+            GetDataStoreContext.InsertOutMessage(CreateOutMessage(ebmsMessageId));
 
             var error = Error.FromErrorResult(
                 ebmsMessageId, 
@@ -141,6 +242,33 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             };
         }
 
+        private static ReceivingProcessingMode CreateForwardingReceivingPMode()
+        {
+            return new ReceivingProcessingMode
+            {
+                Id = $"receive-forward-pmode-{Guid.NewGuid()}",
+                MessageHandling =
+                {
+                    Item = new AS4.Model.PMode.Forward()
+                }
+            };
+        }
+
+        private static ReceivingProcessingMode CreateDeliveryReceivingPMode()
+        {
+            return new ReceivingProcessingMode
+            {
+                Id = $"receive-delivery-pmode-{Guid.NewGuid()}",
+                MessageHandling =
+                {
+                    Item = new AS4.Model.PMode.Deliver
+                    {
+                        IsEnabled = true
+                    }
+                }
+            };
+        }
+
         [Theory]
         [InlineData(true, 5, "0:00:01:00")]
         [InlineData(false, 0, "0:00:00:00")]
@@ -151,8 +279,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             // Arrange
             string ebmsMessageId = "error-" + Guid.NewGuid();
             OutMessage om = GetDataStoreContext.InsertOutMessage(
-                CreateOutMessage(ebmsMessageId),
-                withReceptionAwareness: false);
+                CreateOutMessage(ebmsMessageId));
 
             var error = Error.FromErrorResult(
                 ebmsMessageId, 
@@ -196,8 +323,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             // Arrange
             string ebmsMessageId = Guid.NewGuid().ToString();
             GetDataStoreContext.InsertOutMessage(
-                new OutMessage(ebmsMessageId),
-                withReceptionAwareness: false);
+                new OutMessage(ebmsMessageId));
 
             AS4Message receipt = AS4Message.Create(new Receipt(ebmsMessageId));
             SendingProcessingMode pmode = CreateNotifyAllSendingPMode();

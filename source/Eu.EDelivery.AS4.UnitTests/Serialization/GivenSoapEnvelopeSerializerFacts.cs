@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
@@ -8,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Schema;
+using System.Xml.Serialization;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
@@ -38,6 +40,7 @@ using Property = FsCheck.Property;
 using Receipt = Eu.EDelivery.AS4.Model.Core.Receipt;
 using Reference = Eu.EDelivery.AS4.Model.Core.Reference;
 using Service = Eu.EDelivery.AS4.Model.Core.Service;
+using SignalMessage = Eu.EDelivery.AS4.Model.Core.SignalMessage;
 using UserMessage = Eu.EDelivery.AS4.Model.Core.UserMessage;
 
 namespace Eu.EDelivery.AS4.UnitTests.Serialization
@@ -67,6 +70,21 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                 }
 
                 Soap12Schemas = schemas;
+            }
+
+            [Fact]
+            public async Task Predifined_BizTalk_Sample_Fails_To_Deserialize_Serialize_Because_Of_Missing_Body()
+            {
+                using (var input = new MemoryStream(Encoding.UTF8.GetBytes(BizTalkUserMessage)))
+                using (var output = new MemoryStream())
+                {
+                    var sut = new SoapEnvelopeSerializer();
+                    AS4Message fixture = await sut.DeserializeAsync(input, Constants.ContentTypes.Soap, CancellationToken.None);
+
+
+                    Assert.Throws<NotSupportedException>(
+                        () => sut.Serialize(fixture, output, CancellationToken.None));
+                }
             }
 
             [Fact]
@@ -280,6 +298,35 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
 
         public class AS4MessageSerializeFacts : GivenAS4MessageFacts
         {
+            [CustomProperty]
+            public Property Then_MessageUnits_Are_Serialized_In_Correct_Order(
+                NonEmptyArray<MessageUnit> messageUnits)
+            {
+                // Arrange
+                var as4 = AS4Message.Create(messageUnits.Get);
+
+                // Act
+                XmlDocument doc = SerializeSoapMessage(as4);
+
+                //Assert
+                IEnumerable<string> actual = 
+                    doc.SelectEbmsNode("/s12:Envelope/s12:Header/eb:Messaging")
+                       .ChildNodes
+                       .Cast<XmlNode>()
+                       .Select(n => n.LocalName);
+
+                IEnumerable<string> expected =
+                    messageUnits.Get.Select(
+                        u => u is AS4.Model.Core.SignalMessage
+                            ? "SignalMessage" 
+                            : u is UserMessage 
+                                ? "UserMessage" 
+                                : "Unknown");
+                return expected
+                    .SequenceEqual(actual)
+                    .Label($"{String.Join(", ", expected)} != {String.Join(", ", actual)}");
+            }
+
             [CustomProperty]
             public Property Then_Service_Has_Only_Type_When_Defined(
                 Guid value,
@@ -607,7 +654,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
         {
             AssertMessagingElement(doc);
 
-            string actualRefToMessageId = DeserializeMessagingHeader(doc).SignalMessage.First().MessageInfo.RefToMessageId;
+            string actualRefToMessageId = 
+                DeserializeMessagingHeader(doc)
+                    .MessageUnits
+                    .Cast<AS4.Xml.SignalMessage>()
+                    .First()
+                    .MessageInfo
+                    .RefToMessageId;
+
             string expectedUserMessageId = as4Message.FirstUserMessage.MessageId;
 
             Assert.Equal(expectedUserMessageId, actualRefToMessageId);
@@ -737,7 +791,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
             XmlNode messagingNode = doc.UnsafeSelectEbmsNode("/s12:Envelope/s12:Header/eb:Messaging");
             Assert.NotNull(messagingNode);
 
-            return AS4XmlSerializer.FromString<Messaging>(messagingNode.OuterXml);
+            var s = new XmlSerializer(typeof(Messaging), SoapEnvelopeSerializer.SoapEnvelopeBuilder.MessagingAttributeOverrides);
+            return s.Deserialize(new XmlNodeReader(messagingNode)) as Messaging;
         }
 
         private static void AssertIfSenderAndReceiverAreReversed(AS4Message expectedAS4Message, XmlNode doc)
@@ -864,13 +919,49 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
 
     public class GivenReserializationFacts
     {
+        [CustomProperty]
+        public Property Redeserialize_Result_In_Same_MessageUnits_Order(
+            NonEmptyArray<MessageUnit> messageUnits)
+        {
+            // Arrange
+            AS4Message start = AS4Message.Create(messageUnits.Get);
+
+            string ToName(MessageUnit u)
+            {
+                return u is SignalMessage
+                    ? "SignalMessage"
+                    : u is UserMessage
+                        ? "UserMessage"
+                        : "Unknown";
+            }
+
+            IEnumerable<string> expected = messageUnits.Get.Select(ToName);
+
+            // Act
+            AS4Message end =
+                AS4MessageUtils.SerializeDeserializeAsync(start)
+                               .GetAwaiter()
+                               .GetResult();
+            
+            // Assert
+            IEnumerable<string> actual = end.MessageUnits.Select(ToName);
+            return expected
+                .SequenceEqual(actual)
+                .Label($"{String.Join(", ", expected)} != {String.Join(", ", actual)}");
+        }
+
         [Fact]
         public async Task ReserializedMessageHasUntouchedSoapEnvelope()
         {
-            AS4Message deserializedAS4Message = await DeserializeToAS4Message(rssbus_message, @"multipart/related;boundary=""NSMIMEBoundary__e5cfd617-6cec-4276-b190-23f0b25d9d4d"";type=""application/soap+xml"";start=""<_7a711d7c-4d1c-4ce7-ab38-794a01b445e1>""");
+            AS4Message deserializedAS4Message = await DeserializeToAS4Message(
+                rssbus_message, 
+                @"multipart/related;boundary=""NSMIMEBoundary__e5cfd617-6cec-4276-b190-23f0b25d9d4d"";type=""application/soap+xml"";start=""<_7a711d7c-4d1c-4ce7-ab38-794a01b445e1>""");
+
             AS4Message reserializedAS4Message = await AS4MessageUtils.SerializeDeserializeAsync(deserializedAS4Message);
 
-            Assert.Equal(deserializedAS4Message.EnvelopeDocument.OuterXml, reserializedAS4Message.EnvelopeDocument.OuterXml);
+            Assert.Equal(
+                deserializedAS4Message.EnvelopeDocument.OuterXml, 
+                reserializedAS4Message.EnvelopeDocument.OuterXml);
         }
 
         [Fact]
@@ -878,25 +969,30 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
         {
             // Arrange: retrieve an existing signed AS4 Message and encrypt it. 
             //          Serialize it again to inspect the Soap envelope of the modified message.
+            AS4Message deserializedAS4Message = 
+                await DeserializeToAS4Message(
+                    signed_holodeck_message, 
+                    @"multipart/related;boundary=""MIMEBoundary_bcb27a6f984295aa9962b01ef2fb3e8d982de76d061ab23f""");
 
-            AS4Message deserializedAS4Message = await DeserializeToAS4Message(signed_holodeck_message, @"multipart/related;boundary=""MIMEBoundary_bcb27a6f984295aa9962b01ef2fb3e8d982de76d061ab23f""");
+            XmlNode originalSecurityHeader = deserializedAS4Message.SecurityHeader.GetXml().CloneNode(deep: true);
 
-            var originalSecurityHeader = deserializedAS4Message.SecurityHeader.GetXml().CloneNode(deep: true);
-
-            X509Certificate2 encryptionCertificate = new X509Certificate2(certificate_as4, certificate_password);
+            var encryptionCertificate = new X509Certificate2(certificate_as4, certificate_password);
 
             // Act: Encrypt the message
-            deserializedAS4Message.Encrypt(new KeyEncryptionConfiguration(encryptionCertificate),
-                                           DataEncryptionConfiguration.Default);
+            deserializedAS4Message.Encrypt(
+                new KeyEncryptionConfiguration(encryptionCertificate),
+                DataEncryptionConfiguration.Default);
             
             // Assert: the soap envelope of the encrypted message should not be equal to the
             //         envelope of the original message since there should be modifications in
             //         the security header.
-            Assert.NotEqual(originalSecurityHeader.OuterXml, deserializedAS4Message.EnvelopeDocument.OuterXml);
+            Assert.NotEqual(
+                originalSecurityHeader.OuterXml, 
+                deserializedAS4Message.EnvelopeDocument.OuterXml);
 
             // Serialize it again; the Soap envelope should remain intact, besides
             // some changes that have been made to the security header.
-            var reserializedAS4Message = await AS4MessageUtils.SerializeDeserializeAsync(deserializedAS4Message);
+            AS4Message reserializedAS4Message = await AS4MessageUtils.SerializeDeserializeAsync(deserializedAS4Message);
 
             // Assert: The soap envelopes of both messages should be equal if the 
             //         SecurityHeader is not taken into consideration.
@@ -904,7 +1000,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
             RemoveSecurityHeaderFromMessageEnvelope(reserializedAS4Message);
             RemoveSecurityHeaderFromMessageEnvelope(deserializedAS4Message);
 
-            Assert.Equal(reserializedAS4Message.EnvelopeDocument.OuterXml, deserializedAS4Message.EnvelopeDocument.OuterXml);
+            Assert.Equal(
+                reserializedAS4Message.EnvelopeDocument.OuterXml, 
+                deserializedAS4Message.EnvelopeDocument.OuterXml);
         }
 
         private static async Task<AS4Message> DeserializeToAS4Message(byte[] content, string contentType)

@@ -21,7 +21,7 @@ using UserMessage = Eu.EDelivery.AS4.Model.Core.UserMessage;
 namespace Eu.EDelivery.AS4.Steps.Receive
 {
     [Info("Create an AS4 Error message")]
-    [Description("Create an AS4 Error message to inform the sender that something went wrong processing the received AS4 message.")]
+    [Description("Create an AS4 Error message to inform the sender that something went wrong processing the received AS4 message")]
     public class CreateAS4ErrorStep : IStep
     {
         private readonly IConfig _config;
@@ -41,6 +41,16 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             IConfig config,
             Func<DatastoreContext> createDatastoreContext)
         {
+            if (config == null)
+            {
+                throw new ArgumentNullException(nameof(config));
+            }
+
+            if (createDatastoreContext == null)
+            {
+                throw new ArgumentNullException(nameof(createDatastoreContext));
+            }
+
             _config = config;
             _createDatastoreContext = createDatastoreContext;
         }
@@ -53,24 +63,34 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// <exception cref="System.Exception">A delegate callback throws an exception.</exception>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
-            bool noAS4MessagePresent = messagingContext.AS4Message == null || messagingContext.AS4Message.IsEmpty;
-            if (noAS4MessagePresent && messagingContext.ErrorResult == null)
+            bool noAS4MessagePresent = 
+                messagingContext?.AS4Message == null 
+                || messagingContext.AS4Message.IsEmpty;
+
+            if (noAS4MessagePresent && messagingContext?.ErrorResult == null)
             {
-                Logger.Warn("Skip creating AS4 Error because AS4Message and ErrorResult is empty");
+                Logger.Warn("Skip creating AS4 Error because AS4Message and ErrorResult is empty in the MessagingContext");
                 return await StepResult.SuccessAsync(messagingContext);
             }
 
+            ErrorResult errorResult = messagingContext.ErrorResult;
             SendingProcessingMode responseSendPMode =
                 messagingContext.GetReferencedSendingPMode(messagingContext.ReceivingPMode, _config);
 
             AS4Message errorMessage = CreateAS4ErrorWithPossibleMultihop(
                 sendPMode: responseSendPMode,
                 referenced: messagingContext.AS4Message,
-                result: messagingContext.ErrorResult);
+                occurredError: errorResult);
 
-            if (messagingContext.ErrorResult != null)
+            if (errorResult != null)
             {
-                await CreateExceptionForReceivedSignalMessagesAsync(messagingContext);
+                Logger.Debug(
+                    $"AS4 Error(s) created with {errorResult.Code.GetString()} \"{errorResult.Alias}, {errorResult.Description}\"");
+
+                await InsertInExceptionsForNowExceptionedInMessageAsync(
+                    messagingContext.AS4Message.SignalMessages,
+                    messagingContext.ErrorResult,
+                    messagingContext.ReceivingPMode);
             }
 
             messagingContext.ModifyContext(errorMessage);
@@ -78,7 +98,8 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
             if (Logger.IsInfoEnabled && errorMessage.MessageUnits.Any())
             {
-                Logger.Info($"{messagingContext.LogTag} Error has been created for received UserMessages");
+                Logger.Info(
+                    $"{messagingContext.LogTag} {errorMessage.MessageUnits.Count()} Error(s) has been created for received AS4 UserMessages");
             }
 
             return await StepResult.SuccessAsync(messagingContext);
@@ -87,23 +108,21 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         private static AS4Message CreateAS4ErrorWithPossibleMultihop(
             SendingProcessingMode sendPMode, 
             AS4Message referenced,
-            ErrorResult result)
+            ErrorResult occurredError)
         {
-            var routedUserMessage = 
-                AS4Mapper.Map<RoutingInputUserMessage>(referenced?.FirstUserMessage);
-
             Error ToError(UserMessage u)
             {
+                var routedUserMessage = AS4Mapper.Map<RoutingInputUserMessage>(u);
                 if (routedUserMessage == null)
                 {
-                    return result == null 
+                    return occurredError == null 
                         ? new Error(u.MessageId) 
-                        : new Error(u.MessageId, ErrorLine.FromErrorResult(result));
+                        : new Error(u.MessageId, ErrorLine.FromErrorResult(occurredError));
                 }
 
-                return result == null 
+                return occurredError == null 
                     ? new Error(u.MessageId, routedUserMessage) 
-                    : new Error(u.MessageId, ErrorLine.FromErrorResult(result), routedUserMessage);
+                    : new Error(u.MessageId, ErrorLine.FromErrorResult(occurredError), routedUserMessage);
             }
 
             IEnumerable<Error> errors = referenced?.UserMessages.Select(ToError) ?? new Error[0];
@@ -113,9 +132,11 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             return errorMessage;
         }
 
-        private async Task CreateExceptionForReceivedSignalMessagesAsync(MessagingContext context)
+        private async Task InsertInExceptionsForNowExceptionedInMessageAsync(
+            IEnumerable<SignalMessage> signalMessages,
+            ErrorResult occurredError,
+            ReceivingProcessingMode receivePMode)
         {
-            IEnumerable<SignalMessage> signalMessages = context.AS4Message.SignalMessages;
             if (signalMessages.Any() == false)
             {
                 return;
@@ -126,10 +147,12 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 var repository = new DatastoreRepository(dbContext);
                 foreach (SignalMessage signal in signalMessages.Where(s => !(s is PullRequest)))
                 {
-                    var ex = new InException(signal.MessageId, context.ErrorResult.Description);
-                    await ex.SetPModeInformationAsync(context.ReceivingPMode);
+                    var ex = new InException(signal.MessageId, occurredError.Description);
+                    await ex.SetPModeInformationAsync(receivePMode);
 
-                    Logger.Debug($"Insert InException for {signal.MessageId}");
+                    Logger.Debug(
+                        $"Insert InException for {signal.GetType().Name} {signal.MessageId} with {{Exception={occurredError.Description}}}");
+
                     repository.InsertInException(ex);
                 }
 
@@ -138,7 +161,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                     m => ebmsMessageIds.Contains(m.EbmsMessageId),
                     m =>
                     {
-                        Logger.Debug($"Set {m.EbmsMessageType} InMessage {m.EbmsMessageId} Status=Exception");
+                        Logger.Debug($"Update {m.EbmsMessageType} InMessage {m.EbmsMessageId} Status=Exception");
                         m.SetStatus(InStatus.Exception);
                     });
 

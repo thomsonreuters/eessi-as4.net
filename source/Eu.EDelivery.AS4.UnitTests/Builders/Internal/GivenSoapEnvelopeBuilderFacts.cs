@@ -16,24 +16,48 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Internal
 
         public GivenSoapEnvelopeBuilderFacts()
         {
-            _builder = new SoapEnvelopeSerializer.SoapEnvelopeBuilder();
+            _builder = new SoapEnvelopeSerializer.SoapEnvelopeBuilder(envelopeDocument: null);
         }
 
-        /// <summary>
-        /// Testing if the Builder Succeeds
-        /// </summary>
         public class GivenValidArgumentsBuilder : GivenSoapEnvelopeBuilderFacts
         {
+            [Fact]
+            public void Builder_Fails_To_Create_When_Envelope_Element_Is_Missing()
+            {
+                Assert.Throws<NotSupportedException>(
+                    () => new SoapEnvelopeSerializer.SoapEnvelopeBuilder(new XmlDocument()));
+            }
+
+            [Fact]
+            public void Builder_Fails_To_Create_When_Header_Element_Is_Missing()
+            {
+                var doc = new XmlDocument();
+                XmlElement envelope = doc.CreateElement("s12", "Envelope", Constants.Namespaces.Soap12);
+                doc.AppendChild(envelope);
+
+                Assert.Throws<NotSupportedException>(
+                    () => new SoapEnvelopeSerializer.SoapEnvelopeBuilder(doc));
+            }
+
+            [Fact]
+            public void Builder_Fails_To_Create_When_Body_Element_Is_Missing()
+            {
+                var doc = new XmlDocument();
+                XmlElement envelope = doc.CreateElement("s12", "Envelope", Constants.Namespaces.Soap12);
+                envelope.AppendChild(doc.CreateElement("s12", "Header", Constants.Namespaces.Soap12));
+                doc.AppendChild(envelope);
+
+                Assert.Throws<NotSupportedException>(
+                    () => new SoapEnvelopeSerializer.SoapEnvelopeBuilder(doc));
+            }
+
             [Theory]
             [InlineData(Constants.Namespaces.EbmsOneWayReceipt)]
             [InlineData(Constants.Namespaces.EbmsOneWayError)]
             public void ThenResultContainsAction(string action)
             {
-                // Arrange
-                var messaging = new Messaging();
-
                 // Act
-                XmlDocument envelope = _builder.SetMessagingHeader(messaging).SetActionHeader(action).Build();
+                XmlDocument envelope = _builder.SetActionHeader(action).Build();
 
                 // Assert
                 Assert.NotNull(envelope);
@@ -57,13 +81,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Internal
             public void ThenResultContainsBody()
             {
                 // Arrange
-                var messagingHeader = new Messaging();
                 string bodySecurityId = $"#body-{Guid.NewGuid()}";
 
                 // Act
                 XmlDocument envelope =
-                    _builder.SetMessagingHeader(messagingHeader)
-                            .SetMessagingBody(bodySecurityId)
+                    _builder.SetMessagingBody(bodySecurityId)
                             .Build();
 
                 // Assert
@@ -87,26 +109,21 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Internal
             }
 
             [Fact]
-            public void ThenResultContainsHeader()
+            public void ThenResultDoesntContainsHeader()
             {
-                // Arrange
-                var messagingHeader = new Messaging();
-
                 // Act
-                XmlDocument envelope = _builder.SetMessagingHeader(messagingHeader).Build();
+                XmlDocument envelope = _builder.Build();
 
                 // Assert
                 Assert.NotNull(envelope);
-                XmlNode headerNode = envelope.SelectEbmsNode("/s12:Envelope/s12:Header");
-                Assert.Equal("s12:Header", headerNode.Name);
-                Assert.Equal(Constants.Namespaces.Soap12, headerNode.NamespaceURI);
+                XmlNode headerNode = envelope.UnsafeSelectEbmsNode("/s12:Envelope/s12:Header");
+                Assert.Null(headerNode);
             }
 
             [Fact]
             public void ThenResultContainsRoutingInput()
             {
                 // Arrange
-                var messaging = new Messaging();
                 var routingInput = new RoutingInput
                 {
                     UserMessage = new RoutingInputUserMessage
@@ -119,8 +136,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Internal
 
                 // Act
                 XmlDocument envelope = 
-                    _builder.SetMessagingHeader(messaging)
-                            .SetRoutingInput(routingInput)
+                    _builder.SetRoutingInput(routingInput)
                             .Build();
 
                 // Assert
@@ -132,7 +148,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Internal
             public void ThenResultContainsSecurityHeader()
             {
                 // Arrange
-                var messagingHeader = new Messaging();
                 XmlNode securityNode = new XmlDocument().CreateNode(
                     XmlNodeType.Element,
                     "SecurityHeader",
@@ -140,8 +155,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Internal
 
                 // Act
                 XmlDocument envelope =
-                    _builder.SetMessagingHeader(messagingHeader)
-                            .SetSecurityHeader(securityNode)
+                    _builder.SetSecurityHeader(securityNode)
                             .Build();
 
                 // Assert
@@ -153,13 +167,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Internal
             public void ThenResultContainsTo()
             {
                 // Arrange
-                var messaging = new Messaging();
                 var to = new To {Role = Constants.Namespaces.ICloud};
 
                 // Act
                 XmlDocument envelope = 
-                    _builder.SetMessagingHeader(messaging)
-                            .SetToHeader(to)
+                    _builder.SetToHeader(to)
                             .Build();
 
                 // Assert

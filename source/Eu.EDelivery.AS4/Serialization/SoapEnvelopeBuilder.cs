@@ -4,6 +4,7 @@ using System.Linq;
 using System.Xml;
 using System.Xml.Serialization;
 using Eu.EDelivery.AS4.Xml;
+using NotSupportedException = System.NotSupportedException;
 
 namespace Eu.EDelivery.AS4.Serialization
 {
@@ -35,12 +36,42 @@ namespace Eu.EDelivery.AS4.Serialization
             private XmlNode _messagingHeaderElement;
             private XmlNode _routingInputHeaderElement;
 
-            /// <summary>
-            /// Initializes a new instance of the <see cref="SoapEnvelopeBuilder"/> class. 
-            /// Create a Soap Envelope Builder
-            /// </summary>
-            public SoapEnvelopeBuilder() : this(null) { }
+            internal static readonly XmlAttributeOverrides MessagingAttributeOverrides;
 
+            static SoapEnvelopeBuilder()
+            {
+                /* Workarround for the Ebms Envelope serialization/deserialization:
+                 * During serialization/deserialization, the 'UserMessage' and 'SignalMessage' property
+                 * of the 'Messaging' model in the 'Generated.cs' file gets filled with their respectively message units.
+                 * The order of the message units gets lost by this; which can results in a different 'Primary Message Unit'.
+                 * The workarround below makes sure that we override the [XmlElement] attributes on both properties.
+                 * The 'real' message units gets set into a new property called 'MessageUnits',
+                 * now a property on the 'Messaging' model in a separate file 'Messaging.cs'.
+                 * The [XmlElement] attributes for both 'UserMessage' and 'SignalMessage' types are set on this new property which makes sure
+                 * that all message units are serialized/deserialized in the same property and not separated; keeping the correct order. */
+                var overrides = new XmlAttributeOverrides();
+                overrides.Add(
+                    typeof(Messaging),
+                    "UserMessage",
+                    new XmlAttributes
+                    {
+                        XmlElements = { new XmlElementAttribute("OverrideUserMessage") }
+                    });
+                overrides.Add(
+                    typeof(Messaging),
+                    "SignalMessage",
+                    new XmlAttributes
+                    {
+                        XmlElements = { new XmlElementAttribute("OverrideSignalMessage") }
+                    });
+
+                MessagingAttributeOverrides = overrides;
+            }
+
+            /// <summary>
+            /// Initializes a new instance of the <see cref="SoapEnvelopeBuilder"/> class.
+            /// </summary>
+            /// <param name="envelopeDocument"></param>
             public SoapEnvelopeBuilder(XmlDocument envelopeDocument)
             {
                 if (envelopeDocument == null)
@@ -55,7 +86,7 @@ namespace Eu.EDelivery.AS4.Serialization
                 }
                 else
                 {
-                    var soapNamespace = NamespaceInformation[SoapNamespace.Soap];
+                    XmlQualifiedName soapNamespace = NamespaceInformation[SoapNamespace.Soap];
 
                     var nsMgr = new XmlNamespaceManager(envelopeDocument.NameTable);
                     nsMgr.AddNamespace(soapNamespace.Name, soapNamespace.Namespace);
@@ -65,6 +96,24 @@ namespace Eu.EDelivery.AS4.Serialization
                     _envelopeElement = envelopeDocument.SelectSingleNode($"/{soapNamespace.Name}:Envelope", nsMgr) as XmlElement;
                     _headerElement = envelopeDocument.SelectSingleNode($"/{soapNamespace.Name}:Envelope/{soapNamespace.Name}:Header", nsMgr) as XmlElement;
                     _bodyElement = envelopeDocument.SelectSingleNode($"/{soapNamespace.Name}:Envelope/{soapNamespace.Name}:Body", nsMgr) as XmlElement;
+                }
+
+                if (_envelopeElement == null)
+                {
+                    throw new NotSupportedException(
+                        $"Envelope document requires a root <s12:Envelope/> element where s12={Constants.Namespaces.Soap12}");
+                }
+
+                if (_headerElement == null)
+                {
+                    throw new NotSupportedException(
+                        $"Envelope document requires a child element <s12:Header/> inside the root <s12:Envelope/> element where s12={Constants.Namespaces.Soap12}");
+                }
+
+                if (_bodyElement == null)
+                {
+                    throw new NotSupportedException(
+                        $"Envelope document requires a child element <s12:Body/> inside the root <s12:Envelope/> element where s12={Constants.Namespaces.Soap12}");
                 }
             }
 
@@ -90,7 +139,7 @@ namespace Eu.EDelivery.AS4.Serialization
 
                 using (XmlWriter writer = xmlDocument.CreateNavigator().AppendChild())
                 {
-                    var serializer = new XmlSerializer(typeof(Messaging));
+                    var serializer = new XmlSerializer(typeof(Messaging), MessagingAttributeOverrides);
                     serializer.Serialize(writer, messagingHeader, XmlSerializerNamespaceInfo);
                 }
 
@@ -159,7 +208,7 @@ namespace Eu.EDelivery.AS4.Serialization
 
                 XmlAttribute roleAttribute = _document.CreateAttribute(soapNamespace.Name, "role", soapNamespace.Namespace);
                 roleAttribute.Value = to.Role;
-                toNode.Attributes.Append(roleAttribute);
+                toNode.Attributes?.Append(roleAttribute);
 
                 _headerElement.AppendChild(toNode);
                 return this;
@@ -181,9 +230,10 @@ namespace Eu.EDelivery.AS4.Serialization
 
             private XmlElement CreateElement(SoapNamespace namespaceInfo, string elementName)
             {
-                return _document.CreateElement(NamespaceInformation[namespaceInfo].Name,
-                                               elementName,
-                                               NamespaceInformation[namespaceInfo].Namespace);
+                return _document.CreateElement(
+                    prefix: NamespaceInformation[namespaceInfo].Name,
+                    localName: elementName,
+                    namespaceURI: NamespaceInformation[namespaceInfo].Namespace);
             }
 
             /// <summary>
@@ -222,8 +272,7 @@ namespace Eu.EDelivery.AS4.Serialization
 
                 if (_headerElement.HasChildNodes)
                 {
-                    var existingHeader = _envelopeElement.SelectSingleNode("/soap:Envelope/soap:Header", nsMgr);
-
+                    XmlNode existingHeader = _envelopeElement.SelectSingleNode("/soap:Envelope/soap:Header", nsMgr);
                     if (existingHeader != null)
                     {
                         _envelopeElement.ReplaceChild(_headerElement, existingHeader);
