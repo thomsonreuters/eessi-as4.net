@@ -4,17 +4,21 @@ using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Internal;
+using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Receivers;
 using Eu.EDelivery.AS4.Repositories;
+using Eu.EDelivery.AS4.Serialization;
+using Eu.EDelivery.AS4.Services;
 using NLog;
+using MessageExchangePattern = Eu.EDelivery.AS4.Entities.MessageExchangePattern;
 using NotSupportedException = System.NotSupportedException;
+using RetryReliability = Eu.EDelivery.AS4.Entities.RetryReliability;
 
 namespace Eu.EDelivery.AS4.Agents
 {
     internal class RetryAgent : IAgent
     {
         private readonly IReceiver _receiver;
-        private readonly TimeSpan _pollingInterval;
         private readonly Func<DatastoreContext> _createContext;
 
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
@@ -23,15 +27,12 @@ namespace Eu.EDelivery.AS4.Agents
         /// Initializes a new instance of the <see cref="RetryAgent"/> class.
         /// </summary>
         /// <param name="receiver">The receiver used to retrieve <see cref="RetryReliability"/> entities</param>
-        /// <param name="pollingInterval">The interval in which the polling for retryable entities should happen</param>
         /// <param name="createContext">The factory creating a <see cref="DatastoreContext"/></param>
-        public RetryAgent(
-            IReceiver receiver,
-            TimeSpan pollingInterval,
+        internal RetryAgent(
+            IReceiver receiver, 
             Func<DatastoreContext> createContext)
         {
             _receiver = receiver;
-            _pollingInterval = pollingInterval;
             _createContext = createContext;
         }
 
@@ -51,11 +52,11 @@ namespace Eu.EDelivery.AS4.Agents
             Logger.Debug(AgentConfig.Name + " Started");
 
             await Task.Factory.StartNew(
-                () => _receiver.StartReceiving(OnReceived, cancellation),
+                () => _receiver.StartReceiving(OnReceivedAsync, cancellation),
                 TaskCreationOptions.LongRunning);
         }
 
-        private Task<MessagingContext> OnReceived(ReceivedMessage rm, CancellationToken ct)
+        private Task<MessagingContext> OnReceivedAsync(ReceivedMessage rm, CancellationToken ct)
         {
             try
             {
@@ -88,7 +89,6 @@ namespace Eu.EDelivery.AS4.Agents
         {
             (long refToEntityId, Entity entityType) = GetRefToEntityIdWithType(rr);
             Operation op = GetRefEntityOperation(repo, refToEntityId, entityType);
-
             Logger.Debug($"Retry on {entityType} {refToEntityId} with Operation={op}");
 
             if (op == Operation.ToBeRetried && rr.CurrentRetryCount < rr.MaxRetryCount)
@@ -96,7 +96,7 @@ namespace Eu.EDelivery.AS4.Agents
                 var t = rr.RetryType;
                 Operation updateOperation =
                     t == RetryType.Delivery ? Operation.ToBeDelivered :
-                    t == RetryType.Notification ? Operation.ToBeNotified : 
+                    t == RetryType.Notification ? Operation.ToBeNotified :
                     t == RetryType.Send ? Operation.ToBeSent : Operation.NotApplicable;
 
                 Logger.Debug($"({rr.RetryType}) Update for retry, set Operation={updateOperation}");
@@ -121,6 +121,11 @@ namespace Eu.EDelivery.AS4.Agents
 
                 UpdateRefEntityOperation(repo, refToEntityId, entityType, Operation.DeadLettered);
                 repo.UpdateRetryReliability(rr.Id, r => r.Status = RetryStatus.Completed);
+
+                if (rr.RetryType == RetryType.Send)
+                {
+                    InsertDeadLetteredError(refToEntityId, repo);
+                }
             }
         }
 
@@ -188,6 +193,21 @@ namespace Eu.EDelivery.AS4.Agents
                 default:
                     throw new ArgumentOutOfRangeException(paramName: nameof(type), actualValue: type, message: null);
             }
+        }
+
+        private static void InsertDeadLetteredError(long outMessageId, IDatastoreRepository repo)
+        {
+            Tuple<string, MessageExchangePattern, string> data =
+                repo.GetOutMessageData(
+                    outMessageId,
+                    m => Tuple.Create(m.EbmsMessageId, m.MEP, m.PMode));
+
+            string ebmsMessageId = data.Item1;
+            MessageExchangePattern mep = data.Item2;
+            var sendPMode = AS4XmlSerializer.FromString<SendingProcessingMode>(data.Item3);
+
+            var service = new InMessageService(Config.Instance, repo);
+            service.InsertDeadLetteredErrorForAsync(ebmsMessageId, mep, sendPMode);
         }
 
         /// <summary>

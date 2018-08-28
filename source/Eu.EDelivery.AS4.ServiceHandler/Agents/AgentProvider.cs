@@ -44,7 +44,6 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
                                 config.RetentionPeriod),
                             new RetryAgent(
                                 CreateRetryReceiver(config, registry),
-                                config.RetryPollingInterval,
                                 registry.CreateDatastoreContext)
                         });
             }

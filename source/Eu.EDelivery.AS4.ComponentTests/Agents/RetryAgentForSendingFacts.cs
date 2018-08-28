@@ -59,6 +59,17 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                         () => spy.GetRetryReliabilityFor(r => r.RefToOutMessageId == sent.Id),
                         timeout: TimeSpan.FromSeconds(5));
                     Assert.Equal(RetryStatus.Completed, referenced.Status);
+
+                    InMessage deadLetteredError =
+                        spy.GetInMessageFor(m => m.EbmsRefToMessageId == sent.EbmsMessageId);
+
+                    bool storedDeadLetteredError =
+                        deadLetteredError?.Operation == Operation.ToBeNotified
+                        && deadLetteredError?.EbmsMessageType == MessageType.Error;
+
+                    Assert.True(
+                        storedDeadLetteredError == (expected == Operation.DeadLettered),
+                        "Expected to have stored AS4 Error for DeadLettered message");
                 });
         }
 
@@ -89,6 +100,10 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                     {
                         Url = url
                     }
+                },
+                ErrorHandling =
+                {
+                    NotifyMessageProducer = true
                 },
                 Reliability =
                 {
