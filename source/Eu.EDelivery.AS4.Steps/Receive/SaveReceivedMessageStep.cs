@@ -88,27 +88,22 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             Logger.Info($"{messagingContext.LogTag} Store the incoming AS4 Message to the datastore");
             MessagingContext resultContext = await InsertReceivedAS4MessageAsync(messagingContext);
 
-            if (messagingContext.AS4Message.PrimaryMessageUnit is Error signal
-                && signal.RefToMessageId == null)
-            {
-                Logger.Warn($"{messagingContext.LogTag} cannot further process incoming Error because it hasn't got a RefToMessageId");
-                
-                return StepResult.Success(
-                    new MessagingContext(AS4Message.Empty, messagingContext.Mode))
-                                 .AndStopExecution();
-            }
-
             if (resultContext != null && resultContext.Exception == null)
             {
-                if (resultContext.AS4Message.IsSignalMessage
-                    && String.IsNullOrWhiteSpace(resultContext.AS4Message.FirstSignalMessage.RefToMessageId))
+                /* PullRequests will not be notified, so we don't need a referenced Id,
+                 * Receipts and Errors will need to have a referenced UserMessage 
+                 * if we want to know the original Sending PMode required for the notification. */
+
+                MessageUnit primaryMessageUnit = resultContext.AS4Message.PrimaryMessageUnit;
+                if ((primaryMessageUnit is Receipt || primaryMessageUnit is Error)
+                    && string.IsNullOrWhiteSpace(primaryMessageUnit.RefToMessageId))
                 {
                     Logger.Warn(
                         $"{messagingContext.LogTag} Received message is a SignalMessage without RefToMessageId. " +
                         "No such SignalMessage are supported so the message cannot be processed any further");
 
                     return StepResult
-                        .Success(new MessagingContext(AS4Message.Empty, MessagingContextMode.Receive))
+                        .Success(new MessagingContext(AS4Message.Empty, messagingContext.Mode))
                         .AndStopExecution();
                 }
 
@@ -116,9 +111,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 return StepResult.Success(resultContext);
             }
 
-            Logger.Error(
-                $"{messagingContext.LogTag} The AS4Message is not stored correctly into the datastore {resultContext?.Exception}");
-
+            Logger.Error($"{messagingContext.LogTag} The AS4Message is not stored correctly into the datastore {resultContext?.Exception}");
             return StepResult.Failed(resultContext);
         }
 
