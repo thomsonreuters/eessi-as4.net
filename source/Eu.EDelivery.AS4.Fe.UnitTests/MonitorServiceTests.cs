@@ -148,28 +148,28 @@ Failed to decrypt data element
                     datastoreContext.OutMessages.Add(message);
                 }
 
-                datastoreContext.InExceptions.Add(new InException(InEbmsMessageId1, InException)
+                datastoreContext.InExceptions.Add(new InException(InEbmsMessageId1, exceptionLocation: null, exception: InException)
                 {
                     InsertionTime = DateTime.UtcNow.AddMinutes(-1),
                 });
-                datastoreContext.InExceptions.Add(new InException(OutEbmsRefToMessageId1, MessageBody1)
+                datastoreContext.InExceptions.Add(new InException(InEbmsMessageId1, exceptionLocation: null, exception: InException)
                 {
                     InsertionTime = DateTime.UtcNow.AddMinutes(-1)
                 });
-                datastoreContext.InExceptions.Add(new InException(Encoding.ASCII.GetBytes(MessageBody1), "errorMessage")
+                datastoreContext.InExceptions.Add(new InException(InEbmsMessageId1, exceptionLocation: "some-location", exception: InException)
                 {
                     InsertionTime = DateTime.UtcNow.AddMinutes(-1)
                 });
-                datastoreContext.OutExceptions.Add(new OutException(OutEbmsRefToMessageId1, InException)
+                datastoreContext.OutExceptions.Add(new OutException(OutEbmsRefToMessageId1, messageLocation: null, exception: InException)
                 {
                     InsertionTime = DateTime.UtcNow.AddMinutes(-1)
                 });
-                datastoreContext.OutExceptions.Add(new OutException(InEbmsRefToMessageId1, Exception)
+                datastoreContext.OutExceptions.Add(new OutException(InEbmsRefToMessageId1, messageLocation: null, exception: Exception)
                 {
                     InsertionTime = DateTime.UtcNow.AddMinutes(-1)
                 });
 
-                datastoreContext.OutExceptions.Add(new OutException(Encoding.ASCII.GetBytes(MessageBody1), Exception)
+                datastoreContext.OutExceptions.Add(new OutException(ebmsRefToMessageId: null, messageLocation: "some-location", exception: Exception)
                 {
                     InsertionTime = DateTime.UtcNow.AddMinutes(-1)
                 });
@@ -582,10 +582,10 @@ Failed to decrypt data element
                     switch (direction)
                     {
                         case Direction.Inbound:
-                            id = datastoreContext.InExceptions.Where(x => x.MessageBody != null).Select(x => x.Id).First();
+                            id = datastoreContext.InExceptions.Where(x => x.MessageLocation != null).Select(x => x.Id).First();
                             break;
                         case Direction.Outbound:
-                            id = datastoreContext.OutExceptions.Where(x => x.MessageBody != null).Select(x => x.Id).First();
+                            id = datastoreContext.OutExceptions.Where(x => x.MessageLocation != null).Select(x => x.Id).First();
                             break;
                     }
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Entities;
 using Eu.EDelivery.AS4.Common;
@@ -33,19 +34,22 @@ namespace Eu.EDelivery.AS4.Services
         private readonly IConfig _configuration;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="InMessageService"/> class. 
-        /// Create a new Data store Repository
-        /// </summary>
-        /// <param name="repository"></param>
-        public InMessageService(IDatastoreRepository repository) : this(Config.Instance, repository) { }
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="InMessageService"/> class.
         /// </summary>
         /// <param name="config">The configuration.</param>
         /// <param name="repository">The repository.</param>
         public InMessageService(IConfig config, IDatastoreRepository repository)
         {
+            if (config == null)
+            {
+                throw new ArgumentNullException(nameof(config));
+            }
+
+            if (repository == null)
+            {
+                throw new ArgumentNullException(nameof(repository));
+            }
+
             _configuration = config;
             _repository = repository;
         }
@@ -164,9 +168,8 @@ namespace Eu.EDelivery.AS4.Services
             {
                 Logger.Error(ex.Message);
 
-                InException inException = new InException(System.Text.Encoding.UTF8.GetBytes(location), ex.Message);
-
-                _repository.InsertInException(inException);
+                var service = new ExceptionService(_configuration, _repository, messageBodyStore);
+                await service.InsertIncomingExceptionAsync(ex, new MemoryStream(Encoding.UTF8.GetBytes(location)));
 
                 return new MessagingContext(ex);
             }

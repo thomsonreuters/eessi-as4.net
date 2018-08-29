@@ -219,17 +219,17 @@ namespace Eu.EDelivery.AS4.Fe.Monitor
         /// <param name="id"></param>
         /// <returns>The exception</returns>
         /// <exception cref="ArgumentNullException">messageId - messageId parameter cannot be null</exception>
-        public async Task<string> DownloadExceptionMessageBody(Direction direction, long id)
+        public async Task<Stream> DownloadExceptionMessageBody(Direction direction, long id)
         {
             if (id <= 0) throw new ArgumentOutOfRangeException(nameof(id), @"Invalid value for id");
             if (!Enum.IsDefined(typeof(Direction), direction)) throw new InvalidEnumArgumentException(nameof(direction), (int)direction, typeof(Direction));
-            byte[] body;
+            string body;
             if (direction == Direction.Inbound)
             {
                 body = await context
                     .InExceptions
                     .Where(msg => msg.Id == id)
-                    .Select(msg => msg.MessageBody)
+                    .Select(msg => msg.MessageLocation)
                     .FirstOrDefaultAsync();
             }
             else
@@ -237,11 +237,11 @@ namespace Eu.EDelivery.AS4.Fe.Monitor
                 body = await context
                     .OutExceptions
                     .Where(msg => msg.Id == id)
-                    .Select(msg => msg.MessageBody)
+                    .Select(msg => msg.MessageLocation)
                     .FirstOrDefaultAsync();
             }
 
-            return body != null ? Encoding.UTF8.GetString(body) : string.Empty;
+            return await Registry.Instance.MessageBodyStore.LoadMessageBodyAsync(body);
         }
 
         /// <summary>

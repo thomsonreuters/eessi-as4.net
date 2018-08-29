@@ -63,9 +63,9 @@ namespace Eu.EDelivery.AS4.Common
             InitializeFields();
         }
 
-        // The code below is required when creating a new Db-Migration.
-        // The Add-Migration command requires a default constructor on DatastoreContext
-        // Also use a hard-coded 'NativeCommand' in the 'InitializeFields()' call.
+        //// The code below is required when creating a new Db-Migration.
+        //// The Add-Migration command requires a default constructor on DatastoreContext
+        //// Also use a hard-coded 'NativeCommand' in the 'InitializeFields()' call.
 
         //public DatastoreContext() : this(GetDbContextOptions(), null)
         //{
@@ -275,7 +275,7 @@ namespace Eu.EDelivery.AS4.Common
             modelBuilder.Entity<InException>().HasIndex(ie => ie.Operation).HasName("IX_InExceptions_Operation");
             modelBuilder.Entity<InException>().Property(ie => ie.Id).UsePropertyAccessMode(PropertyAccessMode.Field);
             modelBuilder.Entity<InException>().Property(ie => ie.EbmsRefToMessageId).UsePropertyAccessMode(PropertyAccessMode.Field);
-            modelBuilder.Entity<InException>().Property(ie => ie.MessageBody).UsePropertyAccessMode(PropertyAccessMode.Field);
+            modelBuilder.Entity<InException>().Property(ie => ie.MessageLocation).UsePropertyAccessMode(PropertyAccessMode.Field);
             modelBuilder.Entity<InException>().Property(ie => ie.Exception).UsePropertyAccessMode(PropertyAccessMode.Field);
             modelBuilder.Entity<InException>().Property(ie => ie.PMode).UsePropertyAccessMode(PropertyAccessMode.Field);
             modelBuilder.Entity<InException>().Property(ie => ie.PModeId).UsePropertyAccessMode(PropertyAccessMode.Field);
@@ -289,7 +289,7 @@ namespace Eu.EDelivery.AS4.Common
             modelBuilder.Entity<OutException>().HasIndex(oe => oe.Operation).HasName("IX_OutExceptions_Operation");
             modelBuilder.Entity<OutException>().Property(oe => oe.Id).UsePropertyAccessMode(PropertyAccessMode.Field);
             modelBuilder.Entity<OutException>().Property(oe => oe.EbmsRefToMessageId).UsePropertyAccessMode(PropertyAccessMode.Field);
-            modelBuilder.Entity<OutException>().Property(oe => oe.MessageBody).UsePropertyAccessMode(PropertyAccessMode.Field);
+            modelBuilder.Entity<OutException>().Property(oe => oe.MessageLocation).UsePropertyAccessMode(PropertyAccessMode.Field);
             modelBuilder.Entity<OutException>().Property(oe => oe.Exception).UsePropertyAccessMode(PropertyAccessMode.Field);
             modelBuilder.Entity<OutException>().Property(oe => oe.PMode).UsePropertyAccessMode(PropertyAccessMode.Field);
             modelBuilder.Entity<OutException>().Property(oe => oe.PModeId).UsePropertyAccessMode(PropertyAccessMode.Field);

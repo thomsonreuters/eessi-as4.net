@@ -177,7 +177,9 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                 {
                     // Arrange
                     var handler = new OutboundExceptionHandler(
-                        () => new DatastoreContext(as4Msh.GetConfiguration()));
+                        () => new DatastoreContext(as4Msh.GetConfiguration()),
+                        as4Msh.GetConfiguration(),
+                        Registry.Instance.MessageBodyStore);
 
                     const string url = "http://localhost:7070/business/outexception/";
 
@@ -260,7 +262,9 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                 {
                     // Arrange
                     var handler = new InboundExceptionHandler(
-                        () => new DatastoreContext(as4Msh.GetConfiguration()));
+                        () => new DatastoreContext(as4Msh.GetConfiguration()),
+                        as4Msh.GetConfiguration(),
+                        Registry.Instance.MessageBodyStore);
 
                     const string url = "http://localhost:7071/business/inexception/";
 

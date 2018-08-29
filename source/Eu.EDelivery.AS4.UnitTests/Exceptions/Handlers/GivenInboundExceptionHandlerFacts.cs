@@ -34,7 +34,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Exceptions.Handlers
         {
             // Arrange
             ClearInExceptions();
-            var sut = new InboundExceptionHandler(GetDataStoreContext);
+            IAgentExceptionHandler sut = CreateInboundExceptionHandler();
             var pmode = new ReceivingProcessingMode();
 
             pmode.ExceptionHandling.Reliability =
@@ -55,7 +55,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Exceptions.Handlers
             // Assert
             GetDataStoreContext.AssertInException(ex =>
             {
-                Assert.NotEmpty(ex.MessageBody);
+                Assert.NotEmpty(ex.MessageLocation);
                 GetDataStoreContext.AssertRetryRelatedInException(
                     ex.Id,
                     rr =>
@@ -93,7 +93,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Exceptions.Handlers
             string expectedBody = Guid.NewGuid().ToString(),
                 expectedMessage = Guid.NewGuid().ToString();
 
-            var sut = new InboundExceptionHandler(GetDataStoreContext);
+            IAgentExceptionHandler sut = CreateInboundExceptionHandler();
 
             // Act
             await sut.ExerciseTransformException(GetDataStoreContext, expectedBody, new Exception(expectedMessage));
@@ -102,7 +102,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Exceptions.Handlers
             GetDataStoreContext.AssertInException(
                 ex =>
                 {
-                    Assert.Equal(expectedBody, Encoding.UTF8.GetString(ex.MessageBody));
                     Assert.True(ex.Exception.IndexOf(expectedMessage, StringComparison.CurrentCultureIgnoreCase) > -1);
                 });
         }
@@ -162,7 +161,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Exceptions.Handlers
 
             GetDataStoreContext.InsertInMessage(inMessage);
 
-            var sut = new InboundExceptionHandler(GetDataStoreContext);
+            IAgentExceptionHandler sut = CreateInboundExceptionHandler();
             var exercise = getExercise(sut);
 
             // Act
@@ -175,8 +174,16 @@ namespace Eu.EDelivery.AS4.UnitTests.Exceptions.Handlers
                 ex =>
                 {
                     Assert.Equal(expected, ex.Operation);
-                    Assert.Null(ex.MessageBody);
+                    Assert.Null(ex.MessageLocation);
                 });
+        }
+
+        private IAgentExceptionHandler CreateInboundExceptionHandler()
+        {
+            return new InboundExceptionHandler(
+                GetDataStoreContext,
+                StubConfig.Default,
+                new InMemoryMessageBodyStore());
         }
 
         private static MessagingContext ContextWithAS4UserMessage(string id, bool notifyConsumer)

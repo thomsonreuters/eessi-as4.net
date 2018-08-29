@@ -10,6 +10,7 @@ using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
+using Eu.EDelivery.AS4.Services;
 using Eu.EDelivery.AS4.Singletons;
 using Eu.EDelivery.AS4.Xml;
 using NLog;
@@ -145,9 +146,10 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             using (DatastoreContext dbContext = _createDatastoreContext())
             {
                 var repository = new DatastoreRepository(dbContext);
+
                 foreach (SignalMessage signal in signalMessages.Where(s => !(s is PullRequest)))
                 {
-                    var ex = new InException(signal.MessageId, occurredError.Description);
+                    var ex = InException.ForEbmsMessageId(signal.MessageId, new System.Exception(occurredError.Description));
                     await ex.SetPModeInformationAsync(receivePMode);
 
                     Logger.Debug(
