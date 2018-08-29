@@ -12,7 +12,6 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
 using Eu.EDelivery.AS4.Extensions;
-using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.PMode;
 using NLog;
 using MessageProperty = Eu.EDelivery.AS4.Model.PMode.MessageProperty;
@@ -77,7 +76,7 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
         /// <param name="properties"></param>
         /// <returns></returns>
         public async Task<XmlDocument> RetrieveSmpMetaData(
-            Party party, 
+            Model.Core.Party party, 
             IDictionary<string, string> properties)
         {
             if (party.PrimaryPartyId == null)
@@ -90,7 +89,7 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
             return await RetrieveSmpMetaData(smpUrl);
         }
 
-        private static Uri CreateSmpServerUrl(Party party, ESensConfig config)
+        private static Uri CreateSmpServerUrl(Model.Core.Party party, ESensConfig config)
         {
             string hashedPartyId = CalculateMD5Hash(party.PrimaryPartyId);
 

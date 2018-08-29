@@ -6,6 +6,8 @@ using System.Xml;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Services.DynamicDiscovery;
 using Xunit;
+using Party = Eu.EDelivery.AS4.Model.Core.Party;
+using PartyId = Eu.EDelivery.AS4.Model.Core.PartyId;
 
 namespace Eu.EDelivery.AS4.UnitTests.Services.DynamicDiscovery
 {
@@ -19,7 +21,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Services.DynamicDiscovery
 
             // Act / Assert
             await Assert.ThrowsAsync<InvalidOperationException>(
-                () => sut.RetrieveSmpMetaData(new Party(partyId: new PartyId(id: null)), properties: null));
+                () => sut.RetrieveSmpMetaData(new Party("role", Enumerable.Empty<PartyId>()), properties: null));
         }
 
         [Fact]
