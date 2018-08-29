@@ -73,9 +73,9 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 if (context.AS4Message.IsEncrypted)
                 {
                     Logger.Error(
-                        "Decompression failed because the incoming attachments are still encrypted, "
-                        + "make sure that you specify <Encryption/> information in the <Security/> element of the SendingPMode "
-                        + "so the attachments gets first decrypted before decompressed");
+                        "Decompression failed because the incoming attachments are still encrypted. "
+                        + "Make sure that you specify <Encryption/> information in the <Security/> element of the SendingPMode "
+                        + "so the attachments are first decrypted before decompressed");
                 }
 
                 context.ErrorResult = new ErrorResult(exception.Message, ErrorAlias.DecompressionFailure);
@@ -135,15 +135,13 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             if (string.IsNullOrWhiteSpace(mimeType))
             {
                 throw new InvalidDataException(
-                    $"Cannot decompress attachment {attachment.Id}: " + 
-                    "MimeType is not specified in referenced <PartInfo/> element, please provide one");
+                    $"Cannot decompress attachment {attachment.Id}: MimeType is not specified in referenced <PartInfo/> element");
             }
 
             if (mimeType.IndexOf("/", StringComparison.OrdinalIgnoreCase) < 0)
             {
                 throw new InvalidDataException(
-                    $"Cannot decompress attachment {attachment.Id}: " + 
-                    $"Invalid MimeType {mimeType} in referenced <PartInfo/> element");
+                    $"Cannot decompress attachment {attachment.Id}: Invalid MimeType {mimeType} in referenced <PartInfo/> element");
             }
 
             attachment.Properties["MimeType"] = mimeType;
