@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -23,7 +22,7 @@ using PartyId = Eu.EDelivery.AS4.Model.PMode.PartyId;
 namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
 {
     /// <summary>
-    /// ESens profile that 
+    /// ESens Profile implementation for Dynamic Discovery
     /// </summary>
     /// <seealso cref="IDynamicDiscoveryProfile"/>
     public class ESensDynamicDiscoveryProfile : IDynamicDiscoveryProfile
@@ -278,8 +277,7 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
 
             if (processIdentifier == null)
             {
-                // TODO: other exceptions here are 'InvalidDataExceptions', this should also be one?
-                throw new ConfigurationErrorsException(
+                throw new InvalidDataException(
                     "Unable to complete CollaborationInfo: ProcessIdentifier element not found in SMP metadata");
             }
 
@@ -306,8 +304,7 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
 
             if (documentIdentifier == null)
             {
-                // TODO: other exceptions here are 'InvalidDataExceptions', this should also be one?
-                throw new ConfigurationErrorsException(
+                throw new InvalidDataException(
                     "Unable to complete CollaborationInfo: DocumentIdentifier element not found in SMP metadata");
             }
 
