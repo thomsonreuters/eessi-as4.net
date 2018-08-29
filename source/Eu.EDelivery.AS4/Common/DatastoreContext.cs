@@ -63,9 +63,9 @@ namespace Eu.EDelivery.AS4.Common
             InitializeFields();
         }
 
-        //// The code below is required when creating a new Db-Migration.
-        //// The Add-Migration command requires a default constructor on DatastoreContext
-        //// Also use a hard-coded 'NativeCommand' in the 'InitializeFields()' call.
+        // The code below is required when creating a new Db-Migration.
+        // The Add-Migration command requires a default constructor on DatastoreContext
+        // Also use a hard-coded 'NativeCommand' in the 'InitializeFields()' call.
 
         //public DatastoreContext() : this(GetDbContextOptions(), null)
         //{
