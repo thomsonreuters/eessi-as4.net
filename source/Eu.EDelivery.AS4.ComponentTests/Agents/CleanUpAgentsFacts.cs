@@ -254,7 +254,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
         private static InException CreateInException(string ebmsMessageId, DateTimeOffset insertionTime)
         {
-            return new InException(ebmsMessageId, exceptionLocation: null, exception: string.Empty)
+            return new InException(ebmsMessageId, messageLocation: null, exception: string.Empty)
             {
                 InsertionTime = insertionTime
             };

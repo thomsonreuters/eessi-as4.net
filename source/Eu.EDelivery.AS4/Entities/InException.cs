@@ -13,14 +13,14 @@ namespace Eu.EDelivery.AS4.Entities
 
         private InException(
             string ebmsRefToMessageId, 
-            string exceptionLocation,
-            Exception exception) : base(ebmsRefToMessageId, exceptionLocation, exception) { }
+            string messageLocation,
+            Exception exception) : base(ebmsRefToMessageId, messageLocation, exception) { }
 
         // TODO: is used in tests and should be looked at if we really need this ctor.
         internal InException(
             string ebmsRefToMessageId,
-            string exceptionLocation,
-            string exception) : base(ebmsRefToMessageId, exceptionLocation, exception) { }
+            string messageLocation,
+            string exception) : base(ebmsRefToMessageId, messageLocation, exception) { }
 
 
         /// <summary>
@@ -41,7 +41,7 @@ namespace Eu.EDelivery.AS4.Entities
         /// <param name="exception">The occurred exception for which we have to insert a record.</param>
         public static InException ForEbmsMessageId(string ebmsRefToMessageId, Exception exception)
         {
-            return new InException(ebmsRefToMessageId: ebmsRefToMessageId, exceptionLocation: null, exception: exception);
+            return new InException(ebmsRefToMessageId: ebmsRefToMessageId, messageLocation: null, exception: exception);
         }
 
         /// <summary>
@@ -51,7 +51,7 @@ namespace Eu.EDelivery.AS4.Entities
         /// <param name="exception">The occurred exception for which we have to insert a record.</param>
         public static InException ForMessageBody(string messageLocation, Exception exception)
         {
-            return new InException(ebmsRefToMessageId: null, exceptionLocation: messageLocation, exception: exception);
+            return new InException(ebmsRefToMessageId: null, messageLocation: messageLocation, exception: exception);
         }
     }
 }
