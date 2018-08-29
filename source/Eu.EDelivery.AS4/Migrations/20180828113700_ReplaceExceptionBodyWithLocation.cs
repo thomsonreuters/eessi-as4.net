@@ -1,6 +1,8 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Migrations.Operations;
+using Microsoft.EntityFrameworkCore.Migrations.Operations.Builders;
 
 namespace Eu.EDelivery.AS4.Migrations
 {
@@ -60,11 +62,9 @@ namespace Eu.EDelivery.AS4.Migrations
                 });
 
             migrationBuilder.Sql(
-                "INSERT INTO InExceptions"
-                + "(EbmsRefToMessageId, Exception, InsertionTime, "
-                + " ModificationTime, Operation, PMOde, PModeId) "
-                + "SELECT EbmsRefToMessageId, Exception, InsertionTime, "
-                + " ModificationTime, Operation, PMOde, PModeId "
+                "INSERT INTO InExceptions "
+                + "(EbmsRefToMessageId, Exception, InsertionTime, ModificationTime, Operation, PMode, PModeId) "
+                + "SELECT EbmsRefToMessageId, Exception, InsertionTime, ModificationTime, Operation, PMode, PModeId "
                 + "FROM OldInExceptions");
 
             migrationBuilder.DropTable("OldInExceptions");
@@ -105,11 +105,9 @@ namespace Eu.EDelivery.AS4.Migrations
                 });
 
             migrationBuilder.Sql(
-                "INSERT INTO OutExceptions"
-                + "(EbmsRefToMessageId, Exception, InsertionTime, "
-                + " ModificationTime, Operation, PMOde, PModeId) "
-                + "SELECT EbmsRefToMessageId, Exception, InsertionTime, "
-                + " ModificationTime, Operation, PMOde, PModeId "
+                "INSERT INTO OutExceptions "
+                + "(EbmsRefToMessageId, Exception, InsertionTime, ModificationTime, Operation, PMode, PModeId) "
+                + "SELECT EbmsRefToMessageId, Exception, InsertionTime, ModificationTime, Operation, PMode, PModeId "
                 + "FROM OldOutExceptions");
 
             migrationBuilder.DropTable("OldOutExceptions");
@@ -179,11 +177,9 @@ namespace Eu.EDelivery.AS4.Migrations
                 });
 
             migrationBuilder.Sql(
-                "INSERT INTO InExceptions"
-                + "(EbmsRefToMessageId, Exception, InsertionTime, "
-                + " ModificationTime, Operation, PMOde, PModeId) "
-                + "SELECT EbmsRefToMessageId, Exception, InsertionTime, "
-                + " ModificationTime, Operation, PMOde, PModeId "
+                "INSERT INTO InExceptions "
+                + "(EbmsRefToMessageId, Exception, InsertionTime,  ModificationTime, Operation, PMode, PModeId) "
+                + "SELECT EbmsRefToMessageId, Exception, InsertionTime, ModificationTime, Operation, PMode, PModeId "
                 + "FROM OldInExceptions");
 
             migrationBuilder.DropTable("OldInExceptions");
@@ -224,11 +220,9 @@ namespace Eu.EDelivery.AS4.Migrations
                 });
 
             migrationBuilder.Sql(
-                "INSERT INTO OutExceptions"
-                + "(EbmsRefToMessageId, Exception, InsertionTime, "
-                + " ModificationTime, Operation, PMOde, PModeId) "
-                + "SELECT EbmsRefToMessageId, Exception, InsertionTime, "
-                + " ModificationTime, Operation, PMOde, PModeId "
+                "INSERT INTO OutExceptions "
+                + "(EbmsRefToMessageId, Exception, InsertionTime, ModificationTime, Operation, PMode, PModeId) "
+                + "SELECT EbmsRefToMessageId, Exception, InsertionTime, ModificationTime, Operation, PMode, PModeId "
                 + "FROM OldOutExceptions");
 
             migrationBuilder.DropTable("OldOutExceptions");
