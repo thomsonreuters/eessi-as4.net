@@ -32,7 +32,8 @@ namespace Eu.EDelivery.AS4.Migrations
 
                     b.Property<DateTimeOffset>("InsertionTime");
 
-                    b.Property<string>("MessageLocation");
+                    b.Property<string>("MessageLocation")
+                        .HasMaxLength(512);
 
                     b.Property<DateTimeOffset>("ModificationTime");
 
@@ -203,7 +204,8 @@ namespace Eu.EDelivery.AS4.Migrations
 
                     b.Property<DateTimeOffset>("InsertionTime");
 
-                    b.Property<string>("MessageLocation");
+                    b.Property<string>("MessageLocation")
+                        .HasMaxLength(512);
 
                     b.Property<DateTimeOffset>("ModificationTime");
 

@@ -18,6 +18,7 @@ namespace Eu.EDelivery.AS4.Entities
 
         public string Exception { get; private set; }
 
+        [MaxLength(512)]
         public string MessageLocation { get; private set; }
 
         public string PMode { get; private set; }
