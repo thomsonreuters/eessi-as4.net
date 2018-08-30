@@ -39,11 +39,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
             if (messagingContext.ReceivedMessageMustBeForwarded)
             {
-                // When the message must be forwarded, no decompression must take place.
-                Logger.Debug(
-                    "Because the incoming AS4Message must be forwarded, " +
-                    "we can't alter the message. So, no decompression will take place");
-
+                Logger.Debug("No decompression will happen because the incoming AS4Message must be forwarded unchanged");
                 return StepResult.Success(messagingContext);
             }
 
@@ -53,6 +49,11 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 return StepResult.Success(messagingContext);
             }
 
+            if (messagingContext.AS4Message.IsEncrypted)
+            {
+                Logger.Warn("Incoming attachmets are still encrypted will fail to decompress correctly");
+            }
+
             return await TryDecompressAttachmentsAsync(messagingContext).ConfigureAwait(false);
         }
 
@@ -60,7 +61,8 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         {
             try
             {
-                return await DecompressAttachmentsAsync(context).ConfigureAwait(false);
+                DecompressAttachments(context.AS4Message);
+                return await StepResult.SuccessAsync(context);
             }
             catch (Exception exception)
             when (
@@ -68,38 +70,40 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 || exception is ObjectDisposedException
                 || exception is InvalidDataException)
             {
-                return DecompressFailureResult(exception.Message, context);
+                if (context.AS4Message.IsEncrypted)
+                {
+                    Logger.Error(
+                        "Decompression failed because the incoming attachments are still encrypted. "
+                        + "Make sure that you specify <Encryption/> information in the <Security/> element of the SendingPMode "
+                        + "so the attachments are first decrypted before decompressed");
+                }
+
+                context.ErrorResult = new ErrorResult(exception.Message, ErrorAlias.DecompressionFailure);
+                return StepResult.Failed(context);
             }
         }
 
-        private static async Task<StepResult> DecompressAttachmentsAsync(MessagingContext context)
+        private static void DecompressAttachments(AS4Message as4Message)
         {
-            IEnumerable<PartInfo> partInfos = context.AS4Message.UserMessages.SelectMany(u => u.PayloadInfo);
-            foreach (Attachment attachment in context.AS4Message.Attachments)
+            IEnumerable<PartInfo> partInfos = as4Message.UserMessages.SelectMany(u => u.PayloadInfo);
+            foreach (Attachment attachment in as4Message.Attachments)
             {
                 if (IsAttachmentNotCompressed(attachment))
                 {
-                    Logger.Debug($" Attachment {attachment.Id} is not compressed, so can't be decompressed");
+                    Logger.Debug($"Attachment {attachment.Id} is not compressed, so can't be decompressed");
                     continue;
                 }
 
                 if (!attachment.Properties.ContainsKey("MimeType"))
                 {
-                    return DecompressFailureResult($"Attachment {attachment.Id} hasn't got a MimeType PartProperty", context);
+                    throw new InvalidDataException(
+                        $"Cannot decompress attachment \"{attachment.Id}\" because it hasn't got a PartProperty called \"MimeType\"");
                 }
 
                 Logger.Trace($"Attachment {attachment.Id} will be decompressed");
                 DecompressAttachment(partInfos, attachment);
                 Logger.Debug($"Attachment {attachment.Id} is decompressed to a type of {attachment.ContentType}");
             }
-
-            return await StepResult.SuccessAsync(context);
-        }
-
-        private static StepResult DecompressFailureResult(string description, MessagingContext context)
-        {
-            context.ErrorResult = new ErrorResult(description, ErrorAlias.DecompressionFailure);
-            return StepResult.Failed(context);
         }
 
         private static bool IsAttachmentNotCompressed(Attachment attachment)
@@ -131,15 +135,13 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             if (string.IsNullOrWhiteSpace(mimeType))
             {
                 throw new InvalidDataException(
-                    $"Cannot decompress attachment {attachment.Id}: " + 
-                    "MimeType is not specified for attachment, please provide one");
+                    $"Cannot decompress attachment {attachment.Id}: MimeType is not specified in referenced <PartInfo/> element");
             }
 
             if (mimeType.IndexOf("/", StringComparison.OrdinalIgnoreCase) < 0)
             {
                 throw new InvalidDataException(
-                    $"Cannot decompress attachment {attachment.Id}: " + 
-                    $"Invalid MimeType {mimeType} specified for attachment");
+                    $"Cannot decompress attachment {attachment.Id}: Invalid MimeType {mimeType} in referenced <PartInfo/> element");
             }
 
             attachment.Properties["MimeType"] = mimeType;
