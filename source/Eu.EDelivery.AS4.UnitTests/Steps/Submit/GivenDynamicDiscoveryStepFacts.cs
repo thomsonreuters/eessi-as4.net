@@ -4,6 +4,7 @@ using System.Configuration;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Xml;
+using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Model.Submit;
@@ -25,6 +26,62 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
 {
     public class GivenDynamicDiscoveryStepFacts
     {
+        [CustomProperty]
+        public Property Resolve_Only_ToParty_From_AS4Message_If_UserMessage(
+            MessagingContextMode contextMode,
+            Maybe<SignalMessage> signalM)
+        {
+            return Prop.ForAll(
+                GenAS4Party().ToArbitrary(),
+                receiver =>
+                {
+                    var user = new UserMessage(
+                        $"user-{Guid.NewGuid()}", 
+                        AS4Party.DefaultFrom, 
+                        receiver);
+
+                    AS4Message message =
+                        signalM.Select(s => AS4Message.Create(new MessageUnit[] { s, user }))
+                               .GetOrElse(AS4Message.Create(user));
+
+                    var context = new MessagingContext(message, contextMode)
+                    {
+                        SendingPMode = new SendingProcessingMode
+                        {
+                            DynamicDiscovery = new DynamicDiscoveryConfiguration()
+                        }
+                    };
+
+                    var act = new Lazy<bool>(() =>
+                    {
+                        var spy = new SpyToPartyDynamicDiscoveryProfile();
+                        var sut = new DynamicDiscoveryStep(_ => spy);
+                        sut.ExecuteAsync(context)
+                           .GetAwaiter()
+                           .GetResult();
+
+                        return spy.ToParty
+                                  .Equals(receiver)
+                                  .Equals(contextMode == MessagingContextMode.Forward
+                                          && context.AS4Message.IsUserMessage);
+                    });
+
+                    return Prop.throws<InvalidOperationException, bool>(act)
+                               .Label($"Throws {nameof(InvalidOperationException)}")
+                               .Or(() => act.Value)
+                               .Label("Resolved ToParty is UserMessge.ToParty");
+                });
+        }
+
+        private static Gen<AS4Party> GenAS4Party()
+        {
+            return Arb.Generate<NonEmptyString>()
+                      .Two()
+                      .Select(t => new AS4PartyId(t.Item1.Get, t.Item2.Get))
+                      .ListOf()
+                      .Zip(Arb.Generate<NonEmptyString>(), (ids, role) => new AS4Party(role.Get, ids));
+        }
+
         [Property(MaxTest = 1000)]
         public Property Resolve_Either_Submit_Or_SendingPMode_ToParty(bool allowOverride)
         {
@@ -58,9 +115,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
                                    .All(t => t.Item1.Id.Equals(t.Item2.Id) 
                                              && t.Item1.Type.Equals(t.Item2.Type.AsMaybe()));
 
-                    return dynamicallyDiscovered
-                           .Equals(resolvedSubmit)
-                           .Or(dynamicallyDiscovered.Equals(resolvedPMode))
+                    return (dynamicallyDiscovered && resolvedSubmit)
+                           .Or(dynamicallyDiscovered && resolvedPMode)
                            .Or(!dynamicallyDiscovered)
                            .Label(
                                $"PMode {(dynamicallyDiscovered ? "is" : "isn't")} dynamically discoverd"
@@ -187,10 +243,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
                 {
                     PartyInfo = new PartyInfo
                     {
-                        ToParty = new Party
+                        ToParty = new PModeParty
                         {
                             Role = Guid.NewGuid().ToString(),
-                            PartyIds = { new PartyId { Id = Guid.NewGuid().ToString()} }
+                            PartyIds = { new PModePartyId { Id = Guid.NewGuid().ToString()} }
                         }
                     }
                 }

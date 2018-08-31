@@ -80,10 +80,13 @@ namespace Eu.EDelivery.AS4.Steps.Submit
             clonedPMode.Id = $"{clonedPMode.Id}_SMP";
 
             IDynamicDiscoveryProfile profile = _resolveDynamicDiscoveryProfile(smpProfile);
-            AS4Party toParty = ResolveSubmitOrPModeReceiverParty(
-                messagingContext.SubmitMessage?.PartyInfo?.ToParty,
-                messagingContext.SendingPMode?.MessagePackaging?.PartyInfo?.ToParty,
-                messagingContext.SendingPMode?.AllowOverride == true);
+            AS4Party toParty = 
+                messagingContext.Mode == MessagingContextMode.Forward
+                ? ResovleAS4ReceiverParty(messagingContext.AS4Message)
+                : ResolveSubmitOrPModeReceiverParty(
+                    messagingContext.SubmitMessage?.PartyInfo?.ToParty,
+                    messagingContext.SendingPMode?.MessagePackaging?.PartyInfo?.ToParty,
+                    messagingContext.SendingPMode?.AllowOverride == true);
             
             XmlDocument smpMetaData = await RetrieveSmpMetaData(profile, clonedPMode.DynamicDiscovery, toParty);
 
@@ -146,17 +149,22 @@ namespace Eu.EDelivery.AS4.Steps.Submit
                 });
         }
 
+        private static AS4Party ResovleAS4ReceiverParty(AS4Message msg)
+        {
+            if (msg.PrimaryMessageUnit is UserMessage m)
+            {
+                return m.Receiver;
+            }
+
+            throw new InvalidOperationException(
+                "AS4Message is not an UserMessage so can't dynamically discover the SendingPMode with the ToParty from it");
+        }
+
         private static AS4Party ResolveSubmitOrPModeReceiverParty(
             SubmitParty submitParty,
             PModeParty pmodeParty, 
             bool allowOverride)
         {
-            if (pmodeParty?.PartyIds.Any() != true)
-            {
-                throw new ConfigurationErrorsException(
-                    "Cannot retrieve SMP metadata: SendingPMode must contain at lease one <ToPartyId/> element in the MessagePackaging.PartyInfo.ToParty element");
-            }
-
             if (submitParty != null && allowOverride == false)
             {
                 throw new NotSupportedException(
@@ -175,6 +183,12 @@ namespace Eu.EDelivery.AS4.Steps.Submit
                     "SubmitMessage", 
                     submitParty.Role, 
                     submitParty.PartyIds?.Select(p => new PartyId(p.Id, p.Type.AsMaybe())));
+            }
+
+            if (pmodeParty?.PartyIds.Any() != true)
+            {
+                throw new ConfigurationErrorsException(
+                    "Cannot retrieve SMP metadata: SendingPMode must contain at lease one <ToPartyId/> element in the MessagePackaging.PartyInfo.ToParty element");
             }
 
             return CreateToPartyFrom(
