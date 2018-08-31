@@ -65,7 +65,7 @@ namespace Eu.EDelivery.AS4.Migrations
                 "INSERT INTO InExceptions "
                 + "(EbmsRefToMessageId, Exception, InsertionTime, ModificationTime, Operation, PMode, PModeId) "
                 + "SELECT EbmsRefToMessageId, Exception, InsertionTime, ModificationTime, Operation, PMode, PModeId "
-                + "FROM OldInExceptions");
+                + "FROM OldInExceptions", suppressTransaction: true);
 
             migrationBuilder.DropTable("OldInExceptions");
 
@@ -108,7 +108,7 @@ namespace Eu.EDelivery.AS4.Migrations
                 "INSERT INTO OutExceptions "
                 + "(EbmsRefToMessageId, Exception, InsertionTime, ModificationTime, Operation, PMode, PModeId) "
                 + "SELECT EbmsRefToMessageId, Exception, InsertionTime, ModificationTime, Operation, PMode, PModeId "
-                + "FROM OldOutExceptions");
+                + "FROM OldOutExceptions", suppressTransaction: true);
 
             migrationBuilder.DropTable("OldOutExceptions");
 
@@ -130,7 +130,7 @@ namespace Eu.EDelivery.AS4.Migrations
                 RecreatePreviousInExceptionTable(migrationBuilder);
                 RecreatePreviousOutExceptionTable(migrationBuilder);
             }
-           else
+            else
             {
                 migrationBuilder.DropColumn(
                    name: "MessageLocation",
@@ -180,7 +180,7 @@ namespace Eu.EDelivery.AS4.Migrations
                 "INSERT INTO InExceptions "
                 + "(EbmsRefToMessageId, Exception, InsertionTime,  ModificationTime, Operation, PMode, PModeId) "
                 + "SELECT EbmsRefToMessageId, Exception, InsertionTime, ModificationTime, Operation, PMode, PModeId "
-                + "FROM OldInExceptions");
+                + "FROM OldInExceptions", suppressTransaction: true);
 
             migrationBuilder.DropTable("OldInExceptions");
 
@@ -223,7 +223,7 @@ namespace Eu.EDelivery.AS4.Migrations
                 "INSERT INTO OutExceptions "
                 + "(EbmsRefToMessageId, Exception, InsertionTime, ModificationTime, Operation, PMode, PModeId) "
                 + "SELECT EbmsRefToMessageId, Exception, InsertionTime, ModificationTime, Operation, PMode, PModeId "
-                + "FROM OldOutExceptions");
+                + "FROM OldOutExceptions", suppressTransaction: true);
 
             migrationBuilder.DropTable("OldOutExceptions");
 
