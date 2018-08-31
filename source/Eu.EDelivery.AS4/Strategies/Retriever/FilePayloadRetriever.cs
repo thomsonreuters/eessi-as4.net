@@ -43,6 +43,17 @@ namespace Eu.EDelivery.AS4.Strategies.Retriever
         {
             string relativePath = location.Replace("file:///", string.Empty);
             string absolutePath = Path.GetFullPath(Path.Combine(Config.ApplicationPath, relativePath));
+
+            var payload = new FileInfo(absolutePath);
+            var supportedPayloadDir = new DirectoryInfo(Path.Combine(Config.ApplicationPath, "messages", "attachments"));
+
+            // TODO: if we only allow this folder, maybe we should also allow just the filename in the SubmitMessage
+            if (payload.Directory != supportedPayloadDir)
+            {
+                throw new NotSupportedException(
+                    "Only files from the 'messages/attachments/' folder are allowed to be retrieved");
+            }
+
             var uri = new Uri(absolutePath);            
             
             return new FileStream(uri.LocalPath, FileMode.Open, FileAccess.Read, FileShare.Read);
