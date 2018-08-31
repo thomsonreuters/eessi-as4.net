@@ -1,37 +1,34 @@
 ﻿using System;
+using System.IO;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Strategies.Retriever;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Strategies.Retriever
 {
-    /// <summary>
-    /// Testing <see cref="FilePayloadRetriever" />
-    /// </summary>
     public class GivenFilePayloadRetrieverFacts
     {
-        private readonly FilePayloadRetriever _retriever;
-
-        public GivenFilePayloadRetrieverFacts()
+        [Fact]
+        public async Task Retrieve_Payload_Fails_With_Invalid_FilePath()
         {
-            _retriever = new FilePayloadRetriever();
+            await Assert.ThrowsAnyAsync<Exception>(
+                () => ExerciseRetrieving("invalid-location"));
         }
-        
-        /// <summary>
-        /// Testing if the retriever fails
-        /// </summary>
-        public class GivenFilePayloadRetrieverFails : GivenFilePayloadRetrieverFacts
-        {
-            [Fact]
-            public async Task ThenRetrievePayloadFails()
-            {
-                // Arrange
-                const string location = "invalid-location";
 
-                // Act / Assert
-                await Assert.ThrowsAnyAsync<Exception>(() => _retriever.RetrievePayloadAsync(location));
-            }
+        [Theory]
+        [InlineData(@"config\settings.xml")]
+        [InlineData(@"config\send-pmodes\pmode.xml")]
+        [InlineData(@"config\receive-pmodes\pmode.xml")]
+        public async Task Retrieve_Payload_Fails_With_Traversal_FilePath(string location)
+        {
+            await Assert.ThrowsAsync<NotSupportedException>(
+                () => ExerciseRetrieving(location));
         }
+
+        private static async Task<Stream> ExerciseRetrieving(string location)
+        {
+            var sut = new FilePayloadRetriever();
+            return await sut.RetrievePayloadAsync(location);
+        } 
     }
 }
