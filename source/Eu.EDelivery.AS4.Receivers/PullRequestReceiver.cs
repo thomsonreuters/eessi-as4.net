@@ -33,6 +33,11 @@ namespace Eu.EDelivery.AS4.Receivers
         /// <param name="configuration"><see cref="IConfig" /> implementation to collection PModes.</param>
         public PullRequestReceiver(IConfig configuration)
         {
+            if (configuration == null)
+            {
+                throw new ArgumentNullException(nameof(configuration));
+            }
+
             _configuration = configuration;
         }
 
@@ -42,6 +47,11 @@ namespace Eu.EDelivery.AS4.Receivers
         /// <param name="settings"></param>
         public override void Configure(IEnumerable<Setting> settings)
         {
+            if (settings == null)
+            {
+                throw new ArgumentNullException(nameof(settings));
+            }
+
             foreach (Setting setting in settings)
             {
                 if (!_configuration.ContainsSendingPMode(setting.Key))
@@ -73,6 +83,11 @@ namespace Eu.EDelivery.AS4.Receivers
             Func<ReceivedMessage, CancellationToken, Task<MessagingContext>> messageCallback,
             CancellationToken cancellationToken)
         {
+            if (messageCallback == null)
+            {
+                throw new ArgumentNullException(nameof(messageCallback));
+            }
+
             _messageCallback = async message =>
             {
                 var receivedMessage = new ReceivedMessage(

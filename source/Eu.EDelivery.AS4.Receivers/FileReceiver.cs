@@ -70,8 +70,17 @@ namespace Eu.EDelivery.AS4.Receivers
             public const string PollingIntervalDefault = "00:00:03";
         }
 
+        /// <summary>
+        /// Configure the receiver with a given settings dictionary.
+        /// </summary>
+        /// <param name="settings"></param>
         public void Configure(FileReceiverSettings settings)
         {
+            if (settings == null)
+            {
+                throw new ArgumentNullException(nameof(settings));
+            }
+
             _settings = settings;
         }
 
@@ -81,6 +90,11 @@ namespace Eu.EDelivery.AS4.Receivers
         /// <param name="settings"></param>
         void IReceiver.Configure(IEnumerable<Setting> settings)
         {
+            if (settings == null)
+            {
+                throw new ArgumentNullException(nameof(settings));
+            }
+
             var properties = settings.ToDictionary(s => s.Key, s => s.Value, StringComparer.OrdinalIgnoreCase);
 
             var configuredBatchSize = properties.ReadOptionalProperty(SettingKeys.BatchSize, SettingKeys.BatchSizeDefault);
@@ -121,11 +135,19 @@ namespace Eu.EDelivery.AS4.Receivers
         /// <param name="cancellationToken"></param>
         public void StartReceiving(Function messageCallback, CancellationToken cancellationToken)
         {
+            if (messageCallback == null)
+            {
+                throw new ArgumentNullException(nameof(messageCallback));
+            }
+
             _isReceiving = true;
             Logger.Debug($"Start receiving on \"{Path.GetFullPath(FilePath)}\" ...");
             StartPolling(messageCallback, cancellationToken);
         }
 
+        /// <summary>
+        /// Stop the <see cref="IReceiver"/> instance from receiving.
+        /// </summary>
         public void StopReceiving()
         {
             _isReceiving = false;
