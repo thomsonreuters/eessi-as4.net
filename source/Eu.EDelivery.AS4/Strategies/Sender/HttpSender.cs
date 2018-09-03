@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Net;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Http;
@@ -26,8 +27,7 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
         /// <summary>
         /// Initializes a new instance of the <see cref="HttpSender"/> class.
         /// </summary>
-        public HttpSender() : this(new ReliableHttpClient())
-        { }
+        public HttpSender() : this(new ReliableHttpClient()) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="HttpSender"/> class.
@@ -35,6 +35,11 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
         /// <param name="client">HTTP client to handle the request/respond actions.</param>
         public HttpSender(IHttpClient client)
         {
+            if (client == null)
+            {
+                throw new ArgumentNullException(nameof(client));
+            }
+
             _httpClient = client;
         }
 
@@ -45,7 +50,21 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
         /// <param name="method"></param>
         public void Configure(Method method)
         {
-            Location = method["location"].Value;
+            if (method == null)
+            {
+                throw new ArgumentNullException(nameof(method));
+            }
+
+            string location = method["location"]?.Value;
+            if (String.IsNullOrWhiteSpace(location))
+            {
+                throw new InvalidOperationException(
+                    $"{nameof(HttpSender)} requires a configured location to send the HTTP request to, please add a "
+                    + "<Parameter name=\"location\" value=\"your-http-endpoint\"/> it to the applicable "
+                    + $"Sending or ReceivingPMode for which the {nameof(HttpSender)} is configured");
+            }
+
+            Location = location;
         }
 
         /// <summary>
@@ -54,6 +73,23 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
         /// <param name="deliverMessage"></param>
         public async Task<SendResult> SendAsync(DeliverMessageEnvelope deliverMessage)
         {
+            if (deliverMessage == null)
+            {
+                throw new ArgumentNullException(nameof(deliverMessage));
+            }
+
+            if (String.IsNullOrWhiteSpace(deliverMessage.ContentType))
+            {
+                throw new InvalidOperationException(
+                    $"{nameof(HttpSender)} requires a ContentType to correctly deliver the message");
+            }
+
+            if (deliverMessage.DeliverMessage == null)
+            {
+                throw new InvalidOperationException(
+                    $"{nameof(HttpSender)} requires a DeliverMessage as a series of bytes to correctly deliver the message");
+            }
+
             Logger.Info($"(Deliver)[{deliverMessage.MessageInfo.MessageId}] Send DeliverMessage to {Location}");
 
             HttpWebRequest request = await CreateHttpPostRequest(deliverMessage.ContentType, deliverMessage.DeliverMessage).ConfigureAwait(false);
@@ -72,6 +108,23 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
         /// <param name="notifyMessage"></param>
         public async Task<SendResult> SendAsync(NotifyMessageEnvelope notifyMessage)
         {
+            if (notifyMessage == null)
+            {
+                throw new ArgumentNullException(nameof(notifyMessage));
+            }
+
+            if (String.IsNullOrWhiteSpace(notifyMessage.ContentType))
+            {
+                throw new InvalidOperationException(
+                    $"{nameof(HttpSender)} requires a ContentType to correctly notify the message");
+            }
+
+            if (notifyMessage.NotifyMessage == null)
+            {
+                throw new InvalidOperationException(
+                    $"{nameof(HttpSender)} requires a NotifyMessage as a series of bytes to correctly notify the message");
+            }
+
             Logger.Info($"(Notify)[{notifyMessage.MessageInfo.MessageId}] Send Notification to {Location}");
 
             HttpWebRequest request = await CreateHttpPostRequest(notifyMessage.ContentType, notifyMessage.NotifyMessage);

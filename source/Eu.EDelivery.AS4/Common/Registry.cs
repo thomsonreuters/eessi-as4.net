@@ -57,6 +57,11 @@ namespace Eu.EDelivery.AS4.Common
         /// <param name="config"></param>
         public void Initialize(IConfig config)
         {
+            if (config == null)
+            {
+                throw new ArgumentNullException(nameof(config));
+            }
+
             if (IsInitialized)
             {
                 return;

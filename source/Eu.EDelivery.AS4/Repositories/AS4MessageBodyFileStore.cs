@@ -19,6 +19,11 @@ namespace Eu.EDelivery.AS4.Repositories
         /// <param name="provider">The provider.</param>
         public AS4MessageBodyFileStore(ISerializerProvider provider)
         {
+            if (provider == null)
+            {
+                throw new ArgumentNullException(nameof(provider));
+            }
+
             _provider = provider;
         }
 
@@ -31,6 +36,11 @@ namespace Eu.EDelivery.AS4.Repositories
         /// <returns></returns>
         public string SaveAS4Message(string location, AS4Message message)
         {
+            if (location == null)
+            {
+                throw new ArgumentNullException(nameof(location));
+            }
+
             if (message == null)
             {
                 throw new ArgumentNullException(nameof(message));
@@ -55,6 +65,11 @@ namespace Eu.EDelivery.AS4.Repositories
         /// <returns></returns>
         public async Task<string> SaveAS4MessageStreamAsync(string location, Stream as4MessageStream)
         {
+            if (location == null)
+            {
+                throw new ArgumentNullException(nameof(location));
+            }
+
             if (as4MessageStream == null)
             {
                 throw new ArgumentNullException(nameof(as4MessageStream));
@@ -127,6 +142,11 @@ namespace Eu.EDelivery.AS4.Repositories
         /// <param name="message"></param>
         public void UpdateAS4Message(string location, AS4Message message)
         {
+            if (location == null)
+            {
+                throw new ArgumentNullException(nameof(location));
+            }
+
             if (message == null)
             {
                 throw new ArgumentNullException(nameof(message));
@@ -161,6 +181,11 @@ namespace Eu.EDelivery.AS4.Repositories
         /// <returns></returns>
         public async Task<Stream> LoadMessageBodyAsync(string location)
         {
+            if (location == null)
+            {
+                throw new ArgumentNullException(nameof(location));
+            }
+
             string fileLocation = SubstringWithoutFileUri(location);
 
             if (string.IsNullOrEmpty(fileLocation))

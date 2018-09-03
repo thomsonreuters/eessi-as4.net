@@ -1,4 +1,5 @@
-﻿using System.Security.Cryptography;
+﻿using System;
+using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using Eu.EDelivery.AS4.Common;
 
@@ -16,9 +17,7 @@ namespace Eu.EDelivery.AS4.Repositories
         /// Initializes a new instance of the <see cref="CertificateRepository"/> class
         /// with default Configuration
         /// </summary>
-        public CertificateRepository() : this(Config.Instance)
-        {
-        }
+        public CertificateRepository() : this(Config.Instance) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CertificateRepository"/> class
@@ -28,6 +27,11 @@ namespace Eu.EDelivery.AS4.Repositories
         /// </param>
         public CertificateRepository(IConfig config)
         {
+            if (config == null)
+            {
+                throw new ArgumentNullException(nameof(config));
+            }
+
             _config = config;
         }
 

@@ -24,6 +24,11 @@ namespace Eu.EDelivery.AS4.Repositories
         /// </param>     
         public DatastoreRepository(DatastoreContext datastore)
         {
+            if (datastore == null)
+            {
+                throw new ArgumentNullException(nameof(datastore));
+            }
+
             _datastoreContext = datastore;
         }
 
@@ -100,6 +105,11 @@ namespace Eu.EDelivery.AS4.Repositories
         /// <returns></returns>
         public IEnumerable<string> SelectExistingInMessageIds(IEnumerable<string> searchedMessageIds)
         {
+            if (searchedMessageIds == null)
+            {
+                throw new ArgumentNullException(nameof(searchedMessageIds));
+            }
+
             return
                 _datastoreContext.InMessages.Where(m => searchedMessageIds.Contains(m.EbmsMessageId))
                                             .Select(m => m.EbmsMessageId);
@@ -112,6 +122,11 @@ namespace Eu.EDelivery.AS4.Repositories
         /// <returns></returns>
         public IEnumerable<string> SelectExistingRefInMessageIds(IEnumerable<string> searchedMessageIds)
         {
+            if (searchedMessageIds == null)
+            {
+                throw new ArgumentNullException(nameof(searchedMessageIds));
+            }
+
             return _datastoreContext.InMessages
                              .Where(m => searchedMessageIds.Contains(m.EbmsRefToMessageId))
                              .Select(m => m.EbmsRefToMessageId);
@@ -123,6 +138,11 @@ namespace Eu.EDelivery.AS4.Repositories
         /// <param name="inMessage"></param>
         public void InsertInMessage(InMessage inMessage)
         {
+            if (inMessage == null)
+            {
+                throw new ArgumentNullException(nameof(inMessage));
+            }
+
             inMessage.InsertionTime = DateTimeOffset.Now;
             inMessage.ModificationTime = DateTimeOffset.Now;
 
@@ -141,6 +161,11 @@ namespace Eu.EDelivery.AS4.Repositories
         /// <param name="update">The update function to change the located <see cref="InMessage"/></param>
         public void UpdateInMessage(long id, Action<InMessage> update)
         {
+            if (update == null)
+            {
+                throw new ArgumentNullException(nameof(update));
+            }
+
             InMessage entity = _datastoreContext.InMessages.Single(m => m.Id == id);
 
             update(entity);
@@ -155,6 +180,16 @@ namespace Eu.EDelivery.AS4.Repositories
         /// <param name="updateAction"></param>
         public void UpdateInMessage(string messageId, Action<InMessage> updateAction)
         {
+            if (messageId == null)
+            {
+                throw new ArgumentNullException(nameof(messageId));
+            }
+
+            if (updateAction == null)
+            {
+                throw new ArgumentNullException(nameof(updateAction));
+            }
+
             // There might exist multiple InMessage records for the given messageId, therefore we cannot use
             // caching here.            
             long[] inMessageIds = _datastoreContext.InMessages.Where(m => m.EbmsMessageId.Equals(messageId)).Select(m => m.Id).ToArray();
@@ -181,6 +216,16 @@ namespace Eu.EDelivery.AS4.Repositories
         /// <param name="updateAction">The update function to change the located <see cref="InMessage"/> entities</param>
         public void UpdateInMessages(Expression<Func<InMessage, bool>> predicate, Action<InMessage> updateAction)
         {
+            if (predicate == null)
+            {
+                throw new ArgumentNullException(nameof(predicate));
+            }
+
+            if (updateAction == null)
+            {
+                throw new ArgumentNullException(nameof(updateAction));
+            }
+
             var inMessageIds = _datastoreContext.InMessages.Where(predicate).Select(m => new { m.EbmsMessageId, m.Id }).ToArray();
 
             if (inMessageIds.Any())
@@ -265,6 +310,11 @@ namespace Eu.EDelivery.AS4.Repositories
         /// <param name="outMessage"></param>        
         public void InsertOutMessage(OutMessage outMessage)
         {
+            if (outMessage == null)
+            {
+                throw new ArgumentNullException(nameof(outMessage));
+            }
+
             outMessage.InsertionTime = DateTimeOffset.Now;
             outMessage.ModificationTime = DateTimeOffset.Now;
 
@@ -283,6 +333,11 @@ namespace Eu.EDelivery.AS4.Repositories
         /// <param name="updateAction"></param>
         public void UpdateOutMessage(long outMessageId, Action<OutMessage> updateAction)
         {
+            if (updateAction == null)
+            {
+                throw new ArgumentNullException(nameof(updateAction));
+            }
+
             OutMessage msg = GetOutMessageEntityFor(outMessageId);
             UpdateMessageEntityIfNotNull(updateAction, msg);
         }
@@ -295,6 +350,11 @@ namespace Eu.EDelivery.AS4.Repositories
         /// <param name="updateAction">The update function to change the located <see cref="OutMessage"/> entities</param>
         public void UpdateOutMessages(Expression<Func<OutMessage, bool>> predicate, Action<OutMessage> updateAction)
         {
+            if (updateAction == null)
+            {
+                throw new ArgumentNullException(nameof(updateAction));
+            }
+
             var keys = _datastoreContext.OutMessages.Where(predicate).Select(m => new { m.Id }).ToArray();
 
             foreach (var key in keys)
@@ -371,6 +431,11 @@ namespace Eu.EDelivery.AS4.Repositories
         /// <param name="outException"></param>
         public void InsertOutException(OutException outException)
         {
+            if (outException == null)
+            {
+                throw new ArgumentNullException(nameof(outException));
+            }
+
             outException.InsertionTime = DateTimeOffset.Now;
             outException.ModificationTime = DateTimeOffset.Now;
 
@@ -384,6 +449,11 @@ namespace Eu.EDelivery.AS4.Repositories
         /// <param name="update">The update function to change the located <see cref="OutException"/> entity</param>
         public void UpdateOutException(long id, Action<OutException> update)
         {
+            if (update == null)
+            {
+                throw new ArgumentNullException(nameof(update));
+            }
+
             OutException entity = _datastoreContext.OutExceptions.Single(ex => ex.Id == id);
 
             update(entity);
@@ -398,6 +468,10 @@ namespace Eu.EDelivery.AS4.Repositories
         /// <param name="updateAction"></param>
         public void UpdateOutException(string refToMessageId, Action<OutException> updateAction)
         {
+            if (updateAction == null)
+            {
+                throw new ArgumentNullException(nameof(updateAction));
+            }
 
             IEnumerable<OutException> outExceptions = _datastoreContext.OutExceptions
                 .Where(m => m.EbmsRefToMessageId.Equals(refToMessageId));
@@ -445,6 +519,11 @@ namespace Eu.EDelivery.AS4.Repositories
         /// <param name="inException"></param>
         public void InsertInException(InException inException)
         {
+            if (inException == null)
+            {
+                throw new ArgumentNullException(nameof(inException));
+            }
+
             inException.ModificationTime = DateTimeOffset.Now;
             inException.InsertionTime = DateTimeOffset.Now;
 
@@ -458,6 +537,11 @@ namespace Eu.EDelivery.AS4.Repositories
         /// <param name="update">The update function to change the <see cref="InException"/> entity</param>
         public void UpdateInException(long id, Action<InException> update)
         {
+            if (update == null)
+            {
+                throw new ArgumentNullException(nameof(update));
+            }
+
             InException entity = _datastoreContext.InExceptions.Single(ex => ex.Id == id);
 
             update(entity);
@@ -472,6 +556,16 @@ namespace Eu.EDelivery.AS4.Repositories
         /// <param name="updateAction"></param>
         public void UpdateInException(string refToMessageId, Action<InException> updateAction)
         {
+            if (refToMessageId == null)
+            {
+                throw new ArgumentNullException(nameof(refToMessageId));
+            }
+
+            if (updateAction == null)
+            {
+                throw new ArgumentNullException(nameof(updateAction));
+            }
+
             IEnumerable<InException> inExceptions = _datastoreContext.InExceptions
                 .Where(m => m.EbmsRefToMessageId.Equals(refToMessageId));
 
@@ -507,6 +601,11 @@ namespace Eu.EDelivery.AS4.Repositories
         /// <param name="reliability">The <see cref="RetryReliability"/> entity to insert</param>
         public void InsertRetryReliability(RetryReliability reliability)
         {
+            if (reliability == null)
+            {
+                throw new ArgumentNullException(nameof(reliability));
+            }
+
             reliability.InsertionTime = DateTimeOffset.Now;
             reliability.ModificationTime = DateTimeOffset.Now;
 
@@ -519,7 +618,12 @@ namespace Eu.EDelivery.AS4.Repositories
         /// <param name="reliabilities">The <see cref="RetryReliability"/> entities to insert</param>
         public void InsertRetryReliabilities(IEnumerable<RetryReliability> reliabilities)
         {
-            foreach (var r in reliabilities)
+            if (reliabilities == null)
+            {
+                throw new ArgumentNullException(nameof(reliabilities));
+            }
+
+            foreach (RetryReliability r in reliabilities)
             {
                 r.InsertionTime = DateTimeOffset.Now;
                 r.ModificationTime = DateTimeOffset.Now;
@@ -535,6 +639,11 @@ namespace Eu.EDelivery.AS4.Repositories
         /// <param name="update">The update function to change the <see cref="RetryReliability"/> record</param>
         public void UpdateRetryReliability(long id, Action<RetryReliability> update)
         {
+            if (update == null)
+            {
+                throw new ArgumentNullException(nameof(update));
+            }
+
             RetryReliability rr = _datastoreContext.RetryReliability.SingleOrDefault(r => r.Id == id);
             if (rr != null)
             {

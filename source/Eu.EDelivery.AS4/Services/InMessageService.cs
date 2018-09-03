@@ -46,6 +46,16 @@ namespace Eu.EDelivery.AS4.Services
         /// <param name="repository">The repository.</param>
         public InMessageService(IConfig config, IDatastoreRepository repository)
         {
+            if (config == null)
+            {
+                throw new ArgumentNullException(nameof(config));
+            }
+
+            if (repository == null)
+            {
+                throw new ArgumentNullException(nameof(repository));
+            }
+
             _configuration = config;
             _repository = repository;
         }
@@ -57,6 +67,11 @@ namespace Eu.EDelivery.AS4.Services
         /// <returns></returns>
         public IDictionary<string, bool> DetermineDuplicateUserMessageIds(IEnumerable<string> searchedMessageIds)
         {
+            if (searchedMessageIds == null)
+            {
+                throw new ArgumentNullException(nameof(searchedMessageIds));
+            }
+
             IEnumerable<string> duplicateMessageIds = _repository.SelectExistingInMessageIds(searchedMessageIds);
 
             return MergeTwoListsIntoADuplicateMessageMapping(searchedMessageIds, duplicateMessageIds);
@@ -69,6 +84,11 @@ namespace Eu.EDelivery.AS4.Services
         /// <returns></returns>
         public IDictionary<string, bool> DetermineDuplicateSignalMessageIds(IEnumerable<string> searchedMessageIds)
         {
+            if (searchedMessageIds == null)
+            {
+                throw new ArgumentNullException(nameof(searchedMessageIds));
+            }
+
             IEnumerable<string> duplicateMessageIds = _repository.SelectExistingRefInMessageIds(searchedMessageIds);
 
             return MergeTwoListsIntoADuplicateMessageMapping(searchedMessageIds, duplicateMessageIds);
@@ -95,6 +115,11 @@ namespace Eu.EDelivery.AS4.Services
             MessageExchangePattern mep,
             SendingProcessingMode sendPMode)
         {
+            if (ebmsMessageId == null)
+            {
+                throw new ArgumentNullException(nameof(ebmsMessageId));
+            }
+
             Error errorMessage =
                 Error.FromErrorResult(
                     ebmsMessageId,
@@ -137,6 +162,16 @@ namespace Eu.EDelivery.AS4.Services
         /// <returns>A MessagingContext instance that contains the parsed AS4 Message.</returns>
         public async Task<MessagingContext> InsertAS4MessageAsync(MessagingContext context, MessageExchangePattern mep, IAS4MessageBodyStore messageBodyStore)
         {
+            if (context == null)
+            {
+                throw new ArgumentNullException(nameof(context));
+            }
+
+            if (messageBodyStore == null)
+            {
+                throw new ArgumentNullException(nameof(messageBodyStore));
+            }
+
             if (context.ReceivedMessage == null)
             {
                 throw new InvalidOperationException("The MessagingContext must contain a Received Message");
@@ -265,6 +300,16 @@ namespace Eu.EDelivery.AS4.Services
         /// <exception cref="InvalidDataException"></exception>
         public void UpdateAS4MessageForMessageHandling(MessagingContext messageContext, IAS4MessageBodyStore messageBodyStore)
         {
+            if (messageContext == null)
+            {
+                throw new ArgumentNullException(nameof(messageContext));
+            }
+
+            if (messageBodyStore == null)
+            {
+                throw new ArgumentNullException(nameof(messageBodyStore));
+            }
+
             AS4Message as4Message = messageContext.AS4Message;
 
             if (as4Message.HasUserMessage)
