@@ -197,7 +197,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Agents
                 new AgentConfig(name: "Agent with Steps that don't succeed succesfully"), 
                 spyReceiver, 
                 Transformer<StubSubmitTransformer>(), 
-                exceptionHandler: null, 
+                exceptionHandler: Mock.Of<IAgentExceptionHandler>(), 
                 stepConfiguration: new StepConfiguration
                 {
                     NormalPipeline = Step<UnsuccessfulStep>(),

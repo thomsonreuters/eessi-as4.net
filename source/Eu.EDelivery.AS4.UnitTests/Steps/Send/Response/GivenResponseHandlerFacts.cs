@@ -83,7 +83,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
 
                 stubAS4Response.Setup(r => r.OriginalRequest).Returns(context);
                 stubAS4Response.Setup(r => r.StatusCode).Returns(statusCode);
-                stubAS4Response.Setup(r => r.ReceivedAS4Message).Returns(AS4Message.Empty);                
+                stubAS4Response.Setup(r => r.ReceivedAS4Message).Returns(AS4Message.Empty);
+                stubAS4Response.SetupGet(r => r.ReceivedStream).Returns(new ReceivedMessage(Stream.Null));
 
                 return stubAS4Response.Object;
             }
@@ -115,6 +116,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
 
                 stubAS4Response.Setup(r => r.OriginalRequest).Returns(context);
                 stubAS4Response.Setup(r => r.ReceivedAS4Message).Returns(resultedMessage);
+                stubAS4Response.SetupGet(r => r.ReceivedStream).Returns(new ReceivedMessage(Stream.Null));
 
                 return stubAS4Response.Object;
             }
