@@ -13,7 +13,27 @@ namespace Eu.EDelivery.AS4.Strategies.Retriever
     {
         public const string Key = "file:///";
 
+        private readonly IConfig _config;
+
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FilePayloadRetriever"/> class.
+        /// </summary>
+        public FilePayloadRetriever() : this(Config.Instance) { }
+        
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FilePayloadRetriever"/> class.
+        /// </summary>
+        public FilePayloadRetriever(IConfig configuration)
+        {
+            if (configuration == null)
+            {
+                throw new ArgumentNullException(nameof(configuration));
+            }
+
+            _config = configuration;
+        }
 
         /// <summary>
         /// Retrieve <see cref="Stream"/> contents from a given <paramref name="location"/>.
@@ -26,9 +46,8 @@ namespace Eu.EDelivery.AS4.Strategies.Retriever
             string absolutePath = Path.GetFullPath(Path.Combine(Config.ApplicationPath, relativePath));
 
             var payload = new FileInfo(absolutePath);
-            var supportedPayloadDir = new DirectoryInfo(Path.Combine(Config.ApplicationPath, "messages", "attachments"));
+            var supportedPayloadDir = new DirectoryInfo(_config.PayloadRetrievalLocation);
 
-            // TODO: if we only allow this folder, maybe we should also allow just the filename in the SubmitMessage
             if (payload.Directory?.FullName != supportedPayloadDir.FullName)
             {
                 throw new NotSupportedException(

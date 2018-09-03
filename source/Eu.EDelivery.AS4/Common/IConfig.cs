@@ -41,6 +41,11 @@ namespace Eu.EDelivery.AS4.Common
         string OutMessageStoreLocation { get; }
 
         /// <summary>
+        /// Gets the location where the payloads should be retrieved.
+        /// </summary>
+        string PayloadRetrievalLocation { get; }
+
+        /// <summary>
         /// Retrieve Setting from the Global Configurations
         /// </summary>
         /// <param name="key">Registered Key for the Setting</param>

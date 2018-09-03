@@ -105,6 +105,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
         }
 
         /// <summary>
+        /// Gets the location where the payloads should be retrieved.
+        /// </summary>
+        public virtual string PayloadRetrievalLocation => throw new NotImplementedException();
+
+        /// <summary>
         /// Gets the agent settings.
         /// </summary>
         /// <returns></returns>

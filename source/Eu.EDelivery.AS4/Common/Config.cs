@@ -81,6 +81,12 @@ namespace Eu.EDelivery.AS4.Common
             OnlyAfterInitialized(() => _settings?.Database?.OutMessageStoreLocation ?? @"file:///.\database\as4messages\out");
 
         /// <summary>
+        /// Gets the location where the payloads should be retrieved.
+        /// </summary>
+        public string PayloadRetrievalLocation =>
+            OnlyAfterInitialized(() => _settings?.Submit?.PayloadRetrievalLocation ?? @"file:///.\messages\attachments");
+
+        /// <summary>
         /// Gets the application path of the AS4.NET Component.
         /// </summary><value>The application path.
         /// </value>
