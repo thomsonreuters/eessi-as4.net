@@ -70,7 +70,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
-            if (messagingContext.ReceivedMessage == null && messagingContext.AS4Message == null)
+            if (messagingContext?.ReceivedMessage == null && messagingContext?.AS4Message == null)
             {
                 throw new InvalidOperationException(
                     $"{nameof(SendAS4MessageStep)} requires a MessagingContext with a ReceivedStream or an AS4Message to correctly send the message");

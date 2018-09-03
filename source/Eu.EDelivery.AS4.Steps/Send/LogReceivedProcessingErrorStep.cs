@@ -43,7 +43,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
-            if (messagingContext.ErrorResult == null)
+            if (messagingContext?.ErrorResult == null)
             {
                 return StepResult.Success(messagingContext);
             }

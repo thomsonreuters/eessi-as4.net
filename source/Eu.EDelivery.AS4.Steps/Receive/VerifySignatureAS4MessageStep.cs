@@ -37,8 +37,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             : this(
                 Registry.Instance.CreateDatastoreContext,
                 Config.Instance,
-                Registry.Instance.MessageBodyStore)
-        { }
+                Registry.Instance.MessageBodyStore) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="VerifySignatureAS4MessageStep" /> class.
@@ -78,7 +77,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
-            if (messagingContext.AS4Message == null)
+            if (messagingContext?.AS4Message == null)
             {
                 throw new InvalidOperationException(
                     $"{nameof(VerifySignatureAS4MessageStep)} requires an AS4Message to verify but no AS4Message is present in the MessagingContext");

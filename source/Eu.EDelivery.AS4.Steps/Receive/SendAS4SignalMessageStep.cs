@@ -67,7 +67,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
-            if (messagingContext.AS4Message == null || messagingContext.AS4Message.IsEmpty)
+            if (messagingContext?.AS4Message == null || messagingContext?.AS4Message.IsEmpty == true)
             {
                 Logger.Debug("No SignalMessage available to send");
                 return StepResult.Success(messagingContext);

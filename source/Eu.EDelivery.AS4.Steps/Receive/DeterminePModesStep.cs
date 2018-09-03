@@ -64,7 +64,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
-            AS4Message as4Message = messagingContext.AS4Message;
+            AS4Message as4Message = messagingContext?.AS4Message;
             if (as4Message == null)
             {
                 throw new InvalidOperationException(

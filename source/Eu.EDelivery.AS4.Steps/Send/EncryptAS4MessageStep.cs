@@ -50,7 +50,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
-            if (messagingContext.AS4Message == null)
+            if (messagingContext?.AS4Message == null)
             {
                 throw new InvalidOperationException(
                     $"{nameof(EncryptAS4MessageStep)} requires an AS4Message to encrypt but no AS4Message is present in the MessagingContext");

@@ -64,7 +64,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
-            if (messagingContext.ReceivingPMode == null)
+            if (messagingContext?.ReceivingPMode == null)
             {
                 throw new InvalidOperationException(
                     "Unable to send DeliverMessage: no ReceivingPMode is set");

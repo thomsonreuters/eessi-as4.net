@@ -41,7 +41,7 @@ namespace Eu.EDelivery.AS4.Steps.Forward
         /// <returns></returns>
         public Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
-            if (messagingContext.ReceivedMessage == null)
+            if (messagingContext?.ReceivedMessage == null)
             {
                 throw new NotSupportedException(
                     "DetermineRoutingStep requires a 'ReceivedMessage'");

@@ -54,7 +54,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(MessagingContext context)
         {
-            if (context.AS4Message == null)
+            if (context?.AS4Message == null)
             {
                 throw new InvalidOperationException(
                     $"{nameof(DecryptAS4MessageStep)} requires a AS4Message to decrypt but no AS4Message is present in the MessagingContext");
