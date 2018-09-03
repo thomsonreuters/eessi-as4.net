@@ -64,7 +64,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
         private static DeliverMessageEnvelope EmptyDeliverMessageEnvelope()
         {
             return new DeliverMessageEnvelope(
-                messageInfo: new MessageInfo(),
+                messageInfo: new MessageInfo("not-empty-message-id", "not-empty-mpc"),
                 deliverMessage: new byte[] { },
                 contentType: string.Empty);
         }

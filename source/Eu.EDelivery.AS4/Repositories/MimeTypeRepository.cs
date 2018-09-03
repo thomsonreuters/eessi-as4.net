@@ -11,6 +11,8 @@ namespace Eu.EDelivery.AS4.Repositories
     {
         private const string RegistryPath = @"MIME\Database\Content Type\";
 
+        public static IMimeTypeRepository Instance = new MimeTypeRepository();
+
         /// <summary>
         /// Retrieve the right Extension
         /// from a given MIME Content Type
