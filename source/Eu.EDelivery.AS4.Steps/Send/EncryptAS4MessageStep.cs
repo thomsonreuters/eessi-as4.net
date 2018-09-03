@@ -35,6 +35,11 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// <param name="certificateRepository"></param>
         public EncryptAS4MessageStep(ICertificateRepository certificateRepository)
         {
+            if (certificateRepository == null)
+            {
+                throw new ArgumentNullException(nameof(certificateRepository));
+            }
+
             _certificateRepository = certificateRepository;
         }
 

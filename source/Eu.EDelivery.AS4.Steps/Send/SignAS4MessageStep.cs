@@ -28,10 +28,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// <summary>
         /// Initializes a new instance of the <see cref="SignAS4MessageStep"/> class
         /// </summary>
-        public SignAS4MessageStep() 
-            : this(Registry.Instance.CertificateRepository)
-        {
-        }
+        public SignAS4MessageStep() : this(Registry.Instance.CertificateRepository) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SignAS4MessageStep"/> class. 
@@ -41,6 +38,11 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// </param>
         public SignAS4MessageStep(ICertificateRepository repository)
         {
+            if (repository == null)
+            {
+                throw new ArgumentNullException(nameof(repository));
+            }
+
             _repository = repository;
         }
 

@@ -40,6 +40,21 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             Func<DatastoreContext> createDatastoreContext,
             IAS4MessageBodyStore messageBodyStore)
         {
+            if (configuration == null)
+            {
+                throw new ArgumentNullException(nameof(configuration));
+            }
+
+            if (createDatastoreContext == null)
+            {
+                throw new ArgumentNullException(nameof(createDatastoreContext));
+            }
+
+            if (messageBodyStore == null)
+            {
+                throw new ArgumentNullException(nameof(messageBodyStore));
+            }
+
             _configuration = configuration;
             _createDatastoreContext = createDatastoreContext;
             _messageBodyStore = messageBodyStore;

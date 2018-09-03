@@ -43,6 +43,16 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// <param name="createContext">The create context.</param>
         public DeterminePModesStep(IConfig config, Func<DatastoreContext> createContext)
         {
+            if (config == null)
+            {
+                throw new ArgumentNullException(nameof(config));
+            }
+
+            if (createContext == null)
+            {
+                throw new ArgumentNullException(nameof(createContext));
+            }
+
             _config = config;
             _createContext = createContext;
         }

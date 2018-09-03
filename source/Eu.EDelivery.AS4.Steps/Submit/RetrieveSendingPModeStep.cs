@@ -34,6 +34,11 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         /// </param>
         public RetrieveSendingPModeStep(IConfig config)
         {
+            if (config == null)
+            {
+                throw new ArgumentNullException(nameof(config));
+            }
+
             _config = config;
         }
 

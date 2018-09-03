@@ -39,6 +39,11 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         /// <param name="config">The configuration.</param>
         public CreateDefaultAS4MessageStep(IConfig config)
         {
+            if (config == null)
+            {
+                throw new ArgumentNullException(nameof(config));
+            }
+
             _config = config;
         }
 

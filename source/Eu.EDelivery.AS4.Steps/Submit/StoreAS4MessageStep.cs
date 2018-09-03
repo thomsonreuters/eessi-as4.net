@@ -49,6 +49,21 @@ namespace Eu.EDelivery.AS4.Steps.Submit
             Func<DatastoreContext> createContext, 
             IAS4MessageBodyStore messageBodyStore)
         {
+            if (configuration == null)
+            {
+                throw new ArgumentNullException(nameof(configuration));
+            }
+
+            if (createContext == null)
+            {
+                throw new ArgumentNullException(nameof(createContext));
+            }
+
+            if (messageBodyStore == null)
+            {
+                throw new ArgumentNullException(nameof(messageBodyStore));
+            }
+
             _config = configuration;
             _createContext = createContext;
             _messageBodyStore = messageBodyStore;

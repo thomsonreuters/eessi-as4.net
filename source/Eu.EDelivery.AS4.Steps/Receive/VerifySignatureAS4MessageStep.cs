@@ -51,6 +51,21 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             IConfig config,
             IAS4MessageBodyStore bodyStore)
         {
+            if (createContext == null)
+            {
+                throw new ArgumentNullException(nameof(createContext));
+            }
+
+            if (config == null)
+            {
+                throw new ArgumentNullException(nameof(config));
+            }
+
+            if (bodyStore == null)
+            {
+                throw new ArgumentNullException(nameof(bodyStore));
+            }
+
             _storeExpression = createContext;
             _config = config;
             _bodyStore = bodyStore;

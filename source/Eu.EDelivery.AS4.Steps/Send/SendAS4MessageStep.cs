@@ -49,6 +49,16 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// <param name="client">Instance to handle the HTTP response.</param>
         public SendAS4MessageStep(Func<DatastoreContext> createDatastore, IHttpClient client)
         {
+            if (createDatastore == null)
+            {
+                throw new ArgumentNullException(nameof(createDatastore));
+            }
+
+            if (client == null)
+            {
+                throw new ArgumentNullException(nameof(client));
+            }
+
             _createDatastore = createDatastore;
             _httpClient = client;
         }

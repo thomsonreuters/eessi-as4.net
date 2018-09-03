@@ -42,6 +42,16 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
             IDeliverSenderProvider messageProvider,
             Func<DatastoreContext> createDbContext)
         {
+            if (messageProvider == null)
+            {
+                throw new ArgumentNullException(nameof(messageProvider));
+            }
+
+            if (createDbContext == null)
+            {
+                throw new ArgumentNullException(nameof(createDbContext));
+            }
+
             _messageProvider = messageProvider;
             _createDbContext = createDbContext;
         }

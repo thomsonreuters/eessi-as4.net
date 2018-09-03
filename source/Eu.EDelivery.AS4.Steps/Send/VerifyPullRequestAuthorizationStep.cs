@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.Security;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
@@ -25,6 +26,11 @@ namespace Eu.EDelivery.AS4.Steps.Send
         ///<param name="pullAuthorizationMapProvider">The IAuthorizationMapProvider instance that must be used</param>
         public VerifyPullRequestAuthorizationStep(IPullAuthorizationMapProvider pullAuthorizationMapProvider)
         {
+            if (pullAuthorizationMapProvider == null)
+            {
+                throw new ArgumentNullException(nameof(pullAuthorizationMapProvider));
+            }
+
             _pullAuthorizationMapProvider = pullAuthorizationMapProvider;
         }
 

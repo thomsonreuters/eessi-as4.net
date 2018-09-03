@@ -38,6 +38,11 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         /// <param name="payloadPayloadProvider">The payload provider.</param>
         public CreateAS4MessageStep(IPayloadRetrieverProvider payloadPayloadProvider)
         {
+            if (payloadPayloadProvider == null)
+            {
+                throw new ArgumentNullException(nameof(payloadPayloadProvider));
+            }
+
             _payloadProvider = payloadPayloadProvider;
         }
 

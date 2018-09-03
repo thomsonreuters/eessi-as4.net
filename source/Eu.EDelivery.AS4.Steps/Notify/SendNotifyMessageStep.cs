@@ -43,6 +43,16 @@ namespace Eu.EDelivery.AS4.Steps.Notify
         /// <param name="dataContextRetriever">The data context retriever.</param>
         public SendNotifyMessageStep(INotifySenderProvider provider, Func<DatastoreContext> dataContextRetriever)
         {
+            if (provider == null)
+            {
+                throw new ArgumentNullException(nameof(provider));
+            }
+
+            if (dataContextRetriever == null)
+            {
+                throw new ArgumentNullException(nameof(dataContextRetriever));
+            }
+
             _provider = provider;
             _createContext = dataContextRetriever;
         }

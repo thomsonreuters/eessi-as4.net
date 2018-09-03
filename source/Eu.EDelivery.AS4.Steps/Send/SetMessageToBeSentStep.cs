@@ -31,6 +31,16 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// <param name="messageStore">The message store.</param>
         public SetMessageToBeSentStep(Func<DatastoreContext> createContext, IAS4MessageBodyStore messageStore)
         {
+            if (createContext == null)
+            {
+                throw new ArgumentNullException(nameof(createContext));
+            }
+
+            if (messageStore == null)
+            {
+                throw new ArgumentNullException(nameof(messageStore));
+            }
+
             _createContext = createContext;
             _messageStore = messageStore;
         }

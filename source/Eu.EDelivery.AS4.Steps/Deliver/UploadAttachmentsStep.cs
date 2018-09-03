@@ -41,6 +41,16 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         /// <param name="createDbContext">Creates a database context.</param>
         public UploadAttachmentsStep(IAttachmentUploaderProvider provider, Func<DatastoreContext> createDbContext)
         {
+            if (provider == null)
+            {
+                throw new ArgumentNullException(nameof(provider));
+            }
+
+            if (createDbContext == null)
+            {
+                throw new ArgumentNullException(nameof(createDbContext));
+            }
+
             _provider = provider;
             _createDbContext = createDbContext;
         }
