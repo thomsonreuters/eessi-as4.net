@@ -12,8 +12,8 @@ namespace Eu.EDelivery.AS4.Migrations
         {
             if (migrationBuilder.ActiveProvider.Equals("Microsoft.EntityFrameworkCore.Sqlite", StringComparison.OrdinalIgnoreCase))
             {
-                DropAndRecreateInExceptionTable(migrationBuilder);
                 DropAndRecreateOutExceptionTable(migrationBuilder);
+                DropAndRecreateInExceptionTable(migrationBuilder);
             }
             else
             {
@@ -39,10 +39,8 @@ namespace Eu.EDelivery.AS4.Migrations
 
         private static void DropAndRecreateInExceptionTable(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.RenameTable("InExceptions", newName: "OldInExceptions");
-
             migrationBuilder.CreateTable(
-                name: "InExceptions",
+                name: "NewInExceptions",
                 columns: table => new
                 {
                     Id = table.Column<long>(nullable: false)
@@ -62,22 +60,13 @@ namespace Eu.EDelivery.AS4.Migrations
                 });
 
             migrationBuilder.Sql(
-                "INSERT INTO InExceptions "
+                "INSERT INTO NewInExceptions "
                 + "(EbmsRefToMessageId, Exception, InsertionTime, ModificationTime, Operation, PMode, PModeId) "
                 + "SELECT EbmsRefToMessageId, Exception, InsertionTime, ModificationTime, Operation, PMode, PModeId "
-                + "FROM OldInExceptions", suppressTransaction: true);
+                + "FROM InExceptions", suppressTransaction: true);
 
-            migrationBuilder.DropTable("OldInExceptions");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_InExceptions_EbmsRefToMessageId",
-                table: "InExceptions",
-                column: "EbmsRefToMessageId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_InExceptions_Operation",
-                table: "InExceptions",
-                column: "Operation");
+            migrationBuilder.DropTable("InExceptions");
+            //migrationBuilder.Sql("ALTER TABLE NewInExceptions RENAME TO InExceptionss");
         }
 
         private static void DropAndRecreateOutExceptionTable(MigrationBuilder migrationBuilder)
