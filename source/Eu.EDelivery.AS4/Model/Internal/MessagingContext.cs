@@ -17,13 +17,18 @@ namespace Eu.EDelivery.AS4.Model.Internal
     /// </summary>
     public class MessagingContext : IDisposable
     {
-        private static ILogger Logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MessagingContext"/> class.
         /// </summary>
         public MessagingContext(ReceivedMessage receivedMessage, MessagingContextMode mode)
         {
+            if (receivedMessage == null)
+            {
+                throw new ArgumentNullException(nameof(receivedMessage));
+            }
+
             SubmitMessage = null;
             ReceivedMessage = receivedMessage;
             AS4Message = null;
@@ -45,6 +50,11 @@ namespace Eu.EDelivery.AS4.Model.Internal
         /// <param name="mode">The <see cref="MessagingContextMode"/> in which the context is currently acting</param>
         public MessagingContext(AS4Message as4Message, MessagingContextMode mode)
         {
+            if (as4Message == null)
+            {
+                throw new ArgumentNullException(nameof(as4Message));
+            }
+
             SubmitMessage = null;
             ReceivedMessage = null;
             AS4Message = as4Message;
@@ -61,6 +71,11 @@ namespace Eu.EDelivery.AS4.Model.Internal
         /// </param>
         public MessagingContext(SubmitMessage submitMessage)
         {
+            if (submitMessage == null)
+            {
+                throw new ArgumentNullException(nameof(submitMessage));
+            }
+
             SubmitMessage = submitMessage;
             ReceivedMessage = null;
             AS4Message = null;
@@ -75,6 +90,11 @@ namespace Eu.EDelivery.AS4.Model.Internal
         /// <param name="deliverMessage">The deliver message.</param>
         public MessagingContext(DeliverMessageEnvelope deliverMessage)
         {
+            if (deliverMessage == null)
+            {
+                throw new ArgumentNullException(nameof(deliverMessage));
+            }
+
             SubmitMessage = null;
             ReceivedMessage = null;
             AS4Message = null;
@@ -90,6 +110,11 @@ namespace Eu.EDelivery.AS4.Model.Internal
         /// <param name="entityId"></param>
         public MessagingContext(NotifyMessageEnvelope notifyMessage, long? entityId = null)
         {
+            if (notifyMessage == null)
+            {
+                throw new ArgumentNullException(nameof(notifyMessage));
+            }
+
             SubmitMessage = null;
             ReceivedMessage = null;
             AS4Message = null;
@@ -105,6 +130,11 @@ namespace Eu.EDelivery.AS4.Model.Internal
         /// <param name="exception">The exception.</param>
         public MessagingContext(Exception exception)
         {
+            if (exception == null)
+            {
+                throw new ArgumentNullException(nameof(exception));
+            }
+
             Exception = exception;
             Mode = MessagingContextMode.Unknown;
         }
@@ -218,6 +248,11 @@ namespace Eu.EDelivery.AS4.Model.Internal
             ReceivingProcessingMode receivePMode,
             IConfig config)
         {
+            if (config == null)
+            {
+                throw new ArgumentNullException(nameof(config));
+            }
+
             if (receivePMode == null)
             {
                 return null;
@@ -268,6 +303,11 @@ namespace Eu.EDelivery.AS4.Model.Internal
         /// <param name="as4Message">The as4 message.</param>
         public void ModifyContext(AS4Message as4Message)
         {
+            if (as4Message == null)
+            {
+                throw new ArgumentNullException(nameof(as4Message));
+            }
+
             PrepareContextChange();
             AS4Message = as4Message;
         }
@@ -279,6 +319,11 @@ namespace Eu.EDelivery.AS4.Model.Internal
         /// <param name="mode">The mode.</param>
         public void ModifyContext(AS4Message as4Message, MessagingContextMode mode)
         {
+            if (as4Message == null)
+            {
+                throw new ArgumentNullException(nameof(as4Message));
+            }
+
             PrepareContextChange();
             AS4Message = as4Message;
             Mode = mode;
@@ -286,6 +331,11 @@ namespace Eu.EDelivery.AS4.Model.Internal
 
         public void ModifyContext(ReceivedMessage receivedMessage, MessagingContextMode mode)
         {
+            if (receivedMessage == null)
+            {
+                throw new ArgumentNullException(nameof(receivedMessage));
+            }
+
             PrepareContextChange();
             ReceivedMessage = receivedMessage;
             Mode = mode;
@@ -298,6 +348,11 @@ namespace Eu.EDelivery.AS4.Model.Internal
         /// <returns></returns>
         public void ModifyContext(DeliverMessageEnvelope deliverMessage)
         {
+            if (deliverMessage == null)
+            {
+                throw new ArgumentNullException(nameof(deliverMessage));
+            }
+
             PrepareContextChange();
             DeliverMessage = deliverMessage;
             Mode = MessagingContextMode.Deliver;
@@ -310,6 +365,11 @@ namespace Eu.EDelivery.AS4.Model.Internal
         /// <returns></returns>
         public void ModifyContext(NotifyMessageEnvelope notifyMessage)
         {
+            if (notifyMessage == null)
+            {
+                throw new ArgumentNullException(nameof(notifyMessage));
+            }
+
             PrepareContextChange();
             NotifyMessage = notifyMessage;
             Mode = MessagingContextMode.Notify;

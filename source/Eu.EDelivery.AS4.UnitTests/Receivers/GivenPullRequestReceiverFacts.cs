@@ -98,17 +98,15 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
             [Fact]
             public void StartReceiver()
             {
-                var stubConfig
-                    = new StubConfig(sendingPModes: new Dictionary<string, SendingProcessingMode>
-                                    {
-                                        ["01-send"] =
-                                                    AS4XmlSerializer.FromString<SendingProcessingMode>(Properties.Resources.send_01)
-                                    },
-                                    receivingPModes: new Dictionary<string, ReceivingProcessingMode>
-                                    {
-                                                    ["01-receive"] =
-                                                    AS4XmlSerializer.FromString<ReceivingProcessingMode>(Properties.Resources.receive_01)
-                                    });
+                var stubConfig = new StubConfig(
+                    sendingPModes: new Dictionary<string, SendingProcessingMode>
+                    {
+                        ["01-send"] = AS4XmlSerializer.FromString<SendingProcessingMode>(Properties.Resources.send_01)
+                    },
+                    receivingPModes: new Dictionary<string, ReceivingProcessingMode>
+                    {
+                        ["01-receive"] = AS4XmlSerializer.FromString<ReceivingProcessingMode>(Properties.Resources.receive_01)
+                    });
 
                 // Arrange
                 var receiver = new PullRequestReceiver(stubConfig);

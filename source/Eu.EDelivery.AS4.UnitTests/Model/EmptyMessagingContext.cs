@@ -1,4 +1,5 @@
-﻿using Eu.EDelivery.AS4.Model.Internal;
+﻿using Eu.EDelivery.AS4.Model.Core;
+using Eu.EDelivery.AS4.Model.Internal;
 
 namespace Eu.EDelivery.AS4.UnitTests.Model
 {
@@ -11,6 +12,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
         /// <summary>
         /// Initializes a new instance of the <see cref="EmptyMessagingContext"/> class.
         /// </summary>
-        public EmptyMessagingContext() : base(as4Message: null, mode: MessagingContextMode.Unknown) { }
+        public EmptyMessagingContext() : base(as4Message: AS4Message.Empty, mode: MessagingContextMode.Unknown) { }
     }
 }
