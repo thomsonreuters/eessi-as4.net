@@ -19,6 +19,16 @@ namespace Eu.EDelivery.AS4.Repositories
         /// <param name="persister">The persister.</param>
         public void Accept(Func<string, bool> condition, IAS4MessageBodyStore persister)
         {
+            if (condition == null)
+            {
+                throw new ArgumentNullException(nameof(condition));
+            }
+
+            if (persister == null)
+            {
+                throw new ArgumentNullException(nameof(persister));
+            }
+
             _stores[condition] = persister;
         }
 

@@ -35,7 +35,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Agents
             // Arrange
             // Minder agents are being created and uses the registry
             Registry.Instance.Initialize(StubConfig.Default);
-            var sut = new AgentProvider(new SingleAgentConfig(), Mock.Of<IRegistry>());
+            var stubRegistry = new Mock<IRegistry>();
+            stubRegistry.SetupGet(r => r.CreateDatastoreContext)
+                        .Returns(() => (DatastoreContext) null);
+
+            var sut = new AgentProvider(new SingleAgentConfig(), stubRegistry.Object);
 
             // Act
             IEnumerable<IAgent> agents = sut.GetAgents();

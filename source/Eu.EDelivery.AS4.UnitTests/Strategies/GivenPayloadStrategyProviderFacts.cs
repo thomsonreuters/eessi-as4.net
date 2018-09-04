@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Strategies.Retriever;
@@ -48,12 +49,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Strategies
             [Fact]
             public void ThenProviderNotGetsStrategy()
             {
-                // Arrange
-                const string prefix = "file";
-
-                // Act / Assert
-                _provider.Accept(payload => payload.Location.StartsWith(prefix), null);
-                Assert.ThrowsAny<Exception>(() => _provider.Get(new Payload(prefix)));
+                Assert.Throws<KeyNotFoundException>(() => _provider.Get(new Payload("file:///")));
             }
         }
     }

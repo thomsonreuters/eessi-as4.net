@@ -28,6 +28,11 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
         /// <returns></returns>
         public IAttachmentUploader Get(string type)
         {
+            if (type == null)
+            {
+                throw new ArgumentNullException(nameof(type));
+            }
+
             UploaderEntry entry = _uploaders.FirstOrDefault(u => u.Condition(type));
 
             if (entry?.Uploader == null)
@@ -47,6 +52,16 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
         /// <param name="uploader"></param>
         public void Accept(Func<string, bool> condition, IAttachmentUploader uploader)
         {
+            if (condition == null)
+            {
+                throw new ArgumentNullException(nameof(condition));
+            }
+
+            if (uploader == null)
+            {
+                throw new ArgumentNullException(nameof(uploader));
+            }
+
             _uploaders.Add(new UploaderEntry(condition, uploader));
         }
 

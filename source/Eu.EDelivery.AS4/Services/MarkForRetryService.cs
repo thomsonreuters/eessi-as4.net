@@ -23,6 +23,11 @@ namespace Eu.EDelivery.AS4.Services
         /// <param name="respository">The repository.</param>
         public MarkForRetryService(IDatastoreRepository respository)
         {
+            if (respository == null)
+            {
+                throw new ArgumentNullException(nameof(respository));
+            }
+
             _repository = respository;
         }
 
@@ -61,6 +66,11 @@ namespace Eu.EDelivery.AS4.Services
         /// <param name="status">The upload status during the delivery of the payloads.</param>
         public void UpdateDeliverMessageForUploadResult(string messageId, SendResult status)
         {
+            if (messageId == null)
+            {
+                throw new ArgumentNullException(nameof(messageId));
+            }
+
             _repository.UpdateInMessage(
                 messageId: messageId,
                 updateAction: entity => UpdateMessageEntity(
@@ -83,6 +93,11 @@ namespace Eu.EDelivery.AS4.Services
         /// <returns></returns>
         public void UpdateDeliverMessageForDeliverResult(string messageId, SendResult status)
         {
+            if (messageId == null)
+            {
+                throw new ArgumentNullException(nameof(messageId));
+            }
+
             _repository.UpdateInMessage(
                 messageId: messageId,
                 updateAction: entity => UpdateMessageEntity(
@@ -111,6 +126,11 @@ namespace Eu.EDelivery.AS4.Services
         /// <param name="result">Notification result used to determine the right update values for the to be updated entity</param>
         public void UpdateNotifyMessageForIncomingMessage(string messageId, SendResult result)
         {
+            if (messageId == null)
+            {
+                throw new ArgumentNullException(nameof(messageId));
+            }
+
             _repository.UpdateInMessage(
                 messageId: messageId,
                 updateAction: entity => UpdateMessageEntity(
@@ -223,6 +243,11 @@ namespace Eu.EDelivery.AS4.Services
         /// <param name="result">Notification result used to determine the right update values for the to be updated entity</param>
         public void UpdateNotifyExceptionForIncomingMessage(string messageId, SendResult result)
         {
+            if (messageId == null)
+            {
+                throw new ArgumentNullException(nameof(messageId));
+            }
+
             _repository.UpdateInException(
                 refToMessageId: messageId,
                 updateAction: exEntity => UpdateExceptionRetry(
@@ -238,6 +263,11 @@ namespace Eu.EDelivery.AS4.Services
         /// <param name="result">Notification result used to determine the right update values for the to be updated entity</param>
         public void UpdateNotifyExceptionForOutgoingMessage(string messageId, SendResult result)
         {
+            if (messageId == null)
+            {
+                throw new ArgumentNullException(nameof(messageId));
+            }
+
             _repository.UpdateOutException(
                 refToMessageId: messageId,
                 updateAction: exEntity => UpdateExceptionRetry(

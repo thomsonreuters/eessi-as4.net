@@ -28,8 +28,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Agents
                 new AgentConfig(name: "Agent with Spy Receiver"), 
                 spyReceiver, 
                 Transformer<StubSubmitTransformer>(), 
-                exceptionHandler: null, 
-                stepConfiguration: null);
+                exceptionHandler: Mock.Of<IAgentExceptionHandler>(), 
+                stepConfiguration: new StepConfiguration());
 
             // Act
             sut.Stop();
@@ -47,7 +47,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Agents
                 new AgentConfig("Agent with non-defined Normal Steps"), 
                 spyReceiver, 
                 Transformer<StubSubmitTransformer>(), 
-                exceptionHandler: null, 
+                exceptionHandler: Mock.Of<IAgentExceptionHandler>(), 
                 stepConfiguration: new StepConfiguration
                 {
                     NormalPipeline = new Step[] {null},
@@ -71,7 +71,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Agents
                 new AgentConfig(name: "Agent with Normal Pipeline"), 
                 spyReceiver, 
                 Transformer<StubSubmitTransformer>(), 
-                exceptionHandler: null, 
+                exceptionHandler: Mock.Of<IAgentExceptionHandler>(), 
                 stepConfiguration: new StepConfiguration
                 {
                     NormalPipeline = AS4MessageSteps(),
@@ -197,7 +197,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Agents
                 new AgentConfig(name: "Agent with Steps that don't succeed succesfully"), 
                 spyReceiver, 
                 Transformer<StubSubmitTransformer>(), 
-                exceptionHandler: null, 
+                exceptionHandler: Mock.Of<IAgentExceptionHandler>(), 
                 stepConfiguration: new StepConfiguration
                 {
                     NormalPipeline = Step<UnsuccessfulStep>(),

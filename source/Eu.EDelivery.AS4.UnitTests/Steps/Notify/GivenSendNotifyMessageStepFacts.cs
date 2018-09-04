@@ -8,6 +8,7 @@ using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Steps.Notify;
 using Eu.EDelivery.AS4.Strategies.Sender;
 using Eu.EDelivery.AS4.UnitTests.Common;
+using Eu.EDelivery.AS4.UnitTests.Strategies.Method;
 using Eu.EDelivery.AS4.UnitTests.Strategies.Sender;
 using Moq;
 using Xunit;
@@ -97,7 +98,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
             // Arrange
             var fixture = new MessagingContext(
                 EmptyNotifyMessageEnvelope(Status.Delivered))
-                {SendingPMode = new SendingProcessingMode {ReceiptHandling = {NotifyMethod = new Method()}}};
+            {
+                SendingPMode = new SendingProcessingMode
+                {
+                    ReceiptHandling = { NotifyMethod = new LocationMethod("not-empty-location") }
+                }
+            };
 
             var spySender = new SpySender();
             IStep sut = CreateSendNotifyStepWithSender(spySender);
@@ -115,7 +121,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
             // Arrange
             var fixture = new MessagingContext(
                 EmptyNotifyMessageEnvelope(Status.Error))
-                {SendingPMode = new SendingProcessingMode {ErrorHandling = {NotifyMethod = new Method()}}};
+            {
+                SendingPMode = new SendingProcessingMode
+                {
+                    ErrorHandling = { NotifyMethod = new LocationMethod("not-empty-location") }
+                }
+            };
 
             var spySender = new SpySender();
             IStep sut = CreateSendNotifyStepWithSender(spySender);
@@ -138,10 +149,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
         private static NotifyMessageEnvelope EmptyNotifyMessageEnvelope(Status status)
         {
             return new NotifyMessageEnvelope(
-                messageInfo: new MessageInfo(), 
-                statusCode: status, 
-                notifyMessage: null, 
-                contentType: string.Empty, 
+                messageInfo: new MessageInfo { MessageId = "not-empty-message-id" },
+                statusCode: status,
+                notifyMessage: null,
+                contentType: string.Empty,
                 entityType: typeof(InMessage));
         }
     }

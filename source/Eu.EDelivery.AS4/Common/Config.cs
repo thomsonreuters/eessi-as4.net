@@ -97,6 +97,11 @@ namespace Eu.EDelivery.AS4.Common
         /// <param name="settingsFileName">Name of the settings file.</param>
         public void Initialize(string settingsFileName)
         {
+            if (settingsFileName == null)
+            {
+                throw new ArgumentNullException(nameof(settingsFileName));
+            }
+
             try
             {
                 IsInitialized = true;
@@ -134,6 +139,11 @@ namespace Eu.EDelivery.AS4.Common
         /// <returns></returns>
         public bool ContainsSendingPMode(string id)
         {
+            if (id == null)
+            {
+                throw new ArgumentNullException(nameof(id));
+            }
+
             return OnlyAfterInitialized(() => _sendingPModeWatcher.ContainsPMode(id));
         }
 
@@ -146,6 +156,11 @@ namespace Eu.EDelivery.AS4.Common
         /// <exception cref="ConfigurationErrorsException">No entry found for the given id</exception>
         public string GetFileLocationForSendingPMode(string id)
         {
+            if (id == null)
+            {
+                throw new ArgumentNullException(nameof(id));
+            }
+
             return OnlyAfterInitialized(() => GetPModeEntry(id, _sendingPModeWatcher).Filename);
         }
 
@@ -158,6 +173,11 @@ namespace Eu.EDelivery.AS4.Common
         /// <exception cref="ConfigurationErrorsException">No entry found for the given id</exception>
         public string GetFileLocationForReceivingPMode(string id)
         {
+            if (id == null)
+            {
+                throw new ArgumentNullException(nameof(id));
+            }
+
             return OnlyAfterInitialized(() => GetPModeEntry(id, _receivingPModeWatcher).Filename);
         }
 
@@ -170,6 +190,11 @@ namespace Eu.EDelivery.AS4.Common
         /// <exception cref="ConfigurationErrorsException">No entry found for the given id</exception>
         public SendingProcessingMode GetSendingPMode(string id)
         {
+            if (id == null)
+            {
+                throw new ArgumentNullException(nameof(id));
+            }
+
             return OnlyAfterInitialized(() => GetPModeEntry(id, _sendingPModeWatcher).PMode as SendingProcessingMode);
         }
 
@@ -182,6 +207,11 @@ namespace Eu.EDelivery.AS4.Common
         /// <exception cref="ConfigurationErrorsException">No entry found for the given id</exception>
         public ReceivingProcessingMode GetReceivingPMode(string id)
         {
+            if (id == null)
+            {
+                throw new ArgumentNullException(nameof(id));
+            }
+
             return OnlyAfterInitialized(() => GetPModeEntry(id, _receivingPModeWatcher).PMode as ReceivingProcessingMode);
         }
 
@@ -208,7 +238,15 @@ namespace Eu.EDelivery.AS4.Common
         /// <param name="key"> Registered Key for the Setting </param>
         /// <returns>
         /// </returns>
-        public string GetSetting(string key) => OnlyAfterInitialized(() => _configuration.ReadOptionalProperty(key));
+        public string GetSetting(string key)
+        {
+            if (key == null)
+            {
+                throw new ArgumentNullException(nameof(key));
+            }
+
+            return OnlyAfterInitialized(() => _configuration.ReadOptionalProperty(key));
+        }
 
         /// <summary>
         /// Gets the agent settings.

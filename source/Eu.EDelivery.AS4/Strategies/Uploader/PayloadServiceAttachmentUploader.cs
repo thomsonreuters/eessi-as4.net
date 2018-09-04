@@ -33,6 +33,11 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
         /// <param name="postRequest"></param>
         public PayloadServiceAttachmentUploader(Func<string, HttpContent, Task<HttpResponseMessage>> postRequest)
         {
+            if (postRequest == null)
+            {
+                throw new ArgumentNullException(nameof(postRequest));
+            }
+
             _postRequest = postRequest;
         }
 
@@ -43,12 +48,35 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
         /// <param name="payloadReferenceMethod"></param>
         public void Configure(Method payloadReferenceMethod)
         {
-            Location = payloadReferenceMethod["location"].Value;
+            if (payloadReferenceMethod == null)
+            {
+                throw new ArgumentNullException(nameof(payloadReferenceMethod));
+            }
+
+            string location = payloadReferenceMethod["location"]?.Value;
+            if (String.IsNullOrWhiteSpace(location))
+            {
+                throw new InvalidOperationException(
+                    $"{nameof(PayloadServiceAttachmentUploader)} requires a location to upload the attachments to, please add a "
+                    + "<Parameter key=\"location\" value=\"your-payload-service-endpoint\"/> to the MessageHandling.Deliver.PayloadReferenceMethod in the ReceivingPMode");
+            }
+
+            Location = location;
         }
 
         /// <inheritdoc />
         public async Task<UploadResult> UploadAsync(Attachment attachment, UserMessage referringUserMessage)
         {
+            if (attachment == null)
+            {
+                throw new ArgumentNullException(nameof(attachment));
+            }
+
+            if (referringUserMessage == null)
+            {
+                throw new ArgumentNullException(nameof(referringUserMessage));
+            }
+
             HttpResponseMessage response = await PostAttachmentAsMultipart(attachment).ConfigureAwait(false);
             return await DeserializeResponseAsUploadResult(response).ConfigureAwait(false);
         }

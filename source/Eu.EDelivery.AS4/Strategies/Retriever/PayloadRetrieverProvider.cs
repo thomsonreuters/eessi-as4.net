@@ -19,7 +19,7 @@ namespace Eu.EDelivery.AS4.Strategies.Retriever
         /// </summary>
         public PayloadRetrieverProvider()
         {
-            this._entries = new Collection<PayloadStrategyEntry>();
+            _entries = new Collection<PayloadStrategyEntry>();
         }
 
         /// <summary>
@@ -29,6 +29,11 @@ namespace Eu.EDelivery.AS4.Strategies.Retriever
         /// <returns></returns>
         public IPayloadRetriever Get(Model.Common.Payload payload)
         {
+            if (payload == null)
+            {
+                throw new ArgumentNullException(nameof(payload));
+            }
+
             PayloadStrategyEntry entry = _entries.FirstOrDefault(e => e.Condition(payload));
 
             if (entry?.Retriever == null)
@@ -47,8 +52,18 @@ namespace Eu.EDelivery.AS4.Strategies.Retriever
         /// <param name="retriever"></param>
         public void Accept(Func<Model.Common.Payload, bool> condition, IPayloadRetriever retriever)
         {
+            if (condition == null)
+            {
+                throw new ArgumentNullException(nameof(condition));
+            }
+
+            if (retriever == null)
+            {
+                throw new ArgumentNullException(nameof(retriever));
+            }
+
             var entry = new PayloadStrategyEntry(condition, retriever);
-            this._entries.Add(entry);
+            _entries.Add(entry);
         }
 
         /// <summary>
@@ -61,8 +76,8 @@ namespace Eu.EDelivery.AS4.Strategies.Retriever
 
             public PayloadStrategyEntry(Func<Model.Common.Payload, bool> condition, IPayloadRetriever retriever)
             {
-                this.Condition = condition;
-                this.Retriever = retriever;
+                Condition = condition;
+                Retriever = retriever;
             }
         }
     }

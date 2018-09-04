@@ -23,6 +23,11 @@ namespace Eu.EDelivery.AS4.Strategies.Retriever
         /// <returns></returns>
         public async Task<Stream> RetrievePayloadAsync(string location)
         {
+            if (location == null)
+            {
+                throw new ArgumentNullException(nameof(location));
+            }
+
             string absolutePath = location.Replace(Key, string.Empty);
 
             Stream targetStr = await RetrieveTempFileContents(absolutePath);

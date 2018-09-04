@@ -31,6 +31,11 @@ namespace Eu.EDelivery.AS4.Agents
         /// <param name="retentionPeriod">The retention period.</param>
         public CleanUpAgent(Func<DatastoreContext> storeExpression, TimeSpan retentionPeriod)
         {
+            if (storeExpression == null)
+            {
+                throw new ArgumentNullException(nameof(storeExpression));
+            }
+
             _storeExpression = storeExpression;
             _retentionPeriod = retentionPeriod;
         }

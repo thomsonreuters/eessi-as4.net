@@ -19,7 +19,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Strategies.Uploader
             // Arrange
             UploadResult expectedResult = CreateAnonymousUploadResult();
             var uploader = new PayloadServiceAttachmentUploader((uri, content) => PostRequest(expectedResult));
-            uploader.Configure(new LocationMethod(null));
+            uploader.Configure(new LocationMethod("not-empty"));
 
             // Act
             UploadResult actualResult = await uploader.UploadAsync(CreateAnonymousAttachment(), new UserMessage());
@@ -42,7 +42,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Strategies.Uploader
         public async Task ThenUploadAttachmentFails_IfPayloadServiceIsNotRunning()
         {
             var uploader = new PayloadServiceAttachmentUploader();
-            uploader.Configure(new LocationMethod(null));
+            uploader.Configure(new LocationMethod("not-empty"));
 
             await Assert.ThrowsAnyAsync<Exception>(() => uploader.UploadAsync(CreateAnonymousAttachment(), new UserMessage()));
         }

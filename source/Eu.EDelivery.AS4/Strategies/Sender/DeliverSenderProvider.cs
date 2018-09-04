@@ -30,6 +30,16 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
         /// <param name="sender"></param>
         public void Accept(Func<string, bool> condition, Func<IDeliverSender> sender)
         {
+            if (condition == null)
+            {
+                throw new ArgumentNullException(nameof(condition));
+            }
+
+            if (sender == null)
+            {
+                throw new ArgumentNullException(nameof(sender));
+            }
+
             _senders.Add(new DeliverSenderEntry(condition, sender));
         }
 
@@ -42,6 +52,11 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
         /// <exception cref="Exception">A delegate callback throws an exception.</exception>
         public IDeliverSender GetDeliverSender(string operationMethod)
         {
+            if (operationMethod == null)
+            {
+                throw new ArgumentNullException(nameof(operationMethod));
+            }
+
             DeliverSenderEntry entry = _senders.FirstOrDefault(s => s.Condition(operationMethod));
 
             if (entry?.Sender == null)
