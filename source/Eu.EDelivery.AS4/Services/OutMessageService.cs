@@ -239,15 +239,4 @@ namespace Eu.EDelivery.AS4.Services
                 });
         }
     }
-
-    public interface IOutMessageService
-    {
-        /// <summary>
-        /// Inserts a s4 message.
-        /// </summary>
-        /// <param name="message">The message.</param>
-        /// <param name="operation">The operation.</param>
-        /// <returns></returns>
-        void InsertAS4Message(MessagingContext message, Operation operation);
-    }
 }

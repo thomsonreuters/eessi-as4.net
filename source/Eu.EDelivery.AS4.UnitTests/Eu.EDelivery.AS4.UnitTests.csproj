@@ -92,6 +92,7 @@
     <Compile Include="Steps\Forward\GivenCreateForwardMessageStepFacts.cs" />
     <Compile Include="Steps\Forward\GivenDetermineForwardStepFacts.cs" />
     <Compile Include="Steps\Notify\NotifyRetryData.cs" />
+    <Compile Include="Steps\Send\GivenBundleSignalMessageToPullRequestFacts.cs" />
     <Compile Include="Steps\Receive\GivenSendSignalMessageStepFacts.cs" />
     <Compile Include="Steps\Receive\GivenValidateAS4MessageStepFacts.cs" />
     <Compile Include="Steps\Send\GivenLogReceivedProcessingErrorStepFacts.cs" />
@@ -385,10 +386,6 @@
     <None Include="Resources\flower1.jpg" />
     <None Include="Resources\flower2.jpg" />
     <Content Include="Resources\holodeck-as4message.xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Steps\Participant\" />
-    <Folder Include="Steps\ReceptionAwareness\" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Fody">

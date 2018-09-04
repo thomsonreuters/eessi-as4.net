@@ -103,7 +103,7 @@ namespace Eu.EDelivery.AS4.Receivers
             {
                 bool isUserMessage = resultedMessage.AS4Message?.IsUserMessage == true;
                 Interval intervalResult = isUserMessage ? Interval.Reset : Interval.Increase;
-                Logger.Debug($"PullRequest result in \"{(isUserMessage ? "UserMessage" : "Error")}\", next interval will be \"{intervalResult}\"");
+                Logger.Info($"PullRequest result in \"{(isUserMessage ? "UserMessage" : "Error")}\", next interval will be \"{intervalResult}\"");
 
                 return intervalResult;
             }
