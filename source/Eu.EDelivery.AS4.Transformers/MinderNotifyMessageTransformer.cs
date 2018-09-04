@@ -39,15 +39,15 @@ namespace Eu.EDelivery.AS4.Transformers
         /// <returns></returns>
         public async Task<MessagingContext> TransformAsync(ReceivedMessage message)
         {
-            var as4Transformer = new AS4MessageTransformer();
-            
-            MessagingContext context = await as4Transformer.TransformAsync(message);
-
             var receivedEntityMessage = message as ReceivedEntityMessage;
             if (receivedEntityMessage == null)
             {
-                throw new NotSupportedException($"Minder Notify Transformer only supports transforming instances of type {typeof(ReceivedEntityMessage)}");
+                throw new NotSupportedException(
+                    $"Minder Notify Transformer only supports transforming instances of type {typeof(ReceivedEntityMessage)}");
             }
+
+            var as4Transformer = new AS4MessageTransformer();
+            MessagingContext context = await as4Transformer.TransformAsync(message);
 
             NotifyMessageEnvelope notifyMessage = await CreateNotifyMessageEnvelope(context.AS4Message, receivedEntityMessage.Entity.GetType());
             context.ModifyContext(notifyMessage);

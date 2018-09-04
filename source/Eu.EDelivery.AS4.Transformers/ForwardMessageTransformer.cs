@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Model.Internal;
 
@@ -19,6 +20,12 @@ namespace Eu.EDelivery.AS4.Transformers
         /// <returns></returns>
         public async Task<MessagingContext> TransformAsync(ReceivedMessage message)
         {
+            if (message == null)
+            {
+                throw new InvalidOperationException(
+                    $"{nameof(ForwardMessageTransformer)} requires a ReceivedMessage to wrap into a MessagingContext");
+            }
+
             var context = new MessagingContext(message, MessagingContextMode.Forward);
             message.AssignPropertiesTo(context);
 

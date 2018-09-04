@@ -41,7 +41,10 @@ namespace Eu.EDelivery.AS4.Transformers
         /// <param name="configuration">The configuration.</param>
         public SubmitPayloadTransformer(IConfig configuration)
         {
-            if (configuration == null) { throw new ArgumentNullException(nameof(configuration)); }
+            if (configuration == null)
+            {
+                throw new ArgumentNullException(nameof(configuration));
+            }
 
             _config = configuration;
             _mimeTypeRepository = new MimeTypeRepository();
@@ -53,6 +56,11 @@ namespace Eu.EDelivery.AS4.Transformers
         /// <param name="properties">The properties.</param>
         public void Configure(IDictionary<string, string> properties)
         {
+            if (properties == null)
+            {
+                throw new ArgumentNullException(nameof(properties));
+            }
+
             _properties = properties;
         }
 
@@ -63,6 +71,12 @@ namespace Eu.EDelivery.AS4.Transformers
         /// <returns></returns>
         public Task<MessagingContext> TransformAsync(ReceivedMessage message)
         {
+            if (message == null)
+            {
+                throw new InvalidOperationException(
+                    $"{nameof(SubmitPayloadTransformer)} requires a ReceivedMessage to create a SubmitMessage with a single payload");
+            }
+
             SendingProcessingMode sendingPMode = _config.GetSendingPMode(id: SendingPMode);
 
             (string payloadId, string payloadPath) = GetPayloadInfo(message);

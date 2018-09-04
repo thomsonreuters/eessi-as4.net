@@ -34,6 +34,12 @@ namespace Eu.EDelivery.AS4.Transformers
         /// <returns></returns>
         public async Task<MessagingContext> TransformAsync(ReceivedMessage message)
         {
+            if (message == null)
+            {
+                throw new InvalidOperationException(
+                    $"{nameof(SubmitMessageXmlTransformer)} requires to have a ReceivedMessage to transform XML to a SubmitMessage");
+            }
+
             Logger.Trace("Start deserializing to a SubmitMessage...");
             SubmitMessage submitMessage = DeserializeSubmitMessage(message);
             Logger.Trace("Successfully deserialized to a SubmitMessage");
