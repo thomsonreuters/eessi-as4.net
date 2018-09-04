@@ -39,8 +39,10 @@ namespace Eu.EDelivery.AS4.Migrations
 
         private static void DropAndRecreateInExceptionTable(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.RenameTable("InExceptions", newName: "OldInExceptions");
+
             migrationBuilder.CreateTable(
-                name: "NewInExceptions",
+                name: "InExceptions",
                 columns: table => new
                 {
                     Id = table.Column<long>(nullable: false)
@@ -60,13 +62,22 @@ namespace Eu.EDelivery.AS4.Migrations
                 });
 
             migrationBuilder.Sql(
-                "INSERT INTO NewInExceptions "
+                "INSERT INTO InExceptions "
                 + "(EbmsRefToMessageId, Exception, InsertionTime, ModificationTime, Operation, PMode, PModeId) "
                 + "SELECT EbmsRefToMessageId, Exception, InsertionTime, ModificationTime, Operation, PMode, PModeId "
-                + "FROM InExceptions", suppressTransaction: true);
+                + "FROM OldInExceptions");
 
-            migrationBuilder.DropTable("InExceptions");
-            //migrationBuilder.Sql("ALTER TABLE NewInExceptions RENAME TO InExceptionss");
+            migrationBuilder.DropTable("OldInExceptions");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_InExceptions_EbmsRefToMessageId",
+                table: "InExceptions",
+                column: "EbmsRefToMessageId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_InExceptions_Operation",
+                table: "InExceptions",
+                column: "Operation");
         }
 
         private static void DropAndRecreateOutExceptionTable(MigrationBuilder migrationBuilder)
@@ -97,7 +108,7 @@ namespace Eu.EDelivery.AS4.Migrations
                 "INSERT INTO OutExceptions "
                 + "(EbmsRefToMessageId, Exception, InsertionTime, ModificationTime, Operation, PMode, PModeId) "
                 + "SELECT EbmsRefToMessageId, Exception, InsertionTime, ModificationTime, Operation, PMode, PModeId "
-                + "FROM OldOutExceptions", suppressTransaction: true);
+                + "FROM OldOutExceptions", suppressTransaction: false);
 
             migrationBuilder.DropTable("OldOutExceptions");
 
