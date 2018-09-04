@@ -51,7 +51,7 @@ namespace Eu.EDelivery.AS4.Strategies.Retriever
             if (payload.Directory?.FullName != supportedPayloadDir.FullName)
             {
                 throw new NotSupportedException(
-                    $"Only files from the './messages/attachments/' folder are allowed to be retrieved: {payload.Directory?.FullName} <> {supportedPayloadDir.FullName}");
+                    $"Only files from the '{_config.PayloadRetrievalLocation}' folder are allowed to be retrieved: {payload.Directory?.FullName} <> {supportedPayloadDir.FullName}");
             }
 
             var uri = new Uri(absolutePath);
