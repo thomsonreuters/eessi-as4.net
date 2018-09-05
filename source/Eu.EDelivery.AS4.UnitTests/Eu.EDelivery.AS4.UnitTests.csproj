@@ -246,7 +246,6 @@
     <Compile Include="Steps\Submit\GivenRetrieveSendingPModeStepFacts.cs" />
     <Compile Include="Steps\Send\GivenSigningAS4MessageStepFacts.cs" />
     <Compile Include="Steps\Receive\GivenVerifySignatureAS4MessageStepFacts.cs" />
-    <Compile Include="Builders\Core\MessageContextBuilder.cs" />
     <Compile Include="Steps\Submit\GivenStoreAS4MessageStepsFacts.cs" />
     <Compile Include="Strategies\Retriever\GivenFilePayloadRetrieverFacts.cs" />
     <Compile Include="Strategies\GivenPayloadStrategyProviderFacts.cs" />
@@ -436,6 +435,9 @@
     <PackageReference Include="xunit.runner.visualstudio">
       <Version>2.3.1</Version>
     </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Builders\Core\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

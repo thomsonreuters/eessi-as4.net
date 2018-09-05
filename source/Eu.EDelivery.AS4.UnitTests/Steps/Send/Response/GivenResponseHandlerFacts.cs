@@ -4,6 +4,7 @@ using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
@@ -76,10 +77,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
             private static IAS4Response CreateEmptyAS4ResponseWithStatus(HttpStatusCode statusCode)
             {
                 var stubAS4Response = new Mock<IAS4Response>();
-                var context = new MessageContextBuilder()
-                    .WithSendingPMode(new SendingProcessingMode())
-                    .WithReceivingPMode(new ReceivingProcessingMode())
-                    .Build();
+                var context = new MessagingContext(
+                    AS4Message.Create(new UserMessage($"user-{Guid.NewGuid()}")), 
+                    MessagingContextMode.Send);
 
                 stubAS4Response.Setup(r => r.OriginalRequest).Returns(context);
                 stubAS4Response.Setup(r => r.StatusCode).Returns(statusCode);
@@ -108,10 +108,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
             private static IAS4Response CreateAS4ResponseWithResultedMessage(AS4Message resultedMessage)
             {
                 var stubAS4Response = new Mock<IAS4Response>();
-                var context = new MessageContextBuilder()
-                    .WithSendingPMode(new SendingProcessingMode())
-                    .WithReceivingPMode(new ReceivingProcessingMode())
-                    .Build();
+                var context = new MessagingContext(
+                    AS4Message.Create(new UserMessage($"user-{Guid.NewGuid()}")),
+                    MessagingContextMode.Send);
 
                 stubAS4Response.Setup(r => r.OriginalRequest).Returns(context);
                 stubAS4Response.Setup(r => r.ReceivedAS4Message).Returns(resultedMessage);
@@ -129,7 +128,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
                 AS4Response as4Response = CreateAnonymousAS4Response();
 
                 var spyHandler = new SpyAS4ResponseHandler();
-                var handler = new PullRequestResponseHandler(spyHandler);
+                var handler = new PullRequestResponseHandler(() => null, spyHandler);
 
                 // Act
                 await handler.HandleResponse(as4Response);
@@ -143,7 +142,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
             {
                 // Arrange
                 IAS4Response stubAS4Response = await CreatePullRequestWarning();
-                var sut = new PullRequestResponseHandler(CreateAnonymousNextHandler());
+                var sut = new PullRequestResponseHandler(() => null, CreateAnonymousNextHandler());
 
                 // Act
                 StepResult actualResult = await sut.HandleResponse(stubAS4Response);
@@ -156,12 +155,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
             private static async Task<IAS4Response> CreatePullRequestWarning()
             {
                 var stubAS4Response = new Mock<IAS4Response>();
-
-                MessagingContext pullRequest = new MessageContextBuilder()
-                    .WithSignalMessage(new PullRequest(null))
-                    .WithSendingPMode(new SendingProcessingMode())
-                    .WithReceivingPMode(new ReceivingProcessingMode())
-                    .Build();
+                var pullRequest = new MessagingContext(
+                    AS4Message.Create(new PullRequest("some-mpc")),
+                    MessagingContextMode.Send);
 
                 stubAS4Response.Setup(r => r.OriginalRequest).Returns(pullRequest);
                 stubAS4Response.Setup(r => r.ReceivedAS4Message).Returns(await PullResponseWarning());
@@ -182,8 +178,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
             public async Task ThenHandlerReturnsStoppedExecutionStepResult()
             {
                 // Arrange
-                IAS4Response stubAS4Response = CreateResponseWith(request: new PullRequest(null), response: new PullRequestError($"pull-{Guid.NewGuid()}"));
-                var handler = new PullRequestResponseHandler(CreateAnonymousNextHandler());
+                IAS4Response stubAS4Response = CreateResponseWith(
+                    request: new PullRequest("some-mpc"), 
+                    response: new PullRequestError($"pull-{Guid.NewGuid()}"));
+
+                var handler = new PullRequestResponseHandler(() => null, CreateAnonymousNextHandler());
 
                 // Act
                 StepResult actualResult = await handler.HandleResponse(stubAS4Response);
@@ -197,11 +196,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
             {
                 var stubAS4Response = new Mock<IAS4Response>();
 
-                MessagingContext context = new MessageContextBuilder()
-                    .WithSignalMessage(request)
-                    .WithSendingPMode(new SendingProcessingMode())
-                    .WithReceivingPMode(new ReceivingProcessingMode())
-                    .Build();
+                MessagingContext context = new MessagingContext(
+                    AS4Message.Create(request),
+                    MessagingContextMode.Send)
+                {
+                    SendingPMode = new SendingProcessingMode(),
+                    ReceivingPMode = new ReceivingProcessingMode()
+                };
 
                 stubAS4Response.Setup(r => r.OriginalRequest).Returns(context);
                 stubAS4Response.Setup(r => r.ReceivedAS4Message).Returns(AS4Message.Create(response));
@@ -237,3 +238,4 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
         }
     }
 }
+
