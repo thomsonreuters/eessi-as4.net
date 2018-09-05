@@ -40,6 +40,21 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             Func<DatastoreContext> createDatastoreContext,
             IAS4MessageBodyStore messageBodyStore)
         {
+            if (configuration == null)
+            {
+                throw new ArgumentNullException(nameof(configuration));
+            }
+
+            if (createDatastoreContext == null)
+            {
+                throw new ArgumentNullException(nameof(createDatastoreContext));
+            }
+
+            if (messageBodyStore == null)
+            {
+                throw new ArgumentNullException(nameof(messageBodyStore));
+            }
+
             _config = configuration;
             _createDatastoreContext = createDatastoreContext;
             _messageBodyStore = messageBodyStore;
@@ -52,7 +67,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
-            if (messagingContext.AS4Message == null || messagingContext.AS4Message.IsEmpty)
+            if (messagingContext?.AS4Message == null || messagingContext?.AS4Message.IsEmpty == true)
             {
                 Logger.Debug("No SignalMessage available to send");
                 return StepResult.Success(messagingContext);

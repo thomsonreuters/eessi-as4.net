@@ -1,6 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="14.0" DefaultTargets="Build" 
-  xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -50,21 +49,15 @@
   <ItemGroup>
     <Compile Include="Forward\CreateForwardMessageStep.cs" />
     <Compile Include="Forward\DetermineRoutingStep.cs" />
-    <Compile Include="Notify\NotifyUpdateDatastoreStep.cs" />
     <Compile Include="Receive\SendAS4SignalMessageStep.cs" />
     <Compile Include="Receive\ValidateAS4MessageStep.cs" />
     <Compile Include="Send\LogReceivedProcessingErrorStep.cs" />
     <Compile Include="Deliver\CreateDeliverEnvelopeStep.cs" />
     <Compile Include="Deliver\MinderTestCreateDeliverEnvelopeStep.cs" />
-    <Compile Include="Deliver\DeliverUpdateDatastoreStep.cs" />
     <Compile Include="Deliver\SendDeliverMessageStep.cs" />
     <Compile Include="Deliver\UploadAttachmentsStep.cs" />
     <Compile Include="Deliver\ZipAttachmentsStep.cs" />
-    <Compile Include="Notify\NotifyUpdateOutExceptionDatastoreStep.cs" />
-    <Compile Include="Notify\NotifyUpdateInExceptionDatastoreStep.cs" />
-    <Compile Include="Notify\NotifyUpdateOutMessageDatastoreStep.cs" />
     <Compile Include="Notify\SendNotifyMessageStep.cs" />
-    <Compile Include="Notify\NotifyUpdateInMessageDatastoreStep.cs" />
     <Compile Include="Receive\CreateAS4ErrorStep.cs" />
     <Compile Include="Receive\DecryptAS4MessageStep.cs" />
     <Compile Include="Receive\UpdateReceivedAS4MessageBodyStep.cs" />

@@ -31,7 +31,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
             message.AddAttachment(attachment);
 
             var sut = new CreateDefaultAS4MessageStep(this);
-            sut.Configure(properties: null);
 
             // Act
             StepResult result = sut.ExecuteAsync(

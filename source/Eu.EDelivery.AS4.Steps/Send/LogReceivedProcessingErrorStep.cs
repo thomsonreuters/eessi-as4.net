@@ -28,6 +28,11 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// <param name="createContext">The create context.</param>
         public LogReceivedProcessingErrorStep(Func<DatastoreContext> createContext)
         {
+            if (createContext == null)
+            {
+                throw new ArgumentNullException(nameof(createContext));
+            }
+
             _createContext = createContext;
         }
 
@@ -38,7 +43,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
-            if (messagingContext.ErrorResult == null)
+            if (messagingContext?.ErrorResult == null)
             {
                 return StepResult.Success(messagingContext);
             }

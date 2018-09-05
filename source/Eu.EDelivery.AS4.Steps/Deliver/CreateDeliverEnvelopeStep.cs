@@ -32,7 +32,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
-            if (messagingContext.AS4Message == null)
+            if (messagingContext?.AS4Message == null)
             {
                 throw new InvalidOperationException(
                     $"{nameof(CreateDeliverEnvelopeStep)} requires an AS4Message to create a DeliverMessage from but no AS4Message is present in the MessagingContext");

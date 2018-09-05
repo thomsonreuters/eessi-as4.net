@@ -41,6 +41,16 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         /// <param name="createDbContext">Creates a database context.</param>
         public UploadAttachmentsStep(IAttachmentUploaderProvider provider, Func<DatastoreContext> createDbContext)
         {
+            if (provider == null)
+            {
+                throw new ArgumentNullException(nameof(provider));
+            }
+
+            if (createDbContext == null)
+            {
+                throw new ArgumentNullException(nameof(createDbContext));
+            }
+
             _provider = provider;
             _createDbContext = createDbContext;
         }
@@ -52,7 +62,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
-            if (messagingContext.AS4Message == null)
+            if (messagingContext?.AS4Message == null)
             {
                 throw new InvalidOperationException(
                     $"{nameof(UploadAttachmentsStep)} requires an AS4Message to upload the attachments from but no AS4Message is present in the MessagingContext");
