@@ -84,6 +84,12 @@ namespace Eu.EDelivery.AS4.ComponentTests.Common
         /// <param name="ex">The message.</param>
         public void InsertInException(InException ex) => ChangeContext(ctx => ctx.InExceptions.Add(ex));
 
+        /// <summary>
+        /// Inserts the given <see cref="RetryReliability"/> into the <see cref="DatastoreContext"/>.
+        /// </summary>
+        /// <param name="r"></param>
+        public void InsertRetryReliability(RetryReliability r) => ChangeContext(ctx => ctx.RetryReliability.Add(r));
+
         private void ChangeContext(Action<DatastoreContext> changement)
         {
             using (var context = new DatastoreContext(_configuration))

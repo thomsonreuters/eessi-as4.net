@@ -82,14 +82,28 @@ namespace Eu.EDelivery.AS4.Strategies.Database
                              )"
                     : string.Empty;
 
-            string sql = 
+            string entitySql = 
                 $"DELETE FROM {tableName} " +
                 $"WHERE InsertionTime<datetime('now', '-{retentionPeriod.TotalDays} day') " +
                 $"AND Operation IN ({operations}) " +
                 outMessagesWhere;
 
-            int rows = _context.Database.ExecuteSqlCommand(sql);
-            LogManager.GetCurrentClassLogger().Trace($"Cleaned {rows} row(s) for table '{tableName}'");
+            // Sqlite doesn't allow JOIN statements in DELETE statements
+            string retrySql =
+                "DELETE FROM RetryReliability "
+                + $"WHERE Id NOT IN (SELECT m.Id FROM {tableName} m)";
+
+
+#pragma warning disable EF1000 // Possible SQL injection vulnerability: 
+            // The DatastoreTable makes sure that we only use known table names.
+            // The list of Operation enums makes sure that only use Operation values.
+            // The TotalDays of the TimeSpan is an integer.
+            int entityRows = _context.Database.ExecuteSqlCommand(entitySql);
+            int retryRows = _context.Database.ExecuteSqlCommand(retrySql);
+#pragma warning restore EF1000 // Possible SQL injection vulnerability.
+
+            LogManager.GetCurrentClassLogger().Trace($"Cleaned {entityRows} row(s) for table '{tableName}'");
+            LogManager.GetCurrentClassLogger().Trace($"Cleaned {retryRows} row(s) for table 'RetryReliability'");
         }
     }
 }
