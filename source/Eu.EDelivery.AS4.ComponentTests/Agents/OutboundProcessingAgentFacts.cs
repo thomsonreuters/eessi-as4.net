@@ -17,6 +17,7 @@ using Encryption = Eu.EDelivery.AS4.Model.PMode.Encryption;
 using PartyId = Eu.EDelivery.AS4.Model.Core.PartyId;
 using Party = Eu.EDelivery.AS4.Model.Core.Party;
 using Receipt = Eu.EDelivery.AS4.Model.Core.Receipt;
+using RetryReliability = Eu.EDelivery.AS4.Entities.RetryReliability;
 using Signing = Eu.EDelivery.AS4.Model.PMode.Signing;
 using UserMessage = Eu.EDelivery.AS4.Model.Core.UserMessage;
 
@@ -90,8 +91,23 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             // Arrange
             var multihopPMode = new SendingProcessingMode
             {
-                MessagePackaging = { IsMultiHop = true, UseAS4Compression = pmodeInfo.useCompression },
-                Security = { Signing = pmodeInfo.signing, Encryption = pmodeInfo.encryption }
+                MessagePackaging =
+                {
+                    IsMultiHop = true,
+                    UseAS4Compression = pmodeInfo.useCompression
+                },
+                Security =
+                {
+                    Signing = pmodeInfo.signing,
+                    Encryption = pmodeInfo.encryption
+                },
+                Reliability =
+                {
+                    ReceptionAwareness =
+                    {
+                        IsEnabled = true
+                    }
+                }
             };
             AS4Message multihopMessage = createMessage(multihopPMode);
 
@@ -114,6 +130,10 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                 await DeserializeOutMessageBody(Registry.Instance.MessageBodyStore, processedEntry);
 
             Assert.True(processedMessage.IsMultiHopMessage);
+            Assert.True(
+                datastoreSpy.GetRetryReliabilityFor(
+                    r => r.RefToOutMessageId == processedEntry.Id) == null, 
+                "No 'RetryReliability' record should be inserted when receiving multihop AS4Message");
         }
 
         private static AS4Message CreateUserMessage(SendingProcessingMode pmode)
