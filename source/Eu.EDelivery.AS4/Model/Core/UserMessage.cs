@@ -7,26 +7,47 @@ using Eu.EDelivery.AS4.Factories;
 
 namespace Eu.EDelivery.AS4.Model.Core
 {
+    /// <summary>
+    /// Message which contains the actual business payload that is exchanged amongst the business applications of two parties.
+    /// </summary>
     public class UserMessage : MessageUnit
     {
         private readonly ICollection<PartInfo> _partInfos;
         private readonly ICollection<MessageProperty> _messageProperties;
 
+        /// <summary>
+        /// Gets the message partition channel for this message.
+        /// </summary>
         public string Mpc { get; }
 
+        /// <summary>
+        /// Gets the sender of the message.
+        /// </summary>
         public Party Sender { get; }
 
+        /// <summary>
+        /// Gets the receiver of the message.
+        /// </summary>
         public Party Receiver { get; }
 
+        /// <summary>
+        /// Gets the information which describes the business context through a service and action parameter.
+        /// </summary>
         public CollaborationInfo CollaborationInfo { get; }
 
+        /// <summary>
+        /// Gets the properties which offer an extension point to add additional business information.
+        /// </summary>
         public IEnumerable<MessageProperty> MessageProperties => _messageProperties.AsEnumerable();
 
+        /// <summary>
+        /// Gets the information which describes the reference to the payloads in the SOAP Body or Attachments.
+        /// </summary>
         public IEnumerable<PartInfo> PayloadInfo => _partInfos.AsEnumerable();
 
         // TODO: this should happen together with the adding of Attachments
         // TODO: only unique PartInfo's are allowed
-        public void AddPartInfo(PartInfo p)
+        internal void AddPartInfo(PartInfo p)
         {
             if (p == null)
             {
@@ -36,7 +57,7 @@ namespace Eu.EDelivery.AS4.Model.Core
             _partInfos.Add(p);
         }
 
-        public void AddMessageProperty(MessageProperty p)
+        internal void AddMessageProperty(MessageProperty p)
         {
             if (p == null)
             {
@@ -46,29 +67,18 @@ namespace Eu.EDelivery.AS4.Model.Core
             _messageProperties.Add(p);
         }
 
-        public void AddMessageProperties(IEnumerable<MessageProperty> props)
-        {
-            if (props == null)
-            {
-                throw new ArgumentNullException(nameof(props));
-            }
-
-            foreach (MessageProperty p in props)
-            {
-                AddMessageProperty(p);
-            }
-        }
-
-        public void ClearMessageProperties()
-        {
-            _messageProperties.Clear();
-        }
-
+        /// <summary>
+        /// Gets or sets the value indicating whether or not this message is a duplicate one.
+        /// </summary>
+        /// <remarks>This property remains to have a public setter because other possible stateless systems needs to have a way to flag this also.</remarks>
         [XmlIgnore]
         public bool IsDuplicate { get; set; }
 
+        /// <summary>
+        /// Gets the value indicating if this message is a test message.
+        /// </summary>
         [XmlIgnore]
-        public bool IsTest { get; set; }
+        public bool IsTest { get; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="UserMessage"/> class.

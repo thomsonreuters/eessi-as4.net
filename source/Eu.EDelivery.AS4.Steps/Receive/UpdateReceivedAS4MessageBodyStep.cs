@@ -80,7 +80,9 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 var service = new InMessageService(_configuration, repository);
 
                 service.UpdateAS4MessageForMessageHandling(
-                    messagingContext,
+                    messagingContext.AS4Message,
+                    messagingContext.SendingPMode,
+                    messagingContext.ReceivingPMode,
                     _messageBodyStore);
 
                 await datastoreContext.SaveChangesAsync().ConfigureAwait(false);

@@ -119,19 +119,26 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         {
             using (DatastoreContext context = _createDatastoreContext())
             {
-                MessageExchangePattern mep =
-                    messagingContext.SendingPMode?.MepBinding == MessageExchangePatternBinding.Pull
-                        ? MessageExchangePattern.Pull
-                        : MessageExchangePattern.Push;
+                try
+                {
+                    var service = new InMessageService(_config, new DatastoreRepository(context));
+                    AS4Message as4Message = await service
+                        .InsertAS4MessageAsync(
+                            messagingContext.AS4Message,
+                            messagingContext.ReceivedMessage,
+                            messagingContext.SendingPMode,
+                            _messageBodyStore)
+                        .ConfigureAwait(false);
 
-                var service = new InMessageService(_config, new DatastoreRepository(context));
-                MessagingContext resultContext = await service
-                    .InsertAS4MessageAsync(messagingContext, mep, _messageBodyStore)
-                    .ConfigureAwait(false);
+                    messagingContext.ModifyContext(as4Message);
+                    await context.SaveChangesAsync().ConfigureAwait(false);
 
-                await context.SaveChangesAsync().ConfigureAwait(false);
-
-                return resultContext;
+                    return messagingContext;
+                }
+                catch (Exception ex)
+                {
+                    return new MessagingContext(ex);
+                }
             }
         }
     }
