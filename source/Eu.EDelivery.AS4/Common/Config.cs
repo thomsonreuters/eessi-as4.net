@@ -9,6 +9,7 @@ using System.Reflection;
 using System.Xml;
 using System.Xml.Serialization;
 using Eu.EDelivery.AS4.Agents;
+using Eu.EDelivery.AS4.Builders;
 using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
@@ -513,7 +514,7 @@ namespace Eu.EDelivery.AS4.Common
             {
                 yield return $"Agent: {settings.Name} hasn't got a Receiver type configured";
             }
-            else if (Type.GetType(settings.Receiver.Type, throwOnError: false) == null)
+            else if (!GenericTypeBuilder.CanResolveType(settings.Receiver.Type))
             {
                 yield return $"Agent: {settings.Name} Receiver type: {settings.Receiver.Type} cannot be resolved";
             }
@@ -522,7 +523,7 @@ namespace Eu.EDelivery.AS4.Common
             {
                 yield return $"Agent: {settings.Name} hasn't got a Transformer type configured";
             }
-            else if (Type.GetType(settings.Transformer.Type, throwOnError: false) == null)
+            else if (!GenericTypeBuilder.CanResolveType(settings.Transformer.Type))
             {
                 yield return $"Agent: {settings.Name} Transformer type: {settings.Transformer.Type} cannot be resolved";
             }
@@ -535,13 +536,9 @@ namespace Eu.EDelivery.AS4.Common
             {
                 foreach (Step s in settings.StepConfiguration.NormalPipeline)
                 {
-                    if (s.Type == null)
+                    if (!GenericTypeBuilder.CanResolveType(s.Type))
                     {
-                        yield return $"Agent: {settings.Name} has a Step in the NormalPipeline without an type";
-                    }
-                    else if (Type.GetType(s.Type, throwOnError: false) == null)
-                    {
-                        yield return $"Agent: {settings.Name} has a Step in the NormalPipeline with type: {s.Type} that cannot be resolved";
+                        yield return $"Agent: {settings.Name} has a Step in the NormalPipeline with type: {s.Type ?? "<null>"} that cannot be resolved";
                     }
                 }
             }
@@ -550,13 +547,9 @@ namespace Eu.EDelivery.AS4.Common
             {
                 foreach (Step s in settings.StepConfiguration.ErrorPipeline)
                 {
-                    if (s.Type == null)
+                    if (!GenericTypeBuilder.CanResolveType(s.Type))
                     {
-                        yield return $"Agent: {settings.Name} has a Step in the NormalPipeline without an type";
-                    }
-                    else if (Type.GetType(s.Type, throwOnError: false) == null)
-                    {
-                        yield return $"Agent: {settings.Name} has a Step in the NormalPipeline with type: {s.Type} that cannot be resolved";
+                        yield return $"Agent: {settings.Name} has a Step in the NormalPipeline with type: {s.Type ?? "<null>"} that cannot be resolved";
                     }
                 }
             }
@@ -565,7 +558,7 @@ namespace Eu.EDelivery.AS4.Common
         private IEnumerable<string> ValidateFixedSettings()
         {
             string repoType = _settings.CertificateStore?.Repository?.Type;
-            if (repoType != null && Type.GetType(repoType, throwOnError: false) == null)
+            if (!GenericTypeBuilder.CanResolveType(repoType))
             {
                 yield return $"Certificate store type: {repoType} cannot be resolved";
             }
