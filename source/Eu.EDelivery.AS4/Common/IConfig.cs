@@ -29,6 +29,11 @@ namespace Eu.EDelivery.AS4.Common
         TimeSpan RetentionPeriod { get; }
 
         /// <summary>
+        /// Gets the location where the payloads should be retrieved.
+        /// </summary>
+        string PayloadRetrievalLocation { get; }
+
+        /// <summary>
         /// Gets the location path where the messages during an incoming operation are stored.
         /// </summary>
         string InMessageStoreLocation { get; }
@@ -39,11 +44,6 @@ namespace Eu.EDelivery.AS4.Common
         string OutMessageStoreLocation { get; }
 
         /// <summary>
-<<<<<<< HEAD
-        /// Gets the location where the payloads should be retrieved.
-        /// </summary>
-        string PayloadRetrievalLocation { get; }
-=======
         /// Gets the location path where the exceptions during an incoming operation are stored.
         /// </summary>
         string InExceptionStoreLocation { get; }
@@ -52,7 +52,6 @@ namespace Eu.EDelivery.AS4.Common
         /// Gets the location path where the exceptions during an outgoing operation are stored.
         /// </summary>
         string OutExceptionStoreLocation { get; }
->>>>>>> master
 
         /// <summary>
         /// Retrieve Setting from the Global Configurations
