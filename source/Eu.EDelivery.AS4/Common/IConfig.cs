@@ -29,6 +29,11 @@ namespace Eu.EDelivery.AS4.Common
         TimeSpan RetentionPeriod { get; }
 
         /// <summary>
+        /// Gets the location where the payloads should be retrieved.
+        /// </summary>
+        string PayloadRetrievalLocation { get; }
+
+        /// <summary>
         /// Gets the location path where the messages during an incoming operation are stored.
         /// </summary>
         string InMessageStoreLocation { get; }
