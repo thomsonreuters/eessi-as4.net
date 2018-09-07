@@ -55,8 +55,6 @@ namespace Eu.EDelivery.AS4.Serialization
             public override Encoding Encoding => Utf8Encoding;
         }
 
-        private static readonly ConcurrentDictionary<object, string> SerializedModels = new ConcurrentDictionary<object, string>();
-
         /// <summary>
         /// Serialize Model into Xml String
         /// </summary>
@@ -65,18 +63,13 @@ namespace Eu.EDelivery.AS4.Serialization
         /// <returns></returns>
         public static string ToString<T>(T data)
         {
-            return SerializedModels.GetOrAdd(
-                data,
-                model =>
-                {
-                    using (var writer = new Utf8StringWriter())
-                    {
-                        var serializer = new XmlSerializer(typeof(T));
-                        serializer.Serialize(writer, data);
+            using (var writer = new Utf8StringWriter())
+            {
+                var serializer = new XmlSerializer(typeof(T));
+                serializer.Serialize(writer, data);
 
-                        return writer.ToString();
-                    }
-                });
+                return writer.ToString();
+            }
         }
        
         /// <summary>
