@@ -26,6 +26,7 @@ namespace Eu.EDelivery.AS4.Fe.Monitor
         private readonly DatastoreContext context;
         private readonly IAs4PmodeSource pmodeSource;
         private readonly IDatastoreRepository datastoreRepository;
+        private readonly IAS4MessageBodyStore bodyStore;
         private readonly MapperConfiguration mapperConfig;
 
         /// <summary>
@@ -35,11 +36,32 @@ namespace Eu.EDelivery.AS4.Fe.Monitor
         /// <param name="pmodeSource">The pmode source.</param>
         /// <param name="datastoreRepository">The datastore repository.</param>
         /// <param name="mapperConfig">The mapper configuration.</param>
-        public MonitorService(DatastoreContext context, IAs4PmodeSource pmodeSource, IDatastoreRepository datastoreRepository, MapperConfiguration mapperConfig)
+        public MonitorService(
+            DatastoreContext context, 
+            IAs4PmodeSource pmodeSource, 
+            IDatastoreRepository datastoreRepository, 
+            MapperConfiguration mapperConfig) 
+            : this (context, pmodeSource, datastoreRepository, Registry.Instance.MessageBodyStore, mapperConfig) { }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MonitorService" /> class.
+        /// </summary>
+        /// <param name="context">The context.</param>
+        /// <param name="pmodeSource">The pmode source.</param>
+        /// <param name="datastoreRepository">The datastore repository.</param>
+        /// <param name="bodyStore">The body store.</param>
+        /// <param name="mapperConfig">The mapper configuration.</param>
+        public MonitorService(
+            DatastoreContext context,
+            IAs4PmodeSource pmodeSource,
+            IDatastoreRepository datastoreRepository,
+            IAS4MessageBodyStore bodyStore,
+            MapperConfiguration mapperConfig)
         {
             this.context = context;
             this.pmodeSource = pmodeSource;
             this.datastoreRepository = datastoreRepository;
+            this.bodyStore = bodyStore;
             this.mapperConfig = mapperConfig;
         }
 
@@ -219,17 +241,17 @@ namespace Eu.EDelivery.AS4.Fe.Monitor
         /// <param name="id"></param>
         /// <returns>The exception</returns>
         /// <exception cref="ArgumentNullException">messageId - messageId parameter cannot be null</exception>
-        public async Task<string> DownloadExceptionMessageBody(Direction direction, long id)
+        public async Task<Stream> DownloadExceptionMessageBody(Direction direction, long id)
         {
             if (id <= 0) throw new ArgumentOutOfRangeException(nameof(id), @"Invalid value for id");
             if (!Enum.IsDefined(typeof(Direction), direction)) throw new InvalidEnumArgumentException(nameof(direction), (int)direction, typeof(Direction));
-            byte[] body;
+            string body;
             if (direction == Direction.Inbound)
             {
                 body = await context
                     .InExceptions
                     .Where(msg => msg.Id == id)
-                    .Select(msg => msg.MessageBody)
+                    .Select(msg => msg.MessageLocation)
                     .FirstOrDefaultAsync();
             }
             else
@@ -237,11 +259,11 @@ namespace Eu.EDelivery.AS4.Fe.Monitor
                 body = await context
                     .OutExceptions
                     .Where(msg => msg.Id == id)
-                    .Select(msg => msg.MessageBody)
+                    .Select(msg => msg.MessageLocation)
                     .FirstOrDefaultAsync();
             }
 
-            return body != null ? Encoding.UTF8.GetString(body) : string.Empty;
+            return await bodyStore.LoadMessageBodyAsync(body);
         }
 
         /// <summary>
@@ -278,17 +300,5 @@ namespace Eu.EDelivery.AS4.Fe.Monitor
 
             return await inExceptions.Union(outExceptions).ToListAsync();
         }
-
-        //private MessageResult<Message> ConvertPmodeXmlToNumbers(MessageResult<Message> result)
-        //{
-        //    foreach (var message in result.Messages) message.PMode = GetPmodeNumber(message.PMode);
-        //    return result;
-        //}
-
-        //private MessageResult<ExceptionMessage> ConvertPmodeXmlToNumbers(MessageResult<ExceptionMessage> result)
-        //{
-        //    foreach (var message in result.Messages) message.PMode = GetPmodeNumber(message.PMode);
-        //    return result;
-        //}
     }
 }

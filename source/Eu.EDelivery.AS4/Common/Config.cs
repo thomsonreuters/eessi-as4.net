@@ -66,19 +66,28 @@ namespace Eu.EDelivery.AS4.Common
         /// </summary>
         public TimeSpan RetryPollingInterval => OnlyAfterInitialized(() => _retryPollingInterval);
 
-        /// <summary>
-        /// Gets the in message store location.
-        /// </summary>
-        /// <value>The in message store location.</value>
-        public string InMessageStoreLocation =>
-            OnlyAfterInitialized(() => _settings?.Database?.InMessageStoreLocation ?? @"file:///.\database\as4messages\in");
+        private string StoreLocation =>
+            OnlyAfterInitialized(() => _settings?.Database?.StoreLocation?.TrimEnd('\\') ?? @"file:///.\database");
 
         /// <summary>
-        /// Gets the out message store location.
+        /// Gets the location path where the exceptions during an incoming operation are stored.
         /// </summary>
-        /// <value>The out message store location.</value>
-        public string OutMessageStoreLocation => 
-            OnlyAfterInitialized(() => _settings?.Database?.OutMessageStoreLocation ?? @"file:///.\database\as4messages\out");
+        public string InExceptionStoreLocation => StoreLocation + @"\exceptions\in";
+
+        /// <summary>
+        /// Gets the location path where the exceptions during an outgoing operation are stored.
+        /// </summary>
+        public string OutExceptionStoreLocation => StoreLocation + @"\exceptions\out";
+
+        /// <summary>
+        /// Gets the location path where the messages during an incoming operation are stored.
+        /// </summary>
+        public string InMessageStoreLocation => StoreLocation + @"\as4messages\in";
+
+        /// <summary>
+        /// Gets the location path where the messages during an outgoing operation are stored.
+        /// </summary>
+        public string OutMessageStoreLocation => StoreLocation + @"\as4messages\out";
 
         /// <summary>
         /// Gets the application path of the AS4.NET Component.

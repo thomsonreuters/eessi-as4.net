@@ -152,6 +152,10 @@
     <Compile Include="Migrations\20180806071045_RemoveReceptionAwarenessTable.designer.cs">
       <DependentUpon>20180806071045_RemoveReceptionAwarenessTable.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\20180828113700_ReplaceExceptionBodyWithLocation.cs" />
+    <Compile Include="Migrations\20180828113700_ReplaceExceptionBodyWithLocation.designer.cs">
+      <DependentUpon>20180828113700_ReplaceExceptionBodyWithLocation.cs</DependentUpon>
+    </Compile>
     <Compile Include="Model\Core\NonRepudiationInformation.cs" />
     <Compile Include="Model\Core\Schema.cs" />
     <Compile Include="Model\PMode\AgreementReference.cs" />
@@ -222,6 +226,7 @@
     <Compile Include="Services\DynamicDiscovery\ESensDynamicDiscoveryProfile.cs" />
     <Compile Include="Services\DynamicDiscovery\IDynamicDiscoveryProfile.cs" />
     <Compile Include="Services\DynamicDiscovery\LocalDynamicDiscoveryProfile.cs" />
+    <Compile Include="Services\ExceptionService.cs" />
     <Compile Include="Services\PullRequestAuthorization\FilePullAuthorizationMapProvider.cs" />
     <Compile Include="Services\PullRequestAuthorization\IPullAuthorizationMapProvider.cs" />
     <Compile Include="Services\PullRequestAuthorization\IPullAuthorizationMapService.cs" />

@@ -93,9 +93,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                 var loggedException = spy.GetInExceptions(x => String.IsNullOrWhiteSpace(x.EbmsRefToMessageId)).FirstOrDefault();
 
                 Assert.NotNull(loggedException);
-                Assert.NotNull(loggedException.MessageBody);
-
-                Assert.Equal(invalidSubmitMessage, Encoding.UTF8.GetString(loggedException.MessageBody));
+                Assert.NotNull(loggedException.MessageLocation);
             }
 
             private static string GetInvalidSubmitMessage()
