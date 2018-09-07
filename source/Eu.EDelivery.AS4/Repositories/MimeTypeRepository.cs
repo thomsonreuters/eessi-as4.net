@@ -1,4 +1,5 @@
-﻿using System.Web;
+﻿using System;
+using System.Web;
 using Microsoft.Win32;
 
 namespace Eu.EDelivery.AS4.Repositories
@@ -10,6 +11,8 @@ namespace Eu.EDelivery.AS4.Repositories
     {
         private const string RegistryPath = @"MIME\Database\Content Type\";
 
+        public static IMimeTypeRepository Instance = new MimeTypeRepository();
+
         /// <summary>
         /// Retrieve the right Extension
         /// from a given MIME Content Type
@@ -18,6 +21,11 @@ namespace Eu.EDelivery.AS4.Repositories
         /// <returns></returns>
         public string GetExtensionFromMimeType(string mimeType)
         {
+            if (mimeType == null)
+            {
+                throw new ArgumentNullException(nameof(mimeType));
+            }
+
             using (RegistryKey key = Registry.ClassesRoot.OpenSubKey(RegistryPath + mimeType, writable: false))
             {
                 if (key == null)
@@ -38,6 +46,11 @@ namespace Eu.EDelivery.AS4.Repositories
         /// <returns></returns>
         public string GetMimeTypeFromExtension(string extension)
         {
+            if (extension == null)
+            {
+                throw new ArgumentNullException(nameof(extension));
+            }
+
             return MimeMapping.GetMimeMapping(extension);
         }
     }

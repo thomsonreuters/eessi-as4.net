@@ -40,6 +40,11 @@ namespace Eu.EDelivery.AS4.Receivers
         /// <param name="storeExpression">The store expression.</param>
         public DatastoreReceiver(Func<DatastoreContext> storeExpression)
         {
+            if (storeExpression == null)
+            {
+                throw new ArgumentNullException(nameof(storeExpression));
+            }
+
             _storeExpression = storeExpression;
         }
 
@@ -50,6 +55,16 @@ namespace Eu.EDelivery.AS4.Receivers
             Func<DatastoreContext> storeExpression,
             Func<DatastoreContext, IEnumerable<Entity>> retrieveEntities)
         {
+            if (storeExpression == null)
+            {
+                throw new ArgumentNullException(nameof(storeExpression));
+            }
+
+            if (retrieveEntities == null)
+            {
+                throw new ArgumentNullException(nameof(retrieveEntities));
+            }
+
             _storeExpression = storeExpression;
             _retrieveEntities = retrieveEntities;
         }
@@ -114,6 +129,11 @@ namespace Eu.EDelivery.AS4.Receivers
         /// <param name="settings"></param>
         public void Configure(DatastoreReceiverSettings settings)
         {
+            if (settings == null)
+            {
+                throw new ArgumentNullException(nameof(settings));
+            }
+
             _settings = settings;
         }
 
@@ -123,6 +143,11 @@ namespace Eu.EDelivery.AS4.Receivers
         /// <param name="settings"></param>
         void IReceiver.Configure(IEnumerable<Setting> settings)
         {
+            if (settings == null)
+            {
+                throw new ArgumentNullException(nameof(settings));
+            }
+
             var properties = settings.ToDictionary(s => s.Key, s => s);
 
             Setting configuredTakeRecords = properties.ReadOptionalProperty(SettingKeys.TakeRows, null);

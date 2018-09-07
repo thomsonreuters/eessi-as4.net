@@ -28,10 +28,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// <summary>
         /// Initializes a new instance of the <see cref="SignAS4MessageStep"/> class
         /// </summary>
-        public SignAS4MessageStep() 
-            : this(Registry.Instance.CertificateRepository)
-        {
-        }
+        public SignAS4MessageStep() : this(Registry.Instance.CertificateRepository) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SignAS4MessageStep"/> class. 
@@ -41,6 +38,11 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// </param>
         public SignAS4MessageStep(ICertificateRepository repository)
         {
+            if (repository == null)
+            {
+                throw new ArgumentNullException(nameof(repository));
+            }
+
             _repository = repository;
         }
 
@@ -51,7 +53,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
-            if (messagingContext.AS4Message == null || messagingContext.AS4Message.IsEmpty)
+            if (messagingContext?.AS4Message == null || messagingContext?.AS4Message.IsEmpty == true)
             {
                 Logger.Debug("No signing will be performed on the message because it's empty");
                 return await StepResult.SuccessAsync(messagingContext);

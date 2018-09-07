@@ -13,15 +13,7 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// <summary>
         /// Initializes a new instance of the <see cref="PullRequestError"/> class.
         /// </summary>
-        public PullRequestError() 
-            : base(
-                messageId: null, 
-                refToMessageId: null, 
-                line: new ErrorLine(
-                    ErrorCode.Ebms0006,
-                    Severity.WARNING,
-                    ErrorAlias.EmptyMessagePartitionChannel)) { }
-
+        public PullRequestError() : this(refToMessageId: null) { }            
         /// <summary>
         /// Initializes a new instance of the <see cref="PullRequestError"/> class.
         /// </summary>

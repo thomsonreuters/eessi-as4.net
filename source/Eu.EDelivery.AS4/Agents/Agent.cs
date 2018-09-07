@@ -53,6 +53,16 @@ namespace Eu.EDelivery.AS4.Agents
                 throw new ArgumentNullException(nameof(transformerConfig));
             }
 
+            if (exceptionHandler == null)
+            {
+                throw new ArgumentNullException(nameof(exceptionHandler));
+            }
+
+            if (stepConfiguration == null)
+            {
+                throw new ArgumentNullException(nameof(stepConfiguration));
+            }
+
             _receiver = receiver;
             _transformerConfig = transformerConfig;
             _exceptionHandler = exceptionHandler;
@@ -91,6 +101,11 @@ namespace Eu.EDelivery.AS4.Agents
             if (transformerConfig == null)
             {
                 throw new ArgumentNullException(nameof(transformerConfig));
+            }
+
+            if (exceptionHandler == null)
+            {
+                throw new ArgumentNullException(nameof(exceptionHandler));
             }
 
             _receiver = receiver;
@@ -208,14 +223,25 @@ namespace Eu.EDelivery.AS4.Agents
             MessagingContext context)
         {
             StepResult result = StepResult.Success(context);
-
-            var currentContext = context;
+            MessagingContext currentContext = context;
 
             foreach (IStep step in steps)
             {
                 result = await step.ExecuteAsync(currentContext).ConfigureAwait(false);
 
-                if (result.CanProceed == false || result.Succeeded == false || result.MessagingContext?.Exception != null)
+                if (result == null)
+                {
+                    throw new InvalidOperationException(
+                        $"Result of last step: {step.GetType().Name} returns 'null'");
+                }
+
+                if (result.MessagingContext == null)
+                {
+                    throw new InvalidOperationException(
+                        $"Result of last step {step.GetType().Name} doesn't have a 'MessagingContext'");
+                }
+
+                if (result.CanProceed == false || result.Succeeded == false || result.MessagingContext.Exception != null)
                 {
                     return result;
                 }

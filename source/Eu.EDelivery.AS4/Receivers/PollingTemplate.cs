@@ -26,6 +26,11 @@ namespace Eu.EDelivery.AS4.Receivers
         /// <param name="cancellationToken"></param>
         protected void StartPolling(Func<TOut, CancellationToken, Task<MessagingContext>> onMessage, CancellationToken cancellationToken)
         {
+            if (onMessage == null)
+            {
+                throw new ArgumentNullException(nameof(onMessage));
+            }
+
             if (PollingInterval.Ticks <= 0)
             {
                 throw new ConfigurationErrorsException("PollingInterval must be greater than zero");
@@ -37,7 +42,7 @@ namespace Eu.EDelivery.AS4.Receivers
                 {
                     IEnumerable<TIn> messagesToPoll = GetMessagesToPoll(cancellationToken);
 
-                    if (messagesToPoll.Any())
+                    if (messagesToPoll?.Any() == true)
                     {
                         IEnumerable<Task> taskCollection = CreateTaskForEachMessage(messagesToPoll, onMessage, cancellationToken);
                         WaitForAllTasksToComplete(taskCollection, messagesToPoll);
@@ -106,6 +111,9 @@ namespace Eu.EDelivery.AS4.Receivers
             Func<TOut, CancellationToken, Task<MessagingContext>> messageCallback,
             CancellationToken token);
 
+        /// <summary>
+        /// Declaration to the action that has to be executed when the receiver is stopped but has still pending items.
+        /// </summary>
         protected abstract void ReleasePendingItems();
 
         private IEnumerable<Task> CreateTaskForEachMessage(

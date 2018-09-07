@@ -42,6 +42,16 @@ namespace Eu.EDelivery.AS4.Serialization
 
         public Task SerializeAsync(AS4Message message, Stream stream, CancellationToken cancellationToken)
         {
+            if (message == null)
+            {
+                throw new ArgumentNullException(nameof(message));
+            }
+
+            if (stream == null)
+            {
+                throw new ArgumentNullException(nameof(stream));
+            }
+
             return Task.Run(() => this.Serialize(message, stream, cancellationToken), cancellationToken);
         }
 
@@ -53,6 +63,16 @@ namespace Eu.EDelivery.AS4.Serialization
         /// <param name="cancellationToken"></param>
         public void Serialize(AS4Message message, Stream stream, CancellationToken cancellationToken)
         {
+            if (message == null)
+            {
+                throw new ArgumentNullException(nameof(message));
+            }
+
+            if (stream == null)
+            {
+                throw new ArgumentNullException(nameof(stream));
+            }
+
             var builder = new SoapEnvelopeBuilder(message.EnvelopeDocument);
 
             XmlNode securityHeader = GetSecurityHeader(message);
@@ -158,6 +178,11 @@ namespace Eu.EDelivery.AS4.Serialization
             if (envelopeStream == null)
             {
                 throw new ArgumentNullException(nameof(envelopeStream));
+            }
+
+            if (contentType == null)
+            {
+                throw new ArgumentNullException(nameof(contentType));
             }
 
             XmlDocument envelopeDocument = LoadXmlDocument(envelopeStream);

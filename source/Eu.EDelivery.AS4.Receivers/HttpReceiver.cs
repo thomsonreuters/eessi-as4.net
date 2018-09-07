@@ -103,6 +103,11 @@ namespace Eu.EDelivery.AS4.Receivers
         /// <param name="settings"></param>
         public void Configure(IEnumerable<Setting> settings)
         {
+            if (settings == null)
+            {
+                throw new ArgumentNullException(nameof(settings));
+            }
+
             _properties = settings.ToDictionary(s => s.Key, s => s.Value, StringComparer.OrdinalIgnoreCase);
 
             const int defaultConcurrentRequests = 10;
@@ -128,6 +133,11 @@ namespace Eu.EDelivery.AS4.Receivers
         /// <param name="cancellationToken"></param>
         public void StartReceiving(Function messageCallback, CancellationToken cancellationToken)
         {
+            if (messageCallback == null)
+            {
+                throw new ArgumentNullException(nameof(messageCallback));
+            }
+
             _listener = new HttpListener();
 
             try

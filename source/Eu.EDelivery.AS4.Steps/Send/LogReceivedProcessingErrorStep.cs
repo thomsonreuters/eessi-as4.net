@@ -28,6 +28,11 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// <param name="createContext">The create context.</param>
         public LogReceivedProcessingErrorStep(Func<DatastoreContext> createContext)
         {
+            if (createContext == null)
+            {
+                throw new ArgumentNullException(nameof(createContext));
+            }
+
             _createContext = createContext;
         }
 
@@ -38,7 +43,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
-            if (messagingContext.ErrorResult == null)
+            if (messagingContext?.ErrorResult == null)
             {
                 return StepResult.Success(messagingContext);
             }
@@ -54,11 +59,9 @@ namespace Eu.EDelivery.AS4.Steps.Send
             using (DatastoreContext context = _createContext())
             {
                 var repository = new DatastoreRepository(context);
-                var exception = new InException(messagingContext.AS4Message?.FirstSignalMessage?.RefToMessageId, messagingContext.ErrorResult.Description)
-                {
-                    InsertionTime = DateTimeOffset.Now,
-                    ModificationTime = DateTimeOffset.Now
-                };
+                var exception = InException.ForEbmsMessageId(
+                    messagingContext.AS4Message?.FirstSignalMessage?.RefToMessageId, 
+                    new Exception(messagingContext.ErrorResult.Description));
 
                 repository.InsertInException(exception);
                 await context.SaveChangesAsync(cancellation).ConfigureAwait(false);

@@ -51,6 +51,11 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
         /// </param>
         public FileAttachmentUploader(IMimeTypeRepository repository)
         {
+            if (repository == null)
+            {
+                throw new ArgumentNullException(nameof(repository));
+            }
+
             _repository = repository;
         }
 
@@ -61,16 +66,31 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
         /// <param name="payloadReferenceMethod"></param>
         public void Configure(Method payloadReferenceMethod)
         {
+            if (payloadReferenceMethod == null)
+            {
+                throw new ArgumentNullException(nameof(payloadReferenceMethod));
+            }
+
             _method = payloadReferenceMethod;
         }
 
         /// <inheritdoc/>
         public Task<UploadResult> UploadAsync(Attachment attachment, UserMessage referringUserMessage)
         {
+            if (attachment == null)
+            {
+                throw new ArgumentNullException(nameof(attachment));
+            }
+
+            if (referringUserMessage == null)
+            {
+                throw new ArgumentNullException(nameof(referringUserMessage));
+            }
+
             string downloadUrl = AssembleFileDownloadUrlFor(attachment, referringUserMessage);
             if (downloadUrl == null)
             {
-                Logger.Debug("No");
+                Logger.Debug("Upload failed with fatal fail: No download URL could be assembled to download the attachment from");
                 return Task.FromResult(UploadResult.FatalFail);
             }
 

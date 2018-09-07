@@ -37,6 +37,11 @@ namespace Eu.EDelivery.AS4.Transformers
         /// <param name="configuration">The configuration.</param>
         public ReceiveMessageTransformer(IConfig configuration)
         {
+            if (configuration == null)
+            {
+                throw new ArgumentNullException(nameof(configuration));
+            }
+
             _config = configuration;
         }
 
@@ -62,7 +67,7 @@ namespace Eu.EDelivery.AS4.Transformers
         /// <returns></returns>
         public async Task<MessagingContext> TransformAsync(ReceivedMessage message)
         {
-            if (message.UnderlyingStream == null)
+            if (message?.UnderlyingStream == null)
             {
                 throw new InvalidMessageException(
                     "The incoming stream is not an ebMS Message. " +

@@ -39,7 +39,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Exceptions.Handlers
         {
             // Arrange
             ClearOutExceptions();
-            var sut = new OutboundExceptionHandler(GetDataStoreContext);
+            var sut = new OutboundExceptionHandler(GetDataStoreContext, StubConfig.Default, new InMemoryMessageBodyStore());
             var pmode = new SendingProcessingMode();
             
             pmode.ExceptionHandling.Reliability =
@@ -60,7 +60,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Exceptions.Handlers
             // Assert
             GetDataStoreContext.AssertOutException(ex =>
             {
-                Assert.NotNull(ex.MessageBody);
+                Assert.NotNull(ex.MessageLocation);
                 GetDataStoreContext.AssertRetryRelatedOutException(
                     ex.Id,
                     rr =>
@@ -95,7 +95,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Exceptions.Handlers
         public async Task InsertOutException_IfTransformException()
         {
             // Arrange
-            var sut = new OutboundExceptionHandler(GetDataStoreContext);
+            var sut = new OutboundExceptionHandler(GetDataStoreContext, StubConfig.Default, new InMemoryMessageBodyStore());
 
             // Act
             MessagingContext context =
@@ -106,8 +106,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Exceptions.Handlers
             GetDataStoreContext.AssertOutException(
                 ex =>
                 {
+                    Assert.NotNull(ex);
                     Assert.True(ex.Exception.IndexOf(_expectedException.Message, StringComparison.CurrentCultureIgnoreCase) > -1, "Not equal message insterted");
-                    Assert.True(_expectedBody == Encoding.UTF8.GetString(ex.MessageBody), "Not equal body inserted");
                 });
         }
 
@@ -193,7 +193,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Exceptions.Handlers
             MessagingContext context,
             Func<IAgentExceptionHandler, Func<Exception, MessagingContext, Task<MessagingContext>>> getExercise)
         {
-            var sut = new OutboundExceptionHandler(GetDataStoreContext);
+            var sut = new OutboundExceptionHandler(GetDataStoreContext, StubConfig.Default, new InMemoryMessageBodyStore());
             Func<Exception, MessagingContext, Task<MessagingContext>> exercise = getExercise(sut);
 
             // Act
@@ -207,7 +207,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Exceptions.Handlers
                 {
                     Assert.True(exception.Exception.IndexOf(_expectedException.Message, StringComparison.CurrentCultureIgnoreCase) > -1, "Message does not contain expected message");
                     Assert.True(expected == exception.Operation, "Not equal 'Operation' inserted");
-                    Assert.True(exception.MessageBody == null, "Inserted exception body is not empty");
+                    Assert.True(exception.MessageLocation == null, "Inserted exception body is not empty");
                 });
         }
     }

@@ -43,6 +43,16 @@ namespace Eu.EDelivery.AS4.Steps.Notify
         /// <param name="dataContextRetriever">The data context retriever.</param>
         public SendNotifyMessageStep(INotifySenderProvider provider, Func<DatastoreContext> dataContextRetriever)
         {
+            if (provider == null)
+            {
+                throw new ArgumentNullException(nameof(provider));
+            }
+
+            if (dataContextRetriever == null)
+            {
+                throw new ArgumentNullException(nameof(dataContextRetriever));
+            }
+
             _provider = provider;
             _createContext = dataContextRetriever;
         }
@@ -55,7 +65,7 @@ namespace Eu.EDelivery.AS4.Steps.Notify
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
-            if (messagingContext.NotifyMessage == null)
+            if (messagingContext?.NotifyMessage == null)
             {
                 throw new InvalidOperationException(
                     $"{nameof(SendNotifyMessageStep)} requires a NotifyMessage to send but no NotifyMessage is present in the MessagingContext");

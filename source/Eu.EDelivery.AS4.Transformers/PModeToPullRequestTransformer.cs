@@ -32,10 +32,10 @@ namespace Eu.EDelivery.AS4.Transformers
         /// <returns></returns>
         public Task<MessagingContext> TransformAsync(ReceivedMessage receivedMessage)
         {
-            if (receivedMessage.UnderlyingStream == null)
+            if (receivedMessage?.UnderlyingStream == null)
             {
                 throw new InvalidDataException(
-                    $"Invalid incoming request stream received from {receivedMessage.Origin}");
+                    $"Invalid incoming request stream received from {receivedMessage?.Origin}");
             }
 
             return CreatePullRequest(receivedMessage);

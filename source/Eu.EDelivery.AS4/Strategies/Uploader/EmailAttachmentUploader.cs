@@ -29,12 +29,25 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
         /// Initialize a new instance of the <see cref="EmailAttachmentUploader"/> class
         /// </summary>
         /// <param name="mimeTypeRepository"></param>
-        public EmailAttachmentUploader(IMimeTypeRepository mimeTypeRepository) : this(mimeTypeRepository, Config.Instance)
-        {
-        }
+        public EmailAttachmentUploader(IMimeTypeRepository mimeTypeRepository) : this(mimeTypeRepository, Config.Instance) { }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="EmailAttachmentUploader"/> class.
+        /// </summary>
+        /// <param name="mimeTypeRepository"></param>
+        /// <param name="config"></param>
         public EmailAttachmentUploader(IMimeTypeRepository mimeTypeRepository, IConfig config)
         {
+            if (mimeTypeRepository == null)
+            {
+                throw new ArgumentNullException(nameof(mimeTypeRepository));
+            }
+
+            if (config == null)
+            {
+                throw new ArgumentNullException(nameof(config));
+            }
+
             _repository = mimeTypeRepository;
             _config = config;
         }
@@ -46,12 +59,27 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
         /// <param name="payloadReferenceMethod"></param>
         public void Configure(Method payloadReferenceMethod)
         {
+            if (payloadReferenceMethod == null)
+            {
+                throw new ArgumentNullException(nameof(payloadReferenceMethod));
+            }
+
             _method = payloadReferenceMethod;
         }
 
         /// <inheritdoc />
         public Task<UploadResult> UploadAsync(Attachment attachment, UserMessage referringUserMessage)
         {
+            if (attachment == null)
+            {
+                throw new ArgumentNullException(nameof(attachment));
+            }
+
+            if (referringUserMessage == null)
+            {
+                throw new ArgumentNullException(nameof(referringUserMessage));
+            }
+
             SendAttachmentAsMail(attachment);
 
             return Task.FromResult(UploadResult.SuccessWithId(payloadId: attachment.Id));

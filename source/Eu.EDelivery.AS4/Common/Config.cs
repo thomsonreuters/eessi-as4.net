@@ -66,19 +66,28 @@ namespace Eu.EDelivery.AS4.Common
         /// </summary>
         public TimeSpan RetryPollingInterval => OnlyAfterInitialized(() => _retryPollingInterval);
 
-        /// <summary>
-        /// Gets the in message store location.
-        /// </summary>
-        /// <value>The in message store location.</value>
-        public string InMessageStoreLocation =>
-            OnlyAfterInitialized(() => _settings?.Database?.InMessageStoreLocation ?? @"file:///.\database\as4messages\in");
+        private string StoreLocation =>
+            OnlyAfterInitialized(() => _settings?.Database?.StoreLocation?.TrimEnd('\\') ?? @"file:///.\database");
 
         /// <summary>
-        /// Gets the out message store location.
+        /// Gets the location path where the exceptions during an incoming operation are stored.
         /// </summary>
-        /// <value>The out message store location.</value>
-        public string OutMessageStoreLocation => 
-            OnlyAfterInitialized(() => _settings?.Database?.OutMessageStoreLocation ?? @"file:///.\database\as4messages\out");
+        public string InExceptionStoreLocation => StoreLocation + @"\exceptions\in";
+
+        /// <summary>
+        /// Gets the location path where the exceptions during an outgoing operation are stored.
+        /// </summary>
+        public string OutExceptionStoreLocation => StoreLocation + @"\exceptions\out";
+
+        /// <summary>
+        /// Gets the location path where the messages during an incoming operation are stored.
+        /// </summary>
+        public string InMessageStoreLocation => StoreLocation + @"\as4messages\in";
+
+        /// <summary>
+        /// Gets the location path where the messages during an outgoing operation are stored.
+        /// </summary>
+        public string OutMessageStoreLocation => StoreLocation + @"\as4messages\out";
 
         /// <summary>
         /// Gets the location where the payloads should be retrieved.
@@ -103,6 +112,11 @@ namespace Eu.EDelivery.AS4.Common
         /// <param name="settingsFileName">Name of the settings file.</param>
         public void Initialize(string settingsFileName)
         {
+            if (settingsFileName == null)
+            {
+                throw new ArgumentNullException(nameof(settingsFileName));
+            }
+
             try
             {
                 IsInitialized = true;
@@ -140,6 +154,11 @@ namespace Eu.EDelivery.AS4.Common
         /// <returns></returns>
         public bool ContainsSendingPMode(string id)
         {
+            if (id == null)
+            {
+                throw new ArgumentNullException(nameof(id));
+            }
+
             return OnlyAfterInitialized(() => _sendingPModeWatcher.ContainsPMode(id));
         }
 
@@ -152,6 +171,11 @@ namespace Eu.EDelivery.AS4.Common
         /// <exception cref="ConfigurationErrorsException">No entry found for the given id</exception>
         public string GetFileLocationForSendingPMode(string id)
         {
+            if (id == null)
+            {
+                throw new ArgumentNullException(nameof(id));
+            }
+
             return OnlyAfterInitialized(() => GetPModeEntry(id, _sendingPModeWatcher).Filename);
         }
 
@@ -164,6 +188,11 @@ namespace Eu.EDelivery.AS4.Common
         /// <exception cref="ConfigurationErrorsException">No entry found for the given id</exception>
         public string GetFileLocationForReceivingPMode(string id)
         {
+            if (id == null)
+            {
+                throw new ArgumentNullException(nameof(id));
+            }
+
             return OnlyAfterInitialized(() => GetPModeEntry(id, _receivingPModeWatcher).Filename);
         }
 
@@ -176,6 +205,11 @@ namespace Eu.EDelivery.AS4.Common
         /// <exception cref="ConfigurationErrorsException">No entry found for the given id</exception>
         public SendingProcessingMode GetSendingPMode(string id)
         {
+            if (id == null)
+            {
+                throw new ArgumentNullException(nameof(id));
+            }
+
             return OnlyAfterInitialized(() => GetPModeEntry(id, _sendingPModeWatcher).PMode as SendingProcessingMode);
         }
 
@@ -188,6 +222,11 @@ namespace Eu.EDelivery.AS4.Common
         /// <exception cref="ConfigurationErrorsException">No entry found for the given id</exception>
         public ReceivingProcessingMode GetReceivingPMode(string id)
         {
+            if (id == null)
+            {
+                throw new ArgumentNullException(nameof(id));
+            }
+
             return OnlyAfterInitialized(() => GetPModeEntry(id, _receivingPModeWatcher).PMode as ReceivingProcessingMode);
         }
 
@@ -214,7 +253,15 @@ namespace Eu.EDelivery.AS4.Common
         /// <param name="key"> Registered Key for the Setting </param>
         /// <returns>
         /// </returns>
-        public string GetSetting(string key) => OnlyAfterInitialized(() => _configuration.ReadOptionalProperty(key));
+        public string GetSetting(string key)
+        {
+            if (key == null)
+            {
+                throw new ArgumentNullException(nameof(key));
+            }
+
+            return OnlyAfterInitialized(() => _configuration.ReadOptionalProperty(key));
+        }
 
         /// <summary>
         /// Gets the agent settings.

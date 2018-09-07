@@ -27,6 +27,11 @@ namespace Eu.EDelivery.AS4.Strategies.Retriever
         /// <param name="sendRequest"></param>
         public HttpPayloadRetriever(Func<HttpRequestMessage, Task<HttpResponseMessage>> sendRequest)
         {
+            if (sendRequest == null)
+            {
+                throw new ArgumentNullException(nameof(sendRequest));
+            }
+
             _sendRequest = sendRequest;
         }
 
@@ -53,6 +58,11 @@ namespace Eu.EDelivery.AS4.Strategies.Retriever
         /// <exception cref="Exception">A delegate callback throws an exception.</exception>
         public async Task<Stream> RetrievePayloadAsync(string location)
         {
+            if (location == null)
+            {
+                throw new ArgumentNullException(nameof(location));
+            }
+
             var request = new HttpRequestMessage(HttpMethod.Get, new Uri(location));
 
             HttpResponseMessage response = await _sendRequest(request).ConfigureAwait(false);

@@ -28,6 +28,12 @@ namespace Eu.EDelivery.AS4.Transformers
         /// <returns></returns>
         public async Task<MessagingContext> TransformAsync(ReceivedMessage message)
         {
+            if (message == null)
+            {
+                throw new InvalidOperationException(
+                    $"{nameof(PayloadTransformer)} requires to have a ReceivedMessage with a payload to create an AS4Message");
+            }
+
             Attachment attachment = CreateAttachmentFromReceivedMessage(message);
             AS4Message as4Message = AS4Message.Empty;
             as4Message.AddAttachment(attachment);

@@ -203,45 +203,5 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
             }
 
         }
-
-        /// <summary>
-        /// Testing the Internal Message with invalid arguments
-        /// </summary>
-        public class GivenInvalidArguments : GivenMessagingContextFacts
-        {
-            [Fact]
-            public void ThenGettingMessageIdsFailsWitEmptyAS4Message()
-            {
-                // Arrange
-                var context = new MessagingContext(AS4Message.Empty, MessagingContextMode.Unknown);
-
-                // Act
-                string[] messageIds = context.AS4Message.MessageIds;
-
-                // Assert
-                Assert.NotNull(messageIds);
-                Assert.Empty(messageIds);
-            }
-
-            [Fact]
-            public void ThenGettingMessageIdsFailsWithNullAS4Message()
-            {
-                // Arrange
-                var internalMessage = new MessagingContext(as4Message: null, mode: MessagingContextMode.Unknown);
-
-                // Act / Assert
-                Assert.Throws<NullReferenceException>(() => internalMessage.AS4Message.MessageIds);
-            }
-
-            [Fact]
-            public void ThenHasAttachmentsFailsWithNullAS4Message()
-            {
-                // Arrange
-                var internalMessage = new MessagingContext(as4Message: null, mode: MessagingContextMode.Unknown);
-
-                // Act / Assert
-                Assert.Throws<NullReferenceException>(() => internalMessage.AS4Message.HasAttachments);
-            }
-        }
     }
 }

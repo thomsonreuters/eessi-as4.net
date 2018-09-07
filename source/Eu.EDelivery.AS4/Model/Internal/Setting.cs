@@ -163,9 +163,7 @@ namespace Eu.EDelivery.AS4.Model.Internal
 
         public string ConnectionString { get; set; }
 
-        public string InMessageStoreLocation { get; set; }
-
-        public string OutMessageStoreLocation { get; set; }
+        public string StoreLocation { get; set; }
     }
 
     [Serializable]

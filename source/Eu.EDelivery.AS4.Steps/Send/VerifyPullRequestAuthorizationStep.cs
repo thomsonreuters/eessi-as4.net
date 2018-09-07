@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.Security;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
@@ -25,6 +26,11 @@ namespace Eu.EDelivery.AS4.Steps.Send
         ///<param name="pullAuthorizationMapProvider">The IAuthorizationMapProvider instance that must be used</param>
         public VerifyPullRequestAuthorizationStep(IPullAuthorizationMapProvider pullAuthorizationMapProvider)
         {
+            if (pullAuthorizationMapProvider == null)
+            {
+                throw new ArgumentNullException(nameof(pullAuthorizationMapProvider));
+            }
+
             _pullAuthorizationMapProvider = pullAuthorizationMapProvider;
         }
 
@@ -35,6 +41,12 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// <returns></returns>
         public Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
+            if (messagingContext?.AS4Message == null)
+            {
+                throw new InvalidOperationException(
+                    $"{nameof(VerifyPullRequestAuthorizationStep)} requires a MessagingContext with a AS4Message to verify the PullRequest");
+            }
+
             AS4Message as4Message = messagingContext.AS4Message;
 
             var authorizationMap = new PullAuthorizationMapService(_pullAuthorizationMapProvider);

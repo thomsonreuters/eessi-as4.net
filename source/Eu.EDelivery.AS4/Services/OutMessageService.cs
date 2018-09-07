@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -48,6 +49,21 @@ namespace Eu.EDelivery.AS4.Services
         /// <param name="messageBodyStore">The as4 message body persister.</param>
         public OutMessageService(IConfig config, IDatastoreRepository respository, IAS4MessageBodyStore messageBodyStore)
         {
+            if (config == null)
+            {
+                throw new ArgumentNullException(nameof(config));
+            }
+
+            if (respository == null)
+            {
+                throw new ArgumentNullException(nameof(respository));
+            }
+
+            if (messageBodyStore == null)
+            {
+                throw new ArgumentNullException(nameof(messageBodyStore));
+            }
+
             _configuration = config;
             _repository = respository;
             _messageBodyStore = messageBodyStore;
@@ -63,6 +79,16 @@ namespace Eu.EDelivery.AS4.Services
             IEnumerable<string> messageIds,
             IAS4MessageBodyStore store)
         {
+            if (messageIds == null)
+            {
+                throw new ArgumentNullException(nameof(messageIds));
+            }
+
+            if (store == null)
+            {
+                throw new ArgumentNullException(nameof(store));
+            }
+
             IEnumerable<OutMessage> messages = _repository
                 .GetOutMessageData(m =>
                     messageIds.Contains(m.EbmsMessageId) && m.Intermediary == false,
@@ -97,6 +123,13 @@ namespace Eu.EDelivery.AS4.Services
         /// <returns></returns>
         public void InsertAS4Message(MessagingContext messagingContext, Operation operation)
         {
+            if (messagingContext?.AS4Message == null)
+            {
+                throw new ArgumentNullException(
+                    nameof(messagingContext), 
+                    $@"{nameof(InsertAS4Message)} requires to have a MessagingContext with an AS4Message");
+            }
+
             AS4Message message = messagingContext.AS4Message;
             string messageBodyLocation =
                 _messageBodyStore.SaveAS4Message(
@@ -214,6 +247,11 @@ namespace Eu.EDelivery.AS4.Services
             AS4Message message,
             ReceptionAwareness awareness)
         {
+            if (message == null)
+            {
+                throw new ArgumentNullException(nameof(message));
+            }
+
             string messageBodyLocation =
                 _repository.GetOutMessageData(outMessageId, m => m.MessageLocation);
 
@@ -238,16 +276,5 @@ namespace Eu.EDelivery.AS4.Services
                     }
                 });
         }
-    }
-
-    public interface IOutMessageService
-    {
-        /// <summary>
-        /// Inserts a s4 message.
-        /// </summary>
-        /// <param name="message">The message.</param>
-        /// <param name="operation">The operation.</param>
-        /// <returns></returns>
-        void InsertAS4Message(MessagingContext message, Operation operation);
     }
 }

@@ -36,6 +36,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
         /// </summary>
         public virtual TimeSpan RetryPollingInterval => throw new NotImplementedException();
 
+        public virtual string InExceptionStoreLocation => throw new NotImplementedException();
+        public virtual string OutExceptionStoreLocation => throw new NotImplementedException();
+
         /// <summary>
         /// Retrieve Setting from the Global Configurations
         /// </summary>

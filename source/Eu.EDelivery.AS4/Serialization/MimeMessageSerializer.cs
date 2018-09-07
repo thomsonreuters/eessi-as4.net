@@ -31,11 +31,26 @@ namespace Eu.EDelivery.AS4.Serialization
         /// </param>
         public MimeMessageSerializer(ISerializer serializer)
         {
+            if (serializer == null)
+            {
+                throw new ArgumentNullException(nameof(serializer));
+            }
+
             _soapSerializer = serializer;
         }
 
         public Task SerializeAsync(AS4Message message, Stream stream, CancellationToken cancellationToken)
         {
+            if (message == null)
+            {
+                throw new ArgumentNullException(nameof(message));
+            }
+
+            if (stream == null)
+            {
+                throw new ArgumentNullException(nameof(stream));
+            }
+
             return Task.Run(() => Serialize(message, stream, cancellationToken), cancellationToken);
         }
 
@@ -47,6 +62,16 @@ namespace Eu.EDelivery.AS4.Serialization
         /// <param name="cancellationToken"></param>
         public void Serialize(AS4Message message, Stream stream, CancellationToken cancellationToken)
         {
+            if (message == null)
+            {
+                throw new ArgumentNullException(nameof(message));
+            }
+
+            if (stream == null)
+            {
+                throw new ArgumentNullException(nameof(stream));
+            }
+
             try
             {
                 SerializeToMimeStream(message, stream, cancellationToken);
@@ -193,7 +218,15 @@ namespace Eu.EDelivery.AS4.Serialization
             string contentType,
             CancellationToken cancellationToken)
         {
-            PreConditions(inputStream, contentType);
+            if (inputStream == null)
+            {
+                throw new ArgumentNullException(nameof(inputStream));
+            }
+
+            if (contentType == null)
+            {
+                throw new ArgumentNullException(nameof(contentType));
+            }
 
             var memoryStream = new MemoryStream(
                 Encoding.UTF8.GetBytes($"Content-Type: {contentType}\r\n\r\n"));
@@ -215,19 +248,6 @@ namespace Eu.EDelivery.AS4.Serialization
             }
         }
 
-        private void PreConditions(Stream inputStream, string contentType)
-        {
-            if (inputStream == null)
-            {
-                throw new ArgumentNullException(nameof(inputStream));
-            }
-
-            if (contentType == null)
-            {
-                throw new ArgumentNullException(nameof(contentType));
-            }
-        }
-        
         private async Task<AS4Message> ParseStreamToAS4MessageAsync(
             Stream inputStream,
             string contentType,

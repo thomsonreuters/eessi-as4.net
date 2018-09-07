@@ -31,7 +31,21 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
         /// <param name="method"></param>
         public void Configure(Method method)
         {
-            Location = method?["location"]?.Value;
+            if (method == null)
+            {
+                throw new ArgumentNullException(nameof(method));
+            }
+
+            string location = method["location"]?.Value;
+            if (String.IsNullOrWhiteSpace(location))
+            {
+                throw new InvalidOperationException(
+                    $"{nameof(FileSender)} requires a configured location to send the file to, please add a "
+                    + "<Parameter name=\"location\" value=\"your-file-path\"/> it to the applicable "
+                    + $"Sending or ReceivingPMode for which the {nameof(FileSender)} is configured");
+            }
+
+            Location = location;
         }
 
         /// <summary>
@@ -40,6 +54,30 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
         /// <param name="deliverMessage"></param>
         public async Task<SendResult> SendAsync(DeliverMessageEnvelope deliverMessage)
         {
+            if (deliverMessage == null)
+            {
+                throw new ArgumentNullException(nameof(deliverMessage));
+            }
+
+            if (deliverMessage.MessageInfo?.MessageId == null)
+            {
+                throw new InvalidOperationException(
+                    $"{nameof(FileSender)} requires a MessageInfo.MessageId to correctly deliver the message");
+            }
+
+            if (deliverMessage.DeliverMessage == null)
+            {
+                throw new InvalidOperationException(
+                    $"{nameof(FileSender)} requires a DeliverMessage as a series of bytes to correctly deliver the message");
+            }
+
+            if (String.IsNullOrWhiteSpace(Location))
+            {
+                throw new InvalidOperationException(
+                    $"{nameof(FileSender)} requires a configured location to send the delivered file to, please add a "
+                    + "<Parameter name=\"location\" value=\"your-location\"/> it to the MessageHandling.Deliver.DeliverMethod element in the ReceivingPMode");
+            }
+
             SendResult directoryResult = EnsureDirectory(Location);
             if (directoryResult == SendResult.FatalFail)
             {
@@ -65,6 +103,31 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
         /// <param name="notifyMessage"></param>
         public async Task<SendResult> SendAsync(NotifyMessageEnvelope notifyMessage)
         {
+            if (notifyMessage == null)
+            {
+                throw new ArgumentNullException(nameof(notifyMessage));
+            }
+
+            if (notifyMessage.MessageInfo?.MessageId == null)
+            {
+                throw new InvalidOperationException(
+                    $"{nameof(FileSender)} requires a MessageInfo.MessageId to correctly notify the message");
+            }
+
+            if (notifyMessage.NotifyMessage == null)
+            {
+                throw new InvalidOperationException(
+                    $"{nameof(FileSender)} requires a NotifyMessage as a series of bytes to correctly notify the message");
+            }
+
+
+            if (String.IsNullOrWhiteSpace(Location))
+            {
+                throw new InvalidOperationException(
+                    $"{nameof(FileSender)} requires a configured location to send the notified file to, please add a "
+                    + "<Parameter name=\"location\" value=\"your-location\"/> it to the applicable element in the Receiving or SendingPMode");
+            }
+
             SendResult directoryResult = EnsureDirectory(Location);
             if (directoryResult == SendResult.FatalFail)
             {

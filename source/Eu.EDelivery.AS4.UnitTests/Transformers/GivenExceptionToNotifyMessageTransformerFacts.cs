@@ -18,7 +18,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
         public async void ThenInExceptionIsTransformedToNotifyEnvelope()
         {
             // Arrange
-            ReceivedEntityMessage receivedMessage = CreateReceivedExceptionMessage(new InException("id", "refid"), Operation.ToBeNotified);
+            ReceivedEntityMessage receivedMessage = CreateReceivedExceptionMessage(new InException("id", "location", "error"), Operation.ToBeNotified);
             var transformer = new NotifyMessageTransformer();
             var result = await transformer.TransformAsync(receivedMessage);
 
@@ -32,7 +32,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
         public async void ThenOutExceptionIsTransformedToNotifyEnvelope()
         {
             // Arrange
-            ReceivedEntityMessage receivedMessage = CreateReceivedExceptionMessage(new OutException("id", "refid"), Operation.ToBeNotified);
+            ReceivedEntityMessage receivedMessage = CreateReceivedExceptionMessage(new OutException("id", "location", "error"), Operation.ToBeNotified);
             var transformer = new NotifyMessageTransformer();
 
             // Act
@@ -49,7 +49,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
         public async void ThenTransformSucceedsWithValidInExceptionForErrorPropertiesAsync()
         {
             // Arrange            
-            ReceivedEntityMessage receivedMessage = CreateReceivedExceptionMessage(new InException("id", "refid"), Operation.ToBeNotified);
+            ReceivedEntityMessage receivedMessage = CreateReceivedExceptionMessage(new InException("id", "location", "error"), Operation.ToBeNotified);
             var transformer = new NotifyMessageTransformer();
 
             // Act

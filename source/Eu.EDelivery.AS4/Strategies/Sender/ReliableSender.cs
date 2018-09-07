@@ -23,6 +23,11 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
         /// <param name="deliverSender"></param>
         public ReliableSender(IDeliverSender deliverSender)
         {
+            if (deliverSender == null)
+            {
+                throw new ArgumentNullException(nameof(deliverSender));
+            }
+
             _deliverSender = deliverSender;
         }
 
@@ -32,6 +37,11 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
         /// <param name="notifySender"></param>
         public ReliableSender(INotifySender notifySender)
         {
+            if (notifySender == null)
+            {
+                throw new ArgumentNullException(nameof(notifySender));
+            }
+
             _notifySender = notifySender;
         }
 
@@ -52,6 +62,11 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
         /// <param name="deliverMessage"></param>
         public async Task<SendResult> SendAsync(DeliverMessageEnvelope deliverMessage)
         {
+            if (deliverMessage == null)
+            {
+                throw new ArgumentNullException(nameof(deliverMessage));
+            }
+
             return await SendMessageResult(
                     message: deliverMessage,
                     sending: _deliverSender.SendAsync,
@@ -65,6 +80,11 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
         /// <param name="notifyMessage"></param>
         public async Task<SendResult> SendAsync(NotifyMessageEnvelope notifyMessage)
         {
+            if (notifyMessage == null)
+            {
+                throw new ArgumentNullException(nameof(notifyMessage));
+            }
+
             return await SendMessageResult(
                 message: notifyMessage,
                 sending: _notifySender.SendAsync,
