@@ -408,7 +408,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
             "Indicates if the MSH needs to verify the Non-Repudiation Information that is included in the receipt")]
         public bool VerifyNRR
         {
-            get => _verifyNRR ?? false;
+            get => _verifyNRR ?? true;
             set => _verifyNRR = value;
         }
 
