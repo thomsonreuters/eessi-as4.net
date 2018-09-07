@@ -120,7 +120,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             using (DatastoreContext context = _createDatastoreContext())
             {
                 MessageExchangePattern mep =
-                    messagingContext.SendingPMode?.MepBinding == MessageExchangePatternBinding.Pull
+                    messagingContext.Mode == MessagingContextMode.PullReceive
                         ? MessageExchangePattern.Pull
                         : MessageExchangePattern.Push;
 
