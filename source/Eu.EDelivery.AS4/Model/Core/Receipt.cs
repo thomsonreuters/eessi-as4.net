@@ -28,11 +28,12 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// </summary>
         public override string MultihopAction { get; } = Constants.Namespaces.EbmsOneWayReceipt;
 
+        // TODO: ctor is only used in tests
         /// <summary>
         /// Initializes a new instance of the <see cref="Receipt"/> class.
         /// </summary>
         /// <param name="refToMessageId">The reference to a <see cref="Core.UserMessage"/></param>
-        public Receipt(string refToMessageId) 
+        internal Receipt(string refToMessageId) 
             : base(IdentifierFactory.Instance.Create(), refToMessageId) { }
 
         /// <summary>
