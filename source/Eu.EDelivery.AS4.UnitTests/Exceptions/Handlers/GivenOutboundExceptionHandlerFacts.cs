@@ -50,17 +50,25 @@ namespace Eu.EDelivery.AS4.UnitTests.Exceptions.Handlers
                     RetryInterval = interval.ToString("G")
                 };
 
+            var entity = new OutMessage($"entity-{Guid.NewGuid()}");
+            GetDataStoreContext.InsertOutMessage(entity);
+
             // Act
             sut.HandleExecutionException(
                 new Exception(),
-                new MessagingContext(new SubmitMessage()) { SendingPMode = pmode })
+                new MessagingContext(
+                    new ReceivedEntityMessage(entity),
+                    MessagingContextMode.Notify)
+                {
+                    SendingPMode = pmode
+                })
                .GetAwaiter()
                .GetResult();
 
             // Assert
             GetDataStoreContext.AssertOutException(ex =>
             {
-                Assert.NotNull(ex.MessageLocation);
+                Assert.Null(ex.MessageLocation);
                 GetDataStoreContext.AssertRetryRelatedOutException(
                     ex.Id,
                     rr =>
