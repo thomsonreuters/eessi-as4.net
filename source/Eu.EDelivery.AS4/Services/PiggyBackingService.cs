@@ -91,7 +91,7 @@ namespace Eu.EDelivery.AS4.Services
         /// so it can be picked-up again by the next send-out <see cref="PullRequest"/>.
         /// </summary>
         /// <param name="signals">The <see cref="SignalMessage"/>s that should be resetted for PiggyBacking.</param>
-        public void ResetToBePiggyBackedSignalMessages(IEnumerable<SignalMessage> signals)
+        public void ResetSignalMessagesToBePiggyBacked(IEnumerable<SignalMessage> signals)
         {
             if (signals == null)
             {

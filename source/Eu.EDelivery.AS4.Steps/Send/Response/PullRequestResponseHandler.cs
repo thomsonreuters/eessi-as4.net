@@ -70,7 +70,7 @@ namespace Eu.EDelivery.AS4.Steps.Send.Response
                     using (DatastoreContext ctx = _createContext())
                     {
                         var service = new PiggyBackingService(ctx);
-                        service.ResetToBePiggyBackedSignalMessages(request.AS4Message.SignalMessages);
+                        service.ResetSignalMessagesToBePiggyBacked(request.AS4Message.SignalMessages);
 
                         await ctx.SaveChangesAsync().ConfigureAwait(false);
                     }
