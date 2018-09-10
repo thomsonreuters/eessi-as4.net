@@ -64,7 +64,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                 () => _databaseSpy.GetInMessageFor(
                     m => m.EbmsMessageId == messageId
                          && m.Operation == Operation.Forwarded),
-                TimeSpan.FromSeconds(5));
+                TimeSpan.FromSeconds(15));
             Assert.NotNull(AS4XmlSerializer.FromString<ReceivingProcessingMode>(inMessage.PMode));
 
             OutMessage outMessage = _databaseSpy.GetOutMessageFor(m => m.EbmsMessageId == messageId);
@@ -95,7 +95,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                 () => _databaseSpy.GetInMessageFor(
                     m => m.EbmsMessageId == primaryMessageId
                          && m.Operation == Operation.Forwarded),
-                TimeSpan.FromSeconds(5));
+                TimeSpan.FromSeconds(15));
             Assert.NotNull(AS4XmlSerializer.FromString<ReceivingProcessingMode>(primaryInMessage.PMode));
 
             var secondaryInMessage = _databaseSpy.GetInMessageFor(m => m.EbmsMessageId == secondMessageId);
@@ -127,7 +127,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                 () => _databaseSpy.GetInMessageFor(
                     m => m.EbmsMessageId == messageId
                          && m.Operation == Operation.Forwarded), 
-                TimeSpan.FromSeconds(5));
+                TimeSpan.FromSeconds(15));
 
             var receivingPMode = AS4XmlSerializer.FromString<ReceivingProcessingMode>(inMessage.PMode);
             Assert.NotNull(receivingPMode);
@@ -181,7 +181,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                 () => _databaseSpy.GetInMessageFor(m => 
                     m.EbmsMessageId == messageId 
                     && m.Operation == Operation.Forwarded), 
-                TimeSpan.FromSeconds(6));
+                TimeSpan.FromSeconds(15));
 
             OutMessage outMessage = await PollUntilPresent(
                 () => _databaseSpy.GetOutMessageFor(m => m.EbmsMessageId == messageId),
