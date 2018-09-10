@@ -105,7 +105,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
 
                     NormalPipeline = new[]
                     {
-                        new Step { Type = typeof(BundleSignalMessageToPullRequest).AssemblyQualifiedName },
+                        new Step { Type = typeof(BundleSignalMessageToPullRequestStep).AssemblyQualifiedName },
                         new Step { Type = typeof(SignAS4MessageStep).AssemblyQualifiedName },
                         new Step { Type = typeof(SendAS4MessageStep).AssemblyQualifiedName },
                         new Step { Type = typeof(SaveReceivedMessageStep).AssemblyQualifiedName },

@@ -10,7 +10,7 @@ using NLog;
 
 namespace Eu.EDelivery.AS4.Steps.Send
 {
-    public class BundleSignalMessageToPullRequest : IStep
+    public class BundleSignalMessageToPullRequestStep : IStep
     {
         private readonly Func<DatastoreContext> _createContext;
         private readonly IAS4MessageBodyStore _bodyStore;
@@ -18,17 +18,17 @@ namespace Eu.EDelivery.AS4.Steps.Send
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="BundleSignalMessageToPullRequest"/> class.
+        /// Initializes a new instance of the <see cref="BundleSignalMessageToPullRequestStep"/> class.
         /// </summary>
-        public BundleSignalMessageToPullRequest() 
+        public BundleSignalMessageToPullRequestStep() 
             : this(Registry.Instance.CreateDatastoreContext, Registry.Instance.MessageBodyStore) { }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="BundleSignalMessageToPullRequest"/> class.
+        /// Initializes a new instance of the <see cref="BundleSignalMessageToPullRequestStep"/> class.
         /// </summary>
         /// <param name="createContext"></param>
         /// <param name="bodyStore"></param>
-        public BundleSignalMessageToPullRequest(Func<DatastoreContext> createContext, IAS4MessageBodyStore bodyStore)
+        public BundleSignalMessageToPullRequestStep(Func<DatastoreContext> createContext, IAS4MessageBodyStore bodyStore)
         {
             if (createContext == null)
             {
@@ -54,14 +54,14 @@ namespace Eu.EDelivery.AS4.Steps.Send
             if (messagingContext?.AS4Message == null)
             {
                 throw new InvalidOperationException(
-                    $"{typeof(BundleSignalMessageToPullRequest)} Requires a AS4Message to possible bundle a "
+                    $"{typeof(BundleSignalMessageToPullRequestStep)} Requires a AS4Message to possible bundle a "
                     + "SignalMessage to the PullRequest but there's not a AS4Message present in the MessagingContext");
             }
 
             if (!(messagingContext.AS4Message.PrimaryMessageUnit is PullRequest pullRequest))
             {
                 throw new InvalidOperationException(
-                    $"{typeof(BundleSignalMessageToPullRequest)} Requires a PullRequest as primary message unit in the "
+                    $"{typeof(BundleSignalMessageToPullRequestStep)} Requires a PullRequest as primary message unit in the "
                     + "AS4Message but there's not a PullRequest present in the MessagingContext");
             }
 

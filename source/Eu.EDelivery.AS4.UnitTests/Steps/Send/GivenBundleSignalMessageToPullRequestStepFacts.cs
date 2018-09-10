@@ -13,7 +13,7 @@ using FsCheck.Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
 {
-    public class GivenBundleSignalMessageToPullRequestFacts : GivenDatastoreFacts
+    public class GivenBundleSignalMessageToPullRequestStepFacts : GivenDatastoreFacts
     {
         private readonly InMemoryMessageBodyStore _bodyStore = new InMemoryMessageBodyStore();
 
@@ -85,7 +85,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
 
         private StepResult ExerciseBundleWithPullRequest(PullRequest pullRequest)
         {
-            var sut = new BundleSignalMessageToPullRequest(GetDataStoreContext, _bodyStore);
+            var sut = new BundleSignalMessageToPullRequestStep(GetDataStoreContext, _bodyStore);
 
             return sut.ExecuteAsync(
                 new MessagingContext(
