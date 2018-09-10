@@ -56,7 +56,7 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
         /// Handles the transformation exception.
         /// </summary>
         /// <param name="exception">The exception.</param>
-        /// <param name="messageToTransform">The <see cref="ReceivsedMessage"/> that must be transformed by the transformer.</param>
+        /// <param name="messageToTransform">The <see cref="ReceivedMessage"/> that must be transformed by the transformer.</param>
         /// <returns></returns>
         public async Task<MessagingContext> HandleTransformationException(Exception exception, ReceivedMessage messageToTransform)
         {
@@ -104,6 +104,19 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
                     await service.InsertIncomingAS4MessageExceptionAsync(exception, context.EbmsMessageId, context.ReceivingPMode);
                 }
             });
+
+            if (context.SubmitMessage == null)
+            {
+                await UseRepositorySaveAfterwards(
+                    services =>
+                    {
+                        services.InsertRelatedRetryForInException(
+                            context.EbmsMessageId,
+                            context.ReceivingPMode?.ExceptionHandling?.Reliability);
+
+                        return Task.CompletedTask;
+                    });
+            }
 
             return new MessagingContext(exception)
             {

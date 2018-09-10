@@ -245,7 +245,7 @@ namespace Eu.EDelivery.AS4.Services
         {
             if (messageId == null)
             {
-                throw new ArgumentNullException(nameof(messageId));
+                return;
             }
 
             _repository.UpdateInException(
@@ -265,7 +265,7 @@ namespace Eu.EDelivery.AS4.Services
         {
             if (messageId == null)
             {
-                throw new ArgumentNullException(nameof(messageId));
+                return;
             }
 
             _repository.UpdateOutException(

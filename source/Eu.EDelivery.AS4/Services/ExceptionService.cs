@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
@@ -75,7 +76,6 @@ namespace Eu.EDelivery.AS4.Services
             await entity.SetPModeInformationAsync(pmode);
 
             _repository.InsertInException(entity);
-            InsertRelatedRetryForInException(entity.Id, pmode?.ExceptionHandling?.Reliability);
         }
 
         /// <summary>
@@ -95,16 +95,26 @@ namespace Eu.EDelivery.AS4.Services
 
             _repository.InsertInException(entity);
             _repository.UpdateInMessage(ebmsMessageId, m => m.SetStatus(InStatus.Exception));
-
-            InsertRelatedRetryForInException(entity.Id, pmode?.ExceptionHandling?.Reliability);
         }
 
-        private void InsertRelatedRetryForInException(long refToInExceptionId, RetryReliability reliability)
+        /// <summary>
+        /// Insert a <see cref="RetryReliability"/> record for an stored <see cref="InException"/> record.
+        /// </summary>
+        /// <param name="ebmsMessageId">The ebMS reference to the message identifier.</param>
+        /// <param name="reliability">Reliability to populate the record with retry information.</param>
+        public void InsertRelatedRetryForInException(string ebmsMessageId, RetryReliability reliability)
         {
+            long id = _repository.GetInExceptionsData(ebmsMessageId, ex => ex.Id).FirstOrDefault();
+            if (id <= 0)
+            {
+                throw new InvalidOperationException(
+                    "Requires to have a stored InException to insert a referenced RetryReliability record");
+            }
+
             if (reliability != null && reliability.IsEnabled)
             {
                 var r = Entities.RetryReliability.CreateForInException(
-                    refToInExceptionId: refToInExceptionId,
+                    refToInExceptionId: id,
                     maxRetryCount: reliability.RetryCount,
                     retryInterval: reliability.RetryInterval.AsTimeSpan(),
                     type: RetryType.Notification);
@@ -137,7 +147,6 @@ namespace Eu.EDelivery.AS4.Services
             await entity.SetPModeInformationAsync(pmode);
 
             _repository.InsertOutException(entity);
-            InsertRelatedRetryForOutException(entity.Id, pmode?.ExceptionHandling?.Reliability);
         }
 
         /// <summary>
@@ -161,7 +170,6 @@ namespace Eu.EDelivery.AS4.Services
             await entity.SetPModeInformationAsync(pmode);
 
             _repository.InsertOutException(entity);
-            InsertRelatedRetryForOutException(entity.Id, pmode?.ExceptionHandling?.Reliability);
 
             if (entityId.HasValue)
             {
@@ -169,12 +177,24 @@ namespace Eu.EDelivery.AS4.Services
             }
         }
 
-        private void InsertRelatedRetryForOutException(long refToOutExceptionId, RetryReliability reliability)
+        /// <summary>
+        /// Insert a <see cref="RetryReliability"/> record for an stored <see cref="OutException"/> record.
+        /// </summary>
+        /// <param name="ebmsMessageId">The ebMS reference to the message identifier.</param>
+        /// <param name="reliability">Reliability to populate the record with retry information.</param>
+        public void InsertRelatedRetryForOutException(string ebmsMessageId, RetryReliability reliability)
         {
+            long id = _repository.GetOutExceptionsData(ebmsMessageId, ex => ex.Id).FirstOrDefault();
+            if (id <= 0)
+            {
+                throw new InvalidOperationException(
+                    "Requires to have a stored OutException to insert a referenced RetryReliability record");
+            }
+
             if (reliability != null && reliability.IsEnabled)
             {
                 var r = Entities.RetryReliability.CreateForOutException(
-                    refToOutExceptionId: refToOutExceptionId,
+                    refToOutExceptionId: id,
                     maxRetryCount: reliability.RetryCount,
                     retryInterval: reliability.RetryInterval.AsTimeSpan(),
                     type: RetryType.Notification);

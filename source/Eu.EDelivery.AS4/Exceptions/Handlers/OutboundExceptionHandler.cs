@@ -108,7 +108,7 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
             string ebmsMessageId = await GetEbmsMessageId(context);
             await UseRepositorySaveAfterwards(async service =>
             {
-                if (String.IsNullOrWhiteSpace(ebmsMessageId))
+                if (context.SubmitMessage != null)
                 {
                     await service.InsertOutgoingSubmitExceptionAsync(exception, context.SubmitMessage, context.SendingPMode);
                 }
@@ -117,6 +117,18 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
                     await service.InsertOutgoingAS4MessageExceptionAsync(exception, ebmsMessageId, context.MessageEntityId, context.SendingPMode);
                 }
             });
+
+            if (context.SubmitMessage == null)
+            {
+                await UseRepositorySaveAfterwards(service =>
+                {
+                    service.InsertRelatedRetryForOutException(
+                        ebmsMessageId,
+                        context.SendingPMode?.ExceptionHandling?.Reliability);
+
+                    return Task.CompletedTask;
+                });
+            }
 
             return new MessagingContext(exception);
         }
