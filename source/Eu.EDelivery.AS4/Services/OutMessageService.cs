@@ -279,11 +279,12 @@ namespace Eu.EDelivery.AS4.Services
                                 awareness.RetryInterval.AsTimeSpan(),
                                 RetryType.Send);
 
-                        Logger.Debug(
-                            $"Insert RetryReliability for OutMessage {m.EbmsMessageId} with "
-                            + $"{{RetryCount={awareness.RetryCount}, RetryInterval={awareness.RetryInterval}}}");
+                            Logger.Debug(
+                                $"Insert RetryReliability for OutMessage {m.EbmsMessageId} with "
+                                + $"{{RetryCount={awareness.RetryCount}, RetryInterval={awareness.RetryInterval}}}");
 
-                        _repository.InsertRetryReliability(r);
+                            _repository.InsertRetryReliability(r);
+                        }
                     }
                 });
         }
