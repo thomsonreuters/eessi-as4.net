@@ -51,25 +51,22 @@ namespace Eu.EDelivery.AS4.Services
                 throw new ArgumentNullException(nameof(bodyStore));
             }
 
-            IQueryable<OutMessage> query =
-                from outM in _context.OutMessages
+            IEnumerable<OutMessage> query =
+                (from outM in _context.OutMessages
                 join inM in _context.InMessages
                     on outM.EbmsRefToMessageId
                     equals inM.EbmsMessageId
                 where outM.Operation == Operation.ToBePiggyBacked
                       && inM.Mpc == pr.Mpc
                       && outM.EbmsMessageType != MessageType.UserMessage
-                select outM;
+                select outM).AsEnumerable();
 
             var signals = new Collection<SignalMessage>();
             foreach (OutMessage found in query)
             {
                 found.Operation = Operation.Sending;
-                await _context.SaveChangesAsync()
-                         .ConfigureAwait(false);
 
-                string location = found.MessageLocation;
-                Stream body = await bodyStore.LoadMessageBodyAsync(location);
+                Stream body = await bodyStore.LoadMessageBodyAsync(found.MessageLocation);
                 AS4Message signal =
                     await SerializerProvider
                           .Default
@@ -82,6 +79,9 @@ namespace Eu.EDelivery.AS4.Services
                     signals.Add(s);
                 }
             }
+
+            await _context.SaveChangesAsync()
+                          .ConfigureAwait(false);
 
             return signals.AsEnumerable();
         }
