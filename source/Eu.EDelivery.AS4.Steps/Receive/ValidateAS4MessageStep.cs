@@ -30,7 +30,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(MessagingContext context)
         {
-            if (context.AS4Message == null)
+            if (context?.AS4Message == null)
             {
                 throw new InvalidOperationException(
                     $"{nameof(ValidateAS4MessageStep)} requires an AS4Message to validate but no AS4Message is present in the MessagingContext");

@@ -19,15 +19,18 @@ namespace Eu.EDelivery.AS4.Steps.Forward
         /// <summary>
         /// Initializes a new instance of the <see cref="DetermineRoutingStep"/> class.
         /// </summary>
-        public DetermineRoutingStep() : this(Config.Instance)
-        {
-        }
+        public DetermineRoutingStep() : this(Config.Instance) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DetermineRoutingStep"/> class.
         /// </summary>
         public DetermineRoutingStep(IConfig configuration)
         {
+            if (configuration == null)
+            {
+                throw new ArgumentNullException(nameof(configuration));
+            }
+
             _configuration = configuration;
         }
 
@@ -38,7 +41,25 @@ namespace Eu.EDelivery.AS4.Steps.Forward
         /// <returns></returns>
         public Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
-            ValidateMessagingContext(messagingContext);
+            if (messagingContext?.ReceivedMessage == null)
+            {
+                throw new NotSupportedException(
+                    "DetermineRoutingStep requires a 'ReceivedMessage'");
+            }
+
+            if (messagingContext.ReceivingPMode == null)
+            {
+                throw new InvalidOperationException(
+                    "No ReceivingPMode available is set." +
+                    "The ReceivingPMode is used to correctly forward the message with the provided configured values inside this PMode.");
+            }
+
+            if (messagingContext.ReceivingPMode.MessageHandling?.ForwardInformation == null)
+            {
+                throw new ConfigurationErrorsException(
+                    "The ReceivingPMode does not contain a MessageHandling.Forward element." +
+                    "This element is required in a Forwarding scenario.");
+            }
 
             string sendingPModeId = messagingContext.ReceivingPMode.MessageHandling.ForwardInformation.SendingPMode;
             Logger.Trace($"SendingPMode {sendingPModeId} must be used to forward Message with Id {messagingContext.EbmsMessageId}");
@@ -61,29 +82,6 @@ namespace Eu.EDelivery.AS4.Steps.Forward
 
             messagingContext.SendingPMode = sendingPMode;
             return StepResult.SuccessAsync(messagingContext);
-        }
-
-        private static void ValidateMessagingContext(MessagingContext messagingContext)
-        {
-            if (messagingContext.ReceivedMessage == null)
-            {
-                throw new NotSupportedException(
-                    "DetermineRoutingStep requires a 'ReceivedMessage'");
-            }
-
-            if (messagingContext.ReceivingPMode == null)
-            {
-                throw new InvalidOperationException(
-                    "No ReceivingPMode available is set." +
-                    "The ReceivingPMode is used to correctly forward the message with the provided configured values inside this PMode.");
-            }
-
-            if (messagingContext.ReceivingPMode.MessageHandling?.ForwardInformation == null)
-            {
-                throw new ConfigurationErrorsException(
-                    "The ReceivingPMode does not contain a MessageHandling.Forward element." +
-                    "This element is required in a Forwarding scenario.");
-            }
         }
     }
 }

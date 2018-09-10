@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Steps;
 using Xunit;
@@ -37,7 +38,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps
             var step = new SpyStep();
 
             // Act
-            await step.ExecuteAsync(messagingContext: null);
+            await step.ExecuteAsync(messagingContext: new MessagingContext(AS4Message.Empty, MessagingContextMode.Send));
 
             // Assert
             Assert.True(step.IsCalled);

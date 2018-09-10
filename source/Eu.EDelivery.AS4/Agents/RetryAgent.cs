@@ -32,6 +32,16 @@ namespace Eu.EDelivery.AS4.Agents
             IReceiver receiver, 
             Func<DatastoreContext> createContext)
         {
+            if (receiver == null)
+            {
+                throw new ArgumentNullException(nameof(receiver));
+            }
+
+            if (createContext == null)
+            {
+                throw new ArgumentNullException(nameof(createContext));
+            }
+
             _receiver = receiver;
             _createContext = createContext;
         }

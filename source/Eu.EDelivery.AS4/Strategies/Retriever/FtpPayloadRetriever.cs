@@ -20,12 +20,15 @@ namespace Eu.EDelivery.AS4.Strategies.Retriever
         /// <summary>
         /// Initializes a new instance of the <see cref="FtpPayloadRetriever" /> class
         /// </summary>
-        public FtpPayloadRetriever() : this(Config.Instance)
-        {
-        }
+        public FtpPayloadRetriever() : this(Config.Instance) { }
 
         public FtpPayloadRetriever(IConfig config)
         {
+            if (config == null)
+            {
+                throw new ArgumentNullException(nameof(config));
+            }
+
             _config = config;
         }
 
@@ -36,6 +39,11 @@ namespace Eu.EDelivery.AS4.Strategies.Retriever
         /// <returns></returns>
         public Task<Stream> RetrievePayloadAsync(string location)
         {
+            if (location == null)
+            {
+                throw new ArgumentNullException(nameof(location));
+            }
+
             return Task.FromResult(TryGetFtpFile(location));
         }
 

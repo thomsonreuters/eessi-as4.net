@@ -63,6 +63,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
         /// </summary>
         public override bool IsInitialized => true;
 
+
+        public override string InExceptionStoreLocation => String.Empty;
+        public override string OutExceptionStoreLocation => String.Empty;
+
         /// <summary>
         /// Retrieve Setting from the Global Configurations
         /// </summary>

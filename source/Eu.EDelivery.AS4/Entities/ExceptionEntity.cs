@@ -14,16 +14,37 @@ namespace Eu.EDelivery.AS4.Entities
     public class ExceptionEntity : Entity
     {
         [MaxLength(256)]
-        public string EbmsRefToMessageId { get; private set; }
+        public string EbmsRefToMessageId { get; set; }
 
         public string Exception { get; private set; }
 
-        public byte[] MessageBody { get; private set; }
+        [MaxLength(512)]
+        public string MessageLocation { get; private set; }
 
         public string PMode { get; private set; }
 
         [MaxLength(256)]
         public string PModeId { get; private set; }
+
+        protected ExceptionEntity(
+            string ebmsRefToMessageId,
+            string messageLocation,
+            Exception exception)
+        {
+            EbmsRefToMessageId = ebmsRefToMessageId;
+            MessageLocation = messageLocation;
+            Exception = exception.Message;
+        }
+
+        protected ExceptionEntity(
+            string ebmsRefToMessageId,
+            string messageLocation,
+            string exception)
+        {
+            EbmsRefToMessageId = ebmsRefToMessageId;
+            MessageLocation = messageLocation;
+            Exception = exception;
+        }
 
         /// <summary>
         /// Set the Id & string represenation of the PMode that is used to process the message.
@@ -73,27 +94,6 @@ namespace Eu.EDelivery.AS4.Entities
 
             InsertionTime = DateTimeOffset.Now;
             ModificationTime = DateTimeOffset.Now;
-        }
-
-        protected ExceptionEntity(string ebmsRefToMessageId, Exception exception)
-            : this(ebmsRefToMessageId, exception.ToString())
-        {
-        }
-
-        protected ExceptionEntity(string ebmsRefToMessageId, string errorMessage) : this()
-        {
-            this.EbmsRefToMessageId = ebmsRefToMessageId;
-            this.Exception = errorMessage;
-        }
-
-        protected ExceptionEntity(byte[] messageBody, Exception exception) : this(messageBody, exception.ToString())
-        {
-        }
-
-        protected ExceptionEntity(byte[] messageBody, string errorMessage) : this()
-        {
-            this.MessageBody = messageBody;
-            this.Exception = errorMessage;
         }
 
         [Column("Operation")]

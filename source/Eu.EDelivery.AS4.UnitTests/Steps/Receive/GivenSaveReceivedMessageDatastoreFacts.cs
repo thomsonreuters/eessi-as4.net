@@ -16,6 +16,7 @@ using Eu.EDelivery.AS4.UnitTests.Repositories;
 using FsCheck;
 using FsCheck.Xunit;
 using Xunit;
+using MessageExchangePattern = Eu.EDelivery.AS4.Entities.MessageExchangePattern;
 
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 {
@@ -39,21 +40,17 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
         /// </summary>
         protected override IStep Step { get; }
 
-        [Property(MaxTest = 10)]
-        public Property Saves_Bundled_MessageUnits_As_InMessages()
+        [Property(MaxTest = 20)]
+        public Property Saves_Bundled_MessageUnits_As_InMessages(MessagingContextMode mode)
         {
             return Prop.ForAll(
-                Gen.OneOf(
-                    Gen.Fresh<MessageUnit>(() => new Receipt($"receipt-{Guid.NewGuid()}")),
-                    Gen.Fresh<MessageUnit>(() => new UserMessage($"user-{Guid.NewGuid()}")))
-                   .NonEmptyListOf()
-                   .ToArbitrary(),
+                GenMessageUnits().ToArbitrary(),
                 messageUnits =>
                 {
                     // Arrange
                     AS4Message fixture = AS4Message.Create(messageUnits);
                     var stub = new ReceivedMessage(Stream.Null, Constants.ContentTypes.Soap);
-                    var ctx = new MessagingContext(stub, MessagingContextMode.Receive);
+                    var ctx = new MessagingContext(stub, mode);
                     ctx.ModifyContext(fixture);
 
                     // Act
@@ -68,7 +65,28 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                     Assert.True(
                         expected.SequenceEqual(actual),
                         $"{String.Join(", ", expected)} != {String.Join(", ", actual)}");
+
+                    Assert.All(
+                        inserts, m =>
+                        {
+                            bool pushForNonPullReceive = m.MEP == MessageExchangePattern.Push && mode != MessagingContextMode.PullReceive;
+                            bool pullForPullReceive = m.MEP == MessageExchangePattern.Pull && mode == MessagingContextMode.PullReceive;
+
+                            Assert.True(
+                                pushForNonPullReceive || pullForPullReceive,
+                                mode == MessagingContextMode.PullReceive
+                                    ? "MEP Binding should be Pull"
+                                    : "MEP Binding should be Push");
+                        });
                 });
+        }
+
+        private static Gen<IList<MessageUnit>> GenMessageUnits()
+        {
+            return Gen.OneOf(
+                Gen.Fresh<MessageUnit>(() => new Receipt($"receipt-{Guid.NewGuid()}")),
+                Gen.Fresh<MessageUnit>(() => new UserMessage($"user-{Guid.NewGuid()}")))
+                      .NonEmptyListOf();
         }
 
         [Fact]

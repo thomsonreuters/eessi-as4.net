@@ -49,6 +49,21 @@ namespace Eu.EDelivery.AS4.Steps.Submit
             Func<DatastoreContext> createContext, 
             IAS4MessageBodyStore messageBodyStore)
         {
+            if (configuration == null)
+            {
+                throw new ArgumentNullException(nameof(configuration));
+            }
+
+            if (createContext == null)
+            {
+                throw new ArgumentNullException(nameof(createContext));
+            }
+
+            if (messageBodyStore == null)
+            {
+                throw new ArgumentNullException(nameof(messageBodyStore));
+            }
+
             _config = configuration;
             _createContext = createContext;
             _messageBodyStore = messageBodyStore;
@@ -61,7 +76,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
-            if (messagingContext.AS4Message == null)
+            if (messagingContext?.AS4Message == null)
             {
                 throw new InvalidOperationException(
                     $"{nameof(StoreAS4MessageStep)} requires an AS4Message to save but no AS4Message is present in the MessagingContext");

@@ -1,37 +1,40 @@
 ﻿using System;
+using System.IO;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Strategies.Retriever;
+using Eu.EDelivery.AS4.UnitTests.Common;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Strategies.Retriever
 {
-    /// <summary>
-    /// Testing <see cref="FilePayloadRetriever" />
-    /// </summary>
-    public class GivenFilePayloadRetrieverFacts
+    public class GivenFilePayloadRetrieverFacts : PseudoConfig
     {
-        private readonly FilePayloadRetriever _retriever;
-
-        public GivenFilePayloadRetrieverFacts()
+        [Fact]
+        public async Task Retrieve_Payload_Fails_With_Invalid_FilePath()
         {
-            _retriever = new FilePayloadRetriever();
+            await Assert.ThrowsAnyAsync<Exception>(
+                () => ExerciseRetrieving("invalid-location"));
         }
-        
+
+        [Theory]
+        [InlineData(@"config\settings.xml")]
+        [InlineData(@"config\send-pmodes\pmode.xml")]
+        [InlineData(@"config\receive-pmodes\pmode.xml")]
+        public async Task Retrieve_Payload_Fails_With_Traversal_FilePath(string location)
+        {
+            await Assert.ThrowsAsync<NotSupportedException>(
+                () => ExerciseRetrieving(location));
+        }
+
+        private async Task<Stream> ExerciseRetrieving(string location)
+        {
+            var sut = new FilePayloadRetriever(this);
+            return await sut.RetrievePayloadAsync(location);
+        }
+
         /// <summary>
-        /// Testing if the retriever fails
+        /// Gets the location where the payloads should be retrieved.
         /// </summary>
-        public class GivenFilePayloadRetrieverFails : GivenFilePayloadRetrieverFacts
-        {
-            [Fact]
-            public async Task ThenRetrievePayloadFails()
-            {
-                // Arrange
-                const string location = "invalid-location";
-
-                // Act / Assert
-                await Assert.ThrowsAnyAsync<Exception>(() => _retriever.RetrievePayloadAsync(location));
-            }
-        }
+        public override string PayloadRetrievalLocation => @"\messages\attachments";
     }
 }

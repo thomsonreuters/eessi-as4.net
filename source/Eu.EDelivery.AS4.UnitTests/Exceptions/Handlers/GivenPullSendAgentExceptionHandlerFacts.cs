@@ -21,10 +21,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Exceptions.Handlers
         {
             // Arrange
             byte[] expectedBody = Encoding.UTF8.GetBytes("serialize me!");
-            var sut = new PullSendAgentExceptionHandler(GetDataStoreContext);
 
+            using (var bodyStore = new InMemoryMessageBodyStore())
             using (var stream = new MemoryStream(expectedBody))
             {
+                var sut = new PullSendAgentExceptionHandler(GetDataStoreContext, StubConfig.Default, bodyStore);
+
                 // Act
                 await sut.HandleTransformationException(
                     new Exception(_expectedMessage),
@@ -34,8 +36,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Exceptions.Handlers
             GetDataStoreContext.AssertOutException(
                 ex =>
                 {
+                    Assert.NotNull(ex);
                     Assert.Equal(_expectedMessage, ex.Exception);
-                    Assert.Equal(expectedBody, ex.MessageBody);
                 });
         }
 
@@ -62,7 +64,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Exceptions.Handlers
         private async Task TestExecutionException(Func<IAgentExceptionHandler, Task<MessagingContext>> act)
         {
             // Arrange
-            var sut = new PullSendAgentExceptionHandler(GetDataStoreContext);
+            var sut = new PullSendAgentExceptionHandler(GetDataStoreContext, StubConfig.Default, new InMemoryMessageBodyStore());
 
             // Act
             MessagingContext result = await act(sut);
@@ -72,7 +74,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Exceptions.Handlers
                 ex =>
                 {
                     Assert.True(ex.Exception.IndexOf(_expectedMessage, StringComparison.CurrentCultureIgnoreCase) > -1);
-                    Assert.NotNull(ex.MessageBody);
+                    Assert.NotNull(ex.MessageLocation);
                 });
         }
     }

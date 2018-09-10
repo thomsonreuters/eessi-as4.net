@@ -39,6 +39,11 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         /// <param name="config">The configuration.</param>
         public CreateDefaultAS4MessageStep(IConfig config)
         {
+            if (config == null)
+            {
+                throw new ArgumentNullException(nameof(config));
+            }
+
             _config = config;
         }
 
@@ -48,6 +53,11 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         /// <param name="properties"></param>
         public void Configure(IDictionary<string, string> properties)
         {
+            if (properties == null)
+            {
+                throw new ArgumentNullException(nameof(properties));
+            }
+
             _properties = properties;
         }
 
@@ -58,7 +68,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
-            if (messagingContext.AS4Message == null)
+            if (messagingContext?.AS4Message == null)
             {
                 throw new InvalidOperationException(
                     $"{nameof(CreateDefaultAS4MessageStep)} requires an AS4Message to assign the default UserMessage to but no AS4Message is present in the MessagingContext");

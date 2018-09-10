@@ -49,6 +49,16 @@ namespace Eu.EDelivery.AS4.Steps.Send
             Func<DatastoreContext> createContext,
             IAS4MessageBodyStore messageBodyStore)
         {
+            if (createContext == null)
+            {
+                throw new ArgumentNullException(nameof(createContext));
+            }
+
+            if (messageBodyStore == null)
+            {
+                throw new ArgumentNullException(nameof(messageBodyStore));
+            }
+
             _createContext = createContext;
             _messageBodyStore = messageBodyStore;
         }

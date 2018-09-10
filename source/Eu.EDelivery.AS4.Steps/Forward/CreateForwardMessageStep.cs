@@ -42,6 +42,21 @@ namespace Eu.EDelivery.AS4.Steps.Forward
             IAS4MessageBodyStore messageStore,
             Func<DatastoreContext> createDatastoreContext)
         {
+            if (configuration == null)
+            {
+                throw new ArgumentNullException(nameof(configuration));
+            }
+
+            if (messageStore == null)
+            {
+                throw new ArgumentNullException(nameof(messageStore));
+            }
+
+            if (createDatastoreContext == null)
+            {
+                throw new ArgumentNullException(nameof(createDatastoreContext));
+            }
+
             _configuration = configuration;
             _messageStore = messageStore;
             _createDataStoreContext = createDatastoreContext;
@@ -54,7 +69,7 @@ namespace Eu.EDelivery.AS4.Steps.Forward
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
-            var entityMessage = messagingContext.ReceivedMessage as ReceivedEntityMessage;
+            var entityMessage = messagingContext?.ReceivedMessage as ReceivedEntityMessage;
             if (!(entityMessage?.Entity is InMessage receivedInMessage))
             {
                 throw new InvalidOperationException(
@@ -93,7 +108,7 @@ namespace Eu.EDelivery.AS4.Steps.Forward
                     outMessage.Intermediary = true;
                     outMessage.IsDuplicate = receivedInMessage.IsDuplicate;
                     outMessage.MessageLocation = outLocation;
-                    outMessage.Mpc = messagingContext.SendingPMode.MessagePackaging?.Mpc ?? Constants.Namespaces.EbmsDefaultMpc;
+                    outMessage.Mpc = messagingContext.SendingPMode?.MessagePackaging?.Mpc ?? Constants.Namespaces.EbmsDefaultMpc;
                     outMessage.Operation = Operation.ToBeProcessed;
 
                     Logger.Debug("Insert OutMessage {{Intermediary=true, Operation=ToBeProcesed}}");

@@ -43,6 +43,16 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// <param name="createContext">The create context.</param>
         public DeterminePModesStep(IConfig config, Func<DatastoreContext> createContext)
         {
+            if (config == null)
+            {
+                throw new ArgumentNullException(nameof(config));
+            }
+
+            if (createContext == null)
+            {
+                throw new ArgumentNullException(nameof(createContext));
+            }
+
             _config = config;
             _createContext = createContext;
         }
@@ -54,7 +64,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
-            AS4Message as4Message = messagingContext.AS4Message;
+            AS4Message as4Message = messagingContext?.AS4Message;
             if (as4Message == null)
             {
                 throw new InvalidOperationException(
@@ -63,23 +73,21 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
             if (as4Message.SignalMessages.Any(s => !(s is Model.Core.PullRequest)))
             {
-                if (as4Message.IsMultiHopMessage == false && messagingContext.SendingPMode != null)
+                if (as4Message.IsMultiHopMessage || messagingContext.SendingPMode == null)
                 {
-                    return StepResult.Success(messagingContext);
-                }
-
-                var firstNonPrSignalMessage = as4Message.SignalMessages.First(s => !(s is Model.Core.PullRequest));
-                SendPMode pmode = await DetermineSendingPModeForSignalMessageAsync(firstNonPrSignalMessage);
-                if (pmode != null)
-                {
-                    messagingContext.SendingPMode = pmode;
-                }
-                else if (as4Message.IsMultiHopMessage == false)
-                {
-                    throw new InvalidOperationException(
-                        $"{messagingContext.LogTag} Cannot determine Sending PMode for incoming SignalMessage: " + 
-                        $"no referenced OutMessage with Id: {as4Message.FirstSignalMessage.RefToMessageId} " + 
-                        "is stored in the Datastore to retrieve the Sending PMode from");
+                    var firstNonPrSignalMessage = as4Message.SignalMessages.First(s => !(s is Model.Core.PullRequest));
+                    SendPMode pmode = await DetermineSendingPModeForSignalMessageAsync(firstNonPrSignalMessage);
+                    if (pmode != null)
+                    {
+                        messagingContext.SendingPMode = pmode;
+                    }
+                    else if (as4Message.IsMultiHopMessage == false)
+                    {
+                        throw new InvalidOperationException(
+                            $"{messagingContext.LogTag} Cannot determine Sending PMode for incoming SignalMessage: "
+                            + $"no referenced OutMessage with Id: {as4Message.FirstSignalMessage.RefToMessageId} "
+                            + "is stored in the Datastore to retrieve the Sending PMode from");
+                    }
                 }
             }
 

@@ -30,6 +30,16 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
         /// <param name="sender"></param>
         public void Accept(Func<string, bool> condition, Func<INotifySender> sender)
         {
+            if (condition == null)
+            {
+                throw new ArgumentNullException(nameof(condition));
+            }
+
+            if (sender == null)
+            {
+                throw new ArgumentNullException(nameof(sender));
+            }
+
             _senders.Add(new NotifySenderEntry(condition, sender));
         }
 
@@ -41,6 +51,11 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
         /// <returns></returns>
         public INotifySender GetNotifySender(string operationMethod)
         {
+            if (operationMethod == null)
+            {
+                throw new ArgumentNullException(nameof(operationMethod));
+            }
+
             NotifySenderEntry entry = _senders.FirstOrDefault(s => s.Condition(operationMethod));
 
             if (entry?.Sender == null)

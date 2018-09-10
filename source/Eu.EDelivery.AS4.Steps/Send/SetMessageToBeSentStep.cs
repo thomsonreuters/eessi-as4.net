@@ -31,6 +31,16 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// <param name="messageStore">The message store.</param>
         public SetMessageToBeSentStep(Func<DatastoreContext> createContext, IAS4MessageBodyStore messageStore)
         {
+            if (createContext == null)
+            {
+                throw new ArgumentNullException(nameof(createContext));
+            }
+
+            if (messageStore == null)
+            {
+                throw new ArgumentNullException(nameof(messageStore));
+            }
+
             _createContext = createContext;
             _messageStore = messageStore;
         }
@@ -42,7 +52,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
-            if (messagingContext.AS4Message == null)
+            if (messagingContext?.AS4Message == null)
             {
                 throw new InvalidOperationException(
                     $"{nameof(SetMessageToBeSentStep)} requires an AS4Message to mark for sending but no AS4Message is present in the MessagingContext");

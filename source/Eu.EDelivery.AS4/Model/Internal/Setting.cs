@@ -31,6 +31,8 @@ namespace Eu.EDelivery.AS4.Model.Internal
 
         public string RetentionPeriod { get; set; }
 
+        public SettingsSubmit Submit { get; set; }
+
         public SettingsRetryReliability RetryReliability { get; set; }
 
         public SettingsDatabase Database { get; set; }
@@ -40,6 +42,14 @@ namespace Eu.EDelivery.AS4.Model.Internal
         public CustomSettings CustomSettings { get; set; }
 
         public SettingsAgents Agents { get; set; }
+    }
+
+    [Serializable]
+    [DesignerCategory("code")]
+    [XmlType(AnonymousType = true, Namespace = "eu:edelivery:as4")]
+    public class SettingsSubmit
+    {
+        public string PayloadRetrievalLocation { get; set; }
     }
 
     [Serializable]
@@ -153,9 +163,7 @@ namespace Eu.EDelivery.AS4.Model.Internal
 
         public string ConnectionString { get; set; }
 
-        public string InMessageStoreLocation { get; set; }
-
-        public string OutMessageStoreLocation { get; set; }
+        public string StoreLocation { get; set; }
     }
 
     [Serializable]

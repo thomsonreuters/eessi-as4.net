@@ -48,6 +48,16 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// <param name="client">Instance to handle the HTTP response.</param>
         public SendAS4MessageStep(Func<DatastoreContext> createDatastore, IHttpClient client)
         {
+            if (createDatastore == null)
+            {
+                throw new ArgumentNullException(nameof(createDatastore));
+            }
+
+            if (client == null)
+            {
+                throw new ArgumentNullException(nameof(client));
+            }
+
             _createDatastore = createDatastore;
             _httpClient = client;
         }
@@ -59,7 +69,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
-            if (messagingContext.ReceivedMessage == null && messagingContext.AS4Message == null)
+            if (messagingContext?.ReceivedMessage == null && messagingContext?.AS4Message == null)
             {
                 throw new InvalidOperationException(
                     $"{nameof(SendAS4MessageStep)} requires a MessagingContext with a ReceivedStream or an AS4Message to correctly send the message");
