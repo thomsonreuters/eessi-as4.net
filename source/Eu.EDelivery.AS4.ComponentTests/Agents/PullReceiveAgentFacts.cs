@@ -56,12 +56,12 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         public async Task Received_Bundled_Response_Should_Process_All_Messages()
         {
             // Arrange
+            string pullSenderUrl = RetrievePullingUrlFromConfig();
+
             string storedMessageId = "stored-" + Guid.NewGuid();
             StoreToBeAckOutMessage(storedMessageId);
             AS4Message bundled = CreateBundledMultipleUserMessagesWithRefTo();
             bundled.AddMessageUnit(new Receipt(storedMessageId));
-
-            string pullSenderUrl = RetrievePullingUrlFromConfig();
 
             // Act
             await RespondToPullRequest(
