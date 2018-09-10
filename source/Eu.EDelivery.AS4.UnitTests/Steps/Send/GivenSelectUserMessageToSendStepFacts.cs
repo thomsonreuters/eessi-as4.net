@@ -4,9 +4,7 @@ using Eu.EDelivery.AS4.Factories;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
-using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Serialization;
-using Eu.EDelivery.AS4.Services;
 using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Steps.Send;
 using Eu.EDelivery.AS4.UnitTests.Common;
@@ -51,7 +49,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
 
             // Assert
 
-            var as4Message = await RetrieveAS4MessageFromContext(result.MessagingContext);
+            AS4Message as4Message = await RetrieveAS4MessageFromContext(result.MessagingContext);
 
             UserMessage userMessage = as4Message.FirstUserMessage;
 
@@ -72,11 +70,15 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
                 throw new InvalidOperationException("A ReceivedMessage was expected in the MessagingContext.");
             }
 
-            var serializer = SerializerProvider.Default.Get(context.ReceivedMessage.ContentType);
-
             context.ReceivedMessage.UnderlyingStream.Position = 0;
 
-            return await serializer.DeserializeAsync(context.ReceivedMessage.UnderlyingStream, context.ReceivedMessage.ContentType, CancellationToken.None);
+            return await SerializerProvider
+                .Default
+                .Get(context.ReceivedMessage.ContentType)
+                .DeserializeAsync(
+                    context.ReceivedMessage.UnderlyingStream, 
+                    context.ReceivedMessage.ContentType, 
+                    CancellationToken.None);
         }
 
         private async Task<StepResult> ExerciseSelection(string expectedMpc)
@@ -90,49 +92,28 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
 
         private void InsertUserMessage(string mpc, MessageExchangePattern pattern, Operation operation)
         {
-            MessageExchangePatternBinding GetMepBindingFromMep(MessageExchangePattern mep)
-            {
-                switch (mep)
-                {
-                    case MessageExchangePattern.Pull:
-                        return MessageExchangePatternBinding.Pull;
-                    default:
-                        return MessageExchangePatternBinding.Push;
-                }
-            }
-
             var sendingPMode = new SendingProcessingMode()
             {
                 Id = "SomePModeId",
-                MepBinding = GetMepBindingFromMep(pattern),
-                MessagePackaging =
-                {
-                    Mpc = mpc
-                }
+                MessagePackaging = { Mpc = mpc }
             };
 
-            var userMessage = UserMessageFactory.Instance.Create(sendingPMode);
+            UserMessage userMessage = UserMessageFactory.Instance.Create(sendingPMode);
+            AS4Message as4Message = AS4Message.Create(userMessage, sendingPMode);
 
-            var as4Message = AS4Message.Create(userMessage, sendingPMode);
-
-            InsertOutMessage(as4Message, operation, sendingPMode);
-        }
-
-        private void InsertOutMessage(AS4Message as4Message, Operation operation, SendingProcessingMode sendingPMode)
-        {
-            using (DatastoreContext context = GetDataStoreContext())
+            var om = new OutMessage(userMessage.MessageId)
             {
-                var service = new OutMessageService(StubConfig.Default, new DatastoreRepository(context), InMemoryMessageBodyStore.Default);
+                MEP = pattern,
+                Mpc = mpc,
+                ContentType = as4Message.ContentType,
+                EbmsMessageType = MessageType.UserMessage,
+                Operation = operation,
+                MessageLocation =
+                    InMemoryMessageBodyStore.Default.SaveAS4Message(location: "some-location", message: as4Message)
+            };
 
-                service.InsertAS4Message(
-                    new MessagingContext(as4Message, MessagingContextMode.Send)
-                    {
-                        SendingPMode = sendingPMode
-                    },
-                    operation);
-
-                context.SaveChanges();
-            }
+            om.SetPModeInformation(sendingPMode);
+            GetDataStoreContext.InsertOutMessage(om);
         }
 
         private static MessagingContext ContextWithPullRequest(string mpc)

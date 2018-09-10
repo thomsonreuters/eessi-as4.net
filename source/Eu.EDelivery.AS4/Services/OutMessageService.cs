@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -9,10 +10,8 @@ using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Core;
-using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
-using Eu.EDelivery.AS4.Serialization;
 using NLog;
 using MessageExchangePattern = Eu.EDelivery.AS4.Entities.MessageExchangePattern;
 using ReceptionAwareness = Eu.EDelivery.AS4.Model.PMode.ReceptionAwareness;
@@ -20,8 +19,8 @@ using ReceptionAwareness = Eu.EDelivery.AS4.Model.PMode.ReceptionAwareness;
 namespace Eu.EDelivery.AS4.Services
 {
     /// <summary>
-    /// Repository to expose Data store related operations
-    /// for the Exception Handling Decorator Steps
+    /// Service to expose db operations related to messages that needs to be send out, 
+    /// either directly via the Send Agent or via the Outbound Processing Agent.
     /// </summary>
     internal class OutMessageService
     {
@@ -33,10 +32,8 @@ namespace Eu.EDelivery.AS4.Services
 
         /// <summary>
         /// Initializes a new instance of the <see cref="OutMessageService"/> class. 
-        /// Create a new Insert Data store Repository
-        /// with a given Data store
         /// </summary>
-        /// <param name="repository"></param>
+        /// <param name="repository">The repository used to insert and update <see cref="OutMessage"/>s.</param>
         /// <param name="messageBodyStore">The <see cref="IAS4MessageBodyStore"/> that must be used to persist the AS4 Message Body.</param>
         public OutMessageService(IDatastoreRepository repository, IAS4MessageBodyStore messageBodyStore)
             : this(Config.Instance, repository, messageBodyStore) { }
@@ -44,19 +41,19 @@ namespace Eu.EDelivery.AS4.Services
         /// <summary>
         /// Initializes a new instance of the <see cref="OutMessageService" /> class.
         /// </summary>
-        /// <param name="config">The configuration.</param>
-        /// <param name="respository">The respository.</param>
-        /// <param name="messageBodyStore">The as4 message body persister.</param>
-        public OutMessageService(IConfig config, IDatastoreRepository respository, IAS4MessageBodyStore messageBodyStore)
+        /// <param name="config">The configuration used to retrieve the response <see cref="SendingProcessingMode"/> while inserting messages and the store location for <see cref="OutMessage"/>s.</param>
+        /// <param name="repository">The repository used to insert and update <see cref="OutMessage"/>s.</param>
+        /// <param name="messageBodyStore">The <see cref="IAS4MessageBodyStore"/> that must be used to persist the AS4 Message Body.</param>
+        public OutMessageService(IConfig config, IDatastoreRepository repository, IAS4MessageBodyStore messageBodyStore)
         {
             if (config == null)
             {
                 throw new ArgumentNullException(nameof(config));
             }
 
-            if (respository == null)
+            if (repository == null)
             {
-                throw new ArgumentNullException(nameof(respository));
+                throw new ArgumentNullException(nameof(repository));
             }
 
             if (messageBodyStore == null)
@@ -65,183 +62,182 @@ namespace Eu.EDelivery.AS4.Services
             }
 
             _configuration = config;
-            _repository = respository;
+            _repository = repository;
             _messageBodyStore = messageBodyStore;
         }
 
         /// <summary>
-        /// Gets AS4 UserMessages for identifiers.
+        /// Gets the non-intermediary stored <see cref="AS4Message"/>s matching the specified ebMS <paramref name="messageIds"/>.
         /// </summary>
-        /// <param name="messageIds">The message identifiers.</param>
-        /// <param name="store">The provider.</param>
+        /// <param name="messageIds">The ebMS message identifiers.</param>
         /// <returns></returns>
-        public async Task<IEnumerable<AS4Message>> GetNonIntermediaryAS4UserMessagesForIds(
-            IEnumerable<string> messageIds,
-            IAS4MessageBodyStore store)
+        public async Task<IEnumerable<AS4Message>> GetNonIntermediaryAS4UserMessagesForIds(IEnumerable<string> messageIds)
         {
             if (messageIds == null)
             {
                 throw new ArgumentNullException(nameof(messageIds));
             }
 
-            if (store == null)
+            if (!messageIds.Any())
             {
-                throw new ArgumentNullException(nameof(store));
+                Logger.Debug("Specified ebMS message identifiers is empty");
+                return Enumerable.Empty<AS4Message>();
             }
 
-            IEnumerable<OutMessage> messages = _repository
-                .GetOutMessageData(m =>
-                    messageIds.Contains(m.EbmsMessageId) && m.Intermediary == false,
-                    m => m)
-                .Where(m => m != null);
+            IEnumerable<OutMessage> messages = 
+                _repository.GetOutMessageData(
+                               m => messageIds.Contains(m.EbmsMessageId) 
+                                    && m.Intermediary == false,
+                               m => m)
+                           .Where(m => m != null);
 
             if (!messages.Any())
             {
                 return Enumerable.Empty<AS4Message>();
             }
 
-            var foundMessages = new List<AS4Message>();
+            var foundMessages = new Collection<AS4Message>();
 
             foreach (OutMessage m in messages)
             {
-                Stream body = await store.LoadMessageBodyAsync(m.MessageLocation);
-
-                ISerializer serializer = Registry.Instance.SerializerProvider.Get(m.ContentType);
-                AS4Message foundMessage = await serializer.DeserializeAsync(body, m.ContentType, CancellationToken.None);
+                Stream body = await _messageBodyStore.LoadMessageBodyAsync(m.MessageLocation);
+                AS4Message foundMessage = 
+                    await Registry.Instance.SerializerProvider
+                                  .Get(m.ContentType)
+                                  .DeserializeAsync(body, m.ContentType, CancellationToken.None);
 
                 foundMessages.Add(foundMessage);
             }
 
-            return foundMessages;
+            return foundMessages.AsEnumerable();
         }
 
         /// <summary>
-        /// Inserts a s4 message.
+        /// Inserts all the message units of the specified <paramref name="as4Message"/> as <see cref="OutMessage"/> records 
+        /// each containing the appropriate Status and Operation.
+        /// User messages will be set to <see cref="Operation.ToBeProcessed"/>
+        /// Signal messages that must be async returned will be set to <see cref="Operation.ToBeSent"/>.
         /// </summary>
-        /// <param name="messagingContext">The messaging context.</param>
-        /// <param name="operation">The operation.</param>
-        /// <returns></returns>
-        public void InsertAS4Message(MessagingContext messagingContext, Operation operation)
+        /// <param name="as4Message">The message for which the containing message units will be inserted.</param>
+        /// <param name="sendingPMode">The processing mode that will be stored with each message unit if present.</param>
+        /// <param name="receivingPMode">The processing mode that will be used to determine if the signal messages must be async returned and for determining the response pmode if necessary.</param>
+        public void InsertAS4Message(
+            AS4Message as4Message,
+            SendingProcessingMode sendingPMode,
+            ReceivingProcessingMode receivingPMode)
         {
-            if (messagingContext?.AS4Message == null)
+            if (as4Message == null)
             {
-                throw new ArgumentNullException(
-                    nameof(messagingContext), 
-                    $@"{nameof(InsertAS4Message)} requires to have a MessagingContext with an AS4Message");
+                throw new ArgumentNullException(nameof(as4Message));
             }
 
-            AS4Message message = messagingContext.AS4Message;
+            if (!as4Message.MessageUnits.Any())
+            {
+                Logger.Debug("Incoming AS4Message hasn't got any message units to insert");
+                return;
+            }
+
             string messageBodyLocation =
                 _messageBodyStore.SaveAS4Message(
-                    location: _configuration.OutMessageStoreLocation,
-                    message: message);
+                    _configuration.OutMessageStoreLocation,
+                    as4Message);
 
-            Dictionary<string, MessageExchangePattern> relatedInMessageMeps =
-                _repository.GetInMessagesData(
-                               message.SignalMessages
-                                      .Select(s => s.RefToMessageId)
-                                      .Distinct(), 
-                               inMsg => new { inMsg.EbmsMessageId, inMsg.MEP })
-                           .Distinct()
-                           .ToDictionary(r => r.EbmsMessageId, r => r.MEP);
+            IDictionary<string, MessageExchangePattern> relatedInMessageMeps = 
+                GetEbsmsMessageIdsOfRelatedSignals(as4Message);
 
-            foreach (var messageUnit in message.MessageUnits)
+            foreach (MessageUnit messageUnit in as4Message.MessageUnits)
             {
-                var sendingPMode = GetSendingPMode(messageUnit is SignalMessage, messagingContext);
+                SendingProcessingMode pmode =
+                    SendingOrResponsePMode(messageUnit, sendingPMode, receivingPMode);
 
                 OutMessage outMessage =
-                    CreateOutMessageForMessageUnit(
-                        messageUnit: messageUnit,
-                        messageContext: messagingContext,
-                        sendingPMode: sendingPMode,
-                        relatedInMessageMeps: relatedInMessageMeps,
-                        location: messageBodyLocation,
-                        operation: operation);
+                    OutMessageBuilder
+                        .ForMessageUnit(messageUnit, as4Message.ContentType, pmode)
+                        .Build();
+
+                outMessage.MessageLocation = messageBodyLocation;
+
+                (OutStatus st, Operation op) =
+                    DetermineReplyPattern(messageUnit, relatedInMessageMeps, receivingPMode);
+
+                outMessage.SetStatus(st);
+                outMessage.Operation = op;
 
                 Logger.Debug($"Insert OutMessage {outMessage.EbmsMessageType} with {{Operation={outMessage.Operation}, Status={outMessage.Status}}}");
                 _repository.InsertOutMessage(outMessage);
             }
         }
 
-        private static OutMessage CreateOutMessageForMessageUnit(
-            MessageUnit messageUnit,
-            MessagingContext messageContext,
-            SendingProcessingMode sendingPMode,
-            Dictionary<string, MessageExchangePattern> relatedInMessageMeps,
-            string location,
-            Operation operation)
+        private IDictionary<string, MessageExchangePattern> GetEbsmsMessageIdsOfRelatedSignals(AS4Message as4Message)
         {
-            OutMessage outMessage =
-                OutMessageBuilder.ForMessageUnit(messageUnit, messageContext.AS4Message.ContentType, sendingPMode)
-                                 .Build();
+            IEnumerable<string> signalMessageIds =
+                as4Message.SignalMessages
+                          .Select(s => s.RefToMessageId)
+                          .Where(id => id != null)
+                          .Distinct();
 
-            outMessage.MessageLocation = location;
-
-            if (outMessage.EbmsMessageType == MessageType.UserMessage)
-            {
-                outMessage.Operation = operation;
-            }
-            else
-            {
-                MessageExchangePattern? inMessageMep = null;
-
-                string refToMessageId = messageUnit.RefToMessageId ?? string.Empty;
-
-                if (relatedInMessageMeps.ContainsKey(refToMessageId))
-                {
-                    inMessageMep = relatedInMessageMeps[refToMessageId];
-                }
-
-                (OutStatus status, Operation operation) replyPattern =
-                    DetermineCorrectReplyPattern(messageContext.ReceivingPMode, inMessageMep);
-
-                outMessage.SetStatus(replyPattern.status);
-                outMessage.Operation = replyPattern.operation;
-            }
-
-            return outMessage;
+            return _repository
+                .GetInMessagesData(signalMessageIds, m => new { m.EbmsMessageId, m.MEP })
+                .Distinct()
+                .ToDictionary(r => r.EbmsMessageId, r => r.MEP);
         }
 
-        private SendingProcessingMode GetSendingPMode(bool isSignalMessage, MessagingContext context)
+        private static (OutStatus, Operation) DetermineReplyPattern(
+            MessageUnit mu,
+            IDictionary<string, MessageExchangePattern> relatedInMessageMeps,
+            ReceivingProcessingMode receivingPMode)
         {
-            if (context.SendingPMode?.Id != null)
+            if (mu is UserMessage)
             {
-                return context.SendingPMode;
+                return (OutStatus.NotApplicable, Operation.ToBeProcessed);
             }
 
-            ReceivingProcessingMode receivePMode = context.ReceivingPMode;
-
-            if (isSignalMessage && receivePMode != null && receivePMode.ReplyHandling.ReplyPattern == ReplyPattern.Callback)
-            {
-                return _configuration.GetSendingPMode(receivePMode.ReplyHandling.SendingPMode);
-            }
-
-            return null;
-        }
-
-        private static (OutStatus, Operation) DetermineCorrectReplyPattern(ReceivingProcessingMode receivingPMode, MessageExchangePattern? inMessageMep)
-        {
-            if (inMessageMep == null)
+            string key = mu.RefToMessageId ?? string.Empty;
+            if (!relatedInMessageMeps.ContainsKey(key))
             {
                 return (OutStatus.Created, Operation.NotApplicable);
             }
 
-            bool isCallback = receivingPMode?.ReplyHandling?.ReplyPattern == ReplyPattern.Callback;
-            bool userMessageReceivedViaPulling = inMessageMep == MessageExchangePattern.Pull;
+            if (relatedInMessageMeps[key] == MessageExchangePattern.Pull
+                || receivingPMode?.ReplyHandling?.ReplyPattern == ReplyPattern.Callback)
+            {
+                return (OutStatus.Created, Operation.ToBeSent);
+            }
 
-            Operation operation = isCallback || userMessageReceivedViaPulling ? Operation.ToBeSent : Operation.NotApplicable;
-            OutStatus status = isCallback || userMessageReceivedViaPulling ? OutStatus.Created : OutStatus.Sent;
+            return (OutStatus.Sent, Operation.NotApplicable);
+        }
 
-            return (status, operation);
+        private SendingProcessingMode SendingOrResponsePMode(
+            MessageUnit mu,
+            SendingProcessingMode sendPMode,
+            ReceivingProcessingMode receivePMode)
+        {
+            if (sendPMode?.Id != null)
+            {
+                Logger.Debug($"Use already set SendingPMode {sendPMode.Id} for inserting OutMessage");
+                return sendPMode;
+            }
+
+            if (mu is SignalMessage
+                && receivePMode != null
+                && receivePMode.ReplyHandling?.ReplyPattern == ReplyPattern.Callback)
+            {
+                SendingProcessingMode pmode = _configuration.GetSendingPMode(receivePMode.ReplyHandling?.SendingPMode);
+                Logger.Debug($"Use response SendingPMode {pmode.Id} from ReceivingPMode {receivePMode.Id} for inserting OutMessage");
+
+                return pmode;
+            }
+
+            Logger.Warn("No SendingPMode was found as either directly set or as response PMode set in the ReceivingPMode");
+            return null;
         }
 
         /// <summary>
-        /// Updates a <see cref="AS4Message"/>.
+        /// Updates a <see cref="AS4Message"/> by marking it as ready for sending.
         /// </summary>
         /// <param name="outMessageId">The Id that uniquely identifies the OutMessage record in the database.</param>
         /// <param name="message">The message to be sent.</param>
         /// <param name="awareness">The reliability reception awareness used during the sending of the message</param>
-        /// <returns></returns>
         public void UpdateAS4MessageToBeSent(
             long outMessageId,
             AS4Message message,
@@ -263,6 +259,7 @@ namespace Eu.EDelivery.AS4.Services
                 {
                     m.Operation = Operation.ToBeSent;
                     m.MessageLocation = messageBodyLocation;
+                    Logger.Debug($"Update {m.EbmsMessageType} OutMessage {m.EbmsMessageId} with {{Operation=ToBeSent}}");
 
                     if (awareness?.IsEnabled ?? false)
                     {
@@ -271,6 +268,10 @@ namespace Eu.EDelivery.AS4.Services
                             awareness.RetryCount,
                             awareness.RetryInterval.AsTimeSpan(),
                             RetryType.Send);
+
+                        Logger.Debug(
+                            $"Insert RetryReliability for OutMessage {m.EbmsMessageId} with "
+                            + $"{{RetryCount={awareness.RetryCount}, RetryInterval={awareness.RetryInterval}}}");
 
                         _repository.InsertRetryReliability(r);
                     }

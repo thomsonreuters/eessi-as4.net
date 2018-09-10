@@ -22,7 +22,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             string messageId = Guid.NewGuid().ToString(),
                    expected = Guid.NewGuid().ToString();
 
-            var sut = new SetMessageToBeSentStep(GetDataStoreContext, _messageBodyStore);
+            var sut = new SetMessageToBeSentStep(
+                GetDataStoreContext, 
+                _messageBodyStore);
 
             var messagingContext = SetupMessagingContext(messageId, Operation.Processing, expected);
 
