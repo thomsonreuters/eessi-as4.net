@@ -1,7 +1,6 @@
 ﻿using System;
 using Eu.EDelivery.AS4.Builders;
 using Eu.EDelivery.AS4.Repositories;
-using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Strategies.Retriever;
 using Eu.EDelivery.AS4.Strategies.Sender;
 using Eu.EDelivery.AS4.Strategies.Uploader;
@@ -22,8 +21,6 @@ namespace Eu.EDelivery.AS4.Common
         private Registry()
         {
             CertificateRepository = new CertificateRepository();
-
-            SerializerProvider = new SerializerProvider();
 
             PayloadRetrieverProvider = new PayloadRetrieverProvider();
             PayloadRetrieverProvider.Accept(p => p.Location.StartsWith(FilePayloadRetriever.Key, StringComparison.OrdinalIgnoreCase), new FilePayloadRetriever());
@@ -48,7 +45,7 @@ namespace Eu.EDelivery.AS4.Common
             MessageBodyStore = new MessageBodyStore();
             MessageBodyStore.Accept(
                 condition: l => l.StartsWith("file:///", StringComparison.OrdinalIgnoreCase),
-                persister: new AS4MessageBodyFileStore(Serialization.SerializerProvider.Default));
+                persister: new AS4MessageBodyFileStore());
         }
 
         /// <summary>
@@ -91,7 +88,6 @@ namespace Eu.EDelivery.AS4.Common
         public INotifySenderProvider NotifySenderProvider { get; }
 
         public ICertificateRepository CertificateRepository { get; private set; }
-        public ISerializerProvider SerializerProvider { get; }
 
         public IAttachmentUploaderProvider AttachmentUploader { get; }
 

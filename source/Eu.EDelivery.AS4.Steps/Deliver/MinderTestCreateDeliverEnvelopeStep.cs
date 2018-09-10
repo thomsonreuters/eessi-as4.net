@@ -87,7 +87,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
 
         private static byte[] SerializeAS4Message(AS4Message msg)
         {
-            ISerializer serializer = AS4.Common.Registry.Instance.SerializerProvider.Get(msg.ContentType);
+            ISerializer serializer = SerializerProvider.Default.Get(msg.ContentType);
 
             using (var memoryStream = new MemoryStream())
             {

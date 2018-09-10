@@ -11,6 +11,7 @@ using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.Notify;
 using Eu.EDelivery.AS4.Model.PMode;
+using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Singletons;
 using NLog;
 using AgreementReference = Eu.EDelivery.AS4.Model.Core.AgreementReference;
@@ -92,7 +93,7 @@ namespace Eu.EDelivery.AS4.Transformers
 
             // The NotifyMessage that Minder expects, is an AS4Message which contains the specific UserMessage.
             var msg = AS4Message.Create(minderUserMessage, new SendingProcessingMode());
-            var serializer = Registry.Instance.SerializerProvider.Get(msg.ContentType);
+            var serializer = SerializerProvider.Default.Get(msg.ContentType);
 
             byte[] content;
 
@@ -129,7 +130,7 @@ namespace Eu.EDelivery.AS4.Transformers
                     using (var stream = await ent.RetrieveMessageBody(Registry.Instance.MessageBodyStore))
                     {
                         stream.Position = 0;
-                        var s = Registry.Instance.SerializerProvider.Get(ent.ContentType);
+                        var s = SerializerProvider.Default.Get(ent.ContentType);
                         var result =
                             await s.DeserializeAsync(stream, ent.ContentType, CancellationToken.None);
 

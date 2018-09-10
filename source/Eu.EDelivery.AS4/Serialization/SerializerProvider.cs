@@ -1,37 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
-using Eu.EDelivery.AS4.Exceptions;
 
 namespace Eu.EDelivery.AS4.Serialization
 {
     /// <summary>
-    /// Interface to provide <see cref="ISerializer"/> implementations
-    /// </summary>
-    public interface ISerializerProvider
-    {
-        /// <summary>
-        /// Gets the specific <see cref="ISerializer"/> implementation based on the content type.
-        /// </summary>
-        /// <param name="contentType">Type of the content.</param>
-        /// <returns></returns>
-        ISerializer Get(string contentType);
-    }
-
-    /// <summary>
     /// Class to provide <see cref="ISerializer"/> implementations
     /// </summary>
-    public class SerializerProvider : ISerializerProvider
+    public class SerializerProvider
     {
-        private static readonly ISerializerProvider DefaultProvider = new SerializerProvider();
         private readonly IDictionary<string, ISerializer> _serializers;
 
         /// <summary>
         /// Gets the default.
         /// </summary><value>The default.
         /// </value>
-        public static ISerializerProvider Default => DefaultProvider;
+        public static SerializerProvider Default { get; } = new SerializerProvider();
 
-        internal SerializerProvider()
+        private SerializerProvider()
         {
             _serializers = new Dictionary<string, ISerializer>();
             var soapSerializer = new SoapEnvelopeSerializer();
@@ -65,7 +50,7 @@ namespace Eu.EDelivery.AS4.Serialization
 
         private static bool KeyMatchesContentType(string contentType, string key)
         {
-            return key.Equals(contentType) || contentType.StartsWith(key, System.StringComparison.OrdinalIgnoreCase);
+            return key.Equals(contentType) || contentType.StartsWith(key, StringComparison.OrdinalIgnoreCase);
         }
     }
 }

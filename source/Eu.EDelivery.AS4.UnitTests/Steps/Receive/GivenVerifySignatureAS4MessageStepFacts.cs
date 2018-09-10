@@ -407,7 +407,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             var sut = new VerifySignatureAS4MessageStep(
                 GetDataStoreContext,
                 StubConfig.Default,
-                new AS4MessageBodyFileStore(SerializerProvider.Default));
+                new AS4MessageBodyFileStore());
 
             return await sut.ExecuteAsync(ctx);
         }
