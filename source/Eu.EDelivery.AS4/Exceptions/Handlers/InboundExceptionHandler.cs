@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
+using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Services;
@@ -63,8 +64,14 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
             Logger.Error(exception.Message);
             Logger.Trace(exception.StackTrace);
 
-            await UseRepositorySaveAfterwards(
-                async service => await service.InsertIncomingExceptionAsync(exception, messageToTransform.UnderlyingStream));
+            using (DatastoreContext db = _createContext())
+            {
+                var repository = new DatastoreRepository(db);
+                var service = new ExceptionService(Config.Instance, repository, Registry.Instance.MessageBodyStore);
+
+                await service.InsertIncomingExceptionAsync(exception, messageToTransform.UnderlyingStream);
+                await db.SaveChangesAsync();
+            }
 
             return new MessagingContext(exception);
         }
@@ -93,48 +100,29 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
         {
             Logger.Error(exception.Message);
 
-            await UseRepositorySaveAfterwards(async service =>
+            using (DatastoreContext db = _createContext())
             {
-                if (context.SubmitMessage != null)
+                await db.TransactionalAsync(async ctx =>
                 {
-                    await service.InsertIncomingSubmitExceptionAsync(exception, context.SubmitMessage, context.ReceivingPMode);
-                }
-                else
-                {
-                    await service.InsertIncomingAS4MessageExceptionAsync(exception, context.EbmsMessageId, context.ReceivingPMode);
-                }
-            });
+                    var repository = new DatastoreRepository(ctx);
+                    var service = new ExceptionService(Config.Instance, repository, Registry.Instance.MessageBodyStore);
 
-            if (context.SubmitMessage == null)
-            {
-                await UseRepositorySaveAfterwards(
-                    services =>
-                    {
-                        services.InsertRelatedRetryForInException(
-                            context.EbmsMessageId,
-                            context.ReceivingPMode?.ExceptionHandling?.Reliability);
+                    InException entity =
+                        context.SubmitMessage != null
+                            ? await service.InsertIncomingSubmitExceptionAsync(exception, context.SubmitMessage, context.ReceivingPMode)
+                            : await service.InsertIncomingAS4MessageExceptionAsync(exception, context.EbmsMessageId, context.ReceivingPMode);
 
-                        return Task.CompletedTask;
-                    });
+                    await ctx.SaveChangesAsync();
+
+                    service.InsertRelatedRetryReliability(entity, context.ReceivingPMode?.ExceptionHandling?.Reliability);
+                    await ctx.SaveChangesAsync();
+                });
             }
 
             return new MessagingContext(exception)
             {
                 ErrorResult = context.ErrorResult
             };
-        }
-
-        private async Task UseRepositorySaveAfterwards(Func<ExceptionService, Task> usage)
-        {
-            using (DatastoreContext context = _createContext())
-            {
-                var repository = new DatastoreRepository(context);
-                var service = new ExceptionService(Config.Instance, repository, Registry.Instance.MessageBodyStore);
-
-                await usage(service);
-
-                await context.SaveChangesAsync();
-            }
         }
     }
 }

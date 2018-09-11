@@ -66,6 +66,13 @@ namespace Eu.EDelivery.AS4.Repositories
         IEnumerable<TResult> GetInMessagesData<TResult>(IEnumerable<string> messageIds, Expression<Func<InMessage, TResult>> selection);
 
         /// <summary>
+        /// Updates a <see cref="InMessage"/> using a given <paramref name="update"/> function.
+        /// </summary>
+        /// <param name="id">The identifier to locate the <see cref="InMessage"/></param>
+        /// <param name="update">The update function to change the located <see cref="InMessage"/></param>
+        void UpdateInMessage(long id, Action<InMessage> update);
+
+        /// <summary>
         /// Updates the in message.
         /// </summary>
         /// <param name="messageId">The message identifier.</param>
@@ -141,6 +148,13 @@ namespace Eu.EDelivery.AS4.Repositories
         void InsertInException(InException inException);
 
         /// <summary>
+        /// Updates a single <see cref="InException"/> for a given <paramref name="id"/>.
+        /// </summary>
+        /// <param name="id">The identifier to locate the <see cref="InException"/> entity</param>
+        /// <param name="update">The update function to change the <see cref="InException"/> entity</param>
+        void UpdateInException(long id, Action<InException> update);
+
+        /// <summary>
         /// Updates the in exception.
         /// </summary>
         /// <param name="refToMessageId">The reference to message identifier.</param>
@@ -167,6 +181,13 @@ namespace Eu.EDelivery.AS4.Repositories
         /// </summary>
         /// <param name="outException">The out exception.</param>
         void InsertOutException(OutException outException);
+
+        /// <summary>
+        /// Updates a single <see cref="OutException"/> entity for given <paramref name="id"/>.
+        /// </summary>
+        /// <param name="id">The identifier to locate the <see cref="OutException"/> entity</param>
+        /// <param name="update">The update function to change the located <see cref="OutException"/> entity</param>
+        void UpdateOutException(long id, Action<OutException> update);
 
         /// <summary>
         /// Updates the out exception.

@@ -163,21 +163,27 @@ namespace Eu.EDelivery.AS4.Steps.Notify
                 var repository = new DatastoreRepository(context);
                 var service = new MarkForRetryService(repository);
 
+                if (!messageEntityId.HasValue)
+                {
+                    throw new InvalidOperationException(
+                        $"Unable to update notified entities of type {notifyMessage.EntityType.FullName} because no entity id is present");
+                }
+
                 if (notifyMessage.EntityType == typeof(InMessage))
                 {
-                    service.UpdateNotifyMessageForIncomingMessage(notifyMessage.MessageInfo.MessageId, result);
+                    service.UpdateNotifyMessageForIncomingMessage(messageEntityId.Value, result);
                 }
-                else if (notifyMessage.EntityType == typeof(OutMessage) && messageEntityId != null)
+                else if (notifyMessage.EntityType == typeof(OutMessage))
                 {
                     service.UpdateNotifyMessageForOutgoingMessage(messageEntityId.Value, result);
                 }
                 else if (notifyMessage.EntityType == typeof(InException))
                 {
-                    service.UpdateNotifyExceptionForIncomingMessage(notifyMessage.MessageInfo.RefToMessageId, result);
+                    service.UpdateNotifyExceptionForIncomingMessage(messageEntityId.Value, result);
                 }
                 else if (notifyMessage.EntityType == typeof(OutException))
                 {
-                    service.UpdateNotifyExceptionForOutgoingMessage(notifyMessage.MessageInfo.RefToMessageId, result);
+                    service.UpdateNotifyExceptionForOutgoingMessage(messageEntityId.Value, result);
                 }
                 else
                 {

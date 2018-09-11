@@ -70,8 +70,14 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
         {
             Logger.Error($"Exception occured during transformation: {exception.Message}");
 
-            await UseRepositorySaveAfterwards(
-                async service => await service.InsertOutgoingExceptionAsync(exception, messageToTransform.UnderlyingStream));
+            using (DatastoreContext db = _createContext())
+            {
+                var repository = new DatastoreRepository(db);
+                var service = new ExceptionService(_configuration, repository, _bodyStore);
+
+                await service.InsertOutgoingExceptionAsync(exception, messageToTransform.UnderlyingStream);
+                await db.SaveChangesAsync();
+            }
 
             return new MessagingContext(exception);
         }
@@ -106,43 +112,26 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
             }
 
             string ebmsMessageId = await GetEbmsMessageId(context);
-            await UseRepositorySaveAfterwards(async service =>
+            using (DatastoreContext db = _createContext())
             {
-                if (context.SubmitMessage != null)
+                await db.TransactionalAsync(async ctx =>
                 {
-                    await service.InsertOutgoingSubmitExceptionAsync(exception, context.SubmitMessage, context.SendingPMode);
-                }
-                else
-                {
-                    await service.InsertOutgoingAS4MessageExceptionAsync(exception, ebmsMessageId, context.MessageEntityId, context.SendingPMode);
-                }
-            });
+                    var repository = new DatastoreRepository(ctx);
+                    var service = new ExceptionService(_configuration, repository, _bodyStore);
 
-            if (context.SubmitMessage == null)
-            {
-                await UseRepositorySaveAfterwards(service =>
-                {
-                    service.InsertRelatedRetryForOutException(
-                        ebmsMessageId,
-                        context.SendingPMode?.ExceptionHandling?.Reliability);
+                    OutException entity =
+                        context.SubmitMessage != null
+                            ? await service.InsertOutgoingSubmitExceptionAsync(exception, context.SubmitMessage, context.SendingPMode)
+                            : await service.InsertOutgoingAS4MessageExceptionAsync(exception, ebmsMessageId, context.MessageEntityId, context.SendingPMode);
 
-                    return Task.CompletedTask;
+                    await ctx.SaveChangesAsync();
+
+                    service.InsertRelatedRetryReliability(entity, context.SendingPMode?.ExceptionHandling?.Reliability);
+                    await ctx.SaveChangesAsync();
                 });
             }
 
             return new MessagingContext(exception);
-        }
-
-        private async Task UseRepositorySaveAfterwards(Func<ExceptionService, Task> usage)
-        {
-            using (DatastoreContext context = _createContext())
-            {
-                var repository = new DatastoreRepository(context);
-                var service = new ExceptionService(_configuration, repository, _bodyStore);
-
-                await usage(service);
-                await context.SaveChangesAsync();
-            }
         }
 
         private static async Task<string> GetEbmsMessageId(MessagingContext context)

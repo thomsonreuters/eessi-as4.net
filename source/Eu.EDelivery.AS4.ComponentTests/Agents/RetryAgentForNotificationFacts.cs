@@ -185,15 +185,13 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                     string ebmsMessageId = $"entity-{Guid.NewGuid()}";
 
                     var spy = new DatabaseSpy(as4Msh.GetConfiguration());
-                    var entity = new OutMessage(ebmsMessageId);
-                    spy.InsertOutMessage(entity);
+                    //var entity = new OutMessage(ebmsMessageId);
+                    //spy.InsertOutMessage(entity);
 
                     // Act
                     await handler.HandleExecutionException(
                         new Exception("This is an test exception"),
-                        new MessagingContext(
-                            new ReceivedEntityMessage(entity),
-                            MessagingContextMode.Notify)
+                        new MessagingContext(new SubmitMessage())
                         {
                             SendingPMode = NotifySendingPMode(url)
                         });

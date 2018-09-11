@@ -58,7 +58,7 @@ namespace Eu.EDelivery.AS4.Services
         /// <param name="exception">The exception which message will be inserted.</param>
         /// <param name="submit">The original message that caused the exception.</param>
         /// <param name="pmode">The PMode that was being used during the Submit operation.</param>
-        public async Task InsertIncomingSubmitExceptionAsync(
+        public async Task<InException> InsertIncomingSubmitExceptionAsync(
             Exception exception, 
             SubmitMessage submit, 
             ReceivingProcessingMode pmode)
@@ -76,6 +76,8 @@ namespace Eu.EDelivery.AS4.Services
             await entity.SetPModeInformationAsync(pmode);
 
             _repository.InsertInException(entity);
+
+            return entity;
         }
 
         /// <summary>
@@ -84,7 +86,7 @@ namespace Eu.EDelivery.AS4.Services
         /// <param name="exception">The exception which message will be inserted.</param>
         /// <param name="ebmsMessageId">The primary message id of the <see cref="AS4Message"/> that caused the exception.</param>
         /// <param name="pmode">The PMode that was being used during the processing.</param>
-        public async Task InsertIncomingAS4MessageExceptionAsync(Exception exception, string ebmsMessageId, ReceivingProcessingMode pmode)
+        public async Task<InException> InsertIncomingAS4MessageExceptionAsync(Exception exception, string ebmsMessageId, ReceivingProcessingMode pmode)
         {
             InException entity = 
                 InException
@@ -95,17 +97,23 @@ namespace Eu.EDelivery.AS4.Services
 
             _repository.InsertInException(entity);
             _repository.UpdateInMessage(ebmsMessageId, m => m.SetStatus(InStatus.Exception));
+
+            return entity;
         }
 
         /// <summary>
         /// Insert a <see cref="RetryReliability"/> record for an stored <see cref="InException"/> record.
         /// </summary>
-        /// <param name="ebmsMessageId">The ebMS reference to the message identifier.</param>
+        /// <param name="referenced">The referenced exception record.</param>
         /// <param name="reliability">Reliability to populate the record with retry information.</param>
-        public void InsertRelatedRetryForInException(string ebmsMessageId, RetryReliability reliability)
+        public void InsertRelatedRetryReliability(InException referenced, RetryReliability reliability)
         {
-            long id = _repository.GetInExceptionsData(ebmsMessageId, ex => ex.Id).FirstOrDefault();
-            if (id <= 0)
+            if (referenced == null)
+            {
+                throw new ArgumentNullException(nameof(referenced));
+            }
+
+            if (referenced.Id <= 0)
             {
                 throw new InvalidOperationException(
                     "Requires to have a stored InException to insert a referenced RetryReliability record");
@@ -114,7 +122,7 @@ namespace Eu.EDelivery.AS4.Services
             if (reliability != null && reliability.IsEnabled)
             {
                 var r = Entities.RetryReliability.CreateForInException(
-                    refToInExceptionId: id,
+                    refToInExceptionId: referenced.Id,
                     maxRetryCount: reliability.RetryCount,
                     retryInterval: reliability.RetryInterval.AsTimeSpan(),
                     type: RetryType.Notification);
@@ -129,7 +137,7 @@ namespace Eu.EDelivery.AS4.Services
         /// <param name="exception">The exception which message will be inserted.</param>
         /// <param name="submit">The message that caused the exception.</param>
         /// <param name="pmode">The PMode that was being used during the Submit operation.</param>
-        public async Task InsertOutgoingSubmitExceptionAsync(
+        public async Task<OutException> InsertOutgoingSubmitExceptionAsync(
             Exception exception,
             SubmitMessage submit,
             SendingProcessingMode pmode)
@@ -147,6 +155,8 @@ namespace Eu.EDelivery.AS4.Services
             await entity.SetPModeInformationAsync(pmode);
 
             _repository.InsertOutException(entity);
+
+            return entity;
         }
 
         /// <summary>
@@ -156,7 +166,7 @@ namespace Eu.EDelivery.AS4.Services
         /// <param name="ebmsMessageId">The primary message id of the <see cref="AS4Message"/> that caused the exception</param>
         /// <param name="entityId">The primary key of the stored record to which the mesage is refering to.</param>
         /// <param name="pmode">The PMode that was used during the processing of the message.</param>
-        public async Task InsertOutgoingAS4MessageExceptionAsync(
+        public async Task<OutException> InsertOutgoingAS4MessageExceptionAsync(
             Exception exception,
             string ebmsMessageId,
             long? entityId,
@@ -175,17 +185,23 @@ namespace Eu.EDelivery.AS4.Services
             {
                 _repository.UpdateOutMessage(entityId.Value, m => m.SetStatus(OutStatus.Exception));
             }
+
+            return entity;
         }
 
         /// <summary>
         /// Insert a <see cref="RetryReliability"/> record for an stored <see cref="OutException"/> record.
         /// </summary>
-        /// <param name="ebmsMessageId">The ebMS reference to the message identifier.</param>
+        /// <param name="referenced">The referenced exception record.</param>
         /// <param name="reliability">Reliability to populate the record with retry information.</param>
-        public void InsertRelatedRetryForOutException(string ebmsMessageId, RetryReliability reliability)
+        public void InsertRelatedRetryReliability(OutException referenced, RetryReliability reliability)
         {
-            long id = _repository.GetOutExceptionsData(ebmsMessageId, ex => ex.Id).FirstOrDefault();
-            if (id <= 0)
+            if (referenced == null)
+            {
+                throw new ArgumentNullException(nameof(referenced));
+            }
+
+            if (referenced.Id <= 0)
             {
                 throw new InvalidOperationException(
                     "Requires to have a stored OutException to insert a referenced RetryReliability record");
@@ -194,7 +210,7 @@ namespace Eu.EDelivery.AS4.Services
             if (reliability != null && reliability.IsEnabled)
             {
                 var r = Entities.RetryReliability.CreateForOutException(
-                    refToOutExceptionId: id,
+                    refToOutExceptionId: referenced.Id,
                     maxRetryCount: reliability.RetryCount,
                     retryInterval: reliability.RetryInterval.AsTimeSpan(),
                     type: RetryType.Notification);
