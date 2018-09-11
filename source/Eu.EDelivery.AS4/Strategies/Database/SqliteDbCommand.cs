@@ -75,11 +75,6 @@ namespace Eu.EDelivery.AS4.Strategies.Database
         {
             DatastoreTable.EnsureTableNameIsKnown(tableName);
 
-            // Sqlite doesn't allow JOIN statements in DELETE statements
-            string retrySql =
-                "DELETE FROM RetryReliability "
-                + $"WHERE Id NOT IN (SELECT m.Id FROM {tableName} m)";
-
             string operations = string.Join(", ", allowedOperations.Select(x => "'" + x.ToString() + "'"));
             string outMessagesWhere =
                 tableName.Equals("OutMessages")
@@ -88,6 +83,15 @@ namespace Eu.EDelivery.AS4.Strategies.Database
                                 OR EbmsMessageType IN('Receipt', 'Error')
                              )"
                     : string.Empty;
+
+            // Sqlite doesn't allow JOIN statements in DELETE statements
+            string retrySql =
+                "DELETE FROM RetryReliability "
+                + "WHERE Id IN ("
+                    + $"SELECT m.Id FROM {tableName} m "
+                    + $"WHERE m.InsertionTime<datetime('now', '-{retentionPeriod.TotalDays} day') "
+                    + $"AND m.Operation IN ({operations}) "
+                    + $"{outMessagesWhere})";
 
             string entitySql = 
                 $"DELETE FROM {tableName} " +
