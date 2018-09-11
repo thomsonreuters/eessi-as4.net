@@ -11,22 +11,6 @@ namespace Eu.EDelivery.AS4.Repositories
 {
     internal class AS4MessageBodyFileStore : IAS4MessageBodyStore
     {
-        private readonly ISerializerProvider _provider;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="AS4MessageBodyFileStore" /> class.
-        /// </summary>
-        /// <param name="provider">The provider.</param>
-        public AS4MessageBodyFileStore(ISerializerProvider provider)
-        {
-            if (provider == null)
-            {
-                throw new ArgumentNullException(nameof(provider));
-            }
-
-            _provider = provider;
-        }
-
         /// <summary>
         /// Saves an AS4 Message instance to the filesystem.
         /// </summary>
@@ -169,7 +153,7 @@ namespace Eu.EDelivery.AS4.Repositories
             {
                 File.SetAttributes(fileName, FileAttributes.NotContentIndexed);
 
-                ISerializer serializer = _provider.Get(message.ContentType);
+                ISerializer serializer = SerializerProvider.Default.Get(message.ContentType);
                 serializer.Serialize(message, content, CancellationToken.None);
             }
         }

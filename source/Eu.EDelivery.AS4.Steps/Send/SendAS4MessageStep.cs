@@ -270,7 +270,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 return ctx.ReceivedMessage.UnderlyingStream.Length;
             }
 
-            return ctx.AS4Message?.DetermineMessageSize(SerializerProvider.Default) ?? 0L;
+            return ctx.AS4Message?.DetermineMessageSize() ?? 0L;
         }
 
         private async Task<StepResult> HandleHttpResponseAsync(

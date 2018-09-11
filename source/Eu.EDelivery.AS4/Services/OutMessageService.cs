@@ -106,7 +106,7 @@ namespace Eu.EDelivery.AS4.Services
             {
                 Stream body = await store.LoadMessageBodyAsync(m.MessageLocation);
 
-                ISerializer serializer = Registry.Instance.SerializerProvider.Get(m.ContentType);
+                ISerializer serializer = SerializerProvider.Default.Get(m.ContentType);
                 AS4Message foundMessage = await serializer.DeserializeAsync(body, m.ContentType, CancellationToken.None);
 
                 foundMessages.Add(foundMessage);
