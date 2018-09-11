@@ -51,15 +51,19 @@ namespace Eu.EDelivery.AS4.Services
                 throw new ArgumentNullException(nameof(bodyStore));
             }
 
+            // TODO: the 'LIMIT' of the query should be configurable.
             IEnumerable<OutMessage> query =
                 (from outM in _context.OutMessages
-                join inM in _context.InMessages
-                    on outM.EbmsRefToMessageId
-                    equals inM.EbmsMessageId
-                where outM.Operation == Operation.ToBePiggyBacked
-                      && inM.Mpc == pr.Mpc
-                      && outM.EbmsMessageType != MessageType.UserMessage
-                select outM).AsEnumerable();
+                 join inM in _context.InMessages
+                     on outM.EbmsRefToMessageId
+                     equals inM.EbmsMessageId
+                 where outM.Operation == Operation.ToBePiggyBacked
+                       && inM.Mpc == pr.Mpc
+                       && outM.EbmsMessageType != MessageType.UserMessage
+                 select outM)
+                .OrderByDescending(m => m.InsertionTime)
+                .Take(10)
+                .AsEnumerable();
 
             var signals = new Collection<SignalMessage>();
             foreach (OutMessage found in query)
