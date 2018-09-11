@@ -13,7 +13,27 @@ namespace Eu.EDelivery.AS4.Strategies.Retriever
     {
         public const string Key = "file:///";
 
+        private readonly IConfig _config;
+
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FilePayloadRetriever"/> class.
+        /// </summary>
+        public FilePayloadRetriever() : this(Config.Instance) { }
+        
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FilePayloadRetriever"/> class.
+        /// </summary>
+        public FilePayloadRetriever(IConfig configuration)
+        {
+            if (configuration == null)
+            {
+                throw new ArgumentNullException(nameof(configuration));
+            }
+
+            _config = configuration;
+        }
 
         /// <summary>
         /// Retrieve <see cref="Stream"/> contents from a given <paramref name="location"/>.
@@ -22,30 +42,23 @@ namespace Eu.EDelivery.AS4.Strategies.Retriever
         /// <returns></returns>
         public Task<Stream> RetrievePayloadAsync(string location)
         {
-            return Task.FromResult(RetrievePayload(location));
-        }
+            string relativePath = location.Replace(Key, string.Empty);
+            string absolutePath = Path.GetFullPath(Path.Combine(Config.ApplicationPath, relativePath));
 
-        private static Stream RetrievePayload(string location)
-        {
-            Stream payloadStream = TryRetrievePayload(location);
+            var payload = new FileInfo(absolutePath);
+            var supportedPayloadDir = new DirectoryInfo(_config.PayloadRetrievalLocation);
+
+            if (payload.Directory?.FullName != supportedPayloadDir.FullName)
+            {
+                throw new NotSupportedException(
+                    $"Only files from the '{_config.PayloadRetrievalLocation}' folder are allowed to be retrieved: {payload.Directory?.FullName} <> {supportedPayloadDir.FullName}");
+            }
+
+            var uri = new Uri(absolutePath);
+            Stream payloadStream = new FileStream(uri.LocalPath, FileMode.Open, FileAccess.Read, FileShare.Read);
 
             Logger.Debug($"Payload is successfully retrieved at location \"{location}\"");
-
-            return payloadStream;
-        }
-
-        private static Stream TryRetrievePayload(string location)
-        {
-            return RetrievePayloadAtlocation(location);
-        }
-
-        private static Stream RetrievePayloadAtlocation(string location)
-        {
-            string relativePath = location.Replace("file:///", string.Empty);
-            string absolutePath = Path.GetFullPath(Path.Combine(Config.ApplicationPath, relativePath));
-            var uri = new Uri(absolutePath);            
-            
-            return new FileStream(uri.LocalPath, FileMode.Open, FileAccess.Read, FileShare.Read);
+            return Task.FromResult(payloadStream);
         }
     }
 }

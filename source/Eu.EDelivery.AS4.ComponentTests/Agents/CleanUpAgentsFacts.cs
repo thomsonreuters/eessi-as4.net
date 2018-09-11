@@ -249,7 +249,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
         private static OutException CreateOutException(string ebmsMessageId, DateTimeOffset insertionTime)
         {
-            return new OutException(ebmsMessageId, errorMessage: string.Empty)
+            return new OutException(ebmsMessageId, messageLocation: null, exception: string.Empty)
             {
                 InsertionTime = insertionTime
             };
@@ -257,7 +257,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
         private static InException CreateInException(string ebmsMessageId, DateTimeOffset insertionTime)
         {
-            return new InException(ebmsMessageId, errorMessage: string.Empty)
+            return new InException(ebmsMessageId, messageLocation: null, exception: string.Empty)
             {
                 InsertionTime = insertionTime
             };

@@ -67,7 +67,7 @@ namespace Eu.EDelivery.AS4.Fe.Monitor
         /// <param name="id"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException">messageId - messageId parameter cannot be null</exception>
-        Task<string> DownloadExceptionMessageBody(Direction direction, long id);
+        Task<Stream> DownloadExceptionMessageBody(Direction direction, long id);
 
         /// <summary>
         /// Gets the exception detail.

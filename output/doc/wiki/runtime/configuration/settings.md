@@ -96,12 +96,16 @@ So, let’s say you want to change the provider to store the messages in a SQL S
 
 - Default Provider: **Sqlite**
 - Default Connection String: `Filename=database\messages.db`
+- Default Store Location: `file:///.\database\`
+    - incoming/outgoing messages are stored in the sub-paths `as4messages\in` and `as4messages\out`
+    - incoming/outgoing exceptions are stored in the sub-paths `exceptions\in` and `exceptions\out`
 
 Example of a **Database Provider** for **Sqlite**:
 ```xml
 <Database>
     <Provider>Sqlite</Provider>
     <ConnectionString>Filename=database\messages.db</ConnectionString>
+    <StoreLocation>file:///.\database\</StoreLocation>
 </Database>
 ```
 

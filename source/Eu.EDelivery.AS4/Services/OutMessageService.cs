@@ -266,13 +266,24 @@ namespace Eu.EDelivery.AS4.Services
 
                     if (awareness?.IsEnabled ?? false)
                     {
-                        var r = Entities.RetryReliability.CreateForOutMessage(
-                            outMessageId,
-                            awareness.RetryCount,
-                            awareness.RetryInterval.AsTimeSpan(),
-                            RetryType.Send);
+                        // When a multihop message is received by an i-MSH, that message must be forwarded to another MSH.
+                        // (Send) RetryReliability should not be enabled for this message however; even if this is configured in the SendingPMode.
+                        if (message.IsMultiHopMessage)
+                        {
+                            Logger.Warn(
+                                "SendingPMode.Reliability.ReceptionAwareness.IsEnabled = true "
+                                + "but the incoming message is a multihop message and must be forwarded");
+                        }
+                        else
+                        {
+                            var r = Entities.RetryReliability.CreateForOutMessage(
+                                outMessageId,
+                                awareness.RetryCount,
+                                awareness.RetryInterval.AsTimeSpan(),
+                                RetryType.Send);
 
-                        _repository.InsertRetryReliability(r);
+                            _repository.InsertRetryReliability(r);
+                        }
                     }
                 });
         }

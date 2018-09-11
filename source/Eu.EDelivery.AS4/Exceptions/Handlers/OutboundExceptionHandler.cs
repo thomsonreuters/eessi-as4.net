@@ -3,15 +3,13 @@ using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
-using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
-using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Serialization;
+using Eu.EDelivery.AS4.Services;
 using Eu.EDelivery.AS4.Streaming;
 using NLog;
-using RetryReliability = Eu.EDelivery.AS4.Model.PMode.RetryReliability;
 
 namespace Eu.EDelivery.AS4.Exceptions.Handlers
 {
@@ -19,19 +17,47 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
         private readonly Func<DatastoreContext> _createContext;
+        private readonly IConfig _configuration;
+        private readonly IAS4MessageBodyStore _bodyStore;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="OutboundExceptionHandler"/> class.
         /// </summary>
-        public OutboundExceptionHandler() : this(Registry.Instance.CreateDatastoreContext) { }
+        public OutboundExceptionHandler() 
+            : this(
+                Registry.Instance.CreateDatastoreContext,
+                Config.Instance,
+                Registry.Instance.MessageBodyStore) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="OutboundExceptionHandler" /> class.
         /// </summary>
         /// <param name="createContext">The create context.</param>
-        public OutboundExceptionHandler(Func<DatastoreContext> createContext)
+        /// <param name="configuration"></param>
+        /// <param name="bodyStore"></param>
+        public OutboundExceptionHandler(
+            Func<DatastoreContext> createContext,
+            IConfig configuration,
+            IAS4MessageBodyStore bodyStore)
         {
+            if (createContext == null)
+            {
+                throw new ArgumentNullException(nameof(createContext));
+            }
+
+            if (configuration == null)
+            {
+                throw new ArgumentNullException(nameof(configuration));
+            }
+
+            if (bodyStore == null)
+            {
+                throw new ArgumentNullException(nameof(bodyStore));
+            }
+
             _createContext = createContext;
+            _configuration = configuration;
+            _bodyStore = bodyStore;
         }
 
         /// <summary>
@@ -45,11 +71,7 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
             Logger.Error($"Exception occured during transformation: {exception.Message}");
 
             await UseRepositorySaveAfterwards(
-                repository =>
-                {
-                    var outException = new OutException(messageToTransform.UnderlyingStream.ToBytes(), exception);
-                    repository.InsertOutException(outException);
-                });
+                async service => await service.InsertOutgoingExceptionAsync(exception, messageToTransform.UnderlyingStream));
 
             return new MessagingContext(exception);
         }
@@ -83,76 +105,30 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
                 Logger.Trace(exception.InnerException.StackTrace);
             }
 
-            OutException outException = await CreateOutExceptionBasedOnContext(exception, context);
-            await UseRepositorySaveAfterwards(repo =>
+            string ebmsMessageId = await GetEbmsMessageId(context);
+            await UseRepositorySaveAfterwards(async service =>
             {
-                if (context.MessageEntityId != null)
+                if (String.IsNullOrWhiteSpace(ebmsMessageId))
                 {
-                    repo.UpdateOutMessage(
-                        context.MessageEntityId.Value,
-                        m => m.SetStatus(OutStatus.Exception));
+                    await service.InsertOutgoingSubmitExceptionAsync(exception, context.SubmitMessage, context.SendingPMode);
                 }
-
-                repo.InsertOutException(outException);
+                else
+                {
+                    await service.InsertOutgoingAS4MessageExceptionAsync(exception, ebmsMessageId, context.MessageEntityId, context.SendingPMode);
+                }
             });
-
-            Entities.RetryReliability r = CreateRelatedRetryForOutException(
-                outException.Id, 
-                context.SendingPMode?.ExceptionHandling?.Reliability);
-            if (r != null)
-            {
-                await UseRepositorySaveAfterwards(repo => repo.InsertRetryReliability(r));
-            }
 
             return new MessagingContext(exception);
         }
 
-        private static async Task<OutException> CreateOutExceptionBasedOnContext(Exception exception, MessagingContext context)
-        {
-            async Task<OutException> CreateOutException()
-            {
-                string ebmsMessageId = await GetEbmsMessageId(context);
-                if (string.IsNullOrEmpty(ebmsMessageId))
-                {
-                    return new OutException(
-                        await AS4XmlSerializer.TryToXmlBytesAsync(context.SubmitMessage),
-                        exception);
-                }
-
-                return new OutException(ebmsMessageId, exception);
-            }
-
-            OutException outEx = await CreateOutException();
-            await outEx.SetPModeInformationAsync(context.SendingPMode);
-
-            SendHandling handling = context.SendingPMode?.ExceptionHandling;
-            bool needsToBeNotified = handling?.NotifyMessageProducer == true;
-            outEx.Operation = needsToBeNotified ? Operation.ToBeNotified : default(Operation);
-
-            return outEx;
-        }
-
-        private static Entities.RetryReliability CreateRelatedRetryForOutException(long refToOutExceptionId, RetryReliability reliability)
-        {
-            if (reliability != null && reliability.IsEnabled)
-            {
-                return Entities.RetryReliability.CreateForOutException(
-                    refToOutExceptionId: refToOutExceptionId,
-                    maxRetryCount: reliability.RetryCount,
-                    retryInterval: reliability.RetryInterval.AsTimeSpan(),
-                    type: RetryType.Notification);
-            }
-
-            return null;
-        }
-
-        private async Task UseRepositorySaveAfterwards(Action<DatastoreRepository> usage)
+        private async Task UseRepositorySaveAfterwards(Func<ExceptionService, Task> usage)
         {
             using (DatastoreContext context = _createContext())
             {
                 var repository = new DatastoreRepository(context);
-                usage(repository);
+                var service = new ExceptionService(_configuration, repository, _bodyStore);
 
+                await usage(service);
                 await context.SaveChangesAsync();
             }
         }
