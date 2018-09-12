@@ -2,7 +2,7 @@
 <PMode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
   xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
   xmlns="eu:edelivery:as4:pmode">
-  <Id>pull-send-piggybacked-pmode</Id>
+  <Id>pullsendagent-piggyback-pmode</Id>
   <Reliability>
     <DuplicateElimination>
       <IsEnabled>false</IsEnabled>
@@ -30,7 +30,7 @@
   </ExceptionHandling>
   <Security>
     <SigningVerification>
-      <Signature>Required</Signature>
+      <Signature>Ignored</Signature>
     </SigningVerification>
     <Decryption>
       <Encryption>Ignored</Encryption>
