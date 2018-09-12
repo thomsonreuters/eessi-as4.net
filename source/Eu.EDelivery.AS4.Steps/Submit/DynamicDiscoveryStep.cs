@@ -35,8 +35,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         {
             if (messagingContext == null)
             {
-                throw new InvalidOperationException(
-                    $"{typeof(DynamicDiscoveryStep)} requires a Messaging Context to Dynamic Discover the Sending PMode");
+                throw new ArgumentNullException(nameof(messagingContext));
             }
 
             if (messagingContext.SendingPMode == null ||

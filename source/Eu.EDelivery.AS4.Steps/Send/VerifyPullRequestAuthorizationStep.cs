@@ -41,7 +41,12 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// <returns></returns>
         public Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
-            if (messagingContext?.AS4Message == null)
+            if (messagingContext == null)
+            {
+                throw new ArgumentNullException(nameof(messagingContext));
+            }
+
+            if (messagingContext.AS4Message == null)
             {
                 throw new InvalidOperationException(
                     $"{nameof(VerifyPullRequestAuthorizationStep)} requires a MessagingContext with a AS4Message to verify the PullRequest");

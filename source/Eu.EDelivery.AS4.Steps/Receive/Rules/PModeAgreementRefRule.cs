@@ -6,7 +6,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive.Rules
     /// <summary>
     /// PMode Rule to check if the PMode Agreement Ref is equal to the UserMessage Agreement Ref
     /// </summary>
-    public class PModeAgreementRefRule : IPModeRule
+    internal class PModeAgreementRefRule : IPModeRule
     {
         private const int Points = 4;
         private const int NotEqual = 0;

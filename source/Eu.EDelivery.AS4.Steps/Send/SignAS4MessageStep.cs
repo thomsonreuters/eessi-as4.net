@@ -53,7 +53,12 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
-            if (messagingContext?.AS4Message == null || messagingContext?.AS4Message.IsEmpty == true)
+            if (messagingContext == null)
+            {
+                throw new ArgumentNullException(nameof(messagingContext));
+            }
+
+            if (messagingContext.AS4Message == null || messagingContext.AS4Message.IsEmpty)
             {
                 Logger.Debug("No signing will be performed on the message because it's empty");
                 return await StepResult.SuccessAsync(messagingContext);
