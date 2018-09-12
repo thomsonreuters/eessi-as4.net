@@ -167,8 +167,11 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         {
             if (submitParty != null && allowOverride == false)
             {
-                throw new NotSupportedException(
-                    "SubmitMessage is not allowed by the SendingPMode to override ToParty");
+                if (pmodeParty != null && submitParty.Equals(pmodeParty) == false)
+                {
+                    throw new NotSupportedException(
+                        "SubmitMessage is not allowed by the SendingPMode to override ToParty");
+                }
             }
 
             if (submitParty == null && pmodeParty == null)

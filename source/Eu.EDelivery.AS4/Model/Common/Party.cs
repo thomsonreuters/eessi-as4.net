@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Eu.EDelivery.AS4.Model.Common
 {
-    public class Party : IEquatable<Party>
+    public class Party : IEquatable<Party>, IEquatable<PMode.Party>
     {
         public string Role { get; set; }
         public PartyId[] PartyIds { get; set; }
@@ -16,12 +18,38 @@ namespace Eu.EDelivery.AS4.Model.Common
         /// <param name="other">An object to compare with this object.</param>
         public bool Equals(Party other)
         {
-            if (ReferenceEquals(null, other)) return false;
-            if (ReferenceEquals(this, other)) return true;
+            if (other is null)
+            {
+                return false;
+            }
 
-            return 
-                string.Equals(this.Role, other.Role, StringComparison.OrdinalIgnoreCase) && 
-                Equals(this.PartyIds, other.PartyIds);
+            if (ReferenceEquals(this, other))
+            {
+                return true;
+            }
+
+            return string.Equals(Role, other.Role, StringComparison.OrdinalIgnoreCase) 
+                   && Equals(PartyIds, other.PartyIds);
+        }
+
+        /// <summary>
+        /// Indicates whether the current object is equal to another object of the same type.
+        /// </summary>
+        /// <param name="pmodeParty">An object to compare with this object.</param>
+        /// <returns>true if the current object is equal to the <paramref name="pmodeParty" /> parameter; otherwise, false.</returns>
+        public bool Equals(PMode.Party pmodeParty)
+        {
+            IEnumerable<string> submitPartyIds =
+                (PartyIds ?? Enumerable.Empty<PartyId>())
+                    .Select(p => p?.Id)
+                    .OrderBy(id => id);
+
+            IEnumerable<string> pmodePartyIds =
+                (pmodeParty?.PartyIds ?? Enumerable.Empty<PMode.PartyId>())
+                    .Select(p => p?.Id)
+                    .OrderBy(id => id);
+
+            return submitPartyIds.SequenceEqual(pmodePartyIds);
         }
 
         /// <summary>
@@ -33,10 +61,17 @@ namespace Eu.EDelivery.AS4.Model.Common
         /// <param name="obj">The object to compare with the current object. </param>
         public override bool Equals(object obj)
         {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
+            if (ReferenceEquals(null, obj))
+            {
+                return false;
+            }
 
-            return obj.GetType() == GetType() && Equals((Party) obj);
+            if (ReferenceEquals(this, obj))
+            {
+                return true;
+            }
+
+            return obj is Party p && Equals(p);
         }
 
         /// <summary>
@@ -49,8 +84,8 @@ namespace Eu.EDelivery.AS4.Model.Common
         {
             unchecked
             {
-                return ((this.Role != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(this.Role) : 0) * 397)
-                       ^ (this.PartyIds?.GetHashCode() ?? 0);
+                return ((Role != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(Role) : 0) * 397)
+                       ^ (PartyIds?.GetHashCode() ?? 0);
             }
         }
     }

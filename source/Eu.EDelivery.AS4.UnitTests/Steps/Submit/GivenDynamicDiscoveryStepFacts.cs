@@ -93,9 +93,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
                     (bool dynamicallyDiscovered, AS4Party resolved) = 
                         ExerciseDynamicDiscovery(submitParty, pmodeParty, allowOverride);
 
+                    bool submitSameAsPModeParty =
+                        submitParty?.Equals(pmodeParty) ?? false;
+
                     bool resolvedSubmit =
-                        allowOverride
-                        && submitParty?.Role != null
+                        submitParty?.Role != null
                         && submitParty.PartyIds.EmptyIfNull().All(p => p?.Id != null)
                         && resolved != null
                         && resolved.Role.Equals(submitParty.Role)
@@ -115,8 +117,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
                                    .All(t => t.Item1.Id.Equals(t.Item2.Id) 
                                              && t.Item1.Type.Equals(t.Item2.Type.AsMaybe()));
 
-                    return (dynamicallyDiscovered && resolvedSubmit)
+                    return (dynamicallyDiscovered && resolvedSubmit && allowOverride)
                            .Or(dynamicallyDiscovered && resolvedPMode)
+                           .Or(dynamicallyDiscovered && submitSameAsPModeParty && resolvedSubmit)
                            .Or(!dynamicallyDiscovered)
                            .Label(
                                $"PMode {(dynamicallyDiscovered ? "is" : "isn't")} dynamically discoverd"
