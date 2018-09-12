@@ -146,7 +146,7 @@ namespace Eu.EDelivery.AS4.Agents
                 MessagingContext result = await transformer.TransformAsync(message);
                 if (result == null)
                 {
-                    throw new ArgumentNullException(nameof(result));
+                    throw new ArgumentNullException(nameof(result), $@"Transformer {_transformerConfig.Type} result in a 'null', transformers require to transform into a 'MessagingContext'");
                 }
 
                 context = result;
