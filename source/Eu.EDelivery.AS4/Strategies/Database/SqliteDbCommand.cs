@@ -15,6 +15,8 @@ namespace Eu.EDelivery.AS4.Strategies.Database
     {
         private readonly DatastoreContext _context;
 
+        private static ILogger Logger = LogManager.GetCurrentClassLogger();
+
         /// <summary>
         /// Initializes a new instance of the <see cref="SqliteDbCommand" /> class.
         /// </summary>
@@ -82,14 +84,31 @@ namespace Eu.EDelivery.AS4.Strategies.Database
                              )"
                     : string.Empty;
 
-            string sql = 
+            // Sqlite doesn't allow JOIN statements in DELETE statements
+            string retrySql =
+                "DELETE FROM RetryReliability "
+                + "WHERE Id IN ("
+                    + $"SELECT m.Id FROM {tableName} m "
+                    + $"WHERE m.InsertionTime<datetime('now', '-{retentionPeriod.TotalDays} day') "
+                    + $"AND m.Operation IN ({operations}) "
+                    + $"{outMessagesWhere})";
+
+            string entitySql = 
                 $"DELETE FROM {tableName} " +
                 $"WHERE InsertionTime<datetime('now', '-{retentionPeriod.TotalDays} day') " +
                 $"AND Operation IN ({operations}) " +
                 outMessagesWhere;
 
-            int rows = _context.Database.ExecuteSqlCommand(sql);
-            LogManager.GetCurrentClassLogger().Trace($"Cleaned {rows} row(s) for table '{tableName}'");
+#pragma warning disable EF1000 // Possible SQL injection vulnerability: 
+            // The DatastoreTable makes sure that we only use known table names.
+            // The list of Operation enums makes sure that only use Operation values.
+            // The TotalDays of the TimeSpan is an integer.
+            int retryRows = _context.Database.ExecuteSqlCommand(retrySql);
+            int entityRows = _context.Database.ExecuteSqlCommand(entitySql);
+#pragma warning restore EF1000 // Possible SQL injection vulnerability.
+
+            Logger.Trace($"Cleaned {retryRows} row(s) for table 'RetryReliability'");
+            Logger.Trace($"Cleaned {entityRows} row(s) for table '{tableName}'");
         }
     }
 }
