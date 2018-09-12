@@ -22,8 +22,7 @@ namespace Eu.EDelivery.AS4.Transformers
         {
             if (message == null)
             {
-                throw new InvalidOperationException(
-                    $"{nameof(ForwardMessageTransformer)} requires a ReceivedMessage to wrap into a MessagingContext");
+                throw new ArgumentNullException(nameof(message));
             }
 
             var context = new MessagingContext(message, MessagingContextMode.Forward);

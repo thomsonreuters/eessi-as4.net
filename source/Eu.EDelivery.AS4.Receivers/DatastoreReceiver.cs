@@ -78,6 +78,11 @@ namespace Eu.EDelivery.AS4.Receivers
         /// <param name="cancellationToken"></param>
         public void StartReceiving(Function messageCallback, CancellationToken cancellationToken)
         {
+            if (messageCallback == null)
+            {
+                throw new ArgumentNullException(nameof(messageCallback));
+            }
+
             if (_settings == null && _retrieveEntities == null)
             {
                 throw new InvalidOperationException("The DatastoreReceiver is not configured");
