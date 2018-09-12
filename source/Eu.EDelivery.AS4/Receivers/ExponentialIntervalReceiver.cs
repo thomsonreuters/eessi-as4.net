@@ -21,8 +21,6 @@ namespace Eu.EDelivery.AS4.Receivers
         private readonly List<T> _intervalRequests;
         private readonly Timer _timer;
 
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
-
         protected enum Interval
         {
             Reset,
@@ -45,7 +43,7 @@ namespace Eu.EDelivery.AS4.Receivers
             _timer.Stop();
 
             List<T> intervalRequests = SelectAllRequestsForThisEvent(eventArgs);
-           Logger.Debug($"{intervalRequests.Count} request(s) will send on '{eventArgs.SignalTime}'");
+            LogManager.GetCurrentClassLogger().Debug($"{intervalRequests.Count} request(s) will send on '{eventArgs.SignalTime}'");
             RemoveAllSelectedRequestsForThisEvent(eventArgs);
 
             WaitForAllRequests(intervalRequests);

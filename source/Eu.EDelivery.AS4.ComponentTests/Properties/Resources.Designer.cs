@@ -106,27 +106,6 @@ namespace Eu.EDelivery.AS4.ComponentTests.Properties {
         ///  &lt;/MessageInfo&gt;
         ///  &lt;Collaboration&gt;
         ///    &lt;AgreementRef&gt;
-        ///      &lt;PModeId&gt;pullsendagent-piggyback-pmode&lt;/PModeId&gt;
-        ///      &lt;Value&gt;http://agreements.holodeckb2b.org/examples/agreement0&lt;/Value&gt;
-        ///    &lt;/AgreementRef&gt;
-        ///    &lt;ConversationId&gt;eu:edelivery:as4:sampleconversation&lt;/ConversationId&gt;
-        ///    &lt;Action&gt;http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/test&lt;/Action&gt;
-        ///    &lt;Service&gt;
-        ///      &lt;Value&gt;http://docs. [rest of string was truncated]&quot;;.
-        /// </summary>
-        internal static string pullsendagent_piggyback {
-            get {
-                return ResourceManager.GetString("pullsendagent_piggyback", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to &lt;?xml version=&quot;1.0&quot;?&gt;
-        ///&lt;SubmitMessage xmlns=&quot;urn:cef:edelivery:eu:as4:messages&quot;&gt;
-        ///  &lt;MessageInfo&gt;
-        ///  &lt;/MessageInfo&gt;
-        ///  &lt;Collaboration&gt;
-        ///    &lt;AgreementRef&gt;
         ///      &lt;PModeId&gt;pullsendagent-pmode&lt;/PModeId&gt;
         ///      &lt;Value&gt;http://agreements.holodeckb2b.org/examples/agreement0&lt;/Value&gt;
         ///    &lt;/AgreementRef&gt;

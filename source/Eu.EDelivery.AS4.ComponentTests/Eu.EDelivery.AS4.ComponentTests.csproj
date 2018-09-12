@@ -51,7 +51,6 @@
     <Compile Include="Agents\ForwardAgentFacts.cs" />
     <Compile Include="Agents\MinderReceiveAgentFacts.cs" />
     <Compile Include="Agents\OutboundProcessingAgentFacts.cs" />
-    <Compile Include="Agents\PiggyBackingFacts.cs" />
     <Compile Include="Agents\PullReceiveAgentFacts.cs" />
     <Compile Include="Agents\PullSendAgentFacts.cs" />
     <Compile Include="Agents\ReceiveAgentFacts.cs" />
@@ -75,7 +74,7 @@
     </Compile>
     <Compile Include="Samples\SampleTests.cs" />
     <Compile Include="Samples\SampleTestTemplate.cs" />
-    <Compile Include="Common\WindowsServiceFixture.cs" />
+    <Compile Include="Samples\WindowsServiceFixture.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config">
@@ -121,7 +120,6 @@
     <None Include="Resources\c3_minderreceiveagent_request.as4" />
     <Content Include="Resources\deliveragent-pmode.xml" />
     <None Include="Resources\earth" />
-    <Content Include="Resources\pullsendagent_piggyback.xml" />
     <Content Include="Resources\pullsendagent_submit.xml" />
   </ItemGroup>
   <ItemGroup>

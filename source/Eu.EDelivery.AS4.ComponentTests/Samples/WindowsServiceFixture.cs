@@ -2,7 +2,7 @@
 using System.ServiceProcess;
 using Xunit;
 
-namespace Eu.EDelivery.AS4.ComponentTests.Common
+namespace Eu.EDelivery.AS4.ComponentTests.Samples
 {
     public class WindowsServiceFixture : IDisposable
     {

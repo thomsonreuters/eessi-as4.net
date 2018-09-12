@@ -4,7 +4,6 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
-using Eu.EDelivery.AS4.ComponentTests.Common;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.ComponentTests.Samples

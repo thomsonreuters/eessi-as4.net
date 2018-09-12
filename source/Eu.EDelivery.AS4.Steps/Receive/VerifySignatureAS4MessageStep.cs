@@ -190,11 +190,13 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             using (DatastoreContext context = _storeExpression())
             {
                 var service = new OutMessageService(
-                    repository: new DatastoreRepository(context),
+                    config: _config, 
+                    respository: new DatastoreRepository(context),
                     messageBodyStore: _bodyStore);
 
                 return await service.GetNonIntermediaryAS4UserMessagesForIds(
-                    receipts.Select(r => r.RefToMessageId));
+                    messageIds: receipts.Select(r => r.RefToMessageId), 
+                    store: _bodyStore);
             }
         }
 
