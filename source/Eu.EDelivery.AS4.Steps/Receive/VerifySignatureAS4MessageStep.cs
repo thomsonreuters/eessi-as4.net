@@ -115,7 +115,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             }
 
             if (as4Message.MessageUnits.Any(u => u is Receipt) &&
-                (messagingContext.SendingPMode?.ReceiptHandling?.VerifyNRR ?? true))
+                (messagingContext.SendingPMode?.ReceiptHandling?.VerifyNRR ?? false))
             {
                 if (!await VerifyNonRepudiationHashes(as4Message))
                 {

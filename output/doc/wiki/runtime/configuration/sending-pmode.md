@@ -168,7 +168,7 @@ This contract describes all the properties available in the Sending PMode. The r
             </td>
             <td>
                 <br/>
-                Indicates if Non-Repudiation of Receipt must be verified.<br/><i>Default:</i> true<br/>
+                Indicates if Non-Repudiation of Receipt must be verified.<br/><i>Default:</i> false<br/>
                 <i>Default:</i> false<br/><br/>
                 Type of the Notify Agent<br/>
                 Required parameters for the specified agent<br/><br/>
