@@ -75,5 +75,5 @@ AS4.NET will query the SMP profile (default or custom) to retrieve the routing i
 This information will be retrieved based on the **ToParty** information; this means that AS4.NET must know the identifier of the ToParty to determine the routing information.
 
 - During _Sending_, the routing information is retrieved from either the _SubmitMessage_ or the _Sending Processing Mode_. The _SubmitMessage_'s **ToParty** is used when the _Sending Processing Mode_ has set the `AllowOverride` to `true`; otherwise the **ToParty** from the PMode is used.
-  > Note that the _Dynamic Discovery_ will fail if the _Sending Processing Mode_ has set the `AllowOverride` to `false` and the _SubmitMessage_ contains a **ToParty**.
+  > Note that the _Dynamic Discovery_ will fail if the _Sending Processing Mode_ has set the `AllowOverride` to `false` and the _SubmitMessage_ contains a **ToParty** that's different from the _Sending Processing Mode_ **ToParty**.
 - During _Forwarding_, the routing information is retrieved from the _AS4 Message_ itself
