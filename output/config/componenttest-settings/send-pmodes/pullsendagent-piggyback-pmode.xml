@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PMode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+  xmlns="eu:edelivery:as4:pmode">
+  <Id>pullsendagent-piggyback-pmode</Id>
+  <AllowOverride>true</AllowOverride>
+  <Mep>OneWay</Mep>
+  <MepBinding>Pull</MepBinding>
+  <MessagePackaging>
+    <PartyInfo>
+      <FromParty>
+        <PartyIds>
+          <PartyId>
+            <Id>org:eu:europa:as4:example:accesspoint:A</Id>
+          </PartyId>
+        </PartyIds>
+        <Role>Sender</Role>
+      </FromParty>
+      <ToParty>
+        <PartyIds>
+          <PartyId>
+            <Id>org:eu:europa:as4:example:accesspoint:B</Id>
+          </PartyId>
+        </PartyIds>
+        <Role>Receiver</Role>
+      </ToParty>
+    </PartyInfo>
+    <Mpc>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMPC/UK:UK001</Mpc>
+    <UseAS4Compression>false</UseAS4Compression>
+    <IsMultiHop>false</IsMultiHop>
+    <IncludePModeId>true</IncludePModeId>
+  </MessagePackaging>
+</PMode>

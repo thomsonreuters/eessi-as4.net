@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using System.Xml;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
-using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Serialization;
 using NLog;
@@ -48,10 +47,10 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
         /// <param name="party">The party identifier.</param>
         /// <param name="properties"></param>
         /// <returns></returns>
-        public Task<XmlDocument> RetrieveSmpMetaData(Party party, IDictionary<string, string> properties)
+        public Task<XmlDocument> RetrieveSmpMetaData(Model.Core.Party party, IDictionary<string, string> properties)
         {
             if (party.PrimaryPartyId == null
-                || party.PrimaryPartyType == null
+                || party.PartyIds.FirstOrDefault()?.Type == null
                 || party.Role == null)
             {
                 throw new InvalidOperationException(
@@ -135,23 +134,29 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
             return pmode;
         }
 
-        private SmpConfiguration FindSmpResponseForToParty(Party party)
+        private SmpConfiguration FindSmpResponseForToParty(Model.Core.Party party)
         {
             using (DatastoreContext context = _createDatastore())
             {
+                string primaryPartyType = 
+                    party.PartyIds
+                         .FirstOrNothing()
+                         .SelectMany(x => x.Type)
+                         .GetOrElse(() => null);
+
                 SmpConfiguration foundConfiguration = 
                     context.SmpConfigurations
                            .FirstOrDefault(sc =>
                                 sc.PartyRole == party.Role
                                 && sc.ToPartyId == party.PrimaryPartyId
                                 && sc.PartyType
-                                == party.PrimaryPartyType);
+                                == primaryPartyType);
 
                 if (foundConfiguration == null)
                 {
                     throw new ConfigurationErrorsException(
                         "No SMP Response found for the given "
-                        + $"'Role': {party.Role}, 'PartyId': {party.PrimaryPartyId}, and 'PartyType': {party.PrimaryPartyType}");
+                        + $"'Role': {party.Role}, 'PartyId': {party.PrimaryPartyId}, and 'PartyType': {primaryPartyType}");
                 }
 
                 return foundConfiguration;

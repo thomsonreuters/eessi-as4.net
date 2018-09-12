@@ -9,7 +9,6 @@ using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
-using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.TestUtils.Stubs;
 using Xunit;
 using DatabaseSpy = Eu.EDelivery.AS4.ComponentTests.Common.DatabaseSpy;
@@ -76,7 +75,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         private static OutMessage CreateOutMessageRefStoredAS4Message(AS4Component as4Msh)
         {
             string ebmsMessageId = $"receipt-{Guid.NewGuid()}";
-            var store = new AS4MessageBodyFileStore(SerializerProvider.Default);
+            var store = new AS4MessageBodyFileStore();
             return new OutMessage(ebmsMessageId)
             {
                 ContentType = Constants.ContentTypes.Soap,

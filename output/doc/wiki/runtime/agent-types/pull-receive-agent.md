@@ -13,7 +13,7 @@ The **Pull Receive Agent** is useful in situations where the receiving MSH isn't
 
 ## Message Flow
 
-The `AS4Message`'s that are received by the **Pull Receive Agent** are processed in exactly the same way as the (Push) **Receive Agent** would handle them.  
+The `AS4Message`'s that are received by the **Pull Receive Agent** are processed in exactly the same way as the (Push) **Receive Agent** would handle them. The **SignalMessage** that will be created to respond to the pulled **UserMessage** will always be sent in an async manner to the MSH Sender.
 See the message flow section in the (Push) **Receive Agent** documentation for more information on how a received `AS4Message` is processed.
 
 ## Agent Trigger

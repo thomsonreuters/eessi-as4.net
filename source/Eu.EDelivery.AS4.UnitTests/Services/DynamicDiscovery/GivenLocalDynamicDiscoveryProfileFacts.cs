@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Xml;
 using Eu.EDelivery.AS4.Common;
@@ -8,6 +9,8 @@ using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Services.DynamicDiscovery;
 using Eu.EDelivery.AS4.UnitTests.Common;
 using Xunit;
+using Party = Eu.EDelivery.AS4.Model.Core.Party;
+using PartyId = Eu.EDelivery.AS4.Model.Core.PartyId;
 
 namespace Eu.EDelivery.AS4.UnitTests.Services.DynamicDiscovery
 {
@@ -17,12 +20,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Services.DynamicDiscovery
         public async Task RetrieveSmpResponseFromDatastore()
         {
             // Arrange
-            var fixture = new Party("role", new PartyId(Guid.NewGuid().ToString()) {Type = "type"});
+            var fixture = new Party("role", new PartyId(Guid.NewGuid().ToString(), "type"));
             var expected = new SmpConfiguration
             {
                 PartyRole = fixture.Role,
                 ToPartyId = fixture.PrimaryPartyId,
-                PartyType = fixture.PrimaryPartyType
+                PartyType = "type"
             };
 
             InsertSmpResponse(expected);
@@ -54,7 +57,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Services.DynamicDiscovery
 
             // Act / Assert
             await Assert.ThrowsAsync<InvalidOperationException>(
-                () => sut.RetrieveSmpMetaData(new Party(), properties: null));
+                () => sut.RetrieveSmpMetaData(new Party("role", Enumerable.Empty<PartyId>()), properties: null));
         }
 
         [Fact]

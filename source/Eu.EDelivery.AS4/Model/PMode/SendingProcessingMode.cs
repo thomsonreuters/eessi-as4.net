@@ -400,10 +400,10 @@ namespace Eu.EDelivery.AS4.Model.PMode
 
         public SendReceiptHandling()
         {
-            VerifyNRR = true;
+            VerifyNRR = false;
         }
 
-        [Info("Verify Non-Repudiation Receipts", defaultValue: true)]
+        [Info("Verify Non-Repudiation Receipts", defaultValue: false)]
         [Description(
             "Indicates if the MSH needs to verify the Non-Repudiation Information that is included in the receipt")]
         public bool VerifyNRR

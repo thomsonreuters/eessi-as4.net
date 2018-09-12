@@ -52,7 +52,12 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// <param name="messagingContext"></param>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
-            AS4Message receivedAS4Message = messagingContext?.AS4Message;
+            if (messagingContext == null)
+            {
+                throw new ArgumentNullException(nameof(messagingContext));
+            }
+
+            AS4Message receivedAS4Message = messagingContext.AS4Message;
             if (receivedAS4Message == null)
             {
                 throw new InvalidOperationException(

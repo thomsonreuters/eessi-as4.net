@@ -49,6 +49,7 @@
   <ItemGroup>
     <Compile Include="Forward\CreateForwardMessageStep.cs" />
     <Compile Include="Forward\DetermineRoutingStep.cs" />
+    <Compile Include="Send\BundleSignalMessageToPullRequestStep.cs" />
     <Compile Include="Receive\SendAS4SignalMessageStep.cs" />
     <Compile Include="Receive\ValidateAS4MessageStep.cs" />
     <Compile Include="Send\LogReceivedProcessingErrorStep.cs" />

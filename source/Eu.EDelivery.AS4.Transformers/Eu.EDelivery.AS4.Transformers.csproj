@@ -61,7 +61,6 @@
     <Compile Include="NotifyMessageTransformer.cs" />
     <Compile Include="OutMessageTransformer.cs" />
     <Compile Include="ReceiveMessageTransformer.cs" />
-    <Compile Include="SignalMessageToNotifyMessageTransformer.cs" />
     <Compile Include="PayloadTransformer.cs" />
     <Compile Include="PModeToPullRequestTransformer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -88,12 +88,14 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         {
             using (DatastoreContext dataContext = _createDatastoreContext())
             {
-                var service = new OutMessageService(
-                    _config,
-                    new DatastoreRepository(dataContext),
-                    _messageBodyStore);
+                var repository = new DatastoreRepository(dataContext);
+                var service = new OutMessageService(_config, repository, _messageBodyStore);
 
-                service.InsertAS4Message(messagingContext, Operation.NotApplicable);
+                service.InsertAS4Message(
+                    messagingContext.AS4Message, 
+                    messagingContext.SendingPMode,
+                    messagingContext.ReceivingPMode);
+
                 await dataContext.SaveChangesAsync().ConfigureAwait(false);
             }
         }

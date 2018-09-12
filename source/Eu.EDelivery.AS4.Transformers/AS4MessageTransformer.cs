@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Serialization;
@@ -20,28 +19,6 @@ namespace Eu.EDelivery.AS4.Transformers
     public class AS4MessageTransformer : ITransformer
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
-        private readonly ISerializerProvider _provider;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="AS4MessageTransformer" /> class.
-        /// </summary>
-        public AS4MessageTransformer() : this(Registry.Instance.SerializerProvider) { }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="AS4MessageTransformer" /> class.
-        /// with a given <paramref name="provider" />
-        /// </summary>
-        /// <param name="provider">The provider.</param>
-        /// <exception cref="ArgumentNullException">provider</exception>
-        public AS4MessageTransformer(ISerializerProvider provider)
-        {
-            if (provider == null)
-            {
-                throw new ArgumentNullException(nameof(provider));
-            }
-
-            _provider = provider;
-        }
 
         /// <summary>
         /// Configures the <see cref="ITransformer"/> implementation with specific user-defined properties.
@@ -57,7 +34,12 @@ namespace Eu.EDelivery.AS4.Transformers
         /// <returns></returns>
         public async Task<MessagingContext> TransformAsync(ReceivedMessage message)
         {
-            if (message?.UnderlyingStream == null)
+            if (message == null)
+            {
+                throw new ArgumentNullException(nameof(message));
+            }
+
+            if (message.UnderlyingStream == null)
             {
                 throw new InvalidDataException(
                     $"The incoming stream from {message.Origin} is not an ebMS Message");
@@ -105,7 +87,7 @@ namespace Eu.EDelivery.AS4.Transformers
             Stream virtualStream,
             CancellationToken cancellation)
         {
-            ISerializer serializer = _provider.Get(contentType);
+            ISerializer serializer = SerializerProvider.Default.Get(contentType);
             return await serializer.DeserializeAsync(virtualStream, contentType, cancellation);
         }
     }

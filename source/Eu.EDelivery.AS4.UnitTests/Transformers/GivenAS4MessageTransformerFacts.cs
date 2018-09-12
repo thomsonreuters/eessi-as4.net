@@ -54,13 +54,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
         public class GivenInvalidArgumentsToTransfrormer : GivenAS4MessageTransformerFacts
         {
             [Fact]
-            public void FailsToCreateTransformer_IfInvalidProvider()
-            {
-                // Act / Assert
-                Assert.ThrowsAny<Exception>(() => new AS4MessageTransformer(provider: null));
-            }
-
-            [Fact]
             public async Task ThenTransformFailsWithInvalidUserMessageWithSoapAS4StreamAsync()
             {
                 // Arrange
@@ -111,7 +104,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
 
         protected async Task<MessagingContext> Transform(ReceivedMessage message)
         {
-            var transformer = new AS4MessageTransformer(Registry.Instance.SerializerProvider);
+            var transformer = new AS4MessageTransformer();
             return await transformer.TransformAsync(message);
         }
     }

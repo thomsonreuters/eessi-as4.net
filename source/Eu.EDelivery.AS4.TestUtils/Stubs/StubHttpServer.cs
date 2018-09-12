@@ -19,6 +19,21 @@ namespace Eu.EDelivery.AS4.TestUtils.Stubs
             Action<HttpListenerResponse> responseHandler,
             ManualResetEvent onStop)
         {
+            StartServer(listenAt, (req, res) => responseHandler(res), onStop);
+        }
+
+        /// <summary>
+        /// Starts a Http Server that listens on a predefined url and accepts only one connection.
+        /// </summary>
+        /// <remarks>After the request is handled by the <paramref name="responseHandler" />, the Http Server is shut down.</remarks>
+        /// <param name="listenAt">The Url at which the server must listen</param>
+        /// <param name="responseHandler">The action that must be performed when a request is received.</param>
+        /// <param name="onStop">A manual resetevent that is signaled when the request has been handled.</param>
+        public static void StartServer(
+            string listenAt,
+            Action<HttpListenerRequest, HttpListenerResponse> responseHandler,
+            ManualResetEvent onStop)
+        {
             var server = new HttpListener();
             server.Prefixes.Add(listenAt);
             server.Start();
@@ -38,7 +53,7 @@ namespace Eu.EDelivery.AS4.TestUtils.Stubs
                 {
                     try
                     {
-                        responseHandler(t.Result.Response);
+                        responseHandler(t.Result.Request, t.Result.Response);
                         Console.WriteLine(
                             $@"Stub HTTP Server: respond to request, StatusCode {t.Result.Response.StatusCode}");
                     }

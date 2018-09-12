@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Model.Core;
@@ -32,7 +33,12 @@ namespace Eu.EDelivery.AS4.Transformers
         /// <returns></returns>
         public Task<MessagingContext> TransformAsync(ReceivedMessage receivedMessage)
         {
-            if (receivedMessage?.UnderlyingStream == null)
+            if (receivedMessage == null)
+            {
+                throw new ArgumentNullException(nameof(receivedMessage));
+            }
+
+            if (receivedMessage.UnderlyingStream == null)
             {
                 throw new InvalidDataException(
                     $"Invalid incoming request stream received from {receivedMessage?.Origin}");
@@ -45,7 +51,8 @@ namespace Eu.EDelivery.AS4.Transformers
         {
             SendingProcessingMode pmode = await DeserializeValidPMode(receivedMessage);
 
-            AS4Message pullRequestMessage = AS4Message.Create(new PullRequest(pmode.MessagePackaging.Mpc), pmode);
+            Logger.Info($"Prepare sending PullRequest with MPC={pmode?.MessagePackaging?.Mpc}");
+            AS4Message pullRequestMessage = AS4Message.Create(new PullRequest(pmode?.MessagePackaging?.Mpc), pmode);
 
             return new MessagingContext(pullRequestMessage, MessagingContextMode.PullReceive) {SendingPMode = pmode};
         }

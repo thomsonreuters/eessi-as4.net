@@ -9,7 +9,7 @@ namespace Eu.EDelivery.AS4.Builders.Entities
     /// <summary>
     /// Builder to create <see cref="OutMessage"/> Models
     /// </summary>
-    public class OutMessageBuilder
+    internal class OutMessageBuilder
     {
         private readonly MessageUnit _messageUnit;
         private readonly string _contentType;
@@ -53,12 +53,12 @@ namespace Eu.EDelivery.AS4.Builders.Entities
             {
                 ContentType = _contentType,
                 ModificationTime = DateTimeOffset.Now,
-                InsertionTime = DateTimeOffset.Now
+                InsertionTime = DateTimeOffset.Now,
+                Operation = Operation.NotApplicable,
+                MEP = DetermineMepOf(_sendingProcessingMode),
+                EbmsMessageType = messageType
             };
 
-            outMessage.Operation = (Operation.NotApplicable);
-            outMessage.MEP = DetermineMepOf(_sendingProcessingMode);
-            outMessage.EbmsMessageType = messageType;
             outMessage.SetPModeInformation(_sendingProcessingMode);
 
             if (string.IsNullOrWhiteSpace(_messageUnit.RefToMessageId) == false)

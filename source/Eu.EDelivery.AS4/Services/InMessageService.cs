@@ -14,9 +14,9 @@ using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
+using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Streaming;
 using NLog;
-using CollaborationInfo = Eu.EDelivery.AS4.Model.Core.CollaborationInfo;
 using MessageExchangePattern = Eu.EDelivery.AS4.Entities.MessageExchangePattern;
 using RetryReliability = Eu.EDelivery.AS4.Model.PMode.RetryReliability;
 
@@ -55,59 +55,17 @@ namespace Eu.EDelivery.AS4.Services
         }
 
         /// <summary>
-        /// Search for duplicate <see cref="UserMessage"/> instances in the configured datastore for the given <paramref name="searchedMessageIds"/>.
-        /// </summary>
-        /// <param name="searchedMessageIds">'EbmsMessageIds' to search for duplicates.</param>
-        /// <returns></returns>
-        public IDictionary<string, bool> DetermineDuplicateUserMessageIds(IEnumerable<string> searchedMessageIds)
-        {
-            if (searchedMessageIds == null)
-            {
-                throw new ArgumentNullException(nameof(searchedMessageIds));
-            }
-
-            IEnumerable<string> duplicateMessageIds = _repository.SelectExistingInMessageIds(searchedMessageIds);
-
-            return MergeTwoListsIntoADuplicateMessageMapping(searchedMessageIds, duplicateMessageIds);
-        }
-
-        /// <summary>
-        /// Search for duplicate <see cref="SignalMessage"/> instances in the configured datastore for the given <paramref name="searchedMessageIds"/>.
-        /// </summary>
-        /// <param name="searchedMessageIds">'RefToEbmsMessageIds' to search for duplicates.</param>
-        /// <returns></returns>
-        public IDictionary<string, bool> DetermineDuplicateSignalMessageIds(IEnumerable<string> searchedMessageIds)
-        {
-            if (searchedMessageIds == null)
-            {
-                throw new ArgumentNullException(nameof(searchedMessageIds));
-            }
-
-            IEnumerable<string> duplicateMessageIds = _repository.SelectExistingRefInMessageIds(searchedMessageIds);
-
-            return MergeTwoListsIntoADuplicateMessageMapping(searchedMessageIds, duplicateMessageIds);
-        }
-
-        private static IDictionary<string, bool> MergeTwoListsIntoADuplicateMessageMapping(
-            IEnumerable<string> searchedMessageIds,
-            IEnumerable<string> duplicateMessageIds)
-        {
-            return
-                searchedMessageIds.Select(i => new KeyValuePair<string, bool>(i, duplicateMessageIds.Contains(i)))
-                                  .ToDictionary(k => k.Key, v => v.Value);
-        }
-
-        /// <summary>
         /// Insert a DeadLettered AS4 Error refering a specified <paramref name="ebmsMessageId"/> 
-        /// for a specified <paramref name="mep"/> notifying only if the specified <paramref name="sendPMode"/> is configured this way.
+        /// for a specified <paramref name="mep"/> notifying only if the specified <paramref name="sendingPMode"/> is configured this way.
         /// </summary>
         /// <param name="ebmsMessageId"></param>
         /// <param name="mep"></param>
-        /// <param name="sendPMode"></param>
+        /// <param name="sendingPMode"></param>
+        /// <exception cref="ArgumentNullException"></exception>
         internal void InsertDeadLetteredErrorForAsync(
             string ebmsMessageId,
             MessageExchangePattern mep,
-            SendingProcessingMode sendPMode)
+            SendingProcessingMode sendingPMode)
         {
             if (ebmsMessageId == null)
             {
@@ -119,10 +77,10 @@ namespace Eu.EDelivery.AS4.Services
                     ebmsMessageId,
                     new ErrorResult("Missing Receipt", ErrorAlias.MissingReceipt));
 
-            AS4Message as4Message = AS4Message.Create(errorMessage, sendPMode);
+            AS4Message as4Message = AS4Message.Create(errorMessage, sendingPMode);
             InMessage inMessage = InMessageBuilder
                 .ForSignalMessage(errorMessage, as4Message, mep)
-                .WithPMode(sendPMode)
+                .WithPMode(sendingPMode)
                 .Build();
 
             // We do not use the InMessageService to persist the incoming message here, since this is not really
@@ -136,7 +94,7 @@ namespace Eu.EDelivery.AS4.Services
                     message: as4Message);
 
             inMessage.Operation =
-                (sendPMode?.ErrorHandling?.NotifyMessageProducer ?? false)
+                (sendingPMode?.ErrorHandling?.NotifyMessageProducer ?? false)
                     ? Operation.ToBeNotified
                     : Operation.NotApplicable;
 
@@ -150,15 +108,29 @@ namespace Eu.EDelivery.AS4.Services
         /// The AS4 Message Body is persisted as it has been received.
         /// </summary>
         /// <remarks>The received Message is parsed to an AS4 Message instance.</remarks>
-        /// <param name="context"></param>
+        /// <param name="sendingPMode"></param>
         /// <param name="mep"></param>
         /// <param name="messageBodyStore"></param>
+        /// <param name="as4Message"></param>
+        /// <param name="originalMessage"></param>
+        /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="InvalidOperationException"></exception>
         /// <returns>A MessagingContext instance that contains the parsed AS4 Message.</returns>
-        public async Task<MessagingContext> InsertAS4MessageAsync(MessagingContext context, MessageExchangePattern mep, IAS4MessageBodyStore messageBodyStore)
+        public async Task<AS4Message> InsertAS4MessageAsync(
+            AS4Message as4Message,
+            ReceivedMessage originalMessage,
+            SendingProcessingMode sendingPMode,
+            MessageExchangePattern mep,
+            IAS4MessageBodyStore messageBodyStore)
         {
-            if (context == null)
+            if (as4Message == null)
             {
-                throw new ArgumentNullException(nameof(context));
+                throw new ArgumentNullException(nameof(as4Message));
+            }
+
+            if (originalMessage == null)
+            {
+                throw new InvalidOperationException("The MessagingContext must contain a Received Message");
             }
 
             if (messageBodyStore == null)
@@ -166,28 +138,20 @@ namespace Eu.EDelivery.AS4.Services
                 throw new ArgumentNullException(nameof(messageBodyStore));
             }
 
-            if (context.ReceivedMessage == null)
-            {
-                throw new InvalidOperationException("The MessagingContext must contain a Received Message");
-            }
-
             // TODO: should we start the transaction here.
             string location =
                 await messageBodyStore.SaveAS4MessageStreamAsync(
                     location: _configuration.InMessageStoreLocation,
-                    as4MessageStream: context.ReceivedMessage.UnderlyingStream).ConfigureAwait(false);
+                    as4MessageStream: originalMessage.UnderlyingStream).ConfigureAwait(false);
 
-            StreamUtilities.MovePositionToStreamStart(context.ReceivedMessage.UnderlyingStream);
+            StreamUtilities.MovePositionToStreamStart(originalMessage.UnderlyingStream);
 
             try
             {
-                var as4Message = context.AS4Message;
+                InsertUserMessages(as4Message, mep, location, sendingPMode);
+                InsertSignalMessages(as4Message, mep, location, sendingPMode);
 
-                InsertUserMessages(as4Message, mep, location, context.SendingPMode);
-                InsertSignalMessages(as4Message, mep, location, context.SendingPMode);
-
-                context.ModifyContext(as4Message);
-                return context;
+                return as4Message;
             }
             catch (Exception ex)
             {
@@ -196,7 +160,7 @@ namespace Eu.EDelivery.AS4.Services
                 var service = new ExceptionService(_configuration, _repository, messageBodyStore);
                 await service.InsertIncomingExceptionAsync(ex, new MemoryStream(Encoding.UTF8.GetBytes(location)));
 
-                return new MessagingContext(ex);
+                throw;
             }
         }
 
@@ -206,21 +170,31 @@ namespace Eu.EDelivery.AS4.Services
             string location,
             SendingProcessingMode pmode)
         {
+            if (!as4Message.HasUserMessage)
+            {
+                Logger.Debug("No UserMessages present to be inserted");
+                return;
+            }
+
             IDictionary<string, bool> duplicateUserMessages =
                 DetermineDuplicateUserMessageIds(as4Message.UserMessages.Select(m => m.MessageId));
 
             foreach (UserMessage userMessage in as4Message.UserMessages)
             {
-                userMessage.IsTest = IsUserMessageTest(userMessage);
+                if (userMessage.IsTest)
+                {
+                    Logger.Info($"[{userMessage.MessageId}] Incoming User Message is 'Test Message'");
+                }
+
                 userMessage.IsDuplicate = IsUserMessageDuplicate(userMessage, duplicateUserMessages);
 
                 try
                 {
                     InMessage inMessage = InMessageBuilder
                         .ForUserMessage(userMessage, as4Message, mep)
+                        .WithPMode(pmode)
                         .Build();
 
-                    inMessage.SetPModeInformation(pmode);
                     inMessage.MessageLocation = location;
 
                     Logger.Debug(
@@ -231,12 +205,19 @@ namespace Eu.EDelivery.AS4.Services
                 }
                 catch (Exception ex)
                 {
-                    string description = $"Unable to update UserMessage {userMessage.MessageId}";
+                    string description = $"Unable to insert UserMessage {userMessage.MessageId}";
                     Logger.Error(description);
 
                     throw new DataException(description, ex);
                 }
             }
+        }
+
+        private IDictionary<string, bool> DetermineDuplicateUserMessageIds(IEnumerable<string> searchedMessageIds)
+        {
+            IEnumerable<string> duplicateMessageIds = _repository.SelectExistingInMessageIds(searchedMessageIds);
+
+            return MergeTwoListsIntoADuplicateMessageMapping(searchedMessageIds, duplicateMessageIds);
         }
 
         private void InsertSignalMessages(
@@ -245,8 +226,9 @@ namespace Eu.EDelivery.AS4.Services
             string location,
             SendingProcessingMode pmode)
         {
-            if (!as4Message.SignalMessages.Any())
+            if (!as4Message.HasSignalMessage)
             {
+                Logger.Debug("No SignalMessages present to be inserted");
                 return;
             }
 
@@ -265,20 +247,20 @@ namespace Eu.EDelivery.AS4.Services
                 {
                     InMessage inMessage = InMessageBuilder
                         .ForSignalMessage(signalMessage, as4Message, mep)
+                        .WithPMode(pmode)
                         .Build();
 
                     inMessage.MessageLocation = location;
-                    inMessage.SetPModeInformation(pmode);
 
                     Logger.Debug(
-                        $"Insert InMessage {signalMessage.GetType().Name} {signalMessage.MessageId} with " +
-                        $"{{Operation={inMessage.Operation}, Status={inMessage.Status}}}");
+                        $"Insert InMessage {signalMessage.GetType().Name} {signalMessage.MessageId} " +
+                        $"with {{Operation={inMessage.Operation}, Status={inMessage.Status}}}");
 
                     _repository.InsertInMessage(inMessage);
                 }
                 catch (Exception exception)
                 {
-                    string description = $"Unable to update SignalMessage {signalMessage.MessageId}";
+                    string description = $"Unable to insert SignalMessage {signalMessage.MessageId}";
                     Logger.Error(description);
 
                     throw new DataException(description, exception);
@@ -286,24 +268,46 @@ namespace Eu.EDelivery.AS4.Services
             }
         }
 
-        /// <summary>Updates an <see cref="AS4Message"/> for delivery and notification.</summary>
-        /// <param name="messageContext">The message Context.</param>
-        /// <param name="messageBodyStore">The as4 message body persister.</param>
-        /// <returns></returns>
-        /// <exception cref="InvalidDataException"></exception>
-        public void UpdateAS4MessageForMessageHandling(MessagingContext messageContext, IAS4MessageBodyStore messageBodyStore)
+        private IDictionary<string, bool> DetermineDuplicateSignalMessageIds(IEnumerable<string> searchedMessageIds)
         {
-            if (messageContext == null)
+            IEnumerable<string> duplicateMessageIds = _repository.SelectExistingRefInMessageIds(searchedMessageIds);
+
+            return MergeTwoListsIntoADuplicateMessageMapping(searchedMessageIds, duplicateMessageIds);
+        }
+
+        private static IDictionary<string, bool> MergeTwoListsIntoADuplicateMessageMapping(
+            IEnumerable<string> searchedMessageIds,
+            IEnumerable<string> duplicateMessageIds)
+        {
+            return searchedMessageIds
+                .Select(i => new KeyValuePair<string, bool>(i, duplicateMessageIds.Contains(i)))
+                .ToDictionary(k => k.Key, v => v.Value);
+        }
+
+        /// <summary>
+        /// Updates an <see cref="AS4Message"/> for delivery and notification.
+        /// </summary>
+        /// <param name="as4Message">The message.</param>
+        /// <param name="receivingPMode"></param>
+        /// <param name="messageBodyStore">The as4 message body persister.</param>
+        /// <param name="sendingPMode"></param>
+        /// <exception cref="ArgumentNullException"></exception>
+        /// <returns></returns>
+        public void UpdateAS4MessageForMessageHandling(
+            AS4Message as4Message,
+            SendingProcessingMode sendingPMode,
+            ReceivingProcessingMode receivingPMode,
+            IAS4MessageBodyStore messageBodyStore)
+        {
+            if (as4Message == null)
             {
-                throw new ArgumentNullException(nameof(messageContext));
+                throw new ArgumentNullException(nameof(as4Message));
             }
 
             if (messageBodyStore == null)
             {
                 throw new ArgumentNullException(nameof(messageBodyStore));
             }
-
-            AS4Message as4Message = messageContext.AS4Message;
 
             if (as4Message.HasUserMessage)
             {
@@ -317,10 +321,12 @@ namespace Eu.EDelivery.AS4.Services
                     m => m.MessageLocation = savedLocation);
             }
 
-            if (messageContext.ReceivedMessageMustBeForwarded)
+            if (receivingPMode?.MessageHandling?.MessageHandlingType == MessageHandlingChoiceType.Forward)
             {
-                string pmodeString = messageContext.GetReceivingPModeString();
-                string pmodeId = messageContext.ReceivingPMode?.Id;
+                Logger.Debug($"Received AS4Message must be forwarded since the ReceivingPMode {receivingPMode?.Id} MessageHandling has a <Forward/> element");
+
+                string pmodeString = AS4XmlSerializer.ToString(receivingPMode);
+                string pmodeId = receivingPMode.Id;
 
                 // Only set the Operation of the InMessage that represents the 
                 // Primary Message-Unit to 'ToBeForwarded' since we want to prevent
@@ -328,7 +334,7 @@ namespace Eu.EDelivery.AS4.Services
                 // present in the AS4 Message).
 
                 _repository.UpdateInMessages(
-                    m => messageContext.AS4Message.MessageIds.Contains(m.EbmsMessageId),
+                    m => as4Message.MessageIds.Contains(m.EbmsMessageId),
                     m =>
                     {
                         m.Intermediary = true;
@@ -337,34 +343,38 @@ namespace Eu.EDelivery.AS4.Services
                     });
 
                 _repository.UpdateInMessage(
-                    messageContext.AS4Message.GetPrimaryMessageId(),
+                    as4Message.GetPrimaryMessageId(),
                     m =>
                     {
                         m.Operation = Operation.ToBeForwarded;
                         Logger.Debug($"Update InMessage {m.EbmsMessageType} with Operation={m.Operation}");
                     });
             }
+            else if (receivingPMode?.MessageHandling?.MessageHandlingType == MessageHandlingChoiceType.Deliver)
+            {
+                UpdateUserMessagesForDelivery(as4Message.UserMessages, receivingPMode);
+                UpdateSignalMessagesForNotification(as4Message.SignalMessages, sendingPMode);
+            }
             else
             {
-                UpdateUserMessagesForDeliveryAndNotification(messageContext);
-                UpdateSignalMessages(messageContext);
+                UpdateSignalMessagesForNotification(as4Message.SignalMessages, sendingPMode);
             }
         }
 
-        private void UpdateUserMessagesForDeliveryAndNotification(MessagingContext ctx)
+        private void UpdateUserMessagesForDelivery(IEnumerable<UserMessage> userMessages, ReceivingProcessingMode receivingPMode)
         {
-            IEnumerable<UserMessage> userMsgs = ctx.AS4Message.UserMessages;
-            if (userMsgs.Any() == false)
+            if (userMessages.Any() == false)
             {
+                Logger.Debug("No UserMessages present to be delivered");
                 return;
             }
 
-            string receivingPModeId = ctx.ReceivingPMode?.Id;
-            string receivingPModeString = ctx.GetReceivingPModeString();
+            string receivingPModeId = receivingPMode?.Id;
+            string receivingPModeString = AS4XmlSerializer.ToString(receivingPMode);
 
             var xs = _repository
-                .GetInMessagesData(userMsgs.Select(um => um.MessageId), im => im.Id)
-                .Zip(userMsgs, Tuple.Create);
+                .GetInMessagesData(userMessages.Select(um => um.MessageId), im => im.Id)
+                .Zip(userMessages, Tuple.Create);
 
             foreach ((long id, UserMessage userMessage) in xs)
             {
@@ -374,13 +384,13 @@ namespace Eu.EDelivery.AS4.Services
                     {
                         message.SetPModeInformation(receivingPModeId, receivingPModeString);
 
-                        if (UserMessageNeedsToBeDelivered(ctx.ReceivingPMode, userMessage)
+                        if (UserMessageNeedsToBeDelivered(receivingPMode, userMessage)
                             && message.Intermediary == false)
                         {
                             message.Operation = Operation.ToBeDelivered;
 
                             RetryReliability reliability =
-                                ctx.ReceivingPMode.MessageHandling?.DeliverInformation?.Reliability;
+                                receivingPMode?.MessageHandling?.DeliverInformation?.Reliability;
 
                             if (reliability?.IsEnabled ?? false)
                             {
@@ -390,7 +400,14 @@ namespace Eu.EDelivery.AS4.Services
                                     retryInterval: reliability.RetryInterval.AsTimeSpan(),
                                     type: RetryType.Delivery);
 
+                                Logger.Debug($"Insert RetryReliability for UserMessage InMessage {r.RefToInMessageId} with {{MaxRetryCount={r.MaxRetryCount}, RetryInterval={r.RetryInterval}}}");
                                 _repository.InsertRetryReliability(r);
+                            }
+                            else
+                            {
+                                Logger.Debug(
+                                    "Will not insert RetryReliability for UserMessage(s) so it can be retried during delivery "
+                                    + $"since the ReceivingPMode {receivingPMode?.Id} MessageHandling.Deliver.Reliability.IsEnabled = false");
                             }
 
                             Logger.Debug($"Update InMessage UserMessage {userMessage.MessageId} with Operation={message.Operation}");
@@ -399,20 +416,48 @@ namespace Eu.EDelivery.AS4.Services
             }
         }
 
-        private void UpdateSignalMessages(MessagingContext messagingContext)
+        private void UpdateSignalMessagesForNotification(IEnumerable<SignalMessage> signalMessages, SendingProcessingMode sendingPMode)
         {
-            AS4Message as4Message = messagingContext.AS4Message;
+            if (!signalMessages.Any())
+            {
+                Logger.Debug("No SignalMessages present to be notified");
+                return;
+            }
 
             // Improvement: I think it will be safer if we retrieve the sending-pmodes of the related usermessages ourselves here
             // instead of relying on the SendingPMode that is available in the AS4Message object (which is set by another Step in the queue).
-            IEnumerable<Receipt> receipts = as4Message.SignalMessages.OfType<Receipt>();
-            bool notifyReceipts = messagingContext.SendingPMode?.ReceiptHandling?.NotifyMessageProducer ?? false;
-            RetryReliability retryReceipts = messagingContext.SendingPMode?.ReceiptHandling?.Reliability;
+            IEnumerable<Receipt> receipts = signalMessages.OfType<Receipt>();
+            bool notifyReceipts = sendingPMode?.ReceiptHandling?.NotifyMessageProducer ?? false;
+            if (!notifyReceipts)
+            {
+                Logger.Debug($"No Receipts will be notified since the SendingPMode {sendingPMode?.Id} ReceiptHandling.NotifyMessageProducer = false");
+            }
+
+            RetryReliability retryReceipts = sendingPMode?.ReceiptHandling?.Reliability;
+            if (retryReceipts?.IsEnabled == false)
+            {
+                Logger.Debug(
+                    "Will not insert RetryReliability for Receipt(s) so it can be retried during delivery "
+                    + $"since the ReceivingPMode {sendingPMode?.Id} ReceiptHandling.Reliability.IsEnabled = false");
+            }
+
             UpdateSignalMessages(receipts, notifyReceipts, OutStatus.Ack, retryReceipts);
 
-            IEnumerable<Error> errors = as4Message.SignalMessages.OfType<Error>();
-            bool notifyErrors = messagingContext.SendingPMode?.ErrorHandling?.NotifyMessageProducer ?? false;
-            RetryReliability retryErrors = messagingContext.SendingPMode?.ErrorHandling?.Reliability;
+            IEnumerable<Error> errors = signalMessages.OfType<Error>();
+            bool notifyErrors = sendingPMode?.ErrorHandling?.NotifyMessageProducer ?? false;
+            if (!notifyErrors)
+            {
+                Logger.Debug($"No Errors will be notified since the SendingPMode {sendingPMode?.Id} Errorhandling.NotifyMessageProducer = false");
+            }
+
+            RetryReliability retryErrors = sendingPMode?.ErrorHandling?.Reliability;
+            if (retryErrors?.IsEnabled == false)
+            {
+                Logger.Debug(
+                    "Will not insert RetryReliability for Error(s) so it can be retried during notification "
+                    + $"since the SendingPMode {sendingPMode?.Id} ErrorHandling.Reliability.IsEnabled = false");
+            }
+
             UpdateSignalMessages(errors, notifyErrors, OutStatus.Nack, retryErrors);
         }
 
@@ -451,6 +496,7 @@ namespace Eu.EDelivery.AS4.Services
                                 retryInterval: reliability.RetryInterval.AsTimeSpan(),
                                 type: RetryType.Notification);
 
+                            Logger.Debug($"Insert RetryReliability for SignalMessage InMessage {id} with {{MaxRetryCount={r.MaxRetryCount}, RetryInterval={r.RetryInterval}}}");
                             _repository.InsertRetryReliability(r);
                         }
                     }
@@ -471,21 +517,6 @@ namespace Eu.EDelivery.AS4.Services
         }
 
         #region UserMessage related
-
-        private static bool IsUserMessageTest(UserMessage userMessage)
-        {
-            CollaborationInfo collaborationInfo = userMessage.CollaborationInfo;
-
-            bool isTestMessage = (collaborationInfo.Service.Value?.Equals(Constants.Namespaces.TestService) ?? false) &&
-                                 (collaborationInfo.Action?.Equals(Constants.Namespaces.TestAction) ?? false);
-
-            if (isTestMessage)
-            {
-                Logger.Info($"[{userMessage.MessageId}] Incoming User Message is 'Test Message'");
-            }
-
-            return isTestMessage;
-        }
 
         private static bool IsUserMessageDuplicate(
             MessageUnit userMessage,

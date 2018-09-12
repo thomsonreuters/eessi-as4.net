@@ -13,11 +13,13 @@ using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Steps.Receive;
 using Eu.EDelivery.AS4.UnitTests.Common;
+using Eu.EDelivery.AS4.UnitTests.Mappings.Core;
 using Eu.EDelivery.AS4.UnitTests.Model;
 using Eu.EDelivery.AS4.UnitTests.Repositories;
 using FsCheck;
 using FsCheck.Xunit;
 using Xunit;
+using AgreementReference = Eu.EDelivery.AS4.Model.Core.AgreementReference;
 using CollaborationInfo = Eu.EDelivery.AS4.Model.Core.CollaborationInfo;
 using RetryReliability = Eu.EDelivery.AS4.Model.PMode.RetryReliability;
 using Service = Eu.EDelivery.AS4.Model.Core.Service;
@@ -355,13 +357,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
         }
 
         [Theory]
-        [InlineData(false, false, 0, "0:00:00")]
-        [InlineData(false, true, 0, "0:00:00")]
-        [InlineData(true, false, 3, "0:00:00:05")]
-        [InlineData(true, true, 0, "0:00:00")]
+        [InlineData(false, "not-test-action", 0, "0:00:00")]
+        [InlineData(false, Constants.Namespaces.TestAction, 0, "0:00:00")]
+        [InlineData(true, "not-test-action", 3, "0:00:00:05")]
+        [InlineData(true, Constants.Namespaces.TestAction, 0, "0:00:00")]
         public async Task Updates_UserMessage_InMessage_With_Retry_Info_When_Specified(
             bool enabled,
-            bool isTest,
+            string action,
             int count,
             string intervalString)
         {
@@ -369,29 +371,43 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
             // Arrange
             string ebmsMessageId = "user-" + Guid.NewGuid();
-            AS4Message as4Message = AS4Message.Create(new FilledUserMessage(ebmsMessageId));
-            var pmode = new ReceivingProcessingMode();
-            pmode.MessageHandling.DeliverInformation.IsEnabled = true;
-            pmode.MessageHandling.DeliverInformation.Reliability =
-                new RetryReliability
+            var userMessage = new UserMessage(
+                ebmsMessageId,
+                new CollaborationInfo(
+                    Maybe<AgreementReference>.Nothing,
+                    Service.TestService, 
+                    action,
+                    conversationId: "1"));
+
+            var pmode = new ReceivingProcessingMode
+            {
+                MessageHandling =
                 {
-                    IsEnabled = enabled,
-                    RetryCount = 3,
-                    RetryInterval = "0:00:00:05"
-                };
+                    MessageHandlingType = MessageHandlingChoiceType.Deliver,
+                    DeliverInformation =
+                    {
+                        IsEnabled = true,
+                        Reliability = new RetryReliability
+                        {
+                            IsEnabled = enabled,
+                            RetryCount = 3,
+                            RetryInterval = "0:00:00:05"
+                        }
+                    }
+                }
+            };
 
             // Act
             await ExerciseUpdateReceivedMessage(
-                as4Message,
+                AS4Message.Create(userMessage),
                 sendPMode: null,
-                receivePMode: pmode,
-                alterAfterSaved: as4 => as4.FirstUserMessage.IsTest = isTest);
+                receivePMode: pmode);
 
             // Assert
             InMessage actual = GetDataStoreContext.GetInMessage(m => m.EbmsMessageId == ebmsMessageId);
-            bool needsToBeDelivered = enabled && !isTest;
+            bool needsToBeDelivered = enabled && !userMessage.IsTest;
             Assert.True(
-                !isTest == (Operation.ToBeDelivered == actual.Operation),
+                !userMessage.IsTest == (Operation.ToBeDelivered == actual.Operation),
                 "InMessage.Operation <> ToBeDelivered when not test message");
 
             GetDataStoreContext.AssertRetryRelatedInMessage(
@@ -420,15 +436,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
         private async Task ExerciseUpdateReceivedMessage(
             AS4Message as4Message,
             SendingProcessingMode sendPMode,
-            ReceivingProcessingMode receivePMode,
-            Action<AS4Message> alterAfterSaved = null)
+            ReceivingProcessingMode receivePMode)
         {
             // We need to mimick the retrieval of the SendingPMode.
             MessagingContext ctx = CreateMessageReceivedContext(as4Message, sendPMode, receivePMode);
 
             var sut = new UpdateReceivedAS4MessageBodyStep(StubConfig.Default, GetDataStoreContext, _messageBodyStore);
             MessagingContext savedResult = await ExecuteSaveReceivedMessage(ctx);
-            alterAfterSaved?.Invoke(savedResult.AS4Message);
 
             await sut.ExecuteAsync(savedResult);
         }

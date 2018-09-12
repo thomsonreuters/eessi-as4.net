@@ -66,6 +66,7 @@
     <Compile Include="Exceptions\Handlers\GivenOutboundExceptionHandlerFacts.cs" />
     <Compile Include="Exceptions\Handlers\GivenPullSendAgentExceptionHandlerFacts.cs" />
     <Compile Include="Exceptions\Handlers\GivenSafeExceptionHandlerFacts.cs" />
+    <Compile Include="Extensions\EnumerableExtensions.cs" />
     <Compile Include="Factories\GivenPayloadFileNameFactoryFacts.cs" />
     <Compile Include="Gens.cs" />
     <Compile Include="Mappings\Core\GivenRoutingInputUserMessageMapFacts.cs" />
@@ -92,6 +93,7 @@
     <Compile Include="Steps\Forward\GivenCreateForwardMessageStepFacts.cs" />
     <Compile Include="Steps\Forward\GivenDetermineForwardStepFacts.cs" />
     <Compile Include="Steps\Notify\NotifyRetryData.cs" />
+    <Compile Include="Steps\Send\GivenBundleSignalMessageToPullRequestStepFacts.cs" />
     <Compile Include="Steps\Receive\GivenSendSignalMessageStepFacts.cs" />
     <Compile Include="Steps\Receive\GivenValidateAS4MessageStepFacts.cs" />
     <Compile Include="Steps\Send\GivenLogReceivedProcessingErrorStepFacts.cs" />
@@ -245,7 +247,6 @@
     <Compile Include="Steps\Submit\GivenRetrieveSendingPModeStepFacts.cs" />
     <Compile Include="Steps\Send\GivenSigningAS4MessageStepFacts.cs" />
     <Compile Include="Steps\Receive\GivenVerifySignatureAS4MessageStepFacts.cs" />
-    <Compile Include="Builders\Core\MessageContextBuilder.cs" />
     <Compile Include="Steps\Submit\GivenStoreAS4MessageStepsFacts.cs" />
     <Compile Include="Strategies\Retriever\GivenFilePayloadRetrieverFacts.cs" />
     <Compile Include="Strategies\GivenPayloadStrategyProviderFacts.cs" />
@@ -387,10 +388,6 @@
     <Content Include="Resources\holodeck-as4message.xml" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Steps\Participant\" />
-    <Folder Include="Steps\ReceptionAwareness\" />
-  </ItemGroup>
-  <ItemGroup>
     <PackageReference Include="Fody">
       <Version>3.1.3</Version>
     </PackageReference>
@@ -439,6 +436,9 @@
     <PackageReference Include="xunit.runner.visualstudio">
       <Version>2.3.1</Version>
     </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Builders\Core\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

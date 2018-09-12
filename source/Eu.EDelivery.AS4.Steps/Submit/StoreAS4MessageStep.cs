@@ -85,8 +85,12 @@ namespace Eu.EDelivery.AS4.Steps.Submit
             Logger.Debug("Storing the AS4Message with Operation=ToBeProcessed");
             using (DatastoreContext context = _createContext())
             {
-                var service = new OutMessageService(_config, new DatastoreRepository(context), _messageBodyStore);
-                service.InsertAS4Message(messagingContext, Operation.ToBeProcessed);
+                var repository = new DatastoreRepository(context);
+                var service = new OutMessageService(_config, repository, _messageBodyStore);
+                service.InsertAS4Message(
+                    messagingContext.AS4Message,
+                    messagingContext.SendingPMode,
+                    messagingContext.ReceivingPMode);
 
                 try
                 {
