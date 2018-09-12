@@ -36,6 +36,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
         /// </summary>
         public virtual TimeSpan RetryPollingInterval => throw new NotImplementedException();
 
+        public virtual string InExceptionStoreLocation => throw new NotImplementedException();
+        public virtual string OutExceptionStoreLocation => throw new NotImplementedException();
+
         /// <summary>
         /// Retrieve Setting from the Global Configurations
         /// </summary>
@@ -103,6 +106,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
         {
             get { return string.Empty; }
         }
+
+        /// <summary>
+        /// Gets the location where the payloads should be retrieved.
+        /// </summary>
+        public virtual string PayloadRetrievalLocation => throw new NotImplementedException();
 
         /// <summary>
         /// Gets the agent settings.

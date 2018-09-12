@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Entities;
 using Eu.EDelivery.AS4.Common;
@@ -155,9 +156,8 @@ namespace Eu.EDelivery.AS4.Services
             {
                 Logger.Error(ex.Message);
 
-                InException inException = new InException(System.Text.Encoding.UTF8.GetBytes(location), ex.Message);
-
-                _repository.InsertInException(inException);
+                var service = new ExceptionService(_configuration, _repository, messageBodyStore);
+                await service.InsertIncomingExceptionAsync(ex, new MemoryStream(Encoding.UTF8.GetBytes(location)));
 
                 throw;
             }

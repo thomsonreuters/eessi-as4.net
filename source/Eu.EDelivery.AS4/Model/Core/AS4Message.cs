@@ -292,11 +292,10 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// <summary>
         /// Determines the size of the message.
         /// </summary>
-        /// <param name="provider">The provider.</param>
         /// <returns></returns>
-        public long DetermineMessageSize(ISerializerProvider provider)
+        public long DetermineMessageSize()
         {
-            ISerializer serializer = provider.Get(this.ContentType);
+            ISerializer serializer = SerializerProvider.Default.Get(ContentType);
 
             using (var stream = new DetermineSizeStream())
             {

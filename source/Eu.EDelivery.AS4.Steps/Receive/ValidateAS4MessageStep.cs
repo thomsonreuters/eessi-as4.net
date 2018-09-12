@@ -58,8 +58,9 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 AS4Message message = context.AS4Message;
 
                 bool noAttachmentCanBeFoundForEachPartInfo =
-                    message.FirstUserMessage.PayloadInfo?.Count(
-                        p => message.Attachments.FirstOrDefault(a => a.Matches(p)) == null) > 0;
+                    message.UserMessages
+                           .SelectMany(u => u.PayloadInfo)
+                           .Count(p => message.Attachments.FirstOrDefault(a => a.Matches(p)) == null) > 0;
 
                 if (noAttachmentCanBeFoundForEachPartInfo)
                 {
@@ -67,7 +68,13 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                     return ValidationFailure(context);
                 }
 
-                if (message.FirstUserMessage.PayloadInfo?.GroupBy(p => p.Href).All(g => g.Count() == 1) == false)
+                bool uniquePartInfos = 
+                    message.UserMessages
+                           .SelectMany(u => u.PayloadInfo)
+                           .GroupBy(p => p.Href)
+                           .All(g => g.Count() == 1);
+
+                if (!uniquePartInfos)
                 {
                     context.ErrorResult = DuplicateAttachmentInvalidHeaderError();
                     return ValidationFailure(context);

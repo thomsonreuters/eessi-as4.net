@@ -9,14 +9,14 @@ namespace Eu.EDelivery.AS4.Common
 {
     public interface IRegistry
     {
+        bool IsInitialized { get; }
+        Func<DatastoreContext> CreateDatastoreContext { get; }
         IAttachmentUploaderProvider AttachmentUploader { get; }
         ICertificateRepository CertificateRepository { get; }
-        Func<DatastoreContext> CreateDatastoreContext { get; }
         IDeliverSenderProvider DeliverSenderProvider { get; }
-        bool IsInitialized { get; }
-        MessageBodyStore MessageBodyStore { get; }
         INotifySenderProvider NotifySenderProvider { get; }
         IPayloadRetrieverProvider PayloadRetrieverProvider { get; }
-        ISerializerProvider SerializerProvider { get; }
+        MessageBodyStore MessageBodyStore { get; }
+        SerializerProvider SerializerProvider { get; }
     }
 }

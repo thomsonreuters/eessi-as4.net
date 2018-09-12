@@ -45,7 +45,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
             receiver.StopReceiving();
         }
 
-        [Fact(Skip="Not deterministic")]
+        [Fact(Skip = "Not deterministic")]
         public void DoesReceiveNonSystemFileTypes()
         {
             CreateFileInDirectory("testfile.dat", _watchedDirectory);

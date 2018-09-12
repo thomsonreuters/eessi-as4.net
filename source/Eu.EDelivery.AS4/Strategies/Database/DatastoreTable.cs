@@ -42,7 +42,7 @@ namespace Eu.EDelivery.AS4.Strategies.Database
         }
 
         /// <summary>
-        /// Ensure thath the given <paramref name="tableName"/> is known.
+        /// Ensure that the given <paramref name="tableName"/> is known.
         /// </summary>
         /// <param name="tableName">The name of the table</param>
         /// <exception cref="ConfigurationErrorsException">Throws when the given <paramref name="tableName"/> isn't known.</exception>

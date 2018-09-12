@@ -16,6 +16,7 @@ using Eu.EDelivery.AS4.TestUtils.Stubs;
 using Xunit;
 using AgreementReference = Eu.EDelivery.AS4.Model.Core.AgreementReference;
 using CollaborationInfo = Eu.EDelivery.AS4.Model.Core.CollaborationInfo;
+using MessageExchangePattern = Eu.EDelivery.AS4.Entities.MessageExchangePattern;
 using Service = Eu.EDelivery.AS4.Model.Core.Service;
 
 namespace Eu.EDelivery.AS4.ComponentTests.Agents
@@ -51,13 +52,14 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             Assert.False(_databaseSpy.GetInExceptions(r => true).Any(), "No logged InExceptions are expected.");
         }
 
-        [Fact(Skip = "Waiting for multiple (bunlded) UserMessages implementation")]
+        [Fact]
         public async Task Received_Bundled_Response_Should_Process_All_Messages()
         {
             // Arrange
             string storedMessageId = "stored-" + Guid.NewGuid();
             StoreToBeAckOutMessage(storedMessageId);
             AS4Message bundled = CreateBundledMultipleUserMessagesWithRefTo();
+            bundled.AddMessageUnit(new Receipt(storedMessageId));
 
             string pullSenderUrl = RetrievePullingUrlFromConfig();
 
@@ -80,13 +82,23 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                 _databaseSpy.GetInMessages(bundled.UserMessages.Select(u => u.MessageId).ToArray()),
                 userMessage1 =>
                 {
+                    Assert.Equal(MessageExchangePattern.Pull, userMessage1.MEP);
                     Assert.Equal(InStatus.Received, userMessage1.Status.ToEnum<InStatus>());
                     Assert.Equal(Operation.ToBeDelivered, userMessage1.Operation);
                 },
                 userMessage2 =>
                 {
+                    Assert.Equal(MessageExchangePattern.Pull, userMessage2.MEP);
                     Assert.Equal(InStatus.Received, userMessage2.Status.ToEnum<InStatus>());
                     Assert.Equal(Operation.ToBeDelivered, userMessage2.Operation);
+                });
+            Assert.Collection(
+                _databaseSpy.GetInMessages(bundled.SignalMessages.Select(s => s.MessageId).ToArray()),
+                signal =>
+                {
+                    Assert.Equal(MessageExchangePattern.Pull, signal.MEP);
+                    Assert.Equal(InStatus.Received, signal.Status.ToEnum<InStatus>());
+                    Assert.Equal(Operation.ToBeNotified, signal.Operation);
                 });
             Assert.Collection(
                 _databaseSpy.GetOutMessages(storedMessageId),

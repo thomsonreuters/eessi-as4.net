@@ -16,15 +16,18 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
         /// <summary>
         /// Initializes a new instance of the <see cref="NotifyExceptionHandler"/> class.
         /// </summary>
-        public NotifyExceptionHandler() : this(Registry.Instance.CreateDatastoreContext)
-        {
-        }
+        public NotifyExceptionHandler() : this(Registry.Instance.CreateDatastoreContext) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="NotifyExceptionHandler"/> class.
         /// </summary>
         public NotifyExceptionHandler(Func<DatastoreContext> createContext)
         {
+            if (createContext == null)
+            {
+                throw new ArgumentNullException(nameof(createContext));
+            }
+
             _createContext = createContext;
         }
 
@@ -96,7 +99,7 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
                 if (context.NotifyMessage.EntityType == typeof(InMessage) ||
                     context.NotifyMessage.EntityType == typeof(InException))
                 {
-                    var inException = new InException(context.EbmsMessageId, exception);
+                    var inException = InException.ForEbmsMessageId(context.EbmsMessageId, exception);
                     repository.InsertInException(inException);
 
                     if (context.NotifyMessage.EntityType == typeof(InMessage))
@@ -108,7 +111,7 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
                 else if (context.NotifyMessage.EntityType != typeof(OutMessage) ||
                          context.NotifyMessage.EntityType == typeof(OutException))
                 {
-                    var outException = new OutException(context.EbmsMessageId, exception);
+                    var outException = OutException.ForEbmsMessageId(context.EbmsMessageId, exception);
                     repository.InsertOutException(outException);
 
                     if (context.NotifyMessage.EntityType == typeof(OutMessage) &&

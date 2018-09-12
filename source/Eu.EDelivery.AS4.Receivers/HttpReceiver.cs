@@ -730,7 +730,6 @@ namespace Eu.EDelivery.AS4.Receivers
         /// <seealso cref="Eu.EDelivery.AS4.Receivers.HttpReceiver.HttpListenerContentResult" />
         private class AS4MessageContentResult : HttpListenerContentResult
         {
-            private static readonly ISerializerProvider SerializerProvider = Serialization.SerializerProvider.Default;
             private readonly MessagingContext _messagingContext;
 
             /// <summary>
@@ -754,7 +753,7 @@ namespace Eu.EDelivery.AS4.Receivers
                     {
                         if (_messagingContext.AS4Message?.IsEmpty == false)
                         {
-                            ISerializer serializer = SerializerProvider.Get(_messagingContext.AS4Message.ContentType);
+                            ISerializer serializer = SerializerProvider.Default.Get(_messagingContext.AS4Message.ContentType);
 
                             serializer.Serialize(_messagingContext.AS4Message, responseStream, CancellationToken.None);
                         }

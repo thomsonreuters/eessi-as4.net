@@ -148,17 +148,20 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                    inExceptionId = GenId();
 
             var spy = new DatabaseSpy(config);
-            spy.InsertOutMessage(CreateOutMessage(outReferenceId, insertionTime: DayBeforeYesterday, type: MessageType.Error));
+            OutMessage om = CreateOutMessage(outReferenceId, insertionTime: DayBeforeYesterday, type: MessageType.Error);
+            spy.InsertOutMessage(om);
+            spy.InsertRetryReliability(RetryReliability.CreateForOutMessage(om.Id, maxRetryCount: 0, retryInterval: default(TimeSpan), type: RetryType.Send));
             spy.InsertOutMessage(CreateOutMessage(outStandaloneId, insertionTime: DayBeforeYesterday, type: MessageType.Receipt));
             spy.InsertInMessage(CreateInMessage(inMessageId, DayBeforeYesterday));
             spy.InsertOutException(CreateOutException(outExceptionId, DayBeforeYesterday));
             spy.InsertInException(CreateInException(inExceptionId, DayBeforeYesterday));
-
+            
             // Act: AS4.NET Component will start the Clean Up Agent.
             ExerciseStartCleaning();
 
             // Assert: No OutMessage or Reception Awareness entries must be found for a given EbmsMessageId.
             Assert.Empty(spy.GetOutMessages(outReferenceId, outStandaloneId));
+            Assert.Null(spy.GetRetryReliabilityFor(r => r.RefToOutMessageId == om.Id));
             Assert.Empty(spy.GetInMessages(inMessageId));
             Assert.Empty(spy.GetOutExceptions(outExceptionId));
             Assert.Empty(spy.GetInExceptions(inExceptionId));
@@ -246,7 +249,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
         private static OutException CreateOutException(string ebmsMessageId, DateTimeOffset insertionTime)
         {
-            return new OutException(ebmsMessageId, errorMessage: string.Empty)
+            return new OutException(ebmsMessageId, messageLocation: null, exception: string.Empty)
             {
                 InsertionTime = insertionTime
             };
@@ -254,7 +257,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
         private static InException CreateInException(string ebmsMessageId, DateTimeOffset insertionTime)
         {
-            return new InException(ebmsMessageId, errorMessage: string.Empty)
+            return new InException(ebmsMessageId, messageLocation: null, exception: string.Empty)
             {
                 InsertionTime = insertionTime
             };

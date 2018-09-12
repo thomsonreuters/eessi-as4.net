@@ -15,7 +15,6 @@ using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Model.Submit;
 using Eu.EDelivery.AS4.Repositories;
-using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.TestUtils.Stubs;
 using Xunit;
 using Exception = System.Exception;
@@ -42,7 +41,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                     const string url = "http://localhost:7071/business/inmessage/";
                     string ebmsMessageId = $"receipt-{Guid.NewGuid()}";
 
-                    var store = new AS4MessageBodyFileStore(SerializerProvider.Default);
+                    var store = new AS4MessageBodyFileStore();
                     var im = new InMessage(ebmsMessageId)
                     {
                         ContentType = Constants.ContentTypes.Soap,
@@ -99,7 +98,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                     const string url = "http://localhost:7071/business/outmessage/";
                     string ebmsMessageId = $"error-{Guid.NewGuid()}";
 
-                    var store = new AS4MessageBodyFileStore(SerializerProvider.Default);
+                    var store = new AS4MessageBodyFileStore();
 
                     var om = new OutMessage(ebmsMessageId)
                     {
@@ -177,7 +176,9 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                 {
                     // Arrange
                     var handler = new OutboundExceptionHandler(
-                        () => new DatastoreContext(as4Msh.GetConfiguration()));
+                        () => new DatastoreContext(as4Msh.GetConfiguration()),
+                        as4Msh.GetConfiguration(),
+                        Registry.Instance.MessageBodyStore);
 
                     const string url = "http://localhost:7070/business/outexception/";
 
@@ -260,7 +261,9 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                 {
                     // Arrange
                     var handler = new InboundExceptionHandler(
-                        () => new DatastoreContext(as4Msh.GetConfiguration()));
+                        () => new DatastoreContext(as4Msh.GetConfiguration()),
+                        as4Msh.GetConfiguration(),
+                        Registry.Instance.MessageBodyStore);
 
                     const string url = "http://localhost:7071/business/inexception/";
 
