@@ -103,7 +103,7 @@ namespace Eu.EDelivery.AS4.Model.Core
 
         public bool IsEmpty => FirstSignalMessage == null && FirstUserMessage == null;
 
-        public bool IsPullRequest => FirstSignalMessage is PullRequest;
+        public bool IsPullRequest => PrimaryMessageUnit is PullRequest;
 
         /// <summary>
         /// Creates message with a SOAP envelope.

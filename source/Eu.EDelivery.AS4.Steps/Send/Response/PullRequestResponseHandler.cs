@@ -1,6 +1,12 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Linq;
+using System.Net;
+using System.Threading.Tasks;
+using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
+using Eu.EDelivery.AS4.Services;
+using NLog;
 
 namespace Eu.EDelivery.AS4.Steps.Send.Response
 {
@@ -9,14 +15,32 @@ namespace Eu.EDelivery.AS4.Steps.Send.Response
     /// </summary>
     internal sealed class PullRequestResponseHandler : IAS4ResponseHandler
     {
+        private readonly Func<DatastoreContext> _createContext;
         private readonly IAS4ResponseHandler _nextHandler;
+
+        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+
+        internal PullRequestResponseHandler(IAS4ResponseHandler nextHandler) 
+            : this(Registry.Instance.CreateDatastoreContext, nextHandler) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PullRequestResponseHandler"/> class.
         /// </summary>
-        /// <param name="nextHandler">The next Handler.</param>
-        public PullRequestResponseHandler(IAS4ResponseHandler nextHandler)
+        public PullRequestResponseHandler(
+            Func<DatastoreContext> createContext,
+            IAS4ResponseHandler nextHandler)
         {
+            if (createContext == null)
+            {
+                throw new ArgumentNullException(nameof(createContext));
+            }
+
+            if (nextHandler == null)
+            {
+                throw new ArgumentNullException(nameof(nextHandler));
+            }
+
+            _createContext = createContext;
             _nextHandler = nextHandler;
         }
 
@@ -27,13 +51,39 @@ namespace Eu.EDelivery.AS4.Steps.Send.Response
         /// <returns></returns>
         public async Task<StepResult> HandleResponse(IAS4Response response)
         {
-            bool isEmptyChannelWarning = (response.ReceivedAS4Message.FirstSignalMessage as Error)?.IsWarningForEmptyPullRequest == true;
-            
-            if (isEmptyChannelWarning)
+            if (response == null)
             {
-                response.OriginalRequest.ModifyContext(response.ReceivedAS4Message, MessagingContextMode.Send);
+                throw new ArgumentNullException(nameof(response));
+            }
 
-                return StepResult.Success(response.OriginalRequest).AndStopExecution();
+            MessagingContext request = response.OriginalRequest;
+            if (request?.AS4Message?.IsPullRequest == true)
+            {
+                bool pullRequestWasPiggyBacked = 
+                    request.AS4Message.SignalMessages.Any(s => !(s is PullRequest));
+
+                if (response.StatusCode != HttpStatusCode.Accepted
+                    && response.StatusCode != HttpStatusCode.OK
+                    && pullRequestWasPiggyBacked)
+                {
+                    Logger.Debug("Reset PiggyBacked SignalMessage(s) for the next PullRequest because it was not correctly send to the sender MSH");
+                    using (DatastoreContext ctx = _createContext())
+                    {
+                        var service = new PiggyBackingService(ctx);
+                        service.ResetSignalMessagesToBePiggyBacked(request.AS4Message.SignalMessages);
+
+                        await ctx.SaveChangesAsync().ConfigureAwait(false);
+                    }
+                }
+
+                bool isEmptyChannelWarning = 
+                    (response.ReceivedAS4Message?.FirstSignalMessage as Error)?.IsWarningForEmptyPullRequest == true;
+
+                if (isEmptyChannelWarning)
+                {
+                    request.ModifyContext(response.ReceivedAS4Message, MessagingContextMode.Send);
+                    return StepResult.Success(response.OriginalRequest).AndStopExecution();
+                }
             }
 
             return await _nextHandler.HandleResponse(response);

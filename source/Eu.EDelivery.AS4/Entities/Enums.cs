@@ -28,7 +28,9 @@
 
         ToBeDelivered,
         Delivering,
-        Delivered
+        Delivered,
+
+        ToBePiggyBacked
     }
 
     public enum MessageExchangePattern

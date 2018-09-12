@@ -39,8 +39,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// Initializes a new instance of the <see cref="SendAS4MessageStep" /> class
         /// </summary>
         public SendAS4MessageStep() :
-            this(Registry.Instance.CreateDatastoreContext, new ReliableHttpClient())
-        { }
+            this(Registry.Instance.CreateDatastoreContext, new ReliableHttpClient()) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SendAS4MessageStep" /> class.
@@ -290,8 +289,9 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 {
                     UpdateMessageStatus(ctx, SendResultUtils.DetermineSendResultFromHttpResonse(res.StatusCode));
 
-                    var handler = new EmptyBodyResponseHandler(
-                        new PullRequestResponseHandler(
+                    var handler = new PullRequestResponseHandler(
+                        _createDatastore,
+                        new EmptyBodyResponseHandler(
                             new TailResponseHandler()));
 
                     return await handler
