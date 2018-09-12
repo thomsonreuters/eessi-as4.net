@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Configuration;
@@ -8,6 +9,7 @@ using System.Reflection;
 using System.Xml;
 using System.Xml.Serialization;
 using Eu.EDelivery.AS4.Agents;
+using Eu.EDelivery.AS4.Builders;
 using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
@@ -140,7 +142,7 @@ namespace Eu.EDelivery.AS4.Common
             catch (Exception exception)
             {
                 IsInitialized = false;
-                Logger.Error(exception.Message);
+                Logger.Fatal(exception.Message);
 
                 throw;
             }
@@ -367,6 +369,8 @@ namespace Eu.EDelivery.AS4.Common
             AddFixedSettings();
             AddCustomSettings();
             AddCustomAgents();
+
+            ValidateAllSettings();
         }
 
         private static string BaseDirCombine(params string[] paths)
@@ -491,8 +495,79 @@ namespace Eu.EDelivery.AS4.Common
             AddCustomAgentsIfNotNull(AgentType.PullSend, _settings.Agents?.PullSendAgents);
             AddCustomAgentsIfNotNull(AgentType.OutboundProcessing, _settings.Agents?.OutboundProcessingAgents);
             AddCustomAgentsIfNotNull(AgentType.Forward, _settings.Agents?.ForwardAgents);
+        }
 
+        private void ValidateAllSettings()
+        {
+            IEnumerable<string> settingsFailures =
+                _agentConfigs.Select(c => c.Settings)
+                             .SelectMany(ValidateAgentSettings)
+                             .Concat(ValidateFixedSettings());
 
+            if (settingsFailures.Any())
+            {
+                string validationFailure =
+                    $"Failure during reading settings file: {Environment.NewLine}"
+                    + String.Join(Environment.NewLine, settingsFailures);
+
+                throw new InvalidOperationException(validationFailure);
+            }
+        }
+
+        private static IEnumerable<string> ValidateAgentSettings(AgentSettings settings)
+        {
+            if (settings.Receiver?.Type == null)
+            {
+                yield return $"Agent: {settings.Name} hasn't got a Receiver type configured";
+            }
+            else if (!GenericTypeBuilder.CanResolveType(settings.Receiver.Type))
+            {
+                yield return $"Agent: {settings.Name} Receiver type: {settings.Receiver.Type} cannot be resolved";
+            }
+
+            if (settings.Transformer?.Type == null)
+            {
+                yield return $"Agent: {settings.Name} hasn't got a Transformer type configured";
+            }
+            else if (!GenericTypeBuilder.CanResolveType(settings.Transformer.Type))
+            {
+                yield return $"Agent: {settings.Name} Transformer type: {settings.Transformer.Type} cannot be resolved";
+            }
+
+            if (settings.StepConfiguration?.NormalPipeline == null)
+            {
+                yield return $"Agent: {settings.Name} hasn't got a Steps.NormalPipeline Step type(s) configured";
+            }
+            else
+            {
+                foreach (Step s in settings.StepConfiguration.NormalPipeline)
+                {
+                    if (!GenericTypeBuilder.CanResolveType(s.Type))
+                    {
+                        yield return $"Agent: {settings.Name} has a Step in the NormalPipeline with type: {s.Type ?? "<null>"} that cannot be resolved";
+                    }
+                }
+            }
+
+            if (settings.StepConfiguration?.ErrorPipeline != null)
+            {
+                foreach (Step s in settings.StepConfiguration.ErrorPipeline)
+                {
+                    if (!GenericTypeBuilder.CanResolveType(s.Type))
+                    {
+                        yield return $"Agent: {settings.Name} has a Step in the NormalPipeline with type: {s.Type ?? "<null>"} that cannot be resolved";
+                    }
+                }
+            }
+        }
+
+        private IEnumerable<string> ValidateFixedSettings()
+        {
+            string repoType = _settings.CertificateStore?.Repository?.Type;
+            if (!GenericTypeBuilder.CanResolveType(repoType))
+            {
+                yield return $"Certificate store type: {repoType} cannot be resolved";
+            }
         }
 
         private void AddCustomAgentsIfNotNull(AgentType type, params AgentSettings[] agents)

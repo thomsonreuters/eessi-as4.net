@@ -48,6 +48,17 @@ namespace Eu.EDelivery.AS4.Builders
         }
 
         /// <summary>
+        /// Determines whether or not the given <paramref name="typeString"/> can be resolved to a type or not.
+        /// </summary>
+        /// <param name="typeString"></param>
+        /// <returns></returns>
+        public static bool CanResolveType(string typeString)
+        {
+            return !String.IsNullOrWhiteSpace(typeString)
+                   && Type.GetType(typeString, throwOnError: false) != null;
+        }
+
+        /// <summary>
         /// Set the <paramref name="args"/>
         /// which has to be send as arguments
         /// </summary>
