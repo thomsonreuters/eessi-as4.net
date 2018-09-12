@@ -82,7 +82,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
             IDynamicDiscoveryProfile profile = _resolveDynamicDiscoveryProfile(smpProfile);
             AS4Party toParty = 
                 messagingContext.Mode == MessagingContextMode.Forward
-                ? ResovleAS4ReceiverParty(messagingContext.AS4Message)
+                ? ResolveAS4ReceiverParty(messagingContext.AS4Message)
                 : ResolveSubmitOrPModeReceiverParty(
                     messagingContext.SubmitMessage?.PartyInfo?.ToParty,
                     messagingContext.SendingPMode?.MessagePackaging?.PartyInfo?.ToParty,
@@ -149,7 +149,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
                 });
         }
 
-        private static AS4Party ResovleAS4ReceiverParty(AS4Message msg)
+        private static AS4Party ResolveAS4ReceiverParty(AS4Message msg)
         {
             if (msg.PrimaryMessageUnit is UserMessage m)
             {
