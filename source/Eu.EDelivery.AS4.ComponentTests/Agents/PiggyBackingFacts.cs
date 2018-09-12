@@ -57,6 +57,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         private static async Task SubmitMessageToSubmitAgent(string submitMessage)
         {
             await StubSender.SendRequest(SubmitUrl, Encoding.UTF8.GetBytes(submitMessage), "application/soap+xml");
+            
             // Wait a bit so that we're sure that the processing agent has picked up the message.
             await Task.Delay(3000);
         }

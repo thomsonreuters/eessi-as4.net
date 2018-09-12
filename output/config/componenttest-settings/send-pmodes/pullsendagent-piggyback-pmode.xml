@@ -6,48 +6,6 @@
   <AllowOverride>true</AllowOverride>
   <Mep>OneWay</Mep>
   <MepBinding>Pull</MepBinding>
-  <Reliability>
-    <ReceptionAwareness>
-      <IsEnabled>false</IsEnabled>
-      <RetryCount>0</RetryCount>
-      <RetryInterval>00:00:05</RetryInterval>
-    </ReceptionAwareness>
-  </Reliability>
-  <ReceiptHandling>
-    <NotifyMessageProducer>true</NotifyMessageProducer>
-    <NotifyMethod>
-      <Type>FILE</Type>
-      <Parameters>
-        <Parameter name="location" value=".\messages\receipts\" />
-      </Parameters>
-    </NotifyMethod>
-  </ReceiptHandling>
-  <ErrorHandling>
-    <NotifyMessageProducer>false</NotifyMessageProducer>
-    <NotifyMethod>
-      <Type>FILE</Type>
-      <Parameters>
-        <Parameter name="location" value=".\messages\errors\" />
-      </Parameters>
-    </NotifyMethod>
-  </ErrorHandling>
-  <ExceptionHandling>
-    <NotifyMessageProducer>false</NotifyMessageProducer>
-    <NotifyMethod>
-      <Type>FILE</Type>
-      <Parameters>
-        <Parameter name="location" value=".\messages\exceptions\" />
-      </Parameters>
-    </NotifyMethod>
-  </ExceptionHandling>
-  <Security>
-    <Signing>
-      <IsEnabled>false</IsEnabled>
-    </Signing>
-    <Encryption>
-      <IsEnabled>false</IsEnabled>
-    </Encryption>
-  </Security>
   <MessagePackaging>
     <PartyInfo>
       <FromParty>
