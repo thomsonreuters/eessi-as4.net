@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PMode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+  xmlns="eu:edelivery:as4:pmode">
+  <Id>pullsendagent-piggyback-pmode</Id>
+  <ReplyHandling>
+    <SendingPMode>unsigned-response-pmode</SendingPMode>
+  </ReplyHandling>
+  <MessagePackaging>
+    <PartyInfo>
+      <FromParty>
+        <PartyIds>
+          <PartyId>
+            <Id>org:eu:europa:as4:example:accesspoint:A</Id>
+          </PartyId>
+        </PartyIds>
+        <Role>Sender</Role>
+      </FromParty>
+      <ToParty>
+        <PartyIds>
+          <PartyId>
+            <Id>org:eu:europa:as4:example:accesspoint:B</Id>
+          </PartyId>
+        </PartyIds>
+        <Role>Receiver</Role>
+      </ToParty>
+    </PartyInfo>
+    <CollaborationInfo>
+      <AgreementReference>
+        <Value>http://agreements.europa.org/agreement</Value>
+      </AgreementReference>
+      <Service>
+        <Value>Pull Send Component Test</Value>
+        <Type>pull:send:component:test</Type>
+      </Service>
+      <Action>eu:sample:pull:send:piggybacked</Action>
+    </CollaborationInfo>
+    <MessageProperties />
+  </MessagePackaging>
+</PMode>
