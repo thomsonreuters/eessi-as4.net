@@ -107,6 +107,7 @@ namespace Eu.EDelivery.AS4.Services
         /// </summary>
         /// <remarks>The received Message is parsed to an AS4 Message instance.</remarks>
         /// <param name="sendingPMode"></param>
+        /// <param name="mep"></param>
         /// <param name="messageBodyStore"></param>
         /// <param name="as4Message"></param>
         /// <param name="originalMessage"></param>
@@ -117,6 +118,7 @@ namespace Eu.EDelivery.AS4.Services
             AS4Message as4Message,
             ReceivedMessage originalMessage,
             SendingProcessingMode sendingPMode,
+            MessageExchangePattern mep,
             IAS4MessageBodyStore messageBodyStore)
         {
             if (as4Message == null)
@@ -141,11 +143,6 @@ namespace Eu.EDelivery.AS4.Services
                     as4MessageStream: originalMessage.UnderlyingStream).ConfigureAwait(false);
 
             StreamUtilities.MovePositionToStreamStart(originalMessage.UnderlyingStream);
-
-            MessageExchangePattern mep =
-                sendingPMode?.MepBinding == MessageExchangePatternBinding.Pull
-                    ? MessageExchangePattern.Pull
-                    : MessageExchangePattern.Push;
 
             try
             {

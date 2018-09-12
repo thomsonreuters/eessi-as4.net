@@ -119,6 +119,11 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         {
             using (DatastoreContext context = _createDatastoreContext())
             {
+                MessageExchangePattern messageExchangePattern =
+                    messagingContext.Mode == MessagingContextMode.PullReceive
+                        ? MessageExchangePattern.Pull
+                        : MessageExchangePattern.Push;
+
                 try
                 {
                     var service = new InMessageService(_config, new DatastoreRepository(context));
@@ -127,6 +132,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                             messagingContext.AS4Message,
                             messagingContext.ReceivedMessage,
                             messagingContext.SendingPMode,
+                            messageExchangePattern,
                             _messageBodyStore)
                         .ConfigureAwait(false);
 
