@@ -21,6 +21,21 @@ namespace Eu.EDelivery.AS4.UnitTests
 
     public static class Gens
     {
+        public static Gen<T> Or<T>(this Gen<T> g1, Gen<T> g2)
+        {
+            return Gen.OneOf(g1, g2);
+        }
+
+        public static Gen<T> OrNull<T>(this Gen<T> g1) where T : class
+        {
+            return Gen.OneOf(g1, Gen.Constant((T) null));
+        }
+
+        public static Gen<T3> Zip<T1, T2, T3>(this Gen<T1> g1, Gen<T2> g2, Func<T1, T2, T3> f)
+        {
+            return Gen.zip(g1, g2).Select(t => f(t.Item1, t.Item2));
+        }
+
         public static Arbitrary<MessageUnit> MessageUnits()
         {
             return Gen.Elements<MessageUnit>(

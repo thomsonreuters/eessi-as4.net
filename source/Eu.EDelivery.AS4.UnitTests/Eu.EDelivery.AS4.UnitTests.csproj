@@ -66,6 +66,7 @@
     <Compile Include="Exceptions\Handlers\GivenOutboundExceptionHandlerFacts.cs" />
     <Compile Include="Exceptions\Handlers\GivenPullSendAgentExceptionHandlerFacts.cs" />
     <Compile Include="Exceptions\Handlers\GivenSafeExceptionHandlerFacts.cs" />
+    <Compile Include="Extensions\EnumerableExtensions.cs" />
     <Compile Include="Factories\GivenPayloadFileNameFactoryFacts.cs" />
     <Compile Include="Gens.cs" />
     <Compile Include="Mappings\Core\GivenRoutingInputUserMessageMapFacts.cs" />

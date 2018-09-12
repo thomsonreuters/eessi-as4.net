@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using Eu.EDelivery.AS4.Mappings.PMode;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Submit;
@@ -27,10 +26,7 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
 
             if (submitParty != null && submit.PMode.AllowOverride == false)
             {
-                var messagePartyInfo = submitParty.PartyIds.Select(p => p.Id).OrderBy(p => p);
-                var pmodePartyInfo = pmodeParty?.PartyIds?.Select(p => p.Id).OrderBy(p => p);
-
-                if (pmodePartyInfo != null && messagePartyInfo.SequenceEqual(pmodePartyInfo) == false)
+                if (pmodeParty != null && submitParty.Equals(pmodeParty) == false)
                 {
                     throw new NotSupportedException(
                         $"Submit Message is not allowed by Sending PMode{submit.PMode.Id} to override Sender Party");

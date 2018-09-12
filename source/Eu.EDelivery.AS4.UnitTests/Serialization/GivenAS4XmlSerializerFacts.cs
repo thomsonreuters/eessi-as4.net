@@ -142,6 +142,16 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
 
         public class Deserialize
         {
+            [Theory]
+            [InlineData("<PartyInfo/>", false)]
+            [InlineData("<PartyInfo><ToParty/></PartyInfo>", true)]
+            public void SendingPMode_Party_Is_Not_Present_When_Non_Existing_Tag(string xml, bool specified)
+            {
+                var result = AS4XmlSerializer.FromString<PartyInfo>(xml);
+
+                Assert.True((result.ToParty != null) == specified);
+            }
+
             [Fact]
             public async Task FilledWithPModeData()
             {
