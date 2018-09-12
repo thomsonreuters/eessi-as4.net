@@ -27,6 +27,11 @@ namespace Eu.EDelivery.AS4.Transformers
         /// <returns></returns>
         public async Task<MessagingContext> TransformAsync(ReceivedMessage message)
         {
+            if (message == null)
+            {
+                throw new ArgumentNullException(nameof(message));
+            }
+
             var entityMessage = message as ReceivedEntityMessage;
             if (entityMessage == null)
             {

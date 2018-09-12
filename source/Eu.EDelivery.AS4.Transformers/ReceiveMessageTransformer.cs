@@ -67,7 +67,12 @@ namespace Eu.EDelivery.AS4.Transformers
         /// <returns></returns>
         public async Task<MessagingContext> TransformAsync(ReceivedMessage message)
         {
-            if (message?.UnderlyingStream == null)
+            if (message == null)
+            {
+                throw new ArgumentNullException(nameof(message));
+            }
+
+            if (message.UnderlyingStream == null)
             {
                 throw new InvalidMessageException(
                     "The incoming stream is not an ebMS Message. " +

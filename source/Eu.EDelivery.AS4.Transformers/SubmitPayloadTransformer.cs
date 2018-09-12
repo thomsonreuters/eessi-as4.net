@@ -73,8 +73,7 @@ namespace Eu.EDelivery.AS4.Transformers
         {
             if (message == null)
             {
-                throw new InvalidOperationException(
-                    $"{nameof(SubmitPayloadTransformer)} requires a ReceivedMessage to create a SubmitMessage with a single payload");
+                throw new ArgumentNullException(nameof(message));
             }
 
             SendingProcessingMode sendingPMode = _config.GetSendingPMode(id: SendingPMode);

@@ -51,7 +51,12 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
-            if (messagingContext?.AS4Message == null)
+            if (messagingContext == null)
+            {
+                throw new ArgumentNullException(nameof(messagingContext));
+            }
+
+            if (messagingContext.AS4Message == null)
             {
                 throw new InvalidOperationException(
                     $"{typeof(BundleSignalMessageToPullRequestStep)} Requires a AS4Message to possible bundle a "

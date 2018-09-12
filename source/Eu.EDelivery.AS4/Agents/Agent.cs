@@ -143,7 +143,13 @@ namespace Eu.EDelivery.AS4.Agents
             try
             {
                 ITransformer transformer = TransformerBuilder.FromTransformerConfig(_transformerConfig);
-                context = await transformer.TransformAsync(message);
+                MessagingContext result = await transformer.TransformAsync(message);
+                if (result == null)
+                {
+                    throw new ArgumentNullException(nameof(result), $@"Transformer {_transformerConfig.Type} result in a 'null', transformers require to transform into a 'MessagingContext'");
+                }
+
+                context = result;
             }
             catch (Exception exception)
             {
@@ -152,7 +158,7 @@ namespace Eu.EDelivery.AS4.Agents
                 return await _exceptionHandler.HandleTransformationException(exception, message);
             }
 
-            if (context.ErrorResult != null)
+            if (context?.ErrorResult != null)
             {
                 return context;
             }

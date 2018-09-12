@@ -36,8 +36,7 @@ namespace Eu.EDelivery.AS4.Transformers
         {
             if (message == null)
             {
-                throw new InvalidOperationException(
-                    $"{nameof(SubmitMessageXmlTransformer)} requires to have a ReceivedMessage to transform XML to a SubmitMessage");
+                throw new ArgumentNullException(nameof(message));
             }
 
             Logger.Trace("Start deserializing to a SubmitMessage...");
