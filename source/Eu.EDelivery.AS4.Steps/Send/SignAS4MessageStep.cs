@@ -98,14 +98,6 @@ namespace Eu.EDelivery.AS4.Steps.Send
             {
                 X509Certificate2 certificate = RetrieveCertificate(pmode);
 
-                // Use GetRSAPrivateKey instead of HasPrivateKey to avoid 'Keyset does not exists' exception.
-                if (certificate.GetRSAPrivateKey() == null)
-                {
-                    throw new CryptographicException(
-                        "Cannot use certificate for signing: certificate does not have a private key. " +
-                        "Please make sure that the private key is included in the certificate and is marked as 'Exportable'");
-                }
-
                 CalculateSignatureConfig settings = 
                     CreateSignConfig(certificate, pmode.Security.Signing);
 

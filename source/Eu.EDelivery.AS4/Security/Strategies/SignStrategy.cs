@@ -99,7 +99,9 @@ namespace Eu.EDelivery.AS4.Security.Strategies
 
                 if (privateKey == null)
                 {
-                    throw new CryptographicException("Signing certificate does not have a private key");
+                    throw new CryptographicException(
+                        "Cannot use certificate for signing: certificate does not have a private key. " +
+                        "Please make sure that the private key is included in the certificate and is marked as 'Exportable'");
                 }
 
                 return privateKey;
