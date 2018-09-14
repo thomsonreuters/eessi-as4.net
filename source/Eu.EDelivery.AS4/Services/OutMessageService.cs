@@ -155,6 +155,7 @@ namespace Eu.EDelivery.AS4.Services
                         .ForMessageUnit(messageUnit, as4Message.ContentType, pmode)
                         .Build();
 
+                outMessage.Url = pmode?.PushConfiguration?.Protocol?.Url;
                 outMessage.MessageLocation = messageBodyLocation;
 
                 (OutStatus st, Operation op) =

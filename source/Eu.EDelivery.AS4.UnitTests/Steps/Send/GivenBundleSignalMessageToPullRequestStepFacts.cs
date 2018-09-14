@@ -4,6 +4,7 @@ using System.Linq;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
+using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Steps.Send;
 using Eu.EDelivery.AS4.UnitTests.Common;
@@ -17,7 +18,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
     {
         private readonly InMemoryMessageBodyStore _bodyStore = new InMemoryMessageBodyStore();
 
-        [Property]
+        [Property(MaxTest = 150)]
         public Property Bundle_Receipt_With_PullRequest()
         {
             Gen<Operation> genOperation =
@@ -25,28 +26,23 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
                     Tuple.Create(4, Gen.Constant(Operation.ToBePiggyBacked)),
                     Tuple.Create(1, Arb.Generate<Operation>()));
 
-            Gen<string> genMpc = Gen.Fresh(() => $"mpc-{Guid.NewGuid()}");
-            Gen<Tuple<string, string>> genMpcs =
-                Gen.OneOf(
-                    genMpc.Two(),
-                    genMpc.Select(mpc => Tuple.Create(mpc, mpc)));
-
             return Prop.ForAll(
                 genOperation.ToArbitrary(),
-                genMpcs.ToArbitrary(),
-                (operation, mpcs) =>
+                EqualAndDiffer(() => $"mpc-{Guid.NewGuid()}").ToArbitrary(),
+                EqualAndDiffer(() => $"http://localhost/{Guid.NewGuid()}").ToArbitrary(),
+                (operation, urls, mpcs) =>
                 {
                     // Arrange
                     var user = new UserMessage($"user-{Guid.NewGuid()}", mpcs.Item1);
                     var receipt = new Receipt($"receipt-{Guid.NewGuid()}", user.MessageId);
 
                     InsertUserMessage(user);
-                    InsertReceipt(receipt, operation);
+                    InsertReceipt(receipt, operation, urls.Item1);
 
                     var pr = new PullRequest(mpcs.Item2);
 
                     // Act
-                    StepResult result = ExerciseBundleWithPullRequest(pr);
+                    StepResult result = ExerciseBundleWithPullRequest(pr, urls.Item2);
 
                     // Assert
                     AS4Message bundled = result.MessagingContext.AS4Message;
@@ -57,18 +53,27 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
 
                     bool isOperationPiggyBacked = operation == Operation.ToBePiggyBacked;
                     bool isMatchedByMpc = mpcs.Item1 == mpcs.Item2;
+                    bool isMatchedByUrl = urls.Item1 == urls.Item2;
 
                     bool operationBecomesSending = GetDataStoreContext
                         .GetInMessages(m => m.EbmsMessageId == receipt.MessageId)
                         .All(m => m.Operation == Operation.Sending);
 
-                    return (isOperationPiggyBacked && isMatchedByMpc)
+                    return (isOperationPiggyBacked && isMatchedByMpc && isMatchedByUrl)
                         .Equals(bundledWithReceipt && operationBecomesSending)
                         .Label(
                             "PullRequest isn't bundled with Receipt when the Operation of the "
                             + $"stored Receipt is {operation} and the MPC of the "
-                            + $"UserMessage {(isMatchedByMpc ? "matches" : "differs")} from the PullRequest MPC");
+                            + $"UserMessage {(isMatchedByMpc ? "matches" : "differs")} from the PullRequest MPC "
+                            + $"and Receipt {(isMatchedByUrl ? "matches" : "differs")} from the PullRequest Url");
                 });
+        }
+
+        private static Gen<Tuple<string, string>> EqualAndDiffer(Func<string> constant)
+        {
+            return Gen.OneOf(
+                Gen.Fresh(constant).Two(),
+                Gen.Fresh(constant).Select(mpc => Tuple.Create(mpc, mpc)));
         }
 
         private static bool IsPullRequestBundledWithOneReceipt(StepResult result)
@@ -83,14 +88,21 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
                          .SequenceEqual(expectedTypes);
         }
 
-        private StepResult ExerciseBundleWithPullRequest(PullRequest pullRequest)
+        private StepResult ExerciseBundleWithPullRequest(PullRequest pullRequest, string url)
         {
             var sut = new BundleSignalMessageToPullRequestStep(GetDataStoreContext, _bodyStore);
 
-            return sut.ExecuteAsync(
-                new MessagingContext(
-                    AS4Message.Create(pullRequest),
-                    MessagingContextMode.PullReceive))
+            var ctx = new MessagingContext(
+                AS4Message.Create(pullRequest),
+                MessagingContextMode.PullReceive)
+                {
+                    SendingPMode = new SendingProcessingMode
+                    {
+                        PushConfiguration = new PushConfiguration { Protocol = { Url = url } }
+                    }
+                };
+
+            return sut.ExecuteAsync(ctx)
                       .GetAwaiter()
                       .GetResult();
         }
@@ -106,7 +118,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
                 });
         }
 
-        private void InsertReceipt(Receipt receipt, Operation operation)
+        private void InsertReceipt(Receipt receipt, Operation operation, string url)
         {
             GetDataStoreContext.InsertOutMessage(
                 new OutMessage(receipt.MessageId)
@@ -115,7 +127,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
                     EbmsMessageType = MessageType.Receipt,
                     ContentType = Constants.ContentTypes.Soap,
                     MessageLocation = SaveAS4MessageUnit(receipt),
-                    Operation = operation
+                    Operation = operation,
+                    Url = url
                 });
         }
 

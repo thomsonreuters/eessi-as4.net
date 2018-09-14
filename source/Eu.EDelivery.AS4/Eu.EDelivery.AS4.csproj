@@ -156,6 +156,10 @@
     <Compile Include="Migrations\20180828113700_ReplaceExceptionBodyWithLocation.designer.cs">
       <DependentUpon>20180828113700_ReplaceExceptionBodyWithLocation.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\20180914102136_AddOutMessageUrl.cs" />
+    <Compile Include="Migrations\20180914102136_AddOutMessageUrl.designer.cs">
+      <DependentUpon>20180914102136_AddOutMessageUrl.cs</DependentUpon>
+    </Compile>
     <Compile Include="Model\Core\NonRepudiationInformation.cs" />
     <Compile Include="Model\Core\Schema.cs" />
     <Compile Include="Model\PMode\AgreementReference.cs" />
