@@ -181,7 +181,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                 () => _databaseSpy.GetInMessageFor(m => 
                     m.EbmsMessageId == messageId 
                     && m.Operation == Operation.Forwarded), 
-                TimeSpan.FromSeconds(15));
+                TimeSpan.FromSeconds(20));
 
             OutMessage outMessage = await PollUntilPresent(
                 () => _databaseSpy.GetOutMessageFor(m => m.EbmsMessageId == messageId),
