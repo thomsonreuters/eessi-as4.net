@@ -205,7 +205,7 @@ namespace Eu.EDelivery.AS4.Common
                     await f(this);
                     transaction.Commit();
                 }
-                catch (Exception)
+                catch
                 {
                     transaction.Rollback();
                     throw;
