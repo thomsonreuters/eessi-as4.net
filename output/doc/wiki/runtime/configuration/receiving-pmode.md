@@ -30,7 +30,7 @@ This contract describes all the properties available in the Receiving PMode. The
         <tr>
             <td>
                 <b>ReplyHandling</b><br/>
-                    &nbsp;&nbsp;ReplyPattern<br/><br/><br/>
+                    &nbsp;&nbsp;ReplyPattern<br/><br/><br/><br/>
                     &nbsp;&nbsp;SendingPMode<br/>
                     &nbsp;&nbsp;<b>ReceiptHandling</b><br/>
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;UseNRRFormat<br/><br/>
@@ -40,7 +40,7 @@ This contract describes all the properties available in the Receiving PMode. The
             </td>
             <td align="center">
                 M<br/>
-                M<br/><br/><br/>
+                M<br/><br/><br/><br/>
                 M<br/>
                 O<br/>
                 O<br/><br/>
@@ -54,6 +54,7 @@ This contract describes all the properties available in the Receiving PMode. The
                 <ul style="margin:0;">
                     <li>Response: sync response (<i>default</i>)</li>
                     <li>Callback: async response</li>
+                    <li>PiggyBack: bundle response to PullRequest</li>
                 </ul>
                 Reference to the Sending PMode <br/><br/>
                 <div>Specifies if NonRepudationInfo must be included in receipt <i>Default: false</i></div>
@@ -318,14 +319,14 @@ This contract describes all the properties available in the Receiving PMode. The
 
 (\*\*) When the received payloads must be delivered to the FileSystem, the following parameters available:
 
-* **Location**:
+- **Location**:
   The location on the filesystem (directory) where the payloads must be delivered.
 
-* **FileNameFormat**:
+- **FileNameFormat**:
   Defines how the filename of the delivered payloads must look like. There are two macro's available that can be used to define this pattern:
 
-  * `{MessageId}` : inserts the ebMS MessageId in the filename
-  * `{AttachmentId}` : inserts the AttachmentId in the filename
+  - `{MessageId}` : inserts the ebMS MessageId in the filename
+  - `{AttachmentId}` : inserts the AttachmentId in the filename
     It is possible to combine the macro's which means that it is possible to use `{MessageId}_{AttachmentId}`.
 
     When the `FileNameFormat` parameter is not defined, the AttachmentId of the payload will be used as the filename
@@ -333,7 +334,7 @@ This contract describes all the properties available in the Receiving PMode. The
 
     > (The FileNameFormat parameter is available as from <b>AS4.NET</b> v2.0.1)
 
-* **AllowOverwrite**:
+- **AllowOverwrite**:
   Defines whether files with the same name can be overwritten when delivering a payload.  
   Possible values are True and False, the default-value is false.
 

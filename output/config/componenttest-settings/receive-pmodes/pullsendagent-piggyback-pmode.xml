@@ -4,6 +4,7 @@
   xmlns="eu:edelivery:as4:pmode">
   <Id>pullsendagent-piggyback-pmode</Id>
   <ReplyHandling>
+    <ReplyPattern>PiggyBack</ReplyPattern>
     <SendingPMode>unsigned-response-pmode</SendingPMode>
   </ReplyHandling>
   <MessagePackaging>

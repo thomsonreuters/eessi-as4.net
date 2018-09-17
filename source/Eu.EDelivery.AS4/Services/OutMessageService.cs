@@ -199,13 +199,18 @@ namespace Eu.EDelivery.AS4.Services
                 return (OutStatus.Created, Operation.NotApplicable);
             }
 
+            ReplyPattern? replyPattern = receivingPMode?.ReplyHandling?.ReplyPattern;
+
             bool userMessageWasSendViaPull = relatedInMessageMeps[key] == MessageExchangePattern.Pull;
-            if (userMessageWasSendViaPull)
+            bool signalShouldBePiggyBackedToPullRequest = replyPattern == ReplyPattern.PiggyBack;
+
+            if (userMessageWasSendViaPull 
+                && signalShouldBePiggyBackedToPullRequest)
             {
                 return (OutStatus.Created, Operation.ToBePiggyBacked);
             }
 
-            bool signalShouldBeRespondedAsync = receivingPMode?.ReplyHandling?.ReplyPattern == ReplyPattern.Callback;
+            bool signalShouldBeRespondedAsync = replyPattern == ReplyPattern.Callback;
             if (signalShouldBeRespondedAsync)
             {
                 return (OutStatus.Created, Operation.ToBeSent);

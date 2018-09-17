@@ -61,10 +61,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
         }
 
         [Theory]
-        [InlineData(MessageExchangePattern.Pull, Operation.ToBePiggyBacked)]
-        [InlineData(MessageExchangePattern.Push, Operation.ToBeSent)]
-        public async Task Stores_SignalMessage_With_Expected_Operation_According_To_MEP(
+        [InlineData(MessageExchangePattern.Pull, ReplyPattern.PiggyBack, Operation.ToBePiggyBacked)]
+        [InlineData(MessageExchangePattern.Push, ReplyPattern.Callback, Operation.ToBeSent)]
+        [InlineData(MessageExchangePattern.Push, ReplyPattern.PiggyBack, Operation.NotApplicable)]
+        [InlineData(MessageExchangePattern.Pull, ReplyPattern.Callback, Operation.ToBeSent)]
+        public async Task Stores_SignalMessage_With_Expected_Operation_According_To_MEP_And_ReplyPattern(
             MessageExchangePattern mep,
+            ReplyPattern reply,
             Operation op)
         {
             // Arrange
@@ -80,7 +83,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                     SendingPMode = new SendingProcessingMode { Id = "shortcut-send-pmode-retrieval" },
                     ReceivingPMode = new ReceivingProcessingMode
                     {
-                        ReplyHandling = { ReplyPattern = ReplyPattern.Callback }
+                        ReplyHandling = { ReplyPattern = reply }
                     }
                 };
 

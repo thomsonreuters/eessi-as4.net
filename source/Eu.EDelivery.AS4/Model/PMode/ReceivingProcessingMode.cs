@@ -401,7 +401,8 @@ namespace Eu.EDelivery.AS4.Model.PMode
     public enum ReplyPattern
     {
         Response = 0,
-        Callback
+        Callback,
+        PiggyBack
     }
 
     public enum Limit

@@ -34,6 +34,7 @@
     <xs:restriction base="xs:string">
       <xs:enumeration value="Response" />
       <xs:enumeration value="Callback" />
+      <xs:enumeration value="PiggyBack" />
     </xs:restriction>
   </xs:simpleType>
   <xs:complexType name="ReceiveReceiptHandling">
