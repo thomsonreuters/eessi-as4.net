@@ -3,7 +3,7 @@ using NLog;
 
 namespace Eu.EDelivery.AS4.Extensions
 {
-    public static class LoggerExtensions
+    internal static class LoggerExtensions
     {
         public static void ErrorDeep(this ILogger logger, Exception exception)
         {

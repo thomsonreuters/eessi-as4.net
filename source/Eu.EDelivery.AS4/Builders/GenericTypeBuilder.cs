@@ -8,7 +8,7 @@ namespace Eu.EDelivery.AS4.Builders
     /// <summary>
     /// Factory implementation to create instance from a given <see cref="Type"/>
     /// </summary>
-    public class GenericTypeBuilder
+    internal class GenericTypeBuilder
     {
         private readonly Type _type;
         private object[] _args;
