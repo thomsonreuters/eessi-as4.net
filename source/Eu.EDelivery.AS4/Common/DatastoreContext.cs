@@ -179,7 +179,7 @@ namespace Eu.EDelivery.AS4.Common
                     transaction.Commit();
                     return r;
                 }
-                catch (Exception)
+                catch
                 {
                     transaction.Rollback();
                     throw;
