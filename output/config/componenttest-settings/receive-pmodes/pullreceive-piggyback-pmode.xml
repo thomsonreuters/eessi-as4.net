@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PMode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+  xmlns="eu:edelivery:as4:pmode">
+  <Id>pullreceiveagent-piggyback-pmode</Id>
+  <ReplyHandling>
+    <ReplyPattern>PiggyBack</ReplyPattern>
+    <SendingPMode>unsigned-response-pmode</SendingPMode>
+  </ReplyHandling>
+  <MessagePackaging>
+    <PartyInfo>
+      <FromParty>
+        <PartyIds>
+          <PartyId>
+            <Id>org:eu:europa:as4:piggyback:accesspoint:A</Id>
+          </PartyId>
+        </PartyIds>
+        <Role>Sender</Role>
+      </FromParty>
+      <ToParty>
+        <PartyIds>
+          <PartyId>
+            <Id>org:eu:europa:as4:piggyback:accesspoint:B</Id>
+          </PartyId>
+        </PartyIds>
+        <Role>Receiver</Role>
+      </ToParty>
+    </PartyInfo>
+    <CollaborationInfo>
+      <Service>
+        <Value>http://eu.europe.as4.org/piggyback-service</Value>
+      </Service>
+      <Action>http://eu.europe.as4.org/piggyback-action</Action>
+    </CollaborationInfo>
+    <MessageProperties />
+  </MessagePackaging>
+</PMode>
