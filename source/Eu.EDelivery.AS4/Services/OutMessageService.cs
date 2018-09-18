@@ -199,7 +199,7 @@ namespace Eu.EDelivery.AS4.Services
                 return (OutStatus.Created, Operation.NotApplicable);
             }
 
-            ReplyPattern? replyPattern = receivingPMode?.ReplyHandling?.ReplyPattern;
+            ReplyPattern replyPattern = receivingPMode?.ReplyHandling?.ReplyPattern ?? ReplyHandling.DefaultReplyPattern;
 
             bool userMessageWasSendViaPull = relatedInMessageMeps[key] == MessageExchangePattern.Pull;
             if (userMessageWasSendViaPull

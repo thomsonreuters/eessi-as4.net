@@ -83,8 +83,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
                 Gen.Fresh(() => (object) new Deliver()));
 
             var genReplyHandling = Gen.OneOf(
-                Gen.Constant((ReplyHandlingSetting) null),
-                Gen.Fresh(() => new ReplyHandlingSetting { SendingPMode = responsePMode }));
+                Gen.Constant((ReplyHandling) null),
+                Gen.Fresh(() => new ReplyHandling { SendingPMode = responsePMode }));
 
             return Prop.ForAll(
                 genForward.ToArbitrary(),
@@ -310,7 +310,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
             return new ReceivingProcessingMode
             {
                 Id = "pmode-id",
-                ReplyHandling = new ReplyHandlingSetting { SendingPMode = "send-pmode" },
+                ReplyHandling = new ReplyHandling { SendingPMode = "send-pmode" },
                 MessageHandling =
                 {
                     DeliverInformation =

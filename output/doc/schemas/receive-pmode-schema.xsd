@@ -5,7 +5,7 @@
     <xs:sequence>
       <xs:element minOccurs="0" maxOccurs="1" name="Id" type="xs:string" />
       <xs:element minOccurs="0" maxOccurs="1" name="Reliability" type="tns:ReceiveReliability" />
-      <xs:element minOccurs="0" maxOccurs="1" name="ReplyHandling" type="tns:ReplyHandlingSetting" />
+      <xs:element minOccurs="0" maxOccurs="1" name="ReplyHandling" type="tns:ReplyHandling" />
       <xs:element minOccurs="0" maxOccurs="1" name="ExceptionHandling" type="tns:ReceiveHandling" />
       <xs:element minOccurs="0" maxOccurs="1" name="Security" type="tns:ReceiveSecurity" />
       <xs:element minOccurs="0" maxOccurs="1" name="MessagePackaging" type="tns:MessagePackaging" />
@@ -22,7 +22,7 @@
       <xs:element minOccurs="1" maxOccurs="1" name="IsEnabled" type="xs:boolean" />
     </xs:sequence>
   </xs:complexType>
-  <xs:complexType name="ReplyHandlingSetting">
+  <xs:complexType name="ReplyHandling">
     <xs:sequence>
       <xs:element minOccurs="1" maxOccurs="1" name="ReplyPattern" type="tns:ReplyPattern" />
       <xs:element minOccurs="0" maxOccurs="1" name="SendingPMode" type="xs:string" />
