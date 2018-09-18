@@ -38,10 +38,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                     SendingPMode = new SendingProcessingMode { Id = "sending-pmode" }
                 };
 
-            var sut = new SendAS4SignalMessageStep(StubConfig.Default, GetDataStoreContext, _messageBodyStore);
-
             // Act
-            StepResult result = sut.ExecuteAsync(context).GetAwaiter().GetResult();
+            StepResult result = ExerciseStoreSignalMessage(context).GetAwaiter().GetResult();
 
             // Assert
             AS4Message actual = result.MessagingContext.AS4Message;
@@ -87,10 +85,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                     }
                 };
 
-            var sut = new SendAS4SignalMessageStep(StubConfig.Default, GetDataStoreContext, _messageBodyStore);
-
             // Act
-            await sut.ExecuteAsync(context);
+            await ExerciseStoreSignalMessage(context);
 
             // Assert
             GetDataStoreContext.AssertOutMessage(
@@ -100,6 +96,37 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                     Assert.NotNull(m);
                     Assert.Equal(op, m.Operation);
                 });
+        }
+
+        [Fact]
+        public async Task Fails_To_Store_SignalMessage_When_ReplyPattern_Response_For_Pulled_UserMessage()
+        {
+            // Arrange
+            string userMessageId = $"user-{Guid.NewGuid()}";
+            GetDataStoreContext.InsertInMessage(
+                new InMessage(userMessageId) { MEP = MessageExchangePattern.Pull });
+
+            var receipt = new Receipt($"receipt-{Guid.NewGuid()}", userMessageId);
+            var context = new MessagingContext(
+                AS4Message.Create(receipt),
+                MessagingContextMode.Receive)
+            {
+                SendingPMode = new SendingProcessingMode { Id = "shortcut-send-pmode-retrieval" },
+                ReceivingPMode = new ReceivingProcessingMode
+                {
+                    ReplyHandling = { ReplyPattern = ReplyPattern.Response }
+                }
+            };
+
+            // Act / Assert
+            await Assert.ThrowsAsync<InvalidOperationException>(
+                () => ExerciseStoreSignalMessage(context));
+        }
+
+        private async Task<StepResult> ExerciseStoreSignalMessage(MessagingContext ctx)
+        {
+            var sut = new SendAS4SignalMessageStep(StubConfig.Default, GetDataStoreContext, _messageBodyStore);
+            return await sut.ExecuteAsync(ctx);
         }
     }
 }

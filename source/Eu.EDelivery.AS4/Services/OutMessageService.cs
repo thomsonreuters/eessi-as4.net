@@ -202,8 +202,15 @@ namespace Eu.EDelivery.AS4.Services
             ReplyPattern? replyPattern = receivingPMode?.ReplyHandling?.ReplyPattern;
 
             bool userMessageWasSendViaPull = relatedInMessageMeps[key] == MessageExchangePattern.Pull;
-            bool signalShouldBePiggyBackedToPullRequest = replyPattern == ReplyPattern.PiggyBack;
+            if (userMessageWasSendViaPull
+                && replyPattern == ReplyPattern.Response)
+            {
+                throw new InvalidOperationException(
+                    $"Cannot determine Status and Operation because ReceivingPMode {receivingPMode?.Id} ReplyHandling.ReplyPattern = Response "
+                    + "while the UserMessage has been send via pulling. Please change the ReplyPattern to 'CallBack' or 'PiggyBack'");
+            }
 
+            bool signalShouldBePiggyBackedToPullRequest = replyPattern == ReplyPattern.PiggyBack;
             if (userMessageWasSendViaPull 
                 && signalShouldBePiggyBackedToPullRequest)
             {
