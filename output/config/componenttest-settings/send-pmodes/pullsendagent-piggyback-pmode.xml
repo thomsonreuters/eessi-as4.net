@@ -7,11 +7,17 @@
   <Mep>OneWay</Mep>
   <MepBinding>Pull</MepBinding>
   <MessagePackaging>
+    <CollaborationInfo>
+      <Service>
+        <Value>http://eu.europe.as4.org/piggyback-service</Value>
+      </Service>
+      <Action>http://eu.europe.as4.org/piggyback-action</Action>
+    </CollaborationInfo>
     <PartyInfo>
       <FromParty>
         <PartyIds>
           <PartyId>
-            <Id>org:eu:europa:as4:example:accesspoint:A</Id>
+            <Id>org:eu:europa:as4:piggyback:accesspoint:A</Id>
           </PartyId>
         </PartyIds>
         <Role>Sender</Role>
@@ -19,7 +25,7 @@
       <ToParty>
         <PartyIds>
           <PartyId>
-            <Id>org:eu:europa:as4:example:accesspoint:B</Id>
+            <Id>org:eu:europa:as4:piggyback:accesspoint:B</Id>
           </PartyId>
         </PartyIds>
         <Role>Receiver</Role>
@@ -28,6 +34,6 @@
     <Mpc>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMPC/UK:UK001</Mpc>
     <UseAS4Compression>false</UseAS4Compression>
     <IsMultiHop>false</IsMultiHop>
-    <IncludePModeId>true</IncludePModeId>
+    <IncludePModeId>false</IncludePModeId>
   </MessagePackaging>
 </PMode>
