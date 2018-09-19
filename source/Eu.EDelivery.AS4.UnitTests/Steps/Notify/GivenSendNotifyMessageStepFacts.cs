@@ -8,6 +8,7 @@ using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Steps.Notify;
 using Eu.EDelivery.AS4.Strategies.Sender;
 using Eu.EDelivery.AS4.UnitTests.Common;
+using Eu.EDelivery.AS4.UnitTests.Repositories;
 using Eu.EDelivery.AS4.UnitTests.Strategies.Method;
 using Eu.EDelivery.AS4.UnitTests.Strategies.Sender;
 using Moq;
@@ -97,13 +98,16 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
         {
             // Arrange
             var fixture = new MessagingContext(
-                EmptyNotifyMessageEnvelope(Status.Delivered))
+                EmptyNotifyMessageEnvelope(Status.Delivered),
+                entityId: 1)
             {
                 SendingPMode = new SendingProcessingMode
                 {
                     ReceiptHandling = { NotifyMethod = new LocationMethod("not-empty-location") }
                 }
             };
+
+            GetDataStoreContext.InsertInMessage(new InMessage($"entity-{Guid.NewGuid()}"));
 
             var spySender = new SpySender();
             IStep sut = CreateSendNotifyStepWithSender(spySender);
@@ -120,13 +124,16 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
         {
             // Arrange
             var fixture = new MessagingContext(
-                EmptyNotifyMessageEnvelope(Status.Error))
+                EmptyNotifyMessageEnvelope(Status.Error),
+                entityId: 1)
             {
                 SendingPMode = new SendingProcessingMode
                 {
                     ErrorHandling = { NotifyMethod = new LocationMethod("not-empty-location") }
                 }
             };
+
+            GetDataStoreContext.InsertInMessage(new InMessage($"entity-{Guid.NewGuid()}"));
 
             var spySender = new SpySender();
             IStep sut = CreateSendNotifyStepWithSender(spySender);

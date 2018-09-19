@@ -124,16 +124,11 @@ namespace Eu.EDelivery.AS4.Services
         /// </summary>
         /// <param name="messageId">Identifier to update the <see cref="InMessage"/></param>
         /// <param name="result">Notification result used to determine the right update values for the to be updated entity</param>
-        public void UpdateNotifyMessageForIncomingMessage(string messageId, SendResult result)
+        public void UpdateNotifyMessageForIncomingMessage(long messageId, SendResult result)
         {
-            if (messageId == null)
-            {
-                throw new ArgumentNullException(nameof(messageId));
-            }
-
             _repository.UpdateInMessage(
-                messageId: messageId,
-                updateAction: entity => UpdateMessageEntity(
+                id: messageId,
+                update: entity => UpdateMessageEntity(
                     resultOfOperation: result,
                     entityToBeRetried: entity,
                     getRetryEntries: () => _repository.GetRetryReliability(r => r.RefToInMessageId == entity.Id, r => r),
@@ -241,16 +236,11 @@ namespace Eu.EDelivery.AS4.Services
         /// </summary>
         /// <param name="messageId">Identifier to update the <see cref="InException"/></param>
         /// <param name="result">Notification result used to determine the right update values for the to be updated entity</param>
-        public void UpdateNotifyExceptionForIncomingMessage(string messageId, SendResult result)
+        public void UpdateNotifyExceptionForIncomingMessage(long messageId, SendResult result)
         {
-            if (messageId == null)
-            {
-                throw new ArgumentNullException(nameof(messageId));
-            }
-
             _repository.UpdateInException(
-                refToMessageId: messageId,
-                updateAction: exEntity => UpdateExceptionRetry(
+                id: messageId,
+                update: exEntity => UpdateExceptionRetry(
                     resultOfOperation: result,
                     entityToBeRetried: exEntity,
                     getRetryEntries: () => _repository.GetRetryReliability(r => r.RefToInExceptionId == exEntity.Id, r => r)));
@@ -261,16 +251,11 @@ namespace Eu.EDelivery.AS4.Services
         /// </summary>
         /// <param name="messageId">Identifier to update the <see cref="OutException"/></param>
         /// <param name="result">Notification result used to determine the right update values for the to be updated entity</param>
-        public void UpdateNotifyExceptionForOutgoingMessage(string messageId, SendResult result)
+        public void UpdateNotifyExceptionForOutgoingMessage(long messageId, SendResult result)
         {
-            if (messageId == null)
-            {
-                throw new ArgumentNullException(nameof(messageId));
-            }
-
             _repository.UpdateOutException(
-                refToMessageId: messageId,
-                updateAction: exEntity => UpdateExceptionRetry(
+                id: messageId,
+                update: exEntity => UpdateExceptionRetry(
                     resultOfOperation: result,
                     entityToBeRetried: exEntity,
                     getRetryEntries: () => _repository.GetRetryReliability(r => r.RefToOutExceptionId == exEntity.Id, r => r)));
@@ -290,9 +275,15 @@ namespace Eu.EDelivery.AS4.Services
             }
 
             RetryReliability rr = getRetryEntries().FirstOrDefault();
+            string reftoMessageId =
+                entityToBeRetried.EbmsRefToMessageId == null
+                ? String.Empty
+                : $"[{entityToBeRetried.EbmsRefToMessageId}]";
+
             if (resultOfOperation == SendResult.Success)
             {
-                Logger.Info($"(Notify)[{entityToBeRetried.EbmsRefToMessageId}] Mark NotifyMessage as Notified");
+                
+                Logger.Info($"(Notify){reftoMessageId} Mark NotifyMessage as Notified");
                 Logger.Debug($"Update {typeof(T).Name} with Operation=Notified");
 
                 entityToBeRetried.Operation = Operation.Notified;
@@ -305,14 +296,14 @@ namespace Eu.EDelivery.AS4.Services
             {
                 if (rr == null)
                 {
-                    Logger.Info($"(Notify)[{entityToBeRetried.EbmsRefToMessageId}] Exception NotifyMessage failed during the notification, exhausted retries");
+                    Logger.Info($"(Notify){reftoMessageId} Exception NotifyMessage failed during the notification, exhausted retries");
                     Logger.Debug($"Update {typeof(T).Name} with {{Status=Exception, Operation=DeadLettered}}");
 
                     entityToBeRetried.Operation = Operation.DeadLettered;
                 }
                 else if (resultOfOperation == SendResult.RetryableFail)
                 {
-                    Logger.Info($"(Notify)[{entityToBeRetried.EbmsRefToMessageId}] Exception NotifyMessage failed this time, will be retried");
+                    Logger.Info($"(Notify){reftoMessageId} Exception NotifyMessage failed this time, will be retried");
                     Logger.Debug($"Update {typeof(T).Name} with Operation=ToBeRetried");
 
                     entityToBeRetried.Operation = Operation.ToBeRetried;
@@ -320,7 +311,7 @@ namespace Eu.EDelivery.AS4.Services
                 }
                 else
                 {
-                    Logger.Info($"(Notify)[{entityToBeRetried.EbmsRefToMessageId}] Exception NotifyMessage failed during the notification, exhausted retries");
+                    Logger.Info($"(Notify){reftoMessageId} Exception NotifyMessage failed during the notification, exhausted retries");
                     Logger.Debug($"Update {typeof(T).Name} with {{Status=Exception, Operation=DeadLettered}}");
 
                     entityToBeRetried.Operation = Operation.DeadLettered;

@@ -13,6 +13,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Eu.EDelivery.AS4.Common
 {
@@ -156,6 +157,61 @@ namespace Eu.EDelivery.AS4.Common
         public DbSet<Journal> Journal { get; set; }
 
         public IAS4DbCommand NativeCommands { get; private set; }
+
+        /// <summary>
+        /// Starts a new transaction for the current <see cref="DatastoreContext"/> using the specified function.
+        /// When the function ends successfully, commit all changes to the datastore otherwise discard all changes.
+        /// </summary>
+        /// <typeparam name="TResult"></typeparam>
+        /// <param name="f"></param>
+        /// <returns></returns>
+        public async Task<TResult> TransactionalAsync<TResult>(Func<DatastoreContext, Task<TResult>> f)
+        {
+            if (Database.CurrentTransaction != null)
+            {
+                return await f(this);
+            }
+            using (IDbContextTransaction transaction = Database.BeginTransaction())
+            {
+                try
+                {
+                    TResult r = await f(this);
+                    transaction.Commit();
+                    return r;
+                }
+                catch
+                {
+                    transaction.Rollback();
+                    throw;
+                }
+            }
+        }
+        /// <summary>
+        /// Starts a new transaction for the current <see cref="DatastoreContext"/> using the specified function.
+        /// When the function ends successfully, commit all changes to the datastore otherwise discard all changes.
+        /// </summary>
+        /// <param name="f"></param>
+        /// <returns></returns>
+        public async Task TransactionalAsync(Func<DatastoreContext, Task> f)
+        {
+            if (Database.CurrentTransaction != null)
+            {
+                await f(this);
+            }
+            using (IDbContextTransaction transaction = Database.BeginTransaction())
+            {
+                try
+                {
+                    await f(this);
+                    transaction.Commit();
+                }
+                catch
+                {
+                    transaction.Rollback();
+                    throw;
+                }
+            }
+        }
 
         /// <summary>
         ///     <para>

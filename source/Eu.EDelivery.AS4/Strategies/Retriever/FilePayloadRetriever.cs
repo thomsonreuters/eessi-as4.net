@@ -42,19 +42,21 @@ namespace Eu.EDelivery.AS4.Strategies.Retriever
         /// <returns></returns>
         public Task<Stream> RetrievePayloadAsync(string location)
         {
-            string relativePath = location.Replace(Key, string.Empty);
-            string absolutePath = Path.GetFullPath(Path.Combine(Config.ApplicationPath, relativePath));
+            string relativePayloadPath = location.Replace(Key, string.Empty);
+            string absolutePayloadPath = Path.GetFullPath(Path.Combine(Config.ApplicationPath, relativePayloadPath));
 
-            var payload = new FileInfo(absolutePath);
-            var supportedPayloadDir = new DirectoryInfo(_config.PayloadRetrievalLocation);
+            var payload = new FileInfo(absolutePayloadPath);
 
-            if (payload.Directory?.FullName != supportedPayloadDir.FullName)
+            string relativeRetrievalPath = _config.PayloadRetrievalLocation.Replace(Key, string.Empty);
+            string absoluteRetrievalPath = Path.GetFullPath(relativeRetrievalPath);
+
+            if (payload.Directory?.FullName != absoluteRetrievalPath)
             {
                 throw new NotSupportedException(
-                    $"Only files from the '{_config.PayloadRetrievalLocation}' folder are allowed to be retrieved: {payload.Directory?.FullName} <> {supportedPayloadDir.FullName}");
+                    $"Only files from the '{_config.PayloadRetrievalLocation}' folder are allowed to be retrieved: {payload.Directory?.FullName} <> {absoluteRetrievalPath}");
             }
 
-            var uri = new Uri(absolutePath);
+            var uri = new Uri(absolutePayloadPath);
             Stream payloadStream = new FileStream(uri.LocalPath, FileMode.Open, FileAccess.Read, FileShare.Read);
 
             Logger.Debug($"Payload is successfully retrieved at location \"{location}\"");

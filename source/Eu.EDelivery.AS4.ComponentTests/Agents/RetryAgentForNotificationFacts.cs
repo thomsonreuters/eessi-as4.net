@@ -181,6 +181,11 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                         Registry.Instance.MessageBodyStore);
 
                     const string url = "http://localhost:7070/business/outexception/";
+                    string ebmsMessageId = $"entity-{Guid.NewGuid()}";
+
+                    var spy = new DatabaseSpy(as4Msh.GetConfiguration());
+                    //var entity = new OutMessage(ebmsMessageId);
+                    //spy.InsertOutMessage(entity);
 
                     // Act
                     await handler.HandleExecutionException(
@@ -193,7 +198,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                     // Arrange
                     SimulateNotifyFailureOnFirstAttempt(url, secondAttempt);
 
-                    var spy = new DatabaseSpy(as4Msh.GetConfiguration());
+                    
                     OutException notified =
                         await PollUntilPresent(
                             () => spy.GetOutExceptions(
@@ -266,11 +271,14 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                         Registry.Instance.MessageBodyStore);
 
                     const string url = "http://localhost:7071/business/inexception/";
+                    string ebmsMessageId = $"entity-{Guid.NewGuid()}";
 
                     // Act
                     await handler.HandleExecutionException(
                         new Exception("This is an test exception"),
-                        new MessagingContext(new SubmitMessage())
+                        new MessagingContext(
+                            new ReceivedEntityMessage(new InMessage(ebmsMessageId)),
+                            MessagingContextMode.Deliver)
                         {
                             ReceivingPMode = NotifyExceptionReceivePMode(url)
                         });

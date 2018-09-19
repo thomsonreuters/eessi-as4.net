@@ -54,7 +54,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
             await RespondToPullRequest(pullSenderUrl, _ => throw new InvalidOperationException());
 
-            Assert.False(_databaseSpy.GetInExceptions(r => true).Any(), "No logged InExceptions are expected.");
+            Assert.Empty(_databaseSpy.GetInExceptions(r => true));
         }
 
         [Fact]
@@ -143,12 +143,12 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         public async Task Received_Bundled_Response_Should_Process_All_Messages()
         {
             // Arrange
+            string pullSenderUrl = RetrievePullingUrlFromConfig();
+
             string storedMessageId = "stored-" + Guid.NewGuid();
             StoreToBeAckOutMessage(storedMessageId);
             AS4Message bundled = CreateBundledMultipleUserMessagesWithRefTo();
             bundled.AddMessageUnit(new Receipt(storedMessageId));
-
-            string pullSenderUrl = RetrievePullingUrlFromConfig();
 
             // Act
             await RespondToPullRequest(
@@ -256,22 +256,16 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
         private static async Task RespondToPullRequest(string url, Action<HttpListenerResponse> response)
         {
-            // Wait a little bit to be sure that everything is started and a PullRequest has already been sent.
-            await Task.Delay(TimeSpan.FromSeconds(2));
-
             var waiter = new ManualResetEvent(false);
             StubHttpServer.StartServer(url, response, waiter);
             waiter.WaitOne(timeout: TimeSpan.FromSeconds(5));
 
             // Wait till the response is processed correctly.
-            await Task.Delay(TimeSpan.FromSeconds(2));
+            await Task.Delay(TimeSpan.FromSeconds(10));
         }
 
         private async Task<AS4Message> RespondToPullRequest(string url, int responseStatusCode)
         {
-            // Wait a little bit to be sure that everything is started and a PullRequest has already been sent.
-            await Task.Delay(TimeSpan.FromSeconds(2));
-
             var input = new VirtualStream();
             var waiter = new ManualResetEvent(false);
             StubHttpServer.StartServer(

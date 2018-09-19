@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 using Eu.EDelivery.AS4.PerformanceTests.LargeMessages;
+using DirectoryInfo = System.IO.DirectoryInfo;
 
 namespace Eu.EDelivery.AS4.PerformanceTests
 {
@@ -56,7 +57,8 @@ namespace Eu.EDelivery.AS4.PerformanceTests
         /// <param name="messageContents">Content of the message to send.</param>
         public void PlaceLargeMessage(int value, Size metric, string messageContents)
         {
-            string fileLocation = LargeMessage.CreateFile(_cornerDirectory, value, metric);
+            string attachmentLocation = Path.Combine(_cornerDirectory.FullName, "messages", "attachments");
+            string fileLocation = LargeMessage.CreateFile(new DirectoryInfo(attachmentLocation), value, metric);
             messageContents = messageContents.Replace("__ATTACHMENTLOCATION__", fileLocation);
 
             PlaceMessages(messageCount: 1, messageContents: messageContents);
