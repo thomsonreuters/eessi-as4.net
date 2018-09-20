@@ -52,9 +52,10 @@ This contract describes all the properties available in the Receiving PMode. The
             <br/>
                 <i>Enumeration:</i>
                 <ul style="margin:0;">
-                    <li>Response: sync response (<i>default</i>)</li>
-                    <li>Callback: async response</li>
-                    <li>PiggyBack: bundle response to PullRequest</li>
+                    <li>Response: sync SignalMessage (Error or Receipt) response (
+                        <i>default</i>)</li>
+                    <li>Callback: async SignalMessage (Error or Receipt) response</li>
+                    <li>PiggyBack: bundle SignalMessage (Error or Receipt) response to next PullRequest SignalMessage</li>
                 </ul>
                 Reference to the Sending PMode <br/><br/>
                 <div>Specifies if NonRepudationInfo must be included in receipt <i>Default: false</i></div>
