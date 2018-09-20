@@ -150,7 +150,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
 
         private static AS4Party ResolveAS4ReceiverParty(AS4Message msg)
         {
-            if (msg.PrimaryMessageUnit is UserMessage m)
+            if (msg?.PrimaryMessageUnit is UserMessage m)
             {
                 return m.Receiver;
             }

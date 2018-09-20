@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
 using System.Linq;
@@ -165,8 +166,14 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                 });
 
             // Assert
+            IEnumerable<InMessage> storedBundled =
+                await PollUntilPresent(
+                    () => _databaseSpy.GetInMessages(bundled.UserMessages.Select(u => u.MessageId).ToArray())
+                                      .Where(m => m.Operation == Operation.ToBeDelivered),
+                    timeout: TimeSpan.FromSeconds(20));
+
             Assert.Collection(
-                _databaseSpy.GetInMessages(bundled.UserMessages.Select(u => u.MessageId).ToArray()),
+                storedBundled,
                 userMessage1 =>
                 {
                     Assert.Equal(MessageExchangePattern.Pull, userMessage1.MEP);

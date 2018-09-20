@@ -24,7 +24,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
             Registry[AgentType.PullSend]           = TransformerConfigEntry<AS4MessageTransformer>();
             Registry[AgentType.Receive]            = TransformerConfigEntry<ReceiveMessageTransformer>();
             Registry[AgentType.Notify]             = TransformerConfigEntry<NotifyMessageTransformer>();
-            Registry[AgentType.Forward]            = TransformerConfigEntry<ForwardMessageTransformer>();
+            Registry[AgentType.Forward]            = TransformerConfigEntry<AS4MessageTransformer>();
             Registry[AgentType.PullReceive]        = TransformerConfigEntry<PModeToPullRequestTransformer>();
         }
 

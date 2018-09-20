@@ -13,6 +13,8 @@ namespace Eu.EDelivery.AS4.Builders
         private readonly Type _type;
         private object[] _args;
 
+        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+
         private GenericTypeBuilder(Type type)
         {
             _type = type;
@@ -54,8 +56,16 @@ namespace Eu.EDelivery.AS4.Builders
         /// <returns></returns>
         public static bool CanResolveType(string typeString)
         {
-            return !String.IsNullOrWhiteSpace(typeString)
-                   && Type.GetType(typeString, throwOnError: false) != null;
+            try
+            {
+                return !String.IsNullOrWhiteSpace(typeString)
+                       && Type.GetType(typeString, throwOnError: false) != null;
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex);
+                return false;
+            }
         }
 
         /// <summary>
