@@ -13,7 +13,7 @@ using NLog;
 
 namespace Eu.EDelivery.AS4.Agents
 {
-    public class Agent : IAgent
+    internal class Agent : IAgent
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 

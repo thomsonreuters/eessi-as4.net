@@ -18,7 +18,7 @@ namespace Eu.EDelivery.AS4.Services
     /// Service model to abstract away the insertion of <see cref="InException"/> and <see cref="OutException"/>s 
     /// based on the wheter we have to insert an exception during the Submit-, Transformation- or other processing operations for an <see cref="AS4Message"/>.
     /// </summary>
-    public class ExceptionService
+    internal class ExceptionService
     {
         private readonly IConfig _config;
         private readonly IDatastoreRepository _repository;

@@ -7,7 +7,7 @@ using Eu.EDelivery.AS4.Model.Core;
 
 namespace Eu.EDelivery.AS4.Factories
 {
-    public static class PayloadFileNameFactory
+    internal static class PayloadFileNameFactory
     {
         private static readonly Regex MacroMatchRegex = new Regex(@"\{([^\}]+)\}");
 

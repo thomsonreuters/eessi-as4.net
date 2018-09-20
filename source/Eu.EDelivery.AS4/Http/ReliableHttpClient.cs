@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace Eu.EDelivery.AS4.Http
 {
-    public class ReliableHttpClient : IHttpClient
+    internal class ReliableHttpClient : IHttpClient
     {
         /// <summary>
         /// Request a Message for the <see cref="IHttpClient"/> implementation.
