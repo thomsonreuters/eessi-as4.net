@@ -67,7 +67,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                     new ReceivePMode
                     {
                         Id = receivePModeId,
-                        ReplyHandling = new ReplyHandlingSetting { SendingPMode = "some-other-send-pmodeid" }
+                        ReplyHandling = new ReplyHandling { SendingPMode = "some-other-send-pmodeid" }
                     });
 
                 // Assert

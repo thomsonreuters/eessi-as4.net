@@ -20,7 +20,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
         [Description("Receive reliability")]
         public ReceiveReliability Reliability { get; set; }
         [Description("Configure settings for reply handling")]
-        public ReplyHandlingSetting ReplyHandling { get; set; }
+        public ReplyHandling ReplyHandling { get; set; }
         [Description("Configure settings for exception handling")]
         public ReceiveHandling ExceptionHandling { get; set; }
 
@@ -36,7 +36,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
         public ReceivingProcessingMode()
         {
             Reliability = new ReceiveReliability();
-            ReplyHandling = new ReplyHandlingSetting();
+            ReplyHandling = new ReplyHandling();
             ExceptionHandling = new ReceiveHandling();
             Security = new ReceiveSecurity();
             MessagePackaging = new MessagePackaging();
@@ -66,9 +66,11 @@ namespace Eu.EDelivery.AS4.Model.PMode
         }
     }
 
-    public class ReplyHandlingSetting
+    public class ReplyHandling
     {
-        [Info("Reply pattern", defaultValue: ReplyPattern.Response)]
+        public const ReplyPattern DefaultReplyPattern = ReplyPattern.Response;
+
+        [Info("Reply pattern", defaultValue: DefaultReplyPattern)]
         [Description("Define whether the response must be sent directly by writing it to the Response stream of the HTTP call, or if it should be sent asynchronously by sending it later.")]
         public ReplyPattern ReplyPattern { get; set; }
 
@@ -82,9 +84,9 @@ namespace Eu.EDelivery.AS4.Model.PMode
         public ReceiveErrorHandling ErrorHandling { get; set; }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ReplyHandlingSetting"/> class.
+        /// Initializes a new instance of the <see cref="ReplyHandling"/> class.
         /// </summary>
-        public ReplyHandlingSetting()
+        public ReplyHandling()
         {
             ReplyPattern = ReplyPattern.Response;
             ReceiptHandling = new ReceiveReceiptHandling();
@@ -401,7 +403,8 @@ namespace Eu.EDelivery.AS4.Model.PMode
     public enum ReplyPattern
     {
         Response = 0,
-        Callback
+        Callback,
+        PiggyBack
     }
 
     public enum Limit

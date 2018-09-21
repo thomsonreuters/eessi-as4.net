@@ -2,8 +2,9 @@
 <PMode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
   xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
   xmlns="eu:edelivery:as4:pmode">
-  <Id>pullsendagent-piggyback-pmode</Id>
+  <Id>pullreceiveagent-piggyback-pmode</Id>
   <ReplyHandling>
+    <ReplyPattern>PiggyBack</ReplyPattern>
     <SendingPMode>unsigned-response-pmode</SendingPMode>
   </ReplyHandling>
   <MessagePackaging>
@@ -11,7 +12,7 @@
       <FromParty>
         <PartyIds>
           <PartyId>
-            <Id>org:eu:europa:as4:example:accesspoint:A</Id>
+            <Id>org:eu:europa:as4:piggyback:accesspoint:A</Id>
           </PartyId>
         </PartyIds>
         <Role>Sender</Role>
@@ -19,21 +20,17 @@
       <ToParty>
         <PartyIds>
           <PartyId>
-            <Id>org:eu:europa:as4:example:accesspoint:B</Id>
+            <Id>org:eu:europa:as4:piggyback:accesspoint:B</Id>
           </PartyId>
         </PartyIds>
         <Role>Receiver</Role>
       </ToParty>
     </PartyInfo>
     <CollaborationInfo>
-      <AgreementReference>
-        <Value>http://agreements.europa.org/agreement</Value>
-      </AgreementReference>
       <Service>
-        <Value>Pull Send Component Test</Value>
-        <Type>pull:send:component:test</Type>
+        <Value>http://eu.europe.as4.org/piggyback-service</Value>
       </Service>
-      <Action>eu:sample:pull:send:piggybacked</Action>
+      <Action>http://eu.europe.as4.org/piggyback-action</Action>
     </CollaborationInfo>
     <MessageProperties />
   </MessagePackaging>

@@ -74,7 +74,10 @@ namespace Eu.EDelivery.AS4.Steps.Send
             {
                 var service = new PiggyBackingService(ctx);
                 IEnumerable<SignalMessage> signalMessages = 
-                    await service.SelectToBePiggyBackedSignalMessagesAsync(pullRequest, _bodyStore);
+                    await service.SelectToBePiggyBackedSignalMessagesAsync(
+                        pullRequest, 
+                        messagingContext.SendingPMode?.PushConfiguration?.Protocol?.Url,
+                        _bodyStore);
 
                 foreach (SignalMessage signal in signalMessages)
                 {

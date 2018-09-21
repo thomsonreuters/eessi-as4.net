@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Core;
+using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Serialization;
 using NLog;
@@ -37,13 +38,22 @@ namespace Eu.EDelivery.AS4.Services
         /// Selects the available <see cref="SignalMessage"/>s that are ready to be bundled (PiggyBacked) with the given <see cref="PullRequest"/>.
         /// </summary>
         /// <param name="pr">The <see cref="PullRequest"/> for which a selection of <see cref="SignalMessage"/>s are returned.</param>
+        /// <param name="url">The url at which <see cref="PullRequest"/> are sent.</param>
         /// <param name="bodyStore">The body store at which the <see cref="SignalMessage"/>s are persisted.</param>
         /// <returns></returns>
-        public async Task<IEnumerable<SignalMessage>> SelectToBePiggyBackedSignalMessagesAsync(PullRequest pr, IAS4MessageBodyStore bodyStore)
+        public async Task<IEnumerable<SignalMessage>> SelectToBePiggyBackedSignalMessagesAsync(
+            PullRequest pr, 
+            string url,
+            IAS4MessageBodyStore bodyStore)
         {
             if (pr == null)
             {
                 throw new ArgumentNullException(nameof(pr));
+            }
+
+            if (string.IsNullOrWhiteSpace(url))
+            {
+                throw new ArgumentException(@"Url cannot be null or whitespace.", nameof(url));
             }
 
             if (bodyStore == null)
@@ -59,6 +69,7 @@ namespace Eu.EDelivery.AS4.Services
                      equals inM.EbmsMessageId
                  where outM.Operation == Operation.ToBePiggyBacked
                        && inM.Mpc == pr.Mpc
+                       && outM.Url == url
                        && outM.EbmsMessageType != MessageType.UserMessage
                  select outM)
                 .OrderByDescending(m => m.InsertionTime)
@@ -84,8 +95,11 @@ namespace Eu.EDelivery.AS4.Services
                 }
             }
 
-            await _context.SaveChangesAsync()
-                          .ConfigureAwait(false);
+            if (query.Any())
+            {
+                await _context.SaveChangesAsync()
+                              .ConfigureAwait(false); 
+            }
 
             return signals.AsEnumerable();
         }
