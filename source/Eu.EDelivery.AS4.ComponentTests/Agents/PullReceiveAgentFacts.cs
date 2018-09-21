@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Configuration;
 using System.IO;
 using System.Linq;
@@ -20,6 +21,7 @@ using Xunit;
 using AgreementReference = Eu.EDelivery.AS4.Model.Core.AgreementReference;
 using CollaborationInfo = Eu.EDelivery.AS4.Model.Core.CollaborationInfo;
 using MessageExchangePattern = Eu.EDelivery.AS4.Entities.MessageExchangePattern;
+using MessageProperty = Eu.EDelivery.AS4.Model.Core.MessageProperty;
 using Service = Eu.EDelivery.AS4.Model.Core.Service;
 
 namespace Eu.EDelivery.AS4.ComponentTests.Agents
@@ -49,12 +51,19 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         }
 
         [Fact]
-        public async Task NoExceptionsAreLoggedWhenPullSenderIsNotAvailable()
+        public void NoExceptionsAreLoggedWhenPullSenderIsNotAvailable()
         {
+            // Arrange
             string pullSenderUrl = RetrievePullingUrlFromConfig();
+            _databaseSpy.ClearDatabase();
 
-            await RespondToPullRequest(pullSenderUrl, _ => throw new InvalidOperationException());
+            // Act
+            var waiter = new ManualResetEvent(false);
+            StubHttpServer.StartServer(pullSenderUrl, _ => throw new InvalidOperationException(), waiter);
+            waiter.WaitOne(timeout: TimeSpan.FromSeconds(5));
 
+            // Assert
+            _as4Msh.Dispose();
             Assert.Empty(_databaseSpy.GetInExceptions(r => true));
         }
 
@@ -264,9 +273,10 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
         private static async Task RespondToPullRequest(string url, Action<HttpListenerResponse> response)
         {
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
             var waiter = new ManualResetEvent(false);
             StubHttpServer.StartServer(url, response, waiter);
-            waiter.WaitOne(timeout: TimeSpan.FromSeconds(5));
+            waiter.WaitOne(timeout: TimeSpan.FromSeconds(10));
 
             // Wait till the response is processed correctly.
             await Task.Delay(TimeSpan.FromSeconds(10));
@@ -304,6 +314,25 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
             Assert.True(result != null, "PullRequest couldn't be deserialized");
             return result;
+        }
+
+        private static AS4Message CreateUserMessageResponse()
+        {
+            return AS4Message.Create(
+                new UserMessage(
+                    $"user-{Guid.NewGuid()}", 
+                    PullRequestMpc,
+                    new CollaborationInfo(
+                        new AgreementReference(
+                            "http://eu.europe.agreements.org",
+                            "pullreceive_bundled_pmode"),
+                        Service.TestService,
+                        Constants.Namespaces.TestAction,
+                        CollaborationInfo.DefaultConversationId),
+                    Model.Core.Party.DefaultFrom,
+                    Model.Core.Party.DefaultTo,
+                    Enumerable.Empty<PartInfo>(), 
+                    Enumerable.Empty<MessageProperty>()));
         }
     }
 }
