@@ -5,6 +5,9 @@ using Eu.EDelivery.AS4.Model.Internal;
 
 namespace Eu.EDelivery.AS4.Transformers
 {
+    [Obsolete(
+        "Due to the Dynamic Discovery in the Forwarding Steps the ToParty of the AS4Message is required, "
+        + "meaning that the AS4Message has to be deserialized. Please use the " + nameof(AS4MessageTransformer) + " instead.")]
     public class ForwardMessageTransformer : ITransformer
     {
         /// <summary>

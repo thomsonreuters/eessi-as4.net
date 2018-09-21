@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using NLog;
@@ -58,13 +59,36 @@ namespace Eu.EDelivery.AS4.Builders
         {
             try
             {
-                return !String.IsNullOrWhiteSpace(typeString)
-                       && Type.GetType(typeString, throwOnError: false) != null;
+                if (String.IsNullOrWhiteSpace(typeString))
+                {
+                    return false;
+                }
+
+                Type type = Type.GetType(typeString, throwOnError: false);
+                if (type == null)
+                {
+                    return false;
+                }
+
+                LogPossibleObsolete(typeString, type);
+                return true;
             }
             catch (Exception ex)
             {
                 Logger.Error(ex);
                 return false;
+            }
+        }
+
+        private static void LogPossibleObsolete(string typeString, Type type)
+        {
+            IEnumerable<ObsoleteAttribute> obsoleteAttrs =
+                type.GetCustomAttributes(typeof(ObsoleteAttribute))
+                    .OfType<ObsoleteAttribute>();
+
+            foreach (ObsoleteAttribute oa in obsoleteAttrs)
+            {
+                Logger.Warn($"Type: {typeString} is obsolete: {oa.Message}");
             }
         }
 
