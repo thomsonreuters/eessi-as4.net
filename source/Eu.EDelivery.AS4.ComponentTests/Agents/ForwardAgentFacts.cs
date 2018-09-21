@@ -1,18 +1,14 @@
 ﻿using System;
-using System.Configuration;
-using System.IO;
 using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Threading;
 using System.Threading.Tasks;
+using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.ComponentTests.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Serialization;
-using Eu.EDelivery.AS4.TestUtils.Stubs;
+using Eu.EDelivery.AS4.Services;
 using Xunit;
 using AgreementReference = Eu.EDelivery.AS4.Model.Core.AgreementReference;
 using CollaborationInfo = Eu.EDelivery.AS4.Model.Core.CollaborationInfo;
@@ -25,23 +21,15 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
     {
         private readonly AS4Component _as4Msh;
         private readonly DatabaseSpy _databaseSpy;
-        private readonly string _receiveAgentUrl;
-        private readonly Settings _forwardSettings;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ForwardAgentFacts"/> class.
         /// </summary>
         public ForwardAgentFacts()
         {
-            _forwardSettings = OverrideSettings("forwardagent_settings.xml");
+            OverrideSettings("forwardagent_settings.xml");
             _as4Msh = AS4Component.Start(Environment.CurrentDirectory);
             _databaseSpy = new DatabaseSpy(_as4Msh.GetConfiguration());
-
-
-            _receiveAgentUrl = _forwardSettings
-                .Agents.ReceiveAgents.First().Receiver.Setting
-                .FirstOrDefault(s => s.Key == "Url")
-                ?.Value;
         }
 
         protected override void Disposing(bool isDisposing)
@@ -56,8 +44,11 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             const string messageId = "message-id";
             var as4Message = AS4Message.Create(CreateForwardPushUserMessage(messageId));
             
-            // Act: Send an AS4Message to the AS4 MSH which has a receive-agent configured.
-            await SendAS4MessageTo(as4Message, _receiveAgentUrl);
+            // Act
+            InsertToBeForwardedInMessage(
+                pmodeId: "Forward_Push",
+                mep: MessageExchangePattern.Push,
+                tobeForwarded: as4Message);
 
             // Assert: if an OutMessage is created with the correct status and operation.
             InMessage inMessage = await PollUntilPresent(
@@ -87,8 +78,11 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             var as4Message = AS4Message.Create(primaryUserMessage);
             as4Message.AddMessageUnit(secondaryUserMessage);
 
-            // Act: Send an AS4Message to the AS4 MSH which has a receive-agent configured
-            await SendAS4MessageTo(as4Message, _receiveAgentUrl);
+            // Act
+            InsertToBeForwardedInMessage(
+                pmodeId: "Forward_Push",
+                mep: MessageExchangePattern.Push,
+                tobeForwarded: as4Message);
 
             // Assert: if an OutMessage is created with the correct status and operation.
             InMessage primaryInMessage = await PollUntilPresent(
@@ -119,14 +113,17 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             const string messageId = "message-id";
             AS4Message as4Message = AS4Message.Create(CreateForwardPullUserMessage(messageId));
 
-            // Act: Send an AS4Message to the AS4 MSH which has a receive-agent configured.
-            await SendAS4MessageTo(as4Message, _receiveAgentUrl);
+            // Act
+            InsertToBeForwardedInMessage(
+                pmodeId: "Forward_Pull",
+                mep: MessageExchangePattern.Push,
+                tobeForwarded: as4Message);
 
             // Assert: if an OutMessage is created with the correct status and operation.
             InMessage inMessage = await PollUntilPresent(
                 () => _databaseSpy.GetInMessageFor(
                     m => m.EbmsMessageId == messageId
-                         && m.Operation == Operation.Forwarded), 
+                         && m.Operation == Operation.Forwarded),
                 TimeSpan.FromSeconds(15));
 
             var receivingPMode = AS4XmlSerializer.FromString<ReceivingProcessingMode>(inMessage.PMode);
@@ -159,12 +156,6 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                     conversationId: "eu:europe:conversation"));
         }
 
-        private static async Task SendAS4MessageTo(AS4Message msg, string url)
-        {
-            HttpResponseMessage response = await StubSender.SendAS4Message(url, msg);
-            Assert.Equal(HttpStatusCode.Accepted, response.StatusCode);
-        }
-
         [Fact]
         public async Task ForwardingWithPushOnPull()
         {
@@ -172,9 +163,11 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             const string messageId = "user-message-id";
             var tobeForwarded = AS4Message.Create(CreateForwardPushUserMessage(messageId));
 
-            // Act: Start a Stub HTTP Server that listens on the PullRequest endpoint
-            // and replies with an AS4 UserMessage
-            RespondToPullRequestWith(tobeForwarded);
+            // Act
+            InsertToBeForwardedInMessage(
+                pmodeId: "Forward_Push", 
+                mep: MessageExchangePattern.Pull, 
+                tobeForwarded: tobeForwarded);
 
             // Assert: if an OutMessage is created with the correct status and operation
             await PollUntilPresent(
@@ -194,36 +187,39 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             Assert.Equal(sendingPMode.MessagePackaging.Mpc, outMessage.Mpc);
         }
 
-        private void RespondToPullRequestWith(AS4Message tobeForwarded)
+        private void InsertToBeForwardedInMessage(string pmodeId, MessageExchangePattern mep, AS4Message tobeForwarded)
         {
-            string pullingUrl = RetrievePullingUrlFromConfig();
-            var responseHandler = new AS4MessageResponseHandler(tobeForwarded);
-
-            var waiter = new ManualResetEvent(false);
-            StubHttpServer.StartServer(pullingUrl, responseHandler.WriteResponse, waiter);
-            Assert.True(waiter.WaitOne(TimeSpan.FromSeconds(15)));
-        }
-
-        private string RetrievePullingUrlFromConfig()
-        {
-            var pullReceiveAgent = _forwardSettings.Agents.PullReceiveAgents.FirstOrDefault();
-
-            if (pullReceiveAgent == null)
+            foreach (MessageUnit m in tobeForwarded.MessageUnits)
             {
-                throw new ConfigurationErrorsException("There is no PullReceive Agent configured.");
+                string location =
+                    Registry.Instance
+                            .MessageBodyStore
+                            .SaveAS4Message(
+                                _as4Msh.GetConfiguration().InMessageStoreLocation,
+                                tobeForwarded);
+
+                var inMessage = new InMessage(m.MessageId)
+                {
+                    Intermediary = true,
+                    Operation = 
+                        m.MessageId == tobeForwarded.PrimaryMessageUnit.MessageId 
+                            ? Operation.ToBeForwarded 
+                            : Operation.NotApplicable,
+                    MessageLocation = location,
+                    MEP = mep,
+                    ContentType = tobeForwarded.ContentType
+                };
+
+                ReceivingProcessingMode forwardPMode =
+                    _as4Msh.GetConfiguration()
+                           .GetReceivingPModes()
+                           .First(p => p.Id == pmodeId);
+
+                inMessage.SetPModeInformation(forwardPMode);
+                inMessage.SetStatus(InStatus.Received);
+                inMessage.AssignAS4Properties(m);
+                _databaseSpy.InsertInMessage(inMessage);
             }
-
-            string pmodeId = pullReceiveAgent.Receiver.Setting.First().Key;
-
-            var pmode = AS4XmlSerializer.FromString<SendingProcessingMode>(
-                File.ReadAllText($@".\config\send-pmodes\{pmodeId.ToLower()}.xml"));
-
-            if (pmode == null)
-            {
-                throw new ConfigurationErrorsException($"No Sending PMode found with Id {pmodeId}");
-            }
-
-            return pmode.PushConfiguration.Protocol.Url;
         }
 
         private static  UserMessage CreateForwardPushUserMessage(string messageId)
