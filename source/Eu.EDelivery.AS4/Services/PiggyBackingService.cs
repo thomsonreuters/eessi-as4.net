@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Core;
-using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Serialization;
 using NLog;
@@ -61,20 +60,9 @@ namespace Eu.EDelivery.AS4.Services
                 throw new ArgumentNullException(nameof(bodyStore));
             }
 
-            // TODO: the 'LIMIT' of the query should be configurable.
-            IEnumerable<OutMessage> query =
-                (from outM in _context.OutMessages
-                 join inM in _context.InMessages
-                     on outM.EbmsRefToMessageId
-                     equals inM.EbmsMessageId
-                 where outM.Operation == Operation.ToBePiggyBacked
-                       && inM.Mpc == pr.Mpc
-                       && outM.Url == url
-                       && outM.EbmsMessageType != MessageType.UserMessage
-                 select outM)
-                .OrderByDescending(m => m.InsertionTime)
-                .Take(10)
-                .AsEnumerable();
+            IEnumerable<OutMessage> query = 
+                _context.NativeCommands
+                        .SelectToBePiggyBackedSignalMessages(url, pr.Mpc);
 
             var signals = new Collection<SignalMessage>();
             foreach (OutMessage found in query)
@@ -95,10 +83,11 @@ namespace Eu.EDelivery.AS4.Services
                 }
             }
 
+            // TODO: shouldn't this be outside the service?
             if (query.Any())
             {
                 await _context.SaveChangesAsync()
-                              .ConfigureAwait(false); 
+                              .ConfigureAwait(false);
             }
 
             return signals.AsEnumerable();

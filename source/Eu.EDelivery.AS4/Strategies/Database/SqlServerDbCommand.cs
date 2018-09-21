@@ -105,8 +105,48 @@ namespace Eu.EDelivery.AS4.Strategies.Database
                 $"AND Operation IN ({operations})" +
                 outMessagesWhere;
 
+#pragma warning disable EF1000 // Possible SQL injection vulnerability.
+            // The DatastoreTable makes sure that we only use known table names.
+            // The list of Operation enums makes sure that only use Operation values.
+            // The TotalDays of the TimeSpan is an integer.
             int rows = _context.Database.ExecuteSqlCommand(sql);
+#pragma warning restore EF1000 // Possible SQL injection vulnerability.
             LogManager.GetCurrentClassLogger().Trace($"Cleaned {rows} row(s) for table '{tableName}'");
+        }
+
+        /// <summary>
+        /// Selects in a reliable way the ToBePiggyBacked SignalMessages stored in the OutMessage table.
+        /// </summary>
+        /// <param name="url">The endpoint to which the OutMessage SignalMessage should be Piggy Backed.</param>
+        /// <param name="mpc">The MPC of the incoming PullRequest to match on the related UserMessage of the Piggy Backed SignalMessage.</param>
+        /// <returns></returns>
+        public IEnumerable<OutMessage> SelectToBePiggyBackedSignalMessages(string url, string mpc)
+        {
+            if (url == null)
+            {
+                throw new ArgumentNullException(nameof(url));
+            }
+
+            if (mpc == null)
+            {
+                throw new ArgumentNullException(nameof(mpc));
+            }
+
+            // TODO: the 'TOP' of the query should be configurable.
+            const string sql =
+                "SELECT TOP 10 OutMessages.* "
+                + "FROM OutMessages WITH (xlock, readpast) "
+                + "INNER JOIN InMessages "
+                + "ON OutMessages.EbmsRefToMessageId = InMessages.EbmsMessageId "
+                + "WHERE OutMessages.Operation = 'ToBePiggyBacked' "
+                + "AND OutMessages.URL = {0} "
+                + "AND InMessages.MPC = {1} "
+                + "AND OutMessages.EbmsMessageType != 'UserMessage' "
+                + "ORDER BY OutMessages.InsertionTime DESC ";
+
+            return _context.OutMessages
+                           .FromSql(sql, url, mpc)
+                           .AsEnumerable<OutMessage>();
         }
     }
 }
