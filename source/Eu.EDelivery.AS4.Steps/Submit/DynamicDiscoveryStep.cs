@@ -65,6 +65,16 @@ namespace Eu.EDelivery.AS4.Steps.Submit
                 throw new ArgumentNullException(nameof(messagingContext));
             }
 
+            if (messagingContext.AS4Message == null 
+                && messagingContext.Mode == MessagingContextMode.Forward)
+            {
+                throw new InvalidOperationException(
+                    $"{nameof(DynamicDiscoveryStep)} requires an AS4Message when used in a Forward Agent, "
+                    + "please make sure that the ReceivedMessage is deserialized before executing this step."
+                    + "Possibly this failure happend because the Transformer of the Forward Agent is still using "
+                    + "the ForwardMessageTransformer instead of the AS4MessageTransformer");
+            }
+
             if (messagingContext.SendingPMode == null ||
                 messagingContext.SendingPMode.DynamicDiscoverySpecified == false)
             {
@@ -120,7 +130,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
             if (dynamicDiscovery == null)
             {
                 throw new ConfigurationErrorsException(
-                    $@"Cannot retrieve SMP metadata: SendingPMode requires a <DynamicDiscovery/> element");
+                    @"Cannot retrieve SMP metadata: SendingPMode requires a <DynamicDiscovery/> element");
             }
 
             Dictionary<string, string> customProperties = 
@@ -150,7 +160,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
 
         private static AS4Party ResolveAS4ReceiverParty(AS4Message msg)
         {
-            if (msg.PrimaryMessageUnit is UserMessage m)
+            if (msg?.PrimaryMessageUnit is UserMessage m)
             {
                 return m.Receiver;
             }

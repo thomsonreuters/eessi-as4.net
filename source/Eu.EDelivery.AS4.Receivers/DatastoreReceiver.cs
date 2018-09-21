@@ -392,16 +392,21 @@ namespace Eu.EDelivery.AS4.Receivers
                 {
                     Logger.Error($"MessageBody cannot be retrieved for EbmsMessageId: {messageEntity.EbmsMessageId}");
                 }
+                else if (messageEntity.ContentType == null)
+                {
+                    Logger.Error($"ContentType cannot be found for EbmsMessageId: {messageEntity.EbmsMessageId}");
+                }
                 else
                 {
-                    var receivedMessage = new ReceivedEntityMessage(messageEntity, stream, messageEntity.ContentType);
+                    ReceivedEntityMessage receivedMessage = null;
                     try
                     {
+                        receivedMessage = new ReceivedEntityMessage(messageEntity, stream, messageEntity.ContentType);
                         await messageCallback(receivedMessage, token).ConfigureAwait(false);
                     }
                     finally
                     {
-                        receivedMessage.UnderlyingStream.Dispose();
+                        receivedMessage?.UnderlyingStream.Dispose();
                     }
                 }
             }

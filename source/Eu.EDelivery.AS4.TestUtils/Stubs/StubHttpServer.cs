@@ -63,7 +63,7 @@ namespace Eu.EDelivery.AS4.TestUtils.Stubs
 
                         onStop?.Set();
 
-                        await Task.Delay(TimeSpan.FromMilliseconds(50));
+                        await Task.Delay(TimeSpan.FromSeconds(1));
 
                         server.Stop();
                     }

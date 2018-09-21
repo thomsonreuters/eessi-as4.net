@@ -25,10 +25,13 @@ namespace Eu.EDelivery.AS4.Transformers
                 throw new ArgumentNullException(nameof(message));
             }
 
-            var context = new MessagingContext(message, MessagingContextMode.Forward);
-            message.AssignPropertiesTo(context);
+            var transformer = new AS4MessageTransformer();
+            MessagingContext sendContext = await transformer.TransformAsync(message);
+            
+            var forwardContext = new MessagingContext(sendContext.ReceivedMessage, MessagingContextMode.Forward);
+            forwardContext.ModifyContext(sendContext.AS4Message);
 
-            return await Task.FromResult(context);
+            return await Task.FromResult(sendContext);
         }
     }
 }

@@ -77,7 +77,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Common
             var as4Msh = new AS4Component(Process.Start(mshInfo));
 
             // Wait a little bit to make sure the DB is created.
-            System.Threading.Thread.Sleep(TimeSpan.FromSeconds(10));
+            System.Threading.Thread.Sleep(TimeSpan.FromSeconds(8));
             Console.WriteLine(@"AS4.NET component as Console is started");
 
             return as4Msh;
@@ -152,19 +152,26 @@ namespace Eu.EDelivery.AS4.ComponentTests.Common
 
             foreach (string file in Directory.GetFiles(Path.GetFullPath(@".\logs")))
             {
-                Policy.Handle<IOException>()
-                      .Retry(3)
-                      .Execute(() =>
-                      {
-                          Console.WriteLine($@"From file: '{file}':");
-
-                          foreach (string line in File.ReadAllLines(file))
+                try
+                {
+                    Policy.Handle<IOException>()
+                          .Retry(3)
+                          .Execute(() =>
                           {
-                              Console.WriteLine(line);
-                          }
+                              Console.WriteLine($@"From file: '{file}':");
 
-                          Console.WriteLine(Environment.NewLine);
-                      });
+                              foreach (string line in File.ReadAllLines(file))
+                              {
+                                  Console.WriteLine(line);
+                              }
+
+                              Console.WriteLine(Environment.NewLine);
+                          });
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.ToString());
+                }
             }
         }
     }
