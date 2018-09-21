@@ -157,6 +157,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                 response =>
                 {
                     response.ContentType = bundled.ContentType;
+                    response.StatusCode = 200;
                     using (Stream output = response.OutputStream)
                     {
                         SerializerProvider.Default
