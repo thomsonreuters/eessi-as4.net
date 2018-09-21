@@ -58,8 +58,10 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                 TimeSpan.FromSeconds(15));
             Assert.NotNull(AS4XmlSerializer.FromString<ReceivingProcessingMode>(inMessage.PMode));
 
-            OutMessage outMessage = _databaseSpy.GetOutMessageFor(m => m.EbmsMessageId == messageId);
-            Assert.NotNull(outMessage);
+            OutMessage outMessage = await PollUntilPresent(
+                () => _databaseSpy.GetOutMessageFor(m => m.EbmsMessageId == messageId),
+                timeout: TimeSpan.FromSeconds(5));
+
             Assert.True(outMessage.Intermediary);
             Assert.Equal(Operation.ToBeProcessed, outMessage.Operation);
             Assert.NotNull(AS4XmlSerializer.FromString<SendingProcessingMode>(outMessage.PMode));
@@ -92,17 +94,21 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                 TimeSpan.FromSeconds(15));
             Assert.NotNull(AS4XmlSerializer.FromString<ReceivingProcessingMode>(primaryInMessage.PMode));
 
-            var secondaryInMessage = _databaseSpy.GetInMessageFor(m => m.EbmsMessageId == secondMessageId);
-            Assert.NotNull(secondaryInMessage);
+            await PollUntilPresent(
+                () => _databaseSpy.GetInMessageFor(m => m.EbmsMessageId == secondMessageId),
+                timeout: TimeSpan.FromSeconds(5));
+
             Assert.Equal(Operation.Forwarded, primaryInMessage.Operation);
             Assert.NotNull(AS4XmlSerializer.FromString<ReceivingProcessingMode>(primaryInMessage.PMode));
 
-            var primaryOutMessage = _databaseSpy.GetOutMessageFor(m => m.EbmsMessageId == primaryMessageId);
-            Assert.NotNull(primaryOutMessage);
+            OutMessage primaryOutMessage = await PollUntilPresent(
+                () => _databaseSpy.GetOutMessageFor(m => m.EbmsMessageId == primaryMessageId),
+                timeout: TimeSpan.FromSeconds(5));
+
             Assert.Equal(Operation.ToBeProcessed, primaryOutMessage.Operation);
             Assert.NotNull(AS4XmlSerializer.FromString<SendingProcessingMode>(primaryOutMessage.PMode));
 
-            var secondaryOutMessage = _databaseSpy.GetOutMessageFor(m => m.EbmsMessageId == secondMessageId);
+            OutMessage secondaryOutMessage = _databaseSpy.GetOutMessageFor(m => m.EbmsMessageId == secondMessageId);
             Assert.Null(secondaryOutMessage);
         }
 
