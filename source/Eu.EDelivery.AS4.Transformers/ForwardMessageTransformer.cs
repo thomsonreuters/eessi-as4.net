@@ -5,9 +5,6 @@ using Eu.EDelivery.AS4.Model.Internal;
 
 namespace Eu.EDelivery.AS4.Transformers
 {
-    [Obsolete(
-        "Due to the Dynamic Discovery in the Forwarding Steps the ToParty of the AS4Message is required, "
-        + "meaning that the AS4Message has to be deserialized. Please use the " + nameof(AS4MessageTransformer) + " instead.")]
     public class ForwardMessageTransformer : ITransformer
     {
         /// <summary>
@@ -28,10 +25,13 @@ namespace Eu.EDelivery.AS4.Transformers
                 throw new ArgumentNullException(nameof(message));
             }
 
-            var context = new MessagingContext(message, MessagingContextMode.Forward);
-            message.AssignPropertiesTo(context);
+            var transformer = new AS4MessageTransformer();
+            MessagingContext sendContext = await transformer.TransformAsync(message);
+            
+            var forwardContext = new MessagingContext(sendContext.ReceivedMessage, MessagingContextMode.Forward);
+            forwardContext.ModifyContext(sendContext.AS4Message);
 
-            return await Task.FromResult(context);
+            return await Task.FromResult(sendContext);
         }
     }
 }
