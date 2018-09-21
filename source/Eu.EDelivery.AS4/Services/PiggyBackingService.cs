@@ -40,7 +40,7 @@ namespace Eu.EDelivery.AS4.Services
         /// <param name="url">The url at which <see cref="PullRequest"/> are sent.</param>
         /// <param name="bodyStore">The body store at which the <see cref="SignalMessage"/>s are persisted.</param>
         /// <returns></returns>
-        public async Task<IEnumerable<SignalMessage>> SelectToBePiggyBackedSignalMessagesAsync(
+        public async Task<IEnumerable<SignalMessage>> LockedSelectToBePiggyBackedSignalMessagesAsync(
             PullRequest pr, 
             string url,
             IAS4MessageBodyStore bodyStore)
@@ -75,19 +75,11 @@ namespace Eu.EDelivery.AS4.Services
                           .Default
                           .Get(found.ContentType)
                           .DeserializeAsync(body, found.ContentType, CancellationToken.None);
-
                 
                 if (signal.PrimaryMessageUnit is SignalMessage s)
                 {
                     signals.Add(s);
                 }
-            }
-
-            // TODO: shouldn't this be outside the service?
-            if (query.Any())
-            {
-                await _context.SaveChangesAsync()
-                              .ConfigureAwait(false);
             }
 
             return signals.AsEnumerable();
