@@ -8,6 +8,7 @@ using System.Net.Http;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
+using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.ComponentTests.Common;
 using Eu.EDelivery.AS4.ComponentTests.Extensions;
 using Eu.EDelivery.AS4.Entities;
@@ -24,6 +25,9 @@ using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.TestUtils.Stubs;
 using Xunit;
 using static Eu.EDelivery.AS4.ComponentTests.Properties.Resources;
+using AgreementReference = Eu.EDelivery.AS4.Model.Core.AgreementReference;
+using CollaborationInfo = Eu.EDelivery.AS4.Model.Core.CollaborationInfo;
+using MessageExchangePattern = Eu.EDelivery.AS4.Entities.MessageExchangePattern;
 
 namespace Eu.EDelivery.AS4.ComponentTests.Agents
 {
@@ -47,7 +51,28 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         public async Task PullSendAgentReturnsUserMessage_ForPullRequestWithEmptyMpc()
         {
             // Arrange
-            await SubmitMessageToSubmitAgent(pullsendagent_submit);
+            var userMessage = 
+                AS4Message.Create(
+                    new UserMessage(
+                    $"user-{Guid.NewGuid()}",
+                    new CollaborationInfo(
+                        new AgreementReference(
+                            value: "http://eu.europe.agreements.org",
+                            pmodeId: "pullsendagent-pmode"))));
+
+            var outMessage = new OutMessage(userMessage.GetPrimaryMessageId())
+            {
+                ContentType = userMessage.ContentType,
+                MEP = MessageExchangePattern.Pull,
+                Operation = Operation.ToBeSent,
+                MessageLocation = 
+                    Registry.Instance
+                            .MessageBodyStore
+                            .SaveAS4Message(_as4Msh.GetConfiguration().OutExceptionStoreLocation, userMessage)
+            };
+
+            outMessage.AssignAS4Properties(userMessage.PrimaryMessageUnit);
+            _databaseSpy.InsertOutMessage(outMessage);
 
             // Act
             HttpResponseMessage userMessageResponse = 
