@@ -111,7 +111,7 @@ namespace Eu.EDelivery.AS4.Strategies.Database
                           && outM.Url == url
                           && outM.EbmsMessageType != MessageType.UserMessage
                     select outM)
-                   .OrderByDescending(m => m.InsertionTime)
+                   .OrderBy(m => m.InsertionTime)
                    .Take(10)
                    .AsEnumerable<OutMessage>();
         }

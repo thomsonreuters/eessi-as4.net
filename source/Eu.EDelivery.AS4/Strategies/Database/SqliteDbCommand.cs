@@ -139,7 +139,7 @@ namespace Eu.EDelivery.AS4.Strategies.Database
                 + "AND OutMessages.URL = {0} "
                 + "AND InMessages.MPC = {1} "
                 + "AND OutMessages.EbmsMessageType != 'UserMessage' "
-                + "ORDER BY OutMessages.InsertionTime DESC "
+                + "ORDER BY OutMessages.InsertionTime ASC "
                 + "LIMIT 10";
 
             return _context.OutMessages
