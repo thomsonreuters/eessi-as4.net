@@ -50,7 +50,7 @@ namespace Eu.EDelivery.AS4.Model.Internal
         /// <param name="messagingContext"></param>
         public override void AssignPropertiesTo(MessagingContext messagingContext)
         {
-            base.AssignPropertiesTo(messagingContext);
+            // TODO: can this be moved to somewhere else? Maybe somewhere close to where we explicitly use 'ReceivedEntityMessages'?
 
             T GetPMode<T>() where T : class
             {
