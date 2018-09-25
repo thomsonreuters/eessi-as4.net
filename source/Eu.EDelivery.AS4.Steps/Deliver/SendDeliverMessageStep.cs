@@ -87,7 +87,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
             {
                 throw new InvalidOperationException(
                     $"Unable to send the DeliverMessage: the ReceivingPMode {messagingContext.ReceivingPMode.Id} "
-                    + "does not contain any <Type/> element indicating the right uploading strategy in the MessageHandling.Deliver.DeliverMethod element. "
+                    + "does not contain any <Type/> element indicating the uploading strategy in the MessageHandling.Deliver.DeliverMethod element. "
                     + "Default sending strategies are: 'FILE' and 'HTTP'. See 'Deliver Uploading' for more information");
             }
 

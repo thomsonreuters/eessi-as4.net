@@ -96,7 +96,8 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
             {
                 throw new InvalidOperationException(
                     $"Unable to send the DeliverMessage: the ReceivingPMode {messagingContext.ReceivingPMode.Id} "
-                    + "does not contain any <Type/> element indicating the right uploading strategy in the MessageHandling.Deliver.PayloadReferenceMethod element. "
+                    + "does not contain any <Type/> element in the MessageHandling.Deliver.PayloadReferenceMethod element "
+                    + "that indicates which uploading strategy that must be used."
                     + "Default uploading strategies are: 'FILE' and 'HTTP'. See 'Deliver Uploading' for more information");
             }
 
@@ -156,7 +157,6 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
             try
             {
                 Logger.Trace($"Start Uploading Attachment {attachment.Id}...");
-
                 Task<UploadResult> uploadAsync = uploader.UploadAsync(attachment, referringUserMessage);
                 if (uploadAsync == null)
                 {
@@ -175,10 +175,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
             }
             catch (Exception exception)
             {
-                Logger.Error(
-                    $"(Deliver) Attachment {attachment.Id} cannot be uploaded " + 
-                    $"because of an exception: {Environment.NewLine}" + exception);
-
+                Logger.Error($"Attachment {attachment.Id} cannot be uploaded because of an exception: {Environment.NewLine}" + exception);
                 return UploadResult.FatalFail;
             }
         }
