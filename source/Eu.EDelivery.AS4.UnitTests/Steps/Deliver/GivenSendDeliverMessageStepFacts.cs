@@ -151,7 +151,16 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
         {
             return new ReceivingProcessingMode
             {
-                MessageHandling = {DeliverInformation = {DeliverMethod = new Method()}}
+                MessageHandling =
+                {
+                    DeliverInformation =
+                    {
+                        DeliverMethod = new Method
+                        {
+                            Type = "FILE"
+                        }
+                    }
+                }
             };
         }
     }

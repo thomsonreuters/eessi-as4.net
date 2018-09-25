@@ -72,7 +72,21 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
                 new ReceivedEntityMessage(entity), 
                 MessagingContextMode.Notify)
             {
-                SendingPMode = new SendingProcessingMode()
+                SendingPMode = new SendingProcessingMode
+                {
+                    ReceiptHandling =
+                    {
+                        NotifyMethod = new Method { Type = "FILE" }
+                    },
+                    ErrorHandling =
+                    {
+                        NotifyMethod = new Method { Type = "FILE" }
+                    },
+                    ExceptionHandling =
+                    {
+                        NotifyMethod = new Method { Type = "FILE" }
+                    }
+                }
             };
 
             ctx.ModifyContext(envelope);
