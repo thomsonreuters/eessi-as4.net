@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
@@ -22,10 +23,10 @@ namespace Eu.EDelivery.AS4.Steps.Submit
     [Description("Create an AS4 Message for the submit message")]
     public class CreateAS4MessageStep : IStep
     {
+        private readonly IPayloadRetrieverProvider _payloadProvider;
+
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
         private static readonly SubmitMessageValidator SubmitValidator = new SubmitMessageValidator();
-
-        private readonly IPayloadRetrieverProvider _payloadProvider;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CreateAS4MessageStep"/> class.
@@ -76,7 +77,8 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         {
             ValidateSubmitMessage(messagingContext.SubmitMessage);
 
-            UserMessage userMessage = CreateUserMessage(messagingContext);
+            Logger.Trace("Create UserMessage for SubmitMessage");
+            var userMessage = AS4Mapper.Map<UserMessage>(messagingContext.SubmitMessage);
             Logger.Info($"{messagingContext.LogTag} UserMessage with Id \"{userMessage.MessageId}\" created from Submit Message");
 
             return AS4Message.Create(userMessage, messagingContext.SendingPMode);
@@ -87,27 +89,17 @@ namespace Eu.EDelivery.AS4.Steps.Submit
             SubmitValidator
                 .Validate(submitMessage)
                 .Result(
-                    result => Logger.Trace($"SubmitMessage \"{submitMessage.MessageInfo.MessageId}\" is valid"),
+                    result => Logger.Trace($"SubmitMessage \"{submitMessage.MessageInfo?.MessageId}\" is valid"),
                     result =>
                     {
                         result.LogErrors(Logger);
-                        throw ThrowInvalidSubmitMessageException(submitMessage);
+
+                        string description = $"SubmitMessage \"{submitMessage.MessageInfo?.MessageId}\" was invalid, see logging";
+                        Logger.Error(description);
+
+                        throw new InvalidMessageException(description);
                         
                     });
-        }
-
-        private static InvalidMessageException ThrowInvalidSubmitMessageException(SubmitMessage submitMessage)
-        {
-            string description = $"(Submit) SubmitMessage \"{submitMessage.MessageInfo.MessageId}\" was invalid, see logging";
-            Logger.Error(description);
-
-            return new InvalidMessageException(description);
-        }
-
-        private static UserMessage CreateUserMessage(MessagingContext messagingContext)
-        {
-            Logger.Trace("Create UserMessage for SubmitMessage");
-            return AS4Mapper.Map<UserMessage>(messagingContext.SubmitMessage);
         }
 
         private async Task AssignAttachmentsForAS4Message(AS4Message as4Message, MessagingContext context)
@@ -139,12 +131,32 @@ namespace Eu.EDelivery.AS4.Steps.Submit
             }
         }
 
-        private async Task<System.IO.Stream> RetrieveAttachmentContent(Payload payload)
+        private async Task<Stream> RetrieveAttachmentContent(Payload payload)
         {
-            return await _payloadProvider
-                .Get(payload)
-                .RetrievePayloadAsync(payload.Location)
-                .ConfigureAwait(false);
+            if (payload == null)
+            {
+                throw new ArgumentNullException(
+                    nameof(payload),
+                    $@"Unable to retrieve {nameof(IPayloadRetriever)} for SubmitMessage Payload because it is 'null'");
+            }
+
+            IPayloadRetriever retriever = _payloadProvider.Get(payload);
+            if (retriever == null)
+            {
+                throw new ArgumentNullException(
+                    nameof(retriever), 
+                    $@"No {nameof(IPayloadRetriever)} for Payload with Id: {payload.Id} can be found");
+            }
+
+            Task<Stream> retrievePayloadAsync = retriever.RetrievePayloadAsync(payload.Location);
+            if (retrievePayloadAsync == null)
+            {
+                throw new ArgumentNullException(
+                    nameof(retrievePayloadAsync),
+                    $@"{nameof(IPayloadRetriever)} returns 'null' for Payload with Id: {payload.Id}");
+            }
+            
+            return await retrievePayloadAsync.ConfigureAwait(false);
         }
     }
 }

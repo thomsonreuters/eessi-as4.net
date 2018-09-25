@@ -64,7 +64,12 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
-            if (messagingContext?.ReceivingPMode == null)
+            if (messagingContext == null)
+            {
+                throw new ArgumentNullException(nameof(messagingContext));
+            }
+
+            if (messagingContext.ReceivingPMode == null)
             {
                 throw new InvalidOperationException(
                     "Unable to send DeliverMessage: no ReceivingPMode is set");
@@ -77,13 +82,27 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
                     "Please provide a correct <DeliverInformation /> tag to indicate where the deliver message (and its attachments) should be send to.");
             }
 
+            if (messagingContext.ReceivingPMode.MessageHandling.DeliverInformation.DeliverMethod?.Type == null)
+            {
+                throw new InvalidOperationException(
+                    $"Unable to send the DeliverMessage: the ReceivingPMode {messagingContext.ReceivingPMode.Id} "
+                    + "does not contain any <Type/> element indicating the right uploading strategy in the MessageHandling.Deliver.DeliverMethod element. "
+                    + "Default sending strategies are: 'FILE' and 'HTTP'. See 'Deliver Uploading' for more information");
+            }
+
             Logger.Trace($"{messagingContext.LogTag} Start sending the DeliverMessage to the consuming business application...");
-
             Method deliverMethod = messagingContext.ReceivingPMode.MessageHandling.DeliverInformation.DeliverMethod;
+            IDeliverSender sender = _messageProvider.GetDeliverSender(deliverMethod.Type);
+            if (sender == null)
+            {
+                throw new ArgumentNullException(
+                    nameof(sender),
+                    $@"No {nameof(IDeliverSender)} can be found for DeliverMethod.Type = {deliverMethod?.Type}");
+            }
 
-            IDeliverSender sender = _messageProvider.GetDeliverSender(deliverMethod?.Type);
             sender.Configure(deliverMethod);
             SendResult result = await sender.SendAsync(messagingContext.DeliverMessage).ConfigureAwait(false);
+            Logger.Trace($"{messagingContext.LogTag} Done sending the DeliverMesssage to the consuming business application");
 
             await UpdateDeliverMessage(messagingContext, result);
             return StepResult.Success(messagingContext);

@@ -2,14 +2,13 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using Eu.EDelivery.AS4.Exceptions;
 
 namespace Eu.EDelivery.AS4.Strategies.Retriever
 {
     /// <summary>
     /// Class to provide <see cref="IPayloadRetriever"/> implementations
     /// </summary>
-    public class PayloadRetrieverProvider : IPayloadRetrieverProvider
+    internal class PayloadRetrieverProvider : IPayloadRetrieverProvider
     {
         private readonly ICollection<PayloadStrategyEntry> _entries;
 
@@ -17,7 +16,7 @@ namespace Eu.EDelivery.AS4.Strategies.Retriever
         /// Initializes a new instance of the <see cref="PayloadRetrieverProvider"/> class. 
         /// Create a new Provider with empty <see cref="IPayloadRetriever"/> implementations
         /// </summary>
-        public PayloadRetrieverProvider()
+        internal PayloadRetrieverProvider()
         {
             _entries = new Collection<PayloadStrategyEntry>();
         }
@@ -88,7 +87,18 @@ namespace Eu.EDelivery.AS4.Strategies.Retriever
     /// </summary>
     public interface IPayloadRetrieverProvider
     {
+        /// <summary>
+        /// Get a specific Payload Retriever for a given Payload
+        /// </summary>
+        /// <param name="payload"></param>
+        /// <returns></returns>
         IPayloadRetriever Get(Model.Common.Payload payload);
+
+        /// <summary>
+        /// Accept a new <see cref="IPayloadRetriever"/>
+        /// </summary>
+        /// <param name="condition">Condition which couples the kind of Payload with a <see cref="IPayloadRetriever"/> implementation</param>
+        /// <param name="retriever"></param>
         void Accept(Func<Model.Common.Payload, bool> condition, IPayloadRetriever retriever);
     }
 }

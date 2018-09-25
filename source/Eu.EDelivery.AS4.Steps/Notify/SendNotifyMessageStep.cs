@@ -65,11 +65,46 @@ namespace Eu.EDelivery.AS4.Steps.Notify
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
-            if (messagingContext?.NotifyMessage == null)
+            if (messagingContext == null)
+            {
+                throw new ArgumentNullException(nameof(messagingContext));
+            }
+
+            if (messagingContext.NotifyMessage == null)
             {
                 throw new InvalidOperationException(
                     $"{nameof(SendNotifyMessageStep)} requires a NotifyMessage to send but no NotifyMessage is present in the MessagingContext");
             }
+
+            if (messagingContext.NotifyMessage.StatusCode == Status.Delivered
+                && messagingContext.SendingPMode == null)
+            {
+                throw new InvalidOperationException(
+                    $"{nameof(SendNotifyMessageStep)} requires a SendingPMode when the NotifyMessage is a Receipt to be notified, "
+                    + "this is indicated by the NotifyMessage.StatusCode = Delivered");
+            }
+
+            if (messagingContext.NotifyMessage.StatusCode == Status.Error
+                && messagingContext.SendingPMode == null)
+            {
+                throw new InvalidOperationException(
+                    $"{nameof(SendNotifyMessageStep)} requires a SendingPMode when the NotifyMessage is an Error to be notified, "
+                    + "this is indicated by the NotifyMessage.StatusCode = Error");
+            }
+
+            if (messagingContext.NotifyMessage.StatusCode == Status.Exception
+                && messagingContext.SendingPMode == null
+                && messagingContext.ReceivingPMode == null)
+            {
+                throw new InvalidOperationException(
+                    $"{nameof(SendNotifyMessageStep)} requires either a SendingPMode ore ReceivingPMode when the NotifyMessage is an Exception to be notified, "
+                    + "this is indicated by teh NotifyMessage.StatusCode = Exception");
+            }
+
+            Method notifyMethod = GetNotifyMethodBasedOnNotifyMessage(
+                messagingContext.NotifyMessage,
+                messagingContext.SendingPMode,
+                messagingContext.ReceivingPMode);
 
             if (messagingContext.SendingPMode == null)
             {
@@ -77,16 +112,20 @@ namespace Eu.EDelivery.AS4.Steps.Notify
                     RetrieveSendingPModeForMessageWithEbmsMessageId(
                         messagingContext.NotifyMessage
                                         .MessageInfo
-                                        .RefToMessageId);
+                                        ?.RefToMessageId);
 
                 if (pmode != null)
                 {
+                    Logger.Debug(
+                        $"Using SendingPMode {pmode.Id} based on the NotifyMessage.MessageInfo.RefToMessageId "
+                        + $"{messagingContext.NotifyMessage.MessageInfo?.RefToMessageId} from the matching stored OutMessage");
+
                     messagingContext.SendingPMode = pmode;
                 }
             }
 
             Logger.Trace("Start sending NotifyMessage...");
-            SendResult result = await SendNotifyMessage(messagingContext).ConfigureAwait(false);
+            SendResult result = await SendNotifyMessage(notifyMethod, messagingContext.NotifyMessage).ConfigureAwait(false);
             Logger.Trace($"NotifyMessage sent result in: {result}");
 
             await UpdateDatastoreAsync(
@@ -97,12 +136,75 @@ namespace Eu.EDelivery.AS4.Steps.Notify
             return StepResult.Success(messagingContext);
         }
 
+        private static Method GetNotifyMethodBasedOnNotifyMessage(
+            NotifyMessageEnvelope notifyMessage,
+            SendingProcessingMode sendingPMode,
+            ReceivingProcessingMode receivingPMode)
+        {
+            switch (notifyMessage.StatusCode)
+            {
+                case Status.Delivered:
+                    if (sendingPMode.ReceiptHandling?.NotifyMethod?.Type == null)
+                    {
+                        throw new InvalidOperationException(
+                            $"SendingPMode {sendingPMode.Id} should have a ReceiptHandling.NotifyMethod "
+                            + "with a <Type/> element indicating the notifying strategy when the NotifyMessage.StatusCode = Delivered. "
+                            + "Default strategies are: 'FILE' and 'HTTP'. See 'Notify Uploading' for more information");
+                    }
+
+                    return sendingPMode.ReceiptHandling.NotifyMethod;
+                case Status.Error:
+                    if (sendingPMode.ErrorHandling?.NotifyMethod?.Type == null)
+                    {
+                        throw new InvalidOperationException(
+                            $"SendingPMode {sendingPMode.Id} should have a ErrorHandling.NotifyMethod "
+                            + "with a <Type/> element indicating the notifying strategy when the NotifyMessage.StatusCode = Error. "
+                            + "Default strategies are: 'FILE' and 'HTTP'. See 'Notify Uploading' for more information");
+                    }
+
+                    return sendingPMode.ErrorHandling.NotifyMethod;
+                case Status.Exception:
+                    bool isNotifyMessageFormedBySending = sendingPMode?.Id != null;
+                    if (isNotifyMessageFormedBySending)
+                    {
+                        if (sendingPMode?.ExceptionHandling?.NotifyMethod?.Type == null)
+                        {
+                            throw new InvalidOperationException(
+                                $"SendingPMode {sendingPMode?.Id} should have a ExceptionHandling.NotifyMethod "
+                                + "with a <Type/> element indicating the notifying strategy when the NotifyMessage.StatusCode = Exception. "
+                                + "This means that the NotifyMessage is an Exception occured during a outbound sending operation. "
+                                + "Default strategies are: 'FILE' and 'HTTP'. See 'Notify Uploading' for more information");
+                        }
+
+                        return sendingPMode.ExceptionHandling.NotifyMethod;
+                    }
+
+                    if (receivingPMode?.ExceptionHandling?.NotifyMethod?.Type == null)
+                    {
+                        throw new InvalidOperationException(
+                            $"ReceivingPMode {receivingPMode?.Id} should have a ExceptionHandling.NotifyMethod "
+                            + "with a <Type/> element indicating the notifying strategy when the NotifyMessage.StatusCode = Exception. "
+                            + "This means that the NotifyMessage is an Exception occured during an inbound receiving operation. "
+                            + "Default strategies are: 'FILE' and 'HTTP'. See 'Notify Uploading' for more information");
+                    }
+
+                    return receivingPMode.ExceptionHandling.NotifyMethod;
+                default:
+                    throw new ArgumentOutOfRangeException($"No NotifyMethod not defined for status {notifyMessage.StatusCode}");
+            }
+        }
+
         private SendingProcessingMode RetrieveSendingPModeForMessageWithEbmsMessageId(string ebmsMessageId)
         {
+            if (ebmsMessageId == null)
+            {
+                Logger.Debug("Can't retrieve SendingPMode because NotifyMessage.MessageInfo.RefToMessageId is not present");
+                return null;
+            }
+
             using (DatastoreContext context = _createContext())
             {
                 var repository = new DatastoreRepository(context);
-
                 var outMessageData = 
                     repository.GetOutMessageData(
                                   where: m => m.EbmsMessageId == ebmsMessageId && m.Intermediary == false,
@@ -112,45 +214,37 @@ namespace Eu.EDelivery.AS4.Steps.Notify
 
                 if (outMessageData == null)
                 {
+                    Logger.Debug(
+                        "Can't retrieve SendingPMode because no matching stored OutMessage found "
+                        + $"for EbmsMessageId = {ebmsMessageId} AND Intermediary = false");
+
                     return null;
                 }
 
-                return AS4XmlSerializer.FromString<SendingProcessingMode>(outMessageData.PMode);
+                var pmode = AS4XmlSerializer.FromString<SendingProcessingMode>(outMessageData.PMode);
+                if (pmode == null)
+                {
+                    Logger.Debug(
+                        "Can't use SendingPMode from matching OutMessage for NotifyMessage.MessageInfo.RefToMessageId "
+                        + $"{ebmsMessageId} because the PMode field can't be deserialized correctly to a SendingPMode");
+                }
+
+                return pmode;
             }
         }
 
-        private async Task<SendResult> SendNotifyMessage(MessagingContext messagingContext)
+        private async Task<SendResult> SendNotifyMessage(Method notifyMethod, NotifyMessageEnvelope notifyMessage)
         {
-            Method notifyMethod = GetNotifyMethod(messagingContext);
-
             INotifySender sender = _provider.GetNotifySender(notifyMethod.Type);
-            sender.Configure(notifyMethod);
-
-            return await sender.SendAsync(messagingContext.NotifyMessage).ConfigureAwait(false);
-        }
-
-        private static Method GetNotifyMethod(MessagingContext messagingContext)
-        {
-            NotifyMessageEnvelope notifyMessage = messagingContext.NotifyMessage;
-            SendingProcessingMode sendPMode = messagingContext.SendingPMode;
-            ReceivingProcessingMode receivePMode = messagingContext.ReceivingPMode;
-
-            switch (notifyMessage.StatusCode)
+            if (sender == null)
             {
-                case Status.Delivered: return sendPMode.ReceiptHandling.NotifyMethod;
-                case Status.Error: return sendPMode.ErrorHandling.NotifyMethod;
-                case Status.Exception: return DetermineMethod(sendPMode, sendPMode?.ExceptionHandling, receivePMode?.ExceptionHandling);
-                default: throw new ArgumentOutOfRangeException($"No NotifyMethod not defined for status {notifyMessage.StatusCode}");
+                throw new ArgumentNullException(
+                    nameof(sender),
+                    $@"No {nameof(INotifySender)} found for NotifyMethod.Type = {notifyMethod.Type}");
             }
-        }
 
-        private static Method DetermineMethod(IPMode sendPMode, SendHandling sendHandling, ReceiveHandling receiveHandling)
-        {
-            bool isNotifyMessageFormedBySending = sendPMode?.Id != null;
-
-            return isNotifyMessageFormedBySending
-                ? sendHandling?.NotifyMethod
-                : receiveHandling?.NotifyMethod;
+            sender.Configure(notifyMethod);
+            return await sender.SendAsync(notifyMessage).ConfigureAwait(false);
         }
 
         private async Task UpdateDatastoreAsync(
@@ -166,7 +260,7 @@ namespace Eu.EDelivery.AS4.Steps.Notify
                 if (!messageEntityId.HasValue)
                 {
                     throw new InvalidOperationException(
-                        $"Unable to update notified entities of type {notifyMessage.EntityType.FullName} because no entity id is present");
+                        $"Unable to update notified entities of type {notifyMessage.EntityType?.FullName} because no entity id is present");
                 }
 
                 if (notifyMessage.EntityType == typeof(InMessage))
@@ -188,9 +282,9 @@ namespace Eu.EDelivery.AS4.Steps.Notify
                 else
                 {
                     throw new InvalidOperationException(
-                        $"Unable to update notified entities of type {notifyMessage.EntityType.FullName}." +
-                        "Please provide one of the following types in the notify message: " +
-                        "InMessage, OutMessage, InException, and OutException are supported.");
+                        $"Unable to update notified entities of type {notifyMessage.EntityType?.FullName}."
+                        + "Please provide one of the following types in the notify message: "
+                        + "InMessage, OutMessage, InException, and OutException are supported");
                 }
 
                 await context.SaveChangesAsync().ConfigureAwait(false);

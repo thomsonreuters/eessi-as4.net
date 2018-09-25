@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
@@ -62,7 +61,12 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
-            if (messagingContext?.AS4Message == null)
+            if (messagingContext == null)
+            {
+                throw new ArgumentNullException(nameof(messagingContext));
+            }
+
+            if (messagingContext.AS4Message == null)
             {
                 throw new InvalidOperationException(
                     $"{nameof(UploadAttachmentsStep)} requires an AS4Message to upload the attachments from but no AS4Message is present in the MessagingContext");
@@ -80,11 +84,20 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
                     "Unable to send DeliverMessage: no ReceivingPMode is set");
             }
 
-            if (messagingContext.ReceivingPMode.MessageHandling?.DeliverInformation == null)
+            if (messagingContext.ReceivingPMode.MessageHandling?.DeliverInformation?.PayloadReferenceMethod == null)
             {
                 throw new InvalidOperationException(
-                    $"Unable to send the DeliverMessage: the ReceivingPMode {messagingContext.ReceivingPMode?.Id} does not contain any <DeliverInformation />." +
-                    "Please provide a correct <DeliverInformation /> tag to indicate where the deliver message (and its attachments) should be send to.");
+                    $"Unable to send the DeliverMessage: the ReceivingPMode {messagingContext.ReceivingPMode.Id} "
+                    + "does not contain any <PayloadReferenceMethod/> element in the MessageHandling.Deliver element. "
+                    + "Please provide a correct <PayloadReferenceMethod/> tag to indicate where the attachments of the DeliverMessage should be sent to.");
+            }
+
+            if (messagingContext.ReceivingPMode.MessageHandling.DeliverInformation.PayloadReferenceMethod.Type == null)
+            {
+                throw new InvalidOperationException(
+                    $"Unable to send the DeliverMessage: the ReceivingPMode {messagingContext.ReceivingPMode.Id} "
+                    + "does not contain any <Type/> element indicating the right uploading strategy in the MessageHandling.Deliver.PayloadReferenceMethod element. "
+                    + "Default uploading strategies are: 'FILE' and 'HTTP'. See 'Deliver Uploading' for more information");
             }
 
             IAttachmentUploader uploader = GetAttachmentUploader(messagingContext.ReceivingPMode);
@@ -123,21 +136,15 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         private IAttachmentUploader GetAttachmentUploader(ReceivingProcessingMode pmode)
         {
             Method payloadReferenceMethod = pmode.MessageHandling.DeliverInformation.PayloadReferenceMethod;
-            if (payloadReferenceMethod.Type == null)
+            IAttachmentUploader uploader = _provider.Get(payloadReferenceMethod.Type);
+            if (uploader == null)
             {
-                string description = 
-                    $"(Deliver) Can't use ReceivingPMode {pmode.Id} to deliver payloads since no " + 
-                    "\'Type\' element indicating the right uploading strategy was found in the <PayloadReferenceMethod/> tag. " +
-                    "Default uploading strategies are: 'FILE' and 'HTTP'. See 'Deliver Uploading' for more information";
-
-                Logger.Error(description);
-
-                throw new InvalidDataException(description);
+                throw new ArgumentNullException(
+                    nameof(uploader),
+                    $@"No {nameof(IAttachmentUploader)} can be found for PayloadReferenceMethod.Type = {payloadReferenceMethod.Type}");
             }
 
-            IAttachmentUploader uploader = _provider.Get(payloadReferenceMethod.Type);
             uploader.Configure(payloadReferenceMethod);
-
             return uploader;
         }
 
