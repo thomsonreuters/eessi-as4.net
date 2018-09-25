@@ -77,14 +77,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 var service = new PiggyBackingService(ctx);
                 string url = messagingContext.SendingPMode?.PushConfiguration?.Protocol?.Url;
                 IEnumerable<SignalMessage> signalMessages = 
-                    await service.LockedSelectToBePiggyBackedSignalMessagesAsync(pullRequest, url, _bodyStore);
-
-                if (signalMessages.Any())
-                {
-                    // Save the Datastore context so the selection gets locked for other queries.
-                    await ctx.SaveChangesAsync()
-                             .ConfigureAwait(false);
-                }
+                    await service.SelectToBePiggyBackedSignalMessagesAsync(pullRequest, url, _bodyStore);
 
                 foreach (SignalMessage signal in signalMessages)
                 {

@@ -40,7 +40,7 @@ namespace Eu.EDelivery.AS4.Services
         /// <param name="url">The url at which <see cref="PullRequest"/> are sent.</param>
         /// <param name="bodyStore">The body store at which the <see cref="SignalMessage"/>s are persisted.</param>
         /// <returns></returns>
-        public async Task<IEnumerable<SignalMessage>> LockedSelectToBePiggyBackedSignalMessagesAsync(
+        public async Task<IEnumerable<SignalMessage>> SelectToBePiggyBackedSignalMessagesAsync(
             PullRequest pr, 
             string url,
             IAS4MessageBodyStore bodyStore)
@@ -80,6 +80,12 @@ namespace Eu.EDelivery.AS4.Services
                 {
                     signals.Add(s);
                 }
+            }
+
+            if (query.Any())
+            {
+                await _context.SaveChangesAsync()
+                              .ConfigureAwait(false);
             }
 
             return signals.AsEnumerable();
