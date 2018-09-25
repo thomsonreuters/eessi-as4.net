@@ -80,7 +80,7 @@ namespace Eu.EDelivery.AS4.Steps.Notify
                 && messagingContext.SendingPMode == null)
             {
                 throw new InvalidOperationException(
-                    $"{nameof(SendNotifyMessageStep)} requires a SendingPMode when the NotifyMessage is a Receipt to be notified, "
+                    $"{nameof(SendNotifyMessageStep)} requires a SendingPMode when the NotifyMessage is a Receipt that must be notified, "
                     + "this is indicated by the NotifyMessage.StatusCode = Delivered");
             }
 
@@ -88,7 +88,7 @@ namespace Eu.EDelivery.AS4.Steps.Notify
                 && messagingContext.SendingPMode == null)
             {
                 throw new InvalidOperationException(
-                    $"{nameof(SendNotifyMessageStep)} requires a SendingPMode when the NotifyMessage is an Error to be notified, "
+                    $"{nameof(SendNotifyMessageStep)} requires a SendingPMode when the NotifyMessage is an Error that must be notified, "
                     + "this is indicated by the NotifyMessage.StatusCode = Error");
             }
 
@@ -97,7 +97,7 @@ namespace Eu.EDelivery.AS4.Steps.Notify
                 && messagingContext.ReceivingPMode == null)
             {
                 throw new InvalidOperationException(
-                    $"{nameof(SendNotifyMessageStep)} requires either a SendingPMode ore ReceivingPMode when the NotifyMessage is an Exception to be notified, "
+                    $"{nameof(SendNotifyMessageStep)} requires either a SendingPMode ore ReceivingPMode when the NotifyMessage is an Exception that must be notified, "
                     + "this is indicated by teh NotifyMessage.StatusCode = Exception");
             }
 
