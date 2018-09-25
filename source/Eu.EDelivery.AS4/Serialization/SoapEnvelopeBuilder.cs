@@ -15,7 +15,7 @@ namespace Eu.EDelivery.AS4.Serialization
         /// </summary>
         internal class SoapEnvelopeBuilder
         {
-            internal static readonly Dictionary<SoapNamespace, XmlQualifiedName> NamespaceInformation
+            private static readonly Dictionary<SoapNamespace, XmlQualifiedName> NamespaceInformation
                 = new Dictionary<SoapNamespace, XmlQualifiedName>()
                 {
                     { SoapNamespace.Ebms, new XmlQualifiedName("eb", Constants.Namespaces.EbmsXmlCore) },
@@ -291,7 +291,7 @@ namespace Eu.EDelivery.AS4.Serialization
                 return _document;
             }
 
-            internal enum SoapNamespace
+            private enum SoapNamespace
             {
                 Soap,
                 Ebms,
