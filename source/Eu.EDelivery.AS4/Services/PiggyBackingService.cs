@@ -78,9 +78,13 @@ namespace Eu.EDelivery.AS4.Services
                               .Get(found.ContentType)
                               .DeserializeAsync(body, found.ContentType, CancellationToken.None);
 
-                    if (signal.PrimaryMessageUnit is SignalMessage s)
+                    if (signal.PrimaryMessageUnit is Receipt r)
                     {
-                        signals.Add(s);
+                        signals.Add(r);
+                    }
+                    else if (signal.PrimaryMessageUnit is Error e)
+                    {
+                        signals.Add(e);
                     }
                 }
 
