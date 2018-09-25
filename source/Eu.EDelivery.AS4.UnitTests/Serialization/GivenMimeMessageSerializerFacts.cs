@@ -159,7 +159,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                 ISerializer serializer = new MimeMessageSerializer(new SoapEnvelopeSerializer());
                 serializer.Serialize(message, mimeStream, CancellationToken.None);
 
-                message.ContentType = Constants.ContentTypes.Mime;
                 mimeStream.Position = 0;
 
                 return MimeMessage.Load(mimeStream);

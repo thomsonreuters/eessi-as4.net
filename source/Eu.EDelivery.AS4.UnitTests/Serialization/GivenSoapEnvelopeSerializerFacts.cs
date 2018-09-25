@@ -515,7 +515,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                 // Act
                 using (var soapStream = new MemoryStream())
                 {
-                    message.ContentType = Constants.ContentTypes.Soap;
                     XmlDocument document = SerializeSoapMessage(message, soapStream);
 
                     // Assert
