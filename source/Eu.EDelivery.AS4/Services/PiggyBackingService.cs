@@ -60,35 +60,38 @@ namespace Eu.EDelivery.AS4.Services
                 throw new ArgumentNullException(nameof(bodyStore));
             }
 
-            IEnumerable<OutMessage> query = 
-                _context.NativeCommands
-                        .SelectToBePiggyBackedSignalMessages(url, pr.Mpc);
-
-            var signals = new Collection<SignalMessage>();
-            foreach (OutMessage found in query)
+            return await _context.TransactionalAsync(async db =>
             {
-                found.Operation = Operation.Sending;
+                IEnumerable<OutMessage> query =
+                    db.NativeCommands
+                      .SelectToBePiggyBackedSignalMessages(url, pr.Mpc);
 
-                Stream body = await bodyStore.LoadMessageBodyAsync(found.MessageLocation);
-                AS4Message signal =
-                    await SerializerProvider
-                          .Default
-                          .Get(found.ContentType)
-                          .DeserializeAsync(body, found.ContentType, CancellationToken.None);
-                
-                if (signal.PrimaryMessageUnit is SignalMessage s)
+                var signals = new Collection<SignalMessage>();
+                foreach (OutMessage found in query)
                 {
-                    signals.Add(s);
+                    found.Operation = Operation.Sending;
+
+                    Stream body = await bodyStore.LoadMessageBodyAsync(found.MessageLocation);
+                    AS4Message signal =
+                        await SerializerProvider
+                              .Default
+                              .Get(found.ContentType)
+                              .DeserializeAsync(body, found.ContentType, CancellationToken.None);
+
+                    if (signal.PrimaryMessageUnit is SignalMessage s)
+                    {
+                        signals.Add(s);
+                    }
                 }
-            }
 
-            if (query.Any())
-            {
-                await _context.SaveChangesAsync()
-                              .ConfigureAwait(false);
-            }
+                if (query.Any())
+                {
+                    await db.SaveChangesAsync()
+                            .ConfigureAwait(false);
+                }
 
-            return signals.AsEnumerable();
+                return signals.AsEnumerable();
+            });
         }
 
         /// <summary>
