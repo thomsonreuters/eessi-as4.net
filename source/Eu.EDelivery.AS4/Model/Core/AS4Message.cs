@@ -46,7 +46,7 @@ namespace Eu.EDelivery.AS4.Model.Core
 
         public static AS4Message Empty => new AS4Message(serializeAsMultiHop: false);
 
-        public string ContentType { get; internal set; }
+        public string ContentType { get; private set; }
 
         public XmlDocument EnvelopeDocument { get; private set; }
 
