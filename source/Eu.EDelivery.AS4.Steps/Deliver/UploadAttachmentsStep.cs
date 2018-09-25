@@ -157,8 +157,15 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
             {
                 Logger.Trace($"Start Uploading Attachment {attachment.Id}...");
 
-                UploadResult attachmentResult = 
-                    await uploader.UploadAsync(attachment, referringUserMessage).ConfigureAwait(false);
+                Task<UploadResult> uploadAsync = uploader.UploadAsync(attachment, referringUserMessage);
+                if (uploadAsync == null)
+                {
+                    throw new ArgumentNullException(
+                        nameof(uploadAsync),
+                        $@"{uploader.GetType().Name} returns 'null' for Attachment {attachment.Id}");
+                }
+
+                UploadResult attachmentResult = await uploadAsync.ConfigureAwait(false);
 
                 attachment.Location = attachmentResult.DownloadUrl;
                 attachment.ResetContentPosition();

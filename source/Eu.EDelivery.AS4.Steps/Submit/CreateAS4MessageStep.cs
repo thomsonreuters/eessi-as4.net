@@ -67,7 +67,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
             }
 
             AS4Message as4Message = CreateAS4MessageFromSubmit(messagingContext);
-            await AssignAttachmentsForAS4Message(as4Message, messagingContext).ConfigureAwait(false);
+            await AssignAttachmentsForAS4MessageAsync(as4Message, messagingContext).ConfigureAwait(false);
 
             messagingContext.ModifyContext(as4Message);
             return StepResult.Success(messagingContext);
@@ -102,7 +102,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
                     });
         }
 
-        private async Task AssignAttachmentsForAS4Message(AS4Message as4Message, MessagingContext context)
+        private async Task AssignAttachmentsForAS4MessageAsync(AS4Message as4Message, MessagingContext context)
         {
             try
             {
@@ -112,7 +112,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
 
                     await as4Message.AddAttachments(
                         context.SubmitMessage.Payloads,
-                        async payload => await RetrieveAttachmentContent(payload).ConfigureAwait(false)).ConfigureAwait(false);
+                        async payload => await RetrieveAttachmentContentAsync(payload).ConfigureAwait(false)).ConfigureAwait(false);
 
                     Logger.Info($"{context.LogTag} Assigned {as4Message.Attachments.Count()} payloads to the AS4Message");
                 }
@@ -131,7 +131,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
             }
         }
 
-        private async Task<Stream> RetrieveAttachmentContent(Payload payload)
+        private async Task<Stream> RetrieveAttachmentContentAsync(Payload payload)
         {
             if (payload == null)
             {

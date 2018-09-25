@@ -125,7 +125,7 @@ namespace Eu.EDelivery.AS4.Steps.Notify
             }
 
             Logger.Trace("Start sending NotifyMessage...");
-            SendResult result = await SendNotifyMessage(notifyMethod, messagingContext.NotifyMessage).ConfigureAwait(false);
+            SendResult result = await SendNotifyMessageAsync(notifyMethod, messagingContext.NotifyMessage).ConfigureAwait(false);
             Logger.Trace($"NotifyMessage sent result in: {result}");
 
             await UpdateDatastoreAsync(
@@ -233,7 +233,7 @@ namespace Eu.EDelivery.AS4.Steps.Notify
             }
         }
 
-        private async Task<SendResult> SendNotifyMessage(Method notifyMethod, NotifyMessageEnvelope notifyMessage)
+        private async Task<SendResult> SendNotifyMessageAsync(Method notifyMethod, NotifyMessageEnvelope notifyMessage)
         {
             INotifySender sender = _provider.GetNotifySender(notifyMethod.Type);
             if (sender == null)
@@ -244,7 +244,15 @@ namespace Eu.EDelivery.AS4.Steps.Notify
             }
 
             sender.Configure(notifyMethod);
-            return await sender.SendAsync(notifyMessage).ConfigureAwait(false);
+            Task<SendResult> sendAsync = sender.SendAsync(notifyMessage);
+            if (sendAsync == null)
+            {
+                throw new ArgumentNullException(
+                    nameof(sendAsync), 
+                    $@"{sender.GetType().Name} returns 'null' for sending NotifyMessage");
+            }
+
+            return await sendAsync.ConfigureAwait(false);
         }
 
         private async Task UpdateDatastoreAsync(

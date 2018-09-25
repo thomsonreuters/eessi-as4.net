@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
+using Eu.EDelivery.AS4.Model.Deliver;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
@@ -91,7 +92,20 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
             }
 
             Logger.Trace($"{messagingContext.LogTag} Start sending the DeliverMessage to the consuming business application...");
-            Method deliverMethod = messagingContext.ReceivingPMode.MessageHandling.DeliverInformation.DeliverMethod;
+            SendResult result = 
+                await SendDeliverMessageAsync(
+                    messagingContext.ReceivingPMode.MessageHandling.DeliverInformation.DeliverMethod, 
+                    messagingContext.DeliverMessage);
+            Logger.Trace($"{messagingContext.LogTag} Done sending the DeliverMesssage to the consuming business application");
+
+            await UpdateDeliverMessageAsync(messagingContext, result);
+            return StepResult.Success(messagingContext);
+        }
+
+        private async Task<SendResult> SendDeliverMessageAsync(
+            Method deliverMethod,
+            DeliverMessageEnvelope deliverMessage)
+        {
             IDeliverSender sender = _messageProvider.GetDeliverSender(deliverMethod.Type);
             if (sender == null)
             {
@@ -101,14 +115,18 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
             }
 
             sender.Configure(deliverMethod);
-            SendResult result = await sender.SendAsync(messagingContext.DeliverMessage).ConfigureAwait(false);
-            Logger.Trace($"{messagingContext.LogTag} Done sending the DeliverMesssage to the consuming business application");
+            Task<SendResult> sendAsync = sender.SendAsync(deliverMessage);
+            if (sendAsync == null)
+            {
+                throw new ArgumentNullException(
+                    nameof(sendAsync),
+                    $@"{sender.GetType().Name} returns 'null' for sending DeliverMessage");
+            }
 
-            await UpdateDeliverMessage(messagingContext, result);
-            return StepResult.Success(messagingContext);
+            return await sendAsync.ConfigureAwait(false);
         }
 
-        private async Task UpdateDeliverMessage(MessagingContext messagingContext, SendResult result)
+        private async Task UpdateDeliverMessageAsync(MessagingContext messagingContext, SendResult result)
         {
             using (DatastoreContext context = _createDbContext())
             {
