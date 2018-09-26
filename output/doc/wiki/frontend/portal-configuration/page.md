@@ -3,7 +3,7 @@
 ## In Process
 
 In process mode means that the portal and the runtime will run in the same process. This means that when you start the “Eu.EDelivery.AS4.ServiceHandler.ConsoleHost.exe” then also the portal will be available.
-This configuration is managed in the “settings.xml” file with the following option: 
+This configuration is managed in the “settings.xml” file with the following option:
 
 ![fe-inprocess](images/fe-inprocess.png)
 
@@ -26,7 +26,7 @@ Note: Running the portal in its own dedicated process is not the recommended way
 
 > Note: Running the portal using IIS is the recommended way for production!
 
-- Install the latest ASP.NET Core Module, https://github.com/aspnet/AspNetCoreModule, download & install the Windows Hosting package. After that restart IIS.
+- Install the latest <span>ASP.NET</span> Core Module via the .NET Core Runtime package: https://www.microsoft.com/net/download/thank-you/dotnet-runtime-2.1.4-windows-hosting-bundle-installer. After that restart IIS.
 - To verify if the module has been installed successfully, open “Internet Information (IIS) Manager” and view the modules and make the following module is listed.
 
 ![iis-manager](images/iis-manager.png)
@@ -45,8 +45,18 @@ Note: Running the portal in its own dedicated process is not the recommended way
 
 - In the root of the AS4 folder create a file “web.config” with the following contents:
 
-![web-config](images/web-config.jpg)
-  
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<configuration>
+    <system.webServer>
+        <handlers>
+            <add name="aspNetCore" path="*" verb="*" modules="AspNetCoreModule" resourceType="Unspecified" />
+        </handlers>
+        <aspNetCore processPath=".\Eu.EDelivery.AS4.Fe.exe" stdoutLogEnabled="true" stdoutLogFile=".\logs\stdout" />
+    </system.webServer>
+</configuration>
+```
+
 > Note: If the API doesn’t start, then you can enable the logging output by setting the stdoutLogEnabled option to true. After that all logging will be available in the logs folder.
 
 - Next step is to allow the application pool user write access the following folders, this can be done by right clicking on the folders and going to “security” tab and giving the “IUSER_USRS”
