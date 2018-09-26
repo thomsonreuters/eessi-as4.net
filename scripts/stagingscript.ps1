@@ -2,6 +2,10 @@
 
 cd ..\output
 
+if (Test-Path -Path .\Staging) {
+    Remove-Item  -Path .\Staging -ErrorAction SilentlyContinue -Force
+}
+
 MkDir .\Staging
 MkDir .\Staging\Assets
 MkDir .\Staging\bin
@@ -29,10 +33,10 @@ MkDir .\Staging\bin\x64
 MkDir .\Staging\bin\x86
 
 Remove-Item .\*.pdb
-Remove-Item .\*.xml -exclude Eu.EDelivery.AS4.Fe.xml,Eu.EDelivery.AS4.PayloadService.xml
+Remove-Item .\*.xml -exclude Eu.EDelivery.AS4.Fe.xml, Eu.EDelivery.AS4.PayloadService.xml
 Remove-Item .\xunit*.*
 If (Test-Path .\users.sqlite ) {
-	Remove-Item .\users.sqlite
+    Remove-Item .\users.sqlite
 }
 Remove-Item .\Microsoft.VisualStudio.Quality*.*
 Remove-Item .\Moq.*
@@ -46,6 +50,7 @@ Copy-Item -Path .\Eu.EDelivery.AS4.Fe.exe .\Staging\bin\
 Copy-Item -Path .\Eu.EDelivery.AS4.Fe.exe.config .\Staging\bin\
 Copy-Item -Path .\Eu.EDelivery.AS4.Fe.xml .\Staging\bin\
 Copy-Item -Path .\Eu.EDelivery.AS4.PayloadService.exe .\Staging\bin\
+Copy-Item -Path .\Eu.EDelivery.AS4.PayloadService.exe.config .\Staging\bin\
 Copy-Item -Path .\Eu.EDelivery.AS4.PayloadService.xml .\Staging\bin\
 Copy-Item -Path .\appsettings.payloadservice.json .\Staging\bin\
 Copy-Item -Path .\Eu.EDelivery.AS4.WindowsService.exe .\Staging\
@@ -53,7 +58,7 @@ Copy-Item -Path .\Eu.EDelivery.AS4.WindowsService.exe.config .\Staging\
 Copy-Item -Path ".\doc\AS4.NET - online documentation.url" .\Staging\documentation\
 
 If (Test-Path .\Eu.EDelivery.AS4.dll.config) {
-	Move-Item -Path .\Eu.EDelivery.AS4.dll.config .\Staging\bin\
+    Move-Item -Path .\Eu.EDelivery.AS4.dll.config .\Staging\bin\
 }
 
 $excludedLibraries = @("ModuleInit.dll", "NSubstitute.dll", "SimpleHttpMock.dll", "FsCheck.dll", "FsCheck.Xunit.dll", "FSharp.Core.dll")

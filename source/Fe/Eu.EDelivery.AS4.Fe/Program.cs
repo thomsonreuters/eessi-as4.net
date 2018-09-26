@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -16,11 +17,6 @@ namespace Eu.EDelivery.AS4.Fe
         {
             var isInProcess = args != null && args.Contains("inprocess");
 
-            if (!Config.Instance.IsInitialized)
-            {
-                Config.Instance.Initialize("settings.xml");
-            }
-
             Start(isInProcess, CancellationToken.None);
         }
 
@@ -37,11 +33,18 @@ namespace Eu.EDelivery.AS4.Fe
         private static void Start(bool inProcess, CancellationToken cancellationToken)
         {
             var config = LoadSettings(inProcess);
+            
             var httpPort = HttpPort(config);
             var environment = inProcess ? "inprocess" : "production";
 #if DEBUG
             environment = "Development";
 #endif
+
+            if (!Config.Instance.IsInitialized)
+            {
+                var value = config.GetValue<string>("Settings:SettingsXml");
+                Config.Instance.Initialize(value);
+            }
 
             var host = new WebHostBuilder()
                 .UseEnvironment(environment)
