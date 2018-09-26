@@ -9,7 +9,7 @@
     <OutputPath>..\..\output\</OutputPath>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <DocumentationFile>..\..\output\Eu.EDelivery.AS4.PayloadService.xml</DocumentationFile>
-    <PlatformTarget>AnyCPU</PlatformTarget>
+    <PlatformTarget>x64</PlatformTarget>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <NETStandardInbox>false</NETStandardInbox>
   </PropertyGroup>
