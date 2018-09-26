@@ -77,7 +77,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             var receipt = new Receipt($"receipt-{Guid.NewGuid()}", user.MessageId);
 
             InsertUserMessage(user);
-            InsertReceipt(receipt, Operation.ToBePiggyBacked);
+            InsertReceipt(receipt, pullSenderUrl, Operation.ToBePiggyBacked);
 
             // Act
             AS4Message piggyBacked = await RespondToPullRequest(pullSenderUrl, responseStatusCode: 202);
@@ -105,7 +105,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             var receipt = new Receipt($"receipt-{Guid.NewGuid()}", user.MessageId);
 
             InsertUserMessage(user);
-            InsertReceipt(receipt, Operation.ToBePiggyBacked);
+            InsertReceipt(receipt, pullSenderUrl, Operation.ToBePiggyBacked);
 
             // Act
             await RespondToPullRequest(pullSenderUrl, responseStatusCode: 500);
@@ -129,7 +129,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                 });
         }
 
-        private void InsertReceipt(Receipt receipt, Operation operation)
+        private void InsertReceipt(Receipt receipt, string url, Operation operation)
         {
             string location = 
                 Registry.Instance
@@ -145,6 +145,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                     EbmsMessageType = MessageType.Receipt,
                     ContentType = Constants.ContentTypes.Soap,
                     MessageLocation = location,
+                    Url = url,
                     Operation = operation
                 });
         }
