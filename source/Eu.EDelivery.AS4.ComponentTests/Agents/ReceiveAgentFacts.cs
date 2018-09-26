@@ -221,6 +221,31 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         #region MessageHandling scenarios
 
         [Fact]
+        public async Task ThenInMessageSignalIsStoredWithPModeUrl()
+        {
+            // Arrange
+            var userMessage = new UserMessage(
+                $"user-{Guid.NewGuid()}",
+                new CollaborationInfo(
+                    new AgreementReference(
+                        "http://eu.europe.agreements",
+                        "callback-pmode")));
+
+            // Act
+            await StubSender.SendAS4Message(_receiveAgentUrl, AS4Message.Create(userMessage));
+
+            // Assert
+            OutMessage storedReceipt = 
+                await PollUntilPresent(
+                    () => _databaseSpy.GetOutMessageFor(m => m.EbmsRefToMessageId == userMessage.MessageId
+                                                            && m.EbmsMessageType == MessageType.Receipt),
+                    timeout: TimeSpan.FromSeconds(20));
+
+            SendingProcessingMode responsePMode = _as4Msh.GetConfiguration().GetSendingPMode(storedReceipt.PModeId);
+            Assert.Equal(responsePMode.PushConfiguration.Protocol.Url, storedReceipt.Url);
+        }
+
+        [Fact]
         public async Task ThenInMessageOperationIsToBeDelivered()
         {
             // Arrange
