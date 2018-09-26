@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Core;
-using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Serialization;
 using NLog;
@@ -61,47 +60,42 @@ namespace Eu.EDelivery.AS4.Services
                 throw new ArgumentNullException(nameof(bodyStore));
             }
 
-            // TODO: the 'LIMIT' of the query should be configurable.
-            IEnumerable<OutMessage> query =
-                (from outM in _context.OutMessages
-                 join inM in _context.InMessages
-                     on outM.EbmsRefToMessageId
-                     equals inM.EbmsMessageId
-                 where outM.Operation == Operation.ToBePiggyBacked
-                       && inM.Mpc == pr.Mpc
-                       && outM.Url == url
-                       && outM.EbmsMessageType != MessageType.UserMessage
-                 select outM)
-                .OrderByDescending(m => m.InsertionTime)
-                .Take(10)
-                .AsEnumerable();
-
-            var signals = new Collection<SignalMessage>();
-            foreach (OutMessage found in query)
+            return await _context.TransactionalAsync(async db =>
             {
-                found.Operation = Operation.Sending;
+                IEnumerable<OutMessage> query =
+                    db.NativeCommands
+                      .SelectToBePiggyBackedSignalMessages(url, pr.Mpc);
 
-                Stream body = await bodyStore.LoadMessageBodyAsync(found.MessageLocation);
-                AS4Message signal =
-                    await SerializerProvider
-                          .Default
-                          .Get(found.ContentType)
-                          .DeserializeAsync(body, found.ContentType, CancellationToken.None);
-
-                
-                if (signal.PrimaryMessageUnit is SignalMessage s)
+                var signals = new Collection<SignalMessage>();
+                foreach (OutMessage found in query)
                 {
-                    signals.Add(s);
+                    found.Operation = Operation.Sending;
+
+                    Stream body = await bodyStore.LoadMessageBodyAsync(found.MessageLocation);
+                    AS4Message signal =
+                        await SerializerProvider
+                              .Default
+                              .Get(found.ContentType)
+                              .DeserializeAsync(body, found.ContentType, CancellationToken.None);
+
+                    if (signal.PrimaryMessageUnit is Receipt r)
+                    {
+                        signals.Add(r);
+                    }
+                    else if (signal.PrimaryMessageUnit is Error e)
+                    {
+                        signals.Add(e);
+                    }
                 }
-            }
 
-            if (query.Any())
-            {
-                await _context.SaveChangesAsync()
-                              .ConfigureAwait(false); 
-            }
+                if (query.Any())
+                {
+                    await db.SaveChangesAsync()
+                            .ConfigureAwait(false);
+                }
 
-            return signals.AsEnumerable();
+                return signals.AsEnumerable();
+            });
         }
 
         /// <summary>
