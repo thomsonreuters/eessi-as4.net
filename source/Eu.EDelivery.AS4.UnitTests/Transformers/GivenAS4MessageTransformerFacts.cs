@@ -95,11 +95,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
                 new Party("Sender", new PartyId(Guid.NewGuid().ToString())),
                 new Party("Receiver", new PartyId(Guid.NewGuid().ToString())));
 
-            AS4Message as4Message = AS4Message.Create(userMessage);
-
-            as4Message.ContentType = Constants.ContentTypes.Soap;
-
-            return as4Message;
+            return AS4Message.Create(userMessage);
         }
 
         protected async Task<MessagingContext> Transform(ReceivedMessage message)

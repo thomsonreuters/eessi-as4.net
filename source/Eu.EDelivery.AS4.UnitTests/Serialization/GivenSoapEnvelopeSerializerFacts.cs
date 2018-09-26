@@ -8,8 +8,10 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
+using System.Xml.Linq;
 using System.Xml.Schema;
 using System.Xml.Serialization;
+using System.Xml.XPath;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
@@ -73,17 +75,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
             }
 
             [Fact]
-            public async Task Predifined_BizTalk_Sample_Fails_To_Deserialize_Serialize_Because_Of_Missing_Body()
+            public async Task Predifined_BizTalk_Sample_Fails_To_Deserialize_Because_Of_Missing_Body()
             {
                 using (var input = new MemoryStream(Encoding.UTF8.GetBytes(BizTalkUserMessage)))
-                using (var output = new MemoryStream())
                 {
                     var sut = new SoapEnvelopeSerializer();
-                    AS4Message fixture = await sut.DeserializeAsync(input, Constants.ContentTypes.Soap, CancellationToken.None);
-
-
-                    Assert.Throws<NotSupportedException>(
-                        () => sut.Serialize(fixture, output, CancellationToken.None));
+                    await Assert.ThrowsAsync<ArgumentNullException>(
+                        () => sut.DeserializeAsync(input, Constants.ContentTypes.Soap, CancellationToken.None));
                 }
             }
 
@@ -263,20 +261,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                 return envelope;
             }
 
-            [Fact]
-            public void TestInvalidEnvelope()
-            {
-                // Arrange
-                var envelope = new XmlDocument();
-                envelope.LoadXml(Samples.UserMessage.Replace("UserMessage", "InvalidMessage"));
-
-                // Act
-                bool isValid = IsValidEbmsEnvelope(envelope);
-
-                // Assert
-                Assert.False(isValid);
-            }
-
             private static bool IsValidEbmsEnvelope(XmlDocument envelopeDocument)
             {
                 envelopeDocument.Schemas = Soap12Schemas;
@@ -293,6 +277,26 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                 });
 
                 return isValid;
+            }
+
+            [Fact]
+            public void TestInvalidEnvelope_MissingBody()
+            {
+                // Arrange
+                var doc = new XmlDocument();
+                doc.LoadXml(Samples.UserMessage);
+                doc.Schemas = Soap12Schemas;
+
+                XmlNode envelopeNode = doc.SelectEbmsNode("/s12:Envelope");
+                XmlNode bodyNode = doc.SelectEbmsNode("/s12:Envelope/s12:Body");
+                envelopeNode.RemoveChild(bodyNode);
+
+                // Act
+                var valid = true;
+                doc.Validate((sender, args) => valid = false);
+
+                // Assert
+                Assert.False(valid);
             }
         }
 
@@ -511,7 +515,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                 // Act
                 using (var soapStream = new MemoryStream())
                 {
-                    message.ContentType = Constants.ContentTypes.Soap;
                     XmlDocument document = SerializeSoapMessage(message, soapStream);
 
                     // Assert

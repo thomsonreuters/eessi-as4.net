@@ -96,5 +96,6 @@
       </eb:UserMessage>
     </eb:Messaging>
   </s12:Header>
-  <Body xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:eb="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/" xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd" xmlns:s12="http://www.w3.org/2003/05/soap-envelope" xmlns="http://schemas.xmlsoap.org/soap/envelope/" wsu:Id="body-c1c9a7ed-7a2e-45b1-aa31-143f8ed88d68" />
+  <s12:Body xmlns:p2="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd"
+            p2:Id="body-c1c9a7ed-7a2e-45b1-aa31-143f8ed88d68" />
 </s12:Envelope>

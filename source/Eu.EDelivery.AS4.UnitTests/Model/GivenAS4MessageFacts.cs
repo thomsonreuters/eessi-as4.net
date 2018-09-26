@@ -237,7 +237,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
                 // Act
                 using (var soapStream = new MemoryStream())
                 {
-                    message.ContentType = Constants.ContentTypes.Soap;
                     XmlDocument document = SerializeSoapMessage(message, soapStream);
 
                     // Assert
@@ -284,7 +283,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
             ISerializer serializer = new MimeMessageSerializer(new SoapEnvelopeSerializer());
             serializer.Serialize(message, mimeStream, CancellationToken.None);
 
-            message.ContentType = Constants.ContentTypes.Mime;
             mimeStream.Position = 0;
 
             return MimeMessage.Load(mimeStream);
