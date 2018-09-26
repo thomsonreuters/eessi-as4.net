@@ -46,9 +46,9 @@ Remove-Item .\*TestUtils.*
 Copy-Item -Path .\Assets\*.* .\Staging\Assets\
 Copy-Item -Path .\Eu.EDelivery.AS4.ServiceHandler.ConsoleHost.exe .\Staging\
 Copy-Item -Path .\Eu.EDelivery.AS4.ServiceHandler.ConsoleHost.exe.config .\Staging\
-Copy-Item -Path .\Eu.EDelivery.AS4.Fe.exe .\Staging\bin\
-Copy-Item -Path .\Eu.EDelivery.AS4.Fe.exe.config .\Staging\bin\
-Copy-Item -Path .\Eu.EDelivery.AS4.Fe.xml .\Staging\bin\
+Copy-Item -Path .\Eu.EDelivery.AS4.Fe.exe .\Staging\
+Copy-Item -Path .\Eu.EDelivery.AS4.Fe.exe.config .\Staging\
+Copy-Item -Path .\Eu.EDelivery.AS4.Fe.xml .\Staging\bin
 Copy-Item -Path .\Eu.EDelivery.AS4.PayloadService.exe .\Staging\bin\
 Copy-Item -Path .\Eu.EDelivery.AS4.PayloadService.exe.config .\Staging\bin\
 Copy-Item -Path .\Eu.EDelivery.AS4.PayloadService.xml .\Staging\bin\
