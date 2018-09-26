@@ -67,7 +67,13 @@ Note: Running the portal in its own dedicated process is not the recommended way
 
 ![folders-write-access](images/folders-write-access.png)
 
-- Verify that the installation is working by navigating to the configured URL, a setup dialog should appear:
+- Verify that the Application Pool has access to the path to where the AS4.NET component is extracted.
+  - This can be done via the menu pane clicking on the **Application Pools** tree node
+    ![application pools](images/application-pools.png)
+  - After selecting your Application Pool where the website is running, click on the right pane at **Advanced Settings**. Make sure that the **Identity** is set to a user that has write access to the folder where the AS4.NET component is extracted:
+    ![advanced settings](images/advanced-settings.png)
+
+* Verify that the installation is working by navigating to the configured URL, a setup dialog should appear:
 
 ![as4.net-setup](images/as4.net-setup.png)
 
