@@ -45,7 +45,11 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                 Assert.True(submitMessage?.Collaboration?.AgreementRef != null, "Send SubmitMessage hasn't got a Collaboration.AgreementRef element");
 
                 // Act
-                await SendSubmitMessage(fixture);
+                using (HttpResponseMessage response = await StubSender.SendRequest(HttpSubmitAgentUrl, Encoding.UTF8.GetBytes(fixture), "application/xml"))
+                {
+                    Assert.Equal(HttpStatusCode.Accepted, response.StatusCode);
+                    Assert.True(String.IsNullOrWhiteSpace(response.Content.Headers.ContentType?.ToString()));
+                }
 
                 // Assert
                 IConfig config = _as4Msh.GetConfiguration();
@@ -59,15 +63,6 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
                 Assert.True(outMessage != null, "No OutMessage was stored for send SubmitMessage");
                 Assert.Equal(usedSendingPMode.PushConfiguration.Protocol.Url, outMessage.Url);
-            }
-
-            private static async Task SendSubmitMessage(string fixture)
-            {
-                using (HttpResponseMessage response = await StubSender.SendRequest(HttpSubmitAgentUrl, Encoding.UTF8.GetBytes(fixture), "application/xml"))
-                {
-                    Assert.Equal(HttpStatusCode.Accepted, response.StatusCode);
-                    Assert.True(String.IsNullOrWhiteSpace(response.Content.Headers.ContentType?.ToString()));
-                }
             }
 
             [Fact]
