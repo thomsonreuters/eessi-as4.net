@@ -94,7 +94,7 @@ namespace Eu.EDelivery.AS4.Services
                 .ForSignalMessage(errorMessage, as4Message, mep)
                 .WithPMode(sendingPMode)
                 .OnLocation(location)
-                .BuildAsError();
+                .BuildAsDeadLetteredError();
 
             Logger.Debug($"(Send) Create Error for missed Receipt with {{Operation={inMessage.Operation}}}");
             _repository.InsertInMessage(inMessage);

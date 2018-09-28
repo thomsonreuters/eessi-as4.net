@@ -101,7 +101,7 @@ namespace Eu.EDelivery.AS4.Builders.Entities
         /// This is used when the ednpoint of the message has been determined and not processing should be done.
         /// </summary>
         /// <returns></returns>
-        public InMessage BuildAsError()
+        public InMessage BuildAsDeadLetteredError()
         {
             InMessage inMessage = BuildYetUndetermined();
             inMessage.Operation =
