@@ -1,7 +1,7 @@
 using System;
 using System.ComponentModel;
 
-namespace Eu.EDelivery.AS4.Receivers.Utilities
+namespace Eu.EDelivery.AS4.Receivers.Datastore
 {
     internal static class Conversion
     {

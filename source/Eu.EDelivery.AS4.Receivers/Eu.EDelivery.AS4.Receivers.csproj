@@ -1,6 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="14.0" DefaultTargets="Build" 
-  xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -50,18 +49,30 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
     <Reference Include="WindowsBase" />
-    <Reference Include="netstandard, Version=2.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51"/>
+    <Reference Include="netstandard, Version=2.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DatastoreReceiver.cs" />
     <Compile Include="DatastoreReceiverSettings.cs" />
     <Compile Include="FileReceiverSettings.cs" />
+    <Compile Include="Http\Get\GetHtmlHandler.cs" />
+    <Compile Include="Http\Get\GetImageHandler.cs" />
+    <Compile Include="Http\HttpResult.cs" />
+    <Compile Include="Http\Get\IHttpGetHandler.cs" />
+    <Compile Include="Http\Post\AsyncSignalResponseHandler.cs" />
+    <Compile Include="Http\Post\ExceptionPostHandler.cs" />
+    <Compile Include="Http\Post\ForwardMessageResponseHandler.cs" />
+    <Compile Include="Http\Post\IHttpPostHandler.cs" />
+    <Compile Include="Http\Post\PullRequestResponseHandler.cs" />
+    <Compile Include="Http\Post\SubmitPostHandler.cs" />
+    <Compile Include="Http\Post\SyncSignalResponseHandler.cs" />
+    <Compile Include="Http\Router.cs" />
     <Compile Include="PullRequestReceiver.cs" />
     <Compile Include="FileReceiver.cs" />
     <Compile Include="HttpReceiver.cs" />
-    <Compile Include="Pull\PModePullRequest.cs" />
+    <Compile Include="PullRequest\PModePullRequest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Utilities\Conversion.cs" />
+    <Compile Include="Datastore\Conversion.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config">
