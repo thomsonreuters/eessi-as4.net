@@ -28,13 +28,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
                 // Act
                 InMessage inMessage =
                     InMessageBuilder.ForSignalMessage(receipt, as4Message, MessageExchangePattern.Push)
-                                    .WithPMode(new ReceivingProcessingMode())
-                                    .Build();
+                                    .WithPMode(new SendingProcessingMode())
+                                    .BuildYetUndetermined();
 
                 // Assert
                 Assert.NotNull(inMessage);
                 Assert.Equal(as4Message.ContentType, inMessage.ContentType);
-                Assert.Equal(await AS4XmlSerializer.ToStringAsync(new ReceivingProcessingMode()), inMessage.PMode);
+                Assert.Equal(await AS4XmlSerializer.ToStringAsync(new SendingProcessingMode()), inMessage.PMode);
                 Assert.Equal(MessageType.Receipt, inMessage.EbmsMessageType);
             }
         }
@@ -49,7 +49,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
 
                 // Act / Assert
                 Assert.ThrowsAny<Exception>(
-                    () => InMessageBuilder.ForSignalMessage(messageUnit, belongsToAS4Message: null, mep: MessageExchangePattern.Push).Build());
+                    () => InMessageBuilder.ForSignalMessage(messageUnit, belongsToAS4Message: null, mep: MessageExchangePattern.Push).BuildYetUndetermined());
             }
 
             [Fact]
@@ -60,7 +60,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
 
                 // Act / Assert
                 Assert.ThrowsAny<Exception>(
-                    () => InMessageBuilder.ForUserMessage(null, as4Message, MessageExchangePattern.Push).Build());
+                    () => InMessageBuilder.ForUserMessage(null, as4Message, MessageExchangePattern.Push).BuildYetUndetermined());
             }
 
             [Fact]
@@ -70,7 +70,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
                 InMessageBuilder sut = InMessageBuilder.ForSignalMessage(Mock.Of<SignalMessage>(), AS4Message.Empty, MessageExchangePattern.Push);
 
                 // Act / Assert
-                Assert.ThrowsAny<Exception>(() => sut.Build());
+                Assert.ThrowsAny<Exception>(() => sut.BuildYetUndetermined());
             }
         }
 

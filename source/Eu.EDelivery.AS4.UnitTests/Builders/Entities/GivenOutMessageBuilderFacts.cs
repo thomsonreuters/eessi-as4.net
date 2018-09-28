@@ -83,7 +83,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
             {
                 return OutMessageBuilder
                     .ForMessageUnit(m.PrimaryMessageUnit, m.ContentType, ExpectedPMode())
-                    .Build();
+                    .BuildForSending("message-location", OutStatus.NotApplicable, Operation.NotApplicable);
             }
         }
 

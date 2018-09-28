@@ -78,25 +78,23 @@ namespace Eu.EDelivery.AS4.Services
                     new ErrorResult("Missing Receipt", ErrorAlias.MissingReceipt));
 
             AS4Message as4Message = AS4Message.Create(errorMessage, sendingPMode);
-            InMessage inMessage = InMessageBuilder
-                .ForSignalMessage(errorMessage, as4Message, mep)
-                .WithPMode(sendingPMode)
-                .Build();
 
             // We do not use the InMessageService to persist the incoming message here, since this is not really
             // an incoming message.  We create this InMessage in order to be able to notify the Message Producer
             // if he should be notified when a message cannot be sent.
             // (Maybe we should only create the InMessage when notification is enabled ?)
-            inMessage.MessageLocation = Registry.Instance
-                .MessageBodyStore
-                .SaveAS4Message(
-                    location: Config.Instance.InMessageStoreLocation,
-                    message: as4Message);
+            string location =
+                Registry.Instance
+                        .MessageBodyStore
+                        .SaveAS4Message(
+                            location: Config.Instance.InMessageStoreLocation,
+                            message: as4Message);
 
-            inMessage.Operation =
-                (sendingPMode?.ErrorHandling?.NotifyMessageProducer ?? false)
-                    ? Operation.ToBeNotified
-                    : Operation.NotApplicable;
+            InMessage inMessage = InMessageBuilder
+                .ForSignalMessage(errorMessage, as4Message, mep)
+                .WithPMode(sendingPMode)
+                .OnLocation(location)
+                .BuildAsError();
 
             Logger.Debug($"(Send) Create Error for missed Receipt with {{Operation={inMessage.Operation}}}");
             _repository.InsertInMessage(inMessage);
@@ -193,9 +191,8 @@ namespace Eu.EDelivery.AS4.Services
                     InMessage inMessage = InMessageBuilder
                         .ForUserMessage(userMessage, as4Message, mep)
                         .WithPMode(pmode)
-                        .Build();
-
-                    inMessage.MessageLocation = location;
+                        .OnLocation(location)
+                        .BuildYetUndetermined();
 
                     Logger.Debug(
                         $"Insert InMessage UserMessage {userMessage.MessageId} with " +
@@ -248,9 +245,8 @@ namespace Eu.EDelivery.AS4.Services
                     InMessage inMessage = InMessageBuilder
                         .ForSignalMessage(signalMessage, as4Message, mep)
                         .WithPMode(pmode)
-                        .Build();
-
-                    inMessage.MessageLocation = location;
+                        .OnLocation(location)
+                        .BuildYetUndetermined();
 
                     Logger.Debug(
                         $"Insert InMessage {signalMessage.GetType().Name} {signalMessage.MessageId} " +

@@ -150,19 +150,13 @@ namespace Eu.EDelivery.AS4.Services
                 SendingProcessingMode pmode =
                     SendingOrResponsePMode(messageUnit, sendingPMode, receivingPMode);
 
-                OutMessage outMessage =
-                    OutMessageBuilder
-                        .ForMessageUnit(messageUnit, as4Message.ContentType, pmode)
-                        .Build();
-
-                outMessage.Url = pmode?.PushConfiguration?.Protocol?.Url;
-                outMessage.MessageLocation = messageBodyLocation;
-
                 (OutStatus st, Operation op) =
                     DetermineReplyPattern(messageUnit, relatedInMessageMeps, receivingPMode);
 
-                outMessage.SetStatus(st);
-                outMessage.Operation = op;
+                OutMessage outMessage =
+                    OutMessageBuilder
+                        .ForMessageUnit(messageUnit, as4Message.ContentType, pmode)
+                        .BuildForSending(messageBodyLocation, st, op);
 
                 Logger.Debug($"Insert OutMessage {outMessage.EbmsMessageType} with {{Operation={outMessage.Operation}, Status={outMessage.Status}}}");
                 _repository.InsertOutMessage(outMessage);
