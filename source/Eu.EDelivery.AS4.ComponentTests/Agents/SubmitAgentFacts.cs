@@ -2,9 +2,15 @@
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.ComponentTests.Common;
+using Eu.EDelivery.AS4.Entities;
+using Eu.EDelivery.AS4.Model.PMode;
+using Eu.EDelivery.AS4.Model.Submit;
+using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.TestUtils.Stubs;
 using Xunit;
 
@@ -24,15 +30,40 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         public SubmitAgentFacts()
         {
             OverrideSettings("submitagent_http_settings.xml");
-            _as4Msh = AS4Component.Start(Environment.CurrentDirectory);
+            _as4Msh = AS4Component.Start(Environment.CurrentDirectory);s
         }
 
         public class GivenValidSubmitMessage : SubmitAgentFacts
         {
             [Fact]
-            public async Task ThenAgentRespondsWithHttpAccepted()
+            public async Task ThenAgentStoresOutMessageFoReceivedSubmitMessage()
             {
-                using (var response = await StubSender.SendRequest(HttpSubmitAgentUrl, Encoding.UTF8.GetBytes(GetValidSubmitMessage()), "application/xml"))
+                // Arrange
+                string fixture = SubmitMessageFixture;
+                var submitMessage = AS4XmlSerializer.FromString<SubmitMessage>(fixture);
+                Assert.True(submitMessage?.MessageInfo?.MessageId != null, "Send SubmitMessage hasn't got a MessageInfo.MessageId element");
+                Assert.True(submitMessage?.Collaboration?.AgreementRef != null, "Send SubmitMessage hasn't got a Collaboration.AgreementRef element");
+
+                // Act
+                await SendSubmitMessage(fixture);
+
+                // Assert
+                IConfig config = _as4Msh.GetConfiguration();
+                string pmodeId = submitMessage.Collaboration.AgreementRef.PModeId;
+                SendingProcessingMode usedSendingPMode = config.GetSendingPMode(pmodeId);
+                Assert.True(usedSendingPMode.PushConfiguration?.Protocol != null, "SendingPMode for SubmitMessage hasn't got PushConfiguration.Protocol element");
+
+                var databaseSpy = new DatabaseSpy(config);
+                OutMessage outMessage = databaseSpy.GetOutMessageFor(
+                    m => m.EbmsMessageId == submitMessage.MessageInfo.MessageId);
+
+                Assert.True(outMessage != null, "No OutMessage was stored for send SubmitMessage");
+                Assert.Equal(usedSendingPMode.PushConfiguration.Protocol.Url, outMessage.Url);
+            }
+
+            private static async Task SendSubmitMessage(string fixture)
+            {
+                using (HttpResponseMessage response = await StubSender.SendRequest(HttpSubmitAgentUrl, Encoding.UTF8.GetBytes(fixture), "application/xml"))
                 {
                     Assert.Equal(HttpStatusCode.Accepted, response.StatusCode);
                     Assert.True(String.IsNullOrWhiteSpace(response.Content.Headers.ContentType?.ToString()));
@@ -46,25 +77,26 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                 await Task.Delay(1500);
                 File.Delete(@".\database\messages.db");
 
-                using (var response = await StubSender.SendRequest(HttpSubmitAgentUrl, Encoding.UTF8.GetBytes(GetValidSubmitMessage()), "application/xml"))
+                using (var response = await StubSender.SendRequest(HttpSubmitAgentUrl, Encoding.UTF8.GetBytes(SubmitMessageFixture), "application/xml"))
                 {
                     Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
                     Assert.False(String.IsNullOrWhiteSpace(await response.Content.ReadAsStringAsync()));
                 }
             }
 
-            private static string GetValidSubmitMessage()
-            {
-                return @"<?xml version=""1.0""?>
-                            <SubmitMessage xmlns = ""urn:cef:edelivery:eu:as4:messages""> 
-                                <Collaboration> 
-                                    <AgreementRef>
-                                        <PModeId>componentsubmittest-pmode</PModeId> 
-                                    </AgreementRef> 
-                                </Collaboration> 
-                                <Payloads/>   
-                            </SubmitMessage>";
-            }
+            private static string SubmitMessageFixture => 
+                $@"<?xml version=""1.0""?>
+                   <SubmitMessage xmlns = ""urn:cef:edelivery:eu:as4:messages""> 
+                     <MessageInfo>
+                         <MessageId>{Guid.NewGuid()}</MessageId>
+                     </MessageInfo>
+                     <Collaboration> 
+                         <AgreementRef>
+                             <PModeId>componentsubmittest-pmode</PModeId> 
+                         </AgreementRef> 
+                     </Collaboration> 
+                     <Payloads/>   
+                   </SubmitMessage>";
         }
 
         public class GivenInvalidSubmitMessage : SubmitAgentFacts
