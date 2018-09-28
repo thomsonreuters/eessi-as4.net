@@ -92,7 +92,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
             new NotifyType<InException>(
                 insertion: factory => (refToMessageId, current, max) =>
                 {
-                    var ex = new InException(refToMessageId, "location", "some error message");
+                    var ex = InException.ForEbmsMessageId(refToMessageId, "some error message");
                     ex.Operation = Operation.ToBeNotified;
                     factory.InsertInException(ex);
 
@@ -114,7 +114,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
             new NotifyType<OutException>(
                 insertion: factory => (refToMessageId, current, max) =>
                 {
-                    var ex = new OutException(refToMessageId, "location", "some error message");
+                    var ex = OutException.ForEbmsMessageId(refToMessageId, "some error message");
                     ex.Operation = Operation.ToBeNotified;
                     factory.InsertOutException(ex);
 

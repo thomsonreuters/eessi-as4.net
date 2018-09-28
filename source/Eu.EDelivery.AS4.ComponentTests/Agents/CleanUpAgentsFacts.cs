@@ -249,18 +249,18 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
         private static OutException CreateOutException(string ebmsMessageId, DateTimeOffset insertionTime)
         {
-            return new OutException(ebmsMessageId, messageLocation: null, exception: string.Empty)
-            {
-                InsertionTime = insertionTime
-            };
+            OutException ex = OutException.ForEbmsMessageId(ebmsMessageId, exception: string.Empty);
+            ex.InsertionTime = insertionTime;
+
+            return ex;
         }
 
         private static InException CreateInException(string ebmsMessageId, DateTimeOffset insertionTime)
         {
-            return new InException(ebmsMessageId, messageLocation: null, exception: string.Empty)
-            {
-                InsertionTime = insertionTime
-            };
+            InException ex = InException.ForEbmsMessageId(ebmsMessageId, exception: string.Empty);
+            ex.InsertionTime = insertionTime;
+
+            return ex;
         }
 
         private static void ExerciseStartCleaning()
