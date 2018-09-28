@@ -30,7 +30,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         public SubmitAgentFacts()
         {
             OverrideSettings("submitagent_http_settings.xml");
-            _as4Msh = AS4Component.Start(Environment.CurrentDirectory);s
+            _as4Msh = AS4Component.Start(Environment.CurrentDirectory);
         }
 
         public class GivenValidSubmitMessage : SubmitAgentFacts
