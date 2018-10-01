@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using NLog;
@@ -16,8 +17,13 @@ namespace Eu.EDelivery.AS4.Receivers.Http.Post
         /// <returns></returns>
         public bool CanHandle(MessagingContext context)
         {
+            if (context == null)
+            {
+                throw new ArgumentNullException(nameof(context));
+            }
+
             return context.ReceivingPMode != null
-                   && context.ReceivingPMode.ReplyHandling.ReplyPattern == ReplyPattern.Callback;
+                   && context.ReceivingPMode.ReplyHandling?.ReplyPattern == ReplyPattern.Callback;
         }
 
         /// <summary>

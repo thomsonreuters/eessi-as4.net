@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
 using Eu.EDelivery.AS4.Model.Internal;
 using NLog;
 
@@ -15,6 +16,11 @@ namespace Eu.EDelivery.AS4.Receivers.Http.Post
         /// <returns></returns>
         public bool CanHandle(MessagingContext context)
         {
+            if (context == null)
+            {
+                throw new ArgumentNullException(nameof(context));
+            }
+
             return context.Mode == MessagingContextMode.Send && context.ReceivedMessage != null;
         }
 
@@ -25,6 +31,16 @@ namespace Eu.EDelivery.AS4.Receivers.Http.Post
         /// <returns></returns>
         public HttpResult Handle(MessagingContext context)
         {
+            if (context == null)
+            {
+                throw new ArgumentNullException(nameof(context));
+            }
+
+            if (context.ReceivedMessage == null)
+            {
+                throw new ArgumentNullException(nameof(context.ReceivedMessage));
+            }
+
             Logger.Debug("Respond with 200 OK: AS4Message is result of pulling");
 
             // When we're sending as a puller, make sure that the message that has been received, 

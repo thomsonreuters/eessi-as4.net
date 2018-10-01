@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
 using Eu.EDelivery.AS4.Model.Internal;
 using NLog;
 
@@ -15,6 +16,11 @@ namespace Eu.EDelivery.AS4.Receivers.Http.Post
         /// <returns></returns>
         public bool CanHandle(MessagingContext context)
         {
+            if (context == null)
+            {
+                throw new ArgumentNullException(nameof(context));
+            }
+
             // Ugly hack until the Transformer is refactored.
             // When we're in SubmitMode and have an Empty AS4Message, then we should return an Accepted.
             return context.Mode == MessagingContextMode.Submit && context.AS4Message?.IsEmpty == false;

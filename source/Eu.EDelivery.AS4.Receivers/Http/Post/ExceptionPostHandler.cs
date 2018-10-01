@@ -20,6 +20,11 @@ namespace Eu.EDelivery.AS4.Receivers.Http.Post
         /// 
         public bool CanHandle(MessagingContext context)
         {
+            if (context == null)
+            {
+                throw new ArgumentNullException(nameof(context));
+            }
+
             return
                 context.Exception != null
                 || context.ErrorResult != null
@@ -33,6 +38,11 @@ namespace Eu.EDelivery.AS4.Receivers.Http.Post
         /// <returns></returns>
         public HttpResult Handle(MessagingContext context)
         {
+            if (context == null)
+            {
+                throw new ArgumentNullException(nameof(context));
+            }
+
             HttpStatusCode statusCode = DetermineStatusCode(context.Exception);
 
             string errorMessage =
@@ -40,7 +50,7 @@ namespace Eu.EDelivery.AS4.Receivers.Http.Post
                     ? context.ErrorResult.Description
                     : context.Exception?.Message ?? string.Empty;
 
-            Logger.Error($"Respond with {(int)statusCode} {statusCode} {(string.IsNullOrEmpty(errorMessage) ? String.Empty : errorMessage)}");
+            Logger.Error($"Respond with {(int) statusCode} {statusCode} {(string.IsNullOrEmpty(errorMessage) ? String.Empty : errorMessage)}");
             return HttpResult.FromBytes(
                 statusCode,
                 Encoding.UTF8.GetBytes(errorMessage),
@@ -51,11 +61,13 @@ namespace Eu.EDelivery.AS4.Receivers.Http.Post
         {
             switch (exception)
             {
-                case SecurityException _:       return HttpStatusCode.Forbidden;
-                case InvalidMessageException _: return HttpStatusCode.BadRequest;
+                case SecurityException _:
+                    return HttpStatusCode.Forbidden;
+                case InvalidMessageException _:
+                    return HttpStatusCode.BadRequest;
+                default:
+                    return HttpStatusCode.InternalServerError;
             }
-
-            return HttpStatusCode.InternalServerError;
         }
     }
 }

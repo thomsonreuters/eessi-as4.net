@@ -51,6 +51,11 @@ namespace Eu.EDelivery.AS4.Receivers.Http
         /// <returns></returns>
         public static HttpResult Empty(HttpStatusCode status, string contentType)
         {
+            if (contentType == null)
+            {
+                throw new ArgumentNullException(nameof(contentType));
+            }
+
             return FromBytes(status, new byte[0], contentType);
         }
 
@@ -63,6 +68,16 @@ namespace Eu.EDelivery.AS4.Receivers.Http
         /// <returns></returns>
         public static HttpResult FromBytes(HttpStatusCode status, byte[] content, string contentType)
         {
+            if (content == null)
+            {
+                throw new ArgumentNullException(nameof(content));
+            }
+
+            if (contentType == null)
+            {
+                throw new ArgumentNullException(nameof(contentType));
+            }
+
             return new HttpResult(
                 status,
                 contentType,
@@ -82,6 +97,16 @@ namespace Eu.EDelivery.AS4.Receivers.Http
         /// <returns></returns>
         public static HttpResult FromStream(HttpStatusCode status, Stream content, string contentType)
         {
+            if (content == null)
+            {
+                throw new ArgumentNullException(nameof(content));
+            }
+
+            if (contentType == null)
+            {
+                throw new ArgumentNullException(nameof(contentType));
+            }
+
             return new HttpResult(
                 status,
                 contentType,
@@ -100,6 +125,11 @@ namespace Eu.EDelivery.AS4.Receivers.Http
         /// <returns></returns>
         public static HttpResult FromAS4Message(HttpStatusCode status, AS4Message message)
         {
+            if (message == null)
+            {
+                throw new ArgumentNullException(nameof(message));
+            }
+
             return new HttpResult(
                 status,
                 message.ContentType,
@@ -116,7 +146,7 @@ namespace Eu.EDelivery.AS4.Receivers.Http
             {
                 using (Stream responseStream = response.OutputStream)
                 {
-                    if (message?.IsEmpty == false)
+                    if (message.IsEmpty == false)
                     {
                         ISerializer serializer = SerializerProvider.Default.Get(message.ContentType);
 
@@ -143,6 +173,11 @@ namespace Eu.EDelivery.AS4.Receivers.Http
         /// <returns></returns>
         public async Task WriteToAsync(HttpListenerResponse response)
         {
+            if (response == null)
+            {
+                throw new ArgumentNullException(nameof(response));
+            }
+
             response.StatusCode = (int)_status;
             response.ContentType = _contentType;
             response.KeepAlive = false;

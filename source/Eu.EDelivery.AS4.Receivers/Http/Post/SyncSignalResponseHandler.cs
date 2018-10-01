@@ -17,6 +17,11 @@ namespace Eu.EDelivery.AS4.Receivers.Http.Post
         /// <returns></returns>
         public bool CanHandle(MessagingContext context)
         {
+            if (context == null)
+            {
+                throw new ArgumentNullException(nameof(context));
+            }
+
             return context.AS4Message != null && context.AS4Message.IsEmpty == false;
         }
 
@@ -27,21 +32,27 @@ namespace Eu.EDelivery.AS4.Receivers.Http.Post
         /// <returns></returns>
         public HttpResult Handle(MessagingContext context)
         {
+            if (context == null)
+            {
+                throw new ArgumentNullException(nameof(context));
+            }
+
             HttpStatusCode statusCode = DetermineHttpCodeFrom(context);
             Logger.Debug($"Respond with {(int)statusCode} {statusCode}: Receipt/Errors are responded sync");
             
             return HttpResult.FromAS4Message(statusCode, context.AS4Message);
         }
 
-        private static HttpStatusCode DetermineHttpCodeFrom(MessagingContext processorResult)
+        private static HttpStatusCode DetermineHttpCodeFrom(MessagingContext agentResult)
         {
-            if (processorResult?.ReceivingPMode != null
-                && processorResult.AS4Message.PrimaryMessageUnit is Error)
+            if (agentResult.ReceivingPMode != null
+                && agentResult.AS4Message?.PrimaryMessageUnit is Error)
             {
-                int errorHttpCode = processorResult.ReceivingPMode.ReplyHandling.ErrorHandling.ResponseHttpCode;
-                if (Enum.IsDefined(typeof(HttpStatusCode), errorHttpCode))
+                int? errorHttpCode = agentResult.ReceivingPMode.ReplyHandling?.ErrorHandling?.ResponseHttpCode;
+                if (errorHttpCode.HasValue
+                    && Enum.IsDefined(typeof(HttpStatusCode), errorHttpCode))
                 {
-                    return (HttpStatusCode)errorHttpCode;
+                    return (HttpStatusCode) errorHttpCode;
                 }
 
                 return HttpStatusCode.InternalServerError;

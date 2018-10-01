@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
 using Eu.EDelivery.AS4.Model.Internal;
 using NLog;
 
@@ -15,8 +16,12 @@ namespace Eu.EDelivery.AS4.Receivers.Http.Post
         /// <returns></returns>
         public bool CanHandle(MessagingContext context)
         {
-            return context.Mode == MessagingContextMode.Receive
-                   && context.ReceivedMessageMustBeForwarded;
+            if (context == null)
+            {
+                throw new ArgumentNullException(nameof(context));
+            }
+
+            return context.Mode == MessagingContextMode.Receive && context.ReceivedMessageMustBeForwarded;
         }
 
         /// <summary>

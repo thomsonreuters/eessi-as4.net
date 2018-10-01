@@ -14,6 +14,11 @@ namespace Eu.EDelivery.AS4.Receivers.Http.Get
         /// <returns></returns>
         public bool CanHandle(HttpListenerRequest request)
         {
+            if (request == null)
+            {
+                throw new ArgumentNullException(nameof(request));
+            }
+
             return request.AcceptTypes?.Any(h => h.StartsWith("image/", StringComparison.InvariantCultureIgnoreCase)) ?? false;
         }
 
@@ -24,6 +29,11 @@ namespace Eu.EDelivery.AS4.Receivers.Http.Get
         /// <returns></returns>
         public HttpResult Handle(HttpListenerRequest request)
         {
+            if (request == null)
+            {
+                throw new ArgumentNullException(nameof(request));
+            }
+
             string file = request.Url.ToString().Replace(request.UrlReferrer.ToString(), "./");
 
             if (File.Exists(file) == false)

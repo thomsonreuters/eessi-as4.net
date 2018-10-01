@@ -14,6 +14,11 @@ namespace Eu.EDelivery.AS4.Receivers.Http.Get
         /// <returns></returns>
         public bool CanHandle(HttpListenerRequest request)
         {
+            if (request == null)
+            {
+                throw new ArgumentNullException(nameof(request));
+            }
+
             string[] acceptHeaders = request.AcceptTypes;
             return acceptHeaders == null || acceptHeaders.Contains("text/html", StringComparer.OrdinalIgnoreCase);
         }
@@ -25,6 +30,11 @@ namespace Eu.EDelivery.AS4.Receivers.Http.Get
         /// <returns></returns>
         public HttpResult Handle(HttpListenerRequest request)
         {
+            if (request == null)
+            {
+                throw new ArgumentNullException(nameof(request));
+            }
+
             string logoLocation = request.RawUrl.TrimEnd('/') + "/assets/as4logo.png";
             string html =
                 $@"<html>
