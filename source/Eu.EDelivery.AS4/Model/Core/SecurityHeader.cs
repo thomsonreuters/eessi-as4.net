@@ -214,10 +214,10 @@ namespace Eu.EDelivery.AS4.Model.Core
 
             try
             {
-                XmlElement securityHeader = GetXml();
+                var securityHeader = this.GetXml();
                 if (securityHeader == null)
                 {
-                    return Enumerable.Empty<System.Security.Cryptography.Xml.Reference>();
+                    return new System.Security.Cryptography.Xml.Reference[] { };
                 }
 
                 var signature = new SignatureVerificationStrategy(securityHeader.OwnerDocument);

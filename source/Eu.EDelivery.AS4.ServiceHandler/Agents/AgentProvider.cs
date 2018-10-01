@@ -79,6 +79,8 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
 
         private static IReceiver CreateRetryReceiver(IConfig config, IRegistry registry)
         {
+            // TODO: this receiver is now created only for the retry agent, this creation should be moved closer to this agent
+
             var r = new DatastoreReceiver(
                 registry.CreateDatastoreContext,
                 ctx => ctx.RetryReliability.Where(
