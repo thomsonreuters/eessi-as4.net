@@ -215,6 +215,7 @@ namespace Eu.EDelivery.AS4.Model.Core
             try
             {
                 var securityHeader = this.GetXml();
+
                 if (securityHeader == null)
                 {
                     return new System.Security.Cryptography.Xml.Reference[] { };
