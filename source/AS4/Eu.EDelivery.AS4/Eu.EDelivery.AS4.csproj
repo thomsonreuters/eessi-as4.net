@@ -11,7 +11,7 @@
     <RootNamespace>Eu.EDelivery.AS4</RootNamespace>
     <AssemblyName>Eu.EDelivery.AS4</AssemblyName>
     <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
-    <PlatformTarget>x64</PlatformTarget>
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <FileAlignment>512</FileAlignment>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
