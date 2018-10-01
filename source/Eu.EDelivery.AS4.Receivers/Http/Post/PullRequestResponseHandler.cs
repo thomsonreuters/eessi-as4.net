@@ -5,6 +5,9 @@ using NLog;
 
 namespace Eu.EDelivery.AS4.Receivers.Http.Post
 {
+    /// <summary>
+    /// HTTP POST handler to respond to a <see cref="Model.Core.PullRequest"/>.
+    /// </summary>
     internal class PullRequestResponseHandler : IHttpPostHandler
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();

@@ -5,6 +5,9 @@ using System.Text;
 
 namespace Eu.EDelivery.AS4.Receivers.Http.Get
 {
+    /// <summary>
+    /// HTTP GET handler to respond with a const html page.
+    /// </summary>
     internal class GetHtmlHandler : IHttpGetHandler
     {
         /// <summary>

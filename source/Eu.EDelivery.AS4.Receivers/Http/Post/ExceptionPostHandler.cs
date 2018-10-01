@@ -8,6 +8,9 @@ using NLog;
 
 namespace Eu.EDelivery.AS4.Receivers.Http.Post
 {
+    /// <summary>
+    /// HTTP POST handler to correctly return a response for both unhandled Errors and Exceptions.
+    /// </summary>
     internal class ExceptionPostHandler : IHttpPostHandler
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();

@@ -5,6 +5,9 @@ using NLog;
 
 namespace Eu.EDelivery.AS4.Receivers.Http.Post
 {
+    /// <summary>
+    /// HTTP POST handler to return a response when the request must be forwarded.
+    /// </summary>
     internal class ForwardMessageResponseHandler : IHttpPostHandler
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();

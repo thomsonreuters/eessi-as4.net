@@ -6,6 +6,9 @@ using NLog;
 
 namespace Eu.EDelivery.AS4.Receivers.Http.Post
 {
+    /// <summary>
+    /// HTTP POST handler to respond with a synchronous <see cref="SignalMessage"/>.
+    /// </summary>
     internal class SyncSignalResponseHandler : IHttpPostHandler
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();

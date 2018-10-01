@@ -5,6 +5,9 @@ using System.Net;
 
 namespace Eu.EDelivery.AS4.Receivers.Http.Get
 {
+    /// <summary>
+    /// HTTP GET handler to respond with the image of the component.
+    /// </summary>
     internal class GetImageHandler : IHttpGetHandler
     {
         /// <summary>
