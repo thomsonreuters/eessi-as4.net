@@ -152,31 +152,29 @@ Failed to decrypt data element
                     datastoreContext.OutMessages.Add(message);
                 }
 
-                datastoreContext.InExceptions.Add(new InException(InEbmsMessageId1, messageLocation: null, exception: InException)
-                {
-                    InsertionTime = DateTime.UtcNow.AddMinutes(-1),
-                });
-                datastoreContext.InExceptions.Add(new InException(InEbmsMessageId1, messageLocation: null, exception: InException)
-                {
-                    InsertionTime = DateTime.UtcNow.AddMinutes(-1)
-                });
-                datastoreContext.InExceptions.Add(new InException(InEbmsMessageId1, messageLocation: MessageLocation, exception: InException)
-                {
-                    InsertionTime = DateTime.UtcNow.AddMinutes(-1)
-                });
-                datastoreContext.OutExceptions.Add(new OutException(OutEbmsRefToMessageId1, messageLocation: null, exception: InException)
-                {
-                    InsertionTime = DateTime.UtcNow.AddMinutes(-1)
-                });
-                datastoreContext.OutExceptions.Add(new OutException(InEbmsRefToMessageId1, messageLocation: null, exception: Exception)
-                {
-                    InsertionTime = DateTime.UtcNow.AddMinutes(-1)
-                });
+                InException inEx1 = Entities.InException.ForEbmsMessageId(InEbmsMessageId1, InException);
+                inEx1.InsertionTime = DateTime.UtcNow.AddMinutes(-1);
+                datastoreContext.InExceptions.Add(inEx1);
 
-                datastoreContext.OutExceptions.Add(new OutException(ebmsRefToMessageId: null, messageLocation: MessageLocation, exception: Exception)
-                {
-                    InsertionTime = DateTime.UtcNow.AddMinutes(-1)
-                });
+                InException inEx2 = Entities.InException.ForEbmsMessageId(InEbmsMessageId1, InException);
+                inEx2.InsertionTime = DateTime.UtcNow.AddMinutes(-1);
+                datastoreContext.InExceptions.Add(inEx2);
+
+                InException inEx3 = Entities.InException.ForMessageBody(MessageLocation, InException);
+                inEx3.InsertionTime = DateTime.UtcNow.AddMinutes(-1);
+                datastoreContext.InExceptions.Add(inEx3);
+
+                OutException outEx1 = Entities.OutException.ForEbmsMessageId(OutEbmsRefToMessageId1, InException);
+                outEx1.InsertionTime = DateTime.UtcNow.AddMinutes(-1);
+                datastoreContext.OutExceptions.Add(outEx1);
+
+                OutException outEx2 = OutException.ForEbmsMessageId(InEbmsRefToMessageId1, Exception);
+                outEx2.InsertionTime = DateTime.UtcNow.AddMinutes(-1);
+                datastoreContext.OutExceptions.Add(outEx2);
+
+                OutException outEx3 = OutException.ForMessageBody(MessageLocation, Exception);
+                outEx3.InsertionTime = DateTime.UtcNow.AddMinutes(-1);
+                datastoreContext.OutExceptions.Add(outEx3);
 
                 datastoreContext.SaveChanges();
 
@@ -377,7 +375,7 @@ Failed to decrypt data element
                     };
                     var result = await monitorService.GetExceptions(filter);
 
-                    Assert.True(result.Messages.Count() == 3, $"Count should be 3 but was {result.Messages.Count()}");
+                    Assert.True(result.Messages.Count() == 2, $"Count should be 2 but was {result.Messages.Count()}");
                     Assert.True(result.Messages.First().EbmsRefToMessageId == InEbmsMessageId1, $"The first embsRefToMessagId should be {InEbmsRefToMessageId1}");
                 }
 

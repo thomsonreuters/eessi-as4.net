@@ -102,12 +102,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Repositories
 
         public class InExceptions : GivenDatastoreRepositoryFacts
         {
-            [Theory]
-            [InlineData("shared-id")]
-            public async Task ThenInsertInExceptionSucceedsAsync(string sharedId)
+            [Fact]
+            public async Task ThenInsertInExceptionSucceeds()
             {
                 // Arrange
-                var inException = new InException(sharedId, "location", "error");
+                var inException = InException.ForEbmsMessageId($"inex-{Guid.NewGuid()}", "error");
 
                 // Act
                 using (DatastoreContext context = GetDataStoreContext())
@@ -123,12 +122,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Repositories
 
         public class OutExceptions : GivenDatastoreRepositoryFacts
         {
-            [Theory]
-            [InlineData("shared-id")]
-            public async Task ThenInsertOutExceptionSucceedsAsync(string sharedId)
+            [Fact]
+            public async Task ThenInsertOutExceptionSucceeds()
             {
                 // Arrange
-                var outException = new OutException(sharedId, "location", "error");
+                var outException = OutException.ForEbmsMessageId($"outex-{Guid.NewGuid()}", "error");
 
                 // Act
                 using (DatastoreContext context = GetDataStoreContext())
