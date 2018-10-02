@@ -16,17 +16,19 @@ namespace Eu.EDelivery.AS4.UnitTests.Agents
     public class GivenAgentProviderFacts
     {
         [Fact]
-        public void CatchesExceptionsWhenBuildingAgents()
+        public void ThrowsExceptionWhenBuildingAgents()
         {
             // Arrange
-            var expectedException = new Exception("ignored string");
-            var sut = AgentProvider.BuildFromConfig(new SaboteurAgentConfig(expectedException), Mock.Of<IRegistry>());
+            var expected = new Exception("ignored string");
+            var stubRegistry = new Mock<IRegistry>();
+            stubRegistry.SetupGet(r => r.IsInitialized)
+                        .Returns(true);
 
-            // Act
-            IEnumerable<IAgent> agents = sut.GetAgents();
+            // Act / Assert
+            var actual = Assert.Throws<Exception>(
+                () => AgentProvider.BuildFromConfig(new SaboteurAgentConfig(expected), stubRegistry.Object));
 
-            // Assert
-            Assert.Empty(agents);
+            Assert.Equal(expected, actual);
         }
 
         [Fact]
@@ -36,6 +38,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Agents
             // Minder agents are being created and uses the registry
             Registry.Instance.Initialize(StubConfig.Default);
             var stubRegistry = new Mock<IRegistry>();
+            stubRegistry.SetupGet(r => r.IsInitialized)
+                        .Returns(true);
             stubRegistry.SetupGet(r => r.CreateDatastoreContext)
                         .Returns(() => (DatastoreContext) null);
 
