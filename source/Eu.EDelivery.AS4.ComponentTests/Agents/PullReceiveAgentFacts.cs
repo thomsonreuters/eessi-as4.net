@@ -21,7 +21,7 @@ using Xunit;
 using AgreementReference = Eu.EDelivery.AS4.Model.Core.AgreementReference;
 using CollaborationInfo = Eu.EDelivery.AS4.Model.Core.CollaborationInfo;
 using MessageExchangePattern = Eu.EDelivery.AS4.Entities.MessageExchangePattern;
-using MessageProperty = Eu.EDelivery.AS4.Model.Core.MessageProperty;
+using RetryReliability = Eu.EDelivery.AS4.Entities.RetryReliability;
 using Service = Eu.EDelivery.AS4.Model.Core.Service;
 
 namespace Eu.EDelivery.AS4.ComponentTests.Agents
@@ -68,6 +68,39 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         }
 
         [Fact]
+        public async Task PiggyBack_PullRequest_With_Receipt_Operation_Becomes_DeadLettered_When_Retries_Are_Exhausted()
+        {
+            // Arrange
+            string pullSendUrl = RetrievePullingUrlFromConfig();
+
+            var user = new UserMessage($"user-{Guid.NewGuid()}", PullRequestMpc);
+            var receipt = new Receipt($"receipt-{Guid.NewGuid()}", user.MessageId);
+
+            InsertUserMessage(user);
+            long id = InsertReceipt(receipt, pullSendUrl, Operation.ToBePiggyBacked);
+
+            // Act
+            InsertRetryReliability(id, maxRetryCount: 1);
+
+            // Assert
+            await PollUntilPresent(
+                () => _databaseSpy.GetOutMessageFor(
+                    m => m.EbmsMessageId == receipt.MessageId
+                        && m.Operation == Operation.DeadLettered),
+                timeout: TimeSpan.FromSeconds(30));
+
+            RetryReliability reliability = await PollUntilPresent(
+                () => _databaseSpy.GetRetryReliabilityFor(
+                    r => r.RefToOutMessageId == id
+                         && r.Status == RetryStatus.Completed),
+                timeout: TimeSpan.FromSeconds(5));
+
+            Assert.True(
+                reliability.CurrentRetryCount > 0, 
+                "RetryReliability.CurrentRetryCount should be greater then zero");
+        }
+
+        [Fact]
         public async Task PiggyBack_PullRequest_With_Receipt_Operation_Becomes_Sent_When_Received_Success_HTTP_StatusCode()
         {
             // Arrange
@@ -77,45 +110,40 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             var receipt = new Receipt($"receipt-{Guid.NewGuid()}", user.MessageId);
 
             InsertUserMessage(user);
-            InsertReceipt(receipt, pullSenderUrl, Operation.ToBePiggyBacked);
+            long id = InsertReceipt(receipt, pullSenderUrl, Operation.ToBePiggyBacked);
+            InsertRetryReliability(id, maxRetryCount: 1);
 
             // Act
-            AS4Message piggyBacked = await RespondToPullRequest(pullSenderUrl, responseStatusCode: 202);
+            IEnumerable<AS4Message> pullRequests = await RespondToPullRequestAsync(pullSenderUrl, responseStatusCode: 202);
 
             // Assert
-            Assert.Collection(
-                piggyBacked.MessageUnits,
-                x => Assert.IsType<PullRequest>(x),
-                x => Assert.IsType<Receipt>(x));
+            Assert.Contains(
+                pullRequests,
+                piggyBacked => 
+                    piggyBacked.IsPullRequest
+                    && piggyBacked.SignalMessages.Any(s => s is Receipt));
 
-            OutMessage storedReceipt = await PollUntilPresent(
-                () => _databaseSpy.GetOutMessageFor(m => m.EbmsMessageId == receipt.MessageId),
-                timeout: TimeSpan.FromSeconds(5));
-
-            Assert.Equal(Operation.Sending, storedReceipt.Operation);
-        }
-
-        [Fact]
-        public async Task PiggyBack_PullRequest_With_Receipt_Operation_Resets_To_ToBePiggyBacked_When_Received_Failure_HTTP_StatusCode()
-        {
-            // Arrange
-            string pullSenderUrl = RetrievePullingUrlFromConfig();
-
-            var user = new UserMessage($"user-{Guid.NewGuid()}", PullRequestMpc);
-            var receipt = new Receipt($"receipt-{Guid.NewGuid()}", user.MessageId);
-
-            InsertUserMessage(user);
-            InsertReceipt(receipt, pullSenderUrl, Operation.ToBePiggyBacked);
-
-            // Act
-            await RespondToPullRequest(pullSenderUrl, responseStatusCode: 500);
-
-            // Assert
             await PollUntilPresent(
                 () => _databaseSpy.GetOutMessageFor(
-                    m => m.EbmsMessageId == receipt.MessageId 
-                         && m.Operation == Operation.ToBePiggyBacked),
-                timeout: TimeSpan.FromSeconds(10));
+                    m => m.EbmsMessageId == receipt.MessageId
+                         && m.Operation == Operation.Sent),
+                timeout: TimeSpan.FromSeconds(30));
+
+            await PollUntilPresent(
+                () => _databaseSpy.GetRetryReliabilityFor(
+                    r => r.RefToOutMessageId == id
+                         && r.Status == RetryStatus.Completed),
+                timeout: TimeSpan.FromSeconds(5));
+        }
+
+        private void InsertRetryReliability(long id, int maxRetryCount)
+        {
+            _databaseSpy.InsertRetryReliability(
+                RetryReliability.CreateForOutMessage(
+                    refToOutMessageId: id,
+                    maxRetryCount: maxRetryCount,
+                    retryInterval: TimeSpan.FromMilliseconds(1),
+                    type: RetryType.PiggyBack));
         }
 
         private void InsertUserMessage(UserMessage user)
@@ -129,7 +157,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                 });
         }
 
-        private void InsertReceipt(Receipt receipt, string url, Operation operation)
+        private long InsertReceipt(Receipt receipt, string url, Operation operation)
         {
             string location = 
                 Registry.Instance
@@ -138,16 +166,63 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                             _as4Msh.GetConfiguration().OutMessageStoreLocation, 
                             AS4Message.Create(receipt));
 
-            _databaseSpy.InsertOutMessage(
-                new OutMessage(receipt.MessageId)
+            var entity = new OutMessage(receipt.MessageId)
+            {
+                EbmsRefToMessageId = receipt.RefToMessageId,
+                EbmsMessageType = MessageType.Receipt,
+                ContentType = Constants.ContentTypes.Soap,
+                MessageLocation = location,
+                Url = url,
+                Operation = operation
+            };
+            _databaseSpy.InsertOutMessage(entity);
+
+            return entity.Id;
+        }
+
+        private async Task<IEnumerable<AS4Message>> RespondToPullRequestAsync(string url, int responseStatusCode)
+        {
+            var inputs = new Collection<Stream>();
+            var waiter = new ManualResetEvent(false);
+            StubHttpServer.StartServerLifetime(
+                url,
+                (req, res) =>
                 {
-                    EbmsRefToMessageId = receipt.RefToMessageId,
-                    EbmsMessageType = MessageType.Receipt,
-                    ContentType = Constants.ContentTypes.Soap,
-                    MessageLocation = location,
-                    Url = url,
-                    Operation = operation
-                });
+                    var input = new VirtualStream();
+                    req.InputStream.CopyTo(input);
+                    inputs.Add(input);
+
+                    res.StatusCode = responseStatusCode;
+                    res.OutputStream.Dispose();
+
+                    return inputs.Count == 2 
+                        ? ServerLifetime.Stop 
+                        : ServerLifetime.Continue;
+                },
+                waiter);
+
+            waiter.WaitOne(timeout: TimeSpan.FromSeconds(15));
+
+            // Wait till the response is processed correctly.
+            await Task.Delay(TimeSpan.FromSeconds(2));
+            _as4Msh.Dispose();
+
+            var results = new Collection<AS4Message>();
+            foreach (Stream input in inputs)
+            {
+                input.Position = 0;
+                AS4Message result = 
+                    await SerializerProvider
+                        .Default
+                        .Get(Constants.ContentTypes.Soap)
+                        .DeserializeAsync(input, Constants.ContentTypes.Soap, CancellationToken.None);
+
+                Assert.True(result != null, "PullRequest couldn't be deserialized");
+                results.Add(result);
+                input.Dispose();
+            }
+
+            return results.AsEnumerable();
         }
 
         [Fact]
@@ -162,7 +237,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             bundled.AddMessageUnit(new Receipt(storedMessageId));
 
             // Act
-            await RespondToPullRequest(
+            await RespondToPullRequestAsync(
                 pullSenderUrl,
                 response =>
                 {
@@ -272,7 +347,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             return pmode.PushConfiguration.Protocol.Url;
         }
 
-        private static async Task RespondToPullRequest(string url, Action<HttpListenerResponse> response)
+        private static async Task RespondToPullRequestAsync(string url, Action<HttpListenerResponse> response)
         {
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
             var waiter = new ManualResetEvent(false);
@@ -281,59 +356,6 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
             // Wait till the response is processed correctly.
             await Task.Delay(TimeSpan.FromSeconds(10));
-        }
-
-        private async Task<AS4Message> RespondToPullRequest(string url, int responseStatusCode)
-        {
-            var input = new VirtualStream();
-            var waiter = new ManualResetEvent(false);
-            StubHttpServer.StartServer(
-                url,
-                (req, res) =>
-                {
-                    req.InputStream.CopyTo(input);
-                    res.StatusCode = responseStatusCode;
-                    res.OutputStream.Dispose();
-                },
-                waiter);
-
-            waiter.WaitOne(timeout: TimeSpan.FromSeconds(5));
-
-            // Wait till the response is processed correctly.
-            await Task.Delay(TimeSpan.FromSeconds(2));
-            _as4Msh.Dispose();
-
-            input.Position = 0;
-            var deserializeTask =
-                SerializerProvider
-                    .Default
-                    .Get(Constants.ContentTypes.Soap)
-                    .DeserializeAsync(input, Constants.ContentTypes.Soap, CancellationToken.None);
-
-            deserializeTask.Wait(TimeSpan.FromSeconds(1));
-            AS4Message result = deserializeTask.Result;
-
-            Assert.True(result != null, "PullRequest couldn't be deserialized");
-            return result;
-        }
-
-        private static AS4Message CreateUserMessageResponse()
-        {
-            return AS4Message.Create(
-                new UserMessage(
-                    $"user-{Guid.NewGuid()}", 
-                    PullRequestMpc,
-                    new CollaborationInfo(
-                        new AgreementReference(
-                            "http://eu.europe.agreements.org",
-                            "pullreceive_bundled_pmode"),
-                        Service.TestService,
-                        Constants.Namespaces.TestAction,
-                        CollaborationInfo.DefaultConversationId),
-                    Model.Core.Party.DefaultFrom,
-                    Model.Core.Party.DefaultTo,
-                    Enumerable.Empty<PartInfo>(), 
-                    Enumerable.Empty<MessageProperty>()));
         }
     }
 }

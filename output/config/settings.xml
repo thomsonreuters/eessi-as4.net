@@ -1,210 +1,44 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Settings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-    xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
-    xmlns="eu:edelivery:as4">
-    <IdFormat>{GUID}@{IPADDRESS}</IdFormat>
-    <FeInProcess>true</FeInProcess>
-    <PayloadServiceInProcess>true</PayloadServiceInProcess>
-    <RetentionPeriod>90</RetentionPeriod>
-    <RetryReliability>
-        <PollingInterval>00:00:05</PollingInterval>
-    </RetryReliability>
-    <Database>
-        <Provider>Sqlite</Provider>
-        <ConnectionString>Filename=database\messages.db</ConnectionString>
-    </Database>
-    <CertificateStore>
-        <StoreName>My</StoreName>
-        <Repository type="Eu.EDelivery.AS4.Repositories.CertificateRepository, Eu.EDelivery.AS4, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-    </CertificateStore>
-    <Agents>
-        <SubmitAgent name="FILE Submit Agent">
-            <Receiver type="Eu.EDelivery.AS4.Receivers.FileReceiver, Eu.EDelivery.AS4.Receivers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-                <Setting key="FilePath">.\messages\out</Setting>
-                <Setting key="FileMask">*.xml</Setting>
-                <Setting key="PollingInterval">0:00:05</Setting>
-            </Receiver>
-            <Transformer type="Eu.EDelivery.AS4.Transformers.SubmitMessageXmlTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-            <StepConfiguration>
-                <NormalPipeline>
-                    <Step type="Eu.EDelivery.AS4.Steps.Submit.RetrieveSendingPModeStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-                    <Step type="Eu.EDelivery.AS4.Steps.Submit.DynamicDiscoveryStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"/>
-                    <Step type="Eu.EDelivery.AS4.Steps.Submit.CreateAS4MessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-                    <Step type="Eu.EDelivery.AS4.Steps.Submit.StoreAS4MessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-                </NormalPipeline>
-            </StepConfiguration>
-        </SubmitAgent>
-        <SubmitAgent name="HTTP Submit Agent">
-            <Receiver type="Eu.EDelivery.AS4.Receivers.HttpReceiver, Eu.EDelivery.AS4.Receivers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-                <Setting key="Url">http://localhost:8081/msh/submit/</Setting>
-            </Receiver>
-            <Transformer type="Eu.EDelivery.AS4.Transformers.SubmitMessageXmlTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-            <StepConfiguration>
-                <NormalPipeline>
-                    <Step type="Eu.EDelivery.AS4.Steps.Submit.RetrieveSendingPModeStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-                    <Step type="Eu.EDelivery.AS4.Steps.Submit.DynamicDiscoveryStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-                    <Step type="Eu.EDelivery.AS4.Steps.Submit.CreateAS4MessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-                    <Step type="Eu.EDelivery.AS4.Steps.Submit.StoreAS4MessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-                </NormalPipeline>
-            </StepConfiguration>
-        </SubmitAgent>
-        <OutboundProcessingAgent name="OutBound Processing Agent">
-            <Receiver type="Eu.EDelivery.AS4.Receivers.DatastoreReceiver, Eu.EDelivery.AS4.Receivers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-                <Setting key="Table">OutMessages</Setting>
-                <Setting key="Filter">Operation = 'ToBeProcessed'</Setting>
-                <Setting key="Update" field="Operation">Processing</Setting>
-            </Receiver>
-            <Transformer type="Eu.EDelivery.AS4.Transformers.AS4MessageTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-            <StepConfiguration>
-                <NormalPipeline>
-                    <Step type="Eu.EDelivery.AS4.Steps.Send.CompressAttachmentsStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-                    <Step type="Eu.EDelivery.AS4.Steps.Send.SignAS4MessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-                    <Step type="Eu.EDelivery.AS4.Steps.Send.EncryptAS4MessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-                    <Step type="Eu.EDelivery.AS4.Steps.Send.SetMessageToBeSentStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-                </NormalPipeline>
-            </StepConfiguration>
-        </OutboundProcessingAgent>
-        <SendAgent name="Send Agent">
-            <Receiver type="Eu.EDelivery.AS4.Receivers.DatastoreReceiver, Eu.EDelivery.AS4.Receivers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-                <Setting key="Table">OutMessages</Setting>
-                <Setting key="Filter">Operation = 'ToBeSent' AND MEP = 'Push'</Setting>
-                <Setting key="Update" field="Operation">Sending</Setting>
-            </Receiver>
-            <Transformer type="Eu.EDelivery.AS4.Transformers.OutMessageTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-            <StepConfiguration>
-                <NormalPipeline>
-                    <Step type="Eu.EDelivery.AS4.Steps.Send.SendAS4MessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-                    <Step type="Eu.EDelivery.AS4.Steps.Receive.SaveReceivedMessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-                    <Step type="Eu.EDelivery.AS4.Steps.Receive.DeterminePModesStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-                    <Step type="Eu.EDelivery.AS4.Steps.Receive.VerifySignatureAS4MessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-                    <Step type="Eu.EDelivery.AS4.Steps.Receive.UpdateReceivedAS4MessageBodyStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-                </NormalPipeline>
-                <ErrorPipeline>
-                    <Step type="Eu.EDelivery.AS4.Steps.Send.LogReceivedProcessingErrorStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-                </ErrorPipeline>
-            </StepConfiguration>
-        </SendAgent>
-        <ReceiveAgent name="Receive Agent">
-            <Receiver type="Eu.EDelivery.AS4.Receivers.HttpReceiver, Eu.EDelivery.AS4.Receivers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-                <Setting key="Url">http://localhost:8081/msh/receive/</Setting>
-            </Receiver>
-            <Transformer type="Eu.EDelivery.AS4.Transformers.ReceiveMessageTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-            <StepConfiguration>
-                <NormalPipeline>
-                    <Step type="Eu.EDelivery.AS4.Steps.Receive.SaveReceivedMessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-                    <Step type="Eu.EDelivery.AS4.Steps.Receive.DeterminePModesStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-                    <Step type="Eu.EDelivery.AS4.Steps.Receive.ValidateAS4MessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-                    <Step type="Eu.EDelivery.AS4.Steps.Receive.DecryptAS4MessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-                    <Step type="Eu.EDelivery.AS4.Steps.Receive.VerifySignatureAS4MessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-                    <Step type="Eu.EDelivery.AS4.Steps.Receive.DecompressAttachmentsStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-                    <Step type="Eu.EDelivery.AS4.Steps.Receive.UpdateReceivedAS4MessageBodyStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-                    <Step type="Eu.EDelivery.AS4.Steps.Receive.CreateAS4ReceiptStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-                    <Step type="Eu.EDelivery.AS4.Steps.Send.SignAS4MessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-                    <Step type="Eu.EDelivery.AS4.Steps.Receive.SendAS4SignalMessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-                </NormalPipeline>
-                <ErrorPipeline>
-                    <Step type="Eu.EDelivery.AS4.Steps.Receive.CreateAS4ErrorStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-                    <Step type="Eu.EDelivery.AS4.Steps.Send.SignAS4MessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-                    <Step type="Eu.EDelivery.AS4.Steps.Receive.SendAS4SignalMessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-                </ErrorPipeline>
-            </StepConfiguration>
-        </ReceiveAgent>
-        <DeliverAgent name="InMessage Deliver Agent">
-            <Receiver type="Eu.EDelivery.AS4.Receivers.DatastoreReceiver, Eu.EDelivery.AS4.Receivers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-                <Setting key="Table">InMessages</Setting>
-                <Setting key="Filter">Operation = 'ToBeDelivered'</Setting>
-                <Setting key="Update" field="Operation">Delivering</Setting>
-            </Receiver>
-            <Transformer type="Eu.EDelivery.AS4.Transformers.DeliverMessageTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-            <StepConfiguration>
-                <NormalPipeline>
-                    <Step type="Eu.EDelivery.AS4.Steps.Deliver.UploadAttachmentsStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-                    <Step type="Eu.EDelivery.AS4.Steps.Deliver.CreateDeliverEnvelopeStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-                    <Step type="Eu.EDelivery.AS4.Steps.Deliver.SendDeliverMessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-                </NormalPipeline>
-            </StepConfiguration>
-        </DeliverAgent>
-        <NotifyAgent name="InMessages Notify Agent">
-            <Receiver type="Eu.EDelivery.AS4.Receivers.DatastoreReceiver, Eu.EDelivery.AS4.Receivers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-                <Setting key="Table">InMessages</Setting>
-                <Setting key="Filter">Operation = 'ToBeNotified'</Setting>
-                <Setting key="Update" field="Operation">Notifying</Setting>
-            </Receiver>
-            <Transformer type="Eu.EDelivery.AS4.Transformers.NotifyMessageTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-            <StepConfiguration>
-                <NormalPipeline>
-                    <Step type="Eu.EDelivery.AS4.Steps.Notify.SendNotifyMessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-                </NormalPipeline>
-            </StepConfiguration>
-        </NotifyAgent>
-        <NotifyAgent name="InExceptions Notify Agent">
-            <Receiver type="Eu.EDelivery.AS4.Receivers.DatastoreReceiver, Eu.EDelivery.AS4.Receivers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-                <Setting key="Table">InExceptions</Setting>
-                <Setting key="Filter">Operation = 'ToBeNotified'</Setting>
-                <Setting key="Update" field="Operation">Notifying</Setting>
-            </Receiver>
-            <Transformer type="Eu.EDelivery.AS4.Transformers.NotifyMessageTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-            <StepConfiguration>
-                <NormalPipeline>
-                    <Step type="Eu.EDelivery.AS4.Steps.Notify.SendNotifyMessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-                </NormalPipeline>
-            </StepConfiguration>
-        </NotifyAgent>
-        <NotifyAgent name="OutMessages Notify Agent">
-            <Receiver type="Eu.EDelivery.AS4.Receivers.DatastoreReceiver, Eu.EDelivery.AS4.Receivers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-                <Setting key="Table">OutMessages</Setting>
-                <Setting key="Filter">Operation = 'ToBeNotified'</Setting>
-                <Setting key="Update" field="Operation">Notifying</Setting>
-            </Receiver>
-            <Transformer type="Eu.EDelivery.AS4.Transformers.NotifyMessageTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-            <StepConfiguration>
-                <NormalPipeline>
-                    <Step type="Eu.EDelivery.AS4.Steps.Notify.SendNotifyMessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-                </NormalPipeline>
-            </StepConfiguration>
-        </NotifyAgent>
-        <NotifyAgent name="OutExceptions Notify Agent">
-            <Receiver type="Eu.EDelivery.AS4.Receivers.DatastoreReceiver, Eu.EDelivery.AS4.Receivers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-                <Setting key="Table">OutExceptions</Setting>
-                <Setting key="Filter">Operation = 'ToBeNotified'</Setting>
-                <Setting key="Update" field="Operation">Notifying</Setting>
-            </Receiver>
-            <Transformer type="Eu.EDelivery.AS4.Transformers.NotifyMessageTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-            <StepConfiguration>
-                <NormalPipeline>
-                    <Step type="Eu.EDelivery.AS4.Steps.Notify.SendNotifyMessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-                </NormalPipeline>
-            </StepConfiguration>
-        </NotifyAgent>
-        <!--
-        <PullReceiveAgent name="Pull Request Agent">
-            <Receiver type="Eu.EDelivery.AS4.Receivers.PullRequestReceiver, Eu.EDelivery.AS4.Receivers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-                <Setting key="eessi-pull-send-pmode" tmin="0:00:01" tmax="0:00:25" />
-            </Receiver>
-            <Transformer type="Eu.EDelivery.AS4.Transformers.PModeToPullRequestTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-            <StepConfiguration>
-                <NormalPipeline>
-                    <Step type="Eu.EDelivery.AS4.Steps.Send.BundleSignalMessageToPullRequestStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-                    <Step type="Eu.EDelivery.AS4.Steps.Send.SignAS4MessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-                    <Step type="Eu.EDelivery.AS4.Steps.Send.SendAS4MessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-                    <Step type="Eu.EDelivery.AS4.Steps.Receive.SaveReceivedMessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-                    <Step type="Eu.EDelivery.AS4.Steps.Receive.DeterminePModesStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-                    <Step type="Eu.EDelivery.AS4.Steps.Receive.ValidateAS4MessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-                    <Step type="Eu.EDelivery.AS4.Steps.Receive.DecryptAS4MessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-                    <Step type="Eu.EDelivery.AS4.Steps.Receive.VerifySignatureAS4MessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-                    <Step type="Eu.EDelivery.AS4.Steps.Receive.DecompressAttachmentsStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-                    <Step type="Eu.EDelivery.AS4.Steps.Receive.UpdateReceivedAS4MessageBodyStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-                    <Step type="Eu.EDelivery.AS4.Steps.Receive.CreateAS4ReceiptStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />                    
-                    <Step type="Eu.EDelivery.AS4.Steps.Send.SignAS4MessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-                    <Step type="Eu.EDelivery.AS4.Steps.Receive.SendAS4SignalMessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />          
-                </NormalPipeline>
-                <ErrorPipeline>
-                    <Step type="Eu.EDelivery.AS4.Steps.Receive.CreateAS4ErrorStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-                    <Step type="Eu.EDelivery.AS4.Steps.Send.SignAS4MessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-                    <Step type="Eu.EDelivery.AS4.Steps.Receive.SendAS4SignalMessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-                </ErrorPipeline>
-            </StepConfiguration>
-        </PullReceiveAgent>
-        -->
-    </Agents>
+<Settings 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+  xmlns="eu:edelivery:as4">
+  <IdFormat>{GUID}@{IPADDRESS}</IdFormat>
+  <FeInProcess>false</FeInProcess>
+  <PayloadServiceInProcess>false</PayloadServiceInProcess>
+  <Database>
+    <Provider>Sqlite</Provider>
+    <ConnectionString>Filename=database\messages.db</ConnectionString>
+  </Database>
+  <CertificateStore>
+    <StoreName>My</StoreName>
+    <Repository type="Eu.EDelivery.AS4.Repositories.CertificateRepository, Eu.EDelivery.AS4, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+  </CertificateStore>
+  <Agents>
+    <ReceiveAgent name="Receive Agent">
+      <Receiver type="Eu.EDelivery.AS4.Receivers.HttpReceiver, Eu.EDelivery.AS4.Receivers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+        <Setting key="Url">http://localhost:7071/msh/</Setting>
+      </Receiver>
+      <Transformer type="Eu.EDelivery.AS4.Transformers.ReceiveMessageTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+      <StepConfiguration>
+        <NormalPipeline>
+          <Step type="Eu.EDelivery.AS4.Steps.Receive.SaveReceivedMessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+          <Step type="Eu.EDelivery.AS4.Steps.Receive.DeterminePModesStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+          <Step type="Eu.EDelivery.AS4.Steps.Receive.ValidateAS4MessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+          <Step type="Eu.EDelivery.AS4.Steps.Receive.DecryptAS4MessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+          <Step type="Eu.EDelivery.AS4.Steps.Receive.VerifySignatureAS4MessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+          <Step type="Eu.EDelivery.AS4.Steps.Receive.DecompressAttachmentsStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+          <Step type="Eu.EDelivery.AS4.Steps.Receive.UpdateReceivedAS4MessageBodyStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+          <Step type="Eu.EDelivery.AS4.Steps.Receive.CreateAS4ReceiptStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />          
+          <Step type="Eu.EDelivery.AS4.Steps.Send.SignAS4MessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+          <Step type="Eu.EDelivery.AS4.Steps.Receive.SendAS4SignalMessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+        </NormalPipeline>
+        <ErrorPipeline>
+          <Step type="Eu.EDelivery.AS4.Steps.Receive.CreateAS4ErrorStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+          <Step type="Eu.EDelivery.AS4.Steps.Send.SignAS4MessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+          <Step type="Eu.EDelivery.AS4.Steps.Receive.SendAS4SignalMessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+        </ErrorPipeline>
+      </StepConfiguration>
+    </ReceiveAgent>
+  </Agents>
 </Settings>

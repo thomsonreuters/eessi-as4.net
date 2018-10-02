@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
@@ -89,14 +90,30 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             using (DatastoreContext dataContext = _createDatastoreContext())
             {
                 var repository = new DatastoreRepository(dataContext);
-                var service = new OutMessageService(_config, repository, _messageBodyStore);
+                var outMsgService = new OutMessageService(_config, repository, _messageBodyStore);
 
-                service.InsertAS4Message(
-                    messagingContext.AS4Message, 
-                    messagingContext.SendingPMode,
-                    messagingContext.ReceivingPMode);
+                IEnumerable<OutMessage> insertedMessageUnits = 
+                    outMsgService.InsertAS4Message(
+                        messagingContext.AS4Message, 
+                        messagingContext.SendingPMode,
+                        messagingContext.ReceivingPMode);
 
-                await dataContext.SaveChangesAsync().ConfigureAwait(false);
+                await dataContext.SaveChangesAsync()
+                                 .ConfigureAwait(false);
+
+                ReplyHandling replyHandling = messagingContext.ReceivingPMode?.ReplyHandling;
+                ReplyPattern? replyPattern = replyHandling?.ReplyPattern;
+                if (replyPattern == ReplyPattern.PiggyBack
+                    && replyHandling?.PiggyBackReliability?.IsEnabled == true)
+                {
+                    var piggyBackService = new PiggyBackingService(dataContext);
+                    piggyBackService.InsertRetryForPiggyBackedSignalMessages(
+                        insertedMessageUnits,
+                        messagingContext.ReceivingPMode?.ReplyHandling?.PiggyBackReliability);
+
+                    await dataContext.SaveChangesAsync()
+                                     .ConfigureAwait(false);
+                }
             }
         }
 

@@ -135,7 +135,7 @@ namespace Eu.EDelivery.AS4.Services
                     onCompleted: e =>
                     {
                         Logger.Info($"(Notify)[{messageId}] Mark NotifyMessage as Notified");
-                        Logger.Debug("Update InMessage with Status and Operation set to Notified");
+                        Logger.Debug($"Update InMessage {messageId} with Status and Operation set to Notified");
 
                         e.SetStatus(InStatus.Notified);
                         e.Operation = Operation.Notified;
@@ -163,7 +163,7 @@ namespace Eu.EDelivery.AS4.Services
                     onCompleted: m =>
                     {
                         Logger.Info($"(Notify)[{messageId}] Mark NotifyMessage as Notified");
-                        Logger.Debug($"(Notify)[{messageId}] Update InMessage with Status and Operation set to Notified");
+                        Logger.Debug($"Update InMessage {messageId} with Status and Operation set to Notified");
 
                         m.SetStatus(OutStatus.Notified);
                         m.Operation = Operation.Notified;
@@ -205,7 +205,7 @@ namespace Eu.EDelivery.AS4.Services
             {
                 if (rr == null)
                 {
-                    Logger.Debug("No retry reliability configured, can't be retried");
+                    Logger.Debug("Message can't be retried because no RetryReliability is configured");
                     Logger.Debug($"Update {typeof(T).Name} with {{Status=Exception, Operation=DeadLettered}}");
 
                     onDeadLettered(entityToBeRetried);
