@@ -19,56 +19,52 @@
         <tr>
             <td>
                 <b>Reliability</b>
-                <br/> &nbsp;&nbsp;
+                <br /> &nbsp;&nbsp;
                 <i>DuplicateElimination</i>
-                <br/> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IsEnabled
+                <br /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IsEnabled
             </td>
             <td align="center">
                 O
-                <br/> O
-                <br/> O
-                <br/>
+                <br /> O
+                <br /> O
+                <br />
             </td>
             <td>
-                <br/>
-                <br/>
+                <br />
+                <br />
                 <i>Default:</i> false</td>
         </tr>
         <tr>
             <td>
-                <b>ReplyHandling</b>
-                <br/> &nbsp;&nbsp;ReplyPattern
-                <br/>
-                <br/>
-                <br/>
-                <br/> &nbsp;&nbsp;SendingPMode
-                <br/> &nbsp;&nbsp;
-                <b>ReceiptHandling</b>
-                <br/> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;UseNRRFormat
-                <br/>
-                <br/>
-                <b>&nbsp;&nbsp;ErrorHandling</b>
-                <br/> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;UseSOAPFault
-                <br/> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ResponseHttpCode
-                <br/>
+                <b>ReplyHandling</b><br />
+                &nbsp;&nbsp;ReplyPattern<br /><br /><br /><br />
+                &nbsp;&nbsp;SendingPMode<br />
+                &nbsp;&nbsp;<b>ReceiptHandling</b><br />
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;UseNRRFormat<br /><br />
+                <b>&nbsp;&nbsp;ErrorHandling</b><br />
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;UseSOAPFault<br />
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ResponseHttpCode<br />
+                &nbsp;&nbsp;PiggyBackReliability<br />
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>IsEnabled</i><br />
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>RetryCount</i><br /><br />
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>RetryInterval</i><br /><br />
             </td>
             <td align="center">
-                M
-                <br/> M
-                <br/>
-                <br/>
-                <br/>
-                <br/> M
-                <br/> O
-                <br/> O
-                <br/>
-                <br/> O
-                <br/> O
-                <br/> O
-                <br/>
+                M<br />
+                M<br /><br /><br /><br />
+                M<br />
+                O<br />
+                O<br />
+                O<br />
+                O<br />
+                O<br /><br />
+                O<br />
+                M<br />
+                M<br /><br />
+                M<br /><br />
             </td>
             <td>
-                <br/>
+                <br />
                 <i>Enumeration:</i>
                 <ul style="margin:0;">
                     <li>Response: sync SignalMessage (Error or Receipt) response (
@@ -76,158 +72,157 @@
                     <li>Callback: async SignalMessage (Error or Receipt) response</li>
                     <li>PiggyBack: bundle SignalMessage (Error or Receipt) response to next PullRequest SignalMessage</li>
                 </ul>
-                Reference to the Sending PMode
-                <br/>
-                <br/>
-                <div>Specifies if NonRepudationInfo must be included in receipt
-                    <i>Default: false</i>
-                </div>
+                Reference to the Sending PMode <br /><br />
+                <div>Specifies if NonRepudationInfo must be included in receipt <i>Default: false</i></div>
                 <i>Default: false</i>
-                <br/>
-                <br/>HTTP Status Code in case of reply = response.
-                <br/>
-                <i>Default: 200</i>
-                <br/>
+                <br />HTTP Status Code in case of reply = response. <br /><i>Default: 200</i>
+                <br />
+                <br />Indicates whether or not the bundling of PiggyBacked SignalMessages must be retried
+                <br />Amount of retry cycles the bundling must be retried
+                <br /><i>Default: 4</i><br />
+                Interval between each retry cycle during the bundling
+                <br /><i>Default: 0:00:01:00 (1 min)</i>
             </td>
         </tr>
         <tr>
             <td>
                 <b>ExceptionHandling</b>
-                <br/> &nbsp;&nbsp; NotifyMessageConsumer
-                <br/> &nbsp;&nbsp; NotifyMethod
-                <br/> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <br /> &nbsp;&nbsp; NotifyMessageConsumer
+                <br /> &nbsp;&nbsp; NotifyMethod
+                <br /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 <i>Type</i>
-                <br/> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <br /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 <i>Parameters</i>
-                <br/> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <br /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 <i>Parameter</i>
-                <br/> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Name
-                <br/> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Value
-                <br/> &nbsp;&nbsp; Reliability
-                <br/> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <br /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Name
+                <br /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Value
+                <br /> &nbsp;&nbsp; Reliability
+                <br /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 <i>IsEnabled</i>
-                <br/> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <br /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 <i>RetryCount</i>
-                <br/>
-                <br/> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <br />
+                <br /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 <i>RetryInterval</i>
-                <br/>
-                <br/>
+                <br />
+                <br />
             </td>
             <td align="center">
                 O
-                <br/> O
-                <br/> M
-                <br/> M
-                <br/> M
-                <br/> M
-                <br/> M
-                <br/> M
-                <br/> O
-                <br/> M
-                <br/> M
-                <br/>
-                <br/> M
-                <br/>
-                <br/>
+                <br /> O
+                <br /> M
+                <br /> M
+                <br /> M
+                <br /> M
+                <br /> M
+                <br /> M
+                <br /> O
+                <br /> M
+                <br /> M
+                <br />
+                <br /> M
+                <br />
+                <br />
             </td>
             <td>
-                <br/>
+                <br />
                 <i>Default:</i> false
-                <br/>
-                <br/>
+                <br />
+                <br />
                 <div style="width:500px;">Type of the Notify Agent Required parameters for the specified agent</div>
-                <br/>
-                <br/> Name of the parameter
-                <br/> Value of the parameter
-                <br/>
-                <br/> Indicates whether or not the Delivery must be retried
-                <br/> Amount of retry cycles the Delivery must be retried
-                <br/>
+                <br />
+                <br /> Name of the parameter
+                <br /> Value of the parameter
+                <br />
+                <br /> Indicates whether or not the Delivery must be retried
+                <br /> Amount of retry cycles the Delivery must be retried
+                <br />
                 <i>Default: 4</i>
-                <br/> Interval between each retry cycle during the Delivery
-                <br/>
+                <br /> Interval between each retry cycle during the Delivery
+                <br />
                 <i>Default: 0:00:01:00 (1 min)</i>
             </td>
         </tr>
         <tr>
             <td>
                 <b>Security</b>
-                <br/> &nbsp;&nbsp;
+                <br /> &nbsp;&nbsp;
                 <i>SigningVerification</i>
-                <br/> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Signature
-                <br/>
-                <br/>
-                <br/>
-                <br/>
-                <br/>
-                <br/> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AllowUnknownRootCertificate &nbsp;&nbsp;
+                <br /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Signature
+                <br />
+                <br />
+                <br />
+                <br />
+                <br />
+                <br /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AllowUnknownRootCertificate &nbsp;&nbsp;
                 <i>Decryption</i>
-                <br/> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Encryption
-                <br/>
-                <br/>
-                <br/>
-                <br/>
-                <br/> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CertificateFindCriteria &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CertificateFindType
-                <br/>
-                <br/>
-                <br/>
-                <br/>
-                <br/>
-                <br/>
-                <br/>
-                <br/>
-                <br/>
-                <br/>
-                <br/>
-                <br/>
-                <br/>
-                <br/>
-                <br/>
-                <br/>
-                <br/>
-                <br/> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CertificateFindValue
+                <br /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Encryption
+                <br />
+                <br />
+                <br />
+                <br />
+                <br /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CertificateFindCriteria
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CertificateFindType
+                <br />
+                <br />
+                <br />
+                <br />
+                <br />
+                <br />
+                <br />
+                <br />
+                <br />
+                <br />
+                <br />
+                <br />
+                <br />
+                <br />
+                <br />
+                <br />
+                <br />
+                <br /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CertificateFindValue
             </td>
             <td align="center">
                 O
-                <br/> O
-                <br/> M
-                <br/>
-                <br/>
-                <br/>
-                <br/>
-                <br/>
-                <br/> O
-                <br/> O
-                <br/> O
-                <br/>
-                <br/>
-                <br/>
-                <br/>
-                <br/> O
-                <br/> M
-                <br/>
-                <br/>
-                <br/>
-                <br/>
-                <br/>
-                <br/>
-                <br/>
-                <br/>
-                <br/>
-                <br/>
-                <br/>
-                <br/>
-                <br/>
-                <br/>
-                <br/>
-                <br/>
-                <br/> M
-                <br/>
+                <br /> O
+                <br /> M
+                <br />
+                <br />
+                <br />
+                <br />
+                <br />
+                <br /> O
+                <br /> O
+                <br /> O
+                <br />
+                <br />
+                <br />
+                <br />
+                <br /> O
+                <br /> M
+                <br />
+                <br />
+                <br />
+                <br />
+                <br />
+                <br />
+                <br />
+                <br />
+                <br />
+                <br />
+                <br />
+                <br />
+                <br />
+                <br />
+                <br />
+                <br />
+                <br /> M
+                <br />
             </td>
             <td>
-                <br/>
-                <br/>
+                <br />
+                <br />
                 <i>Enumeration</i>
                 <ul style="margin:0;">
                     <li>Allowed (
@@ -237,10 +232,11 @@
                     <li>Required</li>
                     <li>Ignored</li>
                 </ul>
-                <br/>
-                <div style="width:550px;">Indicates whether certificates with an unknown root authority are trusted. (Default
+                <br />
+                <div style="width:550px;">Indicates whether certificates with an unknown root authority are trusted.
+                    (Default
                     <i>false</i>)</div>
-                <br/>
+                <br />
                 <i>Enumeration:</i>
                 <ul style="margin:0;">
                     <li>Ignored (
@@ -251,7 +247,7 @@
                     <li>Required</li>
                 </ul>
                 <i>
-                    <br/>
+                    <br />
                 </i>
                 <i>Enumeration:</i>
                 <ul style="margin:0;">
@@ -272,202 +268,206 @@
                     <li>FindByKeyUsage</li>
                     <li>FindBySubjectKeyIdentifier</li>
                 </ul>
-                <br/>
+                <br />
             </td>
         </tr>
         <tr>
             <td>
                 <b>Message Packaging</b>
-                <br/> &nbsp;&nbsp;
+                <br /> &nbsp;&nbsp;
                 <u>PartyInfo</u>
-                <br/> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <br /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 <i>FromParty</i>
-                <br/> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <br /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 <i>PartyIds</i>
-                <br/> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <br /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 <i>PartyId</i>
-                <br/> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Id
-                <br/> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Type
-                <br/> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Role
-                <br/> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <br /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Id
+                <br /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Type
+                <br /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Role
+                <br /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 <i>ToParty</i>
-                <br/> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <br /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 <i>PartyIds</i>
-                <br/> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <br /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 <i>PartyId</i>
-                <br/> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Id
-                <br/> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Type
-                <br/> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Role
-                <br/> &nbsp;&nbsp;
+                <br /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Id
+                <br /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Type
+                <br /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Role
+                <br /> &nbsp;&nbsp;
                 <u>CollaborationInfo</u>
-                <br/> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <br /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 <i>AgreementRef</i>
-                <br/> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Value
-                <br/> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Type
-                <br/> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <br /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Value
+                <br /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Type
+                <br /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 <i>Service</i>
-                <br/> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Value
-                <br/> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Type
-                <br/> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Action
-                <br/>
+                <br /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Value
+                <br /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Type
+                <br /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Action
+                <br />
             </td>
             <td align="center">
                 O
-                <br/> O
-                <br/> O
-                <br/> O
-                <br/> O
-                <br/> O
-                <br/> O
-                <br/> O
-                <br/> O
-                <br/> O
-                <br/> O
-                <br/> O
-                <br/> O
-                <br/> O
-                <br/> O
-                <br/> O
-                <br/> O
-                <br/> O
-                <br/> O
-                <br/> O
-                <br/> O
-                <br/> O
-                <br/>
+                <br /> O
+                <br /> O
+                <br /> O
+                <br /> O
+                <br /> O
+                <br /> O
+                <br /> O
+                <br /> O
+                <br /> O
+                <br /> O
+                <br /> O
+                <br /> O
+                <br /> O
+                <br /> O
+                <br /> O
+                <br /> O
+                <br /> O
+                <br /> O
+                <br /> O
+                <br /> O
+                <br /> O
+                <br />
             </td>
             <td>
-                <br/>
-                <br/>
-                <br/>
-                <br/>
-                <br/> Id of the sending party
-                <br/> Type of Id of the sending party
-                <br/> Role of the sending party
-                <br/>
-                <br/>
-                <br/>
-                <br/> Id of the receiving party
-                <br/> Type of Id of the receiving party
-                <br/> Role of the receiving party
-                <br/>
-                <br/>
-                <br/> Information about the partner agreement
-                <br/> Type of the agreement reference
-                <br/>
-                <br/> The name of the service that is consumed
-                <br/> Type of the service
-                <br/> The service operation that is consumed
+                <br />
+                <br />
+                <br />
+                <br />
+                <br /> Id of the sending party
+                <br /> Type of Id of the sending party
+                <br /> Role of the sending party
+                <br />
+                <br />
+                <br />
+                <br /> Id of the receiving party
+                <br /> Type of Id of the receiving party
+                <br /> Role of the receiving party
+                <br />
+                <br />
+                <br /> Information about the partner agreement
+                <br /> Type of the agreement reference
+                <br />
+                <br /> The name of the service that is consumed
+                <br /> Type of the service
+                <br /> The service operation that is consumed
             </td>
         </tr>
         <tr>
             <td>
                 <b>MessageHandling</b>
-                <br/>
+                <br />
                 <b>
                     <b>&nbsp; </b>
                 </b>
                 <u>Deliver</u>
-                <br/>
+                <br />
                 <b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Deliver</b>
-                <br/> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IsEnabled
-                <br/> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PayloadReferenceMethod
-                <br/> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <br /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IsEnabled
+                <br /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PayloadReferenceMethod
+                <br /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 <i>Type</i>
-                <br/> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <br /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 <i>Parameters</i>
-                <br/> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <br /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 <i>Parameter</i>
-                <br/> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <br />
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 Name
-                <br/> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <br />
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 Value
-                <br/> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DeliverMethod
-                <br/> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <br /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DeliverMethod
+                <br /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 <i>Type</i>
-                <br/> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <br /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 <i>Parameters</i>
-                <br/> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <br /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 <i>Parameter</i>
-                <br/> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <br />
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 Name
-                <br/> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <br />
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 Value
-                <br/> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Reliability
-                <br/> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <br /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Reliability
+                <br /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 <i>IsEnabled</i>
-                <br/> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <br /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 <i>RetryCount</i>
-                <br/>
-                <br/> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <br />
+                <br /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 <i>RetryInterval</i>
-                <br/>
-                <br/>
+                <br />
+                <br />
                 <span>&nbsp; </span>
                 <u>Forward</u>
-                <br/>
+                <br />
                 <span>&nbsp;&nbsp;&nbsp;&nbsp; SendingPMode</span>
-                <br/>
+                <br />
             </td>
             <td align="center">
                 M
-                <br/> O
-                <br/>
-                <br/> M
-                <br/> M
-                <br/> M
-                <br/> M
-                <br/> M
-                <br/> M
-                <br/> M
-                <br/> M
-                <br/> M
-                <br/> M
-                <br/> M
-                <br/> M
-                <br/> M
-                <br/> M
-                <br/> M
-                <br/> O
-                <br/>
-                <br/> O
-                <br/>
-                <br/> O
-                <br/> M
-                <br/>
+                <br /> O
+                <br />
+                <br /> M
+                <br /> M
+                <br /> M
+                <br /> M
+                <br /> M
+                <br /> M
+                <br /> M
+                <br /> M
+                <br /> M
+                <br /> M
+                <br /> M
+                <br /> M
+                <br /> M
+                <br /> M
+                <br /> M
+                <br /> O
+                <br />
+                <br /> O
+                <br />
+                <br /> O
+                <br /> M
+                <br />
             </td>
             <td>
                 Describes how a received ebMS Message must be handled
-                <br/> Deliver or Forward must be specified, not both
-                <br/>
+                <br /> Deliver or Forward must be specified, not both
+                <br />
                 <i>
-                    <br/>
+                    <br />
                 </i>
                 <i>True</i> or
                 <i>false</i>
                 Payload Deliver method (HTTP, FILE(**)…) Required parameters
-                <br/>
-                <br/>
-                <br/>
-                <br/>
-                <br/> Name of the parameter
-                <br/> Value of the parameter
-                <br/>
-                <br/> Type of the Deliver method (HTTP, FILE,..)
-                <br/>
-                <br/>
-                <br/> Name of the parameter
-                <br/> Value of the parameter
-                <br/>
-                <br/> Indicates whether or not the Delivery must be retried
-                <br/> Amount of retry cycles the Delivery must be retried
-                <br/>
+                <br />
+                <br />
+                <br />
+                <br />
+                <br /> Name of the parameter
+                <br /> Value of the parameter
+                <br />
+                <br /> Type of the Deliver method (HTTP, FILE,..)
+                <br />
+                <br />
+                <br /> Name of the parameter
+                <br /> Value of the parameter
+                <br />
+                <br /> Indicates whether or not the Delivery must be retried
+                <br /> Amount of retry cycles the Delivery must be retried
+                <br />
                 <i>Default: 4</i>
-                <br/> Interval between each retry cycle during the Delivery
-                <br/>
+                <br /> Interval between each retry cycle during the Delivery
+                <br />
                 <i>Default: 0:00:01:00 (1 min)</i>
-                <br/> Deliver or Forward must be specified, not both
-                <br/> The name of the PMode that must be used to forward the received Message
+                <br /> Deliver or Forward must be specified, not both
+                <br /> The name of the PMode that must be used to forward the received Message
             </td>
         </tr>
     </tbody>
