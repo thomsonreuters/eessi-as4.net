@@ -20,7 +20,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Agents
         {
             // Arrange
             var expectedException = new Exception("ignored string");
-            var sut = new AgentProvider(new SaboteurAgentConfig(expectedException), Mock.Of<IRegistry>());
+            var sut = AgentProvider.BuildFromConfig(new SaboteurAgentConfig(expectedException), Mock.Of<IRegistry>());
 
             // Act
             IEnumerable<IAgent> agents = sut.GetAgents();
@@ -39,7 +39,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Agents
             stubRegistry.SetupGet(r => r.CreateDatastoreContext)
                         .Returns(() => (DatastoreContext) null);
 
-            var sut = new AgentProvider(new SingleAgentConfig(), stubRegistry.Object);
+            var sut = AgentProvider.BuildFromConfig(new SingleAgentConfig(), stubRegistry.Object);
 
             // Act
             IEnumerable<IAgent> agents = sut.GetAgents();
