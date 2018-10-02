@@ -40,8 +40,10 @@ namespace Eu.EDelivery.AS4.Model.Core
                     : -1;
         }
 
-        // TODO: only the upload step uses the public set, should be investigated
-        public string Location { get; set; }
+        /// <summary>
+        /// Gets the location to where this attachment has been saved.
+        /// </summary>
+        public string Location { get; internal set; }
 
         public IDictionary<string, string> Properties { get; } = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
