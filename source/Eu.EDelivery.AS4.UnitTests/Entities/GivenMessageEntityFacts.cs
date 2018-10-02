@@ -129,38 +129,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
             }
         }
 
-        public class Lock
-        {
-            [Fact]
-            public void MessageEntityLocksInstanceByUpdatingOperation()
-            {
-                // Arrange
-                var sut = new StubMessageEntity();
-                const Operation expectedOperation = Operation.Sending;
-
-                // Act
-                sut.Lock(expectedOperation.ToString());
-
-                // Assert
-                Assert.Equal(Operation.Sending, sut.Operation);
-            }
-
-            [Fact]
-            public void MessageEntityDoesntLockInstance_IfUpdateOperationIsNotApplicable()
-            {
-                // Arrange
-                const Operation expectedOperation = Operation.Notified;
-                var sut = new StubMessageEntity();
-                sut.Operation = expectedOperation;
-
-                // Act
-                sut.Lock(Operation.NotApplicable.ToString());
-
-                // Assert
-                Assert.Equal(expectedOperation, sut.Operation);
-            }
-        }
-
         public class PMode : GivenMessageEntityFacts
         {
             [Fact]
