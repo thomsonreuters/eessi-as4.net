@@ -33,6 +33,8 @@ namespace Eu.EDelivery.AS4.Model.Internal
 
         public SettingsSubmit Submit { get; set; }
 
+        public SettingsPullSend PullSend { get; set; }
+
         public SettingsRetryReliability RetryReliability { get; set; }
 
         public SettingsDatabase Database { get; set; }
@@ -50,6 +52,14 @@ namespace Eu.EDelivery.AS4.Model.Internal
     public class SettingsSubmit
     {
         public string PayloadRetrievalLocation { get; set; }
+    }
+
+    [Serializable]
+    [DesignerCategory("code")]
+    [XmlType(AnonymousType = true, Namespace = "eu:edelivery:as4")]
+    public class SettingsPullSend
+    {
+        public string AuthorizationMapPath { get; set; }
     }
 
     [Serializable]

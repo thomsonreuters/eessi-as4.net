@@ -428,11 +428,11 @@ namespace Eu.EDelivery.AS4.Common
             _retention = ParseRetentionPeriod();
             _retryPollingInterval = ParseRetryPollingInterval();
 
-            // TODO: this is hardcoded right now, should be configurable in the settings.xml
             string authorizationMap = Path.Combine(
                 AppDomain.CurrentDomain.BaseDirectory, 
                 Properties.Resources.configurationfolder, 
-                "Security\\pull_authorizationmap.xml");
+                _settings.PullSend?.AuthorizationMapPath 
+                    ?? "Security\\pull_authorizationmap.xml");
 
             _pullRequestPullAuthorizationMapProvider = new FilePullAuthorizationMapProvider(authorizationMap);
         }
