@@ -65,9 +65,10 @@ namespace Eu.EDelivery.AS4.Transformers.ConformanceTestTransformers
                 }
 
                 receivedStream.Position = 0;
-                var receiveContext = new MessagingContext(receivedMessage, MessagingContextMode.Receive);
-                receiveContext.ModifyContext(messagingContext.AS4Message);
-                return receiveContext;
+                return new MessagingContext(
+                    messagingContext.AS4Message, 
+                    receivedMessage, 
+                    MessagingContextMode.Receive);
             }
             catch (Exception ex)
             {

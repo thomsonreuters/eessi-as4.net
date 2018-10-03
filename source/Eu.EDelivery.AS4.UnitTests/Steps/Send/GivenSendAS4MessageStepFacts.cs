@@ -59,10 +59,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
                 tobeSentMsg.ToStream(),
                 tobeSentMsg.ContentType);
 
-            var messagingContext = new MessagingContext(receivedMessage, MessagingContextMode.Send);
-            messagingContext.ModifyContext(tobeSentMsg);
-
-            return messagingContext;
+            return new MessagingContext(
+                tobeSentMsg,
+                receivedMessage, 
+                MessagingContextMode.Send);
         }
 
         [Fact]
