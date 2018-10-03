@@ -121,10 +121,10 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             OutMessage processedEntry = 
                 await PollUntilPresent(
                     () => datastoreSpy.GetOutMessageFor(
-                        m => m.EbmsMessageId == multihopMessage.GetPrimaryMessageId()),
+                        m => m.EbmsMessageId == multihopMessage.GetPrimaryMessageId()
+                             && m.Operation == Operation.ToBeSent),
                     timeout: TimeSpan.FromSeconds(30));
 
-            Assert.Equal(Operation.ToBeSent, processedEntry.Operation);
             Assert.False(processedEntry.Intermediary);
 
             AS4Message processedMessage =
