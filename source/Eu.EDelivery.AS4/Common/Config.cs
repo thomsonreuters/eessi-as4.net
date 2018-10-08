@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Configuration;
@@ -10,13 +9,12 @@ using System.Xml;
 using System.Xml.Serialization;
 using Eu.EDelivery.AS4.Agents;
 using Eu.EDelivery.AS4.Builders;
-using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
-using Eu.EDelivery.AS4.Services.PullRequestAuthorization;
 using Eu.EDelivery.AS4.Validators;
 using Eu.EDelivery.AS4.Watchers;
 using NLog;
+using static Eu.EDelivery.AS4.Properties.Resources;
 
 namespace Eu.EDelivery.AS4.Common
 {
@@ -25,26 +23,34 @@ namespace Eu.EDelivery.AS4.Common
     /// </summary>
     public sealed class Config : IConfig, IDisposable
     {
-        private static readonly IConfig Singleton = new Config();
-        private readonly IDictionary<string, string> _configuration;
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
-        
         private readonly Collection<AgentConfig> _agentConfigs = new Collection<AgentConfig>();
+        private readonly PModeWatcher<ReceivingProcessingMode> _receivingPModeWatcher;
+        private readonly PModeWatcher<SendingProcessingMode> _sendingPModeWatcher;
 
-        private PModeWatcher<ReceivingProcessingMode> _receivingPModeWatcher;
-        private PModeWatcher<SendingProcessingMode> _sendingPModeWatcher;
-        private IPullAuthorizationMapProvider _pullRequestPullAuthorizationMapProvider;
-        
+        private static readonly IConfig Singleton = new Config();
+        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+
         private Settings _settings;
         private TimeSpan _retention;
         private TimeSpan _retryPollingInterval;
 
-        internal Config()
-        {
-            _configuration = new Dictionary<string, string>(StringComparer.CurrentCultureIgnoreCase);
-        }
-
         public static Config Instance => (Config) Singleton;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Config"/> class.
+        /// </summary>
+        private Config()
+        {
+            _sendingPModeWatcher =
+                new PModeWatcher<SendingProcessingMode>(
+                    Path.Combine(ApplicationPath, configurationfolder, sendpmodefolder),
+                    SendingProcessingModeValidator.Instance);
+
+            _receivingPModeWatcher =
+                new PModeWatcher<ReceivingProcessingMode>(
+                    Path.Combine(ApplicationPath, configurationfolder, receivepmodefolder),
+                    ReceivingProcessingModeValidator.Instance);
+        }
 
         /// <summary>
         /// Gets a value indicating whether the FE needs to be started in process.
@@ -98,6 +104,38 @@ namespace Eu.EDelivery.AS4.Common
             OnlyAfterInitialized(() => _settings?.Submit?.PayloadRetrievalLocation ?? @"file:///.\messages\attachments");
 
         /// <summary>
+        /// Gets the file path from where the authorization entries to verify PullRequests should be stored.
+        /// </summary>
+        public string AuthorizationMapPath => Path.Combine(
+            AppDomain.CurrentDomain.BaseDirectory,
+            _settings?.PullSend?.AuthorizationMapPath ?? "config\\Security\\pull_authorizationmap.xml");
+
+        /// <summary>
+        /// Gets the format in which Ebms Message Identifiers should be generated.
+        /// </summary>
+        public string EbmsMessageIdFormat => _settings?.IdFormat;
+
+        /// <summary>
+        /// Gets the configured database provider.
+        /// </summary>
+        public string DatabaseProvider => _settings?.Database?.Provider;
+
+        /// <summary>
+        /// Gets the configured connection string to contact the database.
+        /// </summary>
+        public string DatabaseConnectionString => _settings?.Database?.ConnectionString;
+
+        /// <summary>
+        /// Gets the confgured certificate store name.
+        /// </summary>
+        public string CertificateStore => _settings?.CertificateStore?.StoreName;
+
+        /// <summary>
+        /// Gets the configured certificate repository type.
+        /// </summary>
+        public string CertificateRepositoryType => _settings?.CertificateStore?.Repository?.Type;
+
+        /// <summary>
         /// Gets the application path of the AS4.NET Component.
         /// </summary><value>The application path.
         /// </value>
@@ -123,17 +161,6 @@ namespace Eu.EDelivery.AS4.Common
             {
                 IsInitialized = true;
                 RetrieveLocalConfiguration(settingsFileName);
-
-                _sendingPModeWatcher =
-                    new PModeWatcher<SendingProcessingMode>(
-                        GetSendPModeFolder(),
-                        SendingProcessingModeValidator.Instance);
-
-                _receivingPModeWatcher =
-                    new PModeWatcher<ReceivingProcessingMode>(
-                        GetReceivePModeFolder(),
-                        ReceivingProcessingModeValidator.Instance);
-
                 LoadExternalAssemblies();
 
                 _sendingPModeWatcher.Start();
@@ -234,13 +261,12 @@ namespace Eu.EDelivery.AS4.Common
 
         private static ConfiguredPMode GetPModeEntry<T>(string id, PModeWatcher<T> watcher) where T : class, IPMode
         {
-            if (string.IsNullOrEmpty(id))
+            if (String.IsNullOrEmpty(id))
             {
                 throw new KeyNotFoundException($"Given {typeof(T).Name} key is null");
             }
 
-            var entry = watcher.GetPModeEntry(id);
-
+            ConfiguredPMode entry = watcher.GetPModeEntry(id);
             if (entry == null)
             {
                 throw new ConfigurationErrorsException($"No {typeof(T).Name} found for {id}");
@@ -262,7 +288,21 @@ namespace Eu.EDelivery.AS4.Common
                 throw new ArgumentNullException(nameof(key));
             }
 
-            return OnlyAfterInitialized(() => _configuration.ReadOptionalProperty(key));
+            return OnlyAfterInitialized(() =>
+            {
+                Setting found =
+                    _settings.CustomSettings
+                             .Setting
+                             .FirstOrDefault(s => s?.Key?.Equals(key, StringComparison.OrdinalIgnoreCase) ?? false);
+
+                if (found == null)
+                {
+                    throw new KeyNotFoundException("No Custom Setting found for key: " + key);
+                }
+
+                return found.Value;
+
+            });
         }
 
         /// <summary>
@@ -296,54 +336,21 @@ namespace Eu.EDelivery.AS4.Common
                       ?? Enumerable.Empty<SettingsMinderAgent>());
         }
 
-        public void Dispose()
-        {
-            Dispose(true);
-        }
-
         private static void LoadExternalAssemblies()
         {
-            DirectoryInfo externalDictionary = GetExternalDirectory();
-            if (externalDictionary != null)
+            if (Directory.Exists(externalfolder))
             {
-                LoadExternalAssemblies(externalDictionary);
+                foreach (string assemblyFile in Directory.GetFiles(externalfolder))
+                {
+                    Assembly a = Assembly.LoadFrom(assemblyFile);
+                    AppDomain.CurrentDomain.Load(a.GetName());
+                }
             }
-        }
-
-        private static DirectoryInfo GetExternalDirectory()
-        {
-            DirectoryInfo directory = null;
-
-            if (Directory.Exists(BaseDirCombine(Properties.Resources.externalfolder)))
-            {
-                directory = new DirectoryInfo(BaseDirCombine(Properties.Resources.externalfolder));
-            }
-
-            return directory;
-        }
-
-        private static void LoadExternalAssemblies(DirectoryInfo externalDictionary)
-        {
-            foreach (FileInfo assemblyFile in externalDictionary.GetFiles("*.dll"))
-            {
-                Assembly assembly = Assembly.LoadFrom(assemblyFile.FullName);
-                AppDomain.CurrentDomain.Load(assembly.GetName());
-            }
-        }
-
-        private static string GetSendPModeFolder()
-        {
-            return BaseDirCombine(Properties.Resources.configurationfolder, Properties.Resources.sendpmodefolder);
-        }
-
-        private static string GetReceivePModeFolder()
-        {
-            return BaseDirCombine(Properties.Resources.configurationfolder, Properties.Resources.receivepmodefolder);
         }
 
         private void RetrieveLocalConfiguration(string settingsFileName)
         {
-            string path = BaseDirCombine(Properties.Resources.configurationfolder, settingsFileName);
+            string path = BaseDirCombine(configurationfolder, settingsFileName);
 
             string fullPath = Path.GetFullPath(path);
 
@@ -366,8 +373,15 @@ namespace Eu.EDelivery.AS4.Common
                 throw new XmlException("Invalid Settings file");
             }
 
-            AddFixedSettings();
-            AddCustomSettings();
+            if (_settings.Database == null)
+            {
+                throw new InvalidOperationException(
+                    "The settings file requires a '<Database/>' tag");
+            }
+
+            _retention = ParseRetentionPeriod();
+            _retryPollingInterval = ParseRetryPollingInterval();
+
             AddCustomAgents();
 
             ValidateAllSettings();
@@ -382,7 +396,11 @@ namespace Eu.EDelivery.AS4.Common
         {
             try
             {
-                return Deserialize<T>(path);
+                using (var fileStream = new FileStream(path, FileMode.Open, FileAccess.Read))
+                {
+                    var serializer = new XmlSerializer(typeof(T));
+                    return serializer.Deserialize(fileStream) as T;
+                }
             }
             catch (Exception ex)
             {
@@ -392,49 +410,8 @@ namespace Eu.EDelivery.AS4.Common
                     Logger.Error(ex.InnerException.Message);
                 }
 
-                return null;
+                throw new XmlException("Invalid XML file: " + path, ex);
             }
-        }
-
-        private static T Deserialize<T>(string path) where T : class
-        {
-            using (var fileStream = new FileStream(path, FileMode.Open, FileAccess.Read))
-            {
-                var serializer = new XmlSerializer(typeof(T));
-                return serializer.Deserialize(fileStream) as T;
-            }
-        }
-
-        private void AddFixedSettings()
-        {
-            _configuration["IdFormat"] = _settings.IdFormat;
-
-
-            if (_settings.Database == null)
-            {
-                throw new InvalidOperationException(
-                    "The settings file requires a '<Database/>' tag");
-            }
-
-            _configuration["Provider"] = _settings.Database.Provider;
-            _configuration["ConnectionString"] = _settings.Database.ConnectionString;
-
-            if (_settings.CertificateStore != null)
-            {
-                _configuration["CertificateStore"] = _settings.CertificateStore.StoreName;
-                _configuration["CertificateRepository"] = _settings.CertificateStore?.Repository?.Type;
-            }          
-
-            _retention = ParseRetentionPeriod();
-            _retryPollingInterval = ParseRetryPollingInterval();
-
-            string authorizationMap = Path.Combine(
-                AppDomain.CurrentDomain.BaseDirectory, 
-                Properties.Resources.configurationfolder, 
-                _settings.PullSend?.AuthorizationMapPath 
-                    ?? "Security\\pull_authorizationmap.xml");
-
-            _pullRequestPullAuthorizationMapProvider = new FilePullAuthorizationMapProvider(authorizationMap);
         }
 
         private TimeSpan ParseRetentionPeriod()
@@ -446,7 +423,7 @@ namespace Eu.EDelivery.AS4.Common
 
             const int defaultRetentionPeriod = 90;
 
-            LogManager.GetCurrentClassLogger().Warn(
+            Logger.Warn(
                 $"No valid (> 0) Retention Period found: '{_settings.RetentionPeriod ?? "(null)"}', " +
                 $"{defaultRetentionPeriod} days as default will be used");
 
@@ -464,24 +441,11 @@ namespace Eu.EDelivery.AS4.Common
 
             const int defaultPollingRetryInterval = 5;
 
-            LogManager.GetCurrentClassLogger().Warn(
+            Logger.Warn(
                 $"No valid (> 0:00:00) Retry Polling Interval found: '{_settings.RetryReliability?.PollingInterval ?? "(null)"}', " +
                 $"{defaultPollingRetryInterval} seconds as default will be used");
 
             return TimeSpan.FromSeconds(defaultPollingRetryInterval);
-        }
-
-        private void AddCustomSettings()
-        {
-            if (_settings.CustomSettings?.Setting == null)
-            {
-                return;
-            }
-
-            foreach (Setting setting in _settings.CustomSettings.Setting)
-            {
-                _configuration[setting.Key] = setting.Value;
-            }
         }
 
         private void AddCustomAgents()
@@ -588,7 +552,24 @@ namespace Eu.EDelivery.AS4.Common
                     });
                 }
             }
-        } 
+        }
+
+        private T OnlyAfterInitialized<T>(Func<T> f)
+        {
+            if (IsInitialized)
+            {
+                return f();
+            }
+
+            throw new InvalidOperationException(
+                "Cannot use this member before the configuration is initialized. " + 
+                $"Call the {nameof(Initialize)} method to initialize the configuration.");
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+        }
 
         private void Dispose(bool disposing)
         {
@@ -609,25 +590,6 @@ namespace Eu.EDelivery.AS4.Common
                 _receivingPModeWatcher.Stop();
                 _receivingPModeWatcher.Dispose();
             }
-        }
-
-        /// <summary>
-        /// Gets the IAuthorizationMapProvider that must be used when verifying PullRequests.
-        /// </summary>
-        /// <returns></returns>
-        public IPullAuthorizationMapProvider PullRequestAuthorizationMapProvider => 
-            OnlyAfterInitialized(() => _pullRequestPullAuthorizationMapProvider);
-
-        private T OnlyAfterInitialized<T>(Func<T> f)
-        {
-            if (IsInitialized)
-            {
-                return f();
-            }
-
-            throw new InvalidOperationException(
-                "Cannot use this member before the configuration is initialized. " + 
-                $"Call the {nameof(Initialize)} method to initialize the configuration.");
         }
     }
 }

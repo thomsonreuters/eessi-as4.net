@@ -4,7 +4,6 @@ using Eu.EDelivery.AS4.Agents;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
-using Eu.EDelivery.AS4.Services.PullRequestAuthorization;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Common
@@ -38,6 +37,36 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
 
         public virtual string InExceptionStoreLocation => throw new NotImplementedException();
         public virtual string OutExceptionStoreLocation => throw new NotImplementedException();
+
+        /// <summary>
+        /// Gets the format in which Ebms Message Identifiers should be generated.
+        /// </summary>
+        public virtual string EbmsMessageIdFormat => throw new NotImplementedException();
+
+        /// <summary>
+        /// Gets the configured database provider.
+        /// </summary>
+        public virtual string DatabaseProvider => throw new NotImplementedException();
+
+        /// <summary>
+        /// Gets the configured connection string to contact the database.
+        /// </summary>
+        public virtual string DatabaseConnectionString => throw new NotImplementedException();
+
+        /// <summary>
+        /// Gets the confgured certificate store name.
+        /// </summary>
+        public virtual string CertificateStore => throw new NotImplementedException();
+
+        /// <summary>
+        /// Gets the configured certificate repository type.
+        /// </summary>
+        public virtual string CertificateRepositoryType => throw new NotImplementedException();
+
+        /// <summary>
+        /// Gets the file path from where the authorization entries to verify PullRequests should be stored.
+        /// </summary>
+        public virtual string AuthorizationMapPath => throw new NotImplementedException();
 
         /// <summary>
         /// Retrieve Setting from the Global Configurations
@@ -119,15 +148,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
         public virtual IEnumerable<AgentConfig> GetAgentsConfiguration()
         {
             throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// Gets the IAuthorizationMapProvider that must be used when verifying PullRequests.
-        /// </summary>
-        /// <returns></returns>
-        public IPullAuthorizationMapProvider PullRequestAuthorizationMapProvider
-        {
-            get { throw new NotImplementedException(); }
         }
     }
 
