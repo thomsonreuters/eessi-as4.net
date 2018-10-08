@@ -24,33 +24,18 @@ namespace Eu.EDelivery.AS4.Common
     public sealed class Config : IConfig, IDisposable
     {
         private readonly Collection<AgentConfig> _agentConfigs = new Collection<AgentConfig>();
-        private readonly PModeWatcher<ReceivingProcessingMode> _receivingPModeWatcher;
-        private readonly PModeWatcher<SendingProcessingMode> _sendingPModeWatcher;
 
         private static readonly IConfig Singleton = new Config();
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+
+        private PModeWatcher<ReceivingProcessingMode> _receivingPModeWatcher;
+        private PModeWatcher<SendingProcessingMode> _sendingPModeWatcher;
 
         private Settings _settings;
         private TimeSpan _retention;
         private TimeSpan _retryPollingInterval;
 
         public static Config Instance => (Config) Singleton;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="Config"/> class.
-        /// </summary>
-        private Config()
-        {
-            _sendingPModeWatcher =
-                new PModeWatcher<SendingProcessingMode>(
-                    Path.Combine(ApplicationPath, configurationfolder, sendpmodefolder),
-                    SendingProcessingModeValidator.Instance);
-
-            _receivingPModeWatcher =
-                new PModeWatcher<ReceivingProcessingMode>(
-                    Path.Combine(ApplicationPath, configurationfolder, receivepmodefolder),
-                    ReceivingProcessingModeValidator.Instance);
-        }
 
         /// <summary>
         /// Gets a value indicating whether the FE needs to be started in process.
@@ -162,6 +147,17 @@ namespace Eu.EDelivery.AS4.Common
                 IsInitialized = true;
                 RetrieveLocalConfiguration(settingsFileName);
                 LoadExternalAssemblies();
+
+
+                _sendingPModeWatcher =
+                    new PModeWatcher<SendingProcessingMode>(
+                        Path.Combine(ApplicationPath, configurationfolder, sendpmodefolder),
+                        SendingProcessingModeValidator.Instance);
+
+                _receivingPModeWatcher =
+                    new PModeWatcher<ReceivingProcessingMode>(
+                        Path.Combine(ApplicationPath, configurationfolder, receivepmodefolder),
+                        ReceivingProcessingModeValidator.Instance);
 
                 _sendingPModeWatcher.Start();
                 _receivingPModeWatcher.Start();
