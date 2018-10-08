@@ -49,7 +49,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler
         /// </summary>
         /// <param name="settings"></param>
         /// <returns></returns>
-        public static Kernel CreateFromSettings(string settings = "settings.xml")
+        public static Kernel CreateFromSettings(string settings = @".\config\settings.xml")
         {
             Config config = Config.Instance;
             Registry registry = Registry.Instance;

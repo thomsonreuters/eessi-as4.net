@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
@@ -9,9 +10,9 @@ namespace Eu.EDelivery.AS4.Fe.Settings
 {
     public class FileSettingsSource : ISettingsSource
     {
-        private readonly IOptions<ApplicationSettings> appSettings;
+        private readonly string _settingsPath;
 
-        private static readonly XmlWriterSettings DefaultXmlWriterSettings = 
+        private static readonly XmlWriterSettings DefaultXmlWriterSettings =
             new XmlWriterSettings
             {
                 Encoding = new UTF8Encoding(encoderShouldEmitUTF8Identifier: false),
@@ -20,14 +21,26 @@ namespace Eu.EDelivery.AS4.Fe.Settings
 
         public FileSettingsSource(IOptions<ApplicationSettings> appSettings)
         {
-            this.appSettings = appSettings;
+            if (appSettings == null)
+            {
+                throw new ArgumentNullException(nameof(appSettings));
+            }
+
+            if (appSettings.Value?.SettingsXml == null)
+            {
+                throw new ArgumentNullException(nameof(appSettings.Value.SettingsXml));
+            }
+
+            _settingsPath = Path.Combine(
+                AppDomain.CurrentDomain.BaseDirectory, 
+                appSettings.Value.SettingsXml);
         }
 
         public Task<Model.Internal.Settings> Get()
         {
             return Task.Factory.StartNew(() =>
             {
-                using (var reader = new FileStream(appSettings.Value.SettingsXml, FileMode.Open))
+                using (var reader = new FileStream(_settingsPath, FileMode.Open))
                 {
                     var xml = new XmlSerializer(typeof(Model.Internal.Settings));
                     return (Model.Internal.Settings)xml.Deserialize(reader);
@@ -40,10 +53,9 @@ namespace Eu.EDelivery.AS4.Fe.Settings
             return Task.Factory.StartNew(() =>
             {
                 var xmlSerializer = new XmlSerializer(typeof(Model.Internal.Settings));
-
-                using (var output = new FileStream(appSettings.Value.SettingsXml, FileMode.Create))
+                using (var output = new FileStream(_settingsPath, FileMode.Create))
                 {
-                    using (var xmlWriter = XmlWriter.Create(output, DefaultXmlWriterSettings))
+                    using (XmlWriter xmlWriter = XmlWriter.Create(output, DefaultXmlWriterSettings))
                     {
                         xmlSerializer.Serialize(xmlWriter, settings);
                     }
