@@ -141,13 +141,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             catch (Exception exception)
             {
                 Logger.ErrorDeep(exception);
-
-                await UpdateRetryStatusForMessageAsync(
-                    ctx, 
-                    // Even when the receiver is not online, we should be able to retry PiggyBacking when the request is a PullRequest.
-                    as4Message.IsPullRequest 
-                        ? SendResult.RetryableFail 
-                        : SendResult.FatalFail);
+                await UpdateRetryStatusForMessageAsync(ctx, SendResult.RetryableFail);
 
                 throw;
             }
