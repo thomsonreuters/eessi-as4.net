@@ -15,39 +15,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Servicehandler
     public class GivenKernelFacts
     {
         [Fact]
-        public void KernelHasNothingToClose()
-        {
-            // Arrange
-            var spyAgent = new SpyAgent();
-            var sut = new Kernel(agents: null);
-
-            // Act 
-            sut.Dispose();
-
-            // Assert
-            Assert.False(spyAgent.IsDisposed);
-        }
-
-        [Fact]
-        public async Task KernelHasNothingToStart()
-        {
-            // Arrange
-            var spyAgent = new SpyAgent();
-            var sut = new Kernel(agents: null);
-
-            // Act
-            await sut.StartAsync(CancellationToken.None);
-
-            // Assert
-            Assert.False(spyAgent.HasStarted);
-        }
-
-        [Fact]
         public void DisposeAgents_FromKernel()
         {
             // Arrange
             var spyAgent = new SpyAgent();
-            var kernel = new Kernel(new[] { spyAgent });
+            var kernel = new Kernel(new[] { spyAgent }, StubConfig.Default);
 
             // Act
             kernel.Dispose();

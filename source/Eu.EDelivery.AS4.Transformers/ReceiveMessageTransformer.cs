@@ -101,8 +101,7 @@ namespace Eu.EDelivery.AS4.Transformers
                     "Static Receive configuration doesn't allow receiving signal messages. ");
             }
 
-            var context = new MessagingContext(m, MessagingContextMode.Receive);
-            context.ModifyContext(as4Message);
+            var context = new MessagingContext(as4Message, m, MessagingContextMode.Receive);
 
             if (ReceivingPMode != null)
             {
