@@ -346,14 +346,14 @@ namespace Eu.EDelivery.AS4.Common
 
         private void RetrieveLocalConfiguration(string settingsFileName)
         {
-            string path = BaseDirCombine(configurationfolder, settingsFileName);
-
+            string path = Path.Combine(ApplicationPath, configurationfolder, settingsFileName);
             string fullPath = Path.GetFullPath(path);
 
             Logger.Trace($"Using local configuration settings at path: '{fullPath}'");
 
             if (Path.IsPathRooted(path) == false ||
-                (File.Exists(fullPath) == false && StringComparer.OrdinalIgnoreCase.Equals(path, fullPath) == false))
+                (File.Exists(fullPath) == false 
+                 && StringComparer.OrdinalIgnoreCase.Equals(path, fullPath) == false))
             {
                 path = Path.Combine(".", path);
             }
@@ -363,7 +363,7 @@ namespace Eu.EDelivery.AS4.Common
                 throw new FileNotFoundException($"The settings file {path} could not be found.");
             }
 
-            _settings = TryDeserialize<Settings>(path);
+            _settings = Deserialize<Settings>(path);
             if (_settings == null)
             {
                 throw new XmlException("Invalid Settings file");
@@ -383,12 +383,7 @@ namespace Eu.EDelivery.AS4.Common
             ValidateAllSettings();
         }
 
-        private static string BaseDirCombine(params string[] paths)
-        {
-            return Path.Combine(new[] {ApplicationPath}.Concat(paths).ToArray());
-        }
-
-        private static T TryDeserialize<T>(string path) where T : class
+        private static T Deserialize<T>(string path) where T : class
         {
             try
             {
