@@ -101,7 +101,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler.ConsoleHost
         {
             try
             {
-                return Kernel.CreateFromSettings(@".\config\settings.xml");
+                return Kernel.CreateFromSettings(@"config\settings.xml");
             }
             catch (Exception ex)
             {

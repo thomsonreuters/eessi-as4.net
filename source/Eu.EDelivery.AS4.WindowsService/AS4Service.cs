@@ -49,12 +49,16 @@ namespace Eu.EDelivery.AS4.WindowsService
                     Environment.CurrentDirectory = assemblyLocationFolder;
                 }
 
-                _kernel = Kernel.CreateFromSettings(@".\config\settings-service.xml");
-                if (!Config.Instance.IsInitialized || !Registry.Instance.IsInitialized)
+                try
+                {
+                    _kernel = Kernel.CreateFromSettings(@"config\settings-service.xml");
+                }
+                catch (Exception ex)
                 {
                     _eventLog.WriteEntry("AS4.NET Component cannot be initialized", EventLogEntryType.Error);
-
+                    _eventLog.WriteEntry(ex.ToString(), EventLogEntryType.Error);
                     Stop();
+
                     return;
                 }
 
