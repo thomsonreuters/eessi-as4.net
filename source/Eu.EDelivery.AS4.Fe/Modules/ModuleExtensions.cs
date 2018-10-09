@@ -37,7 +37,7 @@ namespace Eu.EDelivery.AS4.Fe.Modules
                 List<TypeInfo> moduleAssemblies;
                 var scanner = SetupAssemblyScanner(services, folderToScan, out moduleAssemblies);
 
-                var baseTypes = typeof(Startup).Assembly.DefinedTypes.ToList();
+                var baseTypes = typeof(Startup).Assembly.ExportedTypes.ToList();
                 RegisterInterfaces(services, mappings, scanner, baseTypes, moduleAssemblies);
 
                 var configurationBuilder = new ConfigurationBuilder();
@@ -86,7 +86,7 @@ namespace Eu.EDelivery.AS4.Fe.Modules
             return scanner;
         }
 
-        private static void RegisterInterfaces(IServiceCollection services, Dictionary<string, string> mappings, Scanner scanner, List<TypeInfo> baseTypes, List<TypeInfo> moduleAssemblies)
+        private static void RegisterInterfaces(IServiceCollection services, Dictionary<string, string> mappings, Scanner scanner, List<Type> baseTypes, List<TypeInfo> moduleAssemblies)
         {
             // Get IModular interface
             foreach (var iface in baseTypes.Where(type => typeof(IModular).IsAssignableFrom(type) && type.IsInterface && type != typeof(IModular)))
