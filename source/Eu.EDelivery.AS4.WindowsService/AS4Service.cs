@@ -51,7 +51,7 @@ namespace Eu.EDelivery.AS4.WindowsService
 
                 try
                 {
-                    _kernel = Kernel.CreateFromSettings("settings-service.xml");
+                    _kernel = Kernel.CreateFromSettings(@"config\settings-service.xml");
                 }
                 catch (Exception ex)
                 {

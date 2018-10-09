@@ -48,7 +48,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler
         /// </summary>
         /// <param name="settings">The file name in the '.\config\' folder of the settings to use during the initialization (default: 'settings.xml').</param>
         /// <returns></returns>
-        public static Kernel CreateFromSettings(string settings = "settings.xml")
+        public static Kernel CreateFromSettings(string settings = @"config\settings.xml")
         {
             if (string.IsNullOrWhiteSpace(settings))
             {
