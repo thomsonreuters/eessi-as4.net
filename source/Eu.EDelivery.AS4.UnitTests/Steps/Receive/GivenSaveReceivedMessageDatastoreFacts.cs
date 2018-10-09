@@ -50,8 +50,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                     // Arrange
                     AS4Message fixture = AS4Message.Create(messageUnits);
                     var stub = new ReceivedMessage(Stream.Null, Constants.ContentTypes.Soap);
-                    var ctx = new MessagingContext(stub, mode);
-                    ctx.ModifyContext(fixture);
+                    var ctx = new MessagingContext(fixture, stub, mode);
 
                     // Act
                     Step.ExecuteAsync(ctx).GetAwaiter().GetResult();
@@ -112,8 +111,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             GetDataStoreContext.InsertInMessage(new InMessage(ebmsMessageId));
 
             var user = new UserMessage(ebmsMessageId);
-            var context = new MessagingContext(new ReceivedMessage(Stream.Null), MessagingContextMode.Receive);
-            context.ModifyContext(AS4Message.Create(user));
+            var context = new MessagingContext(
+                AS4Message.Create(user),
+                new ReceivedMessage(Stream.Null),
+                MessagingContextMode.Receive);
 
             // Act
             await Step.ExecuteAsync(context);
@@ -139,8 +140,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 });
 
             var receipt = new Receipt(ebmsMessageId, ebmsRefToMessageId, DateTimeOffset.Now);
-            var context = new MessagingContext(new ReceivedMessage(Stream.Null), MessagingContextMode.Receive);
-            context.ModifyContext(AS4Message.Create(receipt));
+            var context = new MessagingContext(
+                AS4Message.Create(receipt),
+                new ReceivedMessage(Stream.Null), 
+                MessagingContextMode.Receive);
 
             // Act
             await Step.ExecuteAsync(context);
@@ -158,13 +161,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
         public async Task During_Saving_The_Deserialized_AS4Message_Is_Used_Instead_Of_Deserializing_Incoming_Stream()
         {
             // Arrange
+            var receipt = new Receipt($"reftoid-{Guid.NewGuid()}");
             var ctx = new MessagingContext(
+                AS4Message.Create(receipt),
                 new ReceivedMessage(Stream.Null, Constants.ContentTypes.Soap),
                 MessagingContextMode.Receive);
-
-            var receipt = new Receipt($"reftoid-{Guid.NewGuid()}");
-            AS4Message as4Message = AS4Message.Create(receipt);
-            ctx.ModifyContext(as4Message);
 
             // Act
             await Step.ExecuteAsync(ctx);
