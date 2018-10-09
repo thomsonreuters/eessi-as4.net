@@ -17,16 +17,10 @@ namespace Eu.EDelivery.AS4.ServiceHandler
     /// </summary>
     public sealed class Kernel : IDisposable
     {
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
-
         private readonly IEnumerable<IAgent> _agents;
         private readonly IConfig _config;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="Kernel"/> class. 
-        /// </summary>
-        /// <param name="agents"></param>
-        internal Kernel(IEnumerable<IAgent> agents) : this(agents, Config.Instance) { }
+        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Kernel" /> class.
@@ -37,7 +31,12 @@ namespace Eu.EDelivery.AS4.ServiceHandler
         {
             if (agents == null)
             {
-                Logger.Fatal("Kernel hasn't got IAgent implementations, so cannot be started");
+                throw new ArgumentNullException(nameof(agents));
+            }
+
+            if (config == null)
+            {
+                throw new ArgumentNullException(nameof(config));
             }
 
             _agents = agents;
@@ -47,23 +46,36 @@ namespace Eu.EDelivery.AS4.ServiceHandler
         /// <summary>
         /// Create an <see cref="Kernel" /> instance from a given settings file name.
         /// </summary>
-        /// <param name="settings"></param>
+        /// <param name="settings">The file name in the '.\config\' folder of the settings to use during the initialization (default: 'settings.xml').</param>
         /// <returns></returns>
         public static Kernel CreateFromSettings(string settings = "settings.xml")
         {
+            if (string.IsNullOrWhiteSpace(settings))
+            {
+                throw new ArgumentException(
+                    @"Settings file name cannot be null or whitespace (default: 'settings.xml').", 
+                    nameof(settings));
+            }
+
             Config config = Config.Instance;
             Registry registry = Registry.Instance;
 
             config.Initialize(settings);
-            registry.Initialize(config);
-
-            if (!config.IsInitialized || !registry.IsInitialized)
+            if (!config.IsInitialized)
             {
-                return null;
+                throw new InvalidOperationException(
+                    "Cannot create Kernel: couldn't correctly initialize the configuration");
             }
 
-            var agentProvider = new AgentProvider(config, registry);
-            return new Kernel(agentProvider.GetAgents());
+            registry.Initialize(config);
+            if (!registry.IsInitialized)
+            {
+                throw new InvalidOperationException(
+                    "Cannot create Kernel: couldn't correctly initialize the registry");
+            }
+
+            var agentProvider = AgentProvider.BuildFromConfig(config, registry);
+            return new Kernel(agentProvider.GetAgents(), config);
         }
 
         /// <summary>
@@ -73,7 +85,11 @@ namespace Eu.EDelivery.AS4.ServiceHandler
         /// <returns></returns>
         public async Task StartAsync(CancellationToken cancellationToken)
         {
-            if (_agents == null) { return; }
+            if (!_agents.Any())
+            {
+                Logger.Warn("Will not start Kernel: no IAgent implementations has been set to the Kernel");
+                return;
+            }
 
             AS4Mapper.Initialize();
 
@@ -108,6 +124,9 @@ namespace Eu.EDelivery.AS4.ServiceHandler
             CloseAgents();
         }
 
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
         public void Dispose()
         {
             CloseAgents();
@@ -115,11 +134,6 @@ namespace Eu.EDelivery.AS4.ServiceHandler
 
         private void CloseAgents()
         {
-            if (_agents == null)
-            {
-                return;
-            }
-
             foreach (IAgent agent in _agents)
             {
                 var disposableAgent = agent as IDisposable;
