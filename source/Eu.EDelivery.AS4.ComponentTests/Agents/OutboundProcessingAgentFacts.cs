@@ -118,12 +118,13 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             datastoreSpy.InsertOutMessage(tobeProcessedEntry);
 
             // Assert
-            Thread.Sleep(TimeSpan.FromSeconds(4));
+            OutMessage processedEntry = 
+                await PollUntilPresent(
+                    () => datastoreSpy.GetOutMessageFor(
+                        m => m.EbmsMessageId == multihopMessage.GetPrimaryMessageId()
+                             && m.Operation == Operation.ToBeSent),
+                    timeout: TimeSpan.FromSeconds(30));
 
-            OutMessage processedEntry = datastoreSpy.GetOutMessageFor(
-                m => m.EbmsMessageId == multihopMessage.GetPrimaryMessageId());
-
-            Assert.Equal(Operation.ToBeSent, processedEntry.Operation);
             Assert.False(processedEntry.Intermediary);
 
             AS4Message processedMessage =
