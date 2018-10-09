@@ -1,8 +1,10 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
+using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.ServiceHandler;
 using Eu.EDelivery.AS4.UnitTests.Agents;
 using Eu.EDelivery.AS4.UnitTests.Common;
+using Moq;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Servicehandler
@@ -45,12 +47,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Servicehandler
         }
 
         [Fact]
-        public async Task FailToStartAgents_IfInvalidConfig()
+        public async Task FailToStartAgents_IfConfigIsntInitializedYet()
         {
             // Arrange
             var spyAgent = new SpyAgent();
-            var invalidConfig = new StubConfig(configSettings: null, sendingPModes: null, receivingPModes: null);
-            var kernel = new Kernel(new[] { spyAgent }, invalidConfig);
+            var config = Mock.Of<IConfig>();
+            Assert.False(config.IsInitialized);
+
+            var kernel = new Kernel(new[] { spyAgent }, config);
 
             // Act
             await kernel.StartAsync(CancellationToken.None);

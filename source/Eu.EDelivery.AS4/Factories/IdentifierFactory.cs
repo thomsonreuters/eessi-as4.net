@@ -52,7 +52,7 @@ namespace Eu.EDelivery.AS4.Factories
                 return Create(DefaultIdFormat);
             }
 
-            string defaultFormat = Config.Instance.GetSetting("idformat");
+            string defaultFormat = Config.Instance.EbmsMessageIdFormat;
             if (!string.IsNullOrEmpty(defaultFormat))
             {
                 return Create(defaultFormat);

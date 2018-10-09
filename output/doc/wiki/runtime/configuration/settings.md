@@ -22,7 +22,7 @@ Below you find a pseudo example of the settings shipped with the component itsel
         <PayloadRetrievalLocation>file:///.\messages\attachments</PayloadRetrievalLocation>
     </Submit>
     <PullSend>
-        <AuthorizationMapPath>Security\pull_authorizationmap.xml</AuthorizationMapPath>
+        <AuthorizationMapPath>config\security\pull_authorizationmap.xml</AuthorizationMapPath>
     </PullSend>
     <RetryReliability>
         <PollingInterval>00:00:05</RetryPollingInterval>
@@ -77,7 +77,7 @@ The `<Submit/>` element contains settings regarding the configured **Submit Agen
 
 The `<PullSend/>` element contains settings regarding the configured **Pull Send Agents**:
 
-- `AuthorizationMapPath` (default: `Security\pull_authorizationmap.xml`) defines the file from where the authorization entries to verify **Pull Requests** should be stored.
+- `AuthorizationMapPath` (default: `config\security\pull_authorizationmap.xml`) defines the file from where the authorization entries to verify **Pull Requests** should be stored.
 
 ### Retention Period (in days)
 

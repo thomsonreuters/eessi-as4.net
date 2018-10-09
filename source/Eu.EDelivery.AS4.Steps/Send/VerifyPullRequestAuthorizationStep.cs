@@ -18,7 +18,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// <summary>
         /// Initializes a new instance of the <see cref="VerifyPullRequestAuthorizationStep"/> class.
         /// </summary>
-        public VerifyPullRequestAuthorizationStep() : this(Config.Instance.PullRequestAuthorizationMapProvider) { }
+        public VerifyPullRequestAuthorizationStep() : this(Registry.Instance.PullRequestAuthorizationMapProvider) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="VerifyPullRequestAuthorizationStep" /> class.
