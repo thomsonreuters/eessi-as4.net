@@ -25,13 +25,9 @@ namespace Eu.EDelivery.AS4.Model.Core
     /// </summary>
     public class AS4Message : IEquatable<AS4Message>
     {
-        private const string GzipContentType = "application/gzip";
-
         private readonly bool _serializeAsMultiHop;
         private readonly List<Attachment> _attachmens;
         private readonly List<MessageUnit> _messageUnits;
-
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger(); 
 
         /// <summary>
         /// Prevents a default instance of the <see cref="AS4Message"/> class from being created.
