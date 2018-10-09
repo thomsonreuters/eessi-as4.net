@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Eu.EDelivery.AS4.Compression;
 using Eu.EDelivery.AS4.Streaming;
 
 namespace Eu.EDelivery.AS4.Model.Core
@@ -46,6 +47,36 @@ namespace Eu.EDelivery.AS4.Model.Core
         public string Location { get; internal set; }
 
         public IDictionary<string, string> Properties { get; } = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
+        /// <summary>
+        /// Gets a value indication whether or not this attachment has a MimeType property configured.
+        /// </summary>
+        public bool HasMimeType => Properties.ContainsKey("MimeType");
+
+        /// <summary>
+        /// Gets or sets the MimeType property of this attachment.
+        /// </summary>
+        public string MimeType
+        {
+            get => Properties["MimeType"];
+            set => Properties["MimeType"] = value;
+        }
+
+        /// <summary>
+        /// Gets or sets the type of the compression property of this attachment.
+        /// </summary>
+        public string CompressionType
+        {
+            get => Properties["CompressionType"];
+            set => Properties["CompressionType"] = value;
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether or not this attachment is compressed.
+        /// </summary>
+        public bool IsCompressed =>
+            ContentType.Equals(CompressStrategy.CompressionType, StringComparison.OrdinalIgnoreCase)
+            || Properties.ContainsKey("CompressionType");
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Attachment"/> class.

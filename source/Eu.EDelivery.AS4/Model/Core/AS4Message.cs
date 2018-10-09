@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.IO.Compression;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
@@ -9,14 +8,15 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 using Eu.EDelivery.AS4.Builders.Security;
+using Eu.EDelivery.AS4.Compression;
 using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Security.Encryption;
 using Eu.EDelivery.AS4.Security.Signing;
 using Eu.EDelivery.AS4.Security.Strategies;
 using Eu.EDelivery.AS4.Serialization;
-using Eu.EDelivery.AS4.Streaming;
 using MimeKit;
+using NLog;
 
 namespace Eu.EDelivery.AS4.Model.Core
 {
@@ -407,71 +407,23 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// </summary>
         public void CompressAttachments()
         {
-            if (!Attachments.Any())
-            {
-                return;
-            }
-
-            foreach (Attachment attachment in Attachments)
-            {
-                CompressAttachment(attachment);
-            }
+            CompressStrategy
+                .ForAS4Message(this)
+                .Compress();
 
             // Since the headers in the message have changed, the EnvelopeDocument
             // is no longer in sync and should be set to null.
             EnvelopeDocument = null;
         }
 
-        private static void CompressAttachment(Attachment attachment)
+        /// <summary>
+        /// Decompresses the Attachments that are part of this AS4 Message.
+        /// </summary>
+        public void DecompressAttachments()
         {
-            if (attachment == null)
-            {
-                throw new ArgumentNullException(nameof(attachment));
-            }
-
-            VirtualStream outputStream =
-                VirtualStream.Create(
-                    attachment.EstimatedContentSize > -1 ? attachment.EstimatedContentSize : VirtualStream.ThresholdMax);
-
-            CompressionLevel compressionLevel = DetermineCompressionLevelFor(attachment);
-
-            using (var gzipCompression = new GZipStream(outputStream, compressionLevel, leaveOpen: true))
-            {
-                attachment.Content.CopyTo(gzipCompression);
-            }
-
-            outputStream.Position = 0;
-            attachment.Properties["MimeType"] = attachment.ContentType;
-            attachment.Properties["CompressionType"] = "application/gzip";
-            attachment.UpdateContent(outputStream, "application/gzip");
-        }
-
-        private static CompressionLevel DetermineCompressionLevelFor(Attachment attachment)
-        {
-            if (attachment.ContentType.Equals("application/gzip", StringComparison.OrdinalIgnoreCase))
-            {
-                // In certain cases, we do not want to waste time compressing the attachment, since
-                // compressing will only take time without noteably decreasing the attachment size.
-                return CompressionLevel.NoCompression;
-            }
-
-            if (attachment.EstimatedContentSize > -1)
-            {
-                const long twelveKilobytes = 12_288;
-                const long twoHundredMegabytes = 209_715_200;
-
-                if (attachment.EstimatedContentSize <= twelveKilobytes)
-                {
-                    return CompressionLevel.NoCompression;
-                }
-
-                if (attachment.EstimatedContentSize > twoHundredMegabytes)
-                {
-                    return CompressionLevel.Fastest;
-                }
-            }
-
-            return CompressionLevel.Optimal;
+            CompressStrategy
+                .ForAS4Message(this)
+                .Decompress();
         }
 
         /// <summary>
