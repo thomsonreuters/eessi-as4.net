@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.ServiceProcess;
 using System.Windows.Forms;
+using Eu.EDelivery.AS4.WindowsService.SystemTray.Properties;
 using Newtonsoft.Json.Linq;
 
 namespace Eu.EDelivery.AS4.WindowsService.SystemTray
@@ -20,7 +20,7 @@ namespace Eu.EDelivery.AS4.WindowsService.SystemTray
             _icon = new NotifyIcon
             {
                 Visible = true,
-                Icon = new Icon(@"assets\favicon.ico"),
+                Icon = Resources.favicon,
                 ContextMenu = new ContextMenu(
                     new []
                     {
