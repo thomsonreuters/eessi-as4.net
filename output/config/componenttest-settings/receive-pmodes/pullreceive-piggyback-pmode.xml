@@ -6,6 +6,11 @@
   <ReplyHandling>
     <ReplyPattern>PiggyBack</ReplyPattern>
     <SendingPMode>unsigned-response-pmode</SendingPMode>
+    <PiggyBackReliability>
+      <IsEnabled>true</IsEnabled>
+      <RetryCount>3</RetryCount>
+      <RetryInterval>0:00:01</RetryInterval>
+    </PiggyBackReliability>
   </ReplyHandling>
   <MessagePackaging>
     <PartyInfo>
