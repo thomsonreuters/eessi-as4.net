@@ -288,7 +288,7 @@ namespace Eu.EDelivery.AS4.Common
 
         private void RetrieveLocalConfiguration(string settingsFileName)
         {
-            string path = BaseDirCombine(Properties.Resources.configurationfolder, settingsFileName);
+            string path = BaseDirCombine(settingsFileName);
 
             string fullPath = Path.GetFullPath(path);
 

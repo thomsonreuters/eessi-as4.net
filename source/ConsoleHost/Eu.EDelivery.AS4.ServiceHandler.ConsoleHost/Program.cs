@@ -107,7 +107,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler.ConsoleHost
 
             try
             {
-                config.Initialize("settings.xml");
+                config.Initialize(@"config\settings.xml");
             }
             catch (Exception ex)
             {

@@ -42,7 +42,7 @@ namespace Eu.EDelivery.AS4.WindowsService
             {
                 Config configuration = Config.Instance;
                 Registry registration = Registry.Instance;
-                configuration.Initialize("settings-service.xml");
+                configuration.Initialize(@"config\settings-service.xml");
             
                 if (!configuration.IsInitialized)
                 {
