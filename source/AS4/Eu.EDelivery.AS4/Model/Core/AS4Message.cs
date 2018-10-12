@@ -353,7 +353,7 @@ namespace Eu.EDelivery.AS4.Model.Core
             {
                 // In certain cases, we do not want to waste time compressing the attachment, since
                 // compressing will only take time without noteably decreasing the attachment size.
-                return CompressionLevel.NoCompression;
+                return CompressionLevel.Fastest;
             }
 
             if (attachment.EstimatedContentSize > -1)
@@ -361,12 +361,8 @@ namespace Eu.EDelivery.AS4.Model.Core
                 const long twelveKilobytes = 12_288;
                 const long twoHundredMegabytes = 209_715_200;
 
-                if (attachment.EstimatedContentSize <= twelveKilobytes)
-                {
-                    return CompressionLevel.NoCompression;
-                }
-
-                if (attachment.EstimatedContentSize > twoHundredMegabytes)
+                if (attachment.EstimatedContentSize <= twelveKilobytes ||
+                    attachment.EstimatedContentSize > twoHundredMegabytes)
                 {
                     return CompressionLevel.Fastest;
                 }
