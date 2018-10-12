@@ -20,6 +20,7 @@ import { RuntimeStore } from './runtime.store';
 import { ROUTES } from './settings.routes';
 import { SettingsService } from './settings.service';
 import { SettingsStore } from './settings.store';
+import { PullSendSettingsComponent } from './settings/pullsend.component';
 import { SettingsComponent } from './settings/settings.component';
 import { SmpConfigurationComponent } from './smpconfiguration/smpconfiguration.component';
 import { SmpConfigurationService } from './smpconfiguration/smpconfiguration.service';
@@ -31,6 +32,7 @@ const components: any = [
   SettingsComponent,
   BaseSettingsComponent,
   CommonSettingsComponent,
+  PullSendSettingsComponent,
   DatabaseSettingsComponent,
   AgentSettingsComponent,
   ReceiverComponent,
@@ -70,6 +72,7 @@ const services: any = [
     BaseSettingsComponent,
     CommonSettingsComponent,
     DatabaseSettingsComponent,
+    PullSendSettingsComponent,
     AgentSettingsComponent,
     ReceiverComponent
   ]
