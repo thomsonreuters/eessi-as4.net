@@ -6,7 +6,7 @@ using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
-using Eu.EDelivery.AS4.Receivers.Pull;
+using Eu.EDelivery.AS4.Receivers.PullRequest;
 using Eu.EDelivery.AS4.Serialization;
 using NLog;
 
