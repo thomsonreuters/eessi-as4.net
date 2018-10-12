@@ -19,7 +19,7 @@ Below you find a pseudo example of the settings shipped with the component itsel
         <Repository type="Eu.EDelivery.AS4.Repositories.CertificateRepository" />
     </CertificateStore>
     <Submit>
-        <PayloadRetrievalLocation>file:///.\messages\attachments</PayloadRetrievalLocation>
+        <PayloadRetrievalPath>file:///.\messages\attachments</PayloadRetrievalPath>
     </Submit>
     <PullSend>
         <AuthorizationMapPath>config\security\pull_authorizationmap.xml</AuthorizationMapPath>
