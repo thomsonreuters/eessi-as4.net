@@ -346,7 +346,7 @@ namespace Eu.EDelivery.AS4.Common
 
         private void RetrieveLocalConfiguration(string settingsFileName)
         {
-            string path = Path.Combine(ApplicationPath, configurationfolder, settingsFileName);
+            string path = Path.Combine(ApplicationPath, settingsFileName);
             string fullPath = Path.GetFullPath(path);
 
             Logger.Trace($"Using local configuration settings at path: '{fullPath}'");

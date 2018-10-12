@@ -2,7 +2,7 @@ using System;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.PMode;
 
-namespace Eu.EDelivery.AS4.Receivers.Pull
+namespace Eu.EDelivery.AS4.Receivers.PullRequest
 {
     /// <summary>
     /// <see cref="IntervalRequest"/> implementation to request a <see cref="PullRequest"/> for a given <see cref="SendingProcessingMode"/>.

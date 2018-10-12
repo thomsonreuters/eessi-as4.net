@@ -77,7 +77,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Common
             var as4Msh = new AS4Component(Process.Start(mshInfo));
 
             // Wait a little bit to make sure the DB is created.
-            System.Threading.Thread.Sleep(TimeSpan.FromSeconds(8));
+            System.Threading.Thread.Sleep(TimeSpan.FromSeconds(10));
             Console.WriteLine(@"AS4.NET component as Console is started");
 
             return as4Msh;
