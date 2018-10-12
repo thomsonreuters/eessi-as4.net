@@ -43,6 +43,19 @@ namespace Eu.EDelivery.AS4.Fe.Settings
         }
 
         /// <summary>
+        /// Saves the pull send settings.
+        /// </summary>
+        /// <param name="settings">The settings.</param>
+        /// <returns></returns>
+        public async Task SavePullSendSettings(SettingsPullSend settings)
+        {
+            EnsureArg.IsNotNull(settings, nameof(settings));
+            var file = await GetSettings();
+            file.PullSend = settings;
+            await settingsSource.Save(file);
+        }
+
+        /// <summary>
         /// Saves the custom settings.
         /// </summary>
         /// <param name="settings">The settings.</param>

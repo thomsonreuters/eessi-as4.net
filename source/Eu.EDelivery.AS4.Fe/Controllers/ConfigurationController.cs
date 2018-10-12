@@ -159,6 +159,21 @@ namespace Eu.EDelivery.AS4.Fe.Controllers
         }
 
         /// <summary>
+        /// Save pull send settings.
+        /// </summary>
+        /// <param name="settings">The settings.</param>
+        /// <returns>OkResult</returns>
+        [HttpPost]
+        [Route("pullsendsettings")]
+        [Authorize(Roles = Roles.Admin)]
+        [SwaggerResponse((int) HttpStatusCode.OK, typeof(OkResult))]
+        public async Task<IActionResult> SavePullSendSettings([FromBody] SettingsPullSend settings)
+        {
+            EnsureArg.IsNotNull(settings, nameof(settings));
+            await settingsService.SavePullSendSettings(settings);
+            return new OkResult();
+        }
+        /// <summary>
         /// Save custom settings
         /// </summary>
         /// <param name="settings">The settings.</param>

@@ -207,5 +207,28 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
                 await Assert.ThrowsAsync<ArgumentNullException>(() => Setup().settingsService.DeleteAgent("TEST", agents => agents.SubmitAgents, null));
             }
         }
+
+        public class SavePullSend : As4SettingsServiceTests
+        {
+            [Fact]
+            public async Task Saves_Pull_Send_Settings()
+            {
+                // Setup
+                var test = Setup();
+                test.settingsSource.Get().Returns(new Model.Internal.Settings { PullSend = null });
+
+                var fixture = new SettingsPullSend { AuthorizationMapPath = "./my-security-path/pull_authorization_map.xml" };
+
+                // Act
+                await test.settingsSource.Save(new Model.Internal.Settings { PullSend = fixture });
+
+                // Assert
+                var expected = 
+                    Arg.Is<Model.Internal.Settings>(
+                        s => s.PullSend.AuthorizationMapPath == fixture.AuthorizationMapPath);
+
+                await test.settingsSource.Received().Save(expected);
+            }
+        }
     }
 }

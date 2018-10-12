@@ -33,6 +33,13 @@ namespace Eu.EDelivery.AS4.Fe.Settings
         Task SaveDatabaseSettings(SettingsDatabase settings);
 
         /// <summary>
+        /// Saves the pull send settings.
+        /// </summary>
+        /// <param name="settings">The settings.</param>
+        /// <returns></returns>
+        Task SavePullSendSettings(SettingsPullSend settings);
+
+        /// <summary>
         /// Creates the agent.
         /// </summary>
         /// <param name="settingsAgent">The settings agent.</param>
