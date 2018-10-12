@@ -22,7 +22,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
     {
         private static readonly DateTimeOffset DayBeforeYesterday = DateTimeOffset.Now.AddDays(-2);
 
-        [Property(MaxTest = 1, Skip = "Wait till SQL Server problem is fixed")]
+        [Property(MaxTest = 1)]
         public Property Only_Awnsered_UserMessages_Are_Deleted()
         {
             return Prop.ForAll(
@@ -52,7 +52,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                 });
         }
 
-        [Property(MaxTest = 1, Skip = "Wait till SQL Server problem is fixed")]
+        [Property(MaxTest = 1)]
         public Property Only_Entries_With_Allowed_Operations_Are_Deleted()
         {
             return Prop.ForAll(
@@ -92,7 +92,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                 Operation.Undetermined
             };
 
-        [Property(MaxTest = 1, Skip = "Wait till SQL Server problem is fixed")]
+        [Property(MaxTest = 1)]
         public Property Only_Overdue_Entries_Are_Deleted()
         {
             return Prop.ForAll(
@@ -136,7 +136,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
         [Theory]
         [InlineData("no_agents_settings-sqlite.xml")]
-        [InlineData("no_agents_settings-sqlserver.xml", Skip = "Wait till SQL Server problem is fixed")]
+        [InlineData("no_agents_settings-sqlserver.xml")]
         public void MessageOlderThanRetentionDateWillBeDeleted(string specificSettings)
         {
             // Arrange: Insert a "retired" OutMessage with a referenced Reception Awareness.
@@ -249,18 +249,18 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
         private static OutException CreateOutException(string ebmsMessageId, DateTimeOffset insertionTime)
         {
-            return new OutException(ebmsMessageId, messageLocation: null, exception: string.Empty)
-            {
-                InsertionTime = insertionTime
-            };
+            OutException ex = OutException.ForEbmsMessageId(ebmsMessageId, exception: string.Empty);
+            ex.InsertionTime = insertionTime;
+
+            return ex;
         }
 
         private static InException CreateInException(string ebmsMessageId, DateTimeOffset insertionTime)
         {
-            return new InException(ebmsMessageId, messageLocation: null, exception: string.Empty)
-            {
-                InsertionTime = insertionTime
-            };
+            InException ex = InException.ForEbmsMessageId(ebmsMessageId, exception: string.Empty);
+            ex.InsertionTime = insertionTime;
+
+            return ex;
         }
 
         private static void ExerciseStartCleaning()

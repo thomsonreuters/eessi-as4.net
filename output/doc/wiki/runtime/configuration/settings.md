@@ -18,6 +18,12 @@ Below you find a pseudo example of the settings shipped with the component itsel
         <StoreName>My</StoreName>
         <Repository type="Eu.EDelivery.AS4.Repositories.CertificateRepository" />
     </CertificateStore>
+    <Submit>
+        <PayloadRetrievalLocation>file:///.\messages\attachments</PayloadRetrievalLocation>
+    </Submit>
+    <PullSend>
+        <AuthorizationMapPath>config\security\pull_authorizationmap.xml</AuthorizationMapPath>
+    </PullSend>
     <RetryReliability>
         <PollingInterval>00:00:05</RetryPollingInterval>
     </RetryReliability>
@@ -60,6 +66,18 @@ The PayloadService is a REST service that can contain payloads that are referenc
 
 This setting defines whether or not the <b>AS4.NET</b> FrontEnd should be started in-process with the <b>AS4.NET</b> MessageHandler.
 The <b>AS4.NET</b> FrontEnd web-application lets you configure the <b>AS4.NET</b> messagehandler and offers monitoring functionality.
+
+## Submit
+
+The `<Submit/>` element contains settings regarding the configured **Submit Agents**:
+
+- `PayloadRetrievalPath` (default: `file:///.\messages\attachments`) defines the folder where the attachments of the **Submit Message** should be stored.
+
+## Pull Send
+
+The `<PullSend/>` element contains settings regarding the configured **Pull Send Agents**:
+
+- `AuthorizationMapPath` (default: `config\security\pull_authorizationmap.xml`) defines the file from where the authorization entries to verify **Pull Requests** should be stored.
 
 ### Retention Period (in days)
 

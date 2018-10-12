@@ -132,7 +132,7 @@ namespace Eu.EDelivery.AS4.Common
                 return;
             }
 
-            string providerKey = _config.GetSetting("Provider");
+            string providerKey = _config.DatabaseProvider;
             if (!NativeCommandsProvider.ContainsKey(providerKey))
             {
                 throw new KeyNotFoundException(
@@ -236,8 +236,8 @@ namespace Eu.EDelivery.AS4.Common
                 return;
             }
 
-            string providerKey = _config.GetSetting("Provider");
-            string connectionString = _config.GetSetting("connectionstring");
+            string providerKey = _config.DatabaseProvider;
+            string connectionString = _config.DatabaseConnectionString;
 
             if (!DbProviders.ContainsKey(providerKey))
             {

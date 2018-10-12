@@ -67,7 +67,7 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
             using (DatastoreContext db = _createContext())
             {
                 var repository = new DatastoreRepository(db);
-                var service = new ExceptionService(Config.Instance, repository, Registry.Instance.MessageBodyStore);
+                var service = new ExceptionService(_configuration, repository, _bodyStore);
 
                 await service.InsertIncomingExceptionAsync(exception, messageToTransform.UnderlyingStream);
                 await db.SaveChangesAsync();
@@ -105,7 +105,7 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
                 await db.TransactionalAsync(async ctx =>
                 {
                     var repository = new DatastoreRepository(ctx);
-                    var service = new ExceptionService(Config.Instance, repository, Registry.Instance.MessageBodyStore);
+                    var service = new ExceptionService(_configuration, repository, _bodyStore);
 
                     InException entity =
                         context.SubmitMessage != null

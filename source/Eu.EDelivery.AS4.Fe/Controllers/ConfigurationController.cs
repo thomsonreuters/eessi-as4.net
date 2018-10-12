@@ -89,7 +89,7 @@ namespace Eu.EDelivery.AS4.Fe.Controllers
         [SwaggerResponse((int)HttpStatusCode.OK)]
         public IActionResult PostAuthorizationMap([FromBody] IEnumerable<PullRequestAuthorizationEntry> authorizationEntries)
         {
-            Config.Instance.PullRequestAuthorizationMapProvider.SavePullRequestAuthorizationEntries(authorizationEntries);
+            Registry.Instance.PullRequestAuthorizationMapProvider.SavePullRequestAuthorizationEntries(authorizationEntries);
             return new OkResult();
         }
 
@@ -102,7 +102,7 @@ namespace Eu.EDelivery.AS4.Fe.Controllers
         [SwaggerResponse((int)HttpStatusCode.OK, typeof(IEnumerable<PullRequestAuthorizationEntry>))]
         public IActionResult GetAuthorizationMap()
         {
-            return new OkObjectResult(Config.Instance.PullRequestAuthorizationMapProvider.GetPullRequestAuthorizationEntryOverview());
+            return new OkObjectResult(Registry.Instance.PullRequestAuthorizationMapProvider.GetPullRequestAuthorizationEntryOverview());
         }
 
         /// <summary>

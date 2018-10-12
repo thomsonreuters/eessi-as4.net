@@ -50,27 +50,20 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 return StepResult.Success(messagingContext);
             }
 
-            CompressAS4Message(messagingContext);
-
-            return await StepResult.SuccessAsync(messagingContext);
-        }
-
-        private static void CompressAS4Message(MessagingContext context)
-        {
             try
             {
-                Logger.Info(
-                    $"{context.LogTag} Compress AS4Message attachments with GZip compression");
-
-                context.AS4Message.CompressAttachments();
+                Logger.Info($"{messagingContext.LogTag} Compress AS4Message attachments with GZip compression");
+                messagingContext.AS4Message.CompressAttachments();
             }
             catch (SystemException exception)
             {
-                const string description = "(Receive) Attachments cannot be compressed because of an exception";
+                const string description = "Attachments cannot be compressed because of an exception";
                 Logger.Error(description);
 
                 throw new InvalidDataException(description, exception);
             }
+
+            return await StepResult.SuccessAsync(messagingContext);
         }
     }
 }

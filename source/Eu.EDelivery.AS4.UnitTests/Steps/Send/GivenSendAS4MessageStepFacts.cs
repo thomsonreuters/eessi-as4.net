@@ -41,13 +41,15 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
                     type: RetryType.Send));
 
             var ctx = new MessagingContext(
+                tobeSendMessage,
                 new ReceivedEntityMessage(
                     outMessage,
                     tobeSendMessage.ToStream(),
                     tobeSendMessage.ContentType),
-                MessagingContextMode.Send);
-            ctx.ModifyContext(tobeSendMessage);
-            ctx.SendingPMode = CreateSendPModeWithPushUrl();
+                MessagingContextMode.Send)
+            {
+                SendingPMode = CreateSendPModeWithPushUrl()
+            };
 
             var sabotageException = new WebException("Remote host not available");
             IStep sut = CreateSendStepWithResponse(
@@ -77,21 +79,27 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             AS4Message tobeSentMsg = AS4Message.Create(new FilledUserMessage(ebmsMessageId));
 
             var inserted = new OutMessage(ebmsMessageId: ebmsMessageId);
-            GetDataStoreContext.InsertOutMessage(inserted, withReceptionAwareness: false);
+            GetDataStoreContext.InsertOutMessage(inserted);
 
             var receivedMessage = new ReceivedEntityMessage(
                 inserted,
                 tobeSentMsg.ToStream(),
                 tobeSentMsg.ContentType);
 
-            var messagingContext = new MessagingContext(receivedMessage, MessagingContextMode.Send);
-            messagingContext.ModifyContext(tobeSentMsg);
-            MessagingContext ctx = messagingContext;
-            ctx.SendingPMode = CreateSendPModeWithPushUrl();
+            var ctx = new MessagingContext(
+                tobeSentMsg, 
+                receivedMessage,
+                MessagingContextMode.Send)
+                {
+                    SendingPMode = CreateSendPModeWithPushUrl()
+                };
+
+            AS4Message receiptMessage = 
+                AS4Message.Create(new Receipt($"receipt-{Guid.NewGuid()}"));
 
             // Act 
             IStep sut = CreateSendStepWithResponse(
-                StubHttpClient.ThatReturns(AS4Message.Create(new Receipt($"receipt-{Guid.NewGuid()}"))));
+                StubHttpClient.ThatReturns(receiptMessage));
 
             await sut.ExecuteAsync(ctx);
 

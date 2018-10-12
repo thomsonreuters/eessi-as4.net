@@ -9,7 +9,7 @@ using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Internal;
-using Eu.EDelivery.AS4.Receivers.Utilities;
+using Eu.EDelivery.AS4.Receivers.Datastore;
 using Microsoft.EntityFrameworkCore;
 using NLog;
 using Function =

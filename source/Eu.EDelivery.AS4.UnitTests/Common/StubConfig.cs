@@ -66,6 +66,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
 
         public override string InExceptionStoreLocation => String.Empty;
         public override string OutExceptionStoreLocation => String.Empty;
+        public override string AuthorizationMapPath => String.Empty;
+        public override string CertificateRepositoryType => String.Empty;
+        public override string DatabaseProvider => "InMemory";
+        public override string DatabaseConnectionString => String.Empty;
 
         /// <summary>
         /// Retrieve Setting from the Global Configurations

@@ -149,7 +149,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
                 foreach (SignalMessage signal in signalMessages.Where(s => !(s is PullRequest)))
                 {
-                    var ex = InException.ForEbmsMessageId(signal.MessageId, new System.Exception(occurredError.Description));
+                    var ex = InException.ForEbmsMessageId(signal.MessageId, occurredError.Description);
                     await ex.SetPModeInformationAsync(receivePMode);
 
                     Logger.Debug(

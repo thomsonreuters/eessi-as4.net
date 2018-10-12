@@ -43,8 +43,42 @@ namespace Eu.EDelivery.AS4.Model.Internal
         }
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="MessagingContext"/> class.
+        /// </summary>
+        /// <param name="as4Message"></param>
+        /// <param name="receivedMessage"></param>
+        /// <param name="mode"></param>
+        public MessagingContext(
+            AS4Message as4Message,
+            ReceivedMessage receivedMessage,
+            MessagingContextMode mode)
+        {
+            if (as4Message == null)
+            {
+                throw new ArgumentNullException(nameof(as4Message));
+            }
+
+            if (receivedMessage == null)
+            {
+                throw new ArgumentNullException(nameof(receivedMessage));
+            }
+
+            AS4Message = as4Message;
+            ReceivedMessage = receivedMessage;
+            Mode = mode;
+
+            SubmitMessage = null;
+            DeliverMessage = null;
+            NotifyMessage = null;
+
+            if (ReceivedMessage is ReceivedEntityMessage receivedEntityMessage)
+            {
+                MessageEntityId = receivedEntityMessage.Entity?.Id;
+            }
+        }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="MessagingContext" /> class.
-        /// Create an Internal Message with a given <see cref="Core.AS4Message" />
         /// </summary>
         /// <param name="as4Message"> </param>
         /// <param name="mode">The <see cref="MessagingContextMode"/> in which the context is currently acting</param>
