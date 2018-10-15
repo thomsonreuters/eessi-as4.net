@@ -94,8 +94,13 @@ namespace Eu.EDelivery.AS4.WindowsService.SystemTray
         {
             string appsettingsPath = 
                 Path.Combine(
-                    AppDomain.CurrentDomain.BaseDirectory, 
-                    "appsettings.inprocess.json");
+                    AppDomain.CurrentDomain.BaseDirectory,
+#if DEBUG
+                    "appsettings.Development.json"
+#else
+                    "appsettings.inprocess.json"
+#endif
+                    );
 
             if (File.Exists(appsettingsPath))
             {
