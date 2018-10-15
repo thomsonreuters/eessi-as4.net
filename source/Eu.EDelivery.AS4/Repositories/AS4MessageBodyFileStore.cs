@@ -154,7 +154,7 @@ namespace Eu.EDelivery.AS4.Repositories
                 File.SetAttributes(fileName, FileAttributes.NotContentIndexed);
 
                 ISerializer serializer = SerializerProvider.Default.Get(message.ContentType);
-                serializer.Serialize(message, content, CancellationToken.None);
+                serializer.Serialize(message, content);
             }
         }
 

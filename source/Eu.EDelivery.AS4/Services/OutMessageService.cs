@@ -104,7 +104,7 @@ namespace Eu.EDelivery.AS4.Services
                 AS4Message foundMessage = 
                     await Registry.Instance.SerializerProvider
                                   .Get(m.ContentType)
-                                  .DeserializeAsync(body, m.ContentType, CancellationToken.None);
+                                  .DeserializeAsync(body, m.ContentType);
 
                 foundMessages.Add(foundMessage);
             }

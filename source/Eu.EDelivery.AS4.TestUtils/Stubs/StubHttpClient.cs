@@ -109,7 +109,7 @@ namespace Eu.EDelivery.AS4.TestUtils.Stubs
         {
             var messageStream = new MemoryStream();
 
-            new SoapEnvelopeSerializer().Serialize(message, messageStream, CancellationToken.None);
+            new SoapEnvelopeSerializer().Serialize(message, messageStream);
             messageStream.Position = 0;
 
             return messageStream;

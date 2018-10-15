@@ -133,14 +133,10 @@ namespace Eu.EDelivery.AS4.Receivers.Http
             return new HttpResult(
                 status,
                 message.ContentType,
-                response =>
-                {
-                    WriteAS4MessageToResponse(message, response);
-                    return Task.FromResult(Task.CompletedTask);
-                });
+                async response => await WriteAS4MessageToResponseAsync(message, response));
         }
 
-        private static void WriteAS4MessageToResponse(AS4Message message, HttpListenerResponse response)
+        private static async Task WriteAS4MessageToResponseAsync(AS4Message message, HttpListenerResponse response)
         {
             try
             {
@@ -150,7 +146,7 @@ namespace Eu.EDelivery.AS4.Receivers.Http
                     {
                         ISerializer serializer = SerializerProvider.Default.Get(message.ContentType);
 
-                        serializer.Serialize(message, responseStream, CancellationToken.None);
+                        await serializer.SerializeAsync(message, responseStream);
                     }
                 }
             }

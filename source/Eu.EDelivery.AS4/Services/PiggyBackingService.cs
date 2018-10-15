@@ -76,7 +76,7 @@ namespace Eu.EDelivery.AS4.Services
                         await SerializerProvider
                               .Default
                               .Get(found.ContentType)
-                              .DeserializeAsync(body, found.ContentType, CancellationToken.None);
+                              .DeserializeAsync(body, found.ContentType);
 
                     if (signal.PrimaryMessageUnit is Receipt r)
                     {
