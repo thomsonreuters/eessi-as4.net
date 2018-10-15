@@ -124,7 +124,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Common
 
             if (config.IsInitialized == false)
             {
-                config.Initialize("settings.xml");
+                config.Initialize(@"config\settings.xml");
             }
 
             return config;
