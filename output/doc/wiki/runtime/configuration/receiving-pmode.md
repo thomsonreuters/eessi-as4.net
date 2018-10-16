@@ -53,8 +53,8 @@ This contract describes all the properties available in the Receiving PMode. The
                 O<br/><br/>
                 O<br/>
                 M<br/>
-                M<br/><br/>
-                M<br/><br/>
+                O<br/><br/>
+                O<br/><br/>
             </td>
             <td>
             <br/>
@@ -103,8 +103,8 @@ This contract describes all the properties available in the Receiving PMode. The
                 M<br/>
                 O<br/>
                 M<br/>
-                M<br/><br/>
-                M<br/><br/>
+                O<br/><br/>
+                O<br/><br/>
             </td>
             <td>
                 <br/>
