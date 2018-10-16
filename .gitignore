@@ -36,9 +36,6 @@ output/messages/out/
 output/messages/receipts/
 output/messages/errors/
 output/messages/exceptions/
-**/fe/**/dist
-**/fe/**/compiled
-**/fe/**/npm-debug*
 /source/PayloadServiceTests/Eu.EDelivery.AS4.PayloadService.UnitTests/Payloads
 
 # Visual Studio and Visual Studio Code cache/options directory
@@ -305,5 +302,6 @@ __pycache__/
 **/ui/dll/**
 **/dist/**
 *.ts.html
-/source/.axoCover
-/source/.axoCover
+**/ui/compiled/**
+**/ui/dist/**
+**/ui/npm-debug*
