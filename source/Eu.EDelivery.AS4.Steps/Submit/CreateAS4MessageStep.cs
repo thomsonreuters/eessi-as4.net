@@ -97,11 +97,11 @@ namespace Eu.EDelivery.AS4.Steps.Submit
             SubmitValidator
                 .Validate(submitMessage)
                 .Result(
-                    result => Logger.Trace($"SubmitMessage \"{submitMessage.MessageInfo.MessageId}\" is valid"),
+                    result => Logger.Trace($"SubmitMessage \"{submitMessage.MessageInfo?.MessageId}\" is valid"),
                     result =>
                     {
                         result.LogErrors(Logger);
-                        string description = $"SubmitMessage \"{submitMessage.MessageInfo.MessageId}\" was invalid, see logging";
+                        string description = $"SubmitMessage \"{submitMessage.MessageInfo?.MessageId}\" was invalid, see logging";
 
                         Logger.Error(description);
                         throw new InvalidMessageException(description);
@@ -111,7 +111,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
 
         private async Task<IEnumerable<Attachment>> RetrieveAttachmentsForAS4MessageAsync(IEnumerable<Payload> payloads)
         {
-            if (!payloads.Any())
+            if (payloads == null || !payloads.Any())
             {
                 Logger.Debug("SubmitMessage has no payloads to retrieve, so no will be added to the AS4Message");
                 return Enumerable.Empty<Attachment>();
@@ -120,30 +120,67 @@ namespace Eu.EDelivery.AS4.Steps.Submit
             try
             {
                 Logger.Trace("Start retrieving SubmitMessage payloads contents...");
-
-                var attachments = new Collection<Attachment>();
-                foreach (Payload payload in payloads)
-                {
-                    Stream content =
-                        await _payloadProvider
-                              .Get(payload)
-                              .RetrievePayloadAsync(payload.Location)
-                              .ConfigureAwait(false);
-
-                    attachments.Add(new Attachment(payload.Id, content, payload.MimeType));
-                }
-
+                IEnumerable<Attachment> attachments = await RetrieveAttachmentsAsync(payloads).ConfigureAwait(false);
                 Logger.Trace($"Successfully retrieved {attachments.Count()} payloads");
-                return attachments.AsEnumerable();
+
+                return attachments;
             }
             catch (Exception exception)
             {
-                const string description = "(Submit) Failed to retrieve SubmitMessage payloads";
+                const string description = "Failed to retrieve SubmitMessage payloads";
                 Logger.Error(description);
                 Logger.Error(exception);
 
                 throw new ApplicationException(description, exception);
             }
+        }
+
+        private async Task<IEnumerable<Attachment>> RetrieveAttachmentsAsync(IEnumerable<Payload> payloads)
+        {
+            var attachments = new Collection<Attachment>();
+            foreach (Payload payload in payloads)
+            {
+                if (payload == null)
+                {
+                    Logger.Warn("Submit payload cannot be retrieved because it was 'null'");
+                    continue;
+                }
+
+                IEnumerable<string> missingValues =
+                    new[]
+                    {
+                        payload.Id == null ? "Id" : null,
+                        payload.Location == null ? "Location" : null,
+                        payload.MimeType == null ? "MimeType" : null
+                    }.Where(s => s != null)
+                     .Select(s => $"'{s}'");
+
+                if (missingValues.Any())
+                {
+                    Logger.Warn(
+                        $"Submit payload {{Id={payload.Id ?? "<null>"}}} "
+                        + "cannot be retrieved because it hasn't got a "
+                        + String.Join(", ", missingValues));
+
+                    continue;
+                }
+
+                Stream content =
+                    await _payloadProvider
+                        .Get(payload)
+                        .RetrievePayloadAsync(payload.Location)
+                        .ConfigureAwait(false);
+
+                if (content == null)
+                {
+                    Logger.Warn($"Skip Submit payload {payload.Id} because retrieved content was 'null'");
+                    continue;
+                }
+
+                attachments.Add(new Attachment(payload.Id, content, payload.MimeType));
+            }
+
+            return attachments;
         }
     }
 }
