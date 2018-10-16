@@ -91,7 +91,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
 
             using (var memoryStream = new MemoryStream())
             {
-                serializer.Serialize(msg, memoryStream, CancellationToken.None);
+                serializer.Serialize(msg, memoryStream);
                 return memoryStream.ToArray();
             }
         }

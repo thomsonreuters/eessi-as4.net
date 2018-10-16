@@ -188,7 +188,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                     res.StatusCode = 200;
                     res.ContentType = Constants.ContentTypes.Soap;
                     AS4Message receipt = CreateMultiHopReceiptFor(as4Message);
-                    serializer.Serialize(receipt, res.OutputStream, CancellationToken.None);
+                    serializer.Serialize(receipt, res.OutputStream);
                 },
                 signal);
 

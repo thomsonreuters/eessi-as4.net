@@ -344,7 +344,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             {
                 var serializer = new MimeMessageSerializer(new SoapEnvelopeSerializer());
                 var memory = new VirtualStream(VirtualStream.MemoryFlag.AutoOverFlowToDisk);
-                serializer.Serialize(signedUserMessage, memory, CancellationToken.None);
+                serializer.Serialize(signedUserMessage, memory);
                 memory.Position = 0;
 
                 return memory;
@@ -358,17 +358,17 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             serializer.Serialize(msg, memory, CancellationToken.None);
             memory.Position = 0;
 
-            return serializer.DeserializeAsync(memory, msg.ContentType, CancellationToken.None);
+            return serializer.DeserializeAsync(memory, msg.ContentType);
         }
 
         private static Task<AS4Message> SerializeDeserializeSoap(AS4Message msg)
         {
             var serializer = new SoapEnvelopeSerializer();
             var memory = new MemoryStream();
-            serializer.Serialize(msg, memory, CancellationToken.None);
+            serializer.Serialize(msg, memory);
             memory.Position = 0;
 
-            return serializer.DeserializeAsync(memory, msg.ContentType, CancellationToken.None);
+            return serializer.DeserializeAsync(memory, msg.ContentType);
         }
 
         private static async Task<AS4Message> SignedUserMessage(string messageId)
@@ -389,7 +389,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 "multipart/related; boundary=\"=-dXYE+NJdacou7AbmYZgUPw==\"; type=\"application/soap+xml\"; charset=\"utf-8\"";
 
             AS4Message as4Message = 
-                await serializer.DeserializeAsync(memoryStream, contentType, CancellationToken.None);
+                await serializer.DeserializeAsync(memoryStream, contentType);
 
             return new MessagingContext(as4Message, MessagingContextMode.Unknown);
         }

@@ -28,6 +28,16 @@ namespace Eu.EDelivery.AS4.Fe.Tests.TestData
             throw new NotImplementedException();
         }
 
+        public Task SaveSubmitSettings(SettingsSubmit settings)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task SavePullSendSettings(SettingsPullSend settings)
+        {
+            throw new NotImplementedException();
+        }
+
         public Task CreateAgent(AgentSettings settingsAgent, Func<SettingsAgents, AgentSettings[]> getAgents, Action<SettingsAgents, AgentSettings[]> setAgents)
         {
             throw new NotImplementedException();

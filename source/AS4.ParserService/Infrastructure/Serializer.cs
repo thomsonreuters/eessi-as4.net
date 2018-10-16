@@ -17,7 +17,7 @@ namespace AS4.ParserService.Infrastructure
             using (var stream = new MemoryStream())
             {
                 var serializer = SerializerProvider.Default.Get(message.ContentType);
-                serializer.Serialize(message, stream, CancellationToken.None);
+                serializer.Serialize(message, stream);
 
                 return stream.ToArray();
             }

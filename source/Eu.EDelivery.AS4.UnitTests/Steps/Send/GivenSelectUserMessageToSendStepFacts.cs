@@ -77,8 +77,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
                 .Get(context.ReceivedMessage.ContentType)
                 .DeserializeAsync(
                     context.ReceivedMessage.UnderlyingStream, 
-                    context.ReceivedMessage.ContentType, 
-                    CancellationToken.None);
+                    context.ReceivedMessage.ContentType);
         }
 
         private async Task<StepResult> ExerciseSelection(string expectedMpc)

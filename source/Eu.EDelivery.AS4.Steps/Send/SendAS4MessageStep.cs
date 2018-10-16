@@ -110,8 +110,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
                         .Get(rm.ContentType)
                         .DeserializeAsync(
                               rm.UnderlyingStream,
-                              rm.ContentType,
-                              CancellationToken.None)
+                              rm.ContentType)
                         .ConfigureAwait(false);
 
                 // TODO: the serializer already does this?
@@ -224,10 +223,10 @@ namespace Eu.EDelivery.AS4.Steps.Send
                     }
                     else
                     {
-                        SerializerProvider
+                        await SerializerProvider
                             .Default
                             .Get(request.ContentType)
-                            .Serialize(ctx.AS4Message, requestStream, CancellationToken.None);
+                            .SerializeAsync(ctx.AS4Message, requestStream);
                     }
                 }
 

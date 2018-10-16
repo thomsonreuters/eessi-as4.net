@@ -247,7 +247,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                     {
                         SerializerProvider.Default
                             .Get(bundled.ContentType)
-                            .Serialize(bundled, output, CancellationToken.None);
+                            .Serialize(bundled, output);
                     }
                 });
 

@@ -40,43 +40,54 @@ namespace Eu.EDelivery.AS4.Serialization
             Encoding = new UTF8Encoding(false)
         };
 
-        public Task SerializeAsync(AS4Message message, Stream stream, CancellationToken cancellationToken)
+        /// <summary>
+        /// Asynchronously serializes the given <see cref="AS4Message"/> to a given <paramref name="output"/> stream.
+        /// </summary>
+        /// <param name="message">The message to serialize.</param>
+        /// <param name="output">The destination stream to where the message should be written.</param>
+        /// <param name="cancellation">The token to control the cancellation of the serialization.</param>
+        public Task SerializeAsync(
+            AS4Message message, 
+            Stream output, 
+            CancellationToken cancellation = default(CancellationToken))
         {
             if (message == null)
             {
                 throw new ArgumentNullException(nameof(message));
             }
 
-            if (stream == null)
+            if (output == null)
             {
-                throw new ArgumentNullException(nameof(stream));
+                throw new ArgumentNullException(nameof(output));
             }
 
-            return Task.Run(() => this.Serialize(message, stream, cancellationToken), cancellationToken);
+            return Task.Run(() => Serialize(message, output, cancellation), cancellation);
         }
 
         /// <summary>
-        /// Serialize SOAP Envelope to a <see cref="Stream" />
+        /// Synchronously serializes the given <see cref="AS4Message"/> to a given <paramref name="output"/> stream.
         /// </summary>
-        /// <param name="message"></param>
-        /// <param name="stream"></param>
-        /// <param name="cancellationToken"></param>
-        public void Serialize(AS4Message message, Stream stream, CancellationToken cancellationToken)
+        /// <param name="message">The message to serialize.</param>
+        /// <param name="output">The destination stream to where the message should be written.</param>
+        /// <param name="cancellation">The token to control the cancellation of the serialization.</param>
+        public void Serialize(
+            AS4Message message, 
+            Stream output, 
+            CancellationToken cancellation = default(CancellationToken))
         {
             if (message == null)
             {
                 throw new ArgumentNullException(nameof(message));
             }
 
-            if (stream == null)
+            if (output == null)
             {
-                throw new ArgumentNullException(nameof(stream));
+                throw new ArgumentNullException(nameof(output));
             }
 
             var builder = new SoapEnvelopeBuilder(message.EnvelopeDocument);
 
             XmlNode securityHeader = GetSecurityHeader(message);
-
             if (securityHeader != null)
             {
                 builder.SetSecurityHeader(securityHeader);
@@ -92,7 +103,10 @@ namespace Eu.EDelivery.AS4.Serialization
                 builder.SetMessagingBody(message.SigningId.BodySecurityId);
             }
 
-            WriteSoapEnvelopeTo(builder.Build(), stream);
+            using (XmlWriter writer = XmlWriter.Create(output, DefaultXmlWriterSettings))
+            {
+                builder.Build().WriteTo(writer);
+            }
         }
 
         private static Messaging CreateMessagingHeader(AS4Message message)
@@ -127,7 +141,8 @@ namespace Eu.EDelivery.AS4.Serialization
 
         private static XmlNode GetSecurityHeader(AS4Message message)
         {
-            if (message.SecurityHeader.IsSigned == false && message.SecurityHeader.IsEncrypted == false)
+            if (message.SecurityHeader.IsSigned == false 
+                && message.SecurityHeader.IsEncrypted == false)
             {
                 return null;
             }
@@ -158,26 +173,20 @@ namespace Eu.EDelivery.AS4.Serialization
             }
         }
 
-        private static void WriteSoapEnvelopeTo(XmlNode soapEnvelopeDocument, Stream stream)
-        {
-            using (XmlWriter writer = XmlWriter.Create(stream, DefaultXmlWriterSettings))
-            {
-                soapEnvelopeDocument.WriteTo(writer);
-            }
-        }
-
         /// <summary>
-        /// Parser the SOAP message to a <see cref="AS4Message" />
+        /// Asynchronously deserializes the given <paramref name="input"/> stream to an <see cref="AS4Message"/> model.
         /// </summary>
-        /// <param name="envelopeStream">RequestStream that contains the SOAP Messaging Header</param>
-        /// <param name="contentType"></param>
-        /// <param name="token"></param>
-        /// <returns><see cref="AS4Message" /> that wraps the User and Signal Messages</returns>
-        public async Task<AS4Message> DeserializeAsync(Stream envelopeStream, string contentType, CancellationToken token)
+        /// <param name="input">The source stream from where the message should be read.</param>
+        /// <param name="contentType">The content type required to correctly deserialize the message into different MIME parts.</param>
+        /// <param name="cancellation">The token to control the cancellation of the deserialization.</param>
+        public async Task<AS4Message> DeserializeAsync(
+            Stream input, 
+            string contentType, 
+            CancellationToken cancellation = default(CancellationToken))
         {
-            if (envelopeStream == null)
+            if (input == null)
             {
-                throw new ArgumentNullException(nameof(envelopeStream));
+                throw new ArgumentNullException(nameof(input));
             }
 
             if (contentType == null)
@@ -185,63 +194,34 @@ namespace Eu.EDelivery.AS4.Serialization
                 throw new ArgumentNullException(nameof(contentType));
             }
 
-            XmlDocument envelopeDocument = LoadXmlDocument(envelopeStream);
+            var envelopeDocument = new XmlDocument { PreserveWhitespace = true };
+            envelopeDocument.Load(input);
 
             // Sometimes throws 'The 'http://www.w3.org/XML/1998/namespace:lang' attribute is not declared.'
             // ValidateEnvelopeDocument(envelopeDocument);
 
-            var nsMgr = GetNamespaceManagerForDocument(envelopeDocument);
+            XmlNamespaceManager nsMgr = GetNamespaceManagerForDocument(envelopeDocument);
 
-            var securityHeader = DeserializeSecurityHeader(envelopeDocument, nsMgr);
-            var messagingHeader = DeserializeMessagingHeader(envelopeDocument, nsMgr);
-            var body = DeserializeBody(envelopeDocument, nsMgr);
+            SecurityHeader securityHeader = DeserializeSecurityHeader(envelopeDocument, nsMgr);
+            Messaging messagingHeader = DeserializeMessagingHeader(envelopeDocument, nsMgr);
+            Body1 body = DeserializeBody(envelopeDocument, nsMgr);
 
             if (messagingHeader == null)
             {
                 throw new InvalidMessageException("The envelopeStream does not contain a Messaging element");
             }
 
-            AS4Message as4Message = await AS4Message.CreateAsync(envelopeDocument, contentType, securityHeader, messagingHeader, body);
+            AS4Message as4Message = 
+                await AS4Message.CreateAsync(
+                    envelopeDocument, 
+                    contentType, 
+                    securityHeader, 
+                    messagingHeader, 
+                    body);
 
-            StreamUtilities.MovePositionToStreamStart(envelopeStream);
+            StreamUtilities.MovePositionToStreamStart(input);
 
             return as4Message;
-        }
-
-        private void ValidateEnvelopeDocument(XmlDocument envelopeDocument)
-        {
-            var schemas = new XmlSchemaSet();
-            XmlSchema schema = GetEnvelopeSchema();
-            schemas.Add(schema);
-            envelopeDocument.Schemas = schemas;
-
-            envelopeDocument.Validate(
-                (sender, args) => LogManager.GetCurrentClassLogger().Error($"Invalid ebMS Envelope Document: {args.Message}"));
-
-            Logger.Debug("Valid ebMS Envelope Document");
-        }
-
-        private static XmlSchema __envelopeSchema;
-
-        private static XmlSchema GetEnvelopeSchema()
-        {
-            if (__envelopeSchema == null)
-            {
-                using (var stringReader = new StringReader(Schemas.Soap12))
-                {
-                    __envelopeSchema = XmlSchema.Read(stringReader, (sender, args) => { });
-                }
-            }
-
-            return __envelopeSchema;
-        }
-
-        private static XmlDocument LoadXmlDocument(Stream stream)
-        {
-            var document = new XmlDocument { PreserveWhitespace = true };
-            document.Load(stream);
-
-            return document;
         }
 
         private static XmlNamespaceManager GetNamespaceManagerForDocument(XmlDocument doc)
@@ -259,14 +239,14 @@ namespace Eu.EDelivery.AS4.Serialization
 
         private static SecurityHeader DeserializeSecurityHeader(XmlDocument envelopeDocument, XmlNamespaceManager nsMgr)
         {
-            var securityHeader = envelopeDocument.SelectSingleNode("/s:Envelope/s:Header/wsse:Security", nsMgr) as XmlElement;
-
-            if (securityHeader == null)
+            if (envelopeDocument.SelectSingleNode("/s:Envelope/s:Header/wsse:Security", nsMgr) 
+                is XmlElement securityHeader)
             {
-                return new SecurityHeader();
+                return new SecurityHeader(securityHeader);
             }
 
-            return new SecurityHeader(securityHeader);
+            return new SecurityHeader();
+
         }
 
         private static Messaging DeserializeMessagingHeader(XmlDocument document, XmlNamespaceManager nsMgr)
@@ -349,18 +329,18 @@ namespace Eu.EDelivery.AS4.Serialization
             throw new NotSupportedException("Unable to map Xml.SignalMessage to SignalMessage");
         }
 
+        // ReSharper disable once InconsistentNaming - only used here.
+        private static readonly XmlSerializer __bodySerializer = new XmlSerializer(typeof(Body1));
+
         private static Body1 DeserializeBody(XmlDocument envelopeDocument, XmlNamespaceManager nsMgr)
         {
-            var bodyElement = envelopeDocument.SelectSingleNode("/s:Envelope/s:Body", nsMgr);
-
+            XmlNode bodyElement = envelopeDocument.SelectSingleNode("/s:Envelope/s:Body", nsMgr);
             if (bodyElement == null)
             {
                 return null;
             }
 
-            XmlSerializer s = new XmlSerializer(typeof(Body1));
-            var result = s.Deserialize(new XmlNodeReader(bodyElement));
-
+            object result = __bodySerializer.Deserialize(new XmlNodeReader(bodyElement));
             return result as Body1;
         }
     }

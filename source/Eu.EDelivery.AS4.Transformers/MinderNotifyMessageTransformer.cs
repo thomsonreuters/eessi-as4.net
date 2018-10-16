@@ -99,7 +99,7 @@ namespace Eu.EDelivery.AS4.Transformers
 
             using (var memoryStream = new MemoryStream())
             {
-                serializer.Serialize(msg, memoryStream, CancellationToken.None);
+                serializer.Serialize(msg, memoryStream);
                 content = memoryStream.ToArray();
             }
 
@@ -132,7 +132,7 @@ namespace Eu.EDelivery.AS4.Transformers
                         stream.Position = 0;
                         var s = SerializerProvider.Default.Get(ent.ContentType);
                         var result =
-                            await s.DeserializeAsync(stream, ent.ContentType, CancellationToken.None);
+                            await s.DeserializeAsync(stream, ent.ContentType);
 
                         if (result != null)
                         {

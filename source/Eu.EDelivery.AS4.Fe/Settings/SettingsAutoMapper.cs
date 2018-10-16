@@ -10,6 +10,10 @@ namespace Eu.EDelivery.AS4.Fe.Settings
         {
             CreateMap<BaseSettings, Model.Internal.Settings>();
             CreateMap<Model.Internal.Settings, BaseSettings>();
+            CreateMap<SettingsSubmit, Model.Internal.Settings>();
+            CreateMap<SettingsSubmit, SettingsSubmit>();
+            CreateMap<SettingsPullSend, Model.Internal.Settings>();
+            CreateMap<SettingsPullSend, SettingsPullSend>();
             CreateMap<CustomSettings, Model.Internal.Settings>();
             CreateMap<CustomSettings, CustomSettings>();
             CreateMap<SettingsDatabase, SettingsDatabase>();

@@ -309,7 +309,7 @@ namespace Eu.EDelivery.AS4.Model.Core
 
             using (var stream = new DetermineSizeStream())
             {
-                serializer.Serialize(this, stream, CancellationToken.None);
+                serializer.Serialize(this, stream);
 
                 return stream.Length;
             }
