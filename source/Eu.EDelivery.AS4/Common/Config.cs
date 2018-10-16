@@ -86,7 +86,7 @@ namespace Eu.EDelivery.AS4.Common
         /// Gets the location where the payloads should be retrieved.
         /// </summary>
         public string PayloadRetrievalLocation =>
-            OnlyAfterInitialized(() => _settings?.Submit?.PayloadRetrievalLocation ?? @"file:///.\messages\attachments");
+            OnlyAfterInitialized(() => _settings?.Submit?.PayloadRetrievalPath ?? @"file:///.\messages\attachments");
 
         /// <summary>
         /// Gets the file path from where the authorization entries to verify PullRequests should be stored.

@@ -7,6 +7,15 @@
         <i class="fa fa-save" [class.active]="baseSettings.isDirty | async"></i>
     </button>
 </as4-box>
+<as4-box [title]="'Submit Agent settings'">
+    <div content>
+        <as4-submit-settings [settings]="settings && settings.submit" #submitSettings #dirtycheck></as4-submit-settings>
+    </div>
+    <button data-cy="submit-save" [disabled]="!(submitSettings.isDirty | async)" action type="button" class="btn btn-box-tool"
+        (click)="submitSettings.save()">
+        <i class="fa fa-save" [class.active]="submitSettings.isDirty | async"></i>
+    </button>
+</as4-box>
 <as4-box [title]="'Pull Send Agents settings'">
     <div content>
         <as4-pullsend-settings [settings]="settings && settings.pullSend" #pullSendSettings #dirtycheck></as4-pullsend-settings>
