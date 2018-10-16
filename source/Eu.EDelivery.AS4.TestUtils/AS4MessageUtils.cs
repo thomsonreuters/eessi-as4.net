@@ -37,11 +37,11 @@ namespace Eu.EDelivery.AS4.TestUtils
 
             using (var targetStream = new MemoryStream())
             {
-                serializer.Serialize(message, targetStream, CancellationToken.None);
+                serializer.Serialize(message, targetStream);
 
                 targetStream.Position = 0;
 
-                return await serializer.DeserializeAsync(targetStream, message.ContentType, CancellationToken.None);
+                return await serializer.DeserializeAsync(targetStream, message.ContentType);
             }
         }
 
@@ -52,7 +52,7 @@ namespace Eu.EDelivery.AS4.TestUtils
                 SerializerProvider
                     .Default
                     .Get(m.ContentType)
-                    .Serialize(m, fs, CancellationToken.None);
+                    .Serialize(m, fs);
             }
         }
     }

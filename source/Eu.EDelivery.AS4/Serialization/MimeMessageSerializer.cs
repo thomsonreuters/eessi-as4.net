@@ -22,6 +22,17 @@ namespace Eu.EDelivery.AS4.Serialization
         private readonly ISerializer _soapSerializer;
 
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+        private static readonly Lazy<FormatOptions> FormatOptions =
+            new Lazy<FormatOptions>(() =>
+            {
+                var options = new FormatOptions();
+                foreach (HeaderId headerId in Enum.GetValues(typeof(HeaderId)).Cast<HeaderId>())
+                {
+                    options.HiddenHeaders.Add(headerId);
+                }
+
+                return options;
+            }, LazyThreadSafetyMode.PublicationOnly);
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MimeMessageSerializer"/> class. 
@@ -39,42 +50,77 @@ namespace Eu.EDelivery.AS4.Serialization
             _soapSerializer = serializer;
         }
 
-        public Task SerializeAsync(AS4Message message, Stream stream, CancellationToken cancellationToken)
-        {
-            if (message == null)
-            {
-                throw new ArgumentNullException(nameof(message));
-            }
-
-            if (stream == null)
-            {
-                throw new ArgumentNullException(nameof(stream));
-            }
-
-            return Task.Run(() => Serialize(message, stream, cancellationToken), cancellationToken);
-        }
-
         /// <summary>
-        /// Serialize <see cref="AS4Message" /> to a <see cref="Stream" />
+        /// Asynchronously serializes the given <see cref="AS4Message"/> to a given <paramref name="output"/> stream.
         /// </summary>
-        /// <param name="message"></param>
-        /// <param name="stream"></param>
-        /// <param name="cancellationToken"></param>
-        public void Serialize(AS4Message message, Stream stream, CancellationToken cancellationToken)
+        /// <param name="message">The message to serialize.</param>
+        /// <param name="output">The destination stream to where the message should be written.</param>
+        /// <param name="cancellation">The token to control the cancellation of the serialization.</param>
+        public async Task SerializeAsync(
+            AS4Message message, 
+            Stream output, 
+            CancellationToken cancellation = default(CancellationToken))
         {
             if (message == null)
             {
                 throw new ArgumentNullException(nameof(message));
             }
 
-            if (stream == null)
+            if (output == null)
             {
-                throw new ArgumentNullException(nameof(stream));
+                throw new ArgumentNullException(nameof(output));
             }
 
             try
             {
-                SerializeToMimeStream(message, stream, cancellationToken);
+                await SerializeToMimeStreamAsync(message, output, cancellation);
+            }
+            catch (Exception exception)
+            {
+                throw new FormatException("An error occured while serializing the MIME message", exception);
+            }
+        }
+
+        private async Task SerializeToMimeStreamAsync(AS4Message message, Stream stream, CancellationToken cancellationToken)
+        {
+            using (var bodyPartStream = new MemoryStream(4096))
+            {
+                _soapSerializer.Serialize(message, bodyPartStream, cancellationToken);
+
+                MimeMessage mimeMessage = CreateMimeMessage(message, bodyPartStream);
+                foreach (Attachment attachment in message.Attachments)
+                {
+                    AddAttachmentToMultipart((Multipart) mimeMessage.Body, attachment);
+                }
+
+                await mimeMessage.WriteToAsync(FormatOptions.Value, stream, cancellationToken);
+            }
+        }
+
+        /// <summary>
+        /// Synchronously serializes the given <see cref="AS4Message"/> to a given <paramref name="output"/> stream.
+        /// </summary>
+        /// <param name="message">The message to serialize.</param>
+        /// <param name="output">The destination stream to where the message should be written.</param>
+        /// <param name="cancellation">The token to control the cancellation of the serialization.</param>
+        public void Serialize(
+            AS4Message message, 
+            Stream output, 
+            CancellationToken cancellation = default(CancellationToken))
+        {
+            if (message == null)
+            {
+                throw new ArgumentNullException(nameof(message));
+            }
+
+            if (output == null)
+            {
+                throw new ArgumentNullException(nameof(output));
+            }
+
+            try
+            {
+                SerializeToMimeStream(message, output, cancellation);
             }
             catch (Exception exception)
             {
@@ -87,49 +133,29 @@ namespace Eu.EDelivery.AS4.Serialization
             using (var bodyPartStream = new MemoryStream(4096))
             {
                 _soapSerializer.Serialize(message, bodyPartStream, cancellationToken);
-
                 MimeMessage mimeMessage = CreateMimeMessage(message, bodyPartStream);
-                FormatOptions formatOptions = GetFormatOptions();
 
-                mimeMessage.WriteTo(formatOptions, stream, cancellationToken);
+                foreach (Attachment attachment in message.Attachments)
+                {
+                    AddAttachmentToMultipart((Multipart) mimeMessage.Body, attachment);
+                }
+
+                mimeMessage.WriteTo(FormatOptions.Value, stream, cancellationToken);
             }
         }
 
-        private static MimeMessage CreateMimeMessage(AS4Message message, Stream bodyPartStream)
-        {
-            MimePart bodyPart = GetBodyPartFromStream(bodyPartStream);
-            Multipart bodyMultipart = CreateMultiPartFromBodyPart(bodyPart);
-
-            var mimeMessage = new MimeMessage { Body = bodyMultipart };
-            ReassignContentType(bodyMultipart, message.ContentType);
-            AddAttachmentsToBodyMultiPart(message, bodyMultipart);
-
-            return mimeMessage;
-        }
-
-        private static void AddAttachmentsToBodyMultiPart(AS4Message message, Multipart bodyMultipart)
-        {
-            foreach (Attachment attachment in message.Attachments)
-            {
-                AddAttachmentToMultipart(bodyMultipart, attachment);
-            }
-        }
-
-        private static MimePart GetBodyPartFromStream(Stream stream)
+        private static MimeMessage CreateMimeMessage(AS4Message message ,Stream bodyPartStream)
         {
             var bodyPart = new MimePart("application", "soap+xml");
             bodyPart.ContentType.Parameters["charset"] = Encoding.UTF8.HeaderName.ToLowerInvariant();
-            bodyPart.ContentObject = new ContentObject(stream);
+            bodyPart.ContentObject = new ContentObject(bodyPartStream);
 
-            return bodyPart;
-        }
-
-        private static Multipart CreateMultiPartFromBodyPart(MimeEntity bodyPart)
-        {
             var bodyMultipart = new Multipart("related") { bodyPart };
             bodyMultipart.ContentType.Parameters["type"] = bodyPart.ContentType.MimeType;
 
-            return bodyMultipart;
+            ReassignContentType(bodyMultipart, message.ContentType);
+
+            return new MimeMessage { Body = bodyMultipart };
         }
 
         private static void ReassignContentType(MimeEntity bodyMultipart, string type)
@@ -144,11 +170,6 @@ namespace Eu.EDelivery.AS4.Serialization
             bodyMultipart.ContentType.Name = contentType.Name;
             bodyMultipart.ContentType.Parameters.Clear();
 
-            AddHeaderParametersToBodyMultiPart(bodyMultipart, contentType);
-        }
-
-        private static void AddHeaderParametersToBodyMultiPart(MimeEntity bodyMultipart, ContentType contentType)
-        {
             foreach (Parameter item in contentType.Parameters)
             {
                 bodyMultipart.ContentType.Parameters.Add(item);
@@ -159,7 +180,6 @@ namespace Eu.EDelivery.AS4.Serialization
         {
             // A stream that is passed to a ContentObject must be seekable.  If this is not the case,
             // we'll have to create a new stream which is seekable and assign it to the Attachment.Content.
-
             if (attachment.Content.CanSeek == false)
             {
                 var tempStream = new VirtualStream(forAsync: true);
@@ -184,43 +204,25 @@ namespace Eu.EDelivery.AS4.Serialization
             }
             catch (ArgumentException ex)
             {
-                LogManager.GetCurrentClassLogger().Error(ex);
+                Logger.Error(ex);
                 throw new NotSupportedException($"Attachment {attachment.Id} has a content-type that is not supported ({attachment.ContentType}).");
             }
         }
 
-        // ReSharper disable once InconsistentNaming : double underscore to indicate that this field should not be used directly.
-        private static FormatOptions __formatOptions;
-
-        private static FormatOptions GetFormatOptions()
-        {
-            if (__formatOptions == null)
-            {
-                __formatOptions = new FormatOptions();
-                foreach (HeaderId headerId in Enum.GetValues(typeof(HeaderId)).Cast<HeaderId>())
-                {
-                    __formatOptions.HiddenHeaders.Add(headerId);
-                }
-            }
-
-            return __formatOptions;
-        }
-
         /// <summary>
-        /// Parse the MIME message to a <see cref="AS4Message" />
+        /// Asynchronously deserializes the given <paramref name="input"/> stream to an <see cref="AS4Message"/> model.
         /// </summary>
-        /// <param name="inputStream">RequestStream that contains the MIME message</param>
-        /// <param name="contentType">Multi-Part Content ExceptionType</param>
-        /// <param name="cancellationToken"></param>
-        /// <returns><see cref="AS4Message" /> that wraps the Envelope and Payloads Streams</returns>
+        /// <param name="input">The source stream from where the message should be read.</param>
+        /// <param name="contentType">The content type required to correctly deserialize the message into different MIME parts.</param>
+        /// <param name="cancellation">The token to control the cancellation of the deserialization.</param>
         public async Task<AS4Message> DeserializeAsync(
-            Stream inputStream,
+            Stream input,
             string contentType,
-            CancellationToken cancellationToken)
+            CancellationToken cancellation = default(CancellationToken))
         {
-            if (inputStream == null)
+            if (input == null)
             {
-                throw new ArgumentNullException(nameof(inputStream));
+                throw new ArgumentNullException(nameof(input));
             }
 
             if (contentType == null)
@@ -233,11 +235,11 @@ namespace Eu.EDelivery.AS4.Serialization
 
             var chainedStream = new ChainedStream();
             chainedStream.Add(memoryStream, leaveOpen: false);
-            chainedStream.Add(inputStream, leaveOpen: true);
+            chainedStream.Add(input, leaveOpen: true);
 
             try
             {
-                return await ParseStreamToAS4MessageAsync(chainedStream, contentType, cancellationToken).ConfigureAwait(false);
+                return await ParseStreamToAS4MessageAsync(chainedStream, contentType, cancellation).ConfigureAwait(false);
             }
             finally
             {

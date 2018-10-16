@@ -56,7 +56,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Strategies
 
             using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(soapEnvelopeString)))
             {
-                return await serializer.DeserializeAsync(stream, "soap/xml", CancellationToken.None);
+                return await serializer.DeserializeAsync(stream, "soap/xml");
             }
         }
 

@@ -155,7 +155,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
             AS4Message result = await SerializerProvider.Default
                 .Get(Constants.ContentTypes.Soap)
-                .DeserializeAsync(await response.Content.ReadAsStreamAsync(), Constants.ContentTypes.Soap, CancellationToken.None);
+                .DeserializeAsync(await response.Content.ReadAsStreamAsync(), Constants.ContentTypes.Soap);
 
             var errorMsg = result.FirstSignalMessage as Error;
             Assert.NotNull(errorMsg);
@@ -194,7 +194,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
             var contentType = response.Content.Headers.ContentType.MediaType;
             var result = await SerializerProvider.Default.Get(contentType)
-                                        .DeserializeAsync(await response.Content.ReadAsStreamAsync(), contentType, CancellationToken.None);
+                                        .DeserializeAsync(await response.Content.ReadAsStreamAsync(), contentType);
 
             Assert.True(result.IsSignalMessage);
 
@@ -614,7 +614,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
             AS4Message savedMessage = await SerializerProvider.Default
                 .Get(inMessage.ContentType)
-                .DeserializeAsync(messageBody, inMessage.ContentType, CancellationToken.None);
+                .DeserializeAsync(messageBody, inMessage.ContentType);
 
             Assert.NotNull(savedMessage.EnvelopeDocument.SelectSingleNode("//*[local-name()='RoutingInput']"));
         }

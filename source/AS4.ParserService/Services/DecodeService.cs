@@ -182,7 +182,7 @@ namespace AS4.ParserService.Services
             try
             {
                 var deserializer = SerializerProvider.Default.Get(contentType);
-                return await deserializer.DeserializeAsync(receivedStream, contentType, CancellationToken.None);
+                return await deserializer.DeserializeAsync(receivedStream, contentType);
             }
             catch (Exception ex)
             {

@@ -20,7 +20,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Extensions
             var memoryStream = new MemoryStream();
 
             ISerializer serializer = SerializerProvider.Default.Get(message.ContentType);
-            serializer.Serialize(message, memoryStream, CancellationToken.None);
+            serializer.Serialize(message, memoryStream);
 
             memoryStream.Position = 0;
             return memoryStream;

@@ -91,7 +91,7 @@ namespace Eu.EDelivery.AS4.Steps.Forward
                 AS4Message msg =
                     await SerializerProvider.Default
                         .Get(receivedInMessage.ContentType)
-                        .DeserializeAsync(originalInMessage, receivedInMessage.ContentType, CancellationToken.None);
+                        .DeserializeAsync(originalInMessage, receivedInMessage.ContentType);
 
                 using (DatastoreContext dbContext = _createDataStoreContext())
                 {

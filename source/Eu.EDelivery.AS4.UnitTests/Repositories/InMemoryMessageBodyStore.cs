@@ -51,7 +51,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Repositories
 
             var serializer = SerializerProvider.Default.Get(message.ContentType);
             var stream = new MemoryStream();
-            serializer.Serialize(message, stream, CancellationToken.None);
+            serializer.Serialize(message, stream);
 
             _store.Add(id, stream);
 

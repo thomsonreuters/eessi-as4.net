@@ -81,7 +81,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                 {
                     var sut = new SoapEnvelopeSerializer();
                     await Assert.ThrowsAsync<ArgumentNullException>(
-                        () => sut.DeserializeAsync(input, Constants.ContentTypes.Soap, CancellationToken.None));
+                        () => sut.DeserializeAsync(input, Constants.ContentTypes.Soap));
                 }
             }
 
@@ -96,7 +96,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                     var sut = new SoapEnvelopeSerializer();
 
                     // Act
-                    sut.Serialize(as4Message, messageStream, CancellationToken.None);
+                    sut.Serialize(as4Message, messageStream);
 
                     // Assert
                     messageStream.Position = 0;
@@ -188,7 +188,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
 
             private static Task<AS4Message> DeserializeAsSoap(Stream str)
             {
-                return new SoapEnvelopeSerializer().DeserializeAsync(str, Constants.ContentTypes.Soap, CancellationToken.None);
+                return new SoapEnvelopeSerializer().DeserializeAsync(str, Constants.ContentTypes.Soap);
             }
 
             [Fact]
@@ -218,9 +218,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                 {
                     // Arrange
                     AS4Message receiptMessage = await new MimeMessageSerializer(new SoapEnvelopeSerializer()).DeserializeAsync(
-                        inputStream: messageStream,
+                        input: messageStream,
                         contentType: "multipart/related; boundary=\"=-M/sMGEhQK8RBNg/21Nf7Ig==\";\ttype=\"application/soap+xml\"",
-                        cancellationToken: CancellationToken.None);
+                        cancellation: CancellationToken.None);
 
                     // Act / Assert
                     await TestValidEbmsMessageEnvelopeFrom(receiptMessage);
@@ -243,7 +243,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                 using (var targetStream = new MemoryStream())
                 {
                     // Act
-                    await new SoapEnvelopeSerializer().SerializeAsync(message, targetStream, CancellationToken.None);
+                    await new SoapEnvelopeSerializer().SerializeAsync(message, targetStream);
 
                     // Assert
                     XmlDocument envelope = LoadInEnvelopeDocument(targetStream);
@@ -532,7 +532,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                     AS4Message dummyMessage = AnonymousAS4UserMessage();
 
                     // Act
-                    new SoapEnvelopeSerializer().Serialize(dummyMessage, stream: memoryStream, cancellationToken: CancellationToken.None);
+                    new SoapEnvelopeSerializer().Serialize(dummyMessage, memoryStream);
 
                     // Assert
                     AssertXmlDocumentContainsMessagingTag(memoryStream);
@@ -580,7 +580,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                 var serializer = new MimeMessageSerializer(new SoapEnvelopeSerializer());
 
                 // Act
-                AS4Message actualMessage = await serializer.DeserializeAsync(messageStream, contentType, CancellationToken.None);
+                AS4Message actualMessage = await serializer.DeserializeAsync(messageStream, contentType);
 
                 // Assert
                 Assert.True(actualMessage.IsSignalMessage);
@@ -609,7 +609,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                 "multipart/related; boundary=\"=-AAB+iUI3phXyeG3w4aGnFA==\";\ttype=\"application/soap+xml\"";
 
             ISerializer sut = SerializerProvider.Default.Get(contentType);
-            AS4Message deserialized = await sut.DeserializeAsync(input, contentType, CancellationToken.None);
+            AS4Message deserialized = await sut.DeserializeAsync(input, contentType);
 
             // Act
             XmlDocument doc = AS4XmlSerializer.ToSoapEnvelopeDocument(deserialized, CancellationToken.None);
@@ -836,10 +836,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
             // Serialize and deserialize the AS4 Message to simulate a received message.
             using (var stream = new MemoryStream())
             {
-                serializer.Serialize(context.AS4Message, stream, CancellationToken.None);
+                serializer.Serialize(context.AS4Message, stream);
                 stream.Position = 0;
 
-                return await serializer.DeserializeAsync(stream, message.ContentType, CancellationToken.None);
+                return await serializer.DeserializeAsync(stream, message.ContentType);
             }
         }
 
@@ -1016,7 +1016,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
 
             var serializer = SerializerProvider.Default.Get(contentType);
 
-            return await serializer.DeserializeAsync(stream, contentType, CancellationToken.None);
+            return await serializer.DeserializeAsync(stream, contentType);
         }
 
         private static void RemoveSecurityHeaderFromMessageEnvelope(AS4Message as4Message)

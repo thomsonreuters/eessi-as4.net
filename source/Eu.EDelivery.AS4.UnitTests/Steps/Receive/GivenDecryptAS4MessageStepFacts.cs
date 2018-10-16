@@ -212,8 +212,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
             var message = await serializer.DeserializeAsync(
                 inputStream,
-                contentType,
-                CancellationToken.None);
+                contentType);
 
             Assert.True(message.IsEncrypted, "The AS4 Message to use in this testcase should be encrypted");
 
@@ -277,8 +276,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
             return serializer.DeserializeAsync(
                 inputStream,
-                "multipart/related; boundary=\"MIMEBoundary_64ed729f813b10a65dfdc363e469e2206ff40c4aa5f4bd11\"",
-                CancellationToken.None);
+                "multipart/related; boundary=\"MIMEBoundary_64ed729f813b10a65dfdc363e469e2206ff40c4aa5f4bd11\"");
         }
     }
 }

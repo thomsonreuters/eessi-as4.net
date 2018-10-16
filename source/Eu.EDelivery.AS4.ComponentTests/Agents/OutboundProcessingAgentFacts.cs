@@ -249,7 +249,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             {
                 return await SerializerProvider.Default
                     .Get(processedEntry.ContentType)
-                    .DeserializeAsync(output, processedEntry.ContentType, CancellationToken.None);
+                    .DeserializeAsync(output, processedEntry.ContentType);
             }
         }
 

@@ -96,10 +96,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             var serializer = new MimeMessageSerializer(new SoapEnvelopeSerializer());
 
             var memory = new MemoryStream();
-            serializer.Serialize(message, memory, CancellationToken.None);
+            serializer.Serialize(message, memory);
             memory.Position = 0;
 
-            return await serializer.DeserializeAsync(memory, message.ContentType, CancellationToken.None);
+            return await serializer.DeserializeAsync(memory, message.ContentType);
         }
 
         private static async Task<AS4Message> BuildMessageFor(byte[] as4MessageExternalPayloads, string contentType)
@@ -107,7 +107,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             using (var stream = new MemoryStream(as4MessageExternalPayloads))
             {
                 var serializer = new MimeMessageSerializer(new SoapEnvelopeSerializer());
-                return await serializer.DeserializeAsync(stream, contentType, CancellationToken.None);
+                return await serializer.DeserializeAsync(stream, contentType);
             }
         }
 

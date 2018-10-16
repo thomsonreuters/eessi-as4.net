@@ -317,7 +317,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             SerializerProvider
                 .Default
                 .Get(as4Message.ContentType)
-                .Serialize(as4Message, stream, CancellationToken.None);
+                .Serialize(as4Message, stream);
 
             stream.Position = 0;
 

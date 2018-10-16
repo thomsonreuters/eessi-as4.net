@@ -175,7 +175,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
             string contentType = response.ContentType;
             Stream responseStream = response.GetResponseStream();
 
-            return await new SoapEnvelopeSerializer().DeserializeAsync(responseStream, contentType, CancellationToken.None);
+            return await new SoapEnvelopeSerializer().DeserializeAsync(responseStream, contentType);
         }
     }
 }
