@@ -121,7 +121,7 @@ namespace Eu.EDelivery.AS4.Services
         /// <param name="as4Message">The message for which the containing message units will be inserted.</param>
         /// <param name="sendingPMode">The processing mode that will be stored with each message unit if present.</param>
         /// <param name="receivingPMode">The processing mode that will be used to determine if the signal messages must be async returned and for determining the response pmode if necessary.</param>
-        public void InsertAS4Message(
+        public IEnumerable<OutMessage> InsertAS4Message(
             AS4Message as4Message,
             SendingProcessingMode sendingPMode,
             ReceivingProcessingMode receivingPMode)
@@ -134,7 +134,7 @@ namespace Eu.EDelivery.AS4.Services
             if (!as4Message.MessageUnits.Any())
             {
                 Logger.Debug("Incoming AS4Message hasn't got any message units to insert");
-                return;
+                return Enumerable.Empty<OutMessage>();
             }
 
             string messageBodyLocation =
@@ -145,6 +145,7 @@ namespace Eu.EDelivery.AS4.Services
             IDictionary<string, MessageExchangePattern> relatedInMessageMeps = 
                 GetEbsmsMessageIdsOfRelatedSignals(as4Message);
 
+            var results = new Collection<OutMessage>();
             foreach (MessageUnit messageUnit in as4Message.MessageUnits)
             {
                 SendingProcessingMode pmode =
@@ -166,7 +167,10 @@ namespace Eu.EDelivery.AS4.Services
 
                 Logger.Debug($"Insert OutMessage {outMessage.EbmsMessageType} with {{Operation={outMessage.Operation}, Status={outMessage.Status}}}");
                 _repository.InsertOutMessage(outMessage);
+                results.Add(outMessage);
             }
+
+            return results.AsEnumerable();
         }
 
         private IDictionary<string, MessageExchangePattern> GetEbsmsMessageIdsOfRelatedSignals(AS4Message as4Message)

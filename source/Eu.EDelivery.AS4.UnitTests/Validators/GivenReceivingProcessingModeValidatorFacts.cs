@@ -145,6 +145,19 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
                 p => p.ExceptionHandling.Reliability);
         }
 
+        [Property]
+        public Property PiggyBackReliability_Is_Required_On_IsEnabled_Flag(
+            bool isEnabled,
+            int retryCount,
+            TimeSpan retryInterval)
+        {
+            return TestRelialityForEnabledFlag(
+                isEnabled,
+                retryCount,
+                retryInterval,
+                p => p.ReplyHandling.PiggyBackReliability);
+        }
+
         private static Property TestRelialityForEnabledFlag(
             bool isEnabled, 
             int retryCount, 

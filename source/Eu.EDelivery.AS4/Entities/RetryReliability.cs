@@ -144,7 +144,8 @@ namespace Eu.EDelivery.AS4.Entities
     {
         Delivery,
         Notification,
-        Send
+        Send,
+        PiggyBack
     }
 
     public enum RetryStatus

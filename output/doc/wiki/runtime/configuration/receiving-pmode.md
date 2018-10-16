@@ -37,16 +37,24 @@ This contract describes all the properties available in the Receiving PMode. The
                     <b>&nbsp;&nbsp;ErrorHandling</b><br/>
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;UseSOAPFault<br/>
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ResponseHttpCode<br/>
+                    &nbsp;&nbsp;PiggyBackReliability<br/>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>IsEnabled</i><br/>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>RetryCount</i><br/><br/>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>RetryInterval</i><br/><br/>
             </td>
             <td align="center">
                 M<br/>
                 M<br/><br/><br/><br/>
                 M<br/>
                 O<br/>
+                O<br/>
+                O<br/>
+                O<br/>
                 O<br/><br/>
                 O<br/>
-                O<br/>
-                O<br/>
+                M<br/>
+                O<br/><br/>
+                O<br/><br/>
             </td>
             <td>
             <br/>
@@ -59,8 +67,14 @@ This contract describes all the properties available in the Receiving PMode. The
                 </ul>
                 Reference to the Sending PMode <br/><br/>
                 <div>Specifies if NonRepudationInfo must be included in receipt <i>Default: false</i></div>
-                <i>Default: false</i><br/>
-                <br/>HTTP Status Code in case of reply = response. <br/><i>Default: 200</i><br/>
+                <i>Default: false</i>
+                <br/>HTTP Status Code in case of reply = response. <br/><i>Default: 200</i>
+                <br/>
+                <br/>Indicates whether or not the bundling of PiggyBacked SignalMessages must be retried
+                <br/>Amount of retry cycles the bundling must be retried
+                <br/><i>Default: 4</i><br/>
+                Interval between each retry cycle during the bundling
+                <br/><i>Default: 0:00:01:00 (1 min)</i>
             </td>
         </tr>
         <tr>
@@ -89,8 +103,8 @@ This contract describes all the properties available in the Receiving PMode. The
                 M<br/>
                 O<br/>
                 M<br/>
-                M<br/><br/>
-                M<br/><br/>
+                O<br/><br/>
+                O<br/><br/>
             </td>
             <td>
                 <br/>
