@@ -26,8 +26,7 @@ namespace Eu.EDelivery.AS4.Fe.Monitor.Model
         public string MPC { get; set; }
         public string[] Pmode { get; set; }
 
-        public IQueryable<TEntity> ApplyFilter<TEntity>(IQueryable<TEntity> query)
-            where TEntity : MessageEntity
+        public IQueryable<TEntity> ApplyFilter<TEntity>(IQueryable<TEntity> query) where TEntity : MessageEntity
         {
             if (!String.IsNullOrEmpty(EbmsMessageId))
             {
@@ -243,7 +242,7 @@ namespace Eu.EDelivery.AS4.Fe.Monitor.Model
 
             if (Pmode != null && Pmode.Length > 0)
             {
-                query = query.Where(qr => Pmode.Contains(qr.PMode));
+                query = query.Where(qr => Pmode.Contains(qr.PModeId));
             }
 
             return query;

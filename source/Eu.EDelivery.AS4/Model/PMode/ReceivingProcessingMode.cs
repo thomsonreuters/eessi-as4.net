@@ -83,6 +83,9 @@ namespace Eu.EDelivery.AS4.Model.PMode
         [Description("Error handling")]
         public ReceiveErrorHandling ErrorHandling { get; set; }
 
+        [Description("Piggy backing reliability")]
+        public RetryReliability PiggyBackReliability { get; set; }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="ReplyHandling"/> class.
         /// </summary>
@@ -91,6 +94,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
             ReplyPattern = ReplyPattern.Response;
             ReceiptHandling = new ReceiveReceiptHandling();
             ErrorHandling = new ReceiveErrorHandling();
+            PiggyBackReliability = new RetryReliability();
         }
     }
 

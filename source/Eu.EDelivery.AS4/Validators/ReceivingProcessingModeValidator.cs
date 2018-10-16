@@ -56,6 +56,19 @@ namespace Eu.EDelivery.AS4.Validators
                 RuleFor(pmode => pmode.ReplyHandling.ErrorHandling)
                     .NotNull()
                     .WithMessage("ReplyHandling.ErrorHandling element must be specified");
+
+                When(pmode => pmode.ReplyHandling.PiggyBackReliability?.IsEnabled == true, () =>
+                {
+                    RuleFor(pmode => pmode.ReplyHandling.PiggyBackReliability.RetryCount)
+                        .Must(i => i > 0)
+                        .WithMessage(
+                            "ReplyHandling.PiggyBackReliability.RetryCount must be greater than 0 when ReplyHandling.PiggyBackReliability.IsEnabled = true");
+
+                    RuleFor(pmode => pmode.ReplyHandling.PiggyBackReliability.RetryInterval.AsTimeSpan())
+                        .Must(t => t > default(TimeSpan))
+                        .WithMessage(
+                            $"ReplyHandling.PiggyBackReliability.RetryInterval must be greater than {default(TimeSpan)} when ReplyHandling.PiggyBackReliability.IsEnabled = true");
+                });
             });
         }
 
