@@ -135,7 +135,7 @@ namespace Eu.EDelivery.AS4.Fe.Monitor.Model
                 else query = query.Where(qr => qr.Mpc == filter);
             }
 
-            if (Pmode != null && Pmode.Length > 0) query = query.Where(qr => Pmode.Contains(qr.PMode));
+            if (Pmode != null && Pmode.Length > 0) query = query.Where(qr => Pmode.Contains(qr.PModeId));
 
             return query;
         }
