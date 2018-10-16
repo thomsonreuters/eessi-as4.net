@@ -49,7 +49,7 @@ namespace Eu.EDelivery.AS4.Fe.Monitor.Model
         /// <value>
         /// The operation.
         /// </value>
-        public Operation[] Operation { get; set; }
+        public string[] Operation { get; set; }
 
         /// <summary>
         /// Applies the filter.
@@ -58,54 +58,89 @@ namespace Eu.EDelivery.AS4.Fe.Monitor.Model
         /// <returns></returns>
         public IQueryable<TEntity> ApplyFilter<TEntity>(IQueryable<TEntity> query)
             where TEntity : ExceptionEntity
-
         {
-            if (!string.IsNullOrEmpty(EbmsRefToMessageId))
+            if (!String.IsNullOrEmpty(EbmsRefToMessageId))
             {
-                var filter = EbmsRefToMessageId.Replace("*", "");
-                if (EbmsRefToMessageId.StartsWith("*") && EbmsRefToMessageId.EndsWith("*")) query = query.Where(qr => qr.EbmsRefToMessageId.Contains(filter));
-                else if (EbmsRefToMessageId.EndsWith("*")) query = query.Where(qr => qr.EbmsRefToMessageId.StartsWith(filter));
-                else if (EbmsRefToMessageId.StartsWith("*")) query = query.Where(qr => qr.EbmsRefToMessageId.EndsWith(filter));
-                else query = query.Where(qr => qr.EbmsRefToMessageId == filter);
+                string filter = EbmsRefToMessageId.Replace("*", "");
+                if (EbmsRefToMessageId.StartsWith("*") && EbmsRefToMessageId.EndsWith("*"))
+                {
+                    query = query.Where(qr => qr.EbmsRefToMessageId.Contains(filter));
+                }
+                else if (EbmsRefToMessageId.EndsWith("*"))
+                {
+                    query = query.Where(qr => qr.EbmsRefToMessageId.StartsWith(filter));
+                }
+                else if (EbmsRefToMessageId.StartsWith("*"))
+                {
+                    query = query.Where(qr => qr.EbmsRefToMessageId.EndsWith(filter));
+                }
+                else
+                {
+                    query = query.Where(qr => qr.EbmsRefToMessageId == filter);
+                }
             }
 
-            if (ModificationTimeFrom != null && ModificationTimeTo == null) query = query.Where(qr => qr.ModificationTime >= ModificationTimeFrom);
-            else if (ModificationTimeFrom == null && ModificationTimeTo != null) query = query.Where(qr => qr.ModificationTime <= ModificationTimeTo);
-            else if (ModificationTimeFrom != null && ModificationTimeTo != null) query = query.Where(qr => qr.ModificationTime >= ModificationTimeFrom && qr.ModificationTime <= ModificationTimeTo);
+            if (ModificationTimeFrom != null && ModificationTimeTo == null)
+            {
+                query = query.Where(qr => qr.ModificationTime >= ModificationTimeFrom);
+            }
+            else if (ModificationTimeFrom == null && ModificationTimeTo != null)
+            {
+                query = query.Where(qr => qr.ModificationTime <= ModificationTimeTo);
+            }
+            else if (ModificationTimeFrom != null && ModificationTimeTo != null)
+            {
+                query = query.Where(qr => qr.ModificationTime >= ModificationTimeFrom && qr.ModificationTime <= ModificationTimeTo);
+            }
 
             switch (InsertionTimeType)
             {
                 case DateTimeFilterType.Custom:
-                    if (InsertionTimeFrom != null && InsertionTimeTo != null) query = query.Where(qr => qr.InsertionTime >= InsertionTimeFrom && qr.InsertionTime <= InsertionTimeTo);
-                    else if (InsertionTimeFrom == null && InsertionTimeTo != null) query = query.Where(qr => qr.InsertionTime <= InsertionTimeTo);
-                    else if (InsertionTimeFrom != null && InsertionTimeTo == null) query = query.Where(qr => qr.InsertionTime >= InsertionTimeFrom);
+                    if (InsertionTimeFrom != null && InsertionTimeTo != null)
+                    {
+                        query = query.Where(qr => qr.InsertionTime >= InsertionTimeFrom && qr.InsertionTime <= InsertionTimeTo);
+                    }
+                    else if (InsertionTimeFrom == null && InsertionTimeTo != null)
+                    {
+                        query = query.Where(qr => qr.InsertionTime <= InsertionTimeTo);
+                    }
+                    else if (InsertionTimeFrom != null && InsertionTimeTo == null)
+                    {
+                        query = query.Where(qr => qr.InsertionTime >= InsertionTimeFrom);
+                    }
+
                     break;
                 case DateTimeFilterType.Last4Hours:
-                    var last4Hours = DateTime.UtcNow.AddHours(-4);
+                    DateTime last4Hours = DateTime.UtcNow.AddHours(-4);
                     query = query.Where(x => x.InsertionTime >= last4Hours);
                     break;
                 case DateTimeFilterType.LastDay:
-                    var lastDay = DateTime.UtcNow.AddDays(-1);
+                    DateTime lastDay = DateTime.UtcNow.AddDays(-1);
                     query = query.Where(x => x.InsertionTime >= lastDay);
                     break;
                 case DateTimeFilterType.LastHour:
-                    var lastHour = DateTime.UtcNow.AddHours(-1);
+                    DateTime lastHour = DateTime.UtcNow.AddHours(-1);
                     query = query.Where(x => x.InsertionTime >= lastHour);
                     break;
                 case DateTimeFilterType.LastMonth:
-                    var lastMonth = DateTime.UtcNow.AddMonths(-1);
+                    DateTime lastMonth = DateTime.UtcNow.AddMonths(-1);
                     query = query.Where(x => x.InsertionTime >= lastMonth);
                     break;
                 case DateTimeFilterType.LastWeek:
-                    var lastWeek = DateTime.UtcNow.AddDays(-7);
+                    DateTime lastWeek = DateTime.UtcNow.AddDays(-7);
                     query = query.Where(x => x.InsertionTime >= lastWeek);
                     break;
+                case DateTimeFilterType.Ignore:
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
 
             if (Operation == null) return query;
             {
-                query = query.Where(qr => Operation.Contains(qr.Operation));
+                query = query.Where(qr => Operation.Contains(qr.Operation.ToString()));
             }
+
             return query;
         }
     }
