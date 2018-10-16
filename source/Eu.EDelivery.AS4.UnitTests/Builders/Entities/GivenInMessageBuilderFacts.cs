@@ -29,7 +29,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
                 InMessage inMessage =
                     InMessageBuilder.ForSignalMessage(receipt, as4Message, MessageExchangePattern.Push)
                                     .WithPMode(new SendingProcessingMode())
-                                    .BuildYetUndetermined();
+                                    .BuildAsToBeProcessed();
 
                 // Assert
                 Assert.NotNull(inMessage);
@@ -49,7 +49,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
 
                 // Act / Assert
                 Assert.ThrowsAny<Exception>(
-                    () => InMessageBuilder.ForSignalMessage(messageUnit, belongsToAS4Message: null, mep: MessageExchangePattern.Push).BuildYetUndetermined());
+                    () => InMessageBuilder.ForSignalMessage(messageUnit, belongsToAS4Message: null, mep: MessageExchangePattern.Push).BuildAsToBeProcessed());
             }
 
             [Fact]
@@ -60,7 +60,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
 
                 // Act / Assert
                 Assert.ThrowsAny<Exception>(
-                    () => InMessageBuilder.ForUserMessage(null, as4Message, MessageExchangePattern.Push).BuildYetUndetermined());
+                    () => InMessageBuilder.ForUserMessage(null, as4Message, MessageExchangePattern.Push).BuildAsToBeProcessed());
             }
 
             [Fact]
@@ -70,7 +70,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
                 InMessageBuilder sut = InMessageBuilder.ForSignalMessage(Mock.Of<SignalMessage>(), AS4Message.Empty, MessageExchangePattern.Push);
 
                 // Act / Assert
-                Assert.ThrowsAny<Exception>(() => sut.BuildYetUndetermined());
+                Assert.ThrowsAny<Exception>(() => sut.BuildAsToBeProcessed());
             }
         }
 

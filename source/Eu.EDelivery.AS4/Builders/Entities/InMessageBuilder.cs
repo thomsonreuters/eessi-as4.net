@@ -87,7 +87,7 @@ namespace Eu.EDelivery.AS4.Builders.Entities
         /// <returns></returns>
         public InMessageBuilder OnLocation(string location)
         {
-            if (string.IsNullOrWhiteSpace(location))
+            if (String.IsNullOrWhiteSpace(location))
             {
                 throw new ArgumentException(@"Value cannot be null or whitespace.", nameof(location));
             }
@@ -103,7 +103,7 @@ namespace Eu.EDelivery.AS4.Builders.Entities
         /// <returns></returns>
         public InMessage BuildAsDeadLetteredError()
         {
-            InMessage inMessage = BuildYetUndetermined();
+            InMessage inMessage = BuildAsToBeProcessed();
             inMessage.Operation =
                 (_pmode?.ErrorHandling?.NotifyMessageProducer ?? false)
                     ? Operation.ToBeNotified
@@ -117,7 +117,7 @@ namespace Eu.EDelivery.AS4.Builders.Entities
         /// This is used for (quick) saving the incoming message but process the message on a later time.
         /// </summary>
         /// <returns></returns>
-        public InMessage BuildYetUndetermined()
+        public InMessage BuildAsToBeProcessed()
         {
             if (_messageUnit == null)
             {
