@@ -103,13 +103,7 @@ namespace Eu.EDelivery.AS4.Steps.Forward
                             msg.PrimaryMessageUnit,
                             receivedInMessage.ContentType,
                             messagingContext.SendingPMode)
-                        .Build();
-
-                    outMessage.Intermediary = true;
-                    outMessage.IsDuplicate = receivedInMessage.IsDuplicate;
-                    outMessage.MessageLocation = outLocation;
-                    outMessage.Mpc = messagingContext.SendingPMode?.MessagePackaging?.Mpc ?? Constants.Namespaces.EbmsDefaultMpc;
-                    outMessage.Operation = Operation.ToBeProcessed;
+                        .BuildForForwarding(outLocation, receivedInMessage);
 
                     Logger.Debug("Insert OutMessage {{Intermediary=true, Operation=ToBeProcesed}}");
                     repository.InsertOutMessage(outMessage);
