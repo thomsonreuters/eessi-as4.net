@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
@@ -65,21 +68,28 @@ namespace Eu.EDelivery.AS4.Steps.Submit
                     $"{nameof(CreateAS4MessageStep)} requires a SubmitMessage to create an AS4Message from but no AS4Message is present in the MessagingContext");
             }
 
-            AS4Message as4Message = CreateAS4MessageFromSubmit(messagingContext);
-            await AssignAttachmentsForAS4Message(as4Message, messagingContext).ConfigureAwait(false);
+            if (messagingContext.SendingPMode == null)
+            {
+                Logger.Debug("No SendingPMode was found, only use information from SubmitMessage to create AS4 UserMessage");
+            }
+
+            SubmitMessage submitMessage = messagingContext.SubmitMessage;
+            ValidateSubmitMessage(submitMessage);
+
+            Logger.Trace("Create UserMessage for SubmitMessage");
+            var userMessage = AS4Mapper.Map<UserMessage>(submitMessage);
+
+            Logger.Info($"{messagingContext.LogTag} UserMessage with Id \"{userMessage.MessageId}\" created from Submit Message");
+            AS4Message as4Message = AS4Message.Create(userMessage, messagingContext.SendingPMode);
+
+            IEnumerable<Attachment> attachments = 
+                await RetrieveAttachmentsForAS4MessageAsync(submitMessage.Payloads)
+                    .ConfigureAwait(false);
+
+            as4Message.AddAttachments(attachments);
 
             messagingContext.ModifyContext(as4Message);
             return StepResult.Success(messagingContext);
-        }
-
-        private static AS4Message CreateAS4MessageFromSubmit(MessagingContext messagingContext)
-        {
-            ValidateSubmitMessage(messagingContext.SubmitMessage);
-
-            UserMessage userMessage = CreateUserMessage(messagingContext);
-            Logger.Info($"{messagingContext.LogTag} UserMessage with Id \"{userMessage.MessageId}\" created from Submit Message");
-
-            return AS4Message.Create(userMessage, messagingContext.SendingPMode);
         }
 
         private static void ValidateSubmitMessage(SubmitMessage submitMessage)
@@ -87,64 +97,90 @@ namespace Eu.EDelivery.AS4.Steps.Submit
             SubmitValidator
                 .Validate(submitMessage)
                 .Result(
-                    result => Logger.Trace($"SubmitMessage \"{submitMessage.MessageInfo.MessageId}\" is valid"),
+                    result => Logger.Trace($"SubmitMessage \"{submitMessage.MessageInfo?.MessageId}\" is valid"),
                     result =>
                     {
                         result.LogErrors(Logger);
-                        throw ThrowInvalidSubmitMessageException(submitMessage);
+                        string description = $"SubmitMessage \"{submitMessage.MessageInfo?.MessageId}\" was invalid, see logging";
+
+                        Logger.Error(description);
+                        throw new InvalidMessageException(description);
                         
                     });
         }
 
-        private static InvalidMessageException ThrowInvalidSubmitMessageException(SubmitMessage submitMessage)
+        private async Task<IEnumerable<Attachment>> RetrieveAttachmentsForAS4MessageAsync(IEnumerable<Payload> payloads)
         {
-            string description = $"(Submit) SubmitMessage \"{submitMessage.MessageInfo.MessageId}\" was invalid, see logging";
-            Logger.Error(description);
+            if (payloads == null || !payloads.Any())
+            {
+                Logger.Debug("SubmitMessage has no payloads to retrieve, so no will be added to the AS4Message");
+                return Enumerable.Empty<Attachment>();
+            }
 
-            return new InvalidMessageException(description);
-        }
-
-        private static UserMessage CreateUserMessage(MessagingContext messagingContext)
-        {
-            Logger.Trace("Create UserMessage for SubmitMessage");
-            return AS4Mapper.Map<UserMessage>(messagingContext.SubmitMessage);
-        }
-
-        private async Task AssignAttachmentsForAS4Message(AS4Message as4Message, MessagingContext context)
-        {
             try
             {
-                if (context.SubmitMessage.HasPayloads)
-                {
-                    Logger.Trace("Retrieve SubmitMessage payloads");
+                Logger.Trace("Start retrieving SubmitMessage payloads contents...");
+                IEnumerable<Attachment> attachments = await RetrieveAttachmentsAsync(payloads).ConfigureAwait(false);
+                Logger.Trace($"Successfully retrieved {attachments.Count()} payloads");
 
-                    await as4Message.AddAttachments(
-                        context.SubmitMessage.Payloads,
-                        async payload => await RetrieveAttachmentContent(payload).ConfigureAwait(false)).ConfigureAwait(false);
-
-                    Logger.Info($"{context.LogTag} Assigned {as4Message.Attachments.Count()} payloads to the AS4Message");
-                }
-                else
-                {
-                    Logger.Info($"{context.LogTag} SubmitMessage has no payloads to retrieve, so no will be added to the AS4Message");
-                }
+                return attachments;
             }
             catch (Exception exception)
             {
-                string description = $"{context.LogTag} Failed to retrieve SubmitMessage payloads";
+                const string description = "Failed to retrieve SubmitMessage payloads";
                 Logger.Error(description);
-                Logger.Error($"{context} {exception.Message}");
+                Logger.Error(exception);
 
                 throw new ApplicationException(description, exception);
             }
         }
 
-        private async Task<System.IO.Stream> RetrieveAttachmentContent(Payload payload)
+        private async Task<IEnumerable<Attachment>> RetrieveAttachmentsAsync(IEnumerable<Payload> payloads)
         {
-            return await _payloadProvider
-                .Get(payload)
-                .RetrievePayloadAsync(payload.Location)
-                .ConfigureAwait(false);
+            var attachments = new Collection<Attachment>();
+            foreach (Payload payload in payloads)
+            {
+                if (payload == null)
+                {
+                    Logger.Warn("Submit payload cannot be retrieved because it was 'null'");
+                    continue;
+                }
+
+                IEnumerable<string> missingValues =
+                    new[]
+                    {
+                        payload.Id == null ? "Id" : null,
+                        payload.Location == null ? "Location" : null,
+                        payload.MimeType == null ? "MimeType" : null
+                    }.Where(s => s != null)
+                     .Select(s => $"'{s}'");
+
+                if (missingValues.Any())
+                {
+                    Logger.Warn(
+                        $"Submit payload {{Id={payload.Id ?? "<null>"}}} "
+                        + "cannot be retrieved because it hasn't got a "
+                        + String.Join(", ", missingValues));
+
+                    continue;
+                }
+
+                Stream content =
+                    await _payloadProvider
+                        .Get(payload)
+                        .RetrievePayloadAsync(payload.Location)
+                        .ConfigureAwait(false);
+
+                if (content == null)
+                {
+                    Logger.Warn($"Skip Submit payload {payload.Id} because retrieved content was 'null'");
+                    continue;
+                }
+
+                attachments.Add(new Attachment(payload.Id, content, payload.MimeType));
+            }
+
+            return attachments;
         }
     }
 }

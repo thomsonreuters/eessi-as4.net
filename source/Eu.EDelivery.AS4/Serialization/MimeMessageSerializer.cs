@@ -271,10 +271,8 @@ namespace Eu.EDelivery.AS4.Serialization
                 IEnumerable<PartInfo> referencedPartInfos =
                     userMessage.PayloadInfo ?? Enumerable.Empty<PartInfo>();
 
-                foreach (Attachment a in BodyPartsAsAttachments(bodyParts, referencedPartInfos))
-                {
-                    message.AddAttachment(a);
-                }
+                IEnumerable<Attachment> attachments = BodyPartsAsAttachments(bodyParts, referencedPartInfos);
+                message.AddAttachments(attachments);
             }
 
             return message;

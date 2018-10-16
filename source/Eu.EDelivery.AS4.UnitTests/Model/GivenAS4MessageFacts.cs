@@ -51,43 +51,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
 
         public class AddAttachments
         {
-            [Fact]
-            public async Task ThenAddAttachmentSucceeds()
-            {
-                // Arrange
-                var submitMessage = new SubmitMessage
-                {
-                    Payloads = new[]
-                    {
-                        new Payload(
-                            id: String.Empty, 
-                            location: String.Empty, 
-                            mimeType: string.Empty)
-                    }
-                };
-                AS4Message sut = AS4Message.Empty;
-
-                // Act
-                await sut.AddAttachments(submitMessage.Payloads, async payload => await Task.FromResult(Stream.Null));
-
-                // Assert
-                Assert.NotNull(sut.Attachments);
-                Assert.Equal(Stream.Null, sut.Attachments.First().Content);
-            }
-
-            [Fact]
-            public async Task ThenNoAttachmentsAreAddedWithZeroPayloads()
-            {
-                // Arrange
-                AS4Message sut = AS4Message.Empty;
-
-                // Act
-                await sut.AddAttachments(new Payload[0], async payload => await Task.FromResult(Stream.Null));
-
-                // Assert
-                Assert.False(sut.HasAttachments);
-            }
-
             [Property]
             public void ThenMessageRemainsSoapAfterAttachmentsAreRemoved(NonEmptyArray<Guid> ids)
             {
