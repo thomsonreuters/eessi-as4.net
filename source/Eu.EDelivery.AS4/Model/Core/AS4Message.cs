@@ -4,19 +4,16 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 using Eu.EDelivery.AS4.Builders.Security;
 using Eu.EDelivery.AS4.Compression;
-using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Security.Encryption;
 using Eu.EDelivery.AS4.Security.Signing;
 using Eu.EDelivery.AS4.Security.Strategies;
 using Eu.EDelivery.AS4.Serialization;
 using MimeKit;
-using NLog;
 
 namespace Eu.EDelivery.AS4.Model.Core
 {
@@ -316,6 +313,29 @@ namespace Eu.EDelivery.AS4.Model.Core
         }
 
         /// <summary>
+        /// Add Attachments to <see cref="AS4Message" />
+        /// </summary>
+        /// <param name="attachments"></param>
+        /// <exception cref="InvalidOperationException">Throws when there already exists an <see cref="Attachment"/> with the same id</exception>
+        public void AddAttachments(IEnumerable<Attachment> attachments)
+        {
+            if (attachments == null)
+            {
+                throw new ArgumentNullException(nameof(attachments));
+            }
+
+            if (attachments.Any(a => a is null))
+            {
+                throw new ArgumentNullException(nameof(attachments), @"Attachments sequence contains a 'null' reference");
+            }
+
+            foreach (Attachment a in attachments)
+            {
+                AddAttachment(a);
+            }
+        }
+
+        /// <summary>
         /// Add Attachment to <see cref="AS4Message" />
         /// </summary>
         /// <param name="attachment"></param>
@@ -364,39 +384,6 @@ namespace Eu.EDelivery.AS4.Model.Core
             foreach (Attachment attachment in Attachments)
             {
                 attachment.Content.Dispose();
-            }
-        }
-
-        /// <summary>
-        /// Adds the attachments.
-        /// </summary>
-        /// <param name="payloads">The payloads.</param>
-        /// <param name="retrieval">The retrieval.</param>
-        /// <returns></returns>
-        /// <exception cref="System.Exception">A delegate callback throws an exception.</exception>
-        /// <exception cref="InvalidOperationException">Throws when an <see cref="Attachment"/> is being added to a non-UserMessage</exception>
-        public async Task AddAttachments(IReadOnlyList<Payload> payloads, Func<Payload, Task<Stream>> retrieval)
-        {
-            if (payloads == null)
-            {
-                throw new ArgumentNullException(nameof(payloads));
-            }
-
-            if (payloads.Any(p => p is null))
-            {
-                throw new ArgumentNullException(nameof(payloads), @"Payloads contains a 'null' reference");
-            }
-
-            if (retrieval == null)
-            {
-                throw new ArgumentNullException(nameof(retrieval));
-            }
-
-            foreach (Payload payload in payloads)
-            {
-                Stream content = await retrieval(payload).ConfigureAwait(false);
-                var attachment = new Attachment(payload.Id, content, payload.MimeType);
-                AddAttachment(attachment);
             }
         }
 

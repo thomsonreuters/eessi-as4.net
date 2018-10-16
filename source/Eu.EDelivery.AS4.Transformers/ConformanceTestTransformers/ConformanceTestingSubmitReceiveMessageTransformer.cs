@@ -97,11 +97,7 @@ namespace Eu.EDelivery.AS4.Transformers.ConformanceTestTransformers
                 WhiteListedMessageProperties(submitMessage.MessageProperties));
 
             AS4Message result = AS4Message.Create(userMessage);
-
-            foreach (Attachment attachment in attachments)
-            {
-                result.AddAttachment(attachment);
-            }
+            result.AddAttachments(attachments);
 
             return result;
         }
