@@ -24,8 +24,8 @@ namespace Eu.EDelivery.AS4.Fe.Monitor.Model
         public string Service { get; set; }
         public string MPC { get; set; }
         public string[] Pmode { get; set; }
-        public IQueryable<TEntity> ApplyFilter<TEntity>(IQueryable<TEntity> query)
-            where TEntity : MessageEntity
+
+        public IQueryable<TEntity> ApplyFilter<TEntity>(IQueryable<TEntity> query) where TEntity : MessageEntity
         {
             if (!string.IsNullOrEmpty(EbmsMessageId))
             {
