@@ -192,7 +192,7 @@ namespace Eu.EDelivery.AS4.Services
                         .ForUserMessage(userMessage, as4Message, mep)
                         .WithPMode(pmode)
                         .OnLocation(location)
-                        .BuildYetUndetermined();
+                        .BuildAsToBeProcessed();
 
                     Logger.Debug(
                         $"Insert InMessage UserMessage {userMessage.MessageId} with " +
@@ -246,7 +246,7 @@ namespace Eu.EDelivery.AS4.Services
                         .ForSignalMessage(signalMessage, as4Message, mep)
                         .WithPMode(pmode)
                         .OnLocation(location)
-                        .BuildYetUndetermined();
+                        .BuildAsToBeProcessed();
 
                     Logger.Debug(
                         $"Insert InMessage {signalMessage.GetType().Name} {signalMessage.MessageId} " +
