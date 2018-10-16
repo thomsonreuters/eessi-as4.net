@@ -12,7 +12,7 @@
     <PlatformTarget>x64</PlatformTarget>
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
     <FileAlignment>512</FileAlignment>
-    <AutoGenerateBindingRedirects>false</AutoGenerateBindingRedirects>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
   </PropertyGroup>
@@ -38,6 +38,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="netstandard, Version=2.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Program.cs" />
