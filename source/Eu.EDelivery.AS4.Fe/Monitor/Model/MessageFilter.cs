@@ -24,8 +24,8 @@ namespace Eu.EDelivery.AS4.Fe.Monitor.Model
         public string Service { get; set; }
         public string MPC { get; set; }
         public string[] Pmode { get; set; }
-        public IQueryable<TEntity> ApplyFilter<TEntity>(IQueryable<TEntity> query)
-            where TEntity : MessageEntity
+
+        public IQueryable<TEntity> ApplyFilter<TEntity>(IQueryable<TEntity> query) where TEntity : MessageEntity
         {
             if (!string.IsNullOrEmpty(EbmsMessageId))
             {
@@ -135,7 +135,7 @@ namespace Eu.EDelivery.AS4.Fe.Monitor.Model
                 else query = query.Where(qr => qr.Mpc == filter);
             }
 
-            if (Pmode != null && Pmode.Length > 0) query = query.Where(qr => Pmode.Contains(qr.PMode));
+            if (Pmode != null && Pmode.Length > 0) query = query.Where(qr => Pmode.Contains(qr.PModeId));
 
             return query;
         }
