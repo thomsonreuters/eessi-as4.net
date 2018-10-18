@@ -15,7 +15,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
 
             using (var db = GetDataStoreContext())
             {
-                var inException = new InException("message-id", "location", "some-error-happened");
+                var inException = InException.ForEbmsMessageId("message-id", "some-error-happened");
                 inException.Operation = Operation.Sent;
 
                 db.InExceptions.Add(inException);
@@ -46,7 +46,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
 
             using (var db = GetDataStoreContext())
             {
-                var outException = new OutException("message-id", "location", "some-error-happened");
+                var outException = OutException.ForEbmsMessageId("message-id", "some-error-happened");
                 outException.SetPModeInformation(pmodeId, pmodeContent);
 
                 db.OutExceptions.Add(outException);
@@ -78,7 +78,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
 
             using (var db = GetDataStoreContext())
             {
-                var inException = new InException("message-id", "location", "some-error-happened");
+                var inException = InException.ForEbmsMessageId("message-id", "some-error-happened");
                 inException.SetPModeInformation(pmodeId, pmodeContent);
 
                 db.InExceptions.Add(inException);

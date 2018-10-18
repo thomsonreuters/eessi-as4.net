@@ -16,11 +16,6 @@ namespace Eu.EDelivery.AS4.Fe
         {
             var isInProcess = args != null && args.Contains("inprocess");
 
-            if (!Config.Instance.IsInitialized)
-            {
-                Config.Instance.Initialize("settings.xml");
-            }
-
             Start(isInProcess, CancellationToken.None);
         }
 
@@ -42,6 +37,12 @@ namespace Eu.EDelivery.AS4.Fe
 #if DEBUG
             environment = "Development";
 #endif
+
+            if (!Config.Instance.IsInitialized)
+            {
+                var value = config.GetValue<string>("Settings:SettingsXml");
+                Config.Instance.Initialize(value);
+            }
 
             var host = new WebHostBuilder()
                 .UseEnvironment(environment)

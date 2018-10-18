@@ -1,22 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.IO.Compression;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 using Eu.EDelivery.AS4.Builders.Security;
-using Eu.EDelivery.AS4.Model.Common;
+using Eu.EDelivery.AS4.Compression;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Security.Encryption;
 using Eu.EDelivery.AS4.Security.Signing;
 using Eu.EDelivery.AS4.Security.Strategies;
 using Eu.EDelivery.AS4.Serialization;
-using Eu.EDelivery.AS4.Streaming;
-using Eu.EDelivery.AS4.Xml;
 using MimeKit;
 
 namespace Eu.EDelivery.AS4.Model.Core
@@ -47,7 +43,7 @@ namespace Eu.EDelivery.AS4.Model.Core
 
         public static AS4Message Empty => new AS4Message(serializeAsMultiHop: false);
 
-        public string ContentType { get; set; }
+        public string ContentType { get; private set; }
 
         public XmlDocument EnvelopeDocument { get; private set; }
 
@@ -57,14 +53,7 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// <summary>
         /// Gets a value indicating whether or not this AS4 Message is a MultiHop message.
         /// </summary>
-        public bool IsMultiHopMessage
-        {
-            get
-            {
-                return (__hasMultiHopAttribute ?? false) || (FirstSignalMessage?.IsMultihopSignal ?? false) || _serializeAsMultiHop;
-            }
-        }
-
+        public bool IsMultiHopMessage => (__hasMultiHopAttribute ?? false) || (FirstSignalMessage?.IsMultihopSignal ?? false) || _serializeAsMultiHop;
 
         public IEnumerable<MessageUnit> MessageUnits => _messageUnits.AsReadOnly();
 
@@ -74,9 +63,9 @@ namespace Eu.EDelivery.AS4.Model.Core
 
         public IEnumerable<Attachment> Attachments => _attachmens.AsReadOnly();
 
-        public SigningId SigningId { get; set; }
+        public SigningId SigningId { get; internal set; }
 
-        public SecurityHeader SecurityHeader { get; set; }
+        public SecurityHeader SecurityHeader { get; internal set; }
 
         public string[] MessageIds
             => UserMessages.Select(m => m.MessageId).Concat(SignalMessages.Select(m => m.MessageId)).ToArray();
@@ -142,6 +131,11 @@ namespace Eu.EDelivery.AS4.Model.Core
                 throw new ArgumentNullException(nameof(messagingHeader));
             }
 
+            if (bodyElement == null)
+            {
+                throw new ArgumentNullException(nameof(bodyElement));
+            }
+
             var result = new AS4Message
             {
                 EnvelopeDocument = soapEnvelope,
@@ -166,7 +160,7 @@ namespace Eu.EDelivery.AS4.Model.Core
 
             string bodySecurityId = null;
 
-            if (bodyElement?.AnyAttr != null)
+            if (bodyElement.AnyAttr != null)
             {
                 bodySecurityId = bodyElement.AnyAttr.FirstOrDefault(a => a.LocalName == "Id")?.Value;
             }
@@ -212,6 +206,16 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// <returns></returns>
         public static AS4Message Create(IEnumerable<MessageUnit> messages, SendingProcessingMode pmode = null)
         {
+            if (messages == null)
+            {
+                throw new ArgumentNullException(nameof(messages));
+            }
+
+            if (messages.Any(m => m is null))
+            {
+                throw new ArgumentNullException(nameof(messages), @"Message Units contains a 'null' reference");
+            }
+
             AS4Message as4Message = Create(pmode);
 
             as4Message.AddMessageUnits(messages);
@@ -236,6 +240,11 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// Envelope Document will no longer be in-sync.</remarks>
         public void AddMessageUnit(MessageUnit messageUnit)
         {
+            if (messageUnit == null)
+            {
+                throw new ArgumentNullException(nameof(messageUnit));
+            }
+
             _messageUnits.Add(messageUnit);
             EnvelopeDocument = null;
         }
@@ -247,6 +256,16 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// <param name="replacement"></param>
         public void UpdateMessageUnit(MessageUnit old, MessageUnit replacement)
         {
+            if (old == null)
+            {
+                throw new ArgumentNullException(nameof(old));
+            }
+
+            if (replacement == null)
+            {
+                throw new ArgumentNullException(nameof(replacement));
+            }
+
             _messageUnits.Remove(old);
             _messageUnits.Add(replacement);
             EnvelopeDocument = null;
@@ -264,18 +283,6 @@ namespace Eu.EDelivery.AS4.Model.Core
             {
                 AddMessageUnit(messageUnit);
             }
-        }
-
-        /// <summary>
-        /// Removes the <paramref name="messageUnit"/> from the AS4 Message.
-        /// </summary>
-        /// <param name="messageUnit"></param>
-        /// <remarks>Removing a MessageUnit will cause the EnvelopeDocument property to be set to null, since the 
-        /// Envelope Document will no longer be in-sync.</remarks>
-        public void RemoveMessageUnit(MessageUnit messageUnit)
-        {
-            _messageUnits.Remove(messageUnit);
-            EnvelopeDocument = null;
         }
 
         /// <summary>
@@ -299,9 +306,32 @@ namespace Eu.EDelivery.AS4.Model.Core
 
             using (var stream = new DetermineSizeStream())
             {
-                serializer.Serialize(this, stream, CancellationToken.None);
+                serializer.Serialize(this, stream);
 
                 return stream.Length;
+            }
+        }
+
+        /// <summary>
+        /// Add Attachments to <see cref="AS4Message" />
+        /// </summary>
+        /// <param name="attachments"></param>
+        /// <exception cref="InvalidOperationException">Throws when there already exists an <see cref="Attachment"/> with the same id</exception>
+        public void AddAttachments(IEnumerable<Attachment> attachments)
+        {
+            if (attachments == null)
+            {
+                throw new ArgumentNullException(nameof(attachments));
+            }
+
+            if (attachments.Any(a => a is null))
+            {
+                throw new ArgumentNullException(nameof(attachments), @"Attachments sequence contains a 'null' reference");
+            }
+
+            foreach (Attachment a in attachments)
+            {
+                AddAttachment(a);
             }
         }
 
@@ -312,34 +342,12 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// <exception cref="InvalidOperationException">Throws when there already exists an <see cref="Attachment"/> with the same id</exception>
         public void AddAttachment(Attachment attachment)
         {
-            if (!_attachmens.Contains(attachment))
+            if (attachment == null)
             {
-                _attachmens.Add(attachment);
-                if (!ContentType.Contains(Constants.ContentTypes.Mime))
-                {
-                    UpdateContentTypeHeader();
-                }
+                throw new ArgumentNullException(nameof(attachment));
             }
-            else
-            {
-                throw new InvalidOperationException(
-                    $"Cannot add attachment because there already exists an 'Attachment' with the Id={attachment.Id}");
-            }
-        }
 
-        /// <summary>
-        /// Add Attachment to <see cref="AS4Message" />
-        /// </summary>
-        /// <param name="attachment"></param>
-        /// <param name="partProperties"></param>
-        /// <param name="partSchemas"></param>
-        /// <exception cref="InvalidOperationException">Throws when there already exists an <see cref="Attachment"/> with the same id</exception>
-        public void AddAttachment(
-            Attachment attachment,
-            IDictionary<string, string> partProperties,
-            IEnumerable<Schema> partSchemas)
-        {
-            if (_attachmens.Contains(attachment))
+            if (!_attachmens.Contains(attachment))
             {
                 _attachmens.Add(attachment);
                 if (!ContentType.Contains(Constants.ContentTypes.Mime))
@@ -380,84 +388,29 @@ namespace Eu.EDelivery.AS4.Model.Core
         }
 
         /// <summary>
-        /// Adds the attachments.
-        /// </summary>
-        /// <param name="payloads">The payloads.</param>
-        /// <param name="retrieval">The retrieval.</param>
-        /// <returns></returns>
-        /// <exception cref="System.Exception">A delegate callback throws an exception.</exception>
-        /// <exception cref="InvalidOperationException">Throws when an <see cref="Attachment"/> is being added to a non-UserMessage</exception>
-        public async Task AddAttachments(IReadOnlyList<Payload> payloads, Func<Payload, Task<Stream>> retrieval)
-        {
-            foreach (Payload payload in payloads)
-            {
-                Stream content = await retrieval(payload).ConfigureAwait(false);
-                var attachment = new Attachment(payload.Id, content, payload.MimeType);
-                AddAttachment(attachment);
-            }
-        }
-
-        /// <summary>
         /// Compresses the Attachments that are part of this AS4 Message and
         /// modifies the Payload-info in the UserMessage to indicate that the attachment 
         /// is compressed.
         /// </summary>
         public void CompressAttachments()
         {
-            foreach (Attachment attachment in this.Attachments)
-            {
-                CompressAttachment(attachment);
-            }
+            CompressStrategy
+                .ForAS4Message(this)
+                .Compress();
+
             // Since the headers in the message have changed, the EnvelopeDocument
             // is no longer in sync and should be set to null.
-            this.EnvelopeDocument = null;
+            EnvelopeDocument = null;
         }
 
-        private static void CompressAttachment(Attachment attachment)
+        /// <summary>
+        /// Decompresses the Attachments that are part of this AS4 Message.
+        /// </summary>
+        public void DecompressAttachments()
         {
-            VirtualStream outputStream =
-                VirtualStream.Create(
-                    attachment.EstimatedContentSize > -1 ? attachment.EstimatedContentSize : VirtualStream.ThresholdMax);
-
-            CompressionLevel compressionLevel = DetermineCompressionLevelFor(attachment);
-
-            using (var gzipCompression = new GZipStream(outputStream, compressionLevel, leaveOpen: true))
-            {
-                attachment.Content.CopyTo(gzipCompression);
-            }
-
-            outputStream.Position = 0;
-            attachment.Properties["MimeType"] = attachment.ContentType;
-            attachment.Properties["CompressionType"] = "application/gzip";
-            attachment.UpdateContent(outputStream, "application/gzip");
-        }
-
-        private static CompressionLevel DetermineCompressionLevelFor(Attachment attachment)
-        {
-            if (attachment.ContentType.Equals("application/gzip", StringComparison.OrdinalIgnoreCase))
-            {
-                // In certain cases, we do not want to waste time compressing the attachment, since
-                // compressing will only take time without noteably decreasing the attachment size.
-                return CompressionLevel.NoCompression;
-            }
-
-            if (attachment.EstimatedContentSize > -1)
-            {
-                const long twelveKilobytes = 12_288;
-                const long twoHundredMegabytes = 209_715_200;
-
-                if (attachment.EstimatedContentSize <= twelveKilobytes)
-                {
-                    return CompressionLevel.NoCompression;
-                }
-
-                if (attachment.EstimatedContentSize > twoHundredMegabytes)
-                {
-                    return CompressionLevel.Fastest;
-                }
-            }
-
-            return CompressionLevel.Optimal;
+            CompressStrategy
+                .ForAS4Message(this)
+                .Decompress();
         }
 
         /// <summary>
@@ -466,6 +419,11 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// <param name="tobeRemoved">The tobe removed.</param>
         public void RemoveAttachment(Attachment tobeRemoved)
         {
+            if (tobeRemoved == null)
+            {
+                throw new ArgumentNullException(nameof(tobeRemoved));
+            }
+
             Attachment foundAttachment = _attachmens.FirstOrDefault(a => a == tobeRemoved);
             if (foundAttachment != null)
             {
@@ -497,10 +455,21 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// <param name="dataEncryptionConfig"></param>
         public void Encrypt(KeyEncryptionConfiguration keyEncryptionConfig, DataEncryptionConfiguration dataEncryptionConfig)
         {
+            if (keyEncryptionConfig == null)
+            {
+                throw new ArgumentNullException(nameof(keyEncryptionConfig));
+            }
+
+            if (dataEncryptionConfig == null)
+            {
+                throw new ArgumentNullException(nameof(dataEncryptionConfig));
+            }
+
             var encryptor =
-                EncryptionStrategyBuilder.Create(this, keyEncryptionConfig)
-                                         .WithDataEncryptionConfiguration(dataEncryptionConfig)
-                                         .Build();
+                EncryptionStrategyBuilder
+                    .Create(this, keyEncryptionConfig)
+                    .WithDataEncryptionConfiguration(dataEncryptionConfig)
+                    .Build();
 
             SecurityHeader.Encrypt(encryptor);
         }
@@ -511,9 +480,16 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// <param name="certificate"></param>
         public void Decrypt(X509Certificate2 certificate)
         {
-            var decryptor = DecryptionStrategyBuilder.Create(this)
-                                                     .WithCertificate(certificate)
-                                                     .Build();
+            if (certificate == null)
+            {
+                throw new ArgumentNullException(nameof(certificate));
+            }
+
+            var decryptor = 
+                DecryptionStrategyBuilder
+                    .Create(this)
+                    .WithCertificate(certificate)
+                    .Build();
 
             SecurityHeader.Decrypt(decryptor);
         }
@@ -524,6 +500,11 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// <param name="signatureConfiguration"></param>
         public void Sign(CalculateSignatureConfig signatureConfiguration)
         {
+            if (signatureConfiguration == null)
+            {
+                throw new ArgumentNullException(nameof(signatureConfiguration));
+            }
+
             SignStrategy signingStrategy = SignStrategy.ForAS4Message(this, signatureConfiguration);
             SecurityHeader.Sign(signingStrategy);
         }
@@ -535,7 +516,12 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// <returns></returns>
         public bool VerifySignature(VerifySignatureConfig config)
         {
-            var verifier = new SignatureVerificationStrategy(this.EnvelopeDocument);
+            if (config == null)
+            {
+                throw new ArgumentNullException(nameof(config));
+            }
+
+            var verifier = new SignatureVerificationStrategy(EnvelopeDocument);
             return verifier.VerifySignature(config);
         }
 
@@ -547,6 +533,11 @@ namespace Eu.EDelivery.AS4.Model.Core
             if (other == null)
             {
                 return false;
+            }
+
+            if (ReferenceEquals(this, other))
+            {
+                return true;
             }
 
             return GetPrimaryMessageId() == other.GetPrimaryMessageId();

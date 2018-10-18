@@ -457,19 +457,18 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             SerializerProvider
                 .Default
                 .Get(as4Message.ContentType)
-                .Serialize(as4Message, stream, CancellationToken.None);
+                .Serialize(as4Message, stream);
 
             stream.Position = 0;
 
-            var receivedMessage = new ReceivedMessage(stream, as4Message.ContentType);
-            var ctx = new MessagingContext(receivedMessage, MessagingContextMode.Receive)
+            return new MessagingContext(
+                as4Message,
+                new ReceivedMessage(stream, as4Message.ContentType), 
+                MessagingContextMode.Receive)
             {
                 SendingPMode = sendingPMode,
                 ReceivingPMode = receivingPMode
             };
-            ctx.ModifyContext(as4Message);
-
-            return ctx;
         }
 
         private async Task<MessagingContext> ExecuteSaveReceivedMessage(MessagingContext context)

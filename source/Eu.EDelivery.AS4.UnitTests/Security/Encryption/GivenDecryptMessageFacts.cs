@@ -115,7 +115,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Encryption
                 await SerializerProvider
                       .Default
                       .Get(contentType)
-                      .DeserializeAsync(inputStr, contentType, CancellationToken.None);
+                      .DeserializeAsync(inputStr, contentType);
 
             Assert.True(output.IsEncrypted, "The AS4Message to use in this testcase should be encrypted");
             Assert.All(output.Attachments, a => Assert.Equal("application/octet-stream", a.ContentType));

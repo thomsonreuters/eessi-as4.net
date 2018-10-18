@@ -25,6 +25,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
         }
 
         /// <summary>
+        /// Gets a value indicating whether if the Configuration is IsInitialized
+        /// </summary>
+        public override bool IsInitialized => true;
+
+        /// <summary>
         /// Gets the agent settings.
         /// </summary>
         /// <returns></returns>

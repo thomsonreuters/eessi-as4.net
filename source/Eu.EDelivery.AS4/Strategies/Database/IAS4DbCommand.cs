@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 
 namespace Eu.EDelivery.AS4.Strategies.Database
@@ -46,5 +45,13 @@ namespace Eu.EDelivery.AS4.Strategies.Database
             string tableName,
             TimeSpan retentionPeriod,
             IEnumerable<Operation> allowedOperations);
+
+        /// <summary>
+        /// Selects in a reliable way the ToBePiggyBacked SignalMessages stored in the OutMessage table.
+        /// </summary>
+        /// <param name="url">The endpoint to which the OutMessage SignalMessage should be Piggy Backed.</param>
+        /// <param name="mpc">The MPC of the incoming PullRequest to match on the related UserMessage of the Piggy Backed SignalMessage.</param>
+        /// <returns></returns>
+        IEnumerable<OutMessage> SelectToBePiggyBackedSignalMessages(string url, string mpc);
     }
 }

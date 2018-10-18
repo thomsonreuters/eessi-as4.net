@@ -4,7 +4,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
@@ -173,20 +172,6 @@ namespace Eu.EDelivery.AS4.Entities
                     IsDuplicate = signalMessage.IsDuplicate;
                     Mpc = signalMessage.MultiHopRouting.Select(r => r.mpc).GetOrElse(Constants.Namespaces.EbmsDefaultMpc);
                 }
-            }
-        }
-
-        /// <summary>
-        /// Update the <see cref="Entity" /> to lock it with a given <paramref name="value" />.
-        /// </summary>
-        /// <param name="value">Value indicating the <see cref="Entity" /> is locked.</param>
-        public override void Lock(string value)
-        {
-            var updatedOperation = value.ToEnum<Operation>();
-
-            if (updatedOperation != Operation.NotApplicable)
-            {
-                Operation = updatedOperation;
             }
         }
 

@@ -224,7 +224,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Agents
             /// <returns></returns>
             public Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
             {
-                var result = new ErrorResult(description: null, alias: default(ErrorAlias));
+                var result = new ErrorResult(description: "error", alias: default(ErrorAlias));
 
                 return Task.FromResult(StepResult.Failed(new HappyContext {ErrorResult = result}));
             }

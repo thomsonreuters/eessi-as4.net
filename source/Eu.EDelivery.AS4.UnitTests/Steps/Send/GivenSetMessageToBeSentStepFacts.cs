@@ -54,11 +54,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
 
             var receivedMessage = new ReceivedEntityMessage(insertedOutMessage);
 
-            MessagingContext context = new MessagingContext(receivedMessage, MessagingContextMode.Send);
-
-            context.ModifyContext(AS4Message.Create(new FilledUserMessage(ebmsMessageId)));
-
-            return context;
+            return new MessagingContext(
+                AS4Message.Create(new FilledUserMessage(ebmsMessageId)),
+                receivedMessage, 
+                MessagingContextMode.Send);
         }
 
         protected override void Disposing()

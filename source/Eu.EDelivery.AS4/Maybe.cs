@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Eu.EDelivery.AS4
 {
@@ -177,6 +178,13 @@ namespace Eu.EDelivery.AS4
         public Maybe<TA> OrElse(Maybe<TA> other) => _isPresent ? this : other;
 
         /// <summary>
+        /// Switch to another <see cref="Maybe{TA}"/> instance when there's no value present for this instance.
+        /// </summary>
+        /// <param name="other">The other <see cref="Maybe{TA}"/> instance.</param>
+        /// <returns></returns>
+        public Maybe<TA> OrElse(Func<TA> other) => _isPresent ? this : Maybe.Just(other());
+
+        /// <summary>
         /// Runs a "dead-end" function on the wrapped <typeparamref name="TA"/> value.
         /// This method can be used to execute "side-effect" functions on the wrapped <typeparamref name="TA"/> value.
         /// </summary>
@@ -185,6 +193,18 @@ namespace Eu.EDelivery.AS4
         public Maybe<TA> Do(Action<TA> f)
         {
             if (_isPresent) { f(_value); }
+            return this;
+        }
+
+        /// <summary>
+        /// Runs a "dead-end" function on the wrapped <typeparamref name="TA"/> value.
+        /// This method can be used to execute "side-effect" functions on the wrapped <typeparamref name="TA"/> value.
+        /// </summary>
+        /// <param name="f">The f.</param>
+        /// <returns></returns>
+        public async Task<Maybe<TA>> DoAsync(Func<TA, Task> f)
+        {
+            if (_isPresent) { await f(_value); }
             return this;
         }
 

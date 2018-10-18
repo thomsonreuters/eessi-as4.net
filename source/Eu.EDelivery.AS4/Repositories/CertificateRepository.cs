@@ -54,7 +54,7 @@ namespace Eu.EDelivery.AS4.Repositories
                 if (certificateCollection.Count <= 0)
                 {
                     throw new CryptographicException(
-                          $"Could not find certificate in store: {GetCertificateStoreName()} where {findType} is {privateKeyReference}");
+                          $"Could not find certificate in store: {_config.CertificateStore} where {findType} is {privateKeyReference}");
                 }
 
                 return certificateCollection[0];
@@ -63,13 +63,8 @@ namespace Eu.EDelivery.AS4.Repositories
 
         private X509Store GetCertificateStore()
         {
-            string storeName = GetCertificateStoreName();
+            string storeName = _config.CertificateStore;
             return new X509Store(storeName, StoreLocation.LocalMachine);
-        }
-
-        private string GetCertificateStoreName()
-        {
-            return _config.GetSetting("certificatestore");
         }
     }
 

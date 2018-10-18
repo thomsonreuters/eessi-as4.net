@@ -11,7 +11,8 @@
                                     <option value="1">Outbound</option>
                                 </select>
                                 <div class="input-group-btn">
-                                    <button class="btn btn-secondary" type="button" (click)="clear('direction')"><i class="fa fa-trash"></i></button>
+                                    <button class="btn btn-secondary" type="button" (click)="clear('direction')"><i
+                                            class="fa fa-trash"></i></button>
                                 </div>
                             </div>
                         </as4-input>
@@ -19,19 +20,20 @@
                             <div class="input-group">
                                 <select name="operation" formControlName="operation" multiselect>
                                     <option value="undefined">None</option>
-                                    <option value="0">Not applicable</option>
-                                    <option value="1">To be sent</option>
-                                    <option value="2">Sending</option>
-                                    <option value="3">Sent</option>
-                                    <option value="4">To be notified</option>
-                                    <option value="5">Notifying</option>
-                                    <option value="6">Notified</option>
-                                    <option value="7">To be delivered</option>
-                                    <option value="8">Delivering</option>
-                                    <option value="9">Delivered</option>
+                                    <option value="NotApplicable">Not applicable</option>
+                                    <option value="Undetermined">Undetermined</option>
+                                    <option value="ToBeSent">To be sent</option>
+                                    <option value="Sending">Sending</option>
+                                    <option value="Sent">Sent</option>
+                                    <option value="DeadLettered">Dead lettered</option>
+                                    <option value="ToBeRetried">To be retried</option>
+                                    <option value="ToBeNotified">To be notified</option>
+                                    <option value="Notifying">Notifying</option>
+                                    <option value="Notified">Notified</option>
                                 </select>
                                 <span class="input-group-btn">
-                                    <button class="btn btn-secondary" type="button" (click)="clear('operation')"><i class="fa fa-trash"></i></button>
+                                    <button class="btn btn-secondary" type="button" (click)="clear('operation')"><i
+                                            class="fa fa-trash"></i></button>
                                 </span>
                             </div>
                         </as4-input>
@@ -41,10 +43,12 @@
                             <input type="text" formControlName="ebmsRefToMessageId" data-cy="ebmsRefToMessageId" />
                         </as4-input>
                         <as4-input label="Insertion time" labelSize="3" controlSize="9">
-                            <as4-timeinput [input]="exceptionFilterForm" type="insertionTimeType" from="insertionTimeFrom" to="insertionTimeTo"></as4-timeinput>
+                            <as4-timeinput [input]="exceptionFilterForm" type="insertionTimeType" from="insertionTimeFrom"
+                                to="insertionTimeTo"></as4-timeinput>
                         </as4-input>
                         <as4-input [showLabel]="false" controlSize="12">
-                            <button type="submit" data-cy="search" [disabled]="!exceptionFilterForm.valid" (click)="search()" class="btn btn-default pull-right"><i class="fa fa-search"></i></button>
+                            <button type="submit" data-cy="search" [disabled]="!exceptionFilterForm.valid" (click)="search()"
+                                class="btn btn-default pull-right"><i class="fa fa-search"></i></button>
                         </as4-input>
                     </div>
                 </div>
@@ -54,7 +58,8 @@
 </as4-box>
 <as4-box title="Messages">
     <div content *ngIf="messages | async as messageData">
-        <div class="col-xs-12" as4-pager [pages]="messageData.pages" [pageTotal]="messageData.messages.length" [total]="messageData.total" [page]="messageData.page" (onChangePage)="filter.filter.page = $event; filter.search()"></div>
+        <div class="col-xs-12" as4-pager [pages]="messageData.pages" [pageTotal]="messageData.messages.length" [total]="messageData.total"
+            [page]="messageData.page" (onChangePage)="filter.filter.page = $event; filter.search()"></div>
         <table class="table table-striped">
             <colgroup>
                 <col width="1%">
@@ -82,16 +87,19 @@
                 <ng-container *ngFor="let message of messageData.messages; let i = index">
                     <tr *ngIf="messageData.messages.length > 0">
                         <td>
-                            <i class="fa clickable" [class.fa-chevron-right]="message !== activeMessage" [class.fa-chevron-down]="message === activeMessage" (click)="toggle(message)"></i>
+                            <i class="fa clickable" [class.fa-chevron-right]="message !== activeMessage"
+                                [class.fa-chevron-down]="message === activeMessage" (click)="toggle(message)"></i>
                         </td>
                         <td>
-                            <as4-downloadmessagebody *ngIf="message.hasMessageBody" [type]="'exception'" tooltip="Download original message body" [direction]="message.direction" [id]="message.id" [name]="message.ebmsRefToMessageId"></as4-downloadmessagebody>
+                            <as4-downloadmessagebody *ngIf="message.hasMessageBody" [type]="'exception'" tooltip="Download original message body"
+                                [direction]="message.direction" [id]="message.id" [name]="message.ebmsRefToMessageId"></as4-downloadmessagebody>
                         </td>
                         <td>{{message.direction | todirection}}</td>
                         <td>{{message.insertionTime | todate}}</td>
                         <td>{{message.operation}}</td>
                         <td>
-                            <a [routerLink]="['../messages']" [queryParams]="{ ebmsRefToMessageId: message.ebmsRefToMessageId}" target="_blank">{{message.ebmsRefToMessageId}}</a>
+                            <a [routerLink]="['../messages']" [queryParams]="{ ebmsRefToMessageId: message.ebmsRefToMessageId}"
+                                target="_blank">{{message.ebmsRefToMessageId}}</a>
                             <as4-clipboard *ngIf="!!message.ebmsRefToMessageId" [content]="message.ebmsRefToMessageId"></as4-clipboard>
                         </td>
                         <td>
@@ -99,7 +107,8 @@
                             <as4-clipboard [content]="message.exception"></as4-clipboard>
                         </td>
                         <td>
-                            <a target="_blank" [routerLink]="['/pmodes', filter.filter.direction === 0 ? 'receiving' : 'sending', message.pModeId]" [queryParams]="{ compareto: message.hash }">{{message.pModeId}}</a>
+                            <a target="_blank" [routerLink]="['/pmodes', filter.filter.direction === 0 ? 'receiving' : 'sending', message.pModeId]"
+                                [queryParams]="{ compareto: message.hash }">{{message.pModeId}}</a>
                         </td>
                     </tr>
                     <tr *ngIf="message === activeMessage">
@@ -122,6 +131,7 @@
                 </tr>
             </tbody>
         </table>
-        <div class="col-xs-12" as4-pager [pages]="messageData.pages" [pageTotal]="messageData.messages.length" [total]="messageData.total" [page]="messageData.page" (onChangePage)="filter.filter.page = $event; filter.search()"></div>
+        <div class="col-xs-12" as4-pager [pages]="messageData.pages" [pageTotal]="messageData.messages.length" [total]="messageData.total"
+            [page]="messageData.page" (onChangePage)="filter.filter.page = $event; filter.search()"></div>
     </div>
 </as4-box>

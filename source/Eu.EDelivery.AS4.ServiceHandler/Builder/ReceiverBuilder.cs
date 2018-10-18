@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System;
 using Eu.EDelivery.AS4.Builders;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Receivers;
@@ -21,8 +20,12 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Builder
         /// <returns></returns>
         public ReceiverBuilder SetSettings(Receiver settingReceiver)
         {
-            _settingReceiver = settingReceiver;
+            if (settingReceiver == null)
+            {
+                throw new ArgumentNullException(nameof(settingReceiver));
+            }
 
+            _settingReceiver = settingReceiver;
             return this;
         }
 

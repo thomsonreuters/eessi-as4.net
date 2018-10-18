@@ -2,6 +2,7 @@
 using Eu.EDelivery.AS4.Builders;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Serialization;
+using Eu.EDelivery.AS4.Services.PullRequestAuthorization;
 using Eu.EDelivery.AS4.Strategies.Retriever;
 using Eu.EDelivery.AS4.Strategies.Sender;
 using Eu.EDelivery.AS4.Strategies.Uploader;
@@ -67,13 +68,15 @@ namespace Eu.EDelivery.AS4.Common
             }
 
             IsInitialized = true;
+            PullRequestAuthorizationMapProvider = new FilePullAuthorizationMapProvider(config.AuthorizationMapPath);
 
-            string certRepoType = config.GetSetting("CertificateRepository");
-            if (!String.IsNullOrWhiteSpace(certRepoType))
+            string certRepoType = config.CertificateRepositoryType;
+            if (GenericTypeBuilder.CanResolveType(certRepoType))
             {
                 CertificateRepository = 
-                    GenericTypeBuilder.FromType(certRepoType)
-                                      .Build<ICertificateRepository>();
+                    GenericTypeBuilder
+                        .FromType(certRepoType)
+                        .Build<ICertificateRepository>();
             }
 
             _createDatastore = () => new DatastoreContext(config);
@@ -92,6 +95,8 @@ namespace Eu.EDelivery.AS4.Common
         public ICertificateRepository CertificateRepository { get; private set; }
 
         public IAttachmentUploaderProvider AttachmentUploader { get; }
+
+        public IPullAuthorizationMapProvider PullRequestAuthorizationMapProvider { get; private set; }
 
         public SerializerProvider SerializerProvider { get; }
 

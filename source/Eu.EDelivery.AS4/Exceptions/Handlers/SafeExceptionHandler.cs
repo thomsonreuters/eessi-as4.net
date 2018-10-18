@@ -11,8 +11,9 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
     /// <seealso cref="IAgentExceptionHandler" />
     public class SafeExceptionHandler : IAgentExceptionHandler
     {
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
         private readonly IAgentExceptionHandler _innerHandler;
+
+        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SafeExceptionHandler" /> class.
@@ -20,6 +21,11 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
         /// <param name="handler">The handler.</param>
         public SafeExceptionHandler(IAgentExceptionHandler handler)
         {
+            if (handler == null)
+            {
+                throw new ArgumentNullException(nameof(handler));
+            }
+
             _innerHandler = handler;
         }
 

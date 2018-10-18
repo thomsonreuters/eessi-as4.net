@@ -28,7 +28,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
             var sut = new MimeMessageSerializer(new SoapEnvelopeSerializer());
 
             // Act
-            return await sut.DeserializeAsync(stream, contentType, CancellationToken.None);
+            return await sut.DeserializeAsync(stream, contentType);
         }
 
         public class GivenMimeMessageSerializerSucceeds : GivenMimeMessageSerializerFacts
@@ -92,7 +92,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                     var sut = new MimeMessageSerializer(new SoapEnvelopeSerializer());
 
                     // Act
-                    sut.Serialize(as4Message, messageStream, CancellationToken.None);
+                    sut.Serialize(as4Message, messageStream);
 
                     // Assert
                     Assert.True(messageStream.CanRead);
@@ -157,9 +157,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
             private static MimeMessage SerializeMimeMessage(AS4Message message, Stream mimeStream)
             {
                 ISerializer serializer = new MimeMessageSerializer(new SoapEnvelopeSerializer());
-                serializer.Serialize(message, mimeStream, CancellationToken.None);
+                serializer.Serialize(message, mimeStream);
 
-                message.ContentType = Constants.ContentTypes.Mime;
                 mimeStream.Position = 0;
 
                 return MimeMessage.Load(mimeStream);

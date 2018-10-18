@@ -2,7 +2,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Serialization;
 
@@ -99,19 +98,5 @@ namespace Eu.EDelivery.AS4.Entities
         [Column("Operation")]
         [MaxLength(50)]
         public Operation Operation { get; set; }
-
-        /// <summary>
-        /// Update the <see cref="Entity" /> to lock it with a given <paramref name="value" />.
-        /// </summary>
-        /// <param name="value">Value indicating the <see cref="Entity" /> is locked.</param>
-        public override void Lock(string value)
-        {
-            var updatedOperation = value.ToEnum<Operation>();
-
-            if (updatedOperation != Operation.NotApplicable)
-            {
-                Operation = updatedOperation;
-            }
-        }
     }
 }

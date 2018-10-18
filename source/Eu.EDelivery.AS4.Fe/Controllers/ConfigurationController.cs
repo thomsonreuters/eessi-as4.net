@@ -89,7 +89,7 @@ namespace Eu.EDelivery.AS4.Fe.Controllers
         [SwaggerResponse((int)HttpStatusCode.OK)]
         public IActionResult PostAuthorizationMap([FromBody] IEnumerable<PullRequestAuthorizationEntry> authorizationEntries)
         {
-            Config.Instance.PullRequestAuthorizationMapProvider.SavePullRequestAuthorizationEntries(authorizationEntries);
+            Registry.Instance.PullRequestAuthorizationMapProvider.SavePullRequestAuthorizationEntries(authorizationEntries);
             return new OkResult();
         }
 
@@ -102,7 +102,7 @@ namespace Eu.EDelivery.AS4.Fe.Controllers
         [SwaggerResponse((int)HttpStatusCode.OK, typeof(IEnumerable<PullRequestAuthorizationEntry>))]
         public IActionResult GetAuthorizationMap()
         {
-            return new OkObjectResult(Config.Instance.PullRequestAuthorizationMapProvider.GetPullRequestAuthorizationEntryOverview());
+            return new OkObjectResult(Registry.Instance.PullRequestAuthorizationMapProvider.GetPullRequestAuthorizationEntryOverview());
         }
 
         /// <summary>
@@ -158,6 +158,37 @@ namespace Eu.EDelivery.AS4.Fe.Controllers
             return new OkResult();
         }
 
+        /// <summary>
+        /// Save submit settings.
+        /// </summary>
+        /// <param name="settings">The settings.</param>
+        /// <returns>OkResult</returns>
+        [HttpPost]
+        [Route("submitsettings")]
+        [Authorize(Roles = Roles.Admin)]
+        [SwaggerResponse((int)HttpStatusCode.OK, typeof(OkResult))]
+        public async Task<IActionResult> SaveSubmitSettings([FromBody] SettingsSubmit settings)
+        {
+            EnsureArg.IsNotNull(settings, nameof(settings));
+            await settingsService.SaveSubmitSettings(settings);
+            return new OkResult();
+        }
+
+        /// <summary>
+        /// Save pull send settings.
+        /// </summary>
+        /// <param name="settings">The settings.</param>
+        /// <returns>OkResult</returns>
+        [HttpPost]
+        [Route("pullsendsettings")]
+        [Authorize(Roles = Roles.Admin)]
+        [SwaggerResponse((int) HttpStatusCode.OK, typeof(OkResult))]
+        public async Task<IActionResult> SavePullSendSettings([FromBody] SettingsPullSend settings)
+        {
+            EnsureArg.IsNotNull(settings, nameof(settings));
+            await settingsService.SavePullSendSettings(settings);
+            return new OkResult();
+        }
         /// <summary>
         /// Save custom settings
         /// </summary>

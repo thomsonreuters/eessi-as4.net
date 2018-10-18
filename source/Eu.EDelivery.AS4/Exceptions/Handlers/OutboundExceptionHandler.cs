@@ -156,8 +156,7 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
 
                 return await serializer.DeserializeAsync(
                     message.UnderlyingStream, 
-                    message.ContentType, 
-                    CancellationToken.None);
+                    message.ContentType);
             }
             catch
             {

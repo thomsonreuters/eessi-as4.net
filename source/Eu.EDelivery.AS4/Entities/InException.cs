@@ -16,8 +16,7 @@ namespace Eu.EDelivery.AS4.Entities
             string messageLocation,
             Exception exception) : base(ebmsRefToMessageId, messageLocation, exception) { }
 
-        // TODO: is used in tests and should be looked at if we really need this ctor.
-        internal InException(
+        private InException(
             string ebmsRefToMessageId,
             string messageLocation,
             string exception) : base(ebmsRefToMessageId, messageLocation, exception) { }
@@ -45,11 +44,31 @@ namespace Eu.EDelivery.AS4.Entities
         }
 
         /// <summary>
+        /// Creates an <see cref="OutException"/> that references an exsiting stored message.
+        /// </summary>
+        /// <param name="ebmsRefToMessageId">The message id of the message that caused the exception.</param>
+        /// <param name="exception">The occurred exception message for which we have to insert a record.</param>
+        public static InException ForEbmsMessageId(string ebmsRefToMessageId, string exception)
+        {
+            return new InException(ebmsRefToMessageId: ebmsRefToMessageId, messageLocation: null, exception: exception);
+        }
+
+        /// <summary>
         /// Creates an <see cref="InException"/> that uses a stored location of the original message because it can't be referenced to an existing stored message.
         /// </summary>
         /// <param name="messageLocation">The location to where the refering message which caused the exception is stored.</param>
         /// <param name="exception">The occurred exception for which we have to insert a record.</param>
         public static InException ForMessageBody(string messageLocation, Exception exception)
+        {
+            return new InException(ebmsRefToMessageId: null, messageLocation: messageLocation, exception: exception);
+        }
+
+        /// <summary>
+        /// Creates an <see cref="InException"/> that uses a stored location of the original message because it can't be referenced to an existing stored message.
+        /// </summary>
+        /// <param name="messageLocation">The location to where the refering message which caused the exception is stored.</param>
+        /// <param name="exception">The occurred exception message for which we have to insert a record.</param>
+        public static InException ForMessageBody(string messageLocation, string exception)
         {
             return new InException(ebmsRefToMessageId: null, messageLocation: messageLocation, exception: exception);
         }

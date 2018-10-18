@@ -28,10 +28,10 @@ namespace Eu.EDelivery.AS4.Transformers
             var transformer = new AS4MessageTransformer();
             MessagingContext sendContext = await transformer.TransformAsync(message);
             
-            var forwardContext = new MessagingContext(sendContext.ReceivedMessage, MessagingContextMode.Forward);
-            forwardContext.ModifyContext(sendContext.AS4Message);
-
-            return await Task.FromResult(sendContext);
+            return new MessagingContext(
+                sendContext.AS4Message,
+                sendContext.ReceivedMessage, 
+                MessagingContextMode.Forward);
         }
     }
 }

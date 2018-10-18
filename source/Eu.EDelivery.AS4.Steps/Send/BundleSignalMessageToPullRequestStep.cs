@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
+using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Repositories;
@@ -73,11 +75,9 @@ namespace Eu.EDelivery.AS4.Steps.Send
             using (DatastoreContext ctx = _createContext())
             {
                 var service = new PiggyBackingService(ctx);
+                string url = messagingContext.SendingPMode?.PushConfiguration?.Protocol?.Url;
                 IEnumerable<SignalMessage> signalMessages = 
-                    await service.SelectToBePiggyBackedSignalMessagesAsync(
-                        pullRequest, 
-                        messagingContext.SendingPMode?.PushConfiguration?.Protocol?.Url,
-                        _bodyStore);
+                    await service.SelectToBePiggyBackedSignalMessagesAsync(pullRequest, url, _bodyStore);
 
                 foreach (SignalMessage signal in signalMessages)
                 {
@@ -90,4 +90,3 @@ namespace Eu.EDelivery.AS4.Steps.Send
         }
     }
 }
-

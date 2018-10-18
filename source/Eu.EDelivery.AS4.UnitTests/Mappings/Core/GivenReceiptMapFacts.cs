@@ -58,7 +58,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Core
             var memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(Properties.Resources.receipt));
             var serializer = new SoapEnvelopeSerializer();
 
-            return await serializer.DeserializeAsync(memoryStream, Constants.ContentTypes.Soap, CancellationToken.None);
+            return await serializer.DeserializeAsync(memoryStream, Constants.ContentTypes.Soap);
         }
     }
 }

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using Eu.EDelivery.AS4.Agents;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
-using Eu.EDelivery.AS4.Services.PullRequestAuthorization;
 
 namespace Eu.EDelivery.AS4.Common
 {
@@ -54,6 +53,36 @@ namespace Eu.EDelivery.AS4.Common
         string OutExceptionStoreLocation { get; }
 
         /// <summary>
+        /// Gets the format in which Ebms Message Identifiers should be generated.
+        /// </summary>
+        string EbmsMessageIdFormat { get; }
+
+        /// <summary>
+        /// Gets the configured database provider.
+        /// </summary>
+        string DatabaseProvider { get; }
+
+        /// <summary>
+        /// Gets the configured connection string to contact the database.
+        /// </summary>
+        string DatabaseConnectionString { get; }
+
+        /// <summary>
+        /// Gets the confgured certificate store name.
+        /// </summary>
+        string CertificateStore { get; }
+
+        /// <summary>
+        /// Gets the configured certificate repository type.
+        /// </summary>
+        string CertificateRepositoryType { get; }
+
+        /// <summary>
+        /// Gets the file path from where the authorization entries to verify PullRequests should be stored.
+        /// </summary>
+        string AuthorizationMapPath { get; }
+
+        /// <summary>
         /// Retrieve Setting from the Global Configurations
         /// </summary>
         /// <param name="key">Registered Key for the Setting</param>
@@ -93,12 +122,6 @@ namespace Eu.EDelivery.AS4.Common
         /// </summary>
         /// <returns></returns>
         IEnumerable<AgentConfig> GetAgentsConfiguration();
-
-        /// <summary>
-        /// Gets the IAuthorizationMapProvider that must be used when verifying PullRequests.
-        /// </summary>
-        /// <returns></returns>
-        IPullAuthorizationMapProvider PullRequestAuthorizationMapProvider { get; }
 
         /// <summary>
         /// Gets the retry polling interval for which the Retry Agent will poll 

@@ -9,6 +9,7 @@ using Eu.EDelivery.AS4.Steps.Receive;
 using Eu.EDelivery.AS4.UnitTests.Common;
 using Eu.EDelivery.AS4.UnitTests.Repositories;
 using FsCheck;
+using FsCheck.Xunit;
 using Xunit;
 using MessageExchangePattern = Eu.EDelivery.AS4.Entities.MessageExchangePattern;
 
@@ -39,7 +40,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 };
 
             // Act
-            StepResult result = ExerciseStoreSignalMessage(context).GetAwaiter().GetResult();
+            StepResult result = ExerciseStoreSignalMessageAsync(context).GetAwaiter().GetResult();
 
             // Assert
             AS4Message actual = result.MessagingContext.AS4Message;
@@ -86,7 +87,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 };
 
             // Act
-            await ExerciseStoreSignalMessage(context);
+            await ExerciseStoreSignalMessageAsync(context);
 
             // Assert
             GetDataStoreContext.AssertOutMessage(
@@ -96,6 +97,59 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                     Assert.NotNull(m);
                     Assert.Equal(op, m.Operation);
                 });
+        }
+
+        [Property]
+        public void Stores_Retry_Information_For_ToBePiggyBacked_SignalMessages(bool isEnabled, int maxRetryCount, TimeSpan retryInterval)
+        {
+            // Arrange
+            string userMessageId = $"user-{Guid.NewGuid()}";
+            GetDataStoreContext.InsertInMessage(
+                new InMessage(userMessageId) { MEP = MessageExchangePattern.Pull });
+
+            var receipt = new Receipt($"receipt-{Guid.NewGuid()}", userMessageId);
+            var context = new MessagingContext(
+                AS4Message.Create(receipt),
+                MessagingContextMode.Receive)
+            {
+                SendingPMode = new SendingProcessingMode { Id = "shortcut-send-pmode-retrieval" },
+                ReceivingPMode = new ReceivingProcessingMode
+                {
+                    ReplyHandling =
+                    {
+                        ReplyPattern = ReplyPattern.PiggyBack,
+                        PiggyBackReliability = new AS4.Model.PMode.RetryReliability
+                        {
+                            IsEnabled = isEnabled,
+                            RetryCount = maxRetryCount,
+                            RetryInterval = retryInterval.ToString()
+                        }
+                    }
+                }
+            };
+
+            // Act
+            ExerciseStoreSignalMessageAsync(context)
+                .GetAwaiter()
+                .GetResult();
+
+            // Assert
+            GetDataStoreContext.AssertOutMessage(
+                receipt.MessageId,
+                m => GetDataStoreContext.AssertRetryRelatedOutMessage(
+                    m.Id,
+                    r =>
+                    {
+                        Assert.True(
+                            isEnabled == (0 == r?.CurrentRetryCount),
+                            $"Enabling PiggyBack Reliability should result in 0 = {r?.CurrentRetryCount}");
+                        Assert.True(
+                            isEnabled == (maxRetryCount == r?.MaxRetryCount),
+                            $"Enabling PiggyBack Reliability should result in {maxRetryCount} = {r?.MaxRetryCount}");
+                        Assert.True(
+                            isEnabled == (retryInterval == r?.RetryInterval),
+                            $"Enabling PiggyBack Reliability should result in {retryInterval} = {r?.RetryInterval}");
+                    }));
         }
 
         [Fact]
@@ -120,10 +174,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
             // Act / Assert
             await Assert.ThrowsAsync<InvalidOperationException>(
-                () => ExerciseStoreSignalMessage(context));
+                () => ExerciseStoreSignalMessageAsync(context));
         }
 
-        private async Task<StepResult> ExerciseStoreSignalMessage(MessagingContext ctx)
+        private async Task<StepResult> ExerciseStoreSignalMessageAsync(MessagingContext ctx)
         {
             var sut = new SendAS4SignalMessageStep(StubConfig.Default, GetDataStoreContext, _messageBodyStore);
             return await sut.ExecuteAsync(ctx);

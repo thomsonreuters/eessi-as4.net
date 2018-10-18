@@ -110,8 +110,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
                         .Get(rm.ContentType)
                         .DeserializeAsync(
                               rm.UnderlyingStream,
-                              rm.ContentType,
-                              CancellationToken.None)
+                              rm.ContentType)
                         .ConfigureAwait(false);
 
                 // TODO: the serializer already does this?
@@ -133,19 +132,16 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 string contentType = ctx.ReceivedMessage?.ContentType ?? ctx.AS4Message.ContentType;
                 HttpWebRequest request = CreateWebRequest(sendPMode, contentType.Replace("charset=\"utf-8\"", ""));
 
-                if (await WriteToHttpRequestStreamAsync(request, ctx).ConfigureAwait(false))
-                {
-                    ctx.ModifyContext(as4Message);
+                await WriteToHttpRequestStreamAsync(request, ctx).ConfigureAwait(false);
+                ctx.ModifyContext(as4Message);
 
-                    return await HandleHttpResponseAsync(request, ctx).ConfigureAwait(false);
-                }
-
-                return StepResult.Failed(ctx);
+                return await HandleHttpResponseAsync(request, ctx).ConfigureAwait(false);
             }
             catch (Exception exception)
             {
                 Logger.ErrorDeep(exception);
-                UpdateMessageStatus(ctx, SendResult.FatalFail);
+                await UpdateRetryStatusForMessageAsync(ctx, SendResult.RetryableFail);
+
                 throw;
             }
         }
@@ -210,7 +206,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             return null;
         }
 
-        private static async Task<bool> WriteToHttpRequestStreamAsync(HttpWebRequest request, MessagingContext ctx)
+        private static async Task WriteToHttpRequestStreamAsync(HttpWebRequest request, MessagingContext ctx)
         {
             try
             {
@@ -227,15 +223,14 @@ namespace Eu.EDelivery.AS4.Steps.Send
                     }
                     else
                     {
-                        SerializerProvider
+                        await SerializerProvider
                             .Default
                             .Get(request.ContentType)
-                            .Serialize(ctx.AS4Message, requestStream, CancellationToken.None);
+                            .SerializeAsync(ctx.AS4Message, requestStream);
                     }
                 }
 
                 Logger.Debug($"AS4Message received from: {request.Address}");
-                return true;
             }
             catch (WebException exception)
             {
@@ -244,7 +239,6 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 {
                     Logger.Trace($"The PullRequest could not be send to {request.RequestUri} due to a WebException");
                     Logger.Trace(exception.Message);
-                    return false;
                 }
 
                 throw CreateFailedSendException(request.RequestUri.ToString(), exception);
@@ -287,7 +281,8 @@ namespace Eu.EDelivery.AS4.Steps.Send
             {
                 using (AS4Response res = await AS4Response.Create(ctx, webResponse).ConfigureAwait(false))
                 {
-                    UpdateMessageStatus(ctx, SendResultUtils.DetermineSendResultFromHttpResonse(res.StatusCode));
+                    SendResult result = SendResultUtils.DetermineSendResultFromHttpResonse(res.StatusCode);
+                    await UpdateRetryStatusForMessageAsync(ctx, result);
 
                     var handler = new PullRequestResponseHandler(
                         _createDatastore,
@@ -303,7 +298,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             throw CreateFailedSendException(request.RequestUri.ToString(), exception);
         }
 
-        private void UpdateMessageStatus(MessagingContext ctx, SendResult result)
+        private async Task UpdateRetryStatusForMessageAsync(MessagingContext ctx, SendResult result)
         {
             if (ctx.MessageEntityId.HasValue)
             {
@@ -315,7 +310,20 @@ namespace Eu.EDelivery.AS4.Steps.Send
                         messageId: ctx.MessageEntityId.Value,
                         status: result);
 
-                    db.SaveChanges();
+                    await db.SaveChangesAsync()
+                            .ConfigureAwait(false);
+                }
+            }
+
+            if (ctx.AS4Message.IsPullRequest)
+            {
+                using (DatastoreContext db = _createDatastore())
+                {
+                    var service = new PiggyBackingService(db);
+                    service.ResetSignalMessagesToBePiggyBacked(ctx.AS4Message.SignalMessages, result);
+
+                    await db.SaveChangesAsync()
+                            .ConfigureAwait(false);
                 }
             }
         }

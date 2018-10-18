@@ -83,7 +83,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 as4Message,
                 MessagingContextMode.Unknown)
             {
-                ErrorResult = new ErrorResult(string.Empty, ErrorAlias.ConnectionFailure),
+                ErrorResult = new ErrorResult("error", ErrorAlias.ConnectionFailure),
                 ReceivingPMode = CreateReceivePModeWithReferencedSendPMode(sendPModeId)
             };
 

@@ -82,5 +82,38 @@ namespace Eu.EDelivery.AS4.Strategies.Database
             _context.RemoveRange(entities);
             _context.SaveChanges();
         }
+
+        /// <summary>
+        /// Selects in a reliable way the ToBePiggyBacked SignalMessages stored in the OutMessage table.
+        /// </summary>
+        /// <param name="url">The endpoint to which the OutMessage SignalMessage should be Piggy Backed.</param>
+        /// <param name="mpc">The MPC of the incoming PullRequest to match on the related UserMessage of the Piggy Backed SignalMessage.</param>
+        /// <returns></returns>
+        public IEnumerable<OutMessage> SelectToBePiggyBackedSignalMessages(string url, string mpc)
+        {
+            if (url == null)
+            {
+                throw new ArgumentNullException(nameof(url));
+            }
+
+            if (mpc == null)
+            {
+                throw new ArgumentNullException(nameof(mpc));
+            }
+
+            // TODO: the 'Take' of the query should be configurable.
+            return (from outM in _context.OutMessages
+                    join inM in _context.InMessages
+                        on outM.EbmsRefToMessageId
+                        equals inM.EbmsMessageId
+                    where outM.Operation == Operation.ToBePiggyBacked
+                          && inM.Mpc == mpc
+                          && outM.Url == url
+                          && outM.EbmsMessageType != MessageType.UserMessage
+                    select outM)
+                   .OrderBy(m => m.InsertionTime)
+                   .Take(10)
+                   .AsEnumerable<OutMessage>();
+        }
     }
 }

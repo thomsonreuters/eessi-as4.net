@@ -7,10 +7,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
+using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Core;
-using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Serialization;
+using Eu.EDelivery.AS4.Strategies.Sender;
 using NLog;
 
 namespace Eu.EDelivery.AS4.Services
@@ -18,6 +19,7 @@ namespace Eu.EDelivery.AS4.Services
     internal class PiggyBackingService
     {
         private readonly DatastoreContext _context;
+        private readonly IDatastoreRepository _repository;
 
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 
@@ -32,6 +34,7 @@ namespace Eu.EDelivery.AS4.Services
             }
 
             _context = context;
+            _repository = new DatastoreRepository(_context);
         }
 
         /// <summary>
@@ -61,47 +64,54 @@ namespace Eu.EDelivery.AS4.Services
                 throw new ArgumentNullException(nameof(bodyStore));
             }
 
-            // TODO: the 'LIMIT' of the query should be configurable.
-            IEnumerable<OutMessage> query =
-                (from outM in _context.OutMessages
-                 join inM in _context.InMessages
-                     on outM.EbmsRefToMessageId
-                     equals inM.EbmsMessageId
-                 where outM.Operation == Operation.ToBePiggyBacked
-                       && inM.Mpc == pr.Mpc
-                       && outM.Url == url
-                       && outM.EbmsMessageType != MessageType.UserMessage
-                 select outM)
-                .OrderByDescending(m => m.InsertionTime)
-                .Take(10)
-                .AsEnumerable();
-
-            var signals = new Collection<SignalMessage>();
-            foreach (OutMessage found in query)
+            return await _context.TransactionalAsync(async db =>
             {
-                found.Operation = Operation.Sending;
+                IEnumerable<OutMessage> query =
+                    db.NativeCommands
+                      .SelectToBePiggyBackedSignalMessages(url, pr.Mpc);
 
-                Stream body = await bodyStore.LoadMessageBodyAsync(found.MessageLocation);
-                AS4Message signal =
-                    await SerializerProvider
-                          .Default
-                          .Get(found.ContentType)
-                          .DeserializeAsync(body, found.ContentType, CancellationToken.None);
-
-                
-                if (signal.PrimaryMessageUnit is SignalMessage s)
+                var signals = new Collection<SignalMessage>();
+                foreach (OutMessage found in query)
                 {
-                    signals.Add(s);
+                    found.Operation = Operation.Sending;
+
+                    Stream body = await bodyStore.LoadMessageBodyAsync(found.MessageLocation);
+                    AS4Message signal =
+                        await SerializerProvider
+                              .Default
+                              .Get(found.ContentType)
+                              .DeserializeAsync(body, found.ContentType);
+
+                    if (signal.PrimaryMessageUnit is Receipt r)
+                    {
+                        Logger.Debug($"Select Receipt {r.MessageId} for PiggyBacking");
+                        signals.Add(r);
+                    }
+                    else if (signal.PrimaryMessageUnit is Error e)
+                    {
+                        Logger.Debug($"Select Error {e.MessageId} for PiggyBacking");
+                        signals.Add(e);
+                    }
+                    else if (signal.PrimaryMessageUnit != null)
+                    {
+                        Logger.Warn(
+                            $"Will not select {signal.PrimaryMessageUnit.GetType().Name} because only "
+                            + "Receipts and Errors are allowed SignalMessages are allowed to be PiggyBacked with PullRequests");
+                    }
+                    else
+                    {
+                        Logger.Warn("Will not select AS4Message for PiggyBacking because it doesn't contains any Message Units");
+                    }
                 }
-            }
 
-            if (query.Any())
-            {
-                await _context.SaveChangesAsync()
-                              .ConfigureAwait(false); 
-            }
+                if (query.Any())
+                {
+                    await db.SaveChangesAsync()
+                            .ConfigureAwait(false);
+                }
 
-            return signals.AsEnumerable();
+                return signals.AsEnumerable();
+            });
         }
 
         /// <summary>
@@ -109,7 +119,8 @@ namespace Eu.EDelivery.AS4.Services
         /// so it can be picked-up again by the next send-out <see cref="PullRequest"/>.
         /// </summary>
         /// <param name="signals">The <see cref="SignalMessage"/>s that should be resetted for PiggyBacking.</param>
-        public void ResetSignalMessagesToBePiggyBacked(IEnumerable<SignalMessage> signals)
+        /// <param name="sendResult">The result of the bundling operation to use when resetting the <see cref="SignalMessage"/>s.</param>
+        public void ResetSignalMessagesToBePiggyBacked(IEnumerable<SignalMessage> signals, SendResult sendResult)
         {
             if (signals == null)
             {
@@ -120,16 +131,74 @@ namespace Eu.EDelivery.AS4.Services
                 signals.Where(s => !(s is PullRequest))
                        .Select(s => s.MessageId);
 
+            SendResult neverFatalResult =
+                sendResult == SendResult.FatalFail
+                    ? SendResult.RetryableFail
+                    : sendResult;
+
+            if (neverFatalResult == SendResult.Success)
+            {
+                Logger.Debug("PiggyBacked SignalMessage(s) was/were correctly send to the sender MSH");
+            }
+            else if (neverFatalResult == SendResult.RetryableFail)
+            {
+                Logger.Debug("Reset PiggyBacked SignalMessage(s) for the next PullRequest because it was not correctly send to the sender MSH");
+            }
+
             if (nonPrSignals.Any())
             {
-                var repository = new DatastoreRepository(_context);
-                repository.UpdateOutMessages(
-                    m => nonPrSignals.Contains(m.EbmsMessageId),
-                    m =>
+                var retryService = new MarkForRetryService(_repository);
+
+                IEnumerable<long> ids = 
+                    _repository.GetOutMessageData(m => nonPrSignals.Contains(m.EbmsMessageId), m => m.Id);
+
+                if (ids.Any())
+                {
+                    foreach (long id in ids)
                     {
-                        Logger.Debug($"Update OutMessage SignalMessage {m.EbmsMessageId} with {{Operation=ToBePiggybacked}}");
-                        m.Operation = Operation.ToBePiggyBacked;
-                    });
+                        retryService.UpdateAS4MessageForSendResult(id, neverFatalResult);
+                    }
+                }
+                else
+                {
+                    Logger.Warn(
+                        "No stored SignalMessage can be found to reset for PiggyBacking, "
+                        + "are you sure that the bundled SignalMessages with PullRequest are stored?");
+                }
+            }
+            else
+            {
+                Logger.Debug("No SignalMessages bundled with PullRequest to reset for PiggyBacking");
+            }
+        }
+
+        /// <summary>
+        /// Mark the stored <see cref="OutMessage"/> for retry/delayed piggy backing.
+        /// </summary>
+        /// <param name="inserts"></param>
+        /// <param name="reliability"></param>
+        public void InsertRetryForPiggyBackedSignalMessages(IEnumerable<OutMessage> inserts, Model.PMode.RetryReliability reliability)
+        {
+            if (reliability?.IsEnabled == true)
+            {
+                foreach (OutMessage m in inserts.Where(i => i.Operation == Operation.ToBePiggyBacked))
+                {
+                    var r = RetryReliability.CreateForOutMessage(
+                        refToOutMessageId: m.Id,
+                        maxRetryCount: reliability.RetryCount,
+                        retryInterval: reliability.RetryInterval.AsTimeSpan(),
+                        type: RetryType.PiggyBack);
+
+                    Logger.Debug(
+                        $"Insert RetryReliability for ToBePiggyBacked SignalMessage OutMessage {m.EbmsMessageId} with "
+                        + $"{{RetryCount={r.MaxRetryCount}, RetryInterval={r.RetryInterval}}}");
+
+                    _repository.InsertRetryReliability(r);
+                }
+            }
+            else
+            {
+                Logger.Debug("Will not insert RetryReliability because ReceivingPMode.ReplyHandling.Reliability is not enabeld");
             }
         }
     }

@@ -1,14 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
-using System.IO.Compression;
-using System.Linq;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Exceptions;
-using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
-using Eu.EDelivery.AS4.Streaming;
 using NLog;
 
 namespace Eu.EDelivery.AS4.Steps.Receive
@@ -20,8 +15,6 @@ namespace Eu.EDelivery.AS4.Steps.Receive
     [Description("If necessary, decompresses the attachments that are present in the received message.")]
     public class DecompressAttachmentsStep : IStep
     {
-        private const string GzipContentType = "application/gzip";
-
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 
         /// <summary>
@@ -59,23 +52,17 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 Logger.Warn("Incoming attachmets are still encrypted will fail to decompress correctly");
             }
 
-            return await TryDecompressAttachmentsAsync(messagingContext).ConfigureAwait(false);
-        }
-
-        private static async Task<StepResult> TryDecompressAttachmentsAsync(MessagingContext context)
-        {
             try
             {
-                DecompressAttachments(context.AS4Message);
-                return await StepResult.SuccessAsync(context);
+                messagingContext.AS4Message.DecompressAttachments();
+                return await StepResult.SuccessAsync(messagingContext);
             }
-            catch (Exception exception)
-            when (
-                exception is ArgumentException
-                || exception is ObjectDisposedException
-                || exception is InvalidDataException)
+            catch (Exception exception) 
+            when (exception is ArgumentException
+                  || exception is ObjectDisposedException
+                  || exception is InvalidDataException)
             {
-                if (context.AS4Message.IsEncrypted)
+                if (messagingContext.AS4Message.IsEncrypted)
                 {
                     Logger.Error(
                         "Decompression failed because the incoming attachments are still encrypted. "
@@ -83,94 +70,8 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                         + "so the attachments are first decrypted before decompressed");
                 }
 
-                context.ErrorResult = new ErrorResult(exception.Message, ErrorAlias.DecompressionFailure);
-                return StepResult.Failed(context);
-            }
-        }
-
-        private static void DecompressAttachments(AS4Message as4Message)
-        {
-            IEnumerable<PartInfo> partInfos = as4Message.UserMessages.SelectMany(u => u.PayloadInfo);
-            foreach (Attachment attachment in as4Message.Attachments)
-            {
-                if (IsAttachmentNotCompressed(attachment))
-                {
-                    Logger.Debug($"Attachment {attachment.Id} is not compressed, so can't be decompressed");
-                    continue;
-                }
-
-                if (!attachment.Properties.ContainsKey("MimeType"))
-                {
-                    throw new InvalidDataException(
-                        $"Cannot decompress attachment \"{attachment.Id}\" because it hasn't got a PartProperty called \"MimeType\"");
-                }
-
-                Logger.Trace($"Attachment {attachment.Id} will be decompressed");
-                DecompressAttachment(partInfos, attachment);
-                Logger.Debug($"Attachment {attachment.Id} is decompressed to a type of {attachment.ContentType}");
-            }
-        }
-
-        private static bool IsAttachmentNotCompressed(Attachment attachment)
-        {
-            return !attachment.ContentType.Equals(GzipContentType, StringComparison.OrdinalIgnoreCase) &&
-                   !attachment.Properties.ContainsKey("CompressionType");
-        }
-
-        private static void DecompressAttachment(IEnumerable<PartInfo> payloadInfo, Attachment attachment)
-        {
-            attachment.ResetContentPosition();
-
-            long unzipLength = StreamUtilities.DetermineOriginalSizeOfCompressedStream(attachment.Content);
-
-            VirtualStream outputStream =
-                VirtualStream.Create(
-                    unzipLength > -1 ? unzipLength : VirtualStream.ThresholdMax);
-
-            if (unzipLength > 0)
-            {
-                outputStream.SetLength(unzipLength);
-            }
-
-            Stream decompressed = DecompressStream(attachment.Content);
-
-            attachment.Properties["CompressionType"] = GzipContentType;
-            string mimeType = payloadInfo.FirstOrDefault(attachment.Matches)?.Properties["MimeType"];
-
-            if (string.IsNullOrWhiteSpace(mimeType))
-            {
-                throw new InvalidDataException(
-                    $"Cannot decompress attachment {attachment.Id}: MimeType is not specified in referenced <PartInfo/> element");
-            }
-
-            if (mimeType.IndexOf("/", StringComparison.OrdinalIgnoreCase) < 0)
-            {
-                throw new InvalidDataException(
-                    $"Cannot decompress attachment {attachment.Id}: Invalid MimeType {mimeType} in referenced <PartInfo/> element");
-            }
-
-            attachment.Properties["MimeType"] = mimeType;
-            attachment.UpdateContent(decompressed, mimeType);
-        }
-
-        private static Stream DecompressStream(Stream input)
-        {
-            long unzipLength = StreamUtilities.DetermineOriginalSizeOfCompressedStream(input);
-
-            VirtualStream outputStream =
-                VirtualStream.Create(
-                    unzipLength > -1 ? unzipLength : VirtualStream.ThresholdMax);
-
-            if (unzipLength > 0)
-            {
-                outputStream.SetLength(unzipLength);
-            }
-
-            using (var gzipCompression = new GZipStream(input, CompressionMode.Decompress, true))
-            {
-                gzipCompression.CopyTo(outputStream);
-                outputStream.Position = 0;
-                return outputStream;
+                messagingContext.ErrorResult = new ErrorResult(exception.Message, ErrorAlias.DecompressionFailure);
+                return StepResult.Failed(messagingContext);
             }
         }
     }

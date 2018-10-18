@@ -55,7 +55,7 @@ namespace Eu.EDelivery.AS4.TestUtils.Stubs
             using (var stream = new MemoryStream())
             {
                 ISerializer serializer = SerializerProvider.Default.Get(message.ContentType);
-                await serializer.SerializeAsync(message, stream, CancellationToken.None);
+                await serializer.SerializeAsync(message, stream);
 
                 serializedMessage = stream.ToArray();
             }

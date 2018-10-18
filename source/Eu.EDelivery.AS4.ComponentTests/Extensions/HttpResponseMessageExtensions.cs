@@ -19,8 +19,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Extensions
 
             return await serializer.DeserializeAsync(
                        await response.Content.ReadAsStreamAsync(),
-                       response.Content.Headers.ContentType.MediaType,
-                       CancellationToken.None);
+                       response.Content.Headers.ContentType.MediaType);
         }
     }
 }

@@ -28,6 +28,7 @@
       <xs:element minOccurs="0" maxOccurs="1" name="SendingPMode" type="xs:string" />
       <xs:element minOccurs="0" maxOccurs="1" name="ReceiptHandling" type="tns:ReceiveReceiptHandling" />
       <xs:element minOccurs="0" maxOccurs="1" name="ErrorHandling" type="tns:ReceiveErrorHandling" />
+      <xs:element minOccurs="0" maxOccurs="1" name="PiggyBackReliability" type="tns:RetryReliability" />
     </xs:sequence>
   </xs:complexType>
   <xs:simpleType name="ReplyPattern">
@@ -46,6 +47,13 @@
     <xs:sequence>
       <xs:element minOccurs="0" maxOccurs="1" name="UseSoapFault" type="xs:boolean" />
       <xs:element minOccurs="0" maxOccurs="1" name="ResponseHttpCode" type="xs:int" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="RetryReliability">
+    <xs:sequence>
+      <xs:element minOccurs="1" maxOccurs="1" name="IsEnabled" type="xs:boolean" />
+      <xs:element minOccurs="1" maxOccurs="1" name="RetryCount" type="xs:int" />
+      <xs:element minOccurs="0" maxOccurs="1" name="RetryInterval" type="xs:string" />
     </xs:sequence>
   </xs:complexType>
   <xs:complexType name="ReceiveHandling">
@@ -69,13 +77,6 @@
   <xs:complexType name="Parameter">
     <xs:attribute name="name" type="xs:string" />
     <xs:attribute name="value" type="xs:string" />
-  </xs:complexType>
-  <xs:complexType name="RetryReliability">
-    <xs:sequence>
-      <xs:element minOccurs="1" maxOccurs="1" name="IsEnabled" type="xs:boolean" />
-      <xs:element minOccurs="1" maxOccurs="1" name="RetryCount" type="xs:int" />
-      <xs:element minOccurs="0" maxOccurs="1" name="RetryInterval" type="xs:string" />
-    </xs:sequence>
   </xs:complexType>
   <xs:complexType name="ReceiveSecurity">
     <xs:sequence>

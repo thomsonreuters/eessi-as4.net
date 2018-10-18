@@ -109,7 +109,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
 
                 var serializer = SerializerProvider.Default.Get(contentType);
 
-                return await serializer.DeserializeAsync(stream, contentType, CancellationToken.None);
+                return await serializer.DeserializeAsync(stream, contentType);
             }
         }
 
@@ -126,7 +126,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                         async () =>
                         {
                             var s = new SoapEnvelopeSerializer();
-                            await s.DeserializeAsync(stream, "application/xml", CancellationToken.None);
+                            await s.DeserializeAsync(stream, "application/xml");
                         });
                 }
             }

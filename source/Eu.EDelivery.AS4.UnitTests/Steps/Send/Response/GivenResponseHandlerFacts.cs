@@ -170,7 +170,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
                 using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(as4_pullrequest_warning)))
                 {
                     var serializer = new SoapEnvelopeSerializer();
-                    return await serializer.DeserializeAsync(stream, Constants.ContentTypes.Soap, CancellationToken.None);
+                    return await serializer.DeserializeAsync(stream, Constants.ContentTypes.Soap);
                 }
             }
 

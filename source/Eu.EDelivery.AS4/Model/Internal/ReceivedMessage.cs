@@ -98,12 +98,6 @@ namespace Eu.EDelivery.AS4.Model.Internal
         /// Assign custom properties to the <see cref="ReceivedMessage" />
         /// </summary>
         /// <param name="messagingContext"></param>
-        public virtual void AssignPropertiesTo(MessagingContext messagingContext)
-        {
-            if (messagingContext.AS4Message != null)
-            {
-                messagingContext.AS4Message.ContentType = ContentType;
-            }
-        }
+        public virtual void AssignPropertiesTo(MessagingContext messagingContext) { }
     }
 }

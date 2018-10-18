@@ -232,7 +232,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._19_22
         {
             ISerializer serializer = SerializerProvider.Default.Get(userMessage.ContentType);
             VirtualStream virtualStr = VirtualStream.Create();
-            serializer.Serialize(userMessage, virtualStr, CancellationToken.None);
+            serializer.Serialize(userMessage, virtualStr);
             virtualStr.Position = 0;
 
             new StubSender().SendMessage(virtualStr, userMessage.ContentType);

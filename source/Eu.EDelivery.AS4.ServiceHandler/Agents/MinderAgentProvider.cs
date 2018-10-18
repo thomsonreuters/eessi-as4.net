@@ -17,7 +17,18 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
     {
         internal static IEnumerable<Agent> GetMinderSpecificAgentsFromConfig(IConfig config)
         {
+            if (config == null)
+            {
+                throw new ArgumentNullException(nameof(config));
+            }
+
             IEnumerable<SettingsMinderAgent> minderTestAgents = config.GetEnabledMinderTestAgents();
+            if (minderTestAgents == null)
+            {
+                throw new ArgumentNullException(
+                    nameof(minderTestAgents),
+                    @"MinderAgentProvider requires a collection of AgentConfig instances from the IConfig.GetEnabledMinderTestAgents() call");
+            }
 
             foreach (SettingsMinderAgent agent in minderTestAgents)
             {

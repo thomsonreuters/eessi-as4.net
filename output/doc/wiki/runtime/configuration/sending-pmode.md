@@ -163,8 +163,8 @@ This contract describes all the properties available in the Sending PMode. The r
                 M<br/>
                 O<br/>
                 M<br/>
-                M<br/><br/>
-                M<br/><br/>
+                O<br/><br/>
+                O<br/><br/>
             </td>
             <td>
                 <br/>
@@ -207,8 +207,8 @@ This contract describes all the properties available in the Sending PMode. The r
                 M<br/>
                 O<br/>
                 M<br/>
-                M<br/><br/>
-                M<br/><br/>
+                O<br/><br/>
+                O<br/><br/>
             </td>
             <td>
                 <br/><i>Default:</i> false<br/><br/>
@@ -249,8 +249,8 @@ This contract describes all the properties available in the Sending PMode. The r
                 M<br/>
                 O<br/>
                 M<br/>
-                M<br/><br/>
-                M<br/><br/>
+                O<br/><br/>
+                O<br/><br/>
             </td>
             <td>
                 <br/><i>Default:</i> false<br/><br/>

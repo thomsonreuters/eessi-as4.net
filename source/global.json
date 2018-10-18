@@ -1,6 +1,6 @@
 {
-    "projects": ["src", "AS4/Eu.EDelivery.AS4", "ServiceHandler"],
-    "sdk": {
-        "version": "2.1.0"
-    }
+  "projects": ["src", "AS4/Eu.EDelivery.AS4", "ServiceHandler"],
+  "sdk": {
+    "version": "2.1.402"
+  }
 }

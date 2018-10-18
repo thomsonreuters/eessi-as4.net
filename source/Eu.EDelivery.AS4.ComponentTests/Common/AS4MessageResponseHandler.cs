@@ -22,7 +22,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Common
             response.StatusCode = (int)HttpStatusCode.OK;
             response.ContentType = _responseMessage.ContentType;
 
-            SerializerProvider.Default.Get(_responseMessage.ContentType).Serialize(_responseMessage, response.OutputStream, CancellationToken.None);
+            SerializerProvider.Default.Get(_responseMessage.ContentType).Serialize(_responseMessage, response.OutputStream);
         }
     }
 }
