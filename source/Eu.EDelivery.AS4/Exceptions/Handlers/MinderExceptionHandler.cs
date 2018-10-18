@@ -6,7 +6,7 @@ using Eu.EDelivery.AS4.Model.Internal;
 namespace Eu.EDelivery.AS4.Exceptions.Handlers
 {
     [ExcludeFromCodeCoverage]
-    public class MinderExceptionHandler : IAgentExceptionHandler
+    internal class MinderExceptionHandler : IAgentExceptionHandler
     {
         private readonly IAgentExceptionHandler _inboudHandler = new InboundExceptionHandler();
         private readonly IAgentExceptionHandler _outboundHandler = new OutboundExceptionHandler();
