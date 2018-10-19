@@ -56,7 +56,7 @@
         </form>
     </div>
 </as4-box>
-<as4-box title="Messages">
+<as4-box title="Exceptions">
     <div content *ngIf="messages | async as messageData">
         <div class="col-xs-12" as4-pager [pages]="messageData.pages" [pageTotal]="messageData.messages.length" [total]="messageData.total"
             [page]="messageData.page" (onChangePage)="filter.filter.page = $event; filter.search()"></div>
@@ -78,7 +78,7 @@
                     <th>Direction</th>
                     <th>Insertion time</th>
                     <th>Operation</th>
-                    <th>ebMS message id</th>
+                    <th>ebMS ref to message id</th>
                     <th>Exception</th>
                     <th>PMode</th>
                 </tr>
@@ -98,7 +98,7 @@
                         <td>{{message.insertionTime | todate}}</td>
                         <td>{{message.operation}}</td>
                         <td>
-                            <a [routerLink]="['../messages']" [queryParams]="{ ebmsRefToMessageId: message.ebmsRefToMessageId}"
+                            <a [routerLink]="['../messages']" [queryParams]="{ ebmsMessageId: message.ebmsRefToMessageId}"
                                 target="_blank">{{message.ebmsRefToMessageId}}</a>
                             <as4-clipboard *ngIf="!!message.ebmsRefToMessageId" [content]="message.ebmsRefToMessageId"></as4-clipboard>
                         </td>
