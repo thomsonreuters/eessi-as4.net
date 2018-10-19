@@ -1,4 +1,6 @@
-﻿using Eu.EDelivery.AS4.Model.PMode;
+﻿using System;
+using System.Security.Cryptography.X509Certificates;
+using Eu.EDelivery.AS4.Model.PMode;
 using Newtonsoft.Json.Linq;
 
 namespace Eu.EDelivery.AS4.Fe.Pmodes.Model
@@ -27,8 +29,8 @@ namespace Eu.EDelivery.AS4.Fe.Pmodes.Model
                 {
                     value.PushConfiguration = null;
                 }
-                else if (value.PushConfiguration?.TlsConfiguration != null 
-                    && value.PushConfiguration.TlsConfiguration.ClientCertificateInformation is JObject clientCert)
+                else if (value?.PushConfiguration?.TlsConfiguration != null 
+                         && value?.PushConfiguration?.TlsConfiguration?.ClientCertificateInformation is JObject clientCert)
                 {
                     if (clientCert["certificate"] != null)
                     {
@@ -37,30 +39,61 @@ namespace Eu.EDelivery.AS4.Fe.Pmodes.Model
                     }
                     else
                     {
+                        string jsonFindType = 
+                            clientCert["clientCertificateFindType"] != null
+                                ? clientCert["clientCertificateFindType"].Value<string>()
+                                : ClientCertificateReference.DefaultCertificateFindType.ToString();
+
+                        string jsonFindValue =
+                            clientCert["clientCertificateFindValue"] != null
+                                ? clientCert["clientCertificateFindValue"].Value<string>()
+                                : String.Empty;
+
+                        X509FindType certFindType =
+                            Enum.TryParse(jsonFindType, out X509FindType result)
+                                ? result
+                                : ClientCertificateReference.DefaultCertificateFindType;
+
                         value.PushConfiguration.TlsConfiguration.ClientCertificateInformation =
-                            clientCert.ToObject<ClientCertificateReference>();
+                            new ClientCertificateReference
+                            {
+                                ClientCertificateFindType = certFindType,
+                                ClientCertificateFindValue = jsonFindValue
+                            };
                     }
-                    
                 }
 
                 if (value?.Security?.Encryption != null 
-                    && value.Security.Encryption.EncryptionCertificateInformation is JObject encryptCert)
+                    && value?.Security?.Encryption?.EncryptionCertificateInformation is JObject encryptCert)
                 {
                     if (encryptCert["certificate"] != null)
                     {
                         value.Security.Encryption.EncryptionCertificateInformation =
                             encryptCert.ToObject<PublicKeyCertificate>();
                     }
-                    else
+                    else if (encryptCert["certificateFindType"] != null
+                             && encryptCert["certificateFindValue"] != null)
                     {
-                        value.Security.Encryption.EncryptionCertificateInformation = encryptCert.ToObject<CertificateFindCriteria>();
+                        value.Security.Encryption.EncryptionCertificateInformation = 
+                            encryptCert.ToObject<CertificateFindCriteria>();
                     }
                 }
 
                 if (value?.Security?.Signing?.SigningCertificateInformation != null 
-                    && (value.Security.Signing.SigningCertificateInformation is JObject signing))
+                    && value.Security.Signing.SigningCertificateInformation is JObject signing)
                 {
-                    value.Security.Signing.SigningCertificateInformation = signing.ToObject<CertificateFindCriteria>();
+                    if (signing["certificate"] != null
+                        && signing["password"] != null)
+                    {
+                        value.Security.Signing.SigningCertificateInformation =
+                            signing.ToObject<PrivateKeyCertificate>();
+                    }
+                    else if (signing["certificateFindType"] != null
+                        && signing["certificateFindValue"] != null)
+                    {
+                        value.Security.Signing.SigningCertificateInformation = 
+                            signing.ToObject<CertificateFindCriteria>();
+                    }
                 }                
             }
         }
@@ -74,10 +107,7 @@ namespace Eu.EDelivery.AS4.Fe.Pmodes.Model
         /// </value>
         public bool IsDynamicDiscoveryEnabled
         {
-            get
-            {
-                return Pmode?.PushConfiguration == null;
-            }
+            get => Pmode?.PushConfiguration == null;
             set
             {
                 if (value)
