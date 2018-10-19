@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Fe.SmpConfiguration.Model;
 
@@ -14,15 +13,7 @@ namespace Eu.EDelivery.AS4.Fe.SmpConfiguration
         ///     Get all SMP configurations
         /// </summary>
         /// <returns>Collection containing all <see cref="Eu.EDelivery.AS4.Fe.SmpConfiguration" /></returns>
-        Task<IEnumerable<SmpConfigurationDetail>> GetAll();
-
-        /// <summary>
-        ///     Get all SMP configurations
-        /// </summary>
-        /// <returns>
-        ///     Collection containing all <see cref="N:Eu.EDelivery.AS4.Fe.SmpConfiguration" />
-        /// </returns>
-        Task<IEnumerable<TResult>> GetAllData<TResult>(Func<SmpConfigurationDetail, TResult> selector);
+        Task<IEnumerable<SmpConfigurationRecord>> GetRecords();
 
         /// <summary>
         ///     Get SMP configuration by identifier
@@ -43,7 +34,7 @@ namespace Eu.EDelivery.AS4.Fe.SmpConfiguration
         /// </summary>
         /// <param name="id">The id of the SmpConfiguration</param>
         /// <param name="detail">SMP configuration data to be updated</param>
-        Task Update(long id, SmpConfiguration detail);
+        Task Update(long id, SmpConfigurationDetail detail);
 
         /// <summary>
         ///     Delete an existing <see cref="Eu.EDelivery.AS4.Fe.SmpConfiguration" /> by id

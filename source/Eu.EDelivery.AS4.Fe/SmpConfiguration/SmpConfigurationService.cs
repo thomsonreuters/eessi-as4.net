@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
 using EnsureThat;
@@ -12,11 +11,14 @@ using Microsoft.EntityFrameworkCore;
 namespace Eu.EDelivery.AS4.Fe.SmpConfiguration
 {
     /// <summary>
-    ///     Implementation of <see cref="Eu.EDelivery.AS4.Fe.SmpConfiguration.ISmpConfigurationService" />
+    ///     Implementation of <see cref="ISmpConfigurationService" />
     /// </summary>
-    /// <seealso cref="Eu.EDelivery.AS4.Fe.SmpConfiguration.ISmpConfigurationService" />
+    /// <seealso cref="ISmpConfigurationService" />
     public class SmpConfigurationService : ISmpConfigurationService
     {
+        private const string Base64CerHeader = "data:application/x-x509-ca-cert;base64,";
+        private const string Base64PkcsHeader = "data:application/x-pkcs12;base64,";
+
         private readonly DatastoreContext _datastoreContext;
         private readonly IMapper _mapper;
 
@@ -27,6 +29,16 @@ namespace Eu.EDelivery.AS4.Fe.SmpConfiguration
         /// <param name="mapper">Instance of <see cref="IMapper" /></param>
         public SmpConfigurationService(DatastoreContext datastoreContext, IMapper mapper)
         {
+            if (datastoreContext == null)
+            {
+                throw new ArgumentNullException(nameof(datastoreContext));
+            }
+
+            if (mapper == null)
+            {
+                throw new ArgumentNullException(nameof(mapper));
+            }
+
             _datastoreContext = datastoreContext;
             _mapper = mapper;
         }
@@ -35,34 +47,40 @@ namespace Eu.EDelivery.AS4.Fe.SmpConfiguration
         ///     Get all SMP configurations
         /// </summary>
         /// <returns>
-        ///     Collection containing all <see cref="N:Eu.EDelivery.AS4.Fe.SmpConfiguration" />
+        ///     Collection containing all <see cref="N:Eu.EDelivery.AS4.Fe.SmpConfiguration.Model.SmpConfigurationRecord" />
         /// </returns>
-        public async Task<IEnumerable<SmpConfigurationDetail>> GetAll()
+        public async Task<IEnumerable<SmpConfigurationRecord>> GetRecords()
         {
-            var configurations = await _datastoreContext.SmpConfigurations.ToListAsync();
-            return configurations.Select(ToDetail);
-        }
-
-        /// <summary>
-        ///     Get all SMP configurations
-        /// </summary>
-        /// <returns>
-        ///     Collection containing all <see cref="N:Eu.EDelivery.AS4.Fe.SmpConfiguration" />
-        /// </returns>
-        public async Task<IEnumerable<TResult>> GetAllData<TResult>(Func<SmpConfigurationDetail, TResult> selector)
-        {
-            return await (from s in _datastoreContext.SmpConfigurations select selector(ToDetail(s))).ToListAsync();
+            List<Entities.SmpConfiguration> configurations = await _datastoreContext.SmpConfigurations.ToListAsync();
+            return configurations.Select(smp => new SmpConfigurationRecord
+            {
+                Id = smp.Id,
+                Action = smp.Action,
+                Url = smp.Url,
+                ServiceType = smp.ServiceType,
+                ServiceValue = smp.ServiceValue,
+                TlsEnabled = smp.TlsEnabled,
+                ToPartyId = smp.ToPartyId,
+                PartyRole = smp.PartyRole,
+                EncryptionEnabled = smp.EncryptionEnabled,
+                FinalRecipient = smp.FinalRecipient,
+                PartyType = smp.PartyType
+            });
         }
 
         /// <summary>
         ///     Get SMP configuration by identifier
         /// </summary>
         /// <returns>
-        ///     Matched <see cref="N:Eu.EDelivery.AS4.Fe.SmpConfiguration" /> if found
+        ///     Matched <see cref="N:Eu.EDelivery.AS4.Fe.Model.SmpConfigurationDetail" /> if found
         /// </returns>
         public async Task<SmpConfigurationDetail> GetById(int id)
         {
-            var entity = await _datastoreContext.SmpConfigurations.FirstOrDefaultAsync(s => s.Id == id);
+            Entities.SmpConfiguration entity = 
+                await _datastoreContext
+                      .SmpConfigurations
+                      .FirstOrDefaultAsync(s => s.Id == id);
+
             if (entity == null)
             {
                 return null;
@@ -72,7 +90,7 @@ namespace Eu.EDelivery.AS4.Fe.SmpConfiguration
         }
 
         /// <summary>
-        ///     Create an e new <see cref="N:Eu.EDelivery.AS4.Fe.SmpConfiguration" />
+        ///     Create an e new <see cref="N:Eu.EDelivery.AS4.Fe.Model.SmpConfigurationDetail" />
         /// </summary>
         /// <param name="detail">The SMP configuration.</param>
         /// <returns></returns>
@@ -80,41 +98,16 @@ namespace Eu.EDelivery.AS4.Fe.SmpConfiguration
         {
             EnsureArg.IsNotNull(detail, nameof(detail));
 
-            SmpConfiguration smpConfiguration = FromDetail(detail);
-            ValidateSmpConfiguration(smpConfiguration);
+            ValidateSmpConfiguration(detail);
 
-            var configuration = _mapper.Map<Entities.SmpConfiguration>(smpConfiguration);
-            ParseKeyCertificate(smpConfiguration, configuration);
+            var configuration = _mapper.Map<Entities.SmpConfiguration>(detail);
+            configuration.EncryptPublicKeyCertificate =
+                DeserializePublicKeyCertificate(detail.EncryptPublicKeyCertificate);
 
             await _datastoreContext.SmpConfigurations.AddAsync(configuration);
             await _datastoreContext.SaveChangesAsync();
 
             return ToDetail(configuration);
-        }
-
-        private static SmpConfiguration FromDetail(SmpConfigurationDetail d)
-        {
-            return new SmpConfiguration
-            {
-                Id = d.Id,
-                Action = d.Action,
-                ServiceType = d.ServiceType,
-                ServiceValue = d.ServiceValue,
-                FinalRecipient = d.FinalRecipient,
-                ToPartyId = d.ToPartyId,
-                PartyRole = d.PartyRole,
-                TlsEnabled = d.TlsEnabled,
-                Url = d.Url,
-                PartyType = d.PartyType,
-                EncryptionEnabled = d.EncryptionEnabled,
-                EncryptAlgorithm = d.EncryptAlgorithm,
-                EncryptAlgorithmKeySize = d.EncryptAlgorithmKeySize,
-                EncryptKeyDigestAlgorithm = d.EncryptKeyDigestAlgorithm,
-                EncryptKeyMgfAlorithm = d.EncryptKeyMgfAlorithm,
-                EncryptPublicKeyCertificate = d.EncryptPublicKeyCertificate == null ? null : Encoding.UTF8.GetString(d.EncryptPublicKeyCertificate),
-                EncryptKeyTransportAlgorithm = d.EncryptKeyTransportAlgorithm,
-                EncryptPublicKeyCertificateName = d.EncryptPublicKeyCertificateName
-            };
         }
 
         private static SmpConfigurationDetail ToDetail(Entities.SmpConfiguration s)
@@ -137,80 +130,104 @@ namespace Eu.EDelivery.AS4.Fe.SmpConfiguration
                 EncryptKeyDigestAlgorithm = s.EncryptKeyDigestAlgorithm,
                 EncryptKeyMgfAlorithm = s.EncryptKeyMgfAlorithm,
                 EncryptKeyTransportAlgorithm = s.EncryptKeyTransportAlgorithm,
-                EncryptPublicKeyCertificate = s.EncryptPublicKeyCertificate,
+                EncryptPublicKeyCertificate = 
+                    s.EncryptPublicKeyCertificate == null 
+                        ? null 
+                        : Convert.ToBase64String(s.EncryptPublicKeyCertificate),
                 EncryptPublicKeyCertificateName = s.EncryptPublicKeyCertificateName
             };
         }
 
         /// <summary>
-        ///     Update an existing <see cref="N:Eu.EDelivery.AS4.Fe.SmpConfiguration" /> by id
+        ///     Update an existing <see cref="N:Eu.EDelivery.AS4.Fe.Model.SmpConfigurationDetail" /> by id
         /// </summary>
         /// <param name="id">The id of the SmpConfiguration</param>
-        /// <param name="smpConfiguration">SMP configuration data to be updated</param>
+        /// <param name="detail">SMP configuration data to be updated</param>
         /// <returns></returns>
         /// <exception cref="NotFoundException"></exception>
-        public async Task Update(long id, SmpConfiguration smpConfiguration)
+        public async Task Update(long id, SmpConfigurationDetail detail)
         {
-            EnsureArg.IsNotNull(smpConfiguration, nameof(smpConfiguration));
+            EnsureArg.IsNotNull(detail, nameof(detail));
             
             EnsureArg.IsTrue(id > 0, nameof(id));
-            ValidateSmpConfiguration(smpConfiguration);
+            ValidateSmpConfiguration(detail);
 
-            var existing =
-                await _datastoreContext.SmpConfigurations.FirstOrDefaultAsync(configuration => configuration.Id == id);
-            if (existing == null) throw new NotFoundException($"No smp configuration with id {id} found.");
+            Entities.SmpConfiguration existing = 
+                await _datastoreContext
+                      .SmpConfigurations
+                      .FirstOrDefaultAsync(c => c.Id == id);
 
-            _mapper.Map(smpConfiguration, existing);
-            ParseKeyCertificate(smpConfiguration, existing);
+            if (existing == null)
+            {
+                throw new NotFoundException($"No smp configuration with id {id} found.");
+            }
+
+            _mapper.Map(detail, existing);
+            existing.EncryptPublicKeyCertificate = 
+                DeserializePublicKeyCertificate(detail.EncryptPublicKeyCertificate);
 
             _datastoreContext.Entry(existing).State = EntityState.Modified;
             await _datastoreContext.SaveChangesAsync();
         }
 
         /// <summary>
-        ///     Delete an existing <see cref="N:Eu.EDelivery.AS4.Fe.SmpConfiguration" /> by id
+        ///     Delete an existing <see cref="N:Eu.EDelivery.AS4.Fe.Model.SmpConfigurationDetail" /> by id
         /// </summary>
-        /// <param name="id">The id of the <see cref="N:Eu.EDelivery.AS4.Fe.SmpConfiguration" /></param>
+        /// <param name="id">The id of the <see cref="N:Eu.EDelivery.AS4.Fe.Model.SmpConfigurationDetail" /></param>
         /// <returns></returns>
         /// <exception cref="NotFoundException"></exception>
         public async Task Delete(long id)
         {
             EnsureArg.IsTrue(id > 0, nameof(id));
 
-            var exists = await _datastoreContext.SmpConfigurations.CountAsync(configuration => configuration.Id == id);
-            if (exists == 0) throw new NotFoundException($"No smp configuration with id {id} found");
+            int exists = 
+                await _datastoreContext
+                      .SmpConfigurations
+                      .CountAsync(configuration => configuration.Id == id);
 
-            _datastoreContext.SmpConfigurations.Remove(new Entities.SmpConfiguration
+            if (exists == 0)
             {
-                Id = id
-            });
+                throw new NotFoundException($"No smp configuration with id {id} found");
+            }
+
+            _datastoreContext
+                .SmpConfigurations
+                .Remove(new Entities.SmpConfiguration { Id = id });
 
             await _datastoreContext.SaveChangesAsync();
         }
 
-        private void ParseKeyCertificate(SmpConfiguration smpConfiguration, Entities.SmpConfiguration existing)
+        private static byte[] DeserializePublicKeyCertificate(string base64)
         {
-            if (string.IsNullOrEmpty(smpConfiguration.EncryptPublicKeyCertificate))
+            if (!String.IsNullOrEmpty(base64))
             {
-                return;
+                if (base64.StartsWith(Base64CerHeader)
+                    || base64.StartsWith(Base64PkcsHeader))
+                {
+                    // Convert the certificate string to a byte array
+                    string[] split = base64.Split(',');
+                    return Convert.FromBase64String(split[split.Length > 1 ? 1 : 0]);
+                }
+
+                return Convert.FromBase64String(base64);
             }
-            // Convert the certificate string to a byte array
-            var split = smpConfiguration.EncryptPublicKeyCertificate.Split(',');
-            existing.EncryptPublicKeyCertificate =
-                Convert.FromBase64String(split[split.Length > 1 ? 1 : 0]);
+
+            return null;
         }
 
-        private void ValidateSmpConfiguration(SmpConfiguration smpConfiguration)
+        private void ValidateSmpConfiguration(SmpConfigurationDetail smpConfiguration)
         {
-            EnsureArg.IsTrue(smpConfiguration.EncryptAlgorithmKeySize >= 0,
-                nameof(smpConfiguration.EncryptAlgorithmKeySize));
+            EnsureArg.IsTrue(smpConfiguration.EncryptAlgorithmKeySize >= 0, nameof(smpConfiguration.EncryptAlgorithmKeySize));
             EnsureArg.IsNotNullOrWhiteSpace(smpConfiguration.PartyRole, nameof(smpConfiguration.PartyRole));
             EnsureArg.IsNotNullOrWhiteSpace(smpConfiguration.PartyType, nameof(smpConfiguration.PartyType));
             EnsureArg.IsNotNullOrWhiteSpace(smpConfiguration.ToPartyId, nameof(smpConfiguration.ToPartyId));
             EnsureArg.IsNotNullOrWhiteSpace(smpConfiguration.Url, nameof(smpConfiguration.Url));
-            if (!string.IsNullOrEmpty(smpConfiguration.EncryptPublicKeyCertificate) && string.IsNullOrEmpty(smpConfiguration.EncryptPublicKeyCertificateName))
+
+            if (!String.IsNullOrEmpty(smpConfiguration.EncryptPublicKeyCertificate) 
+                && String.IsNullOrEmpty(smpConfiguration.EncryptPublicKeyCertificateName))
             {
-                throw new BusinessException("EncryptPublicKeyCertificateName needs to be provided when EncryptPublicKeyCertificate is not empty!");
+                throw new BusinessException(
+                    "EncryptPublicKeyCertificateName needs to be provided when EncryptPublicKeyCertificate is not empty!");
             }
         }
     }

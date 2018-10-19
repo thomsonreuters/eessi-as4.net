@@ -31,24 +31,10 @@ namespace Eu.EDelivery.AS4.Fe.SmpConfiguration
         /// </summary>
         /// <returns>List of SMP configurations</returns>
         [HttpGet]
-        [SwaggerResponse((int) HttpStatusCode.OK, typeof(IEnumerable<Model.SmpConfigurationRecord>))]
+        [SwaggerResponse((int) HttpStatusCode.OK, typeof(IEnumerable<SmpConfigurationRecord>))]
         public async Task<IEnumerable<SmpConfigurationRecord>> Get()
         {
-            return await _smpConfiguration.GetAllData(
-                smp => new SmpConfigurationRecord
-                {
-                    Id = smp.Id,
-                    ToPartyId = smp.ToPartyId,
-                    PartyType = smp.PartyType,
-                    PartyRole = smp.PartyRole,
-                    Url = smp.Url,
-                    ServiceValue = smp.ServiceValue,
-                    ServiceType = smp.ServiceType,
-                    Action = smp.Action,
-                    FinalRecipient = smp.FinalRecipient,
-                    EncryptionEnabled = smp.EncryptionEnabled,
-                    TlsEnabled = smp.TlsEnabled
-                });
+            return await _smpConfiguration.GetRecords();
         }
 
         /// <summary>
@@ -86,7 +72,7 @@ namespace Eu.EDelivery.AS4.Fe.SmpConfiguration
         [Route("{id}")]
         [Authorize(Roles = Roles.Admin)]
         [SwaggerResponse((int) HttpStatusCode.OK)]
-        public async Task<IActionResult> Put(int id, [FromBody] SmpConfiguration smpConfiguration)
+        public async Task<IActionResult> Put(int id, [FromBody] SmpConfigurationDetail smpConfiguration)
         {         
             await _smpConfiguration.Update(id, smpConfiguration);
             return new OkResult();
