@@ -8,6 +8,7 @@ using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Receivers;
 using Eu.EDelivery.AS4.Steps;
+using Eu.EDelivery.AS4.UnitTests.Exceptions.Handlers;
 using Eu.EDelivery.AS4.UnitTests.Model;
 using Eu.EDelivery.AS4.UnitTests.Receivers;
 using Eu.EDelivery.AS4.UnitTests.Steps;
@@ -28,7 +29,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Agents
                 new AgentConfig(name: "Agent with Spy Receiver"), 
                 spyReceiver, 
                 Transformer<StubSubmitTransformer>(), 
-                exceptionHandler: Mock.Of<IAgentExceptionHandler>(), 
+                exceptionHandler: new SpyAgentExceptionHandler(), 
                 stepConfiguration: new StepConfiguration());
 
             // Act
@@ -47,7 +48,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Agents
                 new AgentConfig("Agent with non-defined Normal Steps"), 
                 spyReceiver, 
                 Transformer<StubSubmitTransformer>(), 
-                exceptionHandler: Mock.Of<IAgentExceptionHandler>(), 
+                exceptionHandler: new SpyAgentExceptionHandler(), 
                 stepConfiguration: new StepConfiguration
                 {
                     NormalPipeline = new Step[] {null},
@@ -71,7 +72,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Agents
                 new AgentConfig(name: "Agent with Normal Pipeline"), 
                 spyReceiver, 
                 Transformer<StubSubmitTransformer>(), 
-                exceptionHandler: Mock.Of<IAgentExceptionHandler>(), 
+                exceptionHandler: new SpyAgentExceptionHandler(), 
                 stepConfiguration: new StepConfiguration
                 {
                     NormalPipeline = AS4MessageSteps(),
@@ -95,15 +96,16 @@ namespace Eu.EDelivery.AS4.UnitTests.Agents
         public async Task HandlesTransformFailure()
         {
             // Arrange
-            var spyHandler = Mock.Of<IAgentExceptionHandler>();
+            var spyHandler = new SpyAgentExceptionHandler();
             Agent sut = AgentWithSaboteurTransformer(spyHandler);
 
             // Act
             await sut.Start(CancellationToken.None);
 
             // Assert
-            Mock.Get(spyHandler)
-                .Verify(h => h.HandleTransformationException(It.IsAny<Exception>(), It.IsAny<ReceivedMessage>()), Times.Once);
+            Assert.True(
+                spyHandler.HandledTransformationException, 
+                "Spy Agent exception handler should have handled transformation exception");
         }
 
         private static Agent AgentWithSaboteurTransformer(IAgentExceptionHandler spyHandler)
@@ -120,17 +122,16 @@ namespace Eu.EDelivery.AS4.UnitTests.Agents
         public async Task HandlesFailureInHappyPath()
         {
             // Arrange
-            var spyHandler = Mock.Of<IAgentExceptionHandler>();
+            var spyHandler = new SpyAgentExceptionHandler();
             Agent sut = AgentWithHappySaboteurSteps(spyHandler);
 
             // Act
             await sut.Start(CancellationToken.None);
 
             // Assert
-            Expression<Action<IAgentExceptionHandler>> expression =
-                h => h.HandleExecutionException(It.IsAny<Exception>(), It.IsAny<MessagingContext>());
-
-            Mock.Get(spyHandler).Verify(expression, Times.Once);
+            Assert.True(
+                spyHandler.HandledExecutionException,
+                "Spy Agent exception handler should have handled execution exception");
         }
 
         private static Agent AgentWithHappySaboteurSteps(IAgentExceptionHandler spyHandler)
@@ -151,15 +152,16 @@ namespace Eu.EDelivery.AS4.UnitTests.Agents
         public async Task HandlesFailureInUnhappyPath()
         {
             // Arrange
-            var spyHandler = Mock.Of<IAgentExceptionHandler>();
+            var spyHandler = new SpyAgentExceptionHandler();
             Agent sut = AgentWithUnhappySaboteurSteps(spyHandler);
 
             // Act
             await sut.Start(CancellationToken.None);
 
             // Assert
-            Mock.Get(spyHandler)
-                .Verify(h => h.HandleErrorException(It.IsAny<Exception>(), It.IsAny<MessagingContext>()), Times.Once);
+            Assert.True(
+                spyHandler.HandledErrorException,
+                "Spy Agent exception handler should have handled error exception");
         }
 
         private static Agent AgentWithUnhappySaboteurSteps(IAgentExceptionHandler spyHandler)
@@ -197,7 +199,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Agents
                 new AgentConfig(name: "Agent with Steps that don't succeed succesfully"), 
                 spyReceiver, 
                 Transformer<StubSubmitTransformer>(), 
-                exceptionHandler: Mock.Of<IAgentExceptionHandler>(), 
+                exceptionHandler: new SpyAgentExceptionHandler(), 
                 stepConfiguration: new StepConfiguration
                 {
                     NormalPipeline = Step<UnsuccessfulStep>(),
