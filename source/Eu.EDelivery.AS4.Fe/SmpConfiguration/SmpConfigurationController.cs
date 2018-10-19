@@ -34,7 +34,7 @@ namespace Eu.EDelivery.AS4.Fe.SmpConfiguration
         [SwaggerResponse((int) HttpStatusCode.OK, typeof(IEnumerable<SmpConfigurationRecord>))]
         public async Task<IEnumerable<SmpConfigurationRecord>> Get()
         {
-            return await _smpConfiguration.GetRecords();
+            return await _smpConfiguration.GetRecordsAsync();
         }
 
         /// <summary>
@@ -47,7 +47,7 @@ namespace Eu.EDelivery.AS4.Fe.SmpConfiguration
         [SwaggerResponse((int) HttpStatusCode.OK, typeof(IEnumerable<SmpConfigurationDetail>))]
         public async Task<SmpConfigurationDetail> Get(int id)
         {
-            return await _smpConfiguration.GetById(id);
+            return await _smpConfiguration.GetByIdAsync(id);
         }
 
         /// <summary>
@@ -59,7 +59,7 @@ namespace Eu.EDelivery.AS4.Fe.SmpConfiguration
         [SwaggerResponse((int) HttpStatusCode.OK, typeof(OkResult))]
         public async Task<IActionResult> Post([FromBody] SmpConfigurationDetail smpConfiguration)
         {
-            var configuration = await _smpConfiguration.Create(smpConfiguration);
+            SmpConfigurationDetail configuration = await _smpConfiguration.CreateAsync(smpConfiguration);
             return new OkObjectResult(configuration);
         }
 
@@ -74,21 +74,21 @@ namespace Eu.EDelivery.AS4.Fe.SmpConfiguration
         [SwaggerResponse((int) HttpStatusCode.OK)]
         public async Task<IActionResult> Put(int id, [FromBody] SmpConfigurationDetail smpConfiguration)
         {         
-            await _smpConfiguration.Update(id, smpConfiguration);
+            await _smpConfiguration.UpdateAsync(id, smpConfiguration);
             return new OkResult();
         }
 
         /// <summary>
-        ///     Delete an existing <see cref="Eu.EDelivery.AS4.Fe.SmpConfiguration" />
+        ///     Delete an existing <see cref="Entities.SmpConfiguration" />
         /// </summary>
-        /// <param name="id">The id of the <see cref="Eu.EDelivery.AS4.Fe.SmpConfiguration" /></param>
+        /// <param name="id">The id of the <see cref="Entities.SmpConfiguration" /></param>
         [HttpDelete]
         [Route("{id}")]
         [Authorize(Roles = Roles.Admin)]
         [SwaggerResponse((int) HttpStatusCode.OK)]
         public async Task<IActionResult> Delete(int id)
         {
-            await _smpConfiguration.Delete(id);
+            await _smpConfiguration.DeleteAsync(id);
             return new OkResult();
         }
     }

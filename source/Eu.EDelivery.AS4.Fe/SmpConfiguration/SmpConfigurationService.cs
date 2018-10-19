@@ -49,7 +49,7 @@ namespace Eu.EDelivery.AS4.Fe.SmpConfiguration
         /// <returns>
         ///     Collection containing all <see cref="N:Eu.EDelivery.AS4.Fe.SmpConfiguration.Model.SmpConfigurationRecord" />
         /// </returns>
-        public async Task<IEnumerable<SmpConfigurationRecord>> GetRecords()
+        public async Task<IEnumerable<SmpConfigurationRecord>> GetRecordsAsync()
         {
             List<Entities.SmpConfiguration> configurations = await _datastoreContext.SmpConfigurations.ToListAsync();
             return configurations.Select(smp => new SmpConfigurationRecord
@@ -74,7 +74,7 @@ namespace Eu.EDelivery.AS4.Fe.SmpConfiguration
         /// <returns>
         ///     Matched <see cref="N:Eu.EDelivery.AS4.Fe.Model.SmpConfigurationDetail" /> if found
         /// </returns>
-        public async Task<SmpConfigurationDetail> GetById(int id)
+        public async Task<SmpConfigurationDetail> GetByIdAsync(int id)
         {
             Entities.SmpConfiguration entity = 
                 await _datastoreContext
@@ -94,7 +94,7 @@ namespace Eu.EDelivery.AS4.Fe.SmpConfiguration
         /// </summary>
         /// <param name="detail">The SMP configuration.</param>
         /// <returns></returns>
-        public async Task<SmpConfigurationDetail> Create(SmpConfigurationDetail detail)
+        public async Task<SmpConfigurationDetail> CreateAsync(SmpConfigurationDetail detail)
         {
             EnsureArg.IsNotNull(detail, nameof(detail));
 
@@ -145,7 +145,7 @@ namespace Eu.EDelivery.AS4.Fe.SmpConfiguration
         /// <param name="detail">SMP configuration data to be updated</param>
         /// <returns></returns>
         /// <exception cref="NotFoundException"></exception>
-        public async Task Update(long id, SmpConfigurationDetail detail)
+        public async Task UpdateAsync(long id, SmpConfigurationDetail detail)
         {
             EnsureArg.IsNotNull(detail, nameof(detail));
             
@@ -176,7 +176,7 @@ namespace Eu.EDelivery.AS4.Fe.SmpConfiguration
         /// <param name="id">The id of the <see cref="N:Eu.EDelivery.AS4.Fe.Model.SmpConfigurationDetail" /></param>
         /// <returns></returns>
         /// <exception cref="NotFoundException"></exception>
-        public async Task Delete(long id)
+        public async Task DeleteAsync(long id)
         {
             EnsureArg.IsTrue(id > 0, nameof(id));
 
