@@ -81,7 +81,7 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
             public async Task Creates_NewSmpConfiguration()
             {
                 // Arrange
-                await SmpConfigurationService.Create(_smpConfiguration);
+                await SmpConfigurationService.CreateAsync(_smpConfiguration);
 
                 // Act
                 var configurationFromDatabase = await DbContext.SmpConfigurations.FirstOrDefaultAsync();
@@ -104,7 +104,7 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
             public async Task ThrowsException_WhenParameterIsNull()
             {
                 // Act / Assert
-                await Assert.ThrowsAsync<ArgumentNullException>(() => SmpConfigurationService.Create(null));
+                await Assert.ThrowsAsync<ArgumentNullException>(() => SmpConfigurationService.CreateAsync(null));
             }
 
             [Fact]
@@ -115,7 +115,7 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
                 _smpConfiguration.EncryptPublicKeyCertificate = EncryptionCertificateContents;
 
                 // Act
-                var exception = await Assert.ThrowsAsync<BusinessException>(() => SmpConfigurationService.Create(_smpConfiguration));
+                var exception = await Assert.ThrowsAsync<BusinessException>(() => SmpConfigurationService.CreateAsync(_smpConfiguration));
 
                 // Assert
                 Assert.Equal("EncryptPublicKeyCertificateName needs to be provided when EncryptPublicKeyCertificate is not empty!", exception.Message);
@@ -128,14 +128,14 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
             public async Task ThrowsArgumentException_WhenIdIsInvalid()
             {
                 // Act / Assert
-                await Assert.ThrowsAsync<ArgumentException>(() => SmpConfigurationService.Update(0, new SmpConfigurationDetail()));
+                await Assert.ThrowsAsync<ArgumentException>(() => SmpConfigurationService.UpdateAsync(0, new SmpConfigurationDetail()));
             }
 
             [Fact]
             public async Task ThrowsArgumentNullException_WhenSmpConfigurationIsNull()
             {
                 // Act / Assert
-                await Assert.ThrowsAsync<ArgumentNullException>(() => SmpConfigurationService.Update(1, null));
+                await Assert.ThrowsAsync<ArgumentNullException>(() => SmpConfigurationService.UpdateAsync(1, null));
             }
 
             [Fact]
@@ -144,7 +144,7 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
                 SmpConfigurationDetail fixture = CreateFixture();
 
                 // Act / Assert
-                await Assert.ThrowsAsync<NotFoundException>(() => SmpConfigurationService.Update(int.MaxValue, fixture));
+                await Assert.ThrowsAsync<NotFoundException>(() => SmpConfigurationService.UpdateAsync(int.MaxValue, fixture));
             }
 
             private static SmpConfigurationDetail CreateFixture()
@@ -174,14 +174,14 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
             public async Task UpdatesExisting_WhenParametersAreValid()
             {
                 // Arrange
-                await SmpConfigurationService.Create(_smpConfiguration);
+                await SmpConfigurationService.CreateAsync(_smpConfiguration);
                 var existingConfiguration = await DbContext.SmpConfigurations.FirstOrDefaultAsync();
                 Assert.NotNull(existingConfiguration);
 
                 existingConfiguration.Action = Guid.NewGuid().ToString();
 
                 // Act
-                await SmpConfigurationService.Update(existingConfiguration.Id, CreateFixture());
+                await SmpConfigurationService.UpdateAsync(existingConfiguration.Id, CreateFixture());
 
                 // Assert
                 var updatedFromDatabase = await DbContext.SmpConfigurations.FirstOrDefaultAsync(smpConfiguration =>
@@ -196,7 +196,7 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
             public async Task ThrowsBusinessException_WhenKeyIsProvidedWithoutFileName()
             {
                 // Arrange
-                SmpConfigurationDetail dbSmpConfiguration = await SmpConfigurationService.Create(_smpConfiguration);
+                SmpConfigurationDetail dbSmpConfiguration = await SmpConfigurationService.CreateAsync(_smpConfiguration);
                 Assert.NotNull(dbSmpConfiguration.Id);
 
                 _smpConfiguration.EncryptPublicKeyCertificate = Convert.ToBase64String(new byte[] { 1, 2, 3 });
@@ -205,7 +205,7 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
                 smpConfiguration.EncryptPublicKeyCertificate = "not empty";
 
                 // Act
-                var exception = await Assert.ThrowsAsync<BusinessException>(() => SmpConfigurationService.Update(dbSmpConfiguration.Id.Value, smpConfiguration));
+                var exception = await Assert.ThrowsAsync<BusinessException>(() => SmpConfigurationService.UpdateAsync(dbSmpConfiguration.Id.Value, smpConfiguration));
 
                 // Assert
                 Assert.Equal("EncryptPublicKeyCertificateName needs to be provided when EncryptPublicKeyCertificate is not empty!", exception.Message);
@@ -218,7 +218,7 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
             public async Task DeletesExisting_WithValidSmpConfiguration()
             {
                 // Act
-                await SmpConfigurationService.Create(_smpConfiguration);
+                await SmpConfigurationService.CreateAsync(_smpConfiguration);
 
                 // Assert
                 var smpConfigurationFromDatabase = await DbContext.SmpConfigurations.FirstOrDefaultAsync();
@@ -228,7 +228,7 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
                 await CreateNewDbContext()
                     .CreateNewSmpConfigurationService()
                     .SmpConfigurationService
-                    .Delete(smpConfigurationFromDatabase.Id);
+                    .DeleteAsync(smpConfigurationFromDatabase.Id);
 
                 var configurationCount = await DbContext.SmpConfigurations.CountAsync();
                 Assert.Equal(0, configurationCount);
@@ -238,14 +238,14 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
             public async Task ThrowsArgumentException_WhenIdIsInvalid()
             {
                 // Act / Arrange
-                await Assert.ThrowsAsync<ArgumentException>(() => SmpConfigurationService.Delete(0));
+                await Assert.ThrowsAsync<ArgumentException>(() => SmpConfigurationService.DeleteAsync(0));
             }
 
             [Fact]
             public async Task ThrowsNotFoundException_WhenSmpConfigurationDoesntExist()
             {
                 // Act / Arrange
-                await Assert.ThrowsAsync<NotFoundException>(() => SmpConfigurationService.Delete(int.MaxValue));
+                await Assert.ThrowsAsync<NotFoundException>(() => SmpConfigurationService.DeleteAsync(int.MaxValue));
             }
         }
     }
