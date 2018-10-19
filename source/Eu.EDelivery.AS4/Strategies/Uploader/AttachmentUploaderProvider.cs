@@ -8,14 +8,14 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
     /// <summary>
     /// Class to provide the right <see cref="IAttachmentUploader" /> implementation
     /// </summary>
-    public class AttachmentUploaderProvider : IAttachmentUploaderProvider
+    internal class AttachmentUploaderProvider : IAttachmentUploaderProvider
     {
         private readonly ICollection<UploaderEntry> _uploaders;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AttachmentUploaderProvider" /> class
         /// </summary>
-        public AttachmentUploaderProvider()
+        internal AttachmentUploaderProvider()
         {
             _uploaders = new Collection<UploaderEntry>();
         }

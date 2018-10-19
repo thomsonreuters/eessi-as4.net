@@ -11,6 +11,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Strategies.Method
         /// <param name="location">The location.</param>
         public LocationMethod(string location)
         {
+            Type = "FILE";
             Parameters = new List<Parameter> {new Parameter {Name = "location", Value = location}};
         }
     }

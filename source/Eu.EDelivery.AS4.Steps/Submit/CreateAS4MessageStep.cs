@@ -15,6 +15,7 @@ using Eu.EDelivery.AS4.Singletons;
 using Eu.EDelivery.AS4.Strategies.Retriever;
 using Eu.EDelivery.AS4.Validators;
 using NLog;
+using ArgumentNullException = System.ArgumentNullException;
 
 namespace Eu.EDelivery.AS4.Steps.Submit
 {
@@ -142,8 +143,9 @@ namespace Eu.EDelivery.AS4.Steps.Submit
             {
                 if (payload == null)
                 {
-                    Logger.Warn("Submit payload cannot be retrieved because it was 'null'");
-                    continue;
+                    throw new ArgumentNullException(
+                        nameof(payload),
+                        @"SubmitMessage contains one or emore payloads that was 'null'");
                 }
 
                 IEnumerable<string> missingValues =
@@ -157,30 +159,45 @@ namespace Eu.EDelivery.AS4.Steps.Submit
 
                 if (missingValues.Any())
                 {
-                    Logger.Warn(
-                        $"Submit payload {{Id={payload.Id ?? "<null>"}}} "
-                        + "cannot be retrieved because it hasn't got a "
-                        + String.Join(", ", missingValues));
-
-                    continue;
+                    throw new InvalidOperationException(
+                        "Submit payload is not complete to retrieve the contents, "
+                        + $"missing values: {String.Join(", ", missingValues)}");
                 }
 
-                Stream content =
-                    await _payloadProvider
-                        .Get(payload)
-                        .RetrievePayloadAsync(payload.Location)
-                        .ConfigureAwait(false);
-
-                if (content == null)
-                {
-                    Logger.Warn($"Skip Submit payload {payload.Id} because retrieved content was 'null'");
-                    continue;
-                }
-
+                Stream content = await RetrievePayloadContentsAsync(payload).ConfigureAwait(false);
                 attachments.Add(new Attachment(payload.Id, content, payload.MimeType));
             }
 
             return attachments;
+        }
+
+        private async Task<Stream> RetrievePayloadContentsAsync(Payload payload)
+        {
+            IPayloadRetriever retriever = _payloadProvider.Get(payload);
+            if (retriever == null)
+            {
+                throw new ArgumentNullException(
+                    nameof(retriever),
+                    $@"No {nameof(IPayloadRetriever)} can be retrieved for Submit payload {{Id={payload.Id}}}");
+            }
+
+            Task<Stream> retrievePayloadAsync = retriever.RetrievePayloadAsync(payload.Location);
+            if (retrievePayloadAsync == null)
+            {
+                throw new ArgumentNullException(
+                    nameof(retrievePayloadAsync),
+                    $@"Asynchronous function for Submit payload {{Id={payload.Id}}} to retrieve it contents was 'null'");
+            }
+
+            Stream content = await retrievePayloadAsync.ConfigureAwait(false);
+            if (content == null)
+            {
+                throw new ArgumentNullException(
+                    nameof(content),
+                    $@"No valid (<> null) stream content for Submit payload {{Id={payload.Id}}} was retrieved");
+            }
+
+            return content;
         }
     }
 }
