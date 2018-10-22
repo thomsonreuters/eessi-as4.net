@@ -50,17 +50,27 @@ namespace Eu.EDelivery.AS4.Steps.Receive.Rules
                    .Select(id => StringComparer.OrdinalIgnoreCase.Equals(id, pmodeAgreement?.PModeId))
                    .GetOrElse(false);
 
+            bool noPModeId =
+                userAgreement.PModeId == Maybe<string>.Nothing
+                && pmodeAgreement?.PModeId == null;
+
             bool equalType =
                 userAgreement.Type
                    .Select(t => StringComparer.OrdinalIgnoreCase.Equals(t, pmodeAgreement?.Type))
                    .GetOrElse(false);
+
+            bool noType =
+                userAgreement.Type == Maybe<string>.Nothing
+                && pmodeAgreement?.Type == null;
 
             bool equalValue =
                 StringComparer
                     .OrdinalIgnoreCase
                     .Equals(userAgreement.Value, pmodeAgreement?.Value);
 
-            return equalPModeId && equalType && equalValue
+            return (equalPModeId || noPModeId)
+                   && (equalType || noType)
+                   && equalValue
                 ? Points
                 : NotEqual;
         }

@@ -84,7 +84,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive.Rules
 
             return pmodeParty.PartyIds.All(x => messageParty.PartyIds.Any(y =>
             {
-                bool bothTypesNotPresent = 
+                bool noType = 
                     x?.Type == null 
                     && y.Type == Maybe<string>.Nothing;
 
@@ -98,7 +98,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive.Rules
                         .OrdinalIgnoreCase
                         .Equals(x?.Id, y.Id);
 
-                return equalIds && (bothTypesNotPresent || equalTypes);
+                return equalIds && (equalTypes || noType);
             }));
         }
 
