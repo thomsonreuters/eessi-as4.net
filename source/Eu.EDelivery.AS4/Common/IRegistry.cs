@@ -10,7 +10,6 @@ namespace Eu.EDelivery.AS4.Common
         bool IsInitialized { get; }
         Func<DatastoreContext> CreateDatastoreContext { get; }
         ICertificateRepository CertificateRepository { get; }
-        INotifySenderProvider NotifySenderProvider { get; }
         IPayloadRetrieverProvider PayloadRetrieverProvider { get; }
         MessageBodyStore MessageBodyStore { get; }
     }
