@@ -315,7 +315,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 }
             }
 
-            if (ctx.AS4Message.IsPullRequest)
+            if (ctx.AS4Message?.IsPullRequest == true)
             {
                 using (DatastoreContext db = _createDatastore())
                 {

@@ -22,6 +22,8 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Receive_Scenarios._8._3._17
         public void RunIntegrationTest()
         {
             // Arrange
+            AS4Component.OverrideSettings("8.3.17-settings.xml");
+
             Holodeck.CopyPModeToHolodeckA("8.3.17-pmode.xml");
             Holodeck.CopyMessageToHolodeckA("8.3.17-sample.mmd");
 

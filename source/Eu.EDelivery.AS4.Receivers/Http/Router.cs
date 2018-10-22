@@ -97,6 +97,8 @@ namespace Eu.EDelivery.AS4.Receivers.Http
                             return HttpResult.Empty(HttpStatusCode.NotAcceptable, "text/plain");
                         })
                         .DoAsync(r => r.WriteToAsync(response));
+
+                    return;
                 }
 
                 if (request.HttpMethod == HttpMethod.Post.Method)
@@ -116,6 +118,8 @@ namespace Eu.EDelivery.AS4.Receivers.Http
                             .Select(h => h.Handle(agentResult))
                             .OrElse(() => HttpResult.Empty(HttpStatusCode.Accepted))
                             .DoAsync(r => r.WriteToAsync(response));
+
+                        return;
                     }
                 }
 
