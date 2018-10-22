@@ -23,8 +23,8 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
         private NotifySenderProvider()
         {
             _senders = new Collection<NotifySenderEntry>();
-           this.Accept(s => StringComparer.OrdinalIgnoreCase.Equals(s, FileSender.Key), () => new ReliableSender(notifySender: new FileSender()));
-           this.Accept(s => StringComparer.OrdinalIgnoreCase.Equals(s, HttpSender.Key), () => new ReliableSender(notifySender: new HttpSender()));
+            this.Accept(s => StringComparer.OrdinalIgnoreCase.Equals(s, FileSender.Key), () => new FileSender());
+            this.Accept(s => StringComparer.OrdinalIgnoreCase.Equals(s, HttpSender.Key), () => new HttpSender());
         }
 
         /// <summary>
@@ -65,11 +65,11 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
             if (entry?.Sender == null)
             {
                 throw new KeyNotFoundException(
-                    $"No {nameof(INotifySender)} implementation found for Operation Method \'{operationMethod}\'. " + 
+                    $"No {nameof(INotifySender)} implementation found for Operation Method \'{operationMethod}\'. " +
                     "Please check if the configuration in the Sending or Receiving PMode is correct");
             }
 
-            return entry.Sender();
+            return new ReliableSender(entry.Sender());
         }
 
         /// <summary>
