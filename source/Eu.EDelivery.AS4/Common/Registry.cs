@@ -1,7 +1,6 @@
 ﻿using System;
 using Eu.EDelivery.AS4.Builders;
 using Eu.EDelivery.AS4.Repositories;
-using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Services.PullRequestAuthorization;
 using Eu.EDelivery.AS4.Strategies.Retriever;
 using Eu.EDelivery.AS4.Strategies.Sender;
@@ -22,7 +21,6 @@ namespace Eu.EDelivery.AS4.Common
         /// </summary>
         private Registry()
         {
-            SerializerProvider = SerializerProvider.Default;
             CertificateRepository = new CertificateRepository();
 
             PayloadRetrieverProvider = new PayloadRetrieverProvider();
@@ -91,8 +89,6 @@ namespace Eu.EDelivery.AS4.Common
         public IAttachmentUploaderProvider AttachmentUploader { get; }
 
         public IPullAuthorizationMapProvider PullRequestAuthorizationMapProvider { get; private set; }
-
-        public SerializerProvider SerializerProvider { get; }
 
         public MessageBodyStore MessageBodyStore { get; }
 
