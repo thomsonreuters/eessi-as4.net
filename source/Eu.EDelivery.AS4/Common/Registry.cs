@@ -2,7 +2,6 @@
 using Eu.EDelivery.AS4.Builders;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Services.PullRequestAuthorization;
-using Eu.EDelivery.AS4.Strategies.Retriever;
 
 namespace Eu.EDelivery.AS4.Common
 {
@@ -20,12 +19,6 @@ namespace Eu.EDelivery.AS4.Common
         private Registry()
         {
             CertificateRepository = new CertificateRepository();
-
-            PayloadRetrieverProvider = new PayloadRetrieverProvider();
-            PayloadRetrieverProvider.Accept(p => p.Location.StartsWith(FilePayloadRetriever.Key, StringComparison.OrdinalIgnoreCase), new FilePayloadRetriever());
-            PayloadRetrieverProvider.Accept(p => p.Location.StartsWith(TempFilePayloadRetriever.Key, StringComparison.OrdinalIgnoreCase), new TempFilePayloadRetriever());
-            PayloadRetrieverProvider.Accept(p => p.Location.StartsWith(FtpPayloadRetriever.Key, StringComparison.OrdinalIgnoreCase), new FtpPayloadRetriever());
-            PayloadRetrieverProvider.Accept(p => p.Location.StartsWith(HttpPayloadRetriever.Key, StringComparison.OrdinalIgnoreCase), new HttpPayloadRetriever());
 
             MessageBodyStore = new MessageBodyStore();
             MessageBodyStore.Accept(
@@ -67,8 +60,6 @@ namespace Eu.EDelivery.AS4.Common
         public bool IsInitialized { get; private set; }
 
         public Func<DatastoreContext> CreateDatastoreContext => OnlyAfterInitialized(() => _createDatastore);
-
-        public IPayloadRetrieverProvider PayloadRetrieverProvider { get; }
 
         public ICertificateRepository CertificateRepository { get; private set; }
 

@@ -40,37 +40,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
         {
             Assert.IsType(expectedType, AttachmentUploaderProvider.Instance.Get(key));
         }
-
-        [Fact]
-        public void ThenGetFilePayloadStrategyProvider()
-        {
-            // Act
-            IPayloadRetrieverProvider provider = Registry.PayloadRetrieverProvider;
-
-            // Assert
-            IPayloadRetriever fileRetriever = provider.Get(new Payload("file:///"));
-            Assert.NotNull(fileRetriever);
-        }
-
-        [Fact]
-        public void ThenGetWebPayloadStrategyProvider()
-        {
-            // Act
-            IPayloadRetrieverProvider provider = Registry.PayloadRetrieverProvider;
-
-            // Assert
-            IPayloadRetriever webRetriever = provider.Get(new Payload("http"));
-            Assert.NotNull(webRetriever);
-        }
-
-        [Fact]
-        public void ThenProvidersDoesNotHasPayloadStrategy()
-        {
-            // Act
-            IPayloadRetrieverProvider provider = Registry.PayloadRetrieverProvider;
-
-            // Assert
-            Assert.ThrowsAny<Exception>(() => provider.Get(new Payload("not-supported-location")));
-        }
+    
     }
 }

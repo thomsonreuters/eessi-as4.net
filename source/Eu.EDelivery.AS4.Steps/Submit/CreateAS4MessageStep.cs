@@ -5,7 +5,6 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Core;
@@ -34,7 +33,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         /// <summary>
         /// Initializes a new instance of the <see cref="CreateAS4MessageStep"/> class.
         /// </summary>
-        public CreateAS4MessageStep() : this(Registry.Instance.PayloadRetrieverProvider) { }
+        public CreateAS4MessageStep() : this(PayloadRetrieverProvider.Instance) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CreateAS4MessageStep" /> class.

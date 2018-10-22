@@ -12,13 +12,20 @@ namespace Eu.EDelivery.AS4.Strategies.Retriever
     {
         private readonly ICollection<PayloadStrategyEntry> _entries;
 
+        public static readonly  IPayloadRetrieverProvider Instance = new PayloadRetrieverProvider();
+
         /// <summary>
         /// Initializes a new instance of the <see cref="PayloadRetrieverProvider"/> class. 
         /// Create a new Provider with empty <see cref="IPayloadRetriever"/> implementations
         /// </summary>
-        internal PayloadRetrieverProvider()
+        private PayloadRetrieverProvider()
         {
             _entries = new Collection<PayloadStrategyEntry>();
+
+            this.Accept(p => p.Location.StartsWith(FilePayloadRetriever.Key, StringComparison.OrdinalIgnoreCase), new FilePayloadRetriever());
+            this.Accept(p => p.Location.StartsWith(TempFilePayloadRetriever.Key, StringComparison.OrdinalIgnoreCase), new TempFilePayloadRetriever());
+            this.Accept(p => p.Location.StartsWith(FtpPayloadRetriever.Key, StringComparison.OrdinalIgnoreCase), new FtpPayloadRetriever());
+            this.Accept(p => p.Location.StartsWith(HttpPayloadRetriever.Key, StringComparison.OrdinalIgnoreCase), new HttpPayloadRetriever());
         }
 
         /// <summary>
