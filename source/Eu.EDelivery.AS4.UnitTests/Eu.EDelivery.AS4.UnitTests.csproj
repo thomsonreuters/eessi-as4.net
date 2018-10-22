@@ -224,11 +224,6 @@
     <Compile Include="Steps\GivenCompositeStepFacts.cs" />
     <Compile Include="Steps\Receive\GivenCreateAS4ReceiptStepFacts.cs" />
     <Compile Include="Steps\Receive\GivenUpdateReceivedMessageDatastoreFacts.cs" />
-    <Compile Include="Steps\Receive\Rules\GivenPModeAgreementRefRuleFacts.cs" />
-    <Compile Include="Steps\Receive\Rules\GivenPModeIdRuleFacts.cs" />
-    <Compile Include="Steps\Receive\Rules\GivenPModePartyInfoRuleFacts.cs" />
-    <Compile Include="Steps\Receive\Rules\GivenPModeServiceActionRuleFacts.cs" />
-    <Compile Include="Steps\Receive\Rules\GivenPModeUndefinedPartyInfoRuleFacts.cs" />
     <Compile Include="Steps\Repositories\GivenDatastoreRepositoryFacts.cs" />
     <Compile Include="Steps\Repositories\GivenMimeTypeRepositoryFacts.cs" />
     <Compile Include="Steps\SaboteurStep.cs" />
