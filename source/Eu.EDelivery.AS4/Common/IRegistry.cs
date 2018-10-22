@@ -13,7 +13,6 @@ namespace Eu.EDelivery.AS4.Common
         Func<DatastoreContext> CreateDatastoreContext { get; }
         IAttachmentUploaderProvider AttachmentUploader { get; }
         ICertificateRepository CertificateRepository { get; }
-        IDeliverSenderProvider DeliverSenderProvider { get; }
         INotifySenderProvider NotifySenderProvider { get; }
         IPayloadRetrieverProvider PayloadRetrieverProvider { get; }
         MessageBodyStore MessageBodyStore { get; }
