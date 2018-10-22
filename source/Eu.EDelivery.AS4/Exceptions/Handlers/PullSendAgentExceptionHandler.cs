@@ -8,7 +8,7 @@ using Eu.EDelivery.AS4.Services;
 
 namespace Eu.EDelivery.AS4.Exceptions.Handlers
 {
-    public class PullSendAgentExceptionHandler : IAgentExceptionHandler
+    internal class PullSendAgentExceptionHandler : IAgentExceptionHandler
     {
         private readonly Func<DatastoreContext> _createContext;
         private readonly IConfig _configuration;

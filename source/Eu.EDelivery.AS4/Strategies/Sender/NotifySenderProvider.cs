@@ -18,7 +18,7 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
         /// Create a new <see cref="NotifySenderProvider" />
         /// to select the provide the right <see cref="INotifySender" /> implementation
         /// </summary>
-        public NotifySenderProvider()
+        internal NotifySenderProvider()
         {
             _senders = new Collection<NotifySenderEntry>();
         }

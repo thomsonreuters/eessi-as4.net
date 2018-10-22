@@ -9,7 +9,7 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
     /// Wrapper for the <see cref="IAgentExceptionHandler"/> implementation to safeguard the exception handling.
     /// </summary>
     /// <seealso cref="IAgentExceptionHandler" />
-    public class SafeExceptionHandler : IAgentExceptionHandler
+    internal class SafeExceptionHandler : IAgentExceptionHandler
     {
         private readonly IAgentExceptionHandler _innerHandler;
 

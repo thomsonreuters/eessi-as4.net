@@ -617,7 +617,9 @@ namespace Eu.EDelivery.AS4.Model.PMode
 
     public class ClientCertificateReference
     {
-        [Info("Client certificate find type", defaultValue: X509FindType.FindByThumbprint)]
+        public const X509FindType DefaultCertificateFindType = X509FindType.FindByThumbprint;
+
+        [Info("Client certificate find type", defaultValue: DefaultCertificateFindType)]
         [Description("X509 find type")]
         public X509FindType ClientCertificateFindType { get; set; }
 

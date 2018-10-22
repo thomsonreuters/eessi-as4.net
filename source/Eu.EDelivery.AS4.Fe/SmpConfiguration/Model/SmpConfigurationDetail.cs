@@ -2,7 +2,7 @@
 {
     public class SmpConfigurationDetail
     {
-        public long Id { get; set; }
+        public long? Id { get; set; }
 
         public string ToPartyId { get; set; }
 
@@ -28,7 +28,7 @@
 
         public int EncryptAlgorithmKeySize { get; set; }
 
-        public byte[] EncryptPublicKeyCertificate { get; set; }
+        public string EncryptPublicKeyCertificate { get; set; }
 
         public string EncryptPublicKeyCertificateName { get; set; }
 

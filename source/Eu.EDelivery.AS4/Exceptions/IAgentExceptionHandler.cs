@@ -7,7 +7,7 @@ namespace Eu.EDelivery.AS4.Exceptions
     /// <summary>
     /// This interface defines the contract of the future classes that will be responsible for handling exceptions that are thrown in the Agent.
     /// </summary>
-    public interface IAgentExceptionHandler
+    internal interface IAgentExceptionHandler
     {
         /// <summary>
         /// Handles the transformation exception.
