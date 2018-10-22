@@ -28,21 +28,20 @@ namespace Eu.EDelivery.AS4.UnitTests.Strategies.Uploader
             IAttachmentUploader expectedUploader)
         {
             // Arrange
-            var provider = new AttachmentUploaderProvider();
-            provider.Accept(s => s.Equals(expectedKey), expectedUploader);
+            var provider = AttachmentUploaderProvider.Instance;
 
             // Act
             IAttachmentUploader actualUploader = provider.Get(expectedKey);
 
             // Assert
-            Assert.Equal(expectedUploader, actualUploader);
+            Assert.IsType(expectedUploader.GetType(), actualUploader);
         }
 
         [Fact]
         public void FailsToGetUploader_IfNotUploaderIsRegisteredForType()
         {
             // Arrange
-            var sut = new AttachmentUploaderProvider();
+            var sut = AttachmentUploaderProvider.Instance;
 
             // Act / Assert
             Assert.ThrowsAny<Exception>(() => sut.Get("not exsising key"));

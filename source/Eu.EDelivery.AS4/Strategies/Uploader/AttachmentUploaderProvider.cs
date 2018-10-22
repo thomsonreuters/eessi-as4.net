@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using Eu.EDelivery.AS4.Repositories;
 
 namespace Eu.EDelivery.AS4.Strategies.Uploader
 {
@@ -15,10 +16,17 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
         /// <summary>
         /// Initializes a new instance of the <see cref="AttachmentUploaderProvider" /> class
         /// </summary>
-        internal AttachmentUploaderProvider()
+        private AttachmentUploaderProvider()
         {
             _uploaders = new Collection<UploaderEntry>();
+
+            var mimeTypeRepository = new MimeTypeRepository();
+            this.Accept(s => StringComparer.OrdinalIgnoreCase.Equals(s, FileAttachmentUploader.Key), new FileAttachmentUploader(mimeTypeRepository));
+            this.Accept(s => StringComparer.OrdinalIgnoreCase.Equals(s, EmailAttachmentUploader.Key), new EmailAttachmentUploader(mimeTypeRepository));
+            this.Accept(s => StringComparer.OrdinalIgnoreCase.Equals(s, PayloadServiceAttachmentUploader.Key), new PayloadServiceAttachmentUploader());
         }
+
+        public static readonly IAttachmentUploaderProvider Instance = new AttachmentUploaderProvider();
 
         /// <summary>
         /// Get the right <see cref="IAttachmentUploader" /> implementation

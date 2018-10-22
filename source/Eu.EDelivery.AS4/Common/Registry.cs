@@ -33,12 +33,6 @@ namespace Eu.EDelivery.AS4.Common
             NotifySenderProvider.Accept(s => StringComparer.OrdinalIgnoreCase.Equals(s, FileSender.Key), () => new ReliableSender(notifySender: new FileSender()));
             NotifySenderProvider.Accept(s => StringComparer.OrdinalIgnoreCase.Equals(s, HttpSender.Key), () => new ReliableSender(notifySender: new HttpSender()));
 
-            AttachmentUploader = new AttachmentUploaderProvider();
-            var mimeTypeRepository = new MimeTypeRepository();
-            AttachmentUploader.Accept(s => StringComparer.OrdinalIgnoreCase.Equals(s, FileAttachmentUploader.Key), new FileAttachmentUploader(mimeTypeRepository));
-            AttachmentUploader.Accept(s => StringComparer.OrdinalIgnoreCase.Equals(s, EmailAttachmentUploader.Key), new EmailAttachmentUploader(mimeTypeRepository));
-            AttachmentUploader.Accept(s => StringComparer.OrdinalIgnoreCase.Equals(s, PayloadServiceAttachmentUploader.Key), new PayloadServiceAttachmentUploader());
-
             MessageBodyStore = new MessageBodyStore();
             MessageBodyStore.Accept(
                 condition: l => l.StartsWith("file:///", StringComparison.OrdinalIgnoreCase),
@@ -67,7 +61,7 @@ namespace Eu.EDelivery.AS4.Common
             string certRepoType = config.CertificateRepositoryType;
             if (GenericTypeBuilder.CanResolveType(certRepoType))
             {
-                CertificateRepository = 
+                CertificateRepository =
                     GenericTypeBuilder
                         .FromType(certRepoType)
                         .Build<ICertificateRepository>();
@@ -85,8 +79,6 @@ namespace Eu.EDelivery.AS4.Common
         public INotifySenderProvider NotifySenderProvider { get; }
 
         public ICertificateRepository CertificateRepository { get; private set; }
-
-        public IAttachmentUploaderProvider AttachmentUploader { get; }
 
         public IPullAuthorizationMapProvider PullRequestAuthorizationMapProvider { get; private set; }
 
