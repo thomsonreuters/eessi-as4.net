@@ -14,7 +14,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Strategies.Sender
         public void GetsAcceptedDeliverSenderFromProvider()
         {
             // Arrange
-            var sut = new DeliverSenderProvider();
+            var sut = DeliverSenderProvider.Instance;
 
             // Act / Assert
             TestProviderReturnsExpectedSender(

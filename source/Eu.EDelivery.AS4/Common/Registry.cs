@@ -31,10 +31,6 @@ namespace Eu.EDelivery.AS4.Common
             PayloadRetrieverProvider.Accept(p => p.Location.StartsWith(FtpPayloadRetriever.Key, StringComparison.OrdinalIgnoreCase), new FtpPayloadRetriever());
             PayloadRetrieverProvider.Accept(p => p.Location.StartsWith(HttpPayloadRetriever.Key, StringComparison.OrdinalIgnoreCase), new HttpPayloadRetriever());
 
-            DeliverSenderProvider = new DeliverSenderProvider();
-            DeliverSenderProvider.Accept(s => StringComparer.OrdinalIgnoreCase.Equals(s, FileSender.Key), () => new ReliableSender(deliverSender: new FileSender()));
-            DeliverSenderProvider.Accept(s => StringComparer.OrdinalIgnoreCase.Equals(s, HttpSender.Key), () => new ReliableSender(deliverSender: new HttpSender()));
-
             NotifySenderProvider = new NotifySenderProvider();
             NotifySenderProvider.Accept(s => StringComparer.OrdinalIgnoreCase.Equals(s, FileSender.Key), () => new ReliableSender(notifySender: new FileSender()));
             NotifySenderProvider.Accept(s => StringComparer.OrdinalIgnoreCase.Equals(s, HttpSender.Key), () => new ReliableSender(notifySender: new HttpSender()));
@@ -87,8 +83,6 @@ namespace Eu.EDelivery.AS4.Common
         public Func<DatastoreContext> CreateDatastoreContext => OnlyAfterInitialized(() => _createDatastore);
 
         public IPayloadRetrieverProvider PayloadRetrieverProvider { get; }
-
-        public IDeliverSenderProvider DeliverSenderProvider { get; }
 
         public INotifySenderProvider NotifySenderProvider { get; }
 

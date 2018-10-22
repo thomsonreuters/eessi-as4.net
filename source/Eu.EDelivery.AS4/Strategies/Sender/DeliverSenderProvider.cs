@@ -18,10 +18,16 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
         /// Create a new <see cref="DeliverSenderProvider" />
         /// to select the provide the right <see cref="IDeliverSender" /> implementation
         /// </summary>
-        internal DeliverSenderProvider()
+        private DeliverSenderProvider()
         {
             _senders = new Collection<DeliverSenderEntry>();
+            // TODO: this should be reworked; the actual sender should have an attribute that describes 
+            //       the key for which the sender must be used.
+            this.Accept(s => StringComparer.OrdinalIgnoreCase.Equals(s, FileSender.Key), () => new ReliableSender(deliverSender: new FileSender()));
+            this.Accept(s => StringComparer.OrdinalIgnoreCase.Equals(s, HttpSender.Key), () => new ReliableSender(deliverSender: new HttpSender()));
         }
+
+        public static readonly IDeliverSenderProvider Instance = new DeliverSenderProvider();
 
         /// <summary>
         /// Accept a given <paramref name="sender" /> for a given <paramref name="condition" />
