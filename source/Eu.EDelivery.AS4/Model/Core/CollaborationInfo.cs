@@ -46,9 +46,7 @@ namespace Eu.EDelivery.AS4.Model.Core
                 Maybe<AgreementReference>.Nothing,
                 service,
                 action,
-                DefaultConversationId)
-        { }
-
+                DefaultConversationId) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CollaborationInfo"/> class.
