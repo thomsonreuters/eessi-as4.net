@@ -13,6 +13,8 @@ namespace Eu.EDelivery.AS4.Repositories
 
         public static IMimeTypeRepository Instance = new MimeTypeRepository();
 
+        private MimeTypeRepository() { }
+
         /// <summary>
         /// Retrieve the right Extension
         /// from a given MIME Content Type

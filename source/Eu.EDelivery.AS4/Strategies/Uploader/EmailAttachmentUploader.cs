@@ -19,7 +19,6 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
     {
         public const string Key = "EMAIL";
 
-        private readonly IMimeTypeRepository _repository;
         private readonly IConfig _config;
         private Method _method;
 
@@ -28,27 +27,19 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
         /// <summary>
         /// Initialize a new instance of the <see cref="EmailAttachmentUploader"/> class
         /// </summary>
-        /// <param name="mimeTypeRepository"></param>
-        public EmailAttachmentUploader(IMimeTypeRepository mimeTypeRepository) : this(mimeTypeRepository, Config.Instance) { }
+        public EmailAttachmentUploader() : this(Config.Instance) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="EmailAttachmentUploader"/> class.
         /// </summary>
-        /// <param name="mimeTypeRepository"></param>
         /// <param name="config"></param>
-        public EmailAttachmentUploader(IMimeTypeRepository mimeTypeRepository, IConfig config)
+        public EmailAttachmentUploader(IConfig config)
         {
-            if (mimeTypeRepository == null)
-            {
-                throw new ArgumentNullException(nameof(mimeTypeRepository));
-            }
-
             if (config == null)
             {
                 throw new ArgumentNullException(nameof(config));
             }
 
-            _repository = mimeTypeRepository;
             _config = config;
         }
 
@@ -127,8 +118,7 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
 
         private void AddSecurityToSmtpServer(SmtpClient smtpServer)
         {
-            int smtpServerPort;
-            int.TryParse(_config.GetSetting("smtpport"), out smtpServerPort);
+            int.TryParse(_config.GetSetting("smtpport"), out int smtpServerPort);
             smtpServer.Port = smtpServerPort;
 
             SetNetWorkCredentials(smtpServer);
@@ -141,9 +131,9 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
                 _config.GetSetting("smtpusername"), _config.GetSetting("smtppassword"));
         }
 
-        private void AddEMailAttachmentToMail(Attachment attachment, MailMessage mail)
+        private static void AddEMailAttachmentToMail(Attachment attachment, MailMessage mail)
         {
-            string extension = _repository.GetExtensionFromMimeType(attachment.ContentType);
+            string extension = MimeTypeRepository.Instance.GetExtensionFromMimeType(attachment.ContentType);
             var emailAttachment = new System.Net.Mail.Attachment(attachment.Content, attachment.Id + extension);
 
             mail.Attachments.Add(emailAttachment);

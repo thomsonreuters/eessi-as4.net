@@ -26,7 +26,6 @@ namespace Eu.EDelivery.AS4.Receivers
 
         private readonly SynchronizedCollection<(FileInfo file, string contentType)> _pendingFiles = 
             new SynchronizedCollection<(FileInfo, string)>();
-        private readonly IMimeTypeRepository _repository;
 
         private bool _isReceiving = false;
         private FileReceiverSettings _settings;
@@ -35,7 +34,6 @@ namespace Eu.EDelivery.AS4.Receivers
         /// </summary>
         public FileReceiver()
         {
-            _repository = new MimeTypeRepository();
             Logger = LogManager.GetCurrentClassLogger();
         }
 
@@ -185,7 +183,7 @@ namespace Eu.EDelivery.AS4.Receivers
                 {
                     try
                     {
-                        string contentType = _repository.GetMimeTypeFromExtension(file.Extension);
+                        string contentType = MimeTypeRepository.Instance.GetMimeTypeFromExtension(file.Extension);
                         var result = MoveFile(file, "pending");
 
                         if (result.success)

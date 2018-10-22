@@ -15,9 +15,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Strategies.Uploader
         {
             get
             {
-                yield return new object[] {"FILE", new FileAttachmentUploader(MimeTypeRepository.Instance)};
-                yield return new object[] {"EMAIL", new EmailAttachmentUploader(MimeTypeRepository.Instance)};
-                yield return new object[] {"PAYLOAD-SERVICE", new PayloadServiceAttachmentUploader()};
+                yield return new object[] { "FILE", new FileAttachmentUploader(MimeTypeRepository.Instance) };
+                yield return new object[] { "EMAIL", new EmailAttachmentUploader() };
+                yield return new object[] { "PAYLOAD-SERVICE", new PayloadServiceAttachmentUploader() };
             }
         }
 

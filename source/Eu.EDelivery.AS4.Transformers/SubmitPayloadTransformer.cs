@@ -22,7 +22,6 @@ namespace Eu.EDelivery.AS4.Transformers
     public class SubmitPayloadTransformer : ITransformer
     {
         private readonly IConfig _config;
-        private static MimeTypeRepository _mimeTypeRepository;
 
         private IDictionary<string, string> _properties;
 
@@ -47,7 +46,6 @@ namespace Eu.EDelivery.AS4.Transformers
             }
 
             _config = configuration;
-            _mimeTypeRepository = new MimeTypeRepository();
         }
 
         /// <summary>
@@ -111,7 +109,7 @@ namespace Eu.EDelivery.AS4.Transformers
             }
             else
             {
-                string ext = _mimeTypeRepository.GetExtensionFromMimeType(incoming.ContentType);
+                string ext = MimeTypeRepository.Instance.GetExtensionFromMimeType(incoming.ContentType);
 
                 string payloadId = Guid.NewGuid().ToString();
                 string payloadPath = Path.Combine(Path.GetTempPath(), payloadId + ext);
