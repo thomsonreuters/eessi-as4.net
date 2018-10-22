@@ -20,7 +20,7 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
         {
             _uploaders = new Collection<UploaderEntry>();
 
-            this.Accept(s => StringComparer.OrdinalIgnoreCase.Equals(s, FileAttachmentUploader.Key), new FileAttachmentUploader(MimeTypeRepository.Instance));
+            this.Accept(s => StringComparer.OrdinalIgnoreCase.Equals(s, FileAttachmentUploader.Key), new FileAttachmentUploader());
             this.Accept(s => StringComparer.OrdinalIgnoreCase.Equals(s, EmailAttachmentUploader.Key), new EmailAttachmentUploader());
             this.Accept(s => StringComparer.OrdinalIgnoreCase.Equals(s, PayloadServiceAttachmentUploader.Key), new PayloadServiceAttachmentUploader());
         }

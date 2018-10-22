@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Strategies.Uploader;
 using Xunit;
 
@@ -15,7 +14,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Strategies.Uploader
         {
             get
             {
-                yield return new object[] { "FILE", new FileAttachmentUploader(MimeTypeRepository.Instance) };
+                yield return new object[] { "FILE", new FileAttachmentUploader() };
                 yield return new object[] { "EMAIL", new EmailAttachmentUploader() };
                 yield return new object[] { "PAYLOAD-SERVICE", new PayloadServiceAttachmentUploader() };
             }
