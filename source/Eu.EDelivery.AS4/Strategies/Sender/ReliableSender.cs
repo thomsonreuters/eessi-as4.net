@@ -14,8 +14,9 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
     internal class ReliableSender : IDeliverSender, INotifySender
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
-        private readonly IDeliverSender _deliverSender;
-        private readonly INotifySender _notifySender;
+
+        internal IDeliverSender InnerDeliverSender { get; }
+        internal INotifySender InnerNotifySender { get; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ReliableSender"/> class.
@@ -28,7 +29,7 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
                 throw new ArgumentNullException(nameof(deliverSender));
             }
 
-            _deliverSender = deliverSender;
+            InnerDeliverSender = deliverSender;
         }
 
         /// <summary>
@@ -42,7 +43,7 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
                 throw new ArgumentNullException(nameof(notifySender));
             }
 
-            _notifySender = notifySender;
+            InnerNotifySender = notifySender;
         }
 
         /// <summary>
@@ -52,8 +53,8 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
         /// <param name="method"></param>
         public void Configure(Method method)
         {
-            _deliverSender?.Configure(method);
-            _notifySender?.Configure(method);
+            InnerDeliverSender?.Configure(method);
+            InnerNotifySender?.Configure(method);
         }
 
         /// <summary>
@@ -69,7 +70,7 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
 
             return await SendMessageResult(
                     message: deliverMessage,
-                    sending: _deliverSender.SendAsync,
+                    sending: InnerDeliverSender.SendAsync,
                     exMessage: $"(Deliver)[{deliverMessage?.MessageInfo?.MessageId}] Unable to send DeliverMessage to the configured endpoint due to an exception")
                 .ConfigureAwait(false);
         }
@@ -87,7 +88,7 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
 
             return await SendMessageResult(
                 message: notifyMessage,
-                sending: _notifySender.SendAsync,
+                sending: InnerNotifySender.SendAsync,
                 exMessage: $"(Notify)[{notifyMessage?.MessageInfo?.MessageId}] Unable to send NotifyMessage to the configured endpoint due to and exceptoin")
                 .ConfigureAwait(false);
         }

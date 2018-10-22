@@ -3,8 +3,6 @@ using Eu.EDelivery.AS4.Builders;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Services.PullRequestAuthorization;
 using Eu.EDelivery.AS4.Strategies.Retriever;
-using Eu.EDelivery.AS4.Strategies.Sender;
-using Eu.EDelivery.AS4.Strategies.Uploader;
 
 namespace Eu.EDelivery.AS4.Common
 {
@@ -28,10 +26,6 @@ namespace Eu.EDelivery.AS4.Common
             PayloadRetrieverProvider.Accept(p => p.Location.StartsWith(TempFilePayloadRetriever.Key, StringComparison.OrdinalIgnoreCase), new TempFilePayloadRetriever());
             PayloadRetrieverProvider.Accept(p => p.Location.StartsWith(FtpPayloadRetriever.Key, StringComparison.OrdinalIgnoreCase), new FtpPayloadRetriever());
             PayloadRetrieverProvider.Accept(p => p.Location.StartsWith(HttpPayloadRetriever.Key, StringComparison.OrdinalIgnoreCase), new HttpPayloadRetriever());
-
-            NotifySenderProvider = new NotifySenderProvider();
-            NotifySenderProvider.Accept(s => StringComparer.OrdinalIgnoreCase.Equals(s, FileSender.Key), () => new ReliableSender(notifySender: new FileSender()));
-            NotifySenderProvider.Accept(s => StringComparer.OrdinalIgnoreCase.Equals(s, HttpSender.Key), () => new ReliableSender(notifySender: new HttpSender()));
 
             MessageBodyStore = new MessageBodyStore();
             MessageBodyStore.Accept(
@@ -75,8 +69,6 @@ namespace Eu.EDelivery.AS4.Common
         public Func<DatastoreContext> CreateDatastoreContext => OnlyAfterInitialized(() => _createDatastore);
 
         public IPayloadRetrieverProvider PayloadRetrieverProvider { get; }
-
-        public INotifySenderProvider NotifySenderProvider { get; }
 
         public ICertificateRepository CertificateRepository { get; private set; }
 

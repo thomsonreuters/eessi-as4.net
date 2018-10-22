@@ -253,7 +253,7 @@
     <Compile Include="Strategies\Method\LocationMethod.cs" />
     <Compile Include="Strategies\Retriever\GivenPayloadRetrieverProviderFacts.cs" />
     <Compile Include="Strategies\Retriever\GivenWebPayloadRetrieverFacts.cs" />
-    <Compile Include="Strategies\Sender\GivenSenderProviderFacts.cs" />
+    <Compile Include="Strategies\Sender\GivenDeliverSenderProviderFacts.cs" />
     <Compile Include="Strategies\Sender\GivenFileSenderFacts.cs" />
     <Compile Include="Strategies\Sender\GivenHttpSenderFacts.cs" />
     <Compile Include="Strategies\Sender\GivenReliableSenderFacts.cs" />

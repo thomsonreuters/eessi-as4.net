@@ -23,8 +23,11 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
             _senders = new Collection<DeliverSenderEntry>();
             // TODO: this should be reworked; the actual sender should have an attribute that describes 
             //       the key for which the sender must be used.
-            this.Accept(s => StringComparer.OrdinalIgnoreCase.Equals(s, FileSender.Key), () => new ReliableSender(deliverSender: new FileSender()));
-            this.Accept(s => StringComparer.OrdinalIgnoreCase.Equals(s, HttpSender.Key), () => new ReliableSender(deliverSender: new HttpSender()));
+            //       Question is how will we able to handle this with the ReliableSender decorator ?
+            //       Possible solution: the registration should not care about the ReliableSender decorator
+            //       but the GetSender method can wrap the registered sender in a ReliableSender decorator.
+            this.Accept(s => StringComparer.OrdinalIgnoreCase.Equals(s, FileSender.Key), () => new FileSender());
+            this.Accept(s => StringComparer.OrdinalIgnoreCase.Equals(s, HttpSender.Key), () => new HttpSender());
         }
 
         public static readonly IDeliverSenderProvider Instance = new DeliverSenderProvider();
@@ -70,7 +73,7 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
                 throw new KeyNotFoundException($"No Deliver Sender found for a given {operationMethod} Operation Method");
             }
 
-            return entry.Sender();
+            return new ReliableSender(entry.Sender());
         }
 
         /// <summary>

@@ -23,7 +23,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Strategies.Uploader
 
         [Theory]
         [MemberData(nameof(Uploaders))]
-        public void AttachmentProviderGetsUploader_IfUploaderGetsAccepted(
+        public void AttachmentProviderGetsUploader(
             string expectedKey,
             IAttachmentUploader expectedUploader)
         {
