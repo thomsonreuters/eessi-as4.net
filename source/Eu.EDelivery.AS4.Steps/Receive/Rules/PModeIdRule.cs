@@ -1,3 +1,4 @@
+using System;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.PMode;
 
@@ -19,15 +20,27 @@ namespace Eu.EDelivery.AS4.Steps.Receive.Rules
         /// <returns></returns>
         public int DeterminePoints(ReceivingProcessingMode pmode, UserMessage userMessage)
         {
-            return IsPModeIdEqual(pmode, userMessage) ? Points : NotEqual;
-        }
+            if (pmode == null)
+            {
+                throw new ArgumentNullException(nameof(pmode));
+            }
 
-        private static bool IsPModeIdEqual(ReceivingProcessingMode pmode, UserMessage userMessage)
-        {
-            return userMessage.CollaborationInfo.AgreementReference?
-                .Select(a => a.PModeId)
-                .Flatten()
-                .Equals((pmode.Id != null).ThenMaybe(pmode.Id)) ?? false;
+            if (userMessage == null)
+            {
+                throw new ArgumentNullException(nameof(userMessage));
+            }
+
+            if (pmode.Id == null)
+            {
+                return NotEqual;
+            }
+
+            return userMessage.CollaborationInfo.AgreementReference
+                .SelectMany(a => a.PModeId)
+                .Select(id => StringComparer.OrdinalIgnoreCase.Equals(id, pmode.Id))
+                .GetOrElse(false)
+                    ? Points
+                    : NotEqual;
         }
     }
 }

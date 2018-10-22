@@ -1,3 +1,4 @@
+using System;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.PMode;
 
@@ -19,14 +20,23 @@ namespace Eu.EDelivery.AS4.Steps.Receive.Rules
         /// <returns></returns>
         public int DeterminePoints(ReceivingProcessingMode pmode, UserMessage userMessage)
         {
-            return IsPartyInfoUndefined(pmode) ? Points : NotEqual;
-        }
+            if (pmode == null)
+            {
+                throw new ArgumentNullException(nameof(pmode));
+            }
 
-        private static bool IsPartyInfoUndefined(ReceivingProcessingMode pmode)
-        {
-            PartyInfo partyInfo = pmode.MessagePackaging.PartyInfo;
+            if (userMessage == null)
+            {
+                throw new ArgumentNullException(nameof(userMessage));
+            }
 
-            return partyInfo == null || partyInfo.IsEmpty();
+            PartyInfo partyInfo = pmode.MessagePackaging?.PartyInfo;
+
+            return partyInfo == null
+                   || !partyInfo.FromPartySpecified
+                   && !partyInfo.ToPartySpecified
+                ? Points
+                : NotEqual;
         }
     }
 }
