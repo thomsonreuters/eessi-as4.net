@@ -7,11 +7,11 @@ namespace Eu.EDelivery.AS4.Repositories
     /// <summary>
     /// Repository with Mime Type specific operations
     /// </summary>
-    public class MimeTypeRepository : IMimeTypeRepository
+    public class MimeTypeRepository 
     {
         private const string RegistryPath = @"MIME\Database\Content Type\";
 
-        public static IMimeTypeRepository Instance = new MimeTypeRepository();
+        public static MimeTypeRepository Instance = new MimeTypeRepository();
 
         private MimeTypeRepository() { }
 
@@ -55,24 +55,5 @@ namespace Eu.EDelivery.AS4.Repositories
 
             return MimeMapping.GetMimeMapping(extension);
         }
-    }
-
-    public interface IMimeTypeRepository
-    {
-        /// <summary>
-        /// Retrieve the right Extension
-        /// from a given MIME Content Type
-        /// </summary>
-        /// <param name="mimeType"></param>
-        /// <returns></returns>
-        string GetExtensionFromMimeType(string mimeType);
-
-        /// <summary>
-        /// Retrieve the right MimeType
-        /// from a given Extension
-        /// </summary>
-        /// <param name="extension"></param>
-        /// <returns></returns>
-        string GetMimeTypeFromExtension(string extension);
     }
 }
