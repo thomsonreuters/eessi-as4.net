@@ -7,9 +7,9 @@ using Xunit;
 namespace Eu.EDelivery.AS4.UnitTests.Strategies.Uploader
 {
     /// <summary>
-    /// Testing <see cref="GivenAttachmentUploaderProvider" />
+    /// Testing <see cref="GivenAttachmentUploaderProviderFacts" />
     /// </summary>
-    public class GivenAttachmentUploaderProvider
+    public class GivenAttachmentUploaderProviderFacts
     {
         public static IEnumerable<object[]> Uploaders
         {

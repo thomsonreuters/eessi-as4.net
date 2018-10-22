@@ -258,7 +258,7 @@
     <Compile Include="Strategies\Sender\GivenReliableSenderFacts.cs" />
     <Compile Include="Strategies\Sender\SaboteurSender.cs" />
     <Compile Include="Strategies\Sender\SpySender.cs" />
-    <Compile Include="Strategies\Uploader\GivenAttachmentUploaderProvider.cs" />
+    <Compile Include="Strategies\Uploader\GivenAttachmentUploaderProviderFacts.cs" />
     <Compile Include="Strategies\Uploader\GivenPayloadServiceAttachmentUploaderFacts.cs" />
     <Compile Include="Strategies\Uploader\StubAttachmentUploader.cs" />
     <Compile Include="Strategies\Uploader\StubAttachmentUploaderProvider.cs" />
