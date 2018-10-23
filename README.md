@@ -76,6 +76,11 @@ A configuration- and usermanual for AS4.<span/>NET can be found [online](https:/
 - Static Receive support (v3.1.0)
 - Improvements in the web interface for configuration (v3.1.0)
 - Improvements in the internal messaging engine (v3.1.0)
+
+Bug fixes in v3.1.1
+
+- In some cases, a communication partner could not decompress small attachments that were compressed by AS4.NET.  This issue has been solved. (v3.1.1) 
+- Make sure that the Web Portal can be hosted by IIS (v3.1.1) 
  
 ## Third Party software
 The following third party libraries are used by AS4.<span/>NET:
