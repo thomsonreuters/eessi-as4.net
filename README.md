@@ -12,7 +12,7 @@ AS4.<span/>NET is interoperable with multiple other AS4 gateway providers; AS4.<
 
 ## Installation
 
-AS4.<b/>NET v3.1.0 can be downloaded from [the following location](https://ec.europa.eu/cefdigital/artifact/repository/public/eu/eessi/as4/eessi_as4.net/3.1.0/eessi_as4.net-3.1.0.zip). 
+AS4.<b/>NET v3.1.1 can be downloaded from [the following location](https://ec.europa.eu/cefdigital/artifact/repository/public/eu/eessi/as4/eessi_as4.net/3.1.1/eessi_as4.net-3.1.1.zip).
 
 ## Documentation
 
