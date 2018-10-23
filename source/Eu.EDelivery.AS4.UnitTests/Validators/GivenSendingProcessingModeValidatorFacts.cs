@@ -2,12 +2,12 @@
 using System.Linq;
 using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.PMode;
+using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.UnitTests.Model.PMode;
 using Eu.EDelivery.AS4.Validators;
 using FluentValidation.Results;
 using FsCheck;
 using FsCheck.Xunit;
-using Org.BouncyCastle.Asn1.Cms;
 using Xunit;
 using static Eu.EDelivery.AS4.UnitTests.Validators.ValidationInputGenerators;
 using static Eu.EDelivery.AS4.UnitTests.Validators.ValidationOutputAssertions;
@@ -16,16 +16,69 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
 {
     public class GivenSendingProcessingModeValidatorFacts
     {
+        [Theory]
+        [InlineData(
+            @"<?xml version=""1.0"" encoding=""utf-8""?>
+              <PMode xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" 
+                xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" 
+                xmlns=""eu:edelivery:as4:pmode"">
+                <Id>dynamicdiscovery-pmode</Id>
+                <DynamicDiscovery>
+                    <SmpProfile/>
+                </DynamicDiscovery>
+              </PMode>", false)]
+        [InlineData(
+            @"<?xml version=""1.0"" encoding=""utf-8""?>
+              <PMode xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" 
+                xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" 
+                xmlns=""eu:edelivery:as4:pmode"">
+                <Id>dynamicdiscovery-pmode</Id>
+                <DynamicDiscovery/>
+              </PMode>", true)]
+        [InlineData(
+            @"<?xml version=""1.0"" encoding=""utf-8""?>
+              <PMode xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" 
+                xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" 
+                xmlns=""eu:edelivery:as4:pmode"">
+                <Id>dynamicdiscovery-pmode</Id>
+                <DynamicDiscovery>
+                </DynamicDiscovery>
+              </PMode>", true)]
+        [InlineData(
+            @"<?xml version=""1.0"" encoding=""utf-8""?>
+              <PMode xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" 
+                xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" 
+                xmlns=""eu:edelivery:as4:pmode"">
+                <Id>dynamicdiscovery-pmode</Id>
+                <DynamicDiscovery>
+                    <SmpProfile>
+                        Eu.EDelivery.AS4.Services.DynamicDiscovery.LocalDynamicDiscoveryProfile, Eu.EDelivery.AS4, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+                    </SmpProfile>
+                </DynamicDiscovery>
+              </PMode>", true)]
+        public void DynamicDiscovery_Invalid_With_Empty_SmpProfile(string xml, bool expected)
+        {
+            // Arrange
+            var pmode = AS4XmlSerializer.FromString<SendingProcessingMode>(xml);
+
+            // Act
+            ValidationResult result = ExerciseValidation(pmode);
+
+            // Assert
+            Assert.True(
+                expected == result.IsValid, 
+                result.AppendValidationErrorsToErrorMessage("Invalid SendingPMode: "));
+        }
+
         [Property]
         public Property Encryption_Certificate_Should_Be_Specified_When_Encryption_Is_Enabled_For_A_Non_DynamicDiscovery_Setup(
             bool isEnabled,
             string findValue,
-            string certificate,
-            string smpProfile)
+            string certificate)
         {
-            var genDynamicDiscoveryProfile = Gen.OneOf(
-                Gen.Constant((DynamicDiscoveryConfiguration) null),
-                Gen.Fresh(() => new DynamicDiscoveryConfiguration { SmpProfile = smpProfile }));
+            var genDynamicDiscoveryProfile =
+                Gen.Fresh(() => new DynamicDiscoveryConfiguration())
+                   .OrNull();
 
             return Prop.ForAll(
                 CreateEncryptionCertificateInfoGen(findValue, certificate).ToArbitrary(),
@@ -46,9 +99,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
                     ValidationResult result = ExerciseValidation(pmode);
 
                     // Assert
-                    bool specifiedDynamicDiscoveryProfile =
-                        !String.IsNullOrWhiteSpace(dynamicDiscovery?.SmpProfile);
-
+                    bool specifiedDynamicDiscoveryProfile = pmode.DynamicDiscoverySpecified;
                     bool specifiedCertFindCriteria =
                         cert.Item1 == PublicKeyCertificateChoiceType.CertificateFindCriteria
                         && cert.Item2 is CertificateFindCriteria c
@@ -233,28 +284,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
         }
 
         [Fact]
-        public void PushConfigurationMustNotBeSpecified_WhenPulling()
-        {
-            SendingProcessingMode pmode = new SendingProcessingMode
-            {
-                Id = "Test",
-                MepBinding = MessageExchangePatternBinding.Pull,
-                PushConfiguration = new PushConfiguration(),
-                DynamicDiscovery = null
-            };
-
-            var result = ExerciseValidation(pmode);
-
-            Assert.False(result.IsValid);
-
-            pmode.PushConfiguration = null;
-
-            result = ExerciseValidation(pmode);
-
-            Assert.True(result.IsValid, result.AppendValidationErrorsToErrorMessage("Failed validation:"));
-        }
-
-        [Fact]
         public void SendConfigurationMayBeIncomplete_WhenDynamicDiscovery()
         {
             SendingProcessingMode pmode = new SendingProcessingMode
@@ -276,7 +305,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
             var pmode = new SendingProcessingMode
             {
                 Id = "ignored",
-                DynamicDiscovery = new DynamicDiscoveryConfiguration { SmpProfile = null },
                 PushConfiguration = new PushConfiguration { Protocol = { Url = url } }
             };
 

@@ -36,6 +36,11 @@ namespace Eu.EDelivery.AS4.UnitTests
             return Gen.zip(g1, g2).Select(t => f(t.Item1, t.Item2));
         }
 
+        public static Gen<Tuple<T1, T2>> Zip<T1, T2>(this Gen<T1> g1, Gen<T2> g2)
+        {
+            return Gen.zip(g1, g2);
+        }
+
         public static Arbitrary<MessageUnit> MessageUnits()
         {
             return Gen.Elements<MessageUnit>(

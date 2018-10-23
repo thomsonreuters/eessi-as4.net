@@ -69,17 +69,22 @@ namespace Eu.EDelivery.AS4.Common
 
             IsInitialized = true;
             PullRequestAuthorizationMapProvider = new FilePullAuthorizationMapProvider(config.AuthorizationMapPath);
-
-            string certRepoType = config.CertificateRepositoryType;
-            if (GenericTypeBuilder.CanResolveType(certRepoType))
-            {
-                CertificateRepository = 
-                    GenericTypeBuilder
-                        .FromType(certRepoType)
-                        .Build<ICertificateRepository>();
-            }
+            CertificateRepository = ResolveCertificateRepository(config.CertificateRepositoryType);
 
             _createDatastore = () => new DatastoreContext(config);
+        }
+
+        private static ICertificateRepository ResolveCertificateRepository(string typeString)
+        {
+            if (!GenericTypeBuilder.CanResolveTypeImplementedBy<ICertificateRepository>(typeString))
+            {
+                throw new InvalidOperationException(
+                    $"Cannot resolve a valid {nameof(ICertificateRepository)} implementation for the {typeString} fully-qualified assembly name");
+            }
+
+            return GenericTypeBuilder
+                .FromType(typeString)
+                .Build<ICertificateRepository>();
         }
 
         public bool IsInitialized { get; private set; }

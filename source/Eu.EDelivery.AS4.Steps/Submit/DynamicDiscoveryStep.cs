@@ -14,16 +14,16 @@ using Eu.EDelivery.AS4.Services.DynamicDiscovery;
 using Eu.EDelivery.AS4.Validators;
 using NLog;
 using SubmitParty = Eu.EDelivery.AS4.Model.Common.Party;
+using SubmitPartyId = Eu.EDelivery.AS4.Model.Common.PartyId;
 using PModeParty = Eu.EDelivery.AS4.Model.PMode.Party;
+using PModePartyId = Eu.EDelivery.AS4.Model.PMode.PartyId;
 using AS4Party = Eu.EDelivery.AS4.Model.Core.Party;
-using Exception = System.Exception;
 using PartyId = Eu.EDelivery.AS4.Model.Core.PartyId;
 
 namespace Eu.EDelivery.AS4.Steps.Submit
 {
     /// <summary>
-    /// <see cref="IStep" /> implementation
-    /// to dynamically complete the <see cref="SendingProcessingMode"/>
+    /// <see cref="IStep" /> implementation to dynamically complete the <see cref="SendingProcessingMode"/>.
     /// </summary>    
     [Info("Perform Dynamic Discovery if required")]
     [Description(
@@ -75,20 +75,20 @@ namespace Eu.EDelivery.AS4.Steps.Submit
                     + "the ForwardMessageTransformer instead of the AS4MessageTransformer");
             }
 
-            if (messagingContext.SendingPMode == null ||
-                messagingContext.SendingPMode.DynamicDiscoverySpecified == false)
+            if (messagingContext.SendingPMode == null 
+                || messagingContext.SendingPMode.DynamicDiscoverySpecified == false)
             {
                 Logger.Debug($"Dynamic Discovery in SendingPMode {messagingContext.SendingPMode?.Id} is not configured");
                 return StepResult.Success(messagingContext);
             }
 
-            string smpProfile = messagingContext.SendingPMode.DynamicDiscovery.SmpProfile;
-            Logger.Info($"{messagingContext.LogTag} DynamicDiscovery is enabled in SendingPMode - using {smpProfile}");
-
             var clonedPMode = (SendingProcessingMode) messagingContext.SendingPMode.Clone();
             clonedPMode.Id = $"{clonedPMode.Id}_SMP";
 
+            string smpProfile = messagingContext.SendingPMode.DynamicDiscovery.SmpProfile;
             IDynamicDiscoveryProfile profile = _resolveDynamicDiscoveryProfile(smpProfile);
+            Logger.Info($"{messagingContext.LogTag} DynamicDiscovery is enabled in SendingPMode - using {profile.GetType().Name}");
+
             AS4Party toParty = 
                 messagingContext.Mode == MessagingContextMode.Forward
                 ? ResolveAS4ReceiverParty(messagingContext.AS4Message)
@@ -114,12 +114,23 @@ namespace Eu.EDelivery.AS4.Steps.Submit
 
         private static IDynamicDiscoveryProfile ResolveDynamicDiscoveryProfile(string smpProfile)
         {
-            if (string.IsNullOrEmpty(smpProfile))
+            if (smpProfile == null)
             {
+                Logger.Debug($"SendingPMode doesn't specify DynamicDiscovery.SmpProfile element, using default: {nameof(LocalDynamicDiscoveryProfile)}");
                 return new LocalDynamicDiscoveryProfile();
             }
 
-            return GenericTypeBuilder.FromType(smpProfile).Build<IDynamicDiscoveryProfile>();
+            if (!GenericTypeBuilder.CanResolveTypeImplementedBy<IDynamicDiscoveryProfile>(smpProfile))
+            {
+                throw new InvalidOperationException(
+                    "SendingPMode.DynamicDiscovery.SmpProfile element doesn't have a fully-qualified assembly name "
+                    + $"that can be used to resolve a instance that implements the {nameof(IDynamicDiscoveryProfile)} interface");
+            }
+
+            Logger.Debug($"SendingPMode specifies a DynamicDiscovery.SmpProfile element, resolve using: {smpProfile}");
+            return GenericTypeBuilder
+                .FromType(smpProfile)
+                .Build<IDynamicDiscoveryProfile>();
         }
 
         private static async Task<XmlDocument> RetrieveSmpMetaData(
@@ -134,8 +145,8 @@ namespace Eu.EDelivery.AS4.Steps.Submit
             }
 
             Dictionary<string, string> customProperties = 
-                dynamicDiscovery.Settings?.ToDictionary(s => s.Key, s => s.Value) 
-                    ?? new Dictionary<string, string>();
+                (dynamicDiscovery.Settings ?? new DynamicDiscoverySetting[0])
+                    ?.ToDictionary(s => s?.Key, s => s?.Value);
 
             return await profile.RetrieveSmpMetaData(
                 party: toParty, 
@@ -144,24 +155,31 @@ namespace Eu.EDelivery.AS4.Steps.Submit
 
         private static void ValidatePMode(SendingProcessingMode pmode)
         {
-            SendingProcessingModeValidator.Instance.Validate(pmode).Result(
-                onValidationSuccess: result => Logger.Debug($"Dynamically completed PMode {pmode.Id} is valid"),
-                onValidationFailed: result =>
-                {
-                    string errorMessage = 
-                        result.AppendValidationErrorsToErrorMessage(
-                            $"(Submit) Dynamically completed PMode {pmode.Id} was invalid:");
+            SendingProcessingModeValidator
+                .Instance
+                .Validate(pmode)
+                .Result(
+                    onValidationSuccess: result => Logger.Debug($"Dynamically completed PMode {pmode.Id} is valid"),
+                    onValidationFailed: result =>
+                    {
+                        string errorMessage = 
+                            result.AppendValidationErrorsToErrorMessage(
+                                $"(Submit) Dynamically completed PMode {pmode.Id} was invalid:");
 
-                    Logger.Error(errorMessage);
+                        Logger.Error(errorMessage);
 
-                    throw new ConfigurationErrorsException(errorMessage);
-                });
+                        throw new ConfigurationErrorsException(errorMessage);
+                    });
         }
 
         private static AS4Party ResolveAS4ReceiverParty(AS4Message msg)
         {
             if (msg?.PrimaryMessageUnit is UserMessage m)
             {
+                Logger.Debug(
+                    "Resolve ToParty in a Forwarding scenario from AS4Message's "
+                    + $"primary messsage unit {m.MessageId} {{MessageType=UserMessage}}");
+
                 return m.Receiver;
             }
 
@@ -174,39 +192,49 @@ namespace Eu.EDelivery.AS4.Steps.Submit
             PModeParty pmodeParty, 
             bool allowOverride)
         {
-            if (submitParty != null && allowOverride == false)
+            if (allowOverride == false
+                && submitParty != null 
+                && pmodeParty != null 
+                && submitParty.Equals(pmodeParty) == false)
             {
-                if (pmodeParty != null && submitParty.Equals(pmodeParty) == false)
-                {
-                    throw new NotSupportedException(
-                        "SubmitMessage is not allowed by the SendingPMode to override ToParty");
-                }
+                throw new NotSupportedException(
+                    "SubmitMessage is not allowed by the SendingPMode to override ToParty");
             }
 
             if (submitParty == null && pmodeParty == null)
             {
                 throw new InvalidOperationException(
-                    "Either the SubmitMessage or the SendingPMode is required to have a ToParty configured for dynamic discovery");
+                    "Either the SubmitMessage or the SendingPMode is required to have a " + 
+                    "ToParty configured for dynamic discovery in a non-Forwarding scenario");
             }
 
             if (submitParty != null)
             {
+                Logger.Debug(
+                    "Resolve ToParty in non-Forwarding scenario from SubmitMessage "
+                    + "because SendingPMode allows overriding {AllowOverride = true}");
+
                 return CreateToPartyFrom(
                     "SubmitMessage", 
                     submitParty.Role, 
-                    submitParty.PartyIds?.Select(p => new PartyId(p.Id, p.Type.AsMaybe())));
+                    (submitParty.PartyIds ?? Enumerable.Empty<SubmitPartyId>())
+                        .Select(p => new PartyId(p?.Id, p?.Type.AsMaybe())));
             }
 
-            if (pmodeParty?.PartyIds.Any() != true)
+            if (pmodeParty?.PartyIds.Any() == false)
             {
+                
                 throw new ConfigurationErrorsException(
-                    "Cannot retrieve SMP metadata: SendingPMode must contain at lease one <ToPartyId/> element in the MessagePackaging.PartyInfo.ToParty element");
+                    "Cannot retrieve SMP metadata: SendingPMode must contain at lease one "
+                    + "<ToPartyId/> element in the MessagePackaging.PartyInfo.ToParty element");
             }
 
+            Logger.Debug("Resolve ToParty in non-Forwarding scenario from SendingPMode because SubmitMessage has none");
             return CreateToPartyFrom(
                 "SendingPMode", 
                 pmodeParty.Role, 
-                pmodeParty.PartyIds?.Select(p => new PartyId(p.Id, p.Type.AsMaybe())));
+                (pmodeParty.PartyIds ?? Enumerable.Empty<PModePartyId>())
+                    .Select(p => new PartyId(p?.Id, p?.Type.AsMaybe())));
         }
 
         private static AS4Party CreateToPartyFrom(string log, string role, IEnumerable<PartyId> ids)
@@ -217,7 +245,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
             }
             catch (ArgumentNullException ex)
             {
-                throw new InvalidDataException(log + " has an incomplete ToParty: " + ex.Message);
+                throw new InvalidDataException($"{log} has an incomplete ToParty: {ex.Message}");
             }
         }
     }

@@ -28,7 +28,7 @@ namespace Eu.EDelivery.AS4.Model.Common
                 return true;
             }
 
-            return string.Equals(Role, other.Role, StringComparison.OrdinalIgnoreCase) 
+            return String.Equals(Role, other.Role, StringComparison.OrdinalIgnoreCase) 
                    && Equals(PartyIds, other.PartyIds);
         }
 
@@ -42,14 +42,14 @@ namespace Eu.EDelivery.AS4.Model.Common
             IEnumerable<string> submitPartyIds =
                 (PartyIds ?? Enumerable.Empty<PartyId>())
                     .Select(p => p?.Id)
-                    .OrderBy(id => id);
+                    .OrderBy(id => id, StringComparer.OrdinalIgnoreCase);
 
             IEnumerable<string> pmodePartyIds =
                 (pmodeParty?.PartyIds ?? Enumerable.Empty<PMode.PartyId>())
                     .Select(p => p?.Id)
-                    .OrderBy(id => id);
+                    .OrderBy(id => id, StringComparer.OrdinalIgnoreCase);
 
-            return submitPartyIds.SequenceEqual(pmodePartyIds);
+            return submitPartyIds.SequenceEqual(pmodePartyIds, StringComparer.OrdinalIgnoreCase);
         }
 
         /// <summary>
