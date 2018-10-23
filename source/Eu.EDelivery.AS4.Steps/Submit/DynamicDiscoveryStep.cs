@@ -96,12 +96,9 @@ namespace Eu.EDelivery.AS4.Steps.Submit
                     messagingContext.SubmitMessage?.PartyInfo?.ToParty,
                     messagingContext.SendingPMode?.MessagePackaging?.PartyInfo?.ToParty,
                     messagingContext.SendingPMode?.AllowOverride == true);
-            
-            XmlDocument smpMetaData = await RetrieveSmpMetaData(profile, clonedPMode.DynamicDiscovery, toParty);
 
-            SendingProcessingMode sendingPMode = profile.DecoratePModeWithSmpMetaData(clonedPMode, smpMetaData);
+            SendingProcessingMode sendingPMode = await DynamicDiscoverSendingPModeAsync(messagingContext, profile, toParty);
             Logger.Info($"{messagingContext.LogTag} SendingPMode {sendingPMode.Id} completed with SMP metadata");
-            ValidatePMode(sendingPMode);
 
             messagingContext.SendingPMode = sendingPMode;
             if (messagingContext.SubmitMessage != null)
@@ -133,7 +130,36 @@ namespace Eu.EDelivery.AS4.Steps.Submit
                 .Build<IDynamicDiscoveryProfile>();
         }
 
-        private static async Task<XmlDocument> RetrieveSmpMetaData(
+        private static async Task<SendingProcessingMode> DynamicDiscoverSendingPModeAsync(
+            MessagingContext messagingContext,
+            IDynamicDiscoveryProfile profile,
+            AS4Party toParty)
+        {
+            var clonedPMode = (SendingProcessingMode)messagingContext.SendingPMode.Clone();
+            clonedPMode.Id = $"{clonedPMode.Id}_SMP";
+
+            XmlDocument smpMetaData = await RetrieveSmpMetaDataAsync(profile, clonedPMode.DynamicDiscovery, toParty);
+            if (smpMetaData == null)
+            {
+                throw new ArgumentNullException(
+                    nameof(smpMetaData),
+                    $@"No SMP medata data document was retrieved by the Dynamic Discovery profile: {profile.GetType().Name}");
+            }
+
+            SendingProcessingMode sendingPMode = profile.DecoratePModeWithSmpMetaData(clonedPMode, smpMetaData);
+            if (sendingPMode == null)
+            {
+                throw new ArgumentNullException(
+                    nameof(sendingPMode),
+                    $@"No decorated SendingPMode was returned by the Dynamic Discovery profile: {profile.GetType().Name}");
+            }
+
+
+            ValidatePMode(sendingPMode);
+            return sendingPMode;
+        }
+
+        private static async Task<XmlDocument> RetrieveSmpMetaDataAsync(
             IDynamicDiscoveryProfile profile, 
             DynamicDiscoveryConfiguration dynamicDiscovery,
             AS4Party toParty)
@@ -146,7 +172,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
 
             Dictionary<string, string> customProperties = 
                 (dynamicDiscovery.Settings ?? new DynamicDiscoverySetting[0])
-                    ?.ToDictionary(s => s?.Key, s => s?.Value);
+                ?.ToDictionary(s => s?.Key, s => s?.Value);
 
             return await profile.RetrieveSmpMetaData(
                 party: toParty, 

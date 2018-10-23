@@ -102,6 +102,16 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
             Model.Core.Party party, 
             IDictionary<string, string> properties)
         {
+            if (party == null)
+            {
+                throw new ArgumentNullException(nameof(party));
+            }
+
+            if (properties == null)
+            {
+                throw new ArgumentNullException(nameof(properties));
+            }
+
             if (party.PrimaryPartyId == null)
             {
                 throw new InvalidOperationException("Given invalid 'ToParty'; requires a 'PartyId'");
@@ -179,139 +189,40 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
         /// <returns></returns>
         public SendingProcessingMode DecoratePModeWithSmpMetaData(SendingProcessingMode pmode, XmlDocument smpMetaData)
         {
-            CompleteMessageProperties(pmode, smpMetaData);
+            if (pmode == null)
+            {
+                throw new ArgumentNullException(nameof(pmode));
+            }
 
-            CompleteCollaborationInfo(pmode, smpMetaData);
+            if (smpMetaData == null)
+            {
+                throw new ArgumentNullException(nameof(smpMetaData));
+            }
 
-            CompleteSendConfiguration(pmode, smpMetaData);
+            XmlNode endpoint = SelectServiceEndpiontNode(smpMetaData);
+            XmlNode certificateNode = endpoint.SelectSingleNode("*[local-name()='Certificate']");
+
+            Logger.Debug($"Decorate SendingPMode {pmode.Id} with SMP response from ESens SMP Server");
+
+            OverwritePushProtocolUrl(pmode, endpoint);
+            DecorateMessageProperties(pmode, smpMetaData);
+            OverwriteCollaborationServiceAction(pmode, smpMetaData);
+
+            if (certificateNode != null)
+            {
+                OverwriteToParty(pmode, certificateNode);
+                OverwriteEncryptionCertificate(pmode, certificateNode);
+            }
+            else
+            {
+                Logger.Trace("Don't override MessagePackaging.PartyInfo.ToParty because no <Certificate/> element found in SMP response");
+                Logger.Trace("Don't override Encryption Certificate because no <Certificate/> element found in SMP response");
+            }
 
             return pmode;
         }
 
-        private static void CompleteMessageProperties(SendingProcessingMode sendingPMode, XmlDocument smpMetaData)
-        {
-            sendingPMode.MessagePackaging = sendingPMode.MessagePackaging ?? new SendMessagePackaging();
-            sendingPMode.MessagePackaging.MessageProperties =
-                sendingPMode.MessagePackaging.MessageProperties ?? new List<MessageProperty>();
-
-            SetFinalRecipient(sendingPMode, smpMetaData);
-
-            SetOriginalSender(sendingPMode);
-        }
-
-        private static void SetOriginalSender(SendingProcessingMode sendingPMode)
-        {
-            MessageProperty existingOriginalSender =
-                sendingPMode
-                    .MessagePackaging
-                    .MessageProperties
-                    .FirstOrDefault(p => p.Name.Equals("originalSender", StringComparison.OrdinalIgnoreCase));
-
-            if (existingOriginalSender == null)
-            {
-                var originalSender = new MessageProperty
-                {
-                    Name = "originalSender",
-                    Value = "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1"
-                };
-                sendingPMode.MessagePackaging.MessageProperties.Add(originalSender);
-            }
-        }
-
-        private static void SetFinalRecipient(SendingProcessingMode sendingPMode, XmlDocument smpMetaData)
-        {
-            MessageProperty finalRecipient = CreateFinalRecipient(smpMetaData);
-            MessageProperty existingFinalRecipient =
-                sendingPMode
-                    .MessagePackaging
-                    .MessageProperties
-                    .FirstOrDefault(p => p.Name.Equals("finalRecipient", StringComparison.OrdinalIgnoreCase));
-
-            if (existingFinalRecipient != null)
-            {
-                sendingPMode.MessagePackaging.MessageProperties.Remove(existingFinalRecipient);
-            }
-
-            sendingPMode.MessagePackaging.MessageProperties.Add(finalRecipient);
-        }
-
-        private static MessageProperty CreateFinalRecipient(XmlNode smpMetaData)
-        {
-            XmlNode node = smpMetaData.SelectSingleNode("//*[local-name()='ParticipantIdentifier']");
-            if (node == null)
-            {
-                throw new InvalidDataException("No ParticipantIdentifier element found in SMP meta-data");
-            }
-
-            string schemeAttribute = 
-                node.Attributes?
-                    .OfType<XmlAttribute>()
-                    .FirstOrDefault(a => a.Name.Equals("scheme", StringComparison.OrdinalIgnoreCase))
-                    ?.Value;
-
-            return new MessageProperty
-            {
-                Name = "finalRecipient",
-                Value = node.InnerText,
-                Type = schemeAttribute
-            };
-        }
-        
-        private static void CompleteCollaborationInfo(SendingProcessingMode sendingPMode, XmlDocument smpMetaData)
-        {
-            if (sendingPMode.MessagePackaging.CollaborationInfo == null)
-            {
-                sendingPMode.MessagePackaging.CollaborationInfo = new CollaborationInfo();
-            }
-
-            SetCollaborationService(sendingPMode, smpMetaData);
-
-            SetCollaborationAction(sendingPMode, smpMetaData);
-        }
-        
-        private static void SetCollaborationService(SendingProcessingMode sendingPMode, XmlNode smpMetaData)
-        {
-            XmlNode processIdentifier = 
-                smpMetaData.SelectSingleNode(
-                    "//*[local-name()='ProcessList']/*[local-name()='Process']/*[local-name()='ProcessIdentifier']");
-
-            if (processIdentifier == null)
-            {
-                throw new InvalidDataException(
-                    "Unable to complete CollaborationInfo: ProcessIdentifier element not found in SMP metadata");
-            }
-
-            string serviceValue = processIdentifier.InnerText;
-            string serviceType = 
-                processIdentifier
-                    .Attributes
-                    ?.OfType<XmlAttribute>()
-                    .FirstOrDefault(a => a.Name.Equals("scheme", StringComparison.OrdinalIgnoreCase))
-                    ?.Value;
-
-            sendingPMode.MessagePackaging.CollaborationInfo.Service = new Service
-            {
-                Value = serviceValue,
-                Type = serviceType
-            };
-        }
-
-        private static void SetCollaborationAction(SendingProcessingMode sendingPMode, XmlNode smpMetaData)
-        {
-            XmlNode documentIdentifier =
-                smpMetaData.SelectSingleNode(
-                    "//*[local-name()='ServiceInformation']/*[local-name()='DocumentIdentifier']");
-
-            if (documentIdentifier == null)
-            {
-                throw new InvalidDataException(
-                    "Unable to complete CollaborationInfo: DocumentIdentifier element not found in SMP metadata");
-            }
-
-            sendingPMode.MessagePackaging.CollaborationInfo.Action = documentIdentifier.InnerText;
-        }
-
-        private static void CompleteSendConfiguration(SendingProcessingMode sendingPMode, XmlNode smpMetaData)
+        private static XmlNode SelectServiceEndpiontNode(XmlNode smpMetaData)
         {
             XmlNode serviceEndpointList =
                 smpMetaData.SelectSingleNode("//*[local-name()='ServiceEndpointList']");
@@ -338,66 +249,177 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
             {
                 string foundTransportProfilesFormatted =
                     foundTransportProfiles.Any()
-                    ? $"; did found: {String.Join(", ", foundTransportProfiles)} transport profiles"
-                    : "; no other transport profiles were found";
+                        ? $"; did found: {String.Join(", ", foundTransportProfiles)} transport profiles"
+                        : "; no other transport profiles were found";
 
                 throw new InvalidDataException(
-                    "No <Endpoint/> element in a <ServiceEndpointList/> element found in SMP meta-data "
+                    "No <Endpoint/> element in an <ServiceEndpointList/> element found in SMP meta-data "
                     + $"where the @transportProfile attribute is {supportedTransportProfile}"
                     + foundTransportProfilesFormatted);
             }
 
-            CompletePushConfiguration(sendingPMode, endPoint);
-
-            AddCertificateInformation(sendingPMode, endPoint);
+            return endPoint;
         }
 
-        private static void CompletePushConfiguration(SendingProcessingMode sendingPMode, XmlNode endPoint)
+        private static void OverwritePushProtocolUrl(SendingProcessingMode pmode, XmlNode endpoint)
         {
-            XmlNode address = endPoint.SelectSingleNode("*[local-name()='EndpointReference']/*[local-name()='Address']");
+            pmode.PushConfiguration = pmode.PushConfiguration ?? new PushConfiguration();
+            pmode.PushConfiguration.Protocol = pmode.PushConfiguration.Protocol ?? new Protocol();
+            pmode.PushConfiguration.Protocol.Url = SelectEndpointAddress(endpoint).InnerText;
+        }
+
+        private static XmlNode SelectEndpointAddress(XmlNode endpoint)
+        {
+            XmlNode address = endpoint.SelectSingleNode("*[local-name()='EndpointReference']/*[local-name()='Address']");
             if (address == null)
             {
                 throw new InvalidDataException(
                     "No ServiceEndpointList/Endpoint/EndpointReference/Address element found in SMP meta-data");
             }
 
-            if (sendingPMode.PushConfiguration == null)
-            {
-                sendingPMode.PushConfiguration = new PushConfiguration();
-            }
-
-            sendingPMode.PushConfiguration.Protocol = new Protocol { Url = address.InnerText };
+            Logger.Trace($"Override SendingPMode.PushConfiguration.Protocol with {{Url={address.InnerText}}}");
+            return address;
         }
 
-        private static void AddCertificateInformation(SendingProcessingMode sendingPMode, XmlNode endPoint)
+        private static void DecorateMessageProperties(SendingProcessingMode pmode, XmlDocument smpMetaData)
         {
-            XmlNode certificateNode = endPoint.SelectSingleNode("*[local-name()='Certificate']");
-            if (certificateNode == null)
+            bool IsFinalReceipient(MessageProperty p)
             {
-                Logger.Debug("No <Certificate/> element found to use for encryption information");
-                return;
+                return p?.Name?.Equals("finalReceipient", StringComparison.OrdinalIgnoreCase) ?? false;
             }
 
-            sendingPMode.Security.Encryption.EncryptionCertificateInformation = new PublicKeyCertificate
+            bool IsOriginalSender(MessageProperty p)
+            {
+                return p?.Name?.Equals("originalSender", StringComparison.OrdinalIgnoreCase) ?? false;
+            }
+
+            pmode.MessagePackaging = pmode.MessagePackaging ?? new SendMessagePackaging();
+            pmode.MessagePackaging.MessageProperties = pmode.MessagePackaging.MessageProperties ?? new List<MessageProperty>();
+            pmode.MessagePackaging.MessageProperties.RemoveAll(IsFinalReceipient);
+            pmode.MessagePackaging.MessageProperties.Add(CreateFinalRecipient(smpMetaData));
+            if (!pmode.MessagePackaging.MessageProperties.Any(IsOriginalSender))
+            {
+                pmode.MessagePackaging.MessageProperties.Add(CreateOriginalSender());
+            }
+        }
+
+        private static MessageProperty CreateFinalRecipient(XmlNode smpMetaData)
+        {
+            XmlNode node = smpMetaData.SelectSingleNode("//*[local-name()='ParticipantIdentifier']");
+            if (node == null)
+            {
+                throw new InvalidDataException("No ParticipantIdentifier element found in SMP meta-data");
+            }
+
+            string schemeAttribute =
+                node.Attributes?
+                    .OfType<XmlAttribute>()
+                    .FirstOrDefault(a => a.Name.Equals("scheme", StringComparison.OrdinalIgnoreCase))
+                    ?.Value;
+
+            Logger.Trace("Add MessageProperty 'finalRecipient' to SendingPMode");
+            return new MessageProperty
+            {
+                Name = "finalRecipient",
+                Value = node.InnerText,
+                Type = schemeAttribute
+            };
+        }
+
+        private static MessageProperty CreateOriginalSender()
+        {
+            Logger.Trace("Add MessageProperty 'originalSender' to SendingPMode");
+            return new MessageProperty
+            {
+                Name = "originalSender",
+                Value = "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1"
+            };
+        }
+
+        private static void OverwriteCollaborationServiceAction(SendingProcessingMode pmode, XmlDocument smpMetaData)
+        {
+            pmode.MessagePackaging = pmode.MessagePackaging ?? new SendMessagePackaging();
+            pmode.MessagePackaging.CollaborationInfo = pmode.MessagePackaging.CollaborationInfo ?? new CollaborationInfo();
+            pmode.MessagePackaging.CollaborationInfo.Action = SelectCollaborationAction(smpMetaData);
+            pmode.MessagePackaging.CollaborationInfo.Service = SelectCollaborationService(smpMetaData);
+        }
+
+        private static string SelectCollaborationAction(XmlNode smpMetaData)
+        {
+            XmlNode documentIdentifier =
+                smpMetaData.SelectSingleNode(
+                    "//*[local-name()='ServiceInformation']/*[local-name()='DocumentIdentifier']");
+
+            if (documentIdentifier == null)
+            {
+                throw new InvalidDataException(
+                    "Unable to complete CollaborationInfo: no ServiceInformation/DocumentIdentifier element not found in SMP metadata");
+            }
+
+            Logger.Trace($"Override SendingPMode.MessagingPackaging.CollaborationInfo with {{Action={documentIdentifier.InnerText}}}");
+            return documentIdentifier.InnerText;
+        }
+
+        private static Service SelectCollaborationService(XmlNode smpMetaData)
+        {
+            XmlNode processIdentifier =
+                smpMetaData.SelectSingleNode(
+                    "//*[local-name()='ProcessList']/*[local-name()='Process']/*[local-name()='ProcessIdentifier']");
+
+            if (processIdentifier == null)
+            {
+                throw new InvalidDataException(
+                    "Unable to complete CollaborationInfo: ProcessList/ProcessIdentifier element not found in SMP metadata");
+            }
+
+            string serviceValue = processIdentifier.InnerText;
+            string serviceType =
+                processIdentifier
+                    .Attributes
+                    ?.OfType<XmlAttribute>()
+                    .FirstOrDefault(a => a.Name.Equals("scheme", StringComparison.OrdinalIgnoreCase))
+                    ?.Value;
+
+            Logger.Trace($"Override SendingPMode.MessagingPackaging.CollaborationInfo with {{ServiceType={serviceType}, ServiceValue={serviceValue}}}");
+            return new Service
+            {
+                Value = serviceValue,
+                Type = serviceType
+            };
+        }
+
+        private static void OverwriteToParty(SendingProcessingMode pmode, XmlNode certificateNode)
+        {
+            pmode.MessagePackaging = pmode.MessagePackaging ?? new SendMessagePackaging();
+            pmode.MessagePackaging.PartyInfo = pmode.MessagePackaging.PartyInfo ?? new PartyInfo();
+
+            var cert = new X509Certificate2(
+                rawData: Convert.FromBase64String(certificateNode.InnerText),
+                password: (string)null);
+
+            const string responderRole = "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder";
+            Logger.Trace($"Override MessagingPackaging.PartyInfo.ToParty with {{Role={responderRole}}}");
+
+            pmode.MessagePackaging.PartyInfo.ToParty = new Party(
+                role: responderRole,
+                partyId: new PartyId(
+                    id: cert.GetNameInfo(X509NameType.SimpleName, forIssuer: false))
+                    {
+                        Type = "urn:oasis:names:tc:ebcore:partyid-type:unregistered"
+                    });
+        }
+
+        private static void OverwriteEncryptionCertificate(SendingProcessingMode pmode, XmlNode certificateNode)
+        {
+            Logger.Trace("Override SendingPMode.Security.Encryption with {{CertificateType=PublicKeyCertificate}}");
+            pmode.Security = pmode.Security ?? new Model.PMode.Security();
+            pmode.Security.Encryption = pmode.Security.Encryption ?? new Encryption();
+
+            pmode.Security.Encryption.CertificateType = PublicKeyCertificateChoiceType.PublicKeyCertificate;
+            pmode.Security.Encryption.EncryptionCertificateInformation = new PublicKeyCertificate
             {
                 Certificate = certificateNode.InnerText
             };
-            sendingPMode.Security.Encryption.CertificateType = PublicKeyCertificateChoiceType.PublicKeyCertificate;
-
-            var cert = new X509Certificate2(
-                rawData: Convert.FromBase64String(certificateNode.InnerText), 
-                password: (string) null);
-
-            sendingPMode.MessagePackaging.PartyInfo = sendingPMode.MessagePackaging.PartyInfo ?? new PartyInfo();
-            sendingPMode.MessagePackaging.PartyInfo.ToParty = new Party
-            {
-                Role = "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder"
-            };
-            sendingPMode.MessagePackaging.PartyInfo.ToParty.PartyIds.Add(new PartyId
-            {
-                Id = cert.GetNameInfo(X509NameType.SimpleName, false),
-                Type = "urn:oasis:names:tc:ebcore:partyid-type:unregistered"
-            });
         }
     }
 }
