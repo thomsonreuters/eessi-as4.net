@@ -1,6 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="14.0" DefaultTargets="Build" 
-  xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -52,18 +51,14 @@
     <Compile Include="Common\DatastoreSpy.cs" />
     <Compile Include="Common\FileSystemService.cs" />
     <Compile Include="Common\Holodeck.cs" />
+    <Compile Include="Common\PollingService.cs" />
     <Compile Include="Common\StubSender.cs" />
     <Compile Include="Fixture\HolodeckFixture.cs" />
     <Compile Include="Common\HolodeckLocations.cs" />
     <Compile Include="Fixture\ParentProcess.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Negative Receive Scenarios\8.4.1 Receive Message that cannot be linked PMode\ReceiveMessageWithNotLinkedPModeIntegrationTest.cs" />
-    <Compile Include="Negative Receive Scenarios\8.4.2 Receive Message with External Payload References\ReceiveExternalPayloadReferencesMessageIntegrationTest.cs" />
-    <Compile Include="Negative Receive Scenarios\8.4.3 Receive Compressed Messages without MimeType\ReceiveCompressedMessageWithoutMimeTypeIntegrationTest.cs" />
-    <Compile Include="Negative Receive Scenarios\8.4.4 Receive Incorrectly Compressed Message\ReceiveIncorrectlyCompressedMessageIntegrationTest.cs" />
-    <Compile Include="Negative Receive Scenarios\8.4.5 Receive Incorrectly Signed Message\ReceiveIncorrectlySignedMessageIntegrationTest.cs" />
-    <Compile Include="Negative Receive Scenarios\8.4.6 Receive Incorrectly Encrypted Message\ReceiveIncorrectlyEncryptedMessageIntegrationTest.cs" />
+    <Compile Include="Negative Receive Scenarios\ReceivedAS4MessageResultInErrors.cs" />
     <Compile Include="Negative Send Scenarios\8.2.1 Submit message override not allowed FILE\SubmitMessageOverrideNotAllowedIntegrationTest.cs" />
     <Compile Include="Negative Send Scenarios\8.2.2 Submit message nonexisting PMode FILE\SubmitMessageContainsNonExistingPModeIntegrationTest.cs" />
     <Compile Include="Negative Send Scenarios\8.2.3 Submit message PMode Id of invalid PMode FILE\SubmitMessageInvalidPModeIntegrationTest.cs" />

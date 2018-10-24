@@ -15,6 +15,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
     {
         public static readonly HolodeckLocations HolodeckALocations;
         public static readonly HolodeckLocations HolodeckBLocations;
+        public static readonly string HolodeckMessagesPath = Path.GetFullPath(@".\messages\holodeck-messages");
 
         static Holodeck()
         {
@@ -98,7 +99,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
         /// </summary>
         public void AssertDandelionPayloadOnHolodeckA()
         {
-            FileInfo receivedPayload = new DirectoryInfo(IntegrationTestTemplate.AS4FullInputPath).GetFiles("*.jpg").FirstOrDefault();
+            FileInfo receivedPayload = new DirectoryInfo(Common.AS4Component.FullInputPath).GetFiles("*.jpg").FirstOrDefault();
             var sendPayload = new FileInfo(HolodeckALocations.JpegPayloadPath);
 
             Assert.Equal(sendPayload.Length, receivedPayload?.Length);

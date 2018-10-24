@@ -5,7 +5,12 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using Eu.EDelivery.AS4.Common;
+using Eu.EDelivery.AS4.Model.Common;
+using Eu.EDelivery.AS4.Model.PMode;
+using Eu.EDelivery.AS4.Model.Submit;
+using Eu.EDelivery.AS4.Serialization;
 using Xunit;
+using static Eu.EDelivery.AS4.IntegrationTests.Properties.Resources;
 
 namespace Eu.EDelivery.AS4.IntegrationTests.Common
 {
@@ -16,15 +21,42 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
     {
         private Process _as4ComponentProcess;
 
+        public static readonly string AS4MessagesRootPath = Path.GetFullPath($@".\{submit_messages_path}");
+        public static readonly string FullOutputPath = Path.GetFullPath($@".\{submit_output_path}");
+        public static readonly string FullInputPath = Path.GetFullPath($@".\{submit_input_path}");
+        public static readonly string AS4IntegrationMessagesPath = Path.GetFullPath($@".\{submit_messages_path}\integrationtest-messages");
+
+        public static readonly string ReceiptsPath = Path.GetFullPath($@".\{as4_component_receipts_path}");
+        public static readonly string ErrorsPath = Path.GetFullPath($@".\{as4_component_errors_path}");
+        public static readonly string ExceptionsPath = Path.GetFullPath($@".\{as4_component_exceptions_path}");
+
         /// <summary>
         /// Payload file send as primary payload.
         /// </summary>
-        public static FileInfo SubmitSinglePayloadImage => new FileInfo(Path.GetFullPath(@".\" + Properties.Resources.submitmessage_single_payload_path));
+        public static FileInfo SubmitSinglePayloadImage = new FileInfo(Path.GetFullPath(@".\" + submitmessage_single_payload_path));
+
+        /// <summary>
+        /// Submit payload representation of the image.
+        /// </summary>
+        public static Payload SubmitPayloadImage =
+            new Payload("earth", @"file:///.\messages\attachments\earth.jpg", "image/jpeg")
+            {
+                PayloadProperties = new[] { new PayloadProperty("Test", "Test") }
+            };
 
         /// <summary>
         /// Payload file send as secondary payload.
         /// </summary>
-        public static FileInfo SubmitSecondPayloadXml => new FileInfo(Path.GetFullPath($".{Properties.Resources.submitmessage_second_payload_path}"));
+        public static FileInfo SubmitSecondPayloadXml = new FileInfo(Path.GetFullPath($".{submitmessage_second_payload_path}"));
+
+        /// <summary>
+        /// Submit payload representation of the xml file.
+        /// </summary>
+        public static Payload SubmitPayloadXml =
+            new Payload("xml-sample", @"file:///.\messages\attachments\sample.xml", "application/xml")
+            {
+                PayloadProperties = new[] { new PayloadProperty("Important", "Yes") }
+            };
 
         /// <summary>
         /// Gets the host address on which the AS4 Component will be run.
@@ -41,6 +73,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
                         return ip.ToString();
                     }
                 }
+
                 throw new Exception("Local IP Address Not Found!");
             }
         }
@@ -72,7 +105,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
                 TryCopyConfigFile(@"integrationtest-settings\settings.xml", @"settings.xml", true);
             }
 
-            ProcessStartInfo psi = new ProcessStartInfo
+            var psi = new ProcessStartInfo
             {
                 FileName = "Eu.EDelivery.AS4.ServiceHandler.ConsoleHost.exe",
                 Arguments = "",
@@ -107,23 +140,14 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
             TryMoveConfigFile(newSettingsName, "settings.xml", true);
         }
 
-        private static void TryMoveConfigFile(string sourceFile, string destFile, bool overwriteExisting = false)
-        {
-            if (overwriteExisting)
-            {
-                TryDeleteConfigFile(destFile);
-            }
-            TryFileOperation(() => File.Move, sourceFile, destFile);
-        }
-
         /// <summary>
         /// Puts the message.
         /// </summary>
         /// <param name="messageName">Name of the message.</param>
         public void PutMessage(string messageName)
         {
-            string sourceFile = $"{IntegrationTestTemplate.AS4IntegrationMessagesPath}\\{messageName}";
-            string destinationFile = $"{IntegrationTestTemplate.AS4FullOutputPath}\\{messageName}";
+            string sourceFile = $"{AS4IntegrationMessagesPath}\\{messageName}";
+            string destinationFile = $"{FullOutputPath}\\{messageName}";
 
             Console.WriteLine($@"Putting {destinationFile}");
 
@@ -134,14 +158,52 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
         }
 
         /// <summary>
+        /// Puts a <see cref="SubmitMessage"/> with a given reference to a <see cref="SendingProcessingMode"/>
+        /// and with optional payloads references on disk so they get picked-up by the AS4 component.
+        /// </summary>
+        /// <param name="pmodeId">The identifier to reference a <see cref="SendingProcessingMode"/>.</param>
+        /// <param name="payloads">The sequence of submit payloads to include in the message.</param>
+        public void PutSubmitMessage(string pmodeId, params Payload[] payloads)
+        {
+            var submitMessage = new SubmitMessage
+            {
+                Collaboration =
+                {
+                    AgreementRef =
+                    {
+                        PModeId = pmodeId,
+                        Value = "http://agreements.holodeckb2b.org/examples/agreement0"
+                    },
+                    ConversationId = "eu:edelivery:as4:sampleconversation",
+                    Action = Constants.Namespaces.TestAction,
+                    Service =
+                    {
+                        Type = Constants.Namespaces.TestService,
+                        Value = Constants.Namespaces.TestService
+                    }
+                },
+                Payloads = payloads
+            };
+
+            string xml = AS4XmlSerializer.ToString(submitMessage);
+            string fileName = Path.Combine(FullOutputPath, $"submit-{pmodeId}.xml");
+
+            Console.WriteLine($@"Putting {fileName}");
+            File.WriteAllText(fileName, xml);
+        }
+
+        /// <summary>
         ///  Assert on a received Receipt on the AS4 Component.
         /// </summary>
         public void AssertReceipt()
         {
-            string receiptPath = Path.GetFullPath($@".\{Properties.Resources.as4_component_receipts_path}");
-            FileInfo receipt = new DirectoryInfo(receiptPath).GetFiles("*.xml").FirstOrDefault();
+            string receiptPath = Path.GetFullPath($@".\{as4_component_receipts_path}");
+            FileInfo receiptFile = 
+                new DirectoryInfo(receiptPath)
+                    .GetFiles("*.xml")
+                    .FirstOrDefault();
 
-            Assert.NotNull(receipt);
+            Assert.True(receiptFile != null, "No Receipt found at AS4 Component");
         }
 
         /// <summary>
@@ -150,10 +212,12 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
         /// <param name="receivedPayload"></param>
         public void AssertEarthPayload(FileInfo receivedPayload)
         {
-            var sendPayload = new FileInfo(Path.GetFullPath($".\\{Properties.Resources.submitmessage_single_payload_path}"));
+            var sendPayload = new FileInfo(Path.GetFullPath($".\\{submitmessage_single_payload_path}"));
 
-            Assert.NotNull(receivedPayload);
-            Assert.Equal(sendPayload.Length, receivedPayload.Length);
+            Assert.True(receivedPayload != null, "No submit payload found at Holodeck B");
+            Assert.True(
+                sendPayload.Length == receivedPayload.Length, 
+                $"Send submit payload doesn't have the same length as the received payload {sendPayload.Length} != {receivedPayload.Length}");
         }
 
         private bool _isDisposed;
@@ -178,6 +242,16 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
             TryMoveConfigFile("settings-original.xml", "settings.xml", true);
         }
 
+        private static void TryMoveConfigFile(string sourceFile, string destFile, bool overwriteExisting = false)
+        {
+            if (overwriteExisting)
+            {
+                TryDeleteConfigFile(destFile);
+            }
+
+            TryFileOperation(() => File.Move, sourceFile, destFile);
+        }
+
         private static void TryDeleteConfigFile(string fileName)
         {
             TryFileOperation(() => (source, dest) => File.Delete(source), fileName);
@@ -189,6 +263,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
             {
                 TryDeleteConfigFile(destFile);
             }
+
             TryFileOperation(() => File.Copy, sourceFile, destFile);
         }
 

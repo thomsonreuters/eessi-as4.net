@@ -1,7 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Reactive.Linq;
+using System.Reactive.Threading.Tasks;
 using System.Threading;
+using System.Threading.Tasks;
 using Eu.EDelivery.AS4.IntegrationTests.Fixture;
 using Eu.EDelivery.AS4.Singletons;
 using Polly;
@@ -30,6 +34,8 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
 
         protected Holodeck Holodeck { get; } = new Holodeck();
 
+        protected StubSender HttpClient { get; } = new StubSender();
+
         /// <summary>
         /// Initializes a new instance of the <see cref="IntegrationTestTemplate"/> class.
         /// </summary>
@@ -45,11 +51,11 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
 
             CleanUpFiles(@".\database", recursive: true);   
             CleanUpFiles(@".\logs");
-            CleanUpFiles(AS4FullInputPath);
-            CleanUpFiles(AS4FullOutputPath);
-            CleanUpFiles(AS4ReceiptsPath);
-            CleanUpFiles(AS4ErrorsPath);
-            CleanUpFiles(AS4ExceptionsPath);
+            CleanUpFiles(AS4Component.FullInputPath);
+            CleanUpFiles(AS4Component.FullOutputPath);
+            CleanUpFiles(AS4Component.ReceiptsPath);
+            CleanUpFiles(AS4Component.ErrorsPath);
+            CleanUpFiles(AS4Component.ExceptionsPath);
 
             CleanUpFiles(Holodeck.HolodeckALocations.PModePath); // Properties.Resources.holodeck_A_pmodes);
             CleanUpFiles(Holodeck.HolodeckBLocations.PModePath);
@@ -61,20 +67,9 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
             CleanUpFiles(Holodeck.HolodeckBLocations.PModePath);       
         }
 
-        #region Fixture Setup
         private static void CopyDirectory(string sourceDirName, string destDirName)
         {
-            DirectoryInfo sourceDirectory = GetSourceDirectory(sourceDirName);
-
-            EnsureDestinationDirectory(destDirName);
-
-            CopyFilesFromDestinationToSource(sourceDirectory, destDirName);
-        }
-
-        private static DirectoryInfo GetSourceDirectory(string sourceDirName)
-        {
             var sourceDirectory = new DirectoryInfo(sourceDirName);
-
             if (!sourceDirectory.Exists)
             {
                 throw new DirectoryNotFoundException(
@@ -82,19 +77,11 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
                     + sourceDirName);
             }
 
-            return sourceDirectory;
-        }
-
-        private static void EnsureDestinationDirectory(string destDirName)
-        {
             if (!Directory.Exists(destDirName))
             {
                 Directory.CreateDirectory(destDirName);
             }
-        }
 
-        private static void CopyFilesFromDestinationToSource(DirectoryInfo sourceDirectory, string destDirName)
-        {
             FileInfo[] files = sourceDirectory.GetFiles();
             foreach (FileInfo file in files)
             {
@@ -102,16 +89,6 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
                 file.CopyTo(temppath, overwrite: true);
             }
         }
-
-        protected static void ReplaceTokenInFile(string token, string value, string filePath)
-        {
-            string oldContents = File.ReadAllText(filePath);
-            string newContents = oldContents.Replace(token, value);
-
-            File.WriteAllText(filePath, newContents);
-        }
-
-        #endregion
 
         /// <summary>
         /// Cleanup files in a given Directory
@@ -128,9 +105,8 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
 
             if (recursive)
             {
-                var subDirectories = Directory.GetDirectories(directory);
-
-                foreach (var subDirectory in subDirectories)
+                string[] subDirectories = Directory.GetDirectories(directory);
+                foreach (string subDirectory in subDirectories)
                 {
                     CleanUpFiles(subDirectory, predicateFile, true);
                 }
@@ -167,6 +143,79 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
         }
 
         /// <summary>
+        /// Poll at a given <paramref name="directoryPath"/>.
+        /// </summary>
+        /// <param name="directoryPath">The file path at which the the polling mechanism will happen.</param>
+        protected Task<IEnumerable<FileInfo>> PollUntilPresentAsync(string directoryPath)
+        {
+            return PollUntilPresentAsync(directoryPath, fs => true);
+        }
+
+        /// <summary>
+        /// Poll at a given <paramref name="directoryPath"/> for a given <paramref name="predicate"/> 
+        /// </summary>
+        /// <param name="directoryPath">The file path at which the the polling mechanism will happen.</param>
+        /// <param name="predicate">The filter to select only a portion of the files at the given file path.</param>
+        protected Task<IEnumerable<FileInfo>> PollUntilPresentAsync(
+            string directoryPath,
+            Func<IEnumerable<FileInfo>, bool> predicate)
+        {
+            return PollUntilPresentAsync(directoryPath, predicate, TimeSpan.FromSeconds(30));
+        }
+
+        /// <summary>
+        /// Poll at a given <paramref name="directoryPath"/> for a given <paramref name="predicate"/> 
+        /// until the <paramref name="timeout"/> expires.
+        /// </summary>
+        /// <param name="directoryPath">The file path at which the the polling mechanism will happen.</param>
+        /// <param name="predicate">The filter to select only a portion of the files at the given file path.</param>
+        /// <param name="timeout">The duration until the polling throws with a <see cref="TimeoutException"/>.</param>
+        protected Task<IEnumerable<FileInfo>> PollUntilPresentAsync(
+            string directoryPath,
+            Func<IEnumerable<FileInfo>, bool> predicate,
+            TimeSpan timeout)
+        {
+            IObservable<IEnumerable<FileInfo>> polling =
+                Observable.Create<IEnumerable<FileInfo>>(o =>
+                {
+                    IEnumerable<FileInfo> r =
+                        Directory.GetFiles(directoryPath)
+                                 .Select(s => new FileInfo(s));
+
+                    Console.WriteLine($@"Poll until present at: {directoryPath}");
+                    foreach (FileInfo f in r)
+                    {
+                        Console.WriteLine($@"Found file at {directoryPath}: {f.Name}");
+                    }
+
+                    if (!predicate(r))
+                    {
+                        return Observable.Throw<IEnumerable<FileInfo>>(
+                            new Exception("Polled files doesen't match the criteria"))
+                                         .Subscribe(o);
+                    }
+
+                    if (r.Any())
+                    {
+                        return Observable.Return(r).Subscribe(o);
+                    }
+
+                    return Observable.Throw<IEnumerable<FileInfo>>(
+                        new Exception($"No files found at the given directory {directoryPath}"))
+                                     .Subscribe(o);
+                });
+
+            var cts = new CancellationTokenSource();
+            cts.CancelAfter(timeout);
+
+            return Observable
+                   .Timer(TimeSpan.FromSeconds(1))
+                   .SelectMany(_ => polling)
+                   .Retry()
+                   .ToTask(cts.Token);
+        }
+
+        /// <summary>
         /// Poll to a given target Directory to find files
         /// </summary>
         /// <param name="directoryPath">Directory Path to poll</param>
@@ -175,6 +224,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
         /// <param name="fileCount">The file count.</param>
         /// <param name="validation">The validation.</param>
         /// <returns></returns>
+        [Obsolete("Use 'PollUntilPresentAsync' because of better maintainability")]
         protected bool PollingAt(
             string directoryPath, 
             string extension = "*", 
