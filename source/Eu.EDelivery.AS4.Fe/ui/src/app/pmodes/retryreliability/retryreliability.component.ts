@@ -5,7 +5,7 @@ import { FormGroup } from '@angular/forms';
   selector: 'as4-retryreliability',
   template: `
   <div [formGroup]="group">
-    <div class="sub-header-1">Retry Reliability</div>
+    <div class="sub-header-1">{{title}}</div>
       <as4-input label="Enabled" runtimeTooltip="reliability.isenabled">
         <input type="checkbox" data-cy="retry.isEnabled" formControlName="isEnabled">
       </as4-input>
@@ -21,6 +21,7 @@ import { FormGroup } from '@angular/forms';
 })
 export class RetryReliabilityComponent {
   @Input() public group: FormGroup;
+  @Input() public title: string = 'Retry Reliability';
   public mask: any[] = [
     /[0-9]/,
     ':',
