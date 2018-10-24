@@ -8,9 +8,9 @@ using static Eu.EDelivery.AS4.IntegrationTests.Properties.Resources;
 
 namespace Eu.EDelivery.AS4.IntegrationTests.Negative_Receive_Scenarios
 {
-    public class ReceivedAS4MessageResultInErrors : IntegrationTestTemplate
+    public class ReceiveAS4MessageResultInErrors : IntegrationTestTemplate
     {
-        public ReceivedAS4MessageResultInErrors()
+        public ReceiveAS4MessageResultInErrors()
         {
             AS4Component.Start();
         }

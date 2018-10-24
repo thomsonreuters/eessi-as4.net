@@ -17,7 +17,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
         /// <param name="directoryPath">The file path at which the the polling mechanism will happen.</param>
         public static Task<IEnumerable<FileInfo>> PollUntilPresentAsync(string directoryPath)
         {
-            return PollUntilPresentAsync(directoryPath, fs => true);
+            return PollUntilPresentAsync(directoryPath, fs => fs.Any());
         }
 
         /// <summary>
