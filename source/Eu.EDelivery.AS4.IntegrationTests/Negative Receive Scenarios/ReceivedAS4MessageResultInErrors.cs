@@ -25,7 +25,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Negative_Receive_Scenarios
             Holodeck.CopyMessageToHolodeckA("8.4.1-sample.mmd");
 
             // Assert
-            await PollUntilPresentAsync(
+            await PollingService.PollUntilPresentAsync(
                 Holodeck.HolodeckALocations.InputPath,
                 fs => fs.Any(f => f.Extension == ".xml"));
 
