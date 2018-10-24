@@ -8,7 +8,8 @@
         <as4-tab>
             <div tabitem title="Common">
                 <div formGroupName="reliability">
-                    <as4-input label="Reliability - duplicate elimination" formGroupName="duplicateElimination" runtimeTooltip="reliability.duplicateelimination.isenabled">
+                    <as4-input label="Reliability - duplicate elimination" formGroupName="duplicateElimination"
+                        runtimeTooltip="reliability.duplicateelimination.isenabled">
                         <input type="checkbox" formControlName="isEnabled" />
                     </as4-input>
                 </div>
@@ -19,6 +20,7 @@
                     <select formControlName="replyPattern">
                         <option [ngValue]="0">Response</option>
                         <option [ngValue]="1">Callback</option>
+                        <option [ngValue]="2">PiggyBack</option>
                     </select>
                 </as4-input>
                 <as4-input label="Sending PMode" runtimeTooltip="sendingpmode">
@@ -36,6 +38,7 @@
                         <input type="number" formControlName="responseHttpCode">
                     </as4-input>
                 </ng-container>
+                <as4-retryreliability [group]="pmode.form.get('pmode.replyHandling.piggyBackReliability')"></as4-retryreliability>
             </div>
             <div tabitem title="Message handling" formGroupName="messageHandling" [isValid]="!pmode.currentPmode || pmode.form.get('pmode.messageHandling').valid"
                 runtimeTooltip="messagehandling">
@@ -45,7 +48,8 @@
                         <option [ngValue]="2">Forward</option>
                     </select>
                 </as4-input>
-                <ng-container *ngIf="+pmode.form.get('pmode.messageHandling.messageHandlingType').value === 1" formGroupName="item" runtimeTooltip="deliverinformation">
+                <ng-container *ngIf="+pmode.form.get('pmode.messageHandling.messageHandlingType').value === 1"
+                    formGroupName="item" runtimeTooltip="deliverinformation">
                     <as4-input label="Enabled" runtimeTooltip="isenabled">
                         <input type="checkbox" formControlName="isEnabled" runtimeTooltip="deliver.isEnabled" />
                     </as4-input>
@@ -55,7 +59,8 @@
                         [types]="deliverSenders$ | async"></as4-method>
                     <as4-retryreliability [group]="pmode.form.get('pmode.messageHandling.item.reliability')"></as4-retryreliability>
                 </ng-container>
-                <ng-container *ngIf="+pmode.form.get('pmode.messageHandling.messageHandlingType').value === 2" formGroupName="item">
+                <ng-container *ngIf="+pmode.form.get('pmode.messageHandling.messageHandlingType').value === 2"
+                    formGroupName="item">
                     <as4-input label="Sending PMode">
                         <div as4-pmode-select mode="sending" formControlName="sendingPMode"></div>
                     </as4-input>
@@ -67,7 +72,8 @@
             </div>
             <div title="Security" tabitem formGroupName="security" [isValid]="!!!pmode.currentPmode || pmode.form.get('pmode.security').valid"
                 runtimeTooltip="security">
-                <as4-input label="Allow Unknown Root Certificate Authority" formGroupName="signingVerification" runtimeTooltip="signingverification.allowUnknownRootCertificate">
+                <as4-input label="Allow Unknown Root Certificate Authority" formGroupName="signingVerification"
+                    runtimeTooltip="signingverification.allowUnknownRootCertificate">
                     <input type="checkbox" formControlName="allowUnknownRootCertificate" />
                 </as4-input>
                 <as4-input label="Signing verification" formGroupName="signingVerification" runtimeTooltip="signingverification.signature">
@@ -120,7 +126,7 @@
             <div tabitem title="Exception handling" formGroupName="exceptionHandling" [isValid]="!!!pmode.currentPmode || pmode.form.get('pmode.exceptionHandling').valid"
                 runtimeTooltip="exceptionhandling">
                 <as4-input label="Notify message consumer" runtimeTooltip="notifymessageconsumer">
-                    <input type="checkbox" formControlName="notifyMessageConsumer" #notifyMessageConsumer/>
+                    <input type="checkbox" formControlName="notifyMessageConsumer" #notifyMessageConsumer />
                 </as4-input>
                 <as4-method runtime="notifymethod" label="Notify method" [group]="pmode.form.get('pmode.exceptionHandling.notifyMethod')"
                     [types]="deliverSenders$ | async"></as4-method>
