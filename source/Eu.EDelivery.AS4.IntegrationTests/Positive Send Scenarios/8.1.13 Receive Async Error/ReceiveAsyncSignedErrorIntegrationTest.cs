@@ -23,16 +23,16 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._13_Re
         }
 
         [Fact]
-        public async Task Wrongly_Signed_UserMessage_Send_To_Holodeck_Result_In_Receiving_Async_Error_At_AS4NET()
+        public async Task Wrongly_Signed_UserMessage_Send_To_Holodeck_Result_In_Receiving_Async_Error()
         {
             // Before
             string sharedMessageId = UpdateSubmitMessageId();
-
+            
             AS4Component.Start();
 
             // Arrange
-            AS4Component.PutMessage("8.1.13-sample.xml");
             Holodeck.CopyPModeToHolodeckB("8.1.13-pmode.xml");
+            AS4Component.PutMessage("8.1.13-sample.xml");
 
             // Act
             string messageWrongSigned = ReplaceSubmitMessageIdWith(sharedMessageId);
