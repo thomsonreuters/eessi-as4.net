@@ -94,6 +94,7 @@
     <Compile Include="Steps\Forward\GivenCreateForwardMessageStepFacts.cs" />
     <Compile Include="Steps\Forward\GivenDetermineForwardStepFacts.cs" />
     <Compile Include="Steps\Notify\NotifyRetryData.cs" />
+    <Compile Include="Steps\Receive\GivenScoringMechanismReceivingPModesFacts.cs" />
     <Compile Include="Steps\Send\GivenBundleSignalMessageToPullRequestStepFacts.cs" />
     <Compile Include="Steps\Receive\GivenSendSignalMessageStepFacts.cs" />
     <Compile Include="Steps\Receive\GivenValidateAS4MessageStepFacts.cs" />
@@ -224,11 +225,6 @@
     <Compile Include="Steps\GivenCompositeStepFacts.cs" />
     <Compile Include="Steps\Receive\GivenCreateAS4ReceiptStepFacts.cs" />
     <Compile Include="Steps\Receive\GivenUpdateReceivedMessageDatastoreFacts.cs" />
-    <Compile Include="Steps\Receive\Rules\GivenPModeAgreementRefRuleFacts.cs" />
-    <Compile Include="Steps\Receive\Rules\GivenPModeIdRuleFacts.cs" />
-    <Compile Include="Steps\Receive\Rules\GivenPModePartyInfoRuleFacts.cs" />
-    <Compile Include="Steps\Receive\Rules\GivenPModeServiceActionRuleFacts.cs" />
-    <Compile Include="Steps\Receive\Rules\GivenPModeUndefinedPartyInfoRuleFacts.cs" />
     <Compile Include="Steps\Repositories\GivenDatastoreRepositoryFacts.cs" />
     <Compile Include="Steps\Repositories\GivenMimeTypeRepositoryFacts.cs" />
     <Compile Include="Steps\SaboteurStep.cs" />

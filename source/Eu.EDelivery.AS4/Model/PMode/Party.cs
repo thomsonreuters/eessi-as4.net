@@ -9,12 +9,6 @@ namespace Eu.EDelivery.AS4.Model.PMode
         
         public string Role { get; set; }
 
-        public bool IsEmpty()
-        {
-            return
-                string.IsNullOrEmpty(Role) && (PartyIds == null || PartyIds.Count == 0 || PartyIds.All(p => p.IsEmpty()));
-        }
-
         /// <summary>
         /// Gets the primary party identifier of this <see cref="Party"/>'s <see cref="PartyId"/>.
         /// </summary>
