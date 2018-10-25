@@ -11,6 +11,8 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
     /// </summary>
     internal class AttachmentUploaderProvider : IAttachmentUploaderProvider
     {
+        public static readonly IAttachmentUploaderProvider Instance = new AttachmentUploaderProvider();
+
         private readonly ICollection<UploaderEntry> _uploaders;
 
         /// <summary>
@@ -25,8 +27,6 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
             this.Accept(s => StringComparer.OrdinalIgnoreCase.Equals(s, EmailAttachmentUploader.Key), new EmailAttachmentUploader(mimeTypeRepository));
             this.Accept(s => StringComparer.OrdinalIgnoreCase.Equals(s, PayloadServiceAttachmentUploader.Key), new PayloadServiceAttachmentUploader());
         }
-
-        public static readonly IAttachmentUploaderProvider Instance = new AttachmentUploaderProvider();
 
         /// <summary>
         /// Get the right <see cref="IAttachmentUploader" /> implementation

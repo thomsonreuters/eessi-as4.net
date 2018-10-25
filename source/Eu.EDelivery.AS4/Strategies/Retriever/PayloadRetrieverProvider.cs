@@ -10,9 +10,9 @@ namespace Eu.EDelivery.AS4.Strategies.Retriever
     /// </summary>
     internal class PayloadRetrieverProvider : IPayloadRetrieverProvider
     {
-        private readonly ICollection<PayloadStrategyEntry> _entries;
+        public static readonly IPayloadRetrieverProvider Instance = new PayloadRetrieverProvider();
 
-        public static readonly  IPayloadRetrieverProvider Instance = new PayloadRetrieverProvider();
+        private readonly ICollection<PayloadStrategyEntry> _entries;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PayloadRetrieverProvider"/> class. 

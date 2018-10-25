@@ -11,9 +11,9 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
     /// </summary>
     public class NotifySenderProvider : INotifySenderProvider
     {
-        private readonly ICollection<NotifySenderEntry> _senders;
-
         public static readonly INotifySenderProvider Instance = new NotifySenderProvider();
+
+        private readonly ICollection<NotifySenderEntry> _senders;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="NotifySenderProvider" /> class.
