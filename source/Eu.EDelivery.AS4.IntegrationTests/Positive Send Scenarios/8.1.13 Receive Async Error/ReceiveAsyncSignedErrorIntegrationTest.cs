@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 using System.Xml;
 using Eu.EDelivery.AS4.IntegrationTests.Common;
 using Xunit;
@@ -12,37 +13,33 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._13_Re
     /// </summary>
     public class ReceiveAsyncSignedErrorIntegrationTest : IntegrationTestTemplate
     {
-        private const string SubmitMessageFilename = "\\8.1.13-sample.xml";
         private readonly string _as4MessagesPath;
-        private readonly string _as4OutputPath;
-
         private readonly StubSender _sender;
 
         public ReceiveAsyncSignedErrorIntegrationTest()
         {
             _sender = new StubSender {Url = "http://localhost:9090/msh", HandleResponse = response => null};
             _as4MessagesPath = $"{AS4IntegrationMessagesPath}\\8.1.13-sample.xml";
-            _as4OutputPath = $"{AS4FullOutputPath}{SubmitMessageFilename}";
         }
 
-        [Retry(MaxRetries = 3)]
-        public async void ThenSendAsyncErrorSucceedsAsync()
+        [Fact]
+        public async Task Wrongly_Signed_UserMessage_Send_To_Holodeck_Result_In_Receiving_Async_Error()
         {
             // Before
             string sharedMessageId = UpdateSubmitMessageId();
-
+            
             AS4Component.Start();
 
             // Arrange
-            Holodeck.CopyPModeToHolodeckB("8.1.13-pmode.xml");            
-            AS4Component.PutMessage("8.1.13-sample.xml");            
+            Holodeck.CopyPModeToHolodeckB("8.1.13-pmode.xml");
+            AS4Component.PutMessage("8.1.13-sample.xml");
 
             // Act
             string messageWrongSigned = ReplaceSubmitMessageIdWith(sharedMessageId);
             await _sender.SendMessage(messageWrongSigned, Constants.ContentTypes.Soap);
 
             // Assert
-            Assert.True(PollingAt(AS4ErrorsPath, "*.xml", retryCount: 100000), "Send Async Error failed");
+            Assert.True(PollingAt(AS4ErrorsPath, "*.xml"), "Send Async Error failed");
         }
 
         private string UpdateSubmitMessageId()
