@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
 using System.Reflection;
@@ -100,14 +101,13 @@ namespace Eu.EDelivery.AS4.Steps
 
         private static T CreateInstance<T>(string typeString, params object[] args) where T : class
         {
-            var step =  GenericTypeBuilder.FromType(typeString).SetArgs(args).Build<T>();
-
-            if (step == null)
+            if (!GenericTypeBuilder.CanResolveTypeThatImplements<IStep>(typeString))
             {
-                throw new ConfigurationErrorsException($"Unable to create {typeString} as an instance of {typeof(T).Name}");
+                throw new InvalidOperationException(
+                    $"Cannot resolve a valid {nameof(IStep)} implementation for the {typeString} fully-qualified assembly name");
             }
 
-            return step;
+            return GenericTypeBuilder.FromType(typeString).SetArgs(args).Build<T>();
         }
     }
 }

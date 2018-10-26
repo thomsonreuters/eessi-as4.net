@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Linq;
+using Eu.EDelivery.AS4.Builders;
 using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.PMode;
+using Eu.EDelivery.AS4.Services.DynamicDiscovery;
 using FluentValidation;
 using FluentValidation.Results;
 using NLog;
@@ -25,7 +27,7 @@ namespace Eu.EDelivery.AS4.Validators
                 .WithMessage("Id element must not be empty");
 
             RulesForPushConfiguration();
-            RulesForPullConfiguration();
+            RulesForDynamicDiscovery();
             RulesForReliability();
             RulesForReceiptHandling();
             RulesForErrorHandling();
@@ -38,18 +40,12 @@ namespace Eu.EDelivery.AS4.Validators
 
         private void RulesForPushConfiguration()
         {
-            bool IsPushing(SendingProcessingMode pmode)
-            {
-                return pmode.MepBinding == MessageExchangePatternBinding.Push;
-            }
-
-            When(p => !IsDynamicDiscovery(p) && IsPushing(p), () =>
+            When(p => p.PushConfigurationSpecified, () =>
             {
                 const string errorMsg = "PushConfiguration.Protocol.Url element should be specified when SMP Profile is missing";
 
                 RuleFor(pmode => pmode.PushConfiguration.Protocol)
                     .NotNull()
-                    .When(pmode => pmode.PushConfigurationSpecified)
                     .WithMessage(errorMsg);
 
                 RuleFor(pmode => pmode.PushConfiguration.Protocol.Url)
@@ -83,12 +79,17 @@ namespace Eu.EDelivery.AS4.Validators
             });
         }
 
-        private void RulesForPullConfiguration()
+        private void RulesForDynamicDiscovery()
         {
-            RuleFor(pmode => pmode.PushConfiguration)
-                .Null()
-                .When(pmode => pmode.MepBinding == MessageExchangePatternBinding.Pull)
-                .WithMessage("PushConfiguration element should not be specified when MEP = Pull");
+            When(pmode => pmode.DynamicDiscoverySpecified,() =>
+            {
+                RuleFor(pmode => pmode.DynamicDiscovery.SmpProfile)
+                    .Must(GenericTypeBuilder.CanResolveTypeThatImplements<IDynamicDiscoveryProfile>)
+                    .When(pmode => pmode.DynamicDiscovery.SmpProfile != null)
+                    .WithMessage(
+                        "DynamicDiscovery.SmpProfile should be a fully-qualified assembly name of a " + 
+                        $"{nameof(IDynamicDiscoveryProfile)} implementation when there exists a <SmpProfile/> element");
+            });
         }
 
         private void RulesForReliability()
@@ -326,38 +327,37 @@ namespace Eu.EDelivery.AS4.Validators
         /// <returns>A ValidationResult object containing any validation failures</returns>
         public override ValidationResult Validate(SendingProcessingMode instance)
         {
-            PreConditions(instance);
+            if (instance == null)
+            {
+                throw new ArgumentNullException(nameof(instance));
+            }
 
-            return base.Validate(instance);
-        }
-
-        private static void PreConditions(SendingProcessingMode model)
-        {
             try
             {
-                ValidateKeySize(model);
+                ValidateKeySize(instance);
             }
             catch (Exception exception)
             {
                 Logger.Debug(exception);
             }
+
+            return base.Validate(instance);
         }
 
         private static void ValidateKeySize(SendingProcessingMode model)
         {
-            if (model.Security?.Encryption?.IsEnabled == false || model.Security?.Encryption == null)
+            if (model.Security?.Encryption?.IsEnabled == true)
             {
-                return;
-            }
+                var keysizes = new[] { 128, 192, 256 };
+                int actualKeySize = model.Security.Encryption.AlgorithmKeySize;
 
-            var keysizes = new[] { 128, 192, 256 };
-            int actualKeySize = model.Security.Encryption.AlgorithmKeySize;
-
-            if (!keysizes.Contains(actualKeySize) && model.Security?.Encryption != null)
-            {
-                int defaultKeySize = Encryption.Default.AlgorithmKeySize;
-                Logger.Warn($"Invalid Encryption 'Key Size': {actualKeySize}, {defaultKeySize} is taken as default");
-                model.Security.Encryption.AlgorithmKeySize = defaultKeySize;
+                if (!keysizes.Contains(actualKeySize) && model.Security?.Encryption != null)
+                {
+                    int defaultKeySize = Encryption.Default.AlgorithmKeySize;
+                    Logger.Warn(
+                        $"Invalid Encryption 'Key Size': {actualKeySize}, {defaultKeySize} is taken as default");
+                    model.Security.Encryption.AlgorithmKeySize = defaultKeySize;
+                }
             }
         }
     }
