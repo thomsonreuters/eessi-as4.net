@@ -199,7 +199,7 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
                 throw new ArgumentNullException(nameof(smpMetaData));
             }
 
-            XmlNode endpoint = SelectServiceEndpiontNode(smpMetaData);
+            XmlNode endpoint = SelectServiceEndpointNode(smpMetaData);
             XmlNode certificateNode = endpoint.SelectSingleNode("*[local-name()='Certificate']");
 
             Logger.Debug($"Decorate SendingPMode {pmode.Id} with SMP response from ESens SMP Server");
@@ -222,7 +222,7 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
             return pmode;
         }
 
-        private static XmlNode SelectServiceEndpiontNode(XmlNode smpMetaData)
+        private static XmlNode SelectServiceEndpointNode(XmlNode smpMetaData)
         {
             XmlNode serviceEndpointList =
                 smpMetaData.SelectSingleNode("//*[local-name()='ServiceEndpointList']");
