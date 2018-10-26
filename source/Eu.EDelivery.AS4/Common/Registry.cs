@@ -76,7 +76,7 @@ namespace Eu.EDelivery.AS4.Common
 
         private static ICertificateRepository ResolveCertificateRepository(string typeString)
         {
-            if (!GenericTypeBuilder.CanResolveTypeImplementedBy<ICertificateRepository>(typeString))
+            if (!GenericTypeBuilder.CanResolveTypeThatImplements<ICertificateRepository>(typeString))
             {
                 throw new InvalidOperationException(
                     $"Cannot resolve a valid {nameof(ICertificateRepository)} implementation for the {typeString} fully-qualified assembly name");

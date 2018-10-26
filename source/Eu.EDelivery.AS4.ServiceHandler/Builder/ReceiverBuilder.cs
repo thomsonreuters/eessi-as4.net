@@ -35,7 +35,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Builder
         /// <returns></returns>
         public IReceiver Build()
         {
-            if (!GenericTypeBuilder.CanResolveTypeImplementedBy<IReceiver>(_settingReceiver.Type))
+            if (!GenericTypeBuilder.CanResolveTypeThatImplements<IReceiver>(_settingReceiver.Type))
             {
                 throw new InvalidOperationException(
                     $"Cannot resolve a valid {nameof(IReceiver)} implementation for the {_settingReceiver.Type} fully-qualified assembly name");

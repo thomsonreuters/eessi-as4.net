@@ -117,7 +117,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
                 return new LocalDynamicDiscoveryProfile();
             }
 
-            if (!GenericTypeBuilder.CanResolveTypeImplementedBy<IDynamicDiscoveryProfile>(smpProfile))
+            if (!GenericTypeBuilder.CanResolveTypeThatImplements<IDynamicDiscoveryProfile>(smpProfile))
             {
                 throw new InvalidOperationException(
                     "SendingPMode.DynamicDiscovery.SmpProfile element doesn't have a fully-qualified assembly name "

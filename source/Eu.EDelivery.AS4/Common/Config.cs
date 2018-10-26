@@ -479,7 +479,7 @@ namespace Eu.EDelivery.AS4.Common
             {
                 yield return $"Agent: {settings.Name} hasn't got a Receiver type configured";
             }
-            else if (!GenericTypeBuilder.CanResolveTypeImplementedBy<IReceiver>(settings.Receiver.Type))
+            else if (!GenericTypeBuilder.CanResolveTypeThatImplements<IReceiver>(settings.Receiver.Type))
             {
                 yield return $"Agent: {settings.Name} Receiver type: {settings.Receiver.Type} cannot be resolved";
             }
@@ -488,7 +488,7 @@ namespace Eu.EDelivery.AS4.Common
             {
                 yield return $"Agent: {settings.Name} hasn't got a Transformer type configured";
             }
-            else if (!GenericTypeBuilder.CanResolveTypeImplementedBy<ITransformer>(settings.Transformer.Type))
+            else if (!GenericTypeBuilder.CanResolveTypeThatImplements<ITransformer>(settings.Transformer.Type))
             {
                 yield return $"Agent: {settings.Name} Transformer type: {settings.Transformer.Type} cannot be resolved";
             }
@@ -501,7 +501,7 @@ namespace Eu.EDelivery.AS4.Common
             {
                 foreach (Step s in settings.StepConfiguration.NormalPipeline)
                 {
-                    if (!GenericTypeBuilder.CanResolveTypeImplementedBy<IStep>(s.Type))
+                    if (!GenericTypeBuilder.CanResolveTypeThatImplements<IStep>(s.Type))
                     {
                         yield return $"Agent: {settings.Name} has a Step in the NormalPipeline with type: {s.Type ?? "<null>"} that cannot be resolved";
                     }
@@ -512,7 +512,7 @@ namespace Eu.EDelivery.AS4.Common
             {
                 foreach (Step s in settings.StepConfiguration.ErrorPipeline)
                 {
-                    if (!GenericTypeBuilder.CanResolveTypeImplementedBy<IStep>(s.Type))
+                    if (!GenericTypeBuilder.CanResolveTypeThatImplements<IStep>(s.Type))
                     {
                         yield return $"Agent: {settings.Name} has a Step in the NormalPipeline with type: {s.Type ?? "<null>"} that cannot be resolved";
                     }
@@ -523,7 +523,7 @@ namespace Eu.EDelivery.AS4.Common
         private IEnumerable<string> ValidateFixedSettings()
         {
             string repoType = _settings.CertificateStore?.Repository?.Type;
-            if (!GenericTypeBuilder.CanResolveTypeImplementedBy<ICertificateRepository>(repoType))
+            if (!GenericTypeBuilder.CanResolveTypeThatImplements<ICertificateRepository>(repoType))
             {
                 yield return $"Certificate store type: {repoType} cannot be resolved";
             }

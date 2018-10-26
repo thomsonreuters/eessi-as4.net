@@ -55,7 +55,7 @@ namespace Eu.EDelivery.AS4.Builders
         /// </summary>
         /// <param name="typeString"></param>
         /// <returns></returns>
-        public static bool CanResolveTypeImplementedBy<T>(string typeString)
+        public static bool CanResolveTypeThatImplements<T>(string typeString)
         {
             try
             {

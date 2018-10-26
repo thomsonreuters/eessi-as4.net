@@ -91,7 +91,7 @@ namespace Eu.EDelivery.AS4.Validators
             When(pmode => pmode.DynamicDiscoverySpecified,() =>
             {
                 RuleFor(pmode => pmode.DynamicDiscovery.SmpProfile)
-                    .Must(GenericTypeBuilder.CanResolveTypeImplementedBy<IDynamicDiscoveryProfile>)
+                    .Must(GenericTypeBuilder.CanResolveTypeThatImplements<IDynamicDiscoveryProfile>)
                     .When(pmode => pmode.DynamicDiscovery.SmpProfile != null)
                     .WithMessage(
                         "DynamicDiscovery.SmpProfile should be a fully-qualified assembly name of a " + 

@@ -101,7 +101,7 @@ namespace Eu.EDelivery.AS4.Steps
 
         private static T CreateInstance<T>(string typeString, params object[] args) where T : class
         {
-            if (!GenericTypeBuilder.CanResolveTypeImplementedBy<IStep>(typeString))
+            if (!GenericTypeBuilder.CanResolveTypeThatImplements<IStep>(typeString))
             {
                 throw new InvalidOperationException(
                     $"Cannot resolve a valid {nameof(IStep)} implementation for the {typeString} fully-qualified assembly name");
