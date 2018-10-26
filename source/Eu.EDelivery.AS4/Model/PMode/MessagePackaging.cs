@@ -1,9 +1,8 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Web.Script.Serialization;
 using System.Xml.Serialization;
-using Eu.EDelivery.AS4.Model.Core;
 using Newtonsoft.Json;
 
 namespace Eu.EDelivery.AS4.Model.PMode
@@ -24,16 +23,6 @@ namespace Eu.EDelivery.AS4.Model.PMode
         public Party FromParty { get; set; }
         public Party ToParty { get; set; }
 
-        /// <summary>
-        /// Determine if the Party Properties are set
-        /// </summary>
-        /// <returns></returns>
-        public bool IsEmpty()
-        {
-            return (FromParty == null || FromParty.IsEmpty()) &&
-                   (ToParty == null || ToParty.IsEmpty());
-        }
-
         #region Serialization Control properties
 
         [XmlIgnore]
@@ -43,8 +32,8 @@ namespace Eu.EDelivery.AS4.Model.PMode
         {
             get
             {
-                bool hasRole = !string.IsNullOrEmpty(FromParty?.Role);
-                bool hasPartyId = FromParty?.PartyIds?.All(p => !string.IsNullOrEmpty(p.Id)) ?? false;
+                bool hasRole = !String.IsNullOrEmpty(FromParty?.Role);
+                bool hasPartyId = FromParty?.PartyIds?.All(p => !String.IsNullOrEmpty(p.Id)) ?? false;
 
                 return hasRole && hasPartyId;
             }
@@ -57,8 +46,8 @@ namespace Eu.EDelivery.AS4.Model.PMode
         {
             get
             {
-                bool hasRole = !string.IsNullOrEmpty(ToParty?.Role);
-                bool hasPartyId = ToParty?.PartyIds?.All(p => !string.IsNullOrEmpty(p.Id)) ?? false;
+                bool hasRole = !String.IsNullOrEmpty(ToParty?.Role);
+                bool hasPartyId = ToParty?.PartyIds?.All(p => !String.IsNullOrEmpty(p.Id)) ?? false;
 
                 return hasRole && hasPartyId;
             }

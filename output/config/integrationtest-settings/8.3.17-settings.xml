@@ -4,7 +4,7 @@
     xmlns="eu:edelivery:as4">
     <IdFormat>{GUID}@{IPADDRESS}</IdFormat>
     <FeInProcess>false</FeInProcess>
-    <PayloadServiceInProcess>false</PayloadServiceInProcess>
+    <PayloadServiceInProcess>true</PayloadServiceInProcess>
     <Database>
         <Provider>Sqlite</Provider>
         <ConnectionString>Filename=database\messages.db</ConnectionString>

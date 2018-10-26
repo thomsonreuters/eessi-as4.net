@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
-using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Strategies.Retriever;
@@ -39,39 +38,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
         [InlineData("EMAIL", typeof(EmailAttachmentUploader))]
         public void ReturnKnwonAttachmentUploader(string key, Type expectedType)
         {
-            Assert.IsType(expectedType, Registry.AttachmentUploader.Get(key));
+            Assert.IsType(expectedType, AttachmentUploaderProvider.Instance.Get(key));
         }
-
-        [Fact]
-        public void ThenGetFilePayloadStrategyProvider()
-        {
-            // Act
-            IPayloadRetrieverProvider provider = Registry.PayloadRetrieverProvider;
-
-            // Assert
-            IPayloadRetriever fileRetriever = provider.Get(new Payload("file:///"));
-            Assert.NotNull(fileRetriever);
-        }
-
-        [Fact]
-        public void ThenGetWebPayloadStrategyProvider()
-        {
-            // Act
-            IPayloadRetrieverProvider provider = Registry.PayloadRetrieverProvider;
-
-            // Assert
-            IPayloadRetriever webRetriever = provider.Get(new Payload("http"));
-            Assert.NotNull(webRetriever);
-        }
-
-        [Fact]
-        public void ThenProvidersDoesNotHasPayloadStrategy()
-        {
-            // Act
-            IPayloadRetrieverProvider provider = Registry.PayloadRetrieverProvider;
-
-            // Assert
-            Assert.ThrowsAny<Exception>(() => provider.Get(new Payload("not-supported-location")));
-        }
+    
     }
 }

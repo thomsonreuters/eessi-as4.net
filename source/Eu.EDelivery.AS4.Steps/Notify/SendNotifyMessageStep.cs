@@ -31,7 +31,7 @@ namespace Eu.EDelivery.AS4.Steps.Notify
         /// Initializes a new instance of the <see cref="SendNotifyMessageStep"/> class
         /// </summary>
         public SendNotifyMessageStep()
-            : this(Registry.Instance.NotifySenderProvider, Registry.Instance.CreateDatastoreContext) { }
+            : this(NotifySenderProvider.Instance, Registry.Instance.CreateDatastoreContext) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SendNotifyMessageStep" /> class.
@@ -170,7 +170,7 @@ namespace Eu.EDelivery.AS4.Steps.Notify
                         if (sendingPMode?.ExceptionHandling?.NotifyMethod?.Type == null)
                         {
                             throw new InvalidOperationException(
-                                $"SendingPMode {sendingPMode?.Id} should have a ExceptionHandling.NotifyMethod "
+                                $"SendingPMode {sendingPMode.Id} should have a ExceptionHandling.NotifyMethod "
                                 + "with a <Type/> element indicating the notifying strategy when the NotifyMessage.StatusCode = Exception. "
                                 + "This means that the NotifyMessage is an Exception occured during a outbound sending operation. "
                                 + "Default strategies are: 'FILE' and 'HTTP'. See 'Notify Uploading' for more information");

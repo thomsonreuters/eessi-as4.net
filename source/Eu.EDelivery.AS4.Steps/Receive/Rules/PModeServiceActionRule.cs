@@ -1,3 +1,4 @@
+using System;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.PMode;
 
@@ -19,36 +20,50 @@ namespace Eu.EDelivery.AS4.Steps.Receive.Rules
         /// <returns></returns>
         public int DeterminePoints(ReceivingProcessingMode pmode, UserMessage userMessage)
         {
-            return ServiceActionCondition(pmode, userMessage) ? Points : NotEqual;
-        }
-
-        private static bool ServiceActionCondition(ReceivingProcessingMode pmode, UserMessage userMessage)
-        {
-            Model.PMode.CollaborationInfo pmodeCollaboration = pmode.MessagePackaging.CollaborationInfo;
-            Model.Core.CollaborationInfo messageCollaboration = userMessage.CollaborationInfo;
-
-            if (pmodeCollaboration == null || messageCollaboration == null)
+            if (pmode == null)
             {
-                return false;
+                throw new ArgumentNullException(nameof(pmode));
             }
 
-            bool equalAction = 
-                pmodeCollaboration.Action?.Equals(messageCollaboration.Action) == true;
+            if (userMessage == null)
+            {
+                throw new ArgumentNullException(nameof(userMessage));
+            }
 
-            bool noServiceType = 
+            Model.PMode.CollaborationInfo pmodeCollaboration = pmode.MessagePackaging?.CollaborationInfo;
+            Model.Core.CollaborationInfo messageCollaboration = userMessage.CollaborationInfo;
+
+            if (pmodeCollaboration == null)
+            {
+                return NotEqual;
+            }
+
+            bool equalAction =
+                StringComparer
+                    .OrdinalIgnoreCase
+                    .Equals(pmodeCollaboration.Action, messageCollaboration.Action);
+
+            bool noServiceType =
                 pmodeCollaboration.Service?.Type == null
                 && messageCollaboration.Service.Type == Maybe<string>.Nothing;
 
-            bool equalServiceType = 
+            bool equalServiceType =
                 messageCollaboration.Service.Type
-                    .Select(t => pmodeCollaboration.Service?.Type == t)
+                    .Select(t => StringComparer.OrdinalIgnoreCase.Equals(pmodeCollaboration.Service?.Type, t))
                     .GetOrElse(false);
 
+            bool equalServiceValue = 
+                StringComparer
+                    .OrdinalIgnoreCase
+                    .Equals(pmodeCollaboration?.Service?.Value, messageCollaboration.Service.Value);
+
             bool equalService =
-                pmodeCollaboration.Service?.Value == messageCollaboration.Service.Value
+                equalServiceValue
                 && (noServiceType || equalServiceType);
 
-            return equalAction && equalService;
+            return equalAction && equalService
+                ? Points
+                : NotEqual;
         }
     }
 }

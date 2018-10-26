@@ -1,11 +1,7 @@
 ﻿using System;
 using Eu.EDelivery.AS4.Builders;
 using Eu.EDelivery.AS4.Repositories;
-using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Services.PullRequestAuthorization;
-using Eu.EDelivery.AS4.Strategies.Retriever;
-using Eu.EDelivery.AS4.Strategies.Sender;
-using Eu.EDelivery.AS4.Strategies.Uploader;
 
 namespace Eu.EDelivery.AS4.Common
 {
@@ -22,28 +18,7 @@ namespace Eu.EDelivery.AS4.Common
         /// </summary>
         private Registry()
         {
-            SerializerProvider = SerializerProvider.Default;
             CertificateRepository = new CertificateRepository();
-
-            PayloadRetrieverProvider = new PayloadRetrieverProvider();
-            PayloadRetrieverProvider.Accept(p => p.Location.StartsWith(FilePayloadRetriever.Key, StringComparison.OrdinalIgnoreCase), new FilePayloadRetriever());
-            PayloadRetrieverProvider.Accept(p => p.Location.StartsWith(TempFilePayloadRetriever.Key, StringComparison.OrdinalIgnoreCase), new TempFilePayloadRetriever());
-            PayloadRetrieverProvider.Accept(p => p.Location.StartsWith(FtpPayloadRetriever.Key, StringComparison.OrdinalIgnoreCase), new FtpPayloadRetriever());
-            PayloadRetrieverProvider.Accept(p => p.Location.StartsWith(HttpPayloadRetriever.Key, StringComparison.OrdinalIgnoreCase), new HttpPayloadRetriever());
-
-            DeliverSenderProvider = new DeliverSenderProvider();
-            DeliverSenderProvider.Accept(s => StringComparer.OrdinalIgnoreCase.Equals(s, FileSender.Key), () => new ReliableSender(deliverSender: new FileSender()));
-            DeliverSenderProvider.Accept(s => StringComparer.OrdinalIgnoreCase.Equals(s, HttpSender.Key), () => new ReliableSender(deliverSender: new HttpSender()));
-
-            NotifySenderProvider = new NotifySenderProvider();
-            NotifySenderProvider.Accept(s => StringComparer.OrdinalIgnoreCase.Equals(s, FileSender.Key), () => new ReliableSender(notifySender: new FileSender()));
-            NotifySenderProvider.Accept(s => StringComparer.OrdinalIgnoreCase.Equals(s, HttpSender.Key), () => new ReliableSender(notifySender: new HttpSender()));
-
-            AttachmentUploader = new AttachmentUploaderProvider();
-            var mimeTypeRepository = new MimeTypeRepository();
-            AttachmentUploader.Accept(s => StringComparer.OrdinalIgnoreCase.Equals(s, FileAttachmentUploader.Key), new FileAttachmentUploader(mimeTypeRepository));
-            AttachmentUploader.Accept(s => StringComparer.OrdinalIgnoreCase.Equals(s, EmailAttachmentUploader.Key), new EmailAttachmentUploader(mimeTypeRepository));
-            AttachmentUploader.Accept(s => StringComparer.OrdinalIgnoreCase.Equals(s, PayloadServiceAttachmentUploader.Key), new PayloadServiceAttachmentUploader());
 
             MessageBodyStore = new MessageBodyStore();
             MessageBodyStore.Accept(
@@ -67,11 +42,11 @@ namespace Eu.EDelivery.AS4.Common
                 return;
             }
 
+            _createDatastore = () => new DatastoreContext(config);
+
             IsInitialized = true;
             PullRequestAuthorizationMapProvider = new FilePullAuthorizationMapProvider(config.AuthorizationMapPath);
             CertificateRepository = ResolveCertificateRepository(config.CertificateRepositoryType);
-
-            _createDatastore = () => new DatastoreContext(config);
         }
 
         private static ICertificateRepository ResolveCertificateRepository(string typeString)
@@ -91,19 +66,9 @@ namespace Eu.EDelivery.AS4.Common
 
         public Func<DatastoreContext> CreateDatastoreContext => OnlyAfterInitialized(() => _createDatastore);
 
-        public IPayloadRetrieverProvider PayloadRetrieverProvider { get; }
-
-        public IDeliverSenderProvider DeliverSenderProvider { get; }
-
-        public INotifySenderProvider NotifySenderProvider { get; }
-
         public ICertificateRepository CertificateRepository { get; private set; }
 
-        public IAttachmentUploaderProvider AttachmentUploader { get; }
-
         public IPullAuthorizationMapProvider PullRequestAuthorizationMapProvider { get; private set; }
-
-        public SerializerProvider SerializerProvider { get; }
 
         public MessageBodyStore MessageBodyStore { get; }
 

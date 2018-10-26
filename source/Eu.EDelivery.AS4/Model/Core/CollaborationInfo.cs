@@ -29,11 +29,23 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// Initializes a new instance of the <see cref="CollaborationInfo"/> class.
         /// </summary>
         /// <param name="service"></param>
-        public CollaborationInfo(Service service) 
+        internal CollaborationInfo(Service service) 
             : this(
                 Maybe<AgreementReference>.Nothing, 
                 service, 
                 Constants.Namespaces.TestAction, 
+                DefaultConversationId) { }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CollaborationInfo"/> class.
+        /// </summary>
+        /// <param name="service"></param>
+        /// <param name="action"></param>
+        internal CollaborationInfo(Service service, string action)
+            : this(
+                Maybe<AgreementReference>.Nothing,
+                service,
+                action,
                 DefaultConversationId) { }
 
         /// <summary>
