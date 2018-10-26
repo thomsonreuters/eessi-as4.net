@@ -27,8 +27,8 @@ namespace Eu.EDelivery.AS4.Model.PMode
         /// </summary>
         public SendingProcessingMode()
         {
-            MepBinding = MessageExchangePatternBinding.Push;
             AllowOverride = false;
+            MepBinding = null;
             Reliability = new SendReliability();
             ReceiptHandling = new SendReceiptHandling();
             ErrorHandling = new SendHandling();
@@ -53,10 +53,10 @@ namespace Eu.EDelivery.AS4.Model.PMode
         [Description("Message exchange pattern")]
         public MessageExchangePattern Mep { get; set; }
 
-        [Info("Message exchange pattern binding", defaultValue: MessageExchangePatternBinding.Push)]
+        [Info("Message exchange pattern binding")]
         [Description("Indicate if the message will be pushed by the sender to the receiver, or if the message " +
                      "must be sent to the receiver as a response on a PullRequest that has been sent by the receiver.")]
-        public MessageExchangePatternBinding MepBinding { get; set; }
+        public MessageExchangePatternBinding? MepBinding { get; set; }
 
         [Description("Push configuration")]
         public PushConfiguration PushConfiguration { get; set; }

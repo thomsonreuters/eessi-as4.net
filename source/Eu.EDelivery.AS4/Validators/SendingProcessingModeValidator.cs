@@ -40,18 +40,19 @@ namespace Eu.EDelivery.AS4.Validators
 
         private void RulesForPushConfiguration()
         {
-            bool IsPushing(SendingProcessingMode pmode)
-            {
-                return pmode.MepBinding == MessageExchangePatternBinding.Push;
-            }
+            RuleFor(pmode => pmode)
+                .Must(pmode => pmode.PushConfigurationSpecified && !pmode.DynamicDiscoverySpecified
+                               || !pmode.PushConfigurationSpecified && pmode.DynamicDiscoverySpecified)
+                .When(pmode => pmode.MepBinding == MessageExchangePatternBinding.Push)
+                .WithMessage(
+                    "Either a <PushConfiguration/> or a <DynamicDiscovery/> element should be specified when the MebBinding = Push");
 
-            When(p => !IsDynamicDiscovery(p) && IsPushing(p), () =>
+            When(p => p.PushConfigurationSpecified, () =>
             {
                 const string errorMsg = "PushConfiguration.Protocol.Url element should be specified when SMP Profile is missing";
 
                 RuleFor(pmode => pmode.PushConfiguration.Protocol)
                     .NotNull()
-                    .When(pmode => pmode.PushConfigurationSpecified)
                     .WithMessage(errorMsg);
 
                 RuleFor(pmode => pmode.PushConfiguration.Protocol.Url)
@@ -341,6 +342,7 @@ namespace Eu.EDelivery.AS4.Validators
             try
             {
                 ValidateKeySize(instance);
+                ValidateMepBinding(instance);
             }
             catch (Exception exception)
             {
@@ -360,9 +362,25 @@ namespace Eu.EDelivery.AS4.Validators
                 if (!keysizes.Contains(actualKeySize) && model.Security?.Encryption != null)
                 {
                     int defaultKeySize = Encryption.Default.AlgorithmKeySize;
-                    Logger.Warn($"Invalid Encryption 'Key Size': {actualKeySize}, {defaultKeySize} is taken as default");
+                    Logger.Warn(
+                        $"Invalid Encryption 'Key Size': {actualKeySize}, {defaultKeySize} is taken as default");
                     model.Security.Encryption.AlgorithmKeySize = defaultKeySize;
                 }
+            }
+        }
+
+        private static void ValidateMepBinding(SendingProcessingMode model)
+        {
+            if (model.MepBinding == MessageExchangePatternBinding.Push
+                && !model.PushConfigurationSpecified
+                && !model.DynamicDiscoverySpecified)
+            {
+                Logger.Warn(
+                    $"SendingPMode {model.Id} has no <PushConfiguration/> or <DynamicDiscovery/> element present "
+                    + "but has MebBinding = Push; this PMode can only be used for responding to AS4Messages. "
+                    + "Please remove the <MepBinding/> element or specify either a <PushConfiguration/> or <DynamicDiscovery/> to remove this warning");
+
+                model.MepBinding = null;
             }
         }
     }
