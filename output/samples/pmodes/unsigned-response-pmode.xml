@@ -5,6 +5,7 @@
   <Id>unsigned-response-pmode</Id>
   <AllowOverride>false</AllowOverride>
   <Mep>OneWay</Mep>
+  <MebBinding>Push</MebBinding>
   <Security>
     <Signing>
       <IsEnabled>false</IsEnabled>
