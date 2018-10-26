@@ -49,6 +49,15 @@ namespace Eu.EDelivery.AS4.Model.PMode
         /// <summary>
         /// Initializes a new instance of the <see cref="Party"/> class.
         /// </summary>
+        public Party(string role, IEnumerable<PartyId> partyIds)
+        {
+            Role = role;
+            PartyIds = partyIds.ToList();
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Party"/> class.
+        /// </summary>
         public Party(string role, string partyId) : this(role, new PartyId { Id = partyId }) { }
     }
 }

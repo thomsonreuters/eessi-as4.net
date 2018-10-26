@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
+using Eu.EDelivery.AS4.Mappings.Core;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
@@ -71,6 +74,62 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
             // Assert
             Assert.Equal(pmodeByPartyInfo, actual);
+        }
+
+        [Fact]
+        public async Task Determine_Based_On_User_PartyInfo_Containing_Any_PMode_PartyIds()
+        {
+            // Arrange
+            var userMessage = new UserMessage(
+                $"user-{Guid.NewGuid()}",
+                new Party("user-Sender-role", new PartyId($"user-sender-partyid-{Guid.NewGuid()}")),
+                new Party("user-Receiver-role", new PartyId($"user-receiver-partyid-{Guid.NewGuid()}")));
+
+            ReceivingProcessingMode pmodeByPartyInfo =
+                CreateMatchedReceivingPMode(userMessage, PModeMatch.ByPartyInfo | PModeMatch.ByServiceAction);
+
+            pmodeByPartyInfo.MessagePackaging.PartyInfo.FromParty.PartyIds.Add(new PModePartyId($"another-pmode-partyid-{Guid.NewGuid()}"));
+            pmodeByPartyInfo.MessagePackaging.PartyInfo.ToParty.PartyIds.Add(new PModePartyId($"another-pmode-partyid-{Guid.NewGuid()}"));
+
+            // Act
+            ReceivingProcessingMode actual =
+                await ExerciseScoringSystemAsync(userMessage, pmodeByPartyInfo);
+
+            // Assert
+            Assert.Equal(pmodeByPartyInfo, actual);
+        }
+
+        [Fact]
+        public async Task Determine_Based_On_PMode_PartyInfo_Containing_All_User_PartyIds()
+        {
+            // Arrange
+            var userMessage = new UserMessage(
+                $"user-{Guid.NewGuid()}",
+                new Party("user-Sender-role", new PartyId($"user-sender-partyid-{Guid.NewGuid()}")),
+                new Party("user-Receiver-role", new PartyId($"user-receiver-partyid-{Guid.NewGuid()}")));
+
+            ReceivingProcessingMode pmodeByPartyInfo =
+                CreateMatchedReceivingPMode(userMessage, PModeMatch.ByPartyInfo | PModeMatch.ByServiceAction);
+
+            IEnumerable<PartyId> extraSenderPartyIds =
+                userMessage.Sender.PartyIds.Concat(new[] { new PartyId($"another-user-partyid-{Guid.NewGuid()}") });
+            IEnumerable<PartyId> extraReceiverPartyIds =
+                userMessage.Receiver.PartyIds.Concat(new[] { new PartyId($"another-user-partyid-{Guid.NewGuid()}") });
+
+            var extraPartyIdUserMessage = new UserMessage(
+                userMessage.MessageId,
+                new Party(userMessage.Sender.Role, extraSenderPartyIds),
+                new Party(userMessage.Receiver.Role, extraReceiverPartyIds));
+
+            ReceivingProcessingMode pmodeByExtraPartyIdsPartyInfo =
+                CreateMatchedReceivingPMode(extraPartyIdUserMessage, PModeMatch.ByPartyInfo | PModeMatch.ByServiceAction);
+
+            // Act
+            ReceivingProcessingMode actual =
+                await ExerciseScoringSystemAsync(extraPartyIdUserMessage, pmodeByPartyInfo, pmodeByExtraPartyIdsPartyInfo);
+
+            // Assert
+            Assert.Equal(pmodeByExtraPartyIdsPartyInfo, actual);
         }
 
         [Fact]
@@ -230,8 +289,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             {
                 return new PModePartyInfo
                 {
-                    FromParty = new PModeParty(um.Sender.Role, new PModePartyId(um.Sender.PrimaryPartyId)),
-                    ToParty = new PModeParty(um.Receiver.Role, new PModePartyId(um.Receiver.PrimaryPartyId))
+                    FromParty = new PModeParty(um.Sender.Role, um.Sender.PartyIds.Select(id => new PModePartyId(id.Id))),
+                    ToParty = new PModeParty(um.Receiver.Role, um.Receiver.PartyIds.Select(id => new PModePartyId(id.Id)))
                 };
             }
 
