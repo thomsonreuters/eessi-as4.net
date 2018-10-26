@@ -29,7 +29,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         /// </summary>
         public SendDeliverMessageStep()
             : this(
-                Registry.Instance.DeliverSenderProvider,
+                DeliverSenderProvider.Instance,
                 Registry.Instance.CreateDatastoreContext) { }
 
         /// <summary>

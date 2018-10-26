@@ -12,6 +12,7 @@ using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
+using Eu.EDelivery.AS4.Serialization;
 using NLog;
 using MessageExchangePattern = Eu.EDelivery.AS4.Entities.MessageExchangePattern;
 using ReceptionAwareness = Eu.EDelivery.AS4.Model.PMode.ReceptionAwareness;
@@ -102,7 +103,7 @@ namespace Eu.EDelivery.AS4.Services
             {
                 Stream body = await _messageBodyStore.LoadMessageBodyAsync(m.MessageLocation);
                 AS4Message foundMessage = 
-                    await Registry.Instance.SerializerProvider
+                    await SerializerProvider.Default
                                   .Get(m.ContentType)
                                   .DeserializeAsync(body, m.ContentType);
 
