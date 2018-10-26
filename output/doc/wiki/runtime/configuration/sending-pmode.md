@@ -37,7 +37,7 @@ This contract describes all the properties available in the Sending PMode. The r
             <td><b>MEPBinding</b></td>
             <td align="center">M</td>
             <td>
-                Message Exchange Pattern Binding
+                Message Exchange Pattern Binding (default undefined)
                 <i>Enumeration:</i>
                 <ul style="margin:0;">
                     <li>push</li>
