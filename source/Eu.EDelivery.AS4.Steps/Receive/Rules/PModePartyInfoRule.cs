@@ -82,7 +82,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive.Rules
                 return false;
             }
 
-            return pmodeParty.PartyIds.All(x => messageParty.PartyIds.Any(y =>
+            return pmodeParty.PartyIds.Any(x => messageParty.PartyIds.Any(y =>
             {
                 bool noType = 
                     x?.Type == null 
