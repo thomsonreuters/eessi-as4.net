@@ -35,7 +35,7 @@ Following example shows a PMode configured for _Dynamic Discovery_ that will use
 
 > Note that only the `FromParty` is filled out, the `ToParty` will be added via the _Dynamic Discovery_ process.
 
-### When the built-in profile will be used
+### When will the built-in profile be used
 
 Finally note that the _Dynamic Discovery_ process will use the (build-in) `<LocalDynamicDiscoveryProfile` when:
 
