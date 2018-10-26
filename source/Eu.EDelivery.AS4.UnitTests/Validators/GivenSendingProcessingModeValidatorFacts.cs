@@ -23,59 +23,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
                 xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" 
                 xmlns=""eu:edelivery:as4:pmode"">
                 <Id>dynamicdiscovery-pmode</Id>
-                <MebBinding/>
-              </PMode>", true)]
-        [InlineData(
-            @"<?xml version=""1.0"" encoding=""utf-8""?>
-              <PMode xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" 
-                xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" 
-                xmlns=""eu:edelivery:as4:pmode"">
-                <Id>dynamicdiscovery-pmode</Id>
-                <MebBinding></MebBinding>
-              </PMode>", true)]
-        [InlineData(
-            @"<?xml version=""1.0"" encoding=""utf-8""?>
-              <PMode xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" 
-                xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" 
-                xmlns=""eu:edelivery:as4:pmode"">
-                <Id>dynamicdiscovery-pmode</Id>
-                <MebBinding>Push</MebBinding>
-                <PushConfiguration>
-                    <Protocol>
-                        <Url></Url>
-                    </Protocol>
-                </PushConfiguration>
-              </PMode>", true)]
-        [InlineData(
-            @"<?xml version=""1.0"" encoding=""utf-8""?>
-              <PMode xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" 
-                xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" 
-                xmlns=""eu:edelivery:as4:pmode"">
-                <Id>dynamicdiscovery-pmode</Id>
-                <PushConfiguration/>
-                <DynamicDiscovery/>
-              </PMode>", false)]
-        public void Either_PushConfiguration_Or_DynamicDiscovery_Should_Be_Specified_When_MebBinding_Is_Push(
-            string xml, 
-            bool expected)
-        {
-            // Arrange
-            var pmode = AS4XmlSerializer.FromString<SendingProcessingMode>(xml);
-
-            // Act
-            ValidationResult result = ExerciseValidation(pmode);
-
-            // Arrange
-            Assert.True(expected == result.IsValid, result.AppendValidationErrorsToErrorMessage("Invalid SendingPMode: "));
-        }
-
-        [Theory]
-        [InlineData(
-            @"<?xml version=""1.0"" encoding=""utf-8""?>
-              <PMode xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" 
-                xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" 
-                xmlns=""eu:edelivery:as4:pmode"">
-                <Id>dynamicdiscovery-pmode</Id>
                 <DynamicDiscovery>
                     <SmpProfile/>
                 </DynamicDiscovery>

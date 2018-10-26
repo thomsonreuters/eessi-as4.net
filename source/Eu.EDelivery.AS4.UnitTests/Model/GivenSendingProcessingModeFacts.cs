@@ -65,7 +65,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
             public void ThenPushConfigurationIsDefaultUndefined()
             {
                 // Assert
-                Assert.Null(DefaultEmptyPMode.MepBinding);
+                Assert.Equal(MessageExchangePatternBinding.Push, DefaultEmptyPMode.MepBinding);
             }
 
             [Fact]
