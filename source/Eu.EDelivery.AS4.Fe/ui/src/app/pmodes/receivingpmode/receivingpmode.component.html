@@ -40,6 +40,7 @@
                         <input type="number" formControlName="responseHttpCode">
                     </as4-input>
                 </ng-container>
+                <as4-retryreliability [group]="pmode.form.get('pmode.replyHandling.piggyBackReliability')"></as4-retryreliability>
             </div>
             <div tabitem title="Message handling" formGroupName="messageHandling" [isValid]="!pmode.currentPmode || pmode.form.get('pmode.messageHandling').valid"
                 runtimeTooltip="messagehandling">
