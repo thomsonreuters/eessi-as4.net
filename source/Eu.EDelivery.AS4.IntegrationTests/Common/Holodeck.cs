@@ -21,14 +21,6 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
 
         public static readonly string HolodeckBHttpEndpoint = "http://localhost:9090/msh";
 
-        public static readonly HolodeckPartInfo SubmitImagePayload =
-            new HolodeckPartInfo
-            {
-                Containment = "attachment",
-                MimeType = "image/jpeg",
-                Location = "payloads/dandelion.jpg"
-            };
-
         static Holodeck()
         {
             HolodeckALocations = HolodeckLocations.ProbeForHolodeckInstance("holodeck-b2b-A");
@@ -83,31 +75,6 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
                 destFileName: Path.GetFullPath($@"{HolodeckBLocations.OutputPath}\{messageFileName}"));
 
             WaitForHolodeckToPickUp();
-        }
-
-        /// <summary>
-        /// Puts a message with a single payload to the Holodeck endpoint referencing the given <paramref name="pmodeId"/>.
-        /// </summary>
-        /// <param name="pmodeId">The pmode id the message should have as reference.</param>
-        public void PutMessageSinglePayloadToHolodeckA(string pmodeId)
-        {
-            var msg = new MessageMetaData
-            {
-                CollaborationInfo = new HolodeckCollaborationInfo
-                {
-                    AgreementRef = new HolodeckAgreementRef { PMode = pmodeId },
-                    ConversationId = "org:holodeckb2b:test:conversation"
-                },
-                PayloadInfo = new HolodeckPayloadInfo
-                {
-                    PartInfo = new[] { SubmitImagePayload }
-                }
-            };
-
-            string xml = AS4XmlSerializer.ToString(msg);
-            string path = Path.Combine(HolodeckALocations.OutputPath, $"{pmodeId}-sample.mmd");
-
-            File.WriteAllText(path, xml);
         }
 
         /// <summary>
