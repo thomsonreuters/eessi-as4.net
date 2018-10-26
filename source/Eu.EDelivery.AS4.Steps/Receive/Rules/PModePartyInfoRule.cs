@@ -74,7 +74,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive.Rules
         }
 
         private static bool ArePartyIdsEqual(
-            Model.PMode.Party pmodeParty, 
+            Model.PMode.Party pmodeParty,
             Model.Core.Party messageParty)
         {
             if (pmodeParty == null)
@@ -82,23 +82,24 @@ namespace Eu.EDelivery.AS4.Steps.Receive.Rules
                 return false;
             }
 
-            return pmodeParty.PartyIds.Any(x => messageParty.PartyIds.Any(y =>
+            return messageParty.PartyIds.All(userPartyId => pmodeParty.PartyIds.Any(pmodePartyId =>
             {
-                bool noType = 
-                    x?.Type == null 
-                    && y.Type == Maybe<string>.Nothing;
+                bool noType =
+                    userPartyId.Type == Maybe<string>.Nothing
+                    && pmodePartyId?.Type == null;
 
-                bool equalTypes = 
-                    y.Type
-                     .Select(t => StringComparer.OrdinalIgnoreCase.Equals(t, x?.Type))
-                     .GetOrElse(false);
+                bool equalType =
+                    userPartyId
+                        .Type
+                        .Select(t => StringComparer.OrdinalIgnoreCase.Equals(t, pmodePartyId?.Type))
+                        .GetOrElse(false);
 
-                bool equalIds =
+                bool equalId =
                     StringComparer
                         .OrdinalIgnoreCase
-                        .Equals(x?.Id, y.Id);
+                        .Equals(userPartyId.Id, pmodePartyId?.Id);
 
-                return equalIds && (equalTypes || noType);
+                return equalId && (equalType || noType);
             }));
         }
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
+using Eu.EDelivery.AS4.Mappings.Core;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
@@ -99,7 +100,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
         }
 
         [Fact]
-        public async Task Determine_Based_On_PMode_PartyInfo_Containing_Any_User_PartyIds()
+        public async Task Determine_Based_On_PMode_PartyInfo_Containing_All_User_PartyIds()
         {
             // Arrange
             var userMessage = new UserMessage(
@@ -110,22 +111,25 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             ReceivingProcessingMode pmodeByPartyInfo =
                 CreateMatchedReceivingPMode(userMessage, PModeMatch.ByPartyInfo | PModeMatch.ByServiceAction);
 
-            IEnumerable<PartyId> senderPartyIds =
+            IEnumerable<PartyId> extraSenderPartyIds =
                 userMessage.Sender.PartyIds.Concat(new[] { new PartyId($"another-user-partyid-{Guid.NewGuid()}") });
-            IEnumerable<PartyId> receiverPartyIds =
+            IEnumerable<PartyId> extraReceiverPartyIds =
                 userMessage.Receiver.PartyIds.Concat(new[] { new PartyId($"another-user-partyid-{Guid.NewGuid()}") });
 
             var extraPartyIdUserMessage = new UserMessage(
                 userMessage.MessageId,
-                new Party(userMessage.Sender.Role, senderPartyIds),
-                new Party(userMessage.Receiver.Role, receiverPartyIds));
+                new Party(userMessage.Sender.Role, extraSenderPartyIds),
+                new Party(userMessage.Receiver.Role, extraReceiverPartyIds));
+
+            ReceivingProcessingMode pmodeByExtraPartyIdsPartyInfo =
+                CreateMatchedReceivingPMode(extraPartyIdUserMessage, PModeMatch.ByPartyInfo | PModeMatch.ByServiceAction);
 
             // Act
             ReceivingProcessingMode actual =
-                await ExerciseScoringSystemAsync(extraPartyIdUserMessage, pmodeByPartyInfo);
+                await ExerciseScoringSystemAsync(extraPartyIdUserMessage, pmodeByPartyInfo, pmodeByExtraPartyIdsPartyInfo);
 
             // Assert
-            Assert.Equal(pmodeByPartyInfo, actual);
+            Assert.Equal(pmodeByExtraPartyIdsPartyInfo, actual);
         }
 
         [Fact]
@@ -285,8 +289,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             {
                 return new PModePartyInfo
                 {
-                    FromParty = new PModeParty(um.Sender.Role, new PModePartyId(um.Sender.PrimaryPartyId)),
-                    ToParty = new PModeParty(um.Receiver.Role, new PModePartyId(um.Receiver.PrimaryPartyId))
+                    FromParty = new PModeParty(um.Sender.Role, um.Sender.PartyIds.Select(id => new PModePartyId(id.Id))),
+                    ToParty = new PModeParty(um.Receiver.Role, um.Receiver.PartyIds.Select(id => new PModePartyId(id.Id)))
                 };
             }
 
