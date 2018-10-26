@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -162,8 +163,45 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
         /// and with optional payloads references on disk so they get picked-up by the AS4 component.
         /// </summary>
         /// <param name="pmodeId">The identifier to reference a <see cref="SendingProcessingMode"/>.</param>
+        public void PutSubmitMessageSinglePayload(string pmodeId)
+        {
+            PutSubmitMessage(pmodeId, SubmitPayloadImage);
+        }
+
+        /// <summary>
+        /// Puts a <see cref="SubmitMessage"/> with a given reference to a <see cref="SendingProcessingMode"/>
+        /// and with optional payloads references on disk so they get picked-up by the AS4 component.
+        /// </summary>
+        /// <param name="pmodeId">The identifier to reference a <see cref="SendingProcessingMode"/>.</param>
+        public void PutSubmitMessageMultiplePayloads(string pmodeId)
+        {
+            PutSubmitMessage(pmodeId, SubmitPayloadImage, SubmitPayloadXml);
+        }
+
+        /// <summary>
+        /// Puts a <see cref="SubmitMessage"/> with a given reference to a <see cref="SendingProcessingMode"/>
+        /// and with optional payloads references on disk so they get picked-up by the AS4 component.
+        /// </summary>
+        /// <param name="pmodeId">The identifier to reference a <see cref="SendingProcessingMode"/>.</param>
         /// <param name="payloads">The sequence of submit payloads to include in the message.</param>
-        public void PutSubmitMessage(string pmodeId, params Payload[] payloads)
+        public void PutSubmitMessage(
+            string pmodeId,
+            params Payload[] payloads)
+        {
+            PutSubmitMessage(pmodeId, submit => { }, payloads);
+        }
+
+        /// <summary>
+        /// Puts a <see cref="SubmitMessage"/> with a given reference to a <see cref="SendingProcessingMode"/>
+        /// and with optional payloads references on disk so they get picked-up by the AS4 component.
+        /// </summary>
+        /// <param name="pmodeId">The identifier to reference a <see cref="SendingProcessingMode"/>.</param>
+        /// <param name="payloads">The sequence of submit payloads to include in the message.</param>
+        /// <param name="setCustomFixtures">The function to place custom settings to the created message.</param>
+        public void PutSubmitMessage(
+            string pmodeId,
+            Action<SubmitMessage> setCustomFixtures,
+            params Payload[] payloads)
         {
             var submitMessage = new SubmitMessage
             {
@@ -184,6 +222,8 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
                 },
                 Payloads = payloads
             };
+
+            setCustomFixtures(submitMessage);
 
             string xml = AS4XmlSerializer.ToString(submitMessage);
             string fileName = Path.Combine(FullOutputPath, $"submit-{pmodeId}.xml");
@@ -218,6 +258,26 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
             Assert.True(
                 sendPayload.Length == receivedPayload.Length, 
                 $"Send submit payload doesn't have the same length as the received payload {sendPayload.Length} != {receivedPayload.Length}");
+        }
+
+        /// <summary>
+        /// Assert if the delivered payloads at Holodeck B are the same one like the submited payloads.
+        /// </summary>
+        public void AssertMultiplePayloadsOnHolodeckB()
+        {
+            FileInfo[] receivedPayloads = new DirectoryInfo(Holodeck.HolodeckBLocations.InputPath).GetFiles();
+
+            FileInfo sentEarth = SubmitSinglePayloadImage;
+            FileInfo sentXml = SubmitSecondPayloadXml;
+
+            FileInfo receivedEarth = receivedPayloads.FirstOrDefault(x => x.Extension == ".jpg");
+            FileInfo receivedXml = receivedPayloads.FirstOrDefault(x => x.Name.Contains("sample"));
+
+            Assert.NotNull(receivedEarth);
+            Assert.NotNull(receivedXml);
+
+            Assert.Equal(sentEarth.Length, receivedEarth.Length);
+            Assert.Equal(sentXml.Length, receivedXml.Length);
         }
 
         private bool _isDisposed;

@@ -49,7 +49,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
             CopyDirectory(@".\config\integrationtest-settings\integrationtest-pmodes\send-pmodes", @".\config\send-pmodes");
             CopyDirectory(@".\config\integrationtest-settings\integrationtest-pmodes\receive-pmodes", @".\config\receive-pmodes");
 
-            CleanUpFiles(@".\database", recursive: true);   
+            CleanUpFiles(@".\database", recursive: true);
             CleanUpFiles(@".\logs");
             CleanUpFiles(AS4Component.FullInputPath);
             CleanUpFiles(AS4Component.FullOutputPath);
@@ -57,14 +57,14 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
             CleanUpFiles(AS4Component.ErrorsPath);
             CleanUpFiles(AS4Component.ExceptionsPath);
 
-            CleanUpFiles(Holodeck.HolodeckALocations.PModePath); // Properties.Resources.holodeck_A_pmodes);
+            CleanUpFiles(Holodeck.HolodeckALocations.PModePath);
             CleanUpFiles(Holodeck.HolodeckBLocations.PModePath);
 
             CleanUpFiles(Holodeck.HolodeckALocations.InputPath);
             CleanUpFiles(Holodeck.HolodeckBLocations.InputPath);
 
             CleanUpFiles(Holodeck.HolodeckALocations.OutputPath);
-            CleanUpFiles(Holodeck.HolodeckBLocations.PModePath);       
+            CleanUpFiles(Holodeck.HolodeckBLocations.PModePath);
         }
 
         private static void CopyDirectory(string sourceDirName, string destDirName)
@@ -116,29 +116,18 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
             {
                 if (predicateFile == null || predicateFile(file))
                 {
-                    WhileTimeOutTry(retryCount: 10, retryAction: () => File.Delete(file));
+                    CleanUpFile(file);
                 }
             }
         }
 
-        private static void WhileTimeOutTry(int retryCount, Action retryAction)
+        private static void CleanUpFile(string file)
         {
-            var count = 0;
-
-            while (count < retryCount)
+            if (File.Exists(file))
             {
-                try
-                {
-                    retryAction();
-                    return;
-                }
-                catch (Exception exception)
-                {
-                    Console.WriteLine(exception);
-                    count++;
-
-                    Thread.Sleep(TimeSpan.FromSeconds(3));
-                }
+                Policy.Handle<IOException>()
+                      .WaitAndRetry(10, _ => TimeSpan.FromSeconds(3))
+                      .Execute(() => File.Delete(file));
             }
         }
 
@@ -276,7 +265,11 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
             Console.WriteLine(@"AS4.NET Component Logs:");
             Console.WriteLine(Environment.NewLine);
 
-            foreach (string file in Directory.GetFiles(Path.GetFullPath(@".\logs")))
+            IEnumerable<string> logFiles = 
+                Directory.GetFiles(Path.GetFullPath(@".\logs"))
+                         .Where(File.Exists);
+
+            foreach (string file in logFiles)
             {
                 Policy.Handle<IOException>()
                       .Retry(3)

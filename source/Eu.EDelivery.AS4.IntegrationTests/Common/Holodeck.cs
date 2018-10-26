@@ -4,6 +4,8 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using Eu.EDelivery.AS4.Exceptions;
+using Eu.EDelivery.AS4.IntegrationTests.Fixture;
+using Eu.EDelivery.AS4.Serialization;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.IntegrationTests.Common
@@ -16,6 +18,16 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
         public static readonly HolodeckLocations HolodeckALocations;
         public static readonly HolodeckLocations HolodeckBLocations;
         public static readonly string HolodeckMessagesPath = Path.GetFullPath(@".\messages\holodeck-messages");
+
+        public static readonly string HolodeckBHttpEndpoint = "http://localhost:9090/msh";
+
+        public static readonly HolodeckPartInfo SubmitImagePayload =
+            new HolodeckPartInfo
+            {
+                Containment = "attachment",
+                MimeType = "image/jpeg",
+                Location = "payloads/dandelion.jpg"
+            };
 
         static Holodeck()
         {
@@ -74,6 +86,31 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
         }
 
         /// <summary>
+        /// Puts a message with a single payload to the Holodeck endpoint referencing the given <paramref name="pmodeId"/>.
+        /// </summary>
+        /// <param name="pmodeId">The pmode id the message should have as reference.</param>
+        public void PutMessageSinglePayloadToHolodeckA(string pmodeId)
+        {
+            var msg = new MessageMetaData
+            {
+                CollaborationInfo = new HolodeckCollaborationInfo
+                {
+                    AgreementRef = new HolodeckAgreementRef { PMode = pmodeId },
+                    ConversationId = "org:holodeckb2b:test:conversation"
+                },
+                PayloadInfo = new HolodeckPayloadInfo
+                {
+                    PartInfo = new[] { SubmitImagePayload }
+                }
+            };
+
+            string xml = AS4XmlSerializer.ToString(msg);
+            string path = Path.Combine(HolodeckALocations.OutputPath, $"{pmodeId}-sample.mmd");
+
+            File.WriteAllText(path, xml);
+        }
+
+        /// <summary>
         /// Copy the right message to Holodeck A
         /// </summary>
         /// <param name="messageFileName"></param>
@@ -97,7 +134,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
         /// <summary>
         /// Assert the image payload on Holodeck
         /// </summary>
-        public void AssertDandelionPayloadOnHolodeckA()
+        public void AssertSinglePayloadOnHolodeckA()
         {
             FileInfo receivedPayload = new DirectoryInfo(Common.AS4Component.FullInputPath).GetFiles("*.jpg").FirstOrDefault();
             var sendPayload = new FileInfo(HolodeckALocations.JpegPayloadPath);

@@ -19,8 +19,6 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
 
         public Func<WebResponse, AS4Message> HandleResponse { get; set; }
 
-
-
         /// <summary>
         /// Send a resource to the AS4 Component.
         /// </summary>
@@ -28,7 +26,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
         public async Task<HttpWebResponse> SendPdfAsync()
         {
             await WaitToMakeSureAS4ComponentIsStartedAsync();
-            HttpWebRequest webRequest = CreateWebRequest("application/pdf");
+            HttpWebRequest webRequest = CreateWebRequest(Url, "application/pdf");
             await SendWebRequestAsync(webRequest, Properties.Resources.pdf_document);
 
             return await TryHandleRawResponseAsync(webRequest) as HttpWebResponse;
@@ -60,7 +58,23 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
         public async Task<AS4Message> SendMessage(string message, string contentType)
         {
             await WaitToMakeSureAS4ComponentIsStartedAsync();
-            HttpWebRequest webRequest = CreateWebRequest(contentType);
+            HttpWebRequest webRequest = CreateWebRequest(Url, contentType);
+            await SendWebRequestAsync(webRequest, message);
+
+            return await TryHandleWebResponse(webRequest);
+        }
+
+        /// <summary>
+        /// Sends a message in the form of a 'string' with a given <paramref name="contentType"/>
+        /// to a specified <paramref name="url"/>; returning the response as a deserialized <see cref="AS4Message"/>.
+        /// </summary>
+        /// <param name="url">The HTTP endpoint to which the message should be sent.</param>
+        /// <param name="message">The message representation to be sent.</param>
+        /// <param name="contentType">The type of the message.</param>
+        public async Task<AS4Message> SendMessageAsync(string url, string message, string contentType)
+        {
+            await WaitToMakeSureAS4ComponentIsStartedAsync();
+            HttpWebRequest webRequest = CreateWebRequest(url, contentType);
             await SendWebRequestAsync(webRequest, message);
 
             return await TryHandleWebResponse(webRequest);
@@ -75,7 +89,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
         public async Task<AS4Message> SendMessageAsync(string message, string contentType)
         {
             await WaitToMakeSureAS4ComponentIsStartedAsync();
-            HttpWebRequest webRequest = CreateWebRequest(contentType);
+            HttpWebRequest webRequest = CreateWebRequest(Url, contentType);
             await SendWebRequestAsync(webRequest, message);
 
             return await TryHandleWebResponse(webRequest);
@@ -101,7 +115,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
         public WebResponse SendMessage(Stream message, string contentType)
         {
             Thread.Sleep(TimeSpan.FromSeconds(10));
-            HttpWebRequest webRequest = CreateWebRequest(contentType);
+            HttpWebRequest webRequest = CreateWebRequest(Url, contentType);
             SendWebRequest(webRequest, message);
 
             return TryHandleRawResponse(webRequest);
@@ -151,9 +165,9 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
                 TimeSpan.FromSeconds(30));
         }
 
-        private HttpWebRequest CreateWebRequest(string contentType)
+        private HttpWebRequest CreateWebRequest(string url, string contentType)
         {
-            var request = WebRequest.Create(Url) as HttpWebRequest;
+            var request = WebRequest.Create(url) as HttpWebRequest;
             request.Method = "POST";
             request.ContentType = contentType;
             request.KeepAlive = false;
