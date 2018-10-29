@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Eu.EDelivery.AS4.IntegrationTests.Common
 {
-    public static class PollingService
+    internal static class PollingService
     {
         /// <summary>
         /// Poll at a given <paramref name="directoryPath"/>.

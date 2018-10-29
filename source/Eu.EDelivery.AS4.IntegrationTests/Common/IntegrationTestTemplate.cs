@@ -2,10 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reactive.Linq;
-using System.Reactive.Threading.Tasks;
 using System.Threading;
-using System.Threading.Tasks;
 using Eu.EDelivery.AS4.IntegrationTests.Fixture;
 using Eu.EDelivery.AS4.Singletons;
 using Polly;
@@ -30,11 +27,11 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
 
         protected static readonly string HolodeckMessagesPath = Path.GetFullPath(@".\messages\holodeck-messages");
 
-        protected AS4Component AS4Component { get; } = new AS4Component();
+        internal AS4Component AS4Component { get; } = new AS4Component();
 
-        protected Holodeck Holodeck { get; } = new Holodeck();
+        internal Holodeck Holodeck { get; } = new Holodeck();
 
-        protected StubSender HttpClient { get; } = new StubSender();
+        internal StubSender HttpClient { get; } = new StubSender();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="IntegrationTestTemplate"/> class.

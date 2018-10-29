@@ -13,7 +13,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
     /// <summary>
     /// Simulation (Stub) af a MSH
     /// </summary>
-    public class StubSender
+    internal class StubSender
     {
         public string Url { get; set; } = $"http://localhost:8081/msh/";
 

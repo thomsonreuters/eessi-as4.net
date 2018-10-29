@@ -4,7 +4,7 @@ using System.Threading;
 
 namespace Eu.EDelivery.AS4.IntegrationTests.Common
 {
-    public class FileSystemService
+    internal class FileSystemService
     {
         /// <summary>
         /// Cleanup files in a given Directory

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -18,7 +17,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
     /// <summary>
     /// Responsible to perform the operations within the AS4 Component.
     /// </summary>
-    public class AS4Component : IDisposable
+    internal class AS4Component : IDisposable
     {
         private Process _as4ComponentProcess;
 

@@ -2,7 +2,7 @@ using System.IO;
 
 namespace Eu.EDelivery.AS4.IntegrationTests.Common
 {
-    public class HolodeckLocations
+    internal class HolodeckLocations
     {
         public string InputPath { get; }
         public string OutputPath { get; }

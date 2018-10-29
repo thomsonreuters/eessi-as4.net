@@ -4,8 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using Eu.EDelivery.AS4.Exceptions;
-using Eu.EDelivery.AS4.IntegrationTests.Fixture;
-using Eu.EDelivery.AS4.Serialization;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.IntegrationTests.Common
@@ -13,7 +11,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
     /// <summary>
     /// Wrapper for Holodeck specific operations
     /// </summary>
-    public class Holodeck
+    internal class Holodeck
     {
         public static readonly HolodeckLocations HolodeckALocations;
         public static readonly HolodeckLocations HolodeckBLocations;
