@@ -1,12 +1,9 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Common;
+﻿using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
-using Eu.EDelivery.AS4.Model.PMode;
 
 namespace Eu.EDelivery.AS4.IntegrationTests.Common
 {
-    public class DatastoreSpy
+    internal class DatastoreSpy
     {
         private readonly IConfig _configuration;
 

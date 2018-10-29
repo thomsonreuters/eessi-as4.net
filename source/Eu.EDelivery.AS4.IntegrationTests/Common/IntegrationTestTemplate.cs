@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using Eu.EDelivery.AS4.IntegrationTests.Fixture;
 using Eu.EDelivery.AS4.Singletons;
@@ -26,9 +27,11 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
 
         protected static readonly string HolodeckMessagesPath = Path.GetFullPath(@".\messages\holodeck-messages");
 
-        protected AS4Component AS4Component { get; } = new AS4Component();
+        internal AS4Component AS4Component { get; } = new AS4Component();
 
-        protected Holodeck Holodeck { get; } = new Holodeck();
+        internal Holodeck Holodeck { get; } = new Holodeck();
+
+        internal StubSender HttpClient { get; } = new StubSender();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="IntegrationTestTemplate"/> class.
@@ -43,38 +46,27 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
             CopyDirectory(@".\config\integrationtest-settings\integrationtest-pmodes\send-pmodes", @".\config\send-pmodes");
             CopyDirectory(@".\config\integrationtest-settings\integrationtest-pmodes\receive-pmodes", @".\config\receive-pmodes");
 
-            CleanUpFiles(@".\database", recursive: true);   
+            CleanUpFiles(@".\database", recursive: true);
             CleanUpFiles(@".\logs");
-            CleanUpFiles(AS4FullInputPath);
-            CleanUpFiles(AS4FullOutputPath);
-            CleanUpFiles(AS4ReceiptsPath);
-            CleanUpFiles(AS4ErrorsPath);
-            CleanUpFiles(AS4ExceptionsPath);
+            CleanUpFiles(AS4Component.FullInputPath);
+            CleanUpFiles(AS4Component.FullOutputPath);
+            CleanUpFiles(AS4Component.ReceiptsPath);
+            CleanUpFiles(AS4Component.ErrorsPath);
+            CleanUpFiles(AS4Component.ExceptionsPath);
 
-            CleanUpFiles(Holodeck.HolodeckALocations.PModePath); // Properties.Resources.holodeck_A_pmodes);
+            CleanUpFiles(Holodeck.HolodeckALocations.PModePath);
             CleanUpFiles(Holodeck.HolodeckBLocations.PModePath);
 
             CleanUpFiles(Holodeck.HolodeckALocations.InputPath);
             CleanUpFiles(Holodeck.HolodeckBLocations.InputPath);
 
             CleanUpFiles(Holodeck.HolodeckALocations.OutputPath);
-            CleanUpFiles(Holodeck.HolodeckBLocations.PModePath);       
+            CleanUpFiles(Holodeck.HolodeckBLocations.PModePath);
         }
 
-        #region Fixture Setup
         private static void CopyDirectory(string sourceDirName, string destDirName)
         {
-            DirectoryInfo sourceDirectory = GetSourceDirectory(sourceDirName);
-
-            EnsureDestinationDirectory(destDirName);
-
-            CopyFilesFromDestinationToSource(sourceDirectory, destDirName);
-        }
-
-        private static DirectoryInfo GetSourceDirectory(string sourceDirName)
-        {
             var sourceDirectory = new DirectoryInfo(sourceDirName);
-
             if (!sourceDirectory.Exists)
             {
                 throw new DirectoryNotFoundException(
@@ -82,19 +74,11 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
                     + sourceDirName);
             }
 
-            return sourceDirectory;
-        }
-
-        private static void EnsureDestinationDirectory(string destDirName)
-        {
             if (!Directory.Exists(destDirName))
             {
                 Directory.CreateDirectory(destDirName);
             }
-        }
 
-        private static void CopyFilesFromDestinationToSource(DirectoryInfo sourceDirectory, string destDirName)
-        {
             FileInfo[] files = sourceDirectory.GetFiles();
             foreach (FileInfo file in files)
             {
@@ -102,16 +86,6 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
                 file.CopyTo(temppath, overwrite: true);
             }
         }
-
-        protected static void ReplaceTokenInFile(string token, string value, string filePath)
-        {
-            string oldContents = File.ReadAllText(filePath);
-            string newContents = oldContents.Replace(token, value);
-
-            File.WriteAllText(filePath, newContents);
-        }
-
-        #endregion
 
         /// <summary>
         /// Cleanup files in a given Directory
@@ -128,9 +102,8 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
 
             if (recursive)
             {
-                var subDirectories = Directory.GetDirectories(directory);
-
-                foreach (var subDirectory in subDirectories)
+                string[] subDirectories = Directory.GetDirectories(directory);
+                foreach (string subDirectory in subDirectories)
                 {
                     CleanUpFiles(subDirectory, predicateFile, true);
                 }
@@ -140,29 +113,18 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
             {
                 if (predicateFile == null || predicateFile(file))
                 {
-                    WhileTimeOutTry(retryCount: 10, retryAction: () => File.Delete(file));
+                    CleanUpFile(file);
                 }
             }
         }
 
-        private static void WhileTimeOutTry(int retryCount, Action retryAction)
+        private static void CleanUpFile(string file)
         {
-            var count = 0;
-
-            while (count < retryCount)
+            if (File.Exists(file))
             {
-                try
-                {
-                    retryAction();
-                    return;
-                }
-                catch (Exception exception)
-                {
-                    Console.WriteLine(exception);
-                    count++;
-
-                    Thread.Sleep(TimeSpan.FromSeconds(3));
-                }
+                Policy.Handle<IOException>()
+                      .WaitAndRetry(10, _ => TimeSpan.FromSeconds(3))
+                      .Execute(() => File.Delete(file));
             }
         }
 
@@ -175,6 +137,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
         /// <param name="fileCount">The file count.</param>
         /// <param name="validation">The validation.</param>
         /// <returns></returns>
+        [Obsolete("Use 'PollUntilPresentAsync' because of better maintainability")]
         protected bool PollingAt(
             string directoryPath, 
             string extension = "*", 
@@ -299,7 +262,11 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
             Console.WriteLine(@"AS4.NET Component Logs:");
             Console.WriteLine(Environment.NewLine);
 
-            foreach (string file in Directory.GetFiles(Path.GetFullPath(@".\logs")))
+            IEnumerable<string> logFiles = 
+                Directory.GetFiles(Path.GetFullPath(@".\logs"))
+                         .Where(File.Exists);
+
+            foreach (string file in logFiles)
             {
                 Policy.Handle<IOException>()
                       .Retry(3)

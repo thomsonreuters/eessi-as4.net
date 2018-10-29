@@ -42,7 +42,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Receive_Scenarios._8._3._1_
         protected override void ValidatePolledFiles(IEnumerable<FileInfo> files)
         {
             // Assert
-            _holodeck.AssertDandelionPayloadOnHolodeckA();
+            _holodeck.AssertSinglePayloadOnHolodeckA();
             _holodeck.AssertReceiptOnHolodeckA();
         }
     }
