@@ -37,12 +37,9 @@ Following example shows a PMode configured for _Dynamic Discovery_ that will use
 
 ### When will the built-in profile be used
 
-Finally note that the _Dynamic Discovery_ process will use the (build-in) `<LocalDynamicDiscoveryProfile` when:
+Finally note that the _Dynamic Discovery_ process will use the (build-in) `<LocalDynamicDiscoveryProfile` when the `DynamicDiscovery` element is like: `<DynamicDiscovery/>` or `<DynamicDisovery></DynamicDiscovery>`.
 
-- the `DynamicDiscovery` element is an empty tag, like: `<DynamicDiscovery/>`.
-- the `DynamicDiscovery` element is a tag without a `SmpProfile` element, like: `<DynamicDisovery></DynamicDiscovery>`
-
-When a `SmpProfile` element is found, it should contain a fully-qualified assembly name of the profile you would like to use
+When a `SmpProfile` element is found, it should contain a fully-qualified assembly name of the profile you would like to use.
 
 ## Decoration of _Sending Processing Modes_
 
