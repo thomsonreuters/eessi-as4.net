@@ -21,58 +21,66 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 {
     public class ForwardOutboundProcessingAgentFacts : ComponentTestTemplate
     {
+        private readonly AS4Component _msh;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ForwardOutboundProcessingAgentFacts"/> class.
+        /// </summary>
+        public ForwardOutboundProcessingAgentFacts()
+        {
+            OverrideSettings("forward_outboundprocessing_agent_settings.xml");
+            _msh = AS4Component.Start(Environment.CurrentDirectory);
+        }
+
         [Fact]
         public async Task Untouched_Forwarded_Message_Has_Still_Valid_Signature()
         {
-            await TestComponentWithSettings(
-                "forward_outboundprocessing_agent_settings.xml",
-                async (_, msh) =>
-                {
-                    // Arrange
-                    string ebmsMessageId = $"user-{Guid.NewGuid()}";
-                    AS4Message tobeForwarded = CreateSignedAS4Message(ebmsMessageId);
+            // Arrange
+            string ebmsMessageId = $"user-{Guid.NewGuid()}";
+            IConfig configuration = _msh.GetConfiguration();
+            AS4Message tobeForwarded = CreateSignedAS4Message(ebmsMessageId, configuration);
 
-                    // Act
-                    InsertToBeForwardedMessage(
-                        msh: msh,
-                        pmodeId: "Forwarding_Untouched_Push",
-                        mep: MessageExchangePattern.Push,
-                        tobeForwarded: tobeForwarded);
+            // Act
+            InsertToBeForwardedMessage(
+                msh: _msh,
+                pmodeId: "Forwarding_Untouched_Push",
+                mep: MessageExchangePattern.Push,
+                tobeForwarded: tobeForwarded);
 
-                    // Assert
-                    var databaseSpy = DatabaseSpy.Create(msh.GetConfiguration());
-                    OutMessage tobeSentRecord = await PollUntilPresent(
-                        () => databaseSpy.GetOutMessageFor(m => m.EbmsMessageId == ebmsMessageId
-                                                                 && m.Operation == Operation.ToBeSent),
-                        timeout: TimeSpan.FromSeconds(20));
+            // Assert
+            
+            var databaseSpy = DatabaseSpy.Create(configuration);
+            OutMessage tobeSentRecord = await PollUntilPresent(
+                () => databaseSpy.GetOutMessageFor(m => m.EbmsMessageId == ebmsMessageId
+                                                         && m.Operation == Operation.ToBeSent),
+                timeout: TimeSpan.FromSeconds(20));
 
-                    Registry.Instance
-                            .MessageBodyStore
-                            .SaveAS4Message(
-                                msh.GetConfiguration().InMessageStoreLocation,
-                                tobeForwarded);
+            Registry.Instance
+                    .MessageBodyStore
+                    .SaveAS4Message(
+                        configuration.InMessageStoreLocation,
+                        tobeForwarded);
 
-                    using (Stream tobeSentContents =
-                        await tobeSentRecord.RetrieveMessageBody(Registry.Instance.MessageBodyStore))
-                    {
-                        AS4Message tobeSentMessage =
-                            await SerializerProvider
-                                  .Default
-                                  .Get(tobeSentRecord.ContentType)
-                                  .DeserializeAsync(tobeSentContents, tobeSentRecord.ContentType);
+            using (Stream tobeSentContents =
+                await tobeSentRecord.RetrieveMessageBody(Registry.Instance.MessageBodyStore))
+            {
+                AS4Message tobeSentMessage =
+                    await SerializerProvider
+                          .Default
+                          .Get(tobeSentRecord.ContentType)
+                          .DeserializeAsync(tobeSentContents, tobeSentRecord.ContentType);
 
-                        bool validSignature = tobeSentMessage.VerifySignature(
-                            new VerifySignatureConfig(
-                                allowUnknownRootCertificateAuthority: false,
-                                attachments: tobeSentMessage.Attachments));
+                bool validSignature = tobeSentMessage.VerifySignature(
+                    new VerifySignatureConfig(
+                        allowUnknownRootCertificateAuthority: false,
+                        attachments: tobeSentMessage.Attachments));
 
-                        Assert.True(validSignature,
-                                    "Forwarded AS4Message hasn't got a valid signature present while the message was forwaded 'untouched'");
-                    }
-                });
+                Assert.True(validSignature,
+                            "Forwarded AS4Message hasn't got a valid signature present while the message was forwaded 'untouched'");
+            }
         }
 
-        private static AS4Message CreateSignedAS4Message(string ebmsMessageId)
+        private static AS4Message CreateSignedAS4Message(string ebmsMessageId, IConfig configuration)
         {
             var userMessage = new UserMessage(
                 ebmsMessageId,
@@ -88,7 +96,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
             AS4Message tobeForwarded = AS4Message.Create(userMessage);
 
-            var certificateRepo = new CertificateRepository();
+            var certificateRepo = new CertificateRepository(configuration);
             X509Certificate2 signingCertificate =
                 certificateRepo.GetCertificate(X509FindType.FindBySubjectName, "AccessPointA");
             tobeForwarded.Sign(new CalculateSignatureConfig(signingCertificate));
@@ -137,6 +145,11 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                 DatabaseSpy.Create(msh.GetConfiguration())
                            .InsertInMessage(inMessage);
             }
+        }
+
+        protected override void Disposing(bool isDisposing)
+        {
+            _msh.Dispose();
         }
     }
 }
