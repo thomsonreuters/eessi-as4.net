@@ -15,6 +15,8 @@ namespace Eu.EDelivery.AS4.Model.PMode
     [DebuggerDisplay("PMode Id = {" + nameof(Id) + "}")]
     public class ReceivingProcessingMode : IPMode
     {
+        [XmlElement(IsNullable = true)]
+        [Description("Id of the PMode")]
         public string Id { get; set; }
 
         [Description("Receive reliability")]

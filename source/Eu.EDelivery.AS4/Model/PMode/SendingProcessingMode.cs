@@ -37,7 +37,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
             MessagePackaging = new SendMessagePackaging();
         }
 
-        [XmlElement(IsNullable = true)]
+        [XmlElement(IsNullable = true)] 
         [Description("Id of the PMode")]
         public string Id { get; set; }
 
