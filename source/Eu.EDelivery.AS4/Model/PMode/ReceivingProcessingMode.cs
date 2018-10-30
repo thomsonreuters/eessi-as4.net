@@ -15,6 +15,9 @@ namespace Eu.EDelivery.AS4.Model.PMode
     [DebuggerDisplay("PMode Id = {" + nameof(Id) + "}")]
     public class ReceivingProcessingMode : IPMode
     {
+        // IsNullable=true because only way the XSD will get generated with minOccurs=1
+        [XmlElement(IsNullable = true)]
+        [Description("Id of the PMode")]
         public string Id { get; set; }
 
         [Description("Receive reliability")]

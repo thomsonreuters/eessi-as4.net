@@ -37,7 +37,8 @@ namespace Eu.EDelivery.AS4.Model.PMode
             MessagePackaging = new SendMessagePackaging();
         }
 
-        [XmlElement(IsNullable = true)]
+        // IsNullable=true because only way the XSD will get generated with minOccurs=1
+        [XmlElement(IsNullable = true)] 
         [Description("Id of the PMode")]
         public string Id { get; set; }
 
