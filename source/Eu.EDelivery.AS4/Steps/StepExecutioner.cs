@@ -86,7 +86,7 @@ namespace Eu.EDelivery.AS4.Steps
             try
             {
                 IEnumerable<IStep> steps = CreateSteps(_stepConfiguration?.NormalPipeline, _conditionalPipeline.happyPath);
-                result = await ExecuteSteps(steps, currentContext);
+                result = await ExecuteStepsAsync(steps, currentContext);
             }
             catch (Exception exception)
             {
@@ -104,7 +104,7 @@ namespace Eu.EDelivery.AS4.Steps
                     && result.MessagingContext.Exception == null)
                 {
                     IEnumerable<IStep> steps = CreateSteps(_stepConfiguration?.ErrorPipeline, _conditionalPipeline.unhappyPath);
-                    result = await ExecuteSteps(steps, result.MessagingContext);
+                    result = await ExecuteStepsAsync(steps, result.MessagingContext);
                 }
 
                 return result.MessagingContext;
@@ -130,7 +130,7 @@ namespace Eu.EDelivery.AS4.Steps
             return Enumerable.Empty<IStep>();
         }
 
-        private static async Task<StepResult> ExecuteSteps(
+        private static async Task<StepResult> ExecuteStepsAsync(
             IEnumerable<IStep> steps,
             MessagingContext context)
         {
