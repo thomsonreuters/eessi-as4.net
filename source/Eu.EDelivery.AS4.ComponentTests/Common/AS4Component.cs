@@ -110,7 +110,10 @@ namespace Eu.EDelivery.AS4.ComponentTests.Common
 
             foreach (FileInfo file in directory.GetFiles("*.*"))
             {
-                file.Delete();
+                Policy.Handle<IOException>()
+                      .WaitAndRetry(3, _ => TimeSpan.FromSeconds(1))
+                      .Execute(() => file.Delete());
+                
             }
         }
         
