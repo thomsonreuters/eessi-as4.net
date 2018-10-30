@@ -19,16 +19,6 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
     [Description("If the received AS4 Message contains multiple attachments, then this step zips them into one payload.")]
     public class ZipAttachmentsStep : IStep
     {
-        private readonly IMimeTypeRepository _repository;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ZipAttachmentsStep"/> class
-        /// </summary>
-        public ZipAttachmentsStep()
-        {
-            _repository = new MimeTypeRepository();
-        }
-
         /// <summary>
         /// Start zipping <see cref="Attachment"/> Models
         /// </summary>
@@ -44,7 +34,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
 
             if (messagingContext.AS4Message.Attachments.Count() > 1)
             {
-                Stream zippedStream = await ZipAttachmentsInAS4Message(messagingContext.AS4Message).ConfigureAwait(false);
+                Stream zippedStream = await ZipAttachmentsInAS4MessageAsync(messagingContext.AS4Message).ConfigureAwait(false);
                 Attachment zipAttachment = CreateZippedAttachment(zippedStream);
 
                 OverwriteAttachmentEntries(messagingContext.AS4Message, zipAttachment);
@@ -54,7 +44,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
             return StepResult.Success(messagingContext);
         }
 
-        private async Task<Stream> ZipAttachmentsInAS4Message(AS4Message message)
+        private static async Task<Stream> ZipAttachmentsInAS4MessageAsync(AS4Message message)
         {
             var stream = new VirtualStream(forAsync: true);
 
@@ -63,7 +53,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
                 foreach (Attachment attachment in message.Attachments)
                 {
                     ZipArchiveEntry archiveEntry = CreateAttachmentEntry(archive, attachment);
-                    await AddAttachmentStreamToEntry(attachment.Content, archiveEntry).ConfigureAwait(false);
+                    await AddAttachmentStreamToEntryAsync(attachment.Content, archiveEntry).ConfigureAwait(false);
                 }
             }
 
@@ -71,13 +61,13 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
             return stream;
         }
 
-        private ZipArchiveEntry CreateAttachmentEntry(ZipArchive archive, Attachment attachment)
+        private static ZipArchiveEntry CreateAttachmentEntry(ZipArchive archive, Attachment attachment)
         {
-            string entryName = attachment.Id + _repository.GetExtensionFromMimeType(attachment.ContentType);
+            string entryName = attachment.Id + MimeTypeRepository.Instance.GetExtensionFromMimeType(attachment.ContentType);
             return archive.CreateEntry(entryName, CompressionLevel.Optimal);
         }
 
-        private static async Task AddAttachmentStreamToEntry(Stream attachmentStream, ZipArchiveEntry entry)
+        private static async Task AddAttachmentStreamToEntryAsync(Stream attachmentStream, ZipArchiveEntry entry)
         {
             using (Stream entryStream = entry.Open())
             {

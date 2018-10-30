@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
@@ -25,8 +24,6 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
 
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 
-        private readonly IMimeTypeRepository _repository;
-
         private Method _method;
 
         [Info("Location")]
@@ -43,21 +40,6 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
             "When set to false, an attempt will be made to create a new unique filename. The default is false.")]
         private string AllowOverwrite => _method?["allowoverwrite"]?.Value;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="FileAttachmentUploader" /> class.
-        /// Create a Payload Uploader for the file system
-        /// </summary>
-        /// <param name="repository">
-        /// </param>
-        public FileAttachmentUploader(IMimeTypeRepository repository)
-        {
-            if (repository == null)
-            {
-                throw new ArgumentNullException(nameof(repository));
-            }
-
-            _repository = repository;
-        }
 
         /// <summary>
         /// Configure the <see cref="IAttachmentUploader" />
@@ -104,7 +86,7 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
         {
             try
             {
-                string extension = _repository.GetExtensionFromMimeType(attachment.ContentType);
+                string extension = MimeTypeRepository.Instance.GetExtensionFromMimeType(attachment.ContentType);
                 string fileName = PayloadFileNameFactory.CreateFileName(NamePattern, attachment, referringUserMessage);
                 string validFileName = FilenameUtils.EnsureValidFilename($"{fileName}{extension}");
 
