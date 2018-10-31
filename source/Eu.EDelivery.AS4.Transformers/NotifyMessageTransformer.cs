@@ -97,30 +97,17 @@ namespace Eu.EDelivery.AS4.Transformers
 
         protected virtual async Task<NotifyMessageEnvelope> CreateNotifyMessageEnvelope(AS4Message as4Message, Type receivedEntityType)
         {
-            var notifyMessage = AS4MessageToNotifyMessageMapper.Convert(as4Message);
-
-            if (notifyMessage?.StatusInfo != null)
-            {
-                if (typeof(ExceptionEntity).IsAssignableFrom(receivedEntityType))
-                {
-                    notifyMessage.StatusInfo.Status = Status.Exception;
-                }
-                else
-                {
-                    notifyMessage.StatusInfo.Status =
-                        as4Message.FirstSignalMessage is Receipt
-                            ? Status.Delivered
-                            : Status.Error;
-                }
-            }
+            // TODO: the DeliverMessage is created in the steps, but the NotifyMessage in the Transformer?
+            NotifyMessage notifyMessage = AS4MessageToNotifyMessageMapper.Convert(as4Message, receivedEntityType);
 
             var serialized = await AS4XmlSerializer.ToStringAsync(notifyMessage).ConfigureAwait(false);
 
-            return new NotifyMessageEnvelope(notifyMessage.MessageInfo,
-                                             notifyMessage.StatusInfo.Status,
-                                             System.Text.Encoding.UTF8.GetBytes(serialized),
-                                             "application/xml",
-                                             receivedEntityType);
+            return new NotifyMessageEnvelope(
+                notifyMessage.MessageInfo,
+                notifyMessage.StatusInfo.Status,
+                System.Text.Encoding.UTF8.GetBytes(serialized),
+                "application/xml",
+                receivedEntityType);
         }
 
         private static async Task DecorateContextWithPModes(MessagingContext context, ReceivedEntityMessage message)
