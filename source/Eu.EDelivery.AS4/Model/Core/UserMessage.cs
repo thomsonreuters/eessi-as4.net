@@ -91,6 +91,11 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// <param name="messageId">Ebms Message Identifier</param>
         public UserMessage(string messageId) : base(messageId)
         {
+            if (messageId == null)
+            {
+                throw new ArgumentNullException(nameof(messageId));
+            }
+
             Mpc = Maybe<string>.Nothing;
 
             CollaborationInfo = new CollaborationInfo(
