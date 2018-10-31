@@ -68,7 +68,10 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
                             "SubmitMessage contains Payload with a Schema that hasn't got a Location");
                     }
 
-                    return new Model.Core.Schema(sch.Location, sch.Version, sch.Namespace);
+                    return new Model.Core.Schema(
+                        sch.Location, 
+                        (sch.Version != null).ThenMaybe(sch.Version), 
+                        (sch.Namespace != null).ThenMaybe(sch.Namespace));
                 })
                 .ToList();
 

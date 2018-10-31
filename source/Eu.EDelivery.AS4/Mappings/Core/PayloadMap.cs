@@ -40,12 +40,22 @@ namespace Eu.EDelivery.AS4.Mappings.Core
         public SchemaMap()
         {
             CreateMap<Model.Core.Schema, Xml.Schema>()
-                .ForMember(dest => dest.location, src => src.MapFrom(t => t.Location))
-                .ForMember(dest => dest.version, src => src.MapFrom(t => t.Version))
-                .ForMember(dest => dest.@namespace, src => src.MapFrom(t => t.Namespace));
+                .ConstructUsing(model =>
+                {
+                    var sch = new Xml.Schema();
+                    model.Namespace.Do(n => sch.@namespace = n);
+                    model.Version.Do(v => sch.version = v);
+
+                    return sch;
+                })
+                .ForAllOtherMembers(x => x.Ignore());
 
             CreateMap<Xml.Schema, Model.Core.Schema>()
-                .ConstructUsing(xml => new Model.Core.Schema(xml.location, xml.version, xml.@namespace))
+                .ConstructUsing(xml => 
+                    new Model.Core.Schema(
+                        xml.location, 
+                        (xml.version != null).ThenMaybe(xml.version), 
+                        (xml.@namespace != null).ThenMaybe(xml.@namespace)))
                 .ForAllOtherMembers(x => x.Ignore());
         }
     }
