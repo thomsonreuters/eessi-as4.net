@@ -244,8 +244,6 @@
     <Compile Include="Constants.cs" />
     <Compile Include="Common\DatastoreContext.cs" />
     <Compile Include="Entities\ExceptionEntity.cs" />
-    <Compile Include="Mappings\Submit\ISubmitMapper.cs" />
-    <Compile Include="Mappings\Submit\ISubmitResolver.cs" />
     <Compile Include="Mappings\Submit\SubmitActionResolver.cs" />
     <Compile Include="Mappings\Submit\SubmitConversationIdResolver.cs" />
     <Compile Include="Mappings\Submit\SubmitMessagePropertiesResolver.cs" />
@@ -296,7 +294,6 @@
     <Compile Include="Mappings\Common\PayloadMap.cs" />
     <Compile Include="Mappings\Common\SchemaMap.cs" />
     <Compile Include="Mappings\Common\ServiceMap.cs" />
-    <Compile Include="Mappings\Submit\SubmitMessageMap.cs" />
     <Compile Include="Model\Deliver\DeliverMessage.cs" />
     <Compile Include="Model\Internal\MessagingContext.cs" />
     <Compile Include="Model\Notify\NotifyMessage.cs" />

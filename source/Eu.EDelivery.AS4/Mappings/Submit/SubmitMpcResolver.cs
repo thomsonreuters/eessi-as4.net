@@ -1,4 +1,5 @@
 ﻿using System;
+using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Model.Submit;
 
 namespace Eu.EDelivery.AS4.Mappings.Submit
@@ -8,47 +9,50 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
     /// 2. PMode / Message Packaging / Mpc
     /// 3. No mpc attribute
     /// </summary>
-    public class SubmitMpcResolver : ISubmitResolver<string>
+    internal static class SubmitMpcResolver
     {
-
-        public static readonly SubmitMpcResolver Default = new SubmitMpcResolver();
-
         /// <summary>
         /// Resolve the Mpc from the <paramref name="submitMessage"/>
         /// </summary>
         /// <param name="submitMessage"></param>
         /// <returns></returns>
-        public string Resolve(SubmitMessage submitMessage)
+        public static Maybe<string> Resolve(SubmitMessage submitMessage)
         {
-            if (submitMessage.PMode.AllowOverride == false && DoesSubmitMessageTriesToOverridePModeMpc(submitMessage))
+            if (submitMessage == null)
             {
-                throw new InvalidOperationException($"Submit Message is not allowed by PMode {submitMessage.PMode.Id} to override Mpc");
+                throw new ArgumentNullException(nameof(submitMessage));
             }
 
-            if (submitMessage.PMode.AllowOverride && IsDefaultMpc(submitMessage.MessageInfo.Mpc) == false)
+            if (submitMessage.PMode == null)
             {
-                return submitMessage.MessageInfo.Mpc;
+                throw new ArgumentNullException(nameof(submitMessage.PMode));
             }
 
-            return submitMessage.PMode.MessagePackaging.Mpc;
-        }
+            SendingProcessingMode sendingPMode = submitMessage.PMode;
+            string pmodeMpc = sendingPMode.MessagePackaging?.Mpc;
+            string submitMpc = submitMessage.MessageInfo?.Mpc;
 
-        private static bool IsDefaultMpc(string mpc)
-        {
-            if (mpc == null)
+            if (sendingPMode.AllowOverride == false
+                && !String.IsNullOrEmpty(submitMpc)
+                && !StringComparer.OrdinalIgnoreCase.Equals(Constants.Namespaces.EbmsDefaultMpc, submitMpc)
+                && !String.IsNullOrEmpty(pmodeMpc)
+                && !StringComparer.OrdinalIgnoreCase.Equals(submitMpc, pmodeMpc))
             {
-                return true;
+                throw new InvalidOperationException(
+                    $"SubmitMessage is not allowed by SendingPMode {sendingPMode.Id} to override Mpc");
             }
 
-            return StringComparer.OrdinalIgnoreCase.Equals(Constants.Namespaces.EbmsDefaultMpc, mpc);
-        }
+            if (!String.IsNullOrEmpty(submitMpc))
+            {
+                return Maybe.Just(submitMpc);
+            }
 
-        private static bool DoesSubmitMessageTriesToOverridePModeMpc(SubmitMessage submitMessage)
-        {
-            return
-                !string.IsNullOrWhiteSpace(submitMessage.MessageInfo.Mpc) &&
-                !IsDefaultMpc(submitMessage.MessageInfo.Mpc) &&                
-                !StringComparer.OrdinalIgnoreCase.Equals(submitMessage.MessageInfo.Mpc, submitMessage.PMode.MessagePackaging.Mpc);
+            if (!String.IsNullOrEmpty(pmodeMpc))
+            {
+                return Maybe.Just(pmodeMpc);
+            }
+
+            return Maybe<string>.Nothing;
         }
     }
 }

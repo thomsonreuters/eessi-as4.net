@@ -81,7 +81,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             // Assert
             AS4Message as4Message = await userMessageResponse.DeserializeToAS4Message();
             Assert.True(as4Message.IsUserMessage, "AS4 Message isn't a User Message");
-            Assert.Equal(Constants.Namespaces.EbmsDefaultMpc, as4Message.FirstUserMessage.Mpc);
+            Assert.Equal(Constants.Namespaces.EbmsDefaultMpc, as4Message.FirstUserMessage.Mpc.UnsafeGet);
         }
 
         [Fact]
@@ -111,7 +111,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             // Assert
             AS4Message as4Message = await userMessageResponse.DeserializeToAS4Message();
             Assert.True(as4Message.IsUserMessage, "AS4 Message isn't a User Message");
-            Assert.Equal(mpc, as4Message.FirstUserMessage.Mpc);
+            Assert.Equal(mpc, as4Message.FirstUserMessage.Mpc.UnsafeGet);
         }
 
         [Fact]
@@ -277,7 +277,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             AS4Message actual = await response.DeserializeToAS4Message();
             var userMessage = actual.PrimaryMessageUnit as UserMessage;
             Assert.NotNull(userMessage);
-            Assert.Equal(AllowedPullRequestMpc, userMessage.Mpc);
+            Assert.Equal(AllowedPullRequestMpc, userMessage.Mpc.UnsafeGet);
         }
 
         private static async Task AssertResponseIsPullRequestWarning(HttpResponseMessage response)

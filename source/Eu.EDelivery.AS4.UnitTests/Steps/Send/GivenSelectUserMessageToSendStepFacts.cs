@@ -53,7 +53,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
 
             UserMessage userMessage = as4Message.FirstUserMessage;
 
-            Assert.Equal(expectedMpc, userMessage.Mpc);
+            Assert.Equal(expectedMpc, userMessage.Mpc.UnsafeGet);
             AssertOutMessage(userMessage.MessageId, m => Assert.True(m.Operation == Operation.Sent));
             Assert.NotNull(result.MessagingContext.SendingPMode);
         }

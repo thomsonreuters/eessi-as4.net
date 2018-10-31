@@ -22,6 +22,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
             {
                 // Arrange
                 SubmitMessage message = CreatePopulatedSubmitMessage();
+                message.PMode = CreatePopulatedSendingPMode();
                 message.Payloads = null;
 
                 // Act
@@ -90,9 +91,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
 
         protected IEnumerable<PartInfo> ExerciseResolve(SubmitMessage message)
         {
-            var sut = SubmitPayloadInfoResolver.Default;
-
-            return sut.Resolve(message);
+            return SubmitPayloadInfoResolver.Resolve(message);
         }
     }
 }

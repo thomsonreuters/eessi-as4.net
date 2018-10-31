@@ -14,7 +14,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
         public class GivenValidArguments : GivenSubmitAgreementMapperFacts
         {
             [Fact]
-            public void ThenAgreementReferenceMapsCorrectllyByUsingPModeValues()
+            public void ThenAgreementReferenceMapsCorrectlyByUsingPModeValues()
             {
                 // Arrange
                 var submitMessage = new SubmitMessage {PMode = GetPopulatedSendPMode()};
@@ -31,7 +31,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
             }
 
             [Fact]
-            public void ThenAgreementReferenceMapsCorrectllyWhenPModeAllowsOverride()
+            public void ThenAgreementReferenceMapsCorrectlyWhenPModeAllowsOverride()
             {
                 // Arrange
                 SubmitMessage submitMessage = GetPopulatedSubmitMessage();

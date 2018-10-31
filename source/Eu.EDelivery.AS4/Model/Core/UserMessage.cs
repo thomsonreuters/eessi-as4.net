@@ -18,7 +18,7 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// <summary>
         /// Gets the message partition channel for this message.
         /// </summary>
-        public string Mpc { get; }
+        public Maybe<string> Mpc { get; }
 
         /// <summary>
         /// Gets the sender of the message.
@@ -91,7 +91,7 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// <param name="messageId">Ebms Message Identifier</param>
         public UserMessage(string messageId) : base(messageId)
         {
-            Mpc = Constants.Namespaces.EbmsDefaultMpc;
+            Mpc = Maybe<string>.Nothing;
 
             CollaborationInfo = new CollaborationInfo(
                 agreement: Maybe<AgreementReference>.Nothing,
@@ -115,7 +115,7 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// <param name="mpc"></param>
         public UserMessage(string messageId, string mpc) : this(messageId)
         {
-            Mpc = mpc;
+            Mpc = Maybe.Just(mpc);
         }
 
         /// <summary>
@@ -126,7 +126,7 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// <param name="mpc"></param>
         public UserMessage(string messageId, string refToMessageId, string mpc) : this(messageId, refToMessageId)
         {
-            Mpc = mpc;
+            Mpc = Maybe.Just(mpc);
         }
 
         /// <summary>
@@ -260,6 +260,30 @@ namespace Eu.EDelivery.AS4.Model.Core
             string refToMessageId,
             DateTimeOffset timestamp,
             string mpc,
+            CollaborationInfo collaboration,
+            Party sender,
+            Party receiver,
+            IEnumerable<PartInfo> partInfos,
+            IEnumerable<MessageProperty> messageProperties)
+            : this(messageId, refToMessageId, timestamp, Maybe.Just(mpc), collaboration, sender, receiver, partInfos, messageProperties) { }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="UserMessage"/> class.
+        /// </summary>
+        /// <param name="messageId">Ebms Message Identifier</param>
+        /// <param name="refToMessageId"></param>
+        /// <param name="timestamp"></param>
+        /// <param name="mpc"></param>
+        /// <param name="collaboration">Collaboration information</param>
+        /// <param name="sender">The sender party</param>
+        /// <param name="receiver">The receiver party</param>
+        /// <param name="partInfos">The partinfos for the included attachments</param>
+        /// <param name="messageProperties">The metadata properties for this message</param>
+        public UserMessage(
+            string messageId,
+            string refToMessageId,
+            DateTimeOffset timestamp,
+            Maybe<string> mpc,
             CollaborationInfo collaboration,
             Party sender,
             Party receiver,

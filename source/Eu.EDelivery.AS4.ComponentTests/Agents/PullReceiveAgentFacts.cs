@@ -151,7 +151,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             _databaseSpy.InsertInMessage(
                 new InMessage(user.MessageId)
                 {
-                    Mpc = user.Mpc,
+                    Mpc = user.Mpc.UnsafeGet,
                     EbmsMessageType = MessageType.UserMessage,
                     ContentType = Constants.ContentTypes.Soap
                 });
