@@ -65,42 +65,16 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
             }
         }
 
-        public class GivenInvalidArguments : GivenSubmitAgreementMapperFacts
+        [Fact]
+        public void ThenAgreementReferenceMapsIncorrectlyWhenPModeDoesNotAllowsOverrideType()
         {
-            [Fact]
-            public void ThenAgreementReferenceMapsIncorrectllyWhenPModeDoesNotAllowsOverride()
-            {
-                // Arrange
-                SubmitMessage submitMessage = GetPopulatedSubmitMessage();
-                submitMessage.PMode.AllowOverride = false;
+            // Arrange
+            SubmitMessage submitMessage = GetPopulatedSubmitMessage();
+            submitMessage.PMode.AllowOverride = false;
+            submitMessage.Collaboration.AgreementRef.Value = "submit-agreement";
 
-                // Act / Assert
-                Assert.ThrowsAny<Exception>(() => ResolveAgreementReference(submitMessage));
-            }
-
-            [Fact]
-            public void ThenAgreementReferenceMapsIncorrectllyWhenPModeDoesNotAllowsOverrideName()
-            {
-                // Arrange
-                SubmitMessage submitMessage = GetPopulatedSubmitMessage();
-                submitMessage.PMode.AllowOverride = false;
-                submitMessage.Collaboration.AgreementRef.RefType = null;
-
-                // Act / Assert
-                Assert.ThrowsAny<Exception>(() => ResolveAgreementReference(submitMessage));
-            }
-
-            [Fact]
-            public void ThenAgreementReferenceMapsIncorrectllyWhenPModeDoesNotAllowsOverrideType()
-            {
-                // Arrange
-                SubmitMessage submitMessage = GetPopulatedSubmitMessage();
-                submitMessage.PMode.AllowOverride = false;
-                submitMessage.Collaboration.AgreementRef.Value = null;
-
-                // Act / Assert
-                Assert.ThrowsAny<Exception>(() => ResolveAgreementReference(submitMessage));
-            }
+            // Act / Assert
+            Assert.ThrowsAny<Exception>(() => ResolveAgreementReference(submitMessage));
         }
 
         protected SubmitMessage GetPopulatedSubmitMessage()
