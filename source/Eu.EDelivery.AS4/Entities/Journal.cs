@@ -29,6 +29,21 @@ namespace Eu.EDelivery.AS4.Entities
         [MaxLength(100)]
         public string EbmsMessageId { get; set; }
 
+        [MaxLength(100)]
+        public string RefToEbmsMessageId { get; set; }
+
+        [MaxLength(255)]
+        public string FromParty { get; set; }
+
+        [MaxLength(255)]
+        public string ToParty { get; set; }
+
+        [MaxLength(255)]
+        public string Service { get; set; }
+
+        [MaxLength(255)]
+        public string Action { get; set; }
+
         [Required]
         public string LogEntry { get; set; }
 

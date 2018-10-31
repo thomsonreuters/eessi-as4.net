@@ -161,6 +161,10 @@
     <Compile Include="Migrations\20180914102136_AddOutMessageUrl.designer.cs">
       <DependentUpon>20180914102136_AddOutMessageUrl.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\20181031144021_UpdateJournalWithEbmsInfo.cs" />
+    <Compile Include="Migrations\20181031144021_UpdateJournalWithEbmsInfo.designer.cs">
+      <DependentUpon>20181031144021_UpdateJournalWithEbmsInfo.cs</DependentUpon>
+    </Compile>
     <Compile Include="Model\Core\NonRepudiationInformation.cs" />
     <Compile Include="Model\Core\Schema.cs" />
     <Compile Include="Model\PMode\AgreementReference.cs" />
