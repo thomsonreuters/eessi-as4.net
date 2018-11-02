@@ -1,9 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Receivers;
+using Eu.EDelivery.AS4.Services.Journal;
 using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Transformers;
 using NLog;
@@ -18,6 +22,7 @@ namespace Eu.EDelivery.AS4.Agents
         private readonly Transformer _transformerConfig;
         private readonly IAgentExceptionHandler _exceptionHandler;
         private readonly StepExecutioner _steps;
+        private readonly IJournalLogger _journalLogger = new JournalDatastoreLogger(Registry.Instance.CreateDatastoreContext);
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Agent"/> class.
@@ -164,8 +169,16 @@ namespace Eu.EDelivery.AS4.Agents
                 return context;
             }
 
-            return await _steps.ExecuteStepsAsync(context);
+            StepResult stepResult = await _steps.ExecuteStepsAsync(context);
+            IEnumerable<JournalLogEntry> journalWithAgentLocation =
+                stepResult.Journal.Select(j =>
+                {
+                    j.AddAgentLocation(AgentConfig);
+                    return j;
+                });
 
+            await _journalLogger.WriteLogEntriesAsync(journalWithAgentLocation);
+            return stepResult.MessagingContext;
         }
 
         /// <summary>
@@ -174,8 +187,7 @@ namespace Eu.EDelivery.AS4.Agents
         public void Stop()
         {
             Logger.Debug($"Stopping {AgentConfig.Name} ...");
-            _receiver?.StopReceiving();
-
+            _receiver.StopReceiving();
             Logger.Info($"{AgentConfig.Name} stopped.");
         }
     }

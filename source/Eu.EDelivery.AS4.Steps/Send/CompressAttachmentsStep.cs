@@ -1,9 +1,11 @@
 ﻿using System;
 using System.ComponentModel;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
+using Eu.EDelivery.AS4.Services.Journal;
 using NLog;
 
 namespace Eu.EDelivery.AS4.Steps.Send
@@ -43,10 +45,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
             if (messagingContext.SendingPMode.MessagePackaging?.UseAS4Compression == false)
             {
-                Logger.Debug(
-                    $"No compression will happen because the SendingPMode {messagingContext.SendingPMode.Id} " + 
-                    "MessagePackaging.UseAS4Compression is disabled");
-
+                Logger.Debug($"No compression will happen because the SendingPMode {messagingContext.SendingPMode.Id} MessagePackaging.UseAS4Compression is disabled");
                 return StepResult.Success(messagingContext);
             }
 
@@ -63,7 +62,14 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 throw new InvalidDataException(description, exception);
             }
 
-            return await StepResult.SuccessAsync(messagingContext);
+            JournalLogEntry journal = 
+                JournalLogEntry.CreateFrom(
+                    messagingContext.AS4Message,
+                    $"Compressed {messagingContext.AS4Message.Attachments.Count()} attachments with GZip compression");
+
+            return await StepResult
+                .Success(messagingContext)
+                .WithJournalAsync(journal);
         }
     }
 }

@@ -1,6 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Model.Internal;
+using Eu.EDelivery.AS4.Services.Journal;
+using NLog;
 
 namespace Eu.EDelivery.AS4.Steps
 {
@@ -9,8 +14,27 @@ namespace Eu.EDelivery.AS4.Steps
     /// </summary>
     public class StepResult
     {
+        private readonly ICollection<JournalLogEntry> _journal;
+
+        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+
         private StepResult(bool succeeded, bool canProceed, MessagingContext context)
         {
+            _journal = new Collection<JournalLogEntry>();
+
+            Succeeded = succeeded;
+            MessagingContext = context;
+            CanProceed = canProceed;
+        }
+
+        private StepResult(
+            bool succeeded,
+            bool canProceed,
+            MessagingContext context,
+            IEnumerable<JournalLogEntry> journal)
+        {
+            _journal = journal.ToList();
+
             Succeeded = succeeded;
             MessagingContext = context;
             CanProceed = canProceed;
@@ -33,6 +57,59 @@ namespace Eu.EDelivery.AS4.Steps
         ///   <c>true</c> if [was succesful]; otherwise, <c>false</c>.
         /// </value>
         public bool Succeeded { get; }
+
+        /// <summary>
+        /// Gets the complete journal that the message has gone through.
+        /// </summary>
+        internal IEnumerable<JournalLogEntry> Journal => _journal.AsEnumerable();
+
+        /// <summary>
+        /// Replace the entire journal of the message with a new complete list of new entries.
+        /// </summary>
+        /// <param name="entries">The list containing the complete journal for the message.</param>
+        internal StepResult WithJournal(IEnumerable<JournalLogEntry> entries)
+        {
+            if (entries == null)
+            {
+                throw new ArgumentNullException(nameof(entries));
+            }
+
+            if (entries.Any(e => e is null))
+            {
+                throw new ArgumentNullException(nameof(entries), @"One or more entries are 'null'");
+            }
+
+            return new StepResult(Succeeded, CanProceed, MessagingContext, entries);
+        }
+
+        /// <summary>
+        /// Promote the <see cref="StepResult"/> with a <see cref="JournalLogEntry"/>.
+        /// </summary>
+        /// <param name="entry">The entry containing information about the message.</param>
+        public StepResult WithJournal(JournalLogEntry entry)
+        {
+            if (entry == null)
+            {
+                throw new ArgumentNullException(nameof(entry));
+            }
+
+            Logger.Debug($"Append log to message journal: {String.Join(", ", entry.LogEntries)}");
+            return new StepResult(Succeeded, CanProceed, MessagingContext, _journal.Concat(new[] { entry }));
+        }
+
+        /// <summary>
+        /// Promote the <see cref="StepResult"/> with a <see cref="JournalLogEntry"/>.
+        /// </summary>
+        /// <param name="entry">The entry containing information about the message.</param>
+        public Task<StepResult> WithJournalAsync(JournalLogEntry entry)
+        {
+            if (entry == null)
+            {
+                throw new ArgumentNullException(nameof(entry));
+            }
+            
+            return Task.FromResult(WithJournal(entry));
+        }
 
         /// <summary>
         /// Promote the <see cref="StepResult"/> to stop the execution.

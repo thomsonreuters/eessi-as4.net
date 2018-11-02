@@ -10,6 +10,7 @@ using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
+using Eu.EDelivery.AS4.Services.Journal;
 using NLog;
 using Org.BouncyCastle.Crypto;
 
@@ -124,10 +125,18 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             try
             {
                 Logger.Trace("Start decrypting AS4Message ...");
-                messagingContext.AS4Message.Decrypt(GetCertificate(messagingContext));
+                X509Certificate2 decryptionCertificate = GetCertificate(messagingContext);
+                messagingContext.AS4Message.Decrypt(decryptionCertificate);
                 Logger.Info($"{messagingContext.LogTag} AS4Message is decrypted correctly");
 
-                return await StepResult.SuccessAsync(messagingContext);
+                JournalLogEntry entry = 
+                    JournalLogEntry.CreateFrom(
+                        messagingContext.AS4Message, 
+                        $"Decrypted using certificate {decryptionCertificate.FriendlyName}");
+
+                return await StepResult
+                    .Success(messagingContext)
+                    .WithJournalAsync(entry);
             }
             catch (Exception ex) when (ex is CryptoException || ex is CryptographicException)
             {
