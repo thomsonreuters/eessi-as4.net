@@ -283,7 +283,6 @@
     <Compile Include="Exceptions\ErrorCode.cs" />
     <Compile Include="Exceptions\ErrorAlias.cs" />
     <Compile Include="Extensions\DictionaryExtensions.cs" />
-    <Compile Include="Mappings\Deliver\DeliverMessageMap.cs" />
     <Compile Include="Mappings\Entities\MessageMap.cs" />
     <Compile Include="Mappings\Core\NonRepudiationInformationMap.cs" />
     <Compile Include="Mappings\Notify\ErrorToNotifyMap.cs" />
