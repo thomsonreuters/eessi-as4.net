@@ -394,8 +394,6 @@ namespace Eu.EDelivery.AS4.Common
             modelBuilder.Entity<Journal>().Property(j => j.Id).UsePropertyAccessMode(PropertyAccessMode.Field);
             modelBuilder.Entity<Journal>().Property(j => j.RefToOutMessageId).UsePropertyAccessMode(PropertyAccessMode.Field);
             modelBuilder.Entity<Journal>().Property(j => j.RefToInMessageId).UsePropertyAccessMode(PropertyAccessMode.Field);
-            modelBuilder.Entity<Journal>().Property(j => j.MessageStatus).UsePropertyAccessMode(PropertyAccessMode.Field);
-            modelBuilder.Entity<Journal>().Property(j => j.MessageOperation).UsePropertyAccessMode(PropertyAccessMode.Field);
             modelBuilder.Entity<Journal>().Property(j => j.AgentType).UsePropertyAccessMode(PropertyAccessMode.Field);
         }
 
