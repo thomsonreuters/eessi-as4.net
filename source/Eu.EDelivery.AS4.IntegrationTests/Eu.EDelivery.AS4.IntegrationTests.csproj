@@ -58,16 +58,9 @@
     <Compile Include="Fixture\ParentProcess.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Negative Send Scenarios\8.2.1 Submit message override not allowed FILE\SubmitMessageOverrideNotAllowedIntegrationTest.cs" />
-    <Compile Include="Negative Send Scenarios\8.2.2 Submit message nonexisting PMode FILE\SubmitMessageContainsNonExistingPModeIntegrationTest.cs" />
-    <Compile Include="Negative Send Scenarios\8.2.3 Submit message PMode Id of invalid PMode FILE\SubmitMessageInvalidPModeIntegrationTest.cs" />
-    <Compile Include="Negative Send Scenarios\8.2.4 Submit message invalid payload reference FILE\SubmitMessageReferenceNonExistingPayloadIntegrationTest.cs" />
-    <Compile Include="Negative Send Scenarios\8.2.5 Configure PMode nonexisting signing certificate\SubmitMessageReferenceNonExistingCertificateIntegrationTest.cs" />
-    <Compile Include="Negative Send Scenarios\8.2.6 Configure PMode nonexisting encryption certificate\SendMessageWithNonExistingEncryptionCertificateIntegrationTest.cs" />
-    <Compile Include="Negative Send Scenarios\8.2.7 Send message to nonexisting URL\SubmitMessageReferenceNonExistingUrlIntegrationTest.cs" />
     <Compile Include="Negative Receive Scenarios\ReceiveAS4MessageResultInErrors.cs" />
-    <Compile Include="Negative Send Scenarios\8.2.8 Send message to incorrectly configured R MSH\SendMessageToIncorrectlyConfiguredRMSHIntegrationTest.cs" />
-    <Compile Include="Negative Send Scenarios\8.2.9 Submit invalid serialized message result in Bad Request\SubmitInvalidSerializedMessageTest.cs" />
+    <Compile Include="Negative Send Scenarios\SendAS4MessageResultInErrors.cs" />
+    <Compile Include="Negative Send Scenarios\SendSubmitMessageResultInExceptions.cs" />
     <Compile Include="Positive Receive Scenarios\8.3.17 Receive Singe Payload Via Payload Service\ReceiveSinglePayloadViaPayloadService.cs" />
     <Compile Include="Positive Receive Scenarios\8.3.1 Receive Single Payload with FILE Deliver\ReceiveSinglePayloadIntegrationTest.cs" />
     <Compile Include="Positive Receive Scenarios\8.3.10 Receive Single Payload Return Sync Receipt\ReceiveSinglePayloadReturnSyncReceiptIntegrationTest.cs" />
