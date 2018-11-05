@@ -168,22 +168,10 @@ namespace Eu.EDelivery.AS4.Migrations
                     b.Property<string>("FromParty")
                         .HasMaxLength(255);
 
-                    b.Property<DateTimeOffset>("InsertionTime");
-
                     b.Property<DateTimeOffset>("LogDate");
 
                     b.Property<string>("LogEntry")
                         .IsRequired();
-
-                    b.Property<string>("MessageOperation")
-                        .IsRequired()
-                        .HasMaxLength(20);
-
-                    b.Property<string>("MessageStatus")
-                        .IsRequired()
-                        .HasMaxLength(20);
-
-                    b.Property<DateTimeOffset>("ModificationTime");
 
                     b.Property<string>("RefToEbmsMessageId")
                         .IsRequired()
