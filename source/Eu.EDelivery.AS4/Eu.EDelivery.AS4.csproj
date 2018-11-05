@@ -289,8 +289,6 @@
     <Compile Include="Extensions\DictionaryExtensions.cs" />
     <Compile Include="Mappings\Entities\MessageMap.cs" />
     <Compile Include="Mappings\Core\NonRepudiationInformationMap.cs" />
-    <Compile Include="Mappings\Notify\ErrorToNotifyMap.cs" />
-    <Compile Include="Mappings\Notify\ReceiptToNotifyMap.cs" />
     <Compile Include="Mappings\Common\AgreementReferenceMap.cs" />
     <Compile Include="Mappings\Common\CollaborationInfoMap.cs" />
     <Compile Include="Mappings\Common\MessagePropertyMap.cs" />
