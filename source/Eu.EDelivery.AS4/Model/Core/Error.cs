@@ -180,7 +180,7 @@ namespace Eu.EDelivery.AS4.Model.Core
         }
     }
 
-    public class ErrorLine
+    public class ErrorLine : IEquatable<ErrorLine>
     {
         public ErrorCode ErrorCode { get; }
 
@@ -322,9 +322,98 @@ namespace Eu.EDelivery.AS4.Model.Core
                 result.Alias,
                 result.Description);
         }
+
+        /// <summary>
+        /// Indicates whether the current object is equal to another object of the same type.
+        /// </summary>
+        /// <param name="other">An object to compare with this object.</param>
+        /// <returns>true if the current object is equal to the <paramref name="other" /> parameter; otherwise, false.</returns>
+        public bool Equals(ErrorLine other)
+        {
+            if (other is null)
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(this, other))
+            {
+                return true;
+            }
+
+            return ErrorCode == other.ErrorCode
+                   && Severity == other.Severity
+                   && Origin.Equals(other.Origin)
+                   && Category.Equals(other.Category)
+                   && RefToMessageInError.Equals(other.RefToMessageInError)
+                   && ShortDescription == other.ShortDescription
+                   && Description.Equals(other.Description)
+                   && Detail.Equals(other.Detail);
+        }
+
+        /// <summary>
+        /// Determines whether the specified object is equal to the current object.
+        /// </summary>
+        /// <param name="obj">The object to compare with the current object. </param>
+        /// <returns>true if the specified object  is equal to the current object; otherwise, false.</returns>
+        public override bool Equals(object obj)
+        {
+            if (obj is null)
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(this, obj))
+            {
+                return true;
+            }
+
+            return obj is ErrorLine l && Equals(l);
+        }
+
+        /// <summary>
+        /// Serves as the default hash function.
+        /// </summary>
+        /// <returns>A hash code for the current object.</returns>
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                var hashCode = (int) ErrorCode;
+                hashCode = (hashCode * 397) ^ (int) Severity;
+                hashCode = (hashCode * 397) ^ Origin.GetHashCode();
+                hashCode = (hashCode * 397) ^ Category.GetHashCode();
+                hashCode = (hashCode * 397) ^ RefToMessageInError.GetHashCode();
+                hashCode = (hashCode * 397) ^ (int) ShortDescription;
+                hashCode = (hashCode * 397) ^ Description.GetHashCode();
+                hashCode = (hashCode * 397) ^ Detail.GetHashCode();
+                return hashCode;
+            }
+        }
+
+        /// <summary>
+        /// Returns a value that indicates whether the values of two <see cref="T:Eu.EDelivery.AS4.Model.Core.ErrorLine" /> objects are equal.
+        /// </summary>
+        /// <param name="left">The first value to compare.</param>
+        /// <param name="right">The second value to compare.</param>
+        /// <returns>true if the <paramref name="left" /> and <paramref name="right" /> parameters have the same value; otherwise, false.</returns>
+        public static bool operator ==(ErrorLine left, ErrorLine right)
+        {
+            return Equals(left, right);
+        }
+
+        /// <summary>
+        /// Returns a value that indicates whether two <see cref="T:Eu.EDelivery.AS4.Model.Core.ErrorLine" /> objects have different values.
+        /// </summary>
+        /// <param name="left">The first value to compare.</param>
+        /// <param name="right">The second value to compare.</param>
+        /// <returns>true if <paramref name="left" /> and <paramref name="right" /> are not equal; otherwise, false.</returns>
+        public static bool operator !=(ErrorLine left, ErrorLine right)
+        {
+            return !Equals(left, right);
+        }
     }
 
-    public class ErrorDescription
+    public class ErrorDescription : IEquatable<ErrorDescription>
     {
         public string Language { get; }
 
@@ -349,6 +438,81 @@ namespace Eu.EDelivery.AS4.Model.Core
 
             Language = language;
             Value = value;
+        }
+
+        /// <summary>
+        /// Indicates whether the current object is equal to another object of the same type.
+        /// </summary>
+        /// <param name="other">An object to compare with this object.</param>
+        /// <returns>true if the current object is equal to the <paramref name="other" /> parameter; otherwise, false.</returns>
+        public bool Equals(ErrorDescription other)
+        {
+            if (other is null)
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(this, other))
+            {
+                return true;
+            }
+
+            return String.Equals(Language, other.Language)
+                   && String.Equals(Value, other.Value);
+        }
+
+        /// <summary>
+        /// Determines whether the specified object is equal to the current object.
+        /// </summary>
+        /// <param name="obj">The object to compare with the current object. </param>
+        /// <returns>true if the specified object  is equal to the current object; otherwise, false.</returns>
+        public override bool Equals(object obj)
+        {
+            if (obj is null)
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(this, obj))
+            {
+                return true;
+            }
+
+            return obj is ErrorDescription d && Equals(d);
+        }
+
+        /// <summary>
+        /// Serves as the default hash function.
+        /// </summary>
+        /// <returns>A hash code for the current object.</returns>
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                return (Language.GetHashCode() * 397) ^ Value.GetHashCode();
+            }
+        }
+
+        /// <summary>
+        /// Returns a value that indicates whether the values of two <see cref="T:Eu.EDelivery.AS4.Model.Core.ErrorDescription" /> objects are equal.
+        /// </summary>
+        /// <param name="left">The first value to compare.</param>
+        /// <param name="right">The second value to compare.</param>
+        /// <returns>true if the <paramref name="left" /> and <paramref name="right" /> parameters have the same value; otherwise, false.</returns>
+        public static bool operator ==(ErrorDescription left, ErrorDescription right)
+        {
+            return Equals(left, right);
+        }
+
+        /// <summary>
+        /// Returns a value that indicates whether two <see cref="T:Eu.EDelivery.AS4.Model.Core.ErrorDescription" /> objects have different values.
+        /// </summary>
+        /// <param name="left">The first value to compare.</param>
+        /// <param name="right">The second value to compare.</param>
+        /// <returns>true if <paramref name="left" /> and <paramref name="right" /> are not equal; otherwise, false.</returns>
+        public static bool operator !=(ErrorDescription left, ErrorDescription right)
+        {
+            return !Equals(left, right);
         }
     }
 

@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Xml;
+using Eu.EDelivery.AS4.Mappings.Core;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Singletons;
+using SignalMessage = Eu.EDelivery.AS4.Xml.SignalMessage;
 
 namespace AS4.ParserService.Models
 {
@@ -64,12 +67,12 @@ namespace AS4.ParserService.Models
             };
         }
 
-        public static DecodeResult CreateAccepted(EbmsMessageType messageType, string receivedEbmsMessageId, IEnumerable<ErrorLine> receivedErrorDetails)
+        public static DecodeResult CreateAccepted(EbmsMessageType messageType, string receivedEbmsMessageId, Error error)
         {
             string receivedErrorInformation = null;
-            if (receivedErrorDetails != null && receivedErrorDetails.Any())
+            if (error?.ErrorLines != null && error.ErrorLines.Any())
             {
-                receivedErrorInformation = CreateErrorInformationString(receivedErrorDetails);
+                receivedErrorInformation = CreateErrorInformationString(error);
             }
 
             return new DecodeResult
@@ -97,12 +100,12 @@ namespace AS4.ParserService.Models
             };
         }
 
-        public static DecodeResult CreateWithError(byte[] responseMessage, IEnumerable<ErrorLine> errorDetails, string receivedEbmsMessageId, string errorEbmsMessageId)
+        public static DecodeResult CreateWithError(byte[] responseMessage, Error error, string receivedEbmsMessageId, string errorEbmsMessageId)
         {
             return new DecodeResult()
             {
                 ResponseMessage = responseMessage,
-                ErrorInformation = CreateErrorInformationString(errorDetails),
+                ErrorInformation = CreateErrorInformationString(error),
                 ResponseEbmsMessageId = errorEbmsMessageId,
                 ReceivedMessageType = EbmsMessageType.UserMessage,
                 ResponseMessageType = EbmsMessageType.Error,
@@ -112,30 +115,20 @@ namespace AS4.ParserService.Models
             };
         }
 
-        private static string CreateErrorInformationString(IEnumerable<ErrorLine> receivedErrorDetails)
+        private static string CreateErrorInformationString(Error error)
         {
-            if (receivedErrorDetails == null || receivedErrorDetails.Any() == false)
+            if (error.ErrorLines == null || error.ErrorLines.Any() == false)
             {
                 return null;
             }
 
-            var errors = new List<Eu.EDelivery.AS4.Xml.Error>();
+            XmlDocument soapEnv = 
+                AS4XmlSerializer.ToSoapEnvelopeDocument(
+                    AS4Message.Create(error), 
+                    CancellationToken.None);
 
-            foreach (var errorDetail in receivedErrorDetails)
-            {
-                errors.Add(AS4Mapper.Map<Eu.EDelivery.AS4.Xml.Error>(errorDetail));
-            }
-
-            var serialized = AS4XmlSerializer.ToString(errors);
-
-            if (!String.IsNullOrWhiteSpace(serialized))
-            {
-                var errorDocument = new XmlDocument();
-                errorDocument.LoadXml(serialized);
-                return errorDocument.SelectSingleNode("ArrayOfError")?.InnerXml;
-            }
-
-            return null;
+            XmlNode signalNode = soapEnv.SelectSingleNode("//*[local-name()='SignalMessage']");
+            return signalNode?.OuterXml;
         }
     }
 }

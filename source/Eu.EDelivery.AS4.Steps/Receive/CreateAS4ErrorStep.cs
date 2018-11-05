@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Exceptions;
+using Eu.EDelivery.AS4.Mappings.Core;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
@@ -113,7 +114,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         {
             Error ToError(UserMessage u)
             {
-                var routedUserMessage = AS4Mapper.Map<RoutingInputUserMessage>(u);
+                var routedUserMessage = UserMessageMap.ConvertToRouting(u);
                 if (routedUserMessage == null)
                 {
                     return occurredError == null 
