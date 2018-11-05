@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Eu.EDelivery.AS4.Factories;
 using Eu.EDelivery.AS4.Model.Common;
@@ -46,7 +47,10 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
                 (submitPayload.PayloadProperties ?? new Model.Common.PayloadProperty[0])
                 .Select(prop => (prop.Name, prop.Value))
                 .Concat(CompressionProperties(submitPayload, submit))
-                .ToDictionary<(string propName, string propValue), string, string>(t => t.propName, t => t.propValue);
+                .ToDictionary<(string propName, string propValue), string, string>(
+                    t => t.propName, 
+                    t => t.propValue, 
+                    StringComparer.OrdinalIgnoreCase);
 
             return new PartInfo(href, properties, schemas);
         }

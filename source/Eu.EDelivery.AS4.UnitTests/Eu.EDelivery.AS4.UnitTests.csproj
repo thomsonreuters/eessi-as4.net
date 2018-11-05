@@ -269,7 +269,6 @@
     <Compile Include="Transformers\GivenSubmitMessageXmlTransformerFacts.cs" />
     <Compile Include="Factories\GivenIdentifierFactoryFacts.cs" />
     <Compile Include="Utilities\Computer.cs" />
-    <Compile Include="Validators\GivenDeliverMessageValidatorFacts.cs" />
     <Compile Include="Validators\GivenReceivingProcessingModeValidatorFacts.cs" />
     <Compile Include="Validators\GivenSendingProcessingModeValidatorFacts.cs" />
     <Compile Include="Validators\GivenSubmitMessageValidatorFacts.cs" />

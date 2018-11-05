@@ -113,7 +113,10 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         {
             return new PartInfo(
                 href: "cid:" + attachment.Id, 
-                properties: new Dictionary<string, string> { ["MimeType"] = attachment.ContentType }, 
+                properties: new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                {
+                    ["MimeType"] = attachment.ContentType
+                }, 
                 schemas: new Schema[0]);
         }
     }

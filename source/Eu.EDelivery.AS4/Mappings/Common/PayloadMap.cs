@@ -33,7 +33,7 @@ namespace Eu.EDelivery.AS4.Mappings.Common
             return new Model.Common.PayloadProperty()
             {
                 Name = pair.Key,
-                Value = pair.Value
+                Value = pair.Value  
             };
         }
     }
