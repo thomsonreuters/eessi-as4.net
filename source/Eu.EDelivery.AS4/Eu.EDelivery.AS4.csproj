@@ -135,6 +135,7 @@
     <Compile Include="Entities\RetryReliability.cs" />
     <Compile Include="Extensions\LoggerExtensions.cs" />
     <Compile Include="Mappings\Core\ReceiptMap.cs" />
+    <Compile Include="Mappings\Submit\SubmitMessageMap.cs" />
     <Compile Include="Mappings\Submit\SubmitSenderResolver.cs" />
     <Compile Include="Maybe.cs" />
     <Compile Include="Migrations\20180302141116_RemoveOutMessagesConstraint.cs" />
