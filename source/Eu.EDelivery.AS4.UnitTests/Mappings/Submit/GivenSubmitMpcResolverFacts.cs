@@ -23,7 +23,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
             };
 
             // Act
-            string actualMpc = SubmitMpcResolver.Resolve(message).UnsafeGet;
+            string actualMpc = SubmitMpcResolver.Resolve(message);
 
             // Assert
             Assert.Equal(expectedMpc, actualMpc);

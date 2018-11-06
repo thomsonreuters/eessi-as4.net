@@ -19,7 +19,7 @@ namespace Eu.EDelivery.AS4.Mappings.Deliver
                 {
                     deliverMessage.MessageInfo.MessageId = userMessage.MessageId;
                     deliverMessage.MessageInfo.RefToMessageId = userMessage.RefToMessageId;
-                    deliverMessage.MessageInfo.Mpc = userMessage.Mpc.GetOrElse(String.Empty);
+                    deliverMessage.MessageInfo.Mpc = userMessage.Mpc;
 
                     deliverMessage.PartyInfo.FromParty = AS4Mapper.Map<Model.Common.Party>(userMessage.Sender);
                     deliverMessage.PartyInfo.ToParty = AS4Mapper.Map<Model.Common.Party>(userMessage.Receiver);

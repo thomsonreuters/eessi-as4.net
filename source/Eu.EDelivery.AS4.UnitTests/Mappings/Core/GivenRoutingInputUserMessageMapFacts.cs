@@ -62,7 +62,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Core
             var userMessage = AS4Mapper.Map<AS4.Model.Core.UserMessage>(routingInput);
 
             Assert.NotNull(userMessage);
-            Assert.Equal(routingInput.mpc, userMessage.Mpc.UnsafeGet);
+            Assert.Equal(routingInput.mpc, userMessage.Mpc);
         }
 
         [Fact]
@@ -74,7 +74,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Core
             var userMessage = AS4Mapper.Map<AS4.Model.Core.UserMessage>(routingInput);
 
             Assert.NotNull(userMessage);
-            Assert.Equal(Constants.Namespaces.EbmsDefaultMpc, userMessage.Mpc.UnsafeGet);
+            Assert.Equal(Constants.Namespaces.EbmsDefaultMpc, userMessage.Mpc);
         }
 
         private static RoutingInputUserMessage CreateDefaultRoutingInputMessage()

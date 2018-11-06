@@ -280,7 +280,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                         },
                         ConversationId = coll.ConversationId
                     },
-                    mpc = message.FirstUserMessage.Mpc.UnsafeGet,
+                    mpc = message.FirstUserMessage.Mpc,
                     MessageInfo = new Xml.MessageInfo
                     {
                         MessageId = message.FirstUserMessage.MessageId

@@ -16,7 +16,7 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
         /// </summary>
         /// <param name="submitMessage"></param>
         /// <returns></returns>
-        public static Maybe<string> Resolve(SubmitMessage submitMessage)
+        public static string Resolve(SubmitMessage submitMessage)
         {
             if (submitMessage == null)
             {
@@ -44,15 +44,15 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
 
             if (!String.IsNullOrEmpty(submitMpc))
             {
-                return Maybe.Just(submitMpc);
+                return submitMpc;
             }
 
             if (!String.IsNullOrEmpty(pmodeMpc))
             {
-                return Maybe.Just(pmodeMpc);
+                return pmodeMpc;
             }
 
-            return Maybe<string>.Nothing;
+            return Constants.Namespaces.EbmsDefaultMpc;
         }
     }
 }

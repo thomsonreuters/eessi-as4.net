@@ -165,7 +165,7 @@ namespace Eu.EDelivery.AS4.Entities
                 Service = userMessage.CollaborationInfo.Service.Value;
                 ConversationId = userMessage.CollaborationInfo.ConversationId;
 
-                userMessage.Mpc.Do(mpc => Mpc = mpc);
+                Mpc = userMessage.Mpc;
 
                 IsTest = userMessage.IsTest;
                 IsDuplicate = userMessage.IsDuplicate;

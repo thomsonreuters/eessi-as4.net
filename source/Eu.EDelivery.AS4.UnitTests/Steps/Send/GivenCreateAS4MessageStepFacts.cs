@@ -95,7 +95,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
                 MessageInfo submitMessageInfo = submitMessage.MessageInfo;
                 UserMessage userMessage = result.MessagingContext.AS4Message.FirstUserMessage;
                 Assert.Equal(submitMessageInfo.MessageId, userMessage.MessageId);
-                Assert.Equal(submitMessageInfo.Mpc, userMessage.Mpc.UnsafeGet);
+                Assert.Equal(submitMessageInfo.Mpc, userMessage.Mpc);
                 Assert.Equal(submitMessageInfo.RefToMessageId, userMessage.RefToMessageId);
             }
 
@@ -110,7 +110,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
 
                 StepResult result = await ExerciseCreateAS4Message(context);
 
-                Assert.Equal(result.MessagingContext.AS4Message.FirstUserMessage.Mpc.UnsafeGet, submitMessage.MessageInfo.Mpc);
+                Assert.Equal(result.MessagingContext.AS4Message.FirstUserMessage.Mpc, submitMessage.MessageInfo.Mpc);
             }
 
             private static SubmitMessage CreateSubmitMessageWithMpc(string mpc)
@@ -135,7 +135,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
 
                 StepResult result = await ExerciseCreateAS4Message(context);
 
-                Assert.Equal("some-mpc", result.MessagingContext.AS4Message.FirstUserMessage.Mpc.UnsafeGet);
+                Assert.Equal("some-mpc", result.MessagingContext.AS4Message.FirstUserMessage.Mpc);
             }
 
             [Fact]

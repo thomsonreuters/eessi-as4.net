@@ -105,7 +105,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
 
                     var userMessageNode = xmlDocument.SelectSingleNode("//*[local-name()='UserMessage']");
                     Assert.NotNull(userMessageNode);
-                    Assert.Equal(userMessage.Mpc.UnsafeGet, userMessageNode.Attributes["mpc"].InnerText);
+                    Assert.Equal(userMessage.Mpc, userMessageNode.Attributes["mpc"].InnerText);
                 }
             }
 

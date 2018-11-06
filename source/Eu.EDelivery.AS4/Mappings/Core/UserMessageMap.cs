@@ -26,7 +26,7 @@ namespace Eu.EDelivery.AS4.Mappings.Core
                 .AfterMap(
                     (modelUserMessage, xmlUserMessage) =>
                     {
-                        modelUserMessage.Mpc.Do(x => xmlUserMessage.mpc = x);
+                        xmlUserMessage.mpc = modelUserMessage.Mpc;
 
                         if (!modelUserMessage.MessageProperties.Any())
                         {
@@ -71,7 +71,7 @@ namespace Eu.EDelivery.AS4.Mappings.Core
                         messageId: xml.MessageInfo?.MessageId,
                         refToMessageId: xml.MessageInfo?.RefToMessageId,
                         timestamp: xml.MessageInfo?.Timestamp ?? DateTimeOffset.Now,
-                        mpc: (xml.mpc != null).ThenMaybe(xml.mpc),
+                        mpc: xml.mpc,
                         collaboration: Map<Model.Core.CollaborationInfo>(xml.CollaborationInfo),
                         sender: Map<Model.Core.Party>(xml.PartyInfo?.From),
                         receiver: Map<Model.Core.Party>(xml.PartyInfo?.To),
@@ -92,7 +92,7 @@ namespace Eu.EDelivery.AS4.Mappings.Core
                 .AfterMap(
                     (modelUserMessage, xmlUserMessage) =>
                     {
-                        modelUserMessage.Mpc.Do(x => xmlUserMessage.mpc = x);
+                        xmlUserMessage.mpc = modelUserMessage.Mpc;
 
                         if (!modelUserMessage.MessageProperties.Any())
                         {
