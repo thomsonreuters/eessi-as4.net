@@ -3,7 +3,10 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Net.Sockets;
+using System.Threading.Tasks;
+using System.Xml;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.PMode;
@@ -119,7 +122,43 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
             {
                 Console.WriteLine($@"Application Started with Process Id: {_as4ComponentProcess.Id}");
             }
+
+            var doc = new XmlDocument();
+            doc.Load(Path.GetFullPath(".\\config\\settings.xml"));
+            XmlNode urlNode = doc.SelectSingleNode("//*[local-name()='Setting'][@key='Url']/text()");
+            if (urlNode != null)
+            {
+                WaitToMakeSureAS4ComponentIsStartedAsync(urlNode.InnerText).Wait();
+            }
         }
+        private static async Task WaitToMakeSureAS4ComponentIsStartedAsync(string url)
+        {
+            await PollingService.PollUntilPresentAsync(
+                async () =>
+                {
+                    HttpWebRequest req = WebRequest.CreateHttp(url);
+                    req.Method = HttpMethod.Get.Method;
+                    req.Accept = "text/html";
+
+                    try
+                    {
+                        using (var response = (HttpWebResponse) await req.GetResponseAsync())
+                        {
+                            return response.StatusCode;
+                        }
+                    }
+                    catch (WebException ex)
+                    {
+                        using (var response = (HttpWebResponse)ex.Response)
+                        {
+                            return response.StatusCode;
+                        }
+                    }
+                },
+                status => status == HttpStatusCode.OK,
+                TimeSpan.FromSeconds(30));
+        }
+
 
         private bool _settingsOverriden = false;
 
