@@ -30,26 +30,16 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// <summary>
         /// Initializes a new instance of the <see cref="Schema"/> class.
         /// </summary>
-        public Schema(string location, Maybe<string> version, Maybe<string> @namespace)
+        internal Schema(string location, Maybe<string> version, Maybe<string> @namespace)
         {
             if (location == null)
             {
                 throw new ArgumentNullException(nameof(location));
             }
 
-            if (version == null)
-            {
-                throw new ArgumentNullException(nameof(version));
-            }
-
-            if (@namespace == null)
-            {
-                throw new ArgumentNullException(nameof(@namespace));
-            }
-
             Location = location;
-            Version = version;
-            Namespace = @namespace;
+            Version = version ?? Maybe<string>.Nothing;
+            Namespace = @namespace ?? Maybe<string>.Nothing;
         }
 
         /// <summary>
@@ -65,19 +55,9 @@ namespace Eu.EDelivery.AS4.Model.Core
                 throw new ArgumentNullException(nameof(location));
             }
 
-            if (version == null)
-            {
-                throw new ArgumentNullException(nameof(version));
-            }
-
-            if (@namespace == null)
-            {
-                throw new ArgumentNullException(nameof(@namespace));
-            }
-
             Location = location;
-            Version = Maybe.Just(version);
-            Namespace = Maybe.Just(@namespace);
+            Version = version.AsMaybe();
+            Namespace = @namespace.AsMaybe();
         }
 
         /// <summary>
