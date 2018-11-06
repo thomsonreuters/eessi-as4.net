@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.IntegrationTests.Common;
+using Eu.EDelivery.AS4.Model.Common;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.IntegrationTests.Negative_Send_Scenarios
@@ -17,7 +18,10 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Negative_Send_Scenarios
         public async Task Test_8_2_1_SubmitMessage_That_Tries_To_Override_SendingPMode_Values_Result_In_Submit_Exceptions_On_Disk()
         {
             // Act
-            AS4Component.PutSubmitMessage("8.2.1-pmode", AS4Component.SubmitPayloadImage);
+            AS4Component.PutSubmitMessage(
+                "8.2.1-pmode", 
+                submit => submit.MessageInfo = new MessageInfo { Mpc = "Some other than pmode mpc" }, 
+                AS4Component.SubmitPayloadImage);
 
             // Assert
             await PollingService.PollUntilPresentAsync(
@@ -50,7 +54,10 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Negative_Send_Scenarios
         public async Task Test_8_2_4_SubmitMessage_With_Invalid_File_Payload_Reference_Result_In_Submit_Exceptions_On_Disk()
         {
             // Act            
-            AS4Component.PutSubmitMessage("8.2.4-pmode", AS4Component.SubmitPayloadImage);
+            AS4Component.PutSubmitMessage(
+                "8.2.4-pmode", 
+                submit => submit.Payloads.First().Location = @"file:///C:\NotexistingFolder\earth(2).jpg",
+                AS4Component.SubmitPayloadImage);
 
             // Assert
             await AssertOnSubmitExceptionsAsync();
