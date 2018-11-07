@@ -22,6 +22,123 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
         }
 
         [Property]
+        public Property ResponseConfiguration_Should_Be_Specified_When_ReplyPattern_Is_Callback(ReplyPattern pattern)
+        {
+            return Prop.ForAll(
+                Arb.Generate<string>()
+                   .Select(url => new Protocol { Url = url })
+                   .OrNull()
+                   .Select(p => new PushConfiguration { Protocol = p })
+                   .OrNull()
+                   .ToArbitrary(),
+                responseConfig =>
+                {
+                    // Arrange
+                    var pmode = new ReceivingProcessingMode
+                    {
+                        Id = "receiving-pmode",
+                        ReplyHandling =
+                        {
+                            ReplyPattern = ReplyPattern.Callback,
+                            ResponseConfiguration = responseConfig
+                        }
+                    };
+
+                    // Act
+                    ValidationResult result = ExerciseValidation(pmode);
+
+                    // Assert
+                    return result.IsValid.Equals(
+                            !String.IsNullOrEmpty(responseConfig?.Protocol?.Url)
+                            && pattern == ReplyPattern.Callback)
+                        .Label("valid when ReplyPattern = Callback and non-empty 'Url'")
+                        .Or(result.IsValid.Equals(pattern != ReplyPattern.Callback)
+                                  .Label("valid when ReplyPattern != Callback"));
+                });
+        }
+
+        [CustomProperty]
+        public Property ResponseSigning_Is_Configurable_Via_PrivateCertificate_Or_CertificateCriteria(
+            NonWhiteSpaceString certificateFindValue,
+            NonWhiteSpaceString certificate,
+            NonWhiteSpaceString password)
+        {
+            return Prop.ForAll(
+                Gen.Elements(Constants.HashFunctions.SupportedAlgorithms.ToArray()).ToArbitrary(),
+                Gen.Elements(Constants.SignAlgorithms.SupportedAlgorithms.ToArray()).ToArbitrary(),
+                Gen.OneOf(
+                    Gen.Fresh<object>(() => new CertificateFindCriteria
+                    {
+                        CertificateFindValue = certificateFindValue.Get
+                    }),
+                    Gen.Fresh<object>(() => new PrivateKeyCertificate
+                    {
+                        Certificate = certificate.Get,
+                        Password = password.Get
+                    }),
+                    Arb.Generate<object>())
+                   .ToArbitrary(),
+                (hashFunction, signingAlgorithm, certificateInformation) =>
+                {
+                    // Arrange
+                    var pmode = new ReceivingProcessingMode
+                    {
+                        Id = "receiving-pmode",
+                        ReplyHandling =
+                        {
+                            ResponseSigning =
+                            {
+                                IsEnabled = true,
+                                HashFunction = hashFunction,
+                                Algorithm = signingAlgorithm,
+                                SigningCertificateInformation = certificateInformation
+                            }
+                        }
+                    };
+
+                    // Act
+                    ValidationResult result = ExerciseValidation(pmode);
+
+                    // Assert
+                    return result.IsValid.Equals(certificateInformation is CertificateFindCriteria)
+                        .Label("configurable via CertificateFindCriteria")
+                        .Or(result.IsValid.Equals(certificateInformation is PrivateKeyCertificate)
+                                  .Label("configurable via PrivateKeyCertificate"));
+                });
+        }
+
+        [Property]
+        public Property PiggyBackReliability_Is_Only_Allowed_When_ReplyPattern_Is_PiggyBack(ReplyPattern pattern)
+        {
+            return Prop.ForAll(
+                Gen.Fresh(() => new RetryReliability { IsEnabled = false })
+                   .OrNull()
+                   .ToArbitrary(),
+                reliability =>
+                {
+                    // Arrange
+                    var pmode = new ReceivingProcessingMode
+                    {
+                        Id = "receiving-pmode",
+                        ReplyHandling =
+                        {
+                            ReplyPattern = pattern,
+                            PiggyBackReliability = reliability,
+                        }
+                    };
+
+                    // Act
+                    ValidationResult result = ExerciseValidation(pmode);
+
+                    // Assert
+                    return result.IsValid.Equals(pattern == ReplyPattern.PiggyBack)
+                        .Label("valid when ReplyPattern = PiggyBack")
+                        .Or(result.IsValid.Equals(pattern != ReplyPattern.PiggyBack && reliability == null)
+                                  .Label("valid when ReplyPattern != PiggyBack and no PiggyBackReliability"));
+                });
+        }
+
+        [Property]
         public Property Decryption_Certificate_Should_Be_Specified_When_Decryption_Is_Allowed_Or_Required(
             Limit encryption,
             string findValue,
