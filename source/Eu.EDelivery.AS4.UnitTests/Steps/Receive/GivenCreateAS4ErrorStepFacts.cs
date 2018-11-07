@@ -20,7 +20,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
     public class GivenCreateAS4ErrorStepFacts : GivenDatastoreFacts
     {
         [Property]
-        public Property Creates_Error_For_Each_Bundled_UserMessage()
+        public Property Creates_Error_For_Each_Bundled_UserMessage(bool isMultiHop)
         {
             return Prop.ForAll(
                 Gen.Fresh(() => new UserMessage($"user-{Guid.NewGuid()}"))
@@ -29,7 +29,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 userMessages =>
                 {
                     // Arrange
-                    AS4Message fixture = AS4Message.Create(userMessages);
+                    AS4Message fixture = AS4Message.Create(
+                        userMessages, 
+                        new SendingProcessingMode { MessagePackaging = { IsMultiHop = isMultiHop } });
                     IEnumerable<string> fixtureMessageIds = fixture.MessageIds;
 
                     // Act
@@ -48,7 +50,16 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                             Assert.IsType<Error>(messageUnit);
                             var error = (Error) messageUnit;
                             Assert.Contains(error.RefToMessageId, fixtureMessageIds);
-                            Assert.Equal(error.RefToMessageId, error.MultiHopRouting.UnsafeGet.MessageInfo?.MessageId);
+
+                            Maybe<string> expectedId =
+                                Maybe.Just(error.RefToMessageId)
+                                     .Where(_ => isMultiHop);
+
+                            Maybe<string> actualId = 
+                                error.MultiHopRouting
+                                     .Select(r => r.MessageInfo?.MessageId);
+
+                            Assert.Equal(expectedId, actualId);
                         });
                 });
         }
