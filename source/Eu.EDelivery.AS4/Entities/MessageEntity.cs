@@ -9,11 +9,7 @@ using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Singletons;
-using Eu.EDelivery.AS4.Xml;
 using NLog;
-using Exception = System.Exception;
-using SignalMessage = Eu.EDelivery.AS4.Model.Core.SignalMessage;
-using UserMessage = Eu.EDelivery.AS4.Model.Core.UserMessage;
 
 namespace Eu.EDelivery.AS4.Entities
 {
@@ -164,9 +160,7 @@ namespace Eu.EDelivery.AS4.Entities
                 Action = userMessage.CollaborationInfo.Action;
                 Service = userMessage.CollaborationInfo.Service.Value;
                 ConversationId = userMessage.CollaborationInfo.ConversationId;
-
                 Mpc = userMessage.Mpc;
-
                 IsTest = userMessage.IsTest;
                 IsDuplicate = userMessage.IsDuplicate;
                 SoapEnvelope = AS4XmlSerializer.ToString(AS4Mapper.Map<Xml.UserMessage>(userMessage));
@@ -176,7 +170,7 @@ namespace Eu.EDelivery.AS4.Entities
                 if (messageUnit is SignalMessage signalMessage)
                 {
                     IsDuplicate = signalMessage.IsDuplicate;
-                    signalMessage.MultiHopRouting.Do(r => Mpc = r.mpc);
+                    Mpc = signalMessage.MultiHopRouting.Select(r => r.mpc).GetOrElse(Constants.Namespaces.EbmsDefaultMpc);
                 }
             }
         }
