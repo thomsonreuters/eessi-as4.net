@@ -1,12 +1,36 @@
 <?xml version="1.0"?>
-<PMode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="eu:edelivery:as4:pmode">
+<PMode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+  xmlns="eu:edelivery:as4:pmode">
   <Id>eessi-receiver-pull-receive-pmode</Id>
   <ReplyHandling>
     <ReplyPattern>Callback</ReplyPattern>
-    <SendingPMode>eessi-pull-response-send-pmode</SendingPMode>
     <ReceiptHandling>
       <UseNRRFormat>true</UseNRRFormat>
     </ReceiptHandling>
+    <ResponseConfiguration>
+      <Protocol>
+        <Url>[Add the URL of the AP Outbox Service here]</Url>
+      </Protocol>
+      <TlsConfiguration>
+        <IsEnabled>true</IsEnabled>
+        <TlsVersion>Tls12</TlsVersion>
+        <ClientCertificateReference>
+          <ClientCertificateFindType>FindBySerialNumber</ClientCertificateFindType>
+          <ClientCertificateFindValue>[Add the serial number of your Institution's TLS client certificate here]</ClientCertificateFindValue>
+        </ClientCertificateReference>
+      </TlsConfiguration>
+    </ResponseConfiguration>
+    <ResponseSigning>
+      <IsEnabled>true</IsEnabled>
+      <CertificateFindCriteria>
+        <CertificateFindType>FindBySerialNumber</CertificateFindType>
+        <CertificateFindValue>[Add the serial number of your Institution's ebMS signing certificate here]</CertificateFindValue>
+      </CertificateFindCriteria>
+      <KeyReferenceMethod>BSTReference</KeyReferenceMethod>
+      <Algorithm>http://www.w3.org/2001/04/xmldsig-more#rsa-sha256</Algorithm>
+      <HashFunction>http://www.w3.org/2001/04/xmlenc#sha256</HashFunction>
+    </ResponseSigning>
   </ReplyHandling>
   <Security>
     <SigningVerification>
