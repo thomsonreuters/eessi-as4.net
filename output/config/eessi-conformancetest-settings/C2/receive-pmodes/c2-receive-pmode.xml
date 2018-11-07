@@ -5,34 +5,11 @@
   <Id>c2-receive-pmode</Id>
   <ReplyHandling>
     <ReplyPattern>Callback</ReplyPattern>
-    <IsMultiHop>true</IsMultiHop>
+    <SendingPMode>c2-push-pmode</SendingPMode>
     <ReceiptHandling>
       <UseNRRFormat>true</UseNRRFormat>
     </ReceiptHandling>
     <ErrorHandling />
-    <ResponseConfiguration>
-      <Protocol>
-        <Url>https://eessidev09.eessi.be/EESSI/BusinessMessaging/v0.0/Outbox/Service.svc</Url>
-      </Protocol>
-      <TlsConfiguration>
-        <IsEnabled>true</IsEnabled>
-        <TlsVersion>Tls12</TlsVersion>
-        <ClientCertificateReference>
-          <ClientCertificateFindType>FindBySerialNumber</ClientCertificateFindType>
-          <ClientCertificateFindValue>1a00000173b2da572a2755f2e3000000000173</ClientCertificateFindValue>
-        </ClientCertificateReference>
-      </TlsConfiguration>
-    </ResponseConfiguration>
-    <ResponseSigning>
-      <IsEnabled>true</IsEnabled>
-      <CertificateFindCriteria>
-        <CertificateFindType>FindBySerialNumber</CertificateFindType>
-        <CertificateFindValue>1a00000174eb3567453664bc9f000000000174</CertificateFindValue>
-      </CertificateFindCriteria>
-      <KeyReferenceMethod>BSTReference</KeyReferenceMethod>
-      <Algorithm>http://www.w3.org/2001/04/xmldsig-more#rsa-sha256</Algorithm>
-      <HashFunction>http://www.w3.org/2001/04/xmlenc#sha256</HashFunction>
-    </ResponseSigning>
   </ReplyHandling>
   <Security>
     <SigningVerification>
