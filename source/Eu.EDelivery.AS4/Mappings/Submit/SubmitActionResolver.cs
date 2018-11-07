@@ -10,7 +10,7 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
     /// 2. PMode / Message Packaging / CollaborationInfo / Action
     /// 3. Default Test Action Namespace
     /// </summary>
-    public static class SubmitActionResolver
+    internal static class SubmitActionResolver
     {
         /// <summary>
         /// Resolve the Action
@@ -19,28 +19,35 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
         /// <returns></returns>
         public static string ResolveAction(SubmitMessage submitMessage)
         {
-            if (submitMessage.PMode.AllowOverride == false && DoesSubmitMessageTriesToOverridePModeValues(submitMessage))
+            if (submitMessage == null)
             {
-                throw new InvalidOperationException(
-                    $"Submit Message is not allowed by PMode {submitMessage.PMode.Id} to override Action");
+                throw new ArgumentNullException(nameof(submitMessage));
             }
 
-            if (!string.IsNullOrEmpty(submitMessage.Collaboration.Action))
+            if (submitMessage.PMode == null)
+            {
+                throw new ArgumentNullException(nameof(submitMessage.PMode));
+            }
+
+            SendingProcessingMode sendingPMode = submitMessage.PMode;
+            string submitAction = submitMessage.Collaboration?.Action;
+            string pmodeAction = submitMessage.PMode.MessagePackaging?.CollaborationInfo?.Action;
+
+            if (sendingPMode.AllowOverride == false
+                && !String.IsNullOrEmpty(submitAction)
+                && !String.IsNullOrEmpty(pmodeAction)
+                && !StringComparer.OrdinalIgnoreCase.Equals(submitAction, pmodeAction))
+            {
+                throw new InvalidOperationException(
+                    $"SubmitMessage is not allowed by SendingPMode {sendingPMode.Id} to override Action");
+            }
+
+            if (!String.IsNullOrEmpty(submitAction))
             {
                 return submitMessage.Collaboration.Action;
             }
 
-            SendingProcessingMode pmode = submitMessage.PMode;
-            return PModeActionResolver.ResolveAction(pmode);
-        }
-
-        private static bool DoesSubmitMessageTriesToOverridePModeValues(SubmitMessage submitMessage)
-        {
-            return !string.IsNullOrEmpty(submitMessage.Collaboration.Action)
-                   && !string.IsNullOrEmpty(submitMessage.PMode.MessagePackaging?.CollaborationInfo?.Action)
-                   && !StringComparer.OrdinalIgnoreCase.Equals(
-                       submitMessage.Collaboration.Action,
-                       submitMessage.PMode.MessagePackaging?.CollaborationInfo?.Action);
+            return PModeActionResolver.ResolveAction(sendingPMode);
         }
     }
 }

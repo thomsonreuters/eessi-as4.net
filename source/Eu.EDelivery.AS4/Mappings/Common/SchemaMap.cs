@@ -10,7 +10,11 @@ namespace Eu.EDelivery.AS4.Mappings.Common
         public SchemaMap()
         {
             CreateMap<Model.Common.Schema, Model.Core.Schema>()
-                .ConstructUsing(submit => new Model.Core.Schema(submit.Location, submit.Version, submit.Namespace))
+                .ConstructUsing(submit => 
+                    new Model.Core.Schema(
+                        submit.Location, 
+                        (submit.Version != null).ThenMaybe(submit.Version), 
+                        (submit.Namespace != null).ThenMaybe(submit.Namespace)))
                 .ForAllOtherMembers(x => x.Ignore());
         }
     }

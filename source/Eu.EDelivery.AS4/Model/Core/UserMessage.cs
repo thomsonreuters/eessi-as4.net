@@ -91,6 +91,11 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// <param name="messageId">Ebms Message Identifier</param>
         public UserMessage(string messageId) : base(messageId)
         {
+            if (messageId == null)
+            {
+                throw new ArgumentNullException(nameof(messageId));
+            }
+
             Mpc = Constants.Namespaces.EbmsDefaultMpc;
 
             CollaborationInfo = new CollaborationInfo(
@@ -115,7 +120,7 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// <param name="mpc"></param>
         public UserMessage(string messageId, string mpc) : this(messageId)
         {
-            Mpc = mpc;
+            Mpc = mpc ?? Constants.Namespaces.EbmsDefaultMpc;
         }
 
         /// <summary>
@@ -126,7 +131,7 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// <param name="mpc"></param>
         public UserMessage(string messageId, string refToMessageId, string mpc) : this(messageId, refToMessageId)
         {
-            Mpc = mpc;
+            Mpc = mpc ?? Constants.Namespaces.EbmsDefaultMpc;
         }
 
         /// <summary>
@@ -266,11 +271,6 @@ namespace Eu.EDelivery.AS4.Model.Core
             IEnumerable<PartInfo> partInfos,
             IEnumerable<MessageProperty> messageProperties) : base(messageId, refToMessageId, timestamp)
         {
-            if (mpc == null)
-            {
-                throw new ArgumentNullException(nameof(mpc));
-            }
-
             if (collaboration == null)
             {
                 throw new ArgumentNullException(nameof(collaboration));
@@ -296,7 +296,7 @@ namespace Eu.EDelivery.AS4.Model.Core
                 throw new ArgumentNullException(nameof(messageProperties));
             }
 
-            Mpc = mpc;
+            Mpc = mpc ?? Constants.Namespaces.EbmsDefaultMpc;
             CollaborationInfo = collaboration;
             Sender = sender;
             Receiver = receiver;
