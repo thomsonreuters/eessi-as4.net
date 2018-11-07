@@ -162,6 +162,10 @@
     <Compile Include="Migrations\20180914102136_AddOutMessageUrl.designer.cs">
       <DependentUpon>20180914102136_AddOutMessageUrl.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\20181031144021_UpdateJournalWithEbmsInfo.cs" />
+    <Compile Include="Migrations\20181031144021_UpdateJournalWithEbmsInfo.designer.cs">
+      <DependentUpon>20181031144021_UpdateJournalWithEbmsInfo.cs</DependentUpon>
+    </Compile>
     <Compile Include="Model\Core\NonRepudiationInformation.cs" />
     <Compile Include="Model\Core\Schema.cs" />
     <Compile Include="Model\PMode\AgreementReference.cs" />
@@ -282,11 +286,8 @@
     <Compile Include="Exceptions\ErrorCode.cs" />
     <Compile Include="Exceptions\ErrorAlias.cs" />
     <Compile Include="Extensions\DictionaryExtensions.cs" />
-    <Compile Include="Mappings\Deliver\DeliverMessageMap.cs" />
     <Compile Include="Mappings\Entities\MessageMap.cs" />
     <Compile Include="Mappings\Core\NonRepudiationInformationMap.cs" />
-    <Compile Include="Mappings\Notify\ErrorToNotifyMap.cs" />
-    <Compile Include="Mappings\Notify\ReceiptToNotifyMap.cs" />
     <Compile Include="Mappings\Common\AgreementReferenceMap.cs" />
     <Compile Include="Mappings\Common\CollaborationInfoMap.cs" />
     <Compile Include="Mappings\Common\MessagePropertyMap.cs" />
@@ -429,7 +430,6 @@
     <Compile Include="Utilities\FilenameUtils.cs" />
     <Compile Include="Streaming\VirtualStream.cs" />
     <Compile Include="Utilities\FileUtils.cs" />
-    <Compile Include="Validators\DeliverMessageValidator.cs" />
     <Compile Include="Validators\ParameterValidator.cs" />
     <Compile Include="Validators\ReceivingProcessingModeValidator.cs" />
     <Compile Include="Validators\SendingProcessingModeValidator.cs" />

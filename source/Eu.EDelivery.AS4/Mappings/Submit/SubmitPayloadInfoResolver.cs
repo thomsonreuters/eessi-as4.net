@@ -68,10 +68,7 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
                             "SubmitMessage contains Payload with a Schema that hasn't got a Location");
                     }
 
-                    return new Model.Core.Schema(
-                        sch.Location, 
-                        (sch.Version != null).ThenMaybe(sch.Version), 
-                        (sch.Namespace != null).ThenMaybe(sch.Namespace));
+                    return new Model.Core.Schema(sch.Location, sch.Version, sch.Namespace);
                 })
                 .ToList();
 
@@ -93,7 +90,10 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
                     return (prop.Name, prop.Value);
                 })
                 .Concat(CompressionProperties(submitPayload, sendingPMode))
-                .ToDictionary<(string propName, string propValue), string, string>(t => t.propName, t => t.propValue);
+                .ToDictionary<(string propName, string propValue), string, string>(
+                    t => t.propName, 
+                    t => t.propValue,
+                    StringComparer.OrdinalIgnoreCase);
 
             return new PartInfo(href, properties, schemas);
         }

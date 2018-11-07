@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using AutoMapper;
 using Eu.EDelivery.AS4.Singletons;
 
@@ -28,7 +29,7 @@ namespace Eu.EDelivery.AS4.Mappings.Core
 
                     return new Model.Core.PartInfo(
                         xml.href,
-                        props.ToDictionary(prop => prop.name, p => p.Value),
+                        props.ToDictionary(prop => prop.name, p => p.Value, StringComparer.OrdinalIgnoreCase),
                         schemas.Select(AS4Mapper.Map<Model.Core.Schema>));
                 })
                 .ForAllOtherMembers(x => x.Ignore());

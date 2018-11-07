@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 
 namespace Eu.EDelivery.AS4.Model.Core
 {
@@ -21,6 +22,20 @@ namespace Eu.EDelivery.AS4.Model.Core
         public IDictionary<string, string> Properties { get; }
 
         /// <summary>
+        /// Gets a value indication whether or not this attachment has a MimeType property configured.
+        /// </summary>
+        public bool HasMimeType => Properties.ContainsKey("MimeType");
+
+        /// <summary>
+        /// Gets or sets the MimeType property of this attachment.
+        /// </summary>
+        public string MimeType
+        {
+            get => Properties["MimeType"];
+            set => Properties["MimeType"] = value;
+        }
+
+        /// <summary>
         /// Schemas of the related <see cref="Attachment"/>.
         /// </summary>
         public IEnumerable<Schema> Schemas { get; }
@@ -28,7 +43,7 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// <summary>
         /// Initializes a new instance of the <see cref="PartInfo"/> class.
         /// </summary>
-        public PartInfo(string href) : this(href, new Dictionary<string, string>(), new Schema[0]) { }
+        public PartInfo(string href) : this(href, new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase), new Schema[0]) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PartInfo"/> class.
