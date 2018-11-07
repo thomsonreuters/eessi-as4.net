@@ -16,6 +16,19 @@
       <UseSoapFault>false</UseSoapFault>
       <ResponseHttpCode>500</ResponseHttpCode>
     </ErrorHandling>
+    <ResponseSigning>
+      <IsEnabled>false</IsEnabled>
+    </ResponseSigning>
+    <ResponseConfiguration>
+      <Protocol>
+        <Url>http://13.81.109.44:15001/corner4</Url>
+        <UseChunking>false</UseChunking>
+        <UseHttpCompression>false</UseHttpCompression>
+      </Protocol>
+      <TlsConfiguration>
+        <IsEnabled>false</IsEnabled>
+      </TlsConfiguration>
+    </ResponseConfiguration>
   </ReplyHandling>
   <ExceptionHandling>
     <NotifyMessageConsumer>false</NotifyMessageConsumer>

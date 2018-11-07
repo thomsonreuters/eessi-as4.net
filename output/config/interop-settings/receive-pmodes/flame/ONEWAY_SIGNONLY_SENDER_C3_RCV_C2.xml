@@ -16,6 +16,21 @@
       <UseSoapFault>false</UseSoapFault>
       <ResponseHttpCode>200</ResponseHttpCode>
     </ErrorHandling>
+    <ResponseSigning>
+      <IsEnabled>false</IsEnabled>
+    </ResponseSigning>
+    <ResponseConfiguration>
+      <Protocol>
+        <Url>http://193.140.74.199:15001/corner1</Url>
+        <UseChunking>false</UseChunking>
+        <UseHttpCompression>false</UseHttpCompression>
+      </Protocol>
+      <TlsConfiguration>
+        <IsEnabled>false</IsEnabled>
+        <TlsVersion>Tls12</TlsVersion>
+        <ClientCertificateReference />
+      </TlsConfiguration>
+    </ResponseConfiguration>
   </ReplyHandling>
   <ExceptionHandling>
     <NotifyMessageConsumer>false</NotifyMessageConsumer>
