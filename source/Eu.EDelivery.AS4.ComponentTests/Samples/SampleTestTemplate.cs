@@ -55,9 +55,6 @@ namespace Eu.EDelivery.AS4.ComponentTests.Samples
         {
             CreateOrClearDirectory(@".\config\send-pmodes");
 
-            File.Copy(Path.Combine(pmodesPath, "signed-response-pmode.xml"), @".\config\send-pmodes\signed-response-pmode.xml", overwrite: true);
-            File.Copy(Path.Combine(pmodesPath, "unsigned-response-pmode.xml"), @".\config\send-pmodes\unsigned-response-pmode.xml", overwrite: true);
-
             foreach (string file in Directory.EnumerateFiles(pmodesPath, "*send-pmode.xml"))
             {
                 File.Copy(file, @".\config\send-pmodes\" + Path.GetFileName(file), overwrite: true);

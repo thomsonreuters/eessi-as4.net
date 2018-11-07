@@ -84,7 +84,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
 
             var genReplyHandling = Gen.OneOf(
                 Gen.Constant((ReplyHandling) null),
-                Gen.Fresh(() => new ReplyHandling { SendingPMode = responsePMode }));
+                Gen.Fresh(() => new ReplyHandling { ResponseConfiguration = new PushConfiguration() }));
 
             return Prop.ForAll(
                 genForward.ToArbitrary(),
@@ -106,7 +106,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
                         && !String.IsNullOrWhiteSpace(f.SendingPMode);
 
                     bool specifiedReplyHandling = 
-                        !String.IsNullOrWhiteSpace(replyHandling?.SendingPMode);
+                        replyHandling?.ResponseConfiguration != null;
 
                     return result.IsValid
                         .Equals(specifiedReplyHandling && specifiedDeliver)
@@ -323,7 +323,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
             return new ReceivingProcessingMode
             {
                 Id = "pmode-id",
-                ReplyHandling = new ReplyHandling { SendingPMode = "send-pmode" },
                 MessageHandling =
                 {
                     DeliverInformation =

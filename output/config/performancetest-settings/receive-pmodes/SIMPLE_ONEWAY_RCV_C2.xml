@@ -1,7 +1,5 @@
 <?xml version="1.0"?>
-<PMode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-  xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
-  xmlns="eu:edelivery:as4:pmode">
+<PMode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="eu:edelivery:as4:pmode">
   <Id>ACT_SIMPLE_ONEWAY_FROM_AS4.NET-C3_TO_AS4.NET-C2</Id>
   <Reliability>
     <DuplicateElimination>
@@ -18,6 +16,21 @@
       <UseSoapFault>false</UseSoapFault>
       <ResponseHttpCode>500</ResponseHttpCode>
     </ErrorHandling>
+    <ResponseSigning>
+      <IsEnabled>false</IsEnabled>
+    </ResponseSigning>
+    <ResponseConfiguration>
+      <Protocol>
+        <Url>http://localhost:9091/msh</Url>
+        <UseChunking>false</UseChunking>
+        <UseHttpCompression>false</UseHttpCompression>
+      </Protocol>
+      <TlsConfiguration>
+        <IsEnabled>false</IsEnabled>
+        <TlsVersion>Tls12</TlsVersion>
+        <ClientCertificateReference />
+      </TlsConfiguration>
+    </ResponseConfiguration>
   </ReplyHandling>
   <ExceptionHandling>
     <NotifyMessageConsumer>false</NotifyMessageConsumer>

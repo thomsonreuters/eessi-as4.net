@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Entities;
 using Eu.EDelivery.AS4.Common;
@@ -121,7 +120,7 @@ namespace Eu.EDelivery.AS4.Services
         /// </summary>
         /// <param name="as4Message">The message for which the containing message units will be inserted.</param>
         /// <param name="sendingPMode">The processing mode that will be stored with each message unit if present.</param>
-        /// <param name="receivingPMode">The processing mode that will be used to determine if the signal messages must be async returned and for determining the response pmode if necessary.</param>
+        /// <param name="receivingPMode">The processing mode that will be used to determine if the signal messages must be async returned, this pmode will be stored together with the message units.</param>
         public IEnumerable<OutMessage> InsertAS4Message(
             AS4Message as4Message,
             SendingProcessingMode sendingPMode,
@@ -149,8 +148,8 @@ namespace Eu.EDelivery.AS4.Services
             var results = new Collection<OutMessage>();
             foreach (MessageUnit messageUnit in as4Message.MessageUnits)
             {
-                SendingProcessingMode pmode =
-                    SendingOrResponsePMode(messageUnit, sendingPMode, receivingPMode);
+                IPMode pmode =
+                    SendingOrReceivingPMode(messageUnit, sendingPMode, receivingPMode);
 
                 (OutStatus st, Operation op) =
                     DetermineReplyPattern(messageUnit, relatedInMessageMeps, receivingPMode);
@@ -225,7 +224,7 @@ namespace Eu.EDelivery.AS4.Services
             return (OutStatus.Sent, Operation.NotApplicable);
         }
 
-        private SendingProcessingMode SendingOrResponsePMode(
+        private static IPMode SendingOrReceivingPMode(
             MessageUnit mu,
             SendingProcessingMode sendPMode,
             ReceivingProcessingMode receivePMode)
@@ -240,13 +239,11 @@ namespace Eu.EDelivery.AS4.Services
                 && receivePMode != null
                 && receivePMode.ReplyHandling?.ReplyPattern == ReplyPattern.Callback)
             {
-                SendingProcessingMode pmode = _configuration.GetSendingPMode(receivePMode.ReplyHandling?.SendingPMode);
-                Logger.Debug($"Use response SendingPMode {pmode.Id} from ReceivingPMode {receivePMode.Id} for inserting OutMessage");
-
-                return pmode;
+                Logger.Debug($"Use ReceivingPMode {receivePMode.Id} to insert with the OutMessage");
+                return receivePMode;
             }
 
-            Logger.Warn("No SendingPMode was found as either directly set or as response PMode set in the ReceivingPMode");
+            Logger.Warn("No SendingPMode or ReceivingPMode was found to insert with the OutMessage");
             return null;
         }
 

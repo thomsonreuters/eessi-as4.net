@@ -16,6 +16,9 @@
       <UseSoapFault>false</UseSoapFault>
       <ResponseHttpCode>200</ResponseHttpCode>
     </ErrorHandling>
+    <ResponseSigning>
+      <IsEnabled>false</IsEnabled>
+    </ResponseSigning>
   </ReplyHandling>
   <ExceptionHandling>
     <NotifyMessageConsumer>true</NotifyMessageConsumer>
@@ -32,13 +35,13 @@
     </SigningVerification>
     <Decryption>
       <Encryption>Allowed</Encryption>
-	  <CertificateFindCriteria>
-		<CertificateFindType>FindBySubjectName</CertificateFindType>
-		<CertificateFindValue>nonexisting_subjectname</CertificateFindValue>
-	  </CertificateFindCriteria>
+      <CertificateFindCriteria>
+        <CertificateFindType>FindBySubjectName</CertificateFindType>
+        <CertificateFindValue>nonexisting_subjectname</CertificateFindValue>
+      </CertificateFindCriteria>
     </Decryption>
   </Security>
-  <MessagePackaging>    
+  <MessagePackaging>
     <CollaborationInfo>
       <AgreementReference>
         <Value>http://agreements.europa.org/agreement</Value>

@@ -43,12 +43,6 @@ namespace Eu.EDelivery.AS4.Validators
 
             When(pmode => pmode.ReplyHandling != null, () =>
             {
-                RuleFor(pmode => pmode.ReplyHandling.SendingPMode)
-                    .NotEmpty()
-                    .WithMessage(
-                        "ReplyHandling.SendingPMode must be specified when there isn't a MessageHandling.Forward element")
-                     .When(IsNotForwarding);
-
                 RuleFor(pmode => pmode.ReplyHandling.ReceiptHandling)
                     .NotNull()
                     .WithMessage("ReplyHandling.ReceiptHandling element must be specified");

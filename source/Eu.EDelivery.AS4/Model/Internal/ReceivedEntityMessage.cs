@@ -1,7 +1,12 @@
 using System;
 using System.IO;
+using System.Linq;
+using System.Xml;
+using System.Xml.Schema;
+using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.PMode;
+using Eu.EDelivery.AS4.Resources;
 using Eu.EDelivery.AS4.Serialization;
 
 namespace Eu.EDelivery.AS4.Model.Internal
@@ -67,10 +72,29 @@ namespace Eu.EDelivery.AS4.Model.Internal
                 messagingContext.ReceivingPMode = GetPMode<ReceivingProcessingMode>();
                 messagingContext.SendingPMode = null;
             }
-            else if (Entity is OutMessage)
+            else if (Entity is OutMessage om)
             {
-                messagingContext.ReceivingPMode = null;
-                messagingContext.SendingPMode = GetPMode<SendingProcessingMode>();
+                if (om.EbmsMessageType == MessageType.UserMessage)
+                {
+                    messagingContext.ReceivingPMode = null;
+                    messagingContext.SendingPMode = GetPMode<SendingProcessingMode>();
+                }
+                else if (om.EbmsMessageType == MessageType.Receipt 
+                         || om.EbmsMessageType == MessageType.Error)
+                {
+                    if (om.Intermediary)
+                    {
+                        // Signal messages that forwarded uses also a sending pmode like user messages to sent the the next MSH.
+                        messagingContext.ReceivingPMode = null;
+                        messagingContext.SendingPMode = GetPMode<SendingProcessingMode>();
+                    }
+                    else
+                    {
+                        // Signal messages that are sent outbound are asynchronous messages that needs the receiving pmode for response information.
+                        messagingContext.ReceivingPMode = GetPMode<ReceivingProcessingMode>();
+                        messagingContext.SendingPMode = null;
+                    }
+                }
             }
         }
     }

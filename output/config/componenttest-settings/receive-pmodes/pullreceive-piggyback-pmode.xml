@@ -1,7 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?>
-<PMode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-  xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
-  xmlns="eu:edelivery:as4:pmode">
+﻿<?xml version="1.0" encoding="utf-8"?>
+<PMode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="eu:edelivery:as4:pmode">
   <Id>pullreceiveagent-piggyback-pmode</Id>
   <ReplyHandling>
     <ReplyPattern>PiggyBack</ReplyPattern>
@@ -11,6 +9,9 @@
       <RetryCount>3</RetryCount>
       <RetryInterval>0:00:01</RetryInterval>
     </PiggyBackReliability>
+    <ResponseSigning>
+      <IsEnabled>false</IsEnabled>
+    </ResponseSigning>
   </ReplyHandling>
   <MessagePackaging>
     <PartyInfo>
