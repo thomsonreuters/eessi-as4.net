@@ -5,7 +5,6 @@
   <Id>c3-receive-pmode</Id>
   <ReplyHandling>
     <ReplyPattern>Callback</ReplyPattern>
-    <IsMultiHop>true</IsMultiHop>
     <ReceiptHandling>
       <UseNRRFormat>true</UseNRRFormat>
     </ReceiptHandling>
