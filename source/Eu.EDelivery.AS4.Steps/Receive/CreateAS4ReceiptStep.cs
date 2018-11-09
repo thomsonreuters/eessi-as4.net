@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Exceptions;
+using Eu.EDelivery.AS4.Mappings.Core;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
@@ -149,7 +150,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 Logger.Debug(
                     $"Because the received UserMessage {userMessage.MessageId} has been sent via MultiHop, the Receipt will be send as MultiHop also");
 
-                return AS4Mapper.Map<RoutingInputUserMessage>(userMessage);
+                return UserMessageMap.ConvertToRouting(userMessage);
             });
         }
     }

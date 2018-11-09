@@ -40,7 +40,7 @@ namespace Eu.EDelivery.AS4.Model.Core
                 return true;
             }
 
-            return MessagePartNRIReferences.Equals(other.MessagePartNRIReferences);
+            return MessagePartNRIReferences.SequenceEqual(other.MessagePartNRIReferences);
         }
 
         /// <summary>
@@ -192,7 +192,7 @@ namespace Eu.EDelivery.AS4.Model.Core
             }
 
             return string.Equals(URI, other.URI)
-                && Transforms.Equals(other.Transforms)
+                && Transforms.SequenceEqual(other.Transforms)
                 && DigestMethod.Equals(other.DigestMethod)
                 && DigestValue.Equals(other.DigestValue);
         }

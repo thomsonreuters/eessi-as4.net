@@ -133,6 +133,7 @@
     <Compile Include="Compression\CompressStrategy.cs" />
     <Compile Include="Entities\Journal.cs" />
     <Compile Include="Entities\RetryReliability.cs" />
+    <Compile Include="Extensions\DateTimeExtensions.cs" />
     <Compile Include="Extensions\LoggerExtensions.cs" />
     <Compile Include="Mappings\Core\ReceiptMap.cs" />
     <Compile Include="Mappings\Submit\SubmitMessageMap.cs" />
@@ -198,7 +199,6 @@
     <Compile Include="Exceptions\IAgentExceptionHandler.cs" />
     <Compile Include="Exceptions\InvalidMessageException.cs" />
     <Compile Include="Factories\PayloadFileNameFactory.cs" />
-    <Compile Include="Mappings\Core\RoutingInputUserMessageMap.cs" />
     <Compile Include="Migrations\20170919142609_InitialMigration.cs" />
     <Compile Include="Migrations\20170919142609_InitialMigration.designer.cs">
       <DependentUpon>20170919142609_InitialMigration.cs</DependentUpon>
@@ -286,8 +286,6 @@
     <Compile Include="Exceptions\ErrorCode.cs" />
     <Compile Include="Exceptions\ErrorAlias.cs" />
     <Compile Include="Extensions\DictionaryExtensions.cs" />
-    <Compile Include="Mappings\Entities\MessageMap.cs" />
-    <Compile Include="Mappings\Core\NonRepudiationInformationMap.cs" />
     <Compile Include="Mappings\Common\AgreementReferenceMap.cs" />
     <Compile Include="Mappings\Common\CollaborationInfoMap.cs" />
     <Compile Include="Mappings\Common\MessagePropertyMap.cs" />
@@ -372,10 +370,7 @@
     <Compile Include="Common\Config.cs" />
     <Compile Include="Agents\IAgent.cs" />
     <Compile Include="Common\IConfig.cs" />
-    <Compile Include="Mappings\Core\AgreementRefMap.cs" />
-    <Compile Include="Mappings\Core\CollaborationInfoMap.cs" />
     <Compile Include="Mappings\Core\ErrorMap.cs" />
-    <Compile Include="Mappings\Core\MessagePropertyMap.cs" />
     <Compile Include="Model\Internal\Setting.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -388,13 +383,7 @@
     <Compile Include="Serialization\MimeMessageSerializer.cs" />
     <Compile Include="Serialization\SoapEnvelopeSerializer.cs" />
     <Compile Include="Singletons\AS4Mapper.cs" />
-    <Compile Include="Mappings\Core\MessageInfoMap.cs" />
-    <Compile Include="Mappings\Core\PartyIdMap.cs" />
-    <Compile Include="Mappings\Core\PartyInfoMap.cs" />
-    <Compile Include="Mappings\Core\PayloadMap.cs" />
     <Compile Include="Mappings\Core\PullRequestMap.cs" />
-    <Compile Include="Mappings\Core\ServiceMap.cs" />
-    <Compile Include="Mappings\Core\SignalMessageMap.cs" />
     <Compile Include="Mappings\Core\UserMessageMap.cs" />
     <Compile Include="Model\Core\AS4Message.cs" />
     <Compile Include="Model\Core\Attachment.cs" />

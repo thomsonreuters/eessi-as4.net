@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Exceptions;
+using Eu.EDelivery.AS4.Mappings.Core;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Repositories;
@@ -193,7 +194,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
             if (routedUserMessageM != null)
             {
-                return AS4Mapper.Map<UserMessage>(routedUserMessageM.UnsafeGet);
+                return UserMessageMap.ConvertFromRouting(routedUserMessageM.UnsafeGet);
             }
 
             throw new InvalidOperationException(
