@@ -15,7 +15,6 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
         /// </summary>
         /// <param name="party">The party identifier.</param>
         /// <param name="properties"></param>
-        /// <returns></returns>
         Task<XmlDocument> RetrieveSmpMetaData(Model.Core.Party party, IDictionary<string, string> properties);
 
         /// <summary>
