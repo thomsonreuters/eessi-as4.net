@@ -31,6 +31,14 @@ function Get-PModes ($path) {
 }
 
 function Copy-Sending-To-Receiving ($sendingPMode, $xml) {
+    $pushConfig = $sendingPMode.PMode.PushConfiguration
+    if ($null -ne $pushConfig) {
+        $adapted = $xml.CreateElement("ResponseConfiguration", "eu:edelivery:as4:pmode")
+        $pushConfig.ChildNodes |
+            Foreach-Object { $adapted.AppendChild($xml.ImportNode($_, $true)) | Out-Null }
+        $xml.PMode.ReplyHandling.AppendChild($adapted) | Out-Null
+    }
+
     $signing = $sendingPMode.PMode.Security.Signing
     if ($null -ne $signing) {
         $adapted = $xml.CreateElement("ResponseSigning", "eu:edelivery:as4:pmode")
@@ -40,13 +48,8 @@ function Copy-Sending-To-Receiving ($sendingPMode, $xml) {
         $xml.PMode.ReplyHandling.AppendChild($adapted) | Out-Null
     }
 
-    $pushConfig = $sendingPMode.PMode.PushConfiguration
-    if ($null -ne $pushConfig) {
-        $adapted = $xml.CreateElement("ResponseConfiguration", "eu:edelivery:as4:pmode")
-        $pushConfig.ChildNodes |
-            Foreach-Object { $adapted.AppendChild($xml.ImportNode($_, $true)) | Out-Null }
-        $xml.PMode.ReplyHandling.AppendChild($adapted) | Out-Null
-    }
+    $responsePModeRef = $xml.SelectSingleNode("//*[local-name()='SendingPMode']")
+    $xml.PMode.ReplyHandling.RemoveChild($responsePModeRef)
 }
 
 $sendingPModes = Get-PModes $sendingPModePath
