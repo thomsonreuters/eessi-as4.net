@@ -230,7 +230,7 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// <param name="refToMessageInError"></param>
         /// <param name="description"></param>
         /// <param name="detail"></param>
-        public ErrorLine(
+        internal ErrorLine(
             ErrorCode errorCode,
             Severity severity,
             ErrorAlias shortDescription,
@@ -240,39 +240,14 @@ namespace Eu.EDelivery.AS4.Model.Core
             Maybe<ErrorDescription> description,
             Maybe<string> detail)
         {
-            if (origin == null)
-            {
-                throw new ArgumentNullException(nameof(origin));
-            }
-
-            if (category == null)
-            {
-                throw new ArgumentNullException(nameof(category));
-            }
-
-            if (refToMessageInError == null)
-            {
-                throw new ArgumentNullException(nameof(refToMessageInError));
-            }
-
-            if (description == null)
-            {
-                throw new ArgumentNullException(nameof(description));
-            }
-
-            if (detail == null)
-            {
-                throw new ArgumentNullException(nameof(detail));
-            }
-
             ErrorCode = errorCode;
             Severity = severity;
-            Origin = origin;
-            Category = category;
-            RefToMessageInError = refToMessageInError;
+            Origin = origin ?? Maybe<string>.Nothing;
+            Category = category ?? Maybe<string>.Nothing;
+            RefToMessageInError = refToMessageInError ?? Maybe<string>.Nothing;
             ShortDescription = shortDescription;
-            Description = description;
-            Detail = detail;
+            Description = description ?? Maybe<ErrorDescription>.Nothing;
+            Detail = detail ?? Maybe<string>.Nothing;
         }
 
         private ErrorLine(
