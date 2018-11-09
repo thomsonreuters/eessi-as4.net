@@ -170,13 +170,14 @@ namespace Eu.EDelivery.AS4.Transformers
                     : Enumerable.Empty<MessageProperty>();
 
             return new UserMessage(
-                userMessage.MessageId,
-                signalMessage != null ? signalMessage.RefToMessageId : userMessage.RefToMessageId,
-                collaboration,
-                userMessage.Sender,
-                receiver,
-                userMessage.PayloadInfo,
-                userMessage.MessageProperties.Concat(props));
+                messageId: userMessage.MessageId,
+                refToMessageId: signalMessage != null ? signalMessage.RefToMessageId : userMessage.RefToMessageId,
+                mpc: userMessage.Mpc,
+                collaboration: collaboration,
+                sender: userMessage.Sender,
+                receiver: receiver,
+                partInfos: userMessage.PayloadInfo,
+                messageProperties: userMessage.MessageProperties.Concat(props));
         }
     }
 }
