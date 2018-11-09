@@ -1,41 +1,65 @@
 ﻿using System;
+using System.Linq;
 using Eu.EDelivery.AS4.Mappings.PMode;
-using Eu.EDelivery.AS4.Model.Core;
+using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Model.Submit;
-using Eu.EDelivery.AS4.Singletons;
+using Party = Eu.EDelivery.AS4.Model.Core.Party;
+using PartyId = Eu.EDelivery.AS4.Model.Core.PartyId;
+using SubmitParty = Eu.EDelivery.AS4.Model.Common.Party;
+using PModeParty = Eu.EDelivery.AS4.Model.PMode.Party;
 
 namespace Eu.EDelivery.AS4.Mappings.Submit
 {
     /// <summary>
     /// Resolve <see cref="Party" />
     /// </summary>
-    public static class SubmitReceiverResolver
+    internal static class SubmitReceiverResolver
     {
         /// <summary>
-        /// Resolve <see cref="Party" />
+        /// Resolve <see cref="Model.Core.Party" />
         /// 1. SubmitMessage / PartyInfo / ToParty
-        /// 2. PMode / Message Packaging / PartyInfo / Toparty
+        /// 2. PMode / Message Packaging / PartyInfo / ToParty
         /// 3. Default
         /// </summary>
         /// <param name="submit"></param>
         /// <returns></returns>
         public static Party ResolveReceiver(SubmitMessage submit)
         {
-            var submitParty = submit.PartyInfo?.ToParty;
-            var pmodeParty = submit.PMode?.MessagePackaging?.PartyInfo?.ToParty;
-
-            if (submitParty != null && submit?.PMode?.AllowOverride == false)
+            if (submit == null)
             {
-                if (pmodeParty != null && submitParty.Equals(pmodeParty) == false)
-                {
-                    throw new NotSupportedException(
-                        $"Submit Message is not allowed by the Sending PMode {submit.PMode?.Id} to override Receiver Party");
-                }
+                throw new ArgumentNullException(nameof(submit));
             }
 
-            return submitParty != null 
-                ? AS4Mapper.Map<Party>(submit.PartyInfo.ToParty) 
-                : PModePartyResolver.ResolveReceiver(pmodeParty);
+            if (submit.PMode == null)
+            {
+                throw new ArgumentNullException(nameof(submit.PMode));
+            }
+
+            SendingProcessingMode sendingPMode = submit.PMode;
+            PModeParty pmodeParty = sendingPMode.MessagePackaging?.PartyInfo?.ToParty;
+            SubmitParty submitParty = submit.PartyInfo?.ToParty;
+
+            if (sendingPMode.AllowOverride == false
+                && submitParty != null
+                && pmodeParty != null
+                && !submitParty.Equals(pmodeParty))
+            {
+                throw new NotSupportedException(
+                    $"SubmitMessage is not allowed by the SendingPMode {sendingPMode.Id} to override Receiver Party");
+            }
+
+            if (submitParty != null)
+            {
+                return new Party(
+                    submitParty.Role,
+                    (submitParty.PartyIds ?? Enumerable.Empty<Model.Common.PartyId>())
+                        ?.Select(id => id?.Type != null
+                                     ? new PartyId(id?.Id, id?.Type) 
+                                     : new PartyId(id?.Id))
+                        .ToArray());
+            }
+
+            return PModePartyResolver.ResolveReceiver(pmodeParty);
         }
     }
 }

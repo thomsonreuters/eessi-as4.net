@@ -1,4 +1,6 @@
-﻿using Eu.EDelivery.AS4.Model.Submit;
+﻿using System;
+using Eu.EDelivery.AS4.Model.Core;
+using Eu.EDelivery.AS4.Model.Submit;
 
 namespace Eu.EDelivery.AS4.Mappings.Submit
 {
@@ -6,7 +8,7 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
     /// 1. SubmitMessage / CollaborationInfo / ConversationId 
     /// 2. Default Conversation Id
     /// </summary>
-    public static class SubmitConversationIdResolver
+    internal static class SubmitConversationIdResolver
     {
         /// <summary>
         /// Resolve the Conversation Id
@@ -15,14 +17,17 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
         /// <returns></returns>
         public static string ResolveConverstationId(SubmitMessage submitMessage)
         {
-            const string defaultConversationId = "1";
+            if (submitMessage == null)
+            {
+                throw new ArgumentNullException(nameof(submitMessage));
+            }
 
-            if (!string.IsNullOrEmpty(submitMessage.Collaboration.ConversationId))
+            if (!String.IsNullOrEmpty(submitMessage.Collaboration?.ConversationId))
             {
                 return submitMessage.Collaboration.ConversationId;
             }
 
-            return defaultConversationId;
+            return CollaborationInfo.DefaultConversationId;
         }
     }
 }

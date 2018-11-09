@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using AutoMapper;
 using Eu.EDelivery.AS4.Factories;
@@ -19,16 +20,18 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
                         conversationId: SubmitConversationIdResolver.ResolveConverstationId(submit));
 
                     IEnumerable<Model.Core.PartInfo> parts = submit.HasPayloads
-                        ? SubmitPayloadInfoResolver.Default.Resolve(submit)
+                        ? SubmitPayloadInfoResolver.Resolve(submit)
                         : new Model.Core.PartInfo[0];
 
                     Model.Core.MessageProperty[] properties = submit.MessageProperties?.Any() == true
-                        ? SubmitMessagePropertiesResolver.Default.Resolve(submit)
+                        ? SubmitMessagePropertiesResolver.Resolve(submit)
                         : new Model.Core.MessageProperty[0];
 
                     return new Model.Core.UserMessage(
                         messageId: submit.MessageInfo?.MessageId ?? IdentifierFactory.Instance.Create(),
-                        mpc: SubmitMpcResolver.Default.Resolve(submit),
+                        refToMessageId: submit.MessageInfo?.RefToMessageId,
+                        timestamp: DateTimeOffset.Now,
+                        mpc: SubmitMpcResolver.Resolve(submit),
                         collaboration: collaboration,
                         sender: SubmitSenderResolver.ResolveSender(submit),
                         receiver: SubmitReceiverResolver.ResolveReceiver(submit),

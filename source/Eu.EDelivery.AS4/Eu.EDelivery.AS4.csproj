@@ -135,6 +135,7 @@
     <Compile Include="Entities\RetryReliability.cs" />
     <Compile Include="Extensions\LoggerExtensions.cs" />
     <Compile Include="Mappings\Core\ReceiptMap.cs" />
+    <Compile Include="Mappings\Submit\SubmitMessageMap.cs" />
     <Compile Include="Mappings\Submit\SubmitSenderResolver.cs" />
     <Compile Include="Maybe.cs" />
     <Compile Include="Migrations\20180302141116_RemoveOutMessagesConstraint.cs" />
@@ -248,8 +249,6 @@
     <Compile Include="Constants.cs" />
     <Compile Include="Common\DatastoreContext.cs" />
     <Compile Include="Entities\ExceptionEntity.cs" />
-    <Compile Include="Mappings\Submit\ISubmitMapper.cs" />
-    <Compile Include="Mappings\Submit\ISubmitResolver.cs" />
     <Compile Include="Mappings\Submit\SubmitActionResolver.cs" />
     <Compile Include="Mappings\Submit\SubmitConversationIdResolver.cs" />
     <Compile Include="Mappings\Submit\SubmitMessagePropertiesResolver.cs" />
@@ -289,8 +288,6 @@
     <Compile Include="Extensions\DictionaryExtensions.cs" />
     <Compile Include="Mappings\Entities\MessageMap.cs" />
     <Compile Include="Mappings\Core\NonRepudiationInformationMap.cs" />
-    <Compile Include="Mappings\Notify\ErrorToNotifyMap.cs" />
-    <Compile Include="Mappings\Notify\ReceiptToNotifyMap.cs" />
     <Compile Include="Mappings\Common\AgreementReferenceMap.cs" />
     <Compile Include="Mappings\Common\CollaborationInfoMap.cs" />
     <Compile Include="Mappings\Common\MessagePropertyMap.cs" />
@@ -299,7 +296,6 @@
     <Compile Include="Mappings\Common\PayloadMap.cs" />
     <Compile Include="Mappings\Common\SchemaMap.cs" />
     <Compile Include="Mappings\Common\ServiceMap.cs" />
-    <Compile Include="Mappings\Submit\SubmitMessageMap.cs" />
     <Compile Include="Model\Deliver\DeliverMessage.cs" />
     <Compile Include="Model\Internal\MessagingContext.cs" />
     <Compile Include="Model\Notify\NotifyMessage.cs" />

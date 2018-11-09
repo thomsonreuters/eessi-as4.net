@@ -21,12 +21,13 @@ namespace Eu.EDelivery.AS4.Mappings.Core
                 .ForMember(dest => dest.MessageInfo, src => src.MapFrom(t => t))
                 .ForMember(dest => dest.PartyInfo, src => src.MapFrom(t => t))
                 .ForMember(dest => dest.CollaborationInfo, src => src.MapFrom(t => t.CollaborationInfo))
-                .ForMember(dest => dest.mpc, src => src.MapFrom(t => t.Mpc))
                 .ForMember(dest => dest.PayloadInfo, src => src.MapFrom(t => t.PayloadInfo))
                 .ForMember(dest => dest.MessageProperties, src => src.MapFrom(t => t.MessageProperties))
                 .AfterMap(
                     (modelUserMessage, xmlUserMessage) =>
                     {
+                        xmlUserMessage.mpc = modelUserMessage.Mpc;
+
                         if (!modelUserMessage.MessageProperties.Any())
                         {
                             xmlUserMessage.MessageProperties = null;
@@ -70,7 +71,7 @@ namespace Eu.EDelivery.AS4.Mappings.Core
                         messageId: xml.MessageInfo?.MessageId,
                         refToMessageId: xml.MessageInfo?.RefToMessageId,
                         timestamp: xml.MessageInfo?.Timestamp ?? DateTimeOffset.Now,
-                        mpc: xml.mpc ?? Constants.Namespaces.EbmsDefaultMpc,
+                        mpc: xml.mpc,
                         collaboration: Map<Model.Core.CollaborationInfo>(xml.CollaborationInfo),
                         sender: Map<Model.Core.Party>(xml.PartyInfo?.From),
                         receiver: Map<Model.Core.Party>(xml.PartyInfo?.To),
@@ -86,12 +87,13 @@ namespace Eu.EDelivery.AS4.Mappings.Core
             CreateMap<Model.Core.UserMessage, Xml.RoutingInputUserMessage>()
                 .ForMember(dest => dest.MessageInfo, src => src.MapFrom(t => t))
                 .ForMember(dest => dest.CollaborationInfo, src => src.MapFrom(t => t.CollaborationInfo))
-                .ForMember(dest => dest.mpc, src => src.MapFrom(t => t.Mpc))
                 .ForMember(dest => dest.PayloadInfo, src => src.MapFrom(t => t.PayloadInfo))
                 .ForMember(dest => dest.MessageProperties, src => src.MapFrom(t => t.MessageProperties))
                 .AfterMap(
                     (modelUserMessage, xmlUserMessage) =>
                     {
+                        xmlUserMessage.mpc = modelUserMessage.Mpc;
+
                         if (!modelUserMessage.MessageProperties.Any())
                         {
                             xmlUserMessage.MessageProperties = null;
@@ -124,7 +126,7 @@ namespace Eu.EDelivery.AS4.Mappings.Core
 
         private static void AssignMpc(Xml.RoutingInputUserMessage xmlUserMessage)
         {
-            if (string.IsNullOrEmpty(xmlUserMessage.mpc))
+            if (String.IsNullOrEmpty(xmlUserMessage.mpc))
             {
                 xmlUserMessage.mpc = Constants.Namespaces.EbmsDefaultMpc;
             }

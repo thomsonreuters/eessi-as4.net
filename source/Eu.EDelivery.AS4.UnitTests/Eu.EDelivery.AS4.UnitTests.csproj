@@ -148,8 +148,6 @@
     <Compile Include="Mappings\Core\GivenReceiptMapFacts.cs" />
     <Compile Include="Mappings\Core\GivenUserMessageMap.cs" />
     <Compile Include="Mappings\Core\GivenXmlSignalMessageMapFacts.cs" />
-    <Compile Include="Mappings\Notify\GivenErrorToNotifyMapFacts.cs" />
-    <Compile Include="Mappings\Notify\GivenReceiptToNotifyMapFacts.cs" />
     <Compile Include="Mappings\PMode\GivenPModeActionResolverFacts.cs" />
     <Compile Include="Mappings\PMode\GivenPModeAgreemenRefResolverFacts.cs" />
     <Compile Include="Mappings\PMode\GivenPModeServiceResolverFacts.cs" />
@@ -271,7 +269,6 @@
     <Compile Include="Utilities\Computer.cs" />
     <Compile Include="Validators\GivenReceivingProcessingModeValidatorFacts.cs" />
     <Compile Include="Validators\GivenSendingProcessingModeValidatorFacts.cs" />
-    <Compile Include="Validators\GivenSubmitMessageValidatorFacts.cs" />
     <Compile Include="Validators\GivenValidationResultFacts.cs" />
     <Compile Include="Validators\ValidationInputGenerators.cs" />
     <Compile Include="Validators\ValidationOutputAssertions.cs" />
