@@ -8,7 +8,6 @@
   </Reliability>
   <ReplyHandling>
     <ReplyPattern>Response</ReplyPattern>
-    <SendingPMode>Minder_response</SendingPMode>
     <ReceiptHandling>
       <UseNRRFormat>true</UseNRRFormat>
     </ReceiptHandling>
@@ -16,6 +15,16 @@
       <UseSoapFault>false</UseSoapFault>
       <ResponseHttpCode>500</ResponseHttpCode>
     </ErrorHandling>
+    <ResponseConfiguration>
+      <Protocol>
+        <Url>http://13.81.109.44:15001/corner4</Url>
+        <UseChunking>false</UseChunking>
+        <UseHttpCompression>false</UseHttpCompression>
+      </Protocol>
+    </ResponseConfiguration>
+    <ResponseSigning>
+      <IsEnabled>false</IsEnabled>
+    </ResponseSigning>
   </ReplyHandling>
   <ExceptionHandling>
     <NotifyMessageConsumer>true</NotifyMessageConsumer>
