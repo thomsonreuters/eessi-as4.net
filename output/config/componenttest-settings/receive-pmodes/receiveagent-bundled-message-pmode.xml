@@ -1,5 +1,7 @@
 <?xml version="1.0"?>
-<PMode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="eu:edelivery:as4:pmode">
+<PMode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+  xmlns="eu:edelivery:as4:pmode">
   <Id>receive_bundled_message_pmode</Id>
   <Reliability>
     <DuplicateElimination>
@@ -8,7 +10,6 @@
   </Reliability>
   <ReplyHandling>
     <ReplyPattern>Response</ReplyPattern>
-    <SendingPMode>componentsubmittest-pmode</SendingPMode>
     <ReceiptHandling>
       <UseNRRFormat>false</UseNRRFormat>
     </ReceiptHandling>
@@ -16,9 +17,6 @@
       <UseSoapFault>false</UseSoapFault>
       <ResponseHttpCode>200</ResponseHttpCode>
     </ErrorHandling>
-    <ResponseSigning>
-      <IsEnabled>false</IsEnabled>
-    </ResponseSigning>
     <ResponseConfiguration>
       <Protocol>
         <Url>http://localhost:9090/msh</Url>
@@ -30,6 +28,9 @@
         <TlsVersion>Tls12</TlsVersion>
       </TlsConfiguration>
     </ResponseConfiguration>
+    <ResponseSigning>
+      <IsEnabled>false</IsEnabled>
+    </ResponseSigning>
   </ReplyHandling>
   <ExceptionHandling>
     <NotifyMessageConsumer>true</NotifyMessageConsumer>
