@@ -47,7 +47,7 @@ namespace Eu.EDelivery.AS4.Transformers
                 NotifyMessageEnvelope notifyEnvelope =
                     await CreateNotifyMessageEnvelope(
                         AS4Message.Create(error, new SendingProcessingMode()),
-                        receivedMessage.GetType());
+                        ex.GetType());
 
                 return new MessagingContext(notifyEnvelope, receivedMessage.Entity.Id);
             }
@@ -58,7 +58,7 @@ namespace Eu.EDelivery.AS4.Transformers
                     await RetrieveAS4MessageForNotificationFromReceivedMessage(me.EbmsMessageId, receivedMessage);
 
                 NotifyMessageEnvelope notifyEnvelope =
-                    await CreateNotifyMessageEnvelope(ctx.AS4Message, receivedMessage.Entity.GetType());
+                    await CreateNotifyMessageEnvelope(ctx.AS4Message, me.GetType());
 
                 ctx.ModifyContext(notifyEnvelope, receivedMessage.Entity.Id);
 
