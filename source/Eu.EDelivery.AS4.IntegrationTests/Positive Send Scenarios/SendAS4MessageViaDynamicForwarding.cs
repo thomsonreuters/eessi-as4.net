@@ -15,9 +15,9 @@ using Service = Eu.EDelivery.AS4.Model.Core.Service;
 using Party = Eu.EDelivery.AS4.Model.Core.Party;
 using PartyId = Eu.EDelivery.AS4.Model.Core.PartyId;
 
-namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._19_22_Send_Message_via_Dynamic_Forwarding
+namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios
 {
-    public class SendMessageViaDynamicForwardingTest : IntegrationTestTemplate
+    public class SendAS4MessageViaDynamicForwarding : IntegrationTestTemplate
     {
         public static readonly string ReceiveAgentEndpoint = "http://localhost:9090/msh",
                                       HolodeckBId = "org:holodeckb2b:example:company:B",
