@@ -61,11 +61,6 @@ namespace Eu.EDelivery.AS4.Model.Core
             string action,
             string conversationId)
         {
-            if (agreement == null)
-            {
-                throw new ArgumentNullException(nameof(agreement));
-            }
-
             if (service == null)
             {
                 throw new ArgumentNullException(nameof(service));
@@ -81,7 +76,7 @@ namespace Eu.EDelivery.AS4.Model.Core
                 throw new ArgumentNullException(nameof(conversationId));
             }
 
-            AgreementReference = Maybe.Just(agreement);
+            AgreementReference = (agreement != null).ThenMaybe(agreement);
             Service = service;
             Action = action;
             ConversationId = conversationId;
@@ -100,11 +95,6 @@ namespace Eu.EDelivery.AS4.Model.Core
             string action, 
             string conversationId)
         {
-            if (agreement == null)
-            {
-                throw new ArgumentNullException(nameof(agreement));
-            }
-
             if (service == null)
             {
                 throw new ArgumentNullException(nameof(service));
@@ -120,7 +110,7 @@ namespace Eu.EDelivery.AS4.Model.Core
                 throw new ArgumentNullException(nameof(conversationId));
             }
 
-            AgreementReference = agreement;
+            AgreementReference = agreement ?? Maybe<AgreementReference>.Nothing;
             Service = service;
             Action = action;
             ConversationId = conversationId;
