@@ -1,5 +1,7 @@
 <?xml version="1.0"?>
-<PMode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="eu:edelivery:as4:pmode">
+<PMode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+  xmlns="eu:edelivery:as4:pmode">
   <Id>ACT_ONEWAY_SIGNONLY_FROM_HOLODECK-C2_RCV_AS4NET-C3</Id>
   <Reliability>
     <DuplicateElimination>
@@ -8,7 +10,6 @@
   </Reliability>
   <ReplyHandling>
     <ReplyPattern>Response</ReplyPattern>
-    <SendingPMode>AS4NET_RESPONSE_TO_C4</SendingPMode>
     <ReceiptHandling>
       <UseNRRFormat>true</UseNRRFormat>
     </ReceiptHandling>
@@ -16,9 +17,6 @@
       <UseSoapFault>false</UseSoapFault>
       <ResponseHttpCode>500</ResponseHttpCode>
     </ErrorHandling>
-    <ResponseSigning>
-      <IsEnabled>false</IsEnabled>
-    </ResponseSigning>
     <ResponseConfiguration>
       <Protocol>
         <Url>http://193.140.74.199:15001/corner4</Url>
@@ -31,6 +29,9 @@
         <ClientCertificateReference />
       </TlsConfiguration>
     </ResponseConfiguration>
+    <ResponseSigning>
+      <IsEnabled>false</IsEnabled>
+    </ResponseSigning>
   </ReplyHandling>
   <ExceptionHandling>
     <NotifyMessageConsumer>false</NotifyMessageConsumer>
