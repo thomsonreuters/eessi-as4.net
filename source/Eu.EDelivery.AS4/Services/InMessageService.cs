@@ -438,7 +438,7 @@ namespace Eu.EDelivery.AS4.Services
             RetryReliability retryReceipts = sendingPMode?.ReceiptHandling?.Reliability;
             if (retryReceipts?.IsEnabled == false)
             {
-                Logger.Debug(
+                Logger.Trace(
                     "Will not insert RetryReliability for Receipt(s) so it can be retried during delivery "
                     + $"since the ReceivingPMode {sendingPMode?.Id} ReceiptHandling.Reliability.IsEnabled = false");
             }
@@ -460,7 +460,7 @@ namespace Eu.EDelivery.AS4.Services
             RetryReliability retryErrors = sendingPMode?.ErrorHandling?.Reliability;
             if (retryErrors?.IsEnabled == false)
             {
-                Logger.Debug(
+                Logger.Trace(
                     "Will not insert RetryReliability for Error(s) so it can be retried during notification "
                     + $"since the SendingPMode {sendingPMode?.Id} ErrorHandling.Reliability.IsEnabled = false");
             }
@@ -473,10 +473,10 @@ namespace Eu.EDelivery.AS4.Services
             UpdateReferencedUserMessagesStatus(errors, OutStatus.Nack);
         }
 
-        private void UpdateSignalMessages(
+        private void UpdateSignalMessages<TSignal>(
             SendingProcessingMode sendingPMode,
-            IEnumerable<SignalMessage> signalMessages,
-            RetryReliability reliability)
+            IEnumerable<TSignal> signalMessages,
+            RetryReliability reliability) where TSignal : SignalMessage
         {
             string[] signalsToNotify =
                 signalMessages.Where(r => r.IsDuplicate == false)
@@ -488,14 +488,15 @@ namespace Eu.EDelivery.AS4.Services
                 return;
             }
 
+            string ebmsMessageType = typeof(TSignal).Name;
+
             _repository.UpdateInMessages(
                 m => signalsToNotify.Contains(m.EbmsMessageId) && m.Intermediary == false,
                 m =>
                 {
                     m.Operation = Operation.ToBeNotified;
                     m.SetPModeInformation(sendingPMode);
-                    Logger.Debug(
-                        $"Update InMessage {m.EbmsMessageType} {m.EbmsMessageId} with Operation={m.Operation}");
+                    Logger.Debug($"Update InMessage {ebmsMessageType} {m.EbmsMessageId} with Operation={m.Operation}");
                 });
 
             bool isRetryEnabled = reliability?.IsEnabled ?? false;

@@ -341,8 +341,9 @@ namespace Eu.EDelivery.AS4.Model.Internal
         /// Clones the message.
         /// </summary>
         /// <param name="notifyMessage">The notify message.</param>
+        /// <param name="entityId"></param>
         /// <returns></returns>
-        public void ModifyContext(NotifyMessageEnvelope notifyMessage)
+        public void ModifyContext(NotifyMessageEnvelope notifyMessage , long? entityId = null)
         {
             if (notifyMessage == null)
             {

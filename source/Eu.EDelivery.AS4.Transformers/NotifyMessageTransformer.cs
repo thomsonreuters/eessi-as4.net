@@ -32,58 +32,57 @@ namespace Eu.EDelivery.AS4.Transformers
                 throw new ArgumentNullException(nameof(message));
             }
 
-            var entityMessage = message as ReceivedEntityMessage;
-            if (entityMessage == null)
+            if (!(message is ReceivedEntityMessage receivedMessage))
             {
                 throw new NotSupportedException(
                     $"Incoming message stream from {message.Origin} that must be transformed should be of type {nameof(ReceivedEntityMessage)}");
             }
 
-            // Get the one signal-message that must be notified.
-            var as4Message = await GetAS4MessageForNotification(entityMessage);
-
-            var context = new MessagingContext(
-                await CreateNotifyMessageEnvelope(as4Message, entityMessage.Entity.GetType()),
-                entityMessage.Entity.Id);
-
-            await DecorateContextWithPModes(context, entityMessage);
-
-            return context;
-        }
-
-        private static async Task<AS4Message> GetAS4MessageForNotification(ReceivedEntityMessage receivedMessage)
-        {
             if (receivedMessage.Entity is ExceptionEntity ex)
             {
                 Error error = Error.FromErrorResult(
-                    ex.EbmsRefToMessageId, 
+                    ex.EbmsRefToMessageId,
                     new ErrorResult(ex.Exception, ErrorAlias.Other));
 
-                return AS4Message.Create(error, new SendingProcessingMode());
+                NotifyMessageEnvelope notifyEnvelope =
+                    await CreateNotifyMessageEnvelope(
+                        AS4Message.Create(error, new SendingProcessingMode()),
+                        receivedMessage.GetType());
+
+                return new MessagingContext(notifyEnvelope, receivedMessage.Entity.Id);
             }
 
             if (receivedMessage.Entity is MessageEntity me)
             {
-                return await RetrieveAS4MessageForNotificationFromReceivedMessage(me.EbmsMessageId, receivedMessage);
+                MessagingContext ctx =
+                    await RetrieveAS4MessageForNotificationFromReceivedMessage(me.EbmsMessageId, receivedMessage);
+
+                NotifyMessageEnvelope notifyEnvelope =
+                    await CreateNotifyMessageEnvelope(ctx.AS4Message, receivedMessage.Entity.GetType());
+
+                ctx.ModifyContext(notifyEnvelope, receivedMessage.Entity.Id);
+
+                return ctx;
             }
 
             throw new InvalidOperationException();
         }
 
-        private static async Task<AS4Message> RetrieveAS4MessageForNotificationFromReceivedMessage(string ebmsMessageId, ReceivedMessage entityMessage)
+        private static async Task<MessagingContext> RetrieveAS4MessageForNotificationFromReceivedMessage(string ebmsMessageId, ReceivedMessage entityMessage)
         {
             var as4Transformer = new AS4MessageTransformer();
-            var messagingContext = await as4Transformer.TransformAsync(entityMessage);
+            MessagingContext deserializedAS4MessageContext = await as4Transformer.TransformAsync(entityMessage);
 
-            var as4Message = messagingContext.AS4Message;
+            AS4Message as4Message = deserializedAS4MessageContext.AS4Message;
 
             // No attachments are needed in order to create notify messages.
             as4Message.RemoveAllAttachments();
 
             // Remove all signal-messages except the one that we should be notifying
             // Create the DeliverMessage for this specific UserMessage that has been received.
-            var signalMessage = 
-                as4Message.SignalMessages.FirstOrDefault(m => m.MessageId.Equals(ebmsMessageId, StringComparison.OrdinalIgnoreCase));
+            SignalMessage signalMessage = 
+                as4Message.SignalMessages
+                          .FirstOrDefault(m => StringComparer.OrdinalIgnoreCase.Equals(m.MessageId, ebmsMessageId));
 
             if (signalMessage == null)
             {
@@ -92,7 +91,7 @@ namespace Eu.EDelivery.AS4.Transformers
                     $"{ebmsMessageId} could not be found in the referenced AS4Message");
             }
 
-            return as4Message;
+            return deserializedAS4MessageContext;
         }
 
         protected virtual async Task<NotifyMessageEnvelope> CreateNotifyMessageEnvelope(AS4Message as4Message, Type receivedEntityType)
@@ -109,23 +108,5 @@ namespace Eu.EDelivery.AS4.Transformers
                 "application/xml",
                 receivedEntityType);
         }
-
-        private static async Task DecorateContextWithPModes(MessagingContext context, ReceivedEntityMessage message)
-        {
-            string pmode = string.Empty;
-
-            if (message.Entity is MessageEntity me)
-            {
-                pmode = me.PMode;
-            }
-            else if (message.Entity is ExceptionEntity ee)
-            {
-                pmode = ee.PMode;
-            }
-
-            context.ReceivingPMode = await AS4XmlSerializer.FromStringAsync<ReceivingProcessingMode>(pmode);
-            context.SendingPMode = await AS4XmlSerializer.FromStringAsync<SendingProcessingMode>(pmode);
-        }
-
     }
 }
