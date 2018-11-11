@@ -1,20 +1,15 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
-using System.Xml.Schema;
 using System.Xml.Serialization;
-using AutoMapper;
 using Eu.EDelivery.AS4.Exceptions;
+using Eu.EDelivery.AS4.Mappings.Core;
 using Eu.EDelivery.AS4.Model.Core;
-using Eu.EDelivery.AS4.Resources;
-using Eu.EDelivery.AS4.Singletons;
 using Eu.EDelivery.AS4.Streaming;
 using Eu.EDelivery.AS4.Xml;
 using NLog;
@@ -115,8 +110,10 @@ namespace Eu.EDelivery.AS4.Serialization
             {
                 switch (u)
                 {
-                    case UserMessage _: return AS4Mapper.Map<Xml.UserMessage>(u);
-                    case SignalMessage _: return AS4Mapper.Map<Xml.SignalMessage>(u);
+                    case UserMessage um: return UserMessageMap.Convert(um);
+                    case Receipt r: return ReceiptMap.Convert(r);
+                    case Error e: return ErrorMap.Convert(e);
+                    case PullRequest pr: return PullRequestMap.Convert(pr);
                     default:
                         throw new NotSupportedException(
                             $"AS4Message contains unkown MessageUnit of type: {u.GetType()}");
@@ -135,7 +132,7 @@ namespace Eu.EDelivery.AS4.Serialization
                 messagingHeader.mustUnderstand1 = true;
                 messagingHeader.mustUnderstand1Specified = true;
             }
-
+                
             return messagingHeader;
         }
 
@@ -276,8 +273,8 @@ namespace Eu.EDelivery.AS4.Serialization
             {
                 switch (u)
                 {
-                    case Xml.UserMessage _:
-                        return AS4Mapper.Map<UserMessage>(u);
+                    case Xml.UserMessage um:
+                        return UserMessageMap.Convert(um);
                     case Xml.SignalMessage s:
                         return ConvertSignalMessageFromXml(s, routing);
                     default:
@@ -306,24 +303,19 @@ namespace Eu.EDelivery.AS4.Serialization
 
         private static SignalMessage ConvertSignalMessageFromXml(Xml.SignalMessage signalMessage, Maybe<RoutingInputUserMessage> routing)
         {
-            void AddRouting(IMappingOperationOptions opts)
-            {
-                routing.Do(r => opts.Items.Add(SignalMessage.RoutingInputKey, r));
-            }
-
             if (signalMessage.Error != null)
             {
-                return AS4Mapper.Map<Error>(signalMessage, AddRouting);
+                return ErrorMap.Convert(signalMessage, routing);
             }
 
             if (signalMessage.PullRequest != null)
             {
-                return AS4Mapper.Map<PullRequest>(signalMessage);
+                return PullRequestMap.Convert(signalMessage);
             }
 
             if (signalMessage.Receipt != null)
             {
-                return AS4Mapper.Map<Receipt>(signalMessage, AddRouting);
+                return ReceiptMap.Convert(signalMessage, routing);
             }
 
             throw new NotSupportedException("Unable to map Xml.SignalMessage to SignalMessage");

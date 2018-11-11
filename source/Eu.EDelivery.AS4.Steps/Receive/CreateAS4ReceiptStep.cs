@@ -2,10 +2,10 @@
 using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
+using Eu.EDelivery.AS4.Mappings.Core;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
-using Eu.EDelivery.AS4.Singletons;
 using Eu.EDelivery.AS4.Xml;
 using NLog;
 using NonRepudiationInformation = Eu.EDelivery.AS4.Model.Core.NonRepudiationInformation;
@@ -81,9 +81,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
             if (useNRRFormat && received.IsSigned)
             {
-                    Logger.Debug(
-                        $"ReceivingPMode {receivingPMode?.Id} is configured to use Non-Repudiation for Receipt Creation");
-
+                    Logger.Debug($"ReceivingPMode {receivingPMode?.Id} is configured to use Non-Repudiation for Receipt Creation");
                     var nonRepudiation = new NonRepudiationInformation(
                         received.SecurityHeader
                                 .GetReferences()
@@ -103,10 +101,8 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         {
             return isMultihop.ThenMaybe(() =>
             {
-                Logger.Debug(
-                    $"Because the received UserMessage {userMessage.MessageId} has been sent via MultiHop, the Receipt will be send as MultiHop also");
-
-                return AS4Mapper.Map<RoutingInputUserMessage>(userMessage);
+                Logger.Debug($"Because the received UserMessage {userMessage.MessageId} has been sent via MultiHop, the Receipt will be send as MultiHop also");
+                return UserMessageMap.ConvertToRouting(userMessage);
             });
         }
     }

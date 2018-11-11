@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Eu.EDelivery.AS4.Mappings.Core;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
@@ -163,7 +164,7 @@ namespace Eu.EDelivery.AS4.Entities
                 Mpc = userMessage.Mpc;
                 IsTest = userMessage.IsTest;
                 IsDuplicate = userMessage.IsDuplicate;
-                SoapEnvelope = AS4XmlSerializer.ToString(AS4Mapper.Map<Xml.UserMessage>(userMessage));
+                SoapEnvelope = AS4XmlSerializer.ToString(UserMessageMap.Convert(userMessage));
             }
             else
             {

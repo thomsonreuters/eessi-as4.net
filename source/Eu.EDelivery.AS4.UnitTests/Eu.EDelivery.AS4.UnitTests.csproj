@@ -70,7 +70,7 @@
     <Compile Include="Extensions\EnumerableExtensions.cs" />
     <Compile Include="Factories\GivenPayloadFileNameFactoryFacts.cs" />
     <Compile Include="Gens.cs" />
-    <Compile Include="Mappings\Core\GivenRoutingInputUserMessageMapFacts.cs" />
+    <Compile Include="Mappings\Core\GivenMessageUnitMapFacts.cs" />
     <Compile Include="Mappings\PMode\GivenPModePartyResolverFacts.cs" />
     <Compile Include="Model\Deliver\EmptyDeliverEnvelope.cs" />
     <Compile Include="Model\Notify\EmptyNotifyEnvelope.cs" />
@@ -141,13 +141,6 @@
     <Compile Include="Extensions\AS4MessageExtensions.cs" />
     <Compile Include="Extensions\GivenIDictionaryExtensionFacts.cs" />
     <Compile Include="Extensions\XmlDocumentExtensions.cs" />
-    <Compile Include="Http\GivenReliableHttpClientFacts.cs" />
-    <Compile Include="Mappings\Core\GivenAgreementRefMapFacts.cs" />
-    <Compile Include="Mappings\Core\GivenCollaborationInfoMapFacts.cs" />
-    <Compile Include="Mappings\Core\GivenErrorMapFacts.cs" />
-    <Compile Include="Mappings\Core\GivenReceiptMapFacts.cs" />
-    <Compile Include="Mappings\Core\GivenUserMessageMap.cs" />
-    <Compile Include="Mappings\Core\GivenXmlSignalMessageMapFacts.cs" />
     <Compile Include="Mappings\PMode\GivenPModeActionResolverFacts.cs" />
     <Compile Include="Mappings\PMode\GivenPModeAgreemenRefResolverFacts.cs" />
     <Compile Include="Mappings\PMode\GivenPModeServiceResolverFacts.cs" />

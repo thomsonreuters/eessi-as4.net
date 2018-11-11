@@ -1,63 +1,100 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using AutoMapper;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Core;
-using Eu.EDelivery.AS4.Singletons;
+using Eu.EDelivery.AS4.Xml;
 using Error = Eu.EDelivery.AS4.Model.Core.Error;
-using SignalMessage = Eu.EDelivery.AS4.Model.Core.SignalMessage;
+using SignalMessage = Eu.EDelivery.AS4.Xml.SignalMessage;
 
 namespace Eu.EDelivery.AS4.Mappings.Core
 {
-    public class ErrorMap : Profile
+    internal class ErrorMap
     {
-        public ErrorMap()
+        /// <summary>
+        /// Maps from a XML representation with optional routing usermessage to a domain model representation of an AS4 error.
+        /// </summary>
+        /// <param name="xml">The XML representation to convert.</param>
+        /// <param name="routing">The optional routing usermessage to include in the to be created error.</param>
+        internal static Error Convert(SignalMessage xml, Maybe<RoutingInputUserMessage> routing)
         {
-            MapErrorToXml();
-            MapXmlToError();
+            if (xml == null)
+            {
+                throw new ArgumentNullException(nameof(xml));
+            }
+
+            if (routing == null)
+            {
+                throw new ArgumentNullException(nameof(routing));
+            }
+
+            if (xml.Error == null)
+            {
+                throw new ArgumentException(
+                    @"Cannot create Error domain model from a XML representation without an Error element",
+                    nameof(xml.Error));
+            }
+
+            string messageId = xml.MessageInfo?.MessageId;
+            string refToMessageId = xml.MessageInfo?.RefToMessageId;
+            DateTimeOffset timestamp = xml.MessageInfo?.Timestamp.ToDateTimeOffset() ?? DateTimeOffset.Now;
+
+            IEnumerable<ErrorLine> lines =
+                (xml.Error ?? new Xml.Error[0])
+                .Where(l => l != null)
+                .Select(l => new ErrorLine(
+                    GetErrorCodeFromXml(l.errorCode),
+                    l.severity.ToEnum(Severity.FAILURE),
+                    l.shortDescription.ToEnum(ErrorAlias.Other),
+                    l.origin.AsMaybe(),
+                    l.category.AsMaybe(),
+                    l.refToMessageInError.AsMaybe(),
+                    l.Description.AsMaybe().Select(d => new ErrorDescription(d.lang, d.Value)),
+                    l.ErrorDetail.AsMaybe()));
+
+            return routing.Select(r => new Error(messageId, refToMessageId, timestamp, lines, r))
+                          .GetOrElse(() => new Error(messageId, refToMessageId, timestamp, lines));
         }
 
-        private void MapXmlToError()
+        /// <summary>
+        /// Maps from a domain model representation to a XML representation of an AS4 error.
+        /// </summary>
+        /// <param name="model">The domain model to convert.</param>
+        internal static SignalMessage Convert(Error model)
         {
-            CreateMap<Xml.SignalMessage, Error>()
-                .ConstructUsing((xml, ctx) =>
+            if (model == null)
+            {
+                throw new ArgumentNullException(nameof(model));
+            }
+
+            Xml.Error MapErrorLine(ErrorLine l)
+            {
+                return new Xml.Error
                 {
-                    string messageId = xml.MessageInfo?.MessageId;
-                    string refToMessageId = xml.MessageInfo?.RefToMessageId;
-                    DateTimeOffset timestamp = xml.MessageInfo?.Timestamp ?? default(DateTimeOffset);
+                    errorCode = l.ErrorCode.GetString(),
+                    severity = l.Severity.ToString(),
+                    origin = l.Origin.GetOrElse(() => null),
+                    category = l.Category.GetOrElse(() => null),
+                    refToMessageInError = l.RefToMessageInError.GetOrElse(() => null),
+                    shortDescription = l.ShortDescription.ToString(),
+                    ErrorDetail = l.Detail.GetOrElse(() => null),
+                    Description = l.Description
+                                   .Select(d => new Description { lang = d.Language, Value = d.Value })
+                                   .GetOrElse(() => null)
+                };
+            }
 
-                    IEnumerable<ErrorLine> lines =
-                        (xml.Error ?? new Xml.Error[0]).Select(AS4Mapper.Map<ErrorLine>);
-
-                    if (ctx.Items.TryGetValue(SignalMessage.RoutingInputKey, out object value))
-                    {
-                        var routing = (Xml.RoutingInputUserMessage) value;
-                        return new Error(messageId, refToMessageId, timestamp, lines, routing);
-                    }
-
-                    return new Error(messageId, refToMessageId, timestamp, lines);
-                })
-                .ForAllOtherMembers(x => x.Ignore());
-
-            CreateMap<Xml.Error, ErrorLine>()
-                .ConstructUsing(xml => 
-                    new ErrorLine(
-                        GetErrorCodeFromXml(xml.errorCode),
-                        xml.severity.ToEnum(Severity.FAILURE),
-                        xml.shortDescription.ToEnum(ErrorAlias.Other),
-                        xml.origin.AsMaybe(),
-                        xml.category.AsMaybe(),
-                        xml.refToMessageInError.AsMaybe(),
-                        xml.Description.AsMaybe().Select(AS4Mapper.Map<ErrorDescription>),
-                        xml.ErrorDetail.AsMaybe()))
-                .ForAllOtherMembers(x => x.Ignore());
-
-            CreateMap<Xml.Description, ErrorDescription>()
-                .ConstructUsing(xml => new ErrorDescription(xml.lang, xml.Value))
-                .ForAllOtherMembers(x => x.Ignore());
-
+            return new SignalMessage
+            {
+                MessageInfo = new MessageInfo
+                {
+                    MessageId = model.MessageId,
+                    RefToMessageId = model.RefToMessageId,
+                    Timestamp = model.Timestamp.LocalDateTime
+                },
+                Error = model.ErrorLines.Select(MapErrorLine).ToArray()
+            };
         }
 
         private static ErrorCode GetErrorCodeFromXml(string errorCodeXml)
@@ -68,34 +105,9 @@ namespace Eu.EDelivery.AS4.Mappings.Core
             }
 
             return errorCodeXml
-                .ToUpper()
-                .Replace("EBMS:", String.Empty)
-                .ToEnum(ErrorCode.Ebms0004);
-        }
-
-        private void MapErrorToXml()
-        {
-            CreateMap<Error, Xml.SignalMessage>()
-                .ForMember(dest => dest.MessageInfo, src => src.MapFrom(t => t))
-                .ForMember(dest => dest.Error, src => src.MapFrom(t => t.ErrorLines))
-                .ForAllOtherMembers(x => x.Ignore());
-
-            CreateMap<ErrorLine, Xml.Error>()
-                .ForMember(dest => dest.errorCode, src => src.MapFrom(t => t.ErrorCode.GetString()))
-                .ForMember(dest => dest.severity, src => src.MapFrom(t => t.Severity))
-                .ForMember(dest => dest.origin, src => src.MapFrom(t => t.Origin.GetOrElse(() => null)))
-                .ForMember(dest => dest.category, src => src.MapFrom(t => t.Category.GetOrElse(() => null)))
-                .ForMember(dest => dest.refToMessageInError, src => src.MapFrom(t => t.RefToMessageInError.GetOrElse(() => null)))
-                .ForMember(dest => dest.shortDescription, src => src.MapFrom(t => t.ShortDescription))
-                .ForMember(dest => dest.Description, src => src.MapFrom(t => t.Description.GetOrElse(() => null)))
-                .ForMember(dest => dest.ErrorDetail, src => src.MapFrom(t => t.Detail.GetOrElse(() => null)))
-                .ForAllOtherMembers(x => x.Ignore());
-
-            CreateMap<ErrorDescription, Xml.Description>()
-                .ForMember(dest => dest.lang, src => src.MapFrom(t => t.Language))
-                .ForMember(dest => dest.Value, src => src.MapFrom(t => t.Value))
-                .ForAllOtherMembers(x => x.Ignore());
-
+                   .ToUpper()
+                   .Replace("EBMS:", string.Empty)
+                   .ToEnum(ErrorCode.Ebms0004);
         }
     }
 }

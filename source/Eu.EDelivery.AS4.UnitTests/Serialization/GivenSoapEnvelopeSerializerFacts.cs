@@ -14,6 +14,7 @@ using System.Xml.Serialization;
 using System.Xml.XPath;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Exceptions;
+using Eu.EDelivery.AS4.Mappings.Core;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
@@ -682,7 +683,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
 
             var error = new Error(
                 refToMessageId: expectedAS4Message.FirstUserMessage.MessageId, 
-                routing: AS4Mapper.Map<RoutingInputUserMessage>(expectedAS4Message.FirstUserMessage));
+                routing: UserMessageMap.ConvertToRouting(expectedAS4Message.FirstUserMessage));
 
             AS4Message errorMessage = AS4Message.Create(error);
 

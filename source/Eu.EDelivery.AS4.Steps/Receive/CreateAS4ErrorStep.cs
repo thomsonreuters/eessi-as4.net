@@ -6,12 +6,11 @@ using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Exceptions;
+using Eu.EDelivery.AS4.Mappings.Core;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
-using Eu.EDelivery.AS4.Singletons;
-using Eu.EDelivery.AS4.Xml;
 using NLog;
 using Error = Eu.EDelivery.AS4.Model.Core.Error;
 using PullRequest = Eu.EDelivery.AS4.Model.Core.PullRequest;
@@ -36,8 +35,8 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// <summary>
         /// Initializes a new instance of the <see cref="CreateAS4ErrorStep"/> class.
         /// </summary>
-        public CreateAS4ErrorStep(
-            Func<DatastoreContext> createDatastoreContext)
+        /// <param name="createDatastoreContext">Creates a new datastore context.</param>
+        public CreateAS4ErrorStep(Func<DatastoreContext> createDatastoreContext)
         {
             if (createDatastoreContext == null)
             {
@@ -108,7 +107,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 
                 if (received?.IsMultiHopMessage == true)
                 {
-                    var routedUserMessage = AS4Mapper.Map<RoutingInputUserMessage>(u);
+                    var routedUserMessage = UserMessageMap.ConvertToRouting(u);
                     return occurredError == null
                         ? new Error(u.MessageId, routedUserMessage)
                         : new Error(u.MessageId, ErrorLine.FromErrorResult(occurredError), routedUserMessage);
