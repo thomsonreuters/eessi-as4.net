@@ -241,6 +241,7 @@
     <Compile Include="Services\Journal\IJournalLogger.cs" />
     <Compile Include="Services\Journal\JournalLogEntry.cs" />
     <Compile Include="Services\Journal\JournalLogEntryComparer.cs" />
+    <Compile Include="Services\Journal\NopJournalLogger.cs" />
     <Compile Include="Services\PiggyBackingService.cs" />
     <Compile Include="Services\PullRequestAuthorization\FilePullAuthorizationMapProvider.cs" />
     <Compile Include="Services\PullRequestAuthorization\IPullAuthorizationMapProvider.cs" />

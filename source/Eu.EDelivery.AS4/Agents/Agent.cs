@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Receivers;
@@ -22,7 +21,7 @@ namespace Eu.EDelivery.AS4.Agents
         private readonly Transformer _transformerConfig;
         private readonly IAgentExceptionHandler _exceptionHandler;
         private readonly StepExecutioner _steps;
-        private readonly IJournalLogger _journalLogger = new JournalDatastoreLogger(Registry.Instance.CreateDatastoreContext);
+        private readonly IJournalLogger _journalLogger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Agent"/> class.
@@ -37,7 +36,25 @@ namespace Eu.EDelivery.AS4.Agents
             IReceiver receiver,
             Transformer transformerConfig,
             IAgentExceptionHandler exceptionHandler,
-            StepConfiguration stepConfiguration)
+            StepConfiguration stepConfiguration) 
+            : this(config, receiver, transformerConfig, exceptionHandler, stepConfiguration, new NopJournalLogger()) { }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Agent"/> class.
+        /// </summary>
+        /// <param name="config">The config to add metadata to the agent.</param>
+        /// <param name="receiver">The receiver on which the agent should listen for messages.</param>
+        /// <param name="transformerConfig">The config to create <see cref="ITransformer"/> instances.</param>
+        /// <param name="exceptionHandler">The handler to handle failures during the agent execution.</param>
+        /// <param name="stepConfiguration">The config to create <see cref="IStep"/> normal & error pipelines.</param>
+        /// <param name="journalLogger">The logging implementation to write journal log entries for handled messages.</param>
+        internal Agent(
+            AgentConfig config,
+            IReceiver receiver,
+            Transformer transformerConfig,
+            IAgentExceptionHandler exceptionHandler,
+            StepConfiguration stepConfiguration,
+            IJournalLogger journalLogger)
         {
             if (config == null)
             {
@@ -68,6 +85,7 @@ namespace Eu.EDelivery.AS4.Agents
             _transformerConfig = transformerConfig;
             _exceptionHandler = exceptionHandler;
             _steps = new StepExecutioner(stepConfiguration, exceptionHandler);
+            _journalLogger = journalLogger ?? new NopJournalLogger();
 
             AgentConfig = config;
         }
@@ -112,6 +130,7 @@ namespace Eu.EDelivery.AS4.Agents
             _transformerConfig = transformerConfig;
             _exceptionHandler = exceptionHandler;
             _steps = new StepExecutioner(pipelineConfig, exceptionHandler);
+            _journalLogger = new NopJournalLogger();
 
             AgentConfig = config;
         }
