@@ -1,5 +1,7 @@
 <?xml version="1.0"?>
-<PMode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="eu:edelivery:as4:pmode">
+<PMode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+  xmlns="eu:edelivery:as4:pmode">
   <Id>receiveagent-non_existing_decrypt_cert-pmode</Id>
   <Reliability>
     <DuplicateElimination>
@@ -8,7 +10,6 @@
   </Reliability>
   <ReplyHandling>
     <ReplyPattern>Response</ReplyPattern>
-    <SendingPMode>unsigned-response-pmode</SendingPMode>
     <ReceiptHandling>
       <UseNRRFormat>false</UseNRRFormat>
     </ReceiptHandling>
@@ -16,6 +17,9 @@
       <UseSoapFault>false</UseSoapFault>
       <ResponseHttpCode>200</ResponseHttpCode>
     </ErrorHandling>
+    <ResponseSigning>
+      <IsEnabled>false</IsEnabled>
+    </ResponseSigning>
   </ReplyHandling>
   <ExceptionHandling>
     <NotifyMessageConsumer>true</NotifyMessageConsumer>
@@ -32,13 +36,13 @@
     </SigningVerification>
     <Decryption>
       <Encryption>Allowed</Encryption>
-	  <CertificateFindCriteria>
-		<CertificateFindType>FindBySubjectName</CertificateFindType>
-		<CertificateFindValue>nonexisting_subjectname</CertificateFindValue>
-	  </CertificateFindCriteria>
+      <CertificateFindCriteria>
+        <CertificateFindType>FindBySubjectName</CertificateFindType>
+        <CertificateFindValue>nonexisting_subjectname</CertificateFindValue>
+      </CertificateFindCriteria>
     </Decryption>
   </Security>
-  <MessagePackaging>    
+  <MessagePackaging>
     <CollaborationInfo>
       <AgreementReference>
         <Value>http://agreements.europa.org/agreement</Value>

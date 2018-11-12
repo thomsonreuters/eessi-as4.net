@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
@@ -13,15 +11,12 @@ using Eu.EDelivery.AS4.UnitTests.Common;
 using Eu.EDelivery.AS4.UnitTests.Model;
 using FsCheck;
 using FsCheck.Xunit;
-using Moq;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 {
     public class GivenCreateAS4ReceiptStepFacts
     {
-        private const string NonMultihopSendPModeId = "non-multihop-send-id";
-
         [Property]
         public Property Creates_Receipt_For_Each_UserMessage()
         {
@@ -175,69 +170,49 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
         }
 
         [Fact]
-        public async Task Creates_Multihop_Receipt_If_Specified_In_Response_PMode()
+        public async Task Creates_Multihop_Receipt_If_Received_UserMessage_Is_MultiHop()
         {
             // Arrange
-            string sendPModeId = $"send-id-{Guid.NewGuid()}";
-            MessagingContext fixture = CreateUserMessageWrappedInContext(sendPModeId);
-
-            var stub = new StubConfig(
-                sendingPModes: new Dictionary<string, SendingProcessingMode>
-                {
-                    [sendPModeId] = new SendingProcessingMode
-                    {
-                        Id = sendPModeId,
-                        MessagePackaging = { IsMultiHop = true }
-                    }
-                },
-                receivingPModes: new Dictionary<string, ReceivingProcessingMode>());
+            var fixture = new MessagingContext(
+                AS4Message.Create(
+                    new UserMessage($"user-{Guid.NewGuid()}"),
+                    new SendingProcessingMode { MessagePackaging = { IsMultiHop = true } }),
+                MessagingContextMode.Receive)
+            {
+                ReceivingPMode = new ReceivingProcessingMode()
+            };
 
             // Act
-            MessagingContext result = await ExerciseCreateReceipt(fixture, stub);
+            AS4Message result = await ExerciseCreateReceipt(fixture);
 
             // Assert
-            Assert.True(result.AS4Message.IsMultiHopMessage);
-            Assert.Equal(sendPModeId, result.SendingPMode.Id);
+            Assert.True(result.IsMultiHopMessage);
         }
 
-        private static MessagingContext CreateUserMessageWrappedInContext(
-            string responsePModeId = NonMultihopSendPModeId)
+        private static MessagingContext CreateUserMessageWrappedInContext()
         {
             return new MessagingContext(
                     AS4Message.Create(new FilledUserMessage()),
                     MessagingContextMode.Receive)
             {
-                ReceivingPMode = GetReceivingPMode(responsePModeId)
+                ReceivingPMode = GetReceivingPMode()
             };
         }
 
-        private static ReceivingProcessingMode GetReceivingPMode(string responsePModeId)
+        private static ReceivingProcessingMode GetReceivingPMode()
         {
             var pmode = new ReceivingProcessingMode();
             pmode.ReplyHandling.ReceiptHandling.UseNRRFormat = false;
-            pmode.ReplyHandling.SendingPMode = responsePModeId;
 
             return pmode;
         }
 
         private static async Task<AS4Message> ExerciseCreateReceipt(MessagingContext ctx)
         {
-            var stub = new Mock<IConfig>();
-            stub.Setup(c => c.GetSendingPMode(It.IsAny<string>()))
-                .Returns(new SendingProcessingMode());
-
-            MessagingContext result = await ExerciseCreateReceipt(ctx, stub.Object);
-            return result.AS4Message;
-        }
-
-        private static async Task<MessagingContext> ExerciseCreateReceipt(
-            MessagingContext ctx,
-            IConfig stub)
-        {
-            var sut = new CreateAS4ReceiptStep(stub);
+            var sut = new CreateAS4ReceiptStep();
             StepResult result = await sut.ExecuteAsync(ctx);
 
-            return result.MessagingContext;
+            return result.MessagingContext.AS4Message;
         }
     }
 }

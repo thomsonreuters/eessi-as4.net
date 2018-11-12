@@ -10,7 +10,6 @@
   </Reliability>
   <ReplyHandling>
     <ReplyPattern>Response</ReplyPattern>
-    <SendingPMode>unsigned-response-pmode</SendingPMode>
     <ReceiptHandling>
       <UseNRRFormat>false</UseNRRFormat>
     </ReceiptHandling>
@@ -18,6 +17,9 @@
       <UseSoapFault>false</UseSoapFault>
       <ResponseHttpCode>200</ResponseHttpCode>
     </ErrorHandling>
+    <ResponseSigning>
+      <IsEnabled>false</IsEnabled>
+    </ResponseSigning>
   </ReplyHandling>
   <ExceptionHandling>
     <NotifyMessageConsumer>true</NotifyMessageConsumer>

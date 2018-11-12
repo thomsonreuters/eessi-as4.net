@@ -1,7 +1,12 @@
 using System;
 using System.IO;
+using System.Linq;
+using System.Xml;
+using System.Xml.Schema;
+using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.PMode;
+using Eu.EDelivery.AS4.Resources;
 using Eu.EDelivery.AS4.Serialization;
 
 namespace Eu.EDelivery.AS4.Model.Internal
@@ -59,18 +64,55 @@ namespace Eu.EDelivery.AS4.Model.Internal
                     return AS4XmlSerializer.FromString<T>(me.PMode);
                 }
 
+                if (Entity is ExceptionEntity ee)
+                {
+                    return AS4XmlSerializer.FromString<T>(ee.PMode);
+                }
+
                 return null;
             }
 
-            if (Entity is InMessage)
+            switch (Entity)
             {
-                messagingContext.ReceivingPMode = GetPMode<ReceivingProcessingMode>();
-                messagingContext.SendingPMode = null;
-            }
-            else if (Entity is OutMessage)
-            {
-                messagingContext.ReceivingPMode = null;
-                messagingContext.SendingPMode = GetPMode<SendingProcessingMode>();
+                case InMessage im:
+                    switch (im.EbmsMessageType)
+                    {
+                        case MessageType.Receipt:
+                        case MessageType.Error:
+                            messagingContext.SendingPMode = GetPMode<SendingProcessingMode>();
+                            break;
+                        case MessageType.UserMessage:
+                            messagingContext.ReceivingPMode = GetPMode<ReceivingProcessingMode>();
+                            break;
+                    }
+
+                    break;
+                case OutMessage om:
+                    if (om.Intermediary)
+                    {
+                        messagingContext.SendingPMode = GetPMode<SendingProcessingMode>();
+                    }
+                    else
+                    {
+                        switch (om.EbmsMessageType)
+                        {
+                            case MessageType.Receipt:
+                            case MessageType.Error:
+                                messagingContext.ReceivingPMode = GetPMode<ReceivingProcessingMode>();
+                                break;
+                            case MessageType.UserMessage:
+                                messagingContext.SendingPMode = GetPMode<SendingProcessingMode>();
+                                break;
+                        }
+                    }
+
+                    break;
+                case InException _:
+                    messagingContext.ReceivingPMode = GetPMode<ReceivingProcessingMode>();
+                    break;
+                case OutException _:
+                    messagingContext.SendingPMode = GetPMode<SendingProcessingMode>();
+                    break;
             }
         }
     }

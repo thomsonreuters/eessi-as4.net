@@ -13,13 +13,13 @@ namespace Eu.EDelivery.AS4.Builders.Entities
     {
         private readonly MessageUnit _messageUnit;
         private readonly string _contentType;
-        private readonly SendingProcessingMode _sendingProcessingMode;
+        private readonly IPMode _pmode;
 
-        private OutMessageBuilder(MessageUnit messageUnit, string contentType, SendingProcessingMode sendingPMode)
+        private OutMessageBuilder(MessageUnit messageUnit, string contentType, IPMode pmode)
         {
             _messageUnit = messageUnit;
             _contentType = contentType;
-            _sendingProcessingMode = sendingPMode;
+            _pmode = pmode;
         }
 
         /// <summary>
@@ -27,21 +27,21 @@ namespace Eu.EDelivery.AS4.Builders.Entities
         /// </summary>
         /// <param name="messageUnit">The message unit.</param>
         /// <param name="contentType"></param>
-        /// <param name="sendingPMode">The Sending PMode that is used for this message</param>
+        /// <param name="pmode">The PMode that is used for this message</param>
         /// <returns></returns>
-        public static OutMessageBuilder ForMessageUnit(MessageUnit messageUnit, string contentType, SendingProcessingMode sendingPMode)
+        public static OutMessageBuilder ForMessageUnit(MessageUnit messageUnit, string contentType, IPMode pmode)
         {
             if (messageUnit == null)
             {
                 throw new ArgumentNullException(nameof(messageUnit));
             }
 
-            if (string.IsNullOrWhiteSpace(contentType))
+            if (String.IsNullOrWhiteSpace(contentType))
             {
                 throw new ArgumentException(@"Value cannot be null or whitespace.", nameof(contentType));
             }
 
-            return new OutMessageBuilder(messageUnit, contentType, sendingPMode);
+            return new OutMessageBuilder(messageUnit, contentType, pmode);
         }
 
         /// <summary>
@@ -53,14 +53,20 @@ namespace Eu.EDelivery.AS4.Builders.Entities
         /// <returns></returns>
         public OutMessage BuildForSending(string location, OutStatus status, Operation operation)
         {
-            if (string.IsNullOrWhiteSpace(location))
+            if (String.IsNullOrWhiteSpace(location))
             {
                 throw new ArgumentException(@"Value cannot be null or whitespace.", nameof(location));
             }
 
             OutMessage outMessage = Build();
             outMessage.MessageLocation = location;
-            outMessage.Url = _sendingProcessingMode?.PushConfiguration?.Protocol?.Url;
+            outMessage.Url =
+                _pmode is SendingProcessingMode sp
+                    ? sp.PushConfiguration?.Protocol?.Url
+                    : _pmode is ReceivingProcessingMode rp
+                        ? rp.ReplyHandling.ResponseConfiguration?.Protocol?.Url
+                        : null;
+
             outMessage.SetStatus(status);
             outMessage.Operation = operation;
 
@@ -75,7 +81,7 @@ namespace Eu.EDelivery.AS4.Builders.Entities
         /// <returns></returns>
         public OutMessage BuildForForwarding(string location, InMessage receivedInMessage)
         {
-            if (string.IsNullOrWhiteSpace(location))
+            if (String.IsNullOrWhiteSpace(location))
             {
                 throw new ArgumentException(@"Value cannot be null or whitespace.", nameof(location));
             }
@@ -89,7 +95,7 @@ namespace Eu.EDelivery.AS4.Builders.Entities
             outMessage.MessageLocation = location;
             outMessage.Intermediary = true;
             outMessage.IsDuplicate = receivedInMessage.IsDuplicate;
-            outMessage.Mpc = _sendingProcessingMode?.MessagePackaging?.Mpc;
+            outMessage.Mpc = (_pmode as SendingProcessingMode)?.MessagePackaging?.Mpc;
             outMessage.Operation = Operation.ToBeProcessed;
 
             return outMessage;
@@ -103,14 +109,14 @@ namespace Eu.EDelivery.AS4.Builders.Entities
                 ModificationTime = DateTimeOffset.Now,
                 InsertionTime = DateTimeOffset.Now,
                 Operation = Operation.NotApplicable,
-                MEP = DetermineMepOf(_sendingProcessingMode),
+                MEP = DetermineMepOf(_pmode as SendingProcessingMode),
                 EbmsMessageType = DetermineSignalMessageType(_messageUnit)
             };
 
-            outMessage.SetPModeInformation(_sendingProcessingMode);
+            outMessage.SetPModeInformation(_pmode);
             outMessage.AssignAS4Properties(_messageUnit);
 
-            if (string.IsNullOrWhiteSpace(_messageUnit.RefToMessageId) == false)
+            if (String.IsNullOrWhiteSpace(_messageUnit.RefToMessageId) == false)
             {
                 outMessage.EbmsRefToMessageId = _messageUnit.RefToMessageId;
             }

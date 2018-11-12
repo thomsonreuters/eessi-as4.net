@@ -25,6 +25,7 @@ using Eu.EDelivery.AS4.Singletons;
 using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Steps.Receive;
 using Eu.EDelivery.AS4.TestUtils;
+using Eu.EDelivery.AS4.UnitTests.Common;
 using Eu.EDelivery.AS4.UnitTests.Extensions;
 using Eu.EDelivery.AS4.UnitTests.Model;
 using Eu.EDelivery.AS4.UnitTests.Resources;
@@ -633,9 +634,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
         {
             AS4Message as4Message = await CreateReceivedAS4Message(CreateMultiHopPMode());
 
-            var message = new MessagingContext(as4Message, MessagingContextMode.Receive);
+            var message = new MessagingContext(as4Message, MessagingContextMode.Receive)
+            {
+                ReceivingPMode = new ReceivingProcessingMode()
+            };
 
-            StepResult result = await CreateReceiptForUserMessage(message, CreateMultiHopPMode());
+            StepResult result = await CreateReceiptForUserMessage(message);
 
             // The result should contain a signalmessage, which is a receipt.
             Assert.True(result.MessagingContext.AS4Message.IsSignalMessage);
@@ -739,9 +743,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
         {
             AS4Message as4Message = await CreateReceivedAS4Message(CreateNonMultiHopPMode());
 
-            var context = new MessagingContext(as4Message, MessagingContextMode.Unknown);
+            var context = new MessagingContext(as4Message, MessagingContextMode.Unknown)
+            {
+                ReceivingPMode = new ReceivingProcessingMode()
+            };
 
-            StepResult result = await CreateReceiptForUserMessage(context, CreateNonMultiHopPMode());
+            StepResult result = await CreateReceiptForUserMessage(context);
 
             // The result should contain a signalmessage, which is a receipt.
             Assert.True(result.MessagingContext.AS4Message.IsSignalMessage);
@@ -757,19 +764,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
             Assert.Null(doc.UnsafeSelectEbmsNode("/s12:Envelope/s12:Header/mh:RoutingInput"));
         }
 
-        private static async Task<StepResult> CreateReceiptForUserMessage(
-            MessagingContext ctx,
-            SendingProcessingMode responsePMode)
+        private static async Task<StepResult> CreateReceiptForUserMessage(MessagingContext ctx)
         {
-            var stub = new Mock<IConfig>();
-            stub.Setup(c => c.GetSendingPMode(responsePMode.Id))
-                .Returns(responsePMode);
-
-            ctx.ReceivingPMode = new ReceivingProcessingMode { ReplyHandling = { SendingPMode = responsePMode.Id } };
-
             // Create a receipt for this message.
             // Use the CreateReceiptStep, since there is no other way.
-            var step = new CreateAS4ReceiptStep(stub.Object);
+            var step = new CreateAS4ReceiptStep();
             return await step.ExecuteAsync(ctx);
         }
 

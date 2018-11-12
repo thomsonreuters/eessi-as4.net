@@ -67,7 +67,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                     new ReceivePMode
                     {
                         Id = receivePModeId,
-                        ReplyHandling = new ReplyHandling { SendingPMode = "some-other-send-pmodeid" }
                     });
 
                 // Assert
@@ -173,7 +172,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 ReceivePMode pmode = CreatePModeWithActionService(service, action);
                 pmode.MessagePackaging.CollaborationInfo.AgreementReference.Value = "not-equal";
                 DifferentiatePartyInfo(pmode);
-                SetupPModes(pmode, new ReceivePMode() { Id = "other id", ReplyHandling = {SendingPMode = "other pmode"}});
+                SetupPModes(pmode, new ReceivePMode() { Id = "other id"});
             }
 
             [Theory]
@@ -221,7 +220,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                     CollaborationInfo = new CollaborationInfo(),
                     PartyInfo = new PartyInfo()
                 },
-                ReplyHandling = { SendingPMode = "response_pmode" }
             };
         }
 

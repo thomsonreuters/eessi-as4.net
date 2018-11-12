@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
@@ -14,18 +13,14 @@ using Eu.EDelivery.AS4.UnitTests.Common;
 using Eu.EDelivery.AS4.UnitTests.Model;
 using FsCheck;
 using FsCheck.Xunit;
-using Moq;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 {
-    /// <summary>
-    /// Testing <see cref="CreateAS4ErrorStep" />
-    /// </summary>
     public class GivenCreateAS4ErrorStepFacts : GivenDatastoreFacts
     {
         [Property]
-        public Property Creates_Error_For_Each_Bundled_UserMessage()
+        public Property Creates_Error_For_Each_Bundled_UserMessage(bool isMultiHop)
         {
             return Prop.ForAll(
                 Gen.Fresh(() => new UserMessage($"user-{Guid.NewGuid()}"))
@@ -34,12 +29,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 userMessages =>
                 {
                     // Arrange
-                    AS4Message fixture = AS4Message.Create(userMessages);
+                    AS4Message fixture = AS4Message.Create(
+                        userMessages, 
+                        new SendingProcessingMode { MessagePackaging = { IsMultiHop = isMultiHop } });
                     IEnumerable<string> fixtureMessageIds = fixture.MessageIds;
 
                     // Act
                     StepResult result =
-                        CreateErrorStepWith("unknown-send-pmode-id")
+                        CreateErrorStep()
                             .ExecuteAsync(new MessagingContext(fixture, MessagingContextMode.Receive))
                             .GetAwaiter()
                             .GetResult();
@@ -53,20 +50,28 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                             Assert.IsType<Error>(messageUnit);
                             var error = (Error) messageUnit;
                             Assert.Contains(error.RefToMessageId, fixtureMessageIds);
-                            Assert.Equal(error.RefToMessageId, error.MultiHopRouting.UnsafeGet.MessageInfo?.MessageId);
+
+                            Maybe<string> expectedId =
+                                Maybe.Just(error.RefToMessageId)
+                                     .Where(_ => isMultiHop);
+
+                            Maybe<string> actualId = 
+                                error.MultiHopRouting
+                                     .Select(r => r.MessageInfo?.MessageId);
+
+                            Assert.Equal(expectedId, actualId);
                         });
                 });
         }
 
         [Fact]
-        public async Task ThenNotApplicableIfMessageIsEmptySoapBodyAsync()
+        public async Task Skips_Create_Error_When_AS4Message_Is_Empty()
         {
             // Arrange
             var fixture = new MessagingContext(AS4Message.Empty, MessagingContextMode.Receive);
 
             // Act
-            StepResult result = await CreateErrorStepWith(
-                referencedSendPModeId: Guid.NewGuid().ToString())
+            StepResult result = await CreateErrorStep()
                 .ExecuteAsync(fixture);
 
             // Assert
@@ -74,21 +79,20 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
         }
 
         [Fact]
-        public async Task ThenErrorIsCreatedWithAS4ExceptionAsync()
+        public async Task Creates_Error_Based_On_ErrorResult_Information()
         {
             // Arrange
             AS4Message as4Message = CreateFilledAS4Message();
-            string sendPModeId = $"send-{Guid.NewGuid()}";
             var fixture = new MessagingContext(
                 as4Message,
                 MessagingContextMode.Unknown)
             {
                 ErrorResult = new ErrorResult("error", ErrorAlias.ConnectionFailure),
-                ReceivingPMode = CreateReceivePModeWithReferencedSendPMode(sendPModeId)
+                ReceivingPMode = new ReceivingProcessingMode()
             };
 
             // Act
-            StepResult result = await CreateErrorStepWith(sendPModeId).ExecuteAsync(fixture);
+            StepResult result = await CreateErrorStep().ExecuteAsync(fixture);
 
             // Assert
             var error = result.MessagingContext.AS4Message.FirstSignalMessage as Error;
@@ -96,50 +100,48 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             Assert.NotNull(error);
             Assert.Equal("message-id", error.RefToMessageId);
             Assert.Equal(ErrorCode.Ebms0005, error.ErrorLines.First().ErrorCode);
-            Assert.Equal(sendPModeId, result.MessagingContext.SendingPMode.Id);
         }
 
         [Fact]
-        public async Task ThenErrorIsCreatedWithPModesAsync()
-        {
-            // Arrange
-            string sendPModeId = $"send-{Guid.NewGuid()}";
-            var fixture = new MessagingContext(
-                CreateFilledAS4Message(),
-                MessagingContextMode.Unknown)
-            {
-                ReceivingPMode = CreateReceivePModeWithReferencedSendPMode(sendPModeId)
-            };
-
-            // Act
-            StepResult result = await CreateErrorStepWith(sendPModeId).ExecuteAsync(fixture);
-
-            // Assert
-            Assert.Equal(fixture.ReceivingPMode, result.MessagingContext.ReceivingPMode);
-            Assert.Equal(sendPModeId, result.MessagingContext.SendingPMode.Id);
-        }
-
-        [Fact]
-        public async Task ThenErrorIsCreatedWithSigningIdAsync()
+        public async Task Creates_Error_With_Same_SigningId_As_Received_UserMessage()
         {
             // Arrange
             AS4Message as4Message = CreateFilledAS4Message();
             as4Message.SigningId = new SigningId("header-id", "body-id");
-            string sendPModeId = $"send-{Guid.NewGuid()}";
 
             var fixture = new MessagingContext(
                 as4Message,
                 MessagingContextMode.Unknown)
             {
-                ReceivingPMode = CreateReceivePModeWithReferencedSendPMode(sendPModeId)
+                ReceivingPMode = new ReceivingProcessingMode()
             };
 
             // Act
-            StepResult result = await CreateErrorStepWith(sendPModeId).ExecuteAsync(fixture);
+            StepResult result = await CreateErrorStep().ExecuteAsync(fixture);
 
             // Assert
             Assert.Equal(as4Message.SigningId, result.MessagingContext.AS4Message.SigningId);
-            Assert.Equal(sendPModeId, result.MessagingContext.SendingPMode.Id);
+        }
+
+        [Fact]
+        public async Task Creates_MultiHop_Error_If_Received_UserMessage_Is_MultiHop()
+        {
+            // Arrange
+            var ctx = new MessagingContext(
+                AS4Message.Create(
+                    new UserMessage($"user-{Guid.NewGuid()}"),
+                    new SendingProcessingMode { MessagePackaging = { IsMultiHop = true } }),
+                MessagingContextMode.Receive)
+            {
+                ReceivingPMode = new ReceivingProcessingMode()
+            };
+
+            // Act
+            AS4Message actual = await ExerciseCreateError(ctx);
+
+            // Assert
+            Assert.IsType<Error>(actual.PrimaryMessageUnit);
+            Assert.True(actual.IsMultiHopMessage, "Is not multi-hop message");
         }
 
         private static AS4Message CreateFilledAS4Message()
@@ -147,24 +149,17 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             return AS4Message.Create(new FilledUserMessage());
         }
 
-        private static ReceivingProcessingMode CreateReceivePModeWithReferencedSendPMode(string id)
+        private IStep CreateErrorStep()
         {
-            return new ReceivingProcessingMode
-            {
-                ReplyHandling =
-                {
-                    SendingPMode = id
-                }
-            };
+            return new CreateAS4ErrorStep(GetDataStoreContext);
         }
 
-        private IStep CreateErrorStepWith(string referencedSendPModeId)
+        private async Task<AS4Message> ExerciseCreateError(MessagingContext ctx)
         {
-            var stub = new Mock<IConfig>();
-            stub.Setup(c => c.GetSendingPMode(referencedSendPModeId))
-                .Returns(new SendingProcessingMode { Id = referencedSendPModeId });
+            var sut = new CreateAS4ErrorStep(GetDataStoreContext);
+            StepResult result = await sut.ExecuteAsync(ctx);
 
-            return new CreateAS4ErrorStep(stub.Object, GetDataStoreContext);
+            return result.MessagingContext.AS4Message;
         }
     }
 }
