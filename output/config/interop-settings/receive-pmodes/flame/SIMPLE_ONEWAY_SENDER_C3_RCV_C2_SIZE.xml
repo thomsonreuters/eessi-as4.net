@@ -1,5 +1,7 @@
 <?xml version="1.0"?>
-<PMode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="eu:edelivery:as4:pmode">
+<PMode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+  xmlns="eu:edelivery:as4:pmode">
   <Id>ACT_SIMPLE_ONEWAY_SENDER_FLAME-C3_RCV_AS4NET-C2_SIZE</Id>
   <Reliability>
     <DuplicateElimination>
@@ -8,7 +10,6 @@
   </Reliability>
   <ReplyHandling>
     <ReplyPattern>Response</ReplyPattern>
-    <SendingPMode>SIGNED_RESPONSE_FROM_C2</SendingPMode>
     <ReceiptHandling>
       <UseNRRFormat>true</UseNRRFormat>
     </ReceiptHandling>
@@ -16,6 +17,16 @@
       <UseSoapFault>false</UseSoapFault>
       <ResponseHttpCode>200</ResponseHttpCode>
     </ErrorHandling>
+    <ResponseSigning>
+      <IsEnabled>true</IsEnabled>
+      <CertificateFindCriteria>
+        <CertificateFindType>FindBySubjectName</CertificateFindType>
+        <CertificateFindValue>as4-net-c2</CertificateFindValue>
+      </CertificateFindCriteria>
+      <KeyReferenceMethod>BSTReference</KeyReferenceMethod>
+      <Algorithm>http://www.w3.org/2001/04/xmldsig-more#rsa-sha256</Algorithm>
+      <HashFunction>http://www.w3.org/2001/04/xmlenc#sha256</HashFunction>
+    </ResponseSigning>
   </ReplyHandling>
   <ExceptionHandling>
     <NotifyMessageConsumer>false</NotifyMessageConsumer>
