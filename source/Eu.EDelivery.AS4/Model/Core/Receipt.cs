@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Eu.EDelivery.AS4.Factories;
+using Eu.EDelivery.AS4.Mappings.Core;
 using Eu.EDelivery.AS4.Xml;
 using CryptoReference = System.Security.Cryptography.Xml.Reference;
 
@@ -236,6 +237,52 @@ namespace Eu.EDelivery.AS4.Model.Core
             }
 
             NonRepudiationInformation = nonRepudiation;
+        }
+
+        /// <summary>
+        /// Creates a non-repudiation AS4 receipt that references a given <paramref name="userMessage"/>.
+        /// </summary>
+        /// <param name="userMessage">The AS4 user message to reference in the to be created error.</param>
+        /// <param name="userMessageSecurityHeader">The security header to retrieve the signed references from to include in the receipt.</param>
+        /// <param name="userMessageSendViaMultiHop">
+        ///     Whether or not the user message was send in a multi-hop fashion or not.
+        ///     Setting this on <c>true</c> will result in a receipt with the referencing user message included in a RoutingInput element.
+        /// </param>
+        public static Receipt CreateReferencingNonRepudiation(
+            UserMessage userMessage,
+            SecurityHeader userMessageSecurityHeader,
+            bool userMessageSendViaMultiHop = false)
+        {
+            if (userMessageSecurityHeader != null)
+            {
+                var nonRepudiation = new NonRepudiationInformation(
+                    userMessageSecurityHeader
+                        .GetReferences()
+                        .Select(Reference.CreateFromReferenceElement));
+
+                return userMessageSendViaMultiHop.ThenMaybe(UserMessageMap.ConvertToRouting(userMessage))
+                       .Select(routing => new Receipt(userMessage?.MessageId, nonRepudiation, routing))
+                       .GetOrElse(() => new Receipt(userMessage?.MessageId, nonRepudiation));
+            }
+
+            return CreateReferencing(userMessage, userMessageSendViaMultiHop);
+        }
+
+        /// <summary>
+        /// Creates an AS4 receipt that references a given <paramref name="userMessage"/>.
+        /// </summary>
+        /// <param name="userMessage">The AS4 user message to reference in the to be created error.</param>
+        /// <param name="userMessageSendViaMultiHop">
+        ///     Whether or not the user message was send in a multi-hop fashion or not.
+        ///     Setting this on <c>true</c> will result in a receipt with the referencing user message included in a RoutingInput element.
+        /// </param>
+        public static Receipt CreateReferencing(
+            UserMessage userMessage,
+            bool userMessageSendViaMultiHop = false)
+        {
+            return userMessageSendViaMultiHop.ThenMaybe(UserMessageMap.ConvertToRouting(userMessage))
+                .Select(routing => new Receipt(userMessage?.MessageId, userMessage, routing))
+                .GetOrElse(() => new Receipt(userMessage?.MessageId, userMessage));
         }
 
         /// <summary>

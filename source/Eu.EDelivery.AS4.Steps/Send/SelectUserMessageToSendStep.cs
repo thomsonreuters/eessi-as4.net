@@ -94,7 +94,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 return StepResult.Success(messagingContext);
             }
 
-            AS4Message pullRequestWarning = AS4Message.Create(new PullRequestError());
+            AS4Message pullRequestWarning = AS4Message.Create(Error.CreatePullRequestWarning());
             messagingContext.ModifyContext(pullRequestWarning);
 
             return StepResult.Success(messagingContext).AndStopExecution();

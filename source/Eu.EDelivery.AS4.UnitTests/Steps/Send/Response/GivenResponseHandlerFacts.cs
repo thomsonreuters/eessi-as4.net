@@ -180,7 +180,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
                 // Arrange
                 IAS4Response stubAS4Response = CreateResponseWith(
                     request: new PullRequest("some-mpc"), 
-                    response: new PullRequestError($"pull-{Guid.NewGuid()}"));
+                    response: Error.CreatePullRequestWarning());
 
                 var handler = new PullRequestResponseHandler(() => null, CreateAnonymousNextHandler());
 

@@ -285,7 +285,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             AS4Message as4Message = await response.DeserializeToAS4Message();
             var error = as4Message.PrimaryMessageUnit as Error;
             Assert.NotNull(error);
-            Assert.True(error.IsWarningForEmptyPullRequest, "Responded Error is not a PullRequest warning");
+            Assert.True(error.IsPullRequestWarning, "Responded Error is not a PullRequest warning");
         }
 
         private void StoreToBeAckOutMessage(string messageId, SendingProcessingMode sendingPMode)

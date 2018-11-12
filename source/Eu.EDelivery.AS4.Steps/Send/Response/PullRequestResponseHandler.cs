@@ -81,7 +81,7 @@ namespace Eu.EDelivery.AS4.Steps.Send.Response
                 }
 
                 bool isEmptyChannelWarning = 
-                    (response.ReceivedAS4Message?.FirstSignalMessage as Error)?.IsWarningForEmptyPullRequest == true;
+                    (response.ReceivedAS4Message?.FirstSignalMessage as Error)?.IsPullRequestWarning == true;
 
                 if (isEmptyChannelWarning)
                 {

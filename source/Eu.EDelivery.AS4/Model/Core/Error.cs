@@ -4,6 +4,7 @@ using System.Linq;
 using System.Xml.Serialization;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Factories;
+using Eu.EDelivery.AS4.Mappings.Core;
 using Eu.EDelivery.AS4.Xml;
 
 namespace Eu.EDelivery.AS4.Model.Core
@@ -129,6 +130,62 @@ namespace Eu.EDelivery.AS4.Model.Core
         }
 
         /// <summary>
+        /// Creates an AS4 error referencing a given <paramref name="userMessage"/>.
+        /// </summary>
+        /// <param name="userMessage">The AS4 user message to reference in the to be created error.</param>
+        /// <param name="userMessageSendViaMultiHop">
+        ///     Whether or not the user message was send in a multi-hop fashion or not.
+        ///     Setting this on <c>true</c> will result in an error with the referencing user message included in a RoutingInput element.
+        /// </param>
+        public static Error CreateReferencing(UserMessage userMessage, bool userMessageSendViaMultiHop = false)
+        {
+            return CreateReferencing(
+                userMessage, 
+                occurredError: null, 
+                userMessageSendViaMultiHop: userMessageSendViaMultiHop);
+        }
+
+        /// <summary>
+        /// Creates an AS4 error referencing a given <paramref name="userMessage"/>.
+        /// </summary>
+        /// <param name="userMessage">The AS4 user message to reference in the to be created error.</param>
+        /// <param name="occurredError">The error that has happened during the step execution.</param>
+        /// <param name="userMessageSendViaMultiHop">
+        ///     Whether or not the user message was send in a multi-hop fashion or not.
+        ///     Setting this on <c>true</c> will result in an error with the referencing user message included in a RoutingInput element.
+        /// </param>
+        public static Error CreateReferencing(
+            UserMessage userMessage, 
+            ErrorResult occurredError,
+            bool userMessageSendViaMultiHop = false)
+        {
+            if (userMessageSendViaMultiHop)
+            {
+                var routedUserMessage = UserMessageMap.ConvertToRouting(userMessage);
+                return occurredError == null
+                    ? new Error(userMessage?.MessageId, routedUserMessage)
+                    : new Error(userMessage?.MessageId, ErrorLine.FromErrorResult(occurredError), routedUserMessage);
+            }
+
+            return occurredError == null
+                ? new Error(userMessage?.MessageId)
+                : new Error(userMessage?.MessageId, ErrorLine.FromErrorResult(occurredError));
+        }
+
+        /// <summary>
+        /// Creates an AS4 error that represents a warning message for the pulling MSH to indicate that no AS4 user messages are available to be pulled.
+        /// </summary>
+        public static Error CreatePullRequestWarning()
+        {
+            return new Error(
+                IdentifierFactory.Instance.Create(),
+                new ErrorLine(
+                    ErrorCode.Ebms0006,
+                    Severity.WARNING,
+                    ErrorAlias.EmptyMessagePartitionChannel));
+        }
+
+        /// <summary>
         /// Creates a new <see cref="Error"/> model from an <see cref="ErrorResult"/> instance.
         /// </summary>
         /// <param name="messageId"></param>
@@ -162,10 +219,10 @@ namespace Eu.EDelivery.AS4.Model.Core
         }
 
         /// <summary>
-        /// Gets a value indicating whether the <see cref="Error"/> is originated from a Pull Request.
+        /// Gets a value indicating whether the <see cref="Error"/> is a response of a pull request.
         /// </summary>
         [XmlIgnore]
-        public bool IsWarningForEmptyPullRequest
+        public bool IsPullRequestWarning
         {
             get
             {

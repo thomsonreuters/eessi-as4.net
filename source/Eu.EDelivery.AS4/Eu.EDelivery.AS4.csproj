@@ -224,7 +224,6 @@
     <Compile Include="Mappings\PMode\PModeAgreementRefResolver.cs" />
     <Compile Include="Mappings\PMode\PModePartyResolver.cs" />
     <Compile Include="Mappings\PMode\PModeServiceResolver.cs" />
-    <Compile Include="Model\Core\PullRequestError.cs" />
     <Compile Include="Model\Deliver\DeliverMessageEnvelope.cs" />
     <Compile Include="Model\Notify\NotifyMessageEnvelope.cs" />
     <Compile Include="Model\PMode\MessageHandlingConverter.cs" />

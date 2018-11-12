@@ -162,7 +162,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
         public async Task Send_Results_In_Stop_Execution_If_Response_Is_PullRequest_Warning_For_Exsisting_SendPMode()
         {
             // Arrange
-            AS4Message as4Message = AS4Message.Create(new PullRequestError($"pull-{Guid.NewGuid()}"));
+            AS4Message as4Message = AS4Message.Create(Error.CreatePullRequestWarning());
             IStep sut = CreateSendStepWithResponse(
                 StubHttpClient.ThatReturns(as4Message));
 
