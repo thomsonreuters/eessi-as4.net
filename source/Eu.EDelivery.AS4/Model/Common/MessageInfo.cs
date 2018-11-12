@@ -13,7 +13,7 @@ namespace Eu.EDelivery.AS4.Model.Common
         /// Initializes a new instance of the <see cref="MessageInfo"/> class. 
         /// Xml Serializer needs empty constructor
         /// </summary>
-        public MessageInfo() : this(null, Constants.Namespaces.EbmsDefaultMpc) { }
+        public MessageInfo() : this(null, null) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MessageInfo"/> class. 

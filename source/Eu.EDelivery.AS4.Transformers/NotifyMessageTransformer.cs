@@ -49,7 +49,10 @@ namespace Eu.EDelivery.AS4.Transformers
                         AS4Message.Create(error, new SendingProcessingMode()),
                         ex.GetType());
 
-                return new MessagingContext(notifyEnvelope, receivedMessage.Entity.Id);
+                var ctx = new MessagingContext(notifyEnvelope, receivedMessage.Entity.Id);
+                message.AssignPropertiesTo(ctx);
+
+                return ctx;
             }
 
             if (receivedMessage.Entity is MessageEntity me)

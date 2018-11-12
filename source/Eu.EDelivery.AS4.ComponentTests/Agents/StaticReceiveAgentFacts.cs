@@ -77,7 +77,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                     var spy = new DatabaseSpy(msh.GetConfiguration());
                     InMessage actual = await PollUntilPresent(
                         () => spy.GetInMessageFor(im => im.EbmsMessageId == ebmsMessageId),
-                        timeout: TimeSpan.FromSeconds(5));
+                        timeout: TimeSpan.FromSeconds(15));
 
                     Assert.Equal(Operation.ToBeDelivered, actual.Operation);
                     Assert.Equal(InStatus.Received, actual.Status.ToEnum<InStatus>());
