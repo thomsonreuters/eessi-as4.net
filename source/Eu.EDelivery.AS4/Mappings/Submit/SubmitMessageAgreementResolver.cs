@@ -61,6 +61,15 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
                             Maybe<string>.Nothing));
                 }
 
+                if (sendPMode.MessagePackaging?.IncludePModeId == true)
+                {
+                    return Maybe.Just(
+                        new AgreementReference(
+                            submitAgreement?.Value,
+                            Maybe<string>.Nothing,
+                            Maybe.Just(sendPMode.Id)));
+                }
+
                 return Maybe.Just(
                     new AgreementReference(submitAgreement?.Value));
             }
@@ -83,6 +92,15 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
                             pmodeAgreement?.Value,
                             Maybe.Just(pmodeAgreement?.Type),
                             Maybe<string>.Nothing));
+                }
+
+                if (sendPMode.MessagePackaging?.IncludePModeId == true)
+                {
+                    return Maybe.Just(
+                        new AgreementReference(
+                            pmodeAgreement?.Value,
+                            Maybe<string>.Nothing,
+                            Maybe.Just(sendPMode.Id)));
                 }
 
                 return Maybe.Just(
