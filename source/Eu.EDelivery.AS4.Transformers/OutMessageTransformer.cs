@@ -26,8 +26,6 @@ namespace Eu.EDelivery.AS4.Transformers
             }
 
             var context = new MessagingContext(message, MessagingContextMode.Send);
-            message.AssignPropertiesTo(context);
-
             return await Task.FromResult(context);
         }
     }
