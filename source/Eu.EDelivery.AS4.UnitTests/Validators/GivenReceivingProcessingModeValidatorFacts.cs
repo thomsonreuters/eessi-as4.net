@@ -179,13 +179,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
                         && !String.IsNullOrWhiteSpace(k.Password);
 
                     bool specifiedDecryptionCert = specifiedCertFindCriteria || specifiedPrivateKeyCert;
-                    return result.IsValid
-                        .Equals(specifiedDecryptionCert && allowedOrRequired)
+                    return result.IsValid.Equals(specifiedDecryptionCert && allowedOrRequired)
                         .Or(!allowedOrRequired)
                         .Label(
-                            $"Validation has {(result.IsValid ? "succeeded" : "failed")} " +
-                            $"but decryption certificate {(specifiedDecryptionCert ? "is" : "isn't")} specified " +
-                            $"with a {cert.Item1} while the encryption limit is {encryption}");
+                            $"Validation has {(result.IsValid ? "succeeded" : "failed")} "
+                            + $"but decryption certificate {(specifiedDecryptionCert ? "is" : "isn't")} specified "
+                            + $"with a {cert.Item1} while the encryption limit is {encryption}. "
+                            + $"{(result.IsValid ? String.Empty : result.AppendValidationErrorsToErrorMessage("Validation Failure: "))}");
                 });
         }
 
@@ -201,7 +201,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
 
             var genReplyHandling = Gen.OneOf(
                 Gen.Constant((ReplyHandling) null),
-                Gen.Fresh(() => new ReplyHandling { ResponseConfiguration = new PushConfiguration() }));
+                Gen.Fresh(() => new ReplyHandling
+                {
+                    ResponseConfiguration = new PushConfiguration
+                    {
+                        Protocol = { Url = "http://not/empty/url" }
+                    }
+                }));
 
             return Prop.ForAll(
                 genForward.ToArbitrary(),
@@ -230,9 +236,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
                         .Or(!specifiedReplyHandling && specifiedForward)
                         .Or(specifiedReplyHandling && specifiedForward)
                         .Label(
-                            $"Validation has {(result.IsValid ? "succeeded" : "failed")} " +
-                            $"but ReplyHandling {(specifiedReplyHandling ? "is" : "isn't")} specified and " +
-                            $"MessageHandling is {(specifiedDeliver ? "a Deliver" : specifiedForward ? "a Forward" : "empty")} element ");
+                            $"Validation has {(result.IsValid ? "succeeded" : "failed")} " 
+                            + $"but ReplyHandling {(specifiedReplyHandling ? "is" : "isn't")} specified and " 
+                            + $"MessageHandling is {(specifiedDeliver ? "a Deliver" : specifiedForward ? "a Forward" : "empty")} element. "
+                            + $"{(result.IsValid ? String.Empty : result.AppendValidationErrorsToErrorMessage("Validation Failure: "))}");
                 });
         }
 
@@ -272,14 +279,20 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
                 isEnabled,
                 retryCount,
                 retryInterval,
-                p => p.ReplyHandling.PiggyBackReliability);
+                p =>
+                {
+                    p.ReplyHandling.PiggyBackReliability = new RetryReliability();
+                    return p.ReplyHandling.PiggyBackReliability;
+                },
+                p => p.ReplyHandling.ReplyPattern = ReplyPattern.PiggyBack);
         }
 
         private static Property TestRelialityForEnabledFlag(
             bool isEnabled, 
             int retryCount, 
             TimeSpan retryInterval,
-            Func<ReceivingProcessingMode, RetryReliability> getReliability)
+            Func<ReceivingProcessingMode, RetryReliability> getReliability,
+            Action<ReceivingProcessingMode> extraFixtureSetup = null)
         {
             return Prop.ForAll(
                 Gen.Frequency(
@@ -294,6 +307,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
                     r.IsEnabled = isEnabled;
                     r.RetryCount = retryCount;
                     r.RetryInterval = retryIntervalText;
+                    extraFixtureSetup?.Invoke(pmode);
 
                     // Act
                     ValidationResult result = ReceivingProcessingModeValidator.Instance.Validate(pmode);
