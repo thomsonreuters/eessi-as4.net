@@ -6,7 +6,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Serialization;
-using Eu.EDelivery.AS4.Singletons;
 using Eu.EDelivery.AS4.TestUtils;
 using Polly;
 using Xunit;
@@ -23,7 +22,6 @@ namespace Eu.EDelivery.AS4.ComponentTests.Common
         /// </summary>
         public ComponentTestTemplate()
         {
-            AS4Mapper.Initialize();
             ClearLogFiles();
         }
 
