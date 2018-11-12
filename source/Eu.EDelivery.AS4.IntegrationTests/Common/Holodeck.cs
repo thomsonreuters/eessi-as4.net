@@ -97,6 +97,31 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
         /// Puts a message with a single payload to the Holodeck endpoint referencing the given <paramref name="pmodeId"/>.
         /// </summary>
         /// <param name="pmodeId">The pmode id the message should have as reference.</param>
+        public void PutMessageSinglePayloadToHolodeckB(string pmodeId)
+        {
+            var msg = new MessageMetaData
+            {
+                CollaborationInfo = new HolodeckCollaborationInfo
+                {
+                    AgreementRef = new HolodeckAgreementRef { PMode = pmodeId },
+                    ConversationId = "org:holodeckb2b:test:conversation"
+                },
+                PayloadInfo = new HolodeckPayloadInfo
+                {
+                    PartInfo = new[] { SubmitImagePayload }
+                }
+            };
+
+            string xml = AS4XmlSerializer.ToString(msg);
+            string path = Path.Combine(HolodeckBLocations.OutputPath, $"{pmodeId}-sample.mmd");
+
+            File.WriteAllText(path, xml);
+        }
+
+        /// <summary>
+        /// Puts a message with a single payload to the Holodeck endpoint referencing the given <paramref name="pmodeId"/>.
+        /// </summary>
+        /// <param name="pmodeId">The pmode id the message should have as reference.</param>
         public void PutMessageSinglePayloadToHolodeckA(string pmodeId)
         {
             var msg = new MessageMetaData

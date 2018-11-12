@@ -57,7 +57,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Receive_Scenarios
             Holodeck.CopyPModeToHolodeckB("8.3.16-pmode.xml");
 
             // Act
-            Holodeck.CopyMessageToHolodeckB("8.3.16-sample.mmd");
+            Holodeck.PutMessageSinglePayloadToHolodeckB("ex-pm-pull-ut");
 
             // Assert
             await PollingService.PollUntilPresentAsync(
@@ -68,9 +68,9 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Receive_Scenarios
             var deliverDir = new DirectoryInfo(AS4Component.FullInputPath);
             FileInfo[] deliverables = deliverDir.GetFiles();
 
-            Assert.Contains(deliverables, f => f.Extension == ".xml");
-            Assert.Contains(deliverables, f => f.Extension == ".jpg"
-                                               && f.Length == AS4Component.SubmitSinglePayloadImage.Length);
+            Assert.NotNull(deliverables.FirstOrDefault(f => f.Extension == ".xml"));
+            Assert.NotNull(deliverables.FirstOrDefault(f => f.Extension == ".jpg"
+                                                            && f.Length == Holodeck.HolodeckAJpegPayload.Length));
         }
 
         private static readonly HttpClient PayloadServiceClient = new HttpClient();
@@ -82,7 +82,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Receive_Scenarios
             AS4Component.OverrideSettings("8.3.17-settings.xml");
 
             Holodeck.CopyPModeToHolodeckA("8.3.17-pmode.xml");
-            Holodeck.CopyMessageToHolodeckA("8.3.17-sample.mmd");
+            Holodeck.PutMessageSinglePayloadToHolodeckA("8.3.16-pmode");
 
             // Act
             AS4Component.Start();
@@ -111,7 +111,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Receive_Scenarios
             {
                 // Arrange
                 Holodeck.CopyPModeToHolodeckA("8.3.18-pmode.xml");
-                Holodeck.CopyMessageToHolodeckA("8.3.18-sample.mmd");
+                Holodeck.PutMessageSinglePayloadToHolodeckA("8.3.17-pmode");
 
                 // Act
                 AS4Component.Start();

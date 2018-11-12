@@ -109,7 +109,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Receive_Scenarios
             Holodeck.CopyPModeToHolodeckA("8.3.10-pmode.xml");
 
             // Act
-            Holodeck.CopyMessageToHolodeckA("8.3.10-sample.mmd");
+            Holodeck.PutMessageSinglePayloadToHolodeckA("8.3.10-pmode");
 
             // Assert
             await PollingService.PollUntilPresentAsync(Holodeck.HolodeckALocations.InputPath);
@@ -124,7 +124,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Receive_Scenarios
             Holodeck.CopyPModeToHolodeckA("8.3.11-pmode.xml");
 
             // Act
-            Holodeck.CopyMessageToHolodeckA("8.3.11-sample.mmd");
+            Holodeck.PutMessageSinglePayloadToHolodeckA("8.3.11-pmode");
 
             // Assert
             await PollingService.PollUntilPresentAsync(Holodeck.HolodeckALocations.InputPath);
