@@ -86,7 +86,7 @@
     <Compile Include="Security\Strategies\GivenVerifySignatureStrategyFacts.cs" />
     <Compile Include="Serialization\GivenInvalidMessageSerializationFacts.cs" />
     <Compile Include="Serialization\GivenSoapEnvelopeDeserializingFacts.cs" />
-    <Compile Include="Services\DynamicDiscovery\GivenESensDynamicDiscoveryProfileFacts.cs" />
+    <Compile Include="Services\DynamicDiscovery\GivenPeppolDynamicDiscoveryProfileFacts.cs" />
     <Compile Include="Services\DynamicDiscovery\GivenLocalDynamicDiscoveryProfileFacts.cs" />
     <Compile Include="Services\DynamicDiscovery\GivenOasisDynamicDiscoveryProfileFacts.cs" />
     <Compile Include="Services\GivenFileAuthorizationMapProviderFacts.cs" />
