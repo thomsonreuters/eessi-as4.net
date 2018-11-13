@@ -86,8 +86,9 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
 
             string serviceProviderDomainName = properties.ReadMandatoryProperty(nameof(ServiceProviderDomainName));
             string environment = properties.ReadOptionalProperty(nameof(Environment), String.Empty);
-            string participantIdentifier = party.PrimaryPartyId;
-            string participantScheme = party.PartyIds.First().Type.UnsafeGet;
+            Model.Core.PartyId participant = party.PartyIds.First(id => id.Type != Maybe<string>.Nothing);
+            string participantIdentifier = participant.Id;
+            string participantScheme = participant.Type.UnsafeGet;
             string documentIdentifier = properties.ReadMandatoryProperty(nameof(DocumentIdentifier));
             string documentScheme = properties.ReadMandatoryProperty(nameof(DocumentScheme));
 
