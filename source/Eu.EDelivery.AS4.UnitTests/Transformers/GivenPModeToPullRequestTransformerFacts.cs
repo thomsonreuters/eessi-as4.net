@@ -29,7 +29,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             get
             {
                 yield return new object[] { new ReceivedMessage(underlyingStream: Stream.Null) };
-                yield return new object[] { new SaboteurReceivedMessage() };
             }
         }
 

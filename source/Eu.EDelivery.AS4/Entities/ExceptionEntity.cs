@@ -46,7 +46,7 @@ namespace Eu.EDelivery.AS4.Entities
         }
 
         /// <summary>
-        /// Set the Id & string represenation of the PMode that is used to process the message.
+        /// Set the Id & string representation of the PMode that is used to process the message.
         /// </summary>
         /// <param name="pmodeId"></param>
         /// <param name="pmodeContent"></param>
@@ -82,6 +82,23 @@ namespace Eu.EDelivery.AS4.Entities
                     throw new NotImplementedException("Unable to serialize the the specified IPMode");
                 }
             }
+        }
+
+        /// <summary>
+        /// Gets the sending processing mode of the child representation of an exception.
+        /// </summary>
+        public virtual SendingProcessingMode GetSendingPMode()
+        {
+            return null;
+        }
+
+        /// <summary>
+        /// Gets the receiving processing mode of the child representation of an exception.
+        /// </summary>
+        /// <returns></returns>
+        public virtual ReceivingProcessingMode GetReceivingPMode()
+        {
+            return null;
         }
 
         /// <summary>

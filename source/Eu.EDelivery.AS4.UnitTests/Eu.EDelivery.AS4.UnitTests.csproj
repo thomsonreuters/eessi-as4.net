@@ -118,7 +118,6 @@
     <Compile Include="Mappings\Submit\GivenSubmitMessageFacts.cs" />
     <Compile Include="Mappings\Submit\GivenSubmitMpcResolverFacts.cs" />
     <Compile Include="Model\FilledAttachment.cs" />
-    <Compile Include="Model\Internal\SaboteurReceivedMessage.cs" />
     <Compile Include="Receivers\StubReceiver.cs" />
     <Compile Include="Repositories\InMemoryMessageBodyStore.cs" />
     <Compile Include="Repositories\StubMessageBodyRetriever.cs" />
