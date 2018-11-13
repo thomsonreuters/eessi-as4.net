@@ -28,7 +28,7 @@ namespace Eu.EDelivery.AS4.PerformanceTests.Volume
             _outputHelper = outputHelper;
         }
 
-        [Fact(Skip = "Not yet deterministic")]
+        [Fact]
         public void TestSendingHundredMessages()
         {
             // Arrange
@@ -40,7 +40,7 @@ namespace Eu.EDelivery.AS4.PerformanceTests.Volume
             // Assert
             PollingTillAllMessages(
                 messageCount, 
-                pollingRetries: 30, 
+                pollingRetries: 120, 
                 corner: Corner3, 
                 assertion: () => AssertMessages(messageCount));
         }
@@ -61,8 +61,8 @@ namespace Eu.EDelivery.AS4.PerformanceTests.Volume
             }
         }
 
-        [Theory(Skip = "Not yet deterministic")]
-        [InlineData(100, 60)]
+        [Theory]
+        [InlineData(100, 120)]
         public void MeasureSubmitAndDeliverMessages(int messageCount, int maxExecutionTimeInSeconds)
         {
             // Arrange            
