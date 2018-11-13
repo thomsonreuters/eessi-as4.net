@@ -100,7 +100,6 @@ namespace Eu.EDelivery.AS4.Model.PMode
             ReplyPattern = ReplyPattern.Response;
             ReceiptHandling = new ReceiveReceiptHandling();
             ErrorHandling = new ReceiveErrorHandling();
-            PiggyBackReliability = new RetryReliability();
             ResponseSigning = new Signing();
         }
     }

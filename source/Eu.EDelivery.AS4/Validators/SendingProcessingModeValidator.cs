@@ -26,6 +26,10 @@ namespace Eu.EDelivery.AS4.Validators
                 .NotEmpty()
                 .WithMessage("Id element must not be empty");
 
+            RuleFor(pmode => pmode)
+                .Must(pmode => pmode.PushConfigurationSpecified || pmode.DynamicDiscoverySpecified)
+                .WithMessage("Either a <PushConfiguration/> or <DynamicDiscovery/> element must be specified");
+
             RulesForPushConfiguration();
             RulesForDynamicDiscovery();
             RulesForReliability();
