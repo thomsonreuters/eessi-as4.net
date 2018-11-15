@@ -29,7 +29,7 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
         private static readonly Regex SmpHttpRegex = new Regex(".*?(http.*[^!])", RegexOptions.Compiled);
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
         private static readonly HttpClient HttpClient = new HttpClient();
-        private static readonly Resolver DnsResolver = new Resolver("8.8.8.8")
+        private static readonly Resolver DnsResolver = new Resolver()
         {
             TransportType = TransportType.Udp,
             Recursion = true,
