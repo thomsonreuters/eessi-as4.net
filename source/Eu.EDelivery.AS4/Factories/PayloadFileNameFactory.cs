@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Core;
 
 namespace Eu.EDelivery.AS4.Factories
@@ -11,8 +12,8 @@ namespace Eu.EDelivery.AS4.Factories
     {
         private static readonly Regex MacroMatchRegex = new Regex(@"\{([^\}]+)\}");
 
-        private static readonly Dictionary<string, Func<Attachment, UserMessage, string>> NamingMacros
-            = new Dictionary<string, Func<Attachment, UserMessage, string>>(StringComparer.OrdinalIgnoreCase)
+        private static readonly Dictionary<string, Func<Attachment, MessageInfo, string>> NamingMacros
+            = new Dictionary<string, Func<Attachment, MessageInfo, string>>(StringComparer.OrdinalIgnoreCase)
             {
                 {"MessageId", (attachment, userMessage) => userMessage.MessageId},
                 {"AttachmentId", (attachment, userMessage) => attachment.Id}
@@ -26,7 +27,7 @@ namespace Eu.EDelivery.AS4.Factories
                    "The macro's can be combined which means that it is possible to use {MessageId}_{AttachmentId} for instance.\n\r" +
                    "If no pattern is defined, {AttachmentId} will be used by default";
 
-        public static string CreateFileName(string pattern, Attachment attachment, UserMessage userMessage)
+        public static string CreateFileName(string pattern, Attachment attachment, MessageInfo userMessage)
         {
             if (String.IsNullOrEmpty(pattern))
             {
@@ -52,7 +53,7 @@ namespace Eu.EDelivery.AS4.Factories
             return idBuilder.ToString();
         }
 
-        private static StringBuilder ReplaceValueWithMacro(StringBuilder idBuilder, Match match, Attachment attachment, UserMessage userMessage)
+        private static StringBuilder ReplaceValueWithMacro(StringBuilder idBuilder, Match match, Attachment attachment, MessageInfo userMessage)
         {
             string valueToReplace = match.Groups[0].Value;
             string macroName = match.Groups[1].Value;

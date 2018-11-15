@@ -204,7 +204,6 @@
     <Compile Include="Servicehandler\Builder\GivenReceiverBuilderFacts.cs" />
     <Compile Include="Servicehandler\Builder\GivenStepBuilderFacts.cs" />
     <Compile Include="Servicehandler\GivenKernelFacts.cs" />
-    <Compile Include="Steps\Deliver\GivenCreateDeliverMessageStepFacts.cs" />
     <Compile Include="Steps\Deliver\GivenSendDeliverMessageStepFacts.cs" />
     <Compile Include="Steps\Deliver\GivenUploadAttachmentsStepFacts.cs" />
     <Compile Include="Steps\Deliver\GivenZipAttachmentsStepFacts.cs" />

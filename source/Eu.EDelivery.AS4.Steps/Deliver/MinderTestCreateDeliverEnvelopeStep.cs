@@ -79,7 +79,8 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
                     RefToMessageId = deliverMessage.RefToMessageId
                 },
                 deliverMessage: content,
-                contentType: msg.ContentType);
+                contentType: msg.ContentType,
+                attachments: msg.UserMessages.SelectMany(um => msg.Attachments.Where(a => a.MatchesAny(um.PayloadInfo))));
         }
 
         private static byte[] SerializeAS4Message(AS4Message msg)

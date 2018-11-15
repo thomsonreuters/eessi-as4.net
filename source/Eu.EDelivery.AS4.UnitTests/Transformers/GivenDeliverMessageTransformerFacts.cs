@@ -6,11 +6,19 @@ using System.Text;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Core;
+using Eu.EDelivery.AS4.Model.Deliver;
 using Eu.EDelivery.AS4.Model.Internal;
+using Eu.EDelivery.AS4.Model.PMode;
+using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Transformers;
 using Eu.EDelivery.AS4.UnitTests.Extensions;
 using Eu.EDelivery.AS4.UnitTests.Model;
 using Xunit;
+using CollaborationInfo = Eu.EDelivery.AS4.Model.Core.CollaborationInfo;
+using MessageProperty = Eu.EDelivery.AS4.Model.Core.MessageProperty;
+using Party = Eu.EDelivery.AS4.Model.Core.Party;
+using PartyId = Eu.EDelivery.AS4.Model.Core.PartyId;
+using Service = Eu.EDelivery.AS4.Model.Core.Service;
 
 namespace Eu.EDelivery.AS4.UnitTests.Transformers
 {
@@ -19,6 +27,82 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
     /// </summary>
     public class GivenDeliverMessageTransformerFacts
     {
+        [Fact]
+        public async Task Create_DeliverMessage_From_UserMessage()
+        {
+            // Arrange
+            string partInfoId = $"part-{Guid.NewGuid()}";
+            var userMessage = new UserMessage(
+                $"user-{Guid.NewGuid()}",
+                new CollaborationInfo(
+                    new Service($"service-{Guid.NewGuid()}"),
+                    $"action-{Guid.NewGuid()}"),
+                new Party("Sender", new PartyId($"id-{Guid.NewGuid()}")),
+                new Party("Receiver", new PartyId($"id-{Guid.NewGuid()}")),
+                new[] { new PartInfo($"cid:{partInfoId}") },
+                new MessageProperty[0]);
+
+            AS4Message as4Message = AS4Message.Create(userMessage);
+            as4Message.AddAttachment(new Attachment(partInfoId));
+
+            var receivingPMode = new ReceivingProcessingMode { Id = "deliver-pmode" };
+            var entity = new InMessage(userMessage.MessageId);
+            entity.SetPModeInformation(receivingPMode);
+
+            var fixture = new ReceivedEntityMessage(entity, as4Message.ToStream(), as4Message.ContentType);
+            var sut = new DeliverMessageTransformer();
+
+            // Act
+            MessagingContext result = await sut.TransformAsync(fixture);
+
+            // Assert
+            DeliverMessage deliverMessage = result.DeliverMessage.Message;
+
+            IEnumerable<string> mappingFailures =
+                DeliverMessageOriginateFrom(
+                    userMessage,
+                    receivingPMode,
+                    deliverMessage);
+
+            Assert.Empty(mappingFailures);
+        }
+
+        private static IEnumerable<string> DeliverMessageOriginateFrom(
+            UserMessage user,
+            ReceivingProcessingMode receivingPMode,
+            DeliverMessage deliver)
+        {
+            if (user.MessageId != deliver.MessageInfo?.MessageId)
+            {
+                yield return "MessageId";
+            }
+
+            if (user.CollaborationInfo.Service.Value != deliver.CollaborationInfo?.Service?.Value)
+            {
+                yield return "Service";
+            }
+
+            if (user.CollaborationInfo.Action != deliver.CollaborationInfo?.Action)
+            {
+                yield return "Action";
+            }
+
+            if (user.Sender.PrimaryPartyId != deliver.PartyInfo?.FromParty?.PartyIds?.FirstOrDefault()?.Id)
+            {
+                yield return "FromParty";
+            }
+
+            if (user.Receiver.PrimaryPartyId != deliver.PartyInfo?.ToParty?.PartyIds?.FirstOrDefault()?.Id)
+            {
+                yield return "ToParty";
+            }
+
+            if (receivingPMode.Id != deliver.CollaborationInfo?.AgreementRef?.PModeId)
+            {
+                yield return "PModeId";
+            }
+        }
+
         [Fact]
         public async Task FailsToTransform_IfNoUserMessageCanBeFound()
         {
@@ -57,7 +141,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             MessagingContext actualMessage = await ExerciseTransform(expectedId, message);
 
             // Assert
-            Assert.Single(actualMessage.AS4Message.Attachments);
+            Assert.Single(actualMessage.DeliverMessage.Attachments);
         }
 
         private static Attachment FilledAttachment(string attachmentId = null)
@@ -66,27 +150,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
                 id: attachmentId ?? Guid.NewGuid().ToString(),
                 content: new MemoryStream(Encoding.UTF8.GetBytes("serialize me!")),
                 contentType: "text/plain");
-        }
-
-        [Fact]
-        public async Task TransformerRemoveUnnecessaryUserMessages_IfMessageIsntReferenced()
-        {
-            // Arrange
-            const string expectedId = "usermessage-id";
-
-            AS4Message as4Message = AS4Message.Create(new FilledUserMessage(expectedId));
-            as4Message.AddMessageUnit(new FilledUserMessage());
-
-            ReceivedEntityMessage receivedMessage = CreateReceivedMessage(receivedInMessageId: expectedId, as4Message: as4Message);
-            var sut = new DeliverMessageTransformer();
-
-            // Act
-            MessagingContext actualMessage = await sut.TransformAsync(receivedMessage);
-
-            // Assert
-            Assert.Single(actualMessage.AS4Message.UserMessages);
-            UserMessage actualUserMessage = actualMessage.AS4Message.FirstUserMessage;
-            Assert.Equal(expectedId, actualUserMessage.MessageId);
         }
 
         private static async Task<MessagingContext> ExerciseTransform(string expectedId, AS4Message as4Message)

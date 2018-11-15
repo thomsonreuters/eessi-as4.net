@@ -14,7 +14,7 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
     /// <summary>
     /// <see cref="IDeliverSender"/>, <see cref="INotifySender"/> implementation to write contensts to the File System.
     /// </summary>
-    [Info(FileSender.Key)]
+    [Info(Key)]
     public class FileSender : IDeliverSender, INotifySender
     {
         public const string Key = "FILE";
@@ -51,24 +51,18 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
         /// <summary>
         /// Start sending the <see cref="DeliverMessage"/>
         /// </summary>
-        /// <param name="deliverMessage"></param>
-        public async Task<SendResult> SendAsync(DeliverMessageEnvelope deliverMessage)
+        /// <param name="envelope"></param>
+        public async Task<SendResult> SendAsync(DeliverMessageEnvelope envelope)
         {
-            if (deliverMessage == null)
+            if (envelope == null)
             {
-                throw new ArgumentNullException(nameof(deliverMessage));
+                throw new ArgumentNullException(nameof(envelope));
             }
 
-            if (deliverMessage.MessageInfo?.MessageId == null)
+            if (envelope.Message.MessageInfo?.MessageId == null)
             {
                 throw new InvalidOperationException(
                     $"{nameof(FileSender)} requires a MessageInfo.MessageId to correctly deliver the message");
-            }
-
-            if (deliverMessage.DeliverMessage == null)
-            {
-                throw new InvalidOperationException(
-                    $"{nameof(FileSender)} requires a DeliverMessage as a series of bytes to correctly deliver the message");
             }
 
             if (String.IsNullOrWhiteSpace(Location))
@@ -84,14 +78,14 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
                 return directoryResult;
             }
 
-            string location = CombineDestinationFullName(deliverMessage.MessageInfo.MessageId, Location);
+            string location = CombineDestinationFullName(envelope.Message.MessageInfo.MessageId, Location);
             Logger.Trace($"Sending DeliverMessage to {location}");
 
-            SendResult result = await TryWriteContentsToFileAsync(location, deliverMessage.DeliverMessage);
+            SendResult result = await TryWriteContentsToFileAsync(location, envelope.SerializeMessage());
             if (result == SendResult.Success)
             {
                 Logger.Info(
-                    $"(Deliver) DeliverMessage {deliverMessage.MessageInfo.MessageId} is successfully send to \"{location}\"");
+                    $"(Deliver) DeliverMessage {envelope.Message.MessageInfo.MessageId} is successfully send to \"{location}\"");
             }
 
             return result;

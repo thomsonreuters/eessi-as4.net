@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.PMode;
 using Newtonsoft.Json;
@@ -65,7 +66,7 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
         }
 
         /// <inheritdoc />
-        public async Task<UploadResult> UploadAsync(Attachment attachment, UserMessage referringUserMessage)
+        public async Task<UploadResult> UploadAsync(Attachment attachment, MessageInfo referringUserMessage)
         {
             if (attachment == null)
             {

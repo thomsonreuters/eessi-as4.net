@@ -3,6 +3,7 @@ using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Exceptions;
+using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Strategies.Uploader;
 using Eu.EDelivery.AS4.UnitTests.Strategies.Method;
@@ -22,7 +23,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Strategies.Uploader
             uploader.Configure(new LocationMethod("not-empty"));
 
             // Act
-            UploadResult actualResult = await uploader.UploadAsync(CreateAnonymousAttachment(), new UserMessage());
+            UploadResult actualResult = await uploader.UploadAsync(CreateAnonymousAttachment(), new MessageInfo());
 
             // Assert
             Assert.Equal(expectedResult, actualResult);
@@ -44,7 +45,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Strategies.Uploader
             var uploader = new PayloadServiceAttachmentUploader();
             uploader.Configure(new LocationMethod("not-empty"));
 
-            await Assert.ThrowsAnyAsync<Exception>(() => uploader.UploadAsync(CreateAnonymousAttachment(), new UserMessage()));
+            await Assert.ThrowsAnyAsync<Exception>(() => uploader.UploadAsync(CreateAnonymousAttachment(), new MessageInfo()));
         }
 
         private static UploadResult CreateAnonymousUploadResult()

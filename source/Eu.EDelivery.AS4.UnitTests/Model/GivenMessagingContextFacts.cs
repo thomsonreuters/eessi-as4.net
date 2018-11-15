@@ -58,7 +58,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
                     ReceivingPMode = new ReceivingProcessingMode()
                 };
 
-                var anonymousDeliver = new DeliverMessageEnvelope(null, null, null);
+                var anonymousDeliver = new DeliverMessageEnvelope(new MessageInfo(), new byte[0], "type");
 
                 // Act
                 context.ModifyContext(anonymousDeliver);

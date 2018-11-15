@@ -49,6 +49,7 @@
   <ItemGroup>
     <Compile Include="AS4MessageToNotifyMessageMapper.cs" />
     <Compile Include="AS4MessageTransformer.cs" />
+    <Compile Include="ConformanceTestTransformers\ConformanceTestingDeliverMessageTransformer.cs" />
     <Compile Include="ConformanceTestTransformers\ConformanceTestingExceptionNotifyMessageTransformer.cs" />
     <Compile Include="ConformanceTestTransformers\ConformanceTestingNotifyMessageTransformer.cs" />
     <Compile Include="DeliverMessageTransformer.cs" />
