@@ -120,6 +120,7 @@ namespace Eu.EDelivery.AS4.Transformers.ConformanceTestTransformers
                     ["ToPartyId"] = userMessage.Receiver.PartyIds.First().Id,
                     ["ToPartyRole"] = userMessage.Receiver.Role
                 }
+                .Where(kv => !String.IsNullOrEmpty(kv.Key) && !String.IsNullOrEmpty(kv.Value))
                 .Select(kv => new MessageProperty(kv.Key, kv.Value))
                 .Concat(userMessage.MessageProperties.Where(p => p.Name.Equals("originalSender") || p.Name.Equals("finalRecipient")))
                 .ToArray();
