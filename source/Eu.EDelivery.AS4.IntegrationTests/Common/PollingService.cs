@@ -29,7 +29,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
             string directoryPath,
             Func<IEnumerable<FileInfo>, bool> predicate)
         {
-            return PollUntilPresentAsync(directoryPath, predicate, TimeSpan.FromSeconds(40));
+            return PollUntilPresentAsync(directoryPath, predicate, TimeSpan.FromMinutes(1));
         }
 
         /// <summary>

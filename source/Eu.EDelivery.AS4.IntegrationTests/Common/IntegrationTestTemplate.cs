@@ -123,7 +123,11 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
             if (File.Exists(file))
             {
                 Policy.Handle<IOException>()
-                      .WaitAndRetry(10, _ => TimeSpan.FromSeconds(3))
+                      .WaitAndRetry(10, _ =>
+                      {
+                          Console.WriteLine($@"Failed to delete file: {file}, wait 3s and retry...");
+                          return TimeSpan.FromSeconds(3);
+                      })
                       .Execute(() => File.Delete(file));
             }
         }
