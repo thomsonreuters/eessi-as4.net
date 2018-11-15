@@ -51,17 +51,17 @@ namespace Eu.EDelivery.AS4.Model.Deliver
         internal DeliverMessageEnvelope(
             MessageInfo messageInfo, 
             byte[] deliverMessage, 
-            string contentType) : this(messageInfo, deliverMessage, contentType, Enumerable.Empty<Attachment>()) { }
+            string contentType) : this(new DeliverMessage { MessageInfo = messageInfo }, deliverMessage, contentType, Enumerable.Empty<Attachment>()) { }
 
         internal DeliverMessageEnvelope(
-            MessageInfo messageInfo, 
+            DeliverMessage message, 
             byte[] deliverMessage, 
             string contentType, 
             IEnumerable<Attachment> attachments)
         {
-            if (messageInfo == null)
+            if (message == null)
             {
-                throw new ArgumentNullException(nameof(messageInfo));
+                throw new ArgumentNullException(nameof(message));
             }
 
             if (deliverMessage == null)
@@ -81,7 +81,7 @@ namespace Eu.EDelivery.AS4.Model.Deliver
 
             _alreadySerializedDeliverMessage = deliverMessage;
 
-            Message = new DeliverMessage { MessageInfo = messageInfo };
+            Message = message;
             ContentType = contentType;
             Attachments = attachments;
         }

@@ -79,25 +79,18 @@ namespace Eu.EDelivery.AS4.Transformers.ConformanceTestTransformers
             byte[] content = SerializeAS4Message(msg);
 
             return new DeliverMessageEnvelope(
-                messageInfo: new MessageInfo
+                message: new DeliverMessage
                 {
-                    MessageId = deliverMessage.MessageId,
-                    RefToMessageId = deliverMessage.RefToMessageId
+                    MessageInfo = new MessageInfo
+                    {
+                        MessageId = deliverMessage.MessageId,
+                        RefToMessageId = deliverMessage.RefToMessageId
+                    },
+                    Payloads = msg.FirstUserMessage.PayloadInfo.Select(CreateDeliverPayload).ToArray()
                 },
                 deliverMessage: content,
                 contentType: msg.ContentType,
                 attachments: as4Message.UserMessages.SelectMany(um => as4Message.Attachments.Where(a => a.MatchesAny(um.PayloadInfo))));
-        }
-
-        private static byte[] SerializeAS4Message(AS4Message msg)
-        {
-            ISerializer serializer = SerializerProvider.Default.Get(msg.ContentType);
-
-            using (var memoryStream = new MemoryStream())
-            {
-                serializer.Serialize(msg, memoryStream);
-                return memoryStream.ToArray();
-            }
         }
 
         private UserMessage CreateMinderDeliverMessage(AS4Message as4Message)
@@ -120,6 +113,7 @@ namespace Eu.EDelivery.AS4.Transformers.ConformanceTestTransformers
                     ["ToPartyId"] = userMessage.Receiver.PartyIds.First().Id,
                     ["ToPartyRole"] = userMessage.Receiver.Role
                 }
+                .Where(kv => !String.IsNullOrEmpty(kv.Key) && !String.IsNullOrEmpty(kv.Value))
                 .Select(kv => new MessageProperty(kv.Key, kv.Value))
                 .Concat(userMessage.MessageProperties.Where(p => p.Name.Equals("originalSender") || p.Name.Equals("finalRecipient")))
                 .ToArray();
@@ -138,6 +132,27 @@ namespace Eu.EDelivery.AS4.Transformers.ConformanceTestTransformers
                 receiver: new Party($"{_uriPrefix}/testdriver", new PartyId("minder")),
                 partInfos: userMessage.PayloadInfo,
                 messageProperties: deliverProperties);
+        }
+
+        private static byte[] SerializeAS4Message(AS4Message msg)
+        {
+            ISerializer serializer = SerializerProvider.Default.Get(msg.ContentType);
+
+            using (var memoryStream = new MemoryStream())
+            {
+                serializer.Serialize(msg, memoryStream);
+                return memoryStream.ToArray();
+            }
+        }
+
+        private static Payload CreateDeliverPayload(PartInfo part)
+        {
+            return new Payload
+            {
+                Id = part.Href,
+                MimeType = part.HasMimeType ? part.MimeType : null,
+                PayloadProperties = part.Properties.Select(p => new PayloadProperty(p.Key, p.Value)).ToArray()
+            };
         }
     }
 }
