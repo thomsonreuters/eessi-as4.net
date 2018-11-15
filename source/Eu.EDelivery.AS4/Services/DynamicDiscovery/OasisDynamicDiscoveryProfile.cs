@@ -326,17 +326,21 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
                 throw new InvalidDataException("No ParticipantIdentifier element found in SMP meta-data");
             }
 
+            string participantIdentifier =
+                participantIdentifierNode.InnerText.Trim();
+
+
             string schemeAttribute =
                 participantIdentifierNode.Attributes
                     ?.OfType<XmlAttribute>()
                     .FirstOrDefault(a => StringComparer.OrdinalIgnoreCase.Equals(a.Name, "scheme"))
                     ?.Value;
-
-            Logger.Trace($"Add MessageProperty 'finalRecipient' = '{participantIdentifierNode.InnerText}' to SendingPMode");
+            
+            Logger.Trace($"Add MessageProperty 'finalRecipient' = '{participantIdentifier}' to SendingPMode");
             return new MessageProperty
             {
                 Name = "finalRecipient",
-                Value = participantIdentifierNode.InnerText,
+                Value = participantIdentifier,
                 Type = schemeAttribute
             };
         }
