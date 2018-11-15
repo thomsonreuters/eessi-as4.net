@@ -49,11 +49,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Services.DynamicDiscovery
             // Assert
             Assert.NotNull(result);
             Assert.Equal("http://40.115.23.114:8080/domibus/services/msh?domain=dynamic", result.PushConfiguration.Protocol.Url);
-            Assert.Equal("cefsupport1gw", result.MessagePackaging.CollaborationInfo.Service.Value);
-            Assert.Equal("connectivity-partid-qns", result.MessagePackaging.CollaborationInfo.Service.Type);
+            Assert.Equal("urn:www.cenbii.eu:profile:bii04:ver1.0", result.MessagePackaging.CollaborationInfo.Service.Value);
+            Assert.Equal("connectivity-procid-qns", result.MessagePackaging.CollaborationInfo.Service.Type);
             Assert.Equal("doc_id1", result.MessagePackaging.CollaborationInfo.Action);
             Assert.Contains(result.MessagePackaging.MessageProperties, p => p.Name == "originalSender");
-            Assert.Contains(result.MessagePackaging.MessageProperties, p => p.Name == "finalRecipient");
+            Assert.Contains(result.MessagePackaging.MessageProperties, p => p.Name == "finalRecipient" && p.Value == "cefsupport1gw");
             Assert.True(result.Security.Encryption.EncryptionCertificateInformation != null, "no encryption certificate set");
             Assert.True(result.MessagePackaging.PartyInfo.ToParty != null, "no ToParty set");
         }

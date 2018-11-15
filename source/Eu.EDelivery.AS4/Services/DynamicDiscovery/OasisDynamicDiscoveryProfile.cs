@@ -270,26 +270,28 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
 
         private static void OverrideCollaborationService(SendingProcessingMode pmode, XmlDocument smpMetaData, XmlNamespaceManager ns)
         {
-            XmlNode participantIdentifierNode = smpMetaData.SelectSingleNode("//oasis:ServiceInformation/oasis:ParticipantIdentifier", ns);
-            if (participantIdentifierNode == null)
+            XmlNode processIdentifierNode =
+                smpMetaData.SelectSingleNode("//oasis:ProcessList/oasis:Process/oasis:ProcessIdentifier", ns);
+
+            if (processIdentifierNode == null)
             {
                 throw new InvalidDataException(
-                    "No <ParticipantIdentifier/> element in an <ServiceInformation/> element found in SMP meta-data");
+                    "No <ProcessIdentifier/> in an ProcessList.Process element found in SMP meta-data");
             }
 
             string serviceType =
-                participantIdentifierNode.Attributes
+                processIdentifierNode.Attributes
                     ?.OfType<XmlAttribute>()
                     .FirstOrDefault(a => a.Name.Equals("scheme", StringComparison.OrdinalIgnoreCase))
                     ?.Value;
 
             Logger.Trace(
                 "Override SendingPMode.MessagePackaging.CollaborationInfo.Service with "
-                + $"{{Value={participantIdentifierNode.InnerText}, Type={serviceType}}}");
+                + $"{{Value={processIdentifierNode.InnerText}, Type={serviceType}}}");
 
             pmode.MessagePackaging = pmode.MessagePackaging ?? new SendMessagePackaging();
             pmode.MessagePackaging.CollaborationInfo = pmode.MessagePackaging.CollaborationInfo ?? new CollaborationInfo();
-            pmode.MessagePackaging.CollaborationInfo.Service = new Service { Value = participantIdentifierNode.InnerText, Type = serviceType };
+            pmode.MessagePackaging.CollaborationInfo.Service = new Service { Value = processIdentifierNode.InnerText, Type = serviceType };
         }
 
         private static void OverrideMessageProperties(SendingProcessingMode pmode,  XmlNode smpMetaData, XmlNamespaceManager ns)
