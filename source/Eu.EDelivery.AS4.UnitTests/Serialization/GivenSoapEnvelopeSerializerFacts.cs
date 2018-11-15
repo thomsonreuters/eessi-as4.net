@@ -21,7 +21,6 @@ using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Resources;
 using Eu.EDelivery.AS4.Security.Encryption;
 using Eu.EDelivery.AS4.Serialization;
-using Eu.EDelivery.AS4.Singletons;
 using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Steps.Receive;
 using Eu.EDelivery.AS4.TestUtils;
