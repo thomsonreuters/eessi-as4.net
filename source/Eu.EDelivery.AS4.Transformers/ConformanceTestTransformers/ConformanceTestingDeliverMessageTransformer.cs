@@ -37,7 +37,7 @@ namespace Eu.EDelivery.AS4.Transformers.ConformanceTestTransformers
         /// <param name="message">Given message to transform.</param>
         /// 
         /// <returns></returns>
-        public Task<MessagingContext> TransformAsync(ReceivedMessage message)
+        public async Task<MessagingContext> TransformAsync(ReceivedMessage message)
         {
             if (!(message is ReceivedEntityMessage))
             {
@@ -45,10 +45,11 @@ namespace Eu.EDelivery.AS4.Transformers.ConformanceTestTransformers
                     $"Minder Deliver Transformer only supports transforming instances of type {typeof(ReceivedEntityMessage)}");
             }
 
-            var messagingContext = new MessagingContext(message, MessagingContextMode.Deliver);
+            var as4Transformer = new AS4MessageTransformer();
+            MessagingContext context = await as4Transformer.TransformAsync(message);
 
             var includeAttachments = true;
-            CollaborationInfo collaborationInfo = messagingContext.ReceivingPMode?.MessagePackaging?.CollaborationInfo;
+            CollaborationInfo collaborationInfo = context.ReceivingPMode?.MessagePackaging?.CollaborationInfo;
 
             if (collaborationInfo != null &&
                 (collaborationInfo.Action?.Equals("ACT_SIMPLE_ONEWAY_SIZE", StringComparison.OrdinalIgnoreCase) ?? false) &&
@@ -57,10 +58,10 @@ namespace Eu.EDelivery.AS4.Transformers.ConformanceTestTransformers
                 includeAttachments = false;
             }
 
-            DeliverMessageEnvelope deliverMessage = CreateDeliverMessageEnvelope(messagingContext.AS4Message, includeAttachments);
-            messagingContext.ModifyContext(deliverMessage);
+            DeliverMessageEnvelope deliverMessage = CreateDeliverMessageEnvelope(context.AS4Message, includeAttachments);
+            context.ModifyContext(deliverMessage);
 
-            return Task.FromResult(messagingContext);
+            return context;
         }
 
         private DeliverMessageEnvelope CreateDeliverMessageEnvelope(AS4Message as4Message, bool includeAttachments)
