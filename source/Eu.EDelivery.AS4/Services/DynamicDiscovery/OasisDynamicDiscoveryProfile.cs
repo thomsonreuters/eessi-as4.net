@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
@@ -26,7 +27,8 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
     /// </summary>
     public class OasisDynamicDiscoveryProfile : IDynamicDiscoveryProfile
     {
-        private static readonly Regex SmpHttpRegex = new Regex(".*?(http.*[^!])", RegexOptions.Compiled);
+        private const string SmpHttpRegexPattern = ".*?(http.*[^!])";
+        private static readonly Regex SmpHttpRegex = new Regex(SmpHttpRegexPattern, RegexOptions.Compiled);
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
         private static readonly HttpClient HttpClient = new HttpClient();
         private static readonly Resolver DnsResolver = new Resolver()
@@ -106,7 +108,12 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
 
             using (HttpResponseMessage smpResponse = await HttpClient.GetAsync(smpRestBinding))
             {
-                smpResponse.EnsureSuccessStatusCode();
+                if (!smpResponse.IsSuccessStatusCode)
+                {
+                    throw new WebException(
+                        $"Calling the SMP server at {smpRestBinding} doesn't result in an successful response");
+                }
+
                 Stream xmlStream = await smpResponse.Content.ReadAsStreamAsync();
 
                 var smpMetaData = new XmlDocument();
@@ -132,25 +139,28 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
         {
             RecordNAPTR firstMatchedNaptrRecord =
                 dnsResponse.Answers
-                        .Select(r => r.RECORD)
-                        .Cast<RecordNAPTR>()
-                        .FirstOrDefault();
+                           .Select(r => r.RECORD)
+                           .Cast<RecordNAPTR>()
+                           .FirstOrDefault();
 
             if (firstMatchedNaptrRecord == null)
             {
-                throw new ArgumentNullException(nameof(firstMatchedNaptrRecord));
+                throw new InvalidDataException(
+                    "No DNS NAPTR record found to get the SMP REST binding from");
             }
 
             MatchCollection matches = SmpHttpRegex.Matches(firstMatchedNaptrRecord.REGEXP);
             if (matches.Count == 0)
             {
-                throw new ArgumentException(nameof(matches));
+                throw new InvalidDataException(
+                    $"DNS NAPTR record value REGEXP: \"{firstMatchedNaptrRecord.REGEXP}\" doesn't match regular expression: \"{SmpHttpRegexPattern}\"");
             }
 
             Match firstMatch = matches[0];
             if (firstMatch.Groups.Count < 2)
             {
-                throw new ArgumentException(nameof(firstMatch));
+                throw new InvalidDataException(
+                    $"DNS NAPTR record value REGEXP: \"{firstMatchedNaptrRecord.REGEXP}\" doesn't match regular expression: \"{SmpHttpRegexPattern}\"");
             }
 
             // First group is always the entire matched string like "!^.*$!http://40.115.23.114:38080/".
