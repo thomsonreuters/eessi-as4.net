@@ -75,9 +75,10 @@ namespace Eu.EDelivery.AS4.PerformanceTests
             {
                 string id = Guid.NewGuid().ToString();
                 string generatedMessage = messageContents.Replace("__ATTACHMENTID__", id);
-                string outMessagePath = Path.Combine(_cornerDirectory.FullName, $@"messages\out\{id}.xml");
+                string outMessagePath = Path.Combine(_cornerDirectory.FullName, $@"messages\out\{id}.temp");
 
                 File.WriteAllText(outMessagePath, generatedMessage);
+                File.Move(outMessagePath, outMessagePath.Replace(".temp", ".xml"));
             }
         }
 
