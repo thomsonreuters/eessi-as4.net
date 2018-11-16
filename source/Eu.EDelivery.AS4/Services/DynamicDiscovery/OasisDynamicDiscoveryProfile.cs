@@ -86,13 +86,27 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
                     nameof(party));
             }
 
+            string Base32Encode(byte[] input)
+            {
+                return Base32Encoding.Standard.GetString(input);
+            }
+
+            byte[] SHA256Hash(string input)
+            {
+                using (SHA256 sha256 = SHA256.Create())
+                {
+                    return sha256.ComputeHash(Encoding.UTF8.GetBytes(input));
+                }
+            }
+
             string serviceProviderDomainName = properties.ReadMandatoryProperty(nameof(ServiceProviderDomainName));
             string environment = properties.ReadOptionalProperty(nameof(Environment), String.Empty);
+            string documentIdentifier = properties.ReadMandatoryProperty(nameof(DocumentIdentifier));
+            string documentScheme = properties.ReadMandatoryProperty(nameof(DocumentScheme));
+
             Model.Core.PartyId participant = party.PartyIds.First(id => id.Type != Maybe<string>.Nothing);
             string participantIdentifier = participant.Id;
             string participantScheme = participant.Type.UnsafeGet;
-            string documentIdentifier = properties.ReadMandatoryProperty(nameof(DocumentIdentifier));
-            string documentScheme = properties.ReadMandatoryProperty(nameof(DocumentScheme));
 
             string dnsDomainName =
                 $"{Base32Encode(SHA256Hash(participantIdentifier)).TrimEnd('=')}"
@@ -106,33 +120,7 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
             string smpRestBinding =
                 $"{smpUri}{participantScheme}::{participantIdentifier}/services/{documentScheme}::{documentIdentifier}";
 
-            using (HttpResponseMessage smpResponse = await HttpClient.GetAsync(smpRestBinding))
-            {
-                if (!smpResponse.IsSuccessStatusCode)
-                {
-                    throw new WebException(
-                        $"Calling the SMP server at {smpRestBinding} doesn't result in an successful response");
-                }
-
-                Stream xmlStream = await smpResponse.Content.ReadAsStreamAsync();
-
-                var smpMetaData = new XmlDocument();
-                smpMetaData.Load(xmlStream);
-                return smpMetaData;
-            }
-        }
-
-        private static string Base32Encode(byte[] input)
-        {
-            return Base32Encoding.Standard.GetString(input);
-        }
-
-        private static byte[] SHA256Hash(string input)
-        {
-            using (SHA256 sha256 = SHA256.Create())
-            {
-                return sha256.ComputeHash(Encoding.UTF8.GetBytes(input));
-            }
+            return await GetSmpRestBindingAsync(smpRestBinding);
         }
 
         private static Uri SelectSmpUriFromDnsResponse(Response dnsResponse)
@@ -167,6 +155,24 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
             // Second group is always only the matched parts like "http://40.115.23.114:38080/"
             string matched = firstMatch.Groups[1].Value;
             return new Uri(matched);
+        }
+
+        private static async Task<XmlDocument> GetSmpRestBindingAsync(string binding)
+        {
+            using (HttpResponseMessage smpResponse = await HttpClient.GetAsync(binding))
+            {
+                if (!smpResponse.IsSuccessStatusCode)
+                {
+                    throw new WebException(
+                        $"Calling the SMP server at {binding} doesn't result in an successful response");
+                }
+
+                Stream xmlStream = await smpResponse.Content.ReadAsStreamAsync();
+
+                var smpMetaData = new XmlDocument();
+                smpMetaData.Load(xmlStream);
+                return smpMetaData;
+            }
         }
 
         /// <summary>
