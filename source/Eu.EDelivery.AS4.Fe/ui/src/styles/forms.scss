@@ -7,7 +7,10 @@ form {
         border: 1px solid $invalidColor;
     }
     .control-label {
-        font-weight: 100;
+        font-weight: bold;
+        .tooltip-info {
+            margin-left: 5px;
+        }
     }
     h5 {
         font-weight: bold;

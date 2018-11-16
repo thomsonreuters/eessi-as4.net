@@ -6,9 +6,8 @@ import {
   Input,
   OnDestroy,
   Output,
-  Renderer,
   ViewChild,
-  ViewEncapsulation,
+  ViewEncapsulation
 } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 import { Subject } from 'rxjs/Subject';
@@ -48,12 +47,8 @@ import { ModalService } from './modal.service';
   exportAs: 'as4-modal'
 })
 export class ModalComponent implements OnDestroy {
-  public enter(event: KeyboardEvent & { target: { value: string } }) {
-    if (event.keyCode === 13) {
-      this.ok();
-    }
-  }
-  @Input() public isVisible: boolean = false;
+  @Input()
+  public isVisible: boolean = false;
   public result: any | null;
   public type: string = '';
   public showOk: boolean = true;
@@ -63,30 +58,44 @@ export class ModalComponent implements OnDestroy {
     return this.isVisible ? 'enter' : 'exit';
   }
   public callBack: () => void;
-  @Input() public payload: any;
-  @Input() public showDefaultButtons: boolean = true;
-  @Input() public name: string;
-  @Input() public title: string | undefined;
-  @Input() public message: string;
-  @Input() public showDefaultMessage: boolean = true;
-  @Input() public buttonOk: string = 'OK';
-  @Input() public buttonCancel: string = 'CANCEL';
-  @Input() public okAction: () => void | null;
-  @Input() public noReset: boolean = false;
-  @Input() public showClose: boolean = true;
-  @Input() public canClose: boolean = true;
-  @Output() public shown = new EventEmitter();
-  @Output() public okEvent = new EventEmitter<boolean>();
-  @ViewChild('body') public bodyEl: ElementRef;
+  @Input()
+  public payload: any;
+  @Input()
+  public showDefaultButtons: boolean = true;
+  @Input()
+  public name: string;
+  @Input()
+  public title: string | undefined;
+  @Input()
+  public message: string;
+  @Input()
+  public showDefaultMessage: boolean = true;
+  @Input()
+  public buttonOk: string = 'OK';
+  @Input()
+  public buttonCancel: string = 'CANCEL';
+  @Input()
+  public okAction: () => void | null;
+  @Input()
+  public noReset: boolean = false;
+  @Input()
+  public showClose: boolean = true;
+  @Input()
+  public canClose: boolean = true;
+  @Output()
+  public shown = new EventEmitter();
+  @Output()
+  public okEvent = new EventEmitter<boolean>();
+  @ViewChild('body')
+  public bodyEl: ElementRef;
+
   private obs: Subject<boolean>;
-  constructor(
-    private modalService: ModalService,
-    private elementRef: ElementRef,
-    private _renderer: Renderer
-  ) {
+
+  constructor(private modalService: ModalService) {
     this.modalService.registerModal(this);
-    this.obs = new Subject<boolean>();
+    this.createObservable();
   }
+
   @HostListener('document:keydown', ['$event'])
   public keyDown(event: KeyboardEvent): void {
     if (!this.isVisible || !this.canClose) {
@@ -98,13 +107,16 @@ export class ModalComponent implements OnDestroy {
       this.cancel();
     }
   }
+
   public cancel(): void {
     this.okEvent.emit(false);
     this.isVisible = false;
     this.obs.next(false);
     this.obs.complete();
   }
+
   public ok(): void {
+    this.createObservable();
     this.okEvent.emit(true);
     if (!!this.okAction) {
       this.okAction();
@@ -113,6 +125,7 @@ export class ModalComponent implements OnDestroy {
     this.obs.next(true);
     this.obs.complete();
   }
+
   public show(): Observable<boolean> {
     if (!this.noReset) {
       this.reset();
@@ -122,10 +135,31 @@ export class ModalComponent implements OnDestroy {
     setTimeout(() => this.shown.emit());
     return this.obs.asObservable();
   }
+
   public ngOnDestroy(): void {
-    this.modalService.unregisterModal(this);
+    this.unregister();
   }
+
+  public enter(event: KeyboardEvent & { target: { value: string } }) {
+    if (event.keyCode === 13) {
+      this.ok();
+    }
+  }
+
   private reset(): void {
     this.result = null;
+  }
+
+  private createObservable() {
+    if (!this.obs || this.obs.closed) {
+      this.obs = new Subject<boolean>();
+      return this.obs.asObservable().finally(() => this.unregister());
+    }
+
+    return this.obs;
+  }
+
+  private unregister() {
+    this.modalService.unregisterModal(this);
   }
 }
