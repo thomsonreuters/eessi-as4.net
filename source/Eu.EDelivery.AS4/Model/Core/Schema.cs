@@ -8,9 +8,39 @@ namespace Eu.EDelivery.AS4.Model.Core
     {
         public string Location { get; }
 
-        public string Version { get; }
+        public Maybe<string> Version { get; }
 
-        public string Namespace { get; }
+        public Maybe<string> Namespace { get; }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Schema"/> class.
+        /// </summary>
+        public Schema(string location)
+        {
+            if (location == null)
+            {
+                throw new ArgumentNullException(nameof(location));
+            }
+
+            Location = location;
+            Version = Maybe<string>.Nothing;
+            Namespace = Maybe<string>.Nothing;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Schema"/> class.
+        /// </summary>
+        internal Schema(string location, Maybe<string> version, Maybe<string> @namespace)
+        {
+            if (location == null)
+            {
+                throw new ArgumentNullException(nameof(location));
+            }
+
+            Location = location;
+            Version = version ?? Maybe<string>.Nothing;
+            Namespace = @namespace ?? Maybe<string>.Nothing;
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Schema"/> class.
@@ -20,9 +50,14 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// <param name="namespace"></param>
         public Schema(string location, string version, string @namespace)
         {
+            if (location == null)
+            {
+                throw new ArgumentNullException(nameof(location));
+            }
+
             Location = location;
-            Version = version;
-            Namespace = @namespace;
+            Version = version.AsMaybe();
+            Namespace = @namespace.AsMaybe();
         }
 
         /// <summary>
@@ -42,9 +77,9 @@ namespace Eu.EDelivery.AS4.Model.Core
                 return true;
             }
 
-            return string.Equals(Location, other.Location)
-                   && string.Equals(Version, other.Version)
-                   && string.Equals(Namespace, other.Namespace);
+            return String.Equals(Location, other.Location)
+                   && Version.Equals(other.Version)
+                   && Namespace.Equals(other.Namespace);
         }
 
         /// <summary>
@@ -81,8 +116,8 @@ namespace Eu.EDelivery.AS4.Model.Core
             unchecked
             {
                 int hashCode = Location != null ? Location.GetHashCode() : 0;
-                hashCode = (hashCode * 397) ^ (Version != null ? Version.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (Namespace != null ? Namespace.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (Version != Maybe<string>.Nothing ? Version.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (Namespace != Maybe<string>.Nothing ? Namespace.GetHashCode() : 0);
                 return hashCode;
             }
         }

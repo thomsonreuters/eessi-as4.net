@@ -106,8 +106,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             var serializer = new MimeMessageSerializer(new SoapEnvelopeSerializer());
             return await serializer.DeserializeAsync(
                        new MemoryStream(deliveragentMessage),
-                       ContentType,
-                       CancellationToken.None);
+                       ContentType);
         }
 
         private static void CleanDirectoryAt(string location)

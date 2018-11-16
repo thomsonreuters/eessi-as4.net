@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Net;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Entities;
@@ -7,6 +8,7 @@ using Eu.EDelivery.AS4.Http;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
+using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Steps.Send;
 using Eu.EDelivery.AS4.TestUtils.Stubs;
@@ -15,25 +17,134 @@ using Eu.EDelivery.AS4.UnitTests.Extensions;
 using Eu.EDelivery.AS4.UnitTests.Model;
 using Eu.EDelivery.AS4.UnitTests.Repositories;
 using Xunit;
+using RetryReliability = Eu.EDelivery.AS4.Entities.RetryReliability;
 
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
 {
-    /// <summary>
-    /// Testing <see cref="SendAS4MessageStep"/>
-    /// </summary>
     public class GivenSendAS4MessageStepFacts : GivenDatastoreFacts
     {
+        [Fact]
+        public async Task Use_ReceivingPMode_When_No_SendingPMode_Is_Available()
+        {
+            // Arrange
+            var userMessage = new UserMessage($"user-{Guid.NewGuid()}");
+            var message = AS4Message.Create(userMessage);
+
+            var output = new MemoryStream();
+            await SerializerProvider
+                .Default
+                .Get(message.ContentType)
+                .SerializeAsync(message, output);
+
+            var ctx = new MessagingContext(
+                message, 
+                new ReceivedMessage(output, message.ContentType),
+                MessagingContextMode.Send)
+            {
+                ReceivingPMode = new ReceivingProcessingMode
+                {
+                    ReplyHandling =
+                    {
+                        ResponseConfiguration = new PushConfiguration
+                        {
+                            Protocol = { Url = "http://some/endpoint/path" }
+                        }
+                    }
+                }
+            };
+
+            var receipt = new Receipt($"receipt-{Guid.NewGuid()}", userMessage.MessageId);
+            var stub = StubHttpClient.ThatReturns(AS4Message.Create(receipt));
+
+            IStep sut = CreateSendStepWithResponse(stub);
+
+            // Act
+            StepResult result = await sut.ExecuteAsync(ctx);
+
+            // Assert
+            Assert.True(result.Succeeded, "Sending UserMessage step has not succeeded");
+            Assert.Equal(receipt, result.MessagingContext.AS4Message.PrimaryMessageUnit);
+
+            // TearDown
+            ctx.Dispose();
+        }
+
+        [Fact]
+        public async Task Update_RetryReliability_To_Pending_When_Receiver_Is_Offline()
+        {
+            // Arrange
+            string ebmsMessageId = $"user-{Guid.NewGuid()}";
+            AS4Message tobeSendMessage = AS4Message.Create(new UserMessage(ebmsMessageId));
+
+            var outMessage = new OutMessage(ebmsMessageId);
+            GetDataStoreContext.InsertOutMessage(outMessage);
+            GetDataStoreContext.InsertRetryReliability(
+                RetryReliability.CreateForOutMessage(
+                    refToOutMessageId: outMessage.Id,
+                    maxRetryCount: 2,
+                    retryInterval: TimeSpan.FromSeconds(1),
+                    type: RetryType.Send));
+
+            var ctx = new MessagingContext(
+                tobeSendMessage,
+                new ReceivedEntityMessage(
+                    outMessage,
+                    tobeSendMessage.ToStream(),
+                    tobeSendMessage.ContentType),
+                MessagingContextMode.Send)
+            {
+                SendingPMode = CreateSendPModeWithPushUrl()
+            };
+
+            var sabotageException = new WebException("Remote host not available");
+            IStep sut = CreateSendStepWithResponse(
+                StubHttpClient.ThatThrows(sabotageException));
+
+            // Act / Assert
+            WebException actualException = 
+                await Assert.ThrowsAsync<WebException>(
+                    () => sut.ExecuteAsync(ctx));
+
+            Assert.Equal(sabotageException, actualException);
+
+            GetDataStoreContext.AssertRetryRelatedOutMessage(
+                outMessage.Id,
+                r =>
+                {
+                    Assert.NotNull(r);
+                    Assert.Equal(RetryStatus.Pending, r.Status);
+                });
+        }
+
         [Fact]
         public async Task After_Send_Updates_Request_Operation_And_Status_To_Sent_For_Exsiting_SendPMode()
         {
             // Arrange
             string ebmsMessageId = $"user-{Guid.NewGuid()}";
-            MessagingContext ctx = SetupMessagingContextWithToBeSentMessage(ebmsMessageId);
-            ctx.SendingPMode = CreateSendPModeWithPushUrl();
+            AS4Message tobeSentMsg = AS4Message.Create(new FilledUserMessage(ebmsMessageId));
+
+            var inserted = new OutMessage(ebmsMessageId: ebmsMessageId);
+            GetDataStoreContext.InsertOutMessage(inserted);
+
+            var receivedMessage = new ReceivedEntityMessage(
+                inserted,
+                tobeSentMsg.ToStream(),
+                tobeSentMsg.ContentType);
+
+            var ctx = new MessagingContext(
+                tobeSentMsg, 
+                receivedMessage,
+                MessagingContextMode.Send)
+                {
+                    SendingPMode = CreateSendPModeWithPushUrl()
+                };
+
+            AS4Message receiptMessage = 
+                AS4Message.Create(new Receipt($"receipt-{Guid.NewGuid()}"));
 
             // Act 
             IStep sut = CreateSendStepWithResponse(
-                StubHttpClient.ThatReturns(AS4Message.Create(new Receipt($"receipt-{Guid.NewGuid()}"))));
+                StubHttpClient.ThatReturns(receiptMessage));
 
             await sut.ExecuteAsync(ctx);
 
@@ -45,24 +156,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
                     Assert.Equal(OutStatus.Sent, message.Status.ToEnum<OutStatus>());
                     Assert.Equal(Operation.Sent, message.Operation);
                 });
-        }
-
-        private MessagingContext SetupMessagingContextWithToBeSentMessage(string ebmsMessageId)
-        {
-            AS4Message tobeSentMsg = AS4Message.Create(new FilledUserMessage(ebmsMessageId));
-
-            var inserted = new OutMessage(ebmsMessageId: ebmsMessageId);
-            GetDataStoreContext.InsertOutMessage(inserted, withReceptionAwareness: false);
-
-            var receivedMessage = new ReceivedEntityMessage(
-                inserted,
-                tobeSentMsg.ToStream(),
-                tobeSentMsg.ContentType);
-
-            return new MessagingContext(
-                tobeSentMsg,
-                receivedMessage, 
-                MessagingContextMode.Send);
         }
 
         [Fact]

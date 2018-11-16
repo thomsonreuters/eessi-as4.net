@@ -1,5 +1,7 @@
 <?xml version="1.0"?>
-<PMode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="eu:edelivery:as4:pmode">
+<PMode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+  xmlns="eu:edelivery:as4:pmode">
   <Id>ACT_ONEWAY_SIGNONLY_FROM_RSSBUS-C3_RCV_AS4NET-C2</Id>
   <Reliability>
     <DuplicateElimination>
@@ -8,7 +10,6 @@
   </Reliability>
   <ReplyHandling>
     <ReplyPattern>Response</ReplyPattern>
-    <SendingPMode>AS4NET_RESPONSE_TO_C1</SendingPMode>
     <ReceiptHandling>
       <UseNRRFormat>true</UseNRRFormat>
     </ReceiptHandling>
@@ -16,6 +17,21 @@
       <UseSoapFault>false</UseSoapFault>
       <ResponseHttpCode>500</ResponseHttpCode>
     </ErrorHandling>
+    <ResponseConfiguration>
+      <Protocol>
+        <Url>http://193.140.74.199:15001/corner1</Url>
+        <UseChunking>false</UseChunking>
+        <UseHttpCompression>false</UseHttpCompression>
+      </Protocol>
+      <TlsConfiguration>
+        <IsEnabled>false</IsEnabled>
+        <TlsVersion>Tls12</TlsVersion>
+        <ClientCertificateReference />
+      </TlsConfiguration>
+    </ResponseConfiguration>
+    <ResponseSigning>
+      <IsEnabled>false</IsEnabled>
+    </ResponseSigning>
   </ReplyHandling>
   <ExceptionHandling>
     <NotifyMessageConsumer>false</NotifyMessageConsumer>

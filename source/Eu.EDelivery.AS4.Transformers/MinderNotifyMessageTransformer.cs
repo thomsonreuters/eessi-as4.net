@@ -58,9 +58,7 @@ namespace Eu.EDelivery.AS4.Transformers
 
         internal async Task<NotifyMessageEnvelope> CreateNotifyMessageEnvelope(AS4Message as4Message, Type receivedEntityType)
         {
-            UserMessage userMessage = as4Message.FirstUserMessage;
             SignalMessage signalMessage = as4Message.FirstSignalMessage;
-
             if (signalMessage != null)
             {
                 Logger.Info($"Minder Create Notify Message as {signalMessage.GetType().Name}");
@@ -70,12 +68,15 @@ namespace Eu.EDelivery.AS4.Transformers
                 Logger.Warn($"{as4Message.FirstUserMessage?.MessageId} AS4Message does not contain a primary SignalMessage");
             }
 
-            return await CreateMinderNotifyMessageEnvelope(userMessage, signalMessage, receivedEntityType).ConfigureAwait(false);
+            return await CreateMinderNotifyMessageEnvelope(as4Message, receivedEntityType).ConfigureAwait(false);
         }
 
         private async Task<NotifyMessageEnvelope> CreateMinderNotifyMessageEnvelope(
-            UserMessage userMessage, SignalMessage signalMessage, Type receivedEntityMessageType)
+            AS4Message as4Message, Type receivedEntityMessageType)
         {
+            UserMessage userMessage = as4Message.FirstUserMessage;
+            SignalMessage signalMessage = as4Message.FirstSignalMessage;
+
             if (userMessage == null && signalMessage != null)
             {
                 userMessage = await RetrieveRelatedUserMessage(signalMessage);
@@ -89,7 +90,7 @@ namespace Eu.EDelivery.AS4.Transformers
 
             UserMessage minderUserMessage = CreateUserMessageFromMinderProperties(userMessage, signalMessage);
 
-            var notifyMessage = AS4Mapper.Map<NotifyMessage>(signalMessage);
+            NotifyMessage notifyMessage = AS4MessageToNotifyMessageMapper.Convert(as4Message, receivedEntityMessageType);
 
             // The NotifyMessage that Minder expects, is an AS4Message which contains the specific UserMessage.
             var msg = AS4Message.Create(minderUserMessage, new SendingProcessingMode());
@@ -99,7 +100,7 @@ namespace Eu.EDelivery.AS4.Transformers
 
             using (var memoryStream = new MemoryStream())
             {
-                serializer.Serialize(msg, memoryStream, CancellationToken.None);
+                serializer.Serialize(msg, memoryStream);
                 content = memoryStream.ToArray();
             }
 
@@ -132,7 +133,7 @@ namespace Eu.EDelivery.AS4.Transformers
                         stream.Position = 0;
                         var s = SerializerProvider.Default.Get(ent.ContentType);
                         var result =
-                            await s.DeserializeAsync(stream, ent.ContentType, CancellationToken.None);
+                            await s.DeserializeAsync(stream, ent.ContentType);
 
                         if (result != null)
                         {
@@ -169,13 +170,14 @@ namespace Eu.EDelivery.AS4.Transformers
                     : Enumerable.Empty<MessageProperty>();
 
             return new UserMessage(
-                userMessage.MessageId,
-                signalMessage != null ? signalMessage.RefToMessageId : userMessage.RefToMessageId,
-                collaboration,
-                userMessage.Sender,
-                receiver,
-                userMessage.PayloadInfo,
-                userMessage.MessageProperties.Concat(props));
+                messageId: userMessage.MessageId,
+                refToMessageId: signalMessage != null ? signalMessage.RefToMessageId : userMessage.RefToMessageId,
+                mpc: userMessage.Mpc,
+                collaboration: collaboration,
+                sender: userMessage.Sender,
+                receiver: receiver,
+                partInfos: userMessage.PayloadInfo,
+                messageProperties: userMessage.MessageProperties.Concat(props));
         }
     }
 }

@@ -88,20 +88,17 @@ namespace Eu.EDelivery.AS4.Transformers.ConformanceTestTransformers
         private static AS4Message TransformMinderSubmitToAS4Message(UserMessage submitMessage, IEnumerable<Attachment> attachments)
         {
             var userMessage = new UserMessage(
-                GetPropertyValue(submitMessage.MessageProperties, "MessageId"),
-                GetPropertyValue(submitMessage.MessageProperties, "RefToMessageId"),
-                GetCollaborationFromProperties(submitMessage.MessageProperties),
-                GetSenderFromSender(submitMessage),
-                GetReceiverFromProperties(submitMessage),
-                submitMessage.PayloadInfo,
-                WhiteListedMessageProperties(submitMessage.MessageProperties));
+                messageId: GetPropertyValue(submitMessage.MessageProperties, "MessageId"),
+                refToMessageId: GetPropertyValue(submitMessage.MessageProperties, "RefToMessageId"),
+                mpc: submitMessage.Mpc,
+                collaboration: GetCollaborationFromProperties(submitMessage.MessageProperties),
+                sender: GetSenderFromSender(submitMessage),
+                receiver: GetReceiverFromProperties(submitMessage),
+                partInfos: submitMessage.PayloadInfo,
+                messageProperties: WhiteListedMessageProperties(submitMessage.MessageProperties));
 
             AS4Message result = AS4Message.Create(userMessage);
-
-            foreach (Attachment attachment in attachments)
-            {
-                result.AddAttachment(attachment);
-            }
+            result.AddAttachments(attachments);
 
             return result;
         }

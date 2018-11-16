@@ -36,7 +36,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                 return await SerializerProvider
                     .Default
                     .Get(contentType)
-                    .DeserializeAsync(input, contentType, CancellationToken.None);
+                    .DeserializeAsync(input, contentType);
             }
         }
     }

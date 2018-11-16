@@ -48,7 +48,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
                     AS4Message savedMessage = await SerializerProvider.Default
                         .Get(multihopMessage.ContentType)
-                        .DeserializeAsync(messageBody, multihopMessage.ContentType, CancellationToken.None);
+                        .DeserializeAsync(messageBody, multihopMessage.ContentType);
 
                     Assert.True(savedMessage.IsMultiHopMessage);
                 });

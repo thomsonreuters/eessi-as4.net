@@ -51,43 +51,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
 
         public class AddAttachments
         {
-            [Fact]
-            public async Task ThenAddAttachmentSucceeds()
-            {
-                // Arrange
-                var submitMessage = new SubmitMessage
-                {
-                    Payloads = new[]
-                    {
-                        new Payload(
-                            id: String.Empty, 
-                            location: String.Empty, 
-                            mimeType: string.Empty)
-                    }
-                };
-                AS4Message sut = AS4Message.Empty;
-
-                // Act
-                await sut.AddAttachments(submitMessage.Payloads, async payload => await Task.FromResult(Stream.Null));
-
-                // Assert
-                Assert.NotNull(sut.Attachments);
-                Assert.Equal(Stream.Null, sut.Attachments.First().Content);
-            }
-
-            [Fact]
-            public async Task ThenNoAttachmentsAreAddedWithZeroPayloads()
-            {
-                // Arrange
-                AS4Message sut = AS4Message.Empty;
-
-                // Act
-                await sut.AddAttachments(new Payload[0], async payload => await Task.FromResult(Stream.Null));
-
-                // Assert
-                Assert.False(sut.HasAttachments);
-            }
-
             [Property]
             public void ThenMessageRemainsSoapAfterAttachmentsAreRemoved(NonEmptyArray<Guid> ids)
             {
@@ -134,7 +97,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
                         Properties.Resources.as4_soap_user_receipt_message)))
                 {
                     AS4Message actual = await serializer
-                        .DeserializeAsync(str, Constants.ContentTypes.Soap, CancellationToken.None);
+                        .DeserializeAsync(str, Constants.ContentTypes.Soap);
 
                     Assert.IsType<Receipt>(actual.MessageUnits.First());
                     Assert.IsType<UserMessage>(actual.MessageUnits.ElementAt(1));
@@ -254,7 +217,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
         protected XmlDocument SerializeSoapMessage(AS4Message message, MemoryStream soapStream)
         {
             ISerializer serializer = new SoapEnvelopeSerializer();
-            serializer.Serialize(message, soapStream, CancellationToken.None);
+            serializer.Serialize(message, soapStream);
 
             soapStream.Position = 0;
             var document = new XmlDocument();
@@ -268,7 +231,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
             using (var soapStream = new MemoryStream())
             {
                 ISerializer serializer = new SoapEnvelopeSerializer();
-                serializer.Serialize(message, soapStream, CancellationToken.None);
+                serializer.Serialize(message, soapStream);
 
                 soapStream.Position = 0;
                 var document = new XmlDocument();
@@ -281,7 +244,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
         protected MimeMessage SerializeMimeMessage(AS4Message message, MemoryStream mimeStream)
         {
             ISerializer serializer = new MimeMessageSerializer(new SoapEnvelopeSerializer());
-            serializer.Serialize(message, mimeStream, CancellationToken.None);
+            serializer.Serialize(message, mimeStream);
 
             mimeStream.Position = 0;
 

@@ -230,5 +230,28 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
                 await test.settingsSource.Received().Save(expected);
             }
         }
+
+        public class Submit : As4SettingsServiceTests
+        {
+            [Fact]
+            public async Task Saves_Submit_Settings()
+            {
+                // Setup
+                var test = Setup();
+                test.settingsSource.Get().Returns(new Model.Internal.Settings { Submit = null });
+
+                var fixture = new SettingsSubmit { PayloadRetrievalPath = "./my-attachment-path/" };
+
+                // Act
+                await test.settingsSource.Save(new Model.Internal.Settings { Submit = fixture });
+
+                // Assert
+                var expected =
+                    Arg.Is<Model.Internal.Settings>(
+                        s => s.Submit.PayloadRetrievalPath == fixture.PayloadRetrievalPath);
+
+                await test.settingsSource.Received().Save(expected);
+            }
+        }
     }
 }

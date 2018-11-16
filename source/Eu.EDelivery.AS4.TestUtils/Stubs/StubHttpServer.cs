@@ -79,7 +79,7 @@ namespace Eu.EDelivery.AS4.TestUtils.Stubs
         /// <param name="onStop">A manual resetevent that is signaled when the request has been handled.</param>
         public static void StartServerLifetime(
             string listenAt,
-            Func<HttpListenerResponse, ServerLifetime> responseHandler,
+            Func<HttpListenerRequest, HttpListenerResponse, ServerLifetime> responseHandler,
             ManualResetEvent onStop)
         {
             var server = new HttpListener();
@@ -90,7 +90,7 @@ namespace Eu.EDelivery.AS4.TestUtils.Stubs
             {
                 HttpListenerContext context = server.GetContext();
 
-                ServerLifetime result = responseHandler(context.Response);
+                ServerLifetime result = responseHandler(context.Request, context.Response);
                 Console.WriteLine(
                     $@"Stub HTTP Server: respond to request, StatusCode {context.Response.StatusCode}");
 
@@ -120,24 +120,24 @@ namespace Eu.EDelivery.AS4.TestUtils.Stubs
             var first = true;
             StartServerLifetime(
                 url,
-                r =>
+                (req, res) =>
                 {
-                    r.StatusCode = (int)secondAttempt;
+                    res.StatusCode = (int)secondAttempt;
 
                     if (first)
                     {
                         Console.WriteLine(@"First attempt: first=" + first);
 
                         first = false;
-                        r.StatusCode = 500;
-                        r.OutputStream.WriteByte(0);
-                        r.OutputStream.Dispose();
+                        res.StatusCode = 500;
+                        res.OutputStream.WriteByte(0);
+                        res.OutputStream.Dispose();
                         return ServerLifetime.Continue;
                     }
 
                     Console.WriteLine(@"Second attempt: first=" + first);
-                    Console.WriteLine(@"Second attempt: HTTP Status Code=" + r.StatusCode);
-                    r.OutputStream.Dispose();
+                    Console.WriteLine(@"Second attempt: HTTP Status Code=" + res.StatusCode);
+                    res.OutputStream.Dispose();
                     return ServerLifetime.Stop;
                 },
                 onSecondAttempt);

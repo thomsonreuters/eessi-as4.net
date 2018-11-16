@@ -6,6 +6,7 @@ using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Services;
+using Eu.EDelivery.AS4.Strategies.Sender;
 using NLog;
 
 namespace Eu.EDelivery.AS4.Steps.Send.Response
@@ -62,15 +63,18 @@ namespace Eu.EDelivery.AS4.Steps.Send.Response
                 bool pullRequestWasPiggyBacked = 
                     request.AS4Message.SignalMessages.Any(s => !(s is PullRequest));
 
-                if (response.StatusCode != HttpStatusCode.Accepted
-                    && response.StatusCode != HttpStatusCode.OK
-                    && pullRequestWasPiggyBacked)
+                if (pullRequestWasPiggyBacked)
                 {
-                    Logger.Debug("Reset PiggyBacked SignalMessage(s) for the next PullRequest because it was not correctly send to the sender MSH");
                     using (DatastoreContext ctx = _createContext())
                     {
+                        SendResult result =
+                            response.StatusCode == HttpStatusCode.Accepted
+                            || response.StatusCode == HttpStatusCode.OK
+                                ? SendResult.Success
+                                : SendResult.RetryableFail;
+
                         var service = new PiggyBackingService(ctx);
-                        service.ResetSignalMessagesToBePiggyBacked(request.AS4Message.SignalMessages);
+                        service.ResetSignalMessagesToBePiggyBacked(request.AS4Message.SignalMessages, result);
 
                         await ctx.SaveChangesAsync().ConfigureAwait(false);
                     }

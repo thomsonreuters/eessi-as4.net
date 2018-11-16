@@ -93,11 +93,5 @@ namespace Eu.EDelivery.AS4.Model.Internal
         /// </summary>
         /// <remarks>This could be -1</remarks>
         public long Length { get; }
-
-        /// <summary>
-        /// Assign custom properties to the <see cref="ReceivedMessage" />
-        /// </summary>
-        /// <param name="messagingContext"></param>
-        public virtual void AssignPropertiesTo(MessagingContext messagingContext) { }
     }
 }

@@ -166,9 +166,10 @@ namespace Eu.EDelivery.AS4.Transformers
         {
             try
             {
-                return await SerializerProvider.Default
-                                               .Get(message.ContentType)
-                                               .DeserializeAsync(message.UnderlyingStream, message.ContentType, CancellationToken.None);
+                return await SerializerProvider
+                    .Default
+                    .Get(message.ContentType)
+                    .DeserializeAsync(message.UnderlyingStream, message.ContentType);
 
             }
             catch (Exception ex)

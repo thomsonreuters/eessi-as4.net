@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Exceptions;
+using Eu.EDelivery.AS4.Mappings.Core;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Repositories;
@@ -64,7 +65,12 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
-            AS4Message as4Message = messagingContext?.AS4Message;
+            if (messagingContext == null)
+            {
+                throw new ArgumentNullException(nameof(messagingContext));
+            }
+
+            AS4Message as4Message = messagingContext.AS4Message;
             if (as4Message == null)
             {
                 throw new InvalidOperationException(
@@ -75,10 +81,12 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             {
                 if (as4Message.IsMultiHopMessage || messagingContext.SendingPMode == null)
                 {
+
                     var firstNonPrSignalMessage = as4Message.SignalMessages.First(s => !(s is Model.Core.PullRequest));
                     SendPMode pmode = await DetermineSendingPModeForSignalMessageAsync(firstNonPrSignalMessage);
                     if (pmode != null)
                     {
+                        Logger.Debug($"Determined SendingPMode {pmode.Id} for received SignalMessages");
                         messagingContext.SendingPMode = pmode;
                     }
                     else if (as4Message.IsMultiHopMessage == false)
@@ -124,10 +132,14 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             return StepResult.Success(messagingContext);
         }
 
-        private async Task<SendPMode> DetermineSendingPModeForSignalMessageAsync(MessageUnit signalMessage)
+        private async Task<SendPMode> DetermineSendingPModeForSignalMessageAsync(Model.Core.SignalMessage signalMessage)
         {
             if (String.IsNullOrWhiteSpace(signalMessage.RefToMessageId))
             {
+                Logger.Warn(
+                    $"Cannot determine SendingPMode for received {signalMessage.GetType().Name} SignalMessage "
+                    + "because it doesn't contain a RefToMessageId to link a UserMessage from which the SendingPMode needs to be selected");
+
                 return null;
             }
 
@@ -138,13 +150,24 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 // We must take into account that it is possible that we have an OutMessage that has
                 // been forwarded; in that case, we must not retrieve the sending - pmode since we 
                 // will have to forward the signalmessage.
-                string pmodeString =
-                    repository.GetOutMessageData(
+                var referenced = repository.GetOutMessageData(
                         where: m => m.EbmsMessageId == signalMessage.RefToMessageId && m.Intermediary == false,
                         selection: m => new { m.PMode, m.ModificationTime })
                               .OrderByDescending(m => m.ModificationTime)
-                              .FirstOrDefault()
-                              ?.PMode;
+                              .FirstOrDefault();
+
+                if (referenced == null)
+                {
+                    Logger.Warn($"No referenced UserMessage record found for SignalMessage {signalMessage.MessageId}");
+                    return null;
+                }
+
+                string pmodeString = referenced?.PMode;
+                if (String.IsNullOrWhiteSpace(pmodeString))
+                {
+                    Logger.Warn($"No SendingPMode found in stored referenced UserMessage record for SignalMessage {signalMessage.MessageId}");
+                    return null;
+                }
 
                 return await AS4XmlSerializer.FromStringAsync<SendPMode>(pmodeString);
             }
@@ -171,7 +194,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
             if (routedUserMessageM != null)
             {
-                return AS4Mapper.Map<UserMessage>(routedUserMessageM.UnsafeGet);
+                return UserMessageMap.ConvertFromRouting(routedUserMessageM.UnsafeGet);
             }
 
             throw new InvalidOperationException(

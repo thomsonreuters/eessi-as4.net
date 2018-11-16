@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Net;
+using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,7 +13,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
     /// <summary>
     /// Simulation (Stub) af a MSH
     /// </summary>
-    public class StubSender
+    internal class StubSender
     {
         public string Url { get; set; } = $"http://localhost:8081/msh/";
 
@@ -22,13 +23,102 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
         /// Send a resource to the AS4 Component.
         /// </summary>
         /// <returns></returns>
-        public HttpWebResponse SendPdf()
+        public async Task<HttpWebResponse> SendPdfAsync()
         {
-            WaitToMakeSureAS4ComponentIsStarted();
-            HttpWebRequest webRequest = CreateWebRequest("application/pdf");
-            SendWebRequest(webRequest, Properties.Resources.pdf_document);
+            await WaitToMakeSureAS4ComponentIsStartedAsync();
+            HttpWebRequest webRequest = CreateWebRequest(Url, "application/pdf");
+            await SendWebRequestAsync(webRequest, Properties.Resources.pdf_document);
 
-            return TryHandleRawResponse(webRequest) as HttpWebResponse;
+            return await TryHandleRawResponseAsync(webRequest) as HttpWebResponse;
+        }
+
+        private static async Task<WebResponse> TryHandleRawResponseAsync(WebRequest webRequest)
+        {
+            try
+            {
+                using (WebResponse responseStream = await webRequest.GetResponseAsync())
+                {
+                    return responseStream;
+                }
+            }
+            catch (WebException exception)
+            {
+                Console.WriteLine(exception.Message);
+                return exception.Response;
+            }
+        }
+
+        /// <summary>
+        /// Sends a MIME AS4 Message
+        /// which is not signed, compressed or encrypted
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="contentType"></param>
+        [Obsolete("Use 'SendMessageAsync' instead")]
+        public async Task<AS4Message> SendMessage(string message, string contentType)
+        {
+            await WaitToMakeSureAS4ComponentIsStartedAsync();
+            HttpWebRequest webRequest = CreateWebRequest(Url, contentType);
+            await SendWebRequestAsync(webRequest, message);
+
+            return await TryHandleWebResponse(webRequest);
+        }
+
+        /// <summary>
+        /// Sends a message in the form of a 'string' with a given <paramref name="contentType"/>
+        /// to a specified <paramref name="url"/>; returning the response as a deserialized <see cref="AS4Message"/>.
+        /// </summary>
+        /// <param name="url">The HTTP endpoint to which the message should be sent.</param>
+        /// <param name="message">The message representation to be sent.</param>
+        /// <param name="contentType">The type of the message.</param>
+        public async Task<AS4Message> SendMessageAsync(string url, string message, string contentType)
+        {
+            await WaitToMakeSureAS4ComponentIsStartedAsync();
+            HttpWebRequest webRequest = CreateWebRequest(url, contentType);
+            await SendWebRequestAsync(webRequest, message);
+
+            return await TryHandleWebResponse(webRequest);
+        }
+
+        /// <summary>
+        /// Sends a MIME AS4 Message
+        /// which is not signed, compressed or encrypted
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="contentType"></param>
+        public async Task<AS4Message> SendMessageAsync(string message, string contentType)
+        {
+            await WaitToMakeSureAS4ComponentIsStartedAsync();
+            HttpWebRequest webRequest = CreateWebRequest(Url, contentType);
+            await SendWebRequestAsync(webRequest, message);
+
+            return await TryHandleWebResponse(webRequest);
+        }
+
+        private async Task SendWebRequestAsync(WebRequest webRequest, byte[] content)
+        {
+            Console.WriteLine($@"Send Web Request to: {Url}");
+            using (Stream requestStream = await webRequest.GetRequestStreamAsync())
+            {                
+                var memoryStream = new MemoryStream(content);
+                memoryStream.WriteTo(requestStream);
+            }
+        }
+
+        /// <summary>
+        /// Sends the given message stream with <paramref name="contentType"/> to the AS4.NET Component.
+        /// </summary>
+        /// <param name="message">The message.</param>
+        /// <param name="contentType">Type of the content.</param>
+        /// <returns></returns>
+        [Obsolete("Use 'SendMessageAsync' instead")]
+        public WebResponse SendMessage(Stream message, string contentType)
+        {
+            Thread.Sleep(TimeSpan.FromSeconds(10));
+            HttpWebRequest webRequest = CreateWebRequest(Url, contentType);
+            SendWebRequest(webRequest, message);
+
+            return TryHandleRawResponse(webRequest);
         }
 
         private static WebResponse TryHandleRawResponse(WebRequest webRequest)
@@ -47,44 +137,37 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
             }
         }
 
-        /// <summary>
-        /// Sends a MIME AS4 Message
-        /// which is not signed, compressed or encrypted
-        /// </summary>
-        /// <param name="message"></param>
-        /// <param name="contentType"></param>
-        public Task<AS4Message> SendMessage(string message, string contentType)
+        private async Task WaitToMakeSureAS4ComponentIsStartedAsync()
         {
-            WaitToMakeSureAS4ComponentIsStarted();
-            HttpWebRequest webRequest = CreateWebRequest(contentType);
-            SendWebRequest(webRequest, message);
+            await PollingService.PollUntilPresentAsync(
+                async () =>
+                {
+                    HttpWebRequest req = WebRequest.CreateHttp(Url);
+                    req.Method = HttpMethod.Get.Method;
+                    req.Accept = "text/html";
 
-            return TryHandleWebResponse(webRequest);
+                    try
+                    {
+                        using (var response = (HttpWebResponse) await req.GetResponseAsync())
+                        {
+                            return response.StatusCode;
+                        }
+                    }
+                    catch (WebException ex)
+                    {
+                        using (var response = (HttpWebResponse) ex.Response)
+                        {
+                            return response.StatusCode;
+                        }
+                    }
+                },
+                status => status == HttpStatusCode.OK,
+                TimeSpan.FromSeconds(30));
         }
 
-        /// <summary>
-        /// Sends the given message stream with <paramref name="contentType"/> to the AS4.NET Component.
-        /// </summary>
-        /// <param name="message">The message.</param>
-        /// <param name="contentType">Type of the content.</param>
-        /// <returns></returns>
-        public WebResponse SendMessage(Stream message, string contentType)
+        private HttpWebRequest CreateWebRequest(string url, string contentType)
         {
-            WaitToMakeSureAS4ComponentIsStarted();
-            HttpWebRequest webRequest = CreateWebRequest(contentType);
-            SendWebRequest(webRequest, message);
-
-            return TryHandleRawResponse(webRequest);
-        }
-
-        private static void WaitToMakeSureAS4ComponentIsStarted()
-        {
-            Thread.Sleep(TimeSpan.FromSeconds(10));
-        }
-
-        private HttpWebRequest CreateWebRequest(string contentType)
-        {
-            var request = WebRequest.Create(Url) as HttpWebRequest;
+            var request = WebRequest.Create(url) as HttpWebRequest;
             request.Method = "POST";
             request.ContentType = contentType;
             request.KeepAlive = false;
@@ -104,23 +187,13 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
             }
         }
 
-        private void SendWebRequest(WebRequest webRequest, string message)
+        private async Task SendWebRequestAsync(WebRequest webRequest, string message)
         {
             Console.WriteLine($@"Send Web Request to: {Url}");
-            using (Stream requestStream = webRequest.GetRequestStream())
+            using (Stream requestStream = await webRequest.GetRequestStreamAsync())
             {
                 byte[] messageBytes = Encoding.UTF8.GetBytes(message);
                 var memoryStream = new MemoryStream(messageBytes);
-                memoryStream.WriteTo(requestStream);
-            }
-        }
-
-        private void SendWebRequest(WebRequest webRequest, byte[] content)
-        {
-            Console.WriteLine($@"Send Web Request to: {Url}");
-            using (Stream requestStream = webRequest.GetRequestStream())
-            {                
-                var memoryStream = new MemoryStream(content);
                 memoryStream.WriteTo(requestStream);
             }
         }
@@ -175,7 +248,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
             string contentType = response.ContentType;
             Stream responseStream = response.GetResponseStream();
 
-            return await new SoapEnvelopeSerializer().DeserializeAsync(responseStream, contentType, CancellationToken.None);
+            return await new SoapEnvelopeSerializer().DeserializeAsync(responseStream, contentType);
         }
     }
 }

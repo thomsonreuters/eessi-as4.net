@@ -159,6 +159,22 @@ namespace Eu.EDelivery.AS4.Fe.Controllers
         }
 
         /// <summary>
+        /// Save submit settings.
+        /// </summary>
+        /// <param name="settings">The settings.</param>
+        /// <returns>OkResult</returns>
+        [HttpPost]
+        [Route("submitsettings")]
+        [Authorize(Roles = Roles.Admin)]
+        [SwaggerResponse((int)HttpStatusCode.OK, typeof(OkResult))]
+        public async Task<IActionResult> SaveSubmitSettings([FromBody] SettingsSubmit settings)
+        {
+            EnsureArg.IsNotNull(settings, nameof(settings));
+            await settingsService.SaveSubmitSettings(settings);
+            return new OkResult();
+        }
+
+        /// <summary>
         /// Save pull send settings.
         /// </summary>
         /// <param name="settings">The settings.</param>

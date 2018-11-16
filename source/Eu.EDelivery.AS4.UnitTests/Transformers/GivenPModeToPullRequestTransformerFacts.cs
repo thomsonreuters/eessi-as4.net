@@ -29,13 +29,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             get
             {
                 yield return new object[] { new ReceivedMessage(underlyingStream: Stream.Null) };
-
-                SendingProcessingMode invalidSendingPMode = ValidSendingPModeFactory.Create("my id");
-                invalidSendingPMode.MepBinding = MessageExchangePatternBinding.Pull;
-                invalidSendingPMode.PushConfiguration = new PushConfiguration();
-
-                yield return new object[] { new ReceivedMessage(AS4XmlSerializer.ToStreamAsync(invalidSendingPMode).Result) };
-                yield return new object[] { new SaboteurReceivedMessage() };
             }
         }
 

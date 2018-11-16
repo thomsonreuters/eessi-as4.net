@@ -8,13 +8,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Repositories
     /// </summary>
     public class GivenMimeTypeRepositoryFacts
     {
-        private readonly MimeTypeRepository _repository;
-
-        public GivenMimeTypeRepositoryFacts()
-        {
-            _repository = new MimeTypeRepository();
-        }
-
         public class GivenValidArguments : GivenMimeTypeRepositoryFacts
         {
             [Fact]
@@ -24,10 +17,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Repositories
                 const string mimeContentType = "image/jpeg";
 
                 // Act
-                string extenstion = _repository.GetExtensionFromMimeType(mimeContentType);
+                string extension = MimeTypeRepository.Instance.GetExtensionFromMimeType(mimeContentType);
 
                 // Assert
-                Assert.Equal(".jpg", extenstion);
+                Assert.Equal(".jpg", extension);
             }
         }
 
@@ -40,7 +33,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Repositories
                 const string mimeContentType = "invalid/type";
 
                 // Act
-                string extension = _repository.GetExtensionFromMimeType(mimeContentType);
+                string extension = MimeTypeRepository.Instance.GetExtensionFromMimeType(mimeContentType);
 
                 // Assert
                 Assert.Empty(extension);

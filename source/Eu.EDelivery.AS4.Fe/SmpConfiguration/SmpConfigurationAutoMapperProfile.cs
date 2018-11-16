@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using Eu.EDelivery.AS4.Entities;
+using Eu.EDelivery.AS4.Fe.SmpConfiguration.Model;
 
 namespace Eu.EDelivery.AS4.Fe.SmpConfiguration
 {
@@ -14,7 +14,7 @@ namespace Eu.EDelivery.AS4.Fe.SmpConfiguration
         /// </summary>
         public SmpConfigurationAutoMapperProfile()
         {
-            CreateMap<SmpConfiguration, Entities.SmpConfiguration>()
+            CreateMap<SmpConfigurationDetail, Entities.SmpConfiguration>()
                 .ForMember(x => x.EncryptPublicKeyCertificate, x => x.Ignore())
                 .ForMember(x => x.Id, x => x.Ignore());
         }

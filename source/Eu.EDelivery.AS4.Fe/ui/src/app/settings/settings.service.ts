@@ -5,6 +5,7 @@ import { Subject } from 'rxjs/Subject';
 
 import { Receiver } from '../api/Receiver';
 import { SettingsPullSend } from '../api/SettingsPullSend';
+import { SettingsSubmit } from '../api/SettingsSubmit';
 import { StepPipeline } from '../api/StepPipeline';
 import { Base } from './../api/Base';
 import { CustomSettings } from './../api/CustomSettings';
@@ -41,6 +42,20 @@ export class SettingsService implements ISettingsService {
   public saveBaseSettings(base: Base): Observable<boolean> {
     let subj = new Subject<boolean>();
     this.http.post(this.getUrl('basesettings'), base).subscribe(
+      () => {
+        subj.next(true);
+        subj.complete();
+      },
+      () => {
+        subj.next(false);
+        subj.complete();
+      }
+    );
+    return subj.asObservable();
+  }
+  public saveSubmitSettings(submit: SettingsSubmit): Observable<boolean> {
+    let subj = new Subject<boolean>();
+    this.http.post(this.getUrl('submitsettings'), submit).subscribe(
       () => {
         subj.next(true);
         subj.complete();

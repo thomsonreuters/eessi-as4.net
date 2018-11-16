@@ -150,6 +150,9 @@ namespace Eu.EDelivery.AS4.Migrations
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<string>("Action")
+                        .HasMaxLength(255);
+
                     b.Property<string>("AgentName")
                         .IsRequired()
                         .HasMaxLength(50);
@@ -162,26 +165,27 @@ namespace Eu.EDelivery.AS4.Migrations
                         .IsRequired()
                         .HasMaxLength(100);
 
-                    b.Property<DateTimeOffset>("InsertionTime");
+                    b.Property<string>("FromParty")
+                        .HasMaxLength(255);
 
                     b.Property<DateTimeOffset>("LogDate");
 
                     b.Property<string>("LogEntry")
                         .IsRequired();
 
-                    b.Property<string>("MessageOperation")
+                    b.Property<string>("RefToEbmsMessageId")
                         .IsRequired()
-                        .HasMaxLength(20);
-
-                    b.Property<string>("MessageStatus")
-                        .IsRequired()
-                        .HasMaxLength(20);
-
-                    b.Property<DateTimeOffset>("ModificationTime");
+                        .HasMaxLength(100);
 
                     b.Property<long?>("RefToInMessageId");
 
                     b.Property<long?>("RefToOutMessageId");
+
+                    b.Property<string>("Service")
+                        .HasMaxLength(255);
+
+                    b.Property<string>("ToParty")
+                        .HasMaxLength(255);
 
                     b.HasKey("Id")
                         .HasName("PK_Journal");

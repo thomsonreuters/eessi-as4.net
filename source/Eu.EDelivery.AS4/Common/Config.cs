@@ -11,6 +11,10 @@ using Eu.EDelivery.AS4.Agents;
 using Eu.EDelivery.AS4.Builders;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
+using Eu.EDelivery.AS4.Receivers;
+using Eu.EDelivery.AS4.Repositories;
+using Eu.EDelivery.AS4.Steps;
+using Eu.EDelivery.AS4.Transformers;
 using Eu.EDelivery.AS4.Validators;
 using Eu.EDelivery.AS4.Watchers;
 using NLog;
@@ -86,7 +90,7 @@ namespace Eu.EDelivery.AS4.Common
         /// Gets the location where the payloads should be retrieved.
         /// </summary>
         public string PayloadRetrievalLocation =>
-            OnlyAfterInitialized(() => _settings?.Submit?.PayloadRetrievalLocation ?? @"file:///.\messages\attachments");
+            OnlyAfterInitialized(() => _settings?.Submit?.PayloadRetrievalPath ?? @"file:///.\messages\attachments");
 
         /// <summary>
         /// Gets the file path from where the authorization entries to verify PullRequests should be stored.
@@ -475,7 +479,7 @@ namespace Eu.EDelivery.AS4.Common
             {
                 yield return $"Agent: {settings.Name} hasn't got a Receiver type configured";
             }
-            else if (!GenericTypeBuilder.CanResolveType(settings.Receiver.Type))
+            else if (!GenericTypeBuilder.CanResolveTypeThatImplements<IReceiver>(settings.Receiver.Type))
             {
                 yield return $"Agent: {settings.Name} Receiver type: {settings.Receiver.Type} cannot be resolved";
             }
@@ -484,7 +488,7 @@ namespace Eu.EDelivery.AS4.Common
             {
                 yield return $"Agent: {settings.Name} hasn't got a Transformer type configured";
             }
-            else if (!GenericTypeBuilder.CanResolveType(settings.Transformer.Type))
+            else if (!GenericTypeBuilder.CanResolveTypeThatImplements<ITransformer>(settings.Transformer.Type))
             {
                 yield return $"Agent: {settings.Name} Transformer type: {settings.Transformer.Type} cannot be resolved";
             }
@@ -497,7 +501,7 @@ namespace Eu.EDelivery.AS4.Common
             {
                 foreach (Step s in settings.StepConfiguration.NormalPipeline)
                 {
-                    if (!GenericTypeBuilder.CanResolveType(s.Type))
+                    if (!GenericTypeBuilder.CanResolveTypeThatImplements<IStep>(s.Type))
                     {
                         yield return $"Agent: {settings.Name} has a Step in the NormalPipeline with type: {s.Type ?? "<null>"} that cannot be resolved";
                     }
@@ -508,7 +512,7 @@ namespace Eu.EDelivery.AS4.Common
             {
                 foreach (Step s in settings.StepConfiguration.ErrorPipeline)
                 {
-                    if (!GenericTypeBuilder.CanResolveType(s.Type))
+                    if (!GenericTypeBuilder.CanResolveTypeThatImplements<IStep>(s.Type))
                     {
                         yield return $"Agent: {settings.Name} has a Step in the NormalPipeline with type: {s.Type ?? "<null>"} that cannot be resolved";
                     }
@@ -519,7 +523,7 @@ namespace Eu.EDelivery.AS4.Common
         private IEnumerable<string> ValidateFixedSettings()
         {
             string repoType = _settings.CertificateStore?.Repository?.Type;
-            if (!GenericTypeBuilder.CanResolveType(repoType))
+            if (!GenericTypeBuilder.CanResolveTypeThatImplements<ICertificateRepository>(repoType))
             {
                 yield return $"Certificate store type: {repoType} cannot be resolved";
             }

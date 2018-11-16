@@ -9,8 +9,10 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
     /// Class to provide <see cref="IDeliverSender" /> implementations
     /// based on a given condition
     /// </summary>
-    public class DeliverSenderProvider : IDeliverSenderProvider
+    internal class DeliverSenderProvider : IDeliverSenderProvider
     {
+        public static readonly IDeliverSenderProvider Instance = new DeliverSenderProvider();
+
         private readonly ICollection<DeliverSenderEntry> _senders;
 
         /// <summary>
@@ -18,9 +20,12 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
         /// Create a new <see cref="DeliverSenderProvider" />
         /// to select the provide the right <see cref="IDeliverSender" /> implementation
         /// </summary>
-        public DeliverSenderProvider()
+        private DeliverSenderProvider()
         {
             _senders = new Collection<DeliverSenderEntry>();
+            
+            this.Accept(s => StringComparer.OrdinalIgnoreCase.Equals(s, FileSender.Key), () => new FileSender());
+            this.Accept(s => StringComparer.OrdinalIgnoreCase.Equals(s, HttpSender.Key), () => new HttpSender());
         }
 
         /// <summary>
@@ -64,7 +69,7 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
                 throw new KeyNotFoundException($"No Deliver Sender found for a given {operationMethod} Operation Method");
             }
 
-            return entry.Sender();
+            return new ReliableSender(entry.Sender());
         }
 
         /// <summary>
@@ -89,8 +94,20 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
     /// </summary>
     public interface IDeliverSenderProvider
     {
+        /// <summary>
+        /// Accept a given <paramref name="sender" /> for a given <paramref name="condition" />
+        /// </summary>
+        /// <param name="condition"></param>
+        /// <param name="sender"></param>
         void Accept(Func<string, bool> condition, Func<IDeliverSender> sender);
 
+        /// <summary>
+        /// Get the right <see cref="IDeliverSender" /> implementation
+        /// for a given <paramref name="operationMethod" />
+        /// </summary>
+        /// <param name="operationMethod"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception">A delegate callback throws an exception.</exception>
         IDeliverSender GetDeliverSender(string operationMethod);
     }
 }

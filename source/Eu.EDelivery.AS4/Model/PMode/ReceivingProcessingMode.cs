@@ -15,6 +15,9 @@ namespace Eu.EDelivery.AS4.Model.PMode
     [DebuggerDisplay("PMode Id = {" + nameof(Id) + "}")]
     public class ReceivingProcessingMode : IPMode
     {
+        // IsNullable=true because only way the XSD will get generated with minOccurs=1
+        [XmlElement(IsNullable = true)]
+        [Description("Id of the PMode")]
         public string Id { get; set; }
 
         [Description("Receive reliability")]
@@ -74,14 +77,20 @@ namespace Eu.EDelivery.AS4.Model.PMode
         [Description("Define whether the response must be sent directly by writing it to the Response stream of the HTTP call, or if it should be sent asynchronously by sending it later.")]
         public ReplyPattern ReplyPattern { get; set; }
 
-        [Description("ID of the (sending) PMode that must be used to send the Receipt or Error message.")]
-        public string SendingPMode { get; set; }
-
         [Description("Receipt handling")]
         public ReceiveReceiptHandling ReceiptHandling { get; set; }
 
         [Description("Error handling")]
         public ReceiveErrorHandling ErrorHandling { get; set; }
+
+        [Description("Piggy backing reliability")]
+        public RetryReliability PiggyBackReliability { get; set; }
+
+        [Description("Response configuration")]
+        public PushConfiguration ResponseConfiguration { get; set; }
+
+        [Description("Response signing")]
+        public Signing ResponseSigning { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ReplyHandling"/> class.
@@ -91,6 +100,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
             ReplyPattern = ReplyPattern.Response;
             ReceiptHandling = new ReceiveReceiptHandling();
             ErrorHandling = new ReceiveErrorHandling();
+            ResponseSigning = new Signing();
         }
     }
 

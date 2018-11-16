@@ -51,7 +51,7 @@ namespace Eu.EDelivery.AS4.Model.Internal
     [XmlType(AnonymousType = true, Namespace = "eu:edelivery:as4")]
     public class SettingsSubmit
     {
-        public string PayloadRetrievalLocation { get; set; }
+        public string PayloadRetrievalPath { get; set; }
     }
 
     [Serializable]

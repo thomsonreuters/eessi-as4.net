@@ -83,35 +83,6 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         #region Scenario's for received UserMessages that result in errors.
 
         [Fact]
-        public async Task ThenAgentReturnsError_IfResponseSendPModeIsNotFound()
-        {
-            // Arrange
-            var message = AS4Message.Create(
-                new UserMessage(
-                    $"user-{Guid.NewGuid()}",
-                    new CollaborationInfo(
-                        agreement: new AgreementReference(
-                            value: "agreement",
-                            pmodeId: "receiveagent-non-exist-response-pmode"),
-                        service: new Service(
-                            value: "receive:agent:service",
-                            type: "receive:agent:type"),
-                        action: "receive:agent:action",
-                        conversationId: "receive:agent:conversation")));
-
-            // Act
-            HttpResponseMessage response = await StubSender.SendAS4Message(_receiveAgentUrl, message);
-
-            // Assert
-            AS4Message errorMessage = await response.DeserializeToAS4Message();
-            var e = errorMessage.PrimaryMessageUnit as Error;
-            Assert.True(e != null, "Primary Message Unit should be an 'Error'");
-            Assert.Equal(
-                ErrorAlias.ProcessingModeMismatch,
-                e.ErrorLines.First().ShortDescription);
-        }
-
-        [Fact]
         public async Task ThenAgentReturnsError_IfMessageHasNonExsistingAttachment()
         {
             // Arrange
@@ -155,7 +126,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
             AS4Message result = await SerializerProvider.Default
                 .Get(Constants.ContentTypes.Soap)
-                .DeserializeAsync(await response.Content.ReadAsStreamAsync(), Constants.ContentTypes.Soap, CancellationToken.None);
+                .DeserializeAsync(await response.Content.ReadAsStreamAsync(), Constants.ContentTypes.Soap);
 
             var errorMsg = result.FirstSignalMessage as Error;
             Assert.NotNull(errorMsg);
@@ -194,7 +165,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
             var contentType = response.Content.Headers.ContentType.MediaType;
             var result = await SerializerProvider.Default.Get(contentType)
-                                        .DeserializeAsync(await response.Content.ReadAsStreamAsync(), contentType, CancellationToken.None);
+                                        .DeserializeAsync(await response.Content.ReadAsStreamAsync(), contentType);
 
             Assert.True(result.IsSignalMessage);
 
@@ -241,8 +212,8 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                                                             && m.EbmsMessageType == MessageType.Receipt),
                     timeout: TimeSpan.FromSeconds(20));
 
-            SendingProcessingMode responsePMode = _as4Msh.GetConfiguration().GetSendingPMode(storedReceipt.PModeId);
-            Assert.Equal(responsePMode.PushConfiguration.Protocol.Url, storedReceipt.Url);
+            ReceivingProcessingMode pmode = _as4Msh.GetConfiguration().GetReceivingPModes().First(p => p.Id == "callback-pmode");
+            Assert.Equal(pmode.ReplyHandling.ResponseConfiguration.Protocol.Url, storedReceipt.Url);
         }
 
         [Fact]
@@ -614,7 +585,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
             AS4Message savedMessage = await SerializerProvider.Default
                 .Get(inMessage.ContentType)
-                .DeserializeAsync(messageBody, inMessage.ContentType, CancellationToken.None);
+                .DeserializeAsync(messageBody, inMessage.ContentType);
 
             Assert.NotNull(savedMessage.EnvelopeDocument.SelectSingleNode("//*[local-name()='RoutingInput']"));
         }

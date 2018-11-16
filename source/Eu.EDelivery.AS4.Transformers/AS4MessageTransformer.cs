@@ -54,10 +54,7 @@ namespace Eu.EDelivery.AS4.Transformers
             VirtualStream messageStream = await CopyIncomingStreamToVirtualStream(message);
             AS4Message as4Message = await DeserializeMessage(message.ContentType, messageStream, CancellationToken.None);
 
-            var context = new MessagingContext(as4Message, message, MessagingContextMode.Unknown);
-            message.AssignPropertiesTo(context);
-
-            return context;
+            return new MessagingContext(as4Message, message, MessagingContextMode.Unknown);
         }
 
         private static async Task<VirtualStream> CopyIncomingStreamToVirtualStream(ReceivedMessage receivedMessage)

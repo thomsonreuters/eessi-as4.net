@@ -73,7 +73,7 @@ namespace AS4.ParserService.Controllers
             {
                 var serializer = SerializerProvider.Default.Get(context.AS4Message.ContentType);
 
-                serializer.Serialize(context.AS4Message, stream, CancellationToken.None);
+                serializer.Serialize(context.AS4Message, stream);
 
                 var result = new EncodeResult
                 {

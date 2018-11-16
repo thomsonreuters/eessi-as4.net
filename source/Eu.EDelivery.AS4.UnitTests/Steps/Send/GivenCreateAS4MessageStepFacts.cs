@@ -95,7 +95,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
                 MessageInfo submitMessageInfo = submitMessage.MessageInfo;
                 UserMessage userMessage = result.MessagingContext.AS4Message.FirstUserMessage;
                 Assert.Equal(submitMessageInfo.MessageId, userMessage.MessageId);
-                Assert.Equal(submitMessageInfo.Mpc, userMessage.Mpc);
+                Assert.Equal(Constants.Namespaces.EbmsDefaultMpc, userMessage.Mpc);
                 Assert.Equal(submitMessageInfo.RefToMessageId, userMessage.RefToMessageId);
             }
 
@@ -128,13 +128,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
                 SubmitMessage submitMessage = new SubmitMessage();
                 submitMessage.PMode = DefaultSendPMode();
                 submitMessage.Collaboration.AgreementRef.PModeId = submitMessage.PMode.Id;
+                submitMessage.MessageInfo.Mpc = null;
                 submitMessage.PMode.MessagePackaging.Mpc = "some-mpc";
 
                 var context = new MessagingContext(submitMessage);
 
                 StepResult result = await ExerciseCreateAS4Message(context);
 
-                Assert.Equal("some-mpc", result.MessagingContext.AS4Message.FirstUserMessage.Mpc );
+                Assert.Equal("some-mpc", result.MessagingContext.AS4Message.FirstUserMessage.Mpc);
             }
 
             [Fact]

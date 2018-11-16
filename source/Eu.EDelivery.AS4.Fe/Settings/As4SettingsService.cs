@@ -43,6 +43,19 @@ namespace Eu.EDelivery.AS4.Fe.Settings
         }
 
         /// <summary>
+        /// Saves the submit settings.
+        /// </summary>
+        /// <param name="settings">The settings.</param>
+        /// <returns></returns>
+        public async Task SaveSubmitSettings(SettingsSubmit settings)
+        {
+            EnsureArg.IsNotNull(settings, nameof(settings));
+            var file = await GetSettings();
+            file.Submit = settings;
+            await settingsSource.Save(file);
+        }
+
+        /// <summary>
         /// Saves the pull send settings.
         /// </summary>
         /// <param name="settings">The settings.</param>

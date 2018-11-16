@@ -72,7 +72,21 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
                 new ReceivedEntityMessage(entity), 
                 MessagingContextMode.Notify)
             {
-                SendingPMode = new SendingProcessingMode()
+                SendingPMode = new SendingProcessingMode
+                {
+                    ReceiptHandling =
+                    {
+                        NotifyMethod = new Method { Type = "FILE" }
+                    },
+                    ErrorHandling =
+                    {
+                        NotifyMethod = new Method { Type = "FILE" }
+                    },
+                    ExceptionHandling =
+                    {
+                        NotifyMethod = new Method { Type = "FILE" }
+                    }
+                }
             };
 
             ctx.ModifyContext(envelope);
@@ -97,9 +111,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
         public async Task ThenExecuteStepSucceedsWithSendingPModeAsync()
         {
             // Arrange
+            var entity = new InMessage($"receipt-{Guid.NewGuid()}");
+            entity.InitializeIdFromDatabase(1);
+
             var fixture = new MessagingContext(
                 EmptyNotifyMessageEnvelope(Status.Delivered),
-                entityId: 1)
+                new ReceivedEntityMessage(entity))
             {
                 SendingPMode = new SendingProcessingMode
                 {
@@ -123,9 +140,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
         public async Task ThenExecuteStepWithReceivingPModeAsync()
         {
             // Arrange
+            var entity = new InMessage($"error-{Guid.NewGuid()}");
+            entity.InitializeIdFromDatabase(1);
+
             var fixture = new MessagingContext(
                 EmptyNotifyMessageEnvelope(Status.Error),
-                entityId: 1)
+                new ReceivedEntityMessage(entity))
             {
                 SendingPMode = new SendingProcessingMode
                 {

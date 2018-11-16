@@ -78,25 +78,23 @@ namespace Eu.EDelivery.AS4.Services
                     new ErrorResult("Missing Receipt", ErrorAlias.MissingReceipt));
 
             AS4Message as4Message = AS4Message.Create(errorMessage, sendingPMode);
-            InMessage inMessage = InMessageBuilder
-                .ForSignalMessage(errorMessage, as4Message, mep)
-                .WithPMode(sendingPMode)
-                .Build();
 
             // We do not use the InMessageService to persist the incoming message here, since this is not really
             // an incoming message.  We create this InMessage in order to be able to notify the Message Producer
             // if he should be notified when a message cannot be sent.
             // (Maybe we should only create the InMessage when notification is enabled ?)
-            inMessage.MessageLocation = Registry.Instance
-                .MessageBodyStore
-                .SaveAS4Message(
-                    location: Config.Instance.InMessageStoreLocation,
-                    message: as4Message);
+            string location =
+                Registry.Instance
+                        .MessageBodyStore
+                        .SaveAS4Message(
+                            location: Config.Instance.InMessageStoreLocation,
+                            message: as4Message);
 
-            inMessage.Operation =
-                (sendingPMode?.ErrorHandling?.NotifyMessageProducer ?? false)
-                    ? Operation.ToBeNotified
-                    : Operation.NotApplicable;
+            InMessage inMessage = InMessageBuilder
+                .ForSignalMessage(errorMessage, as4Message, mep)
+                .WithPMode(sendingPMode)
+                .OnLocation(location)
+                .BuildAsDeadLetteredError();
 
             Logger.Debug($"(Send) Create Error for missed Receipt with {{Operation={inMessage.Operation}}}");
             _repository.InsertInMessage(inMessage);
@@ -193,13 +191,16 @@ namespace Eu.EDelivery.AS4.Services
                     InMessage inMessage = InMessageBuilder
                         .ForUserMessage(userMessage, as4Message, mep)
                         .WithPMode(pmode)
-                        .Build();
-
-                    inMessage.MessageLocation = location;
+                        .OnLocation(location)
+                        .BuildAsToBeProcessed();
 
                     Logger.Debug(
-                        $"Insert InMessage UserMessage {userMessage.MessageId} with " +
-                        $" {{Operation={inMessage.Operation}, Status={inMessage.Status}, IsTest={userMessage.IsTest}, IsDuplicate={userMessage.IsDuplicate}}}");
+                        $"Insert InMessage UserMessage {userMessage.MessageId} with  {{"
+                        + $"Operation={inMessage.Operation}, "
+                        + $"Status={inMessage.Status}, "
+                        + $"PModeId={pmode?.Id}, "
+                        + $"IsTest={userMessage.IsTest}, "
+                        + $"IsDuplicate={userMessage.IsDuplicate}}}");
 
                     _repository.InsertInMessage(inMessage);
                 }
@@ -248,13 +249,14 @@ namespace Eu.EDelivery.AS4.Services
                     InMessage inMessage = InMessageBuilder
                         .ForSignalMessage(signalMessage, as4Message, mep)
                         .WithPMode(pmode)
-                        .Build();
-
-                    inMessage.MessageLocation = location;
+                        .OnLocation(location)
+                        .BuildAsToBeProcessed();
 
                     Logger.Debug(
-                        $"Insert InMessage {signalMessage.GetType().Name} {signalMessage.MessageId} " +
-                        $"with {{Operation={inMessage.Operation}, Status={inMessage.Status}}}");
+                        $"Insert InMessage {signalMessage.GetType().Name} {signalMessage.MessageId} with {{"
+                        + $"Operation={inMessage.Operation}, "
+                        + $"Status={inMessage.Status}, "
+                        + $"PModeId={pmode?.Id}}}");
 
                     _repository.InsertInMessage(inMessage);
                 }
@@ -436,12 +438,17 @@ namespace Eu.EDelivery.AS4.Services
             RetryReliability retryReceipts = sendingPMode?.ReceiptHandling?.Reliability;
             if (retryReceipts?.IsEnabled == false)
             {
-                Logger.Debug(
+                Logger.Trace(
                     "Will not insert RetryReliability for Receipt(s) so it can be retried during delivery "
                     + $"since the ReceivingPMode {sendingPMode?.Id} ReceiptHandling.Reliability.IsEnabled = false");
             }
 
-            UpdateSignalMessages(receipts, notifyReceipts, OutStatus.Ack, retryReceipts);
+            if (notifyReceipts)
+            {
+                UpdateSignalMessages(sendingPMode, receipts, retryReceipts);
+            }
+
+            UpdateReferencedUserMessagesStatus(receipts, OutStatus.Ack);
 
             IEnumerable<Error> errors = signalMessages.OfType<Error>();
             bool notifyErrors = sendingPMode?.ErrorHandling?.NotifyMessageProducer ?? false;
@@ -453,56 +460,69 @@ namespace Eu.EDelivery.AS4.Services
             RetryReliability retryErrors = sendingPMode?.ErrorHandling?.Reliability;
             if (retryErrors?.IsEnabled == false)
             {
-                Logger.Debug(
+                Logger.Trace(
                     "Will not insert RetryReliability for Error(s) so it can be retried during notification "
                     + $"since the SendingPMode {sendingPMode?.Id} ErrorHandling.Reliability.IsEnabled = false");
             }
 
-            UpdateSignalMessages(errors, notifyErrors, OutStatus.Nack, retryErrors);
-        }
-
-        private void UpdateSignalMessages(
-            IEnumerable<SignalMessage> signalMessages,
-            bool signalsMustBeNotified,
-            OutStatus outStatus,
-            RetryReliability reliability)
-        {
-            if (signalsMustBeNotified)
+            if (notifyErrors)
             {
-                string[] signalsToNotify =
-                    signalMessages.Where(r => r.IsDuplicate == false)
-                                  .Select(s => s.MessageId)
-                                  .ToArray();
-
-                if (signalsToNotify.Any())
-                {
-                    _repository.UpdateInMessages(
-                        m => signalsToNotify.Contains(m.EbmsMessageId) && m.Intermediary == false,
-                        m =>
-                        {
-                            m.Operation = Operation.ToBeNotified;
-                            Logger.Debug($"Update InMessage {m.EbmsMessageType} {m.EbmsMessageId} with Operation={m.Operation}");
-                        });
-
-                    bool isRetryEnabled = reliability?.IsEnabled ?? false;
-                    if (isRetryEnabled)
-                    {
-                        IEnumerable<long> ids = _repository.GetInMessagesData(signalsToNotify, m => m.Id);
-                        foreach (long id in ids)
-                        {
-                            var r = Entities.RetryReliability.CreateForInMessage(
-                                refToInMessageId: id,
-                                maxRetryCount: reliability.RetryCount,
-                                retryInterval: reliability.RetryInterval.AsTimeSpan(),
-                                type: RetryType.Notification);
-
-                            Logger.Debug($"Insert RetryReliability for SignalMessage InMessage {id} with {{MaxRetryCount={r.MaxRetryCount}, RetryInterval={r.RetryInterval}}}");
-                            _repository.InsertRetryReliability(r);
-                        }
-                    }
-                }
+                UpdateSignalMessages(sendingPMode, errors, retryErrors);
             }
 
+            UpdateReferencedUserMessagesStatus(errors, OutStatus.Nack);
+        }
+
+        private void UpdateSignalMessages<TSignal>(
+            SendingProcessingMode sendingPMode,
+            IEnumerable<TSignal> signalMessages,
+            RetryReliability reliability) where TSignal : SignalMessage
+        {
+            string[] signalsToNotify =
+                signalMessages.Where(r => r.IsDuplicate == false)
+                              .Select(s => s.MessageId)
+                              .ToArray();
+
+            if (!signalsToNotify.Any())
+            {
+                return;
+            }
+
+            string ebmsMessageType = typeof(TSignal).Name;
+
+            _repository.UpdateInMessages(
+                m => signalsToNotify.Contains(m.EbmsMessageId) && m.Intermediary == false,
+                m =>
+                {
+                    m.Operation = Operation.ToBeNotified;
+                    m.SetPModeInformation(sendingPMode);
+                    Logger.Debug($"Update InMessage {ebmsMessageType} {m.EbmsMessageId} with Operation={m.Operation}");
+                });
+
+            bool isRetryEnabled = reliability?.IsEnabled ?? false;
+            if (isRetryEnabled)
+            {
+                IEnumerable<long> ids = _repository.GetInMessagesData(signalsToNotify, m => m.Id);
+                foreach (long id in ids)
+                {
+                    var r = Entities.RetryReliability.CreateForInMessage(
+                        refToInMessageId: id,
+                        maxRetryCount: reliability.RetryCount,
+                        retryInterval: reliability.RetryInterval.AsTimeSpan(),
+                        type: RetryType.Notification);
+
+                    Logger.Debug(
+                        $"Insert RetryReliability for SignalMessage InMessage {id} with {{"
+                        + $"MaxRetryCount={r.MaxRetryCount}, "
+                        + $"RetryInterval={r.RetryInterval}}}");
+
+                    _repository.InsertRetryReliability(r);
+                }
+            }
+        }
+
+        private void UpdateReferencedUserMessagesStatus(IEnumerable<SignalMessage> signalMessages, OutStatus outStatus)
+        {
             string[] refToMessageIds = signalMessages.Select(r => r.RefToMessageId).Where(id => !String.IsNullOrEmpty(id)).ToArray();
             if (refToMessageIds.Any())
             {

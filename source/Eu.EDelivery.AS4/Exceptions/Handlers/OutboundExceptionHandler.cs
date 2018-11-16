@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
@@ -8,12 +7,11 @@ using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Services;
-using Eu.EDelivery.AS4.Streaming;
 using NLog;
 
 namespace Eu.EDelivery.AS4.Exceptions.Handlers
 {
-    public class OutboundExceptionHandler : IAgentExceptionHandler
+    internal class OutboundExceptionHandler : IAgentExceptionHandler
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
         private readonly Func<DatastoreContext> _createContext;
@@ -156,8 +154,7 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
 
                 return await serializer.DeserializeAsync(
                     message.UnderlyingStream, 
-                    message.ContentType, 
-                    CancellationToken.None);
+                    message.ContentType);
             }
             catch
             {

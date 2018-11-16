@@ -22,6 +22,7 @@ import { SettingsService } from './settings.service';
 import { SettingsStore } from './settings.store';
 import { PullSendSettingsComponent } from './settings/pullsend.component';
 import { SettingsComponent } from './settings/settings.component';
+import { SubmitSettingsComponent } from './settings/submit.component';
 import { SmpConfigurationComponent } from './smpconfiguration/smpconfiguration.component';
 import { SmpConfigurationService } from './smpconfiguration/smpconfiguration.service';
 import { SmpConfigurationDetailComponent } from './smpconfiguration/smpconfigurationdetail.component';
@@ -32,6 +33,7 @@ const components: any = [
   SettingsComponent,
   BaseSettingsComponent,
   CommonSettingsComponent,
+  SubmitSettingsComponent,
   PullSendSettingsComponent,
   DatabaseSettingsComponent,
   AgentSettingsComponent,
@@ -72,6 +74,7 @@ const services: any = [
     BaseSettingsComponent,
     CommonSettingsComponent,
     DatabaseSettingsComponent,
+    SubmitSettingsComponent,
     PullSendSettingsComponent,
     AgentSettingsComponent,
     ReceiverComponent

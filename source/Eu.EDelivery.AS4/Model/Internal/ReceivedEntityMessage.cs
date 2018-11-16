@@ -1,8 +1,6 @@
 using System;
 using System.IO;
 using Eu.EDelivery.AS4.Entities;
-using Eu.EDelivery.AS4.Model.PMode;
-using Eu.EDelivery.AS4.Serialization;
 
 namespace Eu.EDelivery.AS4.Model.Internal
 {
@@ -43,35 +41,5 @@ namespace Eu.EDelivery.AS4.Model.Internal
         }
 
         public Entity Entity { get; }
-
-        /// <summary>
-        /// Assign custom properties to the <see cref="ReceivedMessage" />
-        /// </summary>
-        /// <param name="messagingContext"></param>
-        public override void AssignPropertiesTo(MessagingContext messagingContext)
-        {
-            // TODO: can this be moved to somewhere else? Maybe somewhere close to where we explicitly use 'ReceivedEntityMessages'?
-
-            T GetPMode<T>() where T : class
-            {
-                if (Entity is MessageEntity me)
-                {
-                    return AS4XmlSerializer.FromString<T>(me.PMode);
-                }
-
-                return null;
-            }
-
-            if (Entity is InMessage)
-            {
-                messagingContext.ReceivingPMode = GetPMode<ReceivingProcessingMode>();
-                messagingContext.SendingPMode = null;
-            }
-            else if (Entity is OutMessage)
-            {
-                messagingContext.ReceivingPMode = null;
-                messagingContext.SendingPMode = GetPMode<SendingProcessingMode>();
-            }
-        }
     }
 }

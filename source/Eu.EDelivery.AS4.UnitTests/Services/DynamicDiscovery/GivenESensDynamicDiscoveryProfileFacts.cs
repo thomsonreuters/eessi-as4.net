@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -33,7 +32,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Services.DynamicDiscovery
 
             // Act / Assert
             await Assert.ThrowsAsync<InvalidOperationException>(
-                () => sut.RetrieveSmpMetaData(new Party("role", Enumerable.Empty<PartyId>()), properties: null));
+                () => sut.RetrieveSmpMetaData(new Party("role", Enumerable.Empty<PartyId>()), properties: new Dictionary<string, string>()));
         }
 
         [Fact]
@@ -86,7 +85,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Services.DynamicDiscovery
             Assert.Throws<InvalidDataException>(
                 () => ExercisePModeDecorationWithSmp(doc));
         }
-        
+
         private static string CompleteSMPResponse()
         {
             return @"<?xml version=""1.0"" encoding=""UTF-8"" standalone=""no""?>
@@ -119,8 +118,60 @@ namespace Eu.EDelivery.AS4.UnitTests.Services.DynamicDiscovery
 
         private static SendingProcessingMode ExercisePModeDecorationWithSmp(XDocument smpResponse)
         {
+            return ExercisePModeDecorationWithSmp(smpResponse, new SendingProcessingMode());
+        }
+
+        [Fact]
+        public void Decorate_Not_Recreate_PushConfiguration_Protocol()
+        {
+            // Arrange
+            var protocol = new Protocol();
+            var push = new PushConfiguration()
+            {
+                Protocol = protocol,
+                TlsConfiguration = { IsEnabled = true }
+            };
+            var fixture = new SendingProcessingMode { PushConfiguration = push };
+
+            // Act
+            SendingProcessingMode result = ExercisePModeDecorationWithCompleteSmp(fixture);
+
+            // Assert
+            Assert.Same(protocol, result.PushConfiguration.Protocol);
+            Assert.True(result.PushConfiguration.TlsConfiguration.IsEnabled);
+        }
+
+        [Fact]
+        public void Decorate_Not_Recreate_Collaboration()
+        {
+            // Arrange
+            var collaboration = new CollaborationInfo
+            {
+                ConversationId = "5"
+            };
+            var fixture = new SendingProcessingMode
+            {
+                MessagePackaging =
+                {
+                    CollaborationInfo = collaboration
+                }
+            };
+
+            SendingProcessingMode result = ExercisePModeDecorationWithCompleteSmp(fixture);
+
+            // Assert
+            Assert.Same(collaboration, result.MessagePackaging.CollaborationInfo);
+            Assert.Equal(collaboration.ConversationId, result.MessagePackaging.CollaborationInfo.ConversationId);
+        }
+
+        private static SendingProcessingMode ExercisePModeDecorationWithCompleteSmp(SendingProcessingMode pmode)
+        {
+            return ExercisePModeDecorationWithSmp(XDocument.Parse(CompleteSMPResponse()), pmode);
+        }
+
+        private static SendingProcessingMode ExercisePModeDecorationWithSmp(XDocument smpResponse, SendingProcessingMode pmode)
+        {
             var sut = new ESensDynamicDiscoveryProfile();
-            var pmode = new SendingProcessingMode();
 
             var smpMetaData = new XmlDocument();
             using (XmlReader reader = smpResponse.CreateReader())

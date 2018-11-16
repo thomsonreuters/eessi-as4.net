@@ -18,7 +18,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Exceptions.Handlers
         /// <param name="contents">The contents.</param>
         /// <param name="exception">The exception.</param>
         /// <returns></returns>
-        public static async Task<MessagingContext> ExerciseTransformException(
+        internal static async Task<MessagingContext> ExerciseTransformException(
             this IAgentExceptionHandler handler,
             Func<DatastoreContext> createContext,
             string contents,

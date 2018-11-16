@@ -125,7 +125,9 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                              && m.Operation == Operation.ToBeSent),
                     timeout: TimeSpan.FromSeconds(30));
 
-            Assert.False(processedEntry.Intermediary);
+            Assert.True(
+                processedEntry.Intermediary == multihopMessage.IsSignalMessage,
+                "Only when forwarding signal messages we have a sending pmode");
 
             AS4Message processedMessage =
                 await DeserializeOutMessageBody(Registry.Instance.MessageBodyStore, processedEntry);
@@ -235,6 +237,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                 ContentType = msg.ContentType,
                 MessageLocation = bodyStore.SaveAS4Message(location, msg)
             };
+            tobeProcessedEntry.Intermediary = msg.IsSignalMessage;
             tobeProcessedEntry.Operation = Operation.ToBeProcessed;
             tobeProcessedEntry.SetPModeInformation(pmode);
 
@@ -249,7 +252,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             {
                 return await SerializerProvider.Default
                     .Get(processedEntry.ContentType)
-                    .DeserializeAsync(output, processedEntry.ContentType, CancellationToken.None);
+                    .DeserializeAsync(output, processedEntry.ContentType);
             }
         }
 

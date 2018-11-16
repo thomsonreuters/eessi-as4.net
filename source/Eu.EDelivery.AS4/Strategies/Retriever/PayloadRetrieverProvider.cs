@@ -2,24 +2,30 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using Eu.EDelivery.AS4.Exceptions;
 
 namespace Eu.EDelivery.AS4.Strategies.Retriever
 {
     /// <summary>
     /// Class to provide <see cref="IPayloadRetriever"/> implementations
     /// </summary>
-    public class PayloadRetrieverProvider : IPayloadRetrieverProvider
+    internal class PayloadRetrieverProvider : IPayloadRetrieverProvider
     {
+        public static readonly IPayloadRetrieverProvider Instance = new PayloadRetrieverProvider();
+
         private readonly ICollection<PayloadStrategyEntry> _entries;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PayloadRetrieverProvider"/> class. 
         /// Create a new Provider with empty <see cref="IPayloadRetriever"/> implementations
         /// </summary>
-        public PayloadRetrieverProvider()
+        private PayloadRetrieverProvider()
         {
             _entries = new Collection<PayloadStrategyEntry>();
+
+            this.Accept(p => p.Location.StartsWith(FilePayloadRetriever.Key, StringComparison.OrdinalIgnoreCase), new FilePayloadRetriever());
+            this.Accept(p => p.Location.StartsWith(TempFilePayloadRetriever.Key, StringComparison.OrdinalIgnoreCase), new TempFilePayloadRetriever());
+            this.Accept(p => p.Location.StartsWith(FtpPayloadRetriever.Key, StringComparison.OrdinalIgnoreCase), new FtpPayloadRetriever());
+            this.Accept(p => p.Location.StartsWith(HttpPayloadRetriever.Key, StringComparison.OrdinalIgnoreCase), new HttpPayloadRetriever());
         }
 
         /// <summary>
@@ -88,7 +94,18 @@ namespace Eu.EDelivery.AS4.Strategies.Retriever
     /// </summary>
     public interface IPayloadRetrieverProvider
     {
+        /// <summary>
+        /// Get a specific Payload Retriever for a given Payload
+        /// </summary>
+        /// <param name="payload"></param>
+        /// <returns></returns>
         IPayloadRetriever Get(Model.Common.Payload payload);
+
+        /// <summary>
+        /// Accept a new <see cref="IPayloadRetriever"/>
+        /// </summary>
+        /// <param name="condition">Condition which couples the kind of Payload with a <see cref="IPayloadRetriever"/> implementation</param>
+        /// <param name="retriever"></param>
         void Accept(Func<Model.Common.Payload, bool> condition, IPayloadRetriever retriever);
     }
 }

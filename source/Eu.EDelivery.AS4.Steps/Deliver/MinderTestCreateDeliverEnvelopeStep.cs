@@ -67,10 +67,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
 
             if (includeAttachments)
             {
-                foreach (Attachment attachment in as4Message.Attachments)
-                {
-                    msg.AddAttachment(attachment);
-                }
+                msg.AddAttachments(as4Message.Attachments);
             }
 
             byte[] content = SerializeAS4Message(msg);
@@ -91,7 +88,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
 
             using (var memoryStream = new MemoryStream())
             {
-                serializer.Serialize(msg, memoryStream, CancellationToken.None);
+                serializer.Serialize(msg, memoryStream);
                 return memoryStream.ToArray();
             }
         }

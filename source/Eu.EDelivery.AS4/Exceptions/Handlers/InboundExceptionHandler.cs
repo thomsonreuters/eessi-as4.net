@@ -9,7 +9,7 @@ using NLog;
 
 namespace Eu.EDelivery.AS4.Exceptions.Handlers
 {
-    public class InboundExceptionHandler : IAgentExceptionHandler
+    internal class InboundExceptionHandler : IAgentExceptionHandler
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
         private readonly Func<DatastoreContext> _createContext;

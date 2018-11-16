@@ -1,5 +1,6 @@
 ﻿using System;
 using Eu.EDelivery.AS4.Model.PMode;
+using Eu.EDelivery.AS4.Serialization;
 
 namespace Eu.EDelivery.AS4.Entities
 {
@@ -21,6 +22,15 @@ namespace Eu.EDelivery.AS4.Entities
             string messageLocation,
             string exception) : base(ebmsRefToMessageId, messageLocation, exception) { }
 
+
+        /// <summary>
+        /// Gets the receiving processing mode of the child representation of an exception.
+        /// </summary>
+        /// <returns></returns>
+        public override ReceivingProcessingMode GetReceivingPMode()
+        {
+            return AS4XmlSerializer.FromString<ReceivingProcessingMode>(PMode);
+        }
 
         /// <summary>
         /// Sets the <see cref="InException.Operation"/> based on the configuration in the specified <paramref name="exceptionHandling"/>.

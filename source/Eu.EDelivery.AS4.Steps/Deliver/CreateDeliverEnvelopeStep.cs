@@ -1,6 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
-using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,10 +8,12 @@ using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Deliver;
 using Eu.EDelivery.AS4.Model.Internal;
+using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Serialization;
-using Eu.EDelivery.AS4.Singletons;
-using Eu.EDelivery.AS4.Validators;
 using NLog;
+using MessageProperty = Eu.EDelivery.AS4.Model.Common.MessageProperty;
+using Party = Eu.EDelivery.AS4.Model.Common.Party;
+using PartyId = Eu.EDelivery.AS4.Model.Common.PartyId;
 
 namespace Eu.EDelivery.AS4.Steps.Deliver
 {
@@ -23,7 +25,6 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
     public class CreateDeliverEnvelopeStep : IStep
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
-        private readonly DeliverMessageValidator _validator = new DeliverMessageValidator();
 
         /// <summary>
         /// Execute the step for a given <paramref name="messagingContext" />.
@@ -40,12 +41,31 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
             if (messagingContext.AS4Message == null)
             {
                 throw new InvalidOperationException(
-                    $"{nameof(CreateDeliverEnvelopeStep)} requires an AS4Message to create a DeliverMessage from but no AS4Message is present in the MessagingContext");
+                    $"{nameof(CreateDeliverEnvelopeStep)} requires an AS4Message to create a DeliverMessage from "
+                    + "but no AS4Message is present in the MessagingContext");
+            }
+
+            if (messagingContext.ReceivingPMode == null)
+            {
+                throw new InvalidOperationException(
+                    $"{nameof(CreateDeliverEnvelopeStep)} requires a ReceivingPMode which the DeliverMessage will reference to "
+                    + "but no SendingPMode is present in the MessagingContext");
+            }
+
+            if (!messagingContext.AS4Message.HasUserMessage)
+            {
+                throw new InvalidOperationException(
+                    $"{nameof(CreateDeliverEnvelopeStep)} requires an AS4Message with at least one UserMessage to create a DeliverMessage");
             }
 
             AS4Message as4Message = messagingContext.AS4Message;
-            DeliverMessage deliverMessage = CreateDeliverMessage(as4Message.FirstUserMessage, messagingContext);
-            ValidateDeliverMessage(deliverMessage);
+            DeliverMessage deliverMessage = 
+                CreateDeliverMessage(
+                    as4Message.FirstUserMessage, 
+                    as4Message.Attachments,
+                    messagingContext.ReceivingPMode);
+
+            Logger.Info($"(Deliver) Created DeliverMessage from (first) UserMessage {as4Message.FirstUserMessage.MessageId}");
 
             string serialized = await AS4XmlSerializer.ToStringAsync(deliverMessage);
             var envelope = new DeliverMessageEnvelope(
@@ -57,41 +77,69 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
             return StepResult.Success(messagingContext);
         }
 
-        private static DeliverMessage CreateDeliverMessage(UserMessage userMessage, MessagingContext context)
+        private static DeliverMessage CreateDeliverMessage(
+            UserMessage user, 
+            IEnumerable<Attachment> attachments,
+            ReceivingProcessingMode receivingPMode)
         {
-            var deliverMessage = AS4Mapper.Map<DeliverMessage>(userMessage);
-            deliverMessage.CollaborationInfo.AgreementRef.PModeId = context.SendingPMode?.Id ?? string.Empty;
-
-            foreach (Attachment attachment in context.AS4Message.Attachments)
+            if (!attachments.All(a => a.MatchesAny(user.PayloadInfo)))
             {
-                Payload partInfo = deliverMessage.Payloads.FirstOrDefault(p => p.Id.Contains(attachment.Id));
-
-                if (partInfo != null)
-                {
-                    partInfo.Location = attachment.Location ?? string.Empty;
-                }
+                throw new InvalidOperationException(
+                    "Not all attachments in AS4Message references to an <PartInfo/> element");
             }
 
-            return deliverMessage;
+            return new DeliverMessage
+            {
+                MessageInfo =
+                {
+                    MessageId = user.MessageId,
+                    RefToMessageId = user.RefToMessageId,
+                    Mpc = user.Mpc
+                },
+                CollaborationInfo =
+                {
+                    Action = user.CollaborationInfo.Action,
+                    ConversationId = user.CollaborationInfo.ConversationId,
+                    AgreementRef = { PModeId = receivingPMode.Id },
+                    Service =
+                    {
+                        Type = user.CollaborationInfo.Service.Type.GetOrElse(() => null),
+                        Value = user.CollaborationInfo.Service.Value
+                    }
+                },
+                PartyInfo =
+                {
+                    FromParty = CreateDeliverParty(user.Sender),
+                    ToParty = CreateDeliverParty(user.Receiver)
+                },
+                MessageProperties = user.MessageProperties.Select(CreateDeliverMessageProperty).ToArray(),
+                Payloads = user.PayloadInfo.Select(p => CreateDeliverPayload(p, attachments.First(a => a.Matches(p)))).ToArray()
+            };
         }
 
-        private void ValidateDeliverMessage(DeliverMessage deliverMessage)
+        private static Party CreateDeliverParty(Model.Core.Party p)
         {
-            string messageId = deliverMessage.MessageInfo.MessageId;
-            _validator.Validate(deliverMessage).Result(
-                onValidationSuccess: result =>
-                {
-                    string message = $"(Deliver)[{messageId}] DeliverMessage is created for UserMessage";
+            return new Party
+            {
+                Role = p.Role,
+                PartyIds = p.PartyIds.Select(id => new PartyId(id.Id, id.Type.GetOrElse(() => null))).ToArray()
+            };
+        }
 
-                    Logger.Info(message);
-                },
-                onValidationFailed: result =>
-                {
-                    string description = $"(Deliver)[{messageId}] Failed to create DeliverMessage: ";
-                    string errorMessage = result.AppendValidationErrorsToErrorMessage(description);
+        private static MessageProperty CreateDeliverMessageProperty(Model.Core.MessageProperty p)
+        {
+            return new MessageProperty(p.Name, p.Value) { Type = p.Type };
+        }
 
-                    throw new InvalidDataException(errorMessage);
-                });
+        private static Payload CreateDeliverPayload(PartInfo part, Attachment attachment)
+        {
+            return new Payload
+            {
+                Id = part.Href,
+                Location = attachment.Location,
+                MimeType = part.HasMimeType ? part.MimeType : null,
+                PayloadProperties = part.Properties.Select(p => new PayloadProperty(p.Key, p.Value)).ToArray()
+            };
         }
     }
 }
