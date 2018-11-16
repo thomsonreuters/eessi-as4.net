@@ -174,7 +174,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
                 (dynamicDiscovery.Settings ?? new DynamicDiscoverySetting[0])
                 ?.ToDictionary(s => s?.Key, s => s?.Value);
 
-            return await profile.RetrieveSmpMetaData(
+            return await profile.RetrieveSmpMetaDataAsync(
                 party: toParty, 
                 properties: customProperties);
         }

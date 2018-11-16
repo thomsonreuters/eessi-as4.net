@@ -15,7 +15,7 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
         /// </summary>
         /// <param name="party">The party identifier.</param>
         /// <param name="properties"></param>
-        Task<XmlDocument> RetrieveSmpMetaData(Model.Core.Party party, IDictionary<string, string> properties);
+        Task<XmlDocument> RetrieveSmpMetaDataAsync(Model.Core.Party party, IDictionary<string, string> properties);
 
         /// <summary>
         /// Complete the <paramref name="pmode"/> with the SMP metadata that is present in the <paramref name="smpMetaData"/> <see cref="XmlDocument"/>

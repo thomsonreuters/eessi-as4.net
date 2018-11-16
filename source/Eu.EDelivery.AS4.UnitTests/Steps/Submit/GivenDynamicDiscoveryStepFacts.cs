@@ -191,7 +191,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
         {
             public AS4Party ToParty { get; private set; }
 
-            public Task<XmlDocument> RetrieveSmpMetaData(AS4Party party, IDictionary<string, string> properties)
+            public Task<XmlDocument> RetrieveSmpMetaDataAsync(AS4Party party, IDictionary<string, string> properties)
             {
                 ToParty = party;
                 return Task.FromResult(new XmlDocument());
@@ -272,7 +272,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
             /// <param name="party">The party identifier.</param>
             /// <param name="properties"></param>
             /// <returns></returns>
-            public Task<XmlDocument> RetrieveSmpMetaData(AS4.Model.Core.Party party, IDictionary<string, string> properties)
+            public Task<XmlDocument> RetrieveSmpMetaDataAsync(AS4.Model.Core.Party party, IDictionary<string, string> properties)
             {
                 return Task.FromResult(new XmlDocument());
             }

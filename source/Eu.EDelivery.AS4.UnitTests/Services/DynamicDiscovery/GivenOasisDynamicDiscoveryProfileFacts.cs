@@ -18,7 +18,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Services.DynamicDiscovery
             var sut = new OasisDynamicDiscoveryProfile();
 
             // Act
-            XmlDocument smpMetaData = await sut.RetrieveSmpMetaData(
+            XmlDocument smpMetaData = await sut.RetrieveSmpMetaDataAsync(
                 new Party("Receiver", new PartyId("cefsupport1gw", "connectivity-partid-qns")),
                 new Dictionary<string, string>
                 {

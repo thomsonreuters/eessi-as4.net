@@ -32,7 +32,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Services.DynamicDiscovery
 
             // Act / Assert
             await Assert.ThrowsAsync<InvalidOperationException>(
-                () => sut.RetrieveSmpMetaData(new Party("role", Enumerable.Empty<PartyId>()), properties: new Dictionary<string, string>()));
+                () => sut.RetrieveSmpMetaDataAsync(new Party("role", Enumerable.Empty<PartyId>()), properties: new Dictionary<string, string>()));
         }
 
         [Fact]
