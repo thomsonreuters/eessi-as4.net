@@ -64,7 +64,7 @@ namespace Eu.EDelivery.AS4.WindowsService.SystemTray
 
             _icon.ContextMenu
                  .MenuItems
-                 .Add(new MenuItem("Stop", OnStop));
+                 .Add(index: 0, item: new MenuItem("Stop", OnStop));
         }
 
         private void OnStop(object sender, EventArgs e)
