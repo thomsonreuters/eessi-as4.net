@@ -4,7 +4,6 @@ using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Mappings.Core;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Serialization;
-using Eu.EDelivery.AS4.Singletons;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities

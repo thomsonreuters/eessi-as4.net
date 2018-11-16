@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Agents;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.ServiceHandler.Agents;
-using Eu.EDelivery.AS4.Singletons;
 using NLog;
 
 namespace Eu.EDelivery.AS4.ServiceHandler
@@ -90,8 +89,6 @@ namespace Eu.EDelivery.AS4.ServiceHandler
                 Logger.Warn("Will not start Kernel: no IAgent implementations has been set to the Kernel");
                 return;
             }
-
-            AS4Mapper.Initialize();
 
             try
             {
