@@ -1,28 +1,12 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.ComponentModel;
 using System.Configuration.Install;
 using System.Diagnostics;
 using System.IO;
-using System.Windows.Forms;
 
 namespace Eu.EDelivery.AS4.WindowsService.SystemTray
 {
-    static class Program
-    {
-        /// <summary>
-        /// The main entry point for the application.
-        /// </summary>
-        [STAThread]
-        static void Main()
-        {
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new SystemTrayForm());
-        }
-    }
-
-    [RunInstaller(true)]
+    [RunInstaller(runInstaller: true)]
     public partial class SystemTrayInstaller : Installer
     {
         /// <summary>

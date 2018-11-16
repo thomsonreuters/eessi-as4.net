@@ -17,6 +17,7 @@ namespace Eu.EDelivery.AS4.WindowsService.SystemTray
         {
             InitializeComponent();
 
+            // TODO: maybe we should determine the current status of the windows service before assuming we haven't started it manually.
             _icon = new NotifyIcon
             {
                 Visible = true,
@@ -92,6 +93,8 @@ namespace Eu.EDelivery.AS4.WindowsService.SystemTray
 
         private void OnOpenPortal(object sender, EventArgs e)
         {
+            // TODO: find out where the url is stored for the portal.
+
             string appsettingsPath = 
                 Path.Combine(
                     AppDomain.CurrentDomain.BaseDirectory,
