@@ -96,6 +96,30 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
                     nameof(party));
             }
 
+            string serviceProviderDomainName = properties.ReadMandatoryProperty(nameof(ServiceProviderDomainName));
+            string serviceProviderSubDomain = properties.ReadOptionalProperty(nameof(ServiceProviderSubDomain), String.Empty);
+            string documentIdentifier = properties.ReadMandatoryProperty(nameof(DocumentIdentifier));
+            string documentScheme = properties.ReadMandatoryProperty(nameof(DocumentScheme));
+
+            (Model.Core.PartyId participant, Response dnsResponse) = 
+                QueryDnsNatprRecord(party.PartyIds, serviceProviderSubDomain, serviceProviderDomainName);
+
+            Uri smpUri = SelectSmpUriFromDnsResponse(dnsResponse);
+
+            string participantIdentifier = participant.Id;
+            string participantScheme = participant.Type.UnsafeGet;
+
+            string smpRestBinding =
+                $"{smpUri}{participantScheme}::{participantIdentifier}/services/{documentScheme}::{documentIdentifier}";
+
+            return await GetSmpRestBindingAsync(smpRestBinding);
+        }
+
+        private static (Model.Core.PartyId, Response) QueryDnsNatprRecord(
+            IEnumerable<Model.Core.PartyId> participants,
+            string serviceProviderSubDomain,
+            string serviceProviderDomainName)
+        {
             string Base32Encode(byte[] input)
             {
                 return Base32Encoding.Standard.GetString(input);
@@ -109,28 +133,28 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
                 }
             }
 
-            string serviceProviderDomainName = properties.ReadMandatoryProperty(nameof(ServiceProviderDomainName));
-            string environment = properties.ReadOptionalProperty(nameof(ServiceProviderSubDomain), String.Empty);
-            string documentIdentifier = properties.ReadMandatoryProperty(nameof(DocumentIdentifier));
-            string documentScheme = properties.ReadMandatoryProperty(nameof(DocumentScheme));
+            foreach (Model.Core.PartyId participant in participants.Where(p => p.Type != Maybe<string>.Nothing))
+            {
+                string participantIdentifier = participant.Id;
+                string participantScheme = participant.Type.UnsafeGet;
 
-            Model.Core.PartyId participant = party.PartyIds.First(id => id.Type != Maybe<string>.Nothing);
-            string participantIdentifier = participant.Id;
-            string participantScheme = participant.Type.UnsafeGet;
+                string dnsDomainName =
+                    $"{Base32Encode(SHA256Hash(participantIdentifier)).TrimEnd('=')}"
+                    + $".{participantScheme}"
+                    + $"{(String.IsNullOrWhiteSpace(serviceProviderSubDomain) ? String.Empty : "." + serviceProviderSubDomain)}"
+                    + $".{serviceProviderDomainName}";
 
-            string dnsDomainName =
-                $"{Base32Encode(SHA256Hash(participantIdentifier)).TrimEnd('=')}"
-                + $".{participantScheme}"
-                + $"{(String.IsNullOrWhiteSpace(environment) ? String.Empty : "." + environment)}"
-                + $".{serviceProviderDomainName}";
+                Response dnsResponse = DnsResolver.Query(dnsDomainName, QType.NAPTR, QClass.IN);
+                if (dnsResponse.Answers.Count > 0)
+                {
+                    return (participant, dnsResponse);
+                }
 
-            Response dnsResponse = DnsResolver.Query(dnsDomainName, QType.NAPTR, QClass.IN);
-            Uri smpUri = SelectSmpUriFromDnsResponse(dnsResponse);
+                Logger.Debug($"DNS NAPTR query: {dnsDomainName} doesn't result in a DNS NAPTR awnser, try next PartyId");
+            }
 
-            string smpRestBinding =
-                $"{smpUri}{participantScheme}::{participantIdentifier}/services/{documentScheme}::{documentIdentifier}";
-
-            return await GetSmpRestBindingAsync(smpRestBinding);
+            throw new InvalidDataException(
+                "None of the PartyIds in the ToParty result in a DNS NAPTR record");
         }
 
         private static Uri SelectSmpUriFromDnsResponse(Response dnsResponse)
