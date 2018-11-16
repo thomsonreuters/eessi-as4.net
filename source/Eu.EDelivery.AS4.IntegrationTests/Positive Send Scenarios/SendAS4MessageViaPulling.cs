@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Linq;
+using System.Threading.Tasks;
 using Eu.EDelivery.AS4.IntegrationTests.Common;
 using Eu.EDelivery.AS4.Model.Common;
 using Xunit;
@@ -24,7 +26,10 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios
             Holodeck.CopyPModeToHolodeckB("8.1.16-pmode.xml");
 
             // Assert
-            await PollingService.PollUntilPresentAsync(AS4Component.ReceiptsPath);
+            await PollingService.PollUntilPresentAsync(
+                AS4Component.ReceiptsPath,
+                fs => fs.Any(f => f.Extension == ".xml"),
+                timeout: TimeSpan.FromMinutes(1).Add(TimeSpan.FromSeconds(30)));
 
             Holodeck.AssertDeliverMessageOnHolodeckB();
             AS4Component.AssertReceipt();
