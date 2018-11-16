@@ -42,7 +42,7 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
         /// Gets the environment of the service provider to include in the DNS NAPTR lookup.
         /// </summary>
         /// ReSharper disable once UnassignedGetOnlyAutoProperty
-        internal string Environment { get; }
+        internal string ServiceProviderSubDomain { get; }
 
         /// <summary>
         /// Gets the service provider domain name for the DNS NAPTR lookup.
@@ -100,7 +100,7 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
             }
 
             string serviceProviderDomainName = properties.ReadMandatoryProperty(nameof(ServiceProviderDomainName));
-            string environment = properties.ReadOptionalProperty(nameof(Environment), String.Empty);
+            string environment = properties.ReadOptionalProperty(nameof(ServiceProviderSubDomain), String.Empty);
             string documentIdentifier = properties.ReadMandatoryProperty(nameof(DocumentIdentifier));
             string documentScheme = properties.ReadMandatoryProperty(nameof(DocumentScheme));
 

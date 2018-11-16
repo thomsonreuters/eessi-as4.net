@@ -23,7 +23,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Services.DynamicDiscovery
                 new Dictionary<string, string>
                 {
                     [nameof(sut.ServiceProviderDomainName)] = "acc.edelivery.tech.ec.europa.eu",
-                    [nameof(sut.Environment)] = "connectivitytest",
+                    [nameof(sut.ServiceProviderSubDomain)] = "connectivitytest",
                     [nameof(sut.DocumentIdentifier)] = "doc_id1",
                     [nameof(sut.DocumentScheme)] = "connectivity-docid-qns"
                 });
