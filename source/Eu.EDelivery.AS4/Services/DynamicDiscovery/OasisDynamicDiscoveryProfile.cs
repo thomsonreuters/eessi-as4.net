@@ -82,7 +82,7 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
             if (!party.PartyIds.Any() || party.PartyIds.All(id => id.Type == Maybe<string>.Nothing))
             {
                 throw new ArgumentException(
-                    @"ToParty must have at least one PartyId element with a Type to retrieve the SMP meta data",
+                    @"ToParty must have at least one PartyId element with a Type to retrieve the SMP meta-data",
                     nameof(party));
             }
 
