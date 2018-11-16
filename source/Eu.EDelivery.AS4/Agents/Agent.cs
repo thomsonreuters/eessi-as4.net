@@ -37,7 +37,7 @@ namespace Eu.EDelivery.AS4.Agents
             Transformer transformerConfig,
             IAgentExceptionHandler exceptionHandler,
             StepConfiguration stepConfiguration) 
-            : this(config, receiver, transformerConfig, exceptionHandler, stepConfiguration, NopJournalLogger.Instance) { }
+            : this(config, receiver, transformerConfig, exceptionHandler, stepConfiguration, NoopJournalLogger.Instance) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Agent"/> class.
@@ -85,7 +85,7 @@ namespace Eu.EDelivery.AS4.Agents
             _transformerConfig = transformerConfig;
             _exceptionHandler = exceptionHandler;
             _steps = new StepExecutioner(stepConfiguration, exceptionHandler);
-            _journalLogger = journalLogger ?? NopJournalLogger.Instance;
+            _journalLogger = journalLogger ?? NoopJournalLogger.Instance;
 
             AgentConfig = config;
         }
@@ -130,7 +130,7 @@ namespace Eu.EDelivery.AS4.Agents
             _transformerConfig = transformerConfig;
             _exceptionHandler = exceptionHandler;
             _steps = new StepExecutioner(pipelineConfig, exceptionHandler);
-            _journalLogger = NopJournalLogger.Instance;
+            _journalLogger = NoopJournalLogger.Instance;
 
             AgentConfig = config;
         }

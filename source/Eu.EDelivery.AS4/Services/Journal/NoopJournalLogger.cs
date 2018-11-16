@@ -6,17 +6,17 @@ namespace Eu.EDelivery.AS4.Services.Journal
     /// <summary>
     /// Null object implementation that ignores the journal log entries.
     /// </summary>
-    public class NopJournalLogger : IJournalLogger
+    public class NoopJournalLogger : IJournalLogger
     {
         /// <summary>
         /// Flyweight instance of this null object implementation.
         /// </summary>
-        public static readonly IJournalLogger Instance = new NopJournalLogger();
+        public static readonly IJournalLogger Instance = new NoopJournalLogger();
 
         /// <summary>
-        /// Prevents default instances of the <see cref="NopJournalLogger"/> class from being created.
+        /// Prevents default instances of the <see cref="NoopJournalLogger"/> class from being created.
         /// </summary>
-        private NopJournalLogger() { }
+        private NoopJournalLogger() { }
 
         /// <summary>
         /// Writes out a given journal log <paramref name="entries"/>.
