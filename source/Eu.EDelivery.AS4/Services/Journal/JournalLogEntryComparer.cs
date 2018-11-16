@@ -25,7 +25,6 @@ namespace Eu.EDelivery.AS4.Services.Journal
                 return false;
             }
 
-            // TODO: how do we distinguish multiple SignalMessages without a EbmsMessageId?
             return StringComparer.OrdinalIgnoreCase.Equals(x.EbmsMessageId, y.EbmsMessageId);
         }
 
