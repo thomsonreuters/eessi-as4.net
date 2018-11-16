@@ -35,7 +35,8 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
         {
             TransportType = TransportType.Udp,
             Recursion = true,
-            Retries = 3
+            Retries = 3,
+            UseCache = true
         };
 
         /// <summary>
