@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Threading.Tasks;
 using System.Xml;
 using Eu.EDelivery.AS4.Model.PMode;
@@ -14,6 +15,20 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
     public class ESensDynamicDiscoveryProfile : IDynamicDiscoveryProfile
     {
         private static readonly IDynamicDiscoveryProfile PeppolDynamicDiscoveryProfile = new PeppolDynamicDiscoveryProfile();
+
+        [Info("SML Scheme", defaultValue: "iso6523-actorid-upis")]
+        [Description("Used to build the SML Uri")]
+        // Property is used to determine the configuration options via reflection
+        // ReSharper disable once UnusedMember.Local
+        // ReSharper disable once UnassignedGetOnlyAutoProperty
+        private string SmlScheme { get; }
+
+        [Info("SMP Server Domain Name", defaultValue: "isaitb.acc.edelivery.tech.ec.europa.eu")]
+        [Description("Domain name that must be used in the Uri")]
+        // Property is used to determine the configuration options via reflection
+        // ReSharper disable once UnusedMember.Local
+        // ReSharper disable once UnassignedGetOnlyAutoProperty
+        private string SmpServerDomainName { get; }
 
         /// <summary>
         /// Retrieves the SMP meta data <see cref="XmlDocument"/> for a given <paramref name="party"/> using a given <paramref name="properties"/>.

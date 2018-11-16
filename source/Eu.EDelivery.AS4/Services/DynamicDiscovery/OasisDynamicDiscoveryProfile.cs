@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -42,25 +43,33 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
         /// <summary>
         /// Gets the environment of the service provider to include in the DNS NAPTR lookup.
         /// </summary>
-        /// ReSharper disable once UnassignedGetOnlyAutoProperty
+        [Info("Service provider sub-domain", required: true)]
+        [Description("Sub domain of the service provider")]
+        // ReSharper disable once UnassignedGetOnlyAutoProperty
         internal string ServiceProviderSubDomain { get; }
 
         /// <summary>
         /// Gets the service provider domain name for the DNS NAPTR lookup.
         /// </summary>
-        /// ReSharper disable once UnassignedGetOnlyAutoProperty
+        [Info("Service provider domain name", required: true)]
+        [Description("Domain name of the service provider")]
+        // ReSharper disable once UnassignedGetOnlyAutoProperty
         internal string ServiceProviderDomainName { get; }
 
         /// <summary>
         /// Gets the document identifier to append to the retrieved SMP URL.
         /// </summary>
-        /// ReSharper disable once UnassignedGetOnlyAutoProperty
+        [Info("Document identifier", required: true)]
+        [Description("Document identifier to append to the retrieved SMP URL")]
+        // ReSharper disable once UnassignedGetOnlyAutoProperty
         internal string DocumentIdentifier { get; }
 
         /// <summary>
         /// Gets the document scheme to append to the retrieved SMP URL.
         /// </summary>
-        /// ReSharper disable once UnassignedGetOnlyAutoProperty
+        [Info("Document scheme", required: true)]
+        [Description("Document scheme to append to the retrieved SMP URL")]
+        // ReSharper disable once UnassignedGetOnlyAutoProperty
         internal string DocumentScheme { get; }
 
         /// <summary>
