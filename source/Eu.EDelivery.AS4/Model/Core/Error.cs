@@ -129,6 +129,16 @@ namespace Eu.EDelivery.AS4.Model.Core
         }
 
         /// <summary>
+        /// Format the error lines of the AS4 Error into readable descriptions for each line.
+        /// </summary>
+        public string FormatErrorLines()
+        {
+            return String.Join(
+                "; ", 
+                ErrorLines.Select(l => $"{l.ErrorCode.GetString()} {l.ShortDescription}"));
+        }
+
+        /// <summary>
         /// Creates a new <see cref="Error"/> model from an <see cref="ErrorResult"/> instance.
         /// </summary>
         /// <param name="messageId"></param>
