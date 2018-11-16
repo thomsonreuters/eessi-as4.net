@@ -16,14 +16,29 @@ namespace Eu.EDelivery.AS4.Model.Core
        
         protected MessageUnit() : this(IdentifierFactory.Instance.Create()) { }
 
-        protected MessageUnit(string messageid)
+        protected MessageUnit(string messageId)
         {
+            if (String.IsNullOrEmpty(messageId))
+            {
+                throw new ArgumentException(@"ebMS message id cannot be null or empty.", nameof(messageId));
+            }
+
             Timestamp = DateTimeOffset.Now;
-            MessageId = messageid;
+            MessageId = messageId;
         }
 
         protected MessageUnit(string messageId, string refToMessageId)
         {
+            if (String.IsNullOrEmpty(messageId))
+            {
+                throw new ArgumentException(@"ebMS message id cannot be null or empty.", nameof(messageId));
+            }
+
+            if (refToMessageId != null && refToMessageId.Equals(String.Empty))
+            {
+                throw new ArgumentException(@"ebMS ref to message id cannot be empty", nameof(refToMessageId));
+            }
+
             Timestamp = DateTimeOffset.Now;
             MessageId = messageId;
             RefToMessageId = refToMessageId;
@@ -31,6 +46,16 @@ namespace Eu.EDelivery.AS4.Model.Core
 
         protected MessageUnit(string messageId, string refToMessageId, DateTimeOffset timestamp)
         {
+            if (String.IsNullOrEmpty(messageId))
+            {
+                throw new ArgumentException(@"ebMS message id cannot be null or empty.", nameof(messageId));
+            }
+
+            if (refToMessageId != null && refToMessageId.Equals(String.Empty))
+            {
+                throw new ArgumentException(@"ebMS ref to message id cannot be empty", nameof(refToMessageId));
+            }
+
             MessageId = messageId;
             RefToMessageId = refToMessageId;
             Timestamp = timestamp;
@@ -53,8 +78,7 @@ namespace Eu.EDelivery.AS4.Model.Core
                 return true;
             }
 
-            return string.Equals(MessageId, other.MessageId)
-                   && string.Equals(RefToMessageId, other.RefToMessageId);
+            return String.Equals(MessageId, other.MessageId);
         }
 
         /// <summary>
@@ -83,13 +107,12 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// <returns>A hash code for the current object.</returns>
         public override int GetHashCode()
         {
-            unchecked
-            {
-                return ((MessageId != null ? MessageId.GetHashCode() : 0) * 397) ^ (RefToMessageId != null ? RefToMessageId.GetHashCode() : 0);
-            }
+            return MessageId.GetHashCode();
         }
 
-        /// <summary>Returns a value that indicates whether the values of two <see cref="T:Eu.EDelivery.AS4.Model.Core.MessageUnit" /> objects are equal.</summary>
+        /// <summary>
+        /// Returns a value that indicates whether the values of two <see cref="T:Eu.EDelivery.AS4.Model.Core.MessageUnit" /> objects are equal.
+        /// </summary>
         /// <param name="left">The first value to compare.</param>
         /// <param name="right">The second value to compare.</param>
         /// <returns>true if the <paramref name="left" /> and <paramref name="right" /> parameters have the same value; otherwise, false.</returns>
@@ -98,7 +121,9 @@ namespace Eu.EDelivery.AS4.Model.Core
             return Equals(left, right);
         }
 
-        /// <summary>Returns a value that indicates whether two <see cref="T:Eu.EDelivery.AS4.Model.Core.MessageUnit" /> objects have different values.</summary>
+        /// <summary>
+        /// Returns a value that indicates whether two <see cref="T:Eu.EDelivery.AS4.Model.Core.MessageUnit" /> objects have different values.
+        /// </summary>
         /// <param name="left">The first value to compare.</param>
         /// <param name="right">The second value to compare.</param>
         /// <returns>true if <paramref name="left" /> and <paramref name="right" /> are not equal; otherwise, false.</returns>
