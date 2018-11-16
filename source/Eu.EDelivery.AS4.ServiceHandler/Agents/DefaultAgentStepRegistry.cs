@@ -144,7 +144,6 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
                     NormalPipeline = new[]
                     {
                         new Step { Type = typeof(UploadAttachmentsStep).AssemblyQualifiedName },
-                        new Step { Type = typeof(CreateDeliverEnvelopeStep).AssemblyQualifiedName },
                         new Step { Type = typeof(SendDeliverMessageStep).AssemblyQualifiedName }
                     }
                 });
