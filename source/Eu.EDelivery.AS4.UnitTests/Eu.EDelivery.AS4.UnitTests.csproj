@@ -92,6 +92,7 @@
     <Compile Include="Steps\Deliver\UploadRetryData.cs" />
     <Compile Include="Steps\Forward\GivenCreateForwardMessageStepFacts.cs" />
     <Compile Include="Steps\Forward\GivenDetermineForwardStepFacts.cs" />
+    <Compile Include="Steps\GivenStepExecutionerFacts.cs" />
     <Compile Include="Steps\Notify\NotifyRetryData.cs" />
     <Compile Include="Steps\Receive\GivenScoringMechanismReceivingPModesFacts.cs" />
     <Compile Include="Steps\Send\GivenBundleSignalMessageToPullRequestStepFacts.cs" />
