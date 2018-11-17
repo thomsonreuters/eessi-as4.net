@@ -49,6 +49,7 @@
     <Compile Include="Agents\CleanUpAgentsFacts.cs" />
     <Compile Include="Agents\DeliverAgentFacts.cs" />
     <Compile Include="Agents\ForwardAgentFacts.cs" />
+    <Compile Include="Agents\ForwardOutboundProcessingAgentFacts.cs" />
     <Compile Include="Agents\MinderReceiveAgentFacts.cs" />
     <Compile Include="Agents\OutboundProcessingAgentFacts.cs" />
     <Compile Include="Agents\PiggyBackingFacts.cs" />
