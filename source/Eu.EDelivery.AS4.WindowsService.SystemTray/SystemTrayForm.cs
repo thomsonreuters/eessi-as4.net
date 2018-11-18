@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.ServiceProcess;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using Eu.EDelivery.AS4.WindowsService.SystemTray.Properties;
 using Newtonsoft.Json.Linq;
@@ -45,14 +46,17 @@ namespace Eu.EDelivery.AS4.WindowsService.SystemTray
 
         private void OnStart(object sender, EventArgs e)
         {
-            using (var controller = new ServiceController("AS4Service"))
+            Task.Run(() =>
             {
-                if (controller.Status != ServiceControllerStatus.Running)
+                using (var controller = new ServiceController("AS4Service"))
                 {
-                    controller.Start();
-                    controller.WaitForStatus(ServiceControllerStatus.Running);
+                    if (controller.Status != ServiceControllerStatus.Running)
+                    {
+                        controller.Start();
+                        controller.WaitForStatus(ServiceControllerStatus.Running);
+                    }
                 }
-            }
+            });
 
             _icon.ContextMenu
                  .MenuItems
@@ -69,14 +73,17 @@ namespace Eu.EDelivery.AS4.WindowsService.SystemTray
 
         private void OnStop(object sender, EventArgs e)
         {
-            using (var controller = new ServiceController("AS4Service"))
+            Task.Run(() =>
             {
-                if (controller.Status != ServiceControllerStatus.Stopped)
+                using (var controller = new ServiceController("AS4Service"))
                 {
-                    controller.Stop();
-                    controller.WaitForStatus(ServiceControllerStatus.Stopped);
+                    if (controller.Status != ServiceControllerStatus.Stopped)
+                    {
+                        controller.Stop();
+                        controller.WaitForStatus(ServiceControllerStatus.Stopped);
+                    }
                 }
-            }
+            });
 
             _icon.ContextMenu
                  .MenuItems
