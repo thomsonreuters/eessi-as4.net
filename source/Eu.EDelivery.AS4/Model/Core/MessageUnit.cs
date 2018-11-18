@@ -8,41 +8,26 @@ namespace Eu.EDelivery.AS4.Model.Core
     /// </summary>
     public abstract class MessageUnit : IEquatable<MessageUnit>
     {
-        public DateTimeOffset Timestamp { get; }
-
+        /// <summary>
+        /// Gets the ebMS message identifier of this message unit.
+        /// </summary>
         public string MessageId { get; }
 
+        /// <summary>
+        /// Gets the reference to an ebMS message identifier of another message unit.
+        /// </summary>
         public string RefToMessageId { get; }
-       
+
+        /// <summary>
+        /// Gets the timestamp this message unit was created.
+        /// </summary>
+        public DateTimeOffset Timestamp { get; }
+
         protected MessageUnit() : this(IdentifierFactory.Instance.Create()) { }
 
-        protected MessageUnit(string messageId)
-        {
-            if (String.IsNullOrEmpty(messageId))
-            {
-                throw new ArgumentException(@"ebMS message id cannot be null or empty.", nameof(messageId));
-            }
+        protected MessageUnit(string messageId) : this(messageId, refToMessageId: null) { }
 
-            Timestamp = DateTimeOffset.Now;
-            MessageId = messageId;
-        }
-
-        protected MessageUnit(string messageId, string refToMessageId)
-        {
-            if (String.IsNullOrEmpty(messageId))
-            {
-                throw new ArgumentException(@"ebMS message id cannot be null or empty.", nameof(messageId));
-            }
-
-            if (refToMessageId != null && refToMessageId.Equals(String.Empty))
-            {
-                throw new ArgumentException(@"ebMS ref to message id cannot be empty", nameof(refToMessageId));
-            }
-
-            Timestamp = DateTimeOffset.Now;
-            MessageId = messageId;
-            RefToMessageId = refToMessageId;
-        }
+        protected MessageUnit(string messageId, string refToMessageId) : this(messageId, refToMessageId, DateTimeOffset.Now) { }
 
         protected MessageUnit(string messageId, string refToMessageId, DateTimeOffset timestamp)
         {
