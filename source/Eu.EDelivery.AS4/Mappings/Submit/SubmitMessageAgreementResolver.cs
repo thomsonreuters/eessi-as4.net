@@ -2,66 +2,112 @@
 using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Model.Submit;
-using CoreAgreementReference = Eu.EDelivery.AS4.Model.Core.AgreementReference;
+using AgreementReference = Eu.EDelivery.AS4.Model.Core.AgreementReference;
 using PModeAgreementReference = Eu.EDelivery.AS4.Model.PMode.AgreementReference;
 
 namespace Eu.EDelivery.AS4.Mappings.Submit
 {
     /// <summary>
-    /// Mapping the <see cref="CoreAgreementReference"/>
+    /// Mapping the <see cref="AgreementReference"/>
     /// </summary>
-    public static class SubmitMessageAgreementResolver
+    internal static class SubmitMessageAgreementResolver
     {
-        private const string NotAllowedByTheSendingPMode = "Submit Message is not allowed by the Sending PMode ";
-
         /// <summary>
         /// 1.SubmitMessage / CollaborationInfo / Agreement
         /// </summary>
         /// <param name="submit"></param>
-        public static Maybe<CoreAgreementReference> ResolveAgreementReference(SubmitMessage submit)
+        public static Maybe<AgreementReference> ResolveAgreementReference(SubmitMessage submit)
         {
+            if (submit == null)
+            {
+                throw new ArgumentNullException(nameof(submit));
+            }
+
+            if (submit.PMode == null)
+            {
+                throw new ArgumentNullException(nameof(submit.PMode));
+            }
+
             SendingProcessingMode sendPMode = submit.PMode;
-            Agreement submitAgreement = submit.Collaboration.AgreementRef;
-            PModeAgreementReference pmodeAgreement = sendPMode.MessagePackaging.CollaborationInfo?.AgreementReference;
+            PModeAgreementReference pmodeAgreement = sendPMode.MessagePackaging?.CollaborationInfo?.AgreementReference;
+            Agreement submitAgreement = submit.Collaboration?.AgreementRef;
 
-            EnsureSubmitMessageDoesntOverridePMode(submitAgreement, sendPMode);
-
-            string value = submitAgreement.Value ?? pmodeAgreement?.Value;
-            string type = submitAgreement.RefType ?? pmodeAgreement?.Type;
-
-            return (value != null)
-                .ThenMaybe(value)
-                .Select(v => new CoreAgreementReference(
-                    value: v,
-                    type: (type != null).ThenMaybe(type),
-                    pmodeId: (sendPMode.Id != null).ThenMaybe(sendPMode.Id).Where(_ => sendPMode.MessagePackaging.IncludePModeId)));
-        }
-
-        private static void EnsureSubmitMessageDoesntOverridePMode(Agreement submitAgreement, SendingProcessingMode sendPMode)
-        {
-            PModeAgreementReference pmodeAgreement = sendPMode.MessagePackaging.CollaborationInfo?.AgreementReference;
-
-            if (DoesSubmitMessageTriesToOverridePModeValues(sendPMode, submitAgreement.Value, pmodeAgreement?.Value))
+            if (sendPMode.AllowOverride == false 
+                && !String.IsNullOrEmpty(submitAgreement?.Value)
+                && !String.IsNullOrEmpty(pmodeAgreement?.Value)
+                && !StringComparer.OrdinalIgnoreCase.Equals(pmodeAgreement?.Value, submitAgreement?.Value))
             {
                 throw new InvalidOperationException(
-                    $"{NotAllowedByTheSendingPMode}{sendPMode.Id} to override Agreement Ref Value");
+                    $"SubmitMessage is not allowed by the Sending PMode {sendPMode.Id} to override AgreementReference.Value");
             }
 
-            if (DoesSubmitMessageTriesToOverridePModeValues(sendPMode, submitAgreement.RefType, pmodeAgreement?.Type))
+            if (!String.IsNullOrEmpty(submitAgreement?.Value))
             {
-                throw new InvalidOperationException(
-                    $"{NotAllowedByTheSendingPMode}{sendPMode.Id} to override Agreement Ref Type");
-            }
-        }
+                if (submitAgreement?.RefType != null)
+                {
+                    if (sendPMode.MessagePackaging?.IncludePModeId == true)
+                    {
+                        return Maybe.Just(
+                            new AgreementReference(
+                                submitAgreement?.Value,
+                                submitAgreement?.RefType,
+                                sendPMode.Id));
+                    }
+                    
+                    return Maybe.Just(
+                        new AgreementReference(
+                            submitAgreement?.Value, 
+                            Maybe.Just(submitAgreement?.RefType),
+                            Maybe<string>.Nothing));
+                }
 
-        private static bool DoesSubmitMessageTriesToOverridePModeValues(
-            SendingProcessingMode pmode, 
-            string submitValue, 
-            string pmodeValue)
-        {
-            return pmode.AllowOverride == false &&
-                   !string.IsNullOrEmpty(pmodeValue) &&
-                   !string.IsNullOrEmpty(submitValue);
+                if (sendPMode.MessagePackaging?.IncludePModeId == true)
+                {
+                    return Maybe.Just(
+                        new AgreementReference(
+                            submitAgreement?.Value,
+                            Maybe<string>.Nothing,
+                            Maybe.Just(sendPMode.Id)));
+                }
+
+                return Maybe.Just(
+                    new AgreementReference(submitAgreement?.Value));
+            }
+
+            if (!String.IsNullOrEmpty(pmodeAgreement?.Value))
+            {
+                if (pmodeAgreement?.Type != null)
+                {
+                    if (sendPMode.MessagePackaging?.IncludePModeId == true)
+                    {
+                        return Maybe.Just(
+                            new AgreementReference(
+                                pmodeAgreement?.Value,
+                                pmodeAgreement?.Type,
+                                sendPMode.Id));
+                    }
+
+                    return Maybe.Just(
+                        new AgreementReference(
+                            pmodeAgreement?.Value,
+                            Maybe.Just(pmodeAgreement?.Type),
+                            Maybe<string>.Nothing));
+                }
+
+                if (sendPMode.MessagePackaging?.IncludePModeId == true)
+                {
+                    return Maybe.Just(
+                        new AgreementReference(
+                            pmodeAgreement?.Value,
+                            Maybe<string>.Nothing,
+                            Maybe.Just(sendPMode.Id)));
+                }
+
+                return Maybe.Just(
+                    new AgreementReference(pmodeAgreement?.Value));
+            }
+            
+            return Maybe<AgreementReference>.Nothing;
         }
     }
 }

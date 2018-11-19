@@ -113,7 +113,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Servicehandler.Builder
             {
                 StepConfiguration config = CreateInvalidConfigurableStepConfig();
 
-                Assert.Throws<ConfigurationErrorsException>(() => StepBuilder.FromSettings(config.NormalPipeline).BuildAsSingleStep());
+                Assert.Throws<InvalidOperationException>(() => StepBuilder.FromSettings(config.NormalPipeline).BuildAsSingleStep());
             }
 
             private static StepConfiguration CreateInvalidConfigurableStepConfig()

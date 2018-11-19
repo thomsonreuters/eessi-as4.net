@@ -196,7 +196,7 @@ namespace Eu.EDelivery.AS4.Repositories
 
             foreach (long id in inMessageIds)
             {
-                InMessage message = GetInMessageEntityFor(messageId, id);
+                InMessage message = GetInMessageEntityFor(id);
                 if (message == null)
                 {
                     LogManager.GetCurrentClassLogger().Warn($"Unable to update InMessage {messageId}.  There exists no such InMessage.");
@@ -232,7 +232,7 @@ namespace Eu.EDelivery.AS4.Repositories
             {
                 foreach (var idSet in inMessageIds)
                 {
-                    InMessage message = GetInMessageEntityFor(idSet.EbmsMessageId, idSet.Id);
+                    InMessage message = GetInMessageEntityFor(idSet.Id);
                     if (message != null)
                     {
                         updateAction(message);
@@ -242,9 +242,9 @@ namespace Eu.EDelivery.AS4.Repositories
             }
         }
 
-        private InMessage GetInMessageEntityFor(string ebmsMessageId, long id)
+        private InMessage GetInMessageEntityFor(long id)
         {
-            var msg = new InMessage(ebmsMessageId: ebmsMessageId);
+            var msg = new InMessage(null);
 
             msg.InitializeIdFromDatabase(id);
 
@@ -257,7 +257,7 @@ namespace Eu.EDelivery.AS4.Repositories
                 msg = _datastoreContext.InMessages.FirstOrDefault(m => m.Id == id);
                 if (msg == null)
                 {
-                    LogManager.GetCurrentClassLogger().Error($"No InMessage found for MessageId {ebmsMessageId}");
+                    LogManager.GetCurrentClassLogger().Error($"No InMessage found for MessageId {id}");
                     return null;
                 }
             }

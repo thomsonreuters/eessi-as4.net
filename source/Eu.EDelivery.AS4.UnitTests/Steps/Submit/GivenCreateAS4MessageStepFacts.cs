@@ -179,7 +179,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
             {
                 Collaboration =
                 {
-                    AgreementRef = {PModeId = "not empty pmode id"}
+                    AgreementRef =
+                    {
+                        Value = "submit-agreement",
+                        PModeId = "not empty pmode id"
+                    }
                 },
                 PartyInfo = new AS4.Model.Common.PartyInfo
                 {

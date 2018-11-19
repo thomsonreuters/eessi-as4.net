@@ -125,7 +125,9 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                              && m.Operation == Operation.ToBeSent),
                     timeout: TimeSpan.FromSeconds(30));
 
-            Assert.False(processedEntry.Intermediary);
+            Assert.True(
+                processedEntry.Intermediary == multihopMessage.IsSignalMessage,
+                "Only when forwarding signal messages we have a sending pmode");
 
             AS4Message processedMessage =
                 await DeserializeOutMessageBody(Registry.Instance.MessageBodyStore, processedEntry);
@@ -179,8 +181,9 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                     Service = new Xml.Service { Value = "OutboundProcessing_Service", type = "eu:europa:services" }
                 }
             };
-            var receipt = new Receipt( 
-                $"test-{Guid.NewGuid()}", 
+            var receipt = new Receipt(
+                $"receipt-{Guid.NewGuid()}",
+                $"user-{Guid.NewGuid()}", 
                 new Model.Core.NonRepudiationInformation(new Reference[0]),
                 routedUserMessage);
 
@@ -235,6 +238,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                 ContentType = msg.ContentType,
                 MessageLocation = bodyStore.SaveAS4Message(location, msg)
             };
+            tobeProcessedEntry.Intermediary = msg.IsSignalMessage;
             tobeProcessedEntry.Operation = Operation.ToBeProcessed;
             tobeProcessedEntry.SetPModeInformation(pmode);
 

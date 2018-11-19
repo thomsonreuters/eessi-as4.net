@@ -1,5 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Eu.EDelivery.AS4.Model.PMode;
+using Eu.EDelivery.AS4.Serialization;
 
 namespace Eu.EDelivery.AS4.Entities
 {
@@ -31,5 +33,36 @@ namespace Eu.EDelivery.AS4.Entities
             Status = status.ToString();
         }
 
+        /// <summary>
+        /// Gets the sending processing mode based on a child representation of a message entity.
+        /// </summary>
+        public override SendingProcessingMode GetSendingPMode()
+        {
+            if (Intermediary || EbmsMessageType == MessageType.UserMessage)
+            {
+                return AS4XmlSerializer.FromString<SendingProcessingMode>(PMode);
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Gets the receiving processing mode based on a child representation of a message entity.
+        /// </summary>
+        public override ReceivingProcessingMode GetReceivingPMode()
+        {
+            if (Intermediary)
+            {
+                return null;
+            }
+
+            if (EbmsMessageType == MessageType.Receipt
+                || EbmsMessageType == MessageType.Error)
+            {
+                return AS4XmlSerializer.FromString<ReceivingProcessingMode>(PMode);
+            }
+
+            return null;
+        }
     }
 }

@@ -1,6 +1,7 @@
-﻿using Eu.EDelivery.AS4.Model.Common;
+﻿using System;
+using System.Collections.Generic;
+using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Strategies.Retriever;
-using Moq;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Strategies.Retriever
@@ -10,21 +11,41 @@ namespace Eu.EDelivery.AS4.UnitTests.Strategies.Retriever
     /// </summary>
     public class GivenPayloadRetrieverProviderFacts
     {
-        [Fact]
-        public void GetsPayloadRetriever_IfPayloadRetrieverIsAccepted()
+        public static IEnumerable<object[]> PayloadRetrievers
+        {
+            get
+            {
+                yield return new object[] { FilePayloadRetriever.Key, typeof(FilePayloadRetriever) };
+                yield return new object[] { FtpPayloadRetriever.Key, typeof(FtpPayloadRetriever) };
+                yield return new object[] { HttpPayloadRetriever.Key, typeof(HttpPayloadRetriever) };
+                yield return new object[] { TempFilePayloadRetriever.Key, typeof(TempFilePayloadRetriever) };
+            }
+        }
+
+
+        [Theory]
+        [MemberData(nameof(PayloadRetrievers))]
+        public void CanGetKnownPayloadRetriever(string key, Type expectedRetriever)
         {
             // Arrange
-            var provider = new PayloadRetrieverProvider();
-            var dummyPayload = new Payload();
-            IPayloadRetriever expectedRetriever = new Mock<IPayloadRetriever>().Object;
-
-            provider.Accept(payload => payload.Equals(dummyPayload), expectedRetriever);
+            var payload = new Payload(location: $"{key}{Guid.NewGuid()}");
 
             // Act
-            IPayloadRetriever actualRetriever = provider.Get(dummyPayload);
+            var actualRetriever = PayloadRetrieverProvider.Instance.Get(payload);
 
             // Assert
-            Assert.Equal(expectedRetriever, actualRetriever);
+            Assert.IsType(expectedRetriever, actualRetriever);
+        }
+
+
+        [Fact]
+        public void FailsToGetRetriever_IfNoRetrieverIsRegisteredForType()
+        {
+            // Arrange
+            var payload = new Payload(location: "unknownthing");
+
+            // Act / Assert
+            Assert.ThrowsAny<Exception>(() => PayloadRetrieverProvider.Instance.Get(payload));
         }
     }
 }

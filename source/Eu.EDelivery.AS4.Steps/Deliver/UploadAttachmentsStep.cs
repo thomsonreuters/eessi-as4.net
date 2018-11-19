@@ -31,7 +31,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         /// Initializes a new instance of the <see cref="UploadAttachmentsStep" /> class.
         /// </summary>
         public UploadAttachmentsStep() 
-            : this(Registry.Instance.AttachmentUploader, Registry.Instance.CreateDatastoreContext) { }
+            : this(AttachmentUploaderProvider.Instance, Registry.Instance.CreateDatastoreContext) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="UploadAttachmentsStep" /> class.

@@ -234,7 +234,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             string storedMessageId = "stored-" + Guid.NewGuid();
             StoreToBeAckOutMessage(storedMessageId);
             AS4Message bundled = CreateBundledMultipleUserMessagesWithRefTo();
-            bundled.AddMessageUnit(new Receipt(storedMessageId));
+            bundled.AddMessageUnit(new Receipt($"receipt-{Guid.NewGuid()}", storedMessageId));
 
             // Act
             await RespondToPullRequestAsync(

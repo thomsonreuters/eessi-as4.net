@@ -70,13 +70,12 @@
     <Compile Include="Extensions\EnumerableExtensions.cs" />
     <Compile Include="Factories\GivenPayloadFileNameFactoryFacts.cs" />
     <Compile Include="Gens.cs" />
-    <Compile Include="Mappings\Core\GivenRoutingInputUserMessageMapFacts.cs" />
+    <Compile Include="Mappings\Core\GivenMessageUnitMapFacts.cs" />
     <Compile Include="Mappings\PMode\GivenPModePartyResolverFacts.cs" />
     <Compile Include="Model\Deliver\EmptyDeliverEnvelope.cs" />
     <Compile Include="Model\Notify\EmptyNotifyEnvelope.cs" />
     <Compile Include="Model\PMode\GivenMessagePackagingFacts.cs" />
     <Compile Include="Model\PMode\GivenSendingPModeFacts.cs" />
-    <Compile Include="ModuleInitializer.cs" />
     <Compile Include="Receivers\GivenFileReceiverFacts.cs" />
     <Compile Include="Repositories\DatastoreExtensions.cs" />
     <Compile Include="Security\References\GivenSecurityReferenceTokenProviderFacts.cs" />
@@ -86,14 +85,17 @@
     <Compile Include="Security\Strategies\GivenVerifySignatureStrategyFacts.cs" />
     <Compile Include="Serialization\GivenInvalidMessageSerializationFacts.cs" />
     <Compile Include="Serialization\GivenSoapEnvelopeDeserializingFacts.cs" />
-    <Compile Include="Services\DynamicDiscovery\GivenESensDynamicDiscoveryProfileFacts.cs" />
+    <Compile Include="Services\DynamicDiscovery\GivenPeppolDynamicDiscoveryProfileFacts.cs" />
     <Compile Include="Services\DynamicDiscovery\GivenLocalDynamicDiscoveryProfileFacts.cs" />
+    <Compile Include="Services\DynamicDiscovery\GivenOasisDynamicDiscoveryProfileFacts.cs" />
     <Compile Include="Services\GivenFileAuthorizationMapProviderFacts.cs" />
     <Compile Include="Steps\Deliver\DeliverRetryData.cs" />
     <Compile Include="Steps\Deliver\UploadRetryData.cs" />
     <Compile Include="Steps\Forward\GivenCreateForwardMessageStepFacts.cs" />
     <Compile Include="Steps\Forward\GivenDetermineForwardStepFacts.cs" />
+    <Compile Include="Steps\GivenStepExecutionerFacts.cs" />
     <Compile Include="Steps\Notify\NotifyRetryData.cs" />
+    <Compile Include="Steps\Receive\GivenScoringMechanismReceivingPModesFacts.cs" />
     <Compile Include="Steps\Send\GivenBundleSignalMessageToPullRequestStepFacts.cs" />
     <Compile Include="Steps\Receive\GivenSendSignalMessageStepFacts.cs" />
     <Compile Include="Steps\Receive\GivenValidateAS4MessageStepFacts.cs" />
@@ -117,7 +119,6 @@
     <Compile Include="Mappings\Submit\GivenSubmitMessageFacts.cs" />
     <Compile Include="Mappings\Submit\GivenSubmitMpcResolverFacts.cs" />
     <Compile Include="Model\FilledAttachment.cs" />
-    <Compile Include="Model\Internal\SaboteurReceivedMessage.cs" />
     <Compile Include="Receivers\StubReceiver.cs" />
     <Compile Include="Repositories\InMemoryMessageBodyStore.cs" />
     <Compile Include="Repositories\StubMessageBodyRetriever.cs" />
@@ -140,15 +141,6 @@
     <Compile Include="Extensions\AS4MessageExtensions.cs" />
     <Compile Include="Extensions\GivenIDictionaryExtensionFacts.cs" />
     <Compile Include="Extensions\XmlDocumentExtensions.cs" />
-    <Compile Include="Http\GivenReliableHttpClientFacts.cs" />
-    <Compile Include="Mappings\Core\GivenAgreementRefMapFacts.cs" />
-    <Compile Include="Mappings\Core\GivenCollaborationInfoMapFacts.cs" />
-    <Compile Include="Mappings\Core\GivenErrorMapFacts.cs" />
-    <Compile Include="Mappings\Core\GivenReceiptMapFacts.cs" />
-    <Compile Include="Mappings\Core\GivenUserMessageMap.cs" />
-    <Compile Include="Mappings\Core\GivenXmlSignalMessageMapFacts.cs" />
-    <Compile Include="Mappings\Notify\GivenErrorToNotifyMapFacts.cs" />
-    <Compile Include="Mappings\Notify\GivenReceiptToNotifyMapFacts.cs" />
     <Compile Include="Mappings\PMode\GivenPModeActionResolverFacts.cs" />
     <Compile Include="Mappings\PMode\GivenPModeAgreemenRefResolverFacts.cs" />
     <Compile Include="Mappings\PMode\GivenPModeServiceResolverFacts.cs" />
@@ -159,7 +151,6 @@
     <Compile Include="Mappings\Submit\GivenSubmitReceiverResolverFacts.cs" />
     <Compile Include="Mappings\Submit\GivenSubmitSenderPartyResolverFacts.cs" />
     <Compile Include="Mappings\Submit\GivenSubmitServiceResolverFacts.cs" />
-    <Compile Include="Model\Core\GivenErrorFacts.cs" />
     <Compile Include="Model\EmptyMessagingContext.cs" />
     <Compile Include="Model\FilledNRReceipt.cs" />
     <Compile Include="Model\FilledUserMessage.cs" />
@@ -224,11 +215,6 @@
     <Compile Include="Steps\GivenCompositeStepFacts.cs" />
     <Compile Include="Steps\Receive\GivenCreateAS4ReceiptStepFacts.cs" />
     <Compile Include="Steps\Receive\GivenUpdateReceivedMessageDatastoreFacts.cs" />
-    <Compile Include="Steps\Receive\Rules\GivenPModeAgreementRefRuleFacts.cs" />
-    <Compile Include="Steps\Receive\Rules\GivenPModeIdRuleFacts.cs" />
-    <Compile Include="Steps\Receive\Rules\GivenPModePartyInfoRuleFacts.cs" />
-    <Compile Include="Steps\Receive\Rules\GivenPModeServiceActionRuleFacts.cs" />
-    <Compile Include="Steps\Receive\Rules\GivenPModeUndefinedPartyInfoRuleFacts.cs" />
     <Compile Include="Steps\Repositories\GivenDatastoreRepositoryFacts.cs" />
     <Compile Include="Steps\Repositories\GivenMimeTypeRepositoryFacts.cs" />
     <Compile Include="Steps\SaboteurStep.cs" />
@@ -249,17 +235,16 @@
     <Compile Include="Steps\Receive\GivenVerifySignatureAS4MessageStepFacts.cs" />
     <Compile Include="Steps\Submit\GivenStoreAS4MessageStepsFacts.cs" />
     <Compile Include="Strategies\Retriever\GivenFilePayloadRetrieverFacts.cs" />
-    <Compile Include="Strategies\GivenPayloadStrategyProviderFacts.cs" />
     <Compile Include="Strategies\Method\LocationMethod.cs" />
     <Compile Include="Strategies\Retriever\GivenPayloadRetrieverProviderFacts.cs" />
     <Compile Include="Strategies\Retriever\GivenWebPayloadRetrieverFacts.cs" />
-    <Compile Include="Strategies\Sender\GivenSenderProviderFacts.cs" />
+    <Compile Include="Strategies\Sender\GivenDeliverSenderProviderFacts.cs" />
     <Compile Include="Strategies\Sender\GivenFileSenderFacts.cs" />
     <Compile Include="Strategies\Sender\GivenHttpSenderFacts.cs" />
     <Compile Include="Strategies\Sender\GivenReliableSenderFacts.cs" />
     <Compile Include="Strategies\Sender\SaboteurSender.cs" />
     <Compile Include="Strategies\Sender\SpySender.cs" />
-    <Compile Include="Strategies\Uploader\GivenAttachmentUploaderProvider.cs" />
+    <Compile Include="Strategies\Uploader\GivenAttachmentUploaderProviderFacts.cs" />
     <Compile Include="Strategies\Uploader\GivenPayloadServiceAttachmentUploaderFacts.cs" />
     <Compile Include="Strategies\Uploader\StubAttachmentUploader.cs" />
     <Compile Include="Strategies\Uploader\StubAttachmentUploaderProvider.cs" />
@@ -274,10 +259,8 @@
     <Compile Include="Transformers\GivenSubmitMessageXmlTransformerFacts.cs" />
     <Compile Include="Factories\GivenIdentifierFactoryFacts.cs" />
     <Compile Include="Utilities\Computer.cs" />
-    <Compile Include="Validators\GivenDeliverMessageValidatorFacts.cs" />
     <Compile Include="Validators\GivenReceivingProcessingModeValidatorFacts.cs" />
     <Compile Include="Validators\GivenSendingProcessingModeValidatorFacts.cs" />
-    <Compile Include="Validators\GivenSubmitMessageValidatorFacts.cs" />
     <Compile Include="Validators\GivenValidationResultFacts.cs" />
     <Compile Include="Validators\ValidationInputGenerators.cs" />
     <Compile Include="Validators\ValidationOutputAssertions.cs" />
@@ -356,7 +339,6 @@
     <None Include="Resources\as4message.txt" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="FodyWeavers.xml" />
     <Content Include="Resources\as4-encrypted-envelope.xml" />
     <Content Include="Resources\as4-soap-signed-encrypted-message-with-extra-hashtag.xml" />
     <Content Include="Resources\as4-soap-signed-encrypted-message.xml" />
@@ -388,17 +370,11 @@
     <Content Include="Resources\holodeck-as4message.xml" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Fody">
-      <Version>3.1.3</Version>
-    </PackageReference>
     <PackageReference Include="FsCheck">
       <Version>2.10.8</Version>
     </PackageReference>
     <PackageReference Include="FsCheck.Xunit">
       <Version>2.10.8</Version>
-    </PackageReference>
-    <PackageReference Include="ModuleInit.Fody">
-      <Version>1.8.1</Version>
     </PackageReference>
     <PackageReference Include="Moq">
       <Version>4.7.99</Version>

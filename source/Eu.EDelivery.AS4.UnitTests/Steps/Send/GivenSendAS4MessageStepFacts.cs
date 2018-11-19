@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Net;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Entities;
@@ -7,6 +8,7 @@ using Eu.EDelivery.AS4.Http;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
+using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Steps.Send;
 using Eu.EDelivery.AS4.TestUtils.Stubs;
@@ -19,11 +21,54 @@ using RetryReliability = Eu.EDelivery.AS4.Entities.RetryReliability;
 
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
 {
-    /// <summary>
-    /// Testing <see cref="SendAS4MessageStep"/>
-    /// </summary>
     public class GivenSendAS4MessageStepFacts : GivenDatastoreFacts
     {
+        [Fact]
+        public async Task Use_ReceivingPMode_When_No_SendingPMode_Is_Available()
+        {
+            // Arrange
+            var userMessage = new UserMessage($"user-{Guid.NewGuid()}");
+            var message = AS4Message.Create(userMessage);
+
+            var output = new MemoryStream();
+            await SerializerProvider
+                .Default
+                .Get(message.ContentType)
+                .SerializeAsync(message, output);
+
+            var ctx = new MessagingContext(
+                message, 
+                new ReceivedMessage(output, message.ContentType),
+                MessagingContextMode.Send)
+            {
+                ReceivingPMode = new ReceivingProcessingMode
+                {
+                    ReplyHandling =
+                    {
+                        ResponseConfiguration = new PushConfiguration
+                        {
+                            Protocol = { Url = "http://some/endpoint/path" }
+                        }
+                    }
+                }
+            };
+
+            var receipt = new Receipt($"receipt-{Guid.NewGuid()}", userMessage.MessageId);
+            var stub = StubHttpClient.ThatReturns(AS4Message.Create(receipt));
+
+            IStep sut = CreateSendStepWithResponse(stub);
+
+            // Act
+            StepResult result = await sut.ExecuteAsync(ctx);
+
+            // Assert
+            Assert.True(result.Succeeded, "Sending UserMessage step has not succeeded");
+            Assert.Equal(receipt, result.MessagingContext.AS4Message.PrimaryMessageUnit);
+
+            // TearDown
+            ctx.Dispose();
+        }
+
         [Fact]
         public async Task Update_RetryReliability_To_Pending_When_Receiver_Is_Offline()
         {
@@ -95,7 +140,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
                 };
 
             AS4Message receiptMessage = 
-                AS4Message.Create(new Receipt($"receipt-{Guid.NewGuid()}"));
+                AS4Message.Create(new Receipt($"receipt-{Guid.NewGuid()}", $"user-{Guid.NewGuid()}"));
 
             // Act 
             IStep sut = CreateSendStepWithResponse(
@@ -117,7 +162,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
         public async Task Send_Results_In_Stop_Execution_If_Response_Is_PullRequest_Warning_For_Exsisting_SendPMode()
         {
             // Arrange
-            AS4Message as4Message = AS4Message.Create(new PullRequestError($"pull-{Guid.NewGuid()}"));
+            AS4Message as4Message = AS4Message.Create(Error.CreatePullRequestWarning($"error-{Guid.NewGuid()}"));
             IStep sut = CreateSendStepWithResponse(
                 StubHttpClient.ThatReturns(as4Message));
 
@@ -170,7 +215,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
         private static MessagingContext CreateMessagingContextWithDefaultPullRequest()
         {
             var pullRequest = AS4Message.Create(
-                new PullRequest(mpc: null, messageId: "message-id"));
+                new PullRequest(messageId: "message-id", mpc: null));
 
             return new MessagingContext(
                 new ReceivedMessage(

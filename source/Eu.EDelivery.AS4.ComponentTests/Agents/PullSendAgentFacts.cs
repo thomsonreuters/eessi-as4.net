@@ -234,8 +234,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         {
             return new Receipt(
                 messageId: $"receipt-{Guid.NewGuid()}",
-                refToMessageId: userMessageId,
-                timestamp: DateTimeOffset.Now);
+                refToMessageId: userMessageId);
         }
 
         private async Task<HttpResponseMessage> PiggyBacked_PullRequest_With_Bundled_Signal(
@@ -285,7 +284,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             AS4Message as4Message = await response.DeserializeToAS4Message();
             var error = as4Message.PrimaryMessageUnit as Error;
             Assert.NotNull(error);
-            Assert.True(error.IsWarningForEmptyPullRequest, "Responded Error is not a PullRequest warning");
+            Assert.True(error.IsPullRequestWarning, "Responded Error is not a PullRequest warning");
         }
 
         private void StoreToBeAckOutMessage(string messageId, SendingProcessingMode sendingPMode)
@@ -315,7 +314,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
         private static AS4Message CreatePullRequestWithMpc(string mpc)
         {
-            return AS4Message.Create(new PullRequest(mpc));
+            return AS4Message.Create(new PullRequest($"pr-{Guid.NewGuid()}", mpc));
         }
 
         private static AS4Message SignAS4MessageWithPullRequestCert(AS4Message message)

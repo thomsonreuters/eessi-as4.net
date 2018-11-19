@@ -11,6 +11,8 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
     /// </summary>
     internal class DeliverSenderProvider : IDeliverSenderProvider
     {
+        public static readonly IDeliverSenderProvider Instance = new DeliverSenderProvider();
+
         private readonly ICollection<DeliverSenderEntry> _senders;
 
         /// <summary>
@@ -18,9 +20,12 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
         /// Create a new <see cref="DeliverSenderProvider" />
         /// to select the provide the right <see cref="IDeliverSender" /> implementation
         /// </summary>
-        internal DeliverSenderProvider()
+        private DeliverSenderProvider()
         {
             _senders = new Collection<DeliverSenderEntry>();
+            
+            this.Accept(s => StringComparer.OrdinalIgnoreCase.Equals(s, FileSender.Key), () => new FileSender());
+            this.Accept(s => StringComparer.OrdinalIgnoreCase.Equals(s, HttpSender.Key), () => new HttpSender());
         }
 
         /// <summary>
@@ -64,7 +69,7 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
                 throw new KeyNotFoundException($"No Deliver Sender found for a given {operationMethod} Operation Method");
             }
 
-            return entry.Sender();
+            return new ReliableSender(entry.Sender());
         }
 
         /// <summary>

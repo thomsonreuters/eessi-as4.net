@@ -1,5 +1,7 @@
 <?xml version="1.0"?>
-<PMode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="eu:edelivery:as4:pmode">
+<PMode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+  xmlns="eu:edelivery:as4:pmode">
   <Id>05-receive-forwarded-pmode</Id>
   <Reliability>
     <DuplicateElimination>
@@ -8,7 +10,6 @@
   </Reliability>
   <ReplyHandling>
     <ReplyPattern>Response</ReplyPattern>
-    <SendingPMode>signed-response-pmode</SendingPMode>
     <ReceiptHandling>
       <UseNRRFormat>true</UseNRRFormat>
     </ReceiptHandling>
@@ -16,6 +17,16 @@
       <UseSoapFault>false</UseSoapFault>
       <ResponseHttpCode>200</ResponseHttpCode>
     </ErrorHandling>
+    <ResponseSigning>
+      <IsEnabled>true</IsEnabled>
+      <KeyReferenceMethod>BSTReference</KeyReferenceMethod>
+      <CertificateFindCriteria>
+        <CertificateFindType>FindBySubjectName</CertificateFindType>
+        <CertificateFindValue>AccessPointB</CertificateFindValue>
+      </CertificateFindCriteria>
+      <Algorithm>http://www.w3.org/2001/04/xmldsig-more#rsa-sha256</Algorithm>
+      <HashFunction>http://www.w3.org/2001/04/xmlenc#sha256</HashFunction>
+    </ResponseSigning>
   </ReplyHandling>
   <ExceptionHandling>
     <NotifyMessageConsumer>true</NotifyMessageConsumer>

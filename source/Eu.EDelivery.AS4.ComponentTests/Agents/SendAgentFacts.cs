@@ -10,6 +10,7 @@ using Eu.EDelivery.AS4.ComponentTests.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Factories;
+using Eu.EDelivery.AS4.Mappings.Core;
 using Eu.EDelivery.AS4.Mappings.PMode;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.PMode;
@@ -141,6 +142,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
             AS4Message receipt = AS4Message.Create(
                 new Receipt(
+                    messageId: $"receipt-{Guid.NewGuid()}",
                     refToMessageId: signedUserMessage.GetPrimaryMessageId(),
                     nonRepudiation: new NonRepudiationInformation(hashes)));
 
@@ -187,8 +189,13 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                 {
                     res.StatusCode = 200;
                     res.ContentType = Constants.ContentTypes.Soap;
-                    AS4Message receipt = CreateMultiHopReceiptFor(as4Message);
-                    serializer.Serialize(receipt, res.OutputStream);
+
+                    var receipt = Receipt.CreateFor(
+                        $"receipt-{Guid.NewGuid()}",
+                        as4Message.FirstUserMessage,
+                        userMessageSendViaMultiHop: true);
+
+                    serializer.Serialize(AS4Message.Create(receipt), res.OutputStream);
                 },
                 signal);
 
@@ -254,40 +261,6 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             outMessage.SetPModeInformation(pmode);
 
             _databaseSpy.InsertOutMessage(outMessage);
-        }
-
-        private static AS4Message CreateMultiHopReceiptFor(AS4Message message)
-        {
-            Model.Core.CollaborationInfo coll = message.FirstUserMessage.CollaborationInfo;
-            var receipt = new Receipt(
-                message.FirstUserMessage.MessageId,
-                message.FirstUserMessage,
-                new RoutingInputUserMessage
-                {
-                    CollaborationInfo = new Xml.CollaborationInfo
-                    {
-                        Action = coll.Action,
-                        Service = new Xml.Service
-                        {
-                            Value = coll.Service.Value,
-                            type = coll.Service.Type.GetOrElse(() => null)
-                        },
-                        AgreementRef = new Xml.AgreementRef
-                        {
-                            pmode = coll.AgreementReference.UnsafeGet.PModeId.GetOrElse(() => null),
-                            type = coll.AgreementReference.UnsafeGet.Type.GetOrElse(() => null),
-                            Value = coll.AgreementReference.UnsafeGet.Value
-                        },
-                        ConversationId = coll.ConversationId
-                    },
-                    mpc = message.FirstUserMessage.Mpc,
-                    MessageInfo = new Xml.MessageInfo
-                    {
-                        MessageId = message.FirstUserMessage.MessageId
-                    }
-                });
-
-            return AS4Message.Create(receipt);
         }
 
         private static SendingProcessingMode CreateMultihopPMode(string sendToUrl)

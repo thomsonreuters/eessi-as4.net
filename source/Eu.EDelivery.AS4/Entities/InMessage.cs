@@ -1,4 +1,7 @@
-﻿namespace Eu.EDelivery.AS4.Entities
+﻿using Eu.EDelivery.AS4.Model.PMode;
+using Eu.EDelivery.AS4.Serialization;
+
+namespace Eu.EDelivery.AS4.Entities
 {
     /// <summary>
     ///     Incoming Message Data Entity Schema
@@ -22,6 +25,33 @@
         public void SetStatus(InStatus status)
         {
             Status = status.ToString();
+        }
+
+        /// <summary>
+        /// Gets the sending processing mode based on a child representation of a message entity.
+        /// </summary>
+        public override SendingProcessingMode GetSendingPMode()
+        {
+            if (EbmsMessageType == MessageType.Receipt
+                || EbmsMessageType == MessageType.Error)
+            {
+                return AS4XmlSerializer.FromString<SendingProcessingMode>(PMode);
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Gets the receiving processing mode based on a child representation of a message entity.
+        /// </summary>
+        public override ReceivingProcessingMode GetReceivingPMode()
+        {
+            if (EbmsMessageType == MessageType.UserMessage)
+            {
+                return AS4XmlSerializer.FromString<ReceivingProcessingMode>(PMode);
+            }
+
+            return null;
         }
     }
 }

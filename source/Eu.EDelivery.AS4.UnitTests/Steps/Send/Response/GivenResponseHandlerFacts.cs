@@ -91,7 +91,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
             public async Task ThenNextHandlerGetsTheResponse_IfAS4MessageIsReceived()
             {
                 // Arrange
-                AS4Message as4Message = AS4Message.Create(new Error($"user-{Guid.NewGuid()}"));
+                AS4Message as4Message = AS4Message.Create(new Error($"error-{Guid.NewGuid()}", $"user-{Guid.NewGuid()}"));
                 IAS4Response as4Response = CreateAS4ResponseWithResultedMessage(as4Message);
 
                 var spyHandler = new SpyAS4ResponseHandler();
@@ -156,7 +156,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
             {
                 var stubAS4Response = new Mock<IAS4Response>();
                 var pullRequest = new MessagingContext(
-                    AS4Message.Create(new PullRequest("some-mpc")),
+                    AS4Message.Create(new PullRequest($"pr-{Guid.NewGuid()}", "some-mpc")),
                     MessagingContextMode.Send);
 
                 stubAS4Response.Setup(r => r.OriginalRequest).Returns(pullRequest);
@@ -179,8 +179,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
             {
                 // Arrange
                 IAS4Response stubAS4Response = CreateResponseWith(
-                    request: new PullRequest("some-mpc"), 
-                    response: new PullRequestError($"pull-{Guid.NewGuid()}"));
+                    request: new PullRequest($"pr-{Guid.NewGuid()}", "some-mpc"), 
+                    response: Error.CreatePullRequestWarning($"error-{Guid.NewGuid()}"));
 
                 var handler = new PullRequestResponseHandler(() => null, CreateAnonymousNextHandler());
 

@@ -44,14 +44,14 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                     var store = new AS4MessageBodyFileStore();
                     var im = new InMessage(ebmsMessageId)
                     {
+                        EbmsMessageType = MessageType.Receipt,
                         ContentType = Constants.ContentTypes.Soap,
                         MessageLocation = store.SaveAS4Message(
                             as4Msh.GetConfiguration().InMessageStoreLocation,
                             AS4Message.Create(
                                 new Receipt(
                                     ebmsMessageId,
-                                    $"reftoid-{Guid.NewGuid()}",
-                                    DateTimeOffset.Now)))
+                                    $"reftoid-{Guid.NewGuid()}")))
                     };
 
                     SendingProcessingMode pmode = NotifySendingPMode(url);
@@ -232,6 +232,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
             return new SendingProcessingMode
             {
+                Id = "notify-sending-pmode",
                 ReceiptHandling =
                 {
                     NotifyMessageProducer = true,

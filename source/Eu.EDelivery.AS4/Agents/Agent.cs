@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Receivers;
+using Eu.EDelivery.AS4.Services.Journal;
 using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Transformers;
 using NLog;
@@ -20,8 +20,8 @@ namespace Eu.EDelivery.AS4.Agents
         private readonly IReceiver _receiver;
         private readonly Transformer _transformerConfig;
         private readonly IAgentExceptionHandler _exceptionHandler;
-        private readonly (ConditionalStepConfig happyPath, ConditionalStepConfig unhappyPath) _conditionalPipeline;
-        private readonly StepConfiguration _stepConfiguration;
+        private readonly StepExecutioner _steps;
+        private readonly IJournalLogger _journalLogger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Agent"/> class.
@@ -36,7 +36,25 @@ namespace Eu.EDelivery.AS4.Agents
             IReceiver receiver,
             Transformer transformerConfig,
             IAgentExceptionHandler exceptionHandler,
-            StepConfiguration stepConfiguration)
+            StepConfiguration stepConfiguration) 
+            : this(config, receiver, transformerConfig, exceptionHandler, stepConfiguration, NoopJournalLogger.Instance) { }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Agent"/> class.
+        /// </summary>
+        /// <param name="config">The config to add metadata to the agent.</param>
+        /// <param name="receiver">The receiver on which the agent should listen for messages.</param>
+        /// <param name="transformerConfig">The config to create <see cref="ITransformer"/> instances.</param>
+        /// <param name="exceptionHandler">The handler to handle failures during the agent execution.</param>
+        /// <param name="stepConfiguration">The config to create <see cref="IStep"/> normal & error pipelines.</param>
+        /// <param name="journalLogger">The logging implementation to write journal log entries for handled messages.</param>
+        internal Agent(
+            AgentConfig config,
+            IReceiver receiver,
+            Transformer transformerConfig,
+            IAgentExceptionHandler exceptionHandler,
+            StepConfiguration stepConfiguration,
+            IJournalLogger journalLogger)
         {
             if (config == null)
             {
@@ -66,8 +84,9 @@ namespace Eu.EDelivery.AS4.Agents
             _receiver = receiver;
             _transformerConfig = transformerConfig;
             _exceptionHandler = exceptionHandler;
+            _steps = new StepExecutioner(stepConfiguration, exceptionHandler);
+            _journalLogger = journalLogger ?? NoopJournalLogger.Instance;
 
-            _stepConfiguration = stepConfiguration;
             AgentConfig = config;
         }
 
@@ -80,7 +99,6 @@ namespace Eu.EDelivery.AS4.Agents
         /// <param name="exceptionHandler">The handler to handle failures during the agent execution.</param>
         /// <param name="pipelineConfig">The config to create <see cref="IStep"/> normal & error pipelines.</param>
         /// <remarks>This should only be used inside a 'Minder' scenario!</remarks>
-        [ExcludeFromCodeCoverage]
         internal Agent(
             AgentConfig config,
             IReceiver receiver,
@@ -111,7 +129,8 @@ namespace Eu.EDelivery.AS4.Agents
             _receiver = receiver;
             _transformerConfig = transformerConfig;
             _exceptionHandler = exceptionHandler;
-            _conditionalPipeline = pipelineConfig;
+            _steps = new StepExecutioner(pipelineConfig, exceptionHandler);
+            _journalLogger = NoopJournalLogger.Instance;
 
             AgentConfig = config;
         }
@@ -132,7 +151,7 @@ namespace Eu.EDelivery.AS4.Agents
                 () => _receiver.StartReceiving(OnReceived, cancellation),
                 TaskCreationOptions.LongRunning);
 
-            Logger.Info($"{AgentConfig.Name} Started!");    
+            Logger.Info($"{AgentConfig.Name} Started!");
             return task;
         }
 
@@ -142,11 +161,16 @@ namespace Eu.EDelivery.AS4.Agents
 
             try
             {
-                ITransformer transformer = TransformerBuilder.FromTransformerConfig(_transformerConfig);
-                MessagingContext result = await transformer.TransformAsync(message);
+                MessagingContext result = 
+                    await TransformerBuilder
+                          .FromTransformerConfig(_transformerConfig)
+                          .TransformAsync(message);
+
                 if (result == null)
                 {
-                    throw new ArgumentNullException(nameof(result), $@"Transformer {_transformerConfig.Type} result in a 'null', transformers require to transform into a 'MessagingContext'");
+                    throw new ArgumentNullException(
+                        nameof(result), 
+                        $@"Transformer {_transformerConfig.Type} result in a 'null', transformers require to transform into a 'MessagingContext'");
                 }
 
                 context = result;
@@ -155,6 +179,7 @@ namespace Eu.EDelivery.AS4.Agents
             {
                 Logger.Error($"Could not transform message: {exception.Message}");
                 Logger.Trace(exception.StackTrace);
+
                 return await _exceptionHandler.HandleTransformationException(exception, message);
             }
 
@@ -163,102 +188,16 @@ namespace Eu.EDelivery.AS4.Agents
                 return context;
             }
 
-            return await TryExecuteSteps(context);
-
-        }
-
-        private async Task<MessagingContext> TryExecuteSteps(MessagingContext currentContext)
-        {
-            if (AgentHasNoStepsToExecute())
-            {
-                return currentContext;
-            }
-
-            StepResult result = StepResult.Success(currentContext);
-
-            try
-            {
-                IEnumerable<IStep> steps = CreateSteps(_stepConfiguration?.NormalPipeline, _conditionalPipeline.happyPath);
-                result = await ExecuteSteps(steps, currentContext);
-            }
-            catch (Exception exception)
-            {
-                return await _exceptionHandler.HandleExecutionException(exception, currentContext);
-            }
-
-            try
-            {
-                bool weHaveAnyUnhappyPath = _stepConfiguration?.ErrorPipeline != null || _conditionalPipeline.unhappyPath != null;
-                if (result.Succeeded == false && weHaveAnyUnhappyPath && result.MessagingContext.Exception == null)
+            StepResult stepResult = await _steps.ExecuteStepsAsync(context);
+            IEnumerable<JournalLogEntry> journalWithAgentLocation =
+                stepResult.Journal.Select(j =>
                 {
-                    IEnumerable<IStep> steps = CreateSteps(_stepConfiguration?.ErrorPipeline, _conditionalPipeline.unhappyPath);
-                    result = await ExecuteSteps(steps, result.MessagingContext);
-                }
+                    j.AddAgentLocation(AgentConfig);
+                    return j;
+                });
 
-                return result.MessagingContext;
-            }
-            catch (Exception exception)
-            {
-                return await _exceptionHandler.HandleErrorException(exception, result.MessagingContext);
-            }
-        }
-
-        private bool AgentHasNoStepsToExecute()
-        {
-            return _conditionalPipeline.happyPath == null
-                && (_stepConfiguration.NormalPipeline.Any(s => s == null) || _stepConfiguration.NormalPipeline == null);
-        }
-
-        private static IEnumerable<IStep> CreateSteps(Step[] pipeline, ConditionalStepConfig conditionalConfig)
-        {
-            if (pipeline != null)
-            {
-                return StepBuilder.FromSettings(pipeline).BuildSteps();
-            }
-
-            if (conditionalConfig != null)
-            {
-                return StepBuilder.FromConditionalConfig(conditionalConfig).BuildSteps();
-            }
-
-            return Enumerable.Empty<IStep>();
-        }
-
-        private static async Task<StepResult> ExecuteSteps(
-            IEnumerable<IStep> steps,
-            MessagingContext context)
-        {
-            StepResult result = StepResult.Success(context);
-            MessagingContext currentContext = context;
-
-            foreach (IStep step in steps)
-            {
-                result = await step.ExecuteAsync(currentContext).ConfigureAwait(false);
-
-                if (result == null)
-                {
-                    throw new InvalidOperationException(
-                        $"Result of last step: {step.GetType().Name} returns 'null'");
-                }
-
-                if (result.MessagingContext == null)
-                {
-                    throw new InvalidOperationException(
-                        $"Result of last step {step.GetType().Name} doesn't have a 'MessagingContext'");
-                }
-
-                if (result.CanProceed == false || result.Succeeded == false || result.MessagingContext.Exception != null)
-                {
-                    return result;
-                }
-
-                if (result.MessagingContext != null && currentContext != result.MessagingContext)
-                {
-                    currentContext = result.MessagingContext;
-                }
-            }
-
-            return result;
+            await _journalLogger.WriteLogEntriesAsync(journalWithAgentLocation);
+            return stepResult.MessagingContext;
         }
 
         /// <summary>
@@ -267,8 +206,7 @@ namespace Eu.EDelivery.AS4.Agents
         public void Stop()
         {
             Logger.Debug($"Stopping {AgentConfig.Name} ...");
-            _receiver?.StopReceiving();
-
+            _receiver.StopReceiving();
             Logger.Info($"{AgentConfig.Name} stopped.");
         }
     }

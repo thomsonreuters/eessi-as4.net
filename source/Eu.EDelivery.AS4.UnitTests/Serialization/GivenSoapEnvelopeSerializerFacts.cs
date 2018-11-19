@@ -14,16 +14,15 @@ using System.Xml.Serialization;
 using System.Xml.XPath;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Exceptions;
+using Eu.EDelivery.AS4.Mappings.Core;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Resources;
 using Eu.EDelivery.AS4.Security.Encryption;
 using Eu.EDelivery.AS4.Serialization;
-using Eu.EDelivery.AS4.Singletons;
-using Eu.EDelivery.AS4.Steps;
-using Eu.EDelivery.AS4.Steps.Receive;
 using Eu.EDelivery.AS4.TestUtils;
+using Eu.EDelivery.AS4.UnitTests.Common;
 using Eu.EDelivery.AS4.UnitTests.Extensions;
 using Eu.EDelivery.AS4.UnitTests.Model;
 using Eu.EDelivery.AS4.UnitTests.Resources;
@@ -435,8 +434,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
             {
                 // Arrange
                 var error = new Error(
-                   refToMessageId: $"user-{Guid.NewGuid()}",
-                   detail: ErrorLine.FromErrorResult(new ErrorResult("sample error", ErrorAlias.ConnectionFailure)));
+                    $"error-{Guid.NewGuid()}",
+                    $"user-{Guid.NewGuid()}",
+                    ErrorLine.FromErrorResult(new ErrorResult("sample error", ErrorAlias.ConnectionFailure)));
 
                 // Act
                 XmlDocument doc = SerializeSoapMessage(AS4Message.Create(error));
@@ -632,14 +632,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
         {
             AS4Message as4Message = await CreateReceivedAS4Message(CreateMultiHopPMode());
 
-            var message = new MessagingContext(as4Message, MessagingContextMode.Receive);
+            var receipt = Receipt.CreateFor($"receipt-{Guid.NewGuid()}", as4Message.FirstUserMessage, as4Message.IsMultiHopMessage);
 
-            StepResult result = await CreateReceiptForUserMessage(message, CreateMultiHopPMode());
-
-            // The result should contain a signalmessage, which is a receipt.
-            Assert.True(result.MessagingContext.AS4Message.IsSignalMessage);
-
-            XmlDocument doc = AS4XmlSerializer.ToSoapEnvelopeDocument(result.MessagingContext.AS4Message, CancellationToken.None);
+            XmlDocument doc = AS4XmlSerializer.ToSoapEnvelopeDocument(AS4Message.Create(receipt), CancellationToken.None);
 
             // Following elements should be present:
             // - To element in the wsa namespace
@@ -676,15 +671,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
             // Arrange
             AS4Message expectedAS4Message = await CreateReceivedAS4Message(CreateMultiHopPMode());
 
-            var error = new Error(
-                refToMessageId: expectedAS4Message.FirstUserMessage.MessageId, 
-                routing: AS4Mapper.Map<RoutingInputUserMessage>(expectedAS4Message.FirstUserMessage));
-
-            AS4Message errorMessage = AS4Message.Create(error);
-
+            var error = Error.CreateFor($"error-{Guid.NewGuid()}", expectedAS4Message.FirstUserMessage, userMessageSendViaMultiHop: true);
 
             // Act
-            XmlDocument document = AS4XmlSerializer.ToSoapEnvelopeDocument(errorMessage, CancellationToken.None);
+            XmlDocument document = AS4XmlSerializer.ToSoapEnvelopeDocument(AS4Message.Create(error), CancellationToken.None);
 
             // Following elements should be present:
             // - To element in the wsa namespace
@@ -738,14 +728,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
         {
             AS4Message as4Message = await CreateReceivedAS4Message(CreateNonMultiHopPMode());
 
-            var context = new MessagingContext(as4Message, MessagingContextMode.Unknown);
+            var receipt = Receipt.CreateFor($"receipt-{Guid.NewGuid()}", as4Message.FirstUserMessage, as4Message.IsMultiHopMessage);
 
-            StepResult result = await CreateReceiptForUserMessage(context, CreateNonMultiHopPMode());
-
-            // The result should contain a signalmessage, which is a receipt.
-            Assert.True(result.MessagingContext.AS4Message.IsSignalMessage);
-
-            XmlDocument doc = AS4XmlSerializer.ToSoapEnvelopeDocument(result.MessagingContext.AS4Message, CancellationToken.None);
+            XmlDocument doc = AS4XmlSerializer.ToSoapEnvelopeDocument(AS4Message.Create(receipt), CancellationToken.None);
 
             // No MultiHop related elements may be present:
             // - No Action element in the wsa namespace
@@ -754,22 +739,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
             Assert.False(ContainsActionElement(doc));
             Assert.False(ContainsUserMessageElement(doc));
             Assert.Null(doc.UnsafeSelectEbmsNode("/s12:Envelope/s12:Header/mh:RoutingInput"));
-        }
-
-        private static async Task<StepResult> CreateReceiptForUserMessage(
-            MessagingContext ctx,
-            SendingProcessingMode responsePMode)
-        {
-            var stub = new Mock<IConfig>();
-            stub.Setup(c => c.GetSendingPMode(responsePMode.Id))
-                .Returns(responsePMode);
-
-            ctx.ReceivingPMode = new ReceivingProcessingMode { ReplyHandling = { SendingPMode = responsePMode.Id } };
-
-            // Create a receipt for this message.
-            // Use the CreateReceiptStep, since there is no other way.
-            var step = new CreateAS4ReceiptStep(stub.Object);
-            return await step.ExecuteAsync(ctx);
         }
 
         private static bool ContainsUserMessageElement(XmlNode doc)
@@ -908,6 +877,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
             };
 
             return new Receipt(
+                $"receipt-{Guid.NewGuid()}",
                 $"user-{Guid.NewGuid()}",
                 new NonRepudiationInformation(
                     nnri.Select(Reference.CreateFromReferenceElement)));
@@ -916,7 +886,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
         private static Receipt CreateReceiptWithRelatedUserMessageInfo()
         {
             string ebmsMessageId = $"user-{Guid.NewGuid()}";
-            return new Receipt(ebmsMessageId, new UserMessage(ebmsMessageId));
+            var userMessage = new UserMessage(ebmsMessageId);
+
+            return Receipt.CreateFor($"receipt-{Guid.NewGuid()}", userMessage);
         }
     }
 

@@ -7,8 +7,10 @@
       <xs:element minOccurs="0" maxOccurs="1" name="AllowOverride" type="xs:boolean" />
       <xs:element minOccurs="1" maxOccurs="1" name="Mep" type="tns:MessageExchangePattern" />
       <xs:element minOccurs="1" maxOccurs="1" name="MepBinding" type="tns:MessageExchangePatternBinding" />
-      <xs:element minOccurs="0" maxOccurs="1" name="PushConfiguration" type="tns:PushConfiguration" />
-      <xs:element minOccurs="0" maxOccurs="1" name="DynamicDiscovery" type="tns:DynamicDiscoveryConfiguration" />
+      <xs:choice minOccurs="1" maxOccurs="1">
+        <xs:element minOccurs="0" maxOccurs="1" name="PushConfiguration" type="tns:PushConfiguration" />
+        <xs:element minOccurs="0" maxOccurs="1" name="DynamicDiscovery" type="tns:DynamicDiscoveryConfiguration" />
+      </xs:choice>
       <xs:element minOccurs="0" maxOccurs="1" name="Reliability" type="tns:SendReliability" />
       <xs:element minOccurs="0" maxOccurs="1" name="ReceiptHandling" type="tns:SendReceiptHandling" />
       <xs:element minOccurs="0" maxOccurs="1" name="ErrorHandling" type="tns:SendHandling" />

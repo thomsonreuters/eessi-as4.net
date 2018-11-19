@@ -3,7 +3,7 @@
   <xs:element name="PMode" type="tns:ReceivingProcessingMode" />
   <xs:complexType name="ReceivingProcessingMode">
     <xs:sequence>
-      <xs:element minOccurs="0" maxOccurs="1" name="Id" type="xs:string" />
+      <xs:element minOccurs="1" maxOccurs="1" name="Id" nillable="true" type="xs:string" />
       <xs:element minOccurs="0" maxOccurs="1" name="Reliability" type="tns:ReceiveReliability" />
       <xs:element minOccurs="0" maxOccurs="1" name="ReplyHandling" type="tns:ReplyHandling" />
       <xs:element minOccurs="0" maxOccurs="1" name="ExceptionHandling" type="tns:ReceiveHandling" />
@@ -25,10 +25,11 @@
   <xs:complexType name="ReplyHandling">
     <xs:sequence>
       <xs:element minOccurs="1" maxOccurs="1" name="ReplyPattern" type="tns:ReplyPattern" />
-      <xs:element minOccurs="0" maxOccurs="1" name="SendingPMode" type="xs:string" />
       <xs:element minOccurs="0" maxOccurs="1" name="ReceiptHandling" type="tns:ReceiveReceiptHandling" />
       <xs:element minOccurs="0" maxOccurs="1" name="ErrorHandling" type="tns:ReceiveErrorHandling" />
       <xs:element minOccurs="0" maxOccurs="1" name="PiggyBackReliability" type="tns:RetryReliability" />
+      <xs:element minOccurs="0" maxOccurs="1" name="ResponseConfiguration" type="tns:PushConfiguration" />
+      <xs:element minOccurs="0" maxOccurs="1" name="ResponseSigning" type="tns:Signing" />
     </xs:sequence>
   </xs:complexType>
   <xs:simpleType name="ReplyPattern">
@@ -56,6 +57,93 @@
       <xs:element minOccurs="0" maxOccurs="1" name="RetryInterval" type="xs:string" />
     </xs:sequence>
   </xs:complexType>
+  <xs:complexType name="PushConfiguration">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="Protocol" type="tns:Protocol" />
+      <xs:element minOccurs="0" maxOccurs="1" name="TlsConfiguration" type="tns:TlsConfiguration" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="Protocol">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="Url" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="UseChunking" type="xs:boolean" />
+      <xs:element minOccurs="0" maxOccurs="1" name="UseHttpCompression" type="xs:boolean" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="TlsConfiguration">
+    <xs:sequence>
+      <xs:element minOccurs="1" maxOccurs="1" name="IsEnabled" type="xs:boolean" />
+      <xs:element minOccurs="0" maxOccurs="1" name="TlsVersion" type="tns:TlsVersion" />
+      <xs:choice minOccurs="1" maxOccurs="1">
+        <xs:element minOccurs="0" maxOccurs="1" name="ClientCertificateReference" type="tns:ClientCertificateReference" />
+        <xs:element minOccurs="0" maxOccurs="1" name="PrivateKeyCertificate" type="tns:PrivateKeyCertificate" />
+      </xs:choice>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:simpleType name="TlsVersion">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Ssl30" />
+      <xs:enumeration value="Tls10" />
+      <xs:enumeration value="Tls11" />
+      <xs:enumeration value="Tls12" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:complexType name="ClientCertificateReference">
+    <xs:sequence>
+      <xs:element minOccurs="1" maxOccurs="1" name="ClientCertificateFindType" type="tns:X509FindType" />
+      <xs:element minOccurs="0" maxOccurs="1" name="ClientCertificateFindValue" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:simpleType name="X509FindType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="FindByThumbprint" />
+      <xs:enumeration value="FindBySubjectName" />
+      <xs:enumeration value="FindBySubjectDistinguishedName" />
+      <xs:enumeration value="FindByIssuerName" />
+      <xs:enumeration value="FindByIssuerDistinguishedName" />
+      <xs:enumeration value="FindBySerialNumber" />
+      <xs:enumeration value="FindByTimeValid" />
+      <xs:enumeration value="FindByTimeNotYetValid" />
+      <xs:enumeration value="FindByTimeExpired" />
+      <xs:enumeration value="FindByTemplateName" />
+      <xs:enumeration value="FindByApplicationPolicy" />
+      <xs:enumeration value="FindByCertificatePolicy" />
+      <xs:enumeration value="FindByExtension" />
+      <xs:enumeration value="FindByKeyUsage" />
+      <xs:enumeration value="FindBySubjectKeyIdentifier" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:complexType name="PrivateKeyCertificate">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="Certificate" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Password" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="Signing">
+    <xs:sequence>
+      <xs:element minOccurs="1" maxOccurs="1" name="IsEnabled" type="xs:boolean" />
+      <xs:choice minOccurs="1" maxOccurs="1">
+        <xs:element minOccurs="0" maxOccurs="1" name="CertificateFindCriteria" type="tns:CertificateFindCriteria" />
+        <xs:element minOccurs="0" maxOccurs="1" name="PrivateKeyCertificate" type="tns:PrivateKeyCertificate" />
+      </xs:choice>
+      <xs:element minOccurs="0" maxOccurs="1" name="KeyReferenceMethod" type="tns:X509ReferenceType" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Algorithm" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="HashFunction" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="CertificateFindCriteria">
+    <xs:sequence>
+      <xs:element minOccurs="1" maxOccurs="1" name="CertificateFindType" type="tns:X509FindType" />
+      <xs:element minOccurs="0" maxOccurs="1" name="CertificateFindValue" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:simpleType name="X509ReferenceType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="BSTReference" />
+      <xs:enumeration value="KeyIdentifier" />
+      <xs:enumeration value="IssuerSerial" />
+    </xs:restriction>
+  </xs:simpleType>
   <xs:complexType name="ReceiveHandling">
     <xs:sequence>
       <xs:element minOccurs="1" maxOccurs="1" name="NotifyMessageConsumer" type="xs:boolean" />
@@ -105,37 +193,6 @@
         <xs:element minOccurs="0" maxOccurs="1" name="CertificateFindCriteria" type="tns:CertificateFindCriteria" />
         <xs:element minOccurs="0" maxOccurs="1" name="PrivateKeyCertificate" type="tns:PrivateKeyCertificate" />
       </xs:choice>
-    </xs:sequence>
-  </xs:complexType>
-  <xs:complexType name="CertificateFindCriteria">
-    <xs:sequence>
-      <xs:element minOccurs="1" maxOccurs="1" name="CertificateFindType" type="tns:X509FindType" />
-      <xs:element minOccurs="0" maxOccurs="1" name="CertificateFindValue" type="xs:string" />
-    </xs:sequence>
-  </xs:complexType>
-  <xs:simpleType name="X509FindType">
-    <xs:restriction base="xs:string">
-      <xs:enumeration value="FindByThumbprint" />
-      <xs:enumeration value="FindBySubjectName" />
-      <xs:enumeration value="FindBySubjectDistinguishedName" />
-      <xs:enumeration value="FindByIssuerName" />
-      <xs:enumeration value="FindByIssuerDistinguishedName" />
-      <xs:enumeration value="FindBySerialNumber" />
-      <xs:enumeration value="FindByTimeValid" />
-      <xs:enumeration value="FindByTimeNotYetValid" />
-      <xs:enumeration value="FindByTimeExpired" />
-      <xs:enumeration value="FindByTemplateName" />
-      <xs:enumeration value="FindByApplicationPolicy" />
-      <xs:enumeration value="FindByCertificatePolicy" />
-      <xs:enumeration value="FindByExtension" />
-      <xs:enumeration value="FindByKeyUsage" />
-      <xs:enumeration value="FindBySubjectKeyIdentifier" />
-    </xs:restriction>
-  </xs:simpleType>
-  <xs:complexType name="PrivateKeyCertificate">
-    <xs:sequence>
-      <xs:element minOccurs="0" maxOccurs="1" name="Certificate" type="xs:string" />
-      <xs:element minOccurs="0" maxOccurs="1" name="Password" type="xs:string" />
     </xs:sequence>
   </xs:complexType>
   <xs:complexType name="MessagePackaging">

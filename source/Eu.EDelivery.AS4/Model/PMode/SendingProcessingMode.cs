@@ -27,8 +27,8 @@ namespace Eu.EDelivery.AS4.Model.PMode
         /// </summary>
         public SendingProcessingMode()
         {
-            MepBinding = MessageExchangePatternBinding.Push;
             AllowOverride = false;
+            MepBinding = MessageExchangePatternBinding.Push;
             Reliability = new SendReliability();
             ReceiptHandling = new SendReceiptHandling();
             ErrorHandling = new SendHandling();
@@ -37,6 +37,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
             MessagePackaging = new SendMessagePackaging();
         }
 
+        // IsNullable=true because only way the XSD will get generated with minOccurs=1
         [XmlElement(IsNullable = true)]
         [Description("Id of the PMode")]
         public string Id { get; set; }
@@ -58,11 +59,72 @@ namespace Eu.EDelivery.AS4.Model.PMode
                      "must be sent to the receiver as a response on a PullRequest that has been sent by the receiver.")]
         public MessageExchangePatternBinding MepBinding { get; set; }
 
+        [XmlIgnore]
         [Description("Push configuration")]
-        public PushConfiguration PushConfiguration { get; set; }
+        public PushConfiguration PushConfiguration
+        {
+            get => MessageHandling as PushConfiguration;
+            set
+            {
+                if (value is null
+                    && MessageHandlingType != MessageSendHandlingChoiceType.PushConfiguration)
+                {
+                    return;
+                }
 
+                MessageHandling = value;
+            }
+        }
+
+        [XmlIgnore]
         [Description("Configuration for dynamic discovery")]
-        public DynamicDiscoveryConfiguration DynamicDiscovery { get; set; }
+        public DynamicDiscoveryConfiguration DynamicDiscovery
+        {
+            get => MessageHandling as DynamicDiscoveryConfiguration;
+            set
+            {
+                if (value is null
+                    && MessageHandlingType != MessageSendHandlingChoiceType.DynamicDiscovery)
+                {
+                    return;
+                }
+
+                MessageHandling = value;
+            }
+        }
+
+        [XmlIgnore]
+        [ScriptIgnore]
+        [Description("Define if the pmode has the push configuration fixed specified or that it has to be dynamically discovered")]
+        public MessageSendHandlingChoiceType MessageHandlingType { get; set; }
+
+        private object _messageHandling;
+
+        [XmlChoiceIdentifier(nameof(MessageHandlingType))]
+        [XmlElement("PushConfiguration", typeof(PushConfiguration))]
+        [XmlElement("DynamicDiscovery", typeof(DynamicDiscoveryConfiguration))]
+        public object MessageHandling
+        {
+            get => _messageHandling;
+            set
+            {
+                if (value is null)
+                {
+                    _messageHandling = null;
+                    MessageHandlingType = MessageSendHandlingChoiceType.None;
+                }
+                else if (value is PushConfiguration)
+                {
+                    _messageHandling = value;
+                    MessageHandlingType = MessageSendHandlingChoiceType.PushConfiguration;
+                }
+                else if (value is DynamicDiscoveryConfiguration)
+                {
+                    _messageHandling = value;
+                    MessageHandlingType = MessageSendHandlingChoiceType.DynamicDiscovery;
+                }
+            }
+        }
 
         [Description("Send reliability")]
         public SendReliability Reliability { get; set; }
@@ -562,7 +624,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
             IsEnabled = false;
             TlsVersion = DefaultTlsVersion;
         }
-        
+
         [Description("Indicates if TLS is enabled")]
         public bool IsEnabled { get; set; }
 
@@ -629,8 +691,8 @@ namespace Eu.EDelivery.AS4.Model.PMode
 
     public class SendMessagePackaging : MessagePackaging
     {
-        private bool? _useAS4Compression, 
-                      _isMultiHop, 
+        private bool? _useAS4Compression,
+                      _isMultiHop,
                       _includePModeId;
 
         public SendMessagePackaging()
@@ -688,6 +750,13 @@ namespace Eu.EDelivery.AS4.Model.PMode
         public bool IncludePModeIdSpecified => _includePModeId.HasValue;
 
         #endregion
+    }
+
+    public enum MessageSendHandlingChoiceType
+    {
+        None = 0,
+        PushConfiguration = 1,
+        DynamicDiscovery = 2
     }
 
     public enum TlsVersion

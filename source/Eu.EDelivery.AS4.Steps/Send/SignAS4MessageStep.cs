@@ -8,9 +8,9 @@ using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
 using NLog;
-using System.Security.Cryptography;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Security.Signing;
+using Eu.EDelivery.AS4.Services.Journal;
 
 namespace Eu.EDelivery.AS4.Steps.Send
 {
@@ -58,49 +58,114 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 throw new ArgumentNullException(nameof(messagingContext));
             }
 
-            if (messagingContext.AS4Message == null || messagingContext.AS4Message.IsEmpty)
+            if (messagingContext.AS4Message == null)
+            {
+                throw new InvalidOperationException(
+                    $"{nameof(SignAS4MessageStep)} requires an AS4Message to sign but no AS4Message is present in the MessagingContext");
+            }
+
+            if (messagingContext.AS4Message.IsEmpty)
             {
                 Logger.Debug("No signing will be performed on the message because it's empty");
                 return await StepResult.SuccessAsync(messagingContext);
             }
 
-            SendingProcessingMode pmode = messagingContext.SendingPMode;
-            if (pmode == null)
+            Signing signInfo = RetrieveSigningInformation(
+                messagingContext.AS4Message,
+                messagingContext.SendingPMode,
+                messagingContext.ReceivingPMode);
+
+            if (signInfo == null)
             {
-                Logger.Debug(
-                    "No signing will be performend on the message " +
-                    "because no SendingPMode is found to get the signing configuration from");
-
-                return await StepResult.FailedAsync(messagingContext);
-            }
-
-            if (pmode.Security.Signing.IsEnabled != true)
-            {
-                Logger.Debug(
-                    "No signing will be performend on the message " +
-                    $"because the SendingPMode {pmode.Id} siging information is disabled");
-
+                Logger.Debug("No signing will be performend on the message because no signing information was found in either Sending or Receiving PMode");
                 return await StepResult.SuccessAsync(messagingContext);
             }
 
-            Logger.Info(
-                $"{messagingContext.LogTag} Sign AS4Message with " + 
-                $"given signing information of the SendingPMode {pmode.Id}");
+            if (signInfo.IsEnabled == false)
+            {
+                Logger.Debug("No signing will be performend on the message because the PMode siging information is disabled");
+                return await StepResult.SuccessAsync(messagingContext);
+            }
 
-            SignAS4Message(pmode, messagingContext.AS4Message);
+            Logger.Info($"{messagingContext.LogTag} Sign AS4Message with given signing information of the PMode");
 
-            return await StepResult.SuccessAsync(messagingContext);
+            X509Certificate2 certificate = RetrieveCertificate(signInfo);
+            var settings =
+                new CalculateSignatureConfig(
+                    signingCertificate: certificate,
+                    referenceTokenType: signInfo.KeyReferenceMethod,
+                    signingAlgorithm: signInfo.Algorithm,
+                    hashFunction: signInfo.HashFunction);
+
+            SignAS4Message(settings, messagingContext.AS4Message);
+
+            JournalLogEntry logEntry = JournalLogEntry.CreateFrom(
+                messagingContext.AS4Message,
+                $"Signed with certificate {settings.SigningCertificate.FriendlyName} and reference {settings.ReferenceTokenType} "
+                + $"using algorithm {settings.SigningAlgorithm} and hash {settings.HashFunction}");
+
+            return await StepResult
+                .Success(messagingContext)
+                .WithJournalAsync(logEntry);
         }
 
-        private void SignAS4Message(SendingProcessingMode pmode, AS4Message message)
+        private static Signing RetrieveSigningInformation(
+            AS4Message message,
+            SendingProcessingMode sendingPMode,
+            ReceivingProcessingMode receivingPMode)
+        {
+            if (message.IsUserMessage || message.IsPullRequest)
+            {
+                if (sendingPMode == null)
+                {
+                    throw new InvalidOperationException(
+                        $"{nameof(SignAS4MessageStep)} requires a SendingPMode when the primary message unit of the AS4Message is either an UserMessage or a PullRequest");
+                }
+
+                Logger.Debug($"Use SendingPMode {sendingPMode.Id} for signing because the primary message unit is a UserMessage or a PullRequest");
+                return sendingPMode.Security?.Signing;
+            }
+
+            if (sendingPMode != null)
+            {
+                // When signal messages are forwarded, we have a sending pmode instead of a receiving pmode.
+                return sendingPMode?.Security?.Signing;
+            }
+
+            if (message.PrimaryMessageUnit is Receipt)
+            {
+                if (receivingPMode == null)
+                {
+                    throw new InvalidOperationException(
+                    $"{nameof(SignAS4MessageStep)} requires a ReceivingPMode when the primary message unit of the AS4Message is a Receipt");
+
+                }
+
+                Logger.Debug($"Use ReceivingPMode {receivingPMode.Id} for signing because the primary message unit of the AS4Message is a Receipt");
+                return receivingPMode.ReplyHandling?.ResponseSigning;
+            }
+
+            if (message.PrimaryMessageUnit is Error)
+            {
+                if (receivingPMode == null)
+                {
+                    // When the error occured before there was a ReceivingPMode determined, we can't retrieve any signing information.
+                    Logger.Debug("No ReceivingPMode was found for signing the AS4Message with an Error as primary message unit");
+                    return null;
+                }
+
+                Logger.Debug($"Use ReceivingPMode {receivingPMode.Id} for signing because the primary message unit of the AS4Message is an Error");
+                return receivingPMode.ReplyHandling?.ResponseSigning;
+            }
+
+            throw new InvalidOperationException(
+                "No signing information can be retrieved from both Sending and Receiving PMode based on the message type");
+        }
+
+        private static void SignAS4Message(CalculateSignatureConfig settings, AS4Message message)
         {
             try
             {
-                X509Certificate2 certificate = RetrieveCertificate(pmode);
-
-                CalculateSignatureConfig settings = 
-                    CreateSignConfig(certificate, pmode.Security.Signing);
-
                 message.Sign(settings);
             }
             catch (Exception exception)
@@ -115,16 +180,13 @@ namespace Eu.EDelivery.AS4.Steps.Send
             }
         }
 
-        private X509Certificate2 RetrieveCertificate(SendingProcessingMode pmode)
+        private X509Certificate2 RetrieveCertificate(Signing signInfo)
         {
-            Signing signInfo = pmode.Security.Signing;
-
             if (signInfo.SigningCertificateInformation == null)
             {
                 throw new ConfigurationErrorsException(
-                    "No signing certificate information found " +
-                    $"in SendingPMode {pmode.Id} to perform signing. " +
-                    "Please provide either a <CertificateFindCriteria/> or <PrivateKeyCertificate/> tag to the Security.Signing element");
+                    "No signing certificate information found in PMode to perform signing. "
+                    + "Please provide either a <CertificateFindCriteria/> or <PrivateKeyCertificate/> tag to the Security.Signing element");
             }
 
             if (signInfo.SigningCertificateInformation is CertificateFindCriteria certFindCriteria)
@@ -146,17 +208,8 @@ namespace Eu.EDelivery.AS4.Steps.Send
             }
 
             throw new NotSupportedException(
-                $"The signing certificate information specified in the SendingPMode {pmode.Id} could not be used to retrieve the certificate. " +
+                "The signing certificate information specified in the PMode could not be used to retrieve the certificate. " +
                 "Please provide either a <CertificateFindCriteria/> or <PrivateKeyCertificate/> tag to the Security.Signing element");
-        }
-
-        private static CalculateSignatureConfig CreateSignConfig(X509Certificate2 signCertificate, Signing settings)
-        {
-            return new CalculateSignatureConfig(
-                signingCertificate: signCertificate,
-                referenceTokenType: settings.KeyReferenceMethod,
-                signingAlgorithm: settings.Algorithm,
-                hashFunction: settings.HashFunction);
         }
     }
 }

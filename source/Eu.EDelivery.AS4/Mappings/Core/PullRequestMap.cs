@@ -1,27 +1,52 @@
-﻿using AutoMapper;
+﻿using System;
 
 namespace Eu.EDelivery.AS4.Mappings.Core
 {
-    public class PullRequestMap : Profile
+    internal class PullRequestMap
     {
-        public PullRequestMap()
+        /// <summary>
+        /// Maps from a XML representation to a domain model representation of an AS4 pull request.
+        /// </summary>
+        /// <param name="xml">The XML representation to convert.</param>
+        internal static Model.Core.PullRequest Convert(Xml.SignalMessage xml)
         {
-            CreateMap<Model.Core.PullRequest, Xml.SignalMessage>()
-                .ForMember(dest => dest.PullRequest, src => src.MapFrom(t => t))
-                .ForMember(dest => dest.MessageInfo, src => src.MapFrom(t => t))
-                .ForAllOtherMembers(x => x.Ignore());
+            if (xml == null)
+            {
+                throw new ArgumentNullException(nameof(xml));
+            }
 
-            CreateMap<Model.Core.PullRequest, Xml.PullRequest>()
-                .ForMember(dest => dest.mpc, src => src.MapFrom(t => t.Mpc))
-                .ForAllOtherMembers(x => x.Ignore());
+            if (xml.PullRequest == null)
+            {
+                throw new ArgumentException(
+                    @"Cannot create PullRequest domain model from a XML representation without a PullRequest element",
+                    nameof(xml.PullRequest));
+            }
 
-            CreateMap<Xml.PullRequest, Model.Core.PullRequest>()
-                .ConstructUsing(xml => new Model.Core.PullRequest(xml.mpc))                
-                .ForAllOtherMembers(x => x.Ignore());
+            return new Model.Core.PullRequest(xml.MessageInfo?.MessageId, xml.PullRequest?.mpc);
+        }
 
-            CreateMap<Xml.SignalMessage, Model.Core.PullRequest>()
-                .ConstructUsing(source => new Model.Core.PullRequest(source.PullRequest.mpc))
-                .ForAllOtherMembers(t => t.Ignore());
+        /// <summary>
+        /// Maps from a domain model representation to a XML representation of an AS4 pull request.
+        /// </summary>
+        /// <param name="model">The domain model to convert.</param>
+        internal static Xml.SignalMessage Convert(Model.Core.PullRequest model)
+        {
+            if (model == null)
+            {
+                throw new ArgumentNullException(nameof(model));
+            }
+
+            return new Xml.SignalMessage
+            {
+                MessageInfo = new Xml.MessageInfo
+                {
+                    MessageId = model.MessageId,
+                },
+                PullRequest = new Xml.PullRequest
+                {
+                    mpc = model.Mpc
+                }
+            };
         }
     }
 }

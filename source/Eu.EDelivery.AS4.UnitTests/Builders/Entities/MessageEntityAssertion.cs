@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Linq;
 using Eu.EDelivery.AS4.Entities;
+using Eu.EDelivery.AS4.Mappings.Core;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Serialization;
-using Eu.EDelivery.AS4.Singletons;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
@@ -61,9 +61,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
         /// </summary>
         /// <param name="expected">The expected.</param>
         /// <param name="actual">The actual.</param>
-        public static void AssertSoapEnvelope(MessageUnit expected, MessageEntity actual)
+        public static void AssertSoapEnvelope(UserMessage expected, MessageEntity actual)
         {
-            string xmlRepresentation = AS4XmlSerializer.ToString(AS4Mapper.Map<AS4.Xml.UserMessage>(expected));
+            string xmlRepresentation = AS4XmlSerializer.ToString(UserMessageMap.Convert(expected));
 
             Assert.Equal(xmlRepresentation, actual.SoapEnvelope);
         }

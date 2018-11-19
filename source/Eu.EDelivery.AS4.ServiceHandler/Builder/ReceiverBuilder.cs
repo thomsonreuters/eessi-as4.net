@@ -35,18 +35,20 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Builder
         /// <returns></returns>
         public IReceiver Build()
         {
+            if (!GenericTypeBuilder.CanResolveTypeThatImplements<IReceiver>(_settingReceiver.Type))
+            {
+                throw new InvalidOperationException(
+                    $"Cannot resolve a valid {nameof(IReceiver)} implementation for the {_settingReceiver.Type} fully-qualified assembly name");
+            }
+
             var receiver = GenericTypeBuilder.FromType(_settingReceiver.Type).Build<IReceiver>();
-            ConfigureReceiverWithSettings(receiver, _settingReceiver);
+
+            if (_settingReceiver.Setting != null)
+            {
+                receiver.Configure(_settingReceiver.Setting);
+            }
 
             return receiver;
-        }
-
-        private static void ConfigureReceiverWithSettings(IReceiver receiver, Receiver settingsReceiver)
-        {
-            if (settingsReceiver.Setting != null)
-            {
-                receiver.Configure(settingsReceiver.Setting);
-            }
         }
     }
 }

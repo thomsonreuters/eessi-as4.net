@@ -41,7 +41,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             public async Task Determine_Both_Sending_And_Receiving_PMode_When_Bundled()
             {
                 // Arrange
-                var nonMultihopSignal = new Receipt((string) $"reftoid-{Guid.NewGuid()}");
+                var nonMultihopSignal = new Receipt($"receipt-{Guid.NewGuid()}", $"reftoid-{Guid.NewGuid()}");
 
                 string receivePModeId = $"receive-pmodeid-{Guid.NewGuid()}";
                 var userMesssage = new UserMessage(
@@ -67,7 +67,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                     new ReceivePMode
                     {
                         Id = receivePModeId,
-                        ReplyHandling = new ReplyHandling { SendingPMode = "some-other-send-pmodeid" }
                     });
 
                 // Assert
@@ -108,7 +107,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 var expected = new SendingProcessingMode { Id = Guid.NewGuid().ToString() };
                 InsertOutMessage(messageId, expected);
 
-                AS4Message as4Message = AS4Message.Create(new Receipt(messageId));
+                AS4Message as4Message = AS4Message.Create(new Receipt($"receipt-{Guid.NewGuid()}", messageId));
 
                 // Act
                 StepResult result = await ExerciseDeterminePModes(as4Message);
@@ -123,7 +122,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 var outMessage = new OutMessage(ebmsMessageId: messageId);
                 outMessage.SetPModeInformation(pmode);
 
-                GetDataStoreContext.InsertOutMessage(outMessage, withReceptionAwareness: false);
+                GetDataStoreContext.InsertOutMessage(outMessage);
             }
 
             private async Task<StepResult> ExerciseDeterminePModes(AS4Message message, params ReceivePMode[] pmodes)
@@ -134,205 +133,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
                 return await sut.ExecuteAsync(
                     new MessagingContext(message, MessagingContextMode.Receive));
-            }
-
-            [Fact]
-            public async Task ThenPModeIsFoundWithId()
-            {
-                // Arrange
-                const string sharedId = "01-receive";
-                var pmode = CreateDefaultPMode("01-receive");
-                SetupPModes(pmode, CreateDefaultPMode("defaultMode"));
-
-                var userMessage = new UserMessage(
-                    Guid.NewGuid().ToString(),
-                    new AS4.Model.Core.CollaborationInfo(
-                        new AgreementReference("agreement", sharedId)));
-
-                var messagingContext = new MessagingContext(AS4Message.Create(userMessage), MessagingContextMode.Receive);
-
-                // Act
-                StepResult result = await _step.ExecuteAsync(messagingContext);
-
-                // Assert
-                AssertPMode(pmode, result);
-            }
-
-            [Theory]
-            [InlineData("From-Id", "To-Id")]
-            public async Task ThenPartyInfoMatchesAsync(string fromId, string toId)
-            {
-                // Arrange
-                var fromParty = new Party { Role = fromId, PartyIds = { new PartyId { Id = fromId } } };
-                var toParty = new Party { Role = toId, PartyIds = { new PartyId { Id = toId } } };
-
-                ReceivePMode pmode = CreatePModeWithParties(fromParty, toParty);
-                pmode.MessagePackaging.CollaborationInfo.AgreementReference.Value = "not-equal";
-                SetupPModes(pmode, new ReceivePMode { Id = "other pmode", ReplyHandling = { SendingPMode = "other pmode" }});
-
-                var userMessage = new UserMessage(
-                    Guid.NewGuid().ToString(),
-                    new AS4.Model.Core.CollaborationInfo(new AgreementReference("agreement")),
-                    new AS4.Model.Core.Party(fromId, new AS4.Model.Core.PartyId(fromId)),
-                    new AS4.Model.Core.Party(toId, new AS4.Model.Core.PartyId(toId)));
-
-                var messagingContext = new MessagingContext(AS4Message.Create(userMessage), MessagingContextMode.Receive);
-
-                // Act               
-                StepResult result = await _step.ExecuteAsync(messagingContext);
-
-                // Assert
-                AssertPMode(pmode, result);
-            }
-
-            [Theory]
-            [InlineData("service", "action")]
-            public async Task ThenPartyInfoNotDefindedAsync(string service, string action)
-            {
-                // Arrange
-                ReceivePMode pmode = ArrangePModeThenPartyInfoNotDefined(service, action);
-
-                var userMessage = new UserMessage(
-                    "message-id",
-                    collaboration: new AS4.Model.Core.CollaborationInfo(
-                        Maybe<AgreementReference>.Nothing,
-                        new Service(service), 
-                        action,
-                        "1"));
-
-                var messagingContext = new MessagingContext(AS4Message.Create(userMessage), MessagingContextMode.Receive);
-
-                // Act
-                StepResult result = await _step.ExecuteAsync(messagingContext);
-
-                // Assert
-                AssertPMode(pmode, result);
-            }
-
-            private ReceivePMode ArrangePModeThenPartyInfoNotDefined(string service, string action)
-            {
-                ReceivePMode pmode = CreatePModeWithActionService(service, action);
-                pmode.MessagePackaging.CollaborationInfo.AgreementReference.Value = "not-equal";
-                SetupPModes(pmode, new ReceivePMode { Id = "other pmode", ReplyHandling = { SendingPMode = "other pmode" } });
-
-                return pmode;
-            }
-
-            [Theory]
-            [InlineData("From-Id", "To-Id", "01-receive")]
-            public async Task ThenPModeIdWinsOverPartyInfoAsync(string fromId, string toId, string sharedId)
-            {
-                // Arrange 
-                var fromParty = new Party { Role = fromId, PartyIds = { new PartyId { Id = fromId } } };
-                var toParty = new Party { Role = toId, PartyIds = { new PartyId { Id = toId } } };
-                ReceivePMode idPMode = ArrangePModeThenPModeWinsOverPartyInfo(sharedId, fromParty, toParty);
-
-                var userMessage = new UserMessage(
-                    Guid.NewGuid().ToString(),
-                    collaboration: new AS4.Model.Core.CollaborationInfo(
-                        new AgreementReference(
-                            value: "agreement",
-                            pmodeId: sharedId)),
-                    sender: new AS4.Model.Core.Party(fromId, new AS4.Model.Core.PartyId(fromId)),
-                    receiver: new AS4.Model.Core.Party(toId, new AS4.Model.Core.PartyId(toId)));
-
-                var messagingContext = new MessagingContext(AS4Message.Create(userMessage), MessagingContextMode.Receive);
-
-                // Act
-                StepResult result = await _step.ExecuteAsync(messagingContext);
-
-                // Assert
-                AssertPMode(idPMode, result);
-            }
-
-            private ReceivePMode ArrangePModeThenPModeWinsOverPartyInfo(string sharedId, Party fromParty, Party toParty)
-            {
-                ReceivePMode partyInfoPMode = CreatePModeWithParties(fromParty, toParty);
-                partyInfoPMode.MessagePackaging.CollaborationInfo.AgreementReference.Value = "not-equal";
-                var idPMode = CreateDefaultPMode(sharedId);
-
-                SetupPModes(partyInfoPMode, idPMode);
-                return idPMode;
-            }
-
-            [Theory]
-            [InlineData("service", "action", "from-Id", "to-Id")]
-            public async Task ThenPartyWinsOverServiceActionAsync(
-                string service,
-                string action,
-                string fromId,
-                string toId)
-            {
-                // Arrange
-                var fromParty = new Party { Role = fromId, PartyIds = { new PartyId { Id = fromId } } };
-                var toParty = new Party { Role = toId, PartyIds = { new PartyId { Id = toId } } };
-
-                ReceivePMode pmodeParties = CreatePModeWithParties(fromParty, toParty);
-                ReceivePMode pmodeServiceAction = CreatePModeWithActionService(service, action);
-                SetupPModes(pmodeParties, pmodeServiceAction);
-
-                var userMessage = new UserMessage(
-                    Guid.NewGuid().ToString(),
-                    new AS4.Model.Core.CollaborationInfo(
-                        agreement: Maybe<AgreementReference>.Nothing,
-                        service: new Service(service), 
-                        action: action,
-                        conversationId: "1"),
-                    new AS4.Model.Core.Party(fromId, new AS4.Model.Core.PartyId(fromId)),
-                    new AS4.Model.Core.Party(toId, new AS4.Model.Core.PartyId(toId)));
-
-                var messagingContext = new MessagingContext(AS4Message.Create(userMessage), MessagingContextMode.Receive);
-
-                // Act
-                StepResult result = await _step.ExecuteAsync(messagingContext);
-
-                // Assert
-                AssertPMode(pmodeParties, result);
-            }
-
-            [Theory]
-            [InlineData("service", "action", "from-Id", "to-Id")]
-            public async Task ThenPartiesWinsOverServiceActionAsync(
-                string service,
-                string action,
-                string fromId,
-                string toId)
-            {
-                // Arrange
-                var fromParty = new Party { Role = fromId, PartyIds = { new PartyId { Id = fromId } } };
-                var toParty = new Party { Role = toId, PartyIds = { new PartyId { Id = toId } } };
-
-                ReceivePMode pmodeServiceAction = CreatePModeWithActionService(service, action);
-                ReceivePMode pmodeParties = CreatePModeWithParties(fromParty, toParty);
-
-                SetupPModes(pmodeServiceAction, pmodeParties);
-
-                var userMessage = new UserMessage(
-                    Guid.NewGuid().ToString(),
-                    new AS4.Model.Core.CollaborationInfo(
-                        Maybe<AgreementReference>.Nothing,
-                        new Service(service),
-                        action,
-                        "1"),
-                    new AS4.Model.Core.Party(fromId, new AS4.Model.Core.PartyId(fromId)),
-                    new AS4.Model.Core.Party(toId, new AS4.Model.Core.PartyId(toId)));
-
-                var messagingContext = new MessagingContext(AS4Message.Create(userMessage), MessagingContextMode.Receive);
-
-                // Act
-                StepResult result = await _step.ExecuteAsync(messagingContext);
-
-                // Assert
-                AssertPMode(pmodeParties, result);
-            }
-
-            private ReceivePMode CreatePModeWithParties(Party fromParty, Party toParty)
-            {
-                ReceivePMode pmode = CreateDefaultPMode("default-PMode");
-                pmode.MessagePackaging.PartyInfo.FromParty = fromParty;
-                pmode.MessagePackaging.PartyInfo.ToParty = toParty;
-
-                return pmode;
             }
         }
 
@@ -372,7 +172,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 ReceivePMode pmode = CreatePModeWithActionService(service, action);
                 pmode.MessagePackaging.CollaborationInfo.AgreementReference.Value = "not-equal";
                 DifferentiatePartyInfo(pmode);
-                SetupPModes(pmode, new ReceivePMode() { Id = "other id", ReplyHandling = {SendingPMode = "other pmode"}});
+                SetupPModes(pmode, new ReceivePMode() { Id = "other id"});
             }
 
             [Theory]
@@ -420,7 +220,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                     CollaborationInfo = new CollaborationInfo(),
                     PartyInfo = new PartyInfo()
                 },
-                ReplyHandling = { SendingPMode = "response_pmode" }
             };
         }
 

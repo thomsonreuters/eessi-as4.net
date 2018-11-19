@@ -1,20 +1,21 @@
 ﻿using System;
-using System.Collections;
-using System.IO;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Deliver;
 using Eu.EDelivery.AS4.Model.Internal;
+using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Steps.Deliver;
-using Eu.EDelivery.AS4.UnitTests.Model;
 using Xunit;
-using Party = Eu.EDelivery.AS4.Model.Common.Party;
-using Service = Eu.EDelivery.AS4.Model.Common.Service;
+using CollaborationInfo = Eu.EDelivery.AS4.Model.Core.CollaborationInfo;
+using MessageProperty = Eu.EDelivery.AS4.Model.Core.MessageProperty;
+using Party = Eu.EDelivery.AS4.Model.Core.Party;
+using PartyId = Eu.EDelivery.AS4.Model.Core.PartyId;
+using Service = Eu.EDelivery.AS4.Model.Core.Service;
 
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
 {
@@ -24,149 +25,87 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
     public class GivenCreateDeliverMessageStepFacts
     {
         [Fact]
-        public async Task ThenDeliverMessageIsMapped_IfAS4MessageIsSet()
+        public async Task Create_DeliverMessage_From_UserMessage()
         {
             // Arrange
-            AS4Message as4Message = AS4MessageWithUserMessage();
+            string partInfoId = $"part-{Guid.NewGuid()}";
+            var userMessage = new UserMessage(
+                $"user-{Guid.NewGuid()}",
+                new CollaborationInfo(
+                    new Service($"service-{Guid.NewGuid()}"),
+                    $"action-{Guid.NewGuid()}"),
+                new Party("Sender", new PartyId($"id-{Guid.NewGuid()}")), 
+                new Party("Receiver", new PartyId($"id-{Guid.NewGuid()}")),
+                new [] { new PartInfo($"cid:{partInfoId}") },
+                new MessageProperty[0]);
 
-            // Act
-            DeliverMessageEnvelope deliverEvelope = await ExecuteStepWith(as4Message);
+            AS4Message as4Message = AS4Message.Create(userMessage);
+            as4Message.AddAttachment(new Attachment(partInfoId) { Location = $"location-{Guid.NewGuid()}" });
 
-            // Assert
-            string expectedId = as4Message.GetPrimaryMessageId();
-            string actualId = deliverEvelope.MessageInfo.MessageId;
-
-            Assert.Equal(expectedId, actualId);
-        }
-
-        [Fact]
-        public async Task ThenDeliverMessageIsSerialized_IfAS4MessageIsSet()
-        {
-            // Arrange
-            AS4Message as4Message = AS4MessageWithUserMessage();
-
-            // Act
-            DeliverMessageEnvelope deliverEnvelope = await ExecuteStepWith(as4Message);
-
-            // Assert
-            Assert.Equal("application/xml", deliverEnvelope.ContentType);
-            Assert.NotEmpty(deliverEnvelope.DeliverMessage);
-        }
-
-        [Fact]
-        public async Task ThenAgreementRefIsMappedCorrectly_IfAS4MessageIsSet()
-        {
-            // Act
-            DeliverMessage deliverMessage = await TestExecuteStepWithFullBlownUserMessage();
-
-            // Assert
-            Agreement actualAgreement = deliverMessage.CollaborationInfo.AgreementRef;
-            Assert.NotEmpty(actualAgreement.Value);
-            Assert.NotNull(actualAgreement.PModeId);
-        }
-
-        [Fact]
-        public async Task ThenServiceIsMappedCorrectly_IfAS4MessageIsSet()
-        {
-            // Act
-            DeliverMessage deliverMessage = await TestExecuteStepWithFullBlownUserMessage();
-
-            // Assert
-            Service service = deliverMessage.CollaborationInfo.Service;
-            AssertsNotEmpty(service.Type, service.Value);
-        }
-
-        [Fact]
-        public async Task ThenPartiesAreMappedCorrectly_IfAS4MessageIsSet()
-        {
-            // Act
-            DeliverMessage deliverMessage = await TestExecuteStepWithFullBlownUserMessage();
-
-            // Assert
-            Party fromParty = deliverMessage.PartyInfo.FromParty;
-            Party toParty = deliverMessage.PartyInfo.ToParty;
-
-            AssertsNotEmpty(fromParty.PartyIds, fromParty.Role, toParty.PartyIds, toParty.Role);
-        }
-
-        [Fact]
-        public async Task ThenMessagePropertiesAreMappedCorrectly_IfAS4MessageIsSet()
-        {
-            // Act
-            DeliverMessage deliverMessage = await TestExecuteStepWithFullBlownUserMessage();
-
-            // Assert
-            Assert.NotEmpty(deliverMessage.MessageProperties);
-        }
-
-        [Theory]
-        [InlineData("attachment location", "attachment location")]
-        [InlineData("", "")]
-        public async Task PartInfoLocationIsAttachmentLocation_IfIdMatches(string attachmentLocation, string expectedLocation)
-        {
-            // Arrange
-            const string referenceId = "payload id";
-            AS4Message message = AS4MessageWithUserMessage(attachmentId: referenceId);
-            var a = new Attachment(referenceId, Stream.Null, "text/plain") { Location = attachmentLocation };
-            message.AddAttachment(a);
-
-            // Act
-            DeliverMessageEnvelope deliverEnvelope = await ExecuteStepWith(message);
-
-            // Assert
-            DeliverMessage deliverMessage = DeserializeDeliverEnvelope(deliverEnvelope);
-            string actualLocation = deliverMessage.Payloads.First().Location;
-
-            Assert.Equal(expectedLocation, actualLocation);
-        }
-
-        [Fact]
-        public async Task FailsToCreateDeliverMessage_IfInvalidDeliverMessage()
-        {
-            // Arrange
-            AS4Message as4Message = AS4MessageWithUserMessage(messageId: null);
-
-            // Act / Assert
-            await Assert.ThrowsAnyAsync<Exception>(() => ExecuteStepWith(as4Message));
-        }
-
-        private static async Task<DeliverMessage> TestExecuteStepWithFullBlownUserMessage()
-        {
-            AS4Message as4Message = AS4MessageWithUserMessage();
-            DeliverMessageEnvelope deliverEnvelope = await ExecuteStepWith(as4Message);
-
-            return DeserializeDeliverEnvelope(deliverEnvelope);
-        }
-
-        private static DeliverMessage DeserializeDeliverEnvelope(DeliverMessageEnvelope deliverEnvelope)
-        {
-            return AS4XmlSerializer.FromString<DeliverMessage>(
-                Encoding.UTF8.GetString(deliverEnvelope.DeliverMessage));
-        }
-
-        private static async Task<DeliverMessageEnvelope> ExecuteStepWith(AS4Message as4Message)
-        {
-            var sut = new CreateDeliverEnvelopeStep();
-            StepResult result = await sut.ExecuteAsync(new MessagingContext(as4Message, MessagingContextMode.Unknown));
-
-            return result.MessagingContext.DeliverMessage;
-        }
-
-        private static AS4Message AS4MessageWithUserMessage(
-            string messageId = "message-id",
-            string attachmentId = "attachment-uri")
-        {
-            var msg = AS4Message.Create(new FilledUserMessage(messageId, attachmentId: attachmentId));
-            msg.AddAttachment(new FilledAttachment());
-
-            return msg;
-        }
-
-        private static void AssertsNotEmpty(params IEnumerable[] values)
-        {
-            foreach (IEnumerable value in values)
+            var ctx = new MessagingContext(as4Message, MessagingContextMode.Deliver)
             {
-                Assert.NotEmpty(value);
+                ReceivingPMode = new ReceivingProcessingMode { Id = "deliver-pmode" }
+            };
+
+            var sut = new CreateDeliverEnvelopeStep();
+
+            // Act
+            StepResult result = await sut.ExecuteAsync(ctx);
+
+            // Assert
+            var deliverMessage =
+                AS4XmlSerializer.FromString<DeliverMessage>(
+                    Encoding.UTF8.GetString(result.MessagingContext.DeliverMessage.DeliverMessage));
+
+            IEnumerable<string> mappingFailures = 
+                DeliverMessageOriginateFrom(
+                    userMessage,
+                    as4Message.Attachments,
+                    ctx.ReceivingPMode, 
+                    deliverMessage);
+
+            Assert.Empty(mappingFailures);
+        }
+
+        private static IEnumerable<string> DeliverMessageOriginateFrom(
+            UserMessage user,
+            IEnumerable<Attachment> attachments,
+            ReceivingProcessingMode receivingPMode, 
+            DeliverMessage deliver)
+        {
+            if (user.MessageId != deliver.MessageInfo?.MessageId)
+            {
+                yield return "MessageId";
+            }
+
+            if (user.CollaborationInfo.Service.Value != deliver.CollaborationInfo?.Service?.Value)
+            {
+                yield return "Service";
+            }
+
+            if (user.CollaborationInfo.Action != deliver.CollaborationInfo?.Action)
+            {
+                yield return "Action";
+            }
+
+            if (user.Sender.PrimaryPartyId != deliver.PartyInfo?.FromParty?.PartyIds?.FirstOrDefault()?.Id)
+            {
+                yield return "FromParty";
+            }
+
+            if (user.Receiver.PrimaryPartyId != deliver.PartyInfo?.ToParty?.PartyIds?.FirstOrDefault()?.Id)
+            {
+                yield return "ToParty";
+            }
+
+            if (receivingPMode.Id != deliver.CollaborationInfo?.AgreementRef?.PModeId)
+            {
+                yield return "PModeId";
+            }
+
+            if (attachments.First().Location != deliver.Payloads?.FirstOrDefault()?.Location)
+            {
+                yield return "AttachmentLocation";
             }
         }
     }

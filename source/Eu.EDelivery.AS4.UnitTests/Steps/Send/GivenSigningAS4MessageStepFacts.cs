@@ -79,7 +79,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
         }
 
         [Fact]
-        public async Task Sign_Message_If_Existing_PMode_Signing_Is_Enabled()
+        public async Task Sign_UserMessage_If_Existing_PMode_Signing_Is_Enabled()
         {
             // Arrange
             MessagingContext context = AS4UserMessageWithAttachment();
@@ -90,6 +90,43 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
 
             // Assert
             Assert.True(result.MessagingContext.AS4Message.SecurityHeader.IsSigned);
+        }
+
+        [Fact]
+        public async Task Sign_Receipt_If_ReceivingPMode_ResponseSigning_Is_Enabled()
+        {
+            // Arrange
+            var ctx = new MessagingContext(
+                AS4Message.Create(new Receipt($"receipt-{Guid.NewGuid()}", $"user-{Guid.NewGuid()}")),
+                MessagingContextMode.Send)
+            {
+                ReceivingPMode = new ReceivingProcessingMode
+                {
+                    ReplyHandling =
+                    {
+                        ResponseSigning = CreateEnabledSigningInformation()
+                    }
+                }
+            };
+
+            // Act
+            StepResult result = await ExerciseSigning(ctx);
+
+            // Assert
+            Assert.True(result.MessagingContext.AS4Message.IsSigned);
+        }
+
+        [Fact]
+        public async Task Fail_To_Sign_Receipt_When_Receiving_PMode_Is_Missing()
+        {
+            // Arrange
+            var ctx = new MessagingContext(
+                AS4Message.Create(new Receipt($"receipt-{Guid.NewGuid()}", $"user-{Guid.NewGuid()}")),
+                MessagingContextMode.Send);
+
+            // Act / Assert
+            await Assert.ThrowsAsync<InvalidOperationException>(
+                () => ExerciseSigning(ctx));
         }
 
         private static MessagingContext AS4UserMessageWithAttachment()
@@ -106,19 +143,24 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             {
                 Security =
                 {
-                    Signing =
-                    {
-                        IsEnabled = true,
-                        KeyReferenceMethod = X509ReferenceType.BSTReference,
-                        SigningCertificateInformation = new CertificateFindCriteria
-                        {
-                            CertificateFindValue = "PartyA",
-                            CertificateFindType = X509FindType.FindBySubjectName
-                        },
-                        Algorithm = "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256",
-                        HashFunction = "http://www.w3.org/2001/04/xmlenc#sha256"
-                    }
+                    Signing = CreateEnabledSigningInformation()
                 }
+            };
+        }
+
+        private static Signing CreateEnabledSigningInformation()
+        {
+            return new Signing
+            {
+                IsEnabled = true,
+                KeyReferenceMethod = X509ReferenceType.BSTReference,
+                SigningCertificateInformation = new CertificateFindCriteria
+                {
+                    CertificateFindValue = "PartyA",
+                    CertificateFindType = X509FindType.FindBySubjectName
+                },
+                Algorithm = "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256",
+                HashFunction = "http://www.w3.org/2001/04/xmlenc#sha256"
             };
         }
 

@@ -50,7 +50,7 @@ namespace Eu.EDelivery.AS4.Strategies.Retriever
             string relativeRetrievalPath = _config.PayloadRetrievalLocation.Replace(Key, string.Empty);
             string absoluteRetrievalPath = Path.GetFullPath(relativeRetrievalPath);
 
-            if (payload.Directory?.FullName != absoluteRetrievalPath)
+            if (!StringComparer.OrdinalIgnoreCase.Equals(payload.Directory?.FullName, absoluteRetrievalPath))
             {
                 throw new NotSupportedException(
                     $"Only files from the '{_config.PayloadRetrievalLocation}' folder are allowed to be retrieved: {payload.Directory?.FullName} <> {absoluteRetrievalPath}");

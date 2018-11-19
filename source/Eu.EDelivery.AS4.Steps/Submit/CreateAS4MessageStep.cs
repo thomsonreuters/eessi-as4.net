@@ -5,13 +5,13 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Exceptions;
+using Eu.EDelivery.AS4.Factories;
+using Eu.EDelivery.AS4.Mappings.Submit;
 using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.Submit;
-using Eu.EDelivery.AS4.Singletons;
 using Eu.EDelivery.AS4.Strategies.Retriever;
 using Eu.EDelivery.AS4.Validators;
 using NLog;
@@ -27,27 +27,26 @@ namespace Eu.EDelivery.AS4.Steps.Submit
     public class CreateAS4MessageStep : IStep
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
-        private static readonly SubmitMessageValidator SubmitValidator = new SubmitMessageValidator();
 
-        private readonly IPayloadRetrieverProvider _payloadProvider;
+        private readonly Func<Payload, IPayloadRetriever> _resolvePayloadRetriever;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CreateAS4MessageStep"/> class.
         /// </summary>
-        public CreateAS4MessageStep() : this(Registry.Instance.PayloadRetrieverProvider) { }
+        public CreateAS4MessageStep() : this(PayloadRetrieverProvider.Instance.Get) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CreateAS4MessageStep" /> class.
         /// </summary>
-        /// <param name="payloadPayloadProvider">The payload provider.</param>
-        public CreateAS4MessageStep(IPayloadRetrieverProvider payloadPayloadProvider)
+        /// <param name="resolvePayloadRetriever">Resolve the payload retriever for a given payload.</param>
+        public CreateAS4MessageStep(Func<Payload, IPayloadRetriever> resolvePayloadRetriever)
         {
-            if (payloadPayloadProvider == null)
+            if (resolvePayloadRetriever == null)
             {
-                throw new ArgumentNullException(nameof(payloadPayloadProvider));
+                throw new ArgumentNullException(nameof(resolvePayloadRetriever));
             }
 
-            _payloadProvider = payloadPayloadProvider;
+            _resolvePayloadRetriever = resolvePayloadRetriever;
         }
 
         /// <summary>
@@ -63,7 +62,8 @@ namespace Eu.EDelivery.AS4.Steps.Submit
                 throw new ArgumentNullException(nameof(messagingContext));
             }
 
-            if (messagingContext.SubmitMessage == null)
+            SubmitMessage submitMessage = messagingContext.SubmitMessage;
+            if (submitMessage == null)
             {
                 throw new InvalidOperationException(
                     $"{nameof(CreateAS4MessageStep)} requires a SubmitMessage to create an AS4Message from but no AS4Message is present in the MessagingContext");
@@ -74,11 +74,10 @@ namespace Eu.EDelivery.AS4.Steps.Submit
                 Logger.Debug("No SendingPMode was found, only use information from SubmitMessage to create AS4 UserMessage");
             }
 
-            SubmitMessage submitMessage = messagingContext.SubmitMessage;
             ValidateSubmitMessage(submitMessage);
-
+            
             Logger.Trace("Create UserMessage for SubmitMessage");
-            var userMessage = AS4Mapper.Map<UserMessage>(submitMessage);
+            UserMessage userMessage = CreateUserMessage(submitMessage);
 
             Logger.Info($"{messagingContext.LogTag} UserMessage with Id \"{userMessage.MessageId}\" created from Submit Message");
             AS4Message as4Message = AS4Message.Create(userMessage, messagingContext.SendingPMode);
@@ -95,19 +94,47 @@ namespace Eu.EDelivery.AS4.Steps.Submit
 
         private static void ValidateSubmitMessage(SubmitMessage submitMessage)
         {
-            SubmitValidator
+            SubmitMessageValidator
+                .Instance
                 .Validate(submitMessage)
                 .Result(
                     result => Logger.Trace($"SubmitMessage \"{submitMessage.MessageInfo?.MessageId}\" is valid"),
                     result =>
                     {
-                        result.LogErrors(Logger);
-                        string description = $"SubmitMessage \"{submitMessage.MessageInfo?.MessageId}\" was invalid, see logging";
+                        string description = result.AppendValidationErrorsToErrorMessage("SubmitMessage was invalid");
 
                         Logger.Error(description);
                         throw new InvalidMessageException(description);
-                        
+
                     });
+        }
+
+        private static UserMessage CreateUserMessage(SubmitMessage submit)
+        {
+            var collaboration = new Model.Core.CollaborationInfo(
+                agreement: SubmitMessageAgreementResolver.ResolveAgreementReference(submit),
+                service: SubmitServiceResolver.ResolveService(submit),
+                action: SubmitActionResolver.ResolveAction(submit),
+                conversationId: SubmitConversationIdResolver.ResolveConverstationId(submit));
+
+            IEnumerable<PartInfo> parts = submit.HasPayloads
+                ? SubmitPayloadInfoResolver.Resolve(submit)
+                : new PartInfo[0];
+
+            IEnumerable<Model.Core.MessageProperty> properties = submit.MessageProperties?.Any() == true
+                ? SubmitMessagePropertiesResolver.Resolve(submit)
+                : new Model.Core.MessageProperty[0];
+
+            return new UserMessage(
+                messageId: submit.MessageInfo?.MessageId ?? IdentifierFactory.Instance.Create(),
+                refToMessageId: submit.MessageInfo?.RefToMessageId,
+                timestamp: DateTimeOffset.Now, 
+                mpc: SubmitMpcResolver.Resolve(submit),
+                collaboration: collaboration,
+                sender: SubmitSenderResolver.ResolveSender(submit),
+                receiver: SubmitReceiverResolver.ResolveReceiver(submit),
+                partInfos: parts,
+                messageProperties: properties);
         }
 
         private async Task<IEnumerable<Attachment>> RetrieveAttachmentsForAS4MessageAsync(IEnumerable<Payload> payloads)
@@ -145,7 +172,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
                 {
                     throw new ArgumentNullException(
                         nameof(payload),
-                        @"SubmitMessage contains one or emore payloads that was 'null'");
+                        @"SubmitMessage contains one or more payloads that was 'null'");
                 }
 
                 IEnumerable<string> missingValues =
@@ -173,7 +200,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
 
         private async Task<Stream> RetrievePayloadContentsAsync(Payload payload)
         {
-            IPayloadRetriever retriever = _payloadProvider.Get(payload);
+            IPayloadRetriever retriever = _resolvePayloadRetriever(payload);
             if (retriever == null)
             {
                 throw new ArgumentNullException(
