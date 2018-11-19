@@ -98,8 +98,6 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
 
             string serviceProviderDomainName = properties.ReadMandatoryProperty(nameof(ServiceProviderDomainName));
             string serviceProviderSubDomain = properties.ReadOptionalProperty(nameof(ServiceProviderSubDomain), String.Empty);
-            string documentIdentifier = properties.ReadMandatoryProperty(nameof(DocumentIdentifier));
-            string documentScheme = properties.ReadMandatoryProperty(nameof(DocumentScheme));
 
             (Model.Core.PartyId participant, Response dnsResponse) = 
                 QueryDnsNatprRecord(party.PartyIds, serviceProviderSubDomain, serviceProviderDomainName);
@@ -109,10 +107,21 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
             string participantIdentifier = participant.Id;
             string participantScheme = participant.Type.UnsafeGet;
 
-            string smpRestBinding =
+            string documentIdentifier = properties.ReadOptionalProperty(nameof(DocumentIdentifier), String.Empty);
+            string documentScheme = properties.ReadOptionalProperty(nameof(DocumentScheme), String.Empty);
+
+            if (String.IsNullOrEmpty(documentIdentifier) || String.IsNullOrEmpty(documentScheme))
+            {
+                Uri smpRestBindingFromFallback =
+                    await RetrieveSmpRestBindingFromFallbackAsync(smpUri, participantScheme, participantIdentifier);
+
+                return await CallHttpBinding($"{smpRestBindingFromFallback}");
+            }
+
+            string smpRestBindingFromProperties =
                 $"{smpUri}{participantScheme}::{participantIdentifier}/services/{documentScheme}::{documentIdentifier}";
 
-            return await GetSmpRestBindingAsync(smpRestBinding);
+            return await CallHttpBinding(smpRestBindingFromProperties);
         }
 
         private static (Model.Core.PartyId, Response) QueryDnsNatprRecord(
@@ -191,7 +200,47 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
             return new Uri(matched);
         }
 
-        private static async Task<XmlDocument> GetSmpRestBindingAsync(string binding)
+        private static async Task<Uri> RetrieveSmpRestBindingFromFallbackAsync(Uri smpUri, string participantScheme, string participantIdentifier)
+        {
+            string smpRestBindingFallback =
+                $"{smpUri}{participantScheme}::{participantIdentifier}";
+
+            XmlDocument smpFallbackRefDoc = await CallHttpBinding(smpRestBindingFallback);
+
+            var ns = new XmlNamespaceManager(smpFallbackRefDoc.NameTable);
+            ns.AddNamespace("oasis", "http://docs.oasis-open.org/bdxr/ns/SMP/2016/05");
+
+            XmlNode serviceMetadataRefNode = smpFallbackRefDoc.SelectSingleNode(
+                "//oasis:ServiceMetadataReferenceCollection/oasis:ServiceMetadataReference", ns);
+
+            if (serviceMetadataRefNode == null)
+            {
+                throw new InvalidDataException(
+                    "No ServiceMetadataReference found in an <ServiceMetadataReferenceCollection/> in the fallback SMP REST binding response");
+            }
+
+            XmlAttribute hrefNode = 
+                serviceMetadataRefNode
+                    .Attributes
+                    ?.OfType<XmlAttribute>()
+                    .FirstOrDefault(a => a.LocalName == "href");
+
+            if (hrefNode == null)
+            {
+                throw new InvalidDataException(
+                    "No 'href' XML attribute found in the <ServiceMetadataReference/> element in the fallback SMP REST binding response");
+            }
+
+            if (String.IsNullOrWhiteSpace(hrefNode.Value))
+            {
+                throw new InvalidDataException(
+                    "No SMP REST binding found in the 'href' XML attribute present in the <ServiceMetadataReference/> element in the fallback SMP REST binding response");
+            }
+
+            return new Uri(hrefNode.Value);
+        }
+
+        private static async Task<XmlDocument> CallHttpBinding(string binding)
         {
             using (HttpResponseMessage smpResponse = await HttpClient.GetAsync(binding))
             {
