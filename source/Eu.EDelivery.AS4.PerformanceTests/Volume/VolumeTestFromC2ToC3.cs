@@ -29,7 +29,7 @@ namespace Eu.EDelivery.AS4.PerformanceTests.Volume
         }
 
         [Fact]
-        public void TestSendingHundredMessages()
+        public void Submit_100_Messages_Result_In_100_Delivered_UserMessages_And_100_Notified_Receipts()
         {
             // Arrange
             const int messageCount = 100;
@@ -43,6 +43,14 @@ namespace Eu.EDelivery.AS4.PerformanceTests.Volume
                 pollingRetries: 120, 
                 corner: Corner3, 
                 assertion: () => AssertMessages(messageCount));
+
+            PollingTillAllMessages(
+                messageCount,
+                pollingRetries: 120,
+                corner: Corner3,
+                assertion: () => Assert.True(
+                    messageCount == Corner2.CountReceivedReceipts(),
+                    $"Corner 2 notifies {messageCount} receipts"));
         }
 
         private void AssertMessages(int messageCount)
@@ -59,36 +67,6 @@ namespace Eu.EDelivery.AS4.PerformanceTests.Volume
             {
                 throw new AssertActualExpectedException(expectedCount, actualCount, userMessage);
             }
-        }
-
-        [Theory]
-        [InlineData(100, 120)]
-        public void MeasureSubmitAndDeliverMessages(int messageCount, int maxExecutionTimeInSeconds)
-        {
-            // Arrange            
-            TimeSpan maxExecutionTime = TimeSpan.FromSeconds(maxExecutionTimeInSeconds);
-
-            var sw = new Stopwatch();
-            sw.Start();
-
-            // Act
-            Corner2.PlaceMessages(messageCount, SIMPLE_ONEWAY_TO_C3);
-
-            bool allMessagesDelivered =
-                Corner2.ExecuteWhenNumberOfReceiptsAreReceived(
-                    messageCount,
-                    timeout: maxExecutionTime,
-                    action: sw.Stop);
-
-            if (allMessagesDelivered == false)
-            {
-                _outputHelper.WriteLine($"Number of messages delivered at C3: {Corner3.CountDeliveredMessages("*.xml")}");
-                _outputHelper.WriteLine($"Number of receipts received at C2: {Corner2.CountReceivedReceipts()}");
-            }
-
-            Assert.True(allMessagesDelivered, $"Not all messages were delivered in the specified timeframe ({sw.Elapsed:g} > {maxExecutionTime:g})");
-
-            _outputHelper.WriteLine($"It took {sw.Elapsed:g} to submit and deliver {messageCount} messages.");
         }
     }
 }
