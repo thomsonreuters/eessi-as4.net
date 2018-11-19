@@ -215,7 +215,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
         private static MessagingContext CreateMessagingContextWithDefaultPullRequest()
         {
             var pullRequest = AS4Message.Create(
-                new PullRequest(mpc: null, messageId: "message-id"));
+                new PullRequest(messageId: "message-id", mpc: null));
 
             return new MessagingContext(
                 new ReceivedMessage(

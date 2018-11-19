@@ -156,7 +156,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
             {
                 var stubAS4Response = new Mock<IAS4Response>();
                 var pullRequest = new MessagingContext(
-                    AS4Message.Create(new PullRequest("some-mpc")),
+                    AS4Message.Create(new PullRequest($"pr-{Guid.NewGuid()}", "some-mpc")),
                     MessagingContextMode.Send);
 
                 stubAS4Response.Setup(r => r.OriginalRequest).Returns(pullRequest);
@@ -179,7 +179,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
             {
                 // Arrange
                 IAS4Response stubAS4Response = CreateResponseWith(
-                    request: new PullRequest("some-mpc"), 
+                    request: new PullRequest($"pr-{Guid.NewGuid()}", "some-mpc"), 
                     response: Error.CreatePullRequestWarning($"error-{Guid.NewGuid()}"));
 
                 var handler = new PullRequestResponseHandler(() => null, CreateAnonymousNextHandler());

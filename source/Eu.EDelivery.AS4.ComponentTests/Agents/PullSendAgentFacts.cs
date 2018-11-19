@@ -314,7 +314,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
         private static AS4Message CreatePullRequestWithMpc(string mpc)
         {
-            return AS4Message.Create(new PullRequest(mpc));
+            return AS4Message.Create(new PullRequest($"pr-{Guid.NewGuid()}", mpc));
         }
 
         private static AS4Message SignAS4MessageWithPullRequestCert(AS4Message message)

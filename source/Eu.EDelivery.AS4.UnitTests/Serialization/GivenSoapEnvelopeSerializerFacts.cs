@@ -633,7 +633,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
         {
             AS4Message as4Message = await CreateReceivedAS4Message(CreateMultiHopPMode());
 
-            var receipt = Receipt.CreateFor(as4Message.FirstUserMessage, as4Message.IsMultiHopMessage);
+            var receipt = Receipt.CreateFor($"receipt-{Guid.NewGuid()}", as4Message.FirstUserMessage, as4Message.IsMultiHopMessage);
 
             XmlDocument doc = AS4XmlSerializer.ToSoapEnvelopeDocument(AS4Message.Create(receipt), CancellationToken.None);
 
@@ -729,7 +729,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
         {
             AS4Message as4Message = await CreateReceivedAS4Message(CreateNonMultiHopPMode());
 
-            var receipt = Receipt.CreateFor(as4Message.FirstUserMessage, as4Message.IsMultiHopMessage);
+            var receipt = Receipt.CreateFor($"receipt-{Guid.NewGuid()}", as4Message.FirstUserMessage, as4Message.IsMultiHopMessage);
 
             XmlDocument doc = AS4XmlSerializer.ToSoapEnvelopeDocument(AS4Message.Create(receipt), CancellationToken.None);
 

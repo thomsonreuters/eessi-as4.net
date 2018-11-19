@@ -180,8 +180,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             // Arrange
             var pr = AS4Message.Create(
                 new PullRequest(
-                    $"pr-mpc-{Guid.NewGuid()}",
-                    $"pr-msg-id-{Guid.NewGuid()}"));
+                    $"pr-msg-id-{Guid.NewGuid()}",
+                    $"pr-mpc-{Guid.NewGuid()}"));
 
             // Act
             using (MessagingContext ctx = 
