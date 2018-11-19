@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading;
 using System.Xml;
 using Eu.EDelivery.AS4.Entities;
@@ -12,6 +13,33 @@ namespace Eu.EDelivery.AS4.Transformers
     {
         internal static NotifyMessage Convert(AS4Message as4Message, Type receivedEntityType)
         {
+            if (as4Message == null)
+            {
+                throw new ArgumentNullException(nameof(as4Message));
+            }
+
+            if (receivedEntityType == null)
+            {
+                throw new ArgumentNullException(nameof(receivedEntityType));
+            }
+
+            XmlElement[] originalSignalMessage = GetOriginalSignalMessage(as4Message);
+
+            if (as4Message.IsPullRequest)
+            {
+                return new NotifyMessage
+                {
+                    MessageInfo = { RefToMessageId = as4Message.FirstSignalMessage.MessageId },
+                    StatusInfo =
+                    {
+                        Status = typeof(ExceptionEntity).IsAssignableFrom(receivedEntityType)
+                            ? Status.Exception
+                            : Status.Error,
+                        Any = originalSignalMessage
+                    }
+                };
+            }
+
             Status status = 
                 typeof(ExceptionEntity).IsAssignableFrom(receivedEntityType)
                     ? Status.Exception
