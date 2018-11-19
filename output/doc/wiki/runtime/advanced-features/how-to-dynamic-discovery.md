@@ -89,9 +89,11 @@ The Oasis profile can be confgured with the following required property:
 
 The profile also has several optional properties to manipulate the SMP retrieval:
 
-- **ServiceProviderSubDomain**: is used to append to the DNS NAPTR lookup to retreive the SMP REST binding
-- **DocumentIdentifier**: is used to append to the retrieved SMP REST binding to retrieve the actual SMP
-- **DocumentScheme**: is used to append to the retrieved SMP REST binding to retrieve the actual SMP
+- **ServiceProviderSubDomain**: optionally specify a subdomain when performing the SMP server lookup
+- **DocumentIdentifier**: used to retrieve the correct SMP information when calling the SMP service
+- **DocumentScheme**: used to retrieve the correct SMP information when calling the SMP service
+
+> Note that when the either the `DocumentIdentifier` or `DocumentScheme` is missing from the configured properties, the profile will make an extra call to retrieve them.
 
 All properties can be configured in the _Sending Processing Mode_:
 
