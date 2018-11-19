@@ -19,7 +19,7 @@ namespace Eu.EDelivery.AS4.Model.Core
         public IEnumerable<ErrorLine> ErrorLines { get; } = Enumerable.Empty<ErrorLine>();
 
         /// <summary>
-        /// Gets the multihop action value.
+        /// Gets the multi-hop action value.
         /// </summary>
         public override string MultihopAction { get; } = Constants.Namespaces.EbmsOneWayError;
 
@@ -83,6 +83,16 @@ namespace Eu.EDelivery.AS4.Model.Core
             }
 
             ErrorLines = lines;
+        }
+
+        /// <summary>
+        /// Format the error lines of the AS4 Error into readable descriptions for each line.
+        /// </summary>
+        public string FormatErrorLines()
+        {
+            return String.Join(
+                "; ",
+                ErrorLines.Select(l => $"{l.ErrorCode.GetString()} {l.ShortDescription}"));
         }
 
         /// <summary>
