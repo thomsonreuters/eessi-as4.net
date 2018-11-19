@@ -1,1 +1,2 @@
-msitran -a ./source/Eu.EDelivery.AS4.WindowsService.Installer/UpdateInstallUtil64.mst ./source/Eu.EDelivery.AS4.WindowsService.Installer/Release/Eu.EDelivery.AS4.WindowsService.Installer.msi
+$cmd = "C:\Program Files (x86)\Windows Kits\10\bin\x86\MsiTran.exe"
+& $cmd -a UpdateInstallUtil64.mst Eu.EDelivery.AS4.WindowsService.Installer.msi
