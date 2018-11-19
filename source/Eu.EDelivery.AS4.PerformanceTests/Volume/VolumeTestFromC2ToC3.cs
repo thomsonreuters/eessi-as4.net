@@ -44,9 +44,13 @@ namespace Eu.EDelivery.AS4.PerformanceTests.Volume
                 corner: Corner3, 
                 assertion: () => AssertMessages(messageCount));
 
-            Assert.True(
-                messageCount == Corner2.CountReceivedReceipts(), 
-                $"Corner 2 notifies {messageCount} receipts");
+            PollingTillAllMessages(
+                messageCount,
+                pollingRetries: 120,
+                corner: Corner3,
+                assertion: () => Assert.True(
+                    messageCount == Corner2.CountReceivedReceipts(),
+                    $"Corner 2 notifies {messageCount} receipts"));
         }
 
         private void AssertMessages(int messageCount)
