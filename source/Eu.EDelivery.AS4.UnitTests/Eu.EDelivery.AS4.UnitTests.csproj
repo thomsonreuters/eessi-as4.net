@@ -85,13 +85,15 @@
     <Compile Include="Security\Strategies\GivenVerifySignatureStrategyFacts.cs" />
     <Compile Include="Serialization\GivenInvalidMessageSerializationFacts.cs" />
     <Compile Include="Serialization\GivenSoapEnvelopeDeserializingFacts.cs" />
-    <Compile Include="Services\DynamicDiscovery\GivenESensDynamicDiscoveryProfileFacts.cs" />
+    <Compile Include="Services\DynamicDiscovery\GivenPeppolDynamicDiscoveryProfileFacts.cs" />
     <Compile Include="Services\DynamicDiscovery\GivenLocalDynamicDiscoveryProfileFacts.cs" />
+    <Compile Include="Services\DynamicDiscovery\GivenOasisDynamicDiscoveryProfileFacts.cs" />
     <Compile Include="Services\GivenFileAuthorizationMapProviderFacts.cs" />
     <Compile Include="Steps\Deliver\DeliverRetryData.cs" />
     <Compile Include="Steps\Deliver\UploadRetryData.cs" />
     <Compile Include="Steps\Forward\GivenCreateForwardMessageStepFacts.cs" />
     <Compile Include="Steps\Forward\GivenDetermineForwardStepFacts.cs" />
+    <Compile Include="Steps\GivenStepExecutionerFacts.cs" />
     <Compile Include="Steps\Notify\NotifyRetryData.cs" />
     <Compile Include="Steps\Receive\GivenScoringMechanismReceivingPModesFacts.cs" />
     <Compile Include="Steps\Send\GivenBundleSignalMessageToPullRequestStepFacts.cs" />
@@ -149,7 +151,6 @@
     <Compile Include="Mappings\Submit\GivenSubmitReceiverResolverFacts.cs" />
     <Compile Include="Mappings\Submit\GivenSubmitSenderPartyResolverFacts.cs" />
     <Compile Include="Mappings\Submit\GivenSubmitServiceResolverFacts.cs" />
-    <Compile Include="Model\Core\GivenErrorFacts.cs" />
     <Compile Include="Model\EmptyMessagingContext.cs" />
     <Compile Include="Model\FilledNRReceipt.cs" />
     <Compile Include="Model\FilledUserMessage.cs" />

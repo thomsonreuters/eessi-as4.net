@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Exceptions;
+using Eu.EDelivery.AS4.Factories;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.Notify;
@@ -41,6 +42,7 @@ namespace Eu.EDelivery.AS4.Transformers
             if (receivedMessage.Entity is ExceptionEntity ex)
             {
                 Error error = Error.FromErrorResult(
+                    IdentifierFactory.Instance.Create(),
                     ex.EbmsRefToMessageId,
                     new ErrorResult(ex.Exception, ErrorAlias.Other));
 

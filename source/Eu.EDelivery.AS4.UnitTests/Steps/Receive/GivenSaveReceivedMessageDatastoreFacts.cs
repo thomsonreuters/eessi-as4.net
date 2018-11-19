@@ -83,7 +83,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
         private static Gen<IList<MessageUnit>> GenMessageUnits()
         {
             return Gen.OneOf(
-                Gen.Fresh<MessageUnit>(() => new Receipt($"receipt-{Guid.NewGuid()}")),
+                Gen.Fresh<MessageUnit>(() => new Receipt($"receipt-{Guid.NewGuid()}", $"user-{Guid.NewGuid()}")),
                 Gen.Fresh<MessageUnit>(() => new UserMessage($"user-{Guid.NewGuid()}")))
                       .NonEmptyListOf();
         }
@@ -139,7 +139,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                     EbmsRefToMessageId = ebmsRefToMessageId
                 });
 
-            var receipt = new Receipt(ebmsMessageId, ebmsRefToMessageId, DateTimeOffset.Now);
+            var receipt = new Receipt(ebmsMessageId, ebmsRefToMessageId);
             var context = new MessagingContext(
                 AS4Message.Create(receipt),
                 new ReceivedMessage(Stream.Null), 
@@ -161,7 +161,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
         public async Task During_Saving_The_Deserialized_AS4Message_Is_Used_Instead_Of_Deserializing_Incoming_Stream()
         {
             // Arrange
-            var receipt = new Receipt($"reftoid-{Guid.NewGuid()}");
+            var receipt = new Receipt($"receipt-{Guid.NewGuid()}", $"reftoid-{Guid.NewGuid()}");
             var ctx = new MessagingContext(
                 AS4Message.Create(receipt),
                 new ReceivedMessage(Stream.Null, Constants.ContentTypes.Soap),
@@ -180,8 +180,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             // Arrange
             var pr = AS4Message.Create(
                 new PullRequest(
-                    $"pr-mpc-{Guid.NewGuid()}",
-                    $"pr-msg-id-{Guid.NewGuid()}"));
+                    $"pr-msg-id-{Guid.NewGuid()}",
+                    $"pr-mpc-{Guid.NewGuid()}"));
 
             // Act
             using (MessagingContext ctx = 
@@ -244,7 +244,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
         public async Task ThenExecuteStepUpdatesDuplicateReceiptMessage()
         {
             // Arrange
-            SignalMessage signalMessage = new Receipt((string) "ref-to-message-id");
+            SignalMessage signalMessage = new Receipt($"receipt-{Guid.NewGuid()}", "ref-to-message-id");
             signalMessage.IsDuplicate = false;
 
             using (MessagingContext messagingContext =

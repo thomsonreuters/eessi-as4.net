@@ -1,0 +1,12 @@
+.smpconfigurationdetail {
+    display: flex;
+    flex-direction: row;
+    & > * {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        & > *:not(:last-child) {
+            margin-bottom: 15px;
+        }
+    }    
+}

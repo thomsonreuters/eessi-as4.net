@@ -39,7 +39,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
                     InsertUserMessage(user);
                     InsertReceipt(receipt, operation, urls.Item1);
 
-                    var pr = new PullRequest(mpcs.Item2);
+                    var pr = new PullRequest($"pr-{Guid.NewGuid()}", mpcs.Item2);
 
                     // Act
                     StepResult result = ExerciseBundleWithPullRequest(pr, urls.Item2);

@@ -140,7 +140,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
                 };
 
             AS4Message receiptMessage = 
-                AS4Message.Create(new Receipt($"receipt-{Guid.NewGuid()}"));
+                AS4Message.Create(new Receipt($"receipt-{Guid.NewGuid()}", $"user-{Guid.NewGuid()}"));
 
             // Act 
             IStep sut = CreateSendStepWithResponse(
@@ -162,7 +162,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
         public async Task Send_Results_In_Stop_Execution_If_Response_Is_PullRequest_Warning_For_Exsisting_SendPMode()
         {
             // Arrange
-            AS4Message as4Message = AS4Message.Create(new PullRequestError($"pull-{Guid.NewGuid()}"));
+            AS4Message as4Message = AS4Message.Create(Error.CreatePullRequestWarning($"error-{Guid.NewGuid()}"));
             IStep sut = CreateSendStepWithResponse(
                 StubHttpClient.ThatReturns(as4Message));
 
@@ -215,7 +215,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
         private static MessagingContext CreateMessagingContextWithDefaultPullRequest()
         {
             var pullRequest = AS4Message.Create(
-                new PullRequest(mpc: null, messageId: "message-id"));
+                new PullRequest(messageId: "message-id", mpc: null));
 
             return new MessagingContext(
                 new ReceivedMessage(

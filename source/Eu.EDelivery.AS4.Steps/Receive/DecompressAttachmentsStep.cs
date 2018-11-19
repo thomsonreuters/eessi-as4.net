@@ -1,9 +1,11 @@
 ﻿using System;
 using System.ComponentModel;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Internal;
+using Eu.EDelivery.AS4.Services.Journal;
 using NLog;
 
 namespace Eu.EDelivery.AS4.Steps.Receive
@@ -55,7 +57,15 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             try
             {
                 messagingContext.AS4Message.DecompressAttachments();
-                return await StepResult.SuccessAsync(messagingContext);
+
+                JournalLogEntry entry =
+                    JournalLogEntry.CreateFrom(
+                        messagingContext.AS4Message,
+                        $"Decompressed {messagingContext.AS4Message.Attachments.Count()} with GZip compression");
+
+                return await StepResult
+                    .Success(messagingContext)
+                    .WithJournalAsync(entry);
             }
             catch (Exception exception) 
             when (exception is ArgumentException

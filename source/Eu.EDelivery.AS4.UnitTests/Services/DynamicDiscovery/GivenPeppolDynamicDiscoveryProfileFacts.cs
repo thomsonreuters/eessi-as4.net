@@ -15,7 +15,7 @@ using PartyId = Eu.EDelivery.AS4.Model.Core.PartyId;
 
 namespace Eu.EDelivery.AS4.UnitTests.Services.DynamicDiscovery
 {
-    public class GivenESensDynamicDiscoveryProfileFacts
+    public class GivenPeppolDynamicDiscoveryProfileFacts
     {
         [Fact]
         public void HttpUtility_Encodes_Colon()
@@ -28,11 +28,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Services.DynamicDiscovery
         public async Task FailsToRetrieveSmpMetaData_IfPartyIsInvalid()
         {
             // Arrange
-            var sut = new ESensDynamicDiscoveryProfile();
+            var sut = new PeppolDynamicDiscoveryProfile();
 
             // Act / Assert
             await Assert.ThrowsAsync<InvalidOperationException>(
-                () => sut.RetrieveSmpMetaData(new Party("role", Enumerable.Empty<PartyId>()), properties: new Dictionary<string, string>()));
+                () => sut.RetrieveSmpMetaDataAsync(new Party("role", Enumerable.Empty<PartyId>()), properties: new Dictionary<string, string>()));
         }
 
         [Fact]
@@ -51,7 +51,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Services.DynamicDiscovery
 
         private static SendingProcessingMode ExercisePModeDecorationWithSmp(string smpResponse)
         {
-            var sut = new ESensDynamicDiscoveryProfile();
+            var sut = new PeppolDynamicDiscoveryProfile();
 
             var pmode = new SendingProcessingMode();
             var smpMetaData = new XmlDocument();
@@ -171,7 +171,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Services.DynamicDiscovery
 
         private static SendingProcessingMode ExercisePModeDecorationWithSmp(XDocument smpResponse, SendingProcessingMode pmode)
         {
-            var sut = new ESensDynamicDiscoveryProfile();
+            var sut = new PeppolDynamicDiscoveryProfile();
 
             var smpMetaData = new XmlDocument();
             using (XmlReader reader = smpResponse.CreateReader())

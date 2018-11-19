@@ -11,10 +11,18 @@
     width: 200px;
 }
 
+td {
+    line-height: 34px !important;
+}
+
 .truncate a {
     display: block;
     width: 200px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+th {
+    padding: 8px;
 }

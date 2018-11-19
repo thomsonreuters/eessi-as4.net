@@ -13,16 +13,7 @@ import { RuntimetoolTipDirective } from './../runtimetooltip.directive';
             </div>
         </div>
     `,
-    styles: [
-        `
-        .isBoldLabel > label {
-            font-weight: bold;
-        }
-        .tooltip-info {
-            margin-left: 5px;
-        }
-    `
-    ],
+    styleUrls: ['./input.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class InputComponent implements OnInit {

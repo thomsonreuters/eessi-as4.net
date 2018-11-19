@@ -11,7 +11,6 @@ using Eu.EDelivery.AS4.UnitTests.Common;
 using Eu.EDelivery.AS4.UnitTests.Repositories;
 using System;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 using MessageExchangePattern = Eu.EDelivery.AS4.Entities.MessageExchangePattern;
@@ -30,8 +29,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             StepResult result = await ExerciseSelection(expectedMpc: null);
 
             // Assert
-            var signal = result.MessagingContext.AS4Message.FirstSignalMessage as PullRequestError;
-            Assert.Equal(new PullRequestError($"pull-{Guid.NewGuid()}"), signal);
+            var signal = Assert.IsType<Error>(result.MessagingContext.AS4Message.FirstSignalMessage);
+            Assert.True(signal.IsPullRequestWarning, "error signal is not a warning for a pull request");
             Assert.False(result.CanProceed);
         }
 
@@ -117,7 +116,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
 
         private static MessagingContext ContextWithPullRequest(string mpc)
         {
-            var pullRequest = new PullRequest(mpc, "message-id");
+            var pullRequest = new PullRequest("message-id", mpc);
             return new MessagingContext(AS4Message.Create(pullRequest), MessagingContextMode.Send);
         }
 

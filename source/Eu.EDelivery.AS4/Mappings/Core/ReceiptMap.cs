@@ -109,16 +109,21 @@ namespace Eu.EDelivery.AS4.Mappings.Core
             Maybe<Receipt> routingUserReceiptM =
                 routingM.Zip(userM, (routing, user) => new Receipt(messageId, refToMessageId, timestamp, user, routing));
 
-            Maybe<Receipt> routingReceipt = routingM.Select(routing => new Receipt(messageId, refToMessageId, timestamp, routing));
-            Maybe<Receipt> nriReceipt = nriM.Select(nri => new Receipt(messageId, refToMessageId, timestamp, nri));
-            Maybe<Receipt> userReceipt = userM.Select(user => new Receipt(messageId, refToMessageId, timestamp, user));
+            Maybe<Receipt> routingReceipt = 
+                routingM.Select(routing => new Receipt(messageId, refToMessageId, timestamp, includedUserMessage: null, routedUserMessage: routing));
+
+            Maybe<Receipt> nriReceipt = 
+                nriM.Select(nri => new Receipt(messageId, refToMessageId, timestamp, nri, routedUserMessage: null));
+
+            Maybe<Receipt> userReceipt = 
+                userM.Select(user => new Receipt(messageId, refToMessageId, timestamp, user, routedUserMessage: null));
 
             return routingNriReceiptM
                 .OrElse(routingUserReceiptM)
                 .OrElse(routingReceipt)
                 .OrElse(nriReceipt)
                 .OrElse(userReceipt)
-                .GetOrElse(() => new Receipt(messageId, refToMessageId, timestamp));
+                .GetOrElse(() => new Receipt(messageId, refToMessageId, timestamp, includedUserMessage: null, routedUserMessage: null));
         }
 
         private static Maybe<NonRepudiationInformation> GetNonRepudiationFromXml(Xml.Receipt r)

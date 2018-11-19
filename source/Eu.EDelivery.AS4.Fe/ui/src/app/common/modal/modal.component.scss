@@ -4,8 +4,10 @@
 }
 
 .modal {
+    display: flex;
+    align-items: center;
     &-dialog {
-        width: 80%;
+        width: 60%;
         .modal-body {
             max-height: 75vh;
             overflow: auto;

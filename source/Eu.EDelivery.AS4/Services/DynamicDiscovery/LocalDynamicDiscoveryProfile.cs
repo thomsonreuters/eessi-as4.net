@@ -51,10 +51,9 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
         /// Retrieves the SMP meta data <see cref="XmlDocument" /> for a given <paramref name="party" /> using a given
         /// <paramref name="properties" />.
         /// </summary>
-        /// <param name="party">The party identifier.</param>
-        /// <param name="properties"></param>
-        /// <returns></returns>
-        public Task<XmlDocument> RetrieveSmpMetaData(Model.Core.Party party, IDictionary<string, string> properties)
+        /// <param name="party">The party identifier to select the right SMP meta-data.</param>
+        /// <param name="properties">The information properties specified in the <see cref="SendingProcessingMode"/> for this profile.</param>
+        public Task<XmlDocument> RetrieveSmpMetaDataAsync(Model.Core.Party party, IDictionary<string, string> properties)
         {
             if (party == null)
             {

@@ -10,6 +10,7 @@ using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Extensions;
+using Eu.EDelivery.AS4.Factories;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
@@ -74,6 +75,7 @@ namespace Eu.EDelivery.AS4.Services
 
             Error errorMessage =
                 Error.FromErrorResult(
+                    IdentifierFactory.Instance.Create(),
                     ebmsMessageId,
                     new ErrorResult("Missing Receipt", ErrorAlias.MissingReceipt));
 

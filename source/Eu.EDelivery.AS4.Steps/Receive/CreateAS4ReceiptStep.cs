@@ -2,13 +2,11 @@
 using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Mappings.Core;
+using Eu.EDelivery.AS4.Factories;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
-using Eu.EDelivery.AS4.Xml;
 using NLog;
-using NonRepudiationInformation = Eu.EDelivery.AS4.Model.Core.NonRepudiationInformation;
 using Receipt = Eu.EDelivery.AS4.Model.Core.Receipt;
 using UserMessage = Eu.EDelivery.AS4.Model.Core.UserMessage;
 
@@ -79,31 +77,25 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                     $"This means the original UserMessage {userMessage.MessageId} will be included in the Receipt");
             }
 
+            if (received.IsMultiHopMessage)
+            {
+                Logger.Debug($"Because the received UserMessage {userMessage.MessageId} has been sent via MultiHop, the Receipt will be send as MultiHop also");
+            }
+
             if (useNRRFormat && received.IsSigned)
             {
                     Logger.Debug($"ReceivingPMode {receivingPMode?.Id} is configured to use Non-Repudiation for Receipt Creation");
-                    var nonRepudiation = new NonRepudiationInformation(
-                        received.SecurityHeader
-                                .GetReferences()
-                                .Select(Reference.CreateFromReferenceElement));
-
-                    return GetRoutingInfoForUserMessage(userMessage, received.IsMultiHopMessage)
-                        .Select(routing => new Receipt(userMessage.MessageId, nonRepudiation, routing))
-                        .GetOrElse(() => new Receipt(userMessage.MessageId, nonRepudiation));
+                    return Receipt.CreateFor(
+                        IdentifierFactory.Instance.Create(), 
+                        userMessage,
+                        received.SecurityHeader, 
+                        received.IsMultiHopMessage);
             }
 
-            return GetRoutingInfoForUserMessage(userMessage, received.IsMultiHopMessage)
-                .Select(routing => new Receipt(userMessage.MessageId, userMessage, routing))
-                .GetOrElse(() => new Receipt(userMessage.MessageId, userMessage));
-        }
-
-        private static Maybe<RoutingInputUserMessage> GetRoutingInfoForUserMessage(UserMessage userMessage, bool isMultihop)
-        {
-            return isMultihop.ThenMaybe(() =>
-            {
-                Logger.Debug($"Because the received UserMessage {userMessage.MessageId} has been sent via MultiHop, the Receipt will be send as MultiHop also");
-                return UserMessageMap.ConvertToRouting(userMessage);
-            });
+            return Receipt.CreateFor(
+                IdentifierFactory.Instance.Create(), 
+                userMessage, 
+                received.IsMultiHopMessage);
         }
     }
 }

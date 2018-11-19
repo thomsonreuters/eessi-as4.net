@@ -35,7 +35,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Services.DynamicDiscovery
             var sut = new LocalDynamicDiscoveryProfile(GetDataStoreContext);
 
             // Act
-            XmlDocument actualDoc = await sut.RetrieveSmpMetaData(fixture, properties: null);
+            XmlDocument actualDoc = await sut.RetrieveSmpMetaDataAsync(fixture, properties: null);
 
             // Assert
             var actual = AS4XmlSerializer.FromString<SmpConfiguration>(actualDoc.OuterXml);
@@ -59,7 +59,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Services.DynamicDiscovery
 
             // Act / Assert
             await Assert.ThrowsAsync<InvalidOperationException>(
-                () => sut.RetrieveSmpMetaData(
+                () => sut.RetrieveSmpMetaDataAsync(
                     new Party(
                         role: "role",
                         partyIds: Enumerable.Empty<PartyId>()),
