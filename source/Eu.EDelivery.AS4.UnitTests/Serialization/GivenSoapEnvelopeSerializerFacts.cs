@@ -435,8 +435,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
             {
                 // Arrange
                 var error = new Error(
-                   refToMessageId: $"user-{Guid.NewGuid()}",
-                   detail: ErrorLine.FromErrorResult(new ErrorResult("sample error", ErrorAlias.ConnectionFailure)));
+                    $"error-{Guid.NewGuid()}",
+                    $"user-{Guid.NewGuid()}",
+                    ErrorLine.FromErrorResult(new ErrorResult("sample error", ErrorAlias.ConnectionFailure)));
 
                 // Act
                 XmlDocument doc = SerializeSoapMessage(AS4Message.Create(error));
@@ -632,7 +633,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
         {
             AS4Message as4Message = await CreateReceivedAS4Message(CreateMultiHopPMode());
 
-            var receipt = Receipt.CreateReferencing(as4Message.FirstUserMessage, as4Message.IsMultiHopMessage);
+            var receipt = Receipt.CreateFor(as4Message.FirstUserMessage, as4Message.IsMultiHopMessage);
 
             XmlDocument doc = AS4XmlSerializer.ToSoapEnvelopeDocument(AS4Message.Create(receipt), CancellationToken.None);
 
@@ -671,7 +672,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
             // Arrange
             AS4Message expectedAS4Message = await CreateReceivedAS4Message(CreateMultiHopPMode());
 
-            var error = Error.CreateReferencing(expectedAS4Message.FirstUserMessage, userMessageSendViaMultiHop: true);
+            var error = Error.CreateFor($"error-{Guid.NewGuid()}", expectedAS4Message.FirstUserMessage, userMessageSendViaMultiHop: true);
 
             // Act
             XmlDocument document = AS4XmlSerializer.ToSoapEnvelopeDocument(AS4Message.Create(error), CancellationToken.None);
@@ -728,7 +729,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
         {
             AS4Message as4Message = await CreateReceivedAS4Message(CreateNonMultiHopPMode());
 
-            var receipt = Receipt.CreateReferencing(as4Message.FirstUserMessage, as4Message.IsMultiHopMessage);
+            var receipt = Receipt.CreateFor(as4Message.FirstUserMessage, as4Message.IsMultiHopMessage);
 
             XmlDocument doc = AS4XmlSerializer.ToSoapEnvelopeDocument(AS4Message.Create(receipt), CancellationToken.None);
 
@@ -888,7 +889,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
             string ebmsMessageId = $"user-{Guid.NewGuid()}";
             var userMessage = new UserMessage(ebmsMessageId);
 
-            return Receipt.CreateReferencing($"receipt-{Guid.NewGuid()}", userMessage);
+            return Receipt.CreateFor($"receipt-{Guid.NewGuid()}", userMessage);
         }
     }
 

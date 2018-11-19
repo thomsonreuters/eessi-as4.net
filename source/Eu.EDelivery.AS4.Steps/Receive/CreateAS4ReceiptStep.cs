@@ -85,14 +85,14 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             if (useNRRFormat && received.IsSigned)
             {
                     Logger.Debug($"ReceivingPMode {receivingPMode?.Id} is configured to use Non-Repudiation for Receipt Creation");
-                    return Receipt.CreateReferencingNonRepudiation(
+                    return Receipt.CreateFor(
                         IdentifierFactory.Instance.Create(), 
                         userMessage,
                         received.SecurityHeader, 
                         received.IsMultiHopMessage);
             }
 
-            return Receipt.CreateReferencing(
+            return Receipt.CreateFor(
                 IdentifierFactory.Instance.Create(), 
                 userMessage, 
                 received.IsMultiHopMessage);

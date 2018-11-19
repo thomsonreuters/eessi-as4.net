@@ -643,6 +643,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         {
             var as4Message = AS4Message.Create(
                 Error.FromErrorResult(
+                    messageId: $"error-{Guid.NewGuid()}",
                     refToMessageId: null,
                     result: new ErrorResult("An Error occurred", ErrorAlias.NonApplicable)));
 
@@ -673,7 +674,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                 new PartInfo[0], 
                 new MessageProperty[0]);
 
-            return Receipt.CreateReferencing(
+            return Receipt.CreateFor(
                 $"receipt-{Guid.NewGuid()}",
                 userMessage,
                 userMessageSendViaMultiHop: true);
@@ -752,6 +753,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         private static AS4Message CreateAS4ErrorMessage(string refToMessageId)
         {
             Error error = Error.FromErrorResult(
+                $"error-{Guid.NewGuid()}",
                 refToMessageId, 
                 new ErrorResult("An error occurred", ErrorAlias.NonApplicable));
 

@@ -8,6 +8,7 @@ using System.Transactions;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Exceptions;
+using Eu.EDelivery.AS4.Factories;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
@@ -94,7 +95,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 return StepResult.Success(messagingContext);
             }
 
-            AS4Message pullRequestWarning = AS4Message.Create(Error.CreatePullRequestWarning());
+            AS4Message pullRequestWarning = AS4Message.Create(Error.CreatePullRequestWarning(IdentifierFactory.Instance.Create()));
             messagingContext.ModifyContext(pullRequestWarning);
 
             return StepResult.Success(messagingContext).AndStopExecution();

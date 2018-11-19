@@ -19,7 +19,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             string id = Guid.NewGuid().ToString(),
                 expected = Guid.NewGuid().ToString();
 
-            AS4Message as4Message = AS4Message.Create(new Error(id));
+            AS4Message as4Message = AS4Message.Create(new Error($"error-{Guid.NewGuid()}", id));
             var error = new ErrorResult(expected, default(ErrorAlias));
 
             // Act
@@ -34,7 +34,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
         {
             // Arrange
             string id = Guid.NewGuid().ToString();
-            AS4Message as4Message = AS4Message.Create(new Error(id));
+            AS4Message as4Message = AS4Message.Create(new Error($"error-{Guid.NewGuid()}", id));
 
             // Act
             await ExerciseLog(as4Message, error: null);

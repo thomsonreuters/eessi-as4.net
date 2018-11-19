@@ -8,7 +8,7 @@ using CryptoReference = System.Security.Cryptography.Xml.Reference;
 namespace Eu.EDelivery.AS4.Model.Core
 {
     /// <summary>
-    /// ebMS message unit representing a successful response to an ebMS <see cref="UserMessage"/>
+    /// ebMS signal message unit representing a successful response to an ebMS <see cref="UserMessage"/>
     /// </summary>
     public class Receipt : SignalMessage
     {

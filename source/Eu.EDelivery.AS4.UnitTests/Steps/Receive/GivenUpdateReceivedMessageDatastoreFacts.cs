@@ -202,6 +202,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             GetDataStoreContext.InsertOutMessage(CreateOutMessage(ebmsMessageId));
 
             var error = Error.FromErrorResult(
+                $"error-{Guid.NewGuid()}",
                 ebmsMessageId, 
                 new ErrorResult("Some Error", ErrorAlias.ConnectionFailure));
 
@@ -284,6 +285,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 CreateOutMessage(ebmsMessageId));
 
             var error = Error.FromErrorResult(
+                $"error-{Guid.NewGuid()}",
                 ebmsMessageId, 
                 new ErrorResult("Some Error occured", ErrorAlias.ConnectionFailure));
 

@@ -190,7 +190,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                     res.StatusCode = 200;
                     res.ContentType = Constants.ContentTypes.Soap;
 
-                    var receipt = Receipt.CreateReferencing(
+                    var receipt = Receipt.CreateFor(
                         $"receipt-{Guid.NewGuid()}",
                         as4Message.FirstUserMessage,
                         userMessageSendViaMultiHop: true);

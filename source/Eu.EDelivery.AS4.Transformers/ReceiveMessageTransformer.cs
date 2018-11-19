@@ -124,6 +124,7 @@ namespace Eu.EDelivery.AS4.Transformers
 
                     var errorResult = new ErrorResult(description, ErrorAlias.ProcessingModeMismatch);
                     var as4Error = new Error(
+                        IdentifierFactory.Instance.Create(),
                         as4Message.GetPrimaryMessageId() ?? IdentifierFactory.Instance.Create(),
                         ErrorLine.FromErrorResult(errorResult));
 

@@ -91,7 +91,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
             public async Task ThenNextHandlerGetsTheResponse_IfAS4MessageIsReceived()
             {
                 // Arrange
-                AS4Message as4Message = AS4Message.Create(new Error($"user-{Guid.NewGuid()}"));
+                AS4Message as4Message = AS4Message.Create(new Error($"error-{Guid.NewGuid()}", $"user-{Guid.NewGuid()}"));
                 IAS4Response as4Response = CreateAS4ResponseWithResultedMessage(as4Message);
 
                 var spyHandler = new SpyAS4ResponseHandler();
@@ -180,7 +180,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
                 // Arrange
                 IAS4Response stubAS4Response = CreateResponseWith(
                     request: new PullRequest("some-mpc"), 
-                    response: Error.CreatePullRequestWarning());
+                    response: Error.CreatePullRequestWarning($"error-{Guid.NewGuid()}"));
 
                 var handler = new PullRequestResponseHandler(() => null, CreateAnonymousNextHandler());
 
