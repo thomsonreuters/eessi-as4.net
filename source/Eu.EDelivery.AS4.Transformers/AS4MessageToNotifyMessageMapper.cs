@@ -23,27 +23,13 @@ namespace Eu.EDelivery.AS4.Transformers
                 throw new ArgumentNullException(nameof(receivedEntityType));
             }
 
-            XmlElement[] originalSignalMessage = GetOriginalSignalMessage(as4Message);
-
-            if (as4Message.IsPullRequest)
-            {
-                return new NotifyMessage
-                {
-                    MessageInfo = { RefToMessageId = as4Message.FirstSignalMessage.MessageId },
-                    StatusInfo =
-                    {
-                        Status = typeof(ExceptionEntity).IsAssignableFrom(receivedEntityType)
-                            ? Status.Exception
-                            : Status.Error,
-                        Any = originalSignalMessage
-                    }
-                };
-            }
+            SignalMessage firstNonPrSignalMessage =
+                as4Message.SignalMessages.FirstOrDefault(s => !(s is PullRequest));
 
             Status status = 
                 typeof(ExceptionEntity).IsAssignableFrom(receivedEntityType)
                     ? Status.Exception
-                    : as4Message.FirstSignalMessage is Receipt
+                    : firstNonPrSignalMessage is Receipt
                         ? Status.Delivered
                         : Status.Error;
 
@@ -51,8 +37,8 @@ namespace Eu.EDelivery.AS4.Transformers
             {
                 MessageInfo =
                 {
-                    MessageId = as4Message.FirstSignalMessage.MessageId,
-                    RefToMessageId = as4Message.FirstSignalMessage.RefToMessageId
+                    MessageId = firstNonPrSignalMessage?.MessageId,
+                    RefToMessageId = firstNonPrSignalMessage?.RefToMessageId
                 },
                 StatusInfo =
                 {
