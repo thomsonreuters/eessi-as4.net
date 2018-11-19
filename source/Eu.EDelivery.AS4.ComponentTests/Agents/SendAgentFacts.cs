@@ -142,6 +142,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
             AS4Message receipt = AS4Message.Create(
                 new Receipt(
+                    messageId: $"receipt-{Guid.NewGuid()}",
                     refToMessageId: signedUserMessage.GetPrimaryMessageId(),
                     nonRepudiation: new NonRepudiationInformation(hashes)));
 
@@ -189,10 +190,10 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                     res.StatusCode = 200;
                     res.ContentType = Constants.ContentTypes.Soap;
 
-                    var receipt = new Receipt(
-                        as4Message.FirstUserMessage.MessageId,
+                    var receipt = Receipt.CreateReferencing(
+                        $"receipt-{Guid.NewGuid()}",
                         as4Message.FirstUserMessage,
-                        UserMessageMap.ConvertToRouting(as4Message.FirstUserMessage));
+                        userMessageSendViaMultiHop: true);
 
                     serializer.Serialize(AS4Message.Create(receipt), res.OutputStream);
                 },

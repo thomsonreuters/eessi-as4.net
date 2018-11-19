@@ -140,7 +140,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
                 };
 
             AS4Message receiptMessage = 
-                AS4Message.Create(new Receipt($"receipt-{Guid.NewGuid()}"));
+                AS4Message.Create(new Receipt($"receipt-{Guid.NewGuid()}", $"user-{Guid.NewGuid()}"));
 
             // Act 
             IStep sut = CreateSendStepWithResponse(

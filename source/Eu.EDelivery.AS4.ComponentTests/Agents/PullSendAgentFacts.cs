@@ -234,8 +234,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         {
             return new Receipt(
                 messageId: $"receipt-{Guid.NewGuid()}",
-                refToMessageId: userMessageId,
-                timestamp: DateTimeOffset.Now);
+                refToMessageId: userMessageId);
         }
 
         private async Task<HttpResponseMessage> PiggyBacked_PullRequest_With_Bundled_Signal(

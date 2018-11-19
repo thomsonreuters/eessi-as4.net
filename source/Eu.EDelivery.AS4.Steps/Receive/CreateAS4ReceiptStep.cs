@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
+using Eu.EDelivery.AS4.Factories;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
@@ -85,12 +86,16 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             {
                     Logger.Debug($"ReceivingPMode {receivingPMode?.Id} is configured to use Non-Repudiation for Receipt Creation");
                     return Receipt.CreateReferencingNonRepudiation(
+                        IdentifierFactory.Instance.Create(), 
                         userMessage,
                         received.SecurityHeader, 
                         received.IsMultiHopMessage);
             }
 
-            return Receipt.CreateReferencing(userMessage, received.IsMultiHopMessage);
+            return Receipt.CreateReferencing(
+                IdentifierFactory.Instance.Create(), 
+                userMessage, 
+                received.IsMultiHopMessage);
         }
     }
 }

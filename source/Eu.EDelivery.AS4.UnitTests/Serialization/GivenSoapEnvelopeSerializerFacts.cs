@@ -877,6 +877,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
             };
 
             return new Receipt(
+                $"receipt-{Guid.NewGuid()}",
                 $"user-{Guid.NewGuid()}",
                 new NonRepudiationInformation(
                     nnri.Select(Reference.CreateFromReferenceElement)));
@@ -885,7 +886,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
         private static Receipt CreateReceiptWithRelatedUserMessageInfo()
         {
             string ebmsMessageId = $"user-{Guid.NewGuid()}";
-            return new Receipt(ebmsMessageId, new UserMessage(ebmsMessageId));
+            var userMessage = new UserMessage(ebmsMessageId);
+
+            return Receipt.CreateReferencing($"receipt-{Guid.NewGuid()}", userMessage);
         }
     }
 

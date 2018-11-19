@@ -113,13 +113,13 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// <param name="refToMessageId"></param>
         /// <param name="timestamp"></param>
         /// <param name="lines"></param>
-        /// <param name="routing"></param>
+        /// <param name="routedUserMessage"></param>
         public Error(
             string messageId, 
             string refToMessageId, 
             DateTimeOffset timestamp, 
             IEnumerable<ErrorLine> lines, 
-            RoutingInputUserMessage routing) : base(messageId, refToMessageId, timestamp, routing)
+            RoutingInputUserMessage routedUserMessage) : base(messageId, refToMessageId, timestamp, routedUserMessage)
         {
             if (lines == null || lines.Any(l => l is null))
             {
