@@ -25,7 +25,7 @@ describe('pmode tests', () => {
 
   [
     { path: 'receiving', handling: 'Message handling' },
-    { path: 'receiving', handling: 'Reply hanling' },
+    { path: 'receiving', handling: 'Reply handling' },
     { path: 'receiving', handling: 'Exception handling' },
     { path: 'sending', handling: 'Receipt handling' },
     { path: 'sending', handling: 'Error handling' },
