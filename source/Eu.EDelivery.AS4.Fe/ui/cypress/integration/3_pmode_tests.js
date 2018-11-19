@@ -2,9 +2,9 @@ describe('pmode tests', () => {
   beforeEach(() => cy.login());
 
   const withinTab = (x, f) => {
-    cy
-      .get('li > a[data-toggle=tab]:contains(' + x + ')')
-      .click({ force: true });
+    cy.get('li > a[data-toggle=tab]:contains(' + x + ')').click({
+      force: true
+    });
 
     cy.get('div[title="' + x + '"]').within(f);
   };
@@ -25,6 +25,7 @@ describe('pmode tests', () => {
 
   [
     { path: 'receiving', handling: 'Message handling' },
+    { path: 'receiving', handling: 'Reply hanling' },
     { path: 'receiving', handling: 'Exception handling' },
     { path: 'sending', handling: 'Receipt handling' },
     { path: 'sending', handling: 'Error handling' },

@@ -1,5 +1,3 @@
-import { Validators } from '@angular/forms';
-
 import { FormWrapper } from './../common/form.service';
 import { ItemType } from './ItemType';
 import { ReceiveErrorHandlingForm } from './ReceiveErrorHandlingForm';
@@ -23,16 +21,6 @@ export class ReplyHandlingSettingForm {
           0,
           runtime
         )
-      ],
-      [ReplyHandlingSetting.FIELD_sendingPmode]: [
-        formBuilder.createFieldValue(
-          current,
-          ReplyHandlingSetting.FIELD_sendingPmode,
-          path,
-          null,
-          runtime
-        ),
-        Validators.required
       ],
       [ReplyHandlingSetting.FIELD_receiptHandling]: ReceiveReceiptHandlingForm.getForm(
         formBuilder.subForm(ReplyHandlingSetting.FIELD_receiptHandling),

@@ -14,9 +14,13 @@ export class RetryReliabilityForm {
     const form = formBuilder
       .group({
         [RetryReliability.FIELD_isEnabled]: [
-          !!!current || !!!current.isEnabled
-            ? false
-            : current && current.isEnabled
+            formBuilder.createFieldValue(
+              current,
+              RetryReliability.FIELD_isEnabled,
+              path,
+              !!!current || !!!current.isEnabled ? false : current && current.isEnabled,
+              runtime
+            )
         ],
         [RetryReliability.FIELD_retryCount]: [
           formBuilder.createFieldValue(

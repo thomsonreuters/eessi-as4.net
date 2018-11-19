@@ -23,11 +23,7 @@
                         <option [ngValue]="2">PiggyBack</option>
                     </select>
                 </as4-input>
-                <as4-retryreliability *ngIf="+pmode.form.get('pmode.replyHandling.replyPattern').value === 2" [group]="pmode.form.get('pmode.replyHandling.piggyBackReliability')"
-                    [title]="PiggyBack Reliability"></as4-retryreliability>
-                <as4-input label="Sending PMode" runtimeTooltip="sendingpmode">
-                    <div as4-pmode-select mode="sending" formControlName="sendingPMode"></div>
-                </as4-input>
+                <as4-retryreliability [title]="'Piggyback Retry Reliability'" *ngIf="+pmode.form.get('pmode.replyHandling.replyPattern')!.value === 2" [group]="pmode.form.get('pmode.replyHandling.piggyBackReliability')"></as4-retryreliability>
                 <div class="sub-header-1">Receipt handling</div>
                 <ng-container formGroupName="receiptHandling">
                     <as4-input label="Use NRR format" runtimeTooltip="receiptHandling.usenrrformat">
@@ -40,7 +36,6 @@
                         <input type="number" formControlName="responseHttpCode">
                     </as4-input>
                 </ng-container>
-                <as4-retryreliability [group]="pmode.form.get('pmode.replyHandling.piggyBackReliability')"></as4-retryreliability>
             </div>
             <div tabitem title="Message handling" formGroupName="messageHandling" [isValid]="!pmode.currentPmode || pmode.form.get('pmode.messageHandling').valid"
                 runtimeTooltip="messagehandling">
