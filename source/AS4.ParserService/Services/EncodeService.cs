@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using AS4.ParserService.Infrastructure;
 using AS4.ParserService.Models;
@@ -9,7 +10,9 @@ using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Model.Submit;
-using Eu.EDelivery.AS4.Singletons;
+using Eu.EDelivery.AS4.Steps;
+using Eu.EDelivery.AS4.Steps.Submit;
+using Eu.EDelivery.AS4.Strategies.Retriever;
 
 namespace AS4.ParserService.Services
 {
@@ -24,7 +27,7 @@ namespace AS4.ParserService.Services
                 return null;
             }
 
-            var as4Message = AssembleAS4Message(pmode, encodeInfo.Payloads);
+            var as4Message = await AssembleAS4MessageAsync(pmode, encodeInfo.Payloads);
 
             var context = SetupMessagingContext(as4Message, pmode);
 
@@ -60,34 +63,21 @@ namespace AS4.ParserService.Services
             return pmode;
         }
 
-        private static AS4Message AssembleAS4Message(SendingProcessingMode pmode, IEnumerable<PayloadInfo> payloads)
+        private static async Task<AS4Message> AssembleAS4MessageAsync(SendingProcessingMode pmode, IEnumerable<PayloadInfo> payloads)
         {
-            var submitMessage = new SubmitMessage();
-            submitMessage.PMode = pmode;
-
-            var submitPayloads = new List<Payload>();
-
-            foreach (var p in payloads)
+            var submitMessage = new SubmitMessage
             {
-                submitPayloads.Add(new Payload(p.PayloadName, "", p.ContentType));
-            }
+                PMode = pmode,
+                Payloads = payloads.Select(p => new Payload(p.PayloadName, "", p.ContentType)).ToArray()
+            };
 
-            submitMessage.Payloads = submitPayloads.ToArray();
+            var createAS4MessageStep = new CreateAS4MessageStep(
+                submitPayload => new InMemoryPayloadRetriever(
+                    payloads.First(p => p.PayloadName == submitPayload.Id)));
 
-            var userMessage = AS4Mapper.Map<UserMessage>(submitMessage);
-
-            var as4Message = AS4Message.Create(userMessage);
-
-            foreach (var payload in payloads)
-            {
-                as4Message.AddAttachment(
-                    new Attachment(
-                        payload.PayloadName,
-                        new MemoryStream(payload.Content),
-                        payload.ContentType));
-            }
-
-            return as4Message;
+            var ctx = new MessagingContext(submitMessage) { SendingPMode = pmode };
+            StepResult stepResult = await createAS4MessageStep.ExecuteAsync(ctx);
+            return stepResult.MessagingContext.AS4Message;
         }
 
         private static MessagingContext SetupMessagingContext(AS4Message as4Message, SendingProcessingMode sendingPMode)
@@ -96,6 +86,34 @@ namespace AS4.ParserService.Services
             context.SendingPMode = sendingPMode;
 
             return context;
+        }
+
+        private class InMemoryPayloadRetriever : IPayloadRetriever
+        {
+            private readonly PayloadInfo _payload;
+
+            /// <summary>
+            /// Initializes a new instance of the <see cref="InMemoryPayloadRetriever"/> class.
+            /// </summary>
+            public InMemoryPayloadRetriever(PayloadInfo payload)
+            {
+                if (payload == null)
+                {
+                    throw new ArgumentNullException(nameof(payload));
+                }
+
+                _payload = payload;
+            }
+
+            /// <summary>
+            /// Retrieve <see cref="Stream"/> contents from a given <paramref name="location"/>.
+            /// </summary>
+            /// <param name="location">The location.</param>
+            /// <returns></returns>
+            public Task<Stream> RetrievePayloadAsync(string location)
+            {
+                return Task.FromResult<Stream>(new MemoryStream(_payload.Content));
+            }
         }
     }
 }

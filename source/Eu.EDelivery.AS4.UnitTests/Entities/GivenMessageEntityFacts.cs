@@ -252,6 +252,21 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
         [ExcludeFromCodeCoverage]
         private class StubMessageEntity : MessageEntity
         {
+            /// <summary>
+            /// Gets the sending processing mode based on a child representation of a message entity.
+            /// </summary>
+            public override SendingProcessingMode GetSendingPMode()
+            {
+                return null;
+            }
+
+            /// <summary>
+            /// Gets the receiving processing mode based on a child representation of a message entity.
+            /// </summary>
+            public override ReceivingProcessingMode GetReceivingPMode()
+            {
+                return null;
+            }
         }
     }
 }

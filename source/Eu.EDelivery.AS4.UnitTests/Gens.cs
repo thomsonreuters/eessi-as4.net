@@ -23,6 +23,16 @@ namespace Eu.EDelivery.AS4.UnitTests
         }
     }
 
+    public class NonWhiteSpaceString
+    {
+        internal NonWhiteSpaceString(NonEmptyString str)
+        {
+            Get = str.Get.Replace(" ", String.Empty);
+        }
+
+        public string Get { get; }
+    }
+
     public static class Gens
     {
         public static Gen<T> Or<T>(this Gen<T> g1, Gen<T> g2)
@@ -43,6 +53,13 @@ namespace Eu.EDelivery.AS4.UnitTests
         public static Gen<Tuple<T1, T2>> Zip<T1, T2>(this Gen<T1> g1, Gen<T2> g2)
         {
             return Gen.zip(g1, g2);
+        }
+
+        public static Arbitrary<NonWhiteSpaceString> NonWhiteSpaceString()
+        {
+            return Arb.Generate<NonEmptyString>()
+                      .Select(str => new NonWhiteSpaceString(str))
+                      .ToArbitrary();
         }
 
         public static Arbitrary<MessageUnit> MessageUnits()

@@ -76,7 +76,6 @@
     <Compile Include="Model\Notify\EmptyNotifyEnvelope.cs" />
     <Compile Include="Model\PMode\GivenMessagePackagingFacts.cs" />
     <Compile Include="Model\PMode\GivenSendingPModeFacts.cs" />
-    <Compile Include="ModuleInitializer.cs" />
     <Compile Include="Receivers\GivenFileReceiverFacts.cs" />
     <Compile Include="Repositories\DatastoreExtensions.cs" />
     <Compile Include="Security\References\GivenSecurityReferenceTokenProviderFacts.cs" />
@@ -86,13 +85,15 @@
     <Compile Include="Security\Strategies\GivenVerifySignatureStrategyFacts.cs" />
     <Compile Include="Serialization\GivenInvalidMessageSerializationFacts.cs" />
     <Compile Include="Serialization\GivenSoapEnvelopeDeserializingFacts.cs" />
-    <Compile Include="Services\DynamicDiscovery\GivenESensDynamicDiscoveryProfileFacts.cs" />
+    <Compile Include="Services\DynamicDiscovery\GivenPeppolDynamicDiscoveryProfileFacts.cs" />
     <Compile Include="Services\DynamicDiscovery\GivenLocalDynamicDiscoveryProfileFacts.cs" />
+    <Compile Include="Services\DynamicDiscovery\GivenOasisDynamicDiscoveryProfileFacts.cs" />
     <Compile Include="Services\GivenFileAuthorizationMapProviderFacts.cs" />
     <Compile Include="Steps\Deliver\DeliverRetryData.cs" />
     <Compile Include="Steps\Deliver\UploadRetryData.cs" />
     <Compile Include="Steps\Forward\GivenCreateForwardMessageStepFacts.cs" />
     <Compile Include="Steps\Forward\GivenDetermineForwardStepFacts.cs" />
+    <Compile Include="Steps\GivenStepExecutionerFacts.cs" />
     <Compile Include="Steps\Notify\NotifyRetryData.cs" />
     <Compile Include="Steps\Receive\GivenScoringMechanismReceivingPModesFacts.cs" />
     <Compile Include="Steps\Send\GivenBundleSignalMessageToPullRequestStepFacts.cs" />
@@ -118,7 +119,6 @@
     <Compile Include="Mappings\Submit\GivenSubmitMessageFacts.cs" />
     <Compile Include="Mappings\Submit\GivenSubmitMpcResolverFacts.cs" />
     <Compile Include="Model\FilledAttachment.cs" />
-    <Compile Include="Model\Internal\SaboteurReceivedMessage.cs" />
     <Compile Include="Receivers\StubReceiver.cs" />
     <Compile Include="Repositories\InMemoryMessageBodyStore.cs" />
     <Compile Include="Repositories\StubMessageBodyRetriever.cs" />
@@ -339,7 +339,6 @@
     <None Include="Resources\as4message.txt" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="FodyWeavers.xml" />
     <Content Include="Resources\as4-encrypted-envelope.xml" />
     <Content Include="Resources\as4-soap-signed-encrypted-message-with-extra-hashtag.xml" />
     <Content Include="Resources\as4-soap-signed-encrypted-message.xml" />
@@ -371,17 +370,11 @@
     <Content Include="Resources\holodeck-as4message.xml" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Fody">
-      <Version>3.1.3</Version>
-    </PackageReference>
     <PackageReference Include="FsCheck">
       <Version>2.10.8</Version>
     </PackageReference>
     <PackageReference Include="FsCheck.Xunit">
       <Version>2.10.8</Version>
-    </PackageReference>
-    <PackageReference Include="ModuleInit.Fody">
-      <Version>1.8.1</Version>
     </PackageReference>
     <PackageReference Include="Moq">
       <Version>4.7.99</Version>

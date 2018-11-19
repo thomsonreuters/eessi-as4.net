@@ -1,5 +1,6 @@
 ﻿using System;
 using Eu.EDelivery.AS4.Model.PMode;
+using Eu.EDelivery.AS4.Serialization;
 
 namespace Eu.EDelivery.AS4.Entities
 {
@@ -20,6 +21,14 @@ namespace Eu.EDelivery.AS4.Entities
             string ebmsRefToMessageId,
             string messageLocation,
             string exception) : base(ebmsRefToMessageId, messageLocation, exception) { }
+
+        /// <summary>
+        /// Gets the sending processing mode of the child representation of an exception.
+        /// </summary>
+        public override SendingProcessingMode GetSendingPMode()
+        {
+            return AS4XmlSerializer.FromString<SendingProcessingMode>(PMode);
+        }
 
         /// <summary>
         /// Sets the <see cref="OutException.Operation"/> based on the configuration in the specified <paramref name="exceptionHandling"/>.

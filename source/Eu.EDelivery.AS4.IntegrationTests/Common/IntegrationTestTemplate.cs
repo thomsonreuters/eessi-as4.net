@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using Eu.EDelivery.AS4.IntegrationTests.Fixture;
-using Eu.EDelivery.AS4.Singletons;
 using Polly;
 using Xunit;
 
@@ -38,8 +37,6 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
         /// </summary>
         public IntegrationTestTemplate()
         {
-            AS4Mapper.Initialize();
-
             Console.WriteLine(Environment.NewLine);
 
             CopyDirectory(@".\config\integrationtest-settings", @".\config\");
@@ -123,7 +120,11 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
             if (File.Exists(file))
             {
                 Policy.Handle<IOException>()
-                      .WaitAndRetry(10, _ => TimeSpan.FromSeconds(3))
+                      .WaitAndRetry(10, _ =>
+                      {
+                          Console.WriteLine($@"Failed to delete file: {file}, wait 3s and retry...");
+                          return TimeSpan.FromSeconds(3);
+                      })
                       .Execute(() => File.Delete(file));
             }
         }

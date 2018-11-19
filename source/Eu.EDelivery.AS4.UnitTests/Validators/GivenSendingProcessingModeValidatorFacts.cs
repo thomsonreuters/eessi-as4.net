@@ -16,6 +16,22 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
 {
     public class GivenSendingProcessingModeValidatorFacts
     {
+        [Fact]
+        public void Either_PushConfiguration_Or_DynamicDiscovery_Must_Be_Specified()
+        {
+            // Arrange
+            var pmode = new SendingProcessingMode
+            {
+                Id = "sending-pmode"
+            };
+
+            // Act
+            ValidationResult result = ExerciseValidation(pmode);
+
+            // Assert
+            Assert.False(result.IsValid);
+        }
+
         [Theory]
         [InlineData(
             @"<?xml version=""1.0"" encoding=""utf-8""?>

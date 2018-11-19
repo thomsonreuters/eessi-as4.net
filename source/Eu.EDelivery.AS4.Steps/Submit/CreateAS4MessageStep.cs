@@ -28,25 +28,25 @@ namespace Eu.EDelivery.AS4.Steps.Submit
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 
-        private readonly IPayloadRetrieverProvider _payloadProvider;
+        private readonly Func<Payload, IPayloadRetriever> _resolvePayloadRetriever;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CreateAS4MessageStep"/> class.
         /// </summary>
-        public CreateAS4MessageStep() : this(PayloadRetrieverProvider.Instance) { }
+        public CreateAS4MessageStep() : this(PayloadRetrieverProvider.Instance.Get) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CreateAS4MessageStep" /> class.
         /// </summary>
-        /// <param name="payloadPayloadProvider">The payload provider.</param>
-        public CreateAS4MessageStep(IPayloadRetrieverProvider payloadPayloadProvider)
+        /// <param name="resolvePayloadRetriever">Resolve the payload retriever for a given payload.</param>
+        public CreateAS4MessageStep(Func<Payload, IPayloadRetriever> resolvePayloadRetriever)
         {
-            if (payloadPayloadProvider == null)
+            if (resolvePayloadRetriever == null)
             {
-                throw new ArgumentNullException(nameof(payloadPayloadProvider));
+                throw new ArgumentNullException(nameof(resolvePayloadRetriever));
             }
 
-            _payloadProvider = payloadPayloadProvider;
+            _resolvePayloadRetriever = resolvePayloadRetriever;
         }
 
         /// <summary>
@@ -200,7 +200,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
 
         private async Task<Stream> RetrievePayloadContentsAsync(Payload payload)
         {
-            IPayloadRetriever retriever = _payloadProvider.Get(payload);
+            IPayloadRetriever retriever = _resolvePayloadRetriever(payload);
             if (retriever == null)
             {
                 throw new ArgumentNullException(

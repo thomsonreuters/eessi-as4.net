@@ -9,7 +9,6 @@ using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Serialization;
-using Eu.EDelivery.AS4.Singletons;
 using NLog;
 
 namespace Eu.EDelivery.AS4.Entities
@@ -40,7 +39,7 @@ namespace Eu.EDelivery.AS4.Entities
         public string PModeId { get; private set; }
 
         /// <summary>
-        /// Set the Id & string represenation of the PMode that is used to process the message.
+        /// Set the Id & string representation of the PMode that is used to process the message.
         /// </summary>
         /// <param name="pmodeId"></param>
         /// <param name="pmodeContent"></param>
@@ -77,6 +76,16 @@ namespace Eu.EDelivery.AS4.Entities
                 }
             }
         }
+
+        /// <summary>
+        /// Gets the sending processing mode based on a child representation of a message entity.
+        /// </summary>
+        public abstract SendingProcessingMode GetSendingPMode();
+
+        /// <summary>
+        /// Gets the receiving processing mode based on a child representation of a message entity.
+        /// </summary>
+        public abstract ReceivingProcessingMode GetReceivingPMode();
 
         [MaxLength(255)]
         public string FromParty { get; set; }

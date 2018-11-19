@@ -116,6 +116,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             var attachment = new Attachment("attachment-id", attachmentStream, "text/plain");
 
             AS4Message as4Message = AS4Message.Empty;
+            as4Message.AddMessageUnit(new UserMessage($"user-{Guid.NewGuid()}"));
             as4Message.AddAttachment(attachment);
 
             var message = new MessagingContext(as4Message, MessagingContextMode.Unknown)

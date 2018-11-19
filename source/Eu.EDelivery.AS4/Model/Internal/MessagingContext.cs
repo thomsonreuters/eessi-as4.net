@@ -36,9 +36,20 @@ namespace Eu.EDelivery.AS4.Model.Internal
             NotifyMessage = null;
             Mode = mode;
 
-            if (ReceivedMessage is ReceivedEntityMessage receivedEntityMessage)
+            if (receivedMessage is ReceivedEntityMessage rem)
             {
-                MessageEntityId = receivedEntityMessage.Entity?.Id;
+                MessageEntityId = rem.Entity?.Id;
+                switch (rem.Entity)
+                {
+                    case MessageEntity me:
+                        SendingPMode = me.GetSendingPMode();
+                        ReceivingPMode = me.GetReceivingPMode();
+                        break;
+                    case ExceptionEntity ee:
+                        ReceivingPMode = ee.GetReceivingPMode();
+                        SendingPMode = ee.GetSendingPMode();
+                        break;
+                }
             }
         }
 
@@ -51,30 +62,18 @@ namespace Eu.EDelivery.AS4.Model.Internal
         public MessagingContext(
             AS4Message as4Message,
             ReceivedMessage receivedMessage,
-            MessagingContextMode mode)
+            MessagingContextMode mode) : this(receivedMessage, mode)
         {
             if (as4Message == null)
             {
                 throw new ArgumentNullException(nameof(as4Message));
             }
 
-            if (receivedMessage == null)
-            {
-                throw new ArgumentNullException(nameof(receivedMessage));
-            }
-
             AS4Message = as4Message;
-            ReceivedMessage = receivedMessage;
-            Mode = mode;
 
             SubmitMessage = null;
             DeliverMessage = null;
             NotifyMessage = null;
-
-            if (ReceivedMessage is ReceivedEntityMessage receivedEntityMessage)
-            {
-                MessageEntityId = receivedEntityMessage.Entity?.Id;
-            }
         }
 
         /// <summary>
@@ -141,8 +140,7 @@ namespace Eu.EDelivery.AS4.Model.Internal
         /// Initializes a new instance of the <see cref="MessagingContext"/> class.
         /// </summary>
         /// <param name="notifyMessage">The notify message.</param>
-        /// <param name="entityId"></param>
-        public MessagingContext(NotifyMessageEnvelope notifyMessage, long? entityId = null)
+        public MessagingContext(NotifyMessageEnvelope notifyMessage)
         {
             if (notifyMessage == null)
             {
@@ -154,8 +152,25 @@ namespace Eu.EDelivery.AS4.Model.Internal
             AS4Message = null;
             DeliverMessage = null;
             NotifyMessage = notifyMessage;
-            MessageEntityId = entityId;
             Mode = MessagingContextMode.Notify;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MessagingContext"/> class.
+        /// </summary>
+        /// <param name="notifyMessage">The notify message.</param>
+        /// <param name="receivedMessage">The referenced received message for this notify envelope.</param>
+        public MessagingContext(NotifyMessageEnvelope notifyMessage, ReceivedMessage receivedMessage) : this(receivedMessage, MessagingContextMode.Notify)
+        {
+            if (notifyMessage == null)
+            {
+                throw new ArgumentNullException(nameof(notifyMessage));
+            }
+
+            SubmitMessage = null;
+            AS4Message = null;
+            DeliverMessage = null;
+            NotifyMessage = notifyMessage;
         }
 
         /// <summary>

@@ -51,10 +51,7 @@ namespace Eu.EDelivery.AS4.Transformers
                         AS4Message.Create(error, new SendingProcessingMode()),
                         ex.GetType());
 
-                var ctx = new MessagingContext(notifyEnvelope, receivedMessage.Entity.Id);
-                message.AssignPropertiesTo(ctx);
-
-                return ctx;
+                return new MessagingContext(notifyEnvelope, receivedMessage);
             }
 
             if (receivedMessage.Entity is MessageEntity me)
