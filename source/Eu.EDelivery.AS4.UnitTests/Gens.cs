@@ -68,8 +68,7 @@ namespace Eu.EDelivery.AS4.UnitTests
                 new UserMessage($"user-{Guid.NewGuid()}"),
                 new Receipt(
                     $"receipt-{Guid.NewGuid()}", 
-                    $"ref-to-user-{Guid.NewGuid()}",
-                    DateTimeOffset.Now),
+                    $"ref-to-user-{Guid.NewGuid()}"),
                 new FilledNRReceipt(), 
                 new Error(
                     $"error-{Guid.NewGuid()}", 
@@ -94,7 +93,6 @@ namespace Eu.EDelivery.AS4.UnitTests
                       .Select(t => new Receipt(
                           t.Item1.Item1.Get, 
                           t.Item1.Item2.Get, 
-                          DateTimeOffset.Now, 
                           t.Item2, 
                           UserMessageMap.ConvertToRouting(t.Item3)))
                       .ToArbitrary();

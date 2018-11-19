@@ -63,7 +63,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
 
         private static MessagingContext ContextWithSignedPullRequest(string expectedMpc, X509Certificate2 signingCertificate)
         {
-            AS4Message message = AS4Message.Create(new PullRequest(expectedMpc));
+            AS4Message message = AS4Message.Create(new PullRequest($"pr-{Guid.NewGuid()}", expectedMpc));
 
             message = AS4MessageUtils.SignWithCertificate(message, signingCertificate);
 

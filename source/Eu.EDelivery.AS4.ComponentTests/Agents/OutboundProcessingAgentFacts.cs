@@ -181,8 +181,9 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                     Service = new Xml.Service { Value = "OutboundProcessing_Service", type = "eu:europa:services" }
                 }
             };
-            var receipt = new Receipt( 
-                $"test-{Guid.NewGuid()}", 
+            var receipt = new Receipt(
+                $"receipt-{Guid.NewGuid()}",
+                $"user-{Guid.NewGuid()}", 
                 new Model.Core.NonRepudiationInformation(new Reference[0]),
                 routedUserMessage);
 

@@ -1,4 +1,5 @@
-﻿using System.Security.Cryptography.X509Certificates;
+﻿using System;
+using System.Security.Cryptography.X509Certificates;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Services.PullRequestAuthorization;
 using Eu.EDelivery.AS4.TestUtils;
@@ -140,7 +141,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Services
 
         private static AS4Message CreatePullRequest(string mpc)
         {
-            PullRequest pr = new PullRequest(mpc);
+            PullRequest pr = new PullRequest($"pr-{Guid.NewGuid()}", mpc);
 
             return AS4Message.Create(pr, null);
         }

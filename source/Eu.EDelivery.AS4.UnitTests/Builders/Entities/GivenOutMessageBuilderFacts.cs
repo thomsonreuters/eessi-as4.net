@@ -53,7 +53,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
                 // Arrange
                 string messageId = Guid.NewGuid().ToString();
                 AS4Message as4Message = AS4Message.Create(
-                    new Receipt(messageId, $"reftoid-{Guid.NewGuid()}", DateTimeOffset.Now), 
+                    new Receipt(messageId, $"reftoid-{Guid.NewGuid()}"), 
                     ExpectedPMode());
 
                 // Act

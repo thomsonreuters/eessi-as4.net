@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Exceptions;
-using Eu.EDelivery.AS4.Mappings.Core;
+using Eu.EDelivery.AS4.Factories;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
@@ -104,18 +104,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         {
             Error ToError(UserMessage u)
             {
-                
-                if (received?.IsMultiHopMessage == true)
-                {
-                    var routedUserMessage = UserMessageMap.ConvertToRouting(u);
-                    return occurredError == null
-                        ? new Error(u.MessageId, routedUserMessage)
-                        : new Error(u.MessageId, ErrorLine.FromErrorResult(occurredError), routedUserMessage);
-                }
-
-                return occurredError == null
-                    ? new Error(u.MessageId)
-                    : new Error(u.MessageId, ErrorLine.FromErrorResult(occurredError));
+                return Error.CreateFor(IdentifierFactory.Instance.Create(), u, occurredError, received?.IsMultiHopMessage == true);
             }
 
             IEnumerable<Error> errors = received?.UserMessages.Select(ToError) ?? new Error[0];

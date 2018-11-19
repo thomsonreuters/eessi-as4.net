@@ -151,7 +151,6 @@
     <Compile Include="Mappings\Submit\GivenSubmitReceiverResolverFacts.cs" />
     <Compile Include="Mappings\Submit\GivenSubmitSenderPartyResolverFacts.cs" />
     <Compile Include="Mappings\Submit\GivenSubmitServiceResolverFacts.cs" />
-    <Compile Include="Model\Core\GivenErrorFacts.cs" />
     <Compile Include="Model\EmptyMessagingContext.cs" />
     <Compile Include="Model\FilledNRReceipt.cs" />
     <Compile Include="Model\FilledUserMessage.cs" />
