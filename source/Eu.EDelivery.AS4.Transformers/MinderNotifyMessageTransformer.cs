@@ -48,13 +48,18 @@ namespace Eu.EDelivery.AS4.Transformers
             var as4Transformer = new AS4MessageTransformer();
             MessagingContext context = await as4Transformer.TransformAsync(message);
 
-            NotifyMessageEnvelope notifyMessage = await CreateNotifyMessageEnvelope(context.AS4Message, receivedEntityMessage.Entity.GetType());
+            NotifyMessageEnvelope notifyMessage = 
+                await CreateNotifyMessageEnvelope(
+                    context.AS4Message, 
+                    context.AS4Message.GetPrimaryMessageId(), 
+                    receivedEntityMessage.Entity.GetType());
+
             context.ModifyContext(notifyMessage);
 
             return context;
         }
 
-        internal async Task<NotifyMessageEnvelope> CreateNotifyMessageEnvelope(AS4Message as4Message, Type receivedEntityType)
+        internal async Task<NotifyMessageEnvelope> CreateNotifyMessageEnvelope(AS4Message as4Message, string receivedEntityMessageId, Type receivedEntityType)
         {
             SignalMessage signalMessage = as4Message.FirstSignalMessage;
             if (signalMessage != null)
@@ -88,7 +93,11 @@ namespace Eu.EDelivery.AS4.Transformers
 
             UserMessage minderUserMessage = CreateUserMessageFromMinderProperties(userMessage, signalMessage);
 
-            NotifyMessage notifyMessage = AS4MessageToNotifyMessageMapper.Convert(as4Message, receivedEntityMessageType);
+            NotifyMessage notifyMessage = 
+                AS4MessageToNotifyMessageMapper.Convert(
+                    as4Message.FirstSignalMessage, 
+                    receivedEntityMessageType,
+                    as4Message.EnvelopeDocument ?? AS4XmlSerializer.ToSoapEnvelopeDocument(as4Message));
 
             // The NotifyMessage that Minder expects, is an AS4Message which contains the specific UserMessage.
             var msg = AS4Message.Create(minderUserMessage, new SendingProcessingMode());

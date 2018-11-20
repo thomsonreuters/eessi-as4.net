@@ -78,7 +78,7 @@ namespace Eu.EDelivery.AS4.Serialization
         /// <param name="message">The message.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns></returns>
-        public static XmlDocument ToSoapEnvelopeDocument(AS4Message message, CancellationToken cancellationToken)
+        public static XmlDocument ToSoapEnvelopeDocument(AS4Message message, CancellationToken cancellationToken = default(CancellationToken))
         {
             return SerializeToSoapEnvelope(
                 message,
