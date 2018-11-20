@@ -52,21 +52,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Services.DynamicDiscovery
         }
 
         [Fact]
-        public async Task FailsToRetrieveSmpMetaData_IfPartyIsInvalid()
-        {
-            // Arrange
-            var sut = new LocalDynamicDiscoveryProfile(GetDataStoreContext);
-
-            // Act / Assert
-            await Assert.ThrowsAsync<InvalidOperationException>(
-                () => sut.RetrieveSmpMetaDataAsync(
-                    new Party(
-                        role: "role",
-                        partyIds: Enumerable.Empty<PartyId>()),
-                    properties: new Dictionary<string, string>()));
-        }
-
-        [Fact]
         public void DecorateMandatoryInfoToSendingPMode()
         {
             // Arrange

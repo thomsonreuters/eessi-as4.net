@@ -26,7 +26,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
 
             var pmode = CreateSendingPMode(fromParty: sendingParty, toParty: null);
 
-            var receivingParty = CreateSubmitMessageParty("receiver", "", "c3");
+            var receivingParty = CreateSubmitMessageParty("receiver", "type", "c3");
 
             var submitMessage = CreateSubmitMessage(pmode, fromParty: null, toParty: receivingParty);
 
@@ -54,7 +54,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
 
             var pmode = CreateSendingPMode(fromParty: null, toParty: receivingParty);
 
-            var fromParty = CreateSubmitMessageParty("sender", "", "c2");
+            var fromParty = CreateSubmitMessageParty("sender", "type", "c2");
 
             var submitMessage = CreateSubmitMessage(pmode, fromParty: fromParty, toParty: null);
 

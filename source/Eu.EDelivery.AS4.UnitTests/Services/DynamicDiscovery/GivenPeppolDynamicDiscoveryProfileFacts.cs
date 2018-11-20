@@ -10,8 +10,6 @@ using System.Xml.XPath;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Services.DynamicDiscovery;
 using Xunit;
-using Party = Eu.EDelivery.AS4.Model.Core.Party;
-using PartyId = Eu.EDelivery.AS4.Model.Core.PartyId;
 
 namespace Eu.EDelivery.AS4.UnitTests.Services.DynamicDiscovery
 {
@@ -22,17 +20,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Services.DynamicDiscovery
         {
             const string uri = "http://test:test";
             Assert.DoesNotContain(":", HttpUtility.UrlEncode(uri));
-        }
-
-        [Fact]
-        public async Task FailsToRetrieveSmpMetaData_IfPartyIsInvalid()
-        {
-            // Arrange
-            var sut = new PeppolDynamicDiscoveryProfile();
-
-            // Act / Assert
-            await Assert.ThrowsAsync<InvalidOperationException>(
-                () => sut.RetrieveSmpMetaDataAsync(new Party("role", Enumerable.Empty<PartyId>()), properties: new Dictionary<string, string>()));
         }
 
         [Fact]

@@ -21,7 +21,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             var attachment = new Attachment("earth", Stream.Null, "text/plain");
             var user = new UserMessage(
                 $"user-{Guid.NewGuid()}",
-                PartInfo.CreateFor(attachment));
+                new PartInfo("earth"));
 
             AS4Message message = AS4Message.Create(user);
             message.AddAttachment(attachment);

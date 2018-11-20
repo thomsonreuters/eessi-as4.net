@@ -78,7 +78,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
             return Arb.Generate<NonEmptyString>()
                       .Two()
                       .Select(t => new AS4PartyId(t.Item1.Get, t.Item2.Get))
-                      .ListOf()
+                      .NonEmptyListOf()
                       .Zip(Arb.Generate<NonEmptyString>(), (ids, role) => new AS4Party(role.Get, ids));
         }
 
