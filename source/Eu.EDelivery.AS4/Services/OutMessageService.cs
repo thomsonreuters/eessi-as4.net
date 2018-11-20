@@ -235,9 +235,7 @@ namespace Eu.EDelivery.AS4.Services
                 return sendPMode;
             }
 
-            if (mu is SignalMessage
-                && receivePMode != null
-                && receivePMode.ReplyHandling?.ReplyPattern == ReplyPattern.Callback)
+            if (mu is SignalMessage && receivePMode != null)
             {
                 Logger.Debug($"Use ReceivingPMode {receivePMode.Id} to insert with the OutMessage");
                 return receivePMode;

@@ -84,8 +84,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                     AS4Message.Create(
                         new Receipt(
                             ebmsMessageId,
-                            $"reftoid-{Guid.NewGuid()}",
-                            DateTimeOffset.Now)))
+                            $"reftoid-{Guid.NewGuid()}")))
             };
         }
 

@@ -1,6 +1,22 @@
 :host {
     display: flex;    
+    &.ng-invalid {
+        button {
+            color: red;
+        }
+    }
 }
-p {
-    margin-left: 10px;
+
+.fileselect {
+    display: flex;
+    flex-direction: column;
+    p {
+        margin-left: 10px;
+    }
+    .control {
+        display: flex;
+        p {
+            overflow: auto;
+        }
+    }
 }

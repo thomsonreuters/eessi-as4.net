@@ -74,7 +74,7 @@ This contract describes all the properties available in the Sending PMode. The r
                 M<br/>
             </td>
             <td>
-                Element must be present when MEPBinding is set to <i>push</i><br/>
+                When MEPBinding is set to <i>push</i> this element or the DynamicDiscovery element must be present<br/>
                 &nbsp;URL of the receiving MSH<br/>
                 <i>Default: </i>false (true &gt; not implemented)<br/>
                 <i>Default: </i>false (true &gt; not implemented)<br/><br/>
@@ -91,7 +91,7 @@ This contract describes all the properties available in the Sending PMode. The r
         </tr>
         <tr>
             <td>
-                <b>DynamicDiscovery</b><br/>
+                <b>DynamicDiscovery</b><br/><br/><br/>
                 &nbsp;&nbsp;SmpProfile<br/><br/>
                 &nbsp;&nbsp;<i>Settings</i><br/>
                 &nbsp;&nbsp;&nbsp;<i>Setting</i><br/>
@@ -99,7 +99,7 @@ This contract describes all the properties available in the Sending PMode. The r
                 &nbsp;&nbsp;&nbsp;&nbsp;Value<br/>
             </td>
             <td>
-                O<br/>
+                O<br/><br/><br/>
                 O<br/><br/>
                 O<br/>
                 O<br/>
@@ -107,10 +107,13 @@ This contract describes all the properties available in the Sending PMode. The r
                 M<br/>
             </td>
             <td>
-                This element is only present when SMP/SML is required<br/>
-                The FQN of the class that implements the IDynamicDiscoveryProfile interface that must be used. If this is not defined, the internal implementation must be used by default.<br/>
-                Custom settings to configure the IDynamicDiscoveryProfile.
-                <br/><br/><br/><br/>
+                This element is only present when SMP/SML is required. <br/> Either this element or the PushConfiguration must be present when the MEPBinding is set to <em>push</em>.<br/>
+                The FQN of the class that implements the IDynamicDiscoveryProfile interface that must be used. If this is not defined, the internal implementation must be used by default.
+                <br/>Custom settings to configure the IDynamicDiscoveryProfile.
+                <br/>
+                <br/>
+                <br/>
+                <br/>
             </td>
         </tr>
         <tr>

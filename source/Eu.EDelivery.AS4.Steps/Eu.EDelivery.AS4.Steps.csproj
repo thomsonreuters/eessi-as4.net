@@ -105,9 +105,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="AutoMapper">
-      <Version>5.0.2</Version>
-    </PackageReference>
     <PackageReference Include="FluentValidation">
       <Version>6.2.1</Version>
     </PackageReference>

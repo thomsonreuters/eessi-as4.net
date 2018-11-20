@@ -40,10 +40,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Receive_Scenarios
             const string contentType = "multipart/related; boundary=\"=-M9awlqbs/xWAPxlvpSWrAg==\"; type=\"application/soap+xml\"; charset=\"utf-8\"";
 
             await HttpClient.SendMessageAsync(duplicated_as4message, contentType);
-
-            await PollingService.PollUntilPresentAsync(
-                AS4Component.FullInputPath,
-                fs => fs.Count() == 3);
+            await PollingService.PollUntilPresentAsync(AS4Component.FullInputPath);
             CleanUpFiles(AS4Component.FullInputPath);
 
             // Act

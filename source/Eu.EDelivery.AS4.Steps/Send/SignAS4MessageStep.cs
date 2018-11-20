@@ -10,6 +10,7 @@ using Eu.EDelivery.AS4.Repositories;
 using NLog;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Security.Signing;
+using Eu.EDelivery.AS4.Services.Journal;
 
 namespace Eu.EDelivery.AS4.Steps.Send
 {
@@ -87,9 +88,25 @@ namespace Eu.EDelivery.AS4.Steps.Send
             }
 
             Logger.Info($"{messagingContext.LogTag} Sign AS4Message with given signing information of the PMode");
-            SignAS4Message(signInfo, messagingContext.AS4Message);
 
-            return await StepResult.SuccessAsync(messagingContext);
+            X509Certificate2 certificate = RetrieveCertificate(signInfo);
+            var settings =
+                new CalculateSignatureConfig(
+                    signingCertificate: certificate,
+                    referenceTokenType: signInfo.KeyReferenceMethod,
+                    signingAlgorithm: signInfo.Algorithm,
+                    hashFunction: signInfo.HashFunction);
+
+            SignAS4Message(settings, messagingContext.AS4Message);
+
+            JournalLogEntry logEntry = JournalLogEntry.CreateFrom(
+                messagingContext.AS4Message,
+                $"Signed with certificate {settings.SigningCertificate.FriendlyName} and reference {settings.ReferenceTokenType} "
+                + $"using algorithm {settings.SigningAlgorithm} and hash {settings.HashFunction}");
+
+            return await StepResult
+                .Success(messagingContext)
+                .WithJournalAsync(logEntry);
         }
 
         private static Signing RetrieveSigningInformation(
@@ -145,18 +162,10 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 "No signing information can be retrieved from both Sending and Receiving PMode based on the message type");
         }
 
-        private void SignAS4Message(Signing signInfo, AS4Message message)
+        private static void SignAS4Message(CalculateSignatureConfig settings, AS4Message message)
         {
             try
             {
-                X509Certificate2 certificate = RetrieveCertificate(signInfo);
-                var settings = 
-                    new CalculateSignatureConfig(
-                        signingCertificate: certificate,
-                        referenceTokenType: signInfo.KeyReferenceMethod,
-                        signingAlgorithm: signInfo.Algorithm,
-                        hashFunction: signInfo.HashFunction);
-
                 message.Sign(settings);
             }
             catch (Exception exception)

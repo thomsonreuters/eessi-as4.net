@@ -22,7 +22,7 @@ namespace Eu.EDelivery.AS4.Mappings.Core
                     nameof(xml.PullRequest));
             }
 
-            return new Model.Core.PullRequest(xml.PullRequest?.mpc);
+            return new Model.Core.PullRequest(xml.MessageInfo?.MessageId, xml.PullRequest?.mpc);
         }
 
         /// <summary>

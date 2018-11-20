@@ -1,14 +1,27 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ComponentRef, OnDestroy } from '@angular/core';
-import { AbstractControl, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ComponentRef,
+  OnDestroy,
+  ChangeDetectorRef
+} from '@angular/core';
+import {
+  AbstractControl,
+  FormBuilder,
+  FormGroup,
+  Validators
+} from '@angular/forms';
 import { Observable, Subject } from 'rxjs';
 
 import { ItemType } from '../../api/ItemType';
 import { SmpConfiguration } from '../../api/SmpConfiguration';
 import { RuntimeStore } from '../runtime.store';
 import { SmpConfigurationService } from './smpconfiguration.service';
+import { triggerFormValidation } from '../../helpers';
 
 @Component({
   templateUrl: './smpconfigurationdetail.component.html',
+  styleUrls: ['./smpconfigurationdetail.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SmpConfigurationDetailComponent implements OnDestroy {
@@ -17,6 +30,7 @@ export class SmpConfigurationDetailComponent implements OnDestroy {
   private componentDestroyed$ = new Subject<any>();
   private defaultValues: ItemType[];
   private isNew: boolean;
+
   constructor(
     private formBuilder: FormBuilder,
     private service: SmpConfigurationService,
@@ -38,15 +52,27 @@ export class SmpConfigurationDetailComponent implements OnDestroy {
           return this.service.getById(id);
         }
       })
+      .take(1)
       .subscribe((smp) => {
-        this.form.reset(smp, { emitEvent: false });
+        this.form.patchValue(smp);
         this.changeDetector.detectChanges();
       });
   }
+
+  public setSmp(smp: SmpConfiguration) {
+    this.form.patchValue(smp);
+  }
+
   public ngOnDestroy(): void {
     this.componentDestroyed$.next();
   }
+
   public saveItem(result: boolean) {
+    triggerFormValidation(this.form);
+    if (!this.form.valid) {
+      return;
+    }
+
     let obs: Observable<boolean>;
     if (result === false) {
       this.componentRef.destroy();
@@ -65,6 +91,7 @@ export class SmpConfigurationDetailComponent implements OnDestroy {
       });
     }
   }
+
   private buildItem(configuration?: SmpConfiguration): FormGroup {
     const form = this.formBuilder.group({
       [SmpConfiguration.FIELD_id]: [!configuration ? null : configuration.id],
@@ -94,11 +121,11 @@ export class SmpConfigurationDetailComponent implements OnDestroy {
         !configuration ? null : configuration.action
       ],
       [SmpConfiguration.FIELD_TlsEnabled]: [
-        !configuration ? false : configuration.tlsEnabled,
+        configuration == null ? false : configuration.tlsEnabled,
         Validators.required
       ],
       [SmpConfiguration.FIELD_EncryptionEnabled]: [
-        !configuration ? false : configuration.encryptionEnabled,
+        configuration == null ? false : configuration.encryptionEnabled,
         Validators.required
       ],
       [SmpConfiguration.FIELD_FinalRecipient]: [
@@ -167,7 +194,6 @@ export class SmpConfigurationDetailComponent implements OnDestroy {
       SmpConfiguration.FIELD_EncryptionEnabled
     )!.value;
     let isEmpty = !x.value;
-    console.log('update');
     return encryptionEnabled && isEmpty
       ? { required: 'This field is required when enabling encryption' }
       : null;

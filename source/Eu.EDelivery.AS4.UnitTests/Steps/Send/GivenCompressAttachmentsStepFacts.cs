@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -71,6 +72,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
         private static MessagingContext AS4MessageContext(Attachment attachment, SendingProcessingMode pmode)
         {
             AS4Message as4Message = AS4Message.Create(pmode);
+            as4Message.AddMessageUnit(new UserMessage($"user-{Guid.NewGuid()}"));
             as4Message.AddAttachment(attachment);
 
             return new MessagingContext(as4Message, MessagingContextMode.Unknown) {SendingPMode = pmode};

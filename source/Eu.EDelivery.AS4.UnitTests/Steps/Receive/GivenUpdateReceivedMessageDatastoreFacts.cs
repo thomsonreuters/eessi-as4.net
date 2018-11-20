@@ -131,7 +131,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                     () => new UserMessage(
                         $"user-{Guid.NewGuid()}", 
                         new CollaborationInfo(new Service($"service-{Guid.NewGuid()}")))),
-                Gen.Fresh<MessageUnit>(() => new Receipt($"receipt-{Guid.NewGuid()}")))
+                Gen.Fresh<MessageUnit>(() => new Receipt($"receipt-{Guid.NewGuid()}", $"user-{Guid.NewGuid()}")))
                       .NonEmptyListOf()
                       .ToArbitrary();
         }
@@ -144,7 +144,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             GetDataStoreContext.InsertOutMessage(new OutMessage(ebmsMessageId));
 
             AS4Message receivedAS4Message =
-                AS4Message.Create(new Receipt(ebmsMessageId));
+                AS4Message.Create(new Receipt($"receipt-{Guid.NewGuid()}", ebmsMessageId));
 
             // Act
             await ExerciseUpdateReceivedMessage(
@@ -202,6 +202,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             GetDataStoreContext.InsertOutMessage(CreateOutMessage(ebmsMessageId));
 
             var error = Error.FromErrorResult(
+                $"error-{Guid.NewGuid()}",
                 ebmsMessageId, 
                 new ErrorResult("Some Error", ErrorAlias.ConnectionFailure));
 
@@ -284,6 +285,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 CreateOutMessage(ebmsMessageId));
 
             var error = Error.FromErrorResult(
+                $"error-{Guid.NewGuid()}",
                 ebmsMessageId, 
                 new ErrorResult("Some Error occured", ErrorAlias.ConnectionFailure));
 
@@ -327,7 +329,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             GetDataStoreContext.InsertOutMessage(
                 new OutMessage(ebmsMessageId));
 
-            AS4Message receipt = AS4Message.Create(new Receipt(ebmsMessageId));
+            AS4Message receipt = AS4Message.Create(new Receipt($"receipt-{Guid.NewGuid()}", ebmsMessageId));
             SendingProcessingMode pmode = CreateNotifyAllSendingPMode();
             pmode.ReceiptHandling.Reliability =
                 new RetryReliability

@@ -4,7 +4,11 @@ using System.Linq;
 using System.Linq.Expressions;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Storage;
+using Polly;
 
 namespace Eu.EDelivery.AS4.ComponentTests.Common
 {
@@ -16,9 +20,45 @@ namespace Eu.EDelivery.AS4.ComponentTests.Common
         /// Initializes a new instance of the <see cref="DatabaseSpy"/> class.
         /// </summary>
         /// <param name="configuration">The configuration.</param>
+        [Obsolete("Use the 'Create' factory method to make database spies")]
         public DatabaseSpy(IConfig configuration)
         {
             _configuration = configuration;
+
+            // TODO: move to factory method if no more public references are present.
+            Policy.Handle<InvalidOperationException>()
+                  .Or<SqliteException>()
+                  .WaitAndRetry(5, _ => TimeSpan.FromSeconds(1))
+                  .Execute(() =>
+                  {
+                      using (var db = new DatastoreContext(configuration))
+                      {
+                          if (db.Database.IsSqlServer())
+                          {
+                              if (!db.Database
+                                     .GetService<IRelationalDatabaseCreator>()
+                                     .Exists())
+                              {
+                                  throw new InvalidOperationException("SQL Server not yet migrated");
+                              }
+                          }
+
+                          if (db.Database.IsSqlite())
+                          {
+                              OutMessage _ = db.OutMessages.FirstOrDefault();
+                          }
+                      }
+                  });
+        }
+
+        /// <summary>
+        /// Creates a new instance of the <see cref="DatabaseSpy"/> 
+        /// using a specified <paramref name="configuration"/> to know where to spy on.
+        /// </summary>
+        /// <param name="configuration">The configuration containing the database configurations.</param>
+        public static DatabaseSpy Create(IConfig configuration)
+        {
+            return new DatabaseSpy(configuration);
         }
 
         /// <summary>

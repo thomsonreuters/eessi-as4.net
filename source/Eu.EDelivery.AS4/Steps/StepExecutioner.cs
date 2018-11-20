@@ -2,8 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Eu.EDelivery.AS4.Agents;
+using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Internal;
+using Eu.EDelivery.AS4.Services.Journal;
 
 namespace Eu.EDelivery.AS4.Steps
 {
@@ -69,7 +72,7 @@ namespace Eu.EDelivery.AS4.Steps
         /// </summary>
         /// <param name="currentContext">The input that gets passed to the step pipeline.</param>
         /// <returns>The result of the last-executed step from the normal or error pipeline if there hasn't been an exception occured.</returns>
-        public async Task<MessagingContext> ExecuteStepsAsync(MessagingContext currentContext)
+        public async Task<StepResult> ExecuteStepsAsync(MessagingContext currentContext)
         {
             bool hasNoStepsConfigured = 
                 _conditionalPipeline.happyPath == null
@@ -78,7 +81,7 @@ namespace Eu.EDelivery.AS4.Steps
 
             if (hasNoStepsConfigured)
             {
-                return currentContext;
+                return StepResult.Success(currentContext);
             }
 
             StepResult result = StepResult.Success(currentContext);
@@ -86,11 +89,14 @@ namespace Eu.EDelivery.AS4.Steps
             try
             {
                 IEnumerable<IStep> steps = CreateSteps(_stepConfiguration?.NormalPipeline, _conditionalPipeline.happyPath);
-                result = await ExecuteStepsAsync(steps, currentContext);
+                result = await ExecuteStepsAsync(steps, result);
             }
             catch (Exception exception)
             {
-                return await _exceptionHandler.HandleExecutionException(exception, currentContext);
+                MessagingContext handled = 
+                    await _exceptionHandler.HandleExecutionException(exception, currentContext);
+
+                return StepResult.Failed(handled);
             }
 
             try
@@ -104,14 +110,17 @@ namespace Eu.EDelivery.AS4.Steps
                     && result.MessagingContext.Exception == null)
                 {
                     IEnumerable<IStep> steps = CreateSteps(_stepConfiguration?.ErrorPipeline, _conditionalPipeline.unhappyPath);
-                    result = await ExecuteStepsAsync(steps, result.MessagingContext);
+                    result = await ExecuteStepsAsync(steps, result);
                 }
 
-                return result.MessagingContext;
+                return result;
             }
             catch (Exception exception)
             {
-                return await _exceptionHandler.HandleErrorException(exception, result.MessagingContext);
+                MessagingContext handled = 
+                    await _exceptionHandler.HandleErrorException(exception, result.MessagingContext);
+
+                return StepResult.Failed(handled);
             }
         }
 
@@ -132,41 +141,80 @@ namespace Eu.EDelivery.AS4.Steps
 
         private static async Task<StepResult> ExecuteStepsAsync(
             IEnumerable<IStep> steps,
-            MessagingContext context)
+            StepResult initialResult)
         {
-            StepResult result = StepResult.Success(context);
-            MessagingContext currentContext = context;
+            StepResult lastResult = initialResult;
+            MessagingContext currentContext = lastResult.MessagingContext;
+
+            ICollection<JournalLogEntry> journal = lastResult.Journal.ToList();
 
             foreach (IStep step in steps)
             {
-                result = await step.ExecuteAsync(currentContext).ConfigureAwait(false);
+                StepResult nextResult = await ExecuteStepAsync(currentContext, step);
 
-                if (result == null)
+                AddOrUpdateJournal(journal, nextResult);
+
+                if (nextResult.CanProceed == false
+                    || nextResult.Succeeded == false
+                    || nextResult.MessagingContext.Exception != null)
                 {
-                    throw new InvalidOperationException(
-                        $"Result of last step: {step.GetType().Name} returns 'null'");
+                    return nextResult.WithJournal(journal);
                 }
 
-                if (result.MessagingContext == null)
+                if (nextResult.MessagingContext != null 
+                    && currentContext != nextResult.MessagingContext)
                 {
-                    throw new InvalidOperationException(
-                        $"Result of last step {step.GetType().Name} doesn't have a 'MessagingContext'");
+                    currentContext = nextResult.MessagingContext;
                 }
 
-                if (result.CanProceed == false 
-                    || result.Succeeded == false 
-                    || result.MessagingContext.Exception != null)
-                {
-                    return result;
-                }
-
-                if (result.MessagingContext != null && currentContext != result.MessagingContext)
-                {
-                    currentContext = result.MessagingContext;
-                }
+                lastResult = nextResult;
             }
 
-            return result;
+            return lastResult.WithJournal(journal);
+        }
+
+        private static void AddOrUpdateJournal(ICollection<JournalLogEntry> journal, StepResult nextResult)
+        {
+            foreach (JournalLogEntry entry in nextResult.Journal)
+            {
+                JournalLogEntry existed =
+                    journal.FirstOrDefault(j => JournalLogEntryComparer.ByEbmsMessageId.Equals(j, entry));
+
+                if (existed != null)
+                {
+                    existed.AddLogEntries(entry.LogEntries);
+                }
+                else
+                {
+                    journal.Add(entry);
+                }
+            }
+        }
+
+        private static async Task<StepResult> ExecuteStepAsync(MessagingContext currentContext, IStep step)
+        {
+            Task<StepResult> executeAsync = step.ExecuteAsync(currentContext);
+            if (executeAsync == null)
+            {
+                throw new InvalidOperationException(
+                    $"Asynchronous result of step: {step.GetType().Name} returns 'null'");
+            }
+
+            StepResult nextResult = await executeAsync.ConfigureAwait(false);
+
+            if (nextResult == null)
+            {
+                throw new InvalidOperationException(
+                    $"Result of step: {step.GetType().Name} returns 'null'");
+            }
+
+            if (nextResult.MessagingContext == null)
+            {
+                throw new InvalidOperationException(
+                    $"Result of step {step.GetType().Name} doesn't have a '{nameof(MessagingContext)}'");
+            }
+
+            return nextResult;
         }
     }
 }

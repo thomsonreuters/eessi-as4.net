@@ -9,6 +9,7 @@ using Eu.EDelivery.AS4.Exceptions.Handlers;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Receivers;
 using Eu.EDelivery.AS4.ServiceHandler.Builder;
+using Eu.EDelivery.AS4.Services.Journal;
 using NLog;
 
 namespace Eu.EDelivery.AS4.ServiceHandler.Agents
@@ -86,7 +87,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
             {
                 IAgent[] agents =
                     agentConfigs
-                        .Select(CreateAgentBaseFromSettings)
+                        .Select(c => CreateAgentBaseFromSettings(registry, c))
                         .Concat(CreateMinderAgents(config))
                         .Concat(new IAgent[]
                         {
@@ -108,7 +109,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
             }
         }
 
-        private static Agent CreateAgentBaseFromSettings(AgentConfig config)
+        private static Agent CreateAgentBaseFromSettings(IRegistry registry, AgentConfig config)
         {
             string agentLogTag = $"{config.Type} Agent {config.Name}";
             if (config.Settings == null)
@@ -152,7 +153,8 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
                 receiver: receiver,
                 transformerConfig: config.Settings.Transformer,
                 exceptionHandler: ExceptionHandlerRegistry.GetHandler(config.Type),
-                stepConfiguration: config.Settings.StepConfiguration ?? GetDefaultStepConfigurationForAgentType(config.Type));
+                stepConfiguration: config.Settings.StepConfiguration ?? GetDefaultStepConfigurationForAgentType(config.Type),
+                journalLogger: new JournalDatastoreLogger(registry.CreateDatastoreContext));
         }
 
         [ExcludeFromCodeCoverage]

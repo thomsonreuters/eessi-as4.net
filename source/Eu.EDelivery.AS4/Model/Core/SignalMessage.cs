@@ -6,8 +6,6 @@ namespace Eu.EDelivery.AS4.Model.Core
 {
     public abstract class SignalMessage : MessageUnit
     {
-        public const string RoutingInputKey = "RoutingInput";
-
         /// <summary>
         /// Gets or sets whether or not this <see cref="SignalMessage"/> is a duplicated one.
         /// Meaning that the MSH has already processed this message.
@@ -65,31 +63,28 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// </summary>
         /// <param name="messageId"></param>
         /// <param name="refToMessageId"></param>
-        /// <param name="timestamp"></param>
-        /// <param name="routing"></param>
+        /// <param name="routedUserMessage"></param>
         protected SignalMessage(
-            string messageId,
-            string refToMessageId,
-            DateTimeOffset timestamp,
-            RoutingInputUserMessage routing)
-            : base(messageId, refToMessageId, timestamp)
-        {
-            MultiHopRouting = Maybe.Just(routing);
-        }
+            string messageId, 
+            string refToMessageId, 
+            RoutingInputUserMessage routedUserMessage)
+            : this(messageId, refToMessageId, DateTimeOffset.Now, routedUserMessage) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SignalMessage"/> class.
         /// </summary>
         /// <param name="messageId"></param>
         /// <param name="refToMessageId"></param>
+        /// <param name="timestamp"></param>
         /// <param name="routedUserMessage"></param>
         protected SignalMessage(
-            string messageId, 
-            string refToMessageId, 
+            string messageId,
+            string refToMessageId,
+            DateTimeOffset timestamp,
             RoutingInputUserMessage routedUserMessage)
-            : base(messageId, refToMessageId)
+            : base(messageId, refToMessageId, timestamp)
         {
-            MultiHopRouting = Maybe.Just(routedUserMessage);
-        } 
+            MultiHopRouting = (routedUserMessage != null).ThenMaybe(routedUserMessage);
+        }
     }
 }

@@ -12,6 +12,7 @@ using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Security.Signing;
 using Eu.EDelivery.AS4.Services;
+using Eu.EDelivery.AS4.Services.Journal;
 using NLog;
 
 namespace Eu.EDelivery.AS4.Steps.Receive
@@ -217,7 +218,15 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 }
 
                 Logger.Info($"{messagingContext.LogTag} AS4Message has a valid Signature present");
-                return await StepResult.SuccessAsync(messagingContext);
+
+                JournalLogEntry entry = 
+                    JournalLogEntry.CreateFrom(
+                        messagingContext.AS4Message,
+                        $"Signature verified with {(options.AllowUnknownRootCertificateAuthority ? "allowing" : "disallowing")} unknown certificate authorities");
+
+                return await StepResult
+                    .Success(messagingContext)
+                    .WithJournalAsync(entry);
             }
             catch (CryptographicException exception)
             {
