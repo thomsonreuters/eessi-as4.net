@@ -59,4 +59,27 @@ describe('pmode tests', () => {
       cy.getdatacy('retry.interval').should('to.have.value', '0:00:01:00');
     });
   });
+
+  it('should show piggybacking reliability when selecting piggyback response pattern', () => {
+    cy.visit('/pmodes/receiving');
+    cy.getdatacy('select-pmodes').select('02-sample-pmode', { force: true });
+
+    withinTab('Reply handling', () => {
+      cy.getdatacy('replyPattern').select('PiggyBack', { force: true });
+      cy.getdatacy('retry.isEnabled');
+      cy.getdatacy('retry.count');
+      cy.getdatacy('retry.interval');
+    });
+  });
+
+  it('should show response configuration and signing when selecting callback response pattern', () => {
+    cy.visit('/pmodes/receiving');
+    cy.getdatacy('select-pmodes').select('03-sample.pmode', { force: true });
+
+    withinTab('Reply handling', () => {
+      cy.getdatacy('replyPattern').select('Callback', { force: true });
+      cy.getdatacy('responseConfiguration.protocol.url');
+      cy.getdatacy('responseSigning.certificateFindValue');
+    });
+  });
 });
