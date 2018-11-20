@@ -51,7 +51,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Forward
             private InMessage InPersistentUserMessage()
             {
                 AS4Message as4Message = CreateAS4Message(
-                    new UserMessage("some-message-id", "ref-to-message-id", Constants.Namespaces.EbmsDefaultMpc));
+                    new UserMessage("some-message-id", "ref-to-message-id"));
 
                 string location = Store.SaveAS4Message("", as4Message);
 

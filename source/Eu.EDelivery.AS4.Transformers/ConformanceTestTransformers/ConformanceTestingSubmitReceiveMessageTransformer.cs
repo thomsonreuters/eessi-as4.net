@@ -91,6 +91,7 @@ namespace Eu.EDelivery.AS4.Transformers.ConformanceTestTransformers
                 messageId: GetPropertyValue(submitMessage.MessageProperties, "MessageId"),
                 refToMessageId: GetPropertyValue(submitMessage.MessageProperties, "RefToMessageId"),
                 mpc: submitMessage.Mpc,
+                timestamp: DateTimeOffset.Now,
                 collaboration: GetCollaborationFromProperties(submitMessage.MessageProperties),
                 sender: GetSenderFromSender(submitMessage),
                 receiver: GetReceiverFromProperties(submitMessage),

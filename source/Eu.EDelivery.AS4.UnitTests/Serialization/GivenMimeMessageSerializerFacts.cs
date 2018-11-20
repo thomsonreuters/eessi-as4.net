@@ -102,18 +102,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
 
             private static AS4Message CreateAnonymousMessage()
             {
-                AS4Message message = AS4Message.Create(CreateUserMessage());
+                AS4Message message = AS4Message.Create(new UserMessage("message-id"));
                 message.AddAttachment(CreateEarthAttachment());
 
                 return message;
-            }
-
-            private static UserMessage CreateUserMessage()
-            {
-                return new UserMessage(
-                    "message-id",
-                    new Party("Sender", new PartyId(Guid.NewGuid().ToString())),
-                    new Party("Receiver", new PartyId(Guid.NewGuid().ToString())));
             }
 
             private static Attachment CreateEarthAttachment()

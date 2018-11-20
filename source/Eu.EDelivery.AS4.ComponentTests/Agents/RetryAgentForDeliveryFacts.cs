@@ -114,7 +114,9 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                         action: "eu:sample:01",
                         conversationId: "1"),
                     new Party("Sender", new PartyId("org:eu:europa:as4:example:accesspoint:A")),
-                    new Party("Receiver", new PartyId("org:eu:europa:as4:example:accesspoint:B"))));
+                    new Party("Receiver", new PartyId("org:eu:europa:as4:example:accesspoint:B")),
+                    new PartInfo[0],
+                    new MessageProperty[0]));
         }
 
         private static void CleanDirectoryAt(string location)

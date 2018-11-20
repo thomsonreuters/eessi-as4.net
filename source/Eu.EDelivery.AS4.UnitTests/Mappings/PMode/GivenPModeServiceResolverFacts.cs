@@ -17,10 +17,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.PMode
             {
                 // Arrange
                 var pmode = new SendingProcessingMode();
-                var resolver = new PModeServiceResolver();
 
                 // Act
-                AS4.Model.Core.Service service = PModeServiceResolver.ResolveService(pmode);
+                AS4.Model.Core.Service service = SendingPModeMap.ResolveService(pmode);
 
                 // Assert
                 Assert.Equal(AS4.Model.Core.Service.TestService, service);
@@ -31,10 +30,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.PMode
             {
                 // Arrange
                 SendingProcessingMode pmode = CreateDefaultSendingPMode();
-                var resolver = new PModeServiceResolver();
 
                 // Act
-                AS4.Model.Core.Service actual = PModeServiceResolver.ResolveService(pmode);
+                AS4.Model.Core.Service actual = SendingPModeMap.ResolveService(pmode);
 
                 // Assert
                 var expected = pmode.MessagePackaging.CollaborationInfo.Service;

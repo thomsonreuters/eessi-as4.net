@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
+using Eu.EDelivery.AS4.Factories;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.Notify;
@@ -83,7 +84,7 @@ namespace Eu.EDelivery.AS4.Transformers
             if (userMessage == null)
             {
                 Logger.Warn("The related usermessage for the received signalmessage could not be found");
-                userMessage = new UserMessage();
+                userMessage = new UserMessage(IdentifierFactory.Instance.Create());
             }
 
             UserMessage minderUserMessage = CreateUserMessageFromMinderProperties(userMessage, signalMessage);
@@ -171,6 +172,7 @@ namespace Eu.EDelivery.AS4.Transformers
                 messageId: userMessage.MessageId,
                 refToMessageId: signalMessage != null ? signalMessage.RefToMessageId : userMessage.RefToMessageId,
                 mpc: userMessage.Mpc,
+                timestamp: DateTimeOffset.Now,
                 collaboration: collaboration,
                 sender: userMessage.Sender,
                 receiver: receiver,

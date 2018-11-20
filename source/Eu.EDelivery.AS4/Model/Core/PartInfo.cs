@@ -75,6 +75,26 @@ namespace Eu.EDelivery.AS4.Model.Core
         }
 
         /// <summary>
+        /// Creates a <see cref="PartInfo"/> element that references the given <paramref name="attachment"/> in the <see cref="UserMessage"/>.
+        /// </summary>
+        /// <param name="attachment">The payload which the to be created element must reference.</param>
+        public static PartInfo CreateFor(Attachment attachment)
+        {
+            if (attachment == null)
+            {
+                throw new ArgumentNullException(nameof(attachment));
+            }
+
+            return new PartInfo(
+                href: "cid:" + attachment.Id,
+                properties: new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                {
+                    ["MimeType"] = attachment.ContentType
+                },
+                schemas: new Schema[0]);
+        }
+
+        /// <summary>
         /// Indicates whether the current object is equal to another object of the same type.
         /// </summary>
         /// <param name="other">An object to compare with this object.</param>

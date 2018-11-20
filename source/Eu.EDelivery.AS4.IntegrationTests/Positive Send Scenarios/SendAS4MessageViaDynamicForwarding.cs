@@ -190,15 +190,18 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios
                 Guid.NewGuid().ToString(),
                 HolodeckCollaboration(argRefPModeId),
                 new Party(Constants.Namespaces.EbmsDefaultFrom, new PartyId(Constants.Namespaces.EbmsDefaultFrom)),
-                new Party(HolodeckPartyRole, new PartyId(HolodeckBId, HolodeckBId)));
-
-            user.AddPartInfo(new PartInfo(
-                href: "cid:earth", 
-                properties: new Dictionary<string, string>
+                new Party(HolodeckPartyRole, new PartyId(HolodeckBId, HolodeckBId)),
+                new[]
                 {
-                    ["Part Property"] = "Some Holodeck required Part Property"
-                }, 
-                schemas: new Schema[0]));
+                    new PartInfo(
+                        href: "cid:earth",
+                        properties: new Dictionary<string, string>
+                        {
+                            ["Part Property"] = "Some Holodeck required Part Property"
+                        },
+                        schemas: new Schema[0])
+                },
+                new Model.Core.MessageProperty[0]);
 
             AS4Message userMessage = AS4Message.Create(user, new SendingProcessingMode {MessagePackaging = {IsMultiHop = true}});
 

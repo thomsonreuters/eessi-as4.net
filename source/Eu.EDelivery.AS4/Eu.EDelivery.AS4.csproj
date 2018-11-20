@@ -139,6 +139,7 @@
     <Compile Include="Extensions\DateTimeExtensions.cs" />
     <Compile Include="Extensions\LoggerExtensions.cs" />
     <Compile Include="Mappings\Core\ReceiptMap.cs" />
+    <Compile Include="Mappings\PMode\SendingPModeMap.cs" />
     <Compile Include="Mappings\Submit\SubmitSenderResolver.cs" />
     <Compile Include="Maybe.cs" />
     <Compile Include="Migrations\20180302141116_RemoveOutMessagesConstraint.cs" />
@@ -218,14 +219,8 @@
     <Compile Include="Model\PMode\InvalidPModeException.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="Extensions\XmlAttributeExtensions.cs" />
-    <Compile Include="Factories\UserMessageFactory.cs" />
     <Compile Include="Http\ReliableHttpClient.cs" />
     <Compile Include="InfoAttribute.cs" />
-    <Compile Include="Mappings\PMode\IPModeResolver.cs" />
-    <Compile Include="Mappings\PMode\PModeActionResolver.cs" />
-    <Compile Include="Mappings\PMode\PModeAgreementRefResolver.cs" />
-    <Compile Include="Mappings\PMode\PModePartyResolver.cs" />
-    <Compile Include="Mappings\PMode\PModeServiceResolver.cs" />
     <Compile Include="Model\Deliver\DeliverMessageEnvelope.cs" />
     <Compile Include="Model\Notify\NotifyMessageEnvelope.cs" />
     <Compile Include="Model\PMode\MessageHandlingConverter.cs" />

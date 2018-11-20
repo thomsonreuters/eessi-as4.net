@@ -130,8 +130,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             const string expectedId = "usermessage-id";
             const string expectedUri = "expected-attachment-uri";
 
-            var user = new UserMessage(expectedId);
-            user.AddPartInfo(new PartInfo("cid:" + expectedUri));
+            var user = new UserMessage(expectedId, new PartInfo("cid:" + expectedUri));
             AS4Message message = AS4Message.Create(user);
             message.AddAttachment(FilledAttachment(expectedUri));
             message.AddAttachment(FilledAttachment());

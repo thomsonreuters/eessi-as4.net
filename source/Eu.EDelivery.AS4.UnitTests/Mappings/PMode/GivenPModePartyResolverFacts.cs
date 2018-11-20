@@ -17,7 +17,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.PMode
                 ArbParty(role, partyId),
                 p =>
                 {
-                    var actual = PModePartyResolver.ResolveSender(p);
+                    var actual = SendingPModeMap.ResolveSender(p);
 
                     bool isDefault = actual.Equals(CoreParty.DefaultFrom);
                     bool isResolved = actual.Role == role.Get && actual.PrimaryPartyId == partyId.Get;
@@ -35,7 +35,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.PMode
                 ArbParty(role, partyId),
                 p =>
                 {
-                    var actual = PModePartyResolver.ResolveReceiver(p);
+                    var actual = SendingPModeMap.ResolveReceiver(p);
 
                     bool isDefault = actual.Equals(CoreParty.DefaultTo);
                     bool isResolved = actual.Role == role.Get && actual.PrimaryPartyId == partyId.Get;
