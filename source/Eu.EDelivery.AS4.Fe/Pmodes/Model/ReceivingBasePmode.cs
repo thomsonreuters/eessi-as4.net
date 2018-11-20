@@ -20,8 +20,18 @@ namespace Eu.EDelivery.AS4.Fe.Pmodes.Model
             set
             {
                 pmode = value;
-                if (value?.Security?.Decryption == null || !(value.Security.Decryption.DecryptCertificateInformation is JObject json)) return;
+                if (value?.Security?.Decryption == null || !(value.Security.Decryption.DecryptCertificateInformation is JObject json))
+                {
+                    return;
+                }
+
                 value.Security.Decryption.DecryptCertificateInformation = json.ToObject<CertificateFindCriteria>();
+
+                if (value?.ReplyHandling != null
+                    && value?.ReplyHandling?.ReplyPattern != ReplyPattern.PiggyBack)
+                {
+                    value.ReplyHandling.PiggyBackReliability = null;
+                }
             }
         }
     }
