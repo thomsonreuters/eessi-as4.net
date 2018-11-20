@@ -4,7 +4,9 @@ using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
+using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Core;
+using Eu.EDelivery.AS4.Model.Deliver;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
@@ -66,15 +68,16 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
                 throw new ArgumentNullException(nameof(messagingContext));
             }
 
-            if (messagingContext.AS4Message == null)
+            if (messagingContext.DeliverMessage == null)
             {
                 throw new InvalidOperationException(
-                    $"{nameof(UploadAttachmentsStep)} requires an AS4Message to upload the attachments from but no AS4Message is present in the MessagingContext");
+                    $"{nameof(UploadAttachmentsStep)} requires a DeliverMessage to upload the attachments from but no DeliverMessage is present in the MessagingContext");
             }
 
-            AS4Message as4Message = messagingContext.AS4Message;
-            if (!as4Message.HasAttachments)
+            DeliverMessageEnvelope deliverEnvelope = messagingContext.DeliverMessage;
+            if (!deliverEnvelope.Attachments.Any())
             {
+                Logger.Debug("(Deliver) No attachments to upload for DeliverMessage");
                 return StepResult.Success(messagingContext);
             }
 
@@ -104,26 +107,23 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
             IAttachmentUploader uploader = GetAttachmentUploader(messagingContext.ReceivingPMode);
             var results = new Collection<UploadResult>();
 
-            foreach (UserMessage um in as4Message.UserMessages)
+            foreach (Attachment att in deliverEnvelope.Attachments)
             {
-                foreach (Attachment att in as4Message.Attachments.Where(a => a.MatchesAny(um.PayloadInfo)))
+                UploadResult result = await TryUploadAttachmentAsync(att, deliverEnvelope, uploader).ConfigureAwait(false);
+                if (result.Status == SendResult.Success)
                 {
-                    UploadResult result = await TryUploadAttachmentAsync(att, um, uploader).ConfigureAwait(false);
-                    if (result.Status == SendResult.Success)
-                    {
-                        Logger.Info($"{messagingContext.LogTag} Attachment '{att.Id}' is delivered at: {att.Location}");
-                    }
-
-                    results.Add(result);
+                    Logger.Info($"{messagingContext.LogTag} Attachment '{att.Id}' is delivered at: {result.DownloadUrl}");
                 }
+
+                results.Add(result);
             }
 
             SendResult accResult = results
-                .Select(r => r.Status)
+                .Select(r => r.Status)  
                 .Aggregate(SendResultUtils.Reduce);
 
             await UpdateDeliverMessageAccordinglyToUploadResult(
-                messageId: as4Message.GetPrimaryMessageId(),
+                messageId: deliverEnvelope.Message.MessageInfo?.MessageId,
                 status: accResult);
 
             if (accResult == SendResult.Success)
@@ -151,13 +151,13 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
 
         private static async Task<UploadResult> TryUploadAttachmentAsync(
             Attachment attachment, 
-            UserMessage referringUserMessage, 
+            DeliverMessageEnvelope deliverMessage,
             IAttachmentUploader uploader)
         {
             try
             {
                 Logger.Trace($"Start Uploading Attachment {attachment.Id}...");
-                Task<UploadResult> uploadAsync = uploader.UploadAsync(attachment, referringUserMessage);
+                Task<UploadResult> uploadAsync = uploader.UploadAsync(attachment, deliverMessage.Message.MessageInfo);
                 if (uploadAsync == null)
                 {
                     throw new ArgumentNullException(
@@ -167,8 +167,18 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
 
                 UploadResult attachmentResult = await uploadAsync.ConfigureAwait(false);
 
-                attachment.Location = attachmentResult.DownloadUrl;
                 attachment.ResetContentPosition();
+
+                Payload referencedPayload = 
+                    deliverMessage.Message.Payloads.FirstOrDefault(attachment.Matches);
+
+                if (referencedPayload == null)
+                {
+                    throw new InvalidOperationException(
+                        $"No referenced <Payload/> element found in DeliverMessage to assign the upload location to with attachment Id = {attachment.Id}");
+                }
+
+                referencedPayload.Location = attachmentResult.DownloadUrl;
 
                 Logger.Trace($"Attachment {attachment.Id} uploaded succesfully");
                 return attachmentResult;

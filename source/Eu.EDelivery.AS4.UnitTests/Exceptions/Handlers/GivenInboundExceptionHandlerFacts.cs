@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
@@ -7,6 +8,7 @@ using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Exceptions.Handlers;
 using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Core;
+using Eu.EDelivery.AS4.Model.Deliver;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Model.Submit;
@@ -139,7 +141,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Exceptions.Handlers
         [Fact]
         public async Task InsertInException_WithDeliverMessage()
         {
-            var envelope = new EmptyDeliverEnvelope(_expectedId);
+            var envelope =
+                new DeliverMessageEnvelope(
+                    new DeliverMessage { MessageInfo = { MessageId = _expectedId } },
+                    "content-type",
+                    Enumerable.Empty<Attachment>());
 
             await TestExecutionException(
                 default(Operation),

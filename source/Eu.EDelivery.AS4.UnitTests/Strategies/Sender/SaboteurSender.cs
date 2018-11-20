@@ -25,8 +25,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Strategies.Sender
         /// <summary>
         /// Start sending the <see cref="DeliverMessage"/>
         /// </summary>
-        /// <param name="deliverMessage"></param>
-        public Task<SendResult> SendAsync(DeliverMessageEnvelope deliverMessage)
+        /// <param name="envelope"></param>
+        public Task<SendResult> SendAsync(DeliverMessageEnvelope envelope)
         {
             throw new SaboteurException("Sabotage 'Deliver' Send");
         }
@@ -65,7 +65,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Strategies.Sender
             var sut = new SaboteurSender();
 
             // Act / Assert
-            await Assert.ThrowsAnyAsync<Exception>(() => sut.SendAsync(deliverMessage: null));
+            await Assert.ThrowsAnyAsync<Exception>(() => sut.SendAsync(envelope: null));
             await Assert.ThrowsAnyAsync<Exception>(() => sut.SendAsync(notifyMessage: null));
         }
     }

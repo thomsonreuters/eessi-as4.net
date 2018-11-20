@@ -41,11 +41,6 @@ namespace Eu.EDelivery.AS4.Model.Core
                     : -1;
         }
 
-        /// <summary>
-        /// Gets the location to where this attachment has been saved.
-        /// </summary>
-        public string Location { get; internal set; }
-
         public IDictionary<string, string> Properties { get; } = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
         /// <summary>
@@ -165,13 +160,23 @@ namespace Eu.EDelivery.AS4.Model.Core
         }
 
         /// <summary>
+        /// Verifies if this is the Attachment that is referenced by the given <paramref name="payload"/>.
+        /// </summary>
+        /// <param name="payload"></param>
+        /// <returns></returns>
+        public bool Matches(Common.Payload payload)
+        {
+            return payload != null && payload.Id != null && payload.Id.Equals($"cid:{Id}");
+        }
+
+        /// <summary>
         /// Verifies if this is the Attachment that is referenced by the given <paramref name="partInfo"/>
         /// </summary>
         /// <param name="partInfo"></param>
         /// <returns></returns>
         public bool Matches(PartInfo partInfo)
         {
-            return partInfo.Href != null && partInfo.Href.Equals($"cid:{Id}");
+            return partInfo != null && partInfo.Href != null && partInfo.Href.Equals($"cid:{Id}");
         }
 
         /// <summary>
@@ -181,7 +186,7 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// <returns></returns>
         public bool MatchesAny(IEnumerable<PartInfo> partInfos)
         {
-            return partInfos.Any(this.Matches);
+            return partInfos != null && partInfos.Any(this.Matches);
         }
 
         /// <summary>
@@ -191,7 +196,7 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// <returns></returns>
         public bool Matches(System.Security.Cryptography.Xml.Reference reference)
         {
-            return reference.Uri.Equals($"cid:{Id}");
+            return reference != null && reference.Uri.Equals($"cid:{Id}");
         }
 
         /// <summary>
