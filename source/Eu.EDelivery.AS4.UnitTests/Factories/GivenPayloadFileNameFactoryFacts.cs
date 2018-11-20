@@ -1,4 +1,5 @@
 ﻿using Eu.EDelivery.AS4.Factories;
+using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Core;
 using Xunit;
 
@@ -10,7 +11,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Factories {
         {
             string messageId = "someMessageId";
 
-            var m = new UserMessage(messageId);
+            var m = new MessageInfo(messageId);
 
             var payloadFileName = PayloadFileNameFactory.CreateFileName("{messageId}", null, m);
 
@@ -34,7 +35,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Factories {
         {
             string payloadId = "earth.jpg";
             var attachment = new Attachment(payloadId);
-            var userMessage = new UserMessage("messageId");
+            var userMessage = new MessageInfo("messageId");
 
             var payloadFileName = PayloadFileNameFactory.CreateFileName(null, attachment, userMessage);
 
@@ -45,7 +46,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Factories {
         public void ThenGenerateFileNameWithCombinedPattern()
         {            
             var attachment = new Attachment("earth.jpg");
-            var userMessage = new UserMessage("messageId");
+            var userMessage = new MessageInfo("messageId");
 
             var payloadFileName = PayloadFileNameFactory.CreateFileName("{MessageId}_{AttachmentId}", attachment, userMessage);
 
@@ -56,7 +57,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Factories {
         public void ThenAppendAttachmentIdIfPatternContainsNoMacro()
         {
             var attachment = new Attachment("earth.jpg");
-            var userMessage = new UserMessage("messageId");
+            var userMessage = new MessageInfo("messageId");
 
             var pattern = "abc_";
 

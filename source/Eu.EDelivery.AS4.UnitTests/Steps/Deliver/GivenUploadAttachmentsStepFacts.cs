@@ -3,6 +3,7 @@ using System.IO;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Extensions;
+using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
@@ -10,7 +11,9 @@ using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Steps.Deliver;
 using Eu.EDelivery.AS4.Strategies.Sender;
 using Eu.EDelivery.AS4.Strategies.Uploader;
+using Eu.EDelivery.AS4.Transformers;
 using Eu.EDelivery.AS4.UnitTests.Common;
+using Eu.EDelivery.AS4.UnitTests.Extensions;
 using Eu.EDelivery.AS4.UnitTests.Model;
 using Eu.EDelivery.AS4.UnitTests.Repositories;
 using Eu.EDelivery.AS4.UnitTests.Strategies.Uploader;
@@ -20,25 +23,22 @@ using RetryReliability = Eu.EDelivery.AS4.Entities.RetryReliability;
 
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
 {
-    /// <summary>
-    /// Testing <see cref="UploadAttachmentsStep" />
-    /// </summary>
     public class GivenUploadAttachmentsStepFacts : GivenDatastoreFacts
     {
         [Fact]
         public async Task Throws_When_Uploading_Attachments_Failed()
         {
             // Arrange
-            var sabtoeurProvider = new Mock<IAttachmentUploaderProvider>();
-            sabtoeurProvider
+            var saboteurProvider = new Mock<IAttachmentUploaderProvider>();
+            saboteurProvider
                 .Setup(p => p.Get(It.IsAny<string>()))
                 .Throws(new Exception("Failed to get Uploader"));
 
-            IStep sut = new UploadAttachmentsStep(sabtoeurProvider.Object, GetDataStoreContext);
+            IStep sut = new UploadAttachmentsStep(saboteurProvider.Object, GetDataStoreContext);
 
             // Act / Assert
             await Assert.ThrowsAnyAsync<Exception>(
-                () => sut.ExecuteAsync(CreateAS4MessageWithAttachment()));
+                async () => await sut.ExecuteAsync(await CreateAS4MessageWithAttachmentAsync()));
         }
 
         [Theory]
@@ -62,14 +62,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
             AS4Message as4Msg = AS4Message.Create(userMessage);
             as4Msg.AddAttachment(a);
 
-            IAttachmentUploader stub = CreateStubAttachmentUploader(userMessage, input.UploadResult);
+            MessagingContext fixture = await PrepareAS4MessageForDeliveryAsync(as4Msg, CreateReceivingPModeWithPayloadMethod());
+
+            IAttachmentUploader stub = CreateStubAttachmentUploader(fixture.DeliverMessage.Message.MessageInfo, input.UploadResult);
 
             // Act
-            await CreateUploadStep(stub)
-                .ExecuteAsync(new MessagingContext(as4Msg, MessagingContextMode.Deliver)
-                {
-                    ReceivingPMode = CreateReceivingPModeWithPayloadMethod()
-                });
+            await CreateUploadStep(stub).ExecuteAsync(fixture);
 
             // Assert
             GetDataStoreContext.AssertInMessage(id, actual =>
@@ -78,6 +76,16 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
                 Assert.Equal(input.ExpectedStatus, actual.Status.ToEnum<InStatus>());
                 Assert.Equal(input.ExpectedOperation, actual.Operation);
             });
+        }
+
+        private static async Task<MessagingContext> PrepareAS4MessageForDeliveryAsync(AS4Message msg, ReceivingProcessingMode pmode)
+        {
+            var transformer = new DeliverMessageTransformer();
+
+            var entity = new InMessage(msg.GetPrimaryMessageId());
+            entity.SetPModeInformation(pmode);
+
+            return await transformer.TransformAsync(new ReceivedEntityMessage(entity, msg.ToStream(), msg.ContentType));
         }
 
         [Theory]
@@ -100,25 +108,24 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
             var a1 = new FilledAttachment("attachment-1");
             var a2 = new FilledAttachment("attachment-2");
             var userMessage = new FilledUserMessage(id, a1.Id, a2.Id);
+
             var as4Msg = AS4Message.Create(userMessage);
             as4Msg.AddAttachment(a1);
             as4Msg.AddAttachment(a2);
 
+            MessagingContext fixture = await PrepareAS4MessageForDeliveryAsync(as4Msg, CreateReceivingPModeWithPayloadMethod());
+
             var stub = new Mock<IAttachmentUploader>();
-            stub.Setup(s => s.UploadAsync(a1, userMessage))
+            stub.Setup(s => s.UploadAsync(a1, fixture.DeliverMessage.Message.MessageInfo))
                 .ReturnsAsync(input.UploadResult);
-            stub.Setup(s => s.UploadAsync(a2, userMessage))
+            stub.Setup(s => s.UploadAsync(a2, fixture.DeliverMessage.Message.MessageInfo))
                 .ReturnsAsync(
                     input.UploadResult.Status == SendResult.Success
                         ? UploadResult.FatalFail
                         : UploadResult.RetryableFail);
 
             // Act
-            await CreateUploadStep(stub.Object)
-                .ExecuteAsync(new MessagingContext(as4Msg, MessagingContextMode.Deliver)
-                {
-                    ReceivingPMode = CreateReceivingPModeWithPayloadMethod()
-                });
+            await CreateUploadStep(stub.Object).ExecuteAsync(fixture);
 
             // Assert
             GetDataStoreContext.AssertInMessage(id, actual =>
@@ -158,7 +165,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
             return GetDataStoreContext.InsertInMessage(inMsg);
         }
 
-        private static IAttachmentUploader CreateStubAttachmentUploader(UserMessage m, UploadResult r)
+        private static IAttachmentUploader CreateStubAttachmentUploader(MessageInfo m, UploadResult r)
         {
             var stub = new Mock<IAttachmentUploader>();
             stub.Setup(s => s.UploadAsync(It.IsAny<Attachment>(), m))
@@ -177,15 +184,15 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
             // Act
             StepResult result =
                 await CreateUploadStep(stubUploader)
-                    .ExecuteAsync(CreateAS4MessageWithAttachment());
+                    .ExecuteAsync(await CreateAS4MessageWithAttachmentAsync());
 
             // Assert
             Assert.Collection(
-                result.MessagingContext.AS4Message.Attachments,
-                a => Assert.Equal(expectedLocation, a.Location));
+                result.MessagingContext.DeliverMessage.Message.Payloads,
+                p => Assert.Equal(expectedLocation, p.Location));
         }
 
-        private static MessagingContext CreateAS4MessageWithAttachment()
+        private static async Task<MessagingContext> CreateAS4MessageWithAttachmentAsync()
         {
             const string attachmentId = "attachment-id";
 
@@ -194,10 +201,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
             AS4Message as4Message = AS4Message.Create(userMessage);
             as4Message.AddAttachment(new Attachment(attachmentId, Stream.Null, "text/plain"));
             ReceivingProcessingMode pMode = CreateReceivingPModeWithPayloadMethod();
-            return new MessagingContext(as4Message, MessagingContextMode.Unknown)
-            {
-                ReceivingPMode = pMode
-            };
+
+            return await PrepareAS4MessageForDeliveryAsync(as4Message, pMode);
         }
 
         private static ReceivingProcessingMode CreateReceivingPModeWithPayloadMethod()

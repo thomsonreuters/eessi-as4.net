@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Threading.Tasks;
+using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Deliver;
 using Eu.EDelivery.AS4.Model.Notify;
 using Eu.EDelivery.AS4.Strategies.Sender;
@@ -45,8 +47,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Strategies.Sender
         /// <summary>
         /// Start sending the <see cref="DeliverMessage"/>
         /// </summary>
-        /// <param name="deliverMessage"></param>
-        public Task<SendResult> SendAsync(DeliverMessageEnvelope deliverMessage)
+        /// <param name="envelope"></param>
+        public Task<SendResult> SendAsync(DeliverMessageEnvelope envelope)
         {
             IsDelivered = true;
             return Task.FromResult(SendResult.Success);
@@ -72,7 +74,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Strategies.Sender
             var sut = new SpySender();
 
             // Act
-            await sut.SendAsync(new DeliverMessageEnvelope(null, null, null));
+            await sut.SendAsync(new DeliverMessageEnvelope(new DeliverMessage(), "", Enumerable.Empty<Attachment>()));
 
             // Assert
             Assert.True(sut.IsDelivered);

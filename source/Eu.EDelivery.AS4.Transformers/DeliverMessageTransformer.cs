@@ -1,17 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Entities;
+using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Core;
+using Eu.EDelivery.AS4.Model.Deliver;
 using Eu.EDelivery.AS4.Model.Internal;
+using Eu.EDelivery.AS4.Model.PMode;
+using NLog;
 
 namespace Eu.EDelivery.AS4.Transformers
 {
     public class DeliverMessageTransformer : ITransformer
     {
+        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+        private static readonly AS4MessageTransformer AS4MessageTransformer = new AS4MessageTransformer();
+
         /// <summary>
         /// Configures the <see cref="ITransformer"/> implementation with specific user-defined properties.
         /// </summary>
@@ -30,86 +36,94 @@ namespace Eu.EDelivery.AS4.Transformers
                 throw new ArgumentNullException(nameof(message));
             }
 
-            var entityMessage = message as ReceivedEntityMessage;
-            if (entityMessage == null || !(entityMessage.Entity is MessageEntity me))
+            if (!(message is ReceivedEntityMessage entityMessage) 
+                || !(entityMessage.Entity is MessageEntity))
             {
                 throw new InvalidDataException(
                     $"The message that must be transformed should be of type {nameof(ReceivedEntityMessage)} with a {nameof(MessageEntity)} as Entity");
             }
 
-            // Get the AS4Message that is referred to by this entityMessage and modify it so that it just contains
-            // the one usermessage that should be delivered.
-            MessagingContext transformedMessage = await RetrieveAS4Message(me.EbmsMessageId, entityMessage);
+            MessagingContext context = await AS4MessageTransformer.TransformAsync(entityMessage);
+            AS4Message as4Message = context.AS4Message;
+            DeliverMessage deliverMessage =
+                CreateDeliverMessage(
+                    as4Message.FirstUserMessage,
+                    as4Message.Attachments,
+                    context.ReceivingPMode);
 
-            if (transformedMessage.AS4Message.UserMessages.Any() == false)
+            Logger.Info($"(Deliver) Created DeliverMessage from (first) UserMessage {as4Message.FirstUserMessage.MessageId}");
+
+            var envelope = new DeliverMessageEnvelope(
+                message: deliverMessage,
+                contentType: "application/xml",
+                attachments: as4Message.UserMessages.SelectMany(um => as4Message.Attachments.Where(a => a.MatchesAny(um.PayloadInfo))));
+
+           context.ModifyContext(envelope);
+            return context;
+        }
+
+        private static DeliverMessage CreateDeliverMessage(
+            UserMessage user,
+            IEnumerable<Attachment> attachments,
+            ReceivingProcessingMode receivingPMode)
+        {
+            if (!attachments.All(a => a.MatchesAny(user.PayloadInfo)))
             {
                 throw new InvalidOperationException(
-                    $"Incoming AS4Message stream from {message.Origin} should contain only a single UserMessage");
+                    "Not all attachments in AS4Message references to an <PartInfo/> element");
             }
 
-            return transformedMessage;
-        }
-
-        private static async Task<MessagingContext> RetrieveAS4Message(
-            string ebmsMessageId,
-            ReceivedMessage entityMessage)
-        {
-            var as4Transformer = new AS4MessageTransformer();
-            MessagingContext messagingContext = await as4Transformer.TransformAsync(entityMessage);
-
-            AS4Message as4Message = RemoveUnnecessaryMessages(
-                messagingContext.AS4Message,
-                ebmsMessageId);
-
-            as4Message = RemoveUnnecessaryAttachments(as4Message);
-
-            messagingContext.ModifyContext(as4Message);
-
-            return messagingContext;
-        }
-
-        private static AS4Message RemoveUnnecessaryMessages(AS4Message as4Message, string userMessageId)
-        {
-            // Create the DeliverMessage for this specific UserMessage that has been received.
-            UserMessage userMessage =
-                as4Message.UserMessages.FirstOrDefault(
-                    m => m.MessageId.Equals(userMessageId, StringComparison.OrdinalIgnoreCase));
-
-            if (userMessage == null)
+            return new DeliverMessage
             {
-                throw new DataException(
-                    $"The UserMessage with ID {userMessageId} could not be found in the referenced AS4Message.");
-            }
-
-            // Remove all the user- and signalmessages from the AS4Message, except the userMessage that we're about to deliver.
-            as4Message.ClearMessageUnits();
-            as4Message.AddMessageUnit(userMessage);
-
-            return as4Message;
-        }
-
-        private static AS4Message RemoveUnnecessaryAttachments(AS4Message as4Message)
-        {
-            // Remove the attachments that are not part of the UserMessage that is to be delivered.
-            List<Attachment> attachments = SelectToBeDeliveredUserMessageAttachments(as4Message);
-
-            foreach (Attachment attachment in as4Message.Attachments)
-            {
-                if (attachments.Contains(attachment) == false)
+                MessageInfo =
                 {
-                    as4Message.RemoveAttachment(attachment);
-                }
-            }
-
-            return as4Message;
+                    MessageId = user.MessageId,
+                    RefToMessageId = user.RefToMessageId,
+                    Mpc = user.Mpc
+                },
+                CollaborationInfo =
+                {
+                    Action = user.CollaborationInfo.Action,
+                    ConversationId = user.CollaborationInfo.ConversationId,
+                    AgreementRef = { PModeId = receivingPMode?.Id },
+                    Service =
+                    {
+                        Type = user.CollaborationInfo.Service.Type.GetOrElse(() => null),
+                        Value = user.CollaborationInfo.Service.Value
+                    }
+                },
+                PartyInfo =
+                {
+                    FromParty = CreateDeliverParty(user.Sender),
+                    ToParty = CreateDeliverParty(user.Receiver)
+                },
+                MessageProperties = user.MessageProperties.Select(CreateDeliverMessageProperty).ToArray(),
+                Payloads = user.PayloadInfo.Select(CreateDeliverPayload).ToArray()
+            };
         }
 
-        private static List<Attachment> SelectToBeDeliveredUserMessageAttachments(AS4Message as4Message)
+        private static Model.Common.Party CreateDeliverParty(Model.Core.Party p)
         {
-            return as4Message.FirstUserMessage.PayloadInfo
-                .Select(partInfo => as4Message.Attachments.FirstOrDefault(a => a.Matches(partInfo)))
-                .Where(a => a != null)
-                .ToList();
+            return new Model.Common.Party
+            {
+                Role = p.Role,
+                PartyIds = p.PartyIds.Select(id => new Model.Common.PartyId(id.Id, id.Type.GetOrElse(() => null))).ToArray()
+            };
+        }
+
+        private static Model.Common.MessageProperty CreateDeliverMessageProperty(Model.Core.MessageProperty p)
+        {
+            return new Model.Common.MessageProperty(p.Name, p.Value) { Type = p.Type };
+        }
+
+        private static Payload CreateDeliverPayload(PartInfo part)
+        {
+            return new Payload
+            {
+                Id = part.Href,
+                MimeType = part.HasMimeType ? part.MimeType : null,
+                PayloadProperties = part.Properties.Select(p => new PayloadProperty(p.Key, p.Value)).ToArray()
+            };
         }
     }
 }

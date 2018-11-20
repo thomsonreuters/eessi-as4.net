@@ -13,7 +13,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Strategies.Sender
     public class GivenFileSenderFacts : IDisposable
     {
         private static readonly string ExpectedDirectoryPath = Directory.GetCurrentDirectory();
-        private static readonly string ExpectedFileName = Path.Combine(ExpectedDirectoryPath, AnonymousDeliverMessage().MessageInfo.MessageId + ".xml");
+        private static readonly string ExpectedFileName = Path.Combine(ExpectedDirectoryPath, AnonymousDeliverMessage().Message.MessageInfo.MessageId + ".xml");
 
         [Fact]
         public async Task StoresFileOnFileSystem_IfDeliverMessage()
