@@ -17,7 +17,7 @@
             <div tabitem title="Reply handling" formGroupName="replyHandling" [isValid]="!!!pmode.currentPmode || pmode.form.get('pmode.replyHandling')"
                 runtimeTooltip="replyhandling">
                 <as4-input label="Reply pattern" runtimeTooltip="replyPattern">
-                    <select formControlName="replyPattern">
+                    <select formControlName="replyPattern" data-cy="replyPattern">
                         <option [ngValue]="0">Response</option>
                         <option [ngValue]="1">Callback</option>
                         <option [ngValue]="2">PiggyBack</option>
@@ -34,6 +34,97 @@
                 <ng-container formGroupName="errorHandling" runtimeTooltip="errorhandling">
                     <as4-input label="Response HTTP code" runtimeTooltip="responsehttpcode">
                         <input type="number" formControlName="responseHttpCode">
+                    </as4-input>
+                </ng-container>
+                <ng-container *ngIf="+pmode.form.get('pmode.replyHandling.replyPattern')!.value === 1" formGroupName="responseConfiguration" runtimeTooltip="responseConfiguration">
+                    <div class="sub-header-1">Response Configuration</div>
+                    <div class="sub-header">Protocol</div>
+                    <as4-input label="Url" formGroupName="protocol" runtimeTooltip="protocol.url">
+                        <input data-cy="reponseConfiguration.protocol.url" type="text" formControlName="url" pattern="{{regexUrl.source}}" />
+                    </as4-input>
+                    <div class="sub-header">TLS configuration</div>
+                    <as4-input label="Enabled" formGroupName="tlsConfiguration" runtimeTooltip="tlsconfiguration.isenabled">
+                        <input type="checkbox" formControlName="isEnabled" />
+                    </as4-input>
+                    <as4-input label="TLS version" formGroupName="tlsConfiguration" runtimeTooltip="tlsconfiguration.tlsversion">
+                        <select formControlName="tlsVersion">
+                            <option value="0">SSL30</option>
+                            <option value="1">TLS10</option>
+                            <option value="2">TLS11</option>
+                            <option value="3">TLS12</option>
+                        </select>
+                    </as4-input>
+                    <div class="sub-header">TLS client certificate</div>
+                    <as4-input label="Client certificate find type" formGroupName="tlsConfiguration" runtimeTooltip="tlsconfiguration.clientcertificateinformation.clientcertificatefindtype">
+                        <div formGroupName="clientCertificateInformation">
+                            <select formControlName="clientCertificateFindType">
+                                <option value="0">Find by thumbprint</option>
+                                <option value="1">Find by subject name</option>
+                                <option value="2">Find by subject distinguished name</option>
+                                <option value="3">Find by issuer name</option>
+                                <option value="4">Find by issuer distinguished name</option>
+                                <option value="5">Find by serial number</option>
+                                <option value="6">Find by time valid</option>
+                                <option value="7">Find by time not yet valid</option>
+                                <option value="8">Find by time expired</option>
+                                <option value="9">Find by template name</option>
+                                <option value="10">Find by application policy</option>
+                                <option value="11">Find by certificate policy</option>
+                                <option value="12">Find by extension</option>
+                                <option value="13">Find by key usage</option>
+                                <option value="14">Find by subject key identifier</option>
+                            </select>
+                        </div>
+                    </as4-input>
+                    <as4-input label="Certificate find value" formGroupName="tlsConfiguration" runtimeTooltip="tlsconfiguration.clientcertificateinofrmation.clientcertificatefindvalue">
+                        <div formGroupName="clientCertificateInformation">
+                            <as4-thumbprint-input formControlName="clientCertificateFindValue"></as4-thumbprint-input>
+                        </div>
+                    </as4-input>
+                </ng-container>
+                <div class="sub-header-1">Response signing</div>
+                <ng-container formGroupName="responseSigning" runtimeTooltip="responseSigning">
+                    <as4-input label="Enabled" runtimeTooltip="responseSigning.isenabled" controlSize="6">
+                        <input type="checkbox" formControlName="isEnabled" />
+                    </as4-input>
+                    <as4-input label="Algorithm" runtimeTooltip="responseSigning.algorithm" controlSize="6">
+                        <input type="text" formControlName="algorithm" />
+                    </as4-input>
+                    <as4-input label="HashFunction" runtimeTooltip="responseSigning.hashfunction" controlSize="6">
+                        <input type="text" formControlName="hashFunction" />
+                    </as4-input>
+                    <div class="sub-header">Private key information</div>
+                    <ng-container formGroupName="signingCertificateInformation" runtimeTooltip="signingCertificateInformation">
+                        <as4-input label="Private key find type" runtimeTooltip="certificatefindtype" controlSize="6">
+                            <select formControlName="certificateFindType">
+                                <option value="0">Find by thumbprint</option>
+                                <option value="1">Find by subject name</option>
+                                <option value="2">Find by subject distinguished name</option>
+                                <option value="3">Find by issuer name</option>
+                                <option value="4">Find by issuer distinguished name</option>
+                                <option value="5">Find by serial number</option>
+                                <option value="6">Find by time valid</option>
+                                <option value="7">Find by time not yet valid</option>
+                                <option value="8">Find by time expired</option>
+                                <option value="9">Find by template name</option>
+                                <option value="10">Find by application policy</option>
+                                <option value="11">Find by certificate policy</option>
+                                <option value="12">Find by extension</option>
+                                <option value="13">Find by key usage</option>
+                                <option value="14">Find by subject key identifier</option>
+                            </select>
+                        </as4-input>
+                        <as4-input data-cy="responseSigning.certificateFindValue" label="Private key find value" runtimeTooltip="certificatefindvalue" controlSize="6">
+                            <as4-thumbprint-input formControlName="certificateFindValue"></as4-thumbprint-input>
+                        </as4-input>
+                    </ng-container>
+                    <div class="sub-header">Key reference method</div>
+                    <as4-input label="Key reference method" runtimeTooltip="responseSigning.keyreferencemethod" controlSize="6">
+                        <select formControlName="keyReferenceMethod">
+                            <option value="0">BSTReference</option>
+                            <option value="1">KeyIdentifier</option>
+                            <option value="2">IssuerSerial</option>
+                        </select>
                     </as4-input>
                 </ng-container>
             </div>
