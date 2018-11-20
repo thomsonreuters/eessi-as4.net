@@ -76,7 +76,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
             public void IsTrueWhenSignalMessageIsPullRequest()
             {
                 // Arrange
-                AS4Message as4Message = AS4Message.Create(new PullRequest(null));
+                AS4Message as4Message = AS4Message.Create(new PullRequest($"pr-{Guid.NewGuid()}", null));
 
                 // Act
                 bool isPulling = as4Message.IsPullRequest;
@@ -254,7 +254,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
         protected AS4Message BuildAS4Message(string mpc, UserMessage userMessage)
         {
             AS4Message as4Message = AS4Message.Create(userMessage);
-            as4Message.AddMessageUnit(new PullRequest(mpc));
+            as4Message.AddMessageUnit(new PullRequest($"pr-{Guid.NewGuid()}", mpc));
 
             return as4Message;
         }

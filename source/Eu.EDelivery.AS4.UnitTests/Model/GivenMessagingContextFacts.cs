@@ -58,7 +58,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
                     ReceivingPMode = new ReceivingProcessingMode()
                 };
 
-                var anonymousDeliver = new DeliverMessageEnvelope(null, null, null);
+                var anonymousDeliver = new DeliverMessageEnvelope(new MessageInfo(), new byte[0], "type");
 
                 // Act
                 context.ModifyContext(anonymousDeliver);
@@ -175,7 +175,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
             public void ThenMessagingContextHasEbmsIdFromSignalMessage()
             {
                 // Arrange
-                var signalMessage = new Receipt(Guid.NewGuid().ToString());
+                var signalMessage = new Receipt($"receipt-{Guid.NewGuid()}", Guid.NewGuid().ToString());
 
                 var context = new MessagingContext(AS4Message.Create(signalMessage), MessagingContextMode.Unknown);
 

@@ -86,7 +86,15 @@ namespace Eu.EDelivery.AS4.Steps.Send.Response
         {
             foreach (MessageUnit mu in as4Message.MessageUnits)
             {
-                Logger.Info($"{mu.GetType().Name} Message Response received for message with ebMS Id {mu.RefToMessageId}");
+                switch (mu)
+                {
+                    case Error err:
+                        Logger.Error($"Error message {err.FormatErrorLines()} response received for message with with ebMS Id {mu.RefToMessageId}");
+                        break;
+                    default:
+                        Logger.Info($"{mu.GetType().Name} message response received for message with ebMS Id {mu.RefToMessageId}");
+                        break;
+                }
             }
         }
 

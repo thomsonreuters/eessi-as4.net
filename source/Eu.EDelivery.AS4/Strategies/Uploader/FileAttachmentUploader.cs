@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Factories;
+using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
@@ -57,7 +58,7 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
         }
 
         /// <inheritdoc/>
-        public Task<UploadResult> UploadAsync(Attachment attachment, UserMessage referringUserMessage)
+        public Task<UploadResult> UploadAsync(Attachment attachment, MessageInfo referringUserMessage)
         {
             if (attachment == null)
             {
@@ -82,7 +83,7 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
             return TryUploadAttachmentAsync(attachment, attachmentFilePath, allowOverwrite);
         }
 
-        private string AssembleFileDownloadUrlFor(Attachment attachment, UserMessage referringUserMessage)
+        private string AssembleFileDownloadUrlFor(Attachment attachment, MessageInfo referringUserMessage)
         {
             try
             {

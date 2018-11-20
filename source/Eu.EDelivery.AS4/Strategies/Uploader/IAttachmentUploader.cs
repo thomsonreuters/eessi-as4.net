@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.PMode;
 
@@ -25,6 +26,6 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
         /// <param name="attachment">The <see cref="Attachment"/> that must be uploaded</param>
         /// <param name="referringUserMessage">The UserMessage to which the Attachment belongs to.</param>
         /// <returns>An UploadResult instance</returns>
-        Task<UploadResult> UploadAsync(Attachment attachment, UserMessage referringUserMessage);
+        Task<UploadResult> UploadAsync(Attachment attachment, MessageInfo referringUserMessage);
     }
 }

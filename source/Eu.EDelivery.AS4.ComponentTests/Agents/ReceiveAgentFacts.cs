@@ -27,8 +27,11 @@ using static Eu.EDelivery.AS4.ComponentTests.Properties.Resources;
 using AgreementReference = Eu.EDelivery.AS4.Model.Core.AgreementReference;
 using CollaborationInfo = Eu.EDelivery.AS4.Model.Core.CollaborationInfo;
 using Error = Eu.EDelivery.AS4.Model.Core.Error;
+using MessageProperty = Eu.EDelivery.AS4.Model.Core.MessageProperty;
 using NonRepudiationInformation = Eu.EDelivery.AS4.Model.Core.NonRepudiationInformation;
 using Parameter = Eu.EDelivery.AS4.Model.PMode.Parameter;
+using PartInfo = Eu.EDelivery.AS4.Model.Core.PartInfo;
+using Party = Eu.EDelivery.AS4.Model.Core.Party;
 using PartyId = Eu.EDelivery.AS4.Model.Core.PartyId;
 using Receipt = Eu.EDelivery.AS4.Model.Core.Receipt;
 using Service = Eu.EDelivery.AS4.Model.Core.Service;
@@ -315,7 +318,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
         private static AS4Message CreateAS4ReceiptMessage(string refToMessageId)
         {
-            var r = new Receipt(refToMessageId);
+            var r = new Receipt($"receipt-{Guid.NewGuid()}", refToMessageId);
 
             return AS4Message.Create(r, CreateSendingPMode());
         }
@@ -430,6 +433,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
             AS4Message receipt = AS4Message.Create(
                 new Receipt(
+                    messageId: $"receipt-{Guid.NewGuid()}",
                     refToMessageId: signedUserMessage.GetPrimaryMessageId(), 
                     nonRepudiation: new NonRepudiationInformation(hashes)));
 
@@ -639,6 +643,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         {
             var as4Message = AS4Message.Create(
                 Error.FromErrorResult(
+                    messageId: $"error-{Guid.NewGuid()}",
                     refToMessageId: null,
                     result: new ErrorResult("An Error occurred", ErrorAlias.NonApplicable)));
 
@@ -656,55 +661,23 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
         private static SignalMessage CreateMultihopSignalMessage(string refToMessageId, string pmodeId)
         {
-            var routedUserMessage = new RoutingInputUserMessage()
-            {
-                mpc = "some-mpc",
-                PartyInfo = new Xml.PartyInfo()
-                {
-                    To = new To()
-                    {
-                        PartyId = new[]
-                        {
-                            new Xml.PartyId()
-                            {
-                                Value = "org:eu:europa:as4:example:accesspoint:B"
-                            },
-                        },
-                        Role = "Receiver"
-                    },
-                    From = new From()
-                    {
-                        PartyId = new[]
-                        {
-                            new Xml.PartyId()
-                            {
-                                Value = "org:eu:europa:as4:example:accesspoint:A",
-                            }
-                        },
-                        Role = "Sender"
-                    }
-                },
-                CollaborationInfo = new Xml.CollaborationInfo()
-                {
-                    AgreementRef = new AgreementRef
-                    {
-                        Value = "http://agreements.europa.org/agreement",
-                        pmode = pmodeId
-                    },
-                    Action = "Forward_Push_Action",
-                    Service = new Xml.Service()
-                    {
-                        Value = "Forward_Push_Service",
-                        type = "eu:europa:services"
-                    }
-                }
-            };
+            var userMessage = new UserMessage(
+                refToMessageId,
+                "some-mpc",
+                new CollaborationInfo(
+                    new AgreementReference("http://agreements.europa.org/agreement", pmodeId),
+                    new Service("Forward_Push_Service", "eu:europe:services"),
+                    "Forward_Push_Action",
+                    CollaborationInfo.DefaultConversationId),
+                new Party("Sender", new PartyId("org:eu:europa:as4:example:accesspoint:A")),
+                new Party("Receiver", new PartyId("org:eu:europa:as4:example:accesspoint:B")),
+                new PartInfo[0], 
+                new MessageProperty[0]);
 
-            return new Receipt(
-                messageId: $"receipt-{Guid.NewGuid()}",
-                refToMessageId: refToMessageId,
-                timestamp: DateTimeOffset.Now,
-                routing: routedUserMessage);
+            return Receipt.CreateFor(
+                $"receipt-{Guid.NewGuid()}",
+                userMessage,
+                userMessageSendViaMultiHop: true);
         }
 
         private void StoreToBeAckOutMessage(string messageId, SendingProcessingMode sendingPMode)
@@ -740,7 +713,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                     action: "as4.net:receive_agent:bundling",
                     conversationId: "as4.net:receive_agent:conversation"));
 
-            var receipt = new Receipt(ebmsMessageId);
+            var receipt = new Receipt($"receipt-{Guid.NewGuid()}", ebmsMessageId);
 
             var bundled = AS4Message.Create(userMessage);
             bundled.AddMessageUnit(receipt);
@@ -780,6 +753,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         private static AS4Message CreateAS4ErrorMessage(string refToMessageId)
         {
             Error error = Error.FromErrorResult(
+                $"error-{Guid.NewGuid()}",
                 refToMessageId, 
                 new ErrorResult("An error occurred", ErrorAlias.NonApplicable));
 

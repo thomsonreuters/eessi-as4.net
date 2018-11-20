@@ -28,6 +28,7 @@ namespace Eu.EDelivery.AS4.Validators
 
             RuleFor(pmode => pmode)
                 .Must(pmode => pmode.PushConfigurationSpecified || pmode.DynamicDiscoverySpecified)
+                .When(pmode => pmode.MepBinding == MessageExchangePatternBinding.Push)
                 .WithMessage("Either a <PushConfiguration/> or <DynamicDiscovery/> element must be specified");
 
             RulesForPushConfiguration();

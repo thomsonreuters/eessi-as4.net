@@ -68,8 +68,7 @@ namespace Eu.EDelivery.AS4.UnitTests
                 new UserMessage($"user-{Guid.NewGuid()}"),
                 new Receipt(
                     $"receipt-{Guid.NewGuid()}", 
-                    $"ref-to-user-{Guid.NewGuid()}",
-                    DateTimeOffset.Now),
+                    $"ref-to-user-{Guid.NewGuid()}"),
                 new FilledNRReceipt(), 
                 new Error(
                     $"error-{Guid.NewGuid()}", 
@@ -90,11 +89,10 @@ namespace Eu.EDelivery.AS4.UnitTests
 
         public static Arbitrary<Receipt> Receipt()
         {
-            return Gen.zip3(Arb.Generate<NonNull<string>>().Two(), GenNonRepudiation(), UserMessage().Generator)
+            return Gen.zip3(Arb.Generate<NonEmptyString>().Two(), GenNonRepudiation(), UserMessage().Generator)
                       .Select(t => new Receipt(
                           t.Item1.Item1.Get, 
                           t.Item1.Item2.Get, 
-                          DateTimeOffset.Now, 
                           t.Item2, 
                           UserMessageMap.ConvertToRouting(t.Item3)))
                       .ToArbitrary();
@@ -123,7 +121,7 @@ namespace Eu.EDelivery.AS4.UnitTests
         public static Arbitrary<Error> Error()
         {
             return Gen.zip3(
-                Arb.Generate<NonNull<string>>().Two(),
+                Arb.Generate<NonEmptyString>().Two(),
                 UserMessage().Generator,
                 ErrorLine().ListOf())
                       .Select(t => new Error(
@@ -157,7 +155,7 @@ namespace Eu.EDelivery.AS4.UnitTests
         public static Arbitrary<UserMessage> UserMessage()
         {
             return Gen.zip3(
-                Arb.Generate<NonNull<string>>().Zip(GenCollaborationInfo()),
+                Arb.Generate<NonEmptyString>().Zip(GenCollaborationInfo()),
                 GenParty().Two(),
                 GenPartInfos().Zip(GenMessageProperties()))
                       .Select(t => new UserMessage(

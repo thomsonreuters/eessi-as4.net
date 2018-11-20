@@ -9,6 +9,7 @@ using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Model.Submit;
 using Eu.EDelivery.AS4.Serialization;
 using NLog;
+using MessageInfo = Eu.EDelivery.AS4.Model.Common.MessageInfo;
 
 namespace Eu.EDelivery.AS4.Model.Internal
 {
@@ -210,7 +211,7 @@ namespace Eu.EDelivery.AS4.Model.Internal
 
                 if (DeliverMessage != null)
                 {
-                    return DeliverMessage.MessageInfo?.MessageId;
+                    return DeliverMessage.Message.MessageInfo?.MessageId;
                 }
 
                 if (NotifyMessage != null)

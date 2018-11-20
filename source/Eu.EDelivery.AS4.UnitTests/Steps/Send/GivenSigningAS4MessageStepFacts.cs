@@ -97,7 +97,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
         {
             // Arrange
             var ctx = new MessagingContext(
-                AS4Message.Create(new Receipt($"receipt-{Guid.NewGuid()}")),
+                AS4Message.Create(new Receipt($"receipt-{Guid.NewGuid()}", $"user-{Guid.NewGuid()}")),
                 MessagingContextMode.Send)
             {
                 ReceivingPMode = new ReceivingProcessingMode
@@ -121,7 +121,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
         {
             // Arrange
             var ctx = new MessagingContext(
-                AS4Message.Create(new Receipt($"receipt-{Guid.NewGuid()}")),
+                AS4Message.Create(new Receipt($"receipt-{Guid.NewGuid()}", $"user-{Guid.NewGuid()}")),
                 MessagingContextMode.Send);
 
             // Act / Assert

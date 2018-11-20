@@ -151,7 +151,6 @@
     <Compile Include="Mappings\Submit\GivenSubmitReceiverResolverFacts.cs" />
     <Compile Include="Mappings\Submit\GivenSubmitSenderPartyResolverFacts.cs" />
     <Compile Include="Mappings\Submit\GivenSubmitServiceResolverFacts.cs" />
-    <Compile Include="Model\Core\GivenErrorFacts.cs" />
     <Compile Include="Model\EmptyMessagingContext.cs" />
     <Compile Include="Model\FilledNRReceipt.cs" />
     <Compile Include="Model\FilledUserMessage.cs" />
@@ -205,7 +204,6 @@
     <Compile Include="Servicehandler\Builder\GivenReceiverBuilderFacts.cs" />
     <Compile Include="Servicehandler\Builder\GivenStepBuilderFacts.cs" />
     <Compile Include="Servicehandler\GivenKernelFacts.cs" />
-    <Compile Include="Steps\Deliver\GivenCreateDeliverMessageStepFacts.cs" />
     <Compile Include="Steps\Deliver\GivenSendDeliverMessageStepFacts.cs" />
     <Compile Include="Steps\Deliver\GivenUploadAttachmentsStepFacts.cs" />
     <Compile Include="Steps\Deliver\GivenZipAttachmentsStepFacts.cs" />

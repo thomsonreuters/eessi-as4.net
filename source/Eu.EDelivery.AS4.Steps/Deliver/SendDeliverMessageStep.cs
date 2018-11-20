@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
+using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Deliver;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
@@ -133,7 +134,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
                 var repository = new DatastoreRepository(context);
                 var retryService = new MarkForRetryService(repository);
                 retryService.UpdateDeliverMessageForDeliverResult(
-                    messagingContext.DeliverMessage.MessageInfo.MessageId, result);
+                    messagingContext.DeliverMessage.Message.MessageInfo.MessageId, result);
 
                 await context.SaveChangesAsync().ConfigureAwait(false);
             }

@@ -70,29 +70,23 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
         /// <summary>
         /// Start sending the <see cref="DeliverMessage"/>
         /// </summary>
-        /// <param name="deliverMessage"></param>
-        public async Task<SendResult> SendAsync(DeliverMessageEnvelope deliverMessage)
+        /// <param name="envelope"></param>
+        public async Task<SendResult> SendAsync(DeliverMessageEnvelope envelope)
         {
-            if (deliverMessage == null)
+            if (envelope == null)
             {
-                throw new ArgumentNullException(nameof(deliverMessage));
+                throw new ArgumentNullException(nameof(envelope));
             }
 
-            if (String.IsNullOrWhiteSpace(deliverMessage.ContentType))
+            if (String.IsNullOrWhiteSpace(envelope.ContentType))
             {
                 throw new InvalidOperationException(
                     $"{nameof(HttpSender)} requires a ContentType to correctly deliver the message");
             }
 
-            if (deliverMessage.DeliverMessage == null)
-            {
-                throw new InvalidOperationException(
-                    $"{nameof(HttpSender)} requires a DeliverMessage as a series of bytes to correctly deliver the message");
-            }
+            Logger.Info($"(Deliver)[{envelope.Message.MessageInfo.MessageId}] Send DeliverMessage to {Location}");
 
-            Logger.Info($"(Deliver)[{deliverMessage.MessageInfo.MessageId}] Send DeliverMessage to {Location}");
-
-            HttpWebRequest request = await CreateHttpPostRequest(deliverMessage.ContentType, deliverMessage.DeliverMessage).ConfigureAwait(false);
+            HttpWebRequest request = await CreateHttpPostRequest(envelope.ContentType, envelope.SerializeMessage()).ConfigureAwait(false);
             HttpWebResponse response = await SendHttpPostRequest(request).ConfigureAwait(false);
 
             HttpStatusCode statusCode = response?.StatusCode ?? HttpStatusCode.InternalServerError;

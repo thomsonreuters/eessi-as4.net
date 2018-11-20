@@ -16,6 +16,21 @@ namespace Eu.EDelivery.AS4.Model.Common
         public MessageInfo() : this(null, null) { }
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="MessageInfo"/> class.
+        /// </summary>
+        public MessageInfo(string messageId)
+        {
+            MessageId = messageId;
+        }
+
+        public MessageInfo(string messageId, string refToMessageId, string mpc)
+        {
+            MessageId = messageId;
+            RefToMessageId = refToMessageId;
+            Mpc = mpc;
+        }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="MessageInfo"/> class. 
         /// Create a <see cref="MessageInfo"/> Model
         /// with a given <paramref name="messageId"/> and <paramref name="mpc"/>

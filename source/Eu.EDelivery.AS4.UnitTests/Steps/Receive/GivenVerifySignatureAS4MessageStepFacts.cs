@@ -39,7 +39,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             {
                 // Arrange
                 var user = new UserMessage($"user-{Guid.NewGuid()}");
-                var receipt = new Receipt($"receipt-{Guid.NewGuid()}");
+                var receipt = new Receipt($"receipt-{Guid.NewGuid()}", $"user-{Guid.NewGuid()}");
                 var as4Message = AS4Message.Create(user);
                 as4Message.AddMessageUnit(receipt);
                 var cert = new X509Certificate2(holodeck_partya_certificate, certificate_password, X509KeyStorageFlags.Exportable);
@@ -118,7 +118,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             public async Task Takes_Sending_PMode_Into_Account_When_Verifies_Non_Multihop_Signal()
             {
                 // Arrange
-                var as4Msg = AS4Message.Create(new Receipt((string) $"reftoid-{Guid.NewGuid()}"));
+                var as4Msg = AS4Message.Create(new Receipt($"receipt-{Guid.NewGuid()}", $"reftoid-{Guid.NewGuid()}"));
                 as4Msg.AddMessageUnit(new UserMessage(messageId: $"user-{Guid.NewGuid()}"));
 
                 var ctx = new MessagingContext(as4Msg, MessagingContextMode.Receive)
@@ -197,7 +197,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
             private static MessagingContext SignalMessageWithVerification(Limit sendSignature)
             {
-                var signal = AS4Message.Create(new Receipt((string) $"reftoid-{Guid.NewGuid()}"));
+                var signal = AS4Message.Create(new Receipt($"receipt-{Guid.NewGuid()}", $"reftoid-{Guid.NewGuid()}"));
                 var ctx = new MessagingContext(signal, MessagingContextMode.Receive)
                 {
                     SendingPMode = new SendingProcessingMode
@@ -311,6 +311,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                     digestValue: adaptHashes(r.DigestValue)));
 
             var receipt = new Receipt(
+                messageId: $"receipt-{Guid.NewGuid()}",
                 refToMessageId: messageId,
                 nonRepudiation: new NonRepudiationInformation(references));
 

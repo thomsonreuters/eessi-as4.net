@@ -13,7 +13,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
             : base(
                 "ignored-id",
                 "ref-to-message-id",
-                DateTimeOffset.Now,
                 new NonRepudiationInformation(new []
                 {
                     new Reference(
