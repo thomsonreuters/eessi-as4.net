@@ -57,8 +57,12 @@ namespace Eu.EDelivery.AS4.Transformers
 
             if (receivedMessage.Entity is MessageEntity me)
             {
-                MessagingContext ctx =
-                    await RetrieveAS4MessageForNotificationFromReceivedMessage(me.EbmsMessageId, receivedMessage);
+                var as4Transformer = new AS4MessageTransformer();
+                MessagingContext ctx = await as4Transformer.TransformAsync(receivedMessage);
+
+                // Normally the message shouldn't have any attachments
+                // but to be sure we should dispose them since we don't need attachments for notifying.
+                ctx.AS4Message.CloseAttachments();
 
                 NotifyMessageEnvelope notifyEnvelope =
                     await CreateNotifyMessageEnvelopeAsync(ctx.AS4Message, me.EbmsMessageId, me.GetType());
@@ -69,32 +73,6 @@ namespace Eu.EDelivery.AS4.Transformers
             }
 
             throw new InvalidOperationException();
-        }
-
-        private static async Task<MessagingContext> RetrieveAS4MessageForNotificationFromReceivedMessage(string ebmsMessageId, ReceivedMessage entityMessage)
-        {
-            var as4Transformer = new AS4MessageTransformer();
-            MessagingContext deserializedAS4MessageContext = await as4Transformer.TransformAsync(entityMessage);
-
-            AS4Message as4Message = deserializedAS4MessageContext.AS4Message;
-
-            // No attachments are needed in order to create notify messages.
-            as4Message.RemoveAllAttachments();
-
-            // Remove all signal-messages except the one that we should be notifying
-            // Create the DeliverMessage for this specific UserMessage that has been received.
-            SignalMessage signalMessage = 
-                as4Message.SignalMessages
-                          .FirstOrDefault(m => StringComparer.OrdinalIgnoreCase.Equals(m.MessageId, ebmsMessageId));
-
-            if (signalMessage == null)
-            {
-                throw new InvalidOperationException(
-                    $"Incoming SignalMessage from {entityMessage.Origin} with ID " + 
-                    $"{ebmsMessageId} could not be found in the referenced AS4Message");
-            }
-
-            return deserializedAS4MessageContext;
         }
 
         protected virtual async Task<NotifyMessageEnvelope> CreateNotifyMessageEnvelopeAsync(
