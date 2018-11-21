@@ -4,7 +4,6 @@ describe('initial setup tests', () => {
   it('setup page', () => {
     cy.visit('/');
     cy.fixture('login').then((json) => {
-      cy.wait(60000);
       cy.getdatacy('adminPassword').type(json.password);
       cy.getdatacy('readonlyPassword').type(json.password);
       cy.getdatacy('generateKey').click();
