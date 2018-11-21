@@ -93,7 +93,7 @@ The profile also has several optional properties to manipulate the SMP retrieval
 - **DocumentIdentifier**: used to retrieve the correct SMP information when calling the SMP service
 - **DocumentScheme**: used to retrieve the correct SMP information when calling the SMP service
 
-> Note that when the either the `DocumentIdentifier` or `DocumentScheme` is missing from the configured properties, the profile will make an extra call to retrieve them.
+> Note: when both the `DocumentIdentifier` or `DocumentScheme` are missing from the configured properties, the profile will make an extra call to retrieve them. Both properties have to be either specified or unspecified.
 
 All properties can be configured in the _Sending Processing Mode_:
 

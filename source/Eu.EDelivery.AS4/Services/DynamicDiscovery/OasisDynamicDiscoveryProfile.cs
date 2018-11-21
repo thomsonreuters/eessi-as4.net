@@ -16,6 +16,7 @@ using Eu.EDelivery.AS4.Model.PMode;
 using Heijden.DNS;
 using NLog;
 using Wiry.Base32;
+using ArgumentException = System.ArgumentException;
 using Party = Eu.EDelivery.AS4.Model.Core.Party;
 using TransportType = Heijden.DNS.TransportType;
 
@@ -110,12 +111,19 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
             string documentIdentifier = properties.ReadOptionalProperty(nameof(DocumentIdentifier), String.Empty);
             string documentScheme = properties.ReadOptionalProperty(nameof(DocumentScheme), String.Empty);
 
-            if (String.IsNullOrEmpty(documentIdentifier) || String.IsNullOrEmpty(documentScheme))
+            if (String.IsNullOrWhiteSpace(documentIdentifier) && String.IsNullOrWhiteSpace(documentScheme))
             {
                 Uri smpRestBindingFromFallback =
                     await RetrieveSmpRestBindingFromFallbackAsync(smpUri, participantScheme, participantIdentifier);
 
                 return await CallHttpBinding($"{smpRestBindingFromFallback}");
+            }
+
+            if (String.IsNullOrWhiteSpace(documentIdentifier) || String.IsNullOrWhiteSpace(documentScheme))
+            {
+                throw new ArgumentException(
+                    @"DocumentIdentifier and DocumentScheme properties should both be specified or unspecified", 
+                    nameof(properties));
             }
 
             string smpRestBindingFromProperties =
