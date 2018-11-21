@@ -1,23 +1,12 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  ComponentRef,
-  OnDestroy,
-  ChangeDetectorRef
-} from '@angular/core';
-import {
-  AbstractControl,
-  FormBuilder,
-  FormGroup,
-  Validators
-} from '@angular/forms';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ComponentRef, OnDestroy } from '@angular/core';
+import { AbstractControl, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Observable, Subject } from 'rxjs';
 
 import { ItemType } from '../../api/ItemType';
 import { SmpConfiguration } from '../../api/SmpConfiguration';
+import { triggerFormValidation } from '../../helpers';
 import { RuntimeStore } from '../runtime.store';
 import { SmpConfigurationService } from './smpconfiguration.service';
-import { triggerFormValidation } from '../../helpers';
 
 @Component({
   templateUrl: './smpconfigurationdetail.component.html',
@@ -136,7 +125,7 @@ export class SmpConfigurationDetailComponent implements OnDestroy {
         this.isEncryptionEnabled
       ],
       [SmpConfiguration.FIELD_EncryptAlgorithmKeySize]: [
-        !configuration || configuration.encryptAlgorithmKeySize
+        configuration === undefined
           ? this.getDefaultFor(SmpConfiguration.FIELD_EncryptAlgorithmKeySize)
           : configuration.encryptAlgorithmKeySize,
         this.isEncryptionEnabled
@@ -149,7 +138,7 @@ export class SmpConfigurationDetailComponent implements OnDestroy {
         !configuration ? null : configuration.encryptPublicKeyCertificateName
       ],
       [SmpConfiguration.FIELD_EncryptKeyDigestAlgorithm]: [
-        !configuration
+        configuration === undefined
           ? this.getDefaultFor(SmpConfiguration.FIELD_EncryptKeyDigestAlgorithm)
           : configuration.encryptKeyDigestAlgorithm,
         this.isEncryptionEnabled
@@ -159,7 +148,7 @@ export class SmpConfigurationDetailComponent implements OnDestroy {
         this.isEncryptionEnabled
       ],
       [SmpConfiguration.FIELD_EncryptKeyTransportAlgorithm]: [
-        !configuration
+        configuration === undefined
           ? this.getDefaultFor(
               SmpConfiguration.FIELD_EncryptKeyTransportAlgorithm
             )
@@ -202,6 +191,7 @@ export class SmpConfigurationDetailComponent implements OnDestroy {
   private getDefaultFor(prop: string) {
     let key = 'smpconfiguration.' + prop.toLowerCase();
     let entry = this.defaultValues[key];
-    return entry.defaultvalue;
+
+    return entry === undefined ? null : entry.defaultvalue;
   }
 }

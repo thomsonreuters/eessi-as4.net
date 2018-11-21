@@ -3,7 +3,6 @@ using System.Net;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Eu.EDelivery.AS4.Fe.Runtime
@@ -12,6 +11,7 @@ namespace Eu.EDelivery.AS4.Fe.Runtime
     /// Controller to get AS4 runtime types
     /// </summary>
     [Route("api/[controller]")]
+    [ResponseCache(Duration = 60)]
     public class RuntimeController
     {
         private readonly IRuntimeLoader runtimeLoader;
@@ -141,7 +141,7 @@ namespace Eu.EDelivery.AS4.Fe.Runtime
                 NotifySenders = GetNotifySenders(),
                 AttachmentUploaders = GetAttachmentUploaders(),
                 DynamicDiscoveryProfiles = GetDynamicDiscoveryProfiles(),
-                RuntimeMetaData = JObject.Parse(JsonConvert.SerializeObject(runtimeLoader.MetaData, Formatting.Indented, new FlattenRuntimeToJsonConverter()))
+                RuntimeMetaData = runtimeLoader.MetaData
             });
         }
 
@@ -157,7 +157,7 @@ namespace Eu.EDelivery.AS4.Fe.Runtime
         {
             return new ContentResult
             {
-                Content = JsonConvert.SerializeObject(runtimeLoader.MetaData, Formatting.Indented, new FlattenRuntimeToJsonConverter()),
+                Content = JsonConvert.SerializeObject(runtimeLoader.MetaData),
                 ContentType = "application/json"
             };
         }

@@ -48,6 +48,7 @@ namespace Eu.EDelivery.AS4.Fe
             var serializer = JsonSerializer.Create(settings);
             GlobalHost.DependencyResolver.Register(typeof(JsonSerializer), () => serializer);
 
+
             var moduleMappings = services.BuildServiceProvider().GetService<IOptions<ApplicationSettings>>().Value.Modules;
             IConfigurationRoot config;
             services.AddModules(moduleMappings, (configBuilder, env) =>
@@ -63,6 +64,7 @@ namespace Eu.EDelivery.AS4.Fe
 #endif
             }, out config);
             Configuration = config;
+            services.Configure<ApplicationSettings>(Configuration.GetSection("Settings"));
 
             services
                 .AddMvc(options => { options.Filters.Add(new AuthorizeFilter(new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build())); })
@@ -72,9 +74,12 @@ namespace Eu.EDelivery.AS4.Fe
             services.AddScoped<ISettingsSource, FileSettingsSource>();
             services.AddScoped<IPortalSettingsService, PortalSettingsService>();
             services.AddScoped<ITokenService, TokenService>();
-            services.AddSingleton<IRuntimeLoader, RuntimeLoader>();
+            
 
-            services.Configure<ApplicationSettings>(Configuration.GetSection("Settings"));
+            var runtimeLoader = RuntimeLoader.Initialize(services.BuildServiceProvider().GetService<IOptions<ApplicationSettings>>());
+            services.AddSingleton<IRuntimeLoader, RuntimeLoader>(_ => runtimeLoader);
+
+            
             services.Configure<PortalSettings>(Configuration.Bind);
             services.AddOptions();
 

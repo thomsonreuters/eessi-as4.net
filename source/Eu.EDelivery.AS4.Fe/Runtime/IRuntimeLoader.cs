@@ -71,11 +71,6 @@ namespace Eu.EDelivery.AS4.Fe.Runtime
         /// <value>
         /// The receiving pmode.
         /// </value>
-        IEnumerable<ItemType> MetaData { get; }        
-        /// <summary>
-        /// Initializes this instance.
-        /// </summary>
-        /// <returns></returns>
-        IRuntimeLoader Initialize();
+        IEnumerable<ItemType> MetaData { get; }
     }
 }
