@@ -21,6 +21,10 @@
     <DefineConstants>TRACE</DefineConstants>
     <NoWarn>1701;1702;1705;1591</NoWarn>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <WarningsAsErrors>NU1605</WarningsAsErrors>
+    <NoWarn>1701;1702; 1591</NoWarn>
+  </PropertyGroup>
   <ItemGroup>
     <Content Remove="ui\tsconfig.json" />
     <Content Remove="ui\tsconfig.webpack.json" />
