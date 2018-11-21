@@ -64,7 +64,7 @@ namespace Eu.EDelivery.AS4.Builders.Entities
                 _pmode is SendingProcessingMode sp
                     ? sp.PushConfiguration?.Protocol?.Url
                     : _pmode is ReceivingProcessingMode rp
-                        ? rp.ReplyHandling.ResponseConfiguration?.Protocol?.Url
+                        ? rp.ReplyHandling?.ResponseConfiguration?.Protocol?.Url
                         : null;
 
             outMessage.SetStatus(status);
