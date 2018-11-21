@@ -12,8 +12,8 @@ export class SendingProcessingMode {
   allowOverride: boolean;
   mep: number;
   mepBinding: number;
-  pushConfiguration: PushConfiguration = new PushConfiguration();
-  dynamicDiscovery: DynamicDiscovery = new DynamicDiscovery();
+  pushConfiguration: PushConfiguration | undefined = new PushConfiguration();
+  dynamicDiscovery: DynamicDiscovery | undefined = new DynamicDiscovery();
   reliability: SendReliability = new SendReliability();
   receiptHandling: SendReceiptHandling = new SendReceiptHandling();
   errorHandling: SendHandling = new SendHandling();

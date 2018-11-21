@@ -34,13 +34,13 @@ export class SendingProcessingModeForm {
         ],
         [SendingProcessingMode.FIELD_pushConfiguration]: PushConfigurationForm.getForm(
           formBuilder.subForm(SendingProcessingMode.FIELD_pushConfiguration),
-          current && current.pushConfiguration,
+          current && current.pushConfiguration!,
           runtime,
           `${path}.${SendingProcessingMode.FIELD_pushConfiguration}`
         ).form,
         [SendingProcessingMode.FIELD_dynamicDiscovery]: DynamicDiscoveryForm.getForm(
           formBuilder.subForm(SendingProcessingMode.FIELD_dynamicDiscovery),
-          current && current.dynamicDiscovery,
+          current && current.dynamicDiscovery!,
           runtime,
           `${path}.${SendingProcessingMode.FIELD_dynamicDiscovery}`
         ).form,

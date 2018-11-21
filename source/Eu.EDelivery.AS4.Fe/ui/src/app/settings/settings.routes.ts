@@ -4,10 +4,10 @@ import { MustBeAuthorizedGuard } from '../common/mustbeauthorized.guard';
 import { CanDeactivateGuard } from './../common/candeactivate.guard';
 import { WrapperComponent } from './../common/wrapper.component';
 import { AgentSettingsComponent } from './agent/agent.component';
+import { AuthorizationMapComponent } from './authorizationmap/authorizationmap.component';
 import { PortalSettingsComponent } from './portalsettings/portalsettings.component';
 import { SettingsComponent } from './settings/settings.component';
 import { SmpConfigurationComponent } from './smpconfiguration/smpconfiguration.component';
-import { AuthorizationMapComponent } from './authorizationmap/authorizationmap.component';
 
 export const ROUTES: Routes = [
   {
@@ -52,7 +52,7 @@ export const ROUTES: Routes = [
           title: 'Pull Receive Agents',
           type: 'pullReceiveAgents',
           icon: 'fa-cloud-download',
-          betype: 6
+          betype: 5
         },
         canActivate: [MustBeAuthorizedGuard],
         canDeactivate: [CanDeactivateGuard]
@@ -101,7 +101,7 @@ export const ROUTES: Routes = [
               title: 'Outbound processing',
               header: 'Outbound processing agent',
               type: 'outboundProcessingAgents',
-              betype: 8,
+              betype: 7,
               showwarning: true
             },
             canDeactivate: [CanDeactivateGuard]
@@ -125,7 +125,7 @@ export const ROUTES: Routes = [
               title: 'Forward',
               header: 'Forward agent',
               type: 'forwardAgents',
-              betype: 9,
+              betype: 8,
               showwarning: true
             },
             canDeactivate: [CanDeactivateGuard]
@@ -161,7 +161,7 @@ export const ROUTES: Routes = [
               title: 'Pull send',
               header: 'Pull send agent',
               type: 'pullSendAgents',
-              betype: 7,
+              betype: 6,
               showwarning: true
             },
             canDeactivate: [CanDeactivateGuard]
