@@ -49,9 +49,11 @@ During the _Dynamic Discovery_, the _Sending Processing Mode_ gets decorated. Th
 
 The Local profile will use the locally stored **SMP Configurations** in the datastore to decorate the _Sending Processing Mode_. Following values will be overwritten; **all other values are left untouched!**
 
-### ESens Dynamic Discovery Profile
+### Peppol Dynamic Discovery Profile
 
-The ESens profile can be configured with 2 optional properties:
+Dynamic Discovery profile to retrieve a compliant eDelivery SMP profile based on the OpenPEPPOL BIS/CEN BII Service Metadata Publishers (SMP) to extract information about the unknown receiver MSH. After a successful retrieval, the _Sending Processing Mode_ can be extended with the endpoint address, service value/type, action, receiver party and the public encryption certificate of the receiving MSH.
+
+The Peppol profile can be configured with 2 optional properties:
 
 - **SML Scheme** (default: `iso6523-actorid-upis`): is used as the scheme of the URI to contact the SML server.
 - **SML Server Domain Name** (default: `isaitb.acc.edelivery.tech.ec.europa.eu`): is used as the domain name of the URI to contact the SML server.
@@ -66,10 +68,49 @@ Both properties can be configured in the _Sending Processing Mode_:
   xmlns="eu:edelivery:as4:pmode">
   <Id>dynamic-discovery-send-pmode</Id>
   <DynamicDiscovery>
-    <SmpProfile>Eu.EDelivery.AS4.Services.DynamicDiscovery.ESensDynamicDiscoveryProfile, Eu.EDelivery.AS4, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</SmpProfile>
+    <SmpProfile>Eu.EDelivery.AS4.Services.DynamicDiscovery.PeppolDynamicDiscoveryProfile, Eu.EDelivery.AS4, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</SmpProfile>
     <Settings>
       <Setting key="SmlScheme">your-sml-scheme</Setting>
       <Setting key="SmpServerDomainName">your-sml-domain-name</Setting>
+    </Settings>
+  </DynamicDiscovery>
+  ...
+</PMode>
+```
+
+### Oasis Dynamic Discovery Profile
+
+Dynamic Discovery profile to retrieve a compliant eDelivery SMP profile based on the OASIS BDX Service Metadata Publishers (SMP) to extract information about the unknown receiver MSH. After a successful retrieval, the _Sending Processing Mode_ can be extended
+with the endpoint address, service value/type, action, receiver party and the public encryption certificate of the receiving MSH.
+
+The Oasis profile can be confgured with the following required property:
+
+- **ServiceProviderDomainName**: is used for the DNS NAPTR lookup to retrieve the SMP REST binding
+
+The profile also has several optional properties to manipulate the SMP retrieval:
+
+- **ServiceProviderSubDomain**: optionally specify a subdomain when performing the SMP server lookup
+- **DocumentIdentifier**: used to retrieve the correct SMP information when calling the SMP service
+- **DocumentScheme**: used to retrieve the correct SMP information when calling the SMP service
+
+> Note: when both the `DocumentIdentifier` or `DocumentScheme` are missing from the configured properties, the profile will make an extra call to retrieve them. Both properties have to be either specified or unspecified.
+
+All properties can be configured in the _Sending Processing Mode_:
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<PMode
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  xmlns="eu:edelivery:as4:pmode">
+  <Id>dynamic-discovery-send-pmode</Id>
+  <DynamicDiscovery>
+    <SmpProfile>Eu.EDelivery.AS4.Services.DynamicDiscovery.OasisDynamicDiscoveryProfile, Eu.EDelivery.AS4, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</SmpProfile>
+    <Settings>
+      <Setting key="ServiceProviderDomainName">your-service-provider-domain-name\</Setting>
+      <Setting key="ServiceProviderSubDomain">your-service-provider-sub-domain</Setting>
+      <Setting key="DocumentIdentifier">your-document-identifier</Setting>
+      <Setting key="DocumentScheme">your-document-scheme</Setting>
     </Settings>
   </DynamicDiscovery>
   ...

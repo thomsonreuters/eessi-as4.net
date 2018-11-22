@@ -12,7 +12,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Services.DynamicDiscovery
     public class GivenOasisDynamicDiscoveryProfileFacts
     {
         [Fact]
-        public async Task Oasis_DynamicDiscovery_ConnectivityTest_Retrieve_SMP_MetaData()
+        public async Task Oasis_DynamicDiscovery_ConnectivityTest_Retrieve_SMP_MetaData_From_Properties()
         {
             // Arrange
             var sut = new OasisDynamicDiscoveryProfile();
@@ -31,6 +31,30 @@ namespace Eu.EDelivery.AS4.UnitTests.Services.DynamicDiscovery
             // Assert
             Assert.NotNull(smpMetaData);
             Assert.NotNull(smpMetaData.SelectSingleNode("//*[local-name()='EndpointURI']"));
+            Assert.NotNull(smpMetaData.SelectSingleNode("//*[local-name()='ParticipantIdentifier']"));
+            Assert.NotNull(smpMetaData.SelectSingleNode("//*[local-name()='ProcessIdentifier']"));
+        }
+
+        [Fact]
+        public async Task Oasis_DynamicDiscovery_ConnectivityTest_Retrieve_SMP_Metadata_Via_Fallback()
+        {
+            // Arrange
+            var sut = new OasisDynamicDiscoveryProfile();
+
+            // Act
+            XmlDocument smpMetaData = await sut.RetrieveSmpMetaDataAsync(
+                new Party("Receiver", new PartyId("cefsupport1gw", "connectivity-partid-qns")),
+                new Dictionary<string, string>
+                {
+                    [nameof(sut.ServiceProviderDomainName)] = "acc.edelivery.tech.ec.europa.eu",
+                    [nameof(sut.ServiceProviderSubDomain)] = "connectivitytest",
+                });
+
+            // Assert
+            Assert.NotNull(smpMetaData);
+            Assert.NotNull(smpMetaData.SelectSingleNode("//*[local-name()='EndpointURI']"));
+            Assert.NotNull(smpMetaData.SelectSingleNode("//*[local-name()='ParticipantIdentifier']"));
+            Assert.NotNull(smpMetaData.SelectSingleNode("//*[local-name()='ProcessIdentifier']"));
         }
 
         [Fact]
