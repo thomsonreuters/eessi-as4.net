@@ -16,6 +16,7 @@ import { PMODECRUD_SERVICE } from './../crud/crud.component';
 })
 export class ReceivingPmodeComponent
   implements OnDestroy, CanComponentDeactivate {
+  public regexUrl: RegExp = /^(https?:\/\/)[\w:\/]+/;
   public deliverSenders$: Observable<ItemType[]>;
   public attachmentUploaders$: Observable<ItemType[]>;
   private subscriptions: Subscription[] = new Array<Subscription>();
