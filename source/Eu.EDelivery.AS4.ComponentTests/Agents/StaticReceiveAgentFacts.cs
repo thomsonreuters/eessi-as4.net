@@ -99,8 +99,11 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                         value: "getting:started",
                         type: "eu:europa:services"),
                     action: "eu:sample:01",
-                    conversationId: "eu:europe:conversation"));
-            user.AddPartInfo(new PartInfo("cid:" + attachmentId));
+                    conversationId: "eu:europe:conversation"),
+                Party.DefaultFrom, 
+                Party.DefaultTo,
+                new [] { new PartInfo("cid:" + attachmentId) },
+                Enumerable.Empty<MessageProperty>());
 
             AS4Message m = AS4Message.Create(user);
 

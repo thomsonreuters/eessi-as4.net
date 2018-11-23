@@ -1,6 +1,5 @@
-﻿using System.IO;
-using System.Linq;
-using System.Threading;
+﻿using System;
+using System.IO;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
@@ -19,10 +18,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
         public async Task ValidationFailure_IfExternalPayloadReference()
         {
             // Arrange
-            var user = new UserMessage();
+            var attachment = new Attachment("earth", Stream.Null, "text/plain");
+            var user = new UserMessage(
+                $"user-{Guid.NewGuid()}",
+                new PartInfo("earth"));
+
             AS4Message message = AS4Message.Create(user);
-            message.AddAttachment(new Attachment("earth", Stream.Null, "text/plain"));
-            message.FirstUserMessage.AddPartInfo(new PartInfo("earth"));
+            message.AddAttachment(attachment);
             message = await SerializeDeserialize(message);
 
             // Act
@@ -37,10 +39,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
         public async Task ValidationFailure_IfNoAttachmentCanBeFoundForEachPartInfo()
         {
             // Arrange
-            var user = new UserMessage();
-            user.AddPartInfo(new PartInfo("cid:some other href"));
+            var attachment = new Attachment("earth", Stream.Null, "text/plain");
+            var user = new UserMessage($"user-{Guid.NewGuid()}", new PartInfo("cid:some other href"));
             AS4Message message = AS4Message.Create(user);
-            message.AddAttachment(new Attachment("earth", Stream.Null, "text/plain"));
+            message.AddAttachment(attachment);
             message = await SerializeDeserialize(message);
 
             // Act
@@ -77,9 +79,17 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
         [Fact]
         public async Task ValidationFailure_IfUserMessageContainsDuplicatePayloadIds()
         {
-            var user = new UserMessage();
-            user.AddPartInfo(new PartInfo("cid:earth1"));
-            user.AddPartInfo(new PartInfo("cid:earth2"));
+            var user = new UserMessage(
+                $"user-{Guid.NewGuid()}",
+                CollaborationInfo.DefaultTest,
+                Party.DefaultFrom,
+                Party.DefaultTo,
+                new[]
+                {
+                    new PartInfo("cid:earth1"),
+                    new PartInfo("cid:earth2"),
+                },
+                new MessageProperty[0]);
             
             AS4Message message = AS4Message.Create(user);
             message.AddAttachment(new Attachment("earth1", Stream.Null, "text/plain"));

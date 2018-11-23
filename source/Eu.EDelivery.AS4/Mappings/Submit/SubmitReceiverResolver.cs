@@ -59,7 +59,7 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
                         .ToArray());
             }
 
-            return PModePartyResolver.ResolveReceiver(pmodeParty);
+            return SendingPModeMap.ResolveReceiver(pmodeParty);
         }
     }
 }

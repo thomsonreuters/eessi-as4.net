@@ -33,6 +33,7 @@ using Moq;
 using Xunit;
 using static Eu.EDelivery.AS4.UnitTests.Properties.Resources;
 using AgreementReference = Eu.EDelivery.AS4.Model.Core.AgreementReference;
+using CollaborationInfo = Eu.EDelivery.AS4.Model.Core.CollaborationInfo;
 using Error = Eu.EDelivery.AS4.Model.Core.Error;
 using NonRepudiationInformation = Eu.EDelivery.AS4.Model.Core.NonRepudiationInformation;
 using Party = Eu.EDelivery.AS4.Model.Core.Party;
@@ -414,8 +415,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
             public void Then_PayloadInfo_Is_Present_When_Defined()
             {
                 // Arrange
-                var user = new UserMessage($"user-{Guid.NewGuid()}");
-                user.AddPartInfo(new AS4.Model.Core.PartInfo("cid:earth"));
+                var user = new UserMessage(
+                    $"user-{Guid.NewGuid()}",
+                    new AS4.Model.Core.PartInfo("cid:earth"));
                 
                 // Act
                 XmlDocument doc = SerializeSoapMessage(AS4Message.Create(user));

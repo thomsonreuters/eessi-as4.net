@@ -234,11 +234,13 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                 pmode.MessagePackaging?.MessageProperties?.Select(
                     p => new MessageProperty(p.Name, p.Value, p.Type)) ?? new MessageProperty[0];
 
+            Party p1 = pmode.MessagePackaging?.PartyInfo.FromParty;
+            Party p2 = pmode.MessagePackaging?.PartyInfo.ToParty;
             return new UserMessage(
                 $"multihop-message-id-{Guid.NewGuid()}",
                 collaboration,
-                PModePartyResolver.ResolveSender(pmode.MessagePackaging?.PartyInfo.FromParty),
-                PModePartyResolver.ResolveSender(pmode.MessagePackaging?.PartyInfo.ToParty),
+                SendingPModeMap.ResolveSender(p1),
+                SendingPModeMap.ResolveSender(p2),
                 new Model.Core.PartInfo[0],
                 properties);
         }

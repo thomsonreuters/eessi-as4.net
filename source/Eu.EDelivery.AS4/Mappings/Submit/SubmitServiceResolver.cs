@@ -52,7 +52,7 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
                     : new Service(submitService.Value);
             }
 
-            return PModeServiceResolver.ResolveService(sendingPMode);
+            return SendingPModeMap.ResolveService(sendingPMode);
         }
     }
 }

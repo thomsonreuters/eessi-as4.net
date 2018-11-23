@@ -22,7 +22,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.PMode
                 };
 
                 // Act
-                string action = PModeActionResolver.ResolveAction(pmode);
+                string action = SendingPModeMap.ResolveAction(pmode);
 
                 // Assert
                 Assert.Equal(pmode.MessagePackaging.CollaborationInfo.Action, action);
@@ -35,7 +35,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.PMode
                 var pmode = new SendingProcessingMode();
 
                 // Act
-                string action = PModeActionResolver.ResolveAction(pmode);
+                string action = SendingPModeMap.ResolveAction(pmode);
 
                 // Assert
                 Assert.Equal(Constants.Namespaces.TestAction, action);

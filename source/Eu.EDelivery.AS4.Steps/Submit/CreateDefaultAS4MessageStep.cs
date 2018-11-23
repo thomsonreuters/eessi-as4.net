@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Extensions;
-using Eu.EDelivery.AS4.Factories;
+using Eu.EDelivery.AS4.Mappings.PMode;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
@@ -79,45 +80,19 @@ namespace Eu.EDelivery.AS4.Steps.Submit
                     $"{nameof(CreateDefaultAS4MessageStep)} requires an AS4Message to assign the default UserMessage to but no AS4Message is present in the MessagingContext");
             }
 
-            SendingProcessingMode pmode = GetDefaultPMode();
+            SendingProcessingMode pmode = _config.GetSendingPMode(DefaultPmode);
 
-            UserMessage userMessage = UserMessageFactory.Instance.Create(pmode);
+            IEnumerable<PartInfo> parts =
+                messagingContext.AS4Message.Attachments.Select(PartInfo.CreateFor);
+
+            UserMessage userMessage = 
+                SendingPModeMap.CreateUserMessage(pmode, parts.ToArray());
+
             messagingContext.AS4Message.AddMessageUnit(userMessage);
             messagingContext.SendingPMode = pmode;
-            AddPartInfos(messagingContext.AS4Message);
 
             Logger.Info($"{messagingContext.LogTag} Default AS4Message is created using SendingPMode {pmode.Id}");
             return await StepResult.SuccessAsync(messagingContext);
-        }
-
-        private SendingProcessingMode GetDefaultPMode()
-        {
-            return _config.GetSendingPMode(DefaultPmode);
-        }
-
-        private static void AddPartInfos(AS4Message as4Message)
-        {
-            foreach (Attachment attachment in as4Message.Attachments)
-            {
-                AddPartInfo(as4Message, attachment);
-            }
-        }
-
-        private static void AddPartInfo(AS4Message as4Message, Attachment attachment)
-        {
-            PartInfo partInfo = CreateAttachmentPartInfo(attachment);
-            as4Message.FirstUserMessage.AddPartInfo(partInfo);
-        }
-
-        private static PartInfo CreateAttachmentPartInfo(Attachment attachment)
-        {
-            return new PartInfo(
-                href: "cid:" + attachment.Id, 
-                properties: new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
-                {
-                    ["MimeType"] = attachment.ContentType
-                }, 
-                schemas: new Schema[0]);
         }
     }
 }

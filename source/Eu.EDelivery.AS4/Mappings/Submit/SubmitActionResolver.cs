@@ -47,7 +47,7 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
                 return submitMessage.Collaboration.Action;
             }
 
-            return PModeActionResolver.ResolveAction(sendingPMode);
+            return SendingPModeMap.ResolveAction(sendingPMode);
         }
     }
 }

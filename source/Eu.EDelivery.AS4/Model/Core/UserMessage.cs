@@ -1,20 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Xml.Serialization;
-using Eu.EDelivery.AS4.Factories;
 
 namespace Eu.EDelivery.AS4.Model.Core
 {
     /// <summary>
     /// Message which contains the actual business payload that is exchanged amongst the business applications of two parties.
     /// </summary>
+    [DebuggerDisplay("UserMessage " + nameof(MessageId))]
     public class UserMessage : MessageUnit
     {
-        private readonly ICollection<PartInfo> _partInfos;
-        private readonly ICollection<MessageProperty> _messageProperties;
-
         /// <summary>
         /// Gets the message partition channel for this message.
         /// </summary>
@@ -38,41 +35,19 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// <summary>
         /// Gets the properties which offer an extension point to add additional business information.
         /// </summary>
-        public IEnumerable<MessageProperty> MessageProperties => _messageProperties.AsEnumerable();
+        public IEnumerable<MessageProperty> MessageProperties { get; }
 
         /// <summary>
         /// Gets the information which describes the reference to the payloads in the SOAP Body or Attachments.
         /// </summary>
-        public IEnumerable<PartInfo> PayloadInfo => _partInfos.AsEnumerable();
-
-        // TODO: this should happen together with the adding of Attachments
-        // TODO: only unique PartInfo's are allowed
-        internal void AddPartInfo(PartInfo p)
-        {
-            if (p == null)
-            {
-                throw new ArgumentNullException(nameof(p));
-            }
-
-            _partInfos.Add(p);
-        }
-
-        internal void AddMessageProperty(MessageProperty p)
-        {
-            if (p == null)
-            {
-                throw new ArgumentNullException(nameof(p));
-            }
-
-            _messageProperties.Add(p);
-        }
+        public IEnumerable<PartInfo> PayloadInfo { get; }
 
         /// <summary>
         /// Gets or sets the value indicating whether or not this message is a duplicate one.
         /// </summary>
         /// <remarks>This property remains to have a public setter because other possible stateless systems needs to have a way to flag this also.</remarks>
         [XmlIgnore]
-        public bool IsDuplicate { get; set; }
+        internal bool IsDuplicate { get; set; }
 
         /// <summary>
         /// Gets the value indicating if this message is a test message.
@@ -83,41 +58,22 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// <summary>
         /// Initializes a new instance of the <see cref="UserMessage"/> class.
         /// </summary>
-        public UserMessage() : this(IdentifierFactory.Instance.Create()) { }
+        /// <param name="messageId">The ebMS message identifier of this message unit.</param>
+        public UserMessage(string messageId) 
+            : this(
+                messageId, 
+                Constants.Namespaces.EbmsDefaultMpc, 
+                CollaborationInfo.DefaultTest, 
+                Party.DefaultFrom, 
+                Party.DefaultTo, 
+                new PartInfo[0], 
+                new MessageProperty[0]) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="UserMessage"/> class.
         /// </summary>
-        /// <param name="messageId">Ebms Message Identifier</param>
-        public UserMessage(string messageId) : base(messageId)
-        {
-            if (messageId == null)
-            {
-                throw new ArgumentNullException(nameof(messageId));
-            }
-
-            Mpc = Constants.Namespaces.EbmsDefaultMpc;
-
-            CollaborationInfo = new CollaborationInfo(
-                agreement: Maybe<AgreementReference>.Nothing,
-                service: Service.TestService,
-                action: Constants.Namespaces.TestAction,
-                conversationId: CollaborationInfo.DefaultConversationId);
-
-            Sender = new Party(Constants.Namespaces.EbmsDefaultFrom, new PartyId(Constants.Namespaces.EbmsDefaultFrom));
-            Receiver = new Party(Constants.Namespaces.EbmsDefaultTo, new PartyId(Constants.Namespaces.EbmsDefaultTo));
-
-            IsTest = DetermineIfTestMessage(CollaborationInfo.Service, CollaborationInfo.Action);
-
-            _partInfos = new Collection<PartInfo>();
-            _messageProperties = new Collection<MessageProperty>();
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="UserMessage"/> class.
-        /// </summary>
-        /// <param name="messageId"></param>
-        /// <param name="mpc"></param>
+        /// <param name="messageId">The ebMS message identifier of this message unit.</param>
+        /// <param name="mpc">The message partition channel of this message unit.</param>
         public UserMessage(string messageId, string mpc) : this(messageId)
         {
             Mpc = mpc ?? Constants.Namespaces.EbmsDefaultMpc;
@@ -126,77 +82,41 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// <summary>
         /// Initializes a new instance of the <see cref="UserMessage"/> class.
         /// </summary>
-        /// <param name="messageId"></param>
-        /// <param name="refToMessageId"></param>
-        /// <param name="mpc"></param>
-        public UserMessage(string messageId, string refToMessageId, string mpc) : this(messageId, refToMessageId)
-        {
-            Mpc = mpc ?? Constants.Namespaces.EbmsDefaultMpc;
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="UserMessage"/> class.
-        /// </summary>
-        /// <param name="messageId">Ebms Message Identifier</param>
-        /// <param name="collaboration">Collaboration information</param>
-        public UserMessage(string messageId, CollaborationInfo collaboration)
+        /// <param name="messageId">The ebMS message identifier of this message unit.</param>
+        /// <param name="collaboration">The information which describes the business context through a service and action parameter.</param>
+        internal UserMessage(string messageId, CollaborationInfo collaboration)
             : this(messageId, collaboration, Party.DefaultFrom, Party.DefaultTo, new PartInfo[0], new MessageProperty[0]) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="UserMessage"/> class.
         /// </summary>
-        /// <param name="messageId"></param>
-        /// <param name="sender"></param>
-        /// <param name="receiver"></param>
-        public UserMessage(string messageId, Party sender, Party receiver)
+        /// <param name="messageId">The ebMS message identifier of this message unit.</param>
+        /// <param name="sender">The agreed sender of this user message.</param>
+        /// <param name="receiver">The agreed receiver of this user message.</param>
+        internal UserMessage(string messageId, Party sender, Party receiver)
             : this(
                 messageId, 
-                new CollaborationInfo(
-                    Maybe<AgreementReference>.Nothing, 
-                    Service.TestService, 
-                    Constants.Namespaces.TestAction, 
-                    CollaborationInfo.DefaultConversationId), 
+                CollaborationInfo.DefaultTest, 
                 sender, 
-                receiver) { }
+                receiver,
+                new PartInfo[0],
+                new MessageProperty[0]) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="UserMessage"/> class.
         /// </summary>
-        /// <param name="collaboration">Collaboration information</param>
-        /// <param name="sender">The sender party</param>
-        /// <param name="receiver">The receiver party</param>
-        /// <param name="partInfos">The partinfos for the included attachments</param>
-        /// <param name="messageProperties">The metadata properties for this message</param>
-        public UserMessage(
-            CollaborationInfo collaboration,
-            Party sender,
-            Party receiver,
-            IEnumerable<PartInfo> partInfos,
-            IEnumerable<MessageProperty> messageProperties)
-            : this(IdentifierFactory.Instance.Create(), collaboration, sender, receiver, partInfos, messageProperties) { }
+        internal UserMessage(string messageId, PartInfo part) 
+            : this(messageId, CollaborationInfo.DefaultTest, Party.DefaultFrom, Party.DefaultTo, new [] { part }, new MessageProperty[0]) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="UserMessage"/> class.
         /// </summary>
-        /// <param name="messageId">Ebms Message Identifier</param>
-        /// <param name="collaboration">Collaboration information</param>
-        /// <param name="sender">The sender party</param>
-        /// <param name="receiver">The receiver party</param>
-        public UserMessage(
-            string messageId,
-            CollaborationInfo collaboration,
-            Party sender,
-            Party receiver) : this(messageId, collaboration, sender, receiver, new PartInfo[0], new MessageProperty[0]) { }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="UserMessage"/> class.
-        /// </summary>
-        /// <param name="messageId">Ebms Message Identifier</param>
-        /// <param name="collaboration">Collaboration information</param>
-        /// <param name="sender">The sender party</param>
-        /// <param name="receiver">The receiver party</param>
-        /// <param name="partInfos">The partinfos for the included attachments</param>
-        /// <param name="messageProperties">The metadata properties for this message</param>
+        /// <param name="messageId">The ebMS message identifier of this message unit.</param>
+        /// <param name="collaboration">The information which describes the business context through a service and action parameter.</param>
+        /// <param name="sender">The agreed sender of this user message.</param>
+        /// <param name="receiver">The agreed receiver of this user message.</param>
+        /// <param name="partInfos">The information which describes the reference to the payloads in the SOAP Body or attachments.</param>
+        /// <param name="messageProperties">The properties which offer an extension point to add additional business information.</param>
         public UserMessage(
             string messageId,
             CollaborationInfo collaboration,
@@ -209,13 +129,13 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// <summary>
         /// Initializes a new instance of the <see cref="UserMessage"/> class.
         /// </summary>
-        /// <param name="messageId">Ebms Message Identifier</param>
-        /// <param name="mpc"></param>
-        /// <param name="collaboration">Collaboration information</param>
-        /// <param name="sender">The sender party</param>
-        /// <param name="receiver">The receiver party</param>
-        /// <param name="partInfos">The partinfos for the included attachments</param>
-        /// <param name="messageProperties">The metadata properties for this message</param>
+        /// <param name="messageId">The ebMS message identifier of this message unit.</param>
+        /// <param name="mpc">The message partition channel of this message unit.</param>
+        /// <param name="collaboration">The information which describes the business context through a service and action parameter.</param>
+        /// <param name="sender">The agreed sender of this user message.</param>
+        /// <param name="receiver">The agreed receiver of this user message.</param>
+        /// <param name="partInfos">The information which describes the reference to the payloads in the SOAP Body or attachments.</param>
+        /// <param name="messageProperties">The properties which offer an extension point to add additional business information.</param>
         public UserMessage(
             string messageId,
             string mpc,
@@ -224,43 +144,21 @@ namespace Eu.EDelivery.AS4.Model.Core
             Party receiver,
             IEnumerable<PartInfo> partInfos,
             IEnumerable<MessageProperty> messageProperties) 
-            : this(messageId, null, mpc, collaboration, sender, receiver, partInfos, messageProperties) { }
+            : this(messageId, null, DateTimeOffset.Now, mpc, collaboration, sender, receiver, partInfos, messageProperties) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="UserMessage"/> class.
         /// </summary>
-        /// <param name="messageId">Ebms Message Identifier</param>
-        /// <param name="refToMessageId"></param>
-        /// <param name="mpc"></param>
-        /// <param name="collaboration">Collaboration information</param>
-        /// <param name="sender">The sender party</param>
-        /// <param name="receiver">The receiver party</param>
-        /// <param name="partInfos">The partinfos for the included attachments</param>
-        /// <param name="messageProperties">The metadata properties for this message</param>
-        public UserMessage(
-            string messageId,
-            string refToMessageId,
-            string mpc,
-            CollaborationInfo collaboration,
-            Party sender,
-            Party receiver,
-            IEnumerable<PartInfo> partInfos,
-            IEnumerable<MessageProperty> messageProperties) 
-            : this(messageId, refToMessageId, DateTimeOffset.Now, mpc, collaboration, sender, receiver, partInfos, messageProperties) { }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="UserMessage"/> class.
-        /// </summary>
-        /// <param name="messageId">Ebms Message Identifier</param>
-        /// <param name="refToMessageId"></param>
-        /// <param name="timestamp"></param>
-        /// <param name="mpc"></param>
-        /// <param name="collaboration">Collaboration information</param>
-        /// <param name="sender">The sender party</param>
-        /// <param name="receiver">The receiver party</param>
-        /// <param name="partInfos">The partinfos for the included attachments</param>
-        /// <param name="messageProperties">The metadata properties for this message</param>
-        public UserMessage(
+        /// <param name="messageId">The ebMS message identifier of this message unit.</param>
+        /// <param name="refToMessageId">The reference to another ebMS message unit.</param>
+        /// <param name="timestamp">The timestamp when this message is created.</param>
+        /// <param name="mpc">The message partition channel of this message unit.</param>
+        /// <param name="collaboration">The information which describes the business context through a service and action parameter.</param>
+        /// <param name="sender">The agreed sender of this user message.</param>
+        /// <param name="receiver">The agreed receiver of this user message.</param>
+        /// <param name="partInfos">The information which describes the reference to the payloads in the SOAP Body or attachments.</param>
+        /// <param name="messageProperties">The properties which offer an extension point to add additional business information.</param>
+        internal UserMessage(
             string messageId,
             string refToMessageId,
             DateTimeOffset timestamp,
@@ -286,14 +184,24 @@ namespace Eu.EDelivery.AS4.Model.Core
                 throw new ArgumentNullException(nameof(receiver));
             }
 
-            if (partInfos == null || partInfos.Any(p => p is null))
+            if (partInfos == null)
             {
                 throw new ArgumentNullException(nameof(partInfos));
             }
 
-            if (messageProperties == null || messageProperties.Any(p => p is null))
+            if (partInfos.Any(p => p is null))
+            {
+                throw new ArgumentException(@"One or more PartInfo elements is a 'null' reference", nameof(partInfos));
+            }
+
+            if (messageProperties == null)
             {
                 throw new ArgumentNullException(nameof(messageProperties));
+            }
+
+            if (messageProperties.Any(p => p is null))
+            {
+                throw new ArgumentException(@"One ore more MessageProperty elements is a 'null' reference", nameof(messageProperties));
             }
 
             Mpc = mpc ?? Constants.Namespaces.EbmsDefaultMpc;
@@ -301,17 +209,11 @@ namespace Eu.EDelivery.AS4.Model.Core
             Sender = sender;
             Receiver = receiver;
 
-            IsTest = DetermineIfTestMessage(collaboration.Service, collaboration.Action);
+            IsTest = collaboration.Service.Value.Equals(Constants.Namespaces.TestService)
+                     && collaboration.Action.Equals(Constants.Namespaces.TestAction);
 
-            _partInfos = partInfos.ToList();
-            _messageProperties = messageProperties.ToList();
-        }
-
-        private static bool DetermineIfTestMessage(Service service, string action)
-        {
-            return
-                (service.Value?.Equals(Constants.Namespaces.TestService) ?? false) &&
-                (action?.Equals(Constants.Namespaces.TestAction) ?? false);
+            PayloadInfo = partInfos.AsEnumerable();
+            MessageProperties = messageProperties.AsEnumerable();
         }
 
         /// <summary>

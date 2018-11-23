@@ -200,9 +200,9 @@ namespace Eu.EDelivery.AS4.UnitTests
 
         private static Gen<Party> GenParty()
         {
-            return Arb.Generate<NonNull<string>>()
-                      .Zip(Arb.Generate<NonNull<string>>()
-                              .ListOf(),
+            return Arb.Generate<NonEmptyString>()
+                      .Zip(Arb.Generate<NonEmptyString>()
+                              .NonEmptyListOf(),
                            (role, ids) => new Party(
                                role.Get,
                                ids.Select(id => new PartyId(id.Get))));

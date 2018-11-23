@@ -2,22 +2,50 @@
 
 namespace Eu.EDelivery.AS4.Model.Core
 {
+    /// <summary>
+    /// ebMS collaboration information of an <see cref="UserMessage"/> to identify the agreed agreement between two parties.
+    /// </summary>
     public class CollaborationInfo : IEquatable<CollaborationInfo>
     {
+        /// <summary>
+        /// Gets the reference of an agreement between two parties.
+        /// </summary>
         public Maybe<AgreementReference> AgreementReference { get; }
 
+        /// <summary>
+        /// Gets the service which acts on the message.
+        /// </summary>
         public Service Service { get; }
 
+        /// <summary>
+        /// Gets the action within a service that acts on the message.
+        /// </summary>
         public string Action { get; }
 
+        /// <summary>
+        /// Gets the conversation identifier of this message.
+        /// </summary>
         public string ConversationId { get; }
 
+        /// <summary>
+        /// Gets the default conversation identifier for messages.
+        /// </summary>
         public static readonly string DefaultConversationId = "1";
+
+        /// <summary>
+        /// Gets the default collaboration information for test messages.
+        /// </summary>
+        public static readonly CollaborationInfo DefaultTest = 
+            new CollaborationInfo(
+                Maybe<AgreementReference>.Nothing, 
+                Service.TestService, 
+                Constants.Namespaces.TestAction,
+                DefaultConversationId);
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CollaborationInfo"/> class.
         /// </summary>
-        /// <param name="agreement"></param>
+        /// <param name="agreement">The reference of an agreement between two parties.</param>
         public CollaborationInfo(AgreementReference agreement)
             : this(
                 agreement: agreement,
@@ -28,7 +56,7 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// <summary>
         /// Initializes a new instance of the <see cref="CollaborationInfo"/> class.
         /// </summary>
-        /// <param name="service"></param>
+        /// <param name="service">The service which acts on the message.</param>
         internal CollaborationInfo(Service service) 
             : this(
                 Maybe<AgreementReference>.Nothing, 
@@ -39,8 +67,8 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// <summary>
         /// Initializes a new instance of the <see cref="CollaborationInfo"/> class.
         /// </summary>
-        /// <param name="service"></param>
-        /// <param name="action"></param>
+        /// <param name="service">The service which acts on the message.</param>
+        /// <param name="action">The action within a service that acts on the message.</param>
         internal CollaborationInfo(Service service, string action)
             : this(
                 Maybe<AgreementReference>.Nothing,
@@ -51,10 +79,10 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// <summary>
         /// Initializes a new instance of the <see cref="CollaborationInfo"/> class.
         /// </summary>
-        /// <param name="agreement"></param>
-        /// <param name="service"></param>
-        /// <param name="action"></param>
-        /// <param name="conversationId"></param>
+        /// <param name="agreement">The reference of an agreement between two parties.</param>
+        /// <param name="service">The service which acts on the message.</param>
+        /// <param name="action">The action within a service that acts on the message.</param>
+        /// <param name="conversationId">The conversation identifier of the message.</param>
         public CollaborationInfo(
             AgreementReference agreement,
             Service service,
@@ -85,11 +113,11 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// <summary>
         /// Initializes a new instance of the <see cref="CollaborationInfo"/> class.
         /// </summary>
-        /// <param name="agreement"></param>
-        /// <param name="service"></param>
-        /// <param name="action"></param>
-        /// <param name="conversationId"></param>
-        public CollaborationInfo(
+        /// <param name="agreement">The reference of an agreement between two parties.</param>
+        /// <param name="service">The service which acts on the message.</param>
+        /// <param name="action">The action within a service that acts on the message.</param>
+        /// <param name="conversationId">The conversation identifier of the message.</param>
+        internal CollaborationInfo(
             Maybe<AgreementReference> agreement, 
             Service service, 
             string action, 

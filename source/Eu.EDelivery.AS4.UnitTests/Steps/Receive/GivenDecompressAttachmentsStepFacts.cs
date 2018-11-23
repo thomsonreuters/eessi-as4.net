@@ -164,10 +164,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 properties: new Dictionary<string, string> { ["MimeType"] = "html/text" }, 
                 schemas: new Schema[0]);
 
-            var userMessage = new UserMessage($"user-{Guid.NewGuid()}");
-            userMessage.AddPartInfo(partInfo);
-
-            return userMessage;
+            return new UserMessage($"user-{Guid.NewGuid()}", partInfo);
         }
 
         private static async Task<StepResult> ExerciseDecompress(MessagingContext context)

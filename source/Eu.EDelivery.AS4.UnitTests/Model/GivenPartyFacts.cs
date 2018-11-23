@@ -12,28 +12,25 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
     public class GivenPartyFacts
     {
         [Property]
-        public Property EqualsParties()
+        public Property EqualsParties(NonEmptyString roleA, NonEmptyString roleB)
         {
             return Prop.ForAll(
                 Gen.OneOf(
-                       Arb.From<NonNull<string>>().Generator.Two(),
-                       Arb.From<NonNull<string>>().Generator.Select(x => Tuple.Create(x, x)))
+                       Arb.From<NonEmptyString>().Generator.Select(x => Tuple.Create(x, x)))
                    .Three()
                    .ToArbitrary(),
                 xs =>
                 {
-                    (NonNull<string> roleA, NonNull<string> roleB) = xs.Item1;
-                    (NonNull<string> idA, NonNull<string> idB) = xs.Item2;
-                    (NonNull<string> typeA, NonNull<string> typeB) = xs.Item3;
+                    (NonEmptyString idA, NonEmptyString idB) = xs.Item2;
+                    (NonEmptyString typeA, NonEmptyString typeB) = xs.Item3;
 
                     var a = new Party(roleA.Get, new PartyId(idA.Get, typeA.Get));
                     var b = new Party(roleB.Get, new PartyId(idB.Get, typeB.Get));
 
-                    var equalRole = roleA.Equals(roleB);
                     var equalId = idA.Equals(idB);
                     var equalType = typeA.Equals(typeB);
 
-                    return a.Equals(b) == (equalRole && equalId && equalType);
+                    return a.Equals(b) == (equalId && equalType);
                 });
         }
 
@@ -101,7 +98,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
 
             [Theory]
             [InlineData("shared-role", "shared-id")]
-            public void ThenTwoPartiesAreNotEqualForRole(string sharedRole, string sharedId)
+            public void ThenTwoPartiesArEqualForUnequalRole(string sharedRole, string sharedId)
             {
                 // Arrange
                 var partyA = new Party(sharedRole, new PartyId(sharedId));
@@ -111,7 +108,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
                 bool isEqual = partyA.Equals(partyB);
 
                 // Assert
-                Assert.False(isEqual);
+                Assert.True(isEqual);
             }
         }
 

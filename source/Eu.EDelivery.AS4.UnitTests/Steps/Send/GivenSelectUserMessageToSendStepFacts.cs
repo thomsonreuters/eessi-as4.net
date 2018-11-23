@@ -12,6 +12,7 @@ using Eu.EDelivery.AS4.UnitTests.Repositories;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Eu.EDelivery.AS4.Mappings.PMode;
 using Xunit;
 using MessageExchangePattern = Eu.EDelivery.AS4.Entities.MessageExchangePattern;
 
@@ -96,7 +97,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
                 MessagePackaging = { Mpc = mpc }
             };
 
-            UserMessage userMessage = UserMessageFactory.Instance.Create(sendingPMode);
+            UserMessage userMessage = SendingPModeMap.CreateUserMessage(sendingPMode);
             AS4Message as4Message = AS4Message.Create(userMessage, sendingPMode);
 
             var om = new OutMessage(userMessage.MessageId)

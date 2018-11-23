@@ -1,23 +1,34 @@
 ﻿using System;
+using System.Diagnostics;
 
 namespace Eu.EDelivery.AS4.Model.Core
 {
+    /// <summary>
+    /// ebMS model to identify different <see cref="Party"/> models.
+    /// </summary>
+    [DebuggerDisplay(nameof(Id))]
     public class PartyId : IEquatable<PartyId>
     {
+        /// <summary>
+        /// Gets the value to identify <see cref="Party"/> models.
+        /// </summary>
         public string Id { get; }
 
+        /// <summary>
+        /// Gets the optional type of the party identifier.
+        /// </summary>
         public Maybe<string> Type { get; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PartyId" /> class.
         /// </summary>
-        /// <param name="id"></param>
-        /// <exception cref="ArgumentException"></exception>
+        /// <param name="id">The value of the party identifier</param>
+        /// <exception cref="ArgumentException">The <paramref name="id"/> must be a non-empty string.</exception>
         public PartyId(string id)
         {
-            if (id == null)
+            if (String.IsNullOrEmpty(id))
             {
-                throw new ArgumentNullException(nameof(id));
+                throw new ArgumentException(@"Id cannot be null or empty.", nameof(id));
             }
 
             Id = id;
@@ -29,23 +40,16 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// </summary>
         /// <param name="id"></param>
         /// <param name="type"></param>
-        /// <exception cref="ArgumentException"></exception>
-        /// <exception cref="ArgumentNullException"></exception>
-        public PartyId(string id, Maybe<string> type)
+        /// <exception cref="ArgumentException">The <paramref name="id"/> must be a non-empty string.</exception>
+        internal PartyId(string id, Maybe<string> type)
         {
-            if (id == null)
+            if (String.IsNullOrEmpty(id))
             {
-                throw new ArgumentNullException(nameof(id));
+                throw new ArgumentException(@"Id cannot be null or empty.", nameof(id));
             }
-
-            if (type == null)
-            {
-                throw new ArgumentNullException(nameof(type));
-            }
-
 
             Id = id;
-            Type = type;
+            Type = type ?? Maybe<string>.Nothing;
         }
 
         /// <summary>
@@ -53,23 +57,16 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// </summary>
         /// <param name="id"></param>
         /// <param name="type"></param>
-        /// <exception cref="ArgumentException"></exception>
-        /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="ArgumentException">The <paramref name="id"/> must be a non-empty string.</exception>
         public PartyId(string id, string type)
         {
-            if (id == null)
+            if (String.IsNullOrEmpty(id))
             {
-                throw new ArgumentNullException(nameof(id));
+                throw new ArgumentException(@"Id cannot be null or empty.", nameof(id));
             }
-
-            if (type == null)
-            {
-                throw new ArgumentNullException(nameof(type));
-            }
-
 
             Id = id;
-            Type = Maybe.Just(type);
+            Type = (!String.IsNullOrEmpty(type)).ThenMaybe(type);
         }
 
         /// <summary>
@@ -139,6 +136,15 @@ namespace Eu.EDelivery.AS4.Model.Core
 
                 return (hashId * 397) ^ hashType;
             }
+        }
+
+        /// <summary>
+        /// Returns a string that represents the current object.
+        /// </summary>
+        /// <returns>A string that represents the current object.</returns>
+        public override string ToString()
+        {
+            return Id;
         }
     }
 }

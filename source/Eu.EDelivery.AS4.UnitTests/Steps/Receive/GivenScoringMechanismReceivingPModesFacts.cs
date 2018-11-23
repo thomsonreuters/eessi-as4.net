@@ -144,7 +144,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                         $"user-agreement-type-{Guid.NewGuid()}",
                         $"user-agreement-pmodeid-{Guid.NewGuid()}")),
                 new Party("user-Sender-role", new PartyId($"user-sender-partyid-{Guid.NewGuid()}")),
-                new Party("user-Receiver-role", new PartyId($"user-receiver-partyid-{Guid.NewGuid()}")));
+                new Party("user-Receiver-role", new PartyId($"user-receiver-partyid-{Guid.NewGuid()}")),
+                new PartInfo[0],
+                new AS4.Model.Core.MessageProperty[0]);
 
             ReceivingProcessingMode pmodeByUnspecifiedPartyInfo =
                 CreateMatchedReceivingPMode(userMesasge, PModeMatch.ByUnspecifiedPartyInfo | PModeMatch.ByAgreementRef);
