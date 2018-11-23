@@ -59,14 +59,17 @@ namespace Eu.EDelivery.AS4.Builders.Entities
             }
 
             OutMessage outMessage = Build();
-            outMessage.MessageLocation = location;
-            outMessage.Url =
-                _pmode is SendingProcessingMode sp
-                    ? sp.PushConfiguration?.Protocol?.Url
-                    : _pmode is ReceivingProcessingMode rp
-                        ? rp.ReplyHandling.ResponseConfiguration?.Protocol?.Url
-                        : null;
 
+            if (_pmode is SendingProcessingMode sp)
+            {
+                outMessage.Url = sp.PushConfiguration?.Protocol?.Url;
+            }
+            else if (_pmode is ReceivingProcessingMode rp)
+            {
+                outMessage.Url = rp.ReplyHandling?.ResponseConfiguration?.Protocol?.Url;
+            }
+
+            outMessage.MessageLocation = location;
             outMessage.SetStatus(status);
             outMessage.Operation = operation;
 
