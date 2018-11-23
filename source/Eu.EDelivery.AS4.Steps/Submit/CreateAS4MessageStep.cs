@@ -121,9 +121,8 @@ namespace Eu.EDelivery.AS4.Steps.Submit
                 ? SubmitPayloadInfoResolver.Resolve(submit)
                 : new PartInfo[0];
 
-            IEnumerable<Model.Core.MessageProperty> properties = submit.MessageProperties?.Any() == true
-                ? SubmitMessagePropertiesResolver.Resolve(submit)
-                : new Model.Core.MessageProperty[0];
+            IEnumerable<Model.Core.MessageProperty> properties =
+                SubmitMessagePropertiesResolver.Resolve(submit);
 
             return new UserMessage(
                 messageId: submit.MessageInfo?.MessageId ?? IdentifierFactory.Instance.Create(),

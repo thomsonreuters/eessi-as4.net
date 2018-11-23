@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -17,6 +18,7 @@ using Party = Eu.EDelivery.AS4.Model.Core.Party;
 using PartyInfo = Eu.EDelivery.AS4.Model.Common.PartyInfo;
 using Service = Eu.EDelivery.AS4.Model.Core.Service;
 using SubmitMessageProperty = Eu.EDelivery.AS4.Model.Common.MessageProperty;
+using PModeMessageProperty = Eu.EDelivery.AS4.Model.PMode.MessageProperty;
 using UserMessageProperty = Eu.EDelivery.AS4.Model.Core.MessageProperty;
 
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
@@ -275,6 +277,30 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
 
                 Assert.Equal(submitMessageProperty.Value, userMessageMessageProperty.Value);
                 Assert.Equal(submitMessageProperty.Name, userMessageMessageProperty.Name);
+            }
+
+            [Fact]
+            public async Task Creates_AS4Message_With_Only_SendingPMode_Properties()
+            {
+                // Arrange
+                SubmitMessage submitMessage = SubmitWithTwoPayloads();
+                submitMessage.MessageProperties = new SubmitMessageProperty[0];
+                submitMessage.PMode = DefaultSendPMode();
+                submitMessage.PMode.MessagePackaging.MessageProperties =
+                    new List<PModeMessageProperty>
+                    {
+                        new PModeMessageProperty { Name = "originalSender", Value = "Holodeck" },
+                        new PModeMessageProperty { Name = "finalRecipient", Value = "AS4.NET" },
+                    };
+
+                // Act
+                StepResult result = await ExerciseCreateAS4Message(new MessagingContext(submitMessage));
+
+                // Assert
+                Assert.Collection(
+                    result.MessagingContext.AS4Message.FirstUserMessage.MessageProperties,
+                    p => Assert.Equal((p.Name, p.Value), ("originalSender", "Holodeck")),
+                    p => Assert.Equal((p.Name, p.Value), ("finalRecipient", "AS4.NET")));
             }
         }
 

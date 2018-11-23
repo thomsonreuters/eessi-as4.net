@@ -183,7 +183,7 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
         /// <param name="pmode"></param>
         /// <param name="smpMetaData"></param>
         /// <returns></returns>
-        public SendingProcessingMode DecoratePModeWithSmpMetaData(SendingProcessingMode pmode, XmlDocument smpMetaData)
+        public DynamicDiscoveryResult DecoratePModeWithSmpMetaData(SendingProcessingMode pmode, XmlDocument smpMetaData)
         {
             if (pmode == null)
             {
@@ -215,7 +215,8 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
                 Logger.Trace("Don't override Encryption Certificate because no <Certificate/> element found in SMP response");
             }
 
-            return pmode;
+            // TODO: should we specify to override the ToParty here also?
+            return DynamicDiscoveryResult.Create(pmode);
         }
 
         private static XmlNode SelectServiceEndpointNode(XmlNode smpMetaData)

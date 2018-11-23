@@ -272,7 +272,7 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
         /// <param name="pmode">The <see cref="SendingProcessingMode"/> that must be decorated with the SMP metadata</param>
         /// <param name="smpMetaData">An XmlDocument that contains the SMP MetaData that has been received from an SMP server.</param>
         /// <returns>The completed <see cref="SendingProcessingMode"/></returns>
-        public SendingProcessingMode DecoratePModeWithSmpMetaData(SendingProcessingMode pmode, XmlDocument smpMetaData)
+        public DynamicDiscoveryResult DecoratePModeWithSmpMetaData(SendingProcessingMode pmode, XmlDocument smpMetaData)
         {
             if (pmode == null)
             {
@@ -299,14 +299,14 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
                 string certificateBinaries = certificateNode.InnerText.Replace(" ", "").Replace("\r\n", "");
                 OverrideEncryptionCertificate(pmode, certificateBinaries);
                 OverrideToParty(pmode, certificateBinaries);
-            }
-            else
-            {
-                Logger.Trace("Don't override MessagePackaging.PartyInfo.ToParty because no <Certificate/> element found in SMP meta-data");
-                Logger.Trace("Don't override Encryption Certificate because no <Certificate/> element found in SMP meta-data");
+
+                return DynamicDiscoveryResult.Create(pmode, overrideToParty: true);
             }
 
-            return pmode;
+            Logger.Trace("Don't override MessagePackaging.PartyInfo.ToParty because no <Certificate/> element found in SMP meta-data");
+            Logger.Trace("Don't override Encryption Certificate because no <Certificate/> element found in SMP meta-data");
+
+            return DynamicDiscoveryResult.Create(pmode);
         }
 
         private static XmlNode SelectEndpointNode(XmlDocument smpMetaData, XmlNamespaceManager ns)
@@ -349,7 +349,7 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
             if (endpointUriNode == null)
             {
                 throw new InvalidDataException(
-                    "No <EndpointURI/> element in an ServiceEndpointList.Endpoint element found in SMP meta-data");
+                    "No <EndpointURI/> element in an ServiceEndpointList.Endpoint element found in SMP meta-data to complete SendingPMode.PushConfiguration.Protocol.Url");
             }
 
             string endpointUri = endpointUriNode.InnerText.Replace(" ", "").Replace("\r\n", "");
@@ -366,13 +366,27 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
             if (documentIdentifierNode == null)
             {
                 throw new InvalidDataException(
-                    "No <DocumentIdentifier/> element in an <ServiceInformation/> element found in SMP meta-data");
+                    "No <DocumentIdentifier/> element in an <ServiceInformation/> element found in SMP meta-data to complete ebMS Action");
             }
 
-            Logger.Trace($"Override SendingPMode.MessagePackaging.CollaborationInfo.Action with {documentIdentifierNode.InnerText}");
+            string documentScheme =
+                documentIdentifierNode.Attributes
+                    ?.OfType<XmlAttribute>()
+                    .FirstOrDefault(a => a.Name.Equals("scheme", StringComparison.OrdinalIgnoreCase))
+                    ?.Value;
+
+            if (String.IsNullOrEmpty(documentScheme))
+            {
+                throw new InvalidDataException(
+                    "No 'scheme' XML attribute found in <DocumentIdentifier/> element in SMP meta-data to complete ebMS Action");
+            }
+
+            string action = $"{documentScheme}::{documentIdentifierNode.InnerText}";
+            Logger.Trace($"Override SendingPMode.MessagePackaging.CollaborationInfo.Action with {action}");
+
             pmode.MessagePackaging = pmode.MessagePackaging ?? new SendMessagePackaging();
             pmode.MessagePackaging.CollaborationInfo = pmode.MessagePackaging.CollaborationInfo ?? new CollaborationInfo();
-            pmode.MessagePackaging.CollaborationInfo.Action = documentIdentifierNode.InnerText;
+            pmode.MessagePackaging.CollaborationInfo.Action = action;
         }
 
         private static void OverrideCollaborationService(SendingProcessingMode pmode, XmlDocument smpMetaData, XmlNamespaceManager ns)
@@ -383,7 +397,7 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
             if (processIdentifierNode == null)
             {
                 throw new InvalidDataException(
-                    "No <ProcessIdentifier/> in an ProcessList.Process element found in SMP meta-data");
+                    "No <ProcessIdentifier/> in an ProcessList.Process element found in SMP meta-data to complete ebMS Service");
             }
 
             string serviceType =
@@ -430,7 +444,7 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
 
             if (participantIdentifierNode == null)
             {
-                throw new InvalidDataException("No ParticipantIdentifier element found in SMP meta-data");
+                throw new InvalidDataException("No ParticipantIdentifier element found in SMP meta-data to complete 'finalRecipient' MessageProperty");
             }
 
             string participantIdentifier =
