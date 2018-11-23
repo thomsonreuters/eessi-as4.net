@@ -14,6 +14,7 @@ using Eu.EDelivery.AS4.Strategies.Sender;
 using Eu.EDelivery.AS4.Strategies.Uploader;
 using Eu.EDelivery.AS4.Transformers;
 using Microsoft.Extensions.Options;
+using NLog;
 
 namespace Eu.EDelivery.AS4.Fe.Runtime
 {
@@ -23,6 +24,7 @@ namespace Eu.EDelivery.AS4.Fe.Runtime
     /// <seealso cref="IRuntimeLoader" />
     public class RuntimeLoader : IRuntimeLoader
     {
+        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
         private static readonly Type[] ConfiguredAttributes =
         {
             typeof(InfoAttribute),
@@ -148,26 +150,27 @@ namespace Eu.EDelivery.AS4.Fe.Runtime
             }
 
             
-            Type[] targettedTypes = LoadTypeImplementationsFromFiles(folder);
+            IDictionary<Type, Type[]> implementationsByInterface = LoadTypeImplementationsByInterfaceFromFiles(folder);
+            ItemType[] CreateItemsForType<T>() => implementationsByInterface[typeof(T)].Select(CreateItemForType).ToArray();
 
-            Receivers = LoadImplementationsForType(targettedTypes, typeof(IReceiver));
-            Steps = LoadImplementationsForType(targettedTypes, typeof(IStep));
-            Transformers = LoadImplementationsForType(targettedTypes, typeof(ITransformer));
-            CertificateRepositories = LoadImplementationsForType(targettedTypes, typeof(ICertificateRepository));
-            DeliverSenders = LoadImplementationsForType(targettedTypes, typeof(IDeliverSender));
-            NotifySenders = LoadImplementationsForType(targettedTypes, typeof(INotifySender));
-            AttachmentUploaders = LoadImplementationsForType(targettedTypes, typeof(IAttachmentUploader));
-            DynamicDiscoveryProfiles = LoadImplementationsForType(targettedTypes, typeof(IDynamicDiscoveryProfile));
-            MetaData = LoadImplementationsForType(targettedTypes, typeof(IPMode))
-                       .Concat(new[] { LoadImplementationForType(typeof(Entities.SmpConfiguration)) })
+            Receivers = CreateItemsForType<IReceiver>();
+            Steps = CreateItemsForType<IStep>();
+            Transformers = CreateItemsForType<ITransformer>();
+            CertificateRepositories = CreateItemsForType<ICertificateRepository>();
+            DeliverSenders = CreateItemsForType<IDeliverSender>();
+            NotifySenders = CreateItemsForType<INotifySender>();
+            AttachmentUploaders = CreateItemsForType<IAttachmentUploader>();
+            DynamicDiscoveryProfiles = CreateItemsForType<IDynamicDiscoveryProfile>();
+            MetaData = CreateItemsForType<IPMode>()
+                       .Concat(new[] { CreateItemForType(typeof(Entities.SmpConfiguration)) })
                        .ToArray();
 
             return this;
         }
 
-        private static Type[] LoadTypeImplementationsFromFiles(string folder)
+        private static IDictionary<Type, Type[]> LoadTypeImplementationsByInterfaceFromFiles(string folder)
         {
-            var searchedTypes = new[]
+            Type[] interfaces = 
             {
                 typeof(IReceiver),
                 typeof(IStep),
@@ -179,29 +182,40 @@ namespace Eu.EDelivery.AS4.Fe.Runtime
                 typeof(IDynamicDiscoveryProfile),
                 typeof(IPMode)
             };
+            Type notConfigurableAttr = typeof(NotConfigurableAttribute);
 
-            return Directory
-                .GetFiles(folder, "Eu.EDelivery.AS4*.dll")
-                .Where(f => !f.Contains("Test"))
-                .SelectMany(f => Assembly.LoadFile(Path.GetFullPath(f)).GetTypes())
-                .Where(t => t.IsPublic
-                            && !t.IsInterface
-                            && !t.IsAbstract
-                            && t.GetInterfaces().Any(searchedTypes.Contains)
-                            && t.CustomAttributes.All(
-                                a => a.AttributeType != typeof(NotConfigurableAttribute)))
-                .ToArray();
+            IEnumerable<Type> implementations =
+                Directory
+                    .GetFiles(folder, "Eu.EDelivery.AS4*.dll")
+                    .Where(f => !f.Contains("Test"))
+                    .SelectMany(LoadTypesFromAssemblyPath)
+                    .Where(t => !t.IsInterface
+                                && !t.IsAbstract
+                                && interfaces.Any(i => t.GetInterface(i.Name) != null)
+                                && !t.IsDefined(notConfigurableAttr));
+
+            return interfaces.Select(
+                face => new KeyValuePair<Type, Type[]>(
+                    face, implementations.Where(
+                        impl => impl.GetInterface(face.Name) != null).ToArray()))
+                             .ToDictionary(kv => kv.Key, kv => kv.Value);
         }
 
-        private static IEnumerable<ItemType> LoadImplementationsForType(Type[] availableTypes, Type interfaceType)
+        private static IEnumerable<Type> LoadTypesFromAssemblyPath(string file)
         {
-            IEnumerable<Type> implementationTypes = 
-                availableTypes.Where(t => t.GetInterfaces().Any(i => i == interfaceType));
-
-            return implementationTypes.Select(LoadImplementationForType).ToArray();
+            try
+            {
+                return Assembly.LoadFile(Path.GetFullPath(file))
+                               .GetExportedTypes();
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex);
+                return Enumerable.Empty<Type>();
+            }
         }
 
-        private static ItemType LoadImplementationForType(Type type)
+        private static ItemType CreateItemForType(Type type)
         {
             var infoAttr = type.GetCustomAttribute<InfoAttribute>();
             var descAttr = type.GetCustomAttribute<DescriptionAttribute>();
