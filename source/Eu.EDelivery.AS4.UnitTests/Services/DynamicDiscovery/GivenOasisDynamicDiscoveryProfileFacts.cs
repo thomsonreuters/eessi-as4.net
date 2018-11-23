@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Xml;
 using Eu.EDelivery.AS4.Model.PMode;
@@ -68,18 +69,23 @@ namespace Eu.EDelivery.AS4.UnitTests.Services.DynamicDiscovery
             smpMetaData.LoadXml(OasisConnectivityTestResponse);
 
             // Act
-            SendingProcessingMode result = sut.DecoratePModeWithSmpMetaData(fixture, smpMetaData);
+            DynamicDiscoveryResult result = sut.DecoratePModeWithSmpMetaData(fixture, smpMetaData);
 
             // Assert
             Assert.NotNull(result);
-            Assert.Equal("http://40.115.23.114:8080/domibus/services/msh?domain=dynamic", result.PushConfiguration.Protocol.Url);
-            Assert.Equal("urn:www.cenbii.eu:profile:bii04:ver1.0", result.MessagePackaging.CollaborationInfo.Service.Value);
-            Assert.Equal("connectivity-procid-qns", result.MessagePackaging.CollaborationInfo.Service.Type);
-            Assert.Equal("doc_id1", result.MessagePackaging.CollaborationInfo.Action);
-            Assert.Contains(result.MessagePackaging.MessageProperties, p => p.Name == "originalSender");
-            Assert.Contains(result.MessagePackaging.MessageProperties, p => p.Name == "finalRecipient" && p.Value == "cefsupport1gw");
-            Assert.True(result.Security.Encryption.EncryptionCertificateInformation != null, "no encryption certificate set");
-            Assert.True(result.MessagePackaging.PartyInfo.ToParty != null, "no ToParty set");
+            Assert.True(result.OverrideToParty, "should specify to override ToParty");
+
+            SendingProcessingMode actual = result.CompletedSendingPMode;
+            Assert.NotNull(actual);
+            Assert.Equal("http://40.115.23.114:8080/domibus/services/msh?domain=dynamic", actual.PushConfiguration.Protocol.Url);
+            Assert.Equal("urn:www.cenbii.eu:profile:bii04:ver1.0", actual.MessagePackaging.CollaborationInfo.Service.Value);
+            Assert.Equal("connectivity-procid-qns", actual.MessagePackaging.CollaborationInfo.Service.Type);
+            Assert.Equal("connectivity-docid-qns::doc_id1", actual.MessagePackaging.CollaborationInfo.Action);
+            Assert.Contains(actual.MessagePackaging.MessageProperties, p => p.Name == "originalSender");
+            Assert.Contains(actual.MessagePackaging.MessageProperties, p => p.Name == "finalRecipient" && p.Value == "cefsupport1gw");
+            Assert.True(actual.Security.Encryption.EncryptionCertificateInformation != null, "no encryption certificate set");
+            Assert.True(actual.MessagePackaging.PartyInfo.ToParty != null, "no ToParty set");
+            Assert.Equal("urn:oasis:names:tc:ebcore:partyid-type:unregistered", actual.MessagePackaging.PartyInfo.ToParty.PartyIds.First().Type);
         }
 
         private const string OasisConnectivityTestResponse =

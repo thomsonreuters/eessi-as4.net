@@ -197,9 +197,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
                 return Task.FromResult(new XmlDocument());
             }
 
-            public SendingProcessingMode DecoratePModeWithSmpMetaData(SendingProcessingMode pmode, XmlDocument smpMetaData)
+            public DynamicDiscoveryResult DecoratePModeWithSmpMetaData(
+                SendingProcessingMode pmode,
+                XmlDocument smpMetaData)
             {
-                return pmode;
+                return DynamicDiscoveryResult.Create(pmode);
             }
         }
 
@@ -283,10 +285,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
             /// <param name="pmode">The <see cref="SendingProcessingMode"/> that must be decorated with the SMP metadata</param>
             /// <param name="smpMetaData">An XmlDocument that contains the SMP MetaData that has been received from an SMP server.</param>
             /// <returns>The completed <see cref="SendingProcessingMode"/></returns>
-            public SendingProcessingMode DecoratePModeWithSmpMetaData(SendingProcessingMode pmode, XmlDocument smpMetaData)
+            public DynamicDiscoveryResult DecoratePModeWithSmpMetaData(SendingProcessingMode pmode, XmlDocument smpMetaData)
             {
                 pmode.Id = Guid.NewGuid().ToString();
-                return pmode;
+                return DynamicDiscoveryResult.Create(pmode);
             }
         }
     }

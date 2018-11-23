@@ -57,7 +57,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Services.DynamicDiscovery
             var smpMetaData = new XmlDocument();
             smpMetaData.LoadXml(smpResponse);
 
-            return sut.DecoratePModeWithSmpMetaData(pmode, smpMetaData);
+            return sut.DecoratePModeWithSmpMetaData(pmode, smpMetaData).CompletedSendingPMode;
         }
 
         [Theory]
@@ -177,7 +177,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Services.DynamicDiscovery
             using (XmlReader reader = smpResponse.CreateReader())
             {
                 smpMetaData.Load(reader);
-                return sut.DecoratePModeWithSmpMetaData(pmode, smpMetaData);
+                return sut.DecoratePModeWithSmpMetaData(pmode, smpMetaData).CompletedSendingPMode;
             }
         }
     }
