@@ -117,6 +117,32 @@ All properties can be configured in the _Sending Processing Mode_:
 </PMode>
 ```
 
+A _Submit Message_ should be send with a `ToParty` element or else be hard-coded specified in the _Sending Processing Mode_ but this later approach is not recommended since this way _Submit Messages_ will always be send to the same endpoint. This way you're not fully using the capabilities of "Dynamic Discovery".
+
+This `ToParty` element will need at least one `PartyId` with both the `Id` (= **Participant Identifier)** and `Type` (= **Participant Scheme**) filled out because the Oasis profile needs both to build the DNS NAPTR query. All `PartId` elements with both specified will be tried for a DNS NAPTR query. The first pair that result in a DNS awnser will be used to call the SMP REST binding.
+
+```xml
+<?xml version="1.0"?>
+<SubmitMessage xmlns="urn:cef:edelivery:eu:as4:messages">
+  <Collaboration>
+    <AgreementRef>
+      <PModeId>dynamic-discovery-send-pmode</PModeId>
+    </AgreementRef>
+  </Collaboration>
+  <PartyInfo>
+    <ToParty>
+        <Role>Receiver</Role>
+        <PartyIds>
+            <PartyId>
+                <Id>your-participant-identifier</Id>
+               <Type>your-participant-scheme</Type>
+            </PartyId>
+        </PartyIds>
+    </ToParty>
+  </PartyInfo>
+</SubmitMessage>
+```
+
 ## Specify routing information via the <span>AS4.NET</span> Portal
 
 When using the `LocalDynamicDiscoveryProfile`, the <span>AS4.NET</span> MSH will retrieve the locally stored **SMP Configurations** in the datastore to decorate the _Sending Processing Mode_ during the _Dynamic Discovery_ process. Therefore, to correctly use the `LocalDynamicDiscoveryProfile` the routing information must be specified via the portal so it can be correctly retrieved at run-time.
