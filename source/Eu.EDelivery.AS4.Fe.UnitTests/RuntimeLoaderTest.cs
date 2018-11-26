@@ -1,17 +1,7 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+﻿using System.IO;
 using Eu.EDelivery.AS4.Fe.Runtime;
 using Eu.EDelivery.AS4.Fe.Settings;
-using Eu.EDelivery.AS4.Fe.UnitTests.TestData;
-using Eu.EDelivery.AS4.Model.PMode;
-using Eu.EDelivery.AS4.Receivers;
-using Eu.EDelivery.AS4.Steps;
-using Eu.EDelivery.AS4.Transformers;
 using Microsoft.Extensions.Options;
-using Mono.Cecil;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using NSubstitute;
 using Xunit;
 
@@ -19,134 +9,29 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
 {
     public class RuntimeLoaderTest
     {
-        private RuntimeLoader loader;
-        private List<TypeDefinition> types;
-
-        private RuntimeLoaderTest Setup()
+        [Fact]
+        public void Types_Should_Be_Loaded_From_The_Assemblies_At_Given_Directory()
         {
+            // Arrange
             var options = Substitute.For<IOptions<ApplicationSettings>>();
             options.Value.Returns(new ApplicationSettings()
             {
                 Runtime = Directory.GetCurrentDirectory()
             });
-            loader = new RuntimeLoader(options);
-            types = loader.LoadTypesFromAssemblies();
-            return this;
-        }
 
-        public class Initialize : RuntimeLoaderTest
-        {
-            [Fact]
-            public void Types_Should_Be_Loaded_From_The_Assemblies()
-            {
-                // Setup
-                Setup();
+            // Act
+            var loader = RuntimeLoader.Initialize(options);
 
-                // Assert
-                Assert.True(loader.Receivers.Any());
-                Assert.Contains(loader.Receivers, type => type.Name == "FILE receiver");
-            }
-
-            [Fact]
-            public void Interfaces_Should_Not_Be_In_The_List()
-            {
-                Setup();
-
-                var istep = typeof(IConfigStep).Name;
-
-                Assert.True(loader.Steps.All(y => !y.Name.Contains(istep)), "No interfaces types should be in the list.");
-            }
-
-            [Fact]
-            public void Abstract_Classes_Should_Not_Be_In_The_List()
-            {
-                Setup();
-
-                var abstractClass = typeof(MinderNotifyMessageTransformer).Name;
-
-                Assert.True(loader.Transformers.All(y => !y.Name.Contains(abstractClass)), "No abstract types should be in the list.");
-            }
-
-            [Fact]
-            public void Types_Decorated_With_NoUi_Attribute_Should_Not_Be_In_The_List()
-            {
-                Setup();
-
-                var conditionalstep = typeof(ConditionalStep).Name;
-
-                Assert.True(loader.Steps.All(y => !y.Name.Contains(conditionalstep)), "Types decorates with the NoUiAttribute should not be in the list.");
-            }
-
-            [Fact]
-            public void When_InfoAttribute_And_DescriptionAttribute_Is_Present_They_Should_Be_Used()
-            {
-                // Setup
-                Setup();
-                var result = loader.LoadImplementationsForType(types, typeof(ITestReceiver));
-
-                // Assert
-                var first = result.First();
-                Assert.True(first.Name == "Test receiver");
-                Assert.Contains("TestReceiver", first.TechnicalName);
-
-                var info = first.Properties.FirstOrDefault(prop => prop.FriendlyName == "FRIENDLYNAME");
-                Assert.NotNull(info);
-                Assert.True(info.Regex == "REGEX");
-                Assert.True(info.Type == "TYPE");
-                Assert.True(info.Description == "DESCRIPTION");
-            }
-
-            [Fact]
-            public void When_Only_DescriptionAttribute_Is_Present_It_Should_Be_Used()
-            {
-                // Setup
-                Setup();
-
-                // Act
-                var result = loader.LoadImplementationsForType(types, typeof(ITestReceiver));
-                var onlywithDescription = result.First(test => test.Name.ToLower().Contains("testreceiverwithonlydescription"));
-
-                // Assert
-                Assert.True(onlywithDescription.Description == "TestReceiverWithOnlyDescription");
-                Assert.True(onlywithDescription.Properties.First().Description == "Name");
-            }
-
-            [Fact]
-            public void Types_Decorated_With_InfoAttribute_Should_Be_In_The_Runtime_List()
-            {
-                Setup();
-
-                var result = loader.LoadImplementationsForType(types, typeof(ITestReceiver));
-                var type = result.First(test => test.Name.ToLower().Contains("testreceiverwithonlydescription")).Properties.First(prop => prop.TechnicalName == "Test");
-
-                Assert.Contains("testattribute", type.Attributes);
-            }
-
-            [Fact]
-            public void BuildProperties_BuildsThePropertyTree()
-            {
-                Setup();
-
-                var result = loader.LoadImplementationsForType(types, typeof(IPMode)).ToList();
-            }
-        }
-
-        public class FlattenRuntimeToJson : RuntimeLoaderTest
-        {
-            [Fact]
-            public void Object_Properties_Should_Be_Flattened_In_Json()
-            {
-                // Setup
-                Setup();
-
-                var result = loader.LoadImplementationsForType(types, typeof(IPMode));
-
-                var jsonResult = JsonConvert.SerializeObject(result.First(x => x.Name == "SendingProcessingMode"), Formatting.Indented, new FlattenRuntimeToJsonConverter());
-
-                // Assert
-                var json = JObject.Parse(jsonResult);
-                Assert.Contains(json.Properties(), prop=>  prop.Name == "sendingprocessingmode.mepbinding");
-            }
+            // Assert
+            Assert.NotEmpty(loader.Receivers);
+            Assert.NotEmpty(loader.Transformers);
+            Assert.NotEmpty(loader.Steps);
+            Assert.NotEmpty(loader.AttachmentUploaders);
+            Assert.NotEmpty(loader.CertificateRepositories);
+            Assert.NotEmpty(loader.DeliverSenders);
+            Assert.NotEmpty(loader.DynamicDiscoveryProfiles);
+            Assert.NotEmpty(loader.NotifySenders);
+            Assert.NotEmpty(loader.MetaData);
         }
     }
 }
