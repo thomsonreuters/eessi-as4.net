@@ -1,18 +1,18 @@
 ﻿using System;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.ServiceProcess;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Eu.EDelivery.AS4.WindowsService.SystemTray.Properties;
-using Newtonsoft.Json.Linq;
 
 namespace Eu.EDelivery.AS4.WindowsService.SystemTray
 {
     public partial class SystemTrayForm : Form
     {
         private readonly NotifyIcon _icon;
+
+        private Uri _portalUrl;
 
         public SystemTrayForm()
         {
@@ -26,8 +26,19 @@ namespace Eu.EDelivery.AS4.WindowsService.SystemTray
                 ContextMenu = new ContextMenu(
                     new []
                     {
-                        new MenuItem("Start", OnStart),
+                        new MenuItem("Start", OnStart)
+                        {
+                            Name = "Start"
+                        },
                         new MenuItem("Open Portal", OnOpenPortal)
+                        {
+                            Name = "Open Portal",
+                            Enabled = false
+                        },
+                        new MenuItem("Configure", OnConfigure)
+                        {
+                            Name = "Configure"
+                        }
                     })
             };
         }
@@ -100,27 +111,41 @@ namespace Eu.EDelivery.AS4.WindowsService.SystemTray
 
         private void OnOpenPortal(object sender, EventArgs e)
         {
-            // TODO: find out where the url is stored for the portal.
+            Task.Run(() => Process.Start(_portalUrl.OriginalString));
+        }
 
-            string appsettingsPath = 
-                Path.Combine(
-                    AppDomain.CurrentDomain.BaseDirectory,
-#if DEBUG
-                    "appsettings.Development.json"
-#else
-                    "appsettings.inprocess.json"
-#endif
-                    );
+        private void OnConfigure(object sender, EventArgs e)
+        {
+            var form = new ConfigurePortalForm();
+            DialogResult dialogResult = form.ShowDialog();
 
-            if (File.Exists(appsettingsPath))
+            if (dialogResult == DialogResult.OK)
             {
-                string json = File.ReadAllText(appsettingsPath);
-                JObject o = JObject.Parse(json);
-                JToken token = o?.SelectToken("$.Port");
-                var port = token?.Value<string>();
-                if (port != null)
+                if (String.IsNullOrWhiteSpace(form.PortalUrl))
                 {
-                    Process.Start(port);
+                    MessageBox.Show(
+                        @"Cannot configure AS4.NET portal with a empty url",
+                        @"Configuration failure",
+                        MessageBoxButtons.OK);
+                }
+                else if (!Uri.TryCreate(form.PortalUrl, UriKind.RelativeOrAbsolute, out Uri portalUrl))
+                {
+                    MessageBox.Show(
+                        @"Cannot configure AS4.NET portal with an input that's not a valid URL",
+                        @"Configuration failure",
+                        MessageBoxButtons.OK);
+                }
+                else
+                {
+                    _portalUrl = portalUrl;
+
+                    foreach (MenuItem menuItem in
+                        _icon.ContextMenu
+                             .MenuItems
+                             .Find("Open Portal", searchAllChildren: false))
+                    {
+                        menuItem.Enabled = true;
+                    }
                 }
             }
         }

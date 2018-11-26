@@ -5,11 +5,8 @@ using System.Reflection;
 using System.ServiceProcess;
 using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Builders;
 using Eu.EDelivery.AS4.Common;
-using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.ServiceHandler;
-using Eu.EDelivery.AS4.ServiceHandler.Agents;
 
 namespace Eu.EDelivery.AS4.WindowsService
 {
@@ -76,24 +73,43 @@ namespace Eu.EDelivery.AS4.WindowsService
             }
         }
 
-        private static Task StartFeInProcess(CancellationToken cancellation)
+        private Task StartFeInProcess(CancellationToken cancellation)
         {
             if (!Config.Instance.FeInProcess)
             {
                 return Task.CompletedTask;
             }
 
-            return Task.Factory.StartNew(() => Fe.Program.StartInProcess(cancellation), cancellation);
+            var task = Task.Factory.StartNew(() => Fe.Program.StartInProcess(cancellation), cancellation);
+            task.ContinueWith(LogExceptions, TaskContinuationOptions.OnlyOnFaulted);
+
+            return task;
         }
 
-        private static Task StartPayloadServiceInProcess(CancellationToken cancellation)
+        private Task StartPayloadServiceInProcess(CancellationToken cancellation)
         {
             if (!Config.Instance.PayloadServiceInProcess)
             {
                 return Task.CompletedTask;
             }
 
-            return Task.Factory.StartNew(() => PayloadService.Program.Start(cancellation), cancellation);
+            var task = Task.Factory.StartNew(() => PayloadService.Program.Start(cancellation), cancellation);
+            task.ContinueWith(LogExceptions, TaskContinuationOptions.OnlyOnFaulted);
+
+            return task;
+        }
+
+        private void LogExceptions(Task t)
+        {
+            if (t.Exception?.InnerExceptions == null)
+            {
+                return;
+            }
+
+            foreach (Exception ex in t.Exception.InnerExceptions)
+            {
+                _eventLog.WriteEntry(ex.Message, EventLogEntryType.Error);
+            }
         }
 
         /// <summary>

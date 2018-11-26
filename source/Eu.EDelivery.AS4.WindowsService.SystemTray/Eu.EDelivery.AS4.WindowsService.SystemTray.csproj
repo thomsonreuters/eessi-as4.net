@@ -51,6 +51,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ConfigurePortalForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ConfigurePortalForm.Designer.cs">
+      <DependentUpon>ConfigurePortalForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="SystemTrayForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -59,7 +65,12 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SystemTrayInstaller.cs" />
+    <Compile Include="SystemTrayInstaller.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <EmbeddedResource Include="ConfigurePortalForm.resx">
+      <DependentUpon>ConfigurePortalForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
