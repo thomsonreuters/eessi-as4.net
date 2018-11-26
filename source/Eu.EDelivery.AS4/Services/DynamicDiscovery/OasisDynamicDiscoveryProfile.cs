@@ -16,6 +16,7 @@ using Eu.EDelivery.AS4.Model.PMode;
 using Heijden.DNS;
 using NLog;
 using Wiry.Base32;
+using ArgumentException = System.ArgumentException;
 using Party = Eu.EDelivery.AS4.Model.Core.Party;
 using TransportType = Heijden.DNS.TransportType;
 
@@ -43,7 +44,7 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
         /// <summary>
         /// Gets the environment of the service provider to include in the DNS NAPTR lookup.
         /// </summary>
-        [Info("Service provider sub-domain", required: true)]
+        [Info("Service provider sub-domain", required: false)]
         [Description("Sub domain of the service provider")]
         // ReSharper disable once UnassignedGetOnlyAutoProperty
         internal string ServiceProviderSubDomain { get; }
@@ -59,7 +60,7 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
         /// <summary>
         /// Gets the document identifier to append to the retrieved SMP URL.
         /// </summary>
-        [Info("Document identifier", required: true)]
+        [Info("Document identifier", required: false)]
         [Description("Document identifier to append to the retrieved SMP URL")]
         // ReSharper disable once UnassignedGetOnlyAutoProperty
         internal string DocumentIdentifier { get; }
@@ -67,7 +68,7 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
         /// <summary>
         /// Gets the document scheme to append to the retrieved SMP URL.
         /// </summary>
-        [Info("Document scheme", required: true)]
+        [Info("Document scheme", required: false)]
         [Description("Document scheme to append to the retrieved SMP URL")]
         // ReSharper disable once UnassignedGetOnlyAutoProperty
         internal string DocumentScheme { get; }
@@ -98,8 +99,6 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
 
             string serviceProviderDomainName = properties.ReadMandatoryProperty(nameof(ServiceProviderDomainName));
             string serviceProviderSubDomain = properties.ReadOptionalProperty(nameof(ServiceProviderSubDomain), String.Empty);
-            string documentIdentifier = properties.ReadMandatoryProperty(nameof(DocumentIdentifier));
-            string documentScheme = properties.ReadMandatoryProperty(nameof(DocumentScheme));
 
             (Model.Core.PartyId participant, Response dnsResponse) = 
                 QueryDnsNatprRecord(party.PartyIds, serviceProviderSubDomain, serviceProviderDomainName);
@@ -109,10 +108,28 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
             string participantIdentifier = participant.Id;
             string participantScheme = participant.Type.UnsafeGet;
 
-            string smpRestBinding =
+            string documentIdentifier = properties.ReadOptionalProperty(nameof(DocumentIdentifier), String.Empty);
+            string documentScheme = properties.ReadOptionalProperty(nameof(DocumentScheme), String.Empty);
+
+            if (String.IsNullOrWhiteSpace(documentIdentifier) && String.IsNullOrWhiteSpace(documentScheme))
+            {
+                Uri smpRestBindingFromFallback =
+                    await RetrieveSmpRestBindingFromFallbackAsync(smpUri, participantScheme, participantIdentifier);
+
+                return await CallHttpBinding($"{smpRestBindingFromFallback}");
+            }
+
+            if (String.IsNullOrWhiteSpace(documentIdentifier) || String.IsNullOrWhiteSpace(documentScheme))
+            {
+                throw new ArgumentException(
+                    @"DocumentIdentifier and DocumentScheme properties should both be specified or unspecified", 
+                    nameof(properties));
+            }
+
+            string smpRestBindingFromProperties =
                 $"{smpUri}{participantScheme}::{participantIdentifier}/services/{documentScheme}::{documentIdentifier}";
 
-            return await GetSmpRestBindingAsync(smpRestBinding);
+            return await CallHttpBinding(smpRestBindingFromProperties);
         }
 
         private static (Model.Core.PartyId, Response) QueryDnsNatprRecord(
@@ -191,7 +208,47 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
             return new Uri(matched);
         }
 
-        private static async Task<XmlDocument> GetSmpRestBindingAsync(string binding)
+        private static async Task<Uri> RetrieveSmpRestBindingFromFallbackAsync(Uri smpUri, string participantScheme, string participantIdentifier)
+        {
+            string smpRestBindingFallback =
+                $"{smpUri}{participantScheme}::{participantIdentifier}";
+
+            XmlDocument smpFallbackRefDoc = await CallHttpBinding(smpRestBindingFallback);
+
+            var ns = new XmlNamespaceManager(smpFallbackRefDoc.NameTable);
+            ns.AddNamespace("oasis", "http://docs.oasis-open.org/bdxr/ns/SMP/2016/05");
+
+            XmlNode serviceMetadataRefNode = smpFallbackRefDoc.SelectSingleNode(
+                "//oasis:ServiceMetadataReferenceCollection/oasis:ServiceMetadataReference", ns);
+
+            if (serviceMetadataRefNode == null)
+            {
+                throw new InvalidDataException(
+                    "No ServiceMetadataReference found in an <ServiceMetadataReferenceCollection/> in the fallback SMP REST binding response");
+            }
+
+            XmlAttribute hrefNode = 
+                serviceMetadataRefNode
+                    .Attributes
+                    ?.OfType<XmlAttribute>()
+                    .FirstOrDefault(a => a.LocalName == "href");
+
+            if (hrefNode == null)
+            {
+                throw new InvalidDataException(
+                    "No 'href' XML attribute found in the <ServiceMetadataReference/> element in the fallback SMP REST binding response");
+            }
+
+            if (String.IsNullOrWhiteSpace(hrefNode.Value))
+            {
+                throw new InvalidDataException(
+                    "No SMP REST binding found in the 'href' XML attribute present in the <ServiceMetadataReference/> element in the fallback SMP REST binding response");
+            }
+
+            return new Uri(hrefNode.Value);
+        }
+
+        private static async Task<XmlDocument> CallHttpBinding(string binding)
         {
             using (HttpResponseMessage smpResponse = await HttpClient.GetAsync(binding))
             {
@@ -215,7 +272,7 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
         /// <param name="pmode">The <see cref="SendingProcessingMode"/> that must be decorated with the SMP metadata</param>
         /// <param name="smpMetaData">An XmlDocument that contains the SMP MetaData that has been received from an SMP server.</param>
         /// <returns>The completed <see cref="SendingProcessingMode"/></returns>
-        public SendingProcessingMode DecoratePModeWithSmpMetaData(SendingProcessingMode pmode, XmlDocument smpMetaData)
+        public DynamicDiscoveryResult DecoratePModeWithSmpMetaData(SendingProcessingMode pmode, XmlDocument smpMetaData)
         {
             if (pmode == null)
             {
@@ -242,14 +299,14 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
                 string certificateBinaries = certificateNode.InnerText.Replace(" ", "").Replace("\r\n", "");
                 OverrideEncryptionCertificate(pmode, certificateBinaries);
                 OverrideToParty(pmode, certificateBinaries);
-            }
-            else
-            {
-                Logger.Trace("Don't override MessagePackaging.PartyInfo.ToParty because no <Certificate/> element found in SMP meta-data");
-                Logger.Trace("Don't override Encryption Certificate because no <Certificate/> element found in SMP meta-data");
+
+                return DynamicDiscoveryResult.Create(pmode, overrideToParty: true);
             }
 
-            return pmode;
+            Logger.Trace("Don't override MessagePackaging.PartyInfo.ToParty because no <Certificate/> element found in SMP meta-data");
+            Logger.Trace("Don't override Encryption Certificate because no <Certificate/> element found in SMP meta-data");
+
+            return DynamicDiscoveryResult.Create(pmode);
         }
 
         private static XmlNode SelectEndpointNode(XmlDocument smpMetaData, XmlNamespaceManager ns)
@@ -292,7 +349,7 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
             if (endpointUriNode == null)
             {
                 throw new InvalidDataException(
-                    "No <EndpointURI/> element in an ServiceEndpointList.Endpoint element found in SMP meta-data");
+                    "No <EndpointURI/> element in an ServiceEndpointList.Endpoint element found in SMP meta-data to complete SendingPMode.PushConfiguration.Protocol.Url");
             }
 
             string endpointUri = endpointUriNode.InnerText.Replace(" ", "").Replace("\r\n", "");
@@ -309,13 +366,27 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
             if (documentIdentifierNode == null)
             {
                 throw new InvalidDataException(
-                    "No <DocumentIdentifier/> element in an <ServiceInformation/> element found in SMP meta-data");
+                    "No <DocumentIdentifier/> element in an <ServiceInformation/> element found in SMP meta-data to complete ebMS Action");
             }
 
-            Logger.Trace($"Override SendingPMode.MessagePackaging.CollaborationInfo.Action with {documentIdentifierNode.InnerText}");
+            string documentScheme =
+                documentIdentifierNode.Attributes
+                    ?.OfType<XmlAttribute>()
+                    .FirstOrDefault(a => a.Name.Equals("scheme", StringComparison.OrdinalIgnoreCase))
+                    ?.Value;
+
+            if (String.IsNullOrEmpty(documentScheme))
+            {
+                throw new InvalidDataException(
+                    "No 'scheme' XML attribute found in <DocumentIdentifier/> element in SMP meta-data to complete ebMS Action");
+            }
+
+            string action = $"{documentScheme}::{documentIdentifierNode.InnerText}";
+            Logger.Trace($"Override SendingPMode.MessagePackaging.CollaborationInfo.Action with {action}");
+
             pmode.MessagePackaging = pmode.MessagePackaging ?? new SendMessagePackaging();
             pmode.MessagePackaging.CollaborationInfo = pmode.MessagePackaging.CollaborationInfo ?? new CollaborationInfo();
-            pmode.MessagePackaging.CollaborationInfo.Action = documentIdentifierNode.InnerText;
+            pmode.MessagePackaging.CollaborationInfo.Action = action;
         }
 
         private static void OverrideCollaborationService(SendingProcessingMode pmode, XmlDocument smpMetaData, XmlNamespaceManager ns)
@@ -326,7 +397,7 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
             if (processIdentifierNode == null)
             {
                 throw new InvalidDataException(
-                    "No <ProcessIdentifier/> in an ProcessList.Process element found in SMP meta-data");
+                    "No <ProcessIdentifier/> in an ProcessList.Process element found in SMP meta-data to complete ebMS Service");
             }
 
             string serviceType =
@@ -373,7 +444,7 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
 
             if (participantIdentifierNode == null)
             {
-                throw new InvalidDataException("No ParticipantIdentifier element found in SMP meta-data");
+                throw new InvalidDataException("No ParticipantIdentifier element found in SMP meta-data to complete 'finalRecipient' MessageProperty");
             }
 
             string participantIdentifier =

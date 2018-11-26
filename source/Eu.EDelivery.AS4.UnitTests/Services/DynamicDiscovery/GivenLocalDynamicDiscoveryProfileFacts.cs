@@ -68,7 +68,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Services.DynamicDiscovery
             var sut = new LocalDynamicDiscoveryProfile(GetDataStoreContext);
 
             // Act
-            SendingProcessingMode actual = sut.DecoratePModeWithSmpMetaData(pmode, doc);
+            SendingProcessingMode actual = sut.DecoratePModeWithSmpMetaData(pmode, doc).CompletedSendingPMode;
 
             // Assert
             Assert.Equal(smpResponse.Url, actual.PushConfiguration.Protocol.Url);
@@ -165,7 +165,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Services.DynamicDiscovery
             doc.LoadXml(AS4XmlSerializer.ToString(smpResponse));
 
             var sut = new LocalDynamicDiscoveryProfile(GetDataStoreContext);
-            return sut.DecoratePModeWithSmpMetaData(pmode, doc);
+            return sut.DecoratePModeWithSmpMetaData(pmode, doc).CompletedSendingPMode;
         }
     }
 }

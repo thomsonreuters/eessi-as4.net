@@ -71,7 +71,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
                 throw new InvalidOperationException(
                     $"{nameof(DynamicDiscoveryStep)} requires an AS4Message when used in a Forward Agent, "
                     + "please make sure that the ReceivedMessage is deserialized before executing this step."
-                    + "Possibly this failure happend because the Transformer of the Forward Agent is still using "
+                    + "Possibly this failure happened because the Transformer of the Forward Agent is still using "
                     + "the ForwardMessageTransformer instead of the AS4MessageTransformer");
             }
 
@@ -97,13 +97,18 @@ namespace Eu.EDelivery.AS4.Steps.Submit
                     messagingContext.SendingPMode?.MessagePackaging?.PartyInfo?.ToParty,
                     messagingContext.SendingPMode?.AllowOverride == true);
 
-            SendingProcessingMode sendingPMode = await DynamicDiscoverSendingPModeAsync(messagingContext, profile, toParty);
-            Logger.Info($"{messagingContext.LogTag} SendingPMode {sendingPMode.Id} completed with SMP metadata");
+            DynamicDiscoveryResult result = await DynamicDiscoverSendingPModeAsync(messagingContext.SendingPMode, profile, toParty);
+            Logger.Info($"{messagingContext.LogTag} SendingPMode {result.CompletedSendingPMode.Id} completed with SMP metadata");
 
-            messagingContext.SendingPMode = sendingPMode;
-            if (messagingContext.SubmitMessage != null)
+            messagingContext.SendingPMode = result.CompletedSendingPMode;
+            if (messagingContext.SubmitMessage != null && result.OverrideToParty)
             {
-                messagingContext.SubmitMessage.PMode = sendingPMode;
+                if (messagingContext.SubmitMessage?.PartyInfo != null)
+                {
+                    messagingContext.SubmitMessage.PartyInfo.ToParty = null;
+                }
+
+                messagingContext.SubmitMessage.PMode = result.CompletedSendingPMode;
             }
 
             return StepResult.Success(messagingContext);
@@ -130,12 +135,12 @@ namespace Eu.EDelivery.AS4.Steps.Submit
                 .Build<IDynamicDiscoveryProfile>();
         }
 
-        private static async Task<SendingProcessingMode> DynamicDiscoverSendingPModeAsync(
-            MessagingContext messagingContext,
+        private static async Task<DynamicDiscoveryResult> DynamicDiscoverSendingPModeAsync(
+            SendingProcessingMode sendingPMode,
             IDynamicDiscoveryProfile profile,
             AS4Party toParty)
         {
-            var clonedPMode = (SendingProcessingMode)messagingContext.SendingPMode.Clone();
+            var clonedPMode = (SendingProcessingMode) sendingPMode.Clone();
             clonedPMode.Id = $"{clonedPMode.Id}_SMP";
 
             XmlDocument smpMetaData = await RetrieveSmpMetaDataAsync(profile, clonedPMode.DynamicDiscovery, toParty);
@@ -143,20 +148,20 @@ namespace Eu.EDelivery.AS4.Steps.Submit
             {
                 throw new ArgumentNullException(
                     nameof(smpMetaData),
-                    $@"No SMP medata data document was retrieved by the Dynamic Discovery profile: {profile.GetType().Name}");
+                    $@"No SMP meta-data data document was retrieved by the Dynamic Discovery profile: {profile.GetType().Name}");
             }
 
-            SendingProcessingMode sendingPMode = profile.DecoratePModeWithSmpMetaData(clonedPMode, smpMetaData);
-            if (sendingPMode == null)
+            DynamicDiscoveryResult result = profile.DecoratePModeWithSmpMetaData(clonedPMode, smpMetaData);
+            if (result == null)
             {
                 throw new ArgumentNullException(
-                    nameof(sendingPMode),
+                    nameof(result),
                     $@"No decorated SendingPMode was returned by the Dynamic Discovery profile: {profile.GetType().Name}");
             }
 
 
-            ValidatePMode(sendingPMode);
-            return sendingPMode;
+            ValidatePMode(result.CompletedSendingPMode);
+            return result;
         }
 
         private static async Task<XmlDocument> RetrieveSmpMetaDataAsync(

@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
+using System.Xml;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Factories;
@@ -41,26 +43,29 @@ namespace Eu.EDelivery.AS4.Transformers
 
             if (receivedMessage.Entity is ExceptionEntity ex)
             {
+                string ebmsMessageId = IdentifierFactory.Instance.Create();
                 Error error = Error.FromErrorResult(
-                    IdentifierFactory.Instance.Create(),
+                    ebmsMessageId,
                     ex.EbmsRefToMessageId,
                     new ErrorResult(ex.Exception, ErrorAlias.Other));
 
                 NotifyMessageEnvelope notifyEnvelope =
-                    await CreateNotifyMessageEnvelope(
-                        AS4Message.Create(error, new SendingProcessingMode()),
-                        ex.GetType());
+                    await CreateNotifyMessageEnvelopeAsync(AS4Message.Create(error), ebmsMessageId, ex.GetType());
 
                 return new MessagingContext(notifyEnvelope, receivedMessage);
             }
 
             if (receivedMessage.Entity is MessageEntity me)
             {
-                MessagingContext ctx =
-                    await RetrieveAS4MessageForNotificationFromReceivedMessage(me.EbmsMessageId, receivedMessage);
+                var as4Transformer = new AS4MessageTransformer();
+                MessagingContext ctx = await as4Transformer.TransformAsync(receivedMessage);
+
+                // Normally the message shouldn't have any attachments
+                // but to be sure we should dispose them since we don't need attachments for notifying.
+                ctx.AS4Message.CloseAttachments();
 
                 NotifyMessageEnvelope notifyEnvelope =
-                    await CreateNotifyMessageEnvelope(ctx.AS4Message, me.GetType());
+                    await CreateNotifyMessageEnvelopeAsync(ctx.AS4Message, me.EbmsMessageId, me.GetType());
 
                 ctx.ModifyContext(notifyEnvelope, receivedMessage.Entity.Id);
 
@@ -70,36 +75,19 @@ namespace Eu.EDelivery.AS4.Transformers
             throw new InvalidOperationException();
         }
 
-        private static async Task<MessagingContext> RetrieveAS4MessageForNotificationFromReceivedMessage(string ebmsMessageId, ReceivedMessage entityMessage)
+        protected virtual async Task<NotifyMessageEnvelope> CreateNotifyMessageEnvelopeAsync(
+            AS4Message as4Message, 
+            string receivedEntityMessageId,
+            Type receivedEntityType)
         {
-            var as4Transformer = new AS4MessageTransformer();
-            MessagingContext deserializedAS4MessageContext = await as4Transformer.TransformAsync(entityMessage);
+            SignalMessage tobeNotifiedSignal =
+                as4Message.SignalMessages.FirstOrDefault(s => s.MessageId == receivedEntityMessageId);
 
-            AS4Message as4Message = deserializedAS4MessageContext.AS4Message;
-
-            // No attachments are needed in order to create notify messages.
-            as4Message.RemoveAllAttachments();
-
-            // Remove all signal-messages except the one that we should be notifying
-            // Create the DeliverMessage for this specific UserMessage that has been received.
-            SignalMessage signalMessage = 
-                as4Message.SignalMessages
-                          .FirstOrDefault(m => StringComparer.OrdinalIgnoreCase.Equals(m.MessageId, ebmsMessageId));
-
-            if (signalMessage == null)
-            {
-                throw new InvalidOperationException(
-                    $"Incoming SignalMessage from {entityMessage.Origin} with ID " + 
-                    $"{ebmsMessageId} could not be found in the referenced AS4Message");
-            }
-
-            return deserializedAS4MessageContext;
-        }
-
-        protected virtual async Task<NotifyMessageEnvelope> CreateNotifyMessageEnvelope(AS4Message as4Message, Type receivedEntityType)
-        {
-            // TODO: the DeliverMessage is created in the steps, but the NotifyMessage in the Transformer?
-            NotifyMessage notifyMessage = AS4MessageToNotifyMessageMapper.Convert(as4Message, receivedEntityType);
+            NotifyMessage notifyMessage = 
+                AS4MessageToNotifyMessageMapper.Convert(
+                    tobeNotifiedSignal, 
+                    receivedEntityType, 
+                    as4Message.EnvelopeDocument ?? AS4XmlSerializer.ToSoapEnvelopeDocument(as4Message));
 
             var serialized = await AS4XmlSerializer.ToStringAsync(notifyMessage).ConfigureAwait(false);
 

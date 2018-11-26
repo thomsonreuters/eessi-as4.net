@@ -112,7 +112,7 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
         /// <param name="pmode">The <see cref="SendingProcessingMode" /> that must be decorated with the SMP metadata</param>
         /// <param name="smpMetaData">An XmlDocument that contains the SMP MetaData that has been received from an SMP server.</param>
         /// <returns>The completed <see cref="SendingProcessingMode" /></returns>
-        public SendingProcessingMode DecoratePModeWithSmpMetaData(SendingProcessingMode pmode, XmlDocument smpMetaData)
+        public DynamicDiscoveryResult DecoratePModeWithSmpMetaData(SendingProcessingMode pmode, XmlDocument smpMetaData)
         {
             if (pmode == null)
             {
@@ -138,7 +138,7 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
             OverrideCollaborationServiceAction(pmode, smpResponse);
             AddFinalRecipientToMessageProperties(pmode, smpResponse);
 
-            return pmode;
+            return DynamicDiscoveryResult.Create(pmode);
         }
 
         private static void OverridePushProtocolUrlWithTlsEnabling(SendingProcessingMode pmode, SmpConfiguration smpResponse)
