@@ -35,8 +35,9 @@ namespace Eu.EDelivery.AS4.Mappings.PMode
             IEnumerable<MessageProperty> properties =
                 sendingPMode.MessagePackaging?.MessageProperties == null
                     ? Enumerable.Empty<MessageProperty>()
-                    : sendingPMode.MessagePackaging.MessageProperties.Select(
-                        p => new MessageProperty(p.Name, p.Value, p.Type));
+                    : sendingPMode.MessagePackaging.MessageProperties
+                                  .Where(p => p != null)
+                                  .Select(p => new MessageProperty(p.Name, p.Value, p.Type));
 
             return new UserMessage(
                 IdentifierFactory.Instance.Create(),

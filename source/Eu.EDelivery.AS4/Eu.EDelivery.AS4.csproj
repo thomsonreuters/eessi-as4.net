@@ -140,7 +140,7 @@
     <Compile Include="Extensions\LoggerExtensions.cs" />
     <Compile Include="Mappings\Core\ReceiptMap.cs" />
     <Compile Include="Mappings\PMode\SendingPModeMap.cs" />
-    <Compile Include="Mappings\Submit\SubmitSenderResolver.cs" />
+    <Compile Include="Mappings\Submit\SubmitMessageMap.cs" />
     <Compile Include="Maybe.cs" />
     <Compile Include="Migrations\20180302141116_RemoveOutMessagesConstraint.cs" />
     <Compile Include="Migrations\20180302141116_RemoveOutMessagesConstraint.designer.cs">
@@ -252,14 +252,6 @@
     <Compile Include="Constants.cs" />
     <Compile Include="Common\DatastoreContext.cs" />
     <Compile Include="Entities\ExceptionEntity.cs" />
-    <Compile Include="Mappings\Submit\SubmitActionResolver.cs" />
-    <Compile Include="Mappings\Submit\SubmitConversationIdResolver.cs" />
-    <Compile Include="Mappings\Submit\SubmitMessagePropertiesResolver.cs" />
-    <Compile Include="Mappings\Submit\SubmitMpcResolver.cs" />
-    <Compile Include="Mappings\Submit\SubmitMessageAgreementResolver.cs" />
-    <Compile Include="Mappings\Submit\SubmitPayloadInfoResolver.cs" />
-    <Compile Include="Mappings\Submit\SubmitReceiverResolver.cs" />
-    <Compile Include="Mappings\Submit\SubmitServiceResolver.cs" />
     <Compile Include="Model\Core\AgreementReference.cs" />
     <Compile Include="Model\Core\MessageProperty.cs" />
     <Compile Include="Model\Core\Service.cs" />

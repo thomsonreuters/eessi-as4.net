@@ -1,13 +1,35 @@
 ﻿using System;
+using System.Diagnostics;
 
 namespace Eu.EDelivery.AS4.Model.Core
 {
+    /// <summary>
+    /// ebMS model which defines the reference of an agreement between to parties.
+    /// </summary>
+    [DebuggerStepThrough]
+    [DebuggerDisplay("Agreement { " + nameof(Value) + " }")]
     public class AgreementReference : IEquatable<AgreementReference>
     {
+        /// <summary>
+        /// Gets the required value of the agreement reference.
+        /// </summary>
         public string Value { get; }
+
+        /// <summary>
+        /// Gets the optional type of the agreement reference.
+        /// </summary>
         public Maybe<string> Type { get; }
+
+        /// <summary>
+        /// Gets the optional processing mode identifier of the agreement reference
+        /// which defines the processing mode that was used for this <see cref="UserMessage"/>.
+        /// </summary>
         public Maybe<string> PModeId { get; }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AgreementReference"/> class. 
+        /// </summary>
+        /// <param name="value">The required value of the agreement reference.</param>
         public AgreementReference(string value)
         {
             if (value == null)
@@ -23,79 +45,44 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// <summary>
         /// Initializes a new instance of the <see cref="AgreementReference"/> class. 
         /// </summary>
-        /// <param name="value"></param>
-        /// <param name="pmodeId"> </param>
-        public AgreementReference(string value, string pmodeId)
+        /// <param name="value">The required value of the agreement reference.</param>
+        /// <param name="pmodeId">The optional processing mode identifier of the agreement reference.</param>
+        public AgreementReference(string value, string pmodeId) : this(value, type: null, pmodeId: pmodeId) { }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AgreementReference"/> class. 
+        /// </summary>
+        /// <param name="value">The required value of the agreement reference.</param>
+        /// <param name="type">The optional type of the agreement reference.</param>
+        /// <param name="pmodeId">The optional processing mode identifier of the agreement reference.</param>
+        public AgreementReference(string value, string type, string pmodeId)
         {
             if (value == null)
             {
                 throw new ArgumentNullException(nameof(value));
             }
 
-            if (pmodeId == null)
-            {
-                throw new ArgumentNullException(nameof(pmodeId));
-            }
-
             Value = value;
-            Type = Maybe<string>.Nothing;
-            PModeId = Maybe.Just(pmodeId);
-        }
-
-        public AgreementReference(string value, string type, string pModeId)
-        {
-            if (value == null)
-            {
-                throw new ArgumentNullException(nameof(value));
-            }
-
-            if (type == null)
-            {
-                throw new ArgumentNullException(nameof(type));
-            }
-
-            if (pModeId == null)
-            {
-                throw new ArgumentNullException(nameof(pModeId));
-            }
-
-            Value = value;
-            Type = Maybe.Just(type);
-            PModeId = Maybe.Just(pModeId);
-        }
-
-        public AgreementReference(string value, Maybe<string> type, Maybe<string> pmodeId)
-        {
-            if (value == null)
-            {
-                throw new ArgumentNullException(nameof(value));
-            }
-
-            if (type == null)
-            {
-                throw new ArgumentNullException(nameof(type));
-            }
-
-            if (pmodeId == null)
-            {
-                throw new ArgumentNullException(nameof(pmodeId));
-            }
-
-            Value = value;
-            Type = type;
-            PModeId = pmodeId;
+            Type = (type != null).ThenMaybe(type);
+            PModeId = (pmodeId != null).ThenMaybe(pmodeId);
         }
 
         /// <summary>
-        /// Indicates wheter the curent Agreement Ref is empty
+        /// Initializes a new instance of the <see cref="AgreementReference"/> class. 
         /// </summary>
-        /// <returns></returns>
-        public bool IsEmpty()
+        /// <param name="value">The required value of the agreement reference.</param>
+        /// <param name="type">The optional type of the agreement reference.</param>
+        /// <param name="pmodeId">The optional processing mode identifier of the agreement reference.</param>
+        internal AgreementReference(string value, Maybe<string> type, Maybe<string> pmodeId)
         {
-            return
-                string.IsNullOrEmpty(Value) &&
-                Type == Maybe<string>.Nothing &&
-                PModeId == Maybe<string>.Nothing;
+            if (value == null)
+            {
+                throw new ArgumentNullException(nameof(value));
+            }
+
+            Value = value;
+            Type = type ?? Maybe<string>.Nothing;
+            PModeId = pmodeId ?? Maybe<string>.Nothing;
         }
 
         /// <summary>
@@ -115,7 +102,7 @@ namespace Eu.EDelivery.AS4.Model.Core
                 return true;
             }
 
-            return string.Equals(Value, other.Value)
+            return String.Equals(Value, other.Value)
                    && Type.Equals(other.Type)
                    && PModeId.Equals(other.PModeId);
         }
@@ -127,7 +114,7 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// <returns>true if the specified object  is equal to the current object; otherwise, false.</returns>
         public override bool Equals(object obj)
         {
-            if (ReferenceEquals(null, obj))
+            if (obj is null)
             {
                 return false;
             }
@@ -175,6 +162,18 @@ namespace Eu.EDelivery.AS4.Model.Core
         public static bool operator !=(AgreementReference left, AgreementReference right)
         {
             return !Equals(left, right);
+        }
+
+        /// <summary>
+        /// Returns a string that represents the current object.
+        /// </summary>
+        /// <returns>A string that represents the current object.</returns>
+        public override string ToString()
+        {
+            string type = Type.Select(x => ", Type = " + x).GetOrElse(String.Empty);
+            string pmodeId = PModeId.Select(x => ", PModeId = " + x).GetOrElse(String.Empty);
+
+            return $"Agreement {{ Value = {Value}{type}{pmodeId} }}";
         }
     }
 }
