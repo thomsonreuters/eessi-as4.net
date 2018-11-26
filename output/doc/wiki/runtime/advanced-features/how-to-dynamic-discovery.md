@@ -119,7 +119,7 @@ All properties can be configured in the _Sending Processing Mode_:
 
 A _Submit Message_ should be send with a `ToParty` element or else be hard-coded specified in the _Sending Processing Mode_ but this later approach is not recommended since this way _Submit Messages_ will always be send to the same endpoint. This way you're not fully using the capabilities of "Dynamic Discovery".
 
-This `ToParty` element will need at least one `PartyId` with both the `Id` (= **Participant Identifier)** and `Type` (= **Participant Scheme**) filled out because the Oasis profile needs both to build the DNS NAPTR query. All `PartId` elements with both specified will be tried for a DNS NAPTR query. The first pair that result in a DNS awnser will be used to call the SMP REST binding.
+This `ToParty` element will need at least one `PartyId` with both the `Id` (= **Participant Identifier)** and `Type` (= **Participant Scheme**) filled out because the Oasis profile needs both to build the DNS NAPTR query. All `PartyId` elements with both specified will be tried for a DNS NAPTR query. The first pair that result in a DNS awnser will be used to call the SMP REST binding.
 
 ```xml
 <?xml version="1.0"?>
