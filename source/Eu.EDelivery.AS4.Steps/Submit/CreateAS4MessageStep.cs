@@ -6,7 +6,6 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Exceptions;
-using Eu.EDelivery.AS4.Factories;
 using Eu.EDelivery.AS4.Mappings.Submit;
 using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Core;
@@ -77,7 +76,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
             ValidateSubmitMessage(submitMessage);
             
             Logger.Trace("Create UserMessage for SubmitMessage");
-            UserMessage userMessage = CreateUserMessage(submitMessage);
+            UserMessage userMessage = SubmitMessageMap.CreateUserMessage(submitMessage, submitMessage.PMode);
 
             Logger.Info($"{messagingContext.LogTag} UserMessage with Id \"{userMessage.MessageId}\" created from Submit Message");
             AS4Message as4Message = AS4Message.Create(userMessage, messagingContext.SendingPMode);
@@ -107,34 +106,6 @@ namespace Eu.EDelivery.AS4.Steps.Submit
                         throw new InvalidMessageException(description);
 
                     });
-        }
-
-        private static UserMessage CreateUserMessage(SubmitMessage submit)
-        {
-            var collaboration = new Model.Core.CollaborationInfo(
-                agreement: SubmitMessageAgreementResolver.ResolveAgreementReference(submit),
-                service: SubmitServiceResolver.ResolveService(submit),
-                action: SubmitActionResolver.ResolveAction(submit),
-                conversationId: SubmitConversationIdResolver.ResolveConverstationId(submit));
-
-            IEnumerable<PartInfo> parts = submit.HasPayloads
-                ? SubmitPayloadInfoResolver.Resolve(submit)
-                : new PartInfo[0];
-
-            IEnumerable<Model.Core.MessageProperty> properties = submit.MessageProperties?.Any() == true
-                ? SubmitMessagePropertiesResolver.Resolve(submit)
-                : new Model.Core.MessageProperty[0];
-
-            return new UserMessage(
-                messageId: submit.MessageInfo?.MessageId ?? IdentifierFactory.Instance.Create(),
-                refToMessageId: submit.MessageInfo?.RefToMessageId,
-                timestamp: DateTimeOffset.Now, 
-                mpc: SubmitMpcResolver.Resolve(submit),
-                collaboration: collaboration,
-                sender: SubmitSenderResolver.ResolveSender(submit),
-                receiver: SubmitReceiverResolver.ResolveReceiver(submit),
-                partInfos: parts,
-                messageProperties: properties);
         }
 
         private async Task<IEnumerable<Attachment>> RetrieveAttachmentsForAS4MessageAsync(IEnumerable<Payload> payloads)

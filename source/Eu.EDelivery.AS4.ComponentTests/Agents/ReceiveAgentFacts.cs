@@ -261,7 +261,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                         type: "forwarding",
                         // Make sure that the forwarding receiving pmode is used; therefore
                         // explicitly set the Id of the PMode that must be used by the receive-agent.
-                        pModeId: "Forward_Push"),
+                        pmodeId: "Forward_Push"),
                     service: new Service(
                         value: "Forward_Push_Service",
                         type: "eu:europa:services"),

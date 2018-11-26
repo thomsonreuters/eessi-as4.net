@@ -49,7 +49,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
             return new AgreementReference(
                 value: "http://agreements.holodeckb2b.org/examples/agreement0",
                 type: "agreement",
-                pModeId: "Id");
+                pmodeId: "Id");
         }
 
         private static Party CreateParty(string role, string partyId)

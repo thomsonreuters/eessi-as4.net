@@ -72,6 +72,7 @@
     <Compile Include="Gens.cs" />
     <Compile Include="Mappings\Core\GivenMessageUnitMapFacts.cs" />
     <Compile Include="Mappings\PMode\GivenPModePartyResolverFacts.cs" />
+    <Compile Include="Mappings\Submit\GivenSubmitMessageMapFacts.cs" />
     <Compile Include="Model\Deliver\EmptyDeliverEnvelope.cs" />
     <Compile Include="Model\Notify\EmptyNotifyEnvelope.cs" />
     <Compile Include="Model\PMode\GivenMessagePackagingFacts.cs" />
@@ -115,9 +116,6 @@
     <Compile Include="Common\SingleAgentConfig.cs" />
     <Compile Include="Entities\GivenEntityFacts.cs" />
     <Compile Include="Extensions\GivenXmlAttributeExtensionsFacts.cs" />
-    <Compile Include="Mappings\Submit\GivenSubmitConversationIdResolverFacts.cs" />
-    <Compile Include="Mappings\Submit\GivenSubmitMessageFacts.cs" />
-    <Compile Include="Mappings\Submit\GivenSubmitMpcResolverFacts.cs" />
     <Compile Include="Model\FilledAttachment.cs" />
     <Compile Include="Receivers\StubReceiver.cs" />
     <Compile Include="Repositories\InMemoryMessageBodyStore.cs" />
@@ -144,13 +142,6 @@
     <Compile Include="Mappings\PMode\GivenPModeActionResolverFacts.cs" />
     <Compile Include="Mappings\PMode\GivenPModeAgreemenRefResolverFacts.cs" />
     <Compile Include="Mappings\PMode\GivenPModeServiceResolverFacts.cs" />
-    <Compile Include="Mappings\Submit\GivenSubmitActionResolverFacts.cs" />
-    <Compile Include="Mappings\Submit\GivenSubmitAgreementMapperFacts.cs" />
-    <Compile Include="Mappings\Submit\GivenSubmitMessagePropertiesResolverFacts.cs" />
-    <Compile Include="Mappings\Submit\GivenSubmitPayloadInfoResolverFacts.cs" />
-    <Compile Include="Mappings\Submit\GivenSubmitReceiverResolverFacts.cs" />
-    <Compile Include="Mappings\Submit\GivenSubmitSenderPartyResolverFacts.cs" />
-    <Compile Include="Mappings\Submit\GivenSubmitServiceResolverFacts.cs" />
     <Compile Include="Model\EmptyMessagingContext.cs" />
     <Compile Include="Model\FilledNRReceipt.cs" />
     <Compile Include="Model\FilledUserMessage.cs" />

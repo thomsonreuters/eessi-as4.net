@@ -1,17 +1,34 @@
 ﻿using System;
+using System.Diagnostics;
 
 namespace Eu.EDelivery.AS4.Model.Core
 {
+    /// <summary>
+    /// ebMS model that defines the service which acts on the <see cref="UserMessage"/>.
+    /// </summary>
+    [DebuggerStepThrough]
+    [DebuggerDisplay("Service { " + nameof(Value) + " }")]
     public class Service : IEquatable<Service>
     {
+        /// <summary>
+        /// Gets the required value of the service which acts on the the message.
+        /// </summary>
         public string Value { get; }
 
+        /// <summary>
+        /// Gets the optional type of the service.
+        /// </summary>
         public Maybe<string> Type { get; }
+
+        /// <summary>
+        /// Gets the default 'test' ebMS service which is used for test scenarios.
+        /// </summary>
+        public static readonly Service TestService = new Service(Constants.Namespaces.TestService);
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Service"/> class.
         /// </summary>
-        /// <param name="value"></param>
+        /// <param name="value">The required value of the service which acts on the the message.</param>
         public Service(string value)
         {
             if (value == null)
@@ -26,8 +43,8 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// <summary>
         /// Initializes a new instance of the <see cref="Service"/> class.
         /// </summary>
-        /// <param name="value"></param>
-        /// <param name="type"></param>
+        /// <param name="value">The required value of the service which acts on the the message.</param>
+        /// <param name="type">The optional type of the service.</param>
         public Service(string value, string type)
         {
             if (value == null)
@@ -35,37 +52,25 @@ namespace Eu.EDelivery.AS4.Model.Core
                 throw new ArgumentNullException(nameof(value));
             }
 
-            if (type == null)
-            {
-                throw new ArgumentNullException(nameof(type));
-            }
-
             Value = value;
-            Type = Maybe.Just(type);
+            Type = (type != null).ThenMaybe(type);
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Service"/> class.
         /// </summary>
-        /// <param name="value"></param>
-        /// <param name="type"></param>
-        public Service(string value, Maybe<string> type)
+        /// <param name="value">The required value of the service which acts on the the message.</param>
+        /// <param name="type">The optional type of the service.</param>
+        internal Service(string value, Maybe<string> type)
         {
             if (value == null)
             {
                 throw new ArgumentNullException(nameof(value));
             }
 
-            if (type == null)
-            {
-                throw new ArgumentNullException(nameof(type));
-            }
-
             Value = value;
-            Type = type;
+            Type = type ?? Maybe<string>.Nothing;
         }
-
-        public static readonly Service TestService = new Service(Constants.Namespaces.TestService);
 
         /// <summary>
         /// Indicates whether the current object is equal to another object of the same type.
@@ -84,8 +89,8 @@ namespace Eu.EDelivery.AS4.Model.Core
                 return true;
             }
 
-            return string.Equals(Value, other.Value)
-                   && string.Equals(Type, other.Type);
+            return String.Equals(Value, other.Value)
+                   && String.Equals(Type, other.Type);
         }
 
         /// <summary>
@@ -140,6 +145,16 @@ namespace Eu.EDelivery.AS4.Model.Core
         public static bool operator !=(Service left, Service right)
         {
             return !Equals(left, right);
+        }
+
+        /// <summary>
+        /// Returns a string that represents the current object.
+        /// </summary>
+        /// <returns>A string that represents the current object.</returns>
+        public override string ToString()
+        {
+            string type = Type.Select(x => ", Type = " + x).GetOrElse(String.Empty);
+            return $"Service {{ Value = {Value}{type} }}";
         }
     }
 }
