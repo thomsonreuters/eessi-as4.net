@@ -22,7 +22,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Negative_Receive_Scenarios
             Holodeck.CopyPModeToHolodeckA("8.4.1-pmode.xml");
 
             // Act
-            Holodeck.CopyMessageToHolodeckA("8.4.1-sample.mmd");
+            Holodeck.PutMessageSinglePayloadToHolodeckA("8.4.1-pmode");
 
             // Assert
             await PollingService.PollUntilPresentAsync(

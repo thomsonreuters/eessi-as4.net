@@ -93,7 +93,7 @@ namespace Eu.EDelivery.AS4.Receivers.Http
                         .Select(h => h.Handle(request))
                         .OrElse(() =>
                         {
-                            Logger.Debug("Respond with 202 Accepted: unknown reason");
+                            Logger.Debug("Respond with 202 Accepted: no GET handler can handle this request");
                             return HttpResult.Empty(HttpStatusCode.NotAcceptable, "text/plain");
                         })
                         .DoAsync(r => r.WriteToAsync(response));
@@ -116,13 +116,18 @@ namespace Eu.EDelivery.AS4.Receivers.Http
                         await _postHandlers
                             .FirstOrNothing(h => h.CanHandle(agentResult))
                             .Select(h => h.Handle(agentResult))
-                            .OrElse(() => HttpResult.Empty(HttpStatusCode.Accepted))
+                            .OrElse(() =>
+                              {
+                                  Logger.Debug("Respond with 202 Accepted: no POST handler can handle this request");
+                                  return HttpResult.Empty(HttpStatusCode.Accepted);
+                              })
                             .DoAsync(r => r.WriteToAsync(response));
 
                         return;
                     }
                 }
 
+                Logger.Debug("Respond with 405 MethodNotAllowed: request is neither GET or POST");
                 await HttpResult
                     .Empty(HttpStatusCode.MethodNotAllowed)
                     .AsMaybe()
