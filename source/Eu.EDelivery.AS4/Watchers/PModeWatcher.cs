@@ -25,6 +25,9 @@ namespace Eu.EDelivery.AS4.Watchers
         private readonly AbstractValidator<T> _pmodeValidator;
         private readonly FileSystemWatcher _watcher;
 
+        // ReSharper disable once StaticMemberInGenericType - same instance will be used for the same generic type but it's not a problem.
+        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+
         /// <summary>
         /// Initializes a new instance of the <see cref="PModeWatcher{T}" /> class
         /// </summary>
@@ -114,7 +117,7 @@ namespace Eu.EDelivery.AS4.Watchers
             }
             catch (Exception ex)
             {
-                LogManager.GetCurrentClassLogger().Error($"An error occured while trying to get PMode files: {ex.Message}");
+                Logger.Error($"An error occured while trying to get PMode files: {ex.Message}");
                 return new List<FileInfo>();
             }
         }
@@ -141,7 +144,7 @@ namespace Eu.EDelivery.AS4.Watchers
 
             if (key != null)
             {
-                LogManager.GetCurrentClassLogger().Trace($"Remove {typeof(T).Name} with Id: " + key);
+                Logger.Trace($"Remove {typeof(T).Name} with Id: " + key);
                 _pmodes.TryRemove(key, out _);
             }
         }
@@ -154,7 +157,7 @@ namespace Eu.EDelivery.AS4.Watchers
             {
                 if (_fileEventCache.Contains(fullPath))
                 {
-                    LogManager.GetCurrentClassLogger().Trace($"PMode {fullPath} has already been handled.");
+                    Logger.Trace($"PMode {fullPath} has already been handled.");
                     return;
                 }
 
@@ -164,7 +167,7 @@ namespace Eu.EDelivery.AS4.Watchers
             T pmode = TryDeserialize(fullPath);
             if (pmode == null)
             {
-                LogManager.GetCurrentClassLogger().Warn("File at: '" + fullPath + "' cannot be converted to a PMode because the XML in the file isn't valid.");
+                Logger.Warn("File at: '" + fullPath + "' cannot be converted to a PMode because the XML in the file isn't valid.");
 
                 // Since the PMode that we expect in this file is invalid, it
                 // must be removed from our cache.
@@ -175,7 +178,7 @@ namespace Eu.EDelivery.AS4.Watchers
             ValidationResult pmodeValidation = _pmodeValidator.Validate(pmode);
             if (!pmodeValidation.IsValid)
             {
-                LogManager.GetCurrentClassLogger().Warn("Invalid PMode at: '" + fullPath + "'");
+                Logger.Warn("Invalid PMode at: '" + fullPath + "'");
                 pmodeValidation.LogErrors(LogManager.GetCurrentClassLogger());
 
                 // Since the PMode that we expect isn't valid according to the validator, it
@@ -188,13 +191,11 @@ namespace Eu.EDelivery.AS4.Watchers
 
             if (_pmodes.ContainsKey(pmode.Id))
             {
-                LogManager.GetCurrentClassLogger().Warn($"There already exists a configured PMode with id {pmode.Id}.");
-                LogManager.GetCurrentClassLogger()
-                          .Warn($"Existing PMode will be overwritten with PMode from {fullPath}");
+                Logger.Warn($"Existing PMode {pmode.Id} will be overwritten with PMode from {fullPath}");
             }
             else
             {
-                LogManager.GetCurrentClassLogger().Trace($"Add new {typeof(T).Name} with Id: " + pmode.Id);
+                Logger.Trace($"Add new {typeof(T).Name} with Id: " + pmode.Id);
             }
 
             _pmodes.AddOrUpdate(pmode.Id, configuredPMode, (key, value) => configuredPMode);
@@ -258,7 +259,7 @@ namespace Eu.EDelivery.AS4.Watchers
 
             while (IsFileLocked(path) && retryCount < 10)
             {
-                // Wait till the filelock is released ...
+                // Wait till the file lock is released ...
                 System.Threading.Thread.Sleep(50);
                 retryCount++;
             }
@@ -281,7 +282,7 @@ namespace Eu.EDelivery.AS4.Watchers
             if (disposing)
             {
                 _pmodes.Clear();
-                _filePModeIdMap.Clear();                
+                _filePModeIdMap.Clear();
                 _watcher?.Dispose();
             }
         }

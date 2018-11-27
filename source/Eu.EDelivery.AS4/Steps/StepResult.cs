@@ -93,7 +93,7 @@ namespace Eu.EDelivery.AS4.Steps
                 throw new ArgumentNullException(nameof(entry));
             }
 
-            Logger.Debug($"Append log to message journal: {String.Join(", ", entry.LogEntries)}");
+            Logger.Trace($"Append log to message journal: {String.Join(", ", entry.LogEntries)}");
             return new StepResult(Succeeded, CanProceed, MessagingContext, _journal.Concat(new[] { entry }));
         }
 

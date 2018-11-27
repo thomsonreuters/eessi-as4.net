@@ -163,7 +163,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
         private HttpWebRequest CreateWebRequest(PushConfiguration pushConfig, string contentType)
         {
             string url = pushConfig.Protocol.Url;
-            Logger.Debug($"Creating WebRequest to {url}");
+            Logger.Trace($"Creating WebRequest to {url}");
 
             HttpWebRequest request = _httpClient.Request(url, contentType);
             X509Certificate2 clientCert = RetrieveClientCertificate(pushConfig.TlsConfiguration);
@@ -248,8 +248,6 @@ namespace Eu.EDelivery.AS4.Steps.Send
                             .SerializeAsync(ctx.AS4Message, requestStream);
                     }
                 }
-
-                Logger.Debug($"AS4Message received from: {request.Address}");
             }
             catch (WebException exception)
             {

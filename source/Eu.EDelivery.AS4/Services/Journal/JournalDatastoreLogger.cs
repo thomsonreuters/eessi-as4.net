@@ -85,7 +85,7 @@ namespace Eu.EDelivery.AS4.Services.Journal
                     ? String.Empty
                     : "RefToMessageId=" + entry.RefToMessageId;
 
-            Logger.Debug($"Add Journal entry for message {{{String.Join(", ", ebmsMessageId, refToMessageId)}}}");
+            Logger.Trace($"Add Journal entry for message {{{String.Join(", ", ebmsMessageId, refToMessageId)}}}");
             return entity;
         }
     }
