@@ -30,7 +30,6 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Receive_Scenarios
                 fs => fs.Any(f => f.Extension == ".xml"));
 
             Holodeck.AssertSinglePayloadOnHolodeckA();
-            Holodeck.AssertReceiptOnHolodeckA();
         }
 
         [Fact]
@@ -98,7 +97,6 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Receive_Scenarios
                       && fs.Count(f => f.Extension == ".xml") == 2);
 
             Holodeck.AssertSinglePayloadOnHolodeckA();
-            Holodeck.AssertReceiptOnHolodeckA();
         }
 
         [Fact]
@@ -113,7 +111,6 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Receive_Scenarios
 
             // Assert
             await PollingService.PollUntilPresentAsync(Holodeck.HolodeckALocations.InputPath);
-            Holodeck.AssertReceiptOnHolodeckA();
         }
 
         [Fact]
@@ -128,7 +125,6 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Receive_Scenarios
 
             // Assert
             await PollingService.PollUntilPresentAsync(Holodeck.HolodeckALocations.InputPath);
-            Holodeck.AssertReceiptOnHolodeckA();
         }
 
         [Fact]
@@ -146,8 +142,6 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Receive_Scenarios
                 Holodeck.HolodeckALocations.InputPath,
                 fs => fs.Any(f => f.Extension == ".xml"),
                 timeout: TimeSpan.FromSeconds(50));
-
-            Holodeck.AssertReceiptOnHolodeckA();
         }
 
         [Fact]
@@ -165,8 +159,6 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Receive_Scenarios
                 Holodeck.HolodeckALocations.InputPath,
                 fs => fs.Any(f => f.Extension == ".xml"),
                 timeout: TimeSpan.FromSeconds(50));
-
-            Holodeck.AssertReceiptOnHolodeckA();
         }
     }
 }

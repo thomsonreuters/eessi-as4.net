@@ -1,7 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Threading;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.IntegrationTests.Fixture;
@@ -198,10 +198,11 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
         /// </summary>
         public void AssertSinglePayloadOnHolodeckA()
         {
-            FileInfo receivedPayload = new DirectoryInfo(Common.AS4Component.FullInputPath).GetFiles("*.jpg").FirstOrDefault();
+            FileInfo receivedPayload = new DirectoryInfo(AS4Component.FullInputPath).GetFiles("*.jpg").FirstOrDefault();
             var sendPayload = new FileInfo(HolodeckALocations.JpegPayloadPath);
 
-            Assert.Equal(sendPayload.Length, receivedPayload?.Length);
+            Assert.NotNull(receivedPayload);
+            AssertContent(sendPayload, receivedPayload);
         }
 
         /// <summary>
@@ -225,7 +226,23 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
             FileInfo sendPayload = AS4Component.SubmitSinglePayloadImage;
 
             Assert.NotNull(receivedPayload);
-            Assert.Equal(sendPayload.Length, receivedPayload.Length);
+            AssertContent(sendPayload, receivedPayload);
+        }
+
+        private static void AssertContent(
+            FileInfo expected, 
+            FileInfo actual, 
+            string exceptionMessage = "MD5 checksum of expected/actual delivered payload does not add up")
+        {
+            using (FileStream fsExpected = expected.OpenRead())
+            using (FileStream fsActual = actual.OpenRead())
+            using (MD5 md5 = MD5.Create())
+            {
+                byte[] expectedHash = md5.ComputeHash(fsExpected);
+                byte[] actualHash = md5.ComputeHash(fsActual);
+
+                Assert.True(expectedHash.SequenceEqual(actualHash), exceptionMessage);
+            }
         }
 
         /// <summary>
@@ -236,33 +253,6 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
         {
             FileInfo error = _holodeckAInputDirectory.GetFiles("*.xml").FirstOrDefault();
             Assert.NotNull(error);
-        }
-
-        /// <summary>
-        /// Asserts the receipt on holodeck b.
-        /// </summary>
-        /// <param name="files">The files.</param>
-        public void AssertReceiptOnHolodeckB(IEnumerable<FileInfo> files)
-        {
-            FileInfo receipt = files.First();
-            string xml = File.ReadAllText(receipt.FullName);
-
-            Assert.Contains("Receipt", xml);
-        }
-
-        /// <summary>
-        /// Assert the received <Receipt /> with Holodeck
-        /// </summary>
-        public void AssertReceiptOnHolodeckA()
-        {
-            FileInfo receipt = _holodeckAInputDirectory.GetFiles("*.xml").FirstOrDefault();
-
-            if (receipt != null)
-            {
-                Console.WriteLine(@"Receipt found at Holodeck A");
-            }
-
-            Assert.NotNull(receipt);
         }
     }
 }
