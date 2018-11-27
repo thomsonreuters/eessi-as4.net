@@ -26,7 +26,7 @@ describe('new empty agent', () => {
         cy.get('div.modal-body input[type=text]').type(json.newName);
         cy.getdatacy('ok').click();
         cy.getdatacy('save').click({ force: true });
-        cy.getdatacy('ok').click(); // Dialog: only takes effect on restart
+        // cy.getdatacy('ok').click(); // Dialog: only takes effect on restart
         cy.getdatacy('agents').select(json.newName);
         cy.getdatacy('delete').click();
         cy.getdatacy('ok').click(); // Dialog: are you sure?
