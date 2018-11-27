@@ -79,21 +79,6 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
         }
 
         /// <summary>
-        /// Copy the right message to Holodeck B
-        /// </summary>
-        /// <param name="messageFileName"></param>
-        public void CopyMessageToHolodeckB(string messageFileName)
-        {
-            Console.WriteLine($@"Copy Message {messageFileName} to Holodeck B");
-
-            File.Copy(
-                sourceFileName: Path.GetFullPath($@".\messages\holodeck-messages\{messageFileName}"),
-                destFileName: Path.GetFullPath($@"{HolodeckBLocations.OutputPath}\{messageFileName}"));
-
-            WaitForHolodeckToPickUp();
-        }
-
-        /// <summary>
         /// Puts a message with a single payload to the Holodeck endpoint referencing the given <paramref name="pmodeId"/>.
         /// </summary>
         /// <param name="pmodeId">The pmode id the message should have as reference.</param>
