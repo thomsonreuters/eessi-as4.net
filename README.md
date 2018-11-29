@@ -2,7 +2,7 @@
 
 ## Introduction
 
-<span>AS4.NET</span> is an open-source application that implements the OASIS AS4 specification. It supports both the e-SENS e-Delivery and the EESSI AS4 Messaging profile as an ebMS endpoint.  
+<html>AS4.NET</html> is an open-source application that implements the OASIS AS4 specification. It supports both the e-SENS e-Delivery and the EESSI AS4 Messaging profile as an ebMS endpoint.  
 Since version v3.0.0, <span>AS4.NET</span> can also act as an intermediary MSH (i-MSH) with message forwarding support and MEP bridging.
 
 The component has been conformance tested against the e-SENS eDelivery specifications.  
@@ -23,7 +23,7 @@ Testing against the EESSI AS4 Messaging Profile has also been conducted.
 
 ## Documentation
 
-A configuration- and usermanual for <span>AS4.NET</span> can be found [online](https://ec.europa.eu/cefdigital/wiki/display/EDELCOMMUNITY/AS4.NET).
+A configuration- and usermanual can be found [online](https://ec.europa.eu/cefdigital/wiki/display/EDELCOMMUNITY/AS4.NET).
 
 ## Features
 
