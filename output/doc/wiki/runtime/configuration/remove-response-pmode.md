@@ -8,7 +8,7 @@ This means that upgrading to this version with older **Receiving PModes** will l
 
 Starting from this version, the release package has a PowerShell script file located at: `.\scripts\copy-responsepmode-to-receivingpmode.ps1` to help you make this change more gracefully.
 
-The script requires to folder paths:
+The script requires two folder paths:
 
 - `sendingPModePath` : folder path to where your **Sending PModes** are located.
 - `receivingPModePath` : folder path to where your **Receiving PModes** are located.
