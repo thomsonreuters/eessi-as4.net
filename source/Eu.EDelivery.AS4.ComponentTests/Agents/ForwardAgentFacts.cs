@@ -96,7 +96,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
             await PollUntilPresent(
                 () => _databaseSpy.GetInMessageFor(m => m.EbmsMessageId == secondMessageId),
-                timeout: TimeSpan.FromSeconds(15));
+                timeout: TimeSpan.FromSeconds(20));
 
             Assert.Equal(Operation.Forwarded, primaryInMessage.Operation);
             Assert.NotNull(AS4XmlSerializer.FromString<ReceivingProcessingMode>(primaryInMessage.PMode));
