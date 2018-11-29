@@ -97,9 +97,26 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         public class GivenInvalidSubmitMessage : SubmitAgentFacts
         {
             [Fact]
-            public async Task ThenAgentRespondsWithHttpBadRequest()
+            public async Task Responds_With_BadRequest_When_Content_Is_Empty()
             {
-                using (var response = await StubSender.SendRequest(HttpSubmitAgentUrl, new byte[] { }, "application/xml"))
+                using (HttpResponseMessage response = 
+                    await StubSender.SendRequest(
+                        HttpSubmitAgentUrl, 
+                        new byte[] { }, 
+                        "application/xml"))
+                {
+                    Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+                }
+            }
+
+            [Fact]
+            public async Task Responds_With_BadRequest_When_Content_Is_Pdf()
+            {
+                using (HttpResponseMessage response =
+                    await StubSender.SendRequest(
+                        HttpSubmitAgentUrl,
+                        Properties.Resources.pdf_document,
+                        "application/pdf"))
                 {
                     Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
                 }

@@ -91,6 +91,16 @@ namespace Eu.EDelivery.AS4.ComponentTests.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] pdf_document {
+            get {
+                object obj = ResourceManager.GetObject("pdf_document", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to  &lt;soapenv:Envelope xmlns:soapenv=&quot;http://www.w3.org/2003/05/soap-envelope&quot; xmlns:xsd=&quot;http://www.w3.org/1999/XMLSchema&quot; xmlns:eb3=&quot;http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/&quot; xmlns:xsi=&quot;http://www.w3.org/1999/XMLSchema-instance/&quot;&gt;&lt;soapenv:Header&gt;&lt;wsse:Security xmlns:wsse=&quot;http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd&quot; xmlns:wsu=&quot;http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd&quot; soapenv:mustUnderstand=&quot;true&quot; soapenv:rol [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string pullrequest_without_mpc {
@@ -110,9 +120,12 @@ namespace Eu.EDelivery.AS4.ComponentTests.Properties {
         ///      &lt;Value&gt;http://agreements.holodeckb2b.org/examples/agreement0&lt;/Value&gt;
         ///    &lt;/AgreementRef&gt;
         ///    &lt;ConversationId&gt;eu:edelivery:as4:sampleconversation&lt;/ConversationId&gt;
-        ///    &lt;Action&gt;http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/test&lt;/Action&gt;
-        ///    &lt;Service&gt;
-        ///      &lt;Value&gt;http://docs. [rest of string was truncated]&quot;;.
+        ///  &lt;/Collaboration&gt;
+        ///  &lt;MessageProperties&gt;
+        ///    &lt;MessageProperty&gt;
+        ///      &lt;Name&gt;Test&lt;/Name&gt;
+        ///      &lt;Type&gt;Test&lt;/Type&gt;
+        ///      &lt;Value&gt; [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string pullsendagent_piggyback {
             get {
