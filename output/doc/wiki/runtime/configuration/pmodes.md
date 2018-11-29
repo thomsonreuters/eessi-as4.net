@@ -9,3 +9,5 @@ This section explains the settings that can be set in Sending and Receiving PMod
 - [Receiving PMode](receiving-pmode.md)
 
 > Note that there are examples of both PModes in the `./samples/pmodes` folder.
+
+> Starting from vXXX the **Receiving PMode** is used to respond to messages instead of the **Sending PMode**. This migration is explained in the following [remove response pmode](remove-response-pmode.md) section.
