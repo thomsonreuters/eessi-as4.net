@@ -29,7 +29,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         {
             OverrideSettings("forwardagent_settings.xml");
             _as4Msh = AS4Component.Start(Environment.CurrentDirectory);
-            _databaseSpy = new DatabaseSpy(_as4Msh.GetConfiguration());
+            _databaseSpy = DatabaseSpy.Create(_as4Msh.GetConfiguration());
         }
 
         protected override void Disposing(bool isDisposing)
@@ -92,14 +92,14 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                     m => m.EbmsMessageId == primaryMessageId
                          && m.Operation == Operation.Forwarded),
                 TimeSpan.FromSeconds(15));
+
             Assert.NotNull(AS4XmlSerializer.FromString<ReceivingProcessingMode>(primaryInMessage.PMode));
 
             await PollUntilPresent(
-                () => _databaseSpy.GetInMessageFor(m => m.EbmsMessageId == secondMessageId),
-                timeout: TimeSpan.FromSeconds(10));
-
-            Assert.Equal(Operation.Forwarded, primaryInMessage.Operation);
-            Assert.NotNull(AS4XmlSerializer.FromString<ReceivingProcessingMode>(primaryInMessage.PMode));
+                () => _databaseSpy.GetInMessageFor(
+                    m => m.EbmsMessageId == secondMessageId
+                         && m.Operation == Operation.Forwarded),
+                timeout: TimeSpan.FromSeconds(15));
 
             OutMessage primaryOutMessage = await PollUntilPresent(
                 () => _databaseSpy.GetOutMessageFor(m => m.EbmsMessageId == primaryMessageId),
