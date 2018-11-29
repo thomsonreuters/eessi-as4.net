@@ -78,7 +78,7 @@ namespace Eu.EDelivery.AS4.Receivers.Http
 
             if (httpContext.Request == null)
             {
-                throw new ArgumentNullException(nameof(httpContext.Request), @"Routing requres a HTTP request");
+                throw new ArgumentNullException(nameof(httpContext.Request), @"Routing requires a HTTP request");
             }
 
             HttpListenerRequest request = httpContext.Request;
@@ -93,7 +93,7 @@ namespace Eu.EDelivery.AS4.Receivers.Http
                         .Select(h => h.Handle(request))
                         .OrElse(() =>
                         {
-                            Logger.Debug("Respond with 202 Accepted: no GET handler can handle this request");
+                            Logger.Debug("Respond with 406 NotAccepted: no GET handler can handle this request");
                             return HttpResult.Empty(HttpStatusCode.NotAcceptable, "text/plain");
                         })
                         .DoAsync(r => r.WriteToAsync(response));
@@ -118,8 +118,8 @@ namespace Eu.EDelivery.AS4.Receivers.Http
                             .Select(h => h.Handle(agentResult))
                             .OrElse(() =>
                               {
-                                  Logger.Debug("Respond with 202 Accepted: no POST handler can handle this request");
-                                  return HttpResult.Empty(HttpStatusCode.Accepted);
+                                  Logger.Debug("Respond with 406 NotAccepted: no POST handler can handle this request");
+                                  return HttpResult.Empty(HttpStatusCode.NotAcceptable);
                               })
                             .DoAsync(r => r.WriteToAsync(response));
 
