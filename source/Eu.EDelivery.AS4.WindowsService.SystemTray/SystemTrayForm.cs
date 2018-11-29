@@ -111,7 +111,7 @@ namespace Eu.EDelivery.AS4.WindowsService.SystemTray
 
         private void OnOpenPortal(object sender, EventArgs e)
         {
-            Task.Run(() => Process.Start(_portalUrl.OriginalString));
+            Process.Start(_portalUrl.OriginalString);
         }
 
         private void OnConfigure(object sender, EventArgs e)
