@@ -65,8 +65,8 @@ $excludedLibraries = @("ModuleInit.dll", "NSubstitute.dll", "SimpleHttpMock.dll"
 Copy-Item -Exclude $excludedLibraries -Path .\*.dll -Destination .\staging\bin
 Copy-Item -Path .\x86\*.* -Destination .\staging\bin\x86\
 Copy-Item -Path .\x64\*.* -Destination .\staging\bin\x64\
-Copy-Item -Path ..\Eu.EDelivery.AS4.Fe\appsettings.inprocess.json .\staging\bin\
-Copy-Item -Path ..\Eu.EDelivery.AS4.Fe\appsettings.json .\staging\bin\
+Copy-Item -Path ..\source\Eu.EDelivery.AS4.Fe\appsettings.inprocess.json .\staging\bin\
+Copy-Item -Path ..\source\Eu.EDelivery.AS4.Fe\appsettings.json .\staging\bin\
 Copy-Item -Path .\config\settings.xml .\staging\config\
 Copy-Item -Path .\config\settings-service.xml .\staging\config\
 Copy-Item -Path .\messages\attachments\*.* .\staging\messages\attachments\
