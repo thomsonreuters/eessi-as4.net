@@ -68,9 +68,14 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
-            if (messagingContext?.AS4Message == null || messagingContext?.AS4Message.IsEmpty == true)
+            if (messagingContext == null)
             {
-                Logger.Debug("No SignalMessage available to send");
+                throw new ArgumentNullException(nameof(messagingContext));
+            }
+
+            if (messagingContext.AS4Message == null || messagingContext.AS4Message.IsEmpty)
+            {
+                Logger.Trace("No SignalMessage available to send");
                 return StepResult.Success(messagingContext);
             }
 
@@ -119,10 +124,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
         private static StepResult CreateEmptySoapResult(MessagingContext messagingContext)
         {
-            Logger.Info(
-                $"{messagingContext.LogTag} Empty Accepted response will be send " + 
-                "to requested party since signal will be sent async");
-
+            Logger.Debug("Empty Accepted response will be send to requested party since signal will be sent async");
             return StepResult.Success(
                 new MessagingContext(
                     AS4Message.Create(messagingContext.SendingPMode),
@@ -152,7 +154,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                         : String.Empty;
 
                 Logger.Info(
-                    $"{context.LogTag} {context.AS4Message.FirstSignalMessage.GetType().Name} " +
+                    $"{context.LogTag} {context.AS4Message.FirstSignalMessage.GetType().Name}(s) " +
                     $"will be written to the response {errorDescriptions}");
             }
 

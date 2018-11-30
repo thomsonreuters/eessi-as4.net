@@ -78,7 +78,12 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
-            if (messagingContext?.AS4Message == null)
+            if (messagingContext == null)
+            {
+                throw new ArgumentNullException(nameof(messagingContext));
+            }
+
+            if (messagingContext.AS4Message == null)
             {
                 throw new InvalidOperationException(
                     $"{nameof(VerifySignatureAS4MessageStep)} requires an AS4Message to verify but no AS4Message is present in the MessagingContext");
@@ -108,10 +113,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
             if (!as4Message.IsSigned || verification?.Signature == Limit.Ignored)
             {
-                Logger.Debug(
-                    "No signature verification will take place for unsiged messages " + 
-                    "or PModes that has a SigningVerification=Ignored");
-
+                Logger.Debug("No signature verification will take place for unsiged messages or PModes that has a SigningVerification=Ignored");
                 return StepResult.Success(messagingContext);
             }
 
@@ -217,7 +219,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                         messagingContext);
                 }
 
-                Logger.Info($"{messagingContext.LogTag} AS4Message has a valid Signature present");
+                Logger.Info($"{messagingContext.LogTag} AS4Message has a valid signature present");
 
                 JournalLogEntry entry = 
                     JournalLogEntry.CreateFrom(
@@ -230,6 +232,14 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             }
             catch (CryptographicException exception)
             {
+                if (messagingContext.AS4Message.IsEncrypted)
+                {
+                    Logger.Error(
+                        "Signature verification failed because the received message is still encrypted. "
+                        + "Make sure that you specify <Decryption/> information in the <Security/> element of the "
+                        + "ReceivingPMode so the ebMS MessagingHeader is first decrypted before it's signature gets verified");
+                }
+
                 Logger.Error($"{messagingContext.LogTag} An exception occured while validating the signature: {exception.Message}");
                 return InvalidSignatureResult(
                     exception.Message, 
@@ -241,12 +251,9 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         private static VerifySignatureConfig CreateVerifyOptionsForAS4Message(AS4Message as4Message, SigningVerification v)
         {
             bool allowUnknownRootCertificateAuthority = 
-                v?.AllowUnknownRootCertificate
-                ?? new SigningVerification().AllowUnknownRootCertificate;
+                v?.AllowUnknownRootCertificate ?? new SigningVerification().AllowUnknownRootCertificate;
 
-            return new VerifySignatureConfig(
-                allowUnknownRootCertificateAuthority,
-                as4Message.Attachments);
+            return new VerifySignatureConfig(allowUnknownRootCertificateAuthority, as4Message.Attachments);
         }
 
         private static StepResult InvalidSignatureResult(string description, ErrorAlias errorAlias, MessagingContext context)
