@@ -113,7 +113,6 @@ namespace Eu.EDelivery.AS4.ComponentTests.Common
                 Policy.Handle<IOException>()
                       .WaitAndRetry(3, _ => TimeSpan.FromSeconds(1))
                       .Execute(() => file.Delete());
-                
             }
         }
         
