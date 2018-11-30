@@ -2,11 +2,7 @@
 
 cd ..\output
 
-if (Test-Path -Path .\staging) {
-    Remove-Item  -Path .\staging -ErrorAction SilentlyContinue -Force
-}
-
-MkDir .\staging
+MkDir .\staging -ErrorAction Continue
 MkDir .\staging\Assets
 MkDir .\staging\bin
 MkDir .\staging\service-setup
