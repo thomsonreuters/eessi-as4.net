@@ -1,5 +1,13 @@
 #cd $env:BUILD_ARTIFACTstagingDIRECTORY
 
+cd ..
+
+& "C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\Common7\IDE\devenv.exe" ./source/as4.sln /build "Release|AnyCPU" /project ./source/Eu.EDelivery.AS4.WindowsService.Installer/Eu.EDelivery.AS4.WindowsService.Installer.vdproj /Out errors.txt
+
+while (!(Test-Path "./source/Eu.EDelivery.AS4.WindowsService.Installer/Eu.EDelivery.AS4.WindowsService.Installer.msi")) { Start-Sleep 10 }
+
+cd output
+
 cd ..\output
 
 if (!Test-Path -Path .\staging) {
