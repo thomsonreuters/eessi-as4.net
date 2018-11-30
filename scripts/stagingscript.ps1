@@ -1,6 +1,6 @@
 #cd $env:BUILD_ARTIFACTstagingDIRECTORY
 
-if (!Test-Path -Path .\staging) {
+if (!(Test-Path -Path .\staging)) {
     MkDir .\staging
 }
 
