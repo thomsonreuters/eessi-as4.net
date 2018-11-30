@@ -378,7 +378,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         private async Task<HttpResponseMessage> TestSendNRReceiptWith(string messageId, Func<int, int> selection)
         {
             // Arrange
-            var nrrPMode = new SendingProcessingMode { Id = "verify-nrr", ReceiptHandling = { VerifyNRR = true } };
+            var nrrPMode = new SendingProcessingMode {Id = "verify-nrr", ReceiptHandling = {VerifyNRR = true}};
             X509Certificate2 cert = new StubCertificateRepository().GetStubCertificate();
 
             AS4Message signedUserMessage = SignedUserMessage(messageId, nrrPMode, cert);
@@ -483,7 +483,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                             type: "eu:europa:services"),
                         action: "Forward_Push_Multihop_Action",
                         conversationId: "eu:europe:conversation"));
-            var multihopPMode = new SendingProcessingMode { MessagePackaging = { IsMultiHop = true } };
+            var multihopPMode = new SendingProcessingMode {MessagePackaging = {IsMultiHop = true}};
             AS4Message multihopMessage = AS4Message.Create(userMessage, multihopPMode);
 
             // Act
@@ -514,7 +514,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                         type: "eu:europa:services"),
                     action: "eu:sample:01",
                     conversationId: "eu:europa:conversation"));
-            var multihopPMode = new SendingProcessingMode { MessagePackaging = { IsMultiHop = true } };
+            var multihopPMode = new SendingProcessingMode {MessagePackaging = {IsMultiHop = true}};
             AS4Message multihopMessage = AS4Message.Create(userMessage, multihopPMode);
 
             // Act
