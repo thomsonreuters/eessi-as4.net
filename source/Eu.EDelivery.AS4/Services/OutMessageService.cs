@@ -231,13 +231,13 @@ namespace Eu.EDelivery.AS4.Services
         {
             if (sendPMode?.Id != null)
             {
-                Logger.Debug($"Use already set SendingPMode {sendPMode.Id} for inserting OutMessage");
+                Logger.Trace($"Use already set SendingPMode {sendPMode.Id} for inserting OutMessage");
                 return sendPMode;
             }
 
             if (mu is SignalMessage && receivePMode != null)
             {
-                Logger.Debug($"Use ReceivingPMode {receivePMode.Id} to insert with the OutMessage");
+                Logger.Trace($"Use ReceivingPMode {receivePMode.Id} to insert with the OutMessage");
                 return receivePMode;
             }
 
