@@ -18,7 +18,6 @@ using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
-using Eu.EDelivery.AS4.Security.Signing;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.TestUtils;
 using Eu.EDelivery.AS4.TestUtils.Stubs;
@@ -113,7 +112,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                     collaboration: new CollaborationInfo(
                         agreement: new AgreementReference("http://agreements.europa.org/agreement"),
                         service: new Model.Core.Service(
-                            value: "Invalid_PMode_Test_Service", 
+                            value: "Invalid_PMode_Test_Service",
                             type: "eu:europa:services"),
                         action: "Invalid_PMode_Test_Action",
                         conversationId: CollaborationInfo.DefaultConversationId),
@@ -135,7 +134,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             var errorMsg = result.FirstSignalMessage as Error;
             Assert.NotNull(errorMsg);
             Assert.Collection(
-                errorMsg.ErrorLines, 
+                errorMsg.ErrorLines,
                 e => Assert.Equal(ErrorCode.Ebms0010, e.ErrorCode));
 
             InMessage inMessageRecord = _databaseSpy.GetInMessageFor(m => m.EbmsMessageId == messageId);
@@ -149,7 +148,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                 Guid.NewGuid().ToString(),
                 new CollaborationInfo(
                     agreement: new AgreementReference(
-                        value: "http://agreements.europa.org/agreement", 
+                        value: "http://agreements.europa.org/agreement",
                         pmodeId: "receiveagent-non_existing_decrypt_cert-pmode"),
                     service: new Service(
                         value: "errorhandling",
@@ -210,7 +209,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             await StubSender.SendAS4Message(_receiveAgentUrl, AS4Message.Create(userMessage));
 
             // Assert
-            OutMessage storedReceipt = 
+            OutMessage storedReceipt =
                 await PollUntilPresent(
                     () => _databaseSpy.GetOutMessageFor(m => m.EbmsRefToMessageId == userMessage.MessageId
                                                             && m.EbmsMessageType == MessageType.Receipt),
@@ -344,7 +343,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             AssertIfStatusOfOutMessageIs(expectedId, OutStatus.Nack);
             AssertIfInMessageExistsForSignalMessage(expectedId);
         }
-       
+
         [Fact]
         public async Task ThenResponseWithAccepted_IfNRReceiptHasValidHashes()
         {
@@ -379,7 +378,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         private async Task<HttpResponseMessage> TestSendNRReceiptWith(string messageId, Func<int, int> selection)
         {
             // Arrange
-            var nrrPMode = new SendingProcessingMode {Id = "verify-nrr", ReceiptHandling = {VerifyNRR = true}};
+            var nrrPMode = new SendingProcessingMode { Id = "verify-nrr", ReceiptHandling = { VerifyNRR = true } };
             X509Certificate2 cert = new StubCertificateRepository().GetStubCertificate();
 
             AS4Message signedUserMessage = SignedUserMessage(messageId, nrrPMode, cert);
@@ -435,7 +434,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             AS4Message receipt = AS4Message.Create(
                 new Receipt(
                     messageId: $"receipt-{Guid.NewGuid()}",
-                    refToMessageId: signedUserMessage.GetPrimaryMessageId(), 
+                    refToMessageId: signedUserMessage.GetPrimaryMessageId(),
                     nonRepudiation: new NonRepudiationInformation(hashes)));
 
             return AS4MessageUtils.SignWithCertificate(receipt, cert);
@@ -484,7 +483,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                             type: "eu:europa:services"),
                         action: "Forward_Push_Multihop_Action",
                         conversationId: "eu:europe:conversation"));
-            var multihopPMode = new SendingProcessingMode {MessagePackaging = {IsMultiHop = true}};
+            var multihopPMode = new SendingProcessingMode { MessagePackaging = { IsMultiHop = true } };
             AS4Message multihopMessage = AS4Message.Create(userMessage, multihopPMode);
 
             // Act
@@ -515,7 +514,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                         type: "eu:europa:services"),
                     action: "eu:sample:01",
                     conversationId: "eu:europa:conversation"));
-            var multihopPMode = new SendingProcessingMode {MessagePackaging = {IsMultiHop = true}};
+            var multihopPMode = new SendingProcessingMode { MessagePackaging = { IsMultiHop = true } };
             AS4Message multihopMessage = AS4Message.Create(userMessage, multihopPMode);
 
             // Act
@@ -571,7 +570,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         {
             // Arrange
             SignalMessage signal = CreateMultihopSignalMessage(
-                refToMessageId: "someusermessageid", 
+                refToMessageId: "someusermessageid",
                 pmodeId: "Forward_Push");
 
             // Act
@@ -623,7 +622,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             StoreToBeAckOutMessage(messageId, sendingPMode);
 
             SignalMessage signal = CreateMultihopSignalMessage(
-                refToMessageId: messageId, 
+                refToMessageId: messageId,
                 pmodeId: "ComponentTest_ReceiveAgent_Sample1");
 
             // Act
@@ -672,7 +671,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                     CollaborationInfo.DefaultConversationId),
                 new Party("Sender", new PartyId("org:eu:europa:as4:example:accesspoint:A")),
                 new Party("Receiver", new PartyId("org:eu:europa:as4:example:accesspoint:B")),
-                new PartInfo[0], 
+                new PartInfo[0],
                 new MessageProperty[0]);
 
             return Receipt.CreateFor(
@@ -696,7 +695,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         #region Scenario's for receiving bundled messages
 
         [Fact]
-        public async Task Received_Bundled_User_And_Receipt_Message_Should_Process_All_Messages()
+        public async Task Received_Bundled_Message_Should_Process_All_Messages()
         {
             // Arrange
             string ebmsMessageId = "test-" + Guid.NewGuid();
@@ -729,67 +728,14 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             Assert.Equal(userMessage.MessageId, receivedReceipt.FirstSignalMessage.RefToMessageId);
 
             AssertIfInMessageExistsForSignalMessage(ebmsMessageId);
-            AssertIfInMessageIsStoredFor(userMessage.MessageId, Operation.ToBeDelivered);
+            AssertIfInMesssageIsStoredFor(userMessage.MessageId, Operation.ToBeDelivered);
         }
 
-        private void AssertIfInMessageIsStoredFor(string id, Operation o = Operation.NotApplicable)
+        private void AssertIfInMesssageIsStoredFor(string id, Operation o = Operation.NotApplicable)
         {
             var inMessage = _databaseSpy.GetInMessageFor(m => m.EbmsMessageId == id);
             Assert.NotNull(inMessage);
             Assert.Equal(o.ToString(), inMessage.Operation.ToString());
-        }
-
-        [Fact]
-        public async Task Received_Bundled_UserMessages_Should_Responds_With_Bundled_Receipts()
-        {
-            // Arrange
-            var bundled = AS4Message.Create(
-                new UserMessage(
-                    $"user1-{Guid.NewGuid()}",
-                    new CollaborationInfo(
-                        new AgreementReference(
-                            value: "http://agreements.europe.org/agreement",
-                            pmodeId: "receive_bundled_message_pmode"))));
-
-            bundled.AddMessageUnits(
-                Enumerable.Range(2, 3)
-                          .Select(i => new UserMessage($"user{i}-{Guid.NewGuid()}")));
-
-            bundled.Sign(new CalculateSignatureConfig(
-                Registry.Instance.CertificateRepository.GetCertificate(
-                    X509FindType.FindBySubjectName,
-                    "AccessPointA")));
-
-            // Act
-            HttpResponseMessage response = await StubSender.SendAS4Message(_receiveAgentUrl, bundled);
-
-            // Assert
-            AS4Message receipts = await response.DeserializeToAS4Message();
-
-            int receiptCount = receipts.MessageUnits.Count();
-            int userMessageCount = bundled.MessageUnits.Count();
-            Assert.True(
-                receiptCount == userMessageCount, 
-                $"{userMessageCount} UserMessage should result in {receiptCount} Receipts");
-
-            Assert.True(
-                receipts.SignalMessages.Select(s => s.RefToMessageId).SequenceEqual(bundled.MessageIds),
-                "All Receipts must reference the right UserMessages");
-
-            Assert.All(
-                receipts.MessageUnits,
-                r => Assert.True(
-                    Assert.IsType<Receipt>(r).NonRepudiationInformation != null, 
-                    $"Receipt for UserMessage {r.RefToMessageId} is not a Non-Repudiation Receipt"));
-
-            foreach (string ebmsMessageId in bundled.MessageIds)
-            {
-                OutMessage entry = await PollUntilPresent(
-                    () => _databaseSpy.GetOutMessageFor(m => m.EbmsRefToMessageId == ebmsMessageId),
-                    TimeSpan.FromSeconds(20));
-
-                Assert.Equal(MessageType.Receipt, entry.EbmsMessageType);
-            }
         }
 
         #endregion
@@ -808,7 +754,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         {
             Error error = Error.FromErrorResult(
                 $"error-{Guid.NewGuid()}",
-                refToMessageId, 
+                refToMessageId,
                 new ErrorResult("An error occurred", ErrorAlias.NonApplicable));
 
             return AS4Message.Create(error, CreateSendingPMode());
