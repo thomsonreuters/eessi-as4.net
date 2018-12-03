@@ -180,6 +180,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             {
                 // Arrange
                 MessagingContext ctx = SignalMessageWithVerification(Limit.NotAllowed);
+
                 ctx.AS4Message.Sign(
                     new CalculateSignatureConfig(
                         signingCertificate: new X509Certificate2(
@@ -198,6 +199,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             private static MessagingContext SignalMessageWithVerification(Limit sendSignature)
             {
                 var signal = AS4Message.Create(new Receipt($"receipt-{Guid.NewGuid()}", $"reftoid-{Guid.NewGuid()}"));
+
                 var ctx = new MessagingContext(signal, MessagingContextMode.Receive)
                 {
                     SendingPMode = new SendingProcessingMode

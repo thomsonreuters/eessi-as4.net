@@ -80,11 +80,6 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             }
 
             AS4Message as4Message = messagingContext.AS4Message;
-            if (!as4Message.IsSigned)
-            {
-                Logger.Debug("Signature will not be verified since the message is not signed");
-                return StepResult.Success(messagingContext);
-            }
 
             SigningVerification verification = DetermineSigningVerification(messagingContext);
             if (verification == null)
@@ -106,6 +101,12 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 return InvalidSignatureResult(desNotAllowed, ErrorAlias.PolicyNonCompliance, messagingContext);
             }
 
+            if (!as4Message.IsSigned)
+            {
+                Logger.Debug("Signature will not be verified since the message is not signed");
+                return StepResult.Success(messagingContext);
+            }
+
             if (verification.Signature == Limit.Ignored)
             {
                 Logger.Debug("Signature will not be verified because the PMode states that Security.SigningVerification=Ignored");
@@ -115,7 +116,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             if (as4Message.MessageUnits.Any(u => u is Receipt) &&
                 (messagingContext.SendingPMode?.ReceiptHandling?.VerifyNRR ?? false))
             {
-                if (!await VerifyNonRepudiationHashes(as4Message))
+                if (!await VerifyNonRepudiationHashesAsync(as4Message))
                 {
                     Logger.Error($"{messagingContext.LogTag} Incoming Receipt hasn't got valid NRI References");
 
@@ -129,7 +130,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 Logger.Debug($"{messagingContext.LogTag} Incoming Receipt has valid NRI References");
             }
 
-            return await TryVerifyingSignature(messagingContext, verification).ConfigureAwait(false);
+            return await TryVerifyingSignatureAsync(messagingContext, verification).ConfigureAwait(false);
         }
 
         private static SigningVerification DetermineSigningVerification(MessagingContext ctx)
@@ -157,14 +158,14 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                     "PMode doesn't allow a signed AS4Message and the received AS4Message is signed");
         }
 
-        private async Task<bool> VerifyNonRepudiationHashes(AS4Message as4Message)
+        private async Task<bool> VerifyNonRepudiationHashesAsync(AS4Message as4Message)
         {
             IEnumerable<Receipt> receipts = as4Message.SignalMessages
                 .Where(m => m is Receipt r && r.NonRepudiationInformation != null)
                 .Cast<Receipt>();
 
             IEnumerable<AS4Message> userMessages =
-                (await ReferencedUserMessagesOf(receipts)).Where(m => m != null && m.IsSigned);
+                (await GetReferencedUserMessagesAsync(receipts)).Where(m => m != null && m.IsSigned);
 
             if (!userMessages.Any())
             {
@@ -181,7 +182,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             });
         }
 
-        private async Task<IEnumerable<AS4Message>> ReferencedUserMessagesOf(IEnumerable<Receipt> receipts)
+        private async Task<IEnumerable<AS4Message>> GetReferencedUserMessagesAsync(IEnumerable<Receipt> receipts)
         {
             using (DatastoreContext context = _storeExpression())
             {
@@ -194,7 +195,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             }
         }
 
-        private static async Task<StepResult> TryVerifyingSignature(
+        private static async Task<StepResult> TryVerifyingSignatureAsync(
             MessagingContext messagingContext,
             SigningVerification verification)
         {
