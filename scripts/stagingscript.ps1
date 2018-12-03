@@ -2,9 +2,21 @@
 
 cd ..
 
-& "C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\Common7\IDE\devenv.exe" ./source/as4.sln /build "Release|AnyCPU" /project ./source/Eu.EDelivery.AS4.WindowsService.Installer/Eu.EDelivery.AS4.WindowsService.Installer.vdproj /Out errors.txt
+function build-msi (
+    [string] $solutionPath, 
+    [string] $projectPath, 
+    [string] $devEnvPath)
+{
+    $parameters = "/Rebuild Release ""$solutionPath"" /Project ""$projectPath"" /ProjectConfig Release "
+    "Process to start [$devEnvPath $parameters]"
+    $process = [System.Diagnostics.Process]::Start("$devEnvPath", $parameters)
+    $process.WaitForExit()
+}
 
-while (!(Test-Path "./output/Eu.EDelivery.AS4.WindowsService.Installer.msi")) { Start-Sleep 10 }
+build-msi
+    "./source/AS4.sln"
+    "./source/Eu.EDelivery.AS4.WindowsService.Installer/Eu.EDelivery.AS4.WindowsService.Installer.vdproj"
+    "C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\Common7\IDE\devenv.exe"
 
 cd output
 
