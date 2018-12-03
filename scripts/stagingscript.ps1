@@ -29,6 +29,7 @@ MkDir .\staging\samples\certificates
 MkDir .\staging\samples\messages
 MkDir .\staging\samples\pmodes
 MkDir .\staging\samples\pmodes\eessi
+MkDir .\staging\scripts
 MkDir .\staging\bin\x64
 MkDir .\staging\bin\x86
 
@@ -77,5 +78,6 @@ Copy-Item -Path .\samples\certificates\*.* .\staging\samples\certificates\
 Copy-Item -Path .\samples\messages\*.* .\staging\samples\messages\
 Copy-Item -Path .\samples\pmodes\*.* .\staging\samples\pmodes\
 Copy-Item -Path .\samples\pmodes\eessi\*.* .\staging\samples\pmodes\eessi\
+Copy-Item -Path .\..\scripts\copy-responsepmode-to-receivingpmode.ps1 .\staging\scripts\copy-responsepmode-to-receivingpmode.ps1
 Copy-Item -Path .\install-windows-service.bat .\staging\service-setup
 Copy-Item -Path .\uninstall-windows-service.bat .\staging\service-setup
