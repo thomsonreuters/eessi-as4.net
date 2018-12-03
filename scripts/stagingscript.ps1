@@ -9,14 +9,14 @@ function build-msi (
 {
     $parameters = "/Rebuild Release ""$solutionPath"" /Project ""$projectPath"" /ProjectConfig Release "
     "Process to start [$devEnvPath $parameters]"
-    $process = [System.Diagnostics.Process]::Start("$devEnvPath", $parameters)
+    $process = [System.Diagnostics.Process]::Start($devEnvPath, $parameters)
     $process.WaitForExit()
 }
 
 build-msi
-    "./source/AS4.sln"
-    "./source/Eu.EDelivery.AS4.WindowsService.Installer/Eu.EDelivery.AS4.WindowsService.Installer.vdproj"
-    "C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\Common7\IDE\devenv.exe"
+    -solutionPath "./source/AS4.sln"
+    -projectPath "./source/Eu.EDelivery.AS4.WindowsService.Installer/Eu.EDelivery.AS4.WindowsService.Installer.vdproj"
+    -devEnvPath "C:/Program Files (x86)/Microsoft Visual Studio/2017/Enterprise/Common7/IDE/devenv.exe"
 
 cd output
 
