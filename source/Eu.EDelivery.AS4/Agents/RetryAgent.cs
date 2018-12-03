@@ -59,7 +59,7 @@ namespace Eu.EDelivery.AS4.Agents
         /// <returns></returns>
         public async Task Start(CancellationToken cancellation)
         {
-            Logger.Debug(AgentConfig.Name + " Started");
+            Logger.Trace(AgentConfig.Name + " Started");
 
             await Task.Factory.StartNew(
                 () => _receiver.StartReceiving(OnReceivedAsync, cancellation),

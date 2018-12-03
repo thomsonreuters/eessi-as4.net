@@ -179,14 +179,13 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             if (as4Message.HasUserMessage)
             {
                 Logger.Debug(
-                    "Incoming message is a UserMessage, so the incoming message itself will be used to match the right ReceivingPMode");
+                    "AS4Message contains UserMessages, so the incoming message itself will be used to match the right ReceivingPMode");
 
                 return as4Message.FirstUserMessage;
             }
 
             Logger.Debug(
-                "Incoming message is a Multi-Hop SignalMessage, " +
-                "so the embeded Multi-Hop UserMessage will be used to match the right Receiving PMode");
+                "AS4Message should be a Multi-Hop SignalMessage, so the embeded Multi-Hop UserMessage will be used to match the right Receiving PMode");
 
             Maybe<RoutingInputUserMessage> routedUserMessageM =
                 as4Message.SignalMessages.FirstOrDefault(s => s.IsMultihopSignal)?.MultiHopRouting;
@@ -197,8 +196,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             }
 
             throw new InvalidOperationException(
-                $"(Receive)[{as4Message.GetPrimaryMessageId()}] Incoming message doesn't have a UserMessage " + 
-                "either as Message Unit or as Routed Input in a SignalMessage. " +
+                "Incoming message doesn't have a UserMessage either as Message Unit or as Routed Input in a SignalMessage. " +
                 "This message can therefore not be used to determine the ReceivingPMode");
         }
 
@@ -223,7 +221,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         {
             const string description =
                 "Cannot determine ReceivingPMode: more than one matching ReceivingPMode was found. " +
-                "Please stricten the matching information in the message packaging information so that only a single PMode is matched";
+                "Please make the matching information more strict in the message packaging information so that only a single PMode is matched";
 
             Logger.Error(description);
             Logger.Error(

@@ -76,8 +76,8 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 {
                     Logger.Error(
                         "Decompression failed because the incoming attachments are still encrypted. "
-                        + "Make sure that you specify <Encryption/> information in the <Security/> element of the SendingPMode "
-                        + "so the attachments are first decrypted before decompressed");
+                        + "Make sure that you specify <Decryption/> information in the <Security/> element of the "
+                        + "ReceivingPMode so the attachments are first decrypted before decompressed");
                 }
 
                 messagingContext.ErrorResult = new ErrorResult(exception.Message, ErrorAlias.DecompressionFailure);

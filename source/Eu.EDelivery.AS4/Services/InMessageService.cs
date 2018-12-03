@@ -98,7 +98,7 @@ namespace Eu.EDelivery.AS4.Services
                 .OnLocation(location)
                 .BuildAsDeadLetteredError();
 
-            Logger.Debug($"(Send) Create Error for missed Receipt with {{Operation={inMessage.Operation}}}");
+            Logger.Debug($"Create Error for missed Receipt with {{Operation={inMessage.Operation}}}");
             _repository.InsertInMessage(inMessage);
         }
 
@@ -130,7 +130,7 @@ namespace Eu.EDelivery.AS4.Services
 
             if (originalMessage == null)
             {
-                throw new InvalidOperationException("The MessagingContext must contain a Received Message");
+                throw new InvalidOperationException("The MessagingContext must contain a ReceivedMessage");
             }
 
             if (messageBodyStore == null)
@@ -183,7 +183,7 @@ namespace Eu.EDelivery.AS4.Services
             {
                 if (userMessage.IsTest)
                 {
-                    Logger.Debug($"[{userMessage.MessageId}] Incoming User Message is 'Test Message'");
+                    Logger.Trace($"Incoming UserMessage {userMessage.MessageId} is a 'Test Message'");
                 }
 
                 userMessage.IsDuplicate = IsUserMessageDuplicate(userMessage, duplicateUserMessages);
@@ -197,7 +197,7 @@ namespace Eu.EDelivery.AS4.Services
                         .BuildAsToBeProcessed();
 
                     Logger.Debug(
-                        $"Insert InMessage UserMessage {userMessage.MessageId} with  {{"
+                        $"Insert InMessage UserMessage {userMessage.MessageId} with {{"
                         + $"Operation={inMessage.Operation}, "
                         + $"Status={inMessage.Status}, "
                         + $"PModeId={pmode?.Id}, "
