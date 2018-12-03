@@ -35,7 +35,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                     IEnumerable<string> fixtureMessageIds = fixture.MessageIds;
                     var ctx = new MessagingContext(fixture, MessagingContextMode.Receive)
                     {
-                        SendingPMode = new SendingProcessingMode()
+                        ReceivingPMode = new ReceivingProcessingMode()
                     };
 
                     // Act
@@ -71,10 +71,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
         }
 
         [Fact]
-        public async Task Creates_Receipt_With_NRR_Format_For_Unsigned_UserMessage()
+        public async Task Creates_Receipt_Without_NRR_Format_For_Unsigned_UserMessage()
         {
             // Arrange
             MessagingContext messagingContext = CreateUserMessageWrappedInContext();
+            messagingContext.ReceivingPMode.ReplyHandling.ResponseSigning.IsEnabled = true;
             messagingContext.ReceivingPMode.ReplyHandling.ReceiptHandling.UseNRRFormat = true;
 
             // Act
@@ -92,6 +93,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             // Arrange
             MessagingContext messagingContext = CreateSignedUserMessageWrappedInContext();
             messagingContext.ReceivingPMode.ReplyHandling.ReceiptHandling.UseNRRFormat = true;
+            messagingContext.ReceivingPMode.ReplyHandling.ResponseSigning.IsEnabled = true;
 
             // Act
             AS4Message result = await ExerciseCreateReceiptAsync(messagingContext);
@@ -125,6 +127,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             // Arrange
             MessagingContext messagingContext = CreateSignedUserMessageWrappedInContext();
             messagingContext.ReceivingPMode.ReplyHandling.ReceiptHandling.UseNRRFormat = true;
+            messagingContext.ReceivingPMode.ReplyHandling.ResponseSigning.IsEnabled = true;
 
             // Act
             AS4Message result = await ExerciseCreateReceiptAsync(messagingContext);
@@ -178,7 +181,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
         {
             // Arrange
             var fixture = new MessagingContext(
-                AS4Message.Create(new UserMessage($"user-{Guid.NewGuid()}")),
+                AS4Message.Create(
+                    new UserMessage($"user-{Guid.NewGuid()}"),
+                    new SendingProcessingMode { MessagePackaging = { IsMultiHop = true } }),
                 MessagingContextMode.Receive)
                 {
                     ReceivingPMode = new ReceivingProcessingMode()

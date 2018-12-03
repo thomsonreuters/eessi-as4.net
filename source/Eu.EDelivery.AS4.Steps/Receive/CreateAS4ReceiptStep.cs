@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
@@ -38,34 +37,29 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                     $"{nameof(CreateAS4ReceiptStep)} requires an AS4Message to create ebMS Receipts but no AS4Message is present in the MessagingContext");
             }
 
-            if (messagingContext.ReceivingPMode == null)
-            {
-                throw new InvalidOperationException(
-                    $"{nameof(CreateAS4ReceiptStep)} requires a ReceivingPMode to create ebMS Receipts but no ReceivingPMode is present in the MessagingContext");
-            }
-
             if (!messagingContext.AS4Message.HasUserMessage)
             {
                 throw new InvalidOperationException(
                     $"{nameof(CreateAS4ReceiptStep)} requires an AS4Message with at least one UserMessage to create an Receipt for but no UserMessage were found in the AS4Message");
             }
 
-            AS4Message receivedMessage = messagingContext.AS4Message;
-            bool useNRRFormat = messagingContext.ReceivingPMode.ReplyHandling?.ReceiptHandling?.UseNRRFormat ?? false;
+            bool receiptSigning = messagingContext.ReceivingPMode?.ReplyHandling?.ResponseSigning?.IsEnabled ?? false;
+            bool useNRRFormat = messagingContext.ReceivingPMode?.ReplyHandling?.ReceiptHandling?.UseNRRFormat ?? false;
 
-            if (!receivedMessage.IsSigned && useNRRFormat)
+            if (!receiptSigning && useNRRFormat)
             {
                 Logger.Error(
-                    "Cannot create Non-Repudiation Receipts for an AS4Message that isn't signed, "
-                    + $"please change the ReceivingPMode {messagingContext.ReceivingPMode.Id} ReplyHandling.ReceiptHandling.UseNRRFormat");
+                    "Cannot create Non-Repudiation Receipts that aren\'t signed, please change either the "
+                    + $"ReceivingPMode {messagingContext.ReceivingPMode.Id} ReplyHandling.ReceiptHandling.UseNRRFormat or the ReplyHandling.ResponseSigning");
 
                 messagingContext.ErrorResult = new ErrorResult(
-                    "Cannot create Non-Repudiation Receipts for an AS4Message that isn't signed",
+                    "Cannot create Non-Repudiation Receipts that aren't signed",
                     ErrorAlias.InvalidReceipt);
 
                 return StepResult.Failed(messagingContext);
             }
 
+            AS4Message receivedMessage = messagingContext.AS4Message;
             AS4Message receiptMessage = AS4Message.Empty;
             receiptMessage.SigningId = receivedMessage.SigningId;
 
