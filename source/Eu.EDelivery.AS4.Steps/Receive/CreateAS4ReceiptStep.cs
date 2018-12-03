@@ -37,12 +37,6 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                     $"{nameof(CreateAS4ReceiptStep)} requires an AS4Message to create ebMS Receipts but no AS4Message is present in the MessagingContext");
             }
 
-            if (!messagingContext.AS4Message.HasUserMessage)
-            {
-                throw new InvalidOperationException(
-                    $"{nameof(CreateAS4ReceiptStep)} requires an AS4Message with at least one UserMessage to create an Receipt for but no UserMessage were found in the AS4Message");
-            }
-
             bool receiptSigning = messagingContext.ReceivingPMode?.ReplyHandling?.ResponseSigning?.IsEnabled ?? false;
             bool useNRRFormat = messagingContext.ReceivingPMode?.ReplyHandling?.ReceiptHandling?.UseNRRFormat ?? false;
 
