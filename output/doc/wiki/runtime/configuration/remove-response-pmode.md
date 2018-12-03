@@ -13,6 +13,10 @@ The script requires two folder paths:
 - `sendingPModePath` : folder path to where your **Sending PModes** are located.
 - `receivingPModePath` : folder path to where your **Receiving PModes** are located.
 
+```powershell
+PS> .\copy-responsepmode-to-receivingpmode.ps1 -sendingPModePath ".\send-pmodes" -receivingPModePath ".\receive-pmodes"
+```
+
 After executing the script, all your **Receiving PModes** are updated to use in this version.
 
 ### Manual removal of Sending PMode as responding PMode
