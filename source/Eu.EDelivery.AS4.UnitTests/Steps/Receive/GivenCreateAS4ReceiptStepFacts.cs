@@ -1,9 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
+using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
+using Eu.EDelivery.AS4.Repositories;
+using Eu.EDelivery.AS4.Security.Encryption;
 using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Steps.Receive;
 using Eu.EDelivery.AS4.TestUtils;
@@ -36,7 +40,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
                     // Act
                     AS4Message result = 
-                        ExerciseCreateReceipt(ctx)
+                        ExerciseCreateReceiptAsync(ctx)
                             .GetAwaiter()
                             .GetResult();
 
@@ -60,7 +64,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             MessagingContext messagingContext = CreateUserMessageWrappedInContext();
 
             // Act
-            AS4Message result = await ExerciseCreateReceipt(messagingContext);
+            AS4Message result = await ExerciseCreateReceiptAsync(messagingContext);
 
             // Assert
             Assert.IsType<Receipt>(result.FirstSignalMessage);
@@ -74,7 +78,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             messagingContext.ReceivingPMode.ReplyHandling.ReceiptHandling.UseNRRFormat = true;
 
             // Act
-            AS4Message result = await ExerciseCreateReceipt(messagingContext);
+            AS4Message result = await ExerciseCreateReceiptAsync(messagingContext);
 
             // Assert
             var receipt = result.FirstSignalMessage as Receipt;
@@ -90,7 +94,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             messagingContext.ReceivingPMode.ReplyHandling.ReceiptHandling.UseNRRFormat = true;
 
             // Act
-            AS4Message result = await ExerciseCreateReceipt(messagingContext);
+            AS4Message result = await ExerciseCreateReceiptAsync(messagingContext);
 
             // Assert
             var receiptMessage = result.FirstSignalMessage as Receipt;
@@ -107,7 +111,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             messagingContext.ReceivingPMode.ReplyHandling.ReceiptHandling.UseNRRFormat = false;
 
             // Act
-            AS4Message result = await ExerciseCreateReceipt(messagingContext);
+            AS4Message result = await ExerciseCreateReceiptAsync(messagingContext);
 
             // Assert
             var receiptMessage = result.FirstSignalMessage as Receipt;
@@ -123,7 +127,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             messagingContext.ReceivingPMode.ReplyHandling.ReceiptHandling.UseNRRFormat = true;
 
             // Act
-            AS4Message result = await ExerciseCreateReceipt(messagingContext);
+            AS4Message result = await ExerciseCreateReceiptAsync(messagingContext);
 
             // Assert
             var receiptMessage = result.FirstSignalMessage as Receipt;
@@ -160,7 +164,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             MessagingContext messagingContext = CreateUserMessageWrappedInContext();
 
             // Act
-            AS4Message result = await ExerciseCreateReceipt(messagingContext);
+            AS4Message result = await ExerciseCreateReceiptAsync(messagingContext);
 
             // Assert
             Assert.False(result.IsSigned);
@@ -174,19 +178,73 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
         {
             // Arrange
             var fixture = new MessagingContext(
-                AS4Message.Create(
-                    new UserMessage($"user-{Guid.NewGuid()}"),
-                    new SendingProcessingMode { MessagePackaging = { IsMultiHop = true } }),
+                AS4Message.Create(new UserMessage($"user-{Guid.NewGuid()}")),
                 MessagingContextMode.Receive)
+                {
+                    ReceivingPMode = new ReceivingProcessingMode()
+                };
+
+            // Act
+            AS4Message result = await ExerciseCreateReceiptAsync(fixture);
+
+            // Assert
+            Assert.True(result.IsMultiHopMessage);
+        }
+
+        [Fact]
+        public async Task Fails_To_Create_NonRepudiation_Unsigned_Receipt()
+        {
+            // Arrange
+            var as4Message = AS4Message.Create(new UserMessage($"user-{Guid.NewGuid()}"));
+            var fixture = new MessagingContext(
+                as4Message, MessagingContextMode.Receive)
+                {
+                    ReceivingPMode = new ReceivingProcessingMode
+                    {
+                        ReplyHandling =
+                        {
+                            ReceiptHandling = { UseNRRFormat = true },
+                            ResponseSigning = { IsEnabled = false }
+                        }
+                    }
+                };
+
+            var sut = new CreateAS4ReceiptStep();
+
+            // Act
+            StepResult result = await sut.ExecuteAsync(fixture);
+
+            // Assert
+            Assert.False(result.Succeeded);
+            Assert.NotNull(result.MessagingContext.ErrorResult);
+        }
+
+        [Fact]
+        public async Task Fallback_To_Regular_Receipt_When_Referenced_UserMessage_Isnt_Signed()
+        {
+            // Arrange
+            var as4Message = AS4Message.Create(
+                new UserMessage($"user-{Guid.NewGuid()}"));
+
+            var certRepo = new CertificateRepository(StubConfig.Default);
+
+            as4Message.Encrypt(
+                new KeyEncryptionConfiguration(
+                    certRepo.GetCertificate(X509FindType.FindBySubjectName, "AccessPointB")), 
+                DataEncryptionConfiguration.Default);
+
+            var fixture = new MessagingContext(as4Message, MessagingContextMode.Receive)
             {
                 ReceivingPMode = new ReceivingProcessingMode()
             };
 
             // Act
-            AS4Message result = await ExerciseCreateReceipt(fixture);
+            AS4Message result = await ExerciseCreateReceiptAsync(fixture);
 
             // Assert
-            Assert.True(result.IsMultiHopMessage);
+            var receipt = Assert.IsType<Receipt>(result.FirstSignalMessage);
+            Assert.Null(receipt.NonRepudiationInformation);
+            Assert.NotNull(receipt.UserMessage);
         }
 
         private static MessagingContext CreateUserMessageWrappedInContext()
@@ -207,7 +265,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             return pmode;
         }
 
-        private static async Task<AS4Message> ExerciseCreateReceipt(MessagingContext ctx)
+        private static async Task<AS4Message> ExerciseCreateReceiptAsync(MessagingContext ctx)
         {
             var sut = new CreateAS4ReceiptStep();
             StepResult result = await sut.ExecuteAsync(ctx);

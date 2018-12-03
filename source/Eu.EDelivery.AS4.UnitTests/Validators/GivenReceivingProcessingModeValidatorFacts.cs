@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Validators;
@@ -55,6 +56,44 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
                         .Or(result.IsValid.Equals(pattern != ReplyPattern.Callback)
                                   .Label("valid when ReplyPattern != Callback"));
                 });
+        }
+
+        [Theory]
+        [InlineData(false, false, true)]
+        [InlineData(false, true, false)]
+        [InlineData(true, false, true)]
+        [InlineData(true, true, true)]
+        public void ResponseSigning_Is_Required_When_UseNRRFormat_Is_Enabled(
+            bool isEnabled,
+            bool useNrrFormat,
+            bool expected)
+        {
+            // Arrange
+            var pmode = new ReceivingProcessingMode
+            {
+                Id = "not-empty-id",
+                ReplyHandling =
+                {
+                    ReceiptHandling = { UseNRRFormat = useNrrFormat },
+                    ResponseSigning =
+                    {
+                        IsEnabled = isEnabled,
+                        SigningCertificateInformation = new CertificateFindCriteria
+                        {
+                            CertificateFindType = X509FindType.FindBySubjectName,
+                            CertificateFindValue = "some-certificate-subject-name"
+                        }
+                    }
+                }
+            };
+
+            // Act
+            ValidationResult result = ExerciseValidation(pmode);
+
+            // Assert
+            Assert.True(
+                expected == result.IsValid, 
+                result.AppendValidationErrorsToErrorMessage("Invalid PMode: "));
         }
 
         [CustomProperty]
