@@ -28,7 +28,6 @@ namespace Eu.EDelivery.AS4.Steps.Receive
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
         private readonly Func<DatastoreContext> _storeExpression;
-        private readonly IConfig _config;
         private readonly IAS4MessageBodyStore _bodyStore;
 
         /// <summary>
@@ -37,28 +36,20 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         public VerifySignatureAS4MessageStep()
             : this(
                 Registry.Instance.CreateDatastoreContext,
-                Config.Instance,
                 Registry.Instance.MessageBodyStore) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="VerifySignatureAS4MessageStep" /> class.
         /// </summary>
         /// <param name="createContext">The create context.</param>
-        /// <param name="config">The configuration.</param>
         /// <param name="bodyStore">The body store.</param>
         public VerifySignatureAS4MessageStep(
             Func<DatastoreContext> createContext,
-            IConfig config,
             IAS4MessageBodyStore bodyStore)
         {
             if (createContext == null)
             {
                 throw new ArgumentNullException(nameof(createContext));
-            }
-
-            if (config == null)
-            {
-                throw new ArgumentNullException(nameof(config));
             }
 
             if (bodyStore == null)
@@ -67,7 +58,6 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             }
 
             _storeExpression = createContext;
-            _config = config;
             _bodyStore = bodyStore;
         }
 
@@ -110,7 +100,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                     desRequired, ErrorAlias.PolicyNonCompliance, messagingContext);
             }
 
-            (bool signedMessageButNotAllowed, string desNotAllowed) = SigningUnallowedRule(verification, as4Message);
+            (bool signedMessageButNotAllowed, string desNotAllowed) = SigningNotAllowedRule(verification, as4Message);
             if (signedMessageButNotAllowed)
             {
                 return InvalidSignatureResult(desNotAllowed, ErrorAlias.PolicyNonCompliance, messagingContext);
@@ -131,7 +121,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
                     return InvalidSignatureResult(
                         "The digest value in the Signature References of the referenced UserMessage " +
-                        "doesn't match the References of the NRI of the incoming NRR Receipt",
+                        "doesn't match the References of the NRI of the incoming Non-Repudiation Receipt",
                         ErrorAlias.FailedAuthentication,
                         messagingContext);
                 }
@@ -157,16 +147,14 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
         private static (bool, string) SigningRequiredRule(SigningVerification v, AS4Message m)
         {
-            return (
-                v.Signature == Limit.Required && !m.IsSigned, 
-                "PMode requires a signed AS4Message but the received AS4message is not signed");
+            return (v.Signature == Limit.Required && !m.IsSigned,
+                    "PMode requires a signed AS4Message but the received AS4message is not signed");
         }
 
-        private static (bool, string) SigningUnallowedRule(SigningVerification v, AS4Message m)
+        private static (bool, string) SigningNotAllowedRule(SigningVerification v, AS4Message m)
         {
-            return (
-                v.Signature == Limit.NotAllowed && m.IsSigned,
-                "PMode doesn't allow a signed AS4Message and the received AS4Message is signed");
+            return (v.Signature == Limit.NotAllowed && m.IsSigned,
+                    "PMode doesn't allow a signed AS4Message and the received AS4Message is signed");
         }
 
         private async Task<bool> VerifyNonRepudiationHashes(AS4Message as4Message)

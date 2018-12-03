@@ -285,7 +285,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
             var step = new VerifySignatureAS4MessageStep(
                 GetDataStoreContext,
-                StubConfig.Default,
                 messageStore);
 
             return await step.ExecuteAsync(
@@ -407,7 +406,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
         {
             var sut = new VerifySignatureAS4MessageStep(
                 GetDataStoreContext,
-                StubConfig.Default,
                 new AS4MessageBodyFileStore());
 
             return await sut.ExecuteAsync(ctx);
