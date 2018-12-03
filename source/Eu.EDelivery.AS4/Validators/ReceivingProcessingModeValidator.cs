@@ -43,78 +43,8 @@ namespace Eu.EDelivery.AS4.Validators
 
             When(pmode => pmode.ReplyHandling != null, () =>
             {
-                RuleFor(pmode => pmode.ReplyHandling.ResponseConfiguration)
-                    .NotNull()
-                    .When(pmode => pmode.ReplyHandling.ReplyPattern == ReplyPattern.Callback)
-                    .WithMessage(
-                        "ReplyHandling.ResponseConfiguration element must be specified when ReplyHandling.ReplyPattern = Callback");
-
-                RuleFor(pmode => pmode.ReplyHandling.ResponseConfiguration.Protocol)
-                    .NotNull()
-                    .When(pmode => pmode.ReplyHandling.ResponseConfiguration != null)
-                    .WithMessage(
-                        "ReplyHandling.ResponseConfiguration.Protocol element must be specified when there exists an <ResponseConfiguration/> element");
-
-                RuleFor(pmode => pmode.ReplyHandling.ResponseConfiguration.Protocol.Url)
-                    .NotEmpty()
-                    .When(pmode => pmode.ReplyHandling.ResponseConfiguration?.Protocol != null)
-                    .WithMessage(
-                        "ReplyHandling.ResponseConfiguration.Protocol.Url must be specified when there exists an <ResponseConfiguration/> element");
-
-                RuleFor(pmode => pmode.ReplyHandling.ReceiptHandling)
-                    .NotNull()
-                    .WithMessage("ReplyHandling.ReceiptHandling element must be specified");
-
-                RuleFor(pmode => pmode.ReplyHandling.ErrorHandling)
-                    .NotNull()
-                    .WithMessage("ReplyHandling.ErrorHandling element must be specified");
-
-                RuleFor(pmode => pmode.ReplyHandling.PiggyBackReliability)
-                    .Null()
-                    .When(pmode => pmode.ReplyHandling.ReplyPattern != ReplyPattern.PiggyBack)
-                    .WithMessage(
-                        "ReplyHandling.PiggyBackReliability should only be specified when the ResponseHandling.ReplyPattern = PiggyBack");
-
-                When(pmode => pmode.ReplyHandling.ResponseSigning?.IsEnabled == true, () =>
-                {
-                    RuleFor(pmode => Constants.SignAlgorithms.IsSupported(
-                                pmode.ReplyHandling.ResponseSigning.Algorithm))
-                        .NotNull()
-                        .NotEmpty()
-                        .WithMessage(
-                            $"ReplyHandling.ResponseSigning.Algorithm should be one of these: {String.Join(", ", Constants.SignAlgorithms.SupportedAlgorithms)} "
-                            + "when Security.Signing.IsEnabled = true");
-
-                    RuleFor(pmode => Constants.HashFunctions.IsSupported(
-                                pmode.ReplyHandling.ResponseSigning.HashFunction))
-                        .NotNull()
-                        .NotEmpty()
-                        .WithMessage(
-                            $"ReplyHandling.ResponseSigning.HashFunction should be one of these: {String.Join(", ", Constants.HashFunctions.SupportedAlgorithms)} "
-                            + "when Security.Signing.IsEnabled = true");
-
-                    RuleFor(pmode => pmode.ReplyHandling.ResponseSigning.SigningCertificateInformation)
-                        .Must(cert =>
-                        {
-                            if (cert is CertificateFindCriteria c)
-                            {
-                                return !String.IsNullOrWhiteSpace(c.CertificateFindValue);
-                            }
-
-                            if (cert is PrivateKeyCertificate k)
-                            {
-                                return !String.IsNullOrWhiteSpace(k.Certificate)
-                                       && !String.IsNullOrWhiteSpace(k.Password);
-                            }
-
-                            return false;
-                        })
-                        .WithMessage(
-                            "ReplyHandling.ResponseSigning should have either an <CertificateFindCriteria/> "
-                            + "with a non-empty <CertificateFindValue/> or an <PrivateKeyCertificate/> element "
-                            + "with a non-empty <Certificate/> and <Password/> elements "
-                            + "when the ReplyHandling.ResponseSigning.IsEnabled = true");
-                });
+                RulesForResponseConfiguration();
+                RulesForResponseSigning();
 
                 When(pmode => pmode.ReplyHandling.PiggyBackReliability?.IsEnabled == true, () =>
                 {
@@ -131,6 +61,87 @@ namespace Eu.EDelivery.AS4.Validators
             });
         }
 
+        private void RulesForResponseConfiguration()
+        {
+            RuleFor(pmode => pmode.ReplyHandling.ResponseConfiguration)
+                .NotNull()
+                .When(pmode => pmode.ReplyHandling.ReplyPattern == ReplyPattern.Callback)
+                .WithMessage(
+                    "ReplyHandling.ResponseConfiguration element must be specified when ReplyHandling.ReplyPattern = Callback");
+
+            RuleFor(pmode => pmode.ReplyHandling.ResponseConfiguration.Protocol)
+                .NotNull()
+                .When(pmode => pmode.ReplyHandling.ResponseConfiguration != null)
+                .WithMessage(
+                    "ReplyHandling.ResponseConfiguration.Protocol element must be specified when there exists an <ResponseConfiguration/> element");
+
+            RuleFor(pmode => pmode.ReplyHandling.ResponseConfiguration.Protocol.Url)
+                .NotEmpty()
+                .When(pmode => pmode.ReplyHandling.ResponseConfiguration?.Protocol != null)
+                .WithMessage(
+                    "ReplyHandling.ResponseConfiguration.Protocol.Url must be specified when there exists an <ResponseConfiguration/> element");
+
+            RuleFor(pmode => pmode.ReplyHandling.ReceiptHandling)
+                .NotNull()
+                .WithMessage("ReplyHandling.ReceiptHandling element must be specified");
+
+            RuleFor(pmode => pmode.ReplyHandling.ErrorHandling)
+                .NotNull()
+                .WithMessage("ReplyHandling.ErrorHandling element must be specified");
+
+            RuleFor(pmode => pmode.ReplyHandling.PiggyBackReliability)
+                .Null()
+                .When(pmode => pmode.ReplyHandling.ReplyPattern != ReplyPattern.PiggyBack)
+                .WithMessage(
+                    "ReplyHandling.PiggyBackReliability should only be specified when the ResponseHandling.ReplyPattern = PiggyBack");
+        }
+        private void RulesForResponseSigning()
+        {
+            RuleFor(pmode => pmode.ReplyHandling)
+                .Must(pmode => pmode.ResponseSigning.IsEnabled)
+                .When(pmode => pmode.ReplyHandling?.ReceiptHandling?.UseNRRFormat ?? false)
+                .WithMessage("ReplyHandling.ResponseSigning should be enabled when the ReplyHandling.ReceiptHandling.UseNRRFormat is enabled");
+
+            When(pmode => pmode.ReplyHandling.ResponseSigning?.IsEnabled == true, () =>
+            {
+                RuleFor(pmode => Constants.SignAlgorithms.IsSupported(pmode.ReplyHandling.ResponseSigning.Algorithm))
+                    .NotNull()
+                    .NotEmpty()
+                    .WithMessage(
+                        $"ReplyHandling.ResponseSigning.Algorithm should be one of these: {String.Join(", ", Constants.SignAlgorithms.SupportedAlgorithms)} "
+                        + "when Security.Signing.IsEnabled = true");
+
+                RuleFor(pmode => Constants.HashFunctions.IsSupported(pmode.ReplyHandling.ResponseSigning.HashFunction))
+                    .NotNull()
+                    .NotEmpty()
+                    .WithMessage(
+                        $"ReplyHandling.ResponseSigning.HashFunction should be one of these: {String.Join(", ", Constants.HashFunctions.SupportedAlgorithms)} "
+                        + "when Security.Signing.IsEnabled = true");
+
+                RuleFor(pmode => pmode.ReplyHandling.ResponseSigning.SigningCertificateInformation)
+                    .Must(cert =>
+                    {
+                        if (cert is CertificateFindCriteria c)
+                        {
+                            return !String.IsNullOrWhiteSpace(c.CertificateFindValue);
+                        }
+
+                        if (cert is PrivateKeyCertificate k)
+                        {
+                            return !String.IsNullOrWhiteSpace(k.Certificate)
+                                   && !String.IsNullOrWhiteSpace(k.Password);
+                        }
+
+                        return false;
+                    })
+                    .WithMessage(
+                        "ReplyHandling.ResponseSigning should have either an <CertificateFindCriteria/> "
+                        + "with a non-empty <CertificateFindValue/> or an <PrivateKeyCertificate/> element "
+                        + "with a non-empty <Certificate/> and <Password/> elements "
+                        + "when the ReplyHandling.ResponseSigning.IsEnabled = true");
+            });
+        }
+
         private void RulesForExceptionHandling()
         {
             RulesForExceptionNotifyMethod();
@@ -143,12 +154,12 @@ namespace Eu.EDelivery.AS4.Validators
             {
                 RuleFor(pmode => pmode.ExceptionHandling.Reliability.RetryCount)
                     .Must(i => i > 0)
-                    .WithMessage("ExceptionHandling.Reliability.RetryCount must be greater than 0 when Exceptionhandling.Reliability.IsEnabled = true");
+                    .WithMessage("ExceptionHandling.Reliability.RetryCount must be greater than 0 when ExceptionHandling.Reliability.IsEnabled = true");
 
                 RuleFor(pmode => pmode.ExceptionHandling.Reliability.RetryInterval.AsTimeSpan())
                     .Must(t => t > default(TimeSpan))
                     .WithMessage(
-                        $"Exceptionhandling.Reliability.RetryInterval must be greater than {default(TimeSpan)} when ExceptionHandling.Reliability.IsEnabled = true");
+                        $"ExceptionHandling.Reliability.RetryInterval must be greater than {default(TimeSpan)} when ExceptionHandling.Reliability.IsEnabled = true");
             });
         }
 
@@ -159,14 +170,14 @@ namespace Eu.EDelivery.AS4.Validators
                 RuleFor(pmode => pmode.ExceptionHandling.NotifyMethod)
                     .NotNull()
                     .WithMessage(
-                        "ExceptionHandling.NotifyMethod should be specified when the ExceptionHandling.NotifyMessageConsuer = true");
+                        "ExceptionHandling.NotifyMethod should be specified when the ExceptionHandling.NotifyMessageConsumer = true");
 
                 When(pmode => pmode.ExceptionHandling.NotifyMethod != null, () =>
                 {
                     RuleFor(pmode => pmode.ExceptionHandling.NotifyMethod.Type)
                         .NotEmpty()
                         .WithMessage(
-                            "ExceptionHandling.NotifyMethod.Type shoud be specified when the ExceptionHandling.NotifyMessageConsumer = true");
+                            "ExceptionHandling.NotifyMethod.Type should be specified when the ExceptionHandling.NotifyMessageConsumer = true");
 
                     RuleFor(pmode => pmode.ExceptionHandling.NotifyMethod.Parameters)
                         .NotNull()
@@ -231,7 +242,7 @@ namespace Eu.EDelivery.AS4.Validators
                         .ForEach((Parameter p) => p != null)
                         .WithMessage(
                             "MessageHandling.Deliver.DeliverMethod.Parameters should be specified as an empty tag or " +
-                            "with non-empty Name and Value attributes when the MessageHandling.Deliver.IsEnabeld = true");
+                            "with non-empty Name and Value attributes when the MessageHandling.Deliver.IsEnabled = true");
                 });
             });
         }

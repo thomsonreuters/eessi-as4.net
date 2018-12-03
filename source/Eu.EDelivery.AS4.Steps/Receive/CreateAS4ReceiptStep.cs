@@ -2,13 +2,12 @@
 using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
+using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Factories;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using NLog;
-using Receipt = Eu.EDelivery.AS4.Model.Core.Receipt;
-using UserMessage = Eu.EDelivery.AS4.Model.Core.UserMessage;
 
 namespace Eu.EDelivery.AS4.Steps.Receive
 {
@@ -32,26 +31,47 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 throw new ArgumentNullException(nameof(messagingContext));
             }
 
-            AS4Message receivedAS4Message = messagingContext.AS4Message;
-            if (receivedAS4Message == null)
+            if (messagingContext.AS4Message == null)
             {
                 throw new InvalidOperationException(
-                    $"{nameof(CreateAS4ReceiptStep)} requires an AS4Message to create a Receipt but no AS4Message is present in the MessagingContext");
+                    $"{nameof(CreateAS4ReceiptStep)} requires an AS4Message to create ebMS Receipts but no AS4Message is present in the MessagingContext");
             }
 
-            AS4Message receiptMessage = AS4Message.Empty;
-            receiptMessage.SigningId = receivedAS4Message.SigningId;
-
-            foreach (UserMessage userMessage in receivedAS4Message.UserMessages)
+            if (!messagingContext.AS4Message.HasUserMessage)
             {
-                Receipt receipt = CreateReferencedReceipt(userMessage, receivedAS4Message, messagingContext.ReceivingPMode);
+                throw new InvalidOperationException(
+                    $"{nameof(CreateAS4ReceiptStep)} requires an AS4Message with at least one UserMessage to create an Receipt for but no UserMessage were found in the AS4Message");
+            }
+
+            bool receiptSigning = messagingContext.ReceivingPMode?.ReplyHandling?.ResponseSigning?.IsEnabled ?? false;
+            bool useNRRFormat = messagingContext.ReceivingPMode?.ReplyHandling?.ReceiptHandling?.UseNRRFormat ?? false;
+
+            if (!receiptSigning && useNRRFormat)
+            {
+                Logger.Error(
+                    "Cannot create Non-Repudiation Receipts that aren\'t signed, please change either the "
+                    + $"ReceivingPMode {messagingContext.ReceivingPMode.Id} ReplyHandling.ReceiptHandling.UseNRRFormat or the ReplyHandling.ResponseSigning");
+
+                messagingContext.ErrorResult = new ErrorResult(
+                    "Cannot create Non-Repudiation Receipts that aren't signed",
+                    ErrorAlias.InvalidReceipt);
+
+                return StepResult.Failed(messagingContext);
+            }
+
+            AS4Message receivedMessage = messagingContext.AS4Message;
+            AS4Message receiptMessage = AS4Message.Empty;
+            receiptMessage.SigningId = receivedMessage.SigningId;
+
+            foreach (UserMessage userMessage in receivedMessage.UserMessages)
+            {
+                Receipt receipt = CreateReferencedReceipt(userMessage, receivedMessage, messagingContext.ReceivingPMode);
                 receiptMessage.AddMessageUnit(receipt);
             }
 
             if (Logger.IsInfoEnabled && receiptMessage.MessageUnits.Any())
             {
-                Logger.Info(
-                    $"{messagingContext.LogTag} {receiptMessage.MessageUnits.Count()} Receipt message(s) has been created for received AS4 UserMessages");
+                Logger.Info($"{messagingContext.LogTag} {receiptMessage.MessageUnits.Count()} Receipt message(s) has been created for received AS4 UserMessages");
             }
 
             messagingContext.ModifyContext(receiptMessage);
@@ -63,28 +83,31 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             AS4Message received,
             ReceivingProcessingMode receivingPMode)
         {
-            bool useNRRFormat = receivingPMode?.ReplyHandling.ReceiptHandling.UseNRRFormat ?? false;
+            bool useNRRFormat = receivingPMode?.ReplyHandling?.ReceiptHandling?.UseNRRFormat ?? false;
             if (useNRRFormat && !received.IsSigned)
             {
                 Logger.Warn(
-                    $"ReceivingPMode {receivingPMode?.Id} is configured to reply with Non-Repudation Receipts, " + 
-                    $"but incoming UserMessage {userMessage.MessageId} isn\'t signed");
+                    $"ReceivingPMode {receivingPMode.Id} is configured to reply with Non-Repudation Receipts, "
+                    + $"but incoming UserMessage {userMessage.MessageId} isn\'t signed. "
+                    + "This means that the Receipt cannot be created as a Non-Repudiation Receipt "
+                    + "but in a Receipt with the referenced UserMessage embedded instead");
             }
             else if (!useNRRFormat)
             {
-                Logger.Debug(
-                    $"ReceivingPMode {receivingPMode?.Id} is configured to not use the Non-Repudiation format." + 
-                    $"This means the original UserMessage {userMessage.MessageId} will be included in the Receipt");
+                Logger.Trace(
+                    $"ReceivingPMode {receivingPMode?.Id} is configured to not use the Non-Repudiation format."
+                    + $"This means the original UserMessage {userMessage.MessageId} will be included in the Receipt");
             }
 
             if (received.IsMultiHopMessage)
             {
-                Logger.Debug($"Because the received UserMessage {userMessage.MessageId} has been sent via MultiHop, the Receipt will be send as MultiHop also");
+                Logger.Trace(
+                    $"Because the received UserMessage {userMessage.MessageId} has been sent via MultiHop, the Receipt will be send with MultiHop as well");
             }
 
             if (useNRRFormat && received.IsSigned)
             {
-                    Logger.Debug($"ReceivingPMode {receivingPMode?.Id} is configured to use Non-Repudiation for Receipt Creation");
+                    Logger.Trace($"ReceivingPMode {receivingPMode.Id} is configured to use Non-Repudiation for Receipt Creation");
                     return Receipt.CreateFor(
                         IdentifierFactory.Instance.Create(), 
                         userMessage,
