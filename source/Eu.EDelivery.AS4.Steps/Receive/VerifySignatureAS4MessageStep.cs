@@ -89,14 +89,20 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                     $"{nameof(VerifySignatureAS4MessageStep)} requires an AS4Message to verify but no AS4Message is present in the MessagingContext");
             }
 
+            AS4Message as4Message = messagingContext.AS4Message;
+            if (!as4Message.IsSigned)
+            {
+                Logger.Debug("Signature will not be verified since the message is not signed");
+                return StepResult.Success(messagingContext);
+            }
+
             SigningVerification verification = DetermineSigningVerification(messagingContext);
             if (verification == null)
             {
                 Logger.Debug("No PMode.Security.SigningVerification element found, so no signature verification will take place");
                 return StepResult.Success(messagingContext);
             }
-
-            AS4Message as4Message = messagingContext.AS4Message;
+            
             (bool unsignedButRequired, string desRequired) = SigningRequiredRule(verification, as4Message);
             if (unsignedButRequired)
             {
@@ -104,16 +110,15 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                     desRequired, ErrorAlias.PolicyNonCompliance, messagingContext);
             }
 
-            (bool signedMessageButUnallowed, string desUnallowed) = SigningUnallowedRule(verification, as4Message);
-            if (signedMessageButUnallowed)
+            (bool signedMessageButNotAllowed, string desNotAllowed) = SigningUnallowedRule(verification, as4Message);
+            if (signedMessageButNotAllowed)
             {
-                return InvalidSignatureResult(
-                    desUnallowed, ErrorAlias.PolicyNonCompliance, messagingContext);
+                return InvalidSignatureResult(desNotAllowed, ErrorAlias.PolicyNonCompliance, messagingContext);
             }
 
-            if (!as4Message.IsSigned || verification?.Signature == Limit.Ignored)
+            if (verification.Signature == Limit.Ignored)
             {
-                Logger.Debug("No signature verification will take place for unsiged messages or PModes that has a SigningVerification=Ignored");
+                Logger.Debug("Signature will not be verified because the PMode states that Security.SigningVerification=Ignored");
                 return StepResult.Success(messagingContext);
             }
 
