@@ -1,33 +1,5 @@
 #cd $env:BUILD_ARTIFACTstagingDIRECTORY
 
-cd ..
-
-function build-msi (
-    [string] $solutionPath, 
-    [string] $projectPath, 
-    [string] $devEnvPath)
-{
-    $parameters = "/Rebuild Release " + $solutionPath + " /Project " + $projectPath + " /ProjectConfig Release /Out errors.txt"
-    "Process to start [$devEnvPath $parameters]"
-    $process = [System.Diagnostics.Process]::Start($devEnvPath, $parameters)
-    $process.WaitForExit()
-
-    Get-Content -Path errors.txt
-}
-
-$vsixPath = "$($env:USERPROFILE)\InstallerProjects.vsix"
-$vsixUrl = 'https://visualstudioclient.gallerycdn.vsassets.io/extensions/visualstudioclient/microsoftvisualstudio2017installerprojects/0.8.8/1531988283007/InstallerProjects.vsix'
-
-(New-Object Net.WebClient).DownloadFile($vsixUrl, $vsixPath)
-"`"C:\Program Files (x86)\Microsoft Visual Studio 14.0\Common7\IDE\VSIXInstaller.exe`" /q /a $vsixPath" | out-file ".\install-vsix.cmd" -Encoding ASCII
-
-& .\install-vsix.cmd
-& "c:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\Common7\IDE\CommonExtensions\Microsoft\VSI\DisableOutOfProcBuild\DisableOutOfProcBuild.exe"
-
-build-msi "./source/AS4.sln" "./source/Eu.EDelivery.AS4.WindowsService.Installer/Eu.EDelivery.AS4.WindowsService.Installer.vdproj" "C:/Program Files (x86)/Microsoft Visual Studio/2017/Enterprise/Common7/IDE/devenv.exe"
-
-cd output
-
 if (!(Test-Path -Path .\staging)) {
     MkDir .\staging
 }
