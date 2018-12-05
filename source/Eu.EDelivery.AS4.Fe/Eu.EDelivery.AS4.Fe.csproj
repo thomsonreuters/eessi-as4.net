@@ -39,6 +39,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="FluentValidation" Version="6.2.1" />
+	  <PackageReference Include="NETStandard.Library" Version="2.0.1" />
     <PackageReference Include="NLog" Version="4.3.5" />
     <PackageReference Include="Microsoft.AspNet.SignalR" Version="2.2.2" />
     <PackageReference Include="Microsoft.AspNet.SignalR.Owin" Version="1.2.2" />
@@ -69,6 +70,7 @@
     <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="2.0.0" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="5.1.4" />
+	  <PackageReference Include="System.Runtime.InteropServices.RuntimeInformation" Version="4.3.0" />
     <Reference Include="System.Configuration" />
   </ItemGroup>
   <ItemGroup>
