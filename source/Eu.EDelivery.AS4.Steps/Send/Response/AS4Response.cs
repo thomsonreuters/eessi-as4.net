@@ -75,24 +75,31 @@ namespace Eu.EDelivery.AS4.Steps.Send.Response
             {
                 if (response.ReceivedAS4Message.IsEmpty == false)
                 {
-                    LogReceivedAS4Response(response.ReceivedAS4Message);
+                    LogReceivedAS4Response(
+                        requestMessage.AS4Message,
+                        response.ReceivedAS4Message);
                 }
             }
 
             return response;
         }
 
-        private static void LogReceivedAS4Response(AS4Message as4Message)
+        private static void LogReceivedAS4Response(AS4Message request, AS4Message response)
         {
-            foreach (MessageUnit mu in as4Message.MessageUnits)
+            if (request?.PrimaryMessageUnit != null && response.PrimaryMessageUnit != null)
+            {
+                Logger.Info($"Sending AS4Message {request.GetPrimaryMessageId()} results in: {request.PrimaryMessageUnit.GetType().Name} -> {response.PrimaryMessageUnit.GetType().Name} ");
+            }
+
+            foreach (MessageUnit mu in response.MessageUnits)
             {
                 switch (mu)
                 {
                     case Error err:
                         Logger.Error($"Error message {err.FormatErrorLines()} response received for message with with ebMS Id {mu.RefToMessageId}");
                         break;
-                    default:
-                        Logger.Info($"{mu.GetType().Name} message response received for message with ebMS Id {mu.RefToMessageId}");
+                    case Receipt r:
+                        Logger.Debug($"{(r.NonRepudiationInformation != null ? "Non-Repudiation " : String.Empty)}Receipt message response received for message with ebMS Id {mu.RefToMessageId}");
                         break;
                 }
             }

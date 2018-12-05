@@ -18,6 +18,7 @@ using SubmitPartyId = Eu.EDelivery.AS4.Model.Common.PartyId;
 using PModeParty = Eu.EDelivery.AS4.Model.PMode.Party;
 using PModePartyId = Eu.EDelivery.AS4.Model.PMode.PartyId;
 using AS4Party = Eu.EDelivery.AS4.Model.Core.Party;
+using InvalidOperationException = System.InvalidOperationException;
 using PartyId = Eu.EDelivery.AS4.Model.Core.PartyId;
 
 namespace Eu.EDelivery.AS4.Steps.Submit
@@ -68,17 +69,20 @@ namespace Eu.EDelivery.AS4.Steps.Submit
             if (messagingContext.AS4Message == null 
                 && messagingContext.Mode == MessagingContextMode.Forward)
             {
-                throw new InvalidOperationException(
+                Logger.Error(
                     $"{nameof(DynamicDiscoveryStep)} requires an AS4Message when used in a Forward Agent, "
                     + "please make sure that the ReceivedMessage is deserialized before executing this step."
-                    + "Possibly this failure happened because the Transformer of the Forward Agent is still using "
+                    + $"{Environment.NewLine} Possibly this failure happened because the Transformer of the Forward Agent is still using "
                     + "the ForwardMessageTransformer instead of the AS4MessageTransformer");
+
+                throw new InvalidOperationException(
+                    "Dynamic Discovery process cannot be used in a Forwarding scenario for messages that are not AS4Messages");
             }
 
             if (messagingContext.SendingPMode == null 
                 || messagingContext.SendingPMode.DynamicDiscoverySpecified == false)
             {
-                Logger.Debug($"Dynamic Discovery in SendingPMode {messagingContext.SendingPMode?.Id} is not configured");
+                Logger.Trace($"Skip Dynamic Discovery because SendingPMode {messagingContext.SendingPMode?.Id} is not configured for Dynamic Discovery");
                 return StepResult.Success(messagingContext);
             }
 
@@ -98,7 +102,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
                     messagingContext.SendingPMode?.AllowOverride == true);
 
             DynamicDiscoveryResult result = await DynamicDiscoverSendingPModeAsync(messagingContext.SendingPMode, profile, toParty);
-            Logger.Info($"{messagingContext.LogTag} SendingPMode {result.CompletedSendingPMode.Id} completed with SMP metadata");
+            Logger.Debug($"SendingPMode {result.CompletedSendingPMode.Id} completed with SMP metadata");
 
             messagingContext.SendingPMode = result.CompletedSendingPMode;
             if (messagingContext.SubmitMessage != null && result.OverrideToParty)
@@ -124,9 +128,12 @@ namespace Eu.EDelivery.AS4.Steps.Submit
 
             if (!GenericTypeBuilder.CanResolveTypeThatImplements<IDynamicDiscoveryProfile>(smpProfile))
             {
-                throw new InvalidOperationException(
+                Logger.Error(
                     "SendingPMode.DynamicDiscovery.SmpProfile element doesn't have a fully-qualified assembly name "
                     + $"that can be used to resolve a instance that implements the {nameof(IDynamicDiscoveryProfile)} interface");
+
+                throw new InvalidOperationException(
+                    "Dynamic Discovery process was not correctly configured");
             }
 
             Logger.Debug($"SendingPMode specifies a DynamicDiscovery.SmpProfile element, resolve using: {smpProfile}");
@@ -140,28 +147,39 @@ namespace Eu.EDelivery.AS4.Steps.Submit
             IDynamicDiscoveryProfile profile,
             AS4Party toParty)
         {
-            var clonedPMode = (SendingProcessingMode) sendingPMode.Clone();
-            clonedPMode.Id = $"{clonedPMode.Id}_SMP";
-
-            XmlDocument smpMetaData = await RetrieveSmpMetaDataAsync(profile, clonedPMode.DynamicDiscovery, toParty);
-            if (smpMetaData == null)
+            try
             {
-                throw new ArgumentNullException(
-                    nameof(smpMetaData),
-                    $@"No SMP meta-data data document was retrieved by the Dynamic Discovery profile: {profile.GetType().Name}");
-            }
+                var clonedPMode = (SendingProcessingMode)sendingPMode.Clone();
+                clonedPMode.Id = $"{clonedPMode.Id}_SMP";
 
-            DynamicDiscoveryResult result = profile.DecoratePModeWithSmpMetaData(clonedPMode, smpMetaData);
-            if (result == null)
+                XmlDocument smpMetaData = await RetrieveSmpMetaDataAsync(profile, clonedPMode.DynamicDiscovery, toParty);
+                if (smpMetaData == null)
+                {
+                    Logger.Error($"No SMP meta-data document was retrieved by the Dynamic Discovery profile: {profile.GetType().Name}");
+                    throw new InvalidDataException(
+                        "No SMP meta-data document was retrieved during the Dynamic Discovery process");
+                }
+
+                DynamicDiscoveryResult result = profile.DecoratePModeWithSmpMetaData(clonedPMode, smpMetaData);
+                if (result == null)
+                {
+                    Logger.Error($@"No decorated SendingPMode was returned by the Dynamic Discovery profile: {profile.GetType().Name}");
+                    throw new InvalidDataException(
+                        "No decorated SendingPMode was returned during the Dynamic Discovery");
+                }
+
+                ValidatePMode(result.CompletedSendingPMode);
+                return result;
+            }
+            catch (Exception ex) 
             {
-                throw new ArgumentNullException(
-                    nameof(result),
-                    $@"No decorated SendingPMode was returned by the Dynamic Discovery profile: {profile.GetType().Name}");
+                Logger.Error(
+                    $"An exception occured during the Dynamic Discovery process of the profile: {profile.GetType().Name} "
+                    + $"with the message having ToParty={toParty} for SendingPMode {sendingPMode.Id}");
+
+                throw new ApplicationException(
+                    "An exception occured during the Dynamic Discovery process", ex);
             }
-
-
-            ValidatePMode(result.CompletedSendingPMode);
-            return result;
         }
 
         private static async Task<XmlDocument> RetrieveSmpMetaDataAsync(
@@ -215,7 +233,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
             }
 
             throw new InvalidOperationException(
-                "AS4Message is not an UserMessage so can't dynamically discover the SendingPMode with the ToParty from it");
+                "Only AS4Message with an UserMessage as primary message unit can be used dynamically discover the SendingPMode");
         }
 
         private static AS4Party ResolveSubmitOrPModeReceiverParty(
@@ -254,10 +272,12 @@ namespace Eu.EDelivery.AS4.Steps.Submit
 
             if (pmodeParty?.PartyIds.Any() == false)
             {
-                
-                throw new ConfigurationErrorsException(
-                    "Cannot retrieve SMP metadata: SendingPMode must contain at lease one "
+                Logger.Error(
+                    "Cannot retrieve SMP metadata because SendingPMode must contain at lease one "
                     + "<ToPartyId/> element in the MessagePackaging.PartyInfo.ToParty element");
+
+                throw new ConfigurationErrorsException(
+                    "Cannot retrieve SMP metadata because the message is referencing an incomplete SendingPMode");
             }
 
             Logger.Debug("Resolve ToParty in non-Forwarding scenario from SendingPMode because SubmitMessage has none");
