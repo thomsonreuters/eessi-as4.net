@@ -1,14 +1,13 @@
-function build-msi (
-    [string] $solutionPath, 
-    [string] $projectPath, 
-    [string] $devEnvPath)
-{
-    $parameters = "/Rebuild Release " + $solutionPath + " /Project " + $projectPath + " /ProjectConfig Release /Out errors.txt"
-    "Process to start [$devEnvPath $parameters]"
-    $process = [System.Diagnostics.Process]::Start($devEnvPath, $parameters)
-    $process.WaitForExit()
+ls
 
-    Get-Content -Path errors.txt
+if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) 
+{ 
+    "Run as Administrator"
+    Start-Process powershell.exe "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`"" -Verb RunAs
+    exit 
 }
 
-build-msi "./source/AS4.sln" "./source/Eu.EDelivery.AS4.WindowsService.Installer/Eu.EDelivery.AS4.WindowsService.Installer.vdproj" "C:/Program Files (x86)/Microsoft Visual Studio/2017/Enterprise/Common7/IDE/devenv.exe"
+$devEnvPath = 'C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\Common7\IDE\devenv.exe'
+& $devEnvPath ./source/as4.sln /Rebuild Release
+
+while (!(Test-Path ./output/Eu.EDelivery.AS4.WindowsService.Installer.msi)) { Start-Sleep -Seconds 5 }
