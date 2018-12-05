@@ -32,7 +32,7 @@ namespace Eu.EDelivery.AS4.PerformanceTests.LargeMessages
         [InlineData(512, Size.MB)]
         [InlineData(1, Size.GB, 50)]
         [InlineData(2, Size.GB, 100)]
-        [InlineData(3, Size.GB, 250)]
+        [InlineData(3, Size.GB, 300)]
         public void TestIncreasingPayloadSize(int unit, Size metric, int pollingRetries = 20)
         {
             _outputHelper.WriteLine("Start Large Message Performance Test: " + unit + metric);
