@@ -47,15 +47,9 @@ namespace Eu.EDelivery.AS4.Receivers.Http.Post
             }
 
             HttpStatusCode statusCode = DetermineStatusCode(context.Exception);
+            const string errorMessage = "something went wrong while processing the request";
 
-            string errorMessage =
-                String.IsNullOrWhiteSpace(context.ErrorResult?.Description) == false
-                    ? context.ErrorResult.Description
-                    : context.Exception != null ?
-                        "something went wrong while processing the request" 
-                        : string.Empty;
-
-            Logger.Error($"Respond with {(int) statusCode} {statusCode} {(String.IsNullOrEmpty(errorMessage) ? String.Empty : errorMessage)}");
+            Logger.Error($"Respond with {(int) statusCode} {statusCode} {errorMessage}");
             return HttpResult.FromBytes(
                 statusCode,
                 Encoding.UTF8.GetBytes(errorMessage),
