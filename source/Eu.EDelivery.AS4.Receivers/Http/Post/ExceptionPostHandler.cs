@@ -51,9 +51,11 @@ namespace Eu.EDelivery.AS4.Receivers.Http.Post
             string errorMessage =
                 String.IsNullOrWhiteSpace(context.ErrorResult?.Description) == false
                     ? context.ErrorResult.Description
-                    : context.Exception?.Message ?? string.Empty;
+                    : context.Exception != null ?
+                        "something went wrong while processing the request" 
+                        : string.Empty;
 
-            Logger.Error($"Respond with {(int) statusCode} {statusCode} {(string.IsNullOrEmpty(errorMessage) ? String.Empty : errorMessage)}");
+            Logger.Error($"Respond with {(int) statusCode} {statusCode} {(String.IsNullOrEmpty(errorMessage) ? String.Empty : errorMessage)}");
             return HttpResult.FromBytes(
                 statusCode,
                 Encoding.UTF8.GetBytes(errorMessage),
