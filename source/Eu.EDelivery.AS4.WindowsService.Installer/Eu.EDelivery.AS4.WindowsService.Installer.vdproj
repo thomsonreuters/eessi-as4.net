@@ -2235,12 +2235,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_53D2A834BB1D444DBD6B1B5BBB64740E"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_53FF28CA59EEFE88E901B14B62D58232"
         "OwnerKey" = "8:_479410DC26144370AE4ECC1C99845003"
         "MsmSig" = "8:_UNDEFINED"
@@ -3563,6 +3557,12 @@
         {
         "MsmKey" = "8:_91C1D86EAF7683310F6B291A73A945D7"
         "OwnerKey" = "8:_F4B4A877B1BF44742D3C536B91DA7DB9"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_934F718F32354C6FBEC2D095CB094AC5"
+        "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -9253,26 +9253,6 @@
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_53D2A834BB1D444DBD6B1B5BBB64740E"
-            {
-            "SourcePath" = "8:..\\..\\output\\staging\\ui\\dist\\polyfills.f49acb8aeb061f0c40eb.bundle.js"
-            "TargetName" = "8:polyfills.f49acb8aeb061f0c40eb.bundle.js"
-            "Tag" = "8:"
-            "Folder" = "8:_8D62C03A60294F99B8B0193A21BB77C7"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_53FF28CA59EEFE88E901B14B62D58232"
             {
             "AssemblyRegister" = "3:1"
@@ -10917,6 +10897,26 @@
             "Register" = "3:1"
             "Exclude" = "11:FALSE"
             "IsDependency" = "11:TRUE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_934F718F32354C6FBEC2D095CB094AC5"
+            {
+            "SourcePath" = "8:..\\..\\output\\staging\\ui\\dist\\polyfills.bundle.js"
+            "TargetName" = "8:polyfills.bundle.js"
+            "Tag" = "8:"
+            "Folder" = "8:_8D62C03A60294F99B8B0193A21BB77C7"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_93963E3DC4E7411B86733819F1EFEE30"
