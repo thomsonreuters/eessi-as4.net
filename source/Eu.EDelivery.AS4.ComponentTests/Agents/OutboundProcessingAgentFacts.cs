@@ -110,8 +110,8 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                 }
             };
             AS4Message multihopMessage = createMessage(multihopPMode);
-
-            var datastoreSpy = new DatabaseSpy(_msh.GetConfiguration());
+            
+            var datastoreSpy = DatabaseSpy.Create(_msh.GetConfiguration());
             OutMessage tobeProcessedEntry = CreateToBeProcessedOutMessage(multihopPMode, multihopMessage);
 
             // Act
