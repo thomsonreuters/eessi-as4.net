@@ -60,11 +60,7 @@ export class SendingPmodeService implements ICrudPmodeService {
     });
   }
   public update(pmode: IPmode, originalName: string): Observable<boolean> {
-    if ((<SendingPmode> pmode).isDynamicDiscoveryEnabled) {
-      (<SendingProcessingMode> pmode.pmode).pushConfiguration = undefined;
-    } else {
-      (<SendingProcessingMode> pmode.pmode).dynamicDiscovery = undefined;
-    }
+    this.preparePModeForValidation(pmode);
 
     let obs = new Subject<boolean>();
     this._http
@@ -85,6 +81,7 @@ export class SendingPmodeService implements ICrudPmodeService {
     return newPmode;
   }
   public create(pmode: IPmode): Observable<boolean> {
+    this.preparePModeForValidation(pmode);
     let obs = new Subject<boolean>();
     this._http.post(`${this.getBaseUrl()}`, pmode).subscribe((result) => {
       this._pmodeStore.setSending(<SendingPmode> pmode);
@@ -124,5 +121,12 @@ export class SendingPmodeService implements ICrudPmodeService {
       return this._baseUrl;
     }
     return `${this._baseUrl}/action`;
+  }
+  private preparePModeForValidation(pmode: IPmode) {
+    if ((<SendingPmode> pmode).isDynamicDiscoveryEnabled) {
+      (<SendingProcessingMode> pmode.pmode).pushConfiguration = undefined;
+    } else {
+      (<SendingProcessingMode> pmode.pmode).dynamicDiscovery = undefined;
+    }
   }
 }

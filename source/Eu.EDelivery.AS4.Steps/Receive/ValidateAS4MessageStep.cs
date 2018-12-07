@@ -86,7 +86,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 }
             }
 
-            Logger.Info($"{context.LogTag} Received AS4Message is valid");
+            Logger.Trace($"{context.LogTag} Received AS4Message is valid");
             return await StepResult.SuccessAsync(context);
         }
 

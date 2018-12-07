@@ -12,7 +12,7 @@ namespace Eu.EDelivery.AS4.WindowsService.SystemTray
     {
         private readonly NotifyIcon _icon;
 
-        private Uri _portalUrl;
+        private string _portalUrl;
 
         public SystemTrayForm()
         {
@@ -111,33 +111,18 @@ namespace Eu.EDelivery.AS4.WindowsService.SystemTray
 
         private void OnOpenPortal(object sender, EventArgs e)
         {
-            Task.Run(() => Process.Start(_portalUrl.OriginalString));
+            Process.Start(_portalUrl);
         }
 
         private void OnConfigure(object sender, EventArgs e)
         {
-            var form = new ConfigurePortalForm();
-            DialogResult dialogResult = form.ShowDialog();
-
-            if (dialogResult == DialogResult.OK)
+            using (var form = new ConfigurePortalForm())
             {
-                if (String.IsNullOrWhiteSpace(form.PortalUrl))
+                DialogResult dialogResult = form.ShowDialog();
+
+                if (dialogResult == DialogResult.OK)
                 {
-                    MessageBox.Show(
-                        @"Cannot configure AS4.NET portal with a empty url",
-                        @"Configuration failure",
-                        MessageBoxButtons.OK);
-                }
-                else if (!Uri.TryCreate(form.PortalUrl, UriKind.RelativeOrAbsolute, out Uri portalUrl))
-                {
-                    MessageBox.Show(
-                        @"Cannot configure AS4.NET portal with an input that's not a valid URL",
-                        @"Configuration failure",
-                        MessageBoxButtons.OK);
-                }
-                else
-                {
-                    _portalUrl = portalUrl;
+                    _portalUrl = form.PortalUrl;
 
                     foreach (MenuItem menuItem in
                         _icon.ContextMenu

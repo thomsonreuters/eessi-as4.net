@@ -14,10 +14,11 @@ using NLog;
 namespace Eu.EDelivery.AS4.Watchers
 {
     /// <summary>
-    /// Watcher to check if there's a new Sending PMode available
+    /// Watcher to check if there's a new <see cref="SendingProcessingMode"/>/<see cref="ReceivingProcessingMode"/> available
     /// </summary>
-    /// <typeparam name="T"></typeparam>
-    public class PModeWatcher<T> : IDisposable where T : class, IPMode
+    /// <typeparam name="T">PMode type that's either a <see cref="SendingProcessingMode"/> or a <see cref="ReceivingProcessingMode"/></typeparam>
+    /// TODO: moves the initial pmode loading to a factory method instead of overloading the ctor of this type.
+    internal class PModeWatcher<T> : IDisposable where T : class, IPMode
     {
         private readonly ConcurrentDictionary<string, ConfiguredPMode> _pmodes = new ConcurrentDictionary<string, ConfiguredPMode>(StringComparer.OrdinalIgnoreCase);
         private readonly ConcurrentDictionary<string, string> _filePModeIdMap = new ConcurrentDictionary<string, string>();
@@ -25,12 +26,24 @@ namespace Eu.EDelivery.AS4.Watchers
         private readonly AbstractValidator<T> _pmodeValidator;
         private readonly FileSystemWatcher _watcher;
 
+        // ReSharper disable once StaticMemberInGenericType - same instance will be used for the same generic type but it's not a problem.
+        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+        private static readonly XmlSerializer XmlSerializer = new XmlSerializer(typeof(T));
+        private static readonly string PModeName = 
+            typeof(T) == typeof(SendingProcessingMode) 
+                ? "SendingPMode" 
+                : typeof(T) == typeof(ReceivingProcessingMode)
+                    ? "ReceivingPMode"
+                    : "PMode";
+
         /// <summary>
         /// Initializes a new instance of the <see cref="PModeWatcher{T}" /> class
         /// </summary>
         /// <param name="path">The path on which this watcher should look for <see cref="IPMode"/> implementations.</param>
         /// <param name="validator">The validator to use when retrieving <see cref="IPMode"/> implementations.</param>
-        public PModeWatcher(string path, AbstractValidator<T> validator)
+        internal PModeWatcher(
+            string path, 
+            AbstractValidator<T> validator)
         {
             _pmodeValidator = validator;
 
@@ -38,23 +51,27 @@ namespace Eu.EDelivery.AS4.Watchers
             _watcher.Changed += OnChanged;
             _watcher.Created += OnCreated;
             _watcher.Deleted += OnDeleted;
-            _watcher.NotifyFilter = GetNotifyFilters();
+            _watcher.NotifyFilter =
+                NotifyFilters.LastAccess
+                | NotifyFilters.LastWrite
+                | NotifyFilters.FileName
+                | NotifyFilters.DirectoryName;
 
             RetrievePModes(_watcher.Path);
         }
 
         /// <summary>
-        /// Starts this instance.
+        /// Start watching for pmodes.
         /// </summary>
-        public void Start()
+        internal void Start()
         {
             _watcher.EnableRaisingEvents = true;
         }
 
         /// <summary>
-        /// Stops this instance.
+        /// Stop watching for pmodes
         /// </summary>
-        public void Stop()
+        internal void Stop()
         {
             _watcher.EnableRaisingEvents = false;
         }
@@ -63,8 +80,8 @@ namespace Eu.EDelivery.AS4.Watchers
         /// Verify if the Watcher contains a <see cref="IPMode"/> for a given <paramref name="id"/>.
         /// </summary>
         /// <param name="id">Id for which the verification is done.</param>
-        /// <returns></returns>
-        public bool ContainsPMode(string id)
+        /// <returns>A value indicating whether or not there exists a <see cref="T"/> for this <paramref name="id"/>.</returns>
+        internal bool ContainsPMode(string id)
         {
             return _pmodes.ContainsKey(id);
         }
@@ -73,13 +90,12 @@ namespace Eu.EDelivery.AS4.Watchers
         /// Gets the <see cref="ConfiguredPMode"/> entry for a given <paramref name="key"/>.
         /// </summary>
         /// <param name="key">The key.</param>
-        /// <returns></returns>
         /// <exception cref="ArgumentException">The specified PMode key is invalid. - key</exception>
-        public ConfiguredPMode GetPModeEntry(string key)
+        internal ConfiguredPMode GetPModeEntry(string key)
         {
             if (String.IsNullOrWhiteSpace(key))
             {
-                throw new ArgumentException(@"The specified PMode key is invalid.", nameof(key));
+                throw new ArgumentException($@"The specified {PModeName} key is invalid.", nameof(key));
             }
 
             _pmodes.TryGetValue(key, out ConfiguredPMode configuredPMode);
@@ -90,7 +106,7 @@ namespace Eu.EDelivery.AS4.Watchers
         /// Gets the p modes cached inside the watcher.
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<IPMode> GetPModes()
+        internal IEnumerable<IPMode> GetPModes()
         {
             return _pmodes.Values.Select(p => p.PMode);
         }
@@ -114,15 +130,9 @@ namespace Eu.EDelivery.AS4.Watchers
             }
             catch (Exception ex)
             {
-                LogManager.GetCurrentClassLogger().Error($"An error occured while trying to get PMode files: {ex.Message}");
+                Logger.Error($"An error occured while trying to get {PModeName} files: {ex.Message}");
                 return new List<FileInfo>();
             }
-        }
-
-        private static NotifyFilters GetNotifyFilters()
-        {
-            return NotifyFilters.LastAccess | NotifyFilters.LastWrite |
-                    NotifyFilters.FileName | NotifyFilters.DirectoryName;
         }
 
         private void OnCreated(object sender, FileSystemEventArgs e)
@@ -141,7 +151,7 @@ namespace Eu.EDelivery.AS4.Watchers
 
             if (key != null)
             {
-                LogManager.GetCurrentClassLogger().Trace($"Remove {typeof(T).Name} with Id: " + key);
+                Logger.Trace($"Remove {PModeName} with Id: " + key);
                 _pmodes.TryRemove(key, out _);
             }
         }
@@ -154,7 +164,7 @@ namespace Eu.EDelivery.AS4.Watchers
             {
                 if (_fileEventCache.Contains(fullPath))
                 {
-                    LogManager.GetCurrentClassLogger().Trace($"PMode {fullPath} has already been handled.");
+                    Logger.Trace($"{PModeName} {fullPath} has already been handled.");
                     return;
                 }
 
@@ -164,7 +174,7 @@ namespace Eu.EDelivery.AS4.Watchers
             T pmode = TryDeserialize(fullPath);
             if (pmode == null)
             {
-                LogManager.GetCurrentClassLogger().Warn("File at: '" + fullPath + "' cannot be converted to a PMode because the XML in the file isn't valid.");
+                Logger.Warn($"File at: \'{fullPath}\' cannot be converted to a {PModeName} because the XML in the file isn\'t valid.");
 
                 // Since the PMode that we expect in this file is invalid, it
                 // must be removed from our cache.
@@ -175,7 +185,7 @@ namespace Eu.EDelivery.AS4.Watchers
             ValidationResult pmodeValidation = _pmodeValidator.Validate(pmode);
             if (!pmodeValidation.IsValid)
             {
-                LogManager.GetCurrentClassLogger().Warn("Invalid PMode at: '" + fullPath + "'");
+                Logger.Warn($"Invalid {PModeName} at: \'{fullPath}\'");
                 pmodeValidation.LogErrors(LogManager.GetCurrentClassLogger());
 
                 // Since the PMode that we expect isn't valid according to the validator, it
@@ -188,13 +198,11 @@ namespace Eu.EDelivery.AS4.Watchers
 
             if (_pmodes.ContainsKey(pmode.Id))
             {
-                LogManager.GetCurrentClassLogger().Warn($"There already exists a configured PMode with id {pmode.Id}.");
-                LogManager.GetCurrentClassLogger()
-                          .Warn($"Existing PMode will be overwritten with PMode from {fullPath}");
+                Logger.Warn($"Existing PMode {pmode.Id} will be overwritten with PMode from {fullPath}");
             }
             else
             {
-                LogManager.GetCurrentClassLogger().Trace($"Add new {typeof(T).Name} with Id: " + pmode.Id);
+                Logger.Trace($"Add new {PModeName} with Id: " + pmode.Id);
             }
 
             _pmodes.AddOrUpdate(pmode.Id, configuredPMode, (key, value) => configuredPMode);
@@ -213,17 +221,53 @@ namespace Eu.EDelivery.AS4.Watchers
         {
             try
             {
-                return Deserialize(path);
+                var retryCount = 0;
+                while (IsFileLocked(path) && retryCount < 10)
+                {
+                    // Wait till the file lock is released ...
+                    System.Threading.Thread.Sleep(50);
+                    retryCount++;
+                }
+
+                void OnUnknownXmlElement(object sender, XmlElementEventArgs e)
+                {
+                    if (e.Element.LocalName == "SendingPMode"
+                        && e.ObjectBeingDeserialized is ReplyHandling)
+                    {
+                        Logger.Warn(
+                            $"ReceivingPMode at {path} still has a ReplyHandling.SendingPMode element."
+                            + $"{Environment.NewLine} SendingPModes are not used anymore for responding to AS4 messages. "
+                            + "Please upgrade your PMode by executing the script ./scripts/copy-responsepmode-to-receivingpmode.ps1."
+                            + $"{Environment.NewLine} For more information see the wiki section: \"Remove Sending PMode as responding PMode\"");
+                    }
+                    else
+                    {
+                        Logger.Warn(
+                            $"Unknown XML element found while deserializing the {PModeName} -> {e.Element.LocalName} "
+                            + $"at {path} ({e.LineNumber},{e.LinePosition}). {Environment.NewLine} "
+                            + $"Expected elements: {Environment.NewLine} - {e.ExpectedElements.Replace(", ", Environment.NewLine + " - ")}");
+                    }
+
+                }
+
+                using (var fileStream = new FileStream(path, FileMode.Open, FileAccess.Read))
+                {
+                    XmlSerializer.UnknownElement += OnUnknownXmlElement;
+                    var result = XmlSerializer.Deserialize(fileStream) as T;
+                    XmlSerializer.UnknownElement -= OnUnknownXmlElement;
+
+                    return result;
+                }
             }
             catch (Exception ex)
             {
-                var logger = LogManager.GetCurrentClassLogger();
-                logger.Error($"An error occured while deserializing PMode {path}");
-                logger.Error(ex.Message);
+                Logger.Error($"An error occured while deserializing {PModeName} at {path}");
+                Logger.Error(ex.Message);
                 if (ex.InnerException != null)
                 {
-                    logger.Error(ex.InnerException.Message);
+                    Logger.Error(ex.InnerException.Message);
                 }
+
                 return null;
             }
         }
@@ -252,24 +296,6 @@ namespace Eu.EDelivery.AS4.Watchers
             }
         }
 
-        private static T Deserialize(string path)
-        {
-            int retryCount = 0;
-
-            while (IsFileLocked(path) && retryCount < 10)
-            {
-                // Wait till the filelock is released ...
-                System.Threading.Thread.Sleep(50);
-                retryCount++;
-            }
-
-            using (var fileStream = new FileStream(path, FileMode.Open, FileAccess.Read))
-            {
-                var serializer = new XmlSerializer(typeof(T));
-                return serializer.Deserialize(fileStream) as T;
-            }
-        }
-
         public void Dispose()
         {
             Dispose(true);
@@ -281,7 +307,7 @@ namespace Eu.EDelivery.AS4.Watchers
             if (disposing)
             {
                 _pmodes.Clear();
-                _filePModeIdMap.Clear();                
+                _filePModeIdMap.Clear();
                 _watcher?.Dispose();
             }
         }

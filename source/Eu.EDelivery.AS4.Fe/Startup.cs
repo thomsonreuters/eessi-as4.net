@@ -1,7 +1,4 @@
-﻿using System;
-using System.Net;
-using System.Security.Claims;
-using Eu.EDelivery.AS4.Fe;
+﻿using System.Net;
 using Eu.EDelivery.AS4.Fe.Authentication;
 using Eu.EDelivery.AS4.Fe.Controllers;
 using Eu.EDelivery.AS4.Fe.Logging;
@@ -11,20 +8,17 @@ using Eu.EDelivery.AS4.Fe.Runtime;
 using Eu.EDelivery.AS4.Fe.Settings;
 using Eu.EDelivery.AS4.Model.PMode;
 using Microsoft.AspNet.SignalR;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 
 namespace Eu.EDelivery.AS4.Fe
@@ -63,6 +57,7 @@ namespace Eu.EDelivery.AS4.Fe
 #endif
             }, out config);
             Configuration = config;
+            services.Configure<ApplicationSettings>(Configuration.GetSection("Settings"));
 
             services
                 .AddMvc(options => { options.Filters.Add(new AuthorizeFilter(new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build())); })
@@ -72,9 +67,12 @@ namespace Eu.EDelivery.AS4.Fe
             services.AddScoped<ISettingsSource, FileSettingsSource>();
             services.AddScoped<IPortalSettingsService, PortalSettingsService>();
             services.AddScoped<ITokenService, TokenService>();
-            services.AddSingleton<IRuntimeLoader, RuntimeLoader>();
+            
 
-            services.Configure<ApplicationSettings>(Configuration.GetSection("Settings"));
+            var runtimeLoader = RuntimeLoader.Initialize(services.BuildServiceProvider().GetService<IOptions<ApplicationSettings>>());
+            services.AddSingleton<IRuntimeLoader, RuntimeLoader>(_ => runtimeLoader);
+
+            
             services.Configure<PortalSettings>(Configuration.Bind);
             services.AddOptions();
 

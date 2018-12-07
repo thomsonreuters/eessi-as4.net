@@ -25,7 +25,12 @@ describe('pmode tests', () => {
 
   [
     { path: 'receiving', handling: 'Message handling' },
-    { path: 'receiving', handling: 'Reply handling' },
+    {
+      path: 'receiving',
+      handling: 'Reply handling',
+      action: () =>
+        cy.getdatacy('replyPattern').select('PiggyBack', { force: true })
+    },
     { path: 'receiving', handling: 'Exception handling' },
     { path: 'sending', handling: 'Receipt handling' },
     { path: 'sending', handling: 'Error handling' },
@@ -34,6 +39,10 @@ describe('pmode tests', () => {
     it('enables ' + x.handling + ' retry on enable', () => {
       cy.visit('/pmodes/' + x.path);
       cy.getdatacy('select-pmodes').select('02-sample-pmode', { force: true });
+
+      if (x.action !== undefined) {
+        x.action();
+      }
 
       testDefaultRetryReliability(x.handling);
     });
@@ -74,11 +83,11 @@ describe('pmode tests', () => {
 
   it('should show response configuration and signing when selecting callback response pattern', () => {
     cy.visit('/pmodes/receiving');
-    cy.getdatacy('select-pmodes').select('03-sample.pmode', { force: true });
+    cy.getdatacy('select-pmodes').select('03-sample-pmode', { force: true });
 
     withinTab('Reply handling', () => {
       cy.getdatacy('replyPattern').select('Callback', { force: true });
-      cy.getdatacy('responseConfiguration.protocol.url');
+      cy.getdatacy('reponseConfiguration.protocol.url');
       cy.getdatacy('responseSigning.certificateFindValue');
     });
   });

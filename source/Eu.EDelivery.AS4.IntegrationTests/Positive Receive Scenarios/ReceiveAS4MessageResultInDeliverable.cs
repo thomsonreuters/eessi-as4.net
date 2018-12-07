@@ -28,7 +28,6 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Receive_Scenarios
             // Assert
             await PollingService.PollUntilPresentAsync(Holodeck.HolodeckALocations.InputPath);
 
-            Holodeck.AssertReceiptOnHolodeckA();
             Assert.Empty(Directory.GetFiles(AS4Component.FullInputPath, "*.xml"));
         }
 

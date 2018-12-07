@@ -28,7 +28,6 @@ namespace Eu.EDelivery.AS4.Steps.Receive
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
         private readonly Func<DatastoreContext> _storeExpression;
-        private readonly IConfig _config;
         private readonly IAS4MessageBodyStore _bodyStore;
 
         /// <summary>
@@ -37,28 +36,20 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         public VerifySignatureAS4MessageStep()
             : this(
                 Registry.Instance.CreateDatastoreContext,
-                Config.Instance,
                 Registry.Instance.MessageBodyStore) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="VerifySignatureAS4MessageStep" /> class.
         /// </summary>
         /// <param name="createContext">The create context.</param>
-        /// <param name="config">The configuration.</param>
         /// <param name="bodyStore">The body store.</param>
         public VerifySignatureAS4MessageStep(
             Func<DatastoreContext> createContext,
-            IConfig config,
             IAS4MessageBodyStore bodyStore)
         {
             if (createContext == null)
             {
                 throw new ArgumentNullException(nameof(createContext));
-            }
-
-            if (config == null)
-            {
-                throw new ArgumentNullException(nameof(config));
             }
 
             if (bodyStore == null)
@@ -67,7 +58,6 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             }
 
             _storeExpression = createContext;
-            _config = config;
             _bodyStore = bodyStore;
         }
 
@@ -78,11 +68,18 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
-            if (messagingContext?.AS4Message == null)
+            if (messagingContext == null)
+            {
+                throw new ArgumentNullException(nameof(messagingContext));
+            }
+
+            if (messagingContext.AS4Message == null)
             {
                 throw new InvalidOperationException(
                     $"{nameof(VerifySignatureAS4MessageStep)} requires an AS4Message to verify but no AS4Message is present in the MessagingContext");
             }
+
+            AS4Message as4Message = messagingContext.AS4Message;
 
             SigningVerification verification = DetermineSigningVerification(messagingContext);
             if (verification == null)
@@ -90,8 +87,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 Logger.Debug("No PMode.Security.SigningVerification element found, so no signature verification will take place");
                 return StepResult.Success(messagingContext);
             }
-
-            AS4Message as4Message = messagingContext.AS4Message;
+            
             (bool unsignedButRequired, string desRequired) = SigningRequiredRule(verification, as4Message);
             if (unsignedButRequired)
             {
@@ -99,32 +95,34 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                     desRequired, ErrorAlias.PolicyNonCompliance, messagingContext);
             }
 
-            (bool signedMessageButUnallowed, string desUnallowed) = SigningUnallowedRule(verification, as4Message);
-            if (signedMessageButUnallowed)
+            (bool signedMessageButNotAllowed, string desNotAllowed) = SigningNotAllowedRule(verification, as4Message);
+            if (signedMessageButNotAllowed)
             {
-                return InvalidSignatureResult(
-                    desUnallowed, ErrorAlias.PolicyNonCompliance, messagingContext);
+                return InvalidSignatureResult(desNotAllowed, ErrorAlias.PolicyNonCompliance, messagingContext);
             }
 
-            if (!as4Message.IsSigned || verification?.Signature == Limit.Ignored)
+            if (!as4Message.IsSigned)
             {
-                Logger.Debug(
-                    "No signature verification will take place for unsiged messages " + 
-                    "or PModes that has a SigningVerification=Ignored");
+                Logger.Debug("Signature will not be verified since the message is not signed");
+                return StepResult.Success(messagingContext);
+            }
 
+            if (verification.Signature == Limit.Ignored)
+            {
+                Logger.Debug("Signature will not be verified because the PMode states that Security.SigningVerification=Ignored");
                 return StepResult.Success(messagingContext);
             }
 
             if (as4Message.MessageUnits.Any(u => u is Receipt) &&
                 (messagingContext.SendingPMode?.ReceiptHandling?.VerifyNRR ?? false))
             {
-                if (!await VerifyNonRepudiationHashes(as4Message))
+                if (!await VerifyNonRepudiationHashesAsync(as4Message))
                 {
                     Logger.Error($"{messagingContext.LogTag} Incoming Receipt hasn't got valid NRI References");
 
                     return InvalidSignatureResult(
                         "The digest value in the Signature References of the referenced UserMessage " +
-                        "doesn't match the References of the NRI of the incoming NRR Receipt",
+                        "doesn't match the References of the NRI of the incoming Non-Repudiation Receipt",
                         ErrorAlias.FailedAuthentication,
                         messagingContext);
                 }
@@ -132,7 +130,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 Logger.Debug($"{messagingContext.LogTag} Incoming Receipt has valid NRI References");
             }
 
-            return await TryVerifyingSignature(messagingContext, verification).ConfigureAwait(false);
+            return await TryVerifyingSignatureAsync(messagingContext, verification).ConfigureAwait(false);
         }
 
         private static SigningVerification DetermineSigningVerification(MessagingContext ctx)
@@ -150,26 +148,24 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
         private static (bool, string) SigningRequiredRule(SigningVerification v, AS4Message m)
         {
-            return (
-                v.Signature == Limit.Required && !m.IsSigned, 
-                "PMode requires a signed AS4Message but the received AS4message is not signed");
+            return (v.Signature == Limit.Required && !m.IsSigned,
+                    "PMode requires a signed AS4Message but the received AS4message is not signed");
         }
 
-        private static (bool, string) SigningUnallowedRule(SigningVerification v, AS4Message m)
+        private static (bool, string) SigningNotAllowedRule(SigningVerification v, AS4Message m)
         {
-            return (
-                v.Signature == Limit.NotAllowed && m.IsSigned,
-                "PMode doesn't allow a signed AS4Message and the received AS4Message is signed");
+            return (v.Signature == Limit.NotAllowed && m.IsSigned,
+                    "PMode doesn't allow a signed AS4Message and the received AS4Message is signed");
         }
 
-        private async Task<bool> VerifyNonRepudiationHashes(AS4Message as4Message)
+        private async Task<bool> VerifyNonRepudiationHashesAsync(AS4Message as4Message)
         {
             IEnumerable<Receipt> receipts = as4Message.SignalMessages
                 .Where(m => m is Receipt r && r.NonRepudiationInformation != null)
                 .Cast<Receipt>();
 
             IEnumerable<AS4Message> userMessages =
-                (await ReferencedUserMessagesOf(receipts)).Where(m => m != null && m.IsSigned);
+                (await GetReferencedUserMessagesAsync(receipts)).Where(m => m != null && m.IsSigned);
 
             if (!userMessages.Any())
             {
@@ -186,7 +182,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             });
         }
 
-        private async Task<IEnumerable<AS4Message>> ReferencedUserMessagesOf(IEnumerable<Receipt> receipts)
+        private async Task<IEnumerable<AS4Message>> GetReferencedUserMessagesAsync(IEnumerable<Receipt> receipts)
         {
             using (DatastoreContext context = _storeExpression())
             {
@@ -199,7 +195,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             }
         }
 
-        private static async Task<StepResult> TryVerifyingSignature(
+        private static async Task<StepResult> TryVerifyingSignatureAsync(
             MessagingContext messagingContext,
             SigningVerification verification)
         {
@@ -217,7 +213,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                         messagingContext);
                 }
 
-                Logger.Info($"{messagingContext.LogTag} AS4Message has a valid Signature present");
+                Logger.Info($"{messagingContext.LogTag} AS4Message has a valid signature present");
 
                 JournalLogEntry entry = 
                     JournalLogEntry.CreateFrom(
@@ -230,6 +226,14 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             }
             catch (CryptographicException exception)
             {
+                if (messagingContext.AS4Message.IsEncrypted)
+                {
+                    Logger.Error(
+                        "Signature verification failed because the received message is still encrypted. "
+                        + "Make sure that you specify <Decryption/> information in the <Security/> element of the "
+                        + "ReceivingPMode so the ebMS MessagingHeader is first decrypted before it's signature gets verified");
+                }
+
                 Logger.Error($"{messagingContext.LogTag} An exception occured while validating the signature: {exception.Message}");
                 return InvalidSignatureResult(
                     exception.Message, 
@@ -241,12 +245,9 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         private static VerifySignatureConfig CreateVerifyOptionsForAS4Message(AS4Message as4Message, SigningVerification v)
         {
             bool allowUnknownRootCertificateAuthority = 
-                v?.AllowUnknownRootCertificate
-                ?? new SigningVerification().AllowUnknownRootCertificate;
+                v?.AllowUnknownRootCertificate ?? new SigningVerification().AllowUnknownRootCertificate;
 
-            return new VerifySignatureConfig(
-                allowUnknownRootCertificateAuthority,
-                as4Message.Attachments);
+            return new VerifySignatureConfig(allowUnknownRootCertificateAuthority, as4Message.Attachments);
         }
 
         private static StepResult InvalidSignatureResult(string description, ErrorAlias errorAlias, MessagingContext context)

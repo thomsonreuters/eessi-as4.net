@@ -61,6 +61,7 @@
     <Compile Include="Http\Get\GetImageHandler.cs" />
     <Compile Include="Http\HttpResult.cs" />
     <Compile Include="Http\Get\IHttpGetHandler.cs" />
+    <Compile Include="Http\Post\AcceptedResponseHandler.cs" />
     <Compile Include="Http\Post\AsyncSignalResponseHandler.cs" />
     <Compile Include="Http\Post\ExceptionPostHandler.cs" />
     <Compile Include="Http\Post\ForwardMessageResponseHandler.cs" />

@@ -1,4 +1,4 @@
-import { Component, Inject, OnDestroy, OnInit, OpaqueToken } from '@angular/core';
+import { Component, Inject, Input, OnDestroy, OnInit, OpaqueToken } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs/Subscription';
@@ -15,44 +15,99 @@ export const PMODECRUD_SERVICE = new OpaqueToken('pmodecrudservice');
 @Component({
   selector: 'as4-pmode',
   template: `
-        <as4-modal name="new-pmode" title="Create a new pmode" (shown)="actionType = pmodes[0]; newName = ''; nameInput.focus()" focus>
-            <form class="form-horizontal">
-                <div class="form-group">
-                    <label class="col-xs-2">New name</label>
-                    <div class="col-xs-10">
-                        <input type="text" class="form-control" #nameInput (keyup)="newName = $event.target.value" [value]="newName" focus/>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="col-xs-2">Based on</label>
-                    <div class="col-xs-10">
-                        <select class="form-control" (change)="actionType = $event.target.value" #select>
-                            <option value="">Empty</option>
-                            <option *ngFor="let setting of pmodes" [ngValue]="setting">{{setting}}</option>
-                        </select>
-                    </div>
-                </div>
-            </form>
-        </as4-modal>
-        <as4-input label="Name" runtimeTooltip="receivingprocessingmode.id">
-            <as4-columns noMargin="true">
-                <select class="FormArray-control select-pmode" data-cy="select-pmodes" as4-no-auth (change)="pmodeChanged($event.target.value); pmodeSelect.value = currentPmode && currentPmode.pmode.id" #pmodeSelect>
-                    <option value="undefined">Select an option</option>
-                    <option *ngFor="let pmode of pmodes" [attr.data-cy]="pmode.id" [selected]="pmode === (currentPmode && currentPmode.pmode.id)">{{currentPmode && currentPmode.pmode.id === pmode && !!form && !!form.controls && !!form.controls.pmode && !!form.controls.pmode.controls.id ? form.controls.pmode.controls.id.value : pmode}}</option>
-                </select>
-                <div crud-buttons [form]="form" (add)="add()" (rename)="rename()" (reset)="reset()" (delete)="delete()" (save)="save()" [current]="currentPmode"
-                    [isNewMode]="isNewMode"></div>
-            </as4-columns>
-        </as4-input>
-        <ng-content></ng-content>
-    `
+    <as4-modal
+      name="new-pmode"
+      title="Create a new pmode"
+      (shown)="actionType = pmodes[0]; newName = ''; nameInput.focus()"
+      focus
+    >
+      <form class="form-horizontal">
+        <div class="form-group">
+          <label class="col-xs-2">New name</label>
+          <div class="col-xs-10">
+            <input
+              type="text"
+              class="form-control"
+              #nameInput
+              (keyup)="newName = $event.target.value"
+              [value]="newName"
+              focus
+            />
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="col-xs-2">Based on</label>
+          <div class="col-xs-10">
+            <select
+              class="form-control"
+              (change)="actionType = $event.target.value"
+              #select
+            >
+              <option [selected]="actionType === 'Empty'" value=""
+                >Empty</option
+              >
+              <option
+                [selected]="actionType === setting"
+                *ngFor="let setting of pmodes"
+                [ngValue]="setting"
+                >{{ setting }}</option
+              >
+            </select>
+          </div>
+        </div>
+      </form>
+    </as4-modal>
+    <as4-input label="Name" runtimeTooltip="receivingprocessingmode.id">
+      <as4-columns noMargin="true">
+        <select
+          class="FormArray-control select-pmode"
+          data-cy="select-pmodes"
+          as4-no-auth
+          (change)="
+            pmodeChanged($event.target.value);
+            pmodeSelect.value = currentPmode && currentPmode.pmode.id
+          "
+          #pmodeSelect
+        >
+          <option value="undefined">Select an option</option>
+          <option
+            *ngFor="let pmode of pmodes"
+            [attr.data-cy]="pmode.id"
+            [selected]="pmode === (currentPmode && currentPmode.pmode.id)"
+            >{{
+              currentPmode &&
+              currentPmode.pmode.id === pmode &&
+              !!form &&
+              !!form.controls &&
+              !!form.controls.pmode &&
+              !!form.controls.pmode.controls.id
+                ? form.controls.pmode.controls.id.value
+                : pmode
+            }}</option
+          >
+        </select>
+        <div
+          crud-buttons
+          [form]="form"
+          (add)="add()"
+          (rename)="rename()"
+          (reset)="reset()"
+          (delete)="delete()"
+          (save)="save()"
+          [current]="currentPmode"
+          [isNewMode]="isNewMode"
+        ></div>
+      </as4-columns>
+    </as4-input>
+    <ng-content></ng-content>
+  `
 })
 export class CrudComponent implements OnInit, OnDestroy {
   public isNewMode: boolean = false;
   public pmodes: string[];
   public form: FormGroup;
   public currentPmode: IPmode | undefined;
-  public actionType: string;
+  @Input() public actionType: string;
   public newName: string;
   private subscriptions: Subscription[] = new Array<Subscription>();
   constructor(
