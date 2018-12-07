@@ -4,7 +4,6 @@ if (!(Test-Path -Path .\staging)) {
     MkDir .\staging
 }
 
-MkDir .\staging
 MkDir .\staging\Assets
 MkDir .\staging\bin
 MkDir .\staging\service-setup
