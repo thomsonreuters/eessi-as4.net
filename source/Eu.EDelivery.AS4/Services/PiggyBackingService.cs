@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
@@ -44,7 +43,7 @@ namespace Eu.EDelivery.AS4.Services
         /// <param name="url">The url at which <see cref="PullRequest"/> are sent.</param>
         /// <param name="bodyStore">The body store at which the <see cref="SignalMessage"/>s are persisted.</param>
         /// <returns></returns>
-        public async Task<IEnumerable<SignalMessage>> SelectToBePiggyBackedSignalMessagesAsync(
+        public async Task<IEnumerable<AS4Message>> SelectToBePiggyBackedSignalMessagesAsync(
             PullRequest pr, 
             string url,
             IAS4MessageBodyStore bodyStore)
@@ -70,7 +69,7 @@ namespace Eu.EDelivery.AS4.Services
                     db.NativeCommands
                       .SelectToBePiggyBackedSignalMessages(url, pr.Mpc);
 
-                var signals = new Collection<SignalMessage>();
+                var signals = new Collection<AS4Message>();
                 foreach (OutMessage found in query)
                 {
                     found.Operation = Operation.Sending;
@@ -82,26 +81,7 @@ namespace Eu.EDelivery.AS4.Services
                               .Get(found.ContentType)
                               .DeserializeAsync(body, found.ContentType);
 
-                    if (signal.PrimaryMessageUnit is Receipt r)
-                    {
-                        Logger.Debug($"Select Receipt {r.MessageId} for PiggyBacking");
-                        signals.Add(r);
-                    }
-                    else if (signal.PrimaryMessageUnit is Error e)
-                    {
-                        Logger.Debug($"Select Error {e.MessageId} for PiggyBacking");
-                        signals.Add(e);
-                    }
-                    else if (signal.PrimaryMessageUnit != null)
-                    {
-                        Logger.Warn(
-                            $"Will not select {signal.PrimaryMessageUnit.GetType().Name} because only "
-                            + "Receipts and Errors are allowed SignalMessages are allowed to be PiggyBacked with PullRequests");
-                    }
-                    else
-                    {
-                        Logger.Warn("Will not select AS4Message for PiggyBacking because it doesn't contains any Message Units");
-                    }
+                    signals.Add(signal);
                 }
 
                 if (query.Any())

@@ -1,17 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
-using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Services;
+using Eu.EDelivery.AS4.Strategies.Sender;
 using NLog;
 
 namespace Eu.EDelivery.AS4.Steps.Send
 {
+    /// <summary>
+    /// Adds piggy-backed ebMS signal messages to the <see cref="PullRequest"/> for signal messages that are responses
+    /// of ebMS user messages that matches the <see cref="PullRequest.Mpc"/>.
+    /// </summary>
     public class BundleSignalMessageToPullRequestStep : IStep
     {
         private readonly Func<DatastoreContext> _createContext;
@@ -28,8 +33,8 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// <summary>
         /// Initializes a new instance of the <see cref="BundleSignalMessageToPullRequestStep"/> class.
         /// </summary>
-        /// <param name="createContext"></param>
-        /// <param name="bodyStore"></param>
+        /// <param name="createContext">The create datastore context function.</param>
+        /// <param name="bodyStore">The store to use for persisting messages.</param>
         public BundleSignalMessageToPullRequestStep(Func<DatastoreContext> createContext, IAS4MessageBodyStore bodyStore)
         {
             if (createContext == null)
@@ -72,17 +77,57 @@ namespace Eu.EDelivery.AS4.Steps.Send
                     + "AS4Message but there's not a PullRequest present in the MessagingContext");
             }
 
-            using (DatastoreContext ctx = _createContext())
+            string url = messagingContext.SendingPMode?.PushConfiguration?.Protocol?.Url;
+            bool pullRequestSigned = messagingContext.SendingPMode?.Security?.Signing?.IsEnabled == true;
+
+            using (DatastoreContext db = _createContext())
             {
-                var service = new PiggyBackingService(ctx);
-                string url = messagingContext.SendingPMode?.PushConfiguration?.Protocol?.Url;
-                IEnumerable<SignalMessage> signalMessages = 
+                var service = new PiggyBackingService(db);
+                IEnumerable<AS4Message> signals = 
                     await service.SelectToBePiggyBackedSignalMessagesAsync(pullRequest, url, _bodyStore);
 
-                foreach (SignalMessage signal in signalMessages)
+                var resetSignals = new Collection<MessageUnit>();
+                foreach (AS4Message signal in signals)
                 {
-                    Logger.Info($"PiggyBack the {signal.GetType().Name} which reference UserMessage \"{signal.RefToMessageId}\" to the PullRequest");
-                    messagingContext.AS4Message.AddMessageUnit(signal);
+                    var toBePiggyBacked = signal.PrimaryMessageUnit;
+                    if (toBePiggyBacked is Receipt || toBePiggyBacked is Error)
+                    {
+                        if (!pullRequestSigned && signal.IsSigned)
+                        {
+                            Logger.Warn(
+                                $"Can't PiggyBack {toBePiggyBacked.GetType().Name} {toBePiggyBacked.MessageId} because SignalMessage is signed "
+                                + $"while the SendingPMode {messagingContext.SendingPMode?.Id} used is not configured for signing");
+
+                            resetSignals.Add(toBePiggyBacked);
+                        }
+                        else
+                        {
+                            Logger.Info(
+                                $"PiggyBack the {toBePiggyBacked.GetType().Name} which reference "
+                                + $"UserMessage \"{toBePiggyBacked.RefToMessageId}\" to the PullRequest");
+
+                            messagingContext.AS4Message.AddMessageUnit(toBePiggyBacked);
+                        }
+                    }
+                    else if (toBePiggyBacked != null)
+                    {
+                        Logger.Warn(
+                            $"Will not select {toBePiggyBacked.GetType().Name} {toBePiggyBacked.MessageId} "
+                            + "for PiggyBacking because only Receipts and Errors are allowed SignalMessages to be PiggyBacked with PullRequests");
+                    }
+                    else
+                    {
+                        Logger.Warn("Will not select AS4Message for PiggyBacking because it doesn't contains any Message Units");
+                    }
+                }
+
+                if (resetSignals.Any())
+                {
+                    service.ResetSignalMessagesToBePiggyBacked(
+                        resetSignals.Where(s => s is SignalMessage).Cast<SignalMessage>(),
+                        SendResult.RetryableFail);
+
+                    await db.SaveChangesAsync().ConfigureAwait(false);
                 }
 
                 return StepResult.Success(messagingContext);
