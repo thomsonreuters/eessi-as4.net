@@ -304,7 +304,8 @@ namespace Eu.EDelivery.AS4.Steps.Submit
     /// <summary>
     /// Represents a exception that occurs during the dynamic discovery process.
     /// </summary>
-    internal class DynamicDiscoveryException : Exception
+    [Serializable]
+    public class DynamicDiscoveryException : Exception
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="DynamicDiscoveryException"/> class.
