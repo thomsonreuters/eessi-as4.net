@@ -9,11 +9,16 @@ namespace Eu.EDelivery.AS4.WindowsService.SystemTray
         {
             InitializeComponent();
 
-            txtPortal.Focus();
-            btnOK.Click += BtnOK_Click;
+            Shown += OnFormShow;
+            btnOK.Click += OnBtnOK_Click;
         }
 
-        private void BtnOK_Click(object sender, EventArgs e)
+        private void OnFormShow(object sender, EventArgs args)
+        {
+            txtPortal.Focus();
+        }
+
+        private void OnBtnOK_Click(object sender, EventArgs e)
         {
             if (String.IsNullOrWhiteSpace(PortalUrl))
             {
@@ -35,6 +40,10 @@ namespace Eu.EDelivery.AS4.WindowsService.SystemTray
             }
         }
 
-        public string PortalUrl => txtPortal.Text;
+        public string PortalUrl
+        {
+            get => txtPortal.Text;
+            set => txtPortal.Text = value;
+        }
     }
 }
