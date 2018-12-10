@@ -115,25 +115,25 @@ namespace Eu.EDelivery.AS4.Transformers
                 }
                 else
                 {
-                    string description =
-                        $"ReceivingPMode with Id: {ReceivingPMode} was configured as default PMode, "
-                        + $"{Environment.NewLine}but this PMode cannot be found in the configured receiving PModes.";
-
                     Logger.Error(
-                        $"{description} "
-                        + $"{Environment.NewLine} Configured Receiving PModes are placed on the folder: '.\\config\\receive-pmodes\\'.");
+                        $"ReceivingPMode with Id: {ReceivingPMode} was configured as default PMode, but this PMode cannot be found in the configured receiving PModes."
+                        + $"{Environment.NewLine}Configured Receiving PModes are placed on the folder: '.\\config\\receive-pmodes\\'.");
 
-                    var errorResult = new ErrorResult(description, ErrorAlias.ProcessingModeMismatch);
+                    var errorResult = new ErrorResult(
+                        "Static configured ReceivingPMode cannot be found", 
+                        ErrorAlias.ProcessingModeMismatch);
+
                     var as4Error = new Error(
                         IdentifierFactory.Instance.Create(),
                         as4Message.GetPrimaryMessageId() ?? IdentifierFactory.Instance.Create(),
                         ErrorLine.FromErrorResult(errorResult));
 
                     return new MessagingContext(
-                        AS4Message.Create(as4Error), MessagingContextMode.Receive)
-                        {
-                            ErrorResult = errorResult
-                        };
+                        AS4Message.Create(as4Error), 
+                        MessagingContextMode.Receive)
+                    {
+                        ErrorResult = errorResult
+                    };
                 }
             }
 
