@@ -177,7 +177,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
                     $"An exception occured during the Dynamic Discovery process of the profile: {profile.GetType().Name} "
                     + $"with the message having ToParty={toParty} for SendingPMode {sendingPMode.Id}");
 
-                throw new ApplicationException(
+                throw new DynamicDiscoveryException(
                     "An exception occured during the Dynamic Discovery process", ex);
             }
         }
@@ -299,5 +299,24 @@ namespace Eu.EDelivery.AS4.Steps.Submit
                 throw new InvalidDataException($"{log} has an incomplete ToParty: {ex.Message}");
             }
         }
+    }
+
+    /// <summary>
+    /// Represents a exception that occurs during the dynamic discovery process.
+    /// </summary>
+    internal class DynamicDiscoveryException : Exception
+    {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DynamicDiscoveryException"/> class.
+        /// </summary>
+        /// <param name="message">The message that describes the exception.</param>
+        public DynamicDiscoveryException(string message) : base(message) { }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DynamicDiscoveryException"/> class.
+        /// </summary>
+        /// <param name="message">The message that describes the exception.</param>
+        /// <param name="innerException">The exception that is the cause of the current exception.</param>
+        public DynamicDiscoveryException(string message, Exception innerException) : base(message, innerException) { }
     }
 }
