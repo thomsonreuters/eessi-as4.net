@@ -236,7 +236,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 + $"{Environment.NewLine} See the above trace logging to see for which rules your PMode has accuired points");
 
             return FailedStepResult(
-                "Cannot determine ReceivingPMode because no configured PMode matched the message packaging information enough", 
+                "Cannot determine ReceivingPMode because no configured PMode matched the message packaging information", 
                 messagingContext);
         }
 
