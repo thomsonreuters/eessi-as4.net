@@ -36,9 +36,9 @@ describe('send pmodes', () => {
     cy.fixture('send_pmode').then((json) => {
       cy.getdatacy('select-pmodes').select(json.originalName);
       cy.getdatacy('rename').click();
-      cy
-        .get('div.modal-body input[type=text]')
-        .type('{selectall}' + json.newName);
+      cy.get('div.modal-body input[type=text]').type(
+        '{selectall}' + json.newName
+      );
       cy.getdatacy('ok').click();
       cy.getdatacy('save').click();
       cy.getdatacy('select-pmodes').select(json.newName);
@@ -72,8 +72,7 @@ describe('monitoring', () => {
       cy.server();
       cy.route('/api/monitor/messages?*').as('query');
       cy.getdatacy('search').click();
-      cy
-        .wait('@query')
+      cy.wait('@query')
         .its('url')
         .should(
           'contain',
@@ -90,8 +89,7 @@ describe('monitoring', () => {
       cy.server();
       cy.route('/api/monitor/exceptions?*').as('query');
       cy.getdatacy('search').click();
-      cy
-        .wait('@query')
+      cy.wait('@query')
         .its('url')
         .should(
           'contain',
@@ -100,5 +98,27 @@ describe('monitoring', () => {
             jq.param(json)
         );
     });
+  });
+});
+
+describe('users', () => {
+  beforeEach(() => cy.login());
+
+  it('create new user', () => {
+    cy.visit('/users');
+    cy.getdatacy('new').click({ force: true });
+
+    const guestUsername = 'guest-' + Math.random();
+
+    cy.getdatacy('username').type(guestUsername);
+    cy.getdatacy('ok').click({ force: true });
+
+    cy.getdatacy('roles').select('readonly', { force: true });
+    cy.fixture('login').then((json) => {
+      cy.getdatacy('password').type(json.password);
+    });
+
+    cy.getdatacy('save').click({ force: true });
+    cy.getdatacy('users').should('contain', guestUsername);
   });
 });

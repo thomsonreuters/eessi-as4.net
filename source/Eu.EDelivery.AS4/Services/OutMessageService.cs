@@ -80,7 +80,7 @@ namespace Eu.EDelivery.AS4.Services
 
             if (!messageIds.Any())
             {
-                Logger.Debug("Specified ebMS message identifiers is empty");
+                Logger.Trace("Specified ebMS message identifiers is empty");
                 return Enumerable.Empty<AS4Message>();
             }
 
@@ -133,7 +133,7 @@ namespace Eu.EDelivery.AS4.Services
 
             if (!as4Message.MessageUnits.Any())
             {
-                Logger.Debug("Incoming AS4Message hasn't got any message units to insert");
+                Logger.Trace("Incoming AS4Message hasn't got any message units to insert");
                 return Enumerable.Empty<OutMessage>();
             }
 
@@ -231,13 +231,13 @@ namespace Eu.EDelivery.AS4.Services
         {
             if (sendPMode?.Id != null)
             {
-                Logger.Debug($"Use already set SendingPMode {sendPMode.Id} for inserting OutMessage");
+                Logger.Trace($"Use already set SendingPMode {sendPMode.Id} for inserting OutMessage");
                 return sendPMode;
             }
 
             if (mu is SignalMessage && receivePMode != null)
             {
-                Logger.Debug($"Use ReceivingPMode {receivePMode.Id} to insert with the OutMessage");
+                Logger.Trace($"Use ReceivingPMode {receivePMode.Id} to insert with the OutMessage");
                 return receivePMode;
             }
 
@@ -298,6 +298,11 @@ namespace Eu.EDelivery.AS4.Services
 
                             _repository.InsertRetryReliability(r);
                         }
+                    }
+                    else
+                    {
+                        Logger.Trace(
+                            "Will not insert RetryReliability record for reception awareness since the SendingPMode.Reliability.ReceptionAwareness.IsEnabled = false");
                     }
                 });
         }

@@ -1,18 +1,18 @@
 ﻿using System;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.ServiceProcess;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Eu.EDelivery.AS4.WindowsService.SystemTray.Properties;
-using Newtonsoft.Json.Linq;
 
 namespace Eu.EDelivery.AS4.WindowsService.SystemTray
 {
     public partial class SystemTrayForm : Form
     {
         private readonly NotifyIcon _icon;
+
+        private string _portalUrl;
 
         public SystemTrayForm()
         {
@@ -26,8 +26,19 @@ namespace Eu.EDelivery.AS4.WindowsService.SystemTray
                 ContextMenu = new ContextMenu(
                     new []
                     {
-                        new MenuItem("Start", OnStart),
+                        new MenuItem("Start", OnStart)
+                        {
+                            Name = "Start"
+                        },
                         new MenuItem("Open Portal", OnOpenPortal)
+                        {
+                            Name = "Open Portal",
+                            Enabled = false
+                        },
+                        new MenuItem("Configure", OnConfigure)
+                        {
+                            Name = "Configure"
+                        }
                     })
             };
         }
@@ -100,27 +111,26 @@ namespace Eu.EDelivery.AS4.WindowsService.SystemTray
 
         private void OnOpenPortal(object sender, EventArgs e)
         {
-            // TODO: find out where the url is stored for the portal.
+            Process.Start(_portalUrl);
+        }
 
-            string appsettingsPath = 
-                Path.Combine(
-                    AppDomain.CurrentDomain.BaseDirectory,
-#if DEBUG
-                    "appsettings.Development.json"
-#else
-                    "appsettings.inprocess.json"
-#endif
-                    );
-
-            if (File.Exists(appsettingsPath))
+        private void OnConfigure(object sender, EventArgs e)
+        {
+            using (var form = new ConfigurePortalForm())
             {
-                string json = File.ReadAllText(appsettingsPath);
-                JObject o = JObject.Parse(json);
-                JToken token = o?.SelectToken("$.Port");
-                var port = token?.Value<string>();
-                if (port != null)
+                DialogResult dialogResult = form.ShowDialog();
+
+                if (dialogResult == DialogResult.OK)
                 {
-                    Process.Start(port);
+                    _portalUrl = form.PortalUrl;
+
+                    foreach (MenuItem menuItem in
+                        _icon.ContextMenu
+                             .MenuItems
+                             .Find("Open Portal", searchAllChildren: false))
+                    {
+                        menuItem.Enabled = true;
+                    }
                 }
             }
         }

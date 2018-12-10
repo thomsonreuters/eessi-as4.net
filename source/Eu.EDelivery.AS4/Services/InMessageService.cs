@@ -98,7 +98,7 @@ namespace Eu.EDelivery.AS4.Services
                 .OnLocation(location)
                 .BuildAsDeadLetteredError();
 
-            Logger.Debug($"(Send) Create Error for missed Receipt with {{Operation={inMessage.Operation}}}");
+            Logger.Debug($"Create Error for missed Receipt with {{Operation={inMessage.Operation}}}");
             _repository.InsertInMessage(inMessage);
         }
 
@@ -130,7 +130,7 @@ namespace Eu.EDelivery.AS4.Services
 
             if (originalMessage == null)
             {
-                throw new InvalidOperationException("The MessagingContext must contain a Received Message");
+                throw new InvalidOperationException("The MessagingContext must contain a ReceivedMessage");
             }
 
             if (messageBodyStore == null)
@@ -172,7 +172,7 @@ namespace Eu.EDelivery.AS4.Services
         {
             if (!as4Message.HasUserMessage)
             {
-                Logger.Debug("No UserMessages present to be inserted");
+                Logger.Trace("No UserMessages present to be inserted");
                 return;
             }
 
@@ -183,7 +183,7 @@ namespace Eu.EDelivery.AS4.Services
             {
                 if (userMessage.IsTest)
                 {
-                    Logger.Info($"[{userMessage.MessageId}] Incoming User Message is 'Test Message'");
+                    Logger.Trace($"Incoming UserMessage {userMessage.MessageId} is a 'Test Message'");
                 }
 
                 userMessage.IsDuplicate = IsUserMessageDuplicate(userMessage, duplicateUserMessages);
@@ -197,7 +197,7 @@ namespace Eu.EDelivery.AS4.Services
                         .BuildAsToBeProcessed();
 
                     Logger.Debug(
-                        $"Insert InMessage UserMessage {userMessage.MessageId} with  {{"
+                        $"Insert InMessage UserMessage {userMessage.MessageId} with {{"
                         + $"Operation={inMessage.Operation}, "
                         + $"Status={inMessage.Status}, "
                         + $"PModeId={pmode?.Id}, "
@@ -231,7 +231,7 @@ namespace Eu.EDelivery.AS4.Services
         {
             if (!as4Message.HasSignalMessage)
             {
-                Logger.Debug("No SignalMessages present to be inserted");
+                Logger.Trace("No SignalMessages present to be inserted");
                 return;
             }
 
@@ -369,7 +369,7 @@ namespace Eu.EDelivery.AS4.Services
         {
             if (userMessages.Any() == false)
             {
-                Logger.Debug("No UserMessages present to be delivered");
+                Logger.Trace("No UserMessages present to be delivered");
                 return;
             }
 
@@ -404,12 +404,15 @@ namespace Eu.EDelivery.AS4.Services
                                     retryInterval: reliability.RetryInterval.AsTimeSpan(),
                                     type: RetryType.Delivery);
 
-                                Logger.Debug($"Insert RetryReliability for UserMessage InMessage {r.RefToInMessageId} with {{MaxRetryCount={r.MaxRetryCount}, RetryInterval={r.RetryInterval}}}");
+                                Logger.Debug(
+                                    $"Insert RetryReliability for UserMessage InMessage {r.RefToInMessageId} with {{"
+                                    + $"MaxRetryCount={r.MaxRetryCount}, RetryInterval={r.RetryInterval}}}");
+
                                 _repository.InsertRetryReliability(r);
                             }
                             else
                             {
-                                Logger.Debug(
+                                Logger.Trace(
                                     "Will not insert RetryReliability for UserMessage(s) so it can be retried during delivery "
                                     + $"since the ReceivingPMode {receivingPMode?.Id} MessageHandling.Deliver.Reliability.IsEnabled = false");
                             }
@@ -424,7 +427,7 @@ namespace Eu.EDelivery.AS4.Services
         {
             if (!signalMessages.Any())
             {
-                Logger.Debug("No SignalMessages present to be notified");
+                Logger.Trace("No SignalMessages present to be notified");
                 return;
             }
 
@@ -548,7 +551,7 @@ namespace Eu.EDelivery.AS4.Services
 
             if (isDuplicate)
             {
-                Logger.Info($"[{userMessage.MessageId}] Incoming User Message is a duplicated one");
+                Logger.Debug($"[{userMessage.MessageId}] Incoming User Message is a duplicated one");
             }
 
             return isDuplicate;
@@ -562,7 +565,7 @@ namespace Eu.EDelivery.AS4.Services
             MessageUnit signalMessage,
             IDictionary<string, bool> duplicateSignalMessages)
         {
-            if (string.IsNullOrWhiteSpace(signalMessage.RefToMessageId))
+            if (String.IsNullOrWhiteSpace(signalMessage.RefToMessageId))
             {
                 return false;
             }
@@ -571,7 +574,7 @@ namespace Eu.EDelivery.AS4.Services
 
             if (isDuplicate)
             {
-                Logger.Info($"[{signalMessage.RefToMessageId}] Incoming Signal Message is a duplicated one");
+                Logger.Debug($"[{signalMessage.RefToMessageId}] Incoming Signal Message is a duplicated one");
             }
 
             return isDuplicate;
@@ -584,8 +587,7 @@ namespace Eu.EDelivery.AS4.Services
             if (pmode?.MessageHandling?.DeliverInformation == null)
             {
                 Logger.Debug(
-                    "UserMessage will not be delivered since the " + 
-                    $"ReceivingPMode {pmode?.Id} has not a MessageHandling.Deliver element");
+                    $"UserMessage will not be delivered since the ReceivingPMode {pmode?.Id} has not a MessageHandling.Deliver element");
 
                 return false;
             }

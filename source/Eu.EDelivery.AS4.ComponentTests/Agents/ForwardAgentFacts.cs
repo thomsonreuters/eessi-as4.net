@@ -91,12 +91,12 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                 () => _databaseSpy.GetInMessageFor(
                     m => m.EbmsMessageId == primaryMessageId
                          && m.Operation == Operation.Forwarded),
-                TimeSpan.FromSeconds(15));
+                TimeSpan.FromSeconds(20));
             Assert.NotNull(AS4XmlSerializer.FromString<ReceivingProcessingMode>(primaryInMessage.PMode));
 
             await PollUntilPresent(
                 () => _databaseSpy.GetInMessageFor(m => m.EbmsMessageId == secondMessageId),
-                timeout: TimeSpan.FromSeconds(10));
+                timeout: TimeSpan.FromSeconds(20));
 
             Assert.Equal(Operation.Forwarded, primaryInMessage.Operation);
             Assert.NotNull(AS4XmlSerializer.FromString<ReceivingProcessingMode>(primaryInMessage.PMode));

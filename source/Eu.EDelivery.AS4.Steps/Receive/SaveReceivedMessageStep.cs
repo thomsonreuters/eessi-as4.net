@@ -73,7 +73,12 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// <exception cref="Exception">A delegate callback throws an exception.</exception>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext)
         {
-            if (messagingContext?.ReceivedMessage == null)
+            if (messagingContext == null)
+            {
+                throw new ArgumentNullException(nameof(messagingContext));
+            }
+
+            if (messagingContext.ReceivedMessage == null)
             {
                 throw new InvalidOperationException(
                     $"{nameof(SaveReceivedMessageStep)} requires a ReceivedMessage to store the incoming message into the datastore but no ReceivedMessage is present in the MessagingContext");
@@ -85,7 +90,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                     $"{nameof(SaveReceivedMessageStep)} requires an AS4Message to save but no AS4Message is present in the MessagingContext");
             }
 
-            Logger.Info($"{messagingContext.LogTag} Store the incoming AS4 Message to the datastore");
+            Logger.Debug($"{messagingContext.LogTag} Store the incoming AS4 Message to the datastore");
             MessagingContext resultContext = await InsertReceivedAS4MessageAsync(messagingContext);
 
             if (resultContext != null && resultContext.Exception == null)
@@ -107,7 +112,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                         .AndStopExecution();
                 }
 
-                Logger.Debug($"{messagingContext.LogTag} The AS4Message is successfully stored into the datastore");
+                Logger.Trace($"{messagingContext.LogTag} The AS4Message is successfully stored into the datastore");
                 return StepResult.Success(resultContext);
             }
 

@@ -127,14 +127,18 @@ namespace Eu.EDelivery.AS4.Model.Core
 
             if (userMessageSecurityHeader != null)
             {
-                var nonRepudiation = new NonRepudiationInformation(
-                    userMessageSecurityHeader
-                        .GetReferences()
-                        .Select(Reference.CreateFromReferenceElement));
+                IEnumerable<CryptoReference> signedReferences = userMessageSecurityHeader.GetReferences();
 
-                return userMessageSendViaMultiHop.ThenMaybe(UserMessageMap.ConvertToRouting(includedUserMessage))
-                       .Select(routing => new Receipt(receiptMessageId, includedUserMessage?.MessageId, nonRepudiation, routing))
-                       .GetOrElse(() => new Receipt(receiptMessageId, includedUserMessage?.MessageId, nonRepudiation, routedUserMessage: null));
+                if (signedReferences.Any())
+                {
+                    var nonRepudiation = 
+                        new NonRepudiationInformation(
+                            signedReferences.Select(Reference.CreateFromReferenceElement));
+
+                    return userMessageSendViaMultiHop.ThenMaybe(UserMessageMap.ConvertToRouting(includedUserMessage))
+                        .Select(routing => new Receipt(receiptMessageId, includedUserMessage?.MessageId, nonRepudiation, routing))
+                        .GetOrElse(() => new Receipt(receiptMessageId, includedUserMessage?.MessageId, nonRepudiation, routedUserMessage: null)); 
+                }
             }
 
             return CreateFor(receiptMessageId, includedUserMessage, userMessageSendViaMultiHop);

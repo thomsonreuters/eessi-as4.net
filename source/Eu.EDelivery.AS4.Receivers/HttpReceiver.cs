@@ -149,7 +149,8 @@ namespace Eu.EDelivery.AS4.Receivers
                 .Via(new AsyncSignalResponseHandler())
                 .Via(new ForwardMessageResponseHandler())
                 .Via(new PullRequestResponseHandler())
-                .Via(new SyncSignalResponseHandler());
+                .Via(new SyncSignalResponseHandler())
+                .Via(new AcceptedResponseHandler());
 
             GuardMaxConcurrentHttpConnections(
                 listener,
