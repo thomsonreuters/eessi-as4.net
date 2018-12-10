@@ -14,12 +14,12 @@ Testing against the EESSI AS4 Messaging Profile has also been conducted.
 
 <span>AS4.NET</span> can be downloaded from the following locations:
 
-- [AS4.NET v1.0.0](https://ec.europa.eu/cefdigital/artifact/content/groups/public/eu/eessi/as4/eessi_as4.net/1.0/eessi_as4.net-1.0.zip)
-- [AS4.NET v1.1.0](https://ec.europa.eu/cefdigital/artifact/content/groups/public/eu/eessi/as4/eessi_as4.net/1.1.0/eessi_as4.net-1.1.0.zip)
-- [AS4.NET v2.0.0](https://ec.europa.eu/cefdigital/artifact/content/groups/public/eu/eessi/as4/eessi_as4.net/2.0.0/eessi_as4.net-2.0.0.zip)
-- [AS4.NET v2.0.1](https://ec.europa.eu/cefdigital/artifact/content/groups/public/eu/eessi/as4/eessi_as4.net/2.0.1/eessi_as4.net-2.0.1.zip)
-- [AS4.NET v3.0.0](https://ec.europa.eu/cefdigital/artifact/content/groups/public/eu/eessi/as4/eessi_as4.net/3.0.0/eessi_as4.net-3.0.0.zip)
 - [AS4.NET v3.1.0](https://ec.europa.eu/cefdigital/artifact/content/groups/public/eu/eessi/as4/eessi_as4.net/3.1.0/eessi_as4.net-3.1.0.zip)
+- [AS4.NET v3.0.0](https://ec.europa.eu/cefdigital/artifact/content/groups/public/eu/eessi/as4/eessi_as4.net/3.0.0/eessi_as4.net-3.0.0.zip)
+- [AS4.NET v2.0.1](https://ec.europa.eu/cefdigital/artifact/content/groups/public/eu/eessi/as4/eessi_as4.net/2.0.1/eessi_as4.net-2.0.1.zip)
+- [AS4.NET v2.0.0](https://ec.europa.eu/cefdigital/artifact/content/groups/public/eu/eessi/as4/eessi_as4.net/2.0.0/eessi_as4.net-2.0.0.zip)
+- [AS4.NET v1.1.0](https://ec.europa.eu/cefdigital/artifact/content/groups/public/eu/eessi/as4/eessi_as4.net/1.1.0/eessi_as4.net-1.1.0.zip)
+- [AS4.NET v1.0.0](https://ec.europa.eu/cefdigital/artifact/content/groups/public/eu/eessi/as4/eessi_as4.net/1.0/eessi_as4.net-1.0.zip)
 
 ## Documentation
 
@@ -95,6 +95,14 @@ A configuration- and usermanual can be found [online](https://ec.europa.eu/cefdi
 - Static Receive support
 - Improvements in the web interface for configuration
 - Improvements in the internal messaging engine
+
+### v4.0.0
+
+- ...
+- Improvements in the web interface for configuration
+- Improvements to the internal messaging engine
+
+> This version doesn't support **Sending PModes** anymore as a way to respond to AS4 messages but uses the **Receiving PMode** for this. Please update your **Receiving PModes**, for more information see: [Remove Sending PMode as responding PMode](output/doc/wiki/runtime/configuration/remove-response-pmode.md).
 
 ## Third Party software
 
