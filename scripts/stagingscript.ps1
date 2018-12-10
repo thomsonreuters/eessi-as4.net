@@ -1,7 +1,5 @@
 #cd $env:BUILD_ARTIFACTstagingDIRECTORY
 
-cd ..\output
-
 if (!(Test-Path -Path .\staging)) {
     MkDir .\staging
 }
@@ -52,7 +50,7 @@ Copy-Item -Path .\Eu.EDelivery.AS4.Fe.xml .\staging\bin
 Copy-Item -Path .\Eu.EDelivery.AS4.PayloadService.exe .\staging\bin\
 Copy-Item -Path .\Eu.EDelivery.AS4.PayloadService.exe.config .\staging\bin\
 Copy-Item -Path .\Eu.EDelivery.AS4.PayloadService.xml .\staging\bin\
-Copy-Item -Path .\appsettings.payloadservice.json .\staging\bin\
+Copy-Item -Path ..\source\Eu.EDelivery.AS4.PayloadService\appsettings.payloadservice.json .\staging\bin\
 Copy-Item -Path .\Eu.EDelivery.AS4.WindowsService.exe .\staging\
 Copy-Item -Path .\Eu.EDelivery.AS4.WindowsService.exe.config .\staging\
 Copy-Item -Path .\Eu.EDelivery.AS4.WindowsService.SystemTray.exe .\staging\bin\
@@ -68,8 +66,8 @@ $excludedLibraries = @("ModuleInit.dll", "NSubstitute.dll", "SimpleHttpMock.dll"
 Copy-Item -Exclude $excludedLibraries -Path .\*.dll -Destination .\staging\bin
 Copy-Item -Path .\x86\*.* -Destination .\staging\bin\x86\
 Copy-Item -Path .\x64\*.* -Destination .\staging\bin\x64\
-Copy-Item -Path .\appsettings.inprocess.json .\staging\bin\
-Copy-Item -Path .\appsettings.json .\staging\bin\
+Copy-Item -Path ..\source\Eu.EDelivery.AS4.Fe\appsettings.inprocess.json .\staging\bin\
+Copy-Item -Path ..\source\Eu.EDelivery.AS4.Fe\appsettings.json .\staging\bin\
 Copy-Item -Path .\config\settings.xml .\staging\config\
 Copy-Item -Path .\config\settings-service.xml .\staging\config\
 Copy-Item -Path .\messages\attachments\*.* .\staging\messages\attachments\
@@ -77,6 +75,5 @@ Copy-Item -Path .\samples\certificates\*.* .\staging\samples\certificates\
 Copy-Item -Path .\samples\messages\*.* .\staging\samples\messages\
 Copy-Item -Path .\samples\pmodes\*.* .\staging\samples\pmodes\
 Copy-Item -Path .\samples\pmodes\eessi\*.* .\staging\samples\pmodes\eessi\
+Copy-Item -Path .\Eu.EDelivery.AS4.WindowsService.Installer.msi .\staging\service-setup\Eu.EDelivery.AS4.WindowsService.Installer.msi
 Copy-Item -Path .\..\scripts\copy-responsepmode-to-receivingpmode.ps1 .\staging\scripts\copy-responsepmode-to-receivingpmode.ps1
-Copy-Item -Path .\install-windows-service.bat .\staging\service-setup
-Copy-Item -Path .\uninstall-windows-service.bat .\staging\service-setup

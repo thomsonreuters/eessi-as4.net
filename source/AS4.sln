@@ -43,6 +43,9 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Eu.EDelivery.AS4.ServiceHandler.ConsoleHost", "Eu.EDelivery.AS4.ServiceHandler.ConsoleHost\Eu.EDelivery.AS4.ServiceHandler.ConsoleHost.csproj", "{61D31A15-4A46-435B-A939-F30A5284D96C}"
 EndProject
 Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "Eu.EDelivery.AS4.WindowsService.Installer", "Eu.EDelivery.AS4.WindowsService.Installer\Eu.EDelivery.AS4.WindowsService.Installer.vdproj", "{5FD61453-B7CC-45B4-98B0-36F6CA39FA40}"
+	ProjectSection(ProjectDependencies) = postProject
+		{D1F88397-2D6C-46C5-9A88-B89CD96CF6EF} = {D1F88397-2D6C-46C5-9A88-B89CD96CF6EF}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Eu.EDelivery.AS4.WindowsService.SystemTray", "Eu.EDelivery.AS4.WindowsService.SystemTray\Eu.EDelivery.AS4.WindowsService.SystemTray.csproj", "{69C7E0EC-A368-42D5-86E4-6172A76E925F}"
 EndProject
