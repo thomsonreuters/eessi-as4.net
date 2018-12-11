@@ -88,7 +88,7 @@ namespace Eu.EDelivery.AS4.Receivers
                 throw new InvalidOperationException("The DatastoreReceiver is not configured");
             }
 
-            Logger.Debug($"Start Receiving on Datastore {_settings.DisplayString}");
+            Logger.Trace($"Start Receiving on Datastore {_settings.DisplayString}");
             StartPolling(messageCallback, cancellationToken);
         }
 
@@ -97,7 +97,7 @@ namespace Eu.EDelivery.AS4.Receivers
         /// </summary>
         public void StopReceiving()
         {
-            Logger.Debug($"Stop Receiving on Datastore {_settings.DisplayString}");
+            Logger.Trace($"Stop Receiving on Datastore {_settings.DisplayString}");
         }        
 
         #region Configuration
@@ -208,11 +208,9 @@ namespace Eu.EDelivery.AS4.Receivers
             }
             catch (Exception exception)
             {
-                Logger logger = LogManager.GetCurrentClassLogger();
-
-                logger.Error($"An error occured while polling the datastore: {exception.Message}");
-                logger.Error($"Polling on table {Table} with interval {PollingInterval.TotalSeconds} seconds");
-                logger.Trace(exception.StackTrace);
+                Logger.Error($"An error occured while polling the datastore: {exception.Message}");
+                Logger.Error($"Polling on table {Table} with interval {PollingInterval.TotalSeconds} seconds");
+                Logger.Trace(exception.StackTrace);
 
                 return Enumerable.Empty<Entity>();
             }
@@ -306,7 +304,7 @@ namespace Eu.EDelivery.AS4.Receivers
             {
                 object updateValue = Conversion.Convert(updateFieldInfo.PropertyType, Update);
 
-                Logger.Debug($"Update {entity.GetType().Name}.{updateFieldInfo.Name}={updateValue}");
+                Logger.Trace($"Update {entity.GetType().Name}.{updateFieldInfo.Name}={updateValue}");
 
                 updateFieldInfo.SetValue(
                     obj: entity,
@@ -384,7 +382,7 @@ namespace Eu.EDelivery.AS4.Receivers
             Function messageCallback,
             CancellationToken token)
         {
-            Logger.Info($"[{messageEntity.EbmsMessageId}] Received message FROM {Table} WHERE {Filter}");
+            Logger.Debug($"Received message FROM {Table} WHERE {Filter}");
 
             using (Stream stream = await messageEntity.RetrieveMessageBody(Registry.Instance.MessageBodyStore))
             {

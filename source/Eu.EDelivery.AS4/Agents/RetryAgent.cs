@@ -99,7 +99,6 @@ namespace Eu.EDelivery.AS4.Agents
         {
             (long refToEntityId, Entity entityType) = GetRefToEntityIdWithType(rr);
             Operation op = GetRefEntityOperation(repo, refToEntityId, entityType);
-            Logger.Debug($"Retry on {entityType} {refToEntityId} with Operation={op}");
 
             if (op == Operation.ToBeRetried && rr.CurrentRetryCount < rr.MaxRetryCount)
             {
@@ -110,12 +109,11 @@ namespace Eu.EDelivery.AS4.Agents
                     t == RetryType.Send ? Operation.ToBeSent : 
                     t == RetryType.PiggyBack ? Operation.ToBePiggyBacked : throw new InvalidOperationException($"Unknown RetryType: {t}");
 
-                Logger.Debug($"({rr.RetryType}) Update for retry, set Operation={updateOperation}");
-                UpdateRefEntityOperation(repo, refToEntityId, entityType, updateOperation);
+                Logger.Debug($"({rr.RetryType}) Update {entityType} to retry again"
+                    + $"{Environment.NewLine} -> Set messages's Operation={updateOperation}"
+                    + $"{Environment.NewLine} -> Update retry info {{CurrentRetry={rr.CurrentRetryCount + 1}, Status=Pending, LastRetryTime=Now}}");
 
-                Logger.Debug(
-                    $"({rr.RetryType}) Update retry to try again " +
-                    $"{{CurrentRetry={rr.CurrentRetryCount + 1}, Status=Pending, LastRetryTime=Now}}");
+                UpdateRefEntityOperation(repo, refToEntityId, entityType, updateOperation);
 
                 repo.UpdateRetryReliability(rr.Id, r =>
                 {
@@ -126,9 +124,10 @@ namespace Eu.EDelivery.AS4.Agents
             }
             else if (rr.CurrentRetryCount >= rr.MaxRetryCount)
             {
-                Logger.Debug($"({rr.RetryType}) Retry operation is completed, no new retries will happen");
-                Logger.Debug($"({rr.RetryType}) Update referenced entity {{Operation=DeadLettered}}");
-                Logger.Debug($"({rr.RetryType}) Update retry {{Status=Completed}}");
+                Logger.Debug(
+                    $"({rr.RetryType}) Retry operation is completed, no new retries will happen"
+                    + $"{Environment.NewLine} -> Update {entityType}'s Operation=DeadLettered"
+                    + $"{Environment.NewLine} -> Update retry cycle {{Status=Completed}}");
 
                 UpdateRefEntityOperation(repo, refToEntityId, entityType, Operation.DeadLettered);
                 repo.UpdateRetryReliability(rr.Id, r => r.Status = RetryStatus.Completed);

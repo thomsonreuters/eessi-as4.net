@@ -78,7 +78,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
             Logger.Trace("Create UserMessage for SubmitMessage");
             UserMessage userMessage = SubmitMessageMap.CreateUserMessage(submitMessage, submitMessage.PMode);
 
-            Logger.Info($"{messagingContext.LogTag} UserMessage with Id \"{userMessage.MessageId}\" created from Submit Message");
+            Logger.Info($"{messagingContext.LogTag} UserMessage with Id \"{userMessage.MessageId}\" created from SubmitMessage");
             AS4Message as4Message = AS4Message.Create(userMessage, messagingContext.SendingPMode);
 
             IEnumerable<Attachment> attachments = 
@@ -112,7 +112,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         {
             if (payloads == null || !payloads.Any())
             {
-                Logger.Debug("SubmitMessage has no payloads to retrieve, so no will be added to the AS4Message");
+                Logger.Trace("SubmitMessage has no payloads to retrieve, so no will be added to the AS4Message");
                 return Enumerable.Empty<Attachment>();
             }
 
@@ -158,11 +158,12 @@ namespace Eu.EDelivery.AS4.Steps.Submit
                 if (missingValues.Any())
                 {
                     throw new InvalidOperationException(
-                        "Submit payload is not complete to retrieve the contents, "
-                        + $"missing values: {String.Join(", ", missingValues)}");
+                        $"Submit payload is not complete to retrieve the contents, missing values: {String.Join(", ", missingValues)}");
                 }
 
                 Stream content = await RetrievePayloadContentsAsync(payload).ConfigureAwait(false);
+
+                Logger.Trace($"Add attachment {payload.Id} {payload.MimeType} to AS4Message");
                 attachments.Add(new Attachment(payload.Id, content, payload.MimeType));
             }
 

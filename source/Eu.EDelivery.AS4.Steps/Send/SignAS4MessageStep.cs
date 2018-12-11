@@ -77,17 +77,17 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
             if (signInfo == null)
             {
-                Logger.Debug("No signing will be performend on the message because no signing information was found in either Sending or Receiving PMode");
+                Logger.Trace("No signing will be performend on the message because no signing information was found in either Sending or Receiving PMode");
                 return await StepResult.SuccessAsync(messagingContext);
             }
 
             if (signInfo.IsEnabled == false)
             {
-                Logger.Debug("No signing will be performend on the message because the PMode siging information is disabled");
+                Logger.Trace("No signing will be performend on the message because the PMode siging information is disabled");
                 return await StepResult.SuccessAsync(messagingContext);
             }
 
-            Logger.Info($"{messagingContext.LogTag} Sign AS4Message with given signing information of the PMode");
+            Logger.Info($"(Outbound)[{messagingContext.AS4Message.GetPrimaryMessageId()}] Sign AS4Message with given signing information of the PMode");
 
             X509Certificate2 certificate = RetrieveCertificate(signInfo);
             var settings =
@@ -122,7 +122,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
                         $"{nameof(SignAS4MessageStep)} requires a SendingPMode when the primary message unit of the AS4Message is either an UserMessage or a PullRequest");
                 }
 
-                Logger.Debug($"Use SendingPMode {sendingPMode.Id} for signing because the primary message unit is a UserMessage or a PullRequest");
+                Logger.Trace($"Use SendingPMode {sendingPMode.Id} for signing because the primary message unit is a UserMessage or a PullRequest");
                 return sendingPMode.Security?.Signing;
             }
 
@@ -141,7 +141,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
                 }
 
-                Logger.Debug($"Use ReceivingPMode {receivingPMode.Id} for signing because the primary message unit of the AS4Message is a Receipt");
+                Logger.Trace($"Use ReceivingPMode {receivingPMode.Id} for signing because the primary message unit of the AS4Message is a Receipt");
                 return receivingPMode.ReplyHandling?.ResponseSigning;
             }
 
@@ -150,11 +150,11 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 if (receivingPMode == null)
                 {
                     // When the error occured before there was a ReceivingPMode determined, we can't retrieve any signing information.
-                    Logger.Debug("No ReceivingPMode was found for signing the AS4Message with an Error as primary message unit");
+                    Logger.Trace("No ReceivingPMode was found for signing the AS4Message with an Error as primary message unit");
                     return null;
                 }
 
-                Logger.Debug($"Use ReceivingPMode {receivingPMode.Id} for signing because the primary message unit of the AS4Message is an Error");
+                Logger.Trace($"Use ReceivingPMode {receivingPMode.Id} for signing because the primary message unit of the AS4Message is an Error");
                 return receivingPMode.ReplyHandling?.ResponseSigning;
             }
 

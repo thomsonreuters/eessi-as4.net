@@ -48,13 +48,13 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 return ValidationFailure(context);
             }
 
-            IEnumerable<PartInfo> invalidPartInfos =
+            IEnumerable<PartInfo> notSupportedPartInfos =
                context.AS4Message.UserMessages.SelectMany(
                    message => message.PayloadInfo.Where(payload => payload.Href.StartsWith("cid:") == false));
 
-            if (invalidPartInfos.Any())
+            if (notSupportedPartInfos.Any())
             {
-                context.ErrorResult = ExternalPayloadError();
+                context.ErrorResult = ExternalPayloadError(notSupportedPartInfos);
                 return ValidationFailure(context);
             }
 
@@ -62,26 +62,26 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             {
                 AS4Message message = context.AS4Message;
 
-                bool noAttachmentCanBeFoundForEachPartInfo =
+                IEnumerable<PartInfo> unreferencedPartInfos =
                     message.UserMessages
                            .SelectMany(u => u.PayloadInfo)
-                           .Count(p => message.Attachments.FirstOrDefault(a => a.Matches(p)) == null) > 0;
+                           .Where(p => message.Attachments.FirstOrDefault(a => a.Matches(p)) == null);
 
-                if (noAttachmentCanBeFoundForEachPartInfo)
+                if (unreferencedPartInfos.Any())
                 {
-                    context.ErrorResult = AttachmentNotFoundInvalidHeaderError();
+                    context.ErrorResult = AttachmentNotFoundInvalidHeaderError(unreferencedPartInfos);
                     return ValidationFailure(context);
                 }
 
-                bool uniquePartInfos = 
+                IEnumerable<IGrouping<string, PartInfo>> duplicatePartInfos = 
                     message.UserMessages
                            .SelectMany(u => u.PayloadInfo)
                            .GroupBy(p => p.Href)
-                           .All(g => g.Count() == 1);
+                           .Where(g => g.Count() != 1);
 
-                if (!uniquePartInfos)
+                if (duplicatePartInfos.Any())
                 {
-                    context.ErrorResult = DuplicateAttachmentInvalidHeaderError();
+                    context.ErrorResult = DuplicateAttachmentInvalidHeaderError(duplicatePartInfos);
                     return ValidationFailure(context);
                 }
             }
@@ -100,29 +100,30 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         private static ErrorResult SoapBodyAttachmentsNotSupported()
         {
             return new ErrorResult(
-                "Attachments in the SOAP body are not supported", 
+                "AS4Message is not supported because there exists attachments in the SOAP body", 
                 ErrorAlias.FeatureNotSupported);
         }
 
-        private static ErrorResult ExternalPayloadError()
+        private static ErrorResult ExternalPayloadError(IEnumerable<PartInfo> notSupportedPartInfos)
         {
             return new ErrorResult(
-                "Attachments must be embedded in the MIME message and must be referred " + 
-                "to in the PayloadInfo section using a PartyInfo with a cid href reference",
+                "Not all attachments are embedded in the MIME message and are referred "
+                + $"in the PayloadInfo section using a PartInfo with a cid href reference: {String.Join(", ", notSupportedPartInfos.Select(p => p.Href))}",
                 ErrorAlias.ExternalPayloadError);
         }
 
-        private static ErrorResult AttachmentNotFoundInvalidHeaderError()
+        private static ErrorResult AttachmentNotFoundInvalidHeaderError(IEnumerable<PartInfo> unreferencedPartInfos)
         {
             return new ErrorResult(
-                "No Attachment can be found for each UserMessage PartInfo",
+                $"No attachment can be found this/these PartInfo(s) in the UserMessage: {String.Join(", ", unreferencedPartInfos.Select(p => p.Href))}",
                 ErrorAlias.InvalidHeader);
         }
 
-        private static ErrorResult DuplicateAttachmentInvalidHeaderError()
+        private static ErrorResult DuplicateAttachmentInvalidHeaderError(
+            IEnumerable<IGrouping<string, PartInfo>> duplicatePartInfos)
         {
             return new ErrorResult(
-                "AS4 Message is not allowed because it contains payloads that have the same PayloadId",
+                $"AS4Message is invalid because it contains duplicate PartInfo elements: {String.Join(", ", duplicatePartInfos.Select(g => g.Key))}",
                 ErrorAlias.InvalidHeader);
         }
 
