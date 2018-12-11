@@ -1,15 +1,17 @@
 <?xml version="1.0"?>
-<PMode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="eu:edelivery:as4:pmode">
-  <Id>ACT_SIMPLE_ONEWAY</Id>
+<PMode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+  xmlns="eu:edelivery:as4:pmode">
+  <Id>ACT_ONEWAY_RETRY</Id>
   <Reliability>
     <DuplicateElimination>
-      <IsEnabled>false</IsEnabled>
+      <IsEnabled>true</IsEnabled>
     </DuplicateElimination>
   </Reliability>
   <ReplyHandling>
     <ReplyPattern>Response</ReplyPattern>
     <ReceiptHandling>
-      <UseNRRFormat>true</UseNRRFormat>
+      <UseNRRFormat>false</UseNRRFormat>
     </ReceiptHandling>
     <ErrorHandling>
       <UseSoapFault>false</UseSoapFault>
@@ -27,7 +29,7 @@
     </ResponseSigning>
   </ReplyHandling>
   <ExceptionHandling>
-    <NotifyMessageConsumer>true</NotifyMessageConsumer>
+    <NotifyMessageConsumer>false</NotifyMessageConsumer>
     <NotifyMethod>
       <Type>HTTP</Type>
       <Parameters>
@@ -69,9 +71,9 @@
       </ToParty>
     </PartyInfo>
     <CollaborationInfo>
-      <Action>ACT_SIMPLE_ONEWAY</Action>
+      <Action>ACT_ONEWAY_RETRY</Action>
       <Service>
-        <Value>SRV_SIMPLE_ONEWAY</Value>
+        <Value>SRV_ONEWAY_RETRY</Value>
       </Service>
     </CollaborationInfo>
   </MessagePackaging>

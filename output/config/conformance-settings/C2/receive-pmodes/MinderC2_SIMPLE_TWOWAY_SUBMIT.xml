@@ -11,7 +11,7 @@
   <ReplyHandling>
     <ReplyPattern>Response</ReplyPattern>
     <ReceiptHandling>
-      <UseNRRFormat>true</UseNRRFormat>
+      <UseNRRFormat>false</UseNRRFormat>
     </ReceiptHandling>
     <ErrorHandling>
       <UseSoapFault>false</UseSoapFault>

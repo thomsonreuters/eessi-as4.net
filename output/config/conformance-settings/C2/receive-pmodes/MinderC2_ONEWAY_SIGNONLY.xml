@@ -2,7 +2,7 @@
 <PMode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
   xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
   xmlns="eu:edelivery:as4:pmode">
-  <Id>ACT_SIMPLE_TWOWAY</Id>
+  <Id>ACT_ONEWAY_SIGNONLY</Id>
   <Reliability>
     <DuplicateElimination>
       <IsEnabled>false</IsEnabled>
@@ -11,7 +11,7 @@
   <ReplyHandling>
     <ReplyPattern>Response</ReplyPattern>
     <ReceiptHandling>
-      <UseNRRFormat>true</UseNRRFormat>
+      <UseNRRFormat>false</UseNRRFormat>
     </ReceiptHandling>
     <ErrorHandling>
       <UseSoapFault>false</UseSoapFault>
@@ -45,10 +45,10 @@
       <Signature>Allowed</Signature>
     </SigningVerification>
     <Decryption>
-      <Encryption>Allowed</Encryption>
+      <Encryption>Ignored</Encryption>
       <CertificateFindCriteria>
-        <CertificateFindType>FindBySubjectName</CertificateFindType>
-        <CertificateFindValue>as4-net-c2</CertificateFindValue>
+        <CertificateFindType>FindByThumbprint</CertificateFindType>
+        <CertificateFindValue />
       </CertificateFindCriteria>
     </Decryption>
   </Security>
@@ -74,9 +74,9 @@
       </ToParty>
     </PartyInfo>
     <CollaborationInfo>
-      <Action>ACT_SIMPLE_TWOWAY</Action>
+      <Action>ACT_ONEWAY_SIGNONLY</Action>
       <Service>
-        <Value>SRV_SIMPLE_TWOWAY</Value>
+        <Value>SRV_ONEWAY_SIGNONLY</Value>
       </Service>
     </CollaborationInfo>
   </MessagePackaging>

@@ -1,15 +1,17 @@
 <?xml version="1.0"?>
-<PMode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="eu:edelivery:as4:pmode">
-  <Id>ACT_ONEWAY_RETRY</Id>
+<PMode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+  xmlns="eu:edelivery:as4:pmode">
+  <Id>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/test</Id>
   <Reliability>
     <DuplicateElimination>
-      <IsEnabled>true</IsEnabled>
+      <IsEnabled>false</IsEnabled>
     </DuplicateElimination>
   </Reliability>
   <ReplyHandling>
     <ReplyPattern>Response</ReplyPattern>
     <ReceiptHandling>
-      <UseNRRFormat>true</UseNRRFormat>
+      <UseNRRFormat>false</UseNRRFormat>
     </ReceiptHandling>
     <ErrorHandling>
       <UseSoapFault>false</UseSoapFault>
@@ -28,12 +30,7 @@
   </ReplyHandling>
   <ExceptionHandling>
     <NotifyMessageConsumer>false</NotifyMessageConsumer>
-    <NotifyMethod>
-      <Type>HTTP</Type>
-      <Parameters>
-        <Parameter name="location" value="http://13.81.109.44:15001/corner4" />
-      </Parameters>
-    </NotifyMethod>
+    <NotifyMethod />
   </ExceptionHandling>
   <Security>
     <SigningVerification>
@@ -69,9 +66,9 @@
       </ToParty>
     </PartyInfo>
     <CollaborationInfo>
-      <Action>ACT_ONEWAY_RETRY</Action>
+      <Action>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/test</Action>
       <Service>
-        <Value>SRV_ONEWAY_RETRY</Value>
+        <Value>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service</Value>
       </Service>
     </CollaborationInfo>
   </MessagePackaging>

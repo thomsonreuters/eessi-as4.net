@@ -1,6 +1,8 @@
 <?xml version="1.0"?>
-<PMode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="eu:edelivery:as4:pmode">
-  <Id>ACT_ONEWAY_SIGNONLY</Id>
+<PMode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+  xmlns="eu:edelivery:as4:pmode">
+  <Id>ACT_SIMPLE_TWOWAY_SUBMIT</Id>
   <Reliability>
     <DuplicateElimination>
       <IsEnabled>false</IsEnabled>
@@ -9,7 +11,7 @@
   <ReplyHandling>
     <ReplyPattern>Response</ReplyPattern>
     <ReceiptHandling>
-      <UseNRRFormat>true</UseNRRFormat>
+      <UseNRRFormat>false</UseNRRFormat>
     </ReceiptHandling>
     <ErrorHandling>
       <UseSoapFault>false</UseSoapFault>
@@ -27,7 +29,7 @@
     </ResponseSigning>
   </ReplyHandling>
   <ExceptionHandling>
-    <NotifyMessageConsumer>false</NotifyMessageConsumer>
+    <NotifyMessageConsumer>true</NotifyMessageConsumer>
     <NotifyMethod>
       <Type>HTTP</Type>
       <Parameters>
@@ -40,10 +42,10 @@
       <Signature>Allowed</Signature>
     </SigningVerification>
     <Decryption>
-      <Encryption>Ignored</Encryption>
+      <Encryption>Allowed</Encryption>
       <CertificateFindCriteria>
-        <CertificateFindType>FindByThumbprint</CertificateFindType>
-        <CertificateFindValue />
+        <CertificateFindType>FindBySubjectName</CertificateFindType>
+        <CertificateFindValue>as4-net-c3</CertificateFindValue>
       </CertificateFindCriteria>
     </Decryption>
   </Security>
@@ -56,7 +58,7 @@
             <Type>urn:oasis:names:tc:ebcore:partyid-type:unregistered</Type>
           </PartyId>
         </PartyIds>
-        <Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</Role>
+        <Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</Role>
       </FromParty>
       <ToParty>
         <PartyIds>
@@ -65,13 +67,13 @@
             <Type>urn:oasis:names:tc:ebcore:partyid-type:unregistered</Type>
           </PartyId>
         </PartyIds>
-        <Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</Role>
+        <Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</Role>
       </ToParty>
     </PartyInfo>
     <CollaborationInfo>
-      <Action>ACT_ONEWAY_SIGNONLY</Action>
+      <Action>ACT_SIMPLE_TWOWAY</Action>
       <Service>
-        <Value>SRV_ONEWAY_SIGNONLY</Value>
+        <Value>SRV_SIMPLE_TWOWAY</Value>
       </Service>
     </CollaborationInfo>
   </MessagePackaging>
