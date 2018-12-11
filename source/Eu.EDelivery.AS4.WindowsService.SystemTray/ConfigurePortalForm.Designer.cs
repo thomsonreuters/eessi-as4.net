@@ -68,7 +68,7 @@
             // 
             // txtPortal
             // 
-            this.txtPortal.Location = new System.Drawing.Point(12, 25);
+            this.txtPortal.Location = new System.Drawing.Point(69, 6);
             this.txtPortal.Name = "txtPortal";
             this.txtPortal.Size = new System.Drawing.Size(180, 20);
             this.txtPortal.TabIndex = 3;
@@ -84,7 +84,9 @@
             this.Controls.Add(this.label1);
             this.Controls.Add(this.btnOK);
             this.Controls.Add(this.btnCancel);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.MaximizeBox = false;
             this.Name = "ConfigurePortalForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Configure AS4.NET portal";
