@@ -219,13 +219,13 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                     res.StatusCode = responseStatusCode;
                     res.OutputStream.Dispose();
 
-                    return inputs.Count == 2 
+                    return inputs.Count == 3 
                         ? ServerLifetime.Stop 
                         : ServerLifetime.Continue;
                 },
                 waiter);
 
-            waiter.WaitOne(timeout: TimeSpan.FromSeconds(15));
+            waiter.WaitOne(timeout: TimeSpan.FromSeconds(25));
 
             // Wait till the response is processed correctly.
             await Task.Delay(TimeSpan.FromSeconds(2));
