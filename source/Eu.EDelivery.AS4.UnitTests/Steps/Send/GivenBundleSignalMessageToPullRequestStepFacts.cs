@@ -61,7 +61,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
 
             GetDataStoreContext.AssertOutMessage(
                 signedReceipt.MessageId,
-                m => Assert.Equal(Operation.DeadLettered, m.Operation));
+                m => Assert.Equal(Operation.ToBePiggyBacked, m.Operation));
 
             GetDataStoreContext.AssertOutMessage(
                 unsignedReceipt.MessageId,

@@ -66,68 +66,37 @@ namespace Eu.EDelivery.AS4.Steps.Send
             if (messagingContext.AS4Message == null)
             {
                 throw new InvalidOperationException(
-                    $"{typeof(BundleSignalMessageToPullRequestStep)} Requires a AS4Message to possible bundle a "
+                    $"{nameof(BundleSignalMessageToPullRequestStep)} requires a AS4Message to possible bundle a "
                     + "SignalMessage to the PullRequest but there's not a AS4Message present in the MessagingContext");
+            }
+
+            if (messagingContext.SendingPMode == null)
+            {
+                throw new InvalidOperationException(
+                    $"{nameof(BundleSignalMessageToPullRequestStep)} requires a SendingPMode to select the right "
+                    + "SignalMessages for piggybacking but there's not a SendingPMode present in the MessagingContext");
             }
 
             if (!(messagingContext.AS4Message.PrimaryMessageUnit is PullRequest pullRequest))
             {
                 throw new InvalidOperationException(
-                    $"{typeof(BundleSignalMessageToPullRequestStep)} Requires a PullRequest as primary message unit in the "
+                    $"{nameof(BundleSignalMessageToPullRequestStep)} requires a PullRequest as primary message unit in the "
                     + "AS4Message but there's not a PullRequest present in the MessagingContext");
             }
-
-            string url = messagingContext.SendingPMode?.PushConfiguration?.Protocol?.Url;
-            bool pullRequestSigned = messagingContext.SendingPMode?.Security?.Signing?.IsEnabled == true;
 
             using (DatastoreContext db = _createContext())
             {
                 var service = new PiggyBackingService(db);
-                IEnumerable<AS4Message> signals = 
-                    await service.SelectToBePiggyBackedSignalMessagesAsync(pullRequest, url, _bodyStore);
+                IEnumerable<SignalMessage> signals = 
+                    await service.SelectToBePiggyBackedSignalMessagesAsync(pullRequest, messagingContext.SendingPMode, _bodyStore);
 
-                var resetSignals = new Collection<MessageUnit>();
-                foreach (AS4Message signal in signals)
+                foreach (SignalMessage signal in signals)
                 {
-                    var toBePiggyBacked = signal.PrimaryMessageUnit;
-                    if (toBePiggyBacked is Receipt || toBePiggyBacked is Error)
-                    {
-                        if (!pullRequestSigned && signal.IsSigned)
-                        {
-                            Logger.Warn(
-                                $"Can't PiggyBack {toBePiggyBacked.GetType().Name} {toBePiggyBacked.MessageId} because SignalMessage is signed "
-                                + $"while the SendingPMode {messagingContext.SendingPMode?.Id} used is not configured for signing");
+                    Logger.Info(
+                        $"PiggyBack the {signal.GetType().Name} {signal.MessageId} which reference "
+                        + $"UserMessage \"{signal.RefToMessageId}\" to the PullRequest");
 
-                            resetSignals.Add(toBePiggyBacked);
-                        }
-                        else
-                        {
-                            Logger.Info(
-                                $"PiggyBack the {toBePiggyBacked.GetType().Name} which reference "
-                                + $"UserMessage \"{toBePiggyBacked.RefToMessageId}\" to the PullRequest");
-
-                            messagingContext.AS4Message.AddMessageUnit(toBePiggyBacked);
-                        }
-                    }
-                    else if (toBePiggyBacked != null)
-                    {
-                        Logger.Warn(
-                            $"Will not select {toBePiggyBacked.GetType().Name} {toBePiggyBacked.MessageId} "
-                            + "for PiggyBacking because only Receipts and Errors are allowed SignalMessages to be PiggyBacked with PullRequests");
-                    }
-                    else
-                    {
-                        Logger.Warn("Will not select AS4Message for PiggyBacking because it doesn't contains any Message Units");
-                    }
-                }
-
-                if (resetSignals.Any())
-                {
-                    service.ResetSignalMessagesToBePiggyBacked(
-                        resetSignals.Where(s => s is SignalMessage).Cast<SignalMessage>(),
-                        SendResult.RetryableFail);
-
-                    await db.SaveChangesAsync().ConfigureAwait(false);
+                    messagingContext.AS4Message.AddMessageUnit(signal);
                 }
 
                 return StepResult.Success(messagingContext);

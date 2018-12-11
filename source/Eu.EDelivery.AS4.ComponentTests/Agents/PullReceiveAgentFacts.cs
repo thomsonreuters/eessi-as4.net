@@ -106,32 +106,44 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             // Arrange
             string pullSenderUrl = RetrievePullingUrlFromConfig();
 
-            var user = new UserMessage($"user-{Guid.NewGuid()}", PullRequestMpc);
-            var receipt = new Receipt($"receipt-{Guid.NewGuid()}", user.MessageId);
+            var user1 = new UserMessage($"user1-{Guid.NewGuid()}", PullRequestMpc);
+            var user2 = new UserMessage($"user2-{Guid.NewGuid()}", PullRequestMpc);
+            var receipt1 = new Receipt($"receipt1-{Guid.NewGuid()}", user1.MessageId);
+            var receipt2 = new Receipt($"receipt2-{Guid.NewGuid()}", user2.MessageId);
 
-            InsertUserMessage(user);
-            long id = InsertReceipt(receipt, pullSenderUrl, Operation.ToBePiggyBacked);
-            InsertRetryReliability(id, maxRetryCount: 1);
+            InsertUserMessage(user1);
+            InsertUserMessage(user2);
+
+            long receiptId1 = InsertReceipt(receipt1, pullSenderUrl, Operation.ToBePiggyBacked);
+            InsertRetryReliability(receiptId1, maxRetryCount: 1);
+
+            long receiptId2 = InsertReceipt(receipt2, pullSenderUrl, Operation.ToBePiggyBacked);
+            InsertRetryReliability(receiptId2, maxRetryCount: 1);
 
             // Act
             IEnumerable<AS4Message> pullRequests = await RespondToPullRequestAsync(pullSenderUrl, responseStatusCode: 202);
 
             // Assert
-            Assert.Contains(
-                pullRequests,
-                piggyBacked => 
-                    piggyBacked.IsPullRequest
-                    && piggyBacked.SignalMessages.Any(s => s is Receipt));
+            Assert.All(
+                pullRequests, 
+                pr => Assert.True(pr.IsPullRequest, "Not all received AS4Messages are PullRequests"));
+
+            IEnumerable<SignalMessage> piggyBackedReceipts = 
+                pullRequests.SelectMany(s => s.SignalMessages)
+                            .Where(s => s is Receipt);
+
+            Assert.Contains(piggyBackedReceipts, s => s.MessageId == receipt1.MessageId);
+            Assert.Contains(piggyBackedReceipts, s => s.MessageId == receipt2.MessageId);
 
             await PollUntilPresent(
                 () => _databaseSpy.GetOutMessageFor(
-                    m => m.EbmsMessageId == receipt.MessageId
+                    m => m.EbmsMessageId == receipt1.MessageId
                          && m.Operation == Operation.Sent),
                 timeout: TimeSpan.FromSeconds(30));
 
             await PollUntilPresent(
                 () => _databaseSpy.GetRetryReliabilityFor(
-                    r => r.RefToOutMessageId == id
+                    r => r.RefToOutMessageId == receiptId1
                          && r.Status == RetryStatus.Completed),
                 timeout: TimeSpan.FromSeconds(5));
         }
