@@ -1,14 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Services;
-using Eu.EDelivery.AS4.Strategies.Sender;
 using NLog;
 
 namespace Eu.EDelivery.AS4.Steps.Send
@@ -93,7 +90,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 foreach (SignalMessage signal in signals)
                 {
                     Logger.Info(
-                        $"PiggyBack the {signal.GetType().Name} {signal.MessageId} which reference "
+                        $"PiggyBack the {signal.GetType().Name} \"{signal.MessageId}\" which reference "
                         + $"UserMessage \"{signal.RefToMessageId}\" to the PullRequest");
 
                     messagingContext.AS4Message.AddMessageUnit(signal);

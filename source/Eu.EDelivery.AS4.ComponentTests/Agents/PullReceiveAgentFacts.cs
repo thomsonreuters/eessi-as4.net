@@ -146,6 +146,18 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                     r => r.RefToOutMessageId == receiptId1
                          && r.Status == RetryStatus.Completed),
                 timeout: TimeSpan.FromSeconds(5));
+
+            await PollUntilPresent(
+                () => _databaseSpy.GetOutMessageFor(
+                    m => m.EbmsMessageId == receipt2.MessageId
+                         && m.Operation == Operation.Sent),
+                timeout: TimeSpan.FromSeconds(30));
+
+            await PollUntilPresent(
+                () => _databaseSpy.GetRetryReliabilityFor(
+                    r => r.RefToOutMessageId == receiptId2
+                         && r.Status == RetryStatus.Completed),
+                timeout: TimeSpan.FromSeconds(5));
         }
 
         private void InsertRetryReliability(long id, int maxRetryCount)
