@@ -7,6 +7,8 @@ using Xunit.Abstractions;
 
 namespace Eu.EDelivery.AS4.PerformanceTests
 {
+    public enum CornerStartup { Auto, Manual }
+
     /// <summary>
     /// Bridge to add an extra abstraction layer for the AS4 Corner creation/destruction.
     /// </summary>
@@ -21,16 +23,23 @@ namespace Eu.EDelivery.AS4.PerformanceTests
         /// </summary>
         /// <param name="fixture">The fixture.</param>
         /// <param name="outputHelper"></param>
-        public PerformanceTestBridge(CornersFixture fixture, ITestOutputHelper outputHelper)
+        /// <param name="startup"></param>
+        public PerformanceTestBridge(
+            CornersFixture fixture, 
+            ITestOutputHelper outputHelper,
+            CornerStartup startup = CornerStartup.Auto)
         {
             Corner2 = fixture.Corner2;
             Corner3 = fixture.Corner3;
 
+            if (startup == CornerStartup.Auto)
+            {
+                Corner2.Start();
+                Corner3.Start();
+            }
+
             Corner2.TryCleanupMessages();
             Corner3.TryCleanupMessages();
-
-            Corner2.Start();
-            Corner3.Start();
 
             _outputHelper = outputHelper;
             _stopWatch = Stopwatch.StartNew();
