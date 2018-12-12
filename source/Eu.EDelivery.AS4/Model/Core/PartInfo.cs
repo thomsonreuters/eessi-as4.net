@@ -78,7 +78,7 @@ namespace Eu.EDelivery.AS4.Model.Core
                 throw new ArgumentNullException(nameof(schemas));
             }
 
-            Href = href.Replace(" ", string.Empty);
+            Href = href.Replace(" ", String.Empty);
             Properties = properties;
             Schemas = schemas;
         }

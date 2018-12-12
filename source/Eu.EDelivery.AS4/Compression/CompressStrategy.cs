@@ -65,7 +65,7 @@ namespace Eu.EDelivery.AS4.Compression
 
             return new CompressStrategy(
                 message.Attachments, 
-                message.UserMessages.SelectMany(u => u.PayloadInfo));
+                message.UserMessages.SelectMany(u => u.PayloadInfo).ToArray());
         }
 
         /// <summary>
@@ -85,15 +85,17 @@ namespace Eu.EDelivery.AS4.Compression
             {
                 CompressAttachment(attachment);
             }
-
-            foreach (PartInfo p in _partInfos)
-            {
-                p.CompressionType = CompressionType;
-            }
         }
 
         private void CompressAttachment(Attachment attachment)
         {
+            PartInfo referenced = _partInfos.FirstOrDefault(attachment.Matches);
+            if (referenced == null)
+            {
+                throw new InvalidOperationException(
+                    $"Can't compress attachment {attachment.Id} because no matching PartInfo element was found in UserMessage");
+            }
+
             VirtualStream outputStream =
                 VirtualStream.Create(
                     attachment.EstimatedContentSize > -1 
@@ -110,6 +112,7 @@ namespace Eu.EDelivery.AS4.Compression
             outputStream.Position = 0;
             attachment.MimeType = attachment.ContentType;
             attachment.CompressionType = CompressionType;
+            referenced.CompressionType = CompressionType;
             attachment.UpdateContent(outputStream, CompressionType);
         }
 
@@ -170,22 +173,6 @@ namespace Eu.EDelivery.AS4.Compression
 
         private static void DecompressAttachment(IEnumerable<PartInfo> payloadInfo, Attachment attachment)
         {
-            attachment.ResetContentPosition();
-
-            long unzipLength = StreamUtilities.DetermineOriginalSizeOfCompressedStream(attachment.Content);
-
-            VirtualStream outputStream =
-                VirtualStream.Create(
-                    unzipLength > -1 ? unzipLength : VirtualStream.ThresholdMax);
-
-            if (unzipLength > 0)
-            {
-                outputStream.SetLength(unzipLength);
-            }
-
-            Stream decompressed = DecompressStream(attachment.Content);
-
-
             PartInfo referenced = payloadInfo.FirstOrDefault(attachment.Matches);
             if (referenced == null)
             {
@@ -205,11 +192,22 @@ namespace Eu.EDelivery.AS4.Compression
                     $"Cannot decompress attachment {attachment.Id}: Invalid MimeType {referenced.MimeType} in referenced <PartInfo/> element");
             }
 
-            referenced.CompressionType = CompressionType;
-            Logger.Trace(
-                $"Update PartInfo {referenced.Href} properties, now has: "
-                + $"{String.Join(Environment.NewLine, referenced.Properties.Select(kv => $" - [{kv.Key}] = {kv.Value}"))}");
+            attachment.ResetContentPosition();
 
+            long unzipLength = StreamUtilities.DetermineOriginalSizeOfCompressedStream(attachment.Content);
+
+            VirtualStream outputStream =
+                VirtualStream.Create(
+                    unzipLength > -1 ? unzipLength : VirtualStream.ThresholdMax);
+
+            if (unzipLength > 0)
+            {
+                outputStream.SetLength(unzipLength);
+            }
+
+            Stream decompressed = DecompressStream(attachment.Content);
+
+            referenced.CompressionType = CompressionType;
             attachment.CompressionType = CompressionType;
             attachment.MimeType = referenced.MimeType;
             attachment.UpdateContent(decompressed, referenced.MimeType);
