@@ -148,14 +148,14 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                     return String.Empty;
                 }
 
+                MessageUnit primaryMessageUnit = context.AS4Message.PrimaryMessageUnit;
                 string errorDescriptions =
-                    context.AS4Message.FirstSignalMessage is Error error
+                    primaryMessageUnit is Error error
                         ? ": " + ConcatErrorDescriptions(error)
                         : String.Empty;
 
                 Logger.Info(
-                    $"{context.LogTag} {context.AS4Message.FirstSignalMessage.GetType().Name}(s) " +
-                    $"will be written to the response {errorDescriptions}");
+                    $"({context.Mode}) <- response with {primaryMessageUnit.GetType().Name} {primaryMessageUnit.MessageId} {errorDescriptions}");
             }
 
             return StepResult.Success(context);

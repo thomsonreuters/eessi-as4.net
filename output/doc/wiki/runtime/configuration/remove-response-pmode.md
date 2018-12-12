@@ -1,6 +1,6 @@
 ## Remove Sending PMode as responding PMode
 
-Since <span>AS4.NET</span> vXXX the **Receiving PMode** is used to respond to AS4 messages instead of referencing a **Sending PMode**.
+Since <span>AS4.NET</span> v4.0.0 the **Receiving PMode** is used to respond to AS4 messages instead of referencing a **Sending PMode**.
 This means that upgrading to this version with older **Receiving PModes** will lead to different responses. The breaking change means that the:
 
 - **Sending PMode**'s `PushConfiguration` becomes **Receiving PMode**'s `ReplyHandling.ResponseConfiguration`
