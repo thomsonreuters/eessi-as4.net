@@ -85,6 +85,11 @@ namespace Eu.EDelivery.AS4.Compression
             {
                 CompressAttachment(attachment);
             }
+
+            foreach (PartInfo p in _partInfos)
+            {
+                p.CompressionType = CompressionType;
+            }
         }
 
         private void CompressAttachment(Attachment attachment)
@@ -106,20 +111,6 @@ namespace Eu.EDelivery.AS4.Compression
             attachment.MimeType = attachment.ContentType;
             attachment.CompressionType = CompressionType;
             attachment.UpdateContent(outputStream, CompressionType);
-
-            PartInfo reference = _partInfos.FirstOrDefault(attachment.Matches);
-            if (reference != null)
-            {
-                reference.CompressionType = CompressionType;
-                Logger.Trace(
-                    $"Update PartInfo {reference.Href} properties, now has: "
-                    + $"{Environment.NewLine} {String.Join(Environment.NewLine, reference.Properties.Select(kv => $" - [{kv.Key}] = {kv.Value}"))}");
-            }
-            else
-            {
-                throw new InvalidDataException(
-                    $"Can't update referenced PartInfo element properties because no matching attachment with id: '{attachment.Id}' can be found");
-            }
         }
 
         private static CompressionLevel DetermineCompressionLevelFor(Attachment attachment)
