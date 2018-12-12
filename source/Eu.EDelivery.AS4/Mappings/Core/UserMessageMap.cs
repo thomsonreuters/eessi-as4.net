@@ -136,6 +136,7 @@ namespace Eu.EDelivery.AS4.Mappings.Core
 
             Xml.Property MapProperty(KeyValuePair<string, string> kv)
             {
+                NLog.LogManager.GetCurrentClassLogger().Trace($"Create PartInfo property [{kv.Key}] = kv.Value");
                 return new Xml.Property { name = kv.Key, Value = kv.Value };
             }
 

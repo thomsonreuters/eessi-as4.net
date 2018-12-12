@@ -113,7 +113,7 @@ namespace Eu.EDelivery.AS4.Compression
                 reference.CompressionType = CompressionType;
                 Logger.Trace(
                     $"Update PartInfo {reference.Href} properties, now has: "
-                    + $"{String.Join(Environment.NewLine, reference.Properties.Select(kv => $" - [{kv.Key}] = {kv.Value}"))}");
+                    + $"{Environment.NewLine} {String.Join(Environment.NewLine, reference.Properties.Select(kv => $" - [{kv.Key}] = {kv.Value}"))}");
             }
             else
             {
@@ -215,6 +215,10 @@ namespace Eu.EDelivery.AS4.Compression
             }
 
             referenced.CompressionType = CompressionType;
+            Logger.Trace(
+                $"Update PartInfo {referenced.Href} properties, now has: "
+                + $"{String.Join(Environment.NewLine, referenced.Properties.Select(kv => $" - [{kv.Key}] = {kv.Value}"))}");
+
             attachment.CompressionType = CompressionType;
             attachment.MimeType = referenced.MimeType;
             attachment.UpdateContent(decompressed, referenced.MimeType);

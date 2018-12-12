@@ -53,6 +53,13 @@ namespace Eu.EDelivery.AS4.Steps.Send
             {
                 Logger.Info($"(Outbound)[{messagingContext.AS4Message.GetPrimaryMessageId()}] Compress AS4Message attachments with GZip compression");
                 messagingContext.AS4Message.CompressAttachments();
+
+                foreach (PartInfo reference in messagingContext.AS4Message.UserMessages.SelectMany(um => um.PayloadInfo))
+                {
+                    Logger.Trace(
+                        $"Update PartInfo {reference.Href} properties, now has: "
+                        + $"{Environment.NewLine} {String.Join(Environment.NewLine, reference.Properties.Select(kv => $" - [{kv.Key}] = {kv.Value}"))}");
+                }
             }
             catch (SystemException exception)
             {
