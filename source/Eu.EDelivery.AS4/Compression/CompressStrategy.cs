@@ -87,7 +87,7 @@ namespace Eu.EDelivery.AS4.Compression
             }
         }
 
-        private static void CompressAttachment(Attachment attachment)
+        private void CompressAttachment(Attachment attachment)
         {
             VirtualStream outputStream =
                 VirtualStream.Create(
@@ -106,6 +106,17 @@ namespace Eu.EDelivery.AS4.Compression
             attachment.MimeType = attachment.ContentType;
             attachment.CompressionType = CompressionType;
             attachment.UpdateContent(outputStream, CompressionType);
+
+            PartInfo reference = _partInfos.FirstOrDefault(attachment.Matches);
+            if (reference != null)
+            {
+                reference.CompressionType = CompressionType;
+            }
+            else
+            {
+                throw new InvalidDataException(
+                    $"Can't update referenced PartInfo element properties because no matching attachment with id: '{attachment.Id}' can be found");
+            }
         }
 
         private static CompressionLevel DetermineCompressionLevelFor(Attachment attachment)
@@ -113,7 +124,7 @@ namespace Eu.EDelivery.AS4.Compression
             if (attachment.ContentType.Equals(CompressionType, StringComparison.OrdinalIgnoreCase))
             {
                 // In certain cases, we do not want to waste time compressing the attachment, since
-                // compressing will only take time without noteably decreasing the attachment size.
+                // compressing will only take time without notably decreasing the attachment size.
                 return CompressionLevel.Fastest;
             }
 
@@ -180,23 +191,30 @@ namespace Eu.EDelivery.AS4.Compression
 
             Stream decompressed = DecompressStream(attachment.Content);
 
-            attachment.CompressionType = CompressionType;
-            string mimeType = payloadInfo.FirstOrDefault(attachment.Matches)?.Properties["MimeType"];
 
-            if (String.IsNullOrWhiteSpace(mimeType))
+            PartInfo referenced = payloadInfo.FirstOrDefault(attachment.Matches);
+            if (referenced == null)
+            {
+                throw new InvalidDataException(
+                    $"Can't decompress Attachment {attachment.Id} because no matching PartInfo was found");
+            }
+
+            if (String.IsNullOrWhiteSpace(referenced.MimeType))
             {
                 throw new InvalidDataException(
                     $"Cannot decompress attachment {attachment.Id}: MimeType is not specified in referenced <PartInfo/> element");
             }
 
-            if (mimeType.IndexOf("/", StringComparison.OrdinalIgnoreCase) < 0)
+            if (referenced.MimeType.IndexOf("/", StringComparison.OrdinalIgnoreCase) < 0)
             {
                 throw new InvalidDataException(
-                    $"Cannot decompress attachment {attachment.Id}: Invalid MimeType {mimeType} in referenced <PartInfo/> element");
+                    $"Cannot decompress attachment {attachment.Id}: Invalid MimeType {referenced.MimeType} in referenced <PartInfo/> element");
             }
 
-            attachment.MimeType = mimeType;
-            attachment.UpdateContent(decompressed, mimeType);
+            referenced.CompressionType = CompressionType;
+            attachment.CompressionType = CompressionType;
+            attachment.MimeType = referenced.MimeType;
+            attachment.UpdateContent(decompressed, referenced.MimeType);
         }
 
         private static Stream DecompressStream(Stream input)
