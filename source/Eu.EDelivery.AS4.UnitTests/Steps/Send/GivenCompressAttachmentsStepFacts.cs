@@ -75,8 +75,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
 
         private static MessagingContext AS4MessageContext(Attachment attachment, SendingProcessingMode pmode)
         {
-            AS4Message as4Message = AS4Message.Create(pmode);
-            as4Message.AddMessageUnit(new UserMessage($"user-{Guid.NewGuid()}"));
+            var userMessage = new UserMessage($"user-{Guid.NewGuid()}", PartInfo.CreateFor(attachment));
+            AS4Message as4Message = AS4Message.Create(userMessage, pmode);
             as4Message.AddAttachment(attachment);
 
             return new MessagingContext(as4Message, MessagingContextMode.Unknown) {SendingPMode = pmode};
