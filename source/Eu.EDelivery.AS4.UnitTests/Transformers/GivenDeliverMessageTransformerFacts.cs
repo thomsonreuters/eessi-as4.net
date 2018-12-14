@@ -28,43 +28,66 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
     public class GivenDeliverMessageTransformerFacts
     {
         [Fact]
-        public async Task Create_DeliverMessage_From_UserMessage()
+        public async Task Create_DeliverMessages_From_UserMessages()
         {
             // Arrange
-            string partInfoId = $"part-{Guid.NewGuid()}";
-            var userMessage = new UserMessage(
+            string partId1 = $"part-{Guid.NewGuid()}";
+            var userMessage1 = new UserMessage(
                 $"user-{Guid.NewGuid()}",
                 new CollaborationInfo(
                     new Service($"service-{Guid.NewGuid()}"),
                     $"action-{Guid.NewGuid()}"),
                 new Party("Sender", new PartyId($"id-{Guid.NewGuid()}")),
                 new Party("Receiver", new PartyId($"id-{Guid.NewGuid()}")),
-                new[] { new PartInfo($"cid:{partInfoId}") },
+                new[] { new PartInfo($"cid:{partId1}") },
                 new MessageProperty[0]);
 
-            AS4Message as4Message = AS4Message.Create(userMessage);
-            as4Message.AddAttachment(new Attachment(partInfoId));
+            string partId2 = $"part-{Guid.NewGuid()}";
+            var userMessage2 = new UserMessage(
+                $"user-{Guid.NewGuid()}",
+                new CollaborationInfo(
+                    new Service($"service-{Guid.NewGuid()}"),
+                    $"action-{Guid.NewGuid()}"),
+                new Party("Sender", new PartyId($"id-{Guid.NewGuid()}")),
+                new Party("Receiver", new PartyId($"id-{Guid.NewGuid()}")),
+                new[] { new PartInfo($"cid:{partId2}") },
+                new MessageProperty[0]);
+
+            AS4Message as4Message = AS4Message.Create(new [] { userMessage1, userMessage2 });
+            as4Message.AddAttachment(new Attachment(partId1));
+            as4Message.AddAttachment(new Attachment(partId2));
 
             var receivingPMode = new ReceivingProcessingMode { Id = "deliver-pmode" };
-            var entity = new InMessage(userMessage.MessageId);
-            entity.SetPModeInformation(receivingPMode);
+            var entity1 = new InMessage(userMessage1.MessageId);
+            entity1.SetPModeInformation(receivingPMode);
+            var entity2 = new InMessage(userMessage2.MessageId);
+            entity2.SetPModeInformation(receivingPMode);
 
-            var fixture = new ReceivedEntityMessage(entity, as4Message.ToStream(), as4Message.ContentType);
             var sut = new DeliverMessageTransformer();
 
             // Act
-            MessagingContext result = await sut.TransformAsync(fixture);
+            MessagingContext result1 = 
+                await sut.TransformAsync(new ReceivedEntityMessage(entity1, as4Message.ToStream(), as4Message.ContentType));
+
+            MessagingContext result2 =
+                await sut.TransformAsync(new ReceivedEntityMessage(entity2, as4Message.ToStream(), as4Message.ContentType));
 
             // Assert
-            DeliverMessage deliverMessage = result.DeliverMessage.Message;
-
-            IEnumerable<string> mappingFailures =
+            IEnumerable<string> mappingFailures1 =
                 DeliverMessageOriginateFrom(
-                    userMessage,
+                    userMessage1,
                     receivingPMode,
-                    deliverMessage);
+                    result1.DeliverMessage.Message);
 
-            Assert.Empty(mappingFailures);
+            Assert.Empty(mappingFailures1);
+
+            IEnumerable<string> mappingFailures2 =
+                DeliverMessageOriginateFrom(
+                    userMessage2,
+                    receivingPMode,
+                    result2.DeliverMessage.Message);
+
+            Assert.Empty(mappingFailures2);
         }
 
         private static IEnumerable<string> DeliverMessageOriginateFrom(

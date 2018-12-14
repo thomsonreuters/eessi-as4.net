@@ -37,7 +37,7 @@ namespace Eu.EDelivery.AS4.Transformers
             }
 
             if (!(message is ReceivedEntityMessage entityMessage) 
-                || !(entityMessage.Entity is MessageEntity))
+                || !(entityMessage.Entity is MessageEntity me))
             {
                 throw new InvalidDataException(
                     $"The message that must be transformed should be of type {nameof(ReceivedEntityMessage)} with a {nameof(MessageEntity)} as Entity");
@@ -45,18 +45,32 @@ namespace Eu.EDelivery.AS4.Transformers
 
             MessagingContext context = await AS4MessageTransformer.TransformAsync(entityMessage);
             AS4Message as4Message = context.AS4Message;
+
+            UserMessage toBeDeliveredUserMessage = 
+                as4Message.UserMessages.FirstOrDefault(u => u.MessageId == me.EbmsMessageId);
+
+            if (toBeDeliveredUserMessage == null)
+            {
+                throw new InvalidOperationException(
+                    $"No UserMessage {me.EbmsMessageId} can be found in stored record for delivering");
+            }
+
+            IEnumerable<Attachment> toBeUploadedAttachments =
+                as4Message.Attachments
+                          .Where(a => a.MatchesAny(toBeDeliveredUserMessage.PayloadInfo))
+                          .ToArray();
+
             DeliverMessage deliverMessage =
                 CreateDeliverMessage(
-                    as4Message.FirstUserMessage,
-                    as4Message.Attachments,
+                    toBeDeliveredUserMessage,
+                    toBeUploadedAttachments,
                     context.ReceivingPMode);
 
             Logger.Info($"(Deliver) Created DeliverMessage from (first) UserMessage {as4Message.FirstUserMessage.MessageId}");
-
             var envelope = new DeliverMessageEnvelope(
                 message: deliverMessage,
                 contentType: "application/xml",
-                attachments: as4Message.UserMessages.SelectMany(um => as4Message.Attachments.Where(a => a.MatchesAny(um.PayloadInfo))));
+                attachments: toBeUploadedAttachments);
 
            context.ModifyContext(envelope);
             return context;
