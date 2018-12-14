@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
-using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Repositories;
@@ -12,6 +10,10 @@ using NLog;
 
 namespace Eu.EDelivery.AS4.Steps.Send
 {
+    /// <summary>
+    /// Adds piggy-backed ebMS signal messages to the <see cref="PullRequest"/> for signal messages that are responses
+    /// of ebMS user messages that matches the <see cref="PullRequest.Mpc"/>.
+    /// </summary>
     public class BundleSignalMessageToPullRequestStep : IStep
     {
         private readonly Func<DatastoreContext> _createContext;
@@ -28,8 +30,8 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// <summary>
         /// Initializes a new instance of the <see cref="BundleSignalMessageToPullRequestStep"/> class.
         /// </summary>
-        /// <param name="createContext"></param>
-        /// <param name="bodyStore"></param>
+        /// <param name="createContext">The create datastore context function.</param>
+        /// <param name="bodyStore">The store to use for persisting messages.</param>
         public BundleSignalMessageToPullRequestStep(Func<DatastoreContext> createContext, IAS4MessageBodyStore bodyStore)
         {
             if (createContext == null)
@@ -61,27 +63,36 @@ namespace Eu.EDelivery.AS4.Steps.Send
             if (messagingContext.AS4Message == null)
             {
                 throw new InvalidOperationException(
-                    $"{typeof(BundleSignalMessageToPullRequestStep)} Requires a AS4Message to possible bundle a "
+                    $"{nameof(BundleSignalMessageToPullRequestStep)} requires a AS4Message to possible bundle a "
                     + "SignalMessage to the PullRequest but there's not a AS4Message present in the MessagingContext");
+            }
+
+            if (messagingContext.SendingPMode == null)
+            {
+                throw new InvalidOperationException(
+                    $"{nameof(BundleSignalMessageToPullRequestStep)} requires a SendingPMode to select the right "
+                    + "SignalMessages for piggybacking but there's not a SendingPMode present in the MessagingContext");
             }
 
             if (!(messagingContext.AS4Message.PrimaryMessageUnit is PullRequest pullRequest))
             {
                 throw new InvalidOperationException(
-                    $"{typeof(BundleSignalMessageToPullRequestStep)} Requires a PullRequest as primary message unit in the "
+                    $"{nameof(BundleSignalMessageToPullRequestStep)} requires a PullRequest as primary message unit in the "
                     + "AS4Message but there's not a PullRequest present in the MessagingContext");
             }
 
-            using (DatastoreContext ctx = _createContext())
+            using (DatastoreContext db = _createContext())
             {
-                var service = new PiggyBackingService(ctx);
-                string url = messagingContext.SendingPMode?.PushConfiguration?.Protocol?.Url;
-                IEnumerable<SignalMessage> signalMessages = 
-                    await service.SelectToBePiggyBackedSignalMessagesAsync(pullRequest, url, _bodyStore);
+                var service = new PiggyBackingService(db);
+                IEnumerable<SignalMessage> signals = 
+                    await service.SelectToBePiggyBackedSignalMessagesAsync(pullRequest, messagingContext.SendingPMode, _bodyStore);
 
-                foreach (SignalMessage signal in signalMessages)
+                foreach (SignalMessage signal in signals)
                 {
-                    Logger.Info($"PiggyBack the {signal.GetType().Name} which reference UserMessage \"{signal.RefToMessageId}\" to the PullRequest");
+                    Logger.Info(
+                        $"PiggyBack the {signal.GetType().Name} \"{signal.MessageId}\" which reference "
+                        + $"UserMessage \"{signal.RefToMessageId}\" to the PullRequest");
+
                     messagingContext.AS4Message.AddMessageUnit(signal);
                 }
 

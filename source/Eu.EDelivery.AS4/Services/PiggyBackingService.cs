@@ -3,19 +3,23 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Core;
+using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Strategies.Sender;
 using NLog;
+using RetryReliability = Eu.EDelivery.AS4.Entities.RetryReliability;
 
 namespace Eu.EDelivery.AS4.Services
 {
+    /// <summary>
+    /// Service that centralizes the functionality related to the Piggy-Back approach of bundling <see cref="SignalMessage"/>s to <see cref="PullRequest"/>s.
+    /// </summary>
     internal class PiggyBackingService
     {
         private readonly DatastoreContext _context;
@@ -26,7 +30,7 @@ namespace Eu.EDelivery.AS4.Services
         /// <summary>
         /// Initializes a new instance of the <see cref="PiggyBackingService"/> class.
         /// </summary>
-        public PiggyBackingService(DatastoreContext context)
+        internal PiggyBackingService(DatastoreContext context)
         {
             if (context == null)
             {
@@ -41,12 +45,15 @@ namespace Eu.EDelivery.AS4.Services
         /// Selects the available <see cref="SignalMessage"/>s that are ready to be bundled (PiggyBacked) with the given <see cref="PullRequest"/>.
         /// </summary>
         /// <param name="pr">The <see cref="PullRequest"/> for which a selection of <see cref="SignalMessage"/>s are returned.</param>
-        /// <param name="url">The url at which <see cref="PullRequest"/> are sent.</param>
+        /// <param name="sendingPMode">The sending configuration used to select <see cref="SignalMessage"/>s with the same configuration.</param>
         /// <param name="bodyStore">The body store at which the <see cref="SignalMessage"/>s are persisted.</param>
-        /// <returns></returns>
-        public async Task<IEnumerable<SignalMessage>> SelectToBePiggyBackedSignalMessagesAsync(
+        /// <returns>
+        ///     An subsection of the <see cref="SignalMessage"/>s where the referenced send <see cref="UserMessage"/> matches the given <paramref name="pr"/>
+        ///     and where the sending configuration given in the <paramref name="sendingPMode"/> matches the stored <see cref="SignalMessage"/> sending configuration.
+        /// </returns>
+        internal async Task<IEnumerable<SignalMessage>> SelectToBePiggyBackedSignalMessagesAsync(
             PullRequest pr, 
-            string url,
+            SendingProcessingMode sendingPMode,
             IAS4MessageBodyStore bodyStore)
         {
             if (pr == null)
@@ -54,9 +61,9 @@ namespace Eu.EDelivery.AS4.Services
                 throw new ArgumentNullException(nameof(pr));
             }
 
-            if (string.IsNullOrWhiteSpace(url))
+            if (sendingPMode == null)
             {
-                throw new ArgumentException(@"Url cannot be null or whitespace.", nameof(url));
+                throw new ArgumentNullException(nameof(sendingPMode));
             }
 
             if (bodyStore == null)
@@ -64,17 +71,24 @@ namespace Eu.EDelivery.AS4.Services
                 throw new ArgumentNullException(nameof(bodyStore));
             }
 
+            string url = sendingPMode.PushConfiguration?.Protocol?.Url;
+            if (String.IsNullOrWhiteSpace(url))
+            {
+                throw new ArgumentException(
+                    @"SendingPMode.PushConfiguration.Protocol.Url cannot be blank", 
+                    nameof(sendingPMode.PushConfiguration.Protocol.Url));
+            }
+
+            bool pullRequestSigned = sendingPMode.Security?.Signing?.IsEnabled == true;
             return await _context.TransactionalAsync(async db =>
             {
                 IEnumerable<OutMessage> query =
                     db.NativeCommands
                       .SelectToBePiggyBackedSignalMessages(url, pr.Mpc);
 
-                var signals = new Collection<SignalMessage>();
+                var toBePiggyBackedSignals = new Collection<MessageUnit>();
                 foreach (OutMessage found in query)
                 {
-                    found.Operation = Operation.Sending;
-
                     Stream body = await bodyStore.LoadMessageBodyAsync(found.MessageLocation);
                     AS4Message signal =
                         await SerializerProvider
@@ -82,21 +96,26 @@ namespace Eu.EDelivery.AS4.Services
                               .Get(found.ContentType)
                               .DeserializeAsync(body, found.ContentType);
 
-                    if (signal.PrimaryMessageUnit is Receipt r)
+                    var toBePiggyBacked = signal.SignalMessages.FirstOrDefault(s => s.MessageId == found.EbmsMessageId);
+                    if (toBePiggyBacked is Receipt || toBePiggyBacked is Error)
                     {
-                        Logger.Debug($"Select Receipt {r.MessageId} for PiggyBacking");
-                        signals.Add(r);
+                        if (!pullRequestSigned && signal.IsSigned)
+                        {
+                            Logger.Warn(
+                                $"Can't PiggyBack {toBePiggyBacked.GetType().Name} {toBePiggyBacked.MessageId} because SignalMessage is signed "
+                                + $"while the SendingPMode {sendingPMode.Id} used is not configured for signing");
+                        }
+                        else
+                        {
+                            found.Operation = Operation.Sending;
+                            toBePiggyBackedSignals.Add(toBePiggyBacked);
+                        }
                     }
-                    else if (signal.PrimaryMessageUnit is Error e)
-                    {
-                        Logger.Debug($"Select Error {e.MessageId} for PiggyBacking");
-                        signals.Add(e);
-                    }
-                    else if (signal.PrimaryMessageUnit != null)
+                    else if (toBePiggyBacked != null)
                     {
                         Logger.Warn(
-                            $"Will not select {signal.PrimaryMessageUnit.GetType().Name} because only "
-                            + "Receipts and Errors are allowed SignalMessages are allowed to be PiggyBacked with PullRequests");
+                            $"Will not select {toBePiggyBacked.GetType().Name} {toBePiggyBacked.MessageId} "
+                            + "for PiggyBacking because only Receipts and Errors are allowed SignalMessages to be PiggyBacked with PullRequests");
                     }
                     else
                     {
@@ -104,13 +123,13 @@ namespace Eu.EDelivery.AS4.Services
                     }
                 }
 
-                if (query.Any())
+                if (toBePiggyBackedSignals.Any())
                 {
                     await db.SaveChangesAsync()
                             .ConfigureAwait(false);
                 }
 
-                return signals.AsEnumerable();
+                return toBePiggyBackedSignals.Cast<SignalMessage>().AsEnumerable();
             });
         }
 
@@ -120,7 +139,7 @@ namespace Eu.EDelivery.AS4.Services
         /// </summary>
         /// <param name="signals">The <see cref="SignalMessage"/>s that should be resetted for PiggyBacking.</param>
         /// <param name="sendResult">The result of the bundling operation to use when resetting the <see cref="SignalMessage"/>s.</param>
-        public void ResetSignalMessagesToBePiggyBacked(IEnumerable<SignalMessage> signals, SendResult sendResult)
+        internal void ResetSignalMessagesToBePiggyBacked(IEnumerable<SignalMessage> signals, SendResult sendResult)
         {
             if (signals == null)
             {
@@ -177,7 +196,7 @@ namespace Eu.EDelivery.AS4.Services
         /// </summary>
         /// <param name="inserts"></param>
         /// <param name="reliability"></param>
-        public void InsertRetryForPiggyBackedSignalMessages(IEnumerable<OutMessage> inserts, Model.PMode.RetryReliability reliability)
+        internal void InsertRetryForPiggyBackedSignalMessages(IEnumerable<OutMessage> inserts, Model.PMode.RetryReliability reliability)
         {
             if (reliability?.IsEnabled == true)
             {
