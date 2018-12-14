@@ -113,11 +113,9 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
                 return await HandleHttpResponseAsync(request, messagingContext).ConfigureAwait(false);
             }
-            catch (Exception exception)
+            catch
             {
-                Logger.ErrorDeep(exception);
                 await UpdateRetryStatusForMessageAsync(messagingContext, SendResult.RetryableFail);
-
                 throw;
             }
         }
@@ -128,11 +126,11 @@ namespace Eu.EDelivery.AS4.Steps.Send
         {
             if (sendingPMode != null)
             {
-                Logger.Debug($"Use SendingPMode {sendingPMode.Id} for sending the AS4Message");
+                Logger.Trace($"Use SendingPMode {sendingPMode.Id} for sending the AS4Message");
                 return sendingPMode.PushConfiguration;
             }
 
-            Logger.Debug($"Use ReceivingPMode {receivingPMode.Id} for sending the AS4Message");
+            Logger.Trace($"Use ReceivingPMode {receivingPMode.Id} for sending the AS4Message");
             return receivingPMode?.ReplyHandling?.ResponseConfiguration;
         }
 
@@ -231,6 +229,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
                 request.AllowWriteStreamBuffering = false;
 
+                Logger.Debug($"Send AS4Message to {request.RequestUri}");
                 using (Stream requestStream = await request.GetRequestStreamAsync().ConfigureAwait(false))
                 {
                     if (ctx.ReceivedMessage != null)
@@ -265,7 +264,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
         private async Task<StepResult> HandleHttpResponseAsync(HttpWebRequest request, MessagingContext ctx)
         {
-            Logger.Debug($"AS4Message received from: {request.Address}");
+            Logger.Trace($"AS4Message received from: {request.Address}");
             (HttpWebResponse webResponse, WebException exception) =
                 await _httpClient.Respond(request)
                                  .ConfigureAwait(false);

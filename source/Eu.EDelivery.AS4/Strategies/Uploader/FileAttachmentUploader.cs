@@ -95,9 +95,7 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
             }
             catch (Exception ex)
             {
-                Logger.Error(
-                    $"(Deliver)[{referringUserMessage.MessageId}] An fatal error occured while determining the file path: {ex}");
-
+                Logger.Error($"An fatal error occured while determining the file path: {ex}");
                 return null;
             }
         }
@@ -134,8 +132,7 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
                            Exception unauthorizedEx = exs.FirstOrDefault(ex => ex is UnauthorizedAccessException);
                            if (unauthorizedEx != null)
                            {
-                               Logger.Error(
-                                   $"(Deliver) A fatal error occured while uploading the attachment {attachment.Id}: {unauthorizedEx.Message}");
+                               Logger.Error($"A fatal error occured while uploading the attachment {attachment.Id}: {unauthorizedEx.Message}");
 
                                return UploadResult.FatalFail;
                            }
@@ -146,8 +143,7 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
                                exs.FirstOrDefault(ex => ex is IOException x && x.HResult == -2147024816);
                            if (fileAlreadyExsitsEx != null)
                            {
-                               Logger.Error(
-                                   $"(Deliver) Uploading file will be retried because a file already exists with the same name: {fileAlreadyExsitsEx}");
+                               Logger.Error($"Uploading file will be retried because a file already exists with the same name: {fileAlreadyExsitsEx}");
 
                                // If we happen to be in a concurrent scenario where there already
                                // exists a file with the same name, try to upload the file as well.
@@ -159,8 +155,7 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
                            }
 
                            string desc = String.Join(", ", exs);
-                           Logger.Error(
-                               $"(Deliver) An error occured while uploading the attachment {attachment.Id}: {desc}, will be retried");
+                           Logger.Error($"An error occured while uploading the attachment {attachment.Id}: {desc}, will be retried");
 
                            return UploadResult.RetryableFail;
                        }

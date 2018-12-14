@@ -158,7 +158,7 @@ namespace Eu.EDelivery.AS4.Mappings.Core
             {
                 return new Reference(
                     r.URI,
-                    r.Transforms?.Select(t => new ReferenceTransform(t.Algorithm)),
+                    r.Transforms?.Select(t => new ReferenceTransform(t.Algorithm)).ToArray(),
                     new ReferenceDigestMethod(r.DigestMethod?.Algorithm),
                     r.DigestValue);
             }

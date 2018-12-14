@@ -110,11 +110,6 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
             foreach (Attachment att in deliverEnvelope.Attachments)
             {
                 UploadResult result = await TryUploadAttachmentAsync(att, deliverEnvelope, uploader).ConfigureAwait(false);
-                if (result.Status == SendResult.Success)
-                {
-                    Logger.Info($"{messagingContext.LogTag} Attachment '{att.Id}' is delivered at: {result.DownloadUrl}");
-                }
-
                 results.Add(result);
             }
 

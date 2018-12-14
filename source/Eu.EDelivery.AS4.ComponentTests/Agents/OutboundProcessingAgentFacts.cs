@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
@@ -39,9 +40,13 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         [Fact]
         public async Task Compressed_Signed_Encrypted_UserMessage_Gets_Processed_With_Multihop_Information()
         {
-            await ProcessedMessageIsSetToSentWithoutAlteringMultihopInformation(
+            AS4Message as4Message = await ProcessedMessageIsSetToSentWithoutAlteringMultihopInformation(
                 CreateUserMessage,
                 (useCompression: true, signing: Signed(), encryption: Encrypted()));
+
+            Assert.All(
+                as4Message.UserMessages.SelectMany(u => u.PayloadInfo),
+                p => Assert.Equal("application/gzip", p.CompressionType));
         }
 
         [Fact]
@@ -55,9 +60,13 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         [Fact]
         public async Task Compressed_Signed_Unencrypted_UserMessage_Gets_Processed_With_Multihop_Information()
         {
-            await ProcessedMessageIsSetToSentWithoutAlteringMultihopInformation(
+            AS4Message as4Message = await ProcessedMessageIsSetToSentWithoutAlteringMultihopInformation(
                 CreateUserMessage,
                 (useCompression: true, signing: Signed(), encryption: Unencrypted()));
+
+            Assert.All(
+                as4Message.UserMessages.SelectMany(u => u.PayloadInfo),
+                p => Assert.Equal("application/gzip", p.CompressionType));
         }
 
         [Fact]
@@ -71,9 +80,13 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         [Fact]
         public async Task Compressed_Signed_Unencrypted_SignalMessage_Gets_Processed_With_Multihop_Information()
         {
-            await ProcessedMessageIsSetToSentWithoutAlteringMultihopInformation(
+            AS4Message as4Message = await ProcessedMessageIsSetToSentWithoutAlteringMultihopInformation(
                 CreateSignalMessage,
                 (useCompression: true, signing: Signed(), encryption: Unencrypted()));
+
+            Assert.All(
+                as4Message.UserMessages.SelectMany(u => u.PayloadInfo),
+                p => Assert.Equal("application/gzip", p.CompressionType));
         }
 
         [Fact]
@@ -84,7 +97,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                 (useCompression: false, signing: Unsigned(), encryption: Unencrypted()));
         }
 
-        private async Task ProcessedMessageIsSetToSentWithoutAlteringMultihopInformation(
+        private async Task<AS4Message> ProcessedMessageIsSetToSentWithoutAlteringMultihopInformation(
             Func<SendingProcessingMode, AS4Message> createMessage,
             (bool useCompression, Signing signing, Encryption encryption) pmodeInfo)
         {
@@ -137,6 +150,8 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                 datastoreSpy.GetRetryReliabilityFor(
                     r => r.RefToOutMessageId == processedEntry.Id) == null, 
                 "No 'RetryReliability' record should be inserted when receiving multihop AS4Message");
+
+            return processedMessage;
         }
 
         private static AS4Message CreateUserMessage(SendingProcessingMode pmode)

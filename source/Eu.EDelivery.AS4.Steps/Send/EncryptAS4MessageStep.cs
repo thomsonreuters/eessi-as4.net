@@ -72,7 +72,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             if (messagingContext.SendingPMode.Security?.Encryption == null
                 || messagingContext.SendingPMode.Security.Encryption.IsEnabled == false)
             {
-                Logger.Debug(
+                Logger.Trace(
                     "No encryption of the AS4Message will happen because the " +
                     $"SendingPMode {messagingContext.SendingPMode?.Id} Security.Encryption.IsEnabled is disabled");
 
@@ -80,7 +80,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             }
 
             Logger.Info(
-                $"{messagingContext.LogTag} Encrypt AS4Message with given encryption information " +
+                $"(Outbound)[{messagingContext.AS4Message.GetPrimaryMessageId()}] Encrypt AS4Message with given encryption information " +
                 $"configured in the SendingPMode: {messagingContext.SendingPMode.Id}");
 
             KeyEncryptionConfiguration keyEncryptionConfig = RetrieveKeyEncryptionConfig(messagingContext.SendingPMode);

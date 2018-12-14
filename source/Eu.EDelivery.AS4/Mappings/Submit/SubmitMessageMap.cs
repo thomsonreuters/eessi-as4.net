@@ -55,8 +55,8 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
                 collaboration: collaboration,
                 sender: ResolveSenderParty(submit, sendingPMode),
                 receiver: ResolveReceiverParty(submit, sendingPMode),
-                partInfos: ResolvePartInfos(submit, sendingPMode),
-                messageProperties: ResolveMessageProperties(submit, sendingPMode));
+                partInfos: ResolvePartInfos(submit, sendingPMode).ToArray(),
+                messageProperties: ResolveMessageProperties(submit, sendingPMode).ToArray());
         }
 
         private static string ResolveAction(SubmitMessage submit, SendingProcessingMode sendingPMode)
@@ -264,7 +264,7 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
 
                     return new Model.Core.Schema(sch.Location, sch.Version, sch.Namespace);
                 })
-                .ToList();
+                .ToArray();
 
             IDictionary<string, string> properties =
                 (submitPayload.PayloadProperties ?? new PayloadProperty[0])

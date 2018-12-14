@@ -51,7 +51,8 @@ namespace Eu.EDelivery.AS4.Mappings.Core
                     l.category.AsMaybe(),
                     l.refToMessageInError.AsMaybe(),
                     l.Description.AsMaybe().Select(d => new ErrorDescription(d.lang, d.Value)),
-                    l.ErrorDetail.AsMaybe()));
+                    l.ErrorDetail.AsMaybe()))
+                .ToArray();
 
             return routing.Select(r => new Error(messageId, refToMessageId, timestamp, lines, r))
                           .GetOrElse(() => new Error(messageId, refToMessageId, timestamp, lines));

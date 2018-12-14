@@ -292,7 +292,7 @@ namespace Eu.EDelivery.AS4.Services
                                 awareness.RetryInterval.AsTimeSpan(),
                                 RetryType.Send);
 
-                            Logger.Debug(
+                            Logger.Trace(
                                 $"Insert RetryReliability for OutMessage {m.EbmsMessageId} with "
                                 + $"{{RetryCount={awareness.RetryCount}, RetryInterval={awareness.RetryInterval}}}");
 

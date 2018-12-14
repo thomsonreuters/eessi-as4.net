@@ -45,13 +45,13 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
             if (messagingContext.SendingPMode.MessagePackaging?.UseAS4Compression == false)
             {
-                Logger.Debug($"No compression will happen because the SendingPMode {messagingContext.SendingPMode.Id} MessagePackaging.UseAS4Compression is disabled");
+                Logger.Trace($"No compression will happen because the SendingPMode {messagingContext.SendingPMode.Id} MessagePackaging.UseAS4Compression is disabled");
                 return StepResult.Success(messagingContext);
             }
 
             try
             {
-                Logger.Info($"{messagingContext.LogTag} Compress AS4Message attachments with GZip compression");
+                Logger.Info($"(Outbound)[{messagingContext.AS4Message.GetPrimaryMessageId()}] Compress AS4Message attachments with GZip compression");
                 messagingContext.AS4Message.CompressAttachments();
             }
             catch (SystemException exception)

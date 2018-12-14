@@ -27,7 +27,7 @@ namespace Eu.EDelivery.AS4.Model.Core
         public bool HasMimeType => Properties.ContainsKey("MimeType");
 
         /// <summary>
-        /// Gets or sets the MimeType property of this attachment.
+        /// Gets or sets the MimeType property of this attachment reference.
         /// </summary>
         public string MimeType
         {
@@ -39,6 +39,15 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// Schemas of the related <see cref="Attachment"/>.
         /// </summary>
         public IEnumerable<Schema> Schemas { get; }
+
+        /// <summary>
+        /// Gets or sets the CompressionType property of this attachment reference.
+        /// </summary>
+        public string CompressionType
+        {
+            get => Properties["CompressionType"];
+            set => Properties["CompressionType"] = value;
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PartInfo"/> class.
@@ -69,7 +78,7 @@ namespace Eu.EDelivery.AS4.Model.Core
                 throw new ArgumentNullException(nameof(schemas));
             }
 
-            Href = href.Replace(" ", string.Empty);
+            Href = href.Replace(" ", String.Empty);
             Properties = properties;
             Schemas = schemas;
         }

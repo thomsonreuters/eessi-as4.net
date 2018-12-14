@@ -18,7 +18,6 @@ namespace Eu.EDelivery.AS4.WindowsService.SystemTray
         {
             InitializeComponent();
 
-            // TODO: maybe we should determine the current status of the windows service before assuming we haven't started it manually.
             _icon = new NotifyIcon
             {
                 Visible = true,
@@ -41,6 +40,32 @@ namespace Eu.EDelivery.AS4.WindowsService.SystemTray
                         }
                     })
             };
+
+            _icon.ContextMenu.Popup += (sender, args) =>
+            {
+                ServiceControllerStatus st = GetCurrentWindowsServiceStatus();
+
+                if (_icon.ContextMenu.MenuItems.ContainsKey("Start")
+                    && st != ServiceControllerStatus.StopPending
+                    && st != ServiceControllerStatus.Stopped)
+                {
+                    SetContextMenuForStoppingWindowsService();
+                }
+                else if (_icon.ContextMenu.MenuItems.ContainsKey("Stop")
+                         && st != ServiceControllerStatus.StartPending
+                         && st != ServiceControllerStatus.Running)
+                {
+                    SetContextMenuForStartingWindowsService();
+                }
+            };
+        }
+
+        private static ServiceControllerStatus GetCurrentWindowsServiceStatus()
+        {
+            using (var controller = new ServiceController("AS4Service"))
+            {
+                return controller.Status;
+            }
         }
 
         /// <summary>
@@ -57,6 +82,12 @@ namespace Eu.EDelivery.AS4.WindowsService.SystemTray
 
         private void OnStart(object sender, EventArgs e)
         {
+            StartWindowsService();
+            SetContextMenuForStoppingWindowsService();
+        }
+
+        private static void StartWindowsService()
+        {
             Task.Run(() =>
             {
                 using (var controller = new ServiceController("AS4Service"))
@@ -68,21 +99,30 @@ namespace Eu.EDelivery.AS4.WindowsService.SystemTray
                     }
                 }
             });
+        }
 
+        private void SetContextMenuForStoppingWindowsService()
+        {
             _icon.ContextMenu
                  .MenuItems
                  .Remove(
                      _icon.ContextMenu
                           .MenuItems
                           .OfType<MenuItem>()
-                          .First(m => m.Text == "Start"));
+                          .First(m => m.Text == @"Start"));
 
             _icon.ContextMenu
                  .MenuItems
-                 .Add(index: 0, item: new MenuItem("Stop", OnStop));
+                 .Add(index: 0, item: new MenuItem("Stop", OnStop) { Name = "Stop" });
         }
 
         private void OnStop(object sender, EventArgs e)
+        {
+            StopWindowsService();
+            SetContextMenuForStartingWindowsService();
+        }
+
+        private static void StopWindowsService()
         {
             Task.Run(() =>
             {
@@ -95,18 +135,21 @@ namespace Eu.EDelivery.AS4.WindowsService.SystemTray
                     }
                 }
             });
+        }
 
+        private void SetContextMenuForStartingWindowsService()
+        {
             _icon.ContextMenu
                  .MenuItems
                  .Remove(
                      _icon.ContextMenu
                           .MenuItems
                           .OfType<MenuItem>()
-                          .First(m => m.Text == "Stop"));
+                          .First(m => m.Text == @"Stop"));
 
             _icon.ContextMenu
                  .MenuItems
-                 .Add(index: 0, item: new MenuItem("Start", OnStart));
+                 .Add(index: 0, item: new MenuItem("Start", OnStart) { Name = "Start" });
         }
 
         private void OnOpenPortal(object sender, EventArgs e)
@@ -118,6 +161,7 @@ namespace Eu.EDelivery.AS4.WindowsService.SystemTray
         {
             using (var form = new ConfigurePortalForm())
             {
+                form.PortalUrl = _portalUrl;
                 DialogResult dialogResult = form.ShowDialog();
 
                 if (dialogResult == DialogResult.OK)

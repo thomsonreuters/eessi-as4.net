@@ -2,7 +2,6 @@
 using System.ComponentModel;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
-using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Repositories;
@@ -82,7 +81,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
                     $"{nameof(StoreAS4MessageStep)} requires an AS4Message to save but no AS4Message is present in the MessagingContext");
             }
 
-            Logger.Debug("Storing the AS4Message with Operation=ToBeProcessed");
+            Logger.Trace("Storing the AS4Message with Operation=ToBeProcessed...");
             using (DatastoreContext context = _createContext())
             {
                 var repository = new DatastoreRepository(context);
@@ -99,14 +98,14 @@ namespace Eu.EDelivery.AS4.Steps.Submit
                 catch
                 {
                     messagingContext.ErrorResult = new ErrorResult(
-                        "Unable to store the received message due to an exception", 
+                        "Unable to store the received message due to an exception occured during the saving operation", 
                         ErrorAlias.Other);
 
                     throw;
                 }
             }
 
-            Logger.Info($"{messagingContext.LogTag} Stored the AS4Message with Operation=ToBeProcesed");
+            Logger.Trace("Stored the AS4Message with Operation=ToBeProcesed");
             return await StepResult.SuccessAsync(messagingContext);
         }
     }

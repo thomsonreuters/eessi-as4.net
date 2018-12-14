@@ -178,8 +178,8 @@ namespace Eu.EDelivery.AS4.Mappings.Core
                 collaboration: MapCollaborationInfo(xml.CollaborationInfo),
                 sender: MapParty(xml.PartyInfo?.From),
                 receiver: MapParty(xml.PartyInfo?.To),
-                partInfos: MapPartInfos(xml.PayloadInfo),
-                messageProperties: MapMessageProperties(xml.MessageProperties));
+                partInfos: MapPartInfos(xml.PayloadInfo).ToArray(),
+                messageProperties: MapMessageProperties(xml.MessageProperties).ToArray());
         }
 
         /// <summary>
@@ -201,8 +201,8 @@ namespace Eu.EDelivery.AS4.Mappings.Core
                 collaboration: RemoveResponsePostfixToActionWhenEmpty(MapCollaborationInfo(xml.CollaborationInfo)),
                 sender: MapParty(xml.PartyInfo?.From),
                 receiver: MapParty(xml.PartyInfo?.To),
-                partInfos: MapPartInfos(xml.PayloadInfo),
-                messageProperties: MapMessageProperties(xml.MessageProperties));
+                partInfos: MapPartInfos(xml.PayloadInfo).ToArray(),
+                messageProperties: MapMessageProperties(xml.MessageProperties).ToArray());
         }
 
         private static Model.Core.CollaborationInfo RemoveResponsePostfixToActionWhenEmpty(Model.Core.CollaborationInfo mapped)
