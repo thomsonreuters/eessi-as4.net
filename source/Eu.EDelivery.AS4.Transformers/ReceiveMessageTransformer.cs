@@ -86,8 +86,8 @@ namespace Eu.EDelivery.AS4.Transformers
                     $"Supported ContentTypes are {Constants.ContentTypes.Soap} and {Constants.ContentTypes.Mime}");
             }
 
-            ReceivedMessage m = await EnsureIncomingStreamIsSeekable(message);
-            AS4Message as4Message = await DeserializeToAS4Message(m);
+            ReceivedMessage rm = await EnsureIncomingStreamIsSeekable(message);
+            AS4Message as4Message = await DeserializeToAS4Message(rm);
 
             //Debug.Assert(m.UnderlyingStream.Position == 0, "The Deserializer failed to reposition the stream to its start-position");
 
@@ -106,7 +106,7 @@ namespace Eu.EDelivery.AS4.Transformers
                 Logger.Info($"(Receive) Receiving AS4Message -> {as4Message.PrimaryMessageUnit.GetType().Name} {as4Message.PrimaryMessageUnit.MessageId}"); 
             }
 
-            var context = new MessagingContext(as4Message, m, MessagingContextMode.Receive);
+            var context = new MessagingContext(as4Message, rm, MessagingContextMode.Receive);
 
             if (ReceivingPMode != null)
             {
@@ -120,24 +120,25 @@ namespace Eu.EDelivery.AS4.Transformers
                 }
                 else
                 {
-                    string description =
-                        $"Receiving PMode with Id: {ReceivingPMode} was configured as default PMode, {Environment.NewLine}" +
-                        "but this PMode cannot be found in the configured receiving PModes.";
-
                     Logger.Error(
-                        $@"{description} Configured Receiving PModes are placed on the folder: '.\config\receive-pmodes\'.");
+                        $"ReceivingPMode with Id: {ReceivingPMode} was configured as default PMode, but this PMode cannot be found in the configured receiving PModes."
+                        + $"{Environment.NewLine} Configured Receiving PModes are placed on the folder: '.\\config\\receive-pmodes\\'.");
 
-                    var errorResult = new ErrorResult(description, ErrorAlias.ProcessingModeMismatch);
+                    var errorResult = new ErrorResult(
+                        "Static configured ReceivingPMode cannot be found", 
+                        ErrorAlias.ProcessingModeMismatch);
+
                     var as4Error = new Error(
                         IdentifierFactory.Instance.Create(),
                         as4Message.GetPrimaryMessageId() ?? IdentifierFactory.Instance.Create(),
                         ErrorLine.FromErrorResult(errorResult));
 
                     return new MessagingContext(
-                        AS4Message.Create(as4Error), MessagingContextMode.Receive)
-                        {
-                            ErrorResult = errorResult
-                        };
+                        AS4Message.Create(as4Error), 
+                        MessagingContextMode.Receive)
+                    {
+                        ErrorResult = errorResult
+                    };
                 }
             }
 

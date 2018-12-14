@@ -227,17 +227,21 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             }
             catch (CryptographicException exception)
             {
+                var description = "Signature verification failed";
+
                 if (messagingContext.AS4Message.IsEncrypted)
                 {
                     Logger.Error(
                         "Signature verification failed because the received message is still encrypted. "
                         + "Make sure that you specify <Decryption/> information in the <Security/> element of the "
-                        + $"ReceivingPMode {messagingContext.ReceivingPMode?.Id} so the ebMS MessagingHeader is first decrypted before it's signature gets verified");
+                        + "ReceivingPMode so the ebMS MessagingHeader is first decrypted before it's signature gets verified");
+
+                    description = "Signature verification failed because the message is still encrypted";
                 }
 
                 Logger.Error($"{messagingContext.LogTag} An exception occured while validating the signature: {exception.Message}");
                 return InvalidSignatureResult(
-                    exception.Message, 
+                    description, 
                     ErrorAlias.FailedAuthentication, 
                     messagingContext);
             }

@@ -81,20 +81,22 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             ReceivingProcessingMode receivePMode = context.ReceivingPMode;
             if (receivePMode.Security.Decryption.Encryption == Limit.Required && !context.AS4Message.IsEncrypted)
             {
-                return FailedDecryptResult(
-                    $"AS4Message is not encrypted but ReceivingPMode {receivePMode.Id} requires it. " + 
-                    "Please alter the PMode Decryption.Encryption element to Allowed or Ignored",
-                    ErrorAlias.PolicyNonCompliance,
-                    context);
+                Logger.Error(
+                    $"AS4Message is not encrypted but ReceivingPMode {receivePMode.Id} requires it. "
+                    + $"{Environment.NewLine} Please alter the PMode Decryption.Encryption element to Allowed or Ignored");
+
+                context.ErrorResult = new ErrorResult("AS4Message is not encrypted but ReceivingPMode requires it", ErrorAlias.PolicyNonCompliance);
+                return StepResult.Failed(context);
             }
 
             if (receivePMode.Security.Decryption.Encryption == Limit.NotAllowed && context.AS4Message.IsEncrypted)
             {
-                return FailedDecryptResult(
-                    $"AS4Message is encrypted but ReceivingPMode {receivePMode.Id} doesn't allow it. " + 
-                    "Please alter the PMode Decryption.Encryption element to Required, Allowed or Ignored",
-                    ErrorAlias.PolicyNonCompliance,
-                    context);
+                Logger.Error(
+                    $"AS4Message is encrypted but ReceivingPMode {receivePMode.Id} doesn't allow it. " +
+                    $"{Environment.NewLine} Please alter the PMode Decryption.Encryption element to Required, Allowed or Ignored");
+
+                context.ErrorResult = new ErrorResult("AS4Message is encrypted but ReceivingPMode doesn't allow it", ErrorAlias.PolicyNonCompliance);
+                return StepResult.Failed(context);
             }
 
             if (!context.AS4Message.IsEncrypted)
@@ -110,14 +112,6 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             }
 
             return await DecryptAS4MessageAsync(context).ConfigureAwait(false);
-        }
-
-        private static StepResult FailedDecryptResult(string description, ErrorAlias errorAlias, MessagingContext context)
-        {
-            context.ErrorResult = new ErrorResult("Cannot decrypt incoming message: " + description, errorAlias);
-            Logger.Error($"{context.LogTag} {context.ErrorResult.Description}");
-
-            return StepResult.Failed(context);
         }
 
         private async Task<StepResult> DecryptAS4MessageAsync(MessagingContext messagingContext)
@@ -140,8 +134,10 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             }
             catch (Exception ex) when (ex is CryptoException || ex is CryptographicException)
             {
+                Logger.Error(ex);
+
                 messagingContext.ErrorResult = new ErrorResult(
-                    description: $"Decryption failed: {ex.Message}",
+                    description: "Decryption of message failed",
                     alias: ErrorAlias.FailedDecryption);
 
                 Logger.Error(messagingContext.ErrorResult.Description);
