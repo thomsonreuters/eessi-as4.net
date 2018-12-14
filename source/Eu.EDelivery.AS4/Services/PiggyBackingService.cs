@@ -74,7 +74,9 @@ namespace Eu.EDelivery.AS4.Services
             string url = sendingPMode.PushConfiguration?.Protocol?.Url;
             if (String.IsNullOrWhiteSpace(url))
             {
-                throw new ArgumentException(@"Url cannot be null or whitespace.", nameof(sendingPMode.PushConfiguration.Protocol.Url));
+                throw new ArgumentException(
+                    @"SendingPMode.PushConfiguration.Protocol.Url cannot be blank", 
+                    nameof(sendingPMode.PushConfiguration.Protocol.Url));
             }
 
             bool pullRequestSigned = sendingPMode.Security?.Signing?.IsEnabled == true;
