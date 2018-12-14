@@ -44,6 +44,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 Assert.All(
                     result.MessagingContext.AS4Message.Attachments,
                     a => Assert.NotEqual("application/gzip", a.ContentType));
+
+                Assert.All(
+                    result.MessagingContext.AS4Message.UserMessages.SelectMany(u => u.PayloadInfo),
+                    p => Assert.Equal("application/gzip", p.CompressionType));
             }
 
             [Property]
@@ -68,6 +72,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                     Assert.All(
                         result.MessagingContext.AS4Message.Attachments,
                         a => Assert.NotEqual("application/gzip", a.ContentType));
+
+                    Assert.All(
+                        result.MessagingContext.AS4Message.UserMessages.SelectMany(u => u.PayloadInfo),
+                        p => Assert.Equal("application/gzip", p.CompressionType));
                 };
 
                 return act.When(attachmentIds.Get.Distinct().Any());

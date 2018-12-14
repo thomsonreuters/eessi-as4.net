@@ -314,7 +314,7 @@ namespace Eu.EDelivery.AS4.Serialization
                         id: bodyPart.ContentId,
                         content: bodyPart.ContentObject.Open(),
                         contentType: bodyPart.ContentType.MimeType,
-                        props: value.Properties); ;
+                        props: value.Properties.ToDictionary(kv => kv.Key, kv => kv.Value)); ;
                 }
                 else
                 {

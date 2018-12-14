@@ -2,7 +2,7 @@
 <PMode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
   xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
   xmlns="eu:edelivery:as4:pmode">
-  <Id>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/test</Id>
+  <Id>ACT_SIMPLE_TWOWAY</Id>
   <Reliability>
     <DuplicateElimination>
       <IsEnabled>false</IsEnabled>
@@ -23,17 +23,26 @@
         <UseChunking>false</UseChunking>
         <UseHttpCompression>false</UseHttpCompression>
       </Protocol>
-      <TlsConfiguration>
-        <IsEnabled>false</IsEnabled>
-      </TlsConfiguration>
     </ResponseConfiguration>
     <ResponseSigning>
-      <IsEnabled>false</IsEnabled>
+      <IsEnabled>true</IsEnabled>
+      <CertificateFindCriteria>
+        <CertificateFindType>FindBySubjectName</CertificateFindType>
+        <CertificateFindValue>as4-net-c3</CertificateFindValue>
+      </CertificateFindCriteria>
+      <KeyReferenceMethod>BSTReference</KeyReferenceMethod>
+      <Algorithm>http://www.w3.org/2001/04/xmldsig-more#rsa-sha256</Algorithm>
+      <HashFunction>http://www.w3.org/2001/04/xmlenc#sha256</HashFunction>
     </ResponseSigning>
   </ReplyHandling>
   <ExceptionHandling>
-    <NotifyMessageConsumer>false</NotifyMessageConsumer>
-    <NotifyMethod />
+    <NotifyMessageConsumer>true</NotifyMessageConsumer>
+    <NotifyMethod>
+      <Type>HTTP</Type>
+      <Parameters>
+        <Parameter name="location" value="http://13.81.109.44:15001/corner4" />
+      </Parameters>
+    </NotifyMethod>
   </ExceptionHandling>
   <Security>
     <SigningVerification>
@@ -43,7 +52,7 @@
       <Encryption>Allowed</Encryption>
       <CertificateFindCriteria>
         <CertificateFindType>FindBySubjectName</CertificateFindType>
-        <CertificateFindValue>as4-net-c2</CertificateFindValue>
+        <CertificateFindValue>as4-net-c3</CertificateFindValue>
       </CertificateFindCriteria>
     </Decryption>
   </Security>
@@ -52,7 +61,7 @@
       <FromParty>
         <PartyIds>
           <PartyId>
-            <Id>as4-net-c3</Id>
+            <Id>as4-net-c2</Id>
             <Type>urn:oasis:names:tc:ebcore:partyid-type:unregistered</Type>
           </PartyId>
         </PartyIds>
@@ -61,7 +70,7 @@
       <ToParty>
         <PartyIds>
           <PartyId>
-            <Id>as4-net-c2</Id>
+            <Id>as4-net-c3</Id>
             <Type>urn:oasis:names:tc:ebcore:partyid-type:unregistered</Type>
           </PartyId>
         </PartyIds>
@@ -69,9 +78,9 @@
       </ToParty>
     </PartyInfo>
     <CollaborationInfo>
-      <Action>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/test</Action>
+      <Action>ACT_SIMPLE_TWOWAY</Action>
       <Service>
-        <Value>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service</Value>
+        <Value>SRV_SIMPLE_TWOWAY</Value>
       </Service>
     </CollaborationInfo>
   </MessagePackaging>
@@ -88,7 +97,7 @@
       <DeliverMethod>
         <Type>HTTP</Type>
         <Parameters>
-          <Parameter name="location" value="http://13.81.109.44:15001/corner1" />
+          <Parameter name="location" value="http://13.81.109.44:15001/corner4" />
         </Parameters>
       </DeliverMethod>
     </Deliver>

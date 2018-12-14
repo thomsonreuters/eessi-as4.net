@@ -2,7 +2,7 @@
 <PMode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
   xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
   xmlns="eu:edelivery:as4:pmode">
-  <Id>ACT_ONEWAY_SIGNONLY</Id>
+  <Id>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/test</Id>
   <Reliability>
     <DuplicateElimination>
       <IsEnabled>false</IsEnabled>
@@ -28,27 +28,29 @@
       </TlsConfiguration>
     </ResponseConfiguration>
     <ResponseSigning>
-      <IsEnabled>false</IsEnabled>
+      <IsEnabled>true</IsEnabled>
+      <CertificateFindCriteria>
+        <CertificateFindType>FindBySubjectName</CertificateFindType>
+        <CertificateFindValue>as4-net-c2</CertificateFindValue>
+      </CertificateFindCriteria>
+      <KeyReferenceMethod>BSTReference</KeyReferenceMethod>
+      <Algorithm>http://www.w3.org/2001/04/xmldsig-more#rsa-sha256</Algorithm>
+      <HashFunction>http://www.w3.org/2001/04/xmlenc#sha256</HashFunction>
     </ResponseSigning>
   </ReplyHandling>
   <ExceptionHandling>
     <NotifyMessageConsumer>false</NotifyMessageConsumer>
-    <NotifyMethod>
-      <Type>HTTP</Type>
-      <Parameters>
-        <Parameter name="location" value="http://13.81.109.44:15001/corner1" />
-      </Parameters>
-    </NotifyMethod>
+    <NotifyMethod />
   </ExceptionHandling>
   <Security>
     <SigningVerification>
       <Signature>Allowed</Signature>
     </SigningVerification>
     <Decryption>
-      <Encryption>Ignored</Encryption>
+      <Encryption>Allowed</Encryption>
       <CertificateFindCriteria>
-        <CertificateFindType>FindByThumbprint</CertificateFindType>
-        <CertificateFindValue />
+        <CertificateFindType>FindBySubjectName</CertificateFindType>
+        <CertificateFindValue>as4-net-c2</CertificateFindValue>
       </CertificateFindCriteria>
     </Decryption>
   </Security>
@@ -74,9 +76,9 @@
       </ToParty>
     </PartyInfo>
     <CollaborationInfo>
-      <Action>ACT_ONEWAY_SIGNONLY</Action>
+      <Action>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/test</Action>
       <Service>
-        <Value>SRV_ONEWAY_SIGNONLY</Value>
+        <Value>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service</Value>
       </Service>
     </CollaborationInfo>
   </MessagePackaging>

@@ -27,17 +27,12 @@ namespace Eu.EDelivery.AS4.Mappings.PMode
                 throw new ArgumentNullException(nameof(sendingPMode));
             }
 
-            if (parts == null)
-            {
-                throw new ArgumentNullException(nameof(parts));
-            }
-
             IEnumerable<MessageProperty> properties =
-                sendingPMode.MessagePackaging?.MessageProperties == null
-                    ? Enumerable.Empty<MessageProperty>()
-                    : sendingPMode.MessagePackaging.MessageProperties
-                                  .Where(p => p != null)
-                                  .Select(p => new MessageProperty(p.Name, p.Value, p.Type));
+                sendingPMode.MessagePackaging
+                            ?.MessageProperties
+                            ?.Where(p => p != null)
+                            .Select(p => new MessageProperty(p.Name, p.Value, p.Type))
+                            .ToArray() ?? Enumerable.Empty<MessageProperty>();
 
             return new UserMessage(
                 IdentifierFactory.Instance.Create(),
@@ -49,7 +44,7 @@ namespace Eu.EDelivery.AS4.Mappings.PMode
                     CollaborationInfo.DefaultConversationId),
                 ResolveSender(sendingPMode.MessagePackaging?.PartyInfo?.FromParty),
                 ResolveReceiver(sendingPMode.MessagePackaging?.PartyInfo?.ToParty),
-                parts,
+                parts ?? Enumerable.Empty<PartInfo>(),
                 properties);
         }
 
@@ -71,12 +66,12 @@ namespace Eu.EDelivery.AS4.Mappings.PMode
             }
 
             Maybe<string> type =
-                (pmodeAgreement?.Type != null)
-                .ThenMaybe(pmodeAgreement?.Type);
+                (pmodeAgreement.Type != null)
+                .ThenMaybe(pmodeAgreement.Type);
 
             Maybe<string> pmodeId =
-                (pmodeAgreement?.PModeId != null)
-                .ThenMaybe(pmodeAgreement?.PModeId)
+                (pmodeAgreement.PModeId != null)
+                .ThenMaybe(pmodeAgreement.PModeId)
                 .Where(_ => pmode.MessagePackaging.IncludePModeId);
 
             return Maybe.Just(new AgreementReference(value, type, pmodeId));
@@ -147,10 +142,11 @@ namespace Eu.EDelivery.AS4.Mappings.PMode
             var ids = 
                 p.PartyIds == null
                     ? Enumerable.Empty<PartyId>()
-                    : p.PartyIds?.Select(id => 
-                        String.IsNullOrEmpty(id.Type)
+                    : p.PartyIds
+                       ?.Select(id => String.IsNullOrEmpty(id.Type)
                             ? new PartyId(id.Id)
-                            : new PartyId(id.Id, id.Type));
+                            : new PartyId(id.Id, id.Type))
+                       .ToArray();
 
             return new Party(p.Role, ids);
         }

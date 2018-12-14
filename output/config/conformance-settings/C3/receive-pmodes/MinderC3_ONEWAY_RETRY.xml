@@ -1,9 +1,11 @@
 <?xml version="1.0"?>
-<PMode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="eu:edelivery:as4:pmode">
-  <Id>ACT_SIMPLE_TWOWAY_SUBMIT</Id>
+<PMode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+  xmlns="eu:edelivery:as4:pmode">
+  <Id>ACT_ONEWAY_RETRY</Id>
   <Reliability>
     <DuplicateElimination>
-      <IsEnabled>false</IsEnabled>
+      <IsEnabled>true</IsEnabled>
     </DuplicateElimination>
   </Reliability>
   <ReplyHandling>
@@ -23,11 +25,18 @@
       </Protocol>
     </ResponseConfiguration>
     <ResponseSigning>
-      <IsEnabled>false</IsEnabled>
+      <IsEnabled>true</IsEnabled>
+      <CertificateFindCriteria>
+        <CertificateFindType>FindBySubjectName</CertificateFindType>
+        <CertificateFindValue>as4-net-c3</CertificateFindValue>
+      </CertificateFindCriteria>
+      <KeyReferenceMethod>BSTReference</KeyReferenceMethod>
+      <Algorithm>http://www.w3.org/2001/04/xmldsig-more#rsa-sha256</Algorithm>
+      <HashFunction>http://www.w3.org/2001/04/xmlenc#sha256</HashFunction>
     </ResponseSigning>
   </ReplyHandling>
   <ExceptionHandling>
-    <NotifyMessageConsumer>true</NotifyMessageConsumer>
+    <NotifyMessageConsumer>false</NotifyMessageConsumer>
     <NotifyMethod>
       <Type>HTTP</Type>
       <Parameters>
@@ -56,7 +65,7 @@
             <Type>urn:oasis:names:tc:ebcore:partyid-type:unregistered</Type>
           </PartyId>
         </PartyIds>
-        <Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</Role>
+        <Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</Role>
       </FromParty>
       <ToParty>
         <PartyIds>
@@ -65,13 +74,13 @@
             <Type>urn:oasis:names:tc:ebcore:partyid-type:unregistered</Type>
           </PartyId>
         </PartyIds>
-        <Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</Role>
+        <Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</Role>
       </ToParty>
     </PartyInfo>
     <CollaborationInfo>
-      <Action>ACT_SIMPLE_TWOWAY</Action>
+      <Action>ACT_ONEWAY_RETRY</Action>
       <Service>
-        <Value>SRV_SIMPLE_TWOWAY</Value>
+        <Value>SRV_ONEWAY_RETRY</Value>
       </Service>
     </CollaborationInfo>
   </MessagePackaging>
