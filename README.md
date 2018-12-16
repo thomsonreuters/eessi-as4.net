@@ -14,6 +14,7 @@ Testing against the EESSI AS4 Messaging Profile has also been conducted.
 
 <span>AS4.NET</span> can be downloaded from the following locations:
 
+- [AS4.NET v4.0.0](https://ec.europa.eu/cefdigital/artifact/content/groups/public/eu/eessi/as4/eessi_as4.net/3.1.0/eessi_as4.net-4.0.0.zip)
 - [AS4.NET v3.1.0](https://ec.europa.eu/cefdigital/artifact/content/groups/public/eu/eessi/as4/eessi_as4.net/3.1.0/eessi_as4.net-3.1.0.zip)
 - [AS4.NET v3.0.0](https://ec.europa.eu/cefdigital/artifact/content/groups/public/eu/eessi/as4/eessi_as4.net/3.0.0/eessi_as4.net-3.0.0.zip)
 - [AS4.NET v2.0.1](https://ec.europa.eu/cefdigital/artifact/content/groups/public/eu/eessi/as4/eessi_as4.net/2.0.1/eessi_as4.net-2.0.1.zip)
@@ -102,6 +103,8 @@ A configuration- and usermanual can be found [online](https://ec.europa.eu/cefdi
 - Support for OASIS BDX Service Metadata Publishers (SMP) dynamic discovery
 - Allow windows service MSH be installed as MSI and be controlled with system tray
 - Allow user messages be matched with receiving pmodes were the pmode defines more party ids than the message
+- Allow dynamic discovery based on sender party from submit, sending pmode or AS4 message for forwarding scenario's
+- Support for internal journal logging to track down operations executed on the message (compress/decompress, signing/verify, encrypt/decrypt)
 - Support for sending and receiving bundled message units
 - Configurable submit payload retrieval path location
 - Configurable pull authorization map path location
