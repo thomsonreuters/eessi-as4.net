@@ -98,8 +98,14 @@ A configuration- and usermanual can be found [online](https://ec.europa.eu/cefdi
 
 ### v4.0.0
 
-- ...
-- Improvements in the web interface for configuration
+- Support for responding signal messages via reliable piggybacking
+- Support for OASIS BDX Service Metadata Publishers (SMP) dynamic discovery
+- Allow windows service MSH be installed as MSI and be controlled with system tray
+- Allow user messages be matched with receiving pmodes were the pmode defines more party ids than the message
+- Support for sending and receiving bundled message units
+- Configurable submit payload retrieval path location
+- Configurable pull authorization map path location
+- Improvements in the web interface for pmode and agents configuration
 - Improvements to the internal messaging engine
 
 > This version doesn't support **Sending PModes** anymore as a way to respond to AS4 messages but uses the **Receiving PMode** for this. Please update your **Receiving PModes**, for more information see: [Remove Sending PMode as responding PMode](output/doc/wiki/runtime/configuration/remove-response-pmode.md).
