@@ -69,47 +69,28 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 throw new ArgumentNullException(nameof(messagingContext));
             }
 
-            AS4Message as4Message = messagingContext.AS4Message;
-            if (as4Message == null)
+            if (messagingContext.AS4Message == null)
             {
                 throw new InvalidOperationException(
                     $"{nameof(DeterminePModesStep)} requires an AS4Message but no AS4Message is present in the MessagingContext");
             }
 
-            if (as4Message.SignalMessages.Any(s => !(s is Model.Core.PullRequest)))
+            AS4Message as4Message = messagingContext.AS4Message;
+            bool containsSignalThatNotPullRequest = as4Message.SignalMessages.Any(s => !(s is Model.Core.PullRequest));
+            if (containsSignalThatNotPullRequest && (as4Message.IsMultiHopMessage || messagingContext.SendingPMode == null))
             {
-                if (as4Message.IsMultiHopMessage || messagingContext.SendingPMode == null)
-                {
-
-                    var firstNonPrSignalMessage = as4Message.SignalMessages.First(s => !(s is Model.Core.PullRequest));
-                    SendPMode pmode = await DetermineSendingPModeForSignalMessageAsync(firstNonPrSignalMessage);
-                    if (pmode != null)
-                    {
-                        Logger.Debug($"Determined SendingPMode {pmode.Id} for received SignalMessages");
-                        messagingContext.SendingPMode = pmode;
-                    }
-                    else if (as4Message.IsMultiHopMessage == false)
-                    {
-                        throw new InvalidOperationException(
-                            $"{messagingContext.LogTag} Cannot determine Sending PMode for incoming SignalMessage: "
-                            + $"no referenced OutMessage with Id: {as4Message.FirstSignalMessage.RefToMessageId} "
-                            + "is stored in the Datastore to retrieve the Sending PMode from");
-                    }
-                }
+                messagingContext.SendingPMode = await DetermineSendingPModeForSignalMessageAsync(as4Message);
             }
 
             if (messagingContext.ReceivingPMode != null)
             {
-                Logger.Info(
-                    $"{messagingContext.LogTag} Will not determine ReceivingPMode: incoming message has already a "
-                    + $"ReceivingPMode: {messagingContext.ReceivingPMode.Id} confingured, "
-                    + "this happens when the Receive Agent is configured as a \"Static Receive Agent\"");
+                Logger.Debug(
+                    $"Will not determine ReceivingPMode: incoming message has already a ReceivingPMode: {messagingContext.ReceivingPMode.Id} configured. "
+                    + $"{Environment.NewLine} This happens when the Receive Agent is configured as a \"Static Receive Agent\"");
             }
-            else if (as4Message.HasUserMessage
-                    || as4Message.SignalMessages.Any(s => s.IsMultihopSignal))
+            else if (as4Message.HasUserMessage || as4Message.SignalMessages.Any(s => s.IsMultihopSignal))
             {
                 Logger.Trace("Incoming message hasn't yet a ReceivingPMode, will determine one");
-
                 UserMessage userMessage = GetUserMessageFromFirstMessageUnitOrRoutingInput(messagingContext.AS4Message);
                 IEnumerable<ReceivePMode> possibilities = GetMatchingReceivingPModeForUserMessage(userMessage);
 
@@ -124,69 +105,84 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 }
 
                 ReceivePMode pmode = possibilities.First();
-                Logger.Info($"Found ReceivingPMode {pmode.Id} to further process the incoming message");
+                Logger.Info($"Found ReceivingPMode \"{pmode.Id}\" to further process the incoming message");
                 messagingContext.ReceivingPMode = pmode;
             }
 
             return StepResult.Success(messagingContext);
         }
 
-        private async Task<SendPMode> DetermineSendingPModeForSignalMessageAsync(Model.Core.SignalMessage signalMessage)
+        private async Task<SendPMode> DetermineSendingPModeForSignalMessageAsync(AS4Message as4Message)
         {
-            if (String.IsNullOrWhiteSpace(signalMessage.RefToMessageId))
+            var firstNonPrSignalMessage = as4Message.SignalMessages.First(s => !(s is Model.Core.PullRequest));
+            async Task<SendPMode> SelectSendingPModeBasedOnSendUserMessage()
             {
-                Logger.Warn(
-                    $"Cannot determine SendingPMode for received {signalMessage.GetType().Name} SignalMessage "
-                    + "because it doesn't contain a RefToMessageId to link a UserMessage from which the SendingPMode needs to be selected");
-
-                return null;
-            }
-
-            using (DatastoreContext dbContext = _createContext())
-            {
-                var repository = new DatastoreRepository(dbContext);
-
-                // We must take into account that it is possible that we have an OutMessage that has
-                // been forwarded; in that case, we must not retrieve the sending - pmode since we 
-                // will have to forward the signalmessage.
-                var referenced = repository.GetOutMessageData(
-                        where: m => m.EbmsMessageId == signalMessage.RefToMessageId && m.Intermediary == false,
-                        selection: m => new { m.PMode, m.ModificationTime })
-                              .OrderByDescending(m => m.ModificationTime)
-                              .FirstOrDefault();
-
-                if (referenced == null)
+                if (String.IsNullOrWhiteSpace(firstNonPrSignalMessage.RefToMessageId))
                 {
-                    Logger.Warn($"No referenced UserMessage record found for SignalMessage {signalMessage.MessageId}");
+                    Logger.Warn(
+                        $"Cannot determine SendingPMode for received {firstNonPrSignalMessage.GetType().Name} SignalMessage "
+                        + "because it doesn't contain a RefToMessageId to link a UserMessage from which the SendingPMode needs to be selected");
+
                     return null;
                 }
 
-                string pmodeString = referenced?.PMode;
-                if (String.IsNullOrWhiteSpace(pmodeString))
+                using (DatastoreContext dbContext = _createContext())
                 {
-                    Logger.Warn($"No SendingPMode found in stored referenced UserMessage record for SignalMessage {signalMessage.MessageId}");
-                    return null;
-                }
+                    var repository = new DatastoreRepository(dbContext);
 
-                return await AS4XmlSerializer.FromStringAsync<SendPMode>(pmodeString);
+                    // We must take into account that it is possible that we have an OutMessage that has
+                    // been forwarded; in that case, we must not retrieve the sending - pmode since we 
+                    // will have to forward the signal message.
+                    var referenced = repository.GetOutMessageData(
+                            where: m => m.EbmsMessageId == firstNonPrSignalMessage.RefToMessageId && m.Intermediary == false,
+                            selection: m => new { m.PMode, m.ModificationTime })
+                                  .OrderByDescending(m => m.ModificationTime)
+                                  .FirstOrDefault();
+
+                    if (referenced == null)
+                    {
+                        Logger.Warn($"No referenced UserMessage record found for SignalMessage {firstNonPrSignalMessage.MessageId}");
+                        return null;
+                    }
+
+                    string pmodeString = referenced?.PMode;
+                    if (String.IsNullOrWhiteSpace(pmodeString))
+                    {
+                        Logger.Warn($"No SendingPMode found in stored referenced UserMessage record for SignalMessage {firstNonPrSignalMessage.MessageId}");
+                        return null;
+                    }
+
+                    return await AS4XmlSerializer.FromStringAsync<SendPMode>(pmodeString);
+                }
             }
+
+            SendPMode pmode = await SelectSendingPModeBasedOnSendUserMessage();
+            if (pmode != null)
+            {
+                Logger.Debug($"Determined SendingPMode {pmode.Id} for received SignalMessages");
+                return pmode;
+            }
+
+            if (as4Message.IsMultiHopMessage == false)
+            {
+                throw new InvalidOperationException(
+                    "Cannot determine SendingPMode for incoming SignalMessage because no "
+                    + $"referenced UserMessage {firstNonPrSignalMessage.RefToMessageId} was found on this MSH");
+           }
+
+            return null;
         }
 
         private static UserMessage GetUserMessageFromFirstMessageUnitOrRoutingInput(AS4Message as4Message)
         {
-            // TODO: is this enough ?
-            // should we explictly check for multihop signals ?
+            // TODO: is this enough? should we explicitly check for multi-hop signals ?
             if (as4Message.HasUserMessage)
             {
-                Logger.Debug(
-                    "AS4Message contains UserMessages, so the incoming message itself will be used to match the right ReceivingPMode");
-
+                Logger.Trace("AS4Message contains UserMessages, so the incoming message itself will be used to match the right ReceivingPMode");
                 return as4Message.FirstUserMessage;
             }
 
-            Logger.Debug(
-                "AS4Message should be a Multi-Hop SignalMessage, so the embeded Multi-Hop UserMessage will be used to match the right Receiving PMode");
-
+            Logger.Debug("AS4Message should be a Multi-Hop SignalMessage, so the embeded Multi-Hop UserMessage will be used to match the right ReceivingPMode");
             Maybe<RoutingInputUserMessage> routedUserMessageM =
                 as4Message.SignalMessages.FirstOrDefault(s => s.IsMultihopSignal)?.MultiHopRouting;
 
@@ -196,8 +192,8 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             }
 
             throw new InvalidOperationException(
-                "Incoming message doesn't have a UserMessage either as Message Unit or as Routed Input in a SignalMessage. " +
-                "This message can therefore not be used to determine the ReceivingPMode");
+                "Incoming message doesn't have a UserMessage either as message unit or as <RoutedInput/> in a SignalMessage. "
+                + "This message can therefore not be used to determine the ReceivingPMode");
         }
 
         private IEnumerable<ReceivePMode> GetMatchingReceivingPModeForUserMessage(UserMessage userMessage)
@@ -210,7 +206,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             IEnumerable<int> scoresToConsider = participants.Select(p => p.Points).Where(p => p >= 10);
             if (scoresToConsider.Any() == false)
             {
-                return new ReceivePMode[] { };
+                return Enumerable.Empty<ReceivePMode>();
             }
 
             int maxPoints = scoresToConsider.Max();
@@ -219,27 +215,29 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
         private static StepResult TooManyPossibilitiesFailure(MessagingContext messagingContext, IEnumerable<ReceivePMode> possibilities)
         {
-            const string description =
-                "Cannot determine ReceivingPMode: more than one matching ReceivingPMode was found. " +
-                "Please make the matching information more strict in the message packaging information so that only a single PMode is matched";
-
-            Logger.Error(description);
             Logger.Error(
-                $"Candidates are:{Environment.NewLine}" +
-                String.Join(Environment.NewLine, possibilities.Select(p => p.Id).ToArray()));
+                "Cannot determine ReceivingPMode because more than a single matching PMode was found (greater or equal than 10 points). "
+                + $"{Environment.NewLine} Please make the matching information more strict in the message packaging information so that only a single PMode is matched."
+                + $"{Environment.NewLine}{String.Join(Environment.NewLine, possibilities.Select(p => $" - {p.Id}"))}");
 
-            return FailedStepResult(description, messagingContext);
+            return FailedStepResult("Cannot determine ReceivingPMode because more than a single matching PMode was found", messagingContext);
         }
 
         private static StepResult NoMatchingPModeFoundFailure(MessagingContext messagingContext)
         {
-            string description =
-                $"{messagingContext.LogTag} Cannot determine ReceivingPMode: " +
-                $"no configured ReceivingPMode was found for Message with Id: {messagingContext.AS4Message.GetPrimaryMessageId()}. " +
-                @"Please configure a ReceivingPMode at '.\config\receive-pmodes' that matches the message packaging information";
+            Logger.Error(
+                "Cannot determine ReceivingPMode because no configured PMode matched the message packaging information enough (greater or equal than 10 points). "
+                + $"{Environment.NewLine} Please change the message packaging information of your ReceivingPMode(s) to match the message: "
+                + $"{Environment.NewLine} - PMode.Id"
+                + $"{Environment.NewLine} - PMode.MessagePacakging.PartyInfo.FromParty"
+                + $"{Environment.NewLine} - PMode.MessagePacakging.PartyInfo.ToParty"
+                + $"{Environment.NewLine} - PMode.MessagePackaging.CollaborationInfo.Service"
+                + $"{Environment.NewLine} - PMode.MessagePackaging.CollaborationInfo.Action"
+                + $"{Environment.NewLine} See the above trace logging to see for which rules your PMode has accuired points");
 
-            Logger.Error(description);
-            return FailedStepResult(description, messagingContext);
+            return FailedStepResult(
+                "Cannot determine ReceivingPMode because no configured PMode matched the message packaging information", 
+                messagingContext);
         }
 
         private static StepResult FailedStepResult(string description, MessagingContext context)

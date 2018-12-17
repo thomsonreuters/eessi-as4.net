@@ -103,7 +103,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
             if (!as4Message.IsSigned)
             {
-                Logger.Debug("Signature will not be verified since the message is not signed");
+                Logger.Trace("Signature will not be verified since the message is not signed");
                 return StepResult.Success(messagingContext);
             }
 
@@ -138,11 +138,11 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             if (ctx.AS4Message.IsSignalMessage
                 && !ctx.AS4Message.IsMultiHopMessage)
             {
-                Logger.Debug($"Use SendingPMode {ctx.SendingPMode?.Id} for signature verification");
+                Logger.Trace($"Use SendingPMode {ctx.SendingPMode?.Id} for signature verification");
                 return ctx.SendingPMode?.Security?.SigningVerification;
             }
 
-            Logger.Debug($"Use ReceivingPMode {ctx.ReceivingPMode?.Id} for signature verification");
+            Logger.Trace($"Use ReceivingPMode {ctx.ReceivingPMode?.Id} for signature verification");
             return ctx.ReceivingPMode?.Security?.SigningVerification;
         }
 
@@ -169,7 +169,8 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
             if (!userMessages.Any())
             {
-                Logger.Debug("No UserMessage(s) are found for the incoming Receipt(s)");
+                Logger.Debug(
+                    "Non-Repudiation references of the Receipt(s) can't be verified because no UserMessage(s) are found for the incoming Receipt(s)");
             }
 
             return receipts.All(nrrReceipt =>
@@ -226,17 +227,21 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             }
             catch (CryptographicException exception)
             {
+                var description = "Signature verification failed";
+
                 if (messagingContext.AS4Message.IsEncrypted)
                 {
                     Logger.Error(
                         "Signature verification failed because the received message is still encrypted. "
                         + "Make sure that you specify <Decryption/> information in the <Security/> element of the "
                         + "ReceivingPMode so the ebMS MessagingHeader is first decrypted before it's signature gets verified");
+
+                    description = "Signature verification failed because the message is still encrypted";
                 }
 
                 Logger.Error($"{messagingContext.LogTag} An exception occured while validating the signature: {exception.Message}");
                 return InvalidSignatureResult(
-                    exception.Message, 
+                    description, 
                     ErrorAlias.FailedAuthentication, 
                     messagingContext);
             }

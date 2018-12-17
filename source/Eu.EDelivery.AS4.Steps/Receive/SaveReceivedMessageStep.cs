@@ -90,7 +90,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                     $"{nameof(SaveReceivedMessageStep)} requires an AS4Message to save but no AS4Message is present in the MessagingContext");
             }
 
-            Logger.Debug($"{messagingContext.LogTag} Store the incoming AS4 Message to the datastore");
+            Logger.Trace($"{messagingContext.LogTag} Store the incoming AS4 Message to the datastore");
             MessagingContext resultContext = await InsertReceivedAS4MessageAsync(messagingContext);
 
             if (resultContext != null && resultContext.Exception == null)

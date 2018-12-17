@@ -78,8 +78,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
             if (errorResult != null)
             {
-                Logger.Debug(
-                    $"AS4 Error(s) created with {errorResult.Code.GetString()} \"{errorResult.Alias}, {errorResult.Description}\"");
+                Logger.Error($"AS4 Error(s) created with {errorResult.Code.GetString()} {errorResult.Alias}, {errorResult.Description}");
 
                 await InsertInExceptionsForNowExceptionedInMessageAsync(
                     messagingContext.AS4Message.SignalMessages,

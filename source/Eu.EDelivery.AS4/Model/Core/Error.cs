@@ -92,7 +92,7 @@ namespace Eu.EDelivery.AS4.Model.Core
         {
             return String.Join(
                 "; ",
-                ErrorLines.Select(l => $"{l.ErrorCode.GetString()} {l.ShortDescription}"));
+                ErrorLines.Select(l => $"{l.ErrorCode.GetString()} {l.ShortDescription} {l.Detail.GetOrElse(String.Empty)}"));
         }
 
         /// <summary>

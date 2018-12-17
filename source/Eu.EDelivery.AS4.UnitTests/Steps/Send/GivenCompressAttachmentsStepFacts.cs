@@ -54,11 +54,15 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             StepResult result = await ExerciseCompression(context);
 
             // Assert
-            Attachment actual = result.MessagingContext.AS4Message.Attachments.First();
+            AS4Message message = result.MessagingContext.AS4Message;
+            Attachment actual = message.Attachments.First();
 
             Assert.NotEqual(expectedLength, actual.Content.Length);
             Assert.Equal(expectedType, actual.Properties["MimeType"]);
             Assert.Equal("application/gzip", actual.ContentType);
+            Assert.All(
+                message.UserMessages.SelectMany(u => u.PayloadInfo), 
+                p => Assert.Equal("application/gzip", p.CompressionType));
         }
 
         private static Attachment NonCompressedAttachment()
@@ -71,8 +75,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
 
         private static MessagingContext AS4MessageContext(Attachment attachment, SendingProcessingMode pmode)
         {
-            AS4Message as4Message = AS4Message.Create(pmode);
-            as4Message.AddMessageUnit(new UserMessage($"user-{Guid.NewGuid()}"));
+            var userMessage = new UserMessage($"user-{Guid.NewGuid()}", PartInfo.CreateFor(attachment));
+            AS4Message as4Message = AS4Message.Create(userMessage, pmode);
             as4Message.AddAttachment(attachment);
 
             return new MessagingContext(as4Message, MessagingContextMode.Unknown) {SendingPMode = pmode};

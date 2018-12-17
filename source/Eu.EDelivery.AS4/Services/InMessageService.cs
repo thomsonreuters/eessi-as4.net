@@ -200,7 +200,7 @@ namespace Eu.EDelivery.AS4.Services
                         $"Insert InMessage UserMessage {userMessage.MessageId} with {{"
                         + $"Operation={inMessage.Operation}, "
                         + $"Status={inMessage.Status}, "
-                        + $"PModeId={pmode?.Id}, "
+                        + $"PModeId={pmode?.Id ?? "null"}, "
                         + $"IsTest={userMessage.IsTest}, "
                         + $"IsDuplicate={userMessage.IsDuplicate}}}");
 
@@ -501,7 +501,7 @@ namespace Eu.EDelivery.AS4.Services
                 {
                     m.Operation = Operation.ToBeNotified;
                     m.SetPModeInformation(sendingPMode);
-                    Logger.Debug($"Update InMessage {ebmsMessageType} {m.EbmsMessageId} with Operation={m.Operation}");
+                    Logger.Debug($"Update InMessage {ebmsMessageType} {m.EbmsMessageId} with Operation={m.Operation} according to SendingPMode {sendingPMode.Id}");
                 });
 
             bool isRetryEnabled = reliability?.IsEnabled ?? false;
@@ -536,7 +536,7 @@ namespace Eu.EDelivery.AS4.Services
                     m =>
                     {
                         m.SetStatus(outStatus);
-                        Logger.Debug($"Update OutMessage UserMessage {m.EbmsMessageId} with {{Status={outStatus}}}");
+                        Logger.Debug($"Update OutMessage UserMessage {m.EbmsMessageId} with Status={outStatus}");
                     });
             }
         }

@@ -2,7 +2,7 @@
 <PMode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
   xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
   xmlns="eu:edelivery:as4:pmode">
-  <Id>ACT_SIMPLE_ONEWAY</Id>
+  <Id>ACT_ONEWAY_SIGNONLY</Id>
   <Reliability>
     <DuplicateElimination>
       <IsEnabled>false</IsEnabled>
@@ -28,7 +28,14 @@
       </TlsConfiguration>
     </ResponseConfiguration>
     <ResponseSigning>
-      <IsEnabled>false</IsEnabled>
+      <IsEnabled>true</IsEnabled>
+      <CertificateFindCriteria>
+        <CertificateFindType>FindBySubjectName</CertificateFindType>
+        <CertificateFindValue>as4-net-c2</CertificateFindValue>
+      </CertificateFindCriteria>
+      <KeyReferenceMethod>BSTReference</KeyReferenceMethod>
+      <Algorithm>http://www.w3.org/2001/04/xmldsig-more#rsa-sha256</Algorithm>
+      <HashFunction>http://www.w3.org/2001/04/xmlenc#sha256</HashFunction>
     </ResponseSigning>
   </ReplyHandling>
   <ExceptionHandling>
@@ -45,10 +52,10 @@
       <Signature>Allowed</Signature>
     </SigningVerification>
     <Decryption>
-      <Encryption>Allowed</Encryption>
+      <Encryption>Ignored</Encryption>
       <CertificateFindCriteria>
-        <CertificateFindType>FindBySubjectName</CertificateFindType>
-        <CertificateFindValue>as4-net-c2</CertificateFindValue>
+        <CertificateFindType>FindByThumbprint</CertificateFindType>
+        <CertificateFindValue />
       </CertificateFindCriteria>
     </Decryption>
   </Security>
@@ -74,9 +81,9 @@
       </ToParty>
     </PartyInfo>
     <CollaborationInfo>
-      <Action>ACT_SIMPLE_ONEWAY</Action>
+      <Action>ACT_ONEWAY_SIGNONLY</Action>
       <Service>
-        <Value>SRV_SIMPLE_ONEWAY</Value>
+        <Value>SRV_ONEWAY_SIGNONLY</Value>
       </Service>
     </CollaborationInfo>
   </MessagePackaging>

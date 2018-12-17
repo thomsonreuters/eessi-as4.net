@@ -72,15 +72,22 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                   || exception is ObjectDisposedException
                   || exception is InvalidDataException)
             {
+                var description = "Decompression failed due to an exception";
+
                 if (messagingContext.AS4Message.IsEncrypted)
                 {
                     Logger.Error(
                         "Decompression failed because the incoming attachments are still encrypted. "
                         + "Make sure that you specify <Decryption/> information in the <Security/> element of the "
                         + "ReceivingPMode so the attachments are first decrypted before decompressed");
+
+                    description = "Decompression failed because the incoming attachments are still encrypted";
                 }
 
-                messagingContext.ErrorResult = new ErrorResult(exception.Message, ErrorAlias.DecompressionFailure);
+                messagingContext.ErrorResult = new ErrorResult(
+                    description, 
+                    ErrorAlias.DecompressionFailure);
+
                 return StepResult.Failed(messagingContext);
             }
         }

@@ -60,8 +60,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Xml
             [Fact]
             public void SendingPModesValidateAgainstXsd()
             {
-                var pmodes = Computer.GetFilesInDirectory(".\\config\\conformance-settings\\conftesting-pmodes\\C2\\send-pmodes", "*.xml", true).ToList();
-                pmodes.AddRange(Computer.GetFilesInDirectory(".\\config\\conformance-settings\\conftesting-pmodes\\C3\\send-pmodes", "*.xml", true));
+                var pmodes = Computer.GetFilesInDirectory(".\\config\\conformance-settings\\C2\\send-pmodes", "*.xml", true).ToList();
+                pmodes.AddRange(Computer.GetFilesInDirectory(".\\config\\conformance-settings\\C3\\send-pmodes", "*.xml", true));
 
                 foreach (var sendingPMode in pmodes)
                 {

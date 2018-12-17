@@ -151,7 +151,7 @@ namespace Eu.EDelivery.AS4.Agents
                 () => _receiver.StartReceiving(OnReceived, cancellation),
                 TaskCreationOptions.LongRunning);
 
-            Logger.Info($"{AgentConfig.Name} Started!");
+            Logger.Trace($"{AgentConfig.Name} Started!");
             return task;
         }
 

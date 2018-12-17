@@ -83,6 +83,16 @@ namespace Eu.EDelivery.AS4.ComponentTests.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
+        internal static byte[] earth {
+            get {
+                object obj = ResourceManager.GetObject("earth", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
         internal static byte[] payload {
             get {
                 object obj = ResourceManager.GetObject("payload", resourceCulture);
