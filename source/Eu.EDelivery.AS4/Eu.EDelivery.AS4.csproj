@@ -1,6 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="14.0" DefaultTargets="Build" 
-  xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="..\..\packages\SQLite.3.13.0\build\net45\SQLite.props" Condition="Exists('..\..\packages\SQLite.3.13.0\build\net45\SQLite.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -161,6 +160,10 @@
     <Compile Include="Migrations\20181031144021_UpdateJournalWithEbmsInfo.cs" />
     <Compile Include="Migrations\20181031144021_UpdateJournalWithEbmsInfo.designer.cs">
       <DependentUpon>20181031144021_UpdateJournalWithEbmsInfo.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\20181217102707_UnsetUniqueRetryReliabilityIndexes.cs" />
+    <Compile Include="Migrations\20181217102707_UnsetUniqueRetryReliabilityIndexes.designer.cs">
+      <DependentUpon>20181217102707_UnsetUniqueRetryReliabilityIndexes.cs</DependentUpon>
     </Compile>
     <Compile Include="Model\Core\NonRepudiationInformation.cs" />
     <Compile Include="Model\Core\Schema.cs" />
