@@ -132,7 +132,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Common
         private static async Task WaitToMakeSureAS4ComponentIsStartedAsync(string url)
         {
             await Policy.TimeoutAsync(TimeSpan.FromSeconds(30))
-                        .WrapAsync(Policy.HandleResult<HttpStatusCode>(status => status == HttpStatusCode.OK)
+                        .WrapAsync(Policy.HandleResult<HttpStatusCode>(status => status != HttpStatusCode.OK)
                                          .WaitAndRetryForeverAsync(_ => TimeSpan.FromSeconds(1)))
                         .ExecuteAsync(async () =>
                         {
