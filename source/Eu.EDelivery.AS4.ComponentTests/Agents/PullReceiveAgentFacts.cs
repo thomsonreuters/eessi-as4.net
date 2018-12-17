@@ -87,7 +87,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                 () => _databaseSpy.GetOutMessageFor(
                     m => m.EbmsMessageId == receipt.MessageId
                         && m.Operation == Operation.DeadLettered),
-                timeout: TimeSpan.FromSeconds(30));
+                timeout: TimeSpan.FromSeconds(40));
 
             RetryReliability reliability = await PollUntilPresent(
                 () => _databaseSpy.GetRetryReliabilityFor(
@@ -139,7 +139,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                 () => _databaseSpy.GetOutMessageFor(
                     m => m.EbmsMessageId == receipt1.MessageId
                          && m.Operation == Operation.Sent),
-                timeout: TimeSpan.FromSeconds(30));
+                timeout: TimeSpan.FromSeconds(40));
 
             await PollUntilPresent(
                 () => _databaseSpy.GetRetryReliabilityFor(
