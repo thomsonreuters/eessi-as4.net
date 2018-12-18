@@ -64,23 +64,20 @@ namespace Eu.EDelivery.AS4.Security.References
         /// <param name="element"></param>
         public override void LoadXml(XmlElement element)
         {
-            var xmlIssuerSerial = (XmlElement)element.SelectSingleNode(".//*[local-name()='X509SerialNumber']");
+            var ns = new XmlNamespaceManager(new NameTable());
+            ns.AddNamespace("wsse", Constants.Namespaces.WssSecuritySecExt);
+            ns.AddNamespace("dsig", Constants.Namespaces.XmlDsig);
 
-            _certificateSerialNr = xmlIssuerSerial?.InnerText;
-        }
+            var xmlIssuerSerial = 
+                element.SelectSingleNode("//wsse:SecurityTokenReference/dsig:X509Data/dsig:X509IssuerSerial/dsig:X509SerialNumber", ns) as XmlElement;
 
-        /// <summary>
-        /// Add a KeyInfo Id to the <KeyInfo /> Element
-        /// </summary>
-        /// <param name="element"></param>
-        /// <param name="document"></param>
-        /// <returns></returns>
-        public override XmlElement AppendSecurityTokenTo(XmlElement element, XmlDocument document)
-        {
-            var nodeKeyInfo = (XmlElement)element.SelectSingleNode("//*[local-name()='KeyInfo']");
-            nodeKeyInfo?.SetAttribute("Id", Constants.Namespaces.WssSecurityUtility, _keyInfoId);
+            if (xmlIssuerSerial == null)
+            {
+                throw new XmlException(
+                    $"No <dsig:X509SerialNumber/> element found in <wsse:SecurityTokenReference/> element ({element.OuterXml})");
+            }
 
-            return element;
+            _certificateSerialNr = xmlIssuerSerial.InnerText;
         }
 
         /// <summary>

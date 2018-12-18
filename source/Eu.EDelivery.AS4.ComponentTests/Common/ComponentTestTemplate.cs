@@ -138,7 +138,8 @@ namespace Eu.EDelivery.AS4.ComponentTests.Common
 
             FileSystemUtils.CopyDirectory(@".\config\componenttest-settings\send-pmodes", @".\config\send-pmodes");
             FileSystemUtils.CopyDirectory(@".\config\componenttest-settings\receive-pmodes", @".\config\receive-pmodes");
-        }
 
+            FileSystemUtils.CopyDirectory(@".\samples\pmodes\", @".\config\receive-pmodes", "*receive-pmode.xml");
+        }
     }
 }

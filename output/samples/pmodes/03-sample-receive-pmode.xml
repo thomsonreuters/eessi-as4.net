@@ -21,7 +21,7 @@
       <IsEnabled>true</IsEnabled>
       <CertificateFindCriteria>
         <CertificateFindType>FindBySubjectName</CertificateFindType>
-        <CertificateFindValue>AccessPointA</CertificateFindValue>
+        <CertificateFindValue>AccessPointB</CertificateFindValue>
       </CertificateFindCriteria>
       <KeyReferenceMethod>BSTReference</KeyReferenceMethod>
       <Algorithm>http://www.w3.org/2001/04/xmldsig-more#rsa-sha256</Algorithm>
@@ -45,7 +45,7 @@
       <Encryption>Allowed</Encryption>
       <CertificateFindCriteria>
         <CertificateFindType>FindBySubjectName</CertificateFindType>
-        <CertificateFindValue>AccessPointA</CertificateFindValue>
+        <CertificateFindValue>AccessPointB</CertificateFindValue>
       </CertificateFindCriteria>
     </Decryption>
   </Security>

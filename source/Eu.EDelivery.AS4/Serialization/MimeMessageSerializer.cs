@@ -261,7 +261,7 @@ namespace Eu.EDelivery.AS4.Serialization
             }
 
             List<MimePart> bodyParts = TryParseBodyParts(inputStream, cancellationToken);
-            Stream envelopeStream = bodyParts.First().ContentObject.Open();
+            Stream envelopeStream = bodyParts.First().ContentObject?.Open();
 
             AS4Message message = await _soapSerializer
                 .DeserializeAsync(envelopeStream, contentType, cancellationToken).ConfigureAwait(false);
