@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Threading;
 using Eu.EDelivery.AS4.PerformanceTests.Fixture;
+using Polly;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -59,19 +60,19 @@ namespace Eu.EDelivery.AS4.PerformanceTests
         /// Start polling for a single message on the delivered directory to assert using the <paramref name="assertion"/>
         /// </summary>
         /// <param name="corner">Corner to use as delivered target.</param>
-        /// <param name="pollingRetries">Amount to retry when polling for payloads</param>
+        /// <param name="timeoutMin">Amount to retry when polling for payloads</param>
         /// <param name="assertion">Assertion of the delivered message.</param>
-        protected void PollingTillFirstPayload(Corner corner, int pollingRetries, Action assertion)
+        protected void PollingTillFirstPayload(Corner corner, int timeoutMin, Action assertion)
         {
-           PollingForMessages(
-               predicate: () =>
-               {
-                   int deliveredCount = corner.CountDeliveredMessages();
-                   _outputHelper.WriteLine($"Poll while: (Actual Delivered: {deliveredCount}) == 2");
-                   return deliveredCount == 2;
-               }, 
-               assertion: assertion, 
-               range: new PollingRange(pollingRetries, retrySeconds: 15));
+            Policy.Timeout(TimeSpan.FromMinutes(timeoutMin))
+                  .Wrap(Policy.HandleResult<int>(deliveredCount => deliveredCount < 2)
+                              .WaitAndRetryForever(_ => TimeSpan.FromSeconds(5)))
+                  .Execute(() =>
+                  {
+                      int deliveredCount = corner.CountDeliveredMessages();
+                      _outputHelper.WriteLine($"Poll while: (Actual Delivered: {deliveredCount}) == 2");
+                      return deliveredCount;
+                  });
         }
 
         /// <summary>
