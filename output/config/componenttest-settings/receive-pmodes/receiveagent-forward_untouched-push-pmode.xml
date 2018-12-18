@@ -10,7 +10,6 @@
     </Reliability>
     <ReplyHandling>
         <ReplyPattern>Response</ReplyPattern>
-        <SendingPMode>unsigned-response-pmode</SendingPMode>
         <ReceiptHandling>
             <UseNRRFormat>false</UseNRRFormat>
         </ReceiptHandling>
