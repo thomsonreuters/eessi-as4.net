@@ -225,7 +225,9 @@ namespace Eu.EDelivery.AS4.Agents
         /// </summary>
         public void Stop()
         {
+            Logger.Trace($"Stopping {AgentConfig.Name} ...");
             _receiver.StopReceiving();
+            Logger.Trace($"Stopping {AgentConfig.Name} ...");
         }
     }
 }

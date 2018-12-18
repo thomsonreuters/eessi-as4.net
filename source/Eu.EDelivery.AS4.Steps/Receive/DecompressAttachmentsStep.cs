@@ -57,6 +57,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             try
             {
                 messagingContext.AS4Message.DecompressAttachments();
+                Logger.Info("(Receive) AS4Message is decompressed correctly");
 
                 JournalLogEntry entry =
                     JournalLogEntry.CreateFrom(
