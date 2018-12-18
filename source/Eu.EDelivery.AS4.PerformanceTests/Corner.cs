@@ -409,6 +409,19 @@ namespace Eu.EDelivery.AS4.PerformanceTests
             {
                 _cornerProcess.Kill();
             }
+
+            string[] attachments = Directory.GetFiles(Path.Combine(_cornerDirectory.FullName, "messages", "attachments"));
+            foreach (string attachment in attachments)
+            {
+                try
+                {
+                    File.Delete(attachment);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex);
+                }
+            }
         }
     }
 }
