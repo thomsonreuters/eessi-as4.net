@@ -8,7 +8,7 @@ using Xunit.Abstractions;
 
 namespace Eu.EDelivery.AS4.PerformanceTests
 {
-    public enum CornerStartup { Auto, Manual }
+    public enum CornerStartup { Auto = 1, Manual = 2 }
 
     /// <summary>
     /// Bridge to add an extra abstraction layer for the AS4 Corner creation/destruction.
