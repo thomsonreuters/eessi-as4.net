@@ -36,7 +36,7 @@ namespace Eu.EDelivery.AS4.Agents
             IReceiver receiver,
             Transformer transformerConfig,
             IAgentExceptionHandler exceptionHandler,
-            StepConfiguration stepConfiguration)
+            StepConfiguration stepConfiguration) 
             : this(config, receiver, transformerConfig, exceptionHandler, stepConfiguration, NoopJournalLogger.Instance) { }
 
         /// <summary>
@@ -161,7 +161,7 @@ namespace Eu.EDelivery.AS4.Agents
 
             try
             {
-                MessagingContext result =
+                MessagingContext result = 
                     await TransformerBuilder
                           .FromTransformerConfig(_transformerConfig)
                           .TransformAsync(message);
@@ -169,7 +169,7 @@ namespace Eu.EDelivery.AS4.Agents
                 if (result == null)
                 {
                     throw new ArgumentNullException(
-                        nameof(result),
+                        nameof(result), 
                         $@"Transformer {_transformerConfig.Type} result in a 'null', transformers require to transform into a 'MessagingContext'");
                 }
 
