@@ -21,6 +21,11 @@ namespace Eu.EDelivery.AS4.Security.References
         /// <param name="certificate">The Certificate for which a SecurityTokenReference must be created.</param>
         public KeyIdentifierSecurityTokenReference(X509Certificate2 certificate)
         {
+            if (certificate == null)
+            {
+                throw new ArgumentNullException(nameof(certificate));
+            }
+
             Certificate = certificate;
         }
 
@@ -31,6 +36,16 @@ namespace Eu.EDelivery.AS4.Security.References
         /// <param name="certificateRepository">Repository to obtain the certificate needed to embed it into the Key Identifier Security Token Reference.</param>
         public KeyIdentifierSecurityTokenReference(XmlElement envelope, ICertificateRepository certificateRepository)
         {
+            if (envelope == null)
+            {
+                throw new ArgumentNullException(nameof(envelope));
+            }
+
+            if (certificateRepository == null)
+            {
+                throw new ArgumentNullException(nameof(certificateRepository));
+            }
+
             _certificateRepository = certificateRepository;
             LoadXml(envelope);
         }
@@ -48,7 +63,8 @@ namespace Eu.EDelivery.AS4.Security.References
             }
 
             return _certificateRepository.GetCertificate(
-                X509FindType.FindBySubjectKeyIdentifier, _certificateSubjectKeyIdentifier);
+                X509FindType.FindBySubjectKeyIdentifier, 
+                _certificateSubjectKeyIdentifier);
         }
 
         /// <summary>
@@ -92,17 +108,12 @@ namespace Eu.EDelivery.AS4.Security.References
                 localName: "KeyIdentifier",
                 namespaceURI: Constants.Namespaces.WssSecuritySecExt);
 
-            SetKeyIdentifierSecurityAttributes(keyIdentifierElement);
-            keyIdentifierElement.InnerText = GetSubjectKeyIdentifier();
-            securityTokenReferenceElement.AppendChild(keyIdentifierElement);
-
-            return securityTokenReferenceElement;
-        }
-
-        private static void SetKeyIdentifierSecurityAttributes(XmlElement keyIdentifierElement)
-        {
             keyIdentifierElement.SetAttribute("EncodingType", Constants.Namespaces.Base64Binary);
             keyIdentifierElement.SetAttribute("ValueType", Constants.Namespaces.SubjectKeyIdentifier);
+            keyIdentifierElement.InnerText = GetSubjectKeyIdentifier();
+
+            securityTokenReferenceElement.AppendChild(keyIdentifierElement);
+            return securityTokenReferenceElement;
         }
 
         private string GetSubjectKeyIdentifier()
@@ -114,29 +125,19 @@ namespace Eu.EDelivery.AS4.Security.References
 
             foreach (X509Extension extension in Certificate.Extensions)
             {
-                if (IsExtensionNotSubjectKeyIdentifier(extension))
+                if (!String.Equals(extension.Oid.FriendlyName, "Subject Key Identifier"))
                 {
                     continue;
                 }
 
-                return RetrieveBinary64SubjectKeyIdentifier(extension);
+                var x509SubjectKeyIdentifierExtension = (X509SubjectKeyIdentifierExtension)extension;
+                SoapHexBinary base64Binary = SoapHexBinary.Parse(x509SubjectKeyIdentifierExtension.SubjectKeyIdentifier);
+
+                return Convert.ToBase64String(base64Binary.Value);
             }
 
-            return string.Empty;
+            throw new CryptographicException(
+                "No extension with the name 'Subject Key Identifier' was found in the certificate extensions");
         }
-
-        private static string RetrieveBinary64SubjectKeyIdentifier(X509Extension extension)
-        {
-            var x509SubjectKeyIdentifierExtension = (X509SubjectKeyIdentifierExtension)extension;
-            SoapHexBinary base64Binary = SoapHexBinary.Parse(x509SubjectKeyIdentifierExtension.SubjectKeyIdentifier);
-
-            return Convert.ToBase64String(base64Binary.Value);
-        }
-
-        private static bool IsExtensionNotSubjectKeyIdentifier(AsnEncodedData extension)
-        {
-            return !string.Equals(extension.Oid.FriendlyName, "Subject Key Identifier");
-        }
-
     }
 }
