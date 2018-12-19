@@ -465,4 +465,25 @@
   <data name="BizTalkUserMessage" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\resources\biztalkusermessage.xml;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
   </data>
+  <data name="as4_encrypted_signed_issuerserial" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\as4-encrypted-signed-issuerserial.as4;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="as4_encrypted_signed_keyidentifier" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\as4-encrypted-signed-keyidentifier.as4;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="AccessPointA_password" xml:space="preserve">
+    <value>Pz4cZK4SULUwmraZa</value>
+  </data>
+  <data name="AccessPointA_pfx" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\accesspointa.pfx;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="AccessPointB_cer" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\accesspointb.cer;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="AccessPointB_password" xml:space="preserve">
+    <value>Pz4cZK4SULUwmraZb</value>
+  </data>
+  <data name="AccessPointB_pfx" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\accesspointb.pfx;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
 </root>

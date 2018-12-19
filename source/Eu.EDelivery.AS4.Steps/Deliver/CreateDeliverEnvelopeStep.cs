@@ -12,6 +12,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
     [Info("Create deliver message")]
     [Description("Step that creates a deliver message")]
     [Obsolete("DeliverMessage is already created in transformer, you can safely remove this step from your settings")]
+    [NotConfigurable]
     public class CreateDeliverEnvelopeStep : IStep
     {
         /// <summary>

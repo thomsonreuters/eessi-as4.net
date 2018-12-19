@@ -305,3 +305,4 @@ __pycache__/
 **/ui/compiled/**
 **/ui/dist/**
 **/ui/npm-debug*
+/output-sender
