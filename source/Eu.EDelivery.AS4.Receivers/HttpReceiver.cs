@@ -127,9 +127,8 @@ namespace Eu.EDelivery.AS4.Receivers
                 listener.Start();
 
                 Logger.Debug(
-                    $"Start receiving on \"{Url}\" "
-                    + $"with max {ConcurrentRequests} concurrent connections and "
-                    + $"{(UseLogging ? "with" : "without")} received message logging");
+                    $"Start receiving on \"{Url}\" with "
+                    + $"{{MaxConcurrentRequests={ConcurrentRequests}, Logging={(UseLogging ? "enabled" : "disabled")}}}");
             }
             catch (HttpListenerException exception)
             {
