@@ -1,5 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<PMode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="eu:edelivery:as4:pmode">
+<PMode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+  xmlns="eu:edelivery:as4:pmode">
   <Id>8.2.6-pmode</Id>
   <AllowOverride>false</AllowOverride>
   <Mep>OneWay</Mep>
@@ -16,9 +18,6 @@
       <ClientCertificateReference />
     </TlsConfiguration>
   </PushConfiguration>
-  <PullConfiguration>
-    <SubChannel />
-  </PullConfiguration>
   <Reliability>
     <ReceptionAwareness>
       <IsEnabled>false</IsEnabled>

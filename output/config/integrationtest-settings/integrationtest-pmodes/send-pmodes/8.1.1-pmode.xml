@@ -16,12 +16,6 @@
       <ClientCertificateReference />
     </TlsConfiguration>
   </PushConfiguration>
-  <PullConfiguration>
-    <SubChannel />
-    <Protocol>
-      <Url>http://localhost:9090/msh</Url>
-    </Protocol>
-  </PullConfiguration>
   <Reliability>
     <ReceptionAwareness>
       <IsEnabled>true</IsEnabled>
