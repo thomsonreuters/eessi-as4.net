@@ -4,7 +4,7 @@ namespace Eu.EDelivery.AS4.TestUtils
 {
     public static class FileSystemUtils
     {
-        public static void CopyDirectory(string sourceDirName, string destDirName)
+        public static void CopyDirectory(string sourceDirName, string destDirName, string searchPattern = "*.*")
         {
             if (Directory.Exists(sourceDirName) == false)
             {
@@ -16,7 +16,7 @@ namespace Eu.EDelivery.AS4.TestUtils
                 Directory.CreateDirectory(destDirName);
             }
 
-            var files = Directory.GetFiles(sourceDirName);
+            var files = Directory.GetFiles(sourceDirName, searchPattern);
 
             foreach (string fileName in files)
             {

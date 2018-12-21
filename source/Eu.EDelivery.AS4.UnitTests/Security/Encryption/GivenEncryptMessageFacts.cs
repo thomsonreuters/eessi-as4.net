@@ -3,9 +3,15 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Security.Encryption;
+using Eu.EDelivery.AS4.Security.References;
+using Eu.EDelivery.AS4.Security.Signing;
+using Eu.EDelivery.AS4.Serialization;
+using Eu.EDelivery.AS4.TestUtils.Stubs;
 using Xunit;
+using static Eu.EDelivery.AS4.UnitTests.Properties.Resources;
 
 namespace Eu.EDelivery.AS4.UnitTests.Security.Encryption
 {
@@ -58,8 +64,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Encryption
         {
             // TODO: we should just have a public key certificate here, without the need to specify the password.
             return new X509Certificate2(
-                Properties.Resources.holodeck_partyc_certificate,
+                holodeck_partyc_certificate,
                 "ExampleC");
-        }
+        } 
     }
 }

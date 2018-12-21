@@ -80,6 +80,54 @@ namespace Eu.EDelivery.AS4.UnitTests.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Pz4cZK4SULUwmraZa.
+        /// </summary>
+        internal static string AccessPointA_password {
+            get {
+                return ResourceManager.GetString("AccessPointA_password", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] AccessPointA_pfx {
+            get {
+                object obj = ResourceManager.GetObject("AccessPointA_pfx", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] AccessPointB_cer {
+            get {
+                object obj = ResourceManager.GetObject("AccessPointB_cer", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Pz4cZK4SULUwmraZb.
+        /// </summary>
+        internal static string AccessPointB_password {
+            get {
+                return ResourceManager.GetString("AccessPointB_password", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] AccessPointB_pfx {
+            get {
+                object obj = ResourceManager.GetObject("AccessPointB_pfx", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
         internal static byte[] as4_bundled_encrypted_message {
@@ -117,6 +165,26 @@ namespace Eu.EDelivery.AS4.UnitTests.Properties {
         internal static byte[] as4_encrypted_message {
             get {
                 object obj = ResourceManager.GetObject("as4_encrypted_message", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] as4_encrypted_signed_issuerserial {
+            get {
+                object obj = ResourceManager.GetObject("as4_encrypted_signed_issuerserial", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] as4_encrypted_signed_keyidentifier {
+            get {
+                object obj = ResourceManager.GetObject("as4_encrypted_signed_keyidentifier", resourceCulture);
                 return ((byte[])(obj));
             }
         }

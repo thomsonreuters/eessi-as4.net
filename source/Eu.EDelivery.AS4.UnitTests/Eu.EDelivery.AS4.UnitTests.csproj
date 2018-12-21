@@ -1,6 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="14.0" DefaultTargets="Build" 
-  xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="..\..\packages\xunit.runner.visualstudio.2.2.0\build\net20\xunit.runner.visualstudio.props" Condition="Exists('..\..\packages\xunit.runner.visualstudio.2.2.0\build\net20\xunit.runner.visualstudio.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -305,6 +304,9 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <None Include="Resources\AccessPointA.pfx" />
+    <None Include="Resources\AccessPointB.cer" />
+    <None Include="Resources\AccessPointB.pfx" />
     <None Include="Resources\AccessPointA.cer" />
     <None Include="Resources\as4-multihop-message.as4" />
     <None Include="Resources\as4-multihop-usermessage.as4" />
@@ -318,6 +320,8 @@
     <None Include="Resources\as4_single_payload.as4" />
     <None Include="Resources\as4-encrypted-compressed-message.as4" />
     <None Include="Resources\holodeck-partya-certificate.pfx" />
+    <None Include="Resources\as4-encrypted-signed-keyidentifier.as4" />
+    <None Include="Resources\as4-encrypted-signed-issuerserial.as4" />
     <None Include="Resources\partyC.p12" />
     <None Include="Resources\Receipt_InvalidNRI_Namespace.as4" />
     <None Include="Resources\rssbus_message.as4" />

@@ -1,5 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.Linq;
+﻿using System.Linq;
 using System.Xml;
 using Eu.EDelivery.AS4.Security.References;
 using Eu.EDelivery.AS4.UnitTests.Common;
@@ -8,28 +7,17 @@ using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Security.References
 {
-    /// <summary>
-    /// Testing the <see cref="KeyIdentifierSecurityTokenReference" />
-    /// </summary>s
     public class GivenKeyIdentifierSecurityTokenReferenceFacts
     {
-        private readonly KeyIdentifierSecurityTokenReference _reference;
-
-        public GivenKeyIdentifierSecurityTokenReferenceFacts()
-        {
-            var repository = new StubCertificateRepository();
-
-            _reference = new KeyIdentifierSecurityTokenReference(repository.GetStubCertificate());
-        }
-
         [Fact]
         public void ThenGetXmlContainsKeyIdentifier()
         {
             // Arrange
             const string subjectKeyIdentifier = "hRmOyHw/oLIBBsGKp/L9qzCUZ1k=";
+            var reference = new KeyIdentifierSecurityTokenReference(new StubCertificateRepository().GetStubCertificate());
 
             // Act
-            XmlElement xml = _reference.GetXml();
+            XmlElement xml = reference.GetXml();
 
             // Assert
             Assert.NotNull(xml);
@@ -45,21 +33,27 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.References
                 a2 => a2.AssertEbmsAttribute("ValueType", Constants.Namespaces.SubjectKeyIdentifier));
         }
 
-        /// <summary>
-        /// Testing if the Reference Succeeds for the "LoadXml" Method
-        /// </summary>
-        public class GivenValidArgumentsForLoadXml : GivenKeyIdentifierSecurityTokenReferenceFacts
+        [Fact]
+        public void ThenLoadXmlGetsCertificateFromXml()
         {
-            [Fact]
-            [SuppressMessage("ReSharper", "AssignNullToNotNullAttribute", Justification = "Test for null")]
-            public void ThenLoadXmlGetsCertificateFromXml()
-            {
-                // Arrange and Act
-                var reference = new KeyIdentifierSecurityTokenReference(_reference.GetXml(), new StubCertificateRepository());
+            // Arrange
+            var doc = new XmlDocument();
+            doc.LoadXml(
+                @"<wsse:SecurityTokenReference 
+                        xmlns:wsse=""http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd"" 
+                        xmlns:wsu=""http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd""
+                        wsu:Id=""STR-501d4b2b-3cacedf4-f6a1-4c02-be23-b8763e037755"">
+                    <wsse:KeyIdentifier 
+                            EncodingType=""http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary""
+                            ValueType=""http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509SubjectKeyIdentifier""
+                            >Vdi1FeoKetwvEYlNqvb9qUPAins=</wsse:KeyIdentifier>
+                </wsse:SecurityTokenReference>");
 
-                Assert.NotNull(reference.Certificate);
-                Assert.Equal(_reference.Certificate, reference.Certificate);
-            }
+            // Arrange and Act
+            var reference = new KeyIdentifierSecurityTokenReference(doc.DocumentElement, new StubCertificateRepository());
+
+            Assert.NotNull(reference.Certificate);
+            Assert.Equal("CN=AccessPointA", reference.Certificate.Subject);
         }
     }
 }

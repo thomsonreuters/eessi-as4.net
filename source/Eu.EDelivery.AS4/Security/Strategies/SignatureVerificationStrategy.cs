@@ -4,9 +4,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Xml;
-using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Model.Core;
-using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Security.References;
 using Eu.EDelivery.AS4.Security.Signing;
 using Eu.EDelivery.AS4.Security.Transforms;
@@ -16,9 +14,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
 {
     internal class SignatureVerificationStrategy : SignatureStrategy
     {
-
-        private readonly SecurityTokenReference _securityTokenReference;
-        private readonly ICertificateRepository _certificateRepository = Registry.Instance.CertificateRepository;
+        private readonly XmlDocument _soapEnvelope;
 
         internal SignatureVerificationStrategy(XmlDocument soapEnvelope) : base(soapEnvelope)
         {
@@ -27,8 +23,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
                 SafeCanonicalizationMethods.Add(AttachmentSignatureTransform.Url);
             }
 
-            _securityTokenReference =
-                SecurityTokenReferenceProvider.Get(soapEnvelope, SecurityTokenType.Signing, _certificateRepository);
+            _soapEnvelope = soapEnvelope;
 
             LoadSignature();
         }
@@ -40,15 +35,18 @@ namespace Eu.EDelivery.AS4.Security.Strategies
         /// <returns></returns>
         public bool VerifySignature(VerifySignatureConfig options)
         {
-            if (!VerifyCertificate(_securityTokenReference.Certificate, options.AllowUnknownRootCertificateAuthority, out X509ChainStatus[] status))
+            var securityTokenReference =
+                SecurityTokenReferenceProvider.Get(_soapEnvelope, SecurityTokenType.Signing, options.CertificateRepository);
+
+            if (!VerifyCertificate(securityTokenReference.Certificate, options.AllowUnknownRootCertificateAuthority, out X509ChainStatus[] status))
             {
-                throw new CryptographicException($"The signing certificate is not trusted: {string.Join(" ", status.Select(s => s.StatusInformation))}");
+                throw new CryptographicException($"The signing certificate is not trusted: {String.Join(" ", status.Select(s => s.StatusInformation))}");
             }
 
             LoadXml(GetSignatureElement());
             AddUnrecognizedAttachmentReferences(options.Attachments);
 
-            bool validSignature = CheckSignature(_securityTokenReference.Certificate, verifySignatureOnly: true);
+            bool validSignature = CheckSignature(securityTokenReference.Certificate, verifySignatureOnly: true);
 
             foreach (Attachment attachment in options.Attachments)
             {

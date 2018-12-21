@@ -138,5 +138,51 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Encryption
 
             return attachmentInMemory.ToArray();
         }
+
+        [Fact]
+        public async Task Decrypts_KeyIdentifier_Signed_AS4Message()
+        {
+            // Arrange
+            const string contentType =
+                "multipart/related; boundary=\"MIMEBoundary_e26ba07b9ac392cc88fdb1c2ed23ba5e2e6d64fdf13325f1\"; type=\"application/soap+xml\"; start=\"<0.116ba07b9ac392cc88fdb1c2ed23ba5e2e6d64fdf13325f1@apache.org>\"";
+
+            AS4Message encrypted = await SerializerProvider
+                .Default
+                .Get(contentType)
+                .DeserializeAsync(new MemoryStream(as4_encrypted_signed_keyidentifier), contentType);
+
+            // Act
+            encrypted.Decrypt(
+                new X509Certificate2(
+                    AccessPointB_pfx, 
+                    AccessPointB_password,
+                    X509KeyStorageFlags.Exportable));
+
+            // Assert
+            Assert.False(encrypted.IsEncrypted);
+        }
+
+        [Fact]
+        public async Task Decrypts_IssuerSerial_Signed_AS4Message()
+        {
+            // Arrange
+            const string contentType =
+                "multipart/related; boundary=\"MIMEBoundary_416ba07b9ac392cc88fdb1c2ed23ba5e2e6d64fdf13325f1\"; type=\"application/soap+xml\"; start=\"<0.716ba07b9ac392cc88fdb1c2ed23ba5e2e6d64fdf13325f1@apache.org>\"";
+
+            AS4Message encrypted = await SerializerProvider
+                .Default
+                .Get(contentType)
+                .DeserializeAsync(new MemoryStream(as4_encrypted_signed_issuerserial), contentType);
+
+            // Act
+            encrypted.Decrypt(
+                new X509Certificate2(
+                    AccessPointB_pfx,
+                    AccessPointB_password,
+                    X509KeyStorageFlags.Exportable));
+
+            // Assert
+            Assert.False(encrypted.IsEncrypted);
+        }
     }
 }
