@@ -126,9 +126,9 @@ namespace Eu.EDelivery.AS4.Receivers
             {
                 listener.Start();
 
-                Logger.Debug($"Start receiving on \"{Url}\" ...");
-                Logger.Debug($"      with max concurrent connections = {ConcurrentRequests}");
-                Logger.Debug($"      with logging = {UseLogging}");
+                Logger.Debug(
+                    $"Start receiving on \"{Url}\" with "
+                    + $"{{MaxConcurrentRequests={ConcurrentRequests}, Logging={(UseLogging ? "enabled" : "disabled")}}}");
             }
             catch (HttpListenerException exception)
             {
@@ -157,7 +157,7 @@ namespace Eu.EDelivery.AS4.Receivers
                 cancellation,
                 processRequestAsync: async context =>
                 {
-                    Logger.Info($"Received {context.Request.HttpMethod} request at \"{context.Request.RawUrl}\"");
+                    Logger.Info($"Received {context.Request.HttpMethod} request at \"{context.Request.Url}\"");
                     await router.RouteWithAsync(
                         httpContext: context,
                         prePostSelector: req => RunRequestThroughAgentAsync(req, messageCallback));

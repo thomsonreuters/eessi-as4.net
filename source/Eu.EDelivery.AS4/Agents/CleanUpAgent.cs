@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
@@ -65,7 +64,7 @@ namespace Eu.EDelivery.AS4.Agents
             }
             catch (TaskCanceledException)
             {
-                Logger.Info($"{AgentConfig.Name} Stopped!");
+                Logger.Trace($"{AgentConfig.Name} Stopped!");
             }
         }
 
