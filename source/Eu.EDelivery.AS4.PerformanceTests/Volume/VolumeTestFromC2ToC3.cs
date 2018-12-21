@@ -1,6 +1,4 @@
-﻿using System;
-using System.Diagnostics;
-using Eu.EDelivery.AS4.PerformanceTests.Fixture;
+﻿using Eu.EDelivery.AS4.PerformanceTests.Fixture;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
@@ -20,10 +18,8 @@ namespace Eu.EDelivery.AS4.PerformanceTests.Volume
         /// </summary>
         /// <param name="fixture">The fixture.</param>
         /// <param name="outputHelper">The console output for the test run.</param>
-        public VolumeTestFromC2ToC3(
-            CornersFixture fixture, 
-            ITestOutputHelper outputHelper) 
-                : base(fixture, outputHelper)
+        public VolumeTestFromC2ToC3(CornersFixture fixture, ITestOutputHelper outputHelper) 
+            : base(fixture, outputHelper, CornerStartup.Manual)
         {
             _outputHelper = outputHelper;
         }
@@ -33,9 +29,11 @@ namespace Eu.EDelivery.AS4.PerformanceTests.Volume
         {
             // Arrange
             const int messageCount = 100;
+            Corner2.PlaceMessages(messageCount, SIMPLE_ONEWAY_TO_C3);
 
             // Act
-            Corner2.PlaceMessages(messageCount, SIMPLE_ONEWAY_TO_C3);
+            Corner2.Start();
+            Corner3.Start();
 
             // Assert
             PollingTillAllMessages(
@@ -55,18 +53,17 @@ namespace Eu.EDelivery.AS4.PerformanceTests.Volume
 
         private void AssertMessages(int messageCount)
         {
+            void AssertOnFileCount(int expectedCount, string searchPattern, string userMessage)
+            {
+                int actualCount = Corner3.CountDeliveredMessages(searchPattern);
+                if (expectedCount != actualCount)
+                {
+                    throw new AssertActualExpectedException(expectedCount, actualCount, userMessage);
+                }
+            }
+
             AssertOnFileCount(messageCount, "*.jpg", $"Payloads count expected to be '{messageCount}'");
             AssertOnFileCount(messageCount, "*.xml", $"Deliver Message count expected to be '{messageCount}'");
-        }
-
-        private void AssertOnFileCount(int expectedCount, string searchPattern, string userMessage)
-        {
-            int actualCount = Corner3.CountDeliveredMessages(searchPattern);
-
-            if (expectedCount != actualCount)
-            {
-                throw new AssertActualExpectedException(expectedCount, actualCount, userMessage);
-            }
         }
     }
 }
