@@ -14,7 +14,7 @@ Testing against the EESSI AS4 Messaging Profile has also been conducted.
 
 <span>AS4.NET</span> can be downloaded from the following locations:
 
-- [AS4.NET v4.0.0](https://ec.europa.eu/cefdigital/artifact/content/groups/public/eu/eessi/as4/eessi_as4.net/3.1.0/eessi_as4.net-4.0.0.zip)
+- [AS4.NET v4.0.0](https://ec.europa.eu/cefdigital/artifact/content/groups/public/eu/eessi/as4/eessi_as4.net/4.0.0/eessi_as4.net-4.0.0.zip)
 - [AS4.NET v3.1.0](https://ec.europa.eu/cefdigital/artifact/content/groups/public/eu/eessi/as4/eessi_as4.net/3.1.0/eessi_as4.net-3.1.0.zip)
 - [AS4.NET v3.0.0](https://ec.europa.eu/cefdigital/artifact/content/groups/public/eu/eessi/as4/eessi_as4.net/3.0.0/eessi_as4.net-3.0.0.zip)
 - [AS4.NET v2.0.1](https://ec.europa.eu/cefdigital/artifact/content/groups/public/eu/eessi/as4/eessi_as4.net/2.0.1/eessi_as4.net-2.0.1.zip)
