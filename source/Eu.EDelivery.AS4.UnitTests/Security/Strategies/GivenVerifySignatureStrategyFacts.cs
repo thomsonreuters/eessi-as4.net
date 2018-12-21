@@ -30,6 +30,23 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Strategies
 
                 Assert.True(validSignature);
             }
+
+            [Fact]
+            public async Task ThenCanCorrectlyVerifySignature()
+            {
+                // Arrange
+
+                var as4Message = await GetAS4Message(File.ReadAllText(@"c:\temp\econnectreceipt.xml"));
+
+                // Assert to make sure that our arranged AS4Message is indeed signed.
+                Assert.True(as4Message.IsSigned);
+
+                var verificationStrategy = new SignatureVerificationStrategy(as4Message.EnvelopeDocument);
+
+                bool validSignature = verificationStrategy.VerifySignature(AllowedUnknownRootCertAuthorityConfig());
+
+                Assert.True(validSignature);
+            }
         }
 
         public class GivenInvalidArguments : VerifySignatureStrategyFacts
