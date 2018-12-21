@@ -116,7 +116,7 @@ A configuration- and usermanual can be found [online](https://ec.europa.eu/cefdi
 
 ## Third Party software
 
-The following third party libraries are used by <span>AS4.NET</span>:
+The following third party libraries are used by <span>AS4.NET</span> runtime:
 
 - [BouncyCastle](https://github.com/bcgit/bc-csharp) ([MIT License](https://opensource.org/licenses/MIT))
 - [FluentValidation](https://github.com/JeremySkinner/FluentValidation) ([Apache 2](http://www.apache.org/licenses/LICENSE-2.0.html))
@@ -129,6 +129,11 @@ The following third party libraries are used by <span>AS4.NET</span>:
 ### All versions up to v3.1.0
 
 - [Automapper](https://github.com/AutoMapper/AutoMapper) ([MIT License](https://opensource.org/licenses/MIT))
+
+### All versions starting from v4.0.0
+
+- [Heijden.Dns](https://github.com/ghuntley/Heijden.Dns) ([MIT License](https://opensource.org/licenses/MIT))
+- [Wiry.Base32](https://github.com/wiry-net/Wiry.Base32) ([MIT License](https://opensource.org/licenses/MIT))
 
 ## License
 
