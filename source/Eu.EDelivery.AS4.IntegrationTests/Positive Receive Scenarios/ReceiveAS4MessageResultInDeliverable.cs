@@ -37,16 +37,16 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Receive_Scenarios
             // Arrange
             AS4Component.Start();
             const string contentType = "multipart/related; boundary=\"=-M9awlqbs/xWAPxlvpSWrAg==\"; type=\"application/soap+xml\"; charset=\"utf-8\"";
-
-            await HttpClient.SendMessageAsync(duplicated_as4message, contentType);
-            await PollingService.PollUntilPresentAsync(AS4Component.FullInputPath);
-            CleanUpFiles(AS4Component.FullInputPath);
+            const string messageId = "78af0557-ea3b-4c8c-b609-09d7c3e42da0@10.124.29.70";
 
             // Act
             await HttpClient.SendMessageAsync(duplicated_as4message, contentType);
+            await HttpClient.SendMessageAsync(duplicated_as4message, contentType);
 
             // Assert
-            Assert.Empty(Directory.GetFiles(AS4Component.FullInputPath, "*.xml"));
+            Assert.Single(
+                Directory.GetFiles(AS4Component.FullInputPath, "*.xml")
+                         .Where(f => f.Contains(messageId)));
         }
 
         [Fact]
