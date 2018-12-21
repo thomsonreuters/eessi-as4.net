@@ -26,7 +26,7 @@ namespace Eu.EDelivery.AS4.Migrations
                         LogDate = table.Column<DateTimeOffset>(nullable: false),
                         AgentType = table.Column<string>(nullable: false, maxLength: 20),
                         AgentName = table.Column<string>(nullable: false, maxLength: 50),
-                        EbmsMessageId = table.Column<string>(nullable: false, maxLength: 100),
+                        EbmsMessageId = table.Column<string>(nullable: true, maxLength: 100),
                         RefToEbmsMessageId = table.Column<string>(nullable: true, maxLength: 100),
                         FromParty = table.Column<string>(nullable: true, maxLength: 255),
                         ToParty = table.Column<string>(nullable: true, maxLength: 255),
