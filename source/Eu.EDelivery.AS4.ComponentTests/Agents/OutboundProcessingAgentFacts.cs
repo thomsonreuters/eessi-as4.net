@@ -10,8 +10,10 @@ using Eu.EDelivery.AS4.ComponentTests.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.PMode;
+using Eu.EDelivery.AS4.Model.Submit;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Serialization;
+using Eu.EDelivery.AS4.TestUtils.Stubs;
 using Eu.EDelivery.AS4.Xml;
 using Xunit;
 using Encryption = Eu.EDelivery.AS4.Model.PMode.Encryption;
@@ -275,6 +277,60 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         protected override void Disposing(bool isDisposing)
         {
             _msh.Dispose();
+        }
+    }
+
+    public class OutboundProcessingReceptionAwareness : ComponentTestTemplate
+    {
+        [Fact]
+        public async Task Stores_Correctly_Retry_Information_In_Sql_Server()
+        {
+            await TestComponentWithSettings(
+                "outboundprocessingagent_settings_sqlserver.xml",
+                async (settings, msh) =>
+                {
+                    // Arrange
+                    var userMessage = new UserMessage($"user-{Guid.NewGuid()}");
+                    var sendingPMode = new SendingProcessingMode
+                    {
+                        Id = "outboundprocessing-reliability",
+                        Reliability =
+                        {
+                            ReceptionAwareness =
+                            {
+                                IsEnabled = true,
+                                RetryCount = 3,
+                                RetryInterval = "00:00:05"
+                            }
+                        }
+                    };
+                    var as4Message = AS4Message.Create(userMessage);
+                    var spy = DatabaseSpy.Create(msh.GetConfiguration());
+
+                    var toBeProcessed = new OutMessage(userMessage.MessageId)
+                    {
+                        ContentType = as4Message.ContentType,
+                        EbmsMessageType = MessageType.UserMessage,
+                        Operation = Operation.ToBeProcessed,
+                        MessageLocation =
+                            Registry.Instance
+                                    .MessageBodyStore
+                                    .SaveAS4Message(msh.GetConfiguration().OutMessageStoreLocation, as4Message)
+                    };
+                    toBeProcessed.SetPModeInformation(sendingPMode);
+
+                    // Act
+                    spy.InsertOutMessage(toBeProcessed);
+
+                    // Assert
+                    OutMessage stored = await PollUntilPresent(
+                        () => spy.GetOutMessageFor(m => m.EbmsMessageId == userMessage.MessageId),
+                        timeout: TimeSpan.FromSeconds(40));
+
+                    await PollUntilPresent(
+                        () => spy.GetRetryReliabilityFor(r => r.RefToOutMessageId == stored.Id),
+                        timeout: TimeSpan.FromSeconds(10));
+                });
         }
     }
 }
