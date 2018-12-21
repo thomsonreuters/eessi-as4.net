@@ -99,13 +99,14 @@ A configuration- and usermanual can be found [online](https://ec.europa.eu/cefdi
 
 ### v4.0.0
 
-- Support for responding signal messages via reliable piggybacking
-- Support for OASIS BDX Service Metadata Publishers (SMP) dynamic discovery
-- Allow windows service MSH be installed as MSI and be controlled with system tray
-- Allow user messages be matched with receiving pmodes were the pmode defines more party ids than the message
-- Allow dynamic discovery based on sender party from submit, sending pmode or AS4 message for forwarding scenario's
+- Support for the OASIS BDX dynamic discovery profile
+- Support for sending response signal messages via reliable piggybacking in a pull receive scenario
+- Allow the AS4.NET Windows Service MSH to be installed via an MSI
+- Control the AS4.NET Windows Service MSH via a system tray application
+- Improved Receiving PMode matching proces when multiple from-parties / to-parties are specified in the AS4 Message or in the Receiving PMode
+- Allow dynamic discovery based on the sender information in the SubmitMessage or in case of a forwarding scenario on the sender information in the AS4 Message
 - Support for internal journal logging to track down operations executed on the message (compress/decompress, signing/verify, encrypt/decrypt)
-- Support for sending and receiving bundled message units
+- Support for receiving bundled message units
 - Configurable submit payload retrieval path location
 - Configurable pull authorization map path location
 - Improvements in the web interface for pmode and agents configuration
