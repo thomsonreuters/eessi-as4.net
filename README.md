@@ -2,7 +2,7 @@
 
 ## Introduction
 
-<html>AS4.NET</html> is an open-source application that implements the OASIS AS4 specification. It supports both the e-SENS e-Delivery and the EESSI AS4 Messaging profile as an ebMS endpoint.  
+<span>AS4.NET</span> is an open-source application that implements the OASIS AS4 specification. It supports both the e-SENS e-Delivery and the EESSI AS4 Messaging profile as an ebMS endpoint.  
 Since version v3.0.0, <span>AS4.NET</span> can also act as an intermediary MSH (i-MSH) with message forwarding support and MEP bridging.
 
 The component has been conformance tested against the e-SENS eDelivery specifications.  
@@ -14,6 +14,7 @@ Testing against the EESSI AS4 Messaging Profile has also been conducted.
 
 <span>AS4.NET</span> can be downloaded from the following locations:
 
+- [AS4.NET v4.0.0](https://ec.europa.eu/cefdigital/artifact/content/groups/public/eu/eessi/as4/eessi_as4.net/4.0.0/eessi_as4.net-4.0.0.zip)
 - [AS4.NET v3.1.0](https://ec.europa.eu/cefdigital/artifact/content/groups/public/eu/eessi/as4/eessi_as4.net/3.1.0/eessi_as4.net-3.1.0.zip)
 - [AS4.NET v3.0.0](https://ec.europa.eu/cefdigital/artifact/content/groups/public/eu/eessi/as4/eessi_as4.net/3.0.0/eessi_as4.net-3.0.0.zip)
 - [AS4.NET v2.0.1](https://ec.europa.eu/cefdigital/artifact/content/groups/public/eu/eessi/as4/eessi_as4.net/2.0.1/eessi_as4.net-2.0.1.zip)
@@ -98,15 +99,24 @@ A configuration- and usermanual can be found [online](https://ec.europa.eu/cefdi
 
 ### v4.0.0
 
-- ...
-- Improvements in the web interface for configuration
+- Support for the OASIS BDX dynamic discovery profile
+- Support for sending response signal messages via reliable piggybacking in a pull receive scenario
+- Allow the AS4.NET Windows Service MSH to be installed via an MSI
+- Control the AS4.NET Windows Service MSH via a system tray application
+- Improved Receiving PMode matching proces when multiple from-parties / to-parties are specified in the AS4 Message or in the Receiving PMode
+- Allow dynamic discovery based on the sender information in the SubmitMessage or in case of a forwarding scenario on the sender information in the AS4 Message
+- Support for internal journal logging to track down operations executed on the message (compress/decompress, signing/verify, encrypt/decrypt)
+- Support for receiving bundled message units
+- Configurable submit payload retrieval path location
+- Configurable pull authorization map path location
+- Improvements in the web interface for pmode and agents configuration
 - Improvements to the internal messaging engine
 
 > This version doesn't support **Sending PModes** anymore as a way to respond to AS4 messages but uses the **Receiving PMode** for this. Please update your **Receiving PModes**, for more information see: [Remove Sending PMode as responding PMode](output/doc/wiki/runtime/configuration/remove-response-pmode.md).
 
 ## Third Party software
 
-The following third party libraries are used by <span>AS4.NET</span>:
+The following third party libraries are used by <span>AS4.NET</span> runtime:
 
 - [BouncyCastle](https://github.com/bcgit/bc-csharp) ([MIT License](https://opensource.org/licenses/MIT))
 - [FluentValidation](https://github.com/JeremySkinner/FluentValidation) ([Apache 2](http://www.apache.org/licenses/LICENSE-2.0.html))
@@ -119,6 +129,11 @@ The following third party libraries are used by <span>AS4.NET</span>:
 ### All versions up to v3.1.0
 
 - [Automapper](https://github.com/AutoMapper/AutoMapper) ([MIT License](https://opensource.org/licenses/MIT))
+
+### All versions starting from v4.0.0
+
+- [Heijden.Dns](https://github.com/ghuntley/Heijden.Dns) ([MIT License](https://opensource.org/licenses/MIT))
+- [Wiry.Base32](https://github.com/wiry-net/Wiry.Base32) ([MIT License](https://opensource.org/licenses/MIT))
 
 ## License
 
