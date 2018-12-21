@@ -12,9 +12,7 @@ namespace Eu.EDelivery.AS4.Security.References
     /// </summary>
     internal sealed class KeyIdentifierSecurityTokenReference : SecurityTokenReference
     {
-        private readonly string _keyInfoId;
         private readonly ICertificateRepository _certificateRepository;
-
         private string _certificateSubjectKeyIdentifier;
 
         /// <summary>
@@ -23,7 +21,11 @@ namespace Eu.EDelivery.AS4.Security.References
         /// <param name="certificate">The Certificate for which a SecurityTokenReference must be created.</param>
         public KeyIdentifierSecurityTokenReference(X509Certificate2 certificate)
         {
-            _keyInfoId = $"KI-{Guid.NewGuid()}";
+            if (certificate == null)
+            {
+                throw new ArgumentNullException(nameof(certificate));
+            }
+
             Certificate = certificate;
         }
 
@@ -34,6 +36,16 @@ namespace Eu.EDelivery.AS4.Security.References
         /// <param name="certificateRepository">Repository to obtain the certificate needed to embed it into the Key Identifier Security Token Reference.</param>
         public KeyIdentifierSecurityTokenReference(XmlElement envelope, ICertificateRepository certificateRepository)
         {
+            if (envelope == null)
+            {
+                throw new ArgumentNullException(nameof(envelope));
+            }
+
+            if (certificateRepository == null)
+            {
+                throw new ArgumentNullException(nameof(certificateRepository));
+            }
+
             _certificateRepository = certificateRepository;
             LoadXml(envelope);
         }
@@ -51,7 +63,8 @@ namespace Eu.EDelivery.AS4.Security.References
             }
 
             return _certificateRepository.GetCertificate(
-                X509FindType.FindBySubjectKeyIdentifier, _certificateSubjectKeyIdentifier);
+                X509FindType.FindBySubjectKeyIdentifier, 
+                _certificateSubjectKeyIdentifier);
         }
 
         /// <summary>
@@ -61,34 +74,20 @@ namespace Eu.EDelivery.AS4.Security.References
         /// <param name="element"></param>
         public override void LoadXml(XmlElement element)
         {
-            var xmlKeyIdentifier = element.SelectSingleNode(".//*[local-name()='KeyIdentifier']") as XmlElement;
+            var ns = new XmlNamespaceManager(new NameTable());
+            ns.AddNamespace("wsse", Constants.Namespaces.WssSecuritySecExt);
+
+            var xmlKeyIdentifier = element.SelectSingleNode("//wsse:SecurityTokenReference/wsse:KeyIdentifier", ns) as XmlElement;
             if (xmlKeyIdentifier == null)
             {
-                throw new XmlException("No KeyIdentifier tag found in given XmlElement");
+                throw new XmlException(
+                    "No <wsse:KeyIdentifier/> element found in <wsse:SecurityTokenReference/> element");
             }
 
-            SoapHexBinary soapHexBinary = RetrieveHexBinaryFromKeyIdentifier(xmlKeyIdentifier);
-            _certificateSubjectKeyIdentifier = soapHexBinary.ToString();
-        }
-
-        private static SoapHexBinary RetrieveHexBinaryFromKeyIdentifier(XmlNode xmlKeyIdentifier)
-        {
             byte[] base64Bytes = Convert.FromBase64String(xmlKeyIdentifier.InnerText);
-            return new SoapHexBinary(base64Bytes);
-        }
+            var soapHexBinary = new SoapHexBinary(base64Bytes);
 
-        /// <summary>
-        /// Add a KeyInfo Id to the <KeyInfo/> Element
-        /// </summary>
-        /// <param name="element"></param>
-        /// <param name="document"></param>
-        /// <returns></returns>
-        public override XmlElement AppendSecurityTokenTo(XmlElement element, XmlDocument document)
-        {
-            var nodeKeyInfo = (XmlElement)element.SelectSingleNode("//*[local-name()='KeyInfo']");
-            nodeKeyInfo?.SetAttribute("Id", Constants.Namespaces.WssSecurityUtility, _keyInfoId);
-
-            return element;
+            _certificateSubjectKeyIdentifier = soapHexBinary.ToString();
         }
 
         /// <summary>
@@ -109,17 +108,12 @@ namespace Eu.EDelivery.AS4.Security.References
                 localName: "KeyIdentifier",
                 namespaceURI: Constants.Namespaces.WssSecuritySecExt);
 
-            SetKeyIfentifierSecurityAttributes(keyIdentifierElement);
-            keyIdentifierElement.InnerText = GetSubjectKeyIdentifier();
-            securityTokenReferenceElement.AppendChild(keyIdentifierElement);
-
-            return securityTokenReferenceElement;
-        }
-
-        private static void SetKeyIfentifierSecurityAttributes(XmlElement keyIdentifierElement)
-        {
             keyIdentifierElement.SetAttribute("EncodingType", Constants.Namespaces.Base64Binary);
             keyIdentifierElement.SetAttribute("ValueType", Constants.Namespaces.SubjectKeyIdentifier);
+            keyIdentifierElement.InnerText = GetSubjectKeyIdentifier();
+
+            securityTokenReferenceElement.AppendChild(keyIdentifierElement);
+            return securityTokenReferenceElement;
         }
 
         private string GetSubjectKeyIdentifier()
@@ -131,29 +125,19 @@ namespace Eu.EDelivery.AS4.Security.References
 
             foreach (X509Extension extension in Certificate.Extensions)
             {
-                if (IsExtensionNotSubjectKeyIdentifier(extension))
+                if (!String.Equals(extension.Oid.FriendlyName, "Subject Key Identifier"))
                 {
                     continue;
                 }
 
-                return RetrieveBinary64SubjectKeyIdentifier(extension);
+                var x509SubjectKeyIdentifierExtension = (X509SubjectKeyIdentifierExtension)extension;
+                SoapHexBinary base64Binary = SoapHexBinary.Parse(x509SubjectKeyIdentifierExtension.SubjectKeyIdentifier);
+
+                return Convert.ToBase64String(base64Binary.Value);
             }
 
-            return string.Empty;
+            throw new CryptographicException(
+                "No extension with the name 'Subject Key Identifier' was found in the certificate extensions");
         }
-
-        private static string RetrieveBinary64SubjectKeyIdentifier(X509Extension extension)
-        {
-            var x509SubjectKeyIdentifierExtension = (X509SubjectKeyIdentifierExtension)extension;
-            SoapHexBinary base64Binary = SoapHexBinary.Parse(x509SubjectKeyIdentifierExtension.SubjectKeyIdentifier);
-
-            return Convert.ToBase64String(base64Binary.Value);
-        }
-
-        private static bool IsExtensionNotSubjectKeyIdentifier(AsnEncodedData extension)
-        {
-            return !string.Equals(extension.Oid.FriendlyName, "Subject Key Identifier");
-        }
-
     }
 }

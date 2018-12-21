@@ -18,6 +18,8 @@ using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
+using Eu.EDelivery.AS4.Security.Encryption;
+using Eu.EDelivery.AS4.Security.References;
 using Eu.EDelivery.AS4.Security.Signing;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.TestUtils;
@@ -291,6 +293,62 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             // Assert
             Assert.Equal(HttpStatusCode.Accepted, response.StatusCode);
             Assert.Empty(await response.Content.ReadAsStringAsync());
+        }
+
+        [Theory]
+        [InlineData(X509ReferenceType.BSTReference)]
+        [InlineData(X509ReferenceType.KeyIdentifier)]
+        [InlineData(X509ReferenceType.IssuerSerial)]
+        public async Task Correctly_Verifies_Encrypted_And_Signed_Message_With_SecurityTokenReference(
+            X509ReferenceType securityTokenReferenceType)
+        {
+            // Arrange
+            var pdf = new Attachment("pdf", new MemoryStream(pdf_document), "application/pdf");
+            var xml = new Attachment("xml", new MemoryStream(Encoding.UTF8.GetBytes("<Root>Don't modify me</Root>")), "application/xml");
+            var as4Message = AS4Message.Create(
+                new UserMessage(
+                    $"user-{Guid.NewGuid()}",
+                    new CollaborationInfo(
+                        new AgreementReference("http://agreements.europa.org/agreement"),
+                        new Service("getting:started", "org:europa:services"),
+                        "eu:sample:03",
+                        "eu:edelivery:as4:sampleconversation"),
+                    new Party("Sender", new PartyId("org:eu:europa:as4:example:accesspoint:A")),
+                    new Party("Receiver", new PartyId("org:eu:europa:as4:example:accesspoint:B")),
+                    new[]
+                    {
+                        PartInfo.CreateFor(pdf),
+                        PartInfo.CreateFor(xml)
+                    },
+                    Enumerable.Empty<MessageProperty>()));
+
+            as4Message.AddAttachments(new[] { pdf, xml });
+            as4Message.Sign(
+                new CalculateSignatureConfig(
+                    Registry.Instance.CertificateRepository.GetCertificate(
+                        X509FindType.FindBySubjectName,
+                        "AccessPointA"),
+                    securityTokenReferenceType,
+                    Constants.SignAlgorithms.Sha256,
+                    Constants.HashFunctions.Sha256));
+
+            as4Message.Encrypt(
+                new KeyEncryptionConfiguration(
+                    Registry.Instance.CertificateRepository.GetCertificate(
+                        X509FindType.FindBySubjectName,
+                        "AccessPointB")),
+                DataEncryptionConfiguration.Default);
+
+            // Act
+            HttpResponseMessage response = await StubSender.SendAS4Message(_receiveAgentUrl, as4Message);
+
+            // Assert
+            AS4Message message = await response.DeserializeToAS4Message();
+            Assert.False(
+                message.PrimaryMessageUnit is Error,
+                (message.PrimaryMessageUnit as Error)?.FormatErrorLines());
+
+            Assert.IsType<Receipt>(message.PrimaryMessageUnit);
         }
 
         #endregion

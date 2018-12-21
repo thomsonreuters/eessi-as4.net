@@ -80,6 +80,18 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios
             await TestAS4MessageWithMultiplePayloadsUsingPModeAsync("8.1.9-pmode");
         }
 
+        [Fact]
+        public async Task AS4Message_With_Multiple_Payloads_KeyIdentifier_Signed_Encrypted_Result_In_Notified_Receipt()
+        {
+            await TestAS4MessageWithMultiplePayloadsUsingPModeAsync("integration-encrypted-keyidentifer-signed");
+        }
+
+        [Fact]
+        public async Task AS4Message_With_Multiple_Payloads_IssuerSerial_Signed_Encrypted_Result_In_Notified_Receipt()
+        {
+            await TestAS4MessageWithMultiplePayloadsUsingPModeAsync("integration-encrypted-issuerserial-signed");
+        }
+
         private async Task TestAS4MessageWithMultiplePayloadsUsingPModeAsync(string pmodeId)
         {
             // Arrange
