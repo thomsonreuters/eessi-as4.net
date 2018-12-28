@@ -132,7 +132,7 @@ namespace Eu.EDelivery.AS4.Steps
                 throw new ArgumentNullException(nameof(context));
             }
 
-            return new StepResult(succeeded: false, canProceed: false, context: context);
+            return new StepResult(succeeded: false, canProceed: true, context: context);
         }
 
         /// <summary>

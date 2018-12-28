@@ -116,7 +116,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             catch
             {
                 await UpdateRetryStatusForMessageAsync(messagingContext, SendResult.RetryableFail);
-                throw;
+                return StepResult.Failed(messagingContext).AndStopExecution();
             }
         }
 
