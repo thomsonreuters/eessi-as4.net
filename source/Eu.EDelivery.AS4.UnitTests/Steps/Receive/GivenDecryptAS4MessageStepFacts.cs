@@ -185,7 +185,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                     });
 
                 // Assert
-                Assert.False(result.CanProceed);
+                Assert.False(result.Succeeded);
                 Assert.Equal(ErrorAlias.FailedDecryption, result.MessagingContext.ErrorResult.Alias);
             }
         }
