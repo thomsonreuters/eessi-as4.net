@@ -31,7 +31,32 @@ This contract describes all the properties available in the Receiving PMode. The
             <td>
                 <b>ReplyHandling</b><br/>
                     &nbsp;&nbsp;ReplyPattern<br/><br/><br/><br/>
-                    &nbsp;&nbsp;SendingPMode<br/>
+                    &nbsp;&nbsp;ResponseConfiguration<br/><br/>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i><u>Protocol</u></i><br/>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;URL<br/>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;UseChunking<br/>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;UseHTTPCompression<br/>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i><u>TLSConfiguration</u></i><br/>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IsEnabled<br/>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TLSVersion<br/>
+                    &nbsp;&nbsp;&nbsp;<br/><br/>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br/><br/><br/>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i><u>ClientCertificateReference</u></i><br/>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ClientCertificateFindType<br/>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ClientCertificateFindValue<br/>
+                    &nbsp;&nbsp;ResponseSigning<br/>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IsEnabled<br/>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CertificateFindCriteria<br/>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CertificateFindType
+                    <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CertificateFindValue<br/>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;KeyReferenceMethod
+                    <br/><br/><br/><br/>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Algorithm<br/>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;HashFunction<br/>
+                    &nbsp;&nbsp;<i>SigningVerification</i><br/>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Signature<br/><br/><br/><br/><br/><br/>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AllowUnknownRootCertificate<br/>
                     &nbsp;&nbsp;<b>ReceiptHandling</b><br/>
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;UseNRRFormat<br/><br/>
                     <b>&nbsp;&nbsp;ErrorHandling</b><br/>
@@ -45,13 +70,35 @@ This contract describes all the properties available in the Receiving PMode. The
             <td align="center">
                 M<br/>
                 M<br/><br/><br/><br/>
+                O<br/><br/>
+                M<br/>
                 M<br/>
                 O<br/>
                 O<br/>
                 O<br/>
                 O<br/>
-                O<br/><br/>
+                M<br/><br/><br/><br/><br/>
+                M<br/>
+                M<br/>
+                M<br/>
                 O<br/>
+                O<br/>
+                O<br/>
+                O<br/>
+                M<br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
+                M<br/>
+                M<br/><br/><br/><br/>
+                M<br/>
+                O<br/>
+                O<br/>
+                M<br/><br/><br/><br/><br/><br/>
+                O<br/>
+                O<br/>
+                O<br/>
+                O<br/>
+                O<br/>
+                O<br/>
+                O<br/><br/>
                 M<br/>
                 O<br/><br/>
                 O<br/><br/>
@@ -65,11 +112,64 @@ This contract describes all the properties available in the Receiving PMode. The
                     <li>Callback: async SignalMessage (Error or Receipt) response</li>
                     <li>PiggyBack: bundle SignalMessage (Error or Receipt) response to next PullRequest SignalMessage</li>
                 </ul>
-                Reference to the Sending PMode <br/><br/>
-                <div>Specifies if NonRepudationInfo must be included in receipt <i>Default: false</i></div>
-                <i>Default: false</i>
-                <br/>HTTP Status Code in case of reply = response. <br/><i>Default: 200</i>
+                Specifies the endpoint information to where the response should be sent to. 
+                <br/>This element is required when the <em>ReplyPattern</em> = <em>Callback</em>
+                <br/><br/>
+                URL of the receiving MSH<br/>
+                <i>Default: </i>false (true &gt; not implemented)<br/>
+                <i>Default: </i>false (true &gt; not implemented)<br/><br/>
+                <i>Default:</i> false<br/>
+                <i>Enumeration:</i>
+                <ul style="margin:0;">
+                    <li>SSL 3.0</li>
+                    <li>TLS 1.0</li>
+                    <li>TLS 1.1</li>
+                    <li>TLS 1.2</li>
+                </ul><br/>
+                Information on how to retrieve the SSL certificate<br/><br/>
                 <br/>
+                <br/><i>Default:</i> false<br/>
+                <i>&nbsp;</i><br/>
+                <i>Enumeration:</i><br/>
+                <ul style="margin:0;">
+                    <li>FindByThumbprint</li>
+                    <li>FindBySubjectName</li>
+                    <li>FindBySubjectDistinguishedName</li>
+                    <li>FindByIssuerName</li>
+                    <li>FindByIssuerDistinguishedName</li>
+                    <li>FindBySerialNumber</li>
+                    <li>FindByTimeValid</li>
+                    <li>FindByTimeNotValid</li>
+                    <li>FindByTimeNotYetValid</li>
+                    <li>FindByTimeExpired</li>
+                    <li>FindByTemplateName</li>
+                    <li>FindByApplicationPolicy</li>
+                    <li>FindByCertificatePolicy</li>
+                    <li>FindByExtension</li>
+                    <li>FindByKeyUsage</li>
+                    <li>FindBySubjectKeyIdentifier</li>
+                </ul><br/><br/>
+                <i>Enumeration:</i>
+                <ul style="margin:0;">
+                    <li>BSTReference <i>(default)</i></li>
+                    <li>IssuerSerial</li>
+                    <li>KeyIdentifier</li>
+                </ul>
+                <br/>
+                <br/>
+                <br/>
+                <i>Enumeration</i>
+                <ul style="margin:0;">
+                    <li>Allowed (<i>default)</i></li>
+                    <li>Not allowed</li>
+                    <li>Required</li>
+                    <li>Ignored</li>
+                </ul>
+                <br/>
+                Indicates whether certificates with an unknown root authority are trusted. (Default <i>false</i>)
+                <br/><br/>Specifies if NonRepudationInfo must be included in receipt <i>Default: false</i>
+                <i>Default: false</i>
+                <br/><br/><br/><br/>HTTP Status Code in case of reply = response. <br/><i>Default: 200</i>
                 <br/>Indicates whether or not the bundling of PiggyBacked SignalMessages must be retried
                 <br/>Amount of retry cycles the bundling must be retried
                 <br/><i>Default: 4</i><br/>
