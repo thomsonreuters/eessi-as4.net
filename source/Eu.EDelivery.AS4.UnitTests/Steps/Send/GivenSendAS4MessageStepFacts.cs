@@ -100,13 +100,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             IStep sut = CreateSendStepWithResponse(
                 StubHttpClient.ThatThrows(sabotageException));
 
-            // Act / Assert
-            WebException actualException = 
-                await Assert.ThrowsAsync<WebException>(
-                    () => sut.ExecuteAsync(ctx));
+            // Act
+            StepResult result = await sut.ExecuteAsync(ctx);
 
-            Assert.Equal(sabotageException, actualException);
-
+            // Assert
+            Assert.False(result.Succeeded);
             GetDataStoreContext.AssertRetryRelatedOutMessage(
                 outMessage.Id,
                 r =>

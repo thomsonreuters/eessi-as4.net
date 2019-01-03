@@ -106,6 +106,7 @@ namespace Eu.EDelivery.AS4.Steps
                     || _conditionalPipeline.unhappyPath != null;
 
                 if (result.Succeeded == false 
+                    && result.CanProceed
                     && weHaveAnyUnhappyPath 
                     && result.MessagingContext.Exception == null)
                 {

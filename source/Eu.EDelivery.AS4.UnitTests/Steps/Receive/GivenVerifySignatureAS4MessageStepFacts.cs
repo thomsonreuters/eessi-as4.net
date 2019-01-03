@@ -254,7 +254,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 StepResult verifyResult = await TestVerifyNRRReceipt(ReversedHashes);
 
                 // Assert
-                Assert.False(verifyResult.CanProceed);
+                Assert.False(verifyResult.Succeeded);
                 Assert.Equal(ErrorCode.Ebms0101, verifyResult.MessagingContext.ErrorResult.Code);
             }
         }
