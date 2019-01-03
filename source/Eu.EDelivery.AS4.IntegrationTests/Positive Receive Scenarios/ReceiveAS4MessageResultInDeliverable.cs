@@ -45,7 +45,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Receive_Scenarios
 
             // Assert
             Assert.Single(
-                Directory.GetFiles(AS4Component.FullInputPath, "*.xml")
+                Directory.GetFiles(AS4Component.FullInputPath, messageId + ".xml")
                          .Where(f => f.Contains(messageId)));
         }
 
