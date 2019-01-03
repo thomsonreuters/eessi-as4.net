@@ -3,7 +3,11 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Net.Sockets;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Xml;
 using Eu.EDelivery.AS4.Common;
 using Polly;
 
@@ -76,10 +80,19 @@ namespace Eu.EDelivery.AS4.ComponentTests.Common
             Console.WriteLine(@"Starting AS4.NET component.as Console ..");
             var as4Msh = new AS4Component(Process.Start(mshInfo));
 
-            // Wait a little bit to make sure the DB is created.
-            System.Threading.Thread.Sleep(TimeSpan.FromSeconds(10));
-            Console.WriteLine(@"AS4.NET component as Console is started");
+            var doc = new XmlDocument();
+            doc.Load(Path.GetFullPath(".\\config\\settings.xml"));
+            XmlNode urlNode = doc.SelectSingleNode("//*[local-name()='Setting'][@key='Url']/text()");
+            if (urlNode != null)
+            {
+                WaitToMakeSureAS4ComponentIsStartedAsync(urlNode.InnerText).Wait();
+            }
+            else
+            {
+                Thread.Sleep(TimeSpan.FromSeconds(15));
+            }
 
+            Console.WriteLine(@"AS4.NET component as Console is started");
             return as4Msh;
         }
 
@@ -115,7 +128,35 @@ namespace Eu.EDelivery.AS4.ComponentTests.Common
                       .Execute(() => file.Delete());
             }
         }
-        
+
+        private static async Task WaitToMakeSureAS4ComponentIsStartedAsync(string url)
+        {
+            await Policy.TimeoutAsync(TimeSpan.FromSeconds(30))
+                        .WrapAsync(Policy.HandleResult<HttpStatusCode>(status => status != HttpStatusCode.OK)
+                                         .WaitAndRetryForeverAsync(_ => TimeSpan.FromSeconds(1)))
+                        .ExecuteAsync(async () =>
+                        {
+                            HttpWebRequest req = WebRequest.CreateHttp(url);
+                            req.Method = HttpMethod.Get.Method;
+                            req.Accept = "text/html";
+
+                            try
+                            {
+                                using (var response = (HttpWebResponse) await req.GetResponseAsync())
+                                {
+                                    return response?.StatusCode ?? HttpStatusCode.BadRequest;
+                                }
+                            }
+                            catch (WebException ex)
+                            {
+                                using (var response = (HttpWebResponse) ex.Response)
+                                {
+                                    return response?.StatusCode ?? HttpStatusCode.InternalServerError;
+                                }
+                            }
+                        });
+        }
+
         /// <summary>
         /// Gets the <see cref="IConfig"/> implementation for the given <see cref="AS4Component"/>.
         /// </summary>
