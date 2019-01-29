@@ -26,6 +26,11 @@ Testing against the EESSI AS4 Messaging Profile has also been conducted.
 
 A configuration- and usermanual can be found [online](https://ec.europa.eu/cefdigital/wiki/display/EDELCOMMUNITY/AS4.NET).
 
+## Support
+
+If you have found a bug in <span>A4.NET</span> you can report it via the EESSI servicedesk by sending an e-mail to ![support-email](data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQ0AAAAPBAMAAAAMg4eEAAAAG1BMVEX///8/Pz+fn5+/v79/f38fHx9fX1/f398AAABT9jNeAAAAAXRSTlMAQObYZgAAActJREFUOI3tVD1v2zAUfKZo0mOmRKOWwBmZxAE6cnHtsWgVIyMRwLVH1WCFjG6aFvzZ5T2ZqpQvA3G7FH3AmeTdI9+ZHyL6H385Tj8dvIQO1fOC6vIj2+aqp/n65MvBPki84KMf9rVcWck3ldbrko4XZ3Z59bNdGxxA67ICdDC/+fzEshZzwc+37+4xlt+nbrRV91LnzdxpadOcMzM30GlZEupk+UfqauzfbIqvfnWkVsIlH+AAYesKIGFafmBqi5ZzIy+rjHPpamaygqxUk2b+LHNpjjCZga7GdcF1qKaeFuMuhCMvjFVE7GMYggMH6Bz/v+R6ifekLdrkQ8eZPL6IizlRSeV5rHb7jT7Xino8MYc6WX7d12J4oPFh0374HeJvwdjtR8Nr69P9AL+aNLmXEReeZHZTYZx8oM+1LlsfdmBUX0P+eOejcy7gGEYUQPIBDueCtvUxWTHPPpSN59TkydnG0dBxP7Pn7EONPZ+L0qfU0xDLb0W++fBZxvszCMEmDpDzBQFdPt7TB7TgmB845ofhR1y0iO+2buZPFxVqcT+/3bIe7ynqiOv3267WfTdve22PAovs+Y7tq7N+ONzGKLi9OX+izr8fvwCOZ4ObiW+/WwAAAABJRU5ErkJggg==).  
+Support questions can be sent to the same address.
+
 ## Features
 
 ### v1.0.0
