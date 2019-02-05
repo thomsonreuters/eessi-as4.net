@@ -195,7 +195,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
 
             Dictionary<string, string> customProperties = 
                 (dynamicDiscovery.Settings ?? new DynamicDiscoverySetting[0])
-                ?.ToDictionary(s => s?.Key, s => s?.Value);
+                ?.ToDictionary(s => s?.Key, s => s?.Value, StringComparer.OrdinalIgnoreCase);
 
             return await profile.RetrieveSmpMetaDataAsync(
                 party: toParty, 
