@@ -84,9 +84,9 @@ namespace Eu.EDelivery.AS4.Services
                 return Enumerable.Empty<AS4Message>();
             }
 
-            IEnumerable<OutMessage> messages = 
+            IEnumerable<OutMessage> messages =
                 _repository.GetOutMessageData(
-                               m => messageIds.Contains(m.EbmsMessageId) 
+                               m => messageIds.Contains(m.EbmsMessageId)
                                     && m.Intermediary == false,
                                m => m)
                            .Where(m => m != null);
@@ -101,7 +101,7 @@ namespace Eu.EDelivery.AS4.Services
             foreach (OutMessage m in messages)
             {
                 Stream body = await _messageBodyStore.LoadMessageBodyAsync(m.MessageLocation);
-                AS4Message foundMessage = 
+                AS4Message foundMessage =
                     await SerializerProvider.Default
                                   .Get(m.ContentType)
                                   .DeserializeAsync(body, m.ContentType);
@@ -142,7 +142,7 @@ namespace Eu.EDelivery.AS4.Services
                     _configuration.OutMessageStoreLocation,
                     as4Message);
 
-            IDictionary<string, MessageExchangePattern> relatedInMessageMeps = 
+            IDictionary<string, MessageExchangePattern> relatedInMessageMeps =
                 GetEbsmsMessageIdsOfRelatedSignals(as4Message);
 
             var results = new Collection<OutMessage>();
@@ -209,7 +209,7 @@ namespace Eu.EDelivery.AS4.Services
             }
 
             bool signalShouldBePiggyBackedToPullRequest = replyPattern == ReplyPattern.PiggyBack;
-            if (userMessageWasSendViaPull 
+            if (userMessageWasSendViaPull
                 && signalShouldBePiggyBackedToPullRequest)
             {
                 return (OutStatus.Created, Operation.ToBePiggyBacked);
@@ -266,6 +266,8 @@ namespace Eu.EDelivery.AS4.Services
 
             _messageBodyStore.UpdateAS4Message(messageBodyLocation, message);
 
+            var messageMustBeForwarded = _repository.GetOutMessageData(outMessageId, m => m.Intermediary);
+
             _repository.UpdateOutMessage(
                 outMessageId,
                 m =>
@@ -278,7 +280,7 @@ namespace Eu.EDelivery.AS4.Services
                     {
                         // When a multihop message is received by an i-MSH, that message must be forwarded to another MSH.
                         // (Send) RetryReliability should not be enabled for this message however; even if this is configured in the SendingPMode.
-                        if (message.IsMultiHopMessage)
+                        if (messageMustBeForwarded)
                         {
                             Logger.Warn(
                                 "SendingPMode.Reliability.ReceptionAwareness.IsEnabled = true "
