@@ -90,6 +90,31 @@ namespace Eu.EDelivery.AS4.ComponentTests.Common
             cts.CancelAfter(timeout);
 
             return Observable
+                       .Timer(TimeSpan.FromSeconds(1))
+                       .SelectMany(_ => polling)
+                       .Retry()
+                       .ToTask(cts.Token);
+        }
+
+        protected Task PollUntilSatisfied(Func<bool> poll, TimeSpan timeout)
+        {
+            var polling =
+                Observable.Create<bool>(o =>
+                {
+                    bool result = poll();
+                    Console.WriteLine($@"Poll until satisfied - result = {result}");
+
+                    IObservable<bool> observable =
+                        result == false
+                            ? Observable.Throw<bool>(new Exception())
+                            : Observable.Return<bool>(true);
+                    return observable.Subscribe(o);
+                });
+
+            var cts = new CancellationTokenSource();
+            cts.CancelAfter(timeout);
+
+            return Observable
                 .Timer(TimeSpan.FromSeconds(1))
                 .SelectMany(_ => polling)
                 .Retry()
