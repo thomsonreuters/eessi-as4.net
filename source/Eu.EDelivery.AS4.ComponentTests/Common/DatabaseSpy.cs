@@ -4,11 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
-using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Storage;
-using Polly;
 
 namespace Eu.EDelivery.AS4.ComponentTests.Common
 {
