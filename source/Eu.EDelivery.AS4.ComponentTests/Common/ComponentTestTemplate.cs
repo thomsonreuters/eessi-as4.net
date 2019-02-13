@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Data.SqlClient;
 using System.IO;
 using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Xml;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.TestUtils;
@@ -165,6 +167,65 @@ namespace Eu.EDelivery.AS4.ComponentTests.Common
             FileSystemUtils.CopyDirectory(@".\config\componenttest-settings\receive-pmodes", @".\config\receive-pmodes");
 
             FileSystemUtils.CopyDirectory(@".\samples\pmodes\", @".\config\receive-pmodes", "*receive-pmode.xml");
+
+            DropComponentTestSqlServerDatabases();
+        }
+
+        private static void DropComponentTestSqlServerDatabases()
+        {
+            var settingFiles = Directory.GetFiles(@".\config\componenttest-settings", "*.xml");
+
+            foreach (var setting in settingFiles)
+            {
+                DropSqlServerDatabase(setting);
+            }            
+        }
+
+        private static void DropSqlServerDatabase(string settingFile)
+        {
+            string xml = File.ReadAllText(settingFile);
+            var xmlDocument = new XmlDocument();
+            xmlDocument.LoadXml(xml);
+
+            XmlNode connectionStringNode = xmlDocument.SelectSingleNode("//*[local-name()='ConnectionString']");
+            if (connectionStringNode == null)
+            {
+                NLog.LogManager.GetCurrentClassLogger().Trace($"No '<ConnectionString/>' node found in settings file: {settingFile}");
+                return;
+            }
+
+            string mshConnectionString = connectionStringNode.InnerText;
+
+            // Modify the connectionstring so that we initially connect to the master - database.
+            // Otherwise, the connection will fail if the database doesn't exist yet.
+            SqlConnectionStringBuilder builder;
+
+            try
+            {
+                builder = new SqlConnectionStringBuilder(mshConnectionString);
+            }
+            catch(ArgumentException)
+            {
+                NLog.LogManager.GetCurrentClassLogger().Trace($"Connectionstring in {settingFile} is not a SqlServer connectionstring");
+                return;
+            }
+
+            if (builder.DataSource != ".")
+            {
+                throw new InvalidOperationException("Not allowed to drop a database that does not reside on the local server");
+            }
+
+            string databaseName = builder.InitialCatalog;
+            builder.InitialCatalog = "master";
+
+            string masterConnectionString = builder.ConnectionString;
+            using (var sqlConnection = new SqlConnection(masterConnectionString))
+            {
+                sqlConnection.Open();
+
+                var cmd = new SqlCommand($"DROP DATABASE IF EXISTS {databaseName}", sqlConnection);
+                cmd.ExecuteNonQuery();
+            }
         }
     }
 }
