@@ -178,7 +178,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Common
             foreach (var setting in settingFiles)
             {
                 DropSqlServerDatabase(setting);
-            }            
+            }
         }
 
         private static void DropSqlServerDatabase(string settingFile)
@@ -204,7 +204,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Common
             {
                 builder = new SqlConnectionStringBuilder(mshConnectionString);
             }
-            catch(ArgumentException)
+            catch (ArgumentException)
             {
                 NLog.LogManager.GetCurrentClassLogger().Trace($"Connectionstring in {settingFile} is not a SqlServer connectionstring");
                 return;
