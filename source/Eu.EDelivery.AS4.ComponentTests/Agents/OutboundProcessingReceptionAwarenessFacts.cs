@@ -145,6 +145,8 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                                IsMultiHop =  true
                            }
                        };
+                       Console.WriteLine("Dbconnstr:  " + msh.GetConfiguration().DatabaseConnectionString);
+
                        var as4Message = AS4Message.Create(userMessage, sendingPMode);
                        var spy = DatabaseSpy.Create(msh.GetConfiguration());
 
