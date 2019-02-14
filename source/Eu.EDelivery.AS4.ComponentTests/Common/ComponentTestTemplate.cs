@@ -190,7 +190,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Common
             XmlNode connectionStringNode = xmlDocument.SelectSingleNode("//*[local-name()='ConnectionString']");
             if (connectionStringNode == null)
             {
-                NLog.LogManager.GetCurrentClassLogger().Trace($"No '<ConnectionString/>' node found in settings file: {settingFile}");
+                Console.WriteLine($"No '<ConnectionString/>' node found in settings file: {settingFile}");
                 return;
             }
 
@@ -206,7 +206,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Common
             }
             catch (ArgumentException)
             {
-                NLog.LogManager.GetCurrentClassLogger().Trace($"Connectionstring in {settingFile} is not a SqlServer connectionstring");
+                Console.WriteLine($"Connectionstring in {settingFile} is not a SqlServer connectionstring");
                 return;
             }
 
