@@ -88,6 +88,16 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             messagingContext.ReceivingPMode = receivingPMode;
             messagingContext.ErrorResult = error;
 
+            if (sendingPMode != null)
+            {
+                Logger.Info($"Determine SendingPMode \"{sendingPMode.Id}\"");
+            }
+
+            if (receivingPMode != null)
+            {
+                Logger.Info($"Determine ReceivingPMode \"{receivingPMode.Id}\"");
+            }
+
             return error != null
                 ? StepResult.FailedAsync(messagingContext)
                 : StepResult.SuccessAsync(messagingContext);
@@ -222,7 +232,6 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             }
 
             ReceivePMode pmode = possibilities.First();
-            Logger.Info($"Found ReceivingPMode \"{pmode.Id}\" to further process the incoming message");
             return (pmode, null);
         }
 
