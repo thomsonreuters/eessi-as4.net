@@ -4,11 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
-using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Storage;
-using Polly;
 
 namespace Eu.EDelivery.AS4.ComponentTests.Common
 {
@@ -24,31 +20,6 @@ namespace Eu.EDelivery.AS4.ComponentTests.Common
         public DatabaseSpy(IConfig configuration)
         {
             _configuration = configuration;
-
-            // TODO: move to factory method if no more public references are present.
-            Policy.Handle<InvalidOperationException>()
-                  .Or<SqliteException>()
-                  .WaitAndRetry(5, _ => TimeSpan.FromSeconds(1))
-                  .Execute(() =>
-                  {
-                      using (var db = new DatastoreContext(configuration))
-                      {
-                          if (db.Database.IsSqlServer())
-                          {
-                              if (!db.Database
-                                     .GetService<IRelationalDatabaseCreator>()
-                                     .Exists())
-                              {
-                                  throw new InvalidOperationException("SQL Server not yet migrated");
-                              }
-                          }
-
-                          if (db.Database.IsSqlite())
-                          {
-                              OutMessage _ = db.OutMessages.FirstOrDefault();
-                          }
-                      }
-                  });
         }
 
         /// <summary>

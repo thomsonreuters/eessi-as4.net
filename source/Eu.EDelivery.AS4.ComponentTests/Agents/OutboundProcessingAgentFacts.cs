@@ -123,7 +123,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             AS4Message multihopMessage = createMessage(multihopPMode);
 
             var datastoreSpy = DatabaseSpy.Create(_msh.GetConfiguration());
-            OutMessage tobeProcessedEntry = CreateToBeProcessedOutMessage(multihopPMode, multihopMessage);
+            OutMessage tobeProcessedEntry = CreateToBeProcessedOutMessage(multihopPMode, multihopMessage, asIntermediary: true);
 
             // Act
             datastoreSpy.InsertOutMessage(tobeProcessedEntry);
@@ -135,10 +135,6 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                         m => m.EbmsMessageId == multihopMessage.GetPrimaryMessageId()
                              && m.Operation == Operation.ToBeSent),
                     timeout: TimeSpan.FromSeconds(30));
-
-            Assert.True(
-                processedEntry.Intermediary == multihopMessage.IsSignalMessage,
-                "Only when forwarding signal messages we have a sending pmode");
 
             AS4Message processedMessage =
                 await DeserializeOutMessageBody(Registry.Instance.MessageBodyStore, processedEntry);
@@ -241,7 +237,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             return new Encryption { IsEnabled = false };
         }
 
-        private OutMessage CreateToBeProcessedOutMessage(IPMode pmode, AS4Message msg)
+        private OutMessage CreateToBeProcessedOutMessage(IPMode pmode, AS4Message msg, bool asIntermediary)
         {
             IAS4MessageBodyStore bodyStore = Registry.Instance.MessageBodyStore;
             string location = _msh.GetConfiguration().OutMessageStoreLocation;
@@ -251,7 +247,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                 ContentType = msg.ContentType,
                 MessageLocation = bodyStore.SaveAS4Message(location, msg)
             };
-            tobeProcessedEntry.Intermediary = msg.IsSignalMessage;
+            tobeProcessedEntry.Intermediary = asIntermediary;
             tobeProcessedEntry.Operation = Operation.ToBeProcessed;
             tobeProcessedEntry.SetPModeInformation(pmode);
 
