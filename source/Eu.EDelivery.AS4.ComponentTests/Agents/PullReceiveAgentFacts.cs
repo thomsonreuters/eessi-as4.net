@@ -312,6 +312,11 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         private void StoreToBeAckOutMessage(string storedMessageId)
         {
             var storedUserMessage = new OutMessage(ebmsMessageId: storedMessageId);
+            storedUserMessage.SetPModeInformation(new SendingProcessingMode
+            {
+                Id = "sending-pmode",
+                ReceiptHandling = { NotifyMessageProducer = true }
+            });
             storedUserMessage.EbmsMessageType = MessageType.UserMessage;
             storedUserMessage.SetStatus(OutStatus.Sent);
 
