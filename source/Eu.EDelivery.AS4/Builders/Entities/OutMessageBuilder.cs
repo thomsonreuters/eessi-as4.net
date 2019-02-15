@@ -51,7 +51,11 @@ namespace Eu.EDelivery.AS4.Builders.Entities
         /// <param name="status"></param>
         /// <param name="operation"></param>
         /// <returns></returns>
-        public OutMessage BuildForSending(string location, OutStatus status, Operation operation)
+        public OutMessage BuildForSending(
+            string location,
+            string url,
+            OutStatus status,
+            Operation operation)
         {
             if (String.IsNullOrWhiteSpace(location))
             {
@@ -60,15 +64,7 @@ namespace Eu.EDelivery.AS4.Builders.Entities
 
             OutMessage outMessage = Build();
 
-            if (_pmode is SendingProcessingMode sp)
-            {
-                outMessage.Url = sp.PushConfiguration?.Protocol?.Url;
-            }
-            else if (_pmode is ReceivingProcessingMode rp)
-            {
-                outMessage.Url = rp.ReplyHandling?.ResponseConfiguration?.Protocol?.Url;
-            }
-
+            outMessage.Url = url;
             outMessage.MessageLocation = location;
             outMessage.SetStatus(status);
             outMessage.Operation = operation;

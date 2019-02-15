@@ -32,8 +32,7 @@ namespace Eu.EDelivery.AS4.Entities
         /// </summary>
         public override SendingProcessingMode GetSendingPMode()
         {
-            if (EbmsMessageType == MessageType.Receipt
-                || EbmsMessageType == MessageType.Error)
+            if(EbmsMessageType != MessageType.UserMessage && !Intermediary)
             {
                 return AS4XmlSerializer.FromString<SendingProcessingMode>(PMode);
             }
@@ -46,7 +45,7 @@ namespace Eu.EDelivery.AS4.Entities
         /// </summary>
         public override ReceivingProcessingMode GetReceivingPMode()
         {
-            if (EbmsMessageType == MessageType.UserMessage)
+            if (EbmsMessageType == MessageType.UserMessage || Intermediary)
             {
                 return AS4XmlSerializer.FromString<ReceivingProcessingMode>(PMode);
             }

@@ -130,7 +130,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 return sendingPMode.PushConfiguration;
             }
 
-            Logger.Trace($"Use ReceivingPMode {receivingPMode.Id} for sending the AS4Message");
+            Logger.Trace($"Use ReceivingPMode {receivingPMode?.Id} for sending the AS4Message");
             return receivingPMode?.ReplyHandling?.ResponseConfiguration;
         }
 
