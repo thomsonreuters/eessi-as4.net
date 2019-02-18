@@ -51,7 +51,7 @@ namespace Eu.EDelivery.AS4.Entities
         /// </summary>
         public override ReceivingProcessingMode GetReceivingPMode()
         {
-            if (EbmsMessageType == MessageType.UserMessage || Intermediary)
+            if (EbmsMessageType != MessageType.UserMessage && !Intermediary)
             {
                 return AS4XmlSerializer.FromString<ReceivingProcessingMode>(PMode);
             }

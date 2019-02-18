@@ -98,80 +98,47 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 Logger.Info($"Determine ReceivingPMode \"{receivingPMode.Id}\"");
             }
 
-            return error != null
-                ? StepResult.FailedAsync(messagingContext)
-                : StepResult.SuccessAsync(messagingContext);
+            return error == null
+                ? StepResult.SuccessAsync(messagingContext)
+                : StepResult.FailedAsync(messagingContext);
         }
 
         private (SendPMode sendPMode, ReceivePMode receivePMode, ErrorResult error) DeterminePModes(
             AS4Message message,
-            SendPMode staticSendingPMode,
-            ReceivePMode staticReceivingPMode)
+            SendPMode currentSendingPMode,
+            ReceivePMode currentReceivingPMode)
         {
-            if (message.PrimaryMessageUnit is SignalMessage signal)
+            SignalMessage firstNonPullRequestSignal =
+                message.PrimaryMessageUnit is PullRequest
+                    ? message.SignalMessages.Skip(1).FirstOrDefault()
+                    : message.FirstSignalMessage;
+
+            SendPMode sendingPMode =
+                currentSendingPMode != null
+                && firstNonPullRequestSignal?.IsMultihopSignal == false
+                    ? currentSendingPMode
+                    : firstNonPullRequestSignal != null
+                        ? DetermineSendingPMode(firstNonPullRequestSignal)
+                        : null;
+
+            if (sendingPMode == null && firstNonPullRequestSignal?.IsMultihopSignal == false)
             {
-                SignalMessage firstNonPullRequestSignal =
-                    signal is PullRequest
-                        ? message.SignalMessages.Skip(1).FirstOrDefault()
-                        : signal;
-
-                if (firstNonPullRequestSignal == null)
-                {
-                    return (staticSendingPMode, staticReceivingPMode, error: null);
-                }
-
-                if (staticSendingPMode != null && !firstNonPullRequestSignal.IsMultihopSignal)
-                {
-                    return (staticSendingPMode, staticReceivingPMode, error: null);
-                }
-
-                SendPMode sendingPMode = DetermineSendingPMode(firstNonPullRequestSignal);
-                if (sendingPMode == null) // sendingPMode == null -> MSH is not initiater
-                {
-                    if (firstNonPullRequestSignal.IsMultihopSignal)
-                    {
-                        var t = DetermineReceivingPModeFromMultiHopSignal(firstNonPullRequestSignal);
-                        return (staticSendingPMode, t.pmode, t.error);
-                    }
-
-                    throw new InvalidOperationException(
-                        $"Unable to process received SignalMessage {firstNonPullRequestSignal.MessageId} because no UserMessage found on this MSH "
-                        + $"for the received SignalMessage with RefToMessageId {firstNonPullRequestSignal.RefToMessageId}");
-                }
-
-                if (message.FirstUserMessage != null)
-                {
-                    var t = staticReceivingPMode == null
-                        ? DetermineReceivingPMode(message.FirstUserMessage)
-                        : (staticReceivingPMode, error: null);
-
-                    return (sendingPMode, t.pmode, t.error);
-                }
-
-                return (sendingPMode, staticReceivingPMode, error: null);
+                throw new InvalidOperationException(
+                    $"Unable to process received SignalMessage {firstNonPullRequestSignal.MessageId} because no UserMessage found on this MSH "
+                    + $"for the received SignalMessage with RefToMessageId {firstNonPullRequestSignal.RefToMessageId}");
             }
 
-            if (message.PrimaryMessageUnit is UserMessage user)
-            {
-                (ReceivePMode receivingPMode, ErrorResult error) =
-                    staticReceivingPMode == null
-                        ? DetermineReceivingPMode(user)
-                        : (staticReceivingPMode, error: null);
+            (ReceivePMode receivingPMode, ErrorResult error) =
+                currentReceivingPMode == null
+                && message.FirstUserMessage != null
+                && (firstNonPullRequestSignal == null
+                    || firstNonPullRequestSignal.IsMultihopSignal == false)
+                    ? DetermineReceivingPMode(message.FirstUserMessage)
+                    : sendingPMode == null && firstNonPullRequestSignal?.IsMultihopSignal == true
+                        ? DetermineReceivingPModeFromMultiHopSignal(firstNonPullRequestSignal)
+                        : (pmode: currentReceivingPMode, error: null);
 
-                SendPMode sendingPMode =
-                    message.HasSignalMessage
-                        ? message.SignalMessages.Where(s => !s.IsMultihopSignal)
-                            .Select(DetermineSendingPMode)
-                            .FirstOrNothing()
-                            .GetOrElse(() => throw new InvalidOperationException(
-                                "Cannot determine SendingPMode for incoming secondary SignalMessage because no referenced "
-                                + "UserMessage was found on this MSH where the SendingPMode was present"))
-                        : staticSendingPMode;
-
-                return (sendingPMode, receivingPMode, error);
-            }
-
-            return (staticSendingPMode, staticReceivingPMode, new ErrorResult("Cannot determine PMode", ErrorAlias.ProcessingModeMismatch));
+            return (sendingPMode ?? currentSendingPMode, receivingPMode, error);
         }
 
         private SendPMode DetermineSendingPMode(SignalMessage signal)
@@ -180,7 +147,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             {
                 Logger.Warn(
                     $"Cannot determine SendingPMode for received {signal.GetType().Name} SignalMessage "
-                    + "because it doesn't contain a RefToMessageId to link a UserMessage from which the SendingPMode needs to be selected");
+                    + "because it doesn't contain a RefToMessageId to link an UserMessage from which the SendingPMode needs to be selected");
 
                 return null;
             }
