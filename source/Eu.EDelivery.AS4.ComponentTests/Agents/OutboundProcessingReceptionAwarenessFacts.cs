@@ -5,6 +5,7 @@ using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.PMode;
 using System;
 using System.Threading.Tasks;
+using Eu.EDelivery.AS4.TestUtils.Stubs;
 using Xunit;
 using UserMessage = Eu.EDelivery.AS4.Model.Core.UserMessage;
 
@@ -35,7 +36,10 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                         }
                     };
                     var as4Message = AS4Message.Create(userMessage, sendingPMode);
-                    var spy = DatabaseSpy.Create(msh.GetConfiguration());
+
+                    var mshConfig = TestConfig.Create(settings);
+
+                    var spy = DatabaseSpy.Create(mshConfig);
 
                     var toBeProcessed = new OutMessage(userMessage.MessageId)
                     {
@@ -90,7 +94,10 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                            }
                        };
                        var as4Message = AS4Message.Create(userMessage, sendingPMode);
-                       var spy = DatabaseSpy.Create(msh.GetConfiguration());
+
+                       var mshConfig = TestConfig.Create(settings);
+
+                       var spy = DatabaseSpy.Create(mshConfig);
 
                        var toBeProcessed = new OutMessage(userMessage.MessageId)
                        {
@@ -145,10 +152,12 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                                IsMultiHop =  true
                            }
                        };
-                       Console.WriteLine("Dbconnstr:  " + msh.GetConfiguration().DatabaseConnectionString);
 
                        var as4Message = AS4Message.Create(userMessage, sendingPMode);
-                       var spy = DatabaseSpy.Create(msh.GetConfiguration());
+
+                       var mshConfig = TestConfig.Create(settings);
+
+                       var spy = DatabaseSpy.Create(mshConfig);
 
                        var toBeProcessed = new OutMessage(userMessage.MessageId)
                        {
