@@ -254,7 +254,9 @@ namespace Eu.EDelivery.AS4.Services
             SendingProcessingMode sendingPMode,
             ReceivingProcessingMode receivingPMode)
         {
-            if (mu is UserMessage && sendingPMode != null)
+            if (mu is UserMessage 
+                && sendingPMode != null
+                && sendingPMode.MepBinding == MessageExchangePatternBinding.Push)
             {
                 return sendingPMode.PushConfiguration?.Protocol?.Url;
             }
