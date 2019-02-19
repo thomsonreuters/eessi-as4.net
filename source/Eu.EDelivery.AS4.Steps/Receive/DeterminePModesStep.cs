@@ -113,8 +113,8 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                     ? message.SignalMessages.Skip(1).FirstOrDefault()
                     : message.FirstSignalMessage;
 
-            SendPMode sendingPMode = null;
-            ReceivePMode receivingPMode = null;
+            SendPMode sendingPMode = currentSendingPMode;
+            ReceivePMode receivingPMode = currentReceivingPMode;
             ErrorResult error = null;
 
             if (firstNonPullRequestSignal != null)
@@ -131,11 +131,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 }
             }
 
-            if (currentReceivingPMode != null)
-            {
-                receivingPMode = currentReceivingPMode;
-            }
-            else
+            if( currentReceivingPMode == null )
             {
                 if (message.FirstUserMessage != null || ((firstNonPullRequestSignal?.IsMultihopSignal ?? false) && sendingPMode == null))
                 {

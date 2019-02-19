@@ -56,11 +56,16 @@ namespace Eu.EDelivery.AS4.ComponentTests.Common
             return AS4XmlSerializer.FromString<Settings>(File.ReadAllText(specificSettings));
         }
 
-        protected void OverrideServiceSettings(string settingsFile)
+        protected Settings OverrideServiceSettings(string settingsFile)
         {
             File.Copy(@".\config\settings-service.xml", @".\config\settings_service_original.xml", true);
-            File.Copy($@".\config\componenttest-settings\{settingsFile}", @".\config\settings-service.xml", true);
+
+            string specifiedSettings = $@".\config\componenttest-settings\{settingsFile}";
+            File.Copy(specifiedSettings, @".\config\settings-service.xml", true);
+
             _restoreSettings = true;
+            
+            return AS4XmlSerializer.FromString<Settings>(File.ReadAllText(specifiedSettings));
         }
 
         protected async Task TestComponentWithSettings(string settingsFile, Func<Settings, AS4Component, Task> testCase)
