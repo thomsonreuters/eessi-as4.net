@@ -130,7 +130,8 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
             if (currentReceivingPMode == null)
             {
-                if (message.FirstUserMessage != null || ((firstNonPullRequestSignal?.IsMultihopSignal ?? false) && sendingPMode == null))
+                if (message.FirstUserMessage != null 
+                    || ((firstNonPullRequestSignal?.IsMultihopSignal ?? false) && sendingPMode == null))
                 {
                     var userMessage = GetUserMessageFromFirstMessageUnitOrRoutingInput(message);
                     var result = DetermineReceivingPMode(userMessage);
