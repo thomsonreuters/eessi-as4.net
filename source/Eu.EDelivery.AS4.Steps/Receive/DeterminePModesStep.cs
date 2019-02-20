@@ -123,14 +123,15 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
                 if (sendingPMode == null && firstNonPullRequestSignal.IsMultihopSignal == false)
                 {
-                    throw new InvalidOperationException($"Unable to process received SignalMessage {firstNonPullRequestSignal.MessageId} because no UserMessage found on this MSH "
-                                                        + $"for the received SignalMessage with RefToMessageId {firstNonPullRequestSignal.RefToMessageId}");
+                    throw new InvalidOperationException(
+                        $"Unable to process received SignalMessage {firstNonPullRequestSignal.MessageId} because no UserMessage was found on this MSH "
+                        + $"that is referenced by the received SignalMessage (RefToMessageId {firstNonPullRequestSignal.RefToMessageId})");
                 }
             }
 
             if (currentReceivingPMode == null)
             {
-                if (message.FirstUserMessage != null 
+                if (message.FirstUserMessage != null
                     || ((firstNonPullRequestSignal?.IsMultihopSignal ?? false) && sendingPMode == null))
                 {
                     var userMessage = GetUserMessageFromFirstMessageUnitOrRoutingInput(message);
@@ -177,15 +178,15 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
         private static UserMessage GetUserMessageFromFirstMessageUnitOrRoutingInput(AS4Message as4Message)
         {
-            if (as4Message.HasUserMessage)
+            if (as4Message.IsUserMessage)
             {
-                Logger.Trace("AS4Message contains UserMessages, so the incoming message itself will be used to match the right ReceivingPMode");
+                Logger.Trace("Primary message unit is a UserMessage; use this UserMessage to determine the ReceivingPMode");
                 return as4Message.FirstUserMessage;
             }
 
-            Logger.Debug("AS4Message should be a Multi-Hop SignalMessage, so the embeded Multi-Hop UserMessage will be used to match the right ReceivingPMode");
+            Logger.Debug("AS4Message should be a Multi-Hop SignalMessage; use the embedded routing-information to determine the ReceivingPMode");
             Maybe<RoutingInputUserMessage> routedUserMessage =
-                as4Message.SignalMessages.FirstOrDefault(s => s.IsMultihopSignal)?.MultiHopRouting;
+                as4Message.SignalMessages.FirstOrDefault(s => s.IsMultihopSignal && s.IsPullRequest == false)?.MultiHopRouting;
 
             if (routedUserMessage != null)
             {

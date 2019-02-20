@@ -28,6 +28,11 @@ namespace Eu.EDelivery.AS4.Model.Core
         public bool IsMultihopSignal => MultiHopRouting != Maybe<RoutingInputUserMessage>.Nothing;
 
         /// <summary>
+        /// Gets a value indicating whether or not this <see cref="SignalMessage"/> is a pull-request message.
+        /// </summary>
+        public bool IsPullRequest => this is PullRequest;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="SignalMessage"/> class.
         /// </summary>
         /// <remarks>Empty constructor is needed for the <see cref="PullRequest"/> model.</remarks>
@@ -65,8 +70,8 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// <param name="refToMessageId"></param>
         /// <param name="routedUserMessage"></param>
         protected SignalMessage(
-            string messageId, 
-            string refToMessageId, 
+            string messageId,
+            string refToMessageId,
             RoutingInputUserMessage routedUserMessage)
             : this(messageId, refToMessageId, DateTimeOffset.Now, routedUserMessage) { }
 
