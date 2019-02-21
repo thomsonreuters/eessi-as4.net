@@ -120,18 +120,18 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
             if (firstNonPullRequestSignal != null)
             {
-                var sendingPModeResult = DetermineSignalHandlingInformation(firstNonPullRequestSignal, currentSendingPMode);
+                var signalHandling = DetermineSignalHandlingInformation(firstNonPullRequestSignal, currentSendingPMode);
 
-                if (sendingPModeResult.signalMustBeForwarded == false &&
-                    sendingPModeResult.sendingPMode == null)
+                if (signalHandling.signalMustBeForwarded == false &&
+                    signalHandling.sendingPMode == null)
                 {
                     throw new InvalidOperationException(
                         $"Unable to process received SignalMessage {firstNonPullRequestSignal.MessageId} because no UserMessage was found on this MSH "
                         + $"that is referenced by the received SignalMessage (RefToMessageId {firstNonPullRequestSignal.RefToMessageId})");
                 }
 
-                signalMessageMustBeForwarded = sendingPModeResult.signalMustBeForwarded;
-                sendingPMode = sendingPModeResult.sendingPMode;
+                signalMessageMustBeForwarded = signalHandling.signalMustBeForwarded;
+                sendingPMode = signalHandling.sendingPMode;
             }
 
             if (currentReceivingPMode == null)
