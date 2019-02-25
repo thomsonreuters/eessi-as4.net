@@ -126,11 +126,11 @@ namespace Eu.EDelivery.AS4.Steps.Send
         {
             if (sendingPMode != null)
             {
-                Logger.Trace($"Use SendingPMode {sendingPMode.Id} for sending the AS4Message");
+                Logger.Trace($"Use SendingPMode {sendingPMode.Id} PushConfiguration");
                 return sendingPMode.PushConfiguration;
             }
 
-            Logger.Trace($"Use ReceivingPMode {receivingPMode.Id} for sending the AS4Message");
+            Logger.Trace($"Use ReceivingPMode {receivingPMode?.Id} ReplyHandling.ResponseConfiguration");
             return receivingPMode?.ReplyHandling?.ResponseConfiguration;
         }
 
