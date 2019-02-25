@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Eu.EDelivery.AS4.ComponentTests.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Extensions;
+using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.TestUtils.Stubs;
 using Xunit;
 using static Eu.EDelivery.AS4.ComponentTests.Properties.Resources;
@@ -32,15 +33,17 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         public async Task PiggyBack_Receipt_On_Next_PullRequest_Result_In_Acked_UserMessage()
         {
             // Arrange
-            OverrideServiceSettings("piggyback_service_settings.xml");
+            var serviceSettings = OverrideServiceSettings("piggyback_service_settings.xml");
 
             _windowsService.EnsureServiceIsStarted();
 
             // Act
             await SubmitMessageToSubmitAgent(pullsendagent_piggyback);
 
+            var serviceConfig = TestConfig.Create(serviceSettings);
+
             // Assert
-            var spy = new DatabaseSpy(_consoleHost.GetConfiguration());
+            var spy = DatabaseSpy.Create(serviceConfig);
             InMessage receipt = await PollUntilPresent(
                 () => spy.GetInMessageFor(
                     m => m.EbmsMessageType == MessageType.Receipt),
@@ -57,7 +60,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         private static async Task SubmitMessageToSubmitAgent(string submitMessage)
         {
             await StubSender.SendRequest(SubmitUrl, Encoding.UTF8.GetBytes(submitMessage), "application/soap+xml");
-            
+
             // Wait a bit so that we're sure that the processing agent has picked up the message.
             await Task.Delay(3000);
         }

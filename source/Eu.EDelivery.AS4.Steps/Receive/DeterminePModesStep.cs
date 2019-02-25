@@ -108,79 +108,115 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             SendPMode currentSendingPMode,
             ReceivePMode currentReceivingPMode)
         {
+            ReceivePMode receivingPMode = currentReceivingPMode;
+            SendPMode sendingPMode = currentSendingPMode;
+            bool signalMessageMustBeForwarded = false;
+            ErrorResult error = null;
+
             SignalMessage firstNonPullRequestSignal =
                 message.PrimaryMessageUnit is PullRequest
                     ? message.SignalMessages.Skip(1).FirstOrDefault()
                     : message.FirstSignalMessage;
 
-            SendPMode sendingPMode =
-                currentSendingPMode != null
-                && firstNonPullRequestSignal?.IsMultihopSignal == false
-                    ? currentSendingPMode
-                    : firstNonPullRequestSignal != null
-                        ? DetermineSendingPMode(firstNonPullRequestSignal)
-                        : null;
-
-            if (sendingPMode == null && firstNonPullRequestSignal?.IsMultihopSignal == false)
+            if (firstNonPullRequestSignal != null)
             {
-                throw new InvalidOperationException(
-                    $"Unable to process received SignalMessage {firstNonPullRequestSignal.MessageId} because no UserMessage found on this MSH "
-                    + $"for the received SignalMessage with RefToMessageId {firstNonPullRequestSignal.RefToMessageId}");
+                var signalHandling = DetermineSignalHandlingInformation(firstNonPullRequestSignal, currentSendingPMode);
+
+                if (signalHandling.signalMustBeForwarded == false &&
+                    signalHandling.sendingPMode == null)
+                {
+                    throw new InvalidOperationException(
+                        $"Unable to process received SignalMessage {firstNonPullRequestSignal.MessageId} because no UserMessage was found on this MSH "
+                        + $"that is referenced by the received SignalMessage (RefToMessageId {firstNonPullRequestSignal.RefToMessageId})");
+                }
+
+                signalMessageMustBeForwarded = signalHandling.signalMustBeForwarded;
+                sendingPMode = signalHandling.sendingPMode;
             }
 
-            (ReceivePMode receivingPMode, ErrorResult error) =
-                currentReceivingPMode == null
-                && message.FirstUserMessage != null
-                && (firstNonPullRequestSignal == null
-                    || firstNonPullRequestSignal.IsMultihopSignal == false)
-                    ? DetermineReceivingPMode(message.FirstUserMessage)
-                    : sendingPMode == null && firstNonPullRequestSignal?.IsMultihopSignal == true
-                        ? DetermineReceivingPModeFromMultiHopSignal(firstNonPullRequestSignal)
-                        : (pmode: currentReceivingPMode, error: null);
+            if (currentReceivingPMode == null)
+            {
+                if (message.HasUserMessage || signalMessageMustBeForwarded)
+                {
+                    var userMessage = GetUserMessageFromFirstMessageUnitOrRoutingInput(message);
 
-            return (sendingPMode ?? currentSendingPMode, receivingPMode, error);
+                    var result = DetermineReceivingPMode(userMessage);
+
+                    receivingPMode = result.pmode;
+                    error = result.error;
+                }
+            }
+
+            return (sendingPMode, receivingPMode, error);
         }
 
-        private SendPMode DetermineSendingPMode(SignalMessage signal)
+        private (bool signalMustBeForwarded, SendPMode sendingPMode) DetermineSignalHandlingInformation(SignalMessage signal, SendPMode currentSendingPMode)
         {
+            if (currentSendingPMode != null && signal.IsMultihopSignal == false)
+            {
+                // When we're in a sync - push scenario without Multihop, we already know
+                // that the signal must not be forwarded and we already know the sending pmode
+                // that was used to send the UserMessage, since we still have that state in our MessagingContext.
+                return (signalMustBeForwarded: false, sendingPMode: currentSendingPMode);
+            }
+
             if (String.IsNullOrWhiteSpace(signal.RefToMessageId))
             {
+                // When we're in the rare event that we receive a (non-pullrequest) signal that has
+                // no RefToMessageId, we log this here and assume that it should be forwarded
+                // when the signal is a multihop signal. If it is not a multihop signal, then it 
+                // should definitely not be forwarded.
                 Logger.Warn(
                     $"Cannot determine SendingPMode for received {signal.GetType().Name} SignalMessage "
                     + "because it doesn't contain a RefToMessageId to link an UserMessage from which the SendingPMode needs to be selected");
 
-                return null;
+                return (signalMustBeForwarded: signal.IsMultihopSignal, sendingPMode: null);
             }
 
             using (DatastoreContext ctx = _createContext())
             {
-                // We must take into account that it is possible that we have an OutMessage that has
-                // been forwarded; in that case, we must not retrieve the sending - pmode since we 
-                // will have to forward the signal message.
+                // When we get to here, we must inspect our datastore to retrieve the correct state.
+                // We try to get the information of the related UserMessage for this signal.
+                // If the UserMessage is an intermediary, this signal will have to be forwarded as well.
+                // If the UserMessage is not an intermediary, this signal should not be forwarded
 
                 var repository = new DatastoreRepository(ctx);
-                return repository.GetOutMessageData(
-                    m => m.EbmsMessageType == MessageType.UserMessage
-                         && m.EbmsMessageId == signal.RefToMessageId
-                         && m.Intermediary == false,
-                    m => new { m.PMode, m.ModificationTime })
-                          .OrderByDescending(m => m.ModificationTime)
-                          .FirstOrNothing()
-                          .Where(x => !String.IsNullOrWhiteSpace(x.PMode))
-                          .Select(x => AS4XmlSerializer.FromString<SendPMode>(x.PMode))
-                          .GetOrElse(() => null);
+
+                return repository
+                        .GetOutMessageData
+                        (
+                            where: m => m.EbmsMessageType == MessageType.UserMessage
+                                        && m.EbmsMessageId == signal.RefToMessageId,
+                            selection: m => new { m.PMode, m.ModificationTime, m.Intermediary }
+                        )
+                        .OrderByDescending(m => m.ModificationTime)
+                        .FirstOrNothing()
+                        .Where(x => !String.IsNullOrWhiteSpace(x.PMode))
+                        .Select(x => (x.Intermediary, AS4XmlSerializer.FromString<SendPMode>(x.PMode)))
+                        .GetOrElse(() => (signal.IsMultihopSignal, null));
             }
         }
 
-        private (ReceivePMode pmode, ErrorResult error) DetermineReceivingPModeFromMultiHopSignal(SignalMessage signal)
+        private static UserMessage GetUserMessageFromFirstMessageUnitOrRoutingInput(AS4Message as4Message)
         {
-            Logger.Debug("Determine ReceivingPMode for multi-hop SignalMessage that contains a routed UserMessage");
-            return signal.MultiHopRouting.Select(UserMessageMap.ConvertFromRouting)
-                .Select(DetermineReceivingPMode)
-                .GetOrElse(() => throw new InvalidOperationException(
-                    $"Message doesn't have a UserMessage as <RoutedInput/> in the multi-hop SignalMessage {signal.MessageId}. "
-                    + "This message can therefore not be used to determine the ReceivingPMode"));
+            if (as4Message.HasUserMessage)
+            {
+                Logger.Trace("Primary message unit is a UserMessage; use this UserMessage to determine the ReceivingPMode");
+                return as4Message.FirstUserMessage;
+            }
 
+            Maybe<RoutingInputUserMessage> routedUserMessage =
+                as4Message.SignalMessages.FirstOrDefault(s => s.IsMultihopSignal && s.IsPullRequest == false)?.MultiHopRouting;
+
+            if (routedUserMessage != null)
+            {
+                Logger.Debug("AS4Message is a Multi-Hop SignalMessage; use the embedded routing-information to determine the ReceivingPMode");
+                return UserMessageMap.ConvertFromRouting(routedUserMessage.UnsafeGet);
+            }
+
+            throw new InvalidOperationException(
+                "Incoming message doesn't have a UserMessage either as message unit or as <RoutedInput/> in a SignalMessage. "
+                + "This message can therefore not be used to determine the ReceivingPMode");
         }
 
         private (ReceivePMode pmode, ErrorResult error) DetermineReceivingPMode(UserMessage user)
