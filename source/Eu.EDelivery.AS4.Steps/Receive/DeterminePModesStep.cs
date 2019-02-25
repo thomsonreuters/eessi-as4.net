@@ -136,7 +136,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
             if (currentReceivingPMode == null)
             {
-                if (message.IsUserMessage || signalMessageMustBeForwarded)
+                if (message.HasUserMessage || signalMessageMustBeForwarded)
                 {
                     var userMessage = GetUserMessageFromFirstMessageUnitOrRoutingInput(message);
 
@@ -199,7 +199,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
         private static UserMessage GetUserMessageFromFirstMessageUnitOrRoutingInput(AS4Message as4Message)
         {
-            if (as4Message.IsUserMessage)
+            if (as4Message.HasUserMessage)
             {
                 Logger.Trace("Primary message unit is a UserMessage; use this UserMessage to determine the ReceivingPMode");
                 return as4Message.FirstUserMessage;
