@@ -14,6 +14,7 @@ Testing against the EESSI AS4 Messaging Profile has also been conducted.
 
 <span>AS4.NET</span> can be downloaded from the following locations:
 
+- [AS4.NET v4.0.1](https://ec.europa.eu/cefdigital/artifact/content/groups/public/eu/eessi/as4/eessi_as4.net/4.0.1/eessi_as4.net-4.0.1.zip)
 - [AS4.NET v4.0.0](https://ec.europa.eu/cefdigital/artifact/content/groups/public/eu/eessi/as4/eessi_as4.net/4.0.0/eessi_as4.net-4.0.0.zip)
 - [AS4.NET v3.1.0](https://ec.europa.eu/cefdigital/artifact/content/groups/public/eu/eessi/as4/eessi_as4.net/3.1.0/eessi_as4.net-3.1.0.zip)
 - [AS4.NET v3.0.0](https://ec.europa.eu/cefdigital/artifact/content/groups/public/eu/eessi/as4/eessi_as4.net/3.0.0/eessi_as4.net-3.0.0.zip)
@@ -113,6 +114,12 @@ A configuration- and usermanual can be found [online](https://ec.europa.eu/cefdi
 - Improvements to the internal messaging engine
 
 > This version doesn't support **Sending PModes** anymore as a way to respond to AS4 messages but uses the **Receiving PMode** for this. Please update your **Receiving PModes**, for more information see: [Remove Sending PMode as responding PMode](output/doc/wiki/runtime/configuration/remove-response-pmode.md).
+
+### v4.0.1
+
+- DynamicDiscovery settings that can be defined in the Sending PMode are no longer case-sensitive
+- Bugfix: Send retry-functionality (receptionawareness) was not working in v4.0.0 when `IsMultihop` was enabled in the Sending PMode.  This issue is fixed in v4.0.1.
+- Bugfix: When AS4.NET v4.0.0 is configured to receive messages via pulling, response signal messages were created but were never sent.  This issue is fixed in v4.0.1.
 
 ## Third Party software
 
